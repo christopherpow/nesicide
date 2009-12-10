@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>762</width>
+    <height>577</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>NESICIDE2</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>6</number>
+    </property>
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Welcome Page</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QWebView" name="webView">
+          <property name="url">
+           <url>
+            <string>about:blank</string>
+           </url>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>762</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionCreate_Project_from_ROM"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="separator"/>
+    <addaction name="actionProject_Properties"/>
+    <addaction name="separator"/>
+    <addaction name="actionE_xit"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menu_Windows">
+     <property name="title">
+      <string>&amp;Windows</string>
+     </property>
+     <addaction name="action_Project_Browser"/>
+    </widget>
+    <addaction name="menu_Windows"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_View"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="projectToolBar">
+   <property name="windowTitle">
+    <string>Project File Operations</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNew_Project"/>
+   <addaction name="separator"/>
+   <addaction name="actionOpen_Project"/>
+   <addaction name="actionSave_Project"/>
+   <addaction name="actionSave_Project_As"/>
+   <addaction name="separator"/>
+   <addaction name="actionProject_Properties"/>
+  </widget>
+  <widget class="QDockWidget" name="projectBrowserDockWidget">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Project Browser</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="CProjectTreeView" name="projectTreeWidget">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>false</bool>
+       </property>
+       <property name="animated">
+        <bool>true</bool>
+       </property>
+       <property name="headerHidden">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionE_xit">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
+   </property>
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="statusTip">
+    <string>Exit the application.</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
+   </property>
+   <property name="text">
+    <string>New &amp;Project...</string>
+   </property>
+   <property name="toolTip">
+    <string>New Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+N</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open &amp;Project...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Project...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+O</string>
+   </property>
+  </action>
+  <action name="actionSave_Project">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save &amp;Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionSave_Project_As">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/stock_save-as.svg</normaloff>:/resources/stock_save-as.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save Project &amp;As...</string>
+   </property>
+  </action>
+  <action name="action_Project_Browser">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Project Browser</string>
+   </property>
+  </action>
+  <action name="actionNew_Palette">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
+   </property>
+   <property name="text">
+    <string>New Palette</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new Palette</string>
+   </property>
+  </action>
+  <action name="actionProject_Properties">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/document-properties.svg</normaloff>:/resources/document-properties.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Project &amp;Properties...</string>
+   </property>
+   <property name="toolTip">
+    <string>Project properties</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionCreate_Project_from_ROM">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/drive-harddisk.svg</normaloff>:/resources/drive-harddisk.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Create Project from &amp;ROM...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create project from a ROM</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>CProjectTreeView</class>
+   <extends>QTreeWidget</extends>
+   <header location="global">cprojecttreeview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionE_xit</sender>
+   <signal>activated()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>projectBrowserDockWidget</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>action_Project_Browser</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Project_Browser</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>projectBrowserDockWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>72</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

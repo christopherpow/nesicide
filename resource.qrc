@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/stock_exit.svg</file>
+        <file>resources/stock_save.svg</file>
+        <file>resources/stock_save-as.svg</file>
+        <file>resources/window_new.svg</file>
+        <file>resources/document-open.svg</file>
+        <file>resources/applications-utilities.svg</file>
+        <file>resources/folder-system.svg</file>
+        <file>resources/style.svg</file>
+        <file>resources/document-export.svg</file>
+        <file>resources/document-import.svg</file>
+        <file>resources/document-properties.svg</file>
+        <file>resources/chardevice.svg</file>
+        <file>resources/drive-harddisk.svg</file>
+    </qresource>
+</RCC>
