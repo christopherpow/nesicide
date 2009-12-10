@@ -1,2 +1,4 @@
 release/
 debug/
+ui_*.h
+ui_*.cpp
