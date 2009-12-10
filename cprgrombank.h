@@ -1,7 +1,7 @@
 #ifndef CPRGROMBANK_H
 #define CPRGROMBANK_H
 
-#include "IXMLSerializable.h"
+#include "ixmlserializable.h"
 #include "iprojecttreeviewitem.h"
 #include "prgromdisplaydialog.h"
 

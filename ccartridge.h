@@ -1,7 +1,7 @@
 #ifndef CCARTRIDGE_H
 #define CCARTRIDGE_H
 
-#include "IXMLSerializable.h"
+#include "ixmlserializable.h"
 #include "iprojecttreeviewitem.h"
 #include "cprgrombanks.h"
 

@@ -3,7 +3,7 @@
 
 #include <QList>
 
-#include "IXMLSerializable.h"
+#include "ixmlserializable.h"
 #include "iprojecttreeviewitem.h"
 #include "cprgrombank.h"
 

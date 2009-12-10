@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QMessageBox>
-#include "IXMLSerializable.h"
+#include "ixmlserializable.h"
 #include "iprojecttreeviewitem.h"
 #include "cprojectprimitives.h"
 #include "ccartridge.h"
