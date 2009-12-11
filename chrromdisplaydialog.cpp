@@ -47,9 +47,9 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
                bit1 = (patternData1>>(7-(xf)))&0x1;
                bit2 = (patternData2>>(7-(xf)))&0x1;
                colorIdx = (bit1|(bit2<<1));
-               imgData[(y * 256 * 3) + (x * 8 * 3) + (xf * 3) + 0] = palette[colorIdx][0];
-               imgData[(y * 256 * 3) + (x * 8 * 3) + (xf * 3) + 1] = palette[colorIdx][1];
-               imgData[(y * 256 * 3) + (x * 8 * 3) + (xf * 3) + 2] = palette[colorIdx][2];
+               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = palette[colorIdx][0];
+               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = palette[colorIdx][1];
+               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = palette[colorIdx][2];
            }
         }
     }
