@@ -24,7 +24,9 @@ SOURCES += main.cpp \
     cprgrombank.cpp \
     prgromdisplaydialog.cpp \
     cchrrombanks.cpp \
-    cchrrombank.cpp
+    cchrrombank.cpp \
+    chrromdisplaydialog.cpp \
+    cchrrompreviewrenderer.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -43,10 +45,13 @@ HEADERS += mainwindow.h \
     cprgrombank.h \
     prgromdisplaydialog.h \
     cchrrombanks.h \
-    cchrrombank.h
+    cchrrombank.h \
+    chrromdisplaydialog.h \
+    cchrrompreviewrenderer.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
     newprojectdialog.ui \
-    prgromdisplaydialog.ui
+    prgromdisplaydialog.ui \
+    chrromdisplaydialog.ui
 RESOURCES += resource.qrc
