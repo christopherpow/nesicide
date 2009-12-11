@@ -1,10 +1,11 @@
 #include "chrromdisplaydialog.h"
 #include "ui_chrromdisplaydialog.h"
 
-CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent) :
+CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
     QDialog(parent),
     ui(new Ui::CHRROMDisplayDialog)
 {
+    chrrom = data;
     UINT ppuAddr = 0x0000;
     unsigned char patternData1;
     unsigned char patternData2;

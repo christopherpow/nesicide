@@ -3,6 +3,7 @@
 CCHRROMBank::CCHRROMBank()
 {
     editor = (CHRROMDisplayDialog *)NULL;
+    data = new qint8[0x2000];
 }
 
 bool CCHRROMBank::serialize(QDomDocument &doc, QDomNode &node)
@@ -35,8 +36,7 @@ void CCHRROMBank::openItemEvent(QTabWidget *tabWidget)
     }
     else
     {
-        editor = new CHRROMDisplayDialog();
-        editor->chrrom = data;
+        editor = new CHRROMDisplayDialog(0, data);
         tabId = tabWidget->addTab(editor, this->caption());
     }
 

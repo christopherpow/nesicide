@@ -11,7 +11,7 @@ public:
     CCHRROMBank();
 
     qint8 bankID;
-    qint8 data[0x2000];
+    qint8 *data;
     CHRROMDisplayDialog *editor;
     qint8 tabId;
 

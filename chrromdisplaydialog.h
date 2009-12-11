@@ -11,7 +11,7 @@ namespace Ui {
 class CHRROMDisplayDialog : public QDialog {
     Q_OBJECT
 public:
-    CHRROMDisplayDialog(QWidget *parent = 0);
+    CHRROMDisplayDialog(QWidget *parent, qint8 *data);
     ~CHRROMDisplayDialog();
     CCHRROMPreviewRenderer *renderer;
     qint8 *chrrom;
