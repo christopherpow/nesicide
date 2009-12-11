@@ -114,14 +114,14 @@
     <value type="QString">WINDIR=C:\Windows</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
-    <value type="QString">C:/Users/Tim/Documents/nesicide2/nesicide2.pro</value>
+    <value type="QString">C:/cygwin/home/Tim/nesicide2/nesicide2.pro</value>
     <value type="QString">-spec</value>
     <value type="QString">win32-g++</value>
     <value type="QString">-r</value>
    </valuelist>
    <value key="abstractProcess.command" type="QString">c:/qt/2009.05/qt/bin/qmake.exe</value>
    <value key="abstractProcess.enabled" type="bool">false</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/Users/Tim/Documents/nesicide2</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/cygwin/home/Tim/nesicide2</value>
   </valuemap>
  </data>
  <data>
@@ -171,7 +171,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">C:/Qt/2009.05/mingw/bin/mingw32-make.exe</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/Users/Tim/Documents/nesicide2</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/cygwin/home/Tim/nesicide2</value>
   </valuemap>
  </data>
  <data>
@@ -222,7 +222,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">C:/Qt/2009.05/mingw/bin/mingw32-make.exe</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/Users/Tim/Documents/nesicide2</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/cygwin/home/Tim/nesicide2</value>
    <value key="cleanConfig" type="bool">true</value>
    <valuelist key="makeargs" type="QVariantList">
     <value type="QString">clean</value>

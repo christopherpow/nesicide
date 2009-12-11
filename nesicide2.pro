@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     cprgrombanks.cpp \
     cprgrombank.cpp \
     prgromdisplaydialog.cpp \
-    cchrrombanks.cpp
+    cchrrombanks.cpp \
+    cchrrombank.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -41,7 +42,8 @@ HEADERS += mainwindow.h \
     cprgrombanks.h \
     cprgrombank.h \
     prgromdisplaydialog.h \
-    cchrrombanks.h
+    cchrrombanks.h \
+    cchrrombank.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \

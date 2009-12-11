@@ -15,6 +15,7 @@ INPUT(
 ./debug\cprgrombank.o
 ./debug\prgromdisplaydialog.o
 ./debug\cchrrombanks.o
+./debug\cchrrombank.o
 ./debug\moc_mainwindow.o
 ./debug\moc_paletteeditorwindow.o
 ./debug\moc_projectpropertiesdialog.o

@@ -164,7 +164,21 @@ void CNesicideProject::createProjectFromRom(QString fileName)
 
         }
 
-        // Load the CHR-ROM banks
+        // Load the CHR-ROM banks (8kb at 0x2000 bytes)
+        for (int bank=0; bank<numChrRomBanks; bank++)
+        {
+            // Create the ROM bank and load in the binary data
+            CCHRROMBank *romBank = new CCHRROMBank();
+            romBank->bankID = cartridge->chrromBanks->banks.count();
+            for (int i=0; i<0x2000; i++)
+                fs >> romBank->data[i];
+
+            // Attach the rom bank to the rom banks object
+            romBank->InitTreeItem(cartridge->chrromBanks);
+            cartridge->chrromBanks->appendChild(romBank);
+            cartridge->chrromBanks->banks.append(romBank);
+
+        }
 
 
         fileIn.close();
