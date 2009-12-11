@@ -63,3 +63,5 @@ void CPRGROMBank::openItemEvent(QTabWidget *tabWidget)
     tabWidget->setCurrentIndex(tabId);
     editor->setRomData(rt);
 }
+
+
