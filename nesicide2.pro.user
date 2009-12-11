@@ -50,7 +50,7 @@
  </data>
  <data>
   <variable>activebuildconfiguration</variable>
-  <value type="QString">Debug</value>
+  <value type="QString">Release</value>
  </data>
  <data>
   <variable>buildConfiguration-Debug</variable>
@@ -77,51 +77,66 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString">APPDATA=C:\Users\Tim\AppData\Roaming</value>
+    <value type="QString">ALLUSERSPROFILE=D:\Documents and Settings\All Users</value>
+    <value type="QString">APPDATA=D:\Documents and Settings\e198614\Application Data</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Rational\ClearQuest\cqjni.jar;C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">CLEARCASE_GROUPS=NAMERICA4\AERO.NM75.MISDR-RW; NAMERICA4\AES.NM75-IPM-ADM; NAMERICA4\AES.NM75-FCS; NAMERICA4\AERO.MN51.ClearCase</value>
+    <value type="QString">CLEARCASE_PRIMARY_GROUP=NAMERICA4\AERO.NM75.MISDR-RW</value>
+    <value type="QString">CLIENTNAME=Console</value>
     <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString">COMPUTERNAME=TIM-PC</value>
-    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">COMPUTERNAME=MN51LTDZGGGH1</value>
+    <value type="QString">COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString">DEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">DESKHOME=d:/cygwin/desk</value>
+    <value type="QString">DRVDIR=C:\DRV</value>
     <value type="QString">FP_NO_HOST_CHECK=NO</value>
-    <value type="QString">GTKMM_BASEPATH=C:\Program Files\gtkmm</value>
-    <value type="QString">HOMEDRIVE=C:</value>
-    <value type="QString">HOMEPATH=\Users\Tim</value>
-    <value type="QString">LOCALAPPDATA=C:\Users\Tim\AppData\Local</value>
-    <value type="QString">LOGONSERVER=\\TIM-PC</value>
+    <value type="QString">HOME=D:\Work</value>
+    <value type="QString">HOMEDRIVE=D:</value>
+    <value type="QString">HOMEPATH=\Documents and Settings\e198614</value>
+    <value type="QString">IBMLDAP_ALTHOME=C:\Program Files\Rational\common\codeset</value>
+    <value type="QString">IBM_JAVA_HOME=C:\Program Files\Rational\common\java\jre\bin</value>
+    <value type="QString">LDMS_LOCAL_DIR=C:\Program Files\LANDesk\LDClient\Data</value>
+    <value type="QString">LOGONSERVER=\\AZ18DC0401</value>
+    <value type="QString">MEETINGCENTERAPP=C:\Program Files\Meeting Center\</value>
+    <value type="QString">MINITAB_LICENSE_FILE=27000@hal</value>
+    <value type="QString">MODEL=Dx30</value>
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Program Files\gtkmm\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\</value>
-    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Python24\.;D:\oracle\ora92\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Citrix\System32\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\TEPlugin;C:\Program Files\Borland\CaliberRM SDK 2006\lib;C:\Program Files\Borland\StarTeam SDK 2006\Lib;C:\Program Files\Borland\StarTeam SDK 2006\Bin;C:\Program Files\Rational\common;C:\Program Files\Rational\ClearCase\bin;C:\Testbed_7.3.0;D:\Program Files\Graphviz 2.21/bin;S:\ICAO_GBAS\Engineering\Software\struct_coverage\bin;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\TEPlugin;C:\Program Files\TEPlugin;d:\cygwin\desk\bin;C:\PROGRA~1\TEPlugin;C:\PROGRA~1\TEPlugin;</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.pyo;.pyc;.pyw;.py</value>
     <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 15 Model 35 Stepping 2, AuthenticAMD</value>
-    <value type="QString">PROCESSOR_LEVEL=15</value>
-    <value type="QString">PROCESSOR_REVISION=2302</value>
-    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=0f0d</value>
     <value type="QString">PROGRAMFILES=C:\Program Files</value>
-    <value type="QString">PSMODULEPATH=C:\Windows\system32\WindowsPowerShell\v1.0\Modules\</value>
-    <value type="QString">PUBLIC=C:\Users\Public</value>
     <value type="QString">QTDIR=C:/Qt/2009.05/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
     <value type="QString">SESSIONNAME=Console</value>
     <value type="QString">SYSTEMDRIVE=C:</value>
-    <value type="QString">SYSTEMROOT=C:\Windows</value>
-    <value type="QString">TEMP=C:\Users\Tim\AppData\Local\Temp</value>
-    <value type="QString">TMP=C:\Users\Tim\AppData\Local\Temp</value>
-    <value type="QString">USERDOMAIN=Tim-PC</value>
-    <value type="QString">USERNAME=Tim</value>
-    <value type="QString">USERPROFILE=C:\Users\Tim</value>
-    <value type="QString">VS100COMNTOOLS=C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools\</value>
-    <value type="QString">WINDIR=C:\Windows</value>
+    <value type="QString">SYSTEMROOT=C:\WINDOWS</value>
+    <value type="QString">TELELOGIC_LICENSE_FILE=7177@az18u1970.honeywell.com;7177@de08u1943.honeywell.com;7178@az18nt1973.honeywell.com </value>
+    <value type="QString">TEMP=c:\temp</value>
+    <value type="QString">TISDIR=C:\Program Files\Rational\common</value>
+    <value type="QString">TMP=c:\temp</value>
+    <value type="QString">TYPE=Notebook</value>
+    <value type="QString">USERDNSDOMAIN=NAMERICA4.DS.HONEYWELL.COM</value>
+    <value type="QString">USERDOMAIN=NAMERICA4</value>
+    <value type="QString">USERNAME=e198614</value>
+    <value type="QString">USERPROFILE=D:\Documents and Settings\e198614</value>
+    <value type="QString">VSEDEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">WINDIR=C:\WINDOWS</value>
+    <value type="QString">X_DETECTEDMODEL=D630</value>
+    <value type="QString">X_LOB=Latitude</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
-    <value type="QString">C:/cygwin/home/Tim/nesicide2/nesicide2.pro</value>
+    <value type="QString">D:/Play/github/nesicide/nesicide2-master/nesicide2.pro</value>
     <value type="QString">-spec</value>
     <value type="QString">win32-g++</value>
     <value type="QString">-r</value>
    </valuelist>
    <value key="abstractProcess.command" type="QString">c:/qt/2009.05/qt/bin/qmake.exe</value>
-   <value key="abstractProcess.enabled" type="bool">false</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/cygwin/home/Tim/nesicide2</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">D:/Play/github/nesicide/nesicide2-master</value>
   </valuemap>
  </data>
  <data>
@@ -129,41 +144,56 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString">APPDATA=C:\Users\Tim\AppData\Roaming</value>
+    <value type="QString">ALLUSERSPROFILE=D:\Documents and Settings\All Users</value>
+    <value type="QString">APPDATA=D:\Documents and Settings\e198614\Application Data</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Rational\ClearQuest\cqjni.jar;C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">CLEARCASE_GROUPS=NAMERICA4\AERO.NM75.MISDR-RW; NAMERICA4\AES.NM75-IPM-ADM; NAMERICA4\AES.NM75-FCS; NAMERICA4\AERO.MN51.ClearCase</value>
+    <value type="QString">CLEARCASE_PRIMARY_GROUP=NAMERICA4\AERO.NM75.MISDR-RW</value>
+    <value type="QString">CLIENTNAME=Console</value>
     <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString">COMPUTERNAME=TIM-PC</value>
-    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">COMPUTERNAME=MN51LTDZGGGH1</value>
+    <value type="QString">COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString">DEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">DESKHOME=d:/cygwin/desk</value>
+    <value type="QString">DRVDIR=C:\DRV</value>
     <value type="QString">FP_NO_HOST_CHECK=NO</value>
-    <value type="QString">GTKMM_BASEPATH=C:\Program Files\gtkmm</value>
-    <value type="QString">HOMEDRIVE=C:</value>
-    <value type="QString">HOMEPATH=\Users\Tim</value>
-    <value type="QString">LOCALAPPDATA=C:\Users\Tim\AppData\Local</value>
-    <value type="QString">LOGONSERVER=\\TIM-PC</value>
+    <value type="QString">HOME=D:\Work</value>
+    <value type="QString">HOMEDRIVE=D:</value>
+    <value type="QString">HOMEPATH=\Documents and Settings\e198614</value>
+    <value type="QString">IBMLDAP_ALTHOME=C:\Program Files\Rational\common\codeset</value>
+    <value type="QString">IBM_JAVA_HOME=C:\Program Files\Rational\common\java\jre\bin</value>
+    <value type="QString">LDMS_LOCAL_DIR=C:\Program Files\LANDesk\LDClient\Data</value>
+    <value type="QString">LOGONSERVER=\\AZ18DC0401</value>
+    <value type="QString">MEETINGCENTERAPP=C:\Program Files\Meeting Center\</value>
+    <value type="QString">MINITAB_LICENSE_FILE=27000@hal</value>
+    <value type="QString">MODEL=Dx30</value>
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Program Files\gtkmm\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\</value>
-    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Python24\.;D:\oracle\ora92\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Citrix\System32\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\TEPlugin;C:\Program Files\Borland\CaliberRM SDK 2006\lib;C:\Program Files\Borland\StarTeam SDK 2006\Lib;C:\Program Files\Borland\StarTeam SDK 2006\Bin;C:\Program Files\Rational\common;C:\Program Files\Rational\ClearCase\bin;C:\Testbed_7.3.0;D:\Program Files\Graphviz 2.21/bin;S:\ICAO_GBAS\Engineering\Software\struct_coverage\bin;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\TEPlugin;C:\Program Files\TEPlugin;d:\cygwin\desk\bin;C:\PROGRA~1\TEPlugin;C:\PROGRA~1\TEPlugin;</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.pyo;.pyc;.pyw;.py</value>
     <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 15 Model 35 Stepping 2, AuthenticAMD</value>
-    <value type="QString">PROCESSOR_LEVEL=15</value>
-    <value type="QString">PROCESSOR_REVISION=2302</value>
-    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=0f0d</value>
     <value type="QString">PROGRAMFILES=C:\Program Files</value>
-    <value type="QString">PSMODULEPATH=C:\Windows\system32\WindowsPowerShell\v1.0\Modules\</value>
-    <value type="QString">PUBLIC=C:\Users\Public</value>
     <value type="QString">QTDIR=C:/Qt/2009.05/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
     <value type="QString">SESSIONNAME=Console</value>
     <value type="QString">SYSTEMDRIVE=C:</value>
-    <value type="QString">SYSTEMROOT=C:\Windows</value>
-    <value type="QString">TEMP=C:\Users\Tim\AppData\Local\Temp</value>
-    <value type="QString">TMP=C:\Users\Tim\AppData\Local\Temp</value>
-    <value type="QString">USERDOMAIN=Tim-PC</value>
-    <value type="QString">USERNAME=Tim</value>
-    <value type="QString">USERPROFILE=C:\Users\Tim</value>
-    <value type="QString">VS100COMNTOOLS=C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools\</value>
-    <value type="QString">WINDIR=C:\Windows</value>
+    <value type="QString">SYSTEMROOT=C:\WINDOWS</value>
+    <value type="QString">TELELOGIC_LICENSE_FILE=7177@az18u1970.honeywell.com;7177@de08u1943.honeywell.com;7178@az18nt1973.honeywell.com </value>
+    <value type="QString">TEMP=c:\temp</value>
+    <value type="QString">TISDIR=C:\Program Files\Rational\common</value>
+    <value type="QString">TMP=c:\temp</value>
+    <value type="QString">TYPE=Notebook</value>
+    <value type="QString">USERDNSDOMAIN=NAMERICA4.DS.HONEYWELL.COM</value>
+    <value type="QString">USERDOMAIN=NAMERICA4</value>
+    <value type="QString">USERNAME=e198614</value>
+    <value type="QString">USERPROFILE=D:\Documents and Settings\e198614</value>
+    <value type="QString">VSEDEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">WINDIR=C:\WINDOWS</value>
+    <value type="QString">X_DETECTEDMODEL=D630</value>
+    <value type="QString">X_LOB=Latitude</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
@@ -171,7 +201,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">C:/Qt/2009.05/mingw/bin/mingw32-make.exe</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/cygwin/home/Tim/nesicide2</value>
+   <value key="abstractProcess.workingDirectory" type="QString">D:/Play/github/nesicide/nesicide2-master</value>
   </valuemap>
  </data>
  <data>
@@ -233,18 +263,203 @@
   <variable>buildconfiguration-Release-buildstep0</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=D:\Documents and Settings\All Users</value>
+    <value type="QString">APPDATA=D:\Documents and Settings\e198614\Application Data</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Rational\ClearQuest\cqjni.jar;C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">CLEARCASE_GROUPS=NAMERICA4\AERO.NM75.MISDR-RW; NAMERICA4\AES.NM75-IPM-ADM; NAMERICA4\AES.NM75-FCS; NAMERICA4\AERO.MN51.ClearCase</value>
+    <value type="QString">CLEARCASE_PRIMARY_GROUP=NAMERICA4\AERO.NM75.MISDR-RW</value>
+    <value type="QString">CLIENTNAME=Console</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=MN51LTDZGGGH1</value>
+    <value type="QString">COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString">DEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">DESKHOME=d:/cygwin/desk</value>
+    <value type="QString">DRVDIR=C:\DRV</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOME=D:\Work</value>
+    <value type="QString">HOMEDRIVE=D:</value>
+    <value type="QString">HOMEPATH=\Documents and Settings\e198614</value>
+    <value type="QString">IBMLDAP_ALTHOME=C:\Program Files\Rational\common\codeset</value>
+    <value type="QString">IBM_JAVA_HOME=C:\Program Files\Rational\common\java\jre\bin</value>
+    <value type="QString">LDMS_LOCAL_DIR=C:\Program Files\LANDesk\LDClient\Data</value>
+    <value type="QString">LOGONSERVER=\\AZ18DC0401</value>
+    <value type="QString">MEETINGCENTERAPP=C:\Program Files\Meeting Center\</value>
+    <value type="QString">MINITAB_LICENSE_FILE=27000@hal</value>
+    <value type="QString">MODEL=Dx30</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Python24\.;D:\oracle\ora92\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Citrix\System32\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\TEPlugin;C:\Program Files\Borland\CaliberRM SDK 2006\lib;C:\Program Files\Borland\StarTeam SDK 2006\Lib;C:\Program Files\Borland\StarTeam SDK 2006\Bin;C:\Program Files\Rational\common;C:\Program Files\Rational\ClearCase\bin;C:\Testbed_7.3.0;D:\Program Files\Graphviz 2.21/bin;S:\ICAO_GBAS\Engineering\Software\struct_coverage\bin;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\TEPlugin;C:\Program Files\TEPlugin;d:\cygwin\desk\bin;C:\PROGRA~1\TEPlugin;C:\PROGRA~1\TEPlugin;</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.pyo;.pyc;.pyw;.py</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=0f0d</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">QTDIR=C:/Qt/2009.05/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\WINDOWS</value>
+    <value type="QString">TELELOGIC_LICENSE_FILE=7177@az18u1970.honeywell.com;7177@de08u1943.honeywell.com;7178@az18nt1973.honeywell.com </value>
+    <value type="QString">TEMP=c:\temp</value>
+    <value type="QString">TISDIR=C:\Program Files\Rational\common</value>
+    <value type="QString">TMP=c:\temp</value>
+    <value type="QString">TYPE=Notebook</value>
+    <value type="QString">USERDNSDOMAIN=NAMERICA4.DS.HONEYWELL.COM</value>
+    <value type="QString">USERDOMAIN=NAMERICA4</value>
+    <value type="QString">USERNAME=e198614</value>
+    <value type="QString">USERPROFILE=D:\Documents and Settings\e198614</value>
+    <value type="QString">VSEDEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">WINDIR=C:\WINDOWS</value>
+    <value type="QString">X_DETECTEDMODEL=D630</value>
+    <value type="QString">X_LOB=Latitude</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">D:/Play/github/nesicide/nesicide2-master/nesicide2.pro</value>
+    <value type="QString">-spec</value>
+    <value type="QString">win32-g++</value>
+    <value type="QString">-r</value>
+    <value type="QString">CONFIG+=release</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">c:/qt/2009.05/qt/bin/qmake.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">D:/Play/github/nesicide/nesicide2-master</value>
   </valuemap>
  </data>
  <data>
   <variable>buildconfiguration-Release-buildstep1</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=D:\Documents and Settings\All Users</value>
+    <value type="QString">APPDATA=D:\Documents and Settings\e198614\Application Data</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Rational\ClearQuest\cqjni.jar;C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">CLEARCASE_GROUPS=NAMERICA4\AERO.NM75.MISDR-RW; NAMERICA4\AES.NM75-IPM-ADM; NAMERICA4\AES.NM75-FCS; NAMERICA4\AERO.MN51.ClearCase</value>
+    <value type="QString">CLEARCASE_PRIMARY_GROUP=NAMERICA4\AERO.NM75.MISDR-RW</value>
+    <value type="QString">CLIENTNAME=Console</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=MN51LTDZGGGH1</value>
+    <value type="QString">COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString">DEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">DESKHOME=d:/cygwin/desk</value>
+    <value type="QString">DRVDIR=C:\DRV</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOME=D:\Work</value>
+    <value type="QString">HOMEDRIVE=D:</value>
+    <value type="QString">HOMEPATH=\Documents and Settings\e198614</value>
+    <value type="QString">IBMLDAP_ALTHOME=C:\Program Files\Rational\common\codeset</value>
+    <value type="QString">IBM_JAVA_HOME=C:\Program Files\Rational\common\java\jre\bin</value>
+    <value type="QString">LDMS_LOCAL_DIR=C:\Program Files\LANDesk\LDClient\Data</value>
+    <value type="QString">LOGONSERVER=\\AZ18DC0401</value>
+    <value type="QString">MEETINGCENTERAPP=C:\Program Files\Meeting Center\</value>
+    <value type="QString">MINITAB_LICENSE_FILE=27000@hal</value>
+    <value type="QString">MODEL=Dx30</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Python24\.;D:\oracle\ora92\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Citrix\System32\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\TEPlugin;C:\Program Files\Borland\CaliberRM SDK 2006\lib;C:\Program Files\Borland\StarTeam SDK 2006\Lib;C:\Program Files\Borland\StarTeam SDK 2006\Bin;C:\Program Files\Rational\common;C:\Program Files\Rational\ClearCase\bin;C:\Testbed_7.3.0;D:\Program Files\Graphviz 2.21/bin;S:\ICAO_GBAS\Engineering\Software\struct_coverage\bin;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\TEPlugin;C:\Program Files\TEPlugin;d:\cygwin\desk\bin;C:\PROGRA~1\TEPlugin;C:\PROGRA~1\TEPlugin;</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.pyo;.pyc;.pyw;.py</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=0f0d</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">QTDIR=C:/Qt/2009.05/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\WINDOWS</value>
+    <value type="QString">TELELOGIC_LICENSE_FILE=7177@az18u1970.honeywell.com;7177@de08u1943.honeywell.com;7178@az18nt1973.honeywell.com </value>
+    <value type="QString">TEMP=c:\temp</value>
+    <value type="QString">TISDIR=C:\Program Files\Rational\common</value>
+    <value type="QString">TMP=c:\temp</value>
+    <value type="QString">TYPE=Notebook</value>
+    <value type="QString">USERDNSDOMAIN=NAMERICA4.DS.HONEYWELL.COM</value>
+    <value type="QString">USERDOMAIN=NAMERICA4</value>
+    <value type="QString">USERNAME=e198614</value>
+    <value type="QString">USERPROFILE=D:\Documents and Settings\e198614</value>
+    <value type="QString">VSEDEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">WINDIR=C:\WINDOWS</value>
+    <value type="QString">X_DETECTEDMODEL=D630</value>
+    <value type="QString">X_LOB=Latitude</value>
+   </valuelist>
+   <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">C:/Qt/2009.05/mingw/bin/mingw32-make.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">D:/Play/github/nesicide/nesicide2-master</value>
   </valuemap>
  </data>
  <data>
   <variable>buildconfiguration-Release-cleanstep0</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=D:\Documents and Settings\All Users</value>
+    <value type="QString">APPDATA=D:\Documents and Settings\e198614\Application Data</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Rational\ClearQuest\cqjni.jar;C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">CLEARCASE_GROUPS=NAMERICA4\AERO.NM75.MISDR-RW; NAMERICA4\AES.NM75-IPM-ADM; NAMERICA4\AES.NM75-FCS; NAMERICA4\AERO.MN51.ClearCase</value>
+    <value type="QString">CLEARCASE_PRIMARY_GROUP=NAMERICA4\AERO.NM75.MISDR-RW</value>
+    <value type="QString">CLIENTNAME=Console</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=MN51LTDZGGGH1</value>
+    <value type="QString">COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString">DEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">DESKHOME=d:/cygwin/desk</value>
+    <value type="QString">DRVDIR=C:\DRV</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOME=D:\Work</value>
+    <value type="QString">HOMEDRIVE=D:</value>
+    <value type="QString">HOMEPATH=\Documents and Settings\e198614</value>
+    <value type="QString">IBMLDAP_ALTHOME=C:\Program Files\Rational\common\codeset</value>
+    <value type="QString">IBM_JAVA_HOME=C:\Program Files\Rational\common\java\jre\bin</value>
+    <value type="QString">LDMS_LOCAL_DIR=C:\Program Files\LANDesk\LDClient\Data</value>
+    <value type="QString">LOGONSERVER=\\AZ18DC0401</value>
+    <value type="QString">MEETINGCENTERAPP=C:\Program Files\Meeting Center\</value>
+    <value type="QString">MINITAB_LICENSE_FILE=27000@hal</value>
+    <value type="QString">MODEL=Dx30</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.05\mingw\bin;C:\Qt\2009.05\qt\bin;C:\Python24\.;D:\oracle\ora92\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Citrix\System32\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\TEPlugin;C:\Program Files\Borland\CaliberRM SDK 2006\lib;C:\Program Files\Borland\StarTeam SDK 2006\Lib;C:\Program Files\Borland\StarTeam SDK 2006\Bin;C:\Program Files\Rational\common;C:\Program Files\Rational\ClearCase\bin;C:\Testbed_7.3.0;D:\Program Files\Graphviz 2.21/bin;S:\ICAO_GBAS\Engineering\Software\struct_coverage\bin;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\TEPlugin;C:\Program Files\TEPlugin;d:\cygwin\desk\bin;C:\PROGRA~1\TEPlugin;C:\PROGRA~1\TEPlugin;</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.pyo;.pyc;.pyw;.py</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=0f0d</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">QTDIR=C:/Qt/2009.05/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre6\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\WINDOWS</value>
+    <value type="QString">TELELOGIC_LICENSE_FILE=7177@az18u1970.honeywell.com;7177@de08u1943.honeywell.com;7178@az18nt1973.honeywell.com </value>
+    <value type="QString">TEMP=c:\temp</value>
+    <value type="QString">TISDIR=C:\Program Files\Rational\common</value>
+    <value type="QString">TMP=c:\temp</value>
+    <value type="QString">TYPE=Notebook</value>
+    <value type="QString">USERDNSDOMAIN=NAMERICA4.DS.HONEYWELL.COM</value>
+    <value type="QString">USERDOMAIN=NAMERICA4</value>
+    <value type="QString">USERNAME=e198614</value>
+    <value type="QString">USERPROFILE=D:\Documents and Settings\e198614</value>
+    <value type="QString">VSEDEFLOGDIR=D:\Documents and Settings\All Users\Application Data\McAfee\DesktopProtection</value>
+    <value type="QString">WINDIR=C:\WINDOWS</value>
+    <value type="QString">X_DETECTEDMODEL=D630</value>
+    <value type="QString">X_LOB=Latitude</value>
+   </valuelist>
+   <value key="abstractProcess.IgnoreReturnValue" type="bool">true</value>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">clean</value>
+    <value type="QString">-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">C:/Qt/2009.05/mingw/bin/mingw32-make.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">D:/Play/github/nesicide/nesicide2-master</value>
+   <value key="cleanConfig" type="bool">true</value>
+   <valuelist key="makeargs" type="QVariantList">
+    <value type="QString">clean</value>
+   </valuelist>
   </valuemap>
  </data>
  <data>

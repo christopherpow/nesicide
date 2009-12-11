@@ -15,6 +15,7 @@ public:
     ~CHRROMDisplayDialog();
     CCHRROMPreviewRenderer *renderer;
     qint8 *chrrom;
+    qint8 palette[4][3]; // 4 palettes, r, g, and b each...
 
 protected:
     void changeEvent(QEvent *e);
