@@ -14,6 +14,7 @@ public:
     CHRROMDisplayDialog(QWidget *parent = 0);
     ~CHRROMDisplayDialog();
     CCHRROMPreviewRenderer *renderer;
+    qint8 *chrrom;
 
 protected:
     void changeEvent(QEvent *e);
@@ -22,6 +23,8 @@ private:
     Ui::CHRROMDisplayDialog *ui;
 
 private slots:
+    void on_zoomSlider_valueChanged(int value);
+    void on_zoomSlider_actionTriggered(int action);
     void on_zoomSlider_sliderMoved(int position);
 };
 

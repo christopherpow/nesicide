@@ -1,5 +1,13 @@
 #include "cchrrompreviewrenderer.h"
 
+CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget *parent, char *imgData)
+    : QGLWidget(parent)
+{
+    imageData = imgData;
+
+}
+
+
 void CCHRROMPreviewRenderer::initializeGL()
 {
     zoom = 100;
@@ -20,7 +28,27 @@ void CCHRROMPreviewRenderer::initializeGL()
     // Disable Blending
     glDisable(GL_BLEND);
 
+    // Enable textures
+    glEnable(GL_TEXTURE_2D);
+
     resizeGL(this->width(), this->height());
+
+    // Create the texture we will be rendering onto
+    glBindTexture(GL_TEXTURE_2D, 1);
+
+    // We want it to be RGBRGB(etc) formatted
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Set our texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    // Load the actual texture
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+
 }
 
 void CCHRROMPreviewRenderer::resizeGL(int width, int height)
@@ -55,11 +83,16 @@ void CCHRROMPreviewRenderer::resizeGL(int width, int height)
 void CCHRROMPreviewRenderer::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindTexture (GL_TEXTURE_2D, 1);
     glBegin(GL_QUADS);
-        glVertex3f(050.0f, 100.0f, 0.0f);
-        glVertex3f(100.0f, 100.0f, 0.0f);
-        glVertex3f(100.0f, 050.0f, 0.0f);
-        glVertex3f(050.0f, 050.0f, 0.0f);
+        glTexCoord2f (0.0, 0.0);
+        glVertex3f(000.0f, 000.0f, 0.0f);
+        glTexCoord2f (1.0, 0.0);
+        glVertex3f(256.0f, 000.0f, 0.0f);
+        glTexCoord2f (1.0, 0.5);
+        glVertex3f(256.0f, 128.0f, 0.0f);
+        glTexCoord2f (0.0, 0.5);
+        glVertex3f(000.0f, 128.0f, 0.0f);
     glEnd();
 }
 
