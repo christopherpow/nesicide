@@ -20,6 +20,9 @@ protected:
 
 private:
     Ui::CHRROMDisplayDialog *ui;
+
+private slots:
+    void on_zoomSlider_sliderMoved(int position);
 };
 
 #endif // CHRROMDISPLAYDIALOG_H

@@ -27,3 +27,9 @@ void CHRROMDisplayDialog::changeEvent(QEvent *e)
         break;
     }
 }
+
+void CHRROMDisplayDialog::on_zoomSlider_sliderMoved(int position)
+{
+    renderer->changeZoom(position);
+    ui->zoomValueLabel->setText(QString::number(position).append("%"));
+}
