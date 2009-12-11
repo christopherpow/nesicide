@@ -19,6 +19,7 @@ public:
         return el;
     }
     virtual bool serialize(QDomDocument &doc, QDomNode &node) = 0;
+    virtual bool deserialize(QDomDocument &doc, QDomNode &node) = 0;
 };
 
 #endif // IXMLSERIALIZABLE_H

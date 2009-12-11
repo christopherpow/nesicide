@@ -45,6 +45,11 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     return true;
 }
 
+bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
+{
+    return true;
+}
+
 QString CNesicideProject::caption() const
 {
     return QString("Project");

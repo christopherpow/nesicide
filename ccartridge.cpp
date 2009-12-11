@@ -16,6 +16,11 @@ bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
     return false;
 }
 
+bool CCartridge::deserialize(QDomDocument &doc, QDomNode &node)
+{
+    return false;
+}
+
 
 QString CCartridge::caption() const
 {

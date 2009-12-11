@@ -11,6 +11,11 @@ bool CPRGROMBank::serialize(QDomDocument &doc, QDomNode &node)
     return false;
 }
 
+bool CPRGROMBank::deserialize(QDomDocument &doc, QDomNode &node)
+{
+    return false;
+}
+
 QString CPRGROMBank::caption() const
 {
     return "Bank " + QString::number(bankID, 10);

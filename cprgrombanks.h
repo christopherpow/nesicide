@@ -14,7 +14,8 @@ public:
     QList<CPRGROMBank *> banks;
 
     // IXMLSerializable Interface Implementation
-    bool serialize(QDomDocument &doc, QDomNode &node);
+    virtual bool serialize(QDomDocument &doc, QDomNode &node);
+    virtual bool deserialize(QDomDocument &doc, QDomNode &node);
 
     // IProjectTreeViewItem Interface Implmentation
     QString caption() const;
