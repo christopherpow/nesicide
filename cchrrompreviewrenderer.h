@@ -12,6 +12,8 @@ public:
     void resizeGL(int width, int height);
     void paintGL();
     void changeZoom(int newZoom);
+    void reloadData(char *imgData);
+    void setBGColor(QColor clr);
     int zoom;
     int scrollX;
     int scrollY;

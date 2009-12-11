@@ -1,35 +1,94 @@
 #include "chrromdisplaydialog.h"
 #include "ui_chrromdisplaydialog.h"
 
+
+const int defaultPalette[][3] = {
+    {0x75, 0x75, 0x75}, {0x27, 0x1B, 0x8F}, {0x00, 0x00, 0xAB}, {0x47, 0x00, 0x9F}, {0x8F, 0x00, 0x77},
+    {0xAB, 0x00, 0x13}, {0xA7, 0x00, 0x00}, {0x7F, 0x0B, 0x00}, {0x43, 0x2F, 0x00}, {0x00, 0x47, 0x00},
+    {0x00, 0x51, 0x00}, {0x00, 0x3F, 0x17}, {0x1B, 0x3F, 0x5F}, {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00},
+    {0x00, 0x00, 0x00}, {0xBC, 0xBC, 0xBC}, {0x00, 0x73, 0xEF}, {0x23, 0x3B, 0xEF}, {0x83, 0x00, 0xF3},
+    {0xBF, 0x00, 0xBF}, {0xE7, 0x00, 0x5B}, {0xDB, 0x2B, 0x00}, {0xCB, 0x4F, 0x0F}, {0x8B, 0x73, 0x00},
+    {0x00, 0x97, 0x00}, {0x00, 0xAB, 0x00}, {0x00, 0x93, 0x3B}, {0x00, 0x83, 0x8B}, {0x00, 0x00, 0x00},
+    {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00}, {0xFF, 0xFF, 0xFF}, {0x3F, 0xBF, 0xFF}, {0x5F, 0x97, 0xFF},
+    {0xA7, 0x8B, 0xFD}, {0xF7, 0x7B, 0xFF}, {0xFF, 0x77, 0xB7}, {0xFF, 0x77, 0x63}, {0xFF, 0x9B, 0x3B},
+    {0xF3, 0xBF, 0x3F}, {0x83, 0xD3, 0x13}, {0x4F, 0xDF, 0x4B}, {0x58, 0xF8, 0x98}, {0x00, 0xEB, 0xDB},
+    {0x4F, 0x4F, 0x4F}, {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00}, {0xFF, 0xFF, 0xFF}, {0xAB, 0xE7, 0xFF},
+    {0xC7, 0xD7, 0xFF}, {0xD7, 0xCB, 0xFF}, {0xFF, 0xC7, 0xFF}, {0xFF, 0xC7, 0xDB}, {0xFF, 0xBF, 0xB3},
+    {0xFF, 0xDB, 0xAB}, {0xFF, 0xE7, 0xA3}, {0xE3, 0xFF, 0xA3}, {0xAB, 0xF3, 0xBF}, {0xB3, 0xFF, 0xCF},
+    {0x9F, 0xFF, 0xF3}, {0xB8, 0xB8, 0xB8}, {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00}
+};
+
 CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
     QDialog(parent),
     ui(new Ui::CHRROMDisplayDialog)
 {
+    ui->setupUi(this);
+    imgData = new char[256*256*3];
+    for (int i=0; i<0x3F; i++)
+    {
+        ui->col0PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
+        ui->col1PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
+        ui->col2PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
+        ui->col3PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
+    }
+
+    ui->col0PushButton->setCurrentColor(QColor(0x00,0x00,0x00));
+    ui->col1PushButton->setCurrentColor(QColor(0x66,0x66,0x66));
+    ui->col2PushButton->setCurrentColor(QColor(0xCC,0xCC,0xCC));
+    ui->col3PushButton->setCurrentColor(QColor(0xFF,0xFF,0xFF));
+
+    ui->col0PushButton->setText("");
+    ui->col1PushButton->setText("");
+    ui->col2PushButton->setText("");
+    ui->col3PushButton->setText("");
+
+    connect(ui->col0PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
+    connect(ui->col1PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
+    connect(ui->col2PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
+    connect(ui->col3PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
+
     chrrom = data;
+    renderData();
+
+    renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
+    ui->frame->layout()->addWidget(renderer);
+    ui->frame->layout()->update();
+}
+
+void CHRROMDisplayDialog::colorChanged (const QColor &color)
+{
+    ui->col0PushButton->setText("");
+    ui->col1PushButton->setText("");
+    ui->col2PushButton->setText("");
+    ui->col3PushButton->setText("");
+
+    renderData();
+    renderer->setBGColor(ui->col0PushButton->currentColor());
+    renderer->reloadData(imgData);
+}
+
+void CHRROMDisplayDialog::renderData()
+{
     UINT ppuAddr = 0x0000;
     unsigned char patternData1;
     unsigned char patternData2;
     unsigned char bit1, bit2;
     unsigned char colorIdx;
 
-    ui->setupUi(this);
-
-    char *imgData = new char[256*256*3];
-
     memset ( imgData, 0,sizeof(imgData));
 
-    palette [ 0 ] [ 0 ] = 173;
-    palette [ 0 ] [ 1 ] = 173;
-    palette [ 0 ] [ 2 ] = 173;
-    palette [ 1 ] [ 0 ] = 100;
-    palette [ 1 ] [ 1 ] = 176;
-    palette [ 1 ] [ 2 ] = 255;
-    palette [ 2 ] [ 0 ] = 92;
-    palette [ 2 ] [ 1 ] = 228;
-    palette [ 2 ] [ 2 ] = 48;
-    palette [ 3 ] [ 0 ] = 251;
-    palette [ 3 ] [ 1 ] = 194;
-    palette [ 3 ] [ 2 ] = 255;
+    palette [ 0 ] [ 0 ] = ui->col0PushButton->currentColor().red();
+    palette [ 0 ] [ 1 ] = ui->col0PushButton->currentColor().green();
+    palette [ 0 ] [ 2 ] = ui->col0PushButton->currentColor().blue();
+    palette [ 1 ] [ 0 ] = ui->col1PushButton->currentColor().red();
+    palette [ 1 ] [ 1 ] = ui->col1PushButton->currentColor().green();
+    palette [ 1 ] [ 2 ] = ui->col1PushButton->currentColor().blue();
+    palette [ 2 ] [ 0 ] = ui->col2PushButton->currentColor().red();
+    palette [ 2 ] [ 1 ] = ui->col2PushButton->currentColor().green();
+    palette [ 2 ] [ 2 ] = ui->col2PushButton->currentColor().blue();
+    palette [ 3 ] [ 0 ] = ui->col3PushButton->currentColor().red();
+    palette [ 3 ] [ 1 ] = ui->col3PushButton->currentColor().green();
+    palette [ 3 ] [ 2 ] = ui->col3PushButton->currentColor().blue();
 
     for (int y = 0; y < 128; y++)
     {
@@ -51,10 +110,6 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
            }
         }
     }
-
-    renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
-    ui->frame->layout()->addWidget(renderer);
-    ui->frame->layout()->update();
 }
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()

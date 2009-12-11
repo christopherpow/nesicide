@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     cchrrombanks.cpp \
     cchrrombank.cpp \
     chrromdisplaydialog.cpp \
-    cchrrompreviewrenderer.cpp
+    cchrrompreviewrenderer.cpp \
+    qtcolorpicker.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -47,7 +48,8 @@ HEADERS += mainwindow.h \
     cchrrombanks.h \
     cchrrombank.h \
     chrromdisplaydialog.h \
-    cchrrompreviewrenderer.h
+    cchrrompreviewrenderer.h \
+    qtcolorpicker.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \

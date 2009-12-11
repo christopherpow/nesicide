@@ -24,6 +24,8 @@ protected:
 
 private:
     Ui::CHRROMDisplayDialog *ui;
+    char *imgData;
+    void renderData();
 
 private slots:
     void on_verticalScrollBar_valueChanged(int value);
@@ -33,6 +35,7 @@ private slots:
     void on_zoomSlider_valueChanged(int value);
     void on_zoomSlider_actionTriggered(int action);
     void on_zoomSlider_sliderMoved(int position);
+    void colorChanged (const QColor &color);
 };
 
 #endif // CHRROMDISPLAYDIALOG_H

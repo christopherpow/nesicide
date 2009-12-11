@@ -49,8 +49,20 @@ void CCHRROMPreviewRenderer::initializeGL()
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
     // Load the actual texture
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 
+}
+
+void CCHRROMPreviewRenderer::reloadData(char *imgData)
+{
+    imageData = imgData;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+    repaint();
+}
+
+void CCHRROMPreviewRenderer::setBGColor(QColor clr)
+{
+    glClearColor((float)clr.red() / 255.0f, (float)clr.green() / 255.0f, (float)clr.blue() / 255.0f, 0.5f);
 }
 
 void CCHRROMPreviewRenderer::resizeGL(int width, int height)
