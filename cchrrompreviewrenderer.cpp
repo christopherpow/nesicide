@@ -4,6 +4,8 @@ CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget *parent, char *imgData)
     : QGLWidget(parent)
 {
     imageData = imgData;
+    scrollX = 0;
+    scrollY = 0;
 
 }
 
@@ -53,7 +55,6 @@ void CCHRROMPreviewRenderer::initializeGL()
 
 void CCHRROMPreviewRenderer::resizeGL(int width, int height)
 {
-
     // Zoom the width and height based on our view zoom. If zoom is 200% and our width is 100
     // then the renderer's width will be 50.
     int newWidth = (int)((float)width / ((float)zoom / 100.0f));
@@ -78,7 +79,11 @@ void CCHRROMPreviewRenderer::resizeGL(int width, int height)
     // Select and reset the ModelView matrix.
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    // Slightly offset the view to ensure proper pixel alignment
+    //glTranslatef(0.375,0.375,0);
 }
+
 
 void CCHRROMPreviewRenderer::paintGL()
 {
@@ -86,13 +91,13 @@ void CCHRROMPreviewRenderer::paintGL()
     glBindTexture (GL_TEXTURE_2D, 1);
     glBegin(GL_QUADS);
         glTexCoord2f (0.0, 0.0);
-        glVertex3f(000.0f, 000.0f, 0.0f);
+        glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
         glTexCoord2f (1.0, 0.0);
-        glVertex3f(256.0f, 000.0f, 0.0f);
+        glVertex3f(256.0f - scrollX, 000.0f - scrollY, 0.0f);
         glTexCoord2f (1.0, 0.5);
-        glVertex3f(256.0f, 128.0f, 0.0f);
+        glVertex3f(256.0f - scrollX, 128.0f - scrollY, 0.0f);
         glTexCoord2f (0.0, 0.5);
-        glVertex3f(000.0f, 128.0f, 0.0f);
+        glVertex3f(000.0f - scrollX, 128.0f - scrollY, 0.0f);
     glEnd();
 }
 

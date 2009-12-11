@@ -1,6 +1,7 @@
 #ifndef CCHRROMPREVIEWRENDERER_H
 #define CCHRROMPREVIEWRENDERER_H
 
+#include <QWidget>
 #include <QGLWidget>
 
 class CCHRROMPreviewRenderer : public QGLWidget
@@ -12,7 +13,10 @@ public:
     void paintGL();
     void changeZoom(int newZoom);
     int zoom;
+    int scrollX;
+    int scrollY;
     char* imageData;
+
 };
 
 #endif // CCHRROMPREVIEWRENDERER_H

@@ -18,21 +18,19 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
 
     memset ( imgData, 0,sizeof(imgData));
 
-    // four random colors...
-            palette [ 0 ] [ 0 ] = 173;
-            palette [ 0 ] [ 1 ] = 173;
-            palette [ 0 ] [ 2 ] = 173;
-            palette [ 1 ] [ 0 ] = 100;
-            palette [ 1 ] [ 1 ] = 176;
-            palette [ 1 ] [ 2 ] = 255;
-            palette [ 2 ] [ 0 ] = 92;
-            palette [ 2 ] [ 1 ] = 228;
-            palette [ 2 ] [ 2 ] = 48;
-            palette [ 3 ] [ 0 ] = 251;
-            palette [ 3 ] [ 1 ] = 194;
-            palette [ 3 ] [ 2 ] = 255;
+    palette [ 0 ] [ 0 ] = 173;
+    palette [ 0 ] [ 1 ] = 173;
+    palette [ 0 ] [ 2 ] = 173;
+    palette [ 1 ] [ 0 ] = 100;
+    palette [ 1 ] [ 1 ] = 176;
+    palette [ 1 ] [ 2 ] = 255;
+    palette [ 2 ] [ 0 ] = 92;
+    palette [ 2 ] [ 1 ] = 228;
+    palette [ 2 ] [ 2 ] = 48;
+    palette [ 3 ] [ 0 ] = 251;
+    palette [ 3 ] [ 1 ] = 194;
+    palette [ 3 ] [ 2 ] = 255;
 
-    // ===================================================================================
     for (int y = 0; y < 128; y++)
     {
         for (int x = 0; x < 256; x += 8)
@@ -53,7 +51,6 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
            }
         }
     }
-    // ===================================================================================
 
     renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
     ui->frame->layout()->addWidget(renderer);
@@ -64,6 +61,13 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
     delete ui;
 }
+
+void CHRROMDisplayDialog::resizeEvent(QResizeEvent *event)
+{
+    QDialog::resizeEvent(event);
+    updateScrollbars();
+}
+
 
 void CHRROMDisplayDialog::changeEvent(QEvent *e)
 {
@@ -89,4 +93,36 @@ void CHRROMDisplayDialog::on_zoomSlider_valueChanged(int value)
 {
     renderer->changeZoom(value);
     ui->zoomValueLabel->setText(QString::number(value).append("%"));
+    updateScrollbars();
+}
+
+void CHRROMDisplayDialog::updateScrollbars()
+{
+    int value = ui->zoomSlider->value();
+    int viewWidth = (float)256 * ((float)value / 100.0f);
+    int viewHeight = (float)128 * ((float)value / 100.0f);
+    ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
+    ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
+    renderer->scrollX = ui->horizontalScrollBar->value();
+    renderer->scrollY = ui->verticalScrollBar->value();
+}
+
+void CHRROMDisplayDialog::on_verticalScrollBar_actionTriggered(int action)
+{
+}
+
+void CHRROMDisplayDialog::on_horizontalScrollBar_actionTriggered(int action)
+{
+}
+
+void CHRROMDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
+{
+    renderer->scrollX = ui->horizontalScrollBar->value();
+    renderer->repaint();
+}
+
+void CHRROMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
+{
+    renderer->scrollY = ui->verticalScrollBar->value();
+    renderer->repaint();
 }
