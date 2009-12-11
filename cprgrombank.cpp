@@ -43,6 +43,7 @@ void CPRGROMBank::openItemEvent(QTabWidget *tabWidget)
             tabId = tabWidget->addTab(editor, this->caption());
             tabWidget->setCurrentIndex(tabId);
         }
+        return;
     }
     else
     {
