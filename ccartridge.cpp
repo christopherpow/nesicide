@@ -5,6 +5,10 @@ CCartridge::CCartridge()
     prgromBanks = new CPRGROMBanks();
     prgromBanks->InitTreeItem(this);
     this->appendChild(prgromBanks);
+
+    chrromBanks = new CCHRROMBanks();
+    chrromBanks->InitTreeItem(this);
+    this->appendChild(chrromBanks);
 }
 
 bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)

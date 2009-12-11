@@ -7,7 +7,6 @@
 #include "iprojecttreeviewitem.h"
 #include "cprojectprimitives.h"
 #include "ccartridge.h"
-#include "cprgrombank.h"
 
 namespace GameMirrorMode {
     typedef enum {

@@ -4,12 +4,14 @@
 #include "ixmlserializable.h"
 #include "iprojecttreeviewitem.h"
 #include "cprgrombanks.h"
+#include "cchrrombanks.h"
 
 class CCartridge : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CCartridge();
     CPRGROMBanks *prgromBanks;
+    CCHRROMBanks *chrromBanks;
 
     // IXMLSerializable Interface Implementation
     bool serialize(QDomDocument &doc, QDomNode &node);
