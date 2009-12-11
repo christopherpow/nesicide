@@ -101,3 +101,8 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
     nesicideProject->createProjectFromRom(fileName);
     projectDataChangesEvent();
 }
+
+void MainWindow::on_tabWidget_tabCloseRequested(int index)
+{
+    ui->tabWidget->removeTab(index);
+}

@@ -27,6 +27,7 @@ private:
     CProjectTreeViewModel *projectTreeviewModel;
 
 private slots:
+    void on_tabWidget_tabCloseRequested(int index);
     void on_actionCreate_Project_from_ROM_triggered();
     void on_actionNew_Project_triggered();
     void on_actionProject_Properties_triggered();
