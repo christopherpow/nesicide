@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include "cpaletteitemdelegate.h"
+#include "defaultnespalette.h"
 
 namespace Ui {
     class ProjectPropertiesDialog;
@@ -15,17 +16,17 @@ namespace Ui {
 class ProjectPropertiesDialog : public QDialog {
     Q_OBJECT
 public:
-    ProjectPropertiesDialog(QWidget *parent = 0);
+    ProjectPropertiesDialog(QWidget *parent, QList<QColor> pal);
     ~ProjectPropertiesDialog();
-    QString getProjectName();
     void setProjectName(QString newName);
+    QString getProjectName();
+    QList<QColor> currentPalette;
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
     Ui::ProjectPropertiesDialog *ui;
-    QList<QColor> currentPalette;
     void updateUI();
     QDomElement addElement( QDomDocument &doc, QDomNode &node,
                             const QString &tag,

@@ -19,6 +19,16 @@ void CNesicideProject::initializeProject()
     cartridge->InitTreeItem(this);
     this->appendChild(cartridge);
 
+    // Load the default palette
+    projectPalette.clear();
+    for (int row=0; row <= 0x3; row++) {
+        for (int col=0; col <= 0xF; col++){
+            projectPalette.append(QColor(defaultPalette[(row << 4) + col][0],
+                                         defaultPalette[(row << 4) + col][1],
+                                         defaultPalette[(row << 4) + col][2]));
+        }
+    }
+
     isInitialized = true;
 }
 
@@ -40,6 +50,10 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     QDomElement projectElement = addElement( doc, node, "nesicideproject" );
     projectElement.setAttribute("version", 0.2);
     projectElement.setAttribute("title", this->ProjectTitle);
+    projectElement.setAttribute("mirrorMode", this->mirrorMode);
+    projectElement.setAttribute("hasBatteryBackedRam", this->hasBatteryBackedRam);
+
+
 
 
     return true;

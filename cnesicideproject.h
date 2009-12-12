@@ -7,6 +7,7 @@
 #include "iprojecttreeviewitem.h"
 #include "cprojectprimitives.h"
 #include "ccartridge.h"
+#include "defaultnespalette.h"
 
 namespace GameMirrorMode {
     typedef enum {
@@ -25,11 +26,15 @@ public:
     CNesicideProject();
     ~CNesicideProject();
 
+    // The following properties must be saved/loaded with the project file =============
     QString ProjectTitle; // The visible title of the project
     GameMirrorMode::eGameMirrorMode mirrorMode;
     qint8 mapperNumber;
     bool hasBatteryBackedRam;
+    QList<QColor> projectPalette;
+    // =================================================================================
 
+    // Helper functions
     void initializeProject();
     bool getIsInitialized();
     void createProjectFromRom(QString fileName);

@@ -65,16 +65,48 @@ void MainWindow::on_actionSave_Project_triggered()
 
 void MainWindow::on_actionSave_Project_As_triggered()
 {
+    // Allow the user to select a file name. Note that using the static function produces a native
+    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
+    QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
+                                                    QString("NESECIDE2 Project (*.nesproject)"));
+    if (!fileName.isEmpty())
+    {
+        QFile file(fileName);
+        if( !file.open( QFile::WriteOnly) )
+        {
+            QMessageBox::critical(this, "Error", "An error occured while trying to open the project file for writing.");
+            return;
+        }
 
+        QDomDocument doc;
+        QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
+        doc.appendChild(instr);
+
+        if (!nesicideProject->serialize(doc, doc))
+        {
+            QMessageBox::critical(this, "Error", "An error occured while trying to serialize the project data.");
+        }
+
+        // Create a text stream so we can stream the XML data to the file easily.
+        QTextStream ts( &file );
+
+        // Use the standard C++ stream function for streaming the string representation of our XML to
+        // our file stream.
+        ts << doc.toString();
+
+        // And finally close the file.
+        file.close();
+    }
 }
 
 void MainWindow::on_actionProject_Properties_triggered()
 {
-    ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(this);
+    ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(this, nesicideProject->projectPalette);
     dlg->setProjectName(nesicideProject->ProjectTitle);
     if (dlg->exec() == QDialog::Accepted)
     {
         nesicideProject->ProjectTitle = dlg->getProjectName();
+        nesicideProject->projectPalette = dlg->currentPalette;
         projectDataChangesEvent();
     }
     delete dlg;

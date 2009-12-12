@@ -49,7 +49,8 @@ HEADERS += mainwindow.h \
     cchrrombank.h \
     chrromdisplaydialog.h \
     cchrrompreviewrenderer.h \
-    qtcolorpicker.h
+    qtcolorpicker.h \
+    defaultnespalette.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
