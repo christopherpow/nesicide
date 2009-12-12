@@ -27,6 +27,8 @@ private:
     CProjectTreeViewModel *projectTreeviewModel;
 
 private slots:
+    void on_action_Project_Browser_toggled(bool );
+    void on_projectBrowserDockWidget_visibilityChanged(bool visible);
     void on_tabWidget_tabCloseRequested(int index);
     void on_actionCreate_Project_from_ROM_triggered();
     void on_actionNew_Project_triggered();

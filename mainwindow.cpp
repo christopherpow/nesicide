@@ -106,3 +106,20 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
     ui->tabWidget->removeTab(index);
 }
+
+void MainWindow::on_projectBrowserDockWidget_visibilityChanged(bool visible)
+{
+    if (!visible)
+    {
+        if (!ui->projectBrowserDockWidget->isVisibleTo(this))
+        {
+            ui->action_Project_Browser->setChecked(false);
+        }
+    } else
+        ui->action_Project_Browser->setChecked(visible);
+}
+
+void MainWindow::on_action_Project_Browser_toggled(bool visible)
+{
+    ui->projectBrowserDockWidget->setVisible(visible);
+}
