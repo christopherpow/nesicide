@@ -7,7 +7,14 @@ CPRGROMBanks::CPRGROMBanks()
 
 bool CPRGROMBanks::serialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    // Create the root element for the CHR-ROM banks
+    QDomElement prgromElement = addElement( doc, node, "prgrombanks" );
+
+    for (int i=0; i<banks.count(); i++)
+        if (!banks[i]->serialize(doc, prgromElement))
+            return false;
+
+    return true;
 }
 
 bool CPRGROMBanks::deserialize(QDomDocument &doc, QDomNode &node)

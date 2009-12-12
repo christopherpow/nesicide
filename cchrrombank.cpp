@@ -8,7 +8,11 @@ CCHRROMBank::CCHRROMBank()
 
 bool CCHRROMBank::serialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    // Create the root element for the CHR-ROM object
+    QDomElement chrromElement = addElement( doc, node, "chrrom" );
+    QDomCDATASection dataSect = doc.createCDATASection(QByteArray::fromRawData((const char *)data, 0x2000).toBase64());
+    chrromElement.appendChild(dataSect);
+    return true;
 }
 
 bool CCHRROMBank::deserialize(QDomDocument &doc, QDomNode &node)

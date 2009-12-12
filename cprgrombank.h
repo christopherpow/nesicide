@@ -10,7 +10,7 @@ class CPRGROMBank : public IXMLSerializable, public IProjectTreeViewItem
 public:
     CPRGROMBank();
     qint8 bankID;
-    qint8 data[0x4000];
+    qint8 *data;
     PRGROMDisplayDialog *editor;
     int tabId;
 

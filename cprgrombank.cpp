@@ -3,12 +3,18 @@
 CPRGROMBank::CPRGROMBank()
 {
     editor = (PRGROMDisplayDialog *)0;
+    data = new qint8[0x4000];
 }
 
 
 bool CPRGROMBank::serialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    // Create the root element for the CHR-ROM object
+    QDomElement prgromElement = addElement( doc, node, "prgrom" );
+    QDomCDATASection dataSect = doc.createCDATASection(QByteArray::fromRawData((const char *)data, 0x4000).toBase64());
+    prgromElement.appendChild(dataSect);
+
+    return true;
 }
 
 bool CPRGROMBank::deserialize(QDomDocument &doc, QDomNode &node)

@@ -8,7 +8,14 @@ CCHRROMBanks::CCHRROMBanks()
 // IXMLSerializable Interface Implementation
 bool CCHRROMBanks::serialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    // Create the root element for the CHR-ROM banks
+    QDomElement chrromElement = addElement( doc, node, "chrrombanks" );
+
+    for (int i=0; i<banks.count(); i++)
+        if (!banks.at(i)->serialize(doc, chrromElement))
+            return false;
+
+    return true;
 }
 
 bool CCHRROMBanks::deserialize(QDomDocument &doc, QDomNode &node)

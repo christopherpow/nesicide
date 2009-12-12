@@ -44,17 +44,31 @@ CNesicideProject::~CNesicideProject()
 
 bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
 {
-    QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
-    doc.appendChild(instr);
-
     QDomElement projectElement = addElement( doc, node, "nesicideproject" );
     projectElement.setAttribute("version", 0.2);
     projectElement.setAttribute("title", this->ProjectTitle);
     projectElement.setAttribute("mirrorMode", this->mirrorMode);
     projectElement.setAttribute("hasBatteryBackedRam", this->hasBatteryBackedRam);
 
+    // Add the palette data
 
+    // Create the root palette element, and give it a version attribute
+    QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
 
+    // Loop through all palette entries, and for each entry add an <entry /> tag that has the
+    // index, as well as the RGB properties of the palette.
+    for (int i=0; i <= 0x3F; i++)
+    {
+        QDomElement elm = addElement( doc, rootPaletteElement, "entry");
+        elm.setAttribute("index", i);
+        elm.setAttribute("r", projectPalette.at(i).red());
+        elm.setAttribute("g", projectPalette.at(i).green());
+        elm.setAttribute("b", projectPalette.at(i).blue());
+    }
+
+    // Now serialize all child objects
+    if (!cartridge->serialize(doc, projectElement))
+        return false;
 
     return true;
 }
