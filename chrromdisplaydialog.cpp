@@ -69,7 +69,7 @@ void CHRROMDisplayDialog::colorChanged (const QColor &color)
 
 void CHRROMDisplayDialog::renderData()
 {
-    UINT ppuAddr = 0x0000;
+    unsigned int ppuAddr = 0x0000;
     unsigned char patternData1;
     unsigned char patternData2;
     unsigned char bit1, bit2;

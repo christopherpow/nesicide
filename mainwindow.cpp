@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     projectDataChangesEvent();
 
     emulatorDlg = (NESEmulatorDialog *)NULL;
-
+    emulatorDlgTabIdx = -1;
 }
 
 MainWindow::~MainWindow()
@@ -143,6 +143,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
     {
         emulatorDlg->stopEmulation();
         ui->actionEmulation_Window->setChecked(false);
+        emulatorDlgTabIdx = -1;
     }
 }
 
