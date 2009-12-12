@@ -13,5 +13,7 @@
         <file>resources/document-properties.svg</file>
         <file>resources/chardevice.svg</file>
         <file>resources/drive-harddisk.svg</file>
+        <file>resources/applications-system.svg</file>
+        <file>resources/system-run.svg</file>
     </qresource>
 </RCC>
