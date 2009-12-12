@@ -27,7 +27,8 @@ SOURCES += main.cpp \
     cchrrombank.cpp \
     chrromdisplaydialog.cpp \
     cchrrompreviewrenderer.cpp \
-    qtcolorpicker.cpp
+    qtcolorpicker.cpp \
+    nesemulatordialog.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -50,11 +51,13 @@ HEADERS += mainwindow.h \
     chrromdisplaydialog.h \
     cchrrompreviewrenderer.h \
     qtcolorpicker.h \
-    defaultnespalette.h
+    defaultnespalette.h \
+    nesemulatordialog.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
     newprojectdialog.ui \
     prgromdisplaydialog.ui \
-    chrromdisplaydialog.ui
+    chrromdisplaydialog.ui \
+    nesemulatordialog.ui
 RESOURCES += resource.qrc

@@ -15,5 +15,10 @@
         <file>resources/drive-harddisk.svg</file>
         <file>resources/applications-system.svg</file>
         <file>resources/system-run.svg</file>
+        <file>resources/stock_media-pause.svg</file>
+        <file>resources/stock_media-play.svg</file>
+        <file>resources/stock_media-rec.svg</file>
+        <file>resources/stock_media-stop.svg</file>
+        <file>resources/stock_right.svg</file>
     </qresource>
 </RCC>

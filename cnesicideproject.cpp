@@ -39,7 +39,8 @@ bool CNesicideProject::getIsInitialized()
 
 CNesicideProject::~CNesicideProject()
 {
-    delete projectPrimitives;
+    //if (projectPrimitives)
+    //    delete projectPrimitives;
 }
 
 bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)

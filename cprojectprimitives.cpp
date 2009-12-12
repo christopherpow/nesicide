@@ -9,7 +9,8 @@ CProjectPrimitives::CProjectPrimitives()
 
 CProjectPrimitives::~CProjectPrimitives()
 {
-    delete projectPalettes;
+    if (projectPalettes)
+        delete projectPalettes;
 }
 
 QString CProjectPrimitives::caption() const

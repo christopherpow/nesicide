@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->projectTreeWidget->setModel(projectTreeviewModel);
     projectDataChangesEvent();
 
+    emulatorDlg = (NESEmulatorDialog *)NULL;
+
 }
 
 MainWindow::~MainWindow()
@@ -137,6 +139,11 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
     ui->tabWidget->removeTab(index);
+    if (index == emulatorDlgTabIdx)
+    {
+        emulatorDlg->stopEmulation();
+        ui->actionEmulation_Window->setChecked(false);
+    }
 }
 
 void MainWindow::on_projectBrowserDockWidget_visibilityChanged(bool visible)
@@ -154,4 +161,19 @@ void MainWindow::on_projectBrowserDockWidget_visibilityChanged(bool visible)
 void MainWindow::on_action_Project_Browser_toggled(bool visible)
 {
     ui->projectBrowserDockWidget->setVisible(visible);
+}
+
+void MainWindow::on_actionEmulation_Window_toggled(bool value)
+{
+    if (value)
+    {
+        if (!emulatorDlg)
+        {
+            emulatorDlg = new NESEmulatorDialog();
+        }
+        emulatorDlgTabIdx = ui->tabWidget->addTab(emulatorDlg, "Emulation Window");
+        ui->tabWidget->setCurrentIndex(emulatorDlgTabIdx);
+    }
+    else
+        ui->tabWidget->removeTab(emulatorDlgTabIdx);
 }

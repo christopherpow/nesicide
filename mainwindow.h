@@ -7,6 +7,7 @@
 #include "cprojecttreeviewmodel.h"
 #include "projectpropertiesdialog.h"
 #include "newprojectdialog.h"
+#include "nesemulatordialog.h"
 
 namespace Ui {
     class MainWindow;
@@ -18,6 +19,8 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
     CNesicideProject *nesicideProject;
+    NESEmulatorDialog *emulatorDlg;
+    int emulatorDlgTabIdx;
 protected:
     void changeEvent(QEvent *e);
 
@@ -27,6 +30,7 @@ private:
     CProjectTreeViewModel *projectTreeviewModel;
 
 private slots:
+    void on_actionEmulation_Window_toggled(bool );
     void on_action_Project_Browser_toggled(bool );
     void on_projectBrowserDockWidget_visibilityChanged(bool visible);
     void on_tabWidget_tabCloseRequested(int index);
