@@ -11,7 +11,13 @@ class CPRGROMBanks : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CPRGROMBanks();
-    QList<CPRGROMBank *> banks;
+    ~CPRGROMBanks();
+
+    // Member Getters
+    QList<CPRGROMBank *> *get_pointerToArrayOfBanks();
+
+    // Member Setters
+    void set_pointerToArrayOfBanks(QList<CPRGROMBank *> *pointerToArrayOfBanks);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -19,8 +25,12 @@ public:
 
     // IProjectTreeViewItem Interface Implmentation
     QString caption() const;
-    virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent) {};
-    virtual void openItemEvent(QTabWidget *tabWidget) {};
+    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+    virtual void openItemEvent(QTabWidget*) {}
+
+private:
+    QList<CPRGROMBank *> *m_pointerToArrayOfBanks;
+
 };
 
 #endif // CPRGROMBANKS_H

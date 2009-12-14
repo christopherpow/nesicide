@@ -50,7 +50,7 @@
 #define PPUCTRL_PPU_MASTER_SLAVE      0x40
 #define PPUCTRL_GENERATE_NMI          0x80
 
-// PPUMASK register 
+// PPUMASK register
 #define PPUMASK_GREYSCALE               0x01
 #define PPUMASK_BKGND_CLIPPING          0x02
 #define PPUMASK_SPRITE_CLIPPING         0x04
@@ -71,9 +71,9 @@ typedef struct _SpriteBufferData
    unsigned char patternData1;
    unsigned char patternData2;
    unsigned char attribData;
-   BOOL          spriteBehind;
-   BOOL          spriteFlipVert;
-   BOOL          spriteFlipHoriz;
+   bool          spriteBehind;
+   bool          spriteFlipVert;
+   bool          spriteFlipHoriz;
    unsigned char spriteIdx;
    unsigned int  spriteCount;
 } SpriteBufferData;
@@ -103,11 +103,11 @@ typedef struct _BackgroundBuffer
 #define rPPUADDR() ( m_ppuAddr )
 #define rSCROLLX() ( m_ppuScrollX )
 
-class CPPU  
+class CPPU
 {
 public:
-	CPPU();
-	virtual ~CPPU();
+    CPPU();
+    virtual ~CPPU();
 
    // Mode routines
    static void SETMODE ( int mode ) { m_mode = mode; }
@@ -171,7 +171,7 @@ public:
    static bool GATHERSPRITES ( int scanline );
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
 
-   static inline void SETBRKPT ( int type, UINT addr, UINT addr2, int iIf, UINT cond ) 
+   static inline void SETBRKPT ( int type, UINT addr, UINT addr2, int iIf, UINT cond )
    { m_brkptType = type; m_brkptAddr = addr; m_brkptAddr2 = addr2; m_brkptIf = iIf; m_brkptCond = cond; }
 
    static inline CTracer& TRACER ( void ) { return m_tracer; }

@@ -18,6 +18,8 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     timer = new QBasicTimer();
 
     renderer = new CNESEmulatorRenderer(ui->frame, imgData);
+    ui->frame->layout()->addWidget(renderer);
+    ui->frame->layout()->update();
     CPPU::TV ( imgData );
 }
 

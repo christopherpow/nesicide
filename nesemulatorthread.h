@@ -28,8 +28,8 @@ protected:
     virtual void run ();
 
     bool m_bRunning;
-    DWORD         m_lastVblankTime;
-    DWORD         m_currVblankTime;
+    qint32         m_lastVblankTime;
+    qint32         m_currVblankTime;
     float         m_periodVblank;
     float         m_fFreq;
     float         m_fFreqReal;

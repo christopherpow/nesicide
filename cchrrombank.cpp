@@ -15,7 +15,7 @@ bool CCHRROMBank::serialize(QDomDocument &doc, QDomNode &node)
     return true;
 }
 
-bool CCHRROMBank::deserialize(QDomDocument &doc, QDomNode &node)
+bool CCHRROMBank::deserialize(QDomDocument &, QDomNode &)
 {
     return false;
 }
@@ -25,7 +25,7 @@ QString CCHRROMBank::caption() const
     return "Bank " + QString::number(bankID, 10);
 }
 
-void CCHRROMBank::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
+void CCHRROMBank::contextMenuEvent(QContextMenuEvent *, QTreeView *)
 {
 
 }

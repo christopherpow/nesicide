@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QBasicTimer>
 
-#include "NESEmulatorRenderer.h"
+#include "nesemulatorrenderer.h"
 
 namespace Ui {
     class NESEmulatorDialog;

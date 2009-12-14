@@ -4,12 +4,13 @@
 const char hexStr[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 
-ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent, QList<QColor> pal) :
+ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent, QList<QColor> *pal) :
     QDialog(parent),
     ui(new Ui::ProjectPropertiesDialog)
 {
     // Link up the project palette to this dialog
-    currentPalette = pal;
+    for (int paletteItemIndex=0; paletteItemIndex<pal->count(); paletteItemIndex++)
+        currentPalette.append(pal->at(paletteItemIndex));
 
     ui->setupUi(this);
     ui->tableWidget->setItemDelegate(new CPaletteItemDelegate(this));
@@ -82,30 +83,11 @@ void ProjectPropertiesDialog::updateUI()
 
 }
 
-void ProjectPropertiesDialog::on_tableWidget_cellClicked(int row, int column)
+void ProjectPropertiesDialog::on_tableWidget_cellClicked(int, int)
 {
     updateUI();
 }
 
-void ProjectPropertiesDialog::on_greenDial_valueChanged(int value)
-{
-
-}
-
-void ProjectPropertiesDialog::on_blueDial_valueChanged(int value)
-{
-
-}
-
-void ProjectPropertiesDialog::on_redDial_valueChanged(int value)
-{
-
-}
-
-void ProjectPropertiesDialog::on_tableWidget_cellActivated(int row, int column)
-{
-
-}
 
 void ProjectPropertiesDialog::on_resetPalettePushButton_clicked()
 {
@@ -233,7 +215,7 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
     }
 }
 
-void ProjectPropertiesDialog::on_redDial_sliderMoved(int position)
+void ProjectPropertiesDialog::on_redDial_sliderMoved(int)
 {
     // Try to get the selected item
     QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
@@ -252,7 +234,7 @@ void ProjectPropertiesDialog::on_redDial_sliderMoved(int position)
     updateUI();
 }
 
-void ProjectPropertiesDialog::on_greenDial_sliderMoved(int position)
+void ProjectPropertiesDialog::on_greenDial_sliderMoved(int)
 {
     // Try to get the selected item
     QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
@@ -271,7 +253,7 @@ void ProjectPropertiesDialog::on_greenDial_sliderMoved(int position)
     updateUI();
 }
 
-void ProjectPropertiesDialog::on_blueDial_sliderMoved(int position)
+void ProjectPropertiesDialog::on_blueDial_sliderMoved(int)
 {
     // Try to get the selected item
     QTableWidgetItem *item = ui->tableWidget->selectedItems().first();

@@ -39,19 +39,19 @@ void MainWindow::projectDataChangesEvent()
 {
     QString str;
     str.append("NESICIDE2");
-    if (nesicideProject->getIsInitialized())
+    if (nesicideProject->get_isInitialized())
     {
         str.append(" - ");
-        str.append(nesicideProject->ProjectTitle);
+        str.append(nesicideProject->get_projectTitle());
     }
 
     this->setWindowTitle(str);
     projectTreeviewModel->layoutChangedEvent();
 
     // Enabled/Disable actions based on if we have a project loaded or not
-    ui->actionProject_Properties->setEnabled(nesicideProject->getIsInitialized());
-    ui->actionSave_Project->setEnabled(nesicideProject->getIsInitialized());
-    ui->actionSave_Project_As->setEnabled(nesicideProject->getIsInitialized());
+    ui->actionProject_Properties->setEnabled(nesicideProject->get_isInitialized());
+    ui->actionSave_Project->setEnabled(nesicideProject->get_isInitialized());
+    ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
 }
 
 void MainWindow::on_actionSave_Project_triggered()
@@ -103,12 +103,15 @@ void MainWindow::on_actionSave_Project_As_triggered()
 
 void MainWindow::on_actionProject_Properties_triggered()
 {
-    ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(this, nesicideProject->projectPalette);
-    dlg->setProjectName(nesicideProject->ProjectTitle);
+    ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(
+            this, nesicideProject->get_pointerToListOfProjectPaletteEntries());
+    dlg->setProjectName(nesicideProject->get_projectTitle());
     if (dlg->exec() == QDialog::Accepted)
     {
-        nesicideProject->ProjectTitle = dlg->getProjectName();
-        nesicideProject->projectPalette = dlg->currentPalette;
+        nesicideProject->set_projectTitle(dlg->getProjectName());
+        nesicideProject->get_pointerToListOfProjectPaletteEntries()->clear();
+        for (int paletteItemIndex=0; paletteItemIndex<dlg->currentPalette.count(); paletteItemIndex++)
+            nesicideProject->get_pointerToListOfProjectPaletteEntries()->append(dlg->currentPalette.at(paletteItemIndex));
         projectDataChangesEvent();
     }
     delete dlg;
@@ -119,7 +122,7 @@ void MainWindow::on_actionNew_Project_triggered()
     NewProjectDialog *dlg = new NewProjectDialog();
     if (dlg->exec() == QDialog::Accepted)
     {
-        nesicideProject->ProjectTitle = dlg->getProjectTitle();
+        nesicideProject->set_projectTitle(dlg->getProjectTitle());
         nesicideProject->initializeProject();
         projectDataChangesEvent();
     }
@@ -177,4 +180,16 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
     }
     else
         ui->tabWidget->removeTab(emulatorDlgTabIdx);
+}
+
+void MainWindow::on_MainWindow_destroyed()
+{
+}
+
+void MainWindow::closeEvent ( QCloseEvent * event )
+{
+    if (emulatorDlg)
+        emulatorDlg->stopEmulation();
+
+    QWidget::closeEvent(event);
 }

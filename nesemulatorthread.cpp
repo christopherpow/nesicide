@@ -32,33 +32,34 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
     CROM::Clear8KBanks ();
 
     // Load cartridge PRG-ROM banks into emulator...
-    for ( b = 0; b < cartridge->prgromBanks->banks.count(); b++ )
+    for ( b = 0; b < cartridge->get_pointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count(); b++ )
     {
-        CROM::Set16KBank ( b, (unsigned char*)cartridge->prgromBanks->banks.at(b)->data );
+        CROM::Set16KBank ( b, (unsigned char*)cartridge->get_pointerToPrgRomBanks()->get_pointerToArrayOfBanks()->at(b)->
+                           get_pointerToBankData() );
     }
 
     // Load cartridge CHR-ROM banks into emulator...
-    for ( b = 0; b < cartridge->chrromBanks->banks.count(); b++ )
+    for ( b = 0; b < cartridge->get_pointerToChrRomBanks()->banks.count(); b++ )
     {
-        CROM::Set8KBank ( b, (unsigned char*)cartridge->chrromBanks->banks.at(b)->data );
+        CROM::Set8KBank ( b, (unsigned char*)cartridge->get_pointerToChrRomBanks()->banks.at(b)->data );
     }
 
     // Perform any necessary fixup on from the ROM loading...
     CROM::DoneLoadingBanks ();
 
     // Set up PPU with iNES header information...
-    if ( (cartridge->mirrorMode == CCartridge::NoMirroring) ||
-         (cartridge->mirrorMode == CCartridge::HorizontalMirroring) )
+    if ( (cartridge->get_enumMirrorMode() == GameMirrorMode::NoMirroring) ||
+         (cartridge->get_enumMirrorMode() == GameMirrorMode::HorizontalMirroring) )
     {
         CPPU::MIRRORHORIZ ();
     }
-    else if ( cartridge->mirrorMode == CCartridge::VerticalMirroring )
+    else if ( cartridge->get_enumMirrorMode() == GameMirrorMode::VerticalMirroring )
     {
         CPPU::MIRRORVERT ();
     }
 
     // Force mapper to intialize...
-    mapperfunc [ cartridge->mapperNumber ].reset ();
+    mapperfunc [ cartridge->get_indexOfMapperNumber() ].reset ();
 
 // CPTODO: implement mapper reloading...project reload should load ROM in saved state.
 #if 0

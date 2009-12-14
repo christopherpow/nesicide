@@ -1,9 +1,11 @@
 #if !defined ( NESICIDE_COMMON_H )
 #define NESICIDE_COMMON_H
 
+#include <QString>
 #include <string.h> // for memcpy...
 #include <stdio.h> // for sprintf...
-#include <windef.h>
+
+typedef qint32 COLORREF;
 
 // CPTODO: removed everything from here (for now) that is not needed yet...
 #define SWAPRB(x) ((x>>16)|(x&0xFF00)|(x<<16))
@@ -83,10 +85,10 @@ typedef struct _FileNewProjectDataStruct
    int iNumPrgBanks;
    int iNumChrBanks;
    BOOL bLaunchBrowser;
-   int  type; 
+   int  type;
 } FileNewProjectDataStruct;
 
-#define SPECIAL 0xFF000000 
+#define SPECIAL 0xFF000000
 class CItemInfo;
 typedef struct _FileNewFileDataStruct
 {
@@ -340,7 +342,7 @@ enum
    ROM_TYPE_NES          = 0x00,
    ROM_TYPE_VS_UNISYSTEM = 0x01,
    ROM_TYPE_PLAYCHOICE   = 0x02
-}; 
+};
 
 #define INES_HEADER_ID 0x1a53454e
 #define PRG_BANK 0

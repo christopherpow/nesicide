@@ -143,6 +143,11 @@
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+     </layout>
     </widget>
    </item>
   </layout>

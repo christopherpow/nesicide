@@ -13,7 +13,7 @@ public:
     QString caption() const;
     CProjectPalettes *projectPalettes;
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);
-    virtual void openItemEvent(QTabWidget *tabWidget) {};
+    virtual void openItemEvent(QTabWidget*) {}
 };
 
 #endif // CPROJECTPRIMITIVES_H
