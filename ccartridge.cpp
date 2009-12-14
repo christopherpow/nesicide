@@ -9,12 +9,19 @@ CCartridge::CCartridge()
     chrromBanks = new CCHRROMBanks();
     chrromBanks->InitTreeItem(this);
     this->appendChild(chrromBanks);
+
+    mapperNumber = 0; // no mapper default
 }
 
 bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
 {
     // Create the root element for the cartridge
     QDomElement cartridgeElement = addElement( doc, node, "cartridge" );
+
+    // Export the iNES header
+    cartridgeElement.setAttribute("mapperNumber", this->mapperNumber);
+    cartridgeElement.setAttribute("mirrorMode", this->mirrorMode);
+    cartridgeElement.setAttribute("hasBatteryBackedRam", this->hasBatteryBackedRam);
 
     // Export the PRG-ROM banks
     if (!prgromBanks->serialize(doc, cartridgeElement))

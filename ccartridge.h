@@ -10,6 +10,18 @@ class CCartridge : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CCartridge();
+
+    typedef enum {
+        NoMirroring = 0,
+        HorizontalMirroring = 1,
+        VerticalMirroring = 2,
+        FourScreenMirroring = 3
+    } eGameMirrorMode;
+
+    eGameMirrorMode mirrorMode;
+    qint8 mapperNumber;
+    bool hasBatteryBackedRam;
+
     CPRGROMBanks *prgromBanks;
     CCHRROMBanks *chrromBanks;
 

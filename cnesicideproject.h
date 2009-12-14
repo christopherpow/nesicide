@@ -9,15 +9,6 @@
 #include "ccartridge.h"
 #include "defaultnespalette.h"
 
-namespace GameMirrorMode {
-    typedef enum {
-        NoMirroring = 0,
-        HorizontalMirroring = 1,
-        VerticalMirroring = 2,
-        FourScreenMirroring = 3
-    } eGameMirrorMode;
-}
-
 class CNesicideProject : public IXMLSerializable, public IProjectTreeViewItem
 {
 
@@ -28,9 +19,6 @@ public:
 
     // The following properties must be saved/loaded with the project file =============
     QString ProjectTitle; // The visible title of the project
-    GameMirrorMode::eGameMirrorMode mirrorMode;
-    qint8 mapperNumber;
-    bool hasBatteryBackedRam;
     QList<QColor> projectPalette;
     // =================================================================================
 

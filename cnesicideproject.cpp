@@ -1,9 +1,10 @@
 #include "cnesicideproject.h"
+#include "main.h"
 
 CNesicideProject::CNesicideProject()
 {
     this->ProjectTitle = "(No project loaded)";
-    this->mirrorMode = GameMirrorMode::NoMirroring;
+
     isInitialized = false;
 }
 
@@ -48,8 +49,6 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     QDomElement projectElement = addElement( doc, node, "nesicideproject" );
     projectElement.setAttribute("version", 0.2);
     projectElement.setAttribute("title", this->ProjectTitle);
-    projectElement.setAttribute("mirrorMode", this->mirrorMode);
-    projectElement.setAttribute("hasBatteryBackedRam", this->hasBatteryBackedRam);
 
     // Add the palette data
 
@@ -70,6 +69,8 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     // Now serialize all child objects
     if (!cartridge->serialize(doc, projectElement))
         return false;
+    // CPTODO: implement this
+    // CNES::serialize(doc, projectElement);
 
     return true;
 }
@@ -89,7 +90,6 @@ QString CNesicideProject::caption() const
 void CNesicideProject::createProjectFromRom(QString fileName)
 {
     QFile fileIn (fileName);
-
 
     if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
     {
@@ -139,18 +139,18 @@ void CNesicideProject::createProjectFromRom(QString fileName)
 
         // First extract the mirror mode
         if (romCB1 & 0x08)
-            this->mirrorMode = GameMirrorMode::FourScreenMirroring;
+            cartridge->mirrorMode = CCartridge::FourScreenMirroring;
         else if (romCB1 & 0x01)
-            this->mirrorMode = GameMirrorMode::VerticalMirroring;
+            cartridge->mirrorMode = CCartridge::VerticalMirroring;
         else
-            this->mirrorMode = GameMirrorMode::HorizontalMirroring;
+            cartridge->mirrorMode = CCartridge::HorizontalMirroring;
 
         // Now extract the two flags (battery backed ram and trainer)
-        hasBatteryBackedRam = (romCB1 & 0x02);
+        cartridge->hasBatteryBackedRam = (romCB1 & 0x02);
         bool hasTrainer = (romCB1 & 0x04);
 
         // Extract the four lower bits of the mapper number
-        this->mapperNumber = (romCB1 >> 4);
+        cartridge->mapperNumber = (romCB1 >> 4);
 
         // ROM Control Byte 2:
         // • Bits 0-3 - Reserved for future usage and should all be 0.
@@ -159,7 +159,7 @@ void CNesicideProject::createProjectFromRom(QString fileName)
         fs >> romCB2;
 
         // Extract the upper four bits of the mapper number
-        this->mapperNumber |= (romCB2 & 0xF0);
+        cartridge->mapperNumber |= (romCB2 & 0xF0);
 
         // Number of 8 KB RAM banks. For compatibility with previous
         // versions of the iNES format, assume 1 page of RAM when
@@ -214,6 +214,7 @@ void CNesicideProject::createProjectFromRom(QString fileName)
 
         }
 
+        emulator->setCartridge(cartridge);
 
         fileIn.close();
     }

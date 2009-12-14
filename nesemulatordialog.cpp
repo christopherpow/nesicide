@@ -1,19 +1,43 @@
 #include "nesemulatordialog.h"
 #include "ui_nesemulatordialog.h"
+#include "main.h"
+
+#include "PPU.h"
 
 NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NESEmulatorDialog)
 {
+    imgData = new char[256*256*3];
+
     ui->setupUi(this);
     ui->stopButton->setVisible(false);
     ui->pauseButton->setVisible(false);
     ui->stepButton->setVisible(false);
+
+    timer = new QBasicTimer();
+
+    renderer = new CNESEmulatorRenderer(ui->frame, imgData);
+    CPPU::TV ( imgData );
 }
 
 NESEmulatorDialog::~NESEmulatorDialog()
 {
     delete ui;
+    delete timer;
+}
+
+void NESEmulatorDialog::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == timer->timerId())
+    {
+        renderer->updateGL ();
+        timer->start(16, this);
+    }
+    else
+    {
+        QDialog::timerEvent(event);
+    }
 }
 
 void NESEmulatorDialog::stopEmulation()
@@ -40,9 +64,9 @@ void NESEmulatorDialog::on_playButton_clicked()
     ui->pauseButton->setVisible(true);
     ui->stepButton->setVisible(false);
 
-    // TODO: Start or continue emulation
+    emulator->setRunning ( true );
 
-
+    timer->start ( 16, this );
 }
 
 void NESEmulatorDialog::on_stopButton_clicked()
@@ -59,9 +83,9 @@ void NESEmulatorDialog::on_stopButton_clicked()
     ui->pauseButton->setVisible(false);
     ui->stepButton->setVisible(false);
 
-    // TODO: Stop emulation (and reset)
+    timer->stop ();
 
-
+    emulator->setRunning ( false );
 }
 
 void NESEmulatorDialog::on_pauseButton_clicked()
@@ -71,9 +95,9 @@ void NESEmulatorDialog::on_pauseButton_clicked()
     ui->pauseButton->setVisible(false);
     ui->stepButton->setVisible(true);
 
-    // TODO: Pause emulation
+    timer->stop ();
 
-
+    emulator->setRunning ( false );
 }
 
 void NESEmulatorDialog::on_stepButton_clicked()
@@ -81,4 +105,5 @@ void NESEmulatorDialog::on_stepButton_clicked()
     // TODO: Run one PPU cycle's worth of clocks on the PPU.
     //       Since PPU executes faster it makes sense to align the steps
     //       on PPU cycles but you can do it on CPU cycles if you really want to.
+    // CPTODO: re-factor stepping routine first...
 }
