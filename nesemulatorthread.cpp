@@ -43,6 +43,9 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
         CROM::Set8KBank ( b, (unsigned char*)cartridge->chrromBanks->banks.at(b)->data );
     }
 
+    // Perform any necessary fixup on from the ROM loader...
+    CROM::DoneLoadingBanks ();
+
     // Set up PPU with iNES header information...
     if ( (cartridge->mirrorMode == CCartridge::NoMirroring) ||
          (cartridge->mirrorMode == CCartridge::HorizontalMirroring) )

@@ -32,6 +32,7 @@ public:
    static void Clear8KBanks () { m_numChrBanks = 0; }
    static void Set8KBank ( int bank, unsigned char* data );
    static void Set16KBank ( int bank, unsigned char* data, CCodeDataLogger* pLogger );
+   static void DoneLoadingBanks ( void );
    static void CHRRAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_CHRRAMmemory,data,length); }
    static void CHRRAMCLR ( void ) { memset(m_CHRRAMmemory,0x00,MEM_8KB); }
    static void SRAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_SRAMmemory+addr,data,length); }

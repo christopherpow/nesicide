@@ -74,6 +74,21 @@ void CROM::Set8KBank ( int bank, unsigned char* data )
    m_numChrBanks = bank + 1;
 }
 
+void CROM::DoneLoadingBanks ()
+{
+   // This is called when the ROM loader is done so that fixup can be done...
+   if ( m_numPrgBanks == 1 )
+   {
+       // If the ROM contains only one PRG-ROM bank then it needs to be replicated
+       // to the second PRG-ROM bank slot...
+       memcpy ( m_PRGROMmemory[1], m_PRGROMmemory[0], MEM_16KB );
+
+       m_pLogger [ 1 ] = m_pLogger [ 0 ];
+
+       m_numPrgBanks += 1;
+   }
+}
+
 void CROM::RESET ()
 {
    m_mapper = 0;
