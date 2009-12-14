@@ -3,11 +3,13 @@
 
 #include <QWidget>
 #include <QGLWidget>
+#include "cgltexturemanager.h"
 
 class CNESEmulatorRenderer : public QGLWidget
 {
 public:
     CNESEmulatorRenderer(QWidget *parent, char *imgData);
+    ~CNESEmulatorRenderer();
     void initializeGL();
     void resizeGL(int width, int height);
     void paintGL();
@@ -18,7 +20,8 @@ public:
     int scrollX;
     int scrollY;
     char* imageData;
-
+    int textureID;
+    CGLTextureManager glTextureManager;
 };
 
 #endif // CNESEMULATORRENDERER_H

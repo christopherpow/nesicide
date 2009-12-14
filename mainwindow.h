@@ -29,7 +29,11 @@ private:
     void projectDataChangesEvent();
     CProjectTreeViewModel *projectTreeviewModel;
 
+protected:
+    virtual void closeEvent ( QCloseEvent * event );
+
 private slots:
+    void on_MainWindow_destroyed();
     void on_actionEmulation_Window_toggled(bool );
     void on_action_Project_Browser_toggled(bool );
     void on_projectBrowserDockWidget_visibilityChanged(bool visible);

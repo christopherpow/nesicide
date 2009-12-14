@@ -3,12 +3,17 @@
 CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget *parent, char *imgData)
     : QGLWidget(parent)
 {
+    textureID = glTextureManager.getNewTextureID();
     imageData = imgData;
     scrollX = 0;
     scrollY = 0;
 
 }
 
+CCHRROMPreviewRenderer::~CCHRROMPreviewRenderer()
+{
+    glTextureManager.freeTextureID(textureID);
+}
 
 void CCHRROMPreviewRenderer::initializeGL()
 {
@@ -36,10 +41,10 @@ void CCHRROMPreviewRenderer::initializeGL()
     resizeGL(this->width(), this->height());
 
     // Create the texture we will be rendering onto
-    glBindTexture(GL_TEXTURE_2D, 1);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     // We want it to be RGBRGB(etc) formatted
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, textureID);
 
     // Set our texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -56,6 +61,7 @@ void CCHRROMPreviewRenderer::initializeGL()
 void CCHRROMPreviewRenderer::reloadData(char *imgData)
 {
     imageData = imgData;
+    glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     repaint();
 }
@@ -100,7 +106,7 @@ void CCHRROMPreviewRenderer::resizeGL(int width, int height)
 void CCHRROMPreviewRenderer::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glBindTexture (GL_TEXTURE_2D, 1);
+    glBindTexture (GL_TEXTURE_2D, textureID);
     glBegin(GL_QUADS);
         glTexCoord2f (0.0, 0.0);
         glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
