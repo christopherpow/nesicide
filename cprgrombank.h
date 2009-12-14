@@ -9,10 +9,19 @@ class CPRGROMBank : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CPRGROMBank();
-    qint8 bankID;
-    qint8 *data;
-    PRGROMDisplayDialog *editor;
-    int tabId;
+    ~CPRGROMBank();
+
+    // Member Getters
+    qint8 get_indexOfPrgRomBank();
+    qint8 *get_pointerToBankData();
+    PRGROMDisplayDialog *get_pointerToEditorDialog();
+    int get_indexOfEditorTab();
+
+    // Member Setters
+    void set_indexOfPrgRomBank(qint8 indexOfPrgRomBank);
+    void set_pointerToBankData(qint8 *pointerToBankData);
+    void set_pointerToEditorDialog(PRGROMDisplayDialog *pointerToEditorDialog);
+    void set_indexOfEditorTab(int indexOfEditorTab);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -22,6 +31,12 @@ public:
     QString caption() const;
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);
     virtual void openItemEvent(QTabWidget *tabWidget);
+
+private:
+    qint8 m_indexOfPrgRomBank;
+    qint8 *m_pointerToBankData;
+    PRGROMDisplayDialog *m_pointerToEditorDialog;
+    int m_indexOfEditorTab;
 
 };
 

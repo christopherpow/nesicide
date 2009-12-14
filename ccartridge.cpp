@@ -2,13 +2,32 @@
 
 CCartridge::CCartridge()
 {
-    prgromBanks = new CPRGROMBanks();
-    prgromBanks->InitTreeItem(this);
-    this->appendChild(prgromBanks);
+    m_pointerToPrgRomBanks = new CPRGROMBanks();
+    m_pointerToPrgRomBanks->InitTreeItem(this);
+    this->appendChild(m_pointerToPrgRomBanks);
 
-    chrromBanks = new CCHRROMBanks();
-    chrromBanks->InitTreeItem(this);
-    this->appendChild(chrromBanks);
+    m_pointerToChrRomBanks = new CCHRROMBanks();
+    m_pointerToChrRomBanks->InitTreeItem(this);
+    this->appendChild(m_pointerToChrRomBanks);
+}
+
+CCartridge::~CCartridge()
+{
+    if (m_pointerToChrRomBanks)
+        delete m_pointerToChrRomBanks;
+
+    if (m_pointerToPrgRomBanks)
+        delete m_pointerToPrgRomBanks;
+}
+
+CPRGROMBanks *CCartridge::get_pointerToPrgRomBanks()
+{
+    return m_pointerToPrgRomBanks;
+}
+
+CCHRROMBanks *CCartridge::get_pointerToChrRomBanks()
+{
+    return m_pointerToChrRomBanks;
 }
 
 bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
@@ -17,17 +36,17 @@ bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
     QDomElement cartridgeElement = addElement( doc, node, "cartridge" );
 
     // Export the PRG-ROM banks
-    if (!prgromBanks->serialize(doc, cartridgeElement))
+    if (!m_pointerToPrgRomBanks->serialize(doc, cartridgeElement))
         return false;
 
     // Export the CHR-ROM banks
-    if (!chrromBanks->serialize(doc, cartridgeElement))
+    if (!m_pointerToChrRomBanks->serialize(doc, cartridgeElement))
         return false;
 
     return true;
 }
 
-bool CCartridge::deserialize(QDomDocument &doc, QDomNode &node)
+bool CCartridge::deserialize(QDomDocument &, QDomNode &)
 {
     return false;
 }

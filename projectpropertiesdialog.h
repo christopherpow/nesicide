@@ -16,7 +16,7 @@ namespace Ui {
 class ProjectPropertiesDialog : public QDialog {
     Q_OBJECT
 public:
-    ProjectPropertiesDialog(QWidget *parent, QList<QColor> pal);
+    ProjectPropertiesDialog(QWidget *parent, QList<QColor> *pal);
     ~ProjectPropertiesDialog();
     void setProjectName(QString newName);
     QString getProjectName();
@@ -48,10 +48,6 @@ private slots:
     void on_ImportPalettePushButton_clicked();
     void on_exportPalettePushButton_clicked();
     void on_resetPalettePushButton_clicked();
-    void on_tableWidget_cellActivated(int row, int column);
-    void on_redDial_valueChanged(int value);
-    void on_blueDial_valueChanged(int value);
-    void on_greenDial_valueChanged(int value);
     void on_tableWidget_cellClicked(int row, int column);
 };
 

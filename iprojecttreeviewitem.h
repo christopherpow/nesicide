@@ -52,7 +52,7 @@ public:
         return 1;
     }
 
-    QVariant data(int column) const
+    QVariant data(int) const
     {
         return caption();
     }

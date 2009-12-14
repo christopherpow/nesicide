@@ -10,8 +10,11 @@ class CCartridge : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CCartridge();
-    CPRGROMBanks *prgromBanks;
-    CCHRROMBanks *chrromBanks;
+    ~CCartridge();
+
+    // Member Getters
+    CPRGROMBanks *get_pointerToPrgRomBanks();
+    CCHRROMBanks *get_pointerToChrRomBanks();
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -19,8 +22,12 @@ public:
 
     // IProjectTreeViewItem Interface Implmentation
     QString caption() const;
-    virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent) {};
-    virtual void openItemEvent(QTabWidget *tabWidget) {};
+    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+    virtual void openItemEvent(QTabWidget*) {}
+
+private:
+    CPRGROMBanks *m_pointerToPrgRomBanks;
+    CCHRROMBanks *m_pointerToChrRomBanks;
 };
 
 #endif // CCARTRIDGE_H

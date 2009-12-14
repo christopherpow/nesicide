@@ -18,8 +18,8 @@ public:
 
     // IProjectTreeViewItem Interface Implmentation
     QString caption() const;
-    virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent) {};
-    virtual void openItemEvent(QTabWidget *tabWidget) {};
+    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+    virtual void openItemEvent(QTabWidget*) {}
 };
 
 #endif // CCHRROMBANKS_H

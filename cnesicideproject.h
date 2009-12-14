@@ -18,30 +18,34 @@ namespace GameMirrorMode {
     } eGameMirrorMode;
 }
 
+typedef QColor CPaletteEntry;
+
 class CNesicideProject : public IXMLSerializable, public IProjectTreeViewItem
 {
 
 public:
-
+    // Global Constructor / Destructors
     CNesicideProject();
     ~CNesicideProject();
 
-    // The following properties must be saved/loaded with the project file =============
-    QString ProjectTitle; // The visible title of the project
-    GameMirrorMode::eGameMirrorMode mirrorMode;
-    qint8 mapperNumber;
-    bool hasBatteryBackedRam;
-    QList<QColor> projectPalette;
-    // =================================================================================
-
-    // Helper functions
+    // Public Functionality
     void initializeProject();
-    bool getIsInitialized();
-    void createProjectFromRom(QString fileName);
+    bool createProjectFromRom(QString fileName);
 
-    // Project container classes
-    CProjectPrimitives *projectPrimitives;
-    CCartridge *cartridge;
+    // Member Getters
+    QString get_projectTitle();
+    GameMirrorMode::eGameMirrorMode get_enumMirrorMode();
+    qint8 get_indexOfMapperNumber();
+    bool get_hasBatteryBackedRam();
+    QList<CPaletteEntry> *get_pointerToListOfProjectPaletteEntries();
+    bool get_isInitialized();
+
+    // Member Setters
+    void set_projectTitle(QString value);
+    void set_enumMirrorMode(GameMirrorMode::eGameMirrorMode enumValue);
+    void set_indexOfMapperNumber(qint8 indexOfValue);
+    void set_hasBatteryBackedRam(bool hasBatteryBackedRam);
+    void set_pointerToListOfProjectPaletteEntries(QList<CPaletteEntry> *pointerToListOfProjectPaletteEntries);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -49,11 +53,20 @@ public:
 
     // IProjectTreeViewItem Interface Implmentation
     QString caption() const;
-    virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent) {};
-    virtual void openItemEvent(QTabWidget *tabWidget) {};
+    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+    virtual void openItemEvent(QTabWidget*) {}
 
 private:
-    bool isInitialized;
+    QString m_projectTitle;                                         // The visible title of the project
+    GameMirrorMode::eGameMirrorMode m_enumMirrorMode;               // Mirror mode used in the emulator
+    qint8 m_indexOfMapperNumber;                                    // Numeric ID of the cartridge mapper
+    bool m_hasBatteryBackedRam;                                     // Memory can be saved via RAM kept valid with a battery
+    QList<CPaletteEntry> *m_pointerToListOfProjectPaletteEntries;   // List of palette entries for the emulator.
+    bool m_isInitialized;                                           // Is the project initialized?
+
+    CProjectPrimitives *m_pointerToProjectPrimitives;
+    CCartridge *m_pointerToCartridge;
+
 };
 
 #endif // CNESICIDEPROJECT_H
