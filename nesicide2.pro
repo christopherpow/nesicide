@@ -28,7 +28,31 @@ SOURCES += main.cpp \
     chrromdisplaydialog.cpp \
     cchrrompreviewrenderer.cpp \
     qtcolorpicker.cpp \
-    nesemulatordialog.cpp
+    nesemulatordialog.cpp \
+    Tracer.cpp \
+    ROMMapper068.cpp \
+    ROMMapper065.cpp \
+    ROMMapper011.cpp \
+    ROMMapper010.cpp \
+    ROMMapper009.cpp \
+    ROMMapper007.cpp \
+    ROMMapper005.cpp \
+    ROMMapper004.cpp \
+    ROMMapper003.cpp \
+    ROMMapper002.cpp \
+    ROMMapper001.cpp \
+    ROM.cpp \
+    PPU.cpp \
+    NES.cpp \
+    Mappers.cpp \
+    JoypadLogger.cpp \
+    IO.cpp \
+    CodeDataLogger.cpp \
+    APU.cpp \
+    6502.cpp \
+    BasePalette.cpp \
+    nesemulatorrenderer.cpp \
+    nesemulatorthread.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -52,7 +76,33 @@ HEADERS += mainwindow.h \
     cchrrompreviewrenderer.h \
     qtcolorpicker.h \
     defaultnespalette.h \
-    nesemulatordialog.h
+    nesemulatordialog.h \
+    ROMMapper068.h \
+    ROMMapper065.h \
+    ROMMapper011.h \
+    ROMMapper010.h \
+    ROMMapper009.h \
+    ROMMapper007.h \
+    ROMMapper005.h \
+    ROMMapper004.h \
+    ROMMapper003.h \
+    ROMMapper002.h \
+    ROMMapper001.h \
+    ROM.h \
+    PPU.h \
+    NES.h \
+    Mappers.h \
+    JoypadLogger.h \
+    IO.h \
+    CodeDataLogger.h \
+    APU.h \
+    6502.h \
+    Tracer.h \
+    BasePalette.h \
+    NESICIDECommon.h \
+    nesemulatorrenderer.h \
+    nesemulatorthread.h \
+    main.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \

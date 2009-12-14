@@ -1,10 +1,8 @@
 #include "cnesicideproject.h"
+#include "main.h"
 
 CNesicideProject::CNesicideProject()
 {
-    m_enumMirrorMode = GameMirrorMode::NoMirroring;
-    m_hasBatteryBackedRam = false;
-    m_indexOfMapperNumber = 0;
     m_isInitialized = false;
     m_pointerToCartridge = (CCartridge *)NULL;
     m_pointerToListOfProjectPaletteEntries = new QList<CPaletteEntry>();
@@ -24,45 +22,6 @@ CNesicideProject::~CNesicideProject()
         delete m_pointerToListOfProjectPaletteEntries;
 }
 
-QString CNesicideProject::get_projectTitle()
-{
-    return m_projectTitle;
-}
-
-void CNesicideProject::set_projectTitle(QString value)
-{
-    m_projectTitle = value;
-}
-
-GameMirrorMode::eGameMirrorMode CNesicideProject::get_enumMirrorMode()
-{
-    return m_enumMirrorMode;
-}
-
-void CNesicideProject::set_enumMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
-{
-    m_enumMirrorMode = enumValue;
-}
-
-qint8 CNesicideProject::get_indexOfMapperNumber()
-{
-    return m_indexOfMapperNumber;
-}
-
-void CNesicideProject::set_indexOfMapperNumber(qint8 indexOfValue)
-{
-    m_indexOfMapperNumber = indexOfValue;
-}
-
-bool CNesicideProject::get_hasBatteryBackedRam()
-{
-    return m_hasBatteryBackedRam;
-}
-
-void CNesicideProject::set_hasBatteryBackedRam(bool hasBatteryBackedRam)
-{
-    m_hasBatteryBackedRam = hasBatteryBackedRam;
-}
 
 QList<CPaletteEntry> *CNesicideProject::get_pointerToListOfProjectPaletteEntries()
 {
@@ -122,8 +81,8 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     // Set some variables as tags to this node.
     projectElement.setAttribute("version", 0.2);
     projectElement.setAttribute("title", m_projectTitle);
-    projectElement.setAttribute("mirrorMode", m_enumMirrorMode);
-    projectElement.setAttribute("hasBatteryBackedRam", m_hasBatteryBackedRam);
+    projectElement.setAttribute("mirrorMode", m_pointerToCartridge->get_enumMirrorMode());
+    projectElement.setAttribute("hasBatteryBackedRam", m_pointerToCartridge->get_hasBatteryBackedRam());
 
     // Create the root palette element, and give it a version attribute
     QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
@@ -147,6 +106,8 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     } else {
         return false;
     }
+    // CPTODO: implement this
+    // CNES::serialize(doc, projectElement);
 
     return true;
 }
@@ -160,6 +121,27 @@ QString CNesicideProject::caption() const
 {
     return QString("Project");
 }
+
+CCartridge *CNesicideProject::get_pointerToCartridge()
+{
+    return m_pointerToCartridge;
+}
+
+void CNesicideProject::set_pointerToCartridge(CCartridge *pointerToCartridge)
+{
+    m_pointerToCartridge = pointerToCartridge;
+}
+
+QString CNesicideProject::get_projectTitle()
+{
+    return m_projectTitle;
+}
+
+void CNesicideProject::set_projectTitle(QString value)
+{
+    m_projectTitle = value;
+}
+
 
 bool CNesicideProject::createProjectFromRom(QString fileName)
 {
@@ -223,18 +205,18 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         // First extract the mirror mode
         if (romCB1 & 0x08)
-            m_enumMirrorMode = GameMirrorMode::FourScreenMirroring;
+            m_pointerToCartridge->set_enumMirrorMode(GameMirrorMode::FourScreenMirroring);
         else if (romCB1 & 0x01)
-            m_enumMirrorMode = GameMirrorMode::VerticalMirroring;
+            m_pointerToCartridge->set_enumMirrorMode(GameMirrorMode::VerticalMirroring);
         else
-            m_enumMirrorMode = GameMirrorMode::HorizontalMirroring;
+            m_pointerToCartridge->set_enumMirrorMode(GameMirrorMode::HorizontalMirroring);
 
         // Now extract the two flags (battery backed ram and trainer)
-        m_hasBatteryBackedRam = (romCB1 & 0x02);
+        m_pointerToCartridge->set_hasBatteryBackedRam(romCB1 & 0x02);
         bool hasTrainer = (romCB1 & 0x04);
 
         // Extract the four lower bits of the mapper number
-        m_indexOfMapperNumber = romCB1 >> 4;
+        m_pointerToCartridge->set_indexOfMapperNumber(romCB1 >> 4);
 
         // ROM Control Byte 2:
         // • Bits 0-3 - Reserved for future usage and should all be 0.
@@ -243,7 +225,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         fs >> romCB2;
 
         // Extract the upper four bits of the mapper number
-        m_indexOfMapperNumber |= (romCB2 & 0xF0);
+        m_pointerToCartridge->set_indexOfMapperNumber(m_pointerToCartridge->get_indexOfMapperNumber() | (romCB2 & 0xF0));
 
         // Number of 8 KB RAM banks. For compatibility with previous
         // versions of the iNES format, assume 1 page of RAM when
@@ -299,6 +281,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         }
 
+        emulator->setCartridge(m_pointerToCartridge);
 
         fileIn.close();
     }
