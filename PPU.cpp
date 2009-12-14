@@ -18,21 +18,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// CPTODO: include for ?
-//#include "NESICIDE.h"
-
 #include "BasePalette.h"
 
 #include "PPU.h"
 #include "6502.h"
 #include "ROM.h"
 #include "APU.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

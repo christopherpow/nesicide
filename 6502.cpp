@@ -18,8 +18,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// CPTODO: include for ?
-//#include "NESICIDE.h"
 #include "6502.h"
 #include "PPU.h"
 #include "ROM.h"
@@ -27,12 +25,6 @@
 #include "IO.h"
 
 #include "Mappers.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

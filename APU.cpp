@@ -18,9 +18,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// CPTODO: include for ?
-//#include "nesicide.h"
-
 #include "APU.h"
 #include "6502.h"
 #include "PPU.h"

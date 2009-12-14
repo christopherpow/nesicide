@@ -18,20 +18,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// CPTODO: include for ?
-//#include "nesicide.h"
 #include "Tracer.h"
 
 // CPTODO: CONFIG static object contains registry config items...removed for now.
 //#include "Configurator.h"
 
 #include "6502.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
