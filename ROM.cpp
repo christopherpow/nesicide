@@ -53,19 +53,30 @@ static CROM rom = CROM();
 
 CROM::CROM()
 {
+   int bank;
+
+   for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
+   {
+      m_pLogger [ bank ] = new CCodeDataLogger ();
+   }
+
    CROM::RESET ();
 }
 
 CROM::~CROM()
 {
+   int bank;
+
+   for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
+   {
+      delete m_pLogger [ bank ];
+   }
 }
 
-void CROM::Set16KBank ( int bank, unsigned char* data, CCodeDataLogger* pLogger )
+void CROM::Set16KBank ( int bank, unsigned char* data )
 {
    memcpy ( m_PRGROMmemory[bank], data, MEM_16KB );
    m_numPrgBanks = bank + 1;
-
-   m_pLogger [ bank ] = pLogger;
 }
 
 void CROM::Set8KBank ( int bank, unsigned char* data )
@@ -83,14 +94,14 @@ void CROM::DoneLoadingBanks ()
        // to the second PRG-ROM bank slot...
        memcpy ( m_PRGROMmemory[1], m_PRGROMmemory[0], MEM_16KB );
 
-       m_pLogger [ 1 ] = m_pLogger [ 0 ];
-
        m_numPrgBanks += 1;
    }
 }
 
 void CROM::RESET ()
 {
+   int bank;
+
    m_mapper = 0;
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
@@ -103,25 +114,24 @@ void CROM::RESET ()
    m_PRGROMbank [ 3 ] = 1;
 
    // Assume no VROM...point to VRAM...
-   m_pCHRmemory [ 0 ] = m_CHRRAMmemory + (0<<UPSHIFT_1KB);
-   m_pCHRmemory [ 1 ] = m_CHRRAMmemory + (1<<UPSHIFT_1KB);
-   m_pCHRmemory [ 2 ] = m_CHRRAMmemory + (2<<UPSHIFT_1KB);
-   m_pCHRmemory [ 3 ] = m_CHRRAMmemory + (3<<UPSHIFT_1KB);
-   m_pCHRmemory [ 4 ] = m_CHRRAMmemory + (4<<UPSHIFT_1KB);
-   m_pCHRmemory [ 5 ] = m_CHRRAMmemory + (5<<UPSHIFT_1KB);
-   m_pCHRmemory [ 6 ] = m_CHRRAMmemory + (6<<UPSHIFT_1KB);
-   m_pCHRmemory [ 7 ] = m_CHRRAMmemory + (7<<UPSHIFT_1KB);
+   for ( bank = 0; bank < 8; bank++ )
+   {
+      m_pCHRmemory [ bank ] = m_CHRRAMmemory + (bank<<UPSHIFT_1KB);
+   }
 
+   // If the cartridge has VROM, map it instead...
    if ( m_numChrBanks > 0 )
    {
-      m_pCHRmemory [ 0 ] = m_CHRROMmemory [ 0 ] + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 1 ] = m_CHRROMmemory [ 0 ] + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 2 ] = m_CHRROMmemory [ 0 ] + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 3 ] = m_CHRROMmemory [ 0 ] + (3<<UPSHIFT_1KB);
-      m_pCHRmemory [ 4 ] = m_CHRROMmemory [ 0 ] + (4<<UPSHIFT_1KB);
-      m_pCHRmemory [ 5 ] = m_CHRROMmemory [ 0 ] + (5<<UPSHIFT_1KB);
-      m_pCHRmemory [ 6 ] = m_CHRROMmemory [ 0 ] + (6<<UPSHIFT_1KB);
-      m_pCHRmemory [ 7 ] = m_CHRROMmemory [ 0 ] + (7<<UPSHIFT_1KB);
+      for ( bank = 0; bank < 8; bank++ )
+      {
+         m_pCHRmemory [ bank ] = m_CHRROMmemory [ bank ] + (bank<<UPSHIFT_1KB);
+      }
+   }
+
+   // Clear Code/Data Logger info...
+   for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
+   {
+      m_pLogger [ bank ]->ClearData ();
    }
 }
 

@@ -34,7 +34,7 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
     // Load cartridge PRG-ROM banks into emulator...
     for ( b = 0; b < cartridge->prgromBanks->banks.count(); b++ )
     {
-        CROM::Set16KBank ( b, (unsigned char*)cartridge->prgromBanks->banks.at(b)->data, NULL );
+        CROM::Set16KBank ( b, (unsigned char*)cartridge->prgromBanks->banks.at(b)->data );
     }
 
     // Load cartridge CHR-ROM banks into emulator...
@@ -43,7 +43,7 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
         CROM::Set8KBank ( b, (unsigned char*)cartridge->chrromBanks->banks.at(b)->data );
     }
 
-    // Perform any necessary fixup on from the ROM loader...
+    // Perform any necessary fixup on from the ROM loading...
     CROM::DoneLoadingBanks ();
 
     // Set up PPU with iNES header information...
@@ -70,55 +70,42 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
     }
 #endif
 
+    // Reset the emulator...
     reset ();
 }
 
 void NESEmulatorThread::reset()
 {
-    // Reset emulated PPU...
-    CPPU::RESET ();
+   int bank;
 
-// CPTODO: don't think i need this...
-//    PullROMInfo ();
+   // Reset emulated PPU...
+   CPPU::RESET ();
 
-// CPTODO: removed logger stuff for now...
-#if 0
-    for ( idx = 0; idx < m_pRIID->GetNumBanksInRom(); idx++ )
-    {
-       CItemInfo* pIIRomBank = m_pRIID->GetRomBankPtr ( idx );
-       if ( pIIRomBank != NULL )
-       {
-          CROMBankItemData* pRBID = (CROMBankItemData*)pIIRomBank->GetItemData();
-          pRBID->GetLogger()->ClearData();
-       }
-    }
-    pDoc->GetCodeDataLoggerDlg()->Reset();
-    pDoc->GetTracerDlg()->Reset();
-#endif
+   // CPTODO: reset dialogs when they exist...probalby somewhere else, though?
+   //    pDoc->GetCodeDataLoggerDlg()->Reset();
+   //    pDoc->GetTracerDlg()->Reset();
 
-    // Reset emulated 6502 and APU [APU reset internal to 6502]...
-    C6502::RESET ();
+   // Reset emulated 6502 and APU [APU reset internal to 6502]...
+   C6502::RESET ();
 
-    // Clear emulated machine memory and registers...
-    C6502::MEMCLR ();
-    CPPU::MEMCLR ();
-    CPPU::OAMCLR ();
-    CROM::CHRRAMCLR ();
+   // Clear emulated machine memory and registers...
+   C6502::MEMCLR ();
+   CPPU::MEMCLR ();
+   CPPU::OAMCLR ();
+   CROM::CHRRAMCLR ();
 
-    // Clear the rest...
-    CNES::RESET ();
+   // Clear the rest...
+   CNES::RESET ();
 
 // CPTODO: removed joypad logger for now...
-#if 0
-    pDoc->GetJoypadLoggerDlg()->Reset ();
-#endif
+//   pDoc->GetJoypadLoggerDlg()->Reset ();
 
-    // Reset mapper...
-    mapperfunc [ CROM::MAPPER() ].reset ();
+   // Reset mapper...
+   mapperfunc [ CROM::MAPPER() ].reset ();
 
-    // Reset emulated I/O devices...
-    m_joy [ JOY1 ] = 0x00;
-    m_joy [ JOY2 ] = 0x00;
+   // Reset emulated I/O devices...
+   m_joy [ JOY1 ] = 0x00;
+   m_joy [ JOY2 ] = 0x00;
 }
 
 void NESEmulatorThread::setFrequency ( float fFreq )
