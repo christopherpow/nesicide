@@ -3,7 +3,7 @@
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
+#include "csources.h"
 
 class CProject : public IXMLSerializable, public IProjectTreeViewItem
 {
@@ -19,6 +19,9 @@ public:
     QString caption() const;
     virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
     virtual void openItemEvent(QTabWidget*) {}
+
+private:
+    CSources *m_pointerToSources;
 };
 
 #endif // CPROJECT_H

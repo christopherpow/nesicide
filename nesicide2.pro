@@ -55,7 +55,9 @@ SOURCES += main.cpp \
     nesemulatorrenderer.cpp \
     nesemulatorthread.cpp \
     cgltexturemanager.cpp \
-    cproject.cpp
+    cproject.cpp \
+    csources.cpp \
+    csourceitem.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -114,7 +116,9 @@ HEADERS += mainwindow.h \
     fmod_dsp.h \
     fmod_codec.h \
     fmod.hpp \
-    fmod.h
+    fmod.h \
+    csources.h \
+    csourceitem.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
