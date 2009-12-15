@@ -11,9 +11,27 @@ CSourceItem::~CSourceItem()
 {
 }
 
+QString CSourceItem::get_sourceCode()
+{
+    if (m_codeEditorForm)
+        m_sourceCode = m_codeEditorForm->get_sourceCode();
+
+    return m_sourceCode;
+}
+
+void CSourceItem::set_sourceCode(QString sourceCode)
+{
+    m_sourceCode = sourceCode;
+
+    if (m_codeEditorForm)
+        m_codeEditorForm->set_sourceCode(sourceCode);
+}
+
 bool CSourceItem::serialize(QDomDocument &doc, QDomNode &node)
 {
     QDomElement sourcesElement = addElement( doc, node, "sourceitem" );
+    QDomCDATASection dataSect = doc.createCDATASection(get_sourceCode());
+    sourcesElement.appendChild(dataSect);
     return true;
 }
 

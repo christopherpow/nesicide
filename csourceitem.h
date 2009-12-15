@@ -13,8 +13,10 @@ public:
 
     // Member Getters
     QString get_sourceName();
+    QString get_sourceCode();
 
     // Member Setters
+    void set_sourceCode(QString sourceCode);
     void set_sourceName(QString sourceName);
 
     // IXMLSerializable Interface Implementation
@@ -28,6 +30,7 @@ public:
 
 private:
     QString m_sourceName;
+    QString m_sourceCode;
     qint8 m_indexOfTab;
     CodeEditorForm *m_codeEditorForm;
 };

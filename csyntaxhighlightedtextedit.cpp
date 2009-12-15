@@ -2,6 +2,15 @@
 
 CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget *)
 {
+#ifdef Q_WS_MAC
+    this->setFont(QFont("Monaco", 10));
+#endif
+#ifdef Q_WS_X11
+    this->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_WS_WIN
+    this->setFont(QFont("Consolas", 10));
+#endif
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     this->setWordWrapMode(QTextOption::NoWrap);
     lineNumberArea = new LineNumberArea(this);

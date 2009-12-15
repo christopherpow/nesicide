@@ -19,12 +19,6 @@
    </property>
    <item row="0" column="0">
     <widget class="CSyntaxHighlightedTextEdit" name="textEdit">
-     <property name="font">
-      <font>
-       <family>Courier New</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>

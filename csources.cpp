@@ -19,6 +19,15 @@ CSources::~CSources()
 bool CSources::serialize(QDomDocument &doc, QDomNode &node)
 {
     QDomElement sourcesElement = addElement( doc, node, "sources" );
+
+    for (int indexOfSourceItem = 0; indexOfSourceItem < m_pointerToArrayOfSourceItems->count(); indexOfSourceItem++)
+    {
+        if (!m_pointerToArrayOfSourceItems->at(indexOfSourceItem))
+            return false;
+        if (!m_pointerToArrayOfSourceItems->at(indexOfSourceItem)->serialize(doc, sourcesElement))
+            return false;
+    }
+    return true;
 }
 
 bool CSources::deserialize(QDomDocument &doc, QDomNode &node)

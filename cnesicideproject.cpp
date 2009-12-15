@@ -103,9 +103,16 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     {
         if (!m_pointerToCartridge->serialize(doc, projectElement))
             return false;
-    } else {
+    } else
         return false;
-    }
+
+    if (m_pointerToProject)
+    {
+        if (!m_pointerToProject->serialize(doc, projectElement))
+            return false;
+    } else
+        return false;
+
     // CPTODO: implement this
     // CNES::serialize(doc, projectElement);
 

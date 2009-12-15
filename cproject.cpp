@@ -19,7 +19,11 @@ bool CProject::serialize(QDomDocument &doc, QDomNode &node)
     // Create the root element for the CHR-ROM banks
     QDomElement projectElement = addElement( doc, node, "project" );
 
-    if (!m_pointerToSources->serialize(doc, projectElement))
+    if (m_pointerToSources)
+    {
+        if (!m_pointerToSources->serialize(doc, projectElement))
+            return false;
+    } else
         return false;
 
     return true;
