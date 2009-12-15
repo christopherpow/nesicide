@@ -116,7 +116,7 @@ void CROM::RESET ()
    {
       for ( bank = 0; bank < 8; bank++ )
       {
-         m_pCHRmemory [ bank ] = m_CHRROMmemory [ bank ] + (bank<<UPSHIFT_1KB);
+         m_pCHRmemory [ bank ] = m_CHRROMmemory [ 0 ] + (bank<<UPSHIFT_1KB);
       }
    }
 
