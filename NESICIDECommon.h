@@ -5,7 +5,12 @@
 #include <string.h> // for memcpy...
 #include <stdio.h> // for sprintf...
 
-typedef qint32 COLORREF;
+
+#ifndef WIN32
+    typedef qint32 COLORREF;
+#else
+    #include <windef.h>
+#endif // WIN32
 
 // CPTODO: removed everything from here (for now) that is not needed yet...
 #define SWAPRB(x) ((x>>16)|(x&0xFF00)|(x<<16))
