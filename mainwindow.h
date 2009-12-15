@@ -33,6 +33,7 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionOpen_Project_triggered();
     void on_MainWindow_destroyed();
     void on_actionEmulation_Window_toggled(bool );
     void on_action_Project_Browser_toggled(bool );

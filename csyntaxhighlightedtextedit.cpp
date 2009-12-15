@@ -3,13 +3,13 @@
 CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget *)
 {
 #ifdef Q_WS_MAC
-    this->setFont(QFont("Monaco", 12));
+    this->setFont(QFont("Monaco", 11));
 #endif
 #ifdef Q_WS_X11
-    this->setFont(QFont("Monospace", 12));
+    this->setFont(QFont("Monospace", 11));
 #endif
 #ifdef Q_WS_WIN
-    this->setFont(QFont("Consolas", 12));
+    this->setFont(QFont("Consolas", 11));
 #endif
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     this->setWordWrapMode(QTextOption::NoWrap);

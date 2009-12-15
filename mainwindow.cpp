@@ -193,3 +193,12 @@ void MainWindow::closeEvent ( QCloseEvent * event )
 
     QWidget::closeEvent(event);
 }
+
+void MainWindow::on_actionOpen_Project_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESECIDE2 Project (*.nesproject)");
+    if (QFile::exists(fileName))
+    {
+
+    }
+}

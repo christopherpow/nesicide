@@ -59,6 +59,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
                 CSourceItem *pointerToSourceItem = new CSourceItem();
                 pointerToSourceItem->set_sourceName(sourceName);
                 pointerToSourceItem->InitTreeItem(this);
+                m_pointerToArrayOfSourceItems->append(pointerToSourceItem);
                 this->appendChild(pointerToSourceItem);
                 ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
             }
