@@ -67,7 +67,7 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -204,7 +204,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -219,7 +219,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
    </property>
    <property name="text">
@@ -234,7 +234,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
    </property>
    <property name="text">
@@ -249,7 +249,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
@@ -261,7 +261,7 @@
   </action>
   <action name="actionSave_Project_As">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save-as.svg</normaloff>:/resources/stock_save-as.svg</iconset>
    </property>
    <property name="text">
@@ -279,7 +279,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -288,7 +288,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -300,7 +300,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/document-properties.svg</normaloff>:/resources/document-properties.svg</iconset>
    </property>
    <property name="text">
@@ -315,7 +315,7 @@
   </action>
   <action name="actionCreate_Project_from_ROM">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/drive-harddisk.svg</normaloff>:/resources/drive-harddisk.svg</iconset>
    </property>
    <property name="text">
@@ -330,7 +330,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/system-run.svg</normaloff>:/resources/system-run.svg</iconset>
    </property>
    <property name="text">
@@ -357,7 +357,9 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>

@@ -6,7 +6,7 @@ CNesicideProject::CNesicideProject()
     m_isInitialized = false;
     m_pointerToCartridge = (CCartridge *)NULL;
     m_pointerToListOfProjectPaletteEntries = new QList<CPaletteEntry>();
-    m_pointerToProjectPrimitives = (CProjectPrimitives *)NULL;
+    m_pointerToProject = (CProject*)NULL;
     m_projectTitle = "(No project loaded)";
 }
 
@@ -15,8 +15,8 @@ CNesicideProject::~CNesicideProject()
     if (m_pointerToCartridge)
         delete m_pointerToCartridge;
 
-    if (m_pointerToProjectPrimitives)
-        delete m_pointerToProjectPrimitives;
+    if (m_pointerToProject)
+        delete m_pointerToProject;
 
     if (m_pointerToListOfProjectPaletteEntries)
         delete m_pointerToListOfProjectPaletteEntries;
@@ -45,10 +45,10 @@ void CNesicideProject::initializeProject()
     // Set the parent of this tree item to NULL since it is the top level item.
     this->InitTreeItem();
 
-    // Create our Project Primitives node and append it as a child to this tree
-    m_pointerToProjectPrimitives = new CProjectPrimitives();
-    m_pointerToProjectPrimitives->InitTreeItem(this);
-    this->appendChild(m_pointerToProjectPrimitives);
+    // Create our Project node and append it as a child to this tree
+    m_pointerToProject = new CProject();
+    m_pointerToProject->InitTreeItem(this);
+    this->appendChild(m_pointerToProject);
 
     // Create our Cartridge node and append it as a child to this tree
     m_pointerToCartridge = new CCartridge();

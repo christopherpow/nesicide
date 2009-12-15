@@ -5,9 +5,10 @@
 #include <QMessageBox>
 #include "ixmlserializable.h"
 #include "iprojecttreeviewitem.h"
-#include "cprojectprimitives.h"
 #include "ccartridge.h"
 #include "defaultnespalette.h"
+#include "iprojecttreeviewitem.h"
+#include "cproject.h"
 
 typedef QColor CPaletteEntry;
 
@@ -49,7 +50,7 @@ private:
     QList<CPaletteEntry> *m_pointerToListOfProjectPaletteEntries;   // List of palette entries for the emulator.
     bool m_isInitialized;                                           // Is the project initialized?
 
-    CProjectPrimitives *m_pointerToProjectPrimitives;
+    CProject *m_pointerToProject;
     CCartridge *m_pointerToCartridge;
 
 };

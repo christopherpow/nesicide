@@ -53,7 +53,8 @@ SOURCES += main.cpp \
     BasePalette.cpp \
     nesemulatorrenderer.cpp \
     nesemulatorthread.cpp \
-    cgltexturemanager.cpp
+    cgltexturemanager.cpp \
+    cproject.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -104,7 +105,8 @@ HEADERS += mainwindow.h \
     nesemulatorrenderer.h \
     nesemulatorthread.h \
     main.h \
-    cgltexturemanager.h
+    cgltexturemanager.h \
+    cproject.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
