@@ -8,7 +8,6 @@ QT += network \
     multimedia
 TARGET = nesicide2
 TEMPLATE = app
-LIBS += ./libfmodex.a
 SOURCES += main.cpp \
     mainwindow.cpp \
     cnesicideproject.cpp \
@@ -113,13 +112,6 @@ HEADERS += mainwindow.h \
     main.h \
     cgltexturemanager.h \
     cproject.h \
-    fmod_output.h \
-    fmod_memoryinfo.h \
-    fmod_errors.h \
-    fmod_dsp.h \
-    fmod_codec.h \
-    fmod.hpp \
-    fmod.h \
     csources.h \
     csourceitem.h \
     codeeditorform.h \
