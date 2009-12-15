@@ -4,6 +4,7 @@ CSourceItem::CSourceItem()
 {
     m_indexOfTab = -1;
     m_sourceName = "";
+    m_codeEditorForm = (CodeEditorForm *)NULL;
 }
 
 CSourceItem::~CSourceItem()
@@ -30,28 +31,27 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
 }
 
-void CSourceItem::openItemEvent(QTabWidget* parent)
-{/*
-    if (editor)
+void CSourceItem::openItemEvent(QTabWidget* tabWidget)
+{
+    if (m_codeEditorForm)
     {
-        if (editor->isVisible())
-            tabWidget->setCurrentIndex(tabId);
+        if (m_codeEditorForm->isVisible())
+            tabWidget->setCurrentIndex(m_indexOfTab);
         else
         {
-            tabId = tabWidget->addTab(editor, this->caption());
-            tabWidget->setCurrentIndex(tabId);
+            m_indexOfTab = tabWidget->addTab(m_codeEditorForm, this->caption());
+            tabWidget->setCurrentIndex(m_indexOfTab);
         }
         return;
     }
     else
     {
-        editor = new CHRROMDisplayDialog(0, data);
-        tabId = tabWidget->addTab(editor, this->caption());
+        m_codeEditorForm = new CodeEditorForm();
+        m_indexOfTab = tabWidget->addTab(m_codeEditorForm, this->caption());
     }
 
 
-    tabWidget->setCurrentIndex(tabId);
-    editor->updateScrollbars();*/
+    tabWidget->setCurrentIndex(m_indexOfTab);
 }
 
 QString CSourceItem::get_sourceName()

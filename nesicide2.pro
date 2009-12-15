@@ -57,7 +57,8 @@ SOURCES += main.cpp \
     cgltexturemanager.cpp \
     cproject.cpp \
     csources.cpp \
-    csourceitem.cpp
+    csourceitem.cpp \
+    codeeditorform.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -118,13 +119,15 @@ HEADERS += mainwindow.h \
     fmod.hpp \
     fmod.h \
     csources.h \
-    csourceitem.h
+    csourceitem.h \
+    codeeditorform.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
     newprojectdialog.ui \
     prgromdisplaydialog.ui \
     chrromdisplaydialog.ui \
-    nesemulatordialog.ui
+    nesemulatordialog.ui \
+    codeeditorform.ui
 RESOURCES += resource.qrc
 OTHER_FILES += 

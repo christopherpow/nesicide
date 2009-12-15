@@ -3,6 +3,7 @@
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
+#include "codeeditorform.h"
 
 class CSourceItem : public IXMLSerializable, public IProjectTreeViewItem
 {
@@ -28,6 +29,7 @@ public:
 private:
     QString m_sourceName;
     qint8 m_indexOfTab;
+    CodeEditorForm *m_codeEditorForm;
 };
 
 #endif // CSOURCEITEM_H
