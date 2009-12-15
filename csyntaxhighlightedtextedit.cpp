@@ -3,13 +3,13 @@
 CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget *)
 {
 #ifdef Q_WS_MAC
-    this->setFont(QFont("Monaco", 10));
+    this->setFont(QFont("Monaco", 12));
 #endif
 #ifdef Q_WS_X11
-    this->setFont(QFont("Monospace", 10));
+    this->setFont(QFont("Monospace", 12));
 #endif
 #ifdef Q_WS_WIN
-    this->setFont(QFont("Consolas", 10));
+    this->setFont(QFont("Consolas", 12));
 #endif
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     this->setWordWrapMode(QTextOption::NoWrap);
@@ -61,7 +61,12 @@ void CSyntaxHighlightedTextEdit::resizeEvent(QResizeEvent *e)
     QPlainTextEdit::resizeEvent(e);
 
     QRect cr = contentsRect();
+#ifdef Q_WS_WIN
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+#else
+    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(),
+                                      cr.height() - this->horizontalScrollBar()->height()));
+#endif
 }
 
 void CSyntaxHighlightedTextEdit::highlightCurrentLine()

@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QPainter>
 #include <QTextBlock>
+#include <QScrollBar>
 #include "csyntaxhighlighter.h"
 
 class LineNumberArea;
