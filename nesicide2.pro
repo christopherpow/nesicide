@@ -58,7 +58,9 @@ SOURCES += main.cpp \
     cproject.cpp \
     csources.cpp \
     csourceitem.cpp \
-    codeeditorform.cpp
+    codeeditorform.cpp \
+    csyntaxhighlightedtextedit.cpp \
+    csyntaxhighlighter.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -120,7 +122,9 @@ HEADERS += mainwindow.h \
     fmod.h \
     csources.h \
     csourceitem.h \
-    codeeditorform.h
+    codeeditorform.h \
+    csyntaxhighlightedtextedit.h \
+    csyntaxhighlighter.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \

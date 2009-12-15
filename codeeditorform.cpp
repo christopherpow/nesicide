@@ -34,3 +34,8 @@ void CodeEditorForm::set_sourceCode(QString source)
 {
     ui->textEdit->setPlainText(source);
 }
+
+void CodeEditorForm::on_textEdit_textChanged()
+{
+
+}

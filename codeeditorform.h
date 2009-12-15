@@ -21,6 +21,9 @@ protected:
 
 private:
     Ui::CodeEditorForm *ui;
+
+private slots:
+    void on_textEdit_textChanged();
 };
 
 #endif // CODEEDITORFORM_H
