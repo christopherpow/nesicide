@@ -8,6 +8,7 @@ QT += network \
     multimedia
 TARGET = nesicide2
 TEMPLATE = app
+LIBS += ./libfmodex.a
 SOURCES += main.cpp \
     mainwindow.cpp \
     cnesicideproject.cpp \
@@ -106,7 +107,14 @@ HEADERS += mainwindow.h \
     nesemulatorthread.h \
     main.h \
     cgltexturemanager.h \
-    cproject.h
+    cproject.h \
+    fmod_output.h \
+    fmod_memoryinfo.h \
+    fmod_errors.h \
+    fmod_dsp.h \
+    fmod_codec.h \
+    fmod.hpp \
+    fmod.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
@@ -115,3 +123,4 @@ FORMS += mainwindow.ui \
     chrromdisplaydialog.ui \
     nesemulatordialog.ui
 RESOURCES += resource.qrc
+OTHER_FILES += 
