@@ -298,7 +298,6 @@ UINT CPPU::PPU ( UINT addr )
    unsigned char data = 0xFF;
    unsigned short fixAddr;
    unsigned short oldPpuAddr;
-   bool           read = false;
 
    if ( addr < 0x4000 )
    {
@@ -629,7 +628,6 @@ bool CPPU::RENDERSCANLINE ( int scanline )
    int p = 0;
    bool sprite0HitSet = false;
    SpriteBufferData* pSprite;
-   BackgroundBufferData* pBkgnd = m_bkgndBuffer.data;
    int idx2;
    bool brkpt = false;
    char* pTV = (char*)(m_pTV+(rasttv*3));

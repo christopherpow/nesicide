@@ -59,7 +59,7 @@
 #define NTSC_PPU_CPU_REL (3)
 #define PAL_PPU_CPU_REL  (3.2)
 
-#define MAKE16(lo,hi) (lo&0xFF|((hi&0xFF)<<8))
+#define MAKE16(lo,hi) (((lo&0xFF)|((hi&0xFF)<<8)))
 #define GETSIGNED8(data,op) ((char)((*(data+op))&0xFF))
 #define GETUNSIGNED8(data,op) ((unsigned char)((*(data+op))&0xFF))
 #define GETSTACKADDR() (MAKE16(rSP(),0x01))

@@ -77,8 +77,6 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
 
 void NESEmulatorThread::reset()
 {
-   int bank;
-
    // Reset emulated PPU...
    CPPU::RESET ();
 
@@ -150,6 +148,7 @@ void NESEmulatorThread::run ()
              {
                 m_bRunning = false;
              }
+
 #if 0
           }
           m_lastVblankTime = m_currVblankTime;

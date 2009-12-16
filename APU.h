@@ -278,17 +278,17 @@ public:
    }
 
 protected:
+   unsigned short m_dmaReaderAddrPtr;
    bool          m_irqEnabled;
    bool          m_irqAsserted;
    unsigned char m_sampleBuffer;
    bool          m_sampleBufferFull;
+   bool          m_loop;
    unsigned short m_sampleAddr;
    unsigned short m_sampleLength;
-   unsigned short m_dmaReaderAddrPtr;
    unsigned char m_outputShift;
    unsigned char m_outputShiftCounter;
    bool          m_silence;
-   bool          m_loop;
    unsigned char* m_dmaSource;
    unsigned char* m_dmaSourcePtr;
 };

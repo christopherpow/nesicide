@@ -129,7 +129,7 @@ void CROM::RESET ()
 
 void CROM::DISPLAY ( char* sz )
 {
-   sprintf ( sz, "" );
+   sprintf ( sz, "NROM" );
 }
 
 void CROM::LOAD ( MapperState* data )

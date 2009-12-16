@@ -110,13 +110,13 @@ void CNESEmulatorRenderer::paintGL()
     glBindTexture (GL_TEXTURE_2D, textureID);
     glBegin(GL_QUADS);
         glTexCoord2f (0.0, 0.0);
-        glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
+        glVertex3f(000.0f, 000.0f, 0.0f);
         glTexCoord2f (1.0, 0.0);
-        glVertex3f(256.0f - scrollX, 000.0f - scrollY, 0.0f);
+        glVertex3f(256.0f, 000.0f, 0.0f);
         glTexCoord2f (1.0, 1.0);
-        glVertex3f(256.0f - scrollX, 256.0f - scrollY, 0.0f);
+        glVertex3f(256.0f, 240.0f, 0.0f);
         glTexCoord2f (0.0, 1.0);
-        glVertex3f(000.0f - scrollX, 256.0f - scrollY, 0.0f);
+        glVertex3f(000.0f, 240.0f, 0.0f);
     glEnd();
 }
 
