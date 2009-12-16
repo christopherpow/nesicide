@@ -43,17 +43,8 @@ bool CNesicideProject::get_isInitialized()
 void CNesicideProject::initializeProject()
 {
     // Set the parent of this tree item to NULL since it is the top level item.
-    this->InitTreeItem();
-
-    // Create our Project node and append it as a child to this tree
-    m_pointerToProject = new CProject();
-    m_pointerToProject->InitTreeItem(this);
-    this->appendChild(m_pointerToProject);
-
-    // Create our Cartridge node and append it as a child to this tree
-    m_pointerToCartridge = new CCartridge();
-    m_pointerToCartridge->InitTreeItem(this);
-    this->appendChild(m_pointerToCartridge);
+    InitTreeItem();
+    initializeNodes();
 
     // Load the default palette into the project
     if (!m_pointerToListOfProjectPaletteEntries)
@@ -70,6 +61,37 @@ void CNesicideProject::initializeProject()
 
     // Notify the fact that the project data has been initialized properly
     m_isInitialized = true;
+}
+
+void CNesicideProject::initializeNodes()
+{
+    if (m_pointerToCartridge)
+    {
+        this->removeChild(m_pointerToCartridge);
+        delete m_pointerToCartridge;
+    }
+
+    if (m_pointerToProject)
+    {
+        this->removeChild(m_pointerToProject);
+        delete m_pointerToProject;
+    }
+
+    // No need to keep deleting and reloading this, just clear it
+    m_pointerToListOfProjectPaletteEntries->clear();
+
+
+    // Create our Project node and append it as a child to this tree
+    m_pointerToProject = new CProject();
+    m_pointerToProject->InitTreeItem(this);
+    this->appendChild(m_pointerToProject);
+
+    // Create our Cartridge node and append it as a child to this tree
+    m_pointerToCartridge = new CCartridge();
+    m_pointerToCartridge->InitTreeItem(this);
+    this->appendChild(m_pointerToCartridge);
+
+
 }
 
 bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
@@ -121,19 +143,8 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CNesicideProject::deserialize(QDomDocument&, QDomNode&)
 {
-    QDomDocument doc( "AdBookML" );
-    QFile file( "test.xml" );
-    if (!file.open(IO_ReadOnly))
-    {
-      return false;
-    }
+    initializeNodes();
 
-    if( !doc.setContent( &file ) )
-    {
-      file.close();
-      return false;
-    }
-    file.close();
 
     return true;
 }

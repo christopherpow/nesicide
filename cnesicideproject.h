@@ -46,6 +46,8 @@ public:
     virtual void openItemEvent(QTabWidget*) {}
 
 private:
+    void initializeNodes();
+
     QString m_projectTitle;                                         // The visible title of the project
     QList<CPaletteEntry> *m_pointerToListOfProjectPaletteEntries;   // List of palette entries for the emulator.
     bool m_isInitialized;                                           // Is the project initialized?

@@ -199,6 +199,23 @@ void MainWindow::on_actionOpen_Project_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESECIDE2 Project (*.nesproject)");
     if (QFile::exists(fileName))
     {
+        QDomDocument doc;
+        QFile file( fileName );
+        if (!file.open(QFile::ReadOnly))
+        {
+            QMessageBox::critical(this, "Error", "Failed to open the project file.");
+            return;
+        }
 
+        if(!doc.setContent(file.readAll()))
+        {
+            QMessageBox::critical(this, "Error", "Failed to parse the project xml data.");
+            file.close();
+            return;
+        }
+        file.close();
+
+        nesicideProject->deserialize(doc, doc);
+        projectDataChangesEvent();
     }
 }

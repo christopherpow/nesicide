@@ -29,6 +29,11 @@ public:
          childItems.append(child);
     }
 
+    void removeChild(IProjectTreeViewItem *child)
+    {
+        childItems.removeAll(child);
+    }
+
     IProjectTreeViewItem *child(int row)
     {
         return childItems.value(row);
