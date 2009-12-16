@@ -27,6 +27,11 @@ void CSourceItem::set_sourceCode(QString sourceCode)
         m_codeEditorForm->set_sourceCode(sourceCode);
 }
 
+int CSourceItem::getTabIndex()
+{
+    return m_indexOfTab;
+}
+
 bool CSourceItem::serialize(QDomDocument &doc, QDomNode &node)
 {
     QDomElement sourcesElement = addElement( doc, node, "sourceitem" );

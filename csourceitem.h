@@ -29,6 +29,7 @@ public:
     virtual void openItemEvent(QTabWidget* parent);
     virtual bool onCloseQuery() { return true; }
     virtual void onClose() {}
+    virtual int getTabIndex();
 
 private:
     QString m_sourceName;

@@ -33,6 +33,7 @@ public:
     virtual void openItemEvent(QTabWidget *tabWidget);
     virtual bool onCloseQuery() { return true; }
     virtual void onClose() {}
+    virtual int getTabIndex() { return -1; }
 
 private:
     qint8 m_indexOfPrgRomBank;
