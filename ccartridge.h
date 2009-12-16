@@ -22,16 +22,16 @@ public:
     ~CCartridge();
 
     // Member Getters
-    GameMirrorMode::eGameMirrorMode get_enumMirrorMode();
-    qint8 get_indexOfMapperNumber();
-    bool get_hasBatteryBackedRam();
-    CPRGROMBanks *get_pointerToPrgRomBanks();
-    CCHRROMBanks *get_pointerToChrRomBanks();
+    GameMirrorMode::eGameMirrorMode getMirrorMode();
+    qint8 getMapperNumber();
+    bool isBatteryBackedRam();
+    CPRGROMBanks *getPointerToPrgRomBanks();
+    CCHRROMBanks *getPointerToChrRomBanks();
 
     // Member Setters
-    void set_enumMirrorMode(GameMirrorMode::eGameMirrorMode enumValue);
-    void set_indexOfMapperNumber(qint8 indexOfValue);
-    void set_hasBatteryBackedRam(bool hasBatteryBackedRam);
+    void setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue);
+    void setMapperNumber(qint8 indexOfValue);
+    void setBatteryBackedRam(bool hasBatteryBackedRam);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -47,7 +47,7 @@ private:
     CCHRROMBanks *m_pointerToChrRomBanks;
     GameMirrorMode::eGameMirrorMode m_enumMirrorMode;               // Mirror mode used in the emulator
     bool m_hasBatteryBackedRam;                                     // Memory can be saved via RAM kept valid with a battery
-    qint8 m_indexOfMapperNumber;                                    // Numeric ID of the cartridge mapper
+    qint8 m_mapperNumber;                                           // Numeric ID of the cartridge mapper
 
 };
 
