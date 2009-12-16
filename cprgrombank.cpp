@@ -84,13 +84,10 @@ void CPRGROMBank::contextMenuEvent(QContextMenuEvent *, QTreeView *)
 
 unsigned char c2a(unsigned char c)
 {
-    if(c<=9)
-    {
-        return c+0x30;
-    }
-    return c-0x0A+'A';
+   static unsigned char hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+   return hex_char [ c ];
 }
-
 
 void CPRGROMBank::openItemEvent(QTabWidget *tabWidget)
 {
@@ -117,7 +114,7 @@ void CPRGROMBank::openItemEvent(QTabWidget *tabWidget)
     {
         char l = (m_pointerToBankData[i]>>4)&0x0F;
         char r = m_pointerToBankData[i]&0x0F;
-        QChar c[2] = { c2a(l),c2a(r)};
+        QChar c[2] = { c2a(l), c2a(r) };
         rt += QString(c,2);
         rt += " ";
     }

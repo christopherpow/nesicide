@@ -24,7 +24,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-COLORREF CBasePalette::m_paletteBase [ 64 ] =
+QRgb CBasePalette::m_paletteBase [ 64 ] =
 {
    RGB2DWORD ( 102, 102, 102 ),
    RGB2DWORD ( 0, 42, 136 ),
@@ -92,16 +92,16 @@ COLORREF CBasePalette::m_paletteBase [ 64 ] =
    RGB2DWORD ( 0, 0, 0 )
 };
 
-COLORREF CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
+QRgb CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
-COLORREF CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
+QRgb CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
 
 static CBasePalette __init;
 
 void CBasePalette::CalculateVariants ( void )
 {
    int idx1, idx2;
-   COLORREF temp;
+   int temp;
    double emphfactor [ 8 ] [ 3 ] = {
    {1.00, 1.00, 1.00},
    {1.00, 0.80, 0.81},
@@ -113,10 +113,6 @@ void CBasePalette::CalculateVariants ( void )
    {0.70, 0.70, 0.70}};
 
    memcpy ( m_paletteDisplayVariants[0], m_paletteVariants[0], sizeof(m_paletteBase) );
-   for ( idx1 = 0; idx1 < NUM_PALETTES; idx1++ )
-   {
-      m_paletteDisplayVariants[0][idx1] = SWAPRB(m_paletteDisplayVariants[0][idx1]);
-   }
 
    for ( idx1 = 1; idx1 < 8; idx1++ )
    {
@@ -134,25 +130,23 @@ void CBasePalette::CalculateVariants ( void )
          m_paletteVariants [ idx1 ] [ idx2 ] = m_paletteVariants [ 0 ] [ idx2 ];
          m_paletteDisplayVariants [ idx1 ] [ idx2 ] = m_paletteVariants [ 0 ] [ idx2 ];
 
-         temp = (m_paletteVariants[idx1][idx2])&0xFF;
+         temp = (m_paletteVariants[idx1][idx2]&0xFF0000)>>16;
          temp = ((double)temp)*emphfactor [ idx1 ] [ 0 ];
          if ( temp > 0xFF ) temp = 0xFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] &= 0xFFFF00;
-         m_paletteVariants [ idx1 ] [ idx2 ] |= temp;
+         m_paletteVariants [ idx1 ] [ idx2 ] &= 0x00FFFF;
+         m_paletteVariants [ idx1 ] [ idx2 ] |= (temp<<16);
 
-         temp = ((m_paletteVariants[idx1][idx2])>>8)&0xFF;
+         temp = (m_paletteVariants[idx1][idx2]&0xFF00)>>16;
          temp = ((double)temp)*emphfactor [ idx1 ] [ 1 ];
          if ( temp > 0xFF ) temp = 0xFF;
          m_paletteVariants [ idx1 ] [ idx2 ] &= 0xFF00FF;
          m_paletteVariants [ idx1 ] [ idx2 ] |= (temp<<8);
 
-         temp = ((m_paletteVariants[idx1][idx2])>>16)&0xFF;
+         temp = m_paletteVariants[idx1][idx2]&0xFF;
          temp = ((double)temp)*emphfactor [ idx1 ] [ 2 ];
          if ( temp > 0xFF ) temp = 0xFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] &= 0x00FFFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] |= (temp<<16);
-
-         m_paletteDisplayVariants [ idx1 ] [ idx2 ] = SWAPRB(m_paletteVariants[idx1][idx2]);
+         m_paletteVariants [ idx1 ] [ idx2 ] &= 0xFFFF00;
+         m_paletteVariants [ idx1 ] [ idx2 ] |= temp;
       }
    }
 }

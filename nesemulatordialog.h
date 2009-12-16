@@ -18,11 +18,9 @@ public:
     ~NESEmulatorDialog();
     void stopEmulation();
     CNESEmulatorRenderer *renderer;
-    QBasicTimer* timer;
 
 protected:
     void changeEvent(QEvent *e);
-    void timerEvent(QTimerEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
@@ -37,6 +35,9 @@ private slots:
     void on_stopButton_clicked();
     void on_playButton_clicked();
     void on_resetButton_clicked();
+
+signals:
+    void controllerInput(unsigned char* input);
 };
 
 #endif // NESEMULATORDIALOG_H

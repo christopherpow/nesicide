@@ -1,5 +1,7 @@
 #include "nesemulatorrenderer.h"
 
+#include "main.h"
+
 CGLTextureManager staticGLTextureManager;
 
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget *parent, char *imgData)
@@ -10,6 +12,7 @@ CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget *parent, char *imgData)
     scrollX = 0;
     scrollY = 0;
 
+    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(updateGL()));
 }
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
@@ -46,7 +49,7 @@ void CNESEmulatorRenderer::initializeGL()
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     // We want it to be RGBRGB(etc) formatted
-    glPixelStorei(GL_UNPACK_ALIGNMENT, textureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     // Set our texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
