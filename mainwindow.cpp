@@ -14,10 +14,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     emulatorDlg = (NESEmulatorDialog *)NULL;
     emulatorDlgTabIdx = -1;
+    projectDataChangesEvent();
 }
 
 MainWindow::~MainWindow()
 {
+    ui->tabWidget->clear();
+
     delete nesicideProject;
     delete ui;
     delete projectTreeviewModel;
@@ -52,17 +55,61 @@ void MainWindow::projectDataChangesEvent()
     ui->actionProject_Properties->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
+
+    IProjectTreeViewItem *projectItem = matchTab(nesicideProject, ui->tabWidget->currentIndex());
+    if (projectItem)
+    {
+        ui->actionSave_Active_Document->setEnabled(((IProjectTreeViewItem *)projectItem)->isDocumentSaveable());
+    } else {
+        ui->actionSave_Active_Document->setEnabled(false);
+    }
 }
 
 void MainWindow::on_actionSave_Project_triggered()
 {
-    QMessageBox msgBox;
+    if (projectFileName.isEmpty())
+    {
+        QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
+                                                        QString("NESECIDE2 Project (*.nesproject)"));
+        if (!fileName.isEmpty())
+            saveProject(fileName);
+    }
+    else
+        saveProject(projectFileName);
+}
+
+void MainWindow::saveProject(QString fileName)
+{
+    QFile file(fileName);
+    if( !file.open( QFile::WriteOnly) )
+    {
+        QMessageBox::critical(this, "Error", "An error occured while trying to open the project file for writing.");
+        projectFileName.clear();
+        return;
+    }
+
     QDomDocument doc;
     QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
     doc.appendChild(instr);
-    nesicideProject->serialize(doc, doc);
-    msgBox.setText(doc.toString());
-    msgBox.exec();
+
+    if (!nesicideProject->serialize(doc, doc))
+    {
+        QMessageBox::critical(this, "Error", "An error occured while trying to serialize the project data.");
+        file.close();
+        projectFileName.clear();
+    }
+
+    // Create a text stream so we can stream the XML data to the file easily.
+    QTextStream ts( &file );
+
+    // Use the standard C++ stream function for streaming the string representation of our XML to
+    // our file stream.
+    ts << doc.toString();
+
+    // And finally close the file.
+    file.close();
+
+    projectFileName = fileName;
 }
 
 void MainWindow::on_actionSave_Project_As_triggered()
@@ -72,33 +119,7 @@ void MainWindow::on_actionSave_Project_As_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
                                                     QString("NESECIDE2 Project (*.nesproject)"));
     if (!fileName.isEmpty())
-    {
-        QFile file(fileName);
-        if( !file.open( QFile::WriteOnly) )
-        {
-            QMessageBox::critical(this, "Error", "An error occured while trying to open the project file for writing.");
-            return;
-        }
-
-        QDomDocument doc;
-        QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
-        doc.appendChild(instr);
-
-        if (!nesicideProject->serialize(doc, doc))
-        {
-            QMessageBox::critical(this, "Error", "An error occured while trying to serialize the project data.");
-        }
-
-        // Create a text stream so we can stream the XML data to the file easily.
-        QTextStream ts( &file );
-
-        // Use the standard C++ stream function for streaming the string representation of our XML to
-        // our file stream.
-        ts << doc.toString();
-
-        // And finally close the file.
-        file.close();
-    }
+        saveProject(fileName);
 }
 
 void MainWindow::on_actionProject_Properties_triggered()
@@ -250,6 +271,7 @@ void MainWindow::on_actionOpen_Project_triggered()
 
         nesicideProject->deserialize(doc, doc);
         projectDataChangesEvent();
+        projectFileName = fileName;
     }
 }
 

@@ -29,6 +29,8 @@ private:
     void projectDataChangesEvent();
     CProjectTreeViewModel *projectTreeviewModel;
     IProjectTreeViewItem *matchTab(IProjectTreeViewItem *root, int tabIndex);
+    QString projectFileName;
+    void saveProject(QString fileName);
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
