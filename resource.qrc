@@ -20,5 +20,6 @@
         <file>resources/stock_media-rec.svg</file>
         <file>resources/stock_media-stop.svg</file>
         <file>resources/stock_right.svg</file>
+        <file>resources/bash.svg</file>
     </qresource>
 </RCC>

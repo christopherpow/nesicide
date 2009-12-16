@@ -293,3 +293,20 @@ void MainWindow::on_actionSave_Active_Document_triggered()
         ((IProjectTreeViewItem *)projectItem)->onSaveDocument();
 
 }
+
+void MainWindow::on_compilerOutputDockWidget_visibilityChanged(bool visible)
+{
+    if (!visible)
+    {
+        if (!ui->compilerOutputTextEdit->isVisibleTo(this))
+        {
+            ui->actionCompiler_Output->setChecked(false);
+        }
+    } else
+        ui->actionCompiler_Output->setChecked(visible);
+}
+
+void MainWindow::on_actionCompiler_Output_toggled(bool value)
+{
+    ui->compilerOutputDockWidget->setVisible(value);
+}

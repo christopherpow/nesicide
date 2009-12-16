@@ -44,7 +44,7 @@ void CCHRROMPreviewRenderer::initializeGL()
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     // We want it to be RGBRGB(etc) formatted
-    glPixelStorei(GL_UNPACK_ALIGNMENT, textureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     // Set our texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
