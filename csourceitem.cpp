@@ -9,6 +9,8 @@ CSourceItem::CSourceItem()
 
 CSourceItem::~CSourceItem()
 {
+    if (m_codeEditorForm)
+        delete m_codeEditorForm;
 }
 
 QString CSourceItem::get_sourceCode()
@@ -119,5 +121,9 @@ bool CSourceItem::onCloseQuery()
 
 void CSourceItem::onClose()
 {
-
+    if (m_codeEditorForm)
+    {
+        delete m_codeEditorForm;
+        m_codeEditorForm = (CodeEditorForm *)NULL;
+    }
 }
