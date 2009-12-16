@@ -102,8 +102,8 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     // Set some variables as tags to this node.
     projectElement.setAttribute("version", 0.2);
     projectElement.setAttribute("title", m_projectTitle);
-    projectElement.setAttribute("mirrorMode", m_pointerToCartridge->get_enumMirrorMode());
-    projectElement.setAttribute("hasBatteryBackedRam", m_pointerToCartridge->get_hasBatteryBackedRam());
+    projectElement.setAttribute("mirrorMode", m_pointerToCartridge->getMirrorMode());
+    projectElement.setAttribute("hasBatteryBackedRam", m_pointerToCartridge->isBatteryBackedRam());
 
     // Create the root palette element, and give it a version attribute
     QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
@@ -253,10 +253,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
     if (!m_pointerToCartridge)
         m_pointerToCartridge = new CCartridge();
 
-    if (!m_pointerToCartridge->get_pointerToChrRomBanks())
+    if (!m_pointerToCartridge->getPointerToChrRomBanks())
         return false;
 
-    if (!m_pointerToCartridge->get_pointerToPrgRomBanks())
+    if (!m_pointerToCartridge->getPointerToPrgRomBanks())
         return false;
 
 
@@ -309,18 +309,18 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         // First extract the mirror mode
         if (romCB1 & 0x08)
-            m_pointerToCartridge->set_enumMirrorMode(GameMirrorMode::FourScreenMirroring);
+            m_pointerToCartridge->setMirrorMode(GameMirrorMode::FourScreenMirroring);
         else if (romCB1 & 0x01)
-            m_pointerToCartridge->set_enumMirrorMode(GameMirrorMode::VerticalMirroring);
+            m_pointerToCartridge->setMirrorMode(GameMirrorMode::VerticalMirroring);
         else
-            m_pointerToCartridge->set_enumMirrorMode(GameMirrorMode::HorizontalMirroring);
+            m_pointerToCartridge->setMirrorMode(GameMirrorMode::HorizontalMirroring);
 
         // Now extract the two flags (battery backed ram and trainer)
-        m_pointerToCartridge->set_hasBatteryBackedRam(romCB1 & 0x02);
+        m_pointerToCartridge->setBatteryBackedRam(romCB1 & 0x02);
         bool hasTrainer = (romCB1 & 0x04);
 
         // Extract the four lower bits of the mapper number
-        m_pointerToCartridge->set_indexOfMapperNumber(romCB1 >> 4);
+        m_pointerToCartridge->setMapperNumber(romCB1 >> 4);
 
         // ROM Control Byte 2:
         // • Bits 0-3 - Reserved for future usage and should all be 0.
@@ -329,7 +329,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         fs >> romCB2;
 
         // Extract the upper four bits of the mapper number
-        m_pointerToCartridge->set_indexOfMapperNumber(m_pointerToCartridge->get_indexOfMapperNumber() | (romCB2 & 0xF0));
+        m_pointerToCartridge->setMapperNumber(m_pointerToCartridge->getMapperNumber() | (romCB2 & 0xF0));
 
         // Number of 8 KB RAM banks. For compatibility with previous
         // versions of the iNES format, assume 1 page of RAM when
@@ -358,14 +358,14 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
             // Create the ROM bank and load in the binary data
             CPRGROMBank *romBank = new CPRGROMBank();
             romBank->set_indexOfPrgRomBank(
-                    m_pointerToCartridge->get_pointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count());
+                    m_pointerToCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count());
             for (int i=0; i<0x4000; i++)
                 fs >> romBank->get_pointerToBankData()[i];
 
             // Attach the rom bank to the rom banks object
-            romBank->InitTreeItem(m_pointerToCartridge->get_pointerToPrgRomBanks());
-            m_pointerToCartridge->get_pointerToPrgRomBanks()->appendChild(romBank);
-            m_pointerToCartridge->get_pointerToPrgRomBanks()->get_pointerToArrayOfBanks()->append(romBank);
+            romBank->InitTreeItem(m_pointerToCartridge->getPointerToPrgRomBanks());
+            m_pointerToCartridge->getPointerToPrgRomBanks()->appendChild(romBank);
+            m_pointerToCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->append(romBank);
 
         }
 
@@ -374,14 +374,14 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         {
             // Create the ROM bank and load in the binary data
             CCHRROMBank *romBank = new CCHRROMBank();
-            romBank->bankID = m_pointerToCartridge->get_pointerToChrRomBanks()->banks.count();
+            romBank->bankID = m_pointerToCartridge->getPointerToChrRomBanks()->banks.count();
             for (int i=0; i<0x2000; i++)
                 fs >> romBank->data[i];
 
             // Attach the rom bank to the rom banks object
-            romBank->InitTreeItem(m_pointerToCartridge->get_pointerToChrRomBanks());
-            m_pointerToCartridge->get_pointerToChrRomBanks()->appendChild(romBank);
-            m_pointerToCartridge->get_pointerToChrRomBanks()->banks.append(romBank);
+            romBank->InitTreeItem(m_pointerToCartridge->getPointerToChrRomBanks());
+            m_pointerToCartridge->getPointerToChrRomBanks()->appendChild(romBank);
+            m_pointerToCartridge->getPointerToChrRomBanks()->banks.append(romBank);
 
         }
 

@@ -32,7 +32,8 @@ public:
 protected:
     virtual void run ();
 
-    bool m_bRunning;
+    CCartridge*   m_pCartridge;
+    bool          m_bRunning;
     qint32         m_lastVblankTime;
     qint32         m_currVblankTime;
     float         m_periodVblank;

@@ -3,7 +3,7 @@
 CCartridge::CCartridge()
 {
     m_enumMirrorMode = GameMirrorMode::NoMirroring;
-    m_indexOfMapperNumber = 0;
+    m_mapperNumber = 0;
     m_hasBatteryBackedRam = false;
 
     m_pointerToPrgRomBanks = new CPRGROMBanks();
@@ -24,47 +24,46 @@ CCartridge::~CCartridge()
         delete m_pointerToPrgRomBanks;
 }
 
-CPRGROMBanks *CCartridge::get_pointerToPrgRomBanks()
+CPRGROMBanks *CCartridge::getPointerToPrgRomBanks()
 {
     return m_pointerToPrgRomBanks;
 }
 
-CCHRROMBanks *CCartridge::get_pointerToChrRomBanks()
+CCHRROMBanks *CCartridge::getPointerToChrRomBanks()
 {
     return m_pointerToChrRomBanks;
 }
 
 
-GameMirrorMode::eGameMirrorMode CCartridge::get_enumMirrorMode()
+GameMirrorMode::eGameMirrorMode CCartridge::getMirrorMode()
 {
     return m_enumMirrorMode;
 }
 
-void CCartridge::set_enumMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
+void CCartridge::setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
 {
     m_enumMirrorMode = enumValue;
 }
 
-qint8 CCartridge::get_indexOfMapperNumber()
+qint8 CCartridge::getMapperNumber()
 {
-    return m_indexOfMapperNumber;
+    return m_mapperNumber;
 }
 
-void CCartridge::set_indexOfMapperNumber(qint8 indexOfValue)
+void CCartridge::setMapperNumber(qint8 mapperNumber)
 {
-    m_indexOfMapperNumber = indexOfValue;
+    m_mapperNumber = mapperNumber;
 }
 
-bool CCartridge::get_hasBatteryBackedRam()
+bool CCartridge::isBatteryBackedRam()
 {
     return m_hasBatteryBackedRam;
 }
 
-void CCartridge::set_hasBatteryBackedRam(bool hasBatteryBackedRam)
+void CCartridge::setBatteryBackedRam(bool hasBatteryBackedRam)
 {
     m_hasBatteryBackedRam = hasBatteryBackedRam;
 }
-
 
 bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
 {
@@ -72,7 +71,7 @@ bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
     QDomElement cartridgeElement = addElement( doc, node, "cartridge" );
 
     // Export the iNES header
-    cartridgeElement.setAttribute("mapperNumber", m_indexOfMapperNumber);
+    cartridgeElement.setAttribute("mapperNumber", m_mapperNumber);
     cartridgeElement.setAttribute("mirrorMode", m_enumMirrorMode);
     cartridgeElement.setAttribute("hasBatteryBackedRam", m_hasBatteryBackedRam);
 
