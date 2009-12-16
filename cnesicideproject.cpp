@@ -163,22 +163,59 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
                                              projectElement.attribute("mirrorMode").toInt());
     m_pointerToCartridge->set_hasBatteryBackedRam(projectElement.attribute("hasBatteryBackedRam").toInt() == 1);
 
-
-    /*
-    // Create the root palette element, and give it a version attribute
-    QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
-
-    // Loop through all palette entries, and for each entry add an <entry /> tag that has the
-    // index, as well as the RGB properties of the palette.
-    for (int indexOfCurrentPaletteEntry=0; indexOfCurrentPaletteEntry <= 0x3F; indexOfCurrentPaletteEntry++)
-    {
-        QDomElement elm = addElement( doc, rootPaletteElement, "entry");
-        elm.setAttribute("index", indexOfCurrentPaletteEntry);
-        elm.setAttribute("r", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).red());
-        elm.setAttribute("g", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).green());
-        elm.setAttribute("b", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).blue());
+    // Initialize the palette.
+    for (int row=0; row <= 0x3; row++) {
+        for (int col=0; col <= 0xF; col++){
+            m_pointerToListOfProjectPaletteEntries->append(QColor(defaultPalette[(row << 4) + col][0],
+                                                                  defaultPalette[(row << 4) + col][1],
+                                                                  defaultPalette[(row << 4) + col][2]));
+        }
     }
-    */
+
+    // Now loop through the child elements and process the ones we find
+    QDomNode child = projectElement.firstChild();
+    do
+    {
+        if (child.nodeName() == "nesicidepalette") {
+
+            QDomNode paletteNode = child.firstChild();
+            do
+            {
+                QDomElement paletteItem = paletteNode.toElement();
+
+                if (paletteItem.isNull())
+                    return false;
+
+                if ((!paletteItem.hasAttribute("index"))
+                    || (!paletteItem.hasAttribute("r"))
+                    || (!paletteItem.hasAttribute("g"))
+                    || (!paletteItem.hasAttribute("b")))
+                    return false;
+
+                int nodeIndex = paletteItem.attribute("index").toInt();
+
+                if ((nodeIndex < 0) || (nodeIndex > 0x3F))
+                    return false;
+
+                CPaletteEntry palEntry;
+                m_pointerToListOfProjectPaletteEntries->replace(nodeIndex,
+                    QColor(paletteItem.attribute("r").toInt(),
+                           paletteItem.attribute("g").toInt(), paletteItem.attribute("b").toInt()));
+
+            } while (!(paletteNode = paletteNode.nextSibling()).isNull());
+
+        } else if (child.nodeName() == "project") {
+
+            //if (!m_pointerToProject->deserialize(doc, child))
+            //    return false;
+
+        } else if (child.nodeName() == "cartridge") {
+
+        } else
+            return false;
+
+    } while (!(child = child.nextSibling()).isNull());
+
 
     m_isInitialized = true;
     return true;
