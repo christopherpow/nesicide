@@ -31,6 +31,8 @@ public:
     QString caption() const;
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);
     virtual void openItemEvent(QTabWidget *tabWidget);
+    virtual bool onCloseQuery() { return true; }
+    virtual void onClose() {}
 
 private:
     qint8 m_indexOfPrgRomBank;

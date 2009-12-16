@@ -27,6 +27,8 @@ public:
     QString caption() const;
     virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
     virtual void openItemEvent(QTabWidget* parent);
+    virtual bool onCloseQuery() { return true; }
+    virtual void onClose() {}
 
 private:
     QString m_sourceName;

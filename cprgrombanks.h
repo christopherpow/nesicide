@@ -27,6 +27,8 @@ public:
     QString caption() const;
     virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
     virtual void openItemEvent(QTabWidget*) {}
+    virtual bool onCloseQuery() { return true; }
+    virtual void onClose() {}
 
 private:
     QList<CPRGROMBank *> *m_pointerToArrayOfBanks;

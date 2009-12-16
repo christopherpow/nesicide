@@ -16,6 +16,8 @@ public:
     CProjectPalettes *projectPalettes;
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);
     virtual void openItemEvent(QTabWidget*) {}
+    virtual bool onCloseQuery() { return true; }
+    virtual void onClose() {}
 };
 
 #endif // CPROJECTPRIMITIVES_H

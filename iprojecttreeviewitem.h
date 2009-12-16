@@ -70,6 +70,8 @@ public:
     virtual QString caption() const = 0;
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent) = 0;
     virtual void openItemEvent(QTabWidget *tabWidget) = 0;
+    virtual bool onCloseQuery() = 0;
+    virtual void onClose() = 0;
 private:
     QList<IProjectTreeViewItem*> childItems;
     IProjectTreeViewItem *parentItem;
