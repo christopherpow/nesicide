@@ -34,6 +34,7 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionSave_Active_Document_triggered();
     void on_tabWidget_currentChanged(int index);
     void on_actionOpen_Project_triggered();
     void on_MainWindow_destroyed();

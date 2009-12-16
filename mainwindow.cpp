@@ -164,10 +164,7 @@ IProjectTreeViewItem *MainWindow::matchTab(IProjectTreeViewItem *root, int tabIn
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
-    IProjectTreeViewItem *projectItem = (IProjectTreeViewItem *)NULL;
-
-    projectItem = matchTab(nesicideProject, index);
-
+    IProjectTreeViewItem *projectItem = matchTab(nesicideProject, index);
     if (projectItem)
     {
         if (((IProjectTreeViewItem *)projectItem)->onCloseQuery())
@@ -258,5 +255,19 @@ void MainWindow::on_actionOpen_Project_triggered()
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
+    IProjectTreeViewItem *projectItem = matchTab(nesicideProject, index);
+    if (projectItem)
+    {
+        ui->actionSave_Active_Document->setEnabled(((IProjectTreeViewItem *)projectItem)->isDocumentSaveable());
+    } else {
+        ui->actionSave_Active_Document->setEnabled(false);
+    }
+}
+
+void MainWindow::on_actionSave_Active_Document_triggered()
+{
+    IProjectTreeViewItem *projectItem = matchTab(nesicideProject, ui->tabWidget->currentIndex());
+    if (projectItem)
+        ((IProjectTreeViewItem *)projectItem)->onSaveDocument();
 
 }
