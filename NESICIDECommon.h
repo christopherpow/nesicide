@@ -17,7 +17,7 @@
 
 // CPTODO: temporaries to prevent having to do glob srch/rplc yet
 typedef unsigned int UINT;
-#define RGB(r,g,b) (r<<16|g<<8|b)
+#define RGB2DWORD(r,g,b) (r<<16|g<<8|b)
 
 #if 0
 extern char hex_char[];

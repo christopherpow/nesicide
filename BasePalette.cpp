@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 // BasePalette.cpp: implementation of the CBasePalette class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -24,77 +24,77 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-COLORREF CBasePalette::m_paletteBase [ 64 ] = 
-{ 
-   RGB ( 102, 102, 102 ),
-   RGB ( 0, 42, 136 ),
-   RGB ( 20, 18, 167 ),
-   RGB ( 59, 0, 164 ),
-   RGB ( 92, 0, 126 ),
-   RGB ( 110, 0, 64 ),
-   RGB ( 108, 6, 0 ),
-   RGB ( 86, 29, 0 ),
-   RGB ( 51, 53, 0 ),
-   RGB ( 11, 72, 0 ),
-   RGB ( 0, 82, 0 ),
-   RGB ( 0, 79, 8 ),
-   RGB ( 0, 64, 77 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 173, 173, 173 ),
-   RGB ( 21, 95, 217 ),
-   RGB ( 66, 64, 255 ),
-   RGB ( 117, 39, 254 ),
-   RGB ( 160, 26, 204 ),
-   RGB ( 183, 30, 123 ),
-   RGB ( 181, 49, 32 ),
-   RGB ( 153, 78, 0 ),
-   RGB ( 107, 109, 0 ),
-   RGB ( 56, 135, 0 ),
-   RGB ( 12, 147, 0 ),
-   RGB ( 0, 143, 50 ),
-   RGB ( 0 ,124, 141 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 255, 254, 255 ),
-   RGB ( 100, 176, 255 ),
-   RGB ( 146, 144, 255 ),
-   RGB ( 198, 118, 255 ),
-   RGB ( 243, 106, 255 ),
-   RGB ( 254, 110, 204 ),
-   RGB ( 254, 129, 112 ),
-   RGB ( 234, 158, 34 ),
-   RGB ( 188, 190, 0 ),
-   RGB ( 136, 216, 0 ),
-   RGB ( 92, 228, 48 ),
-   RGB ( 69, 224, 130 ),
-   RGB ( 72, 205, 222 ),
-   RGB ( 79, 79, 79 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 255, 254, 255 ),
-   RGB ( 192, 223, 255 ),
-   RGB ( 211, 210, 255 ),
-   RGB ( 232, 200, 255 ),
-   RGB ( 251, 194, 255 ),
-   RGB ( 254, 196, 234 ),
-   RGB ( 254, 204, 197 ),
-   RGB ( 247, 216, 165 ),
-   RGB ( 228, 229, 148 ),
-   RGB ( 207, 239, 150 ),
-   RGB ( 189, 244, 171 ),
-   RGB ( 179, 243, 204 ),
-   RGB ( 181, 235, 242 ),
-   RGB ( 184, 184, 184 ),
-   RGB ( 0, 0, 0 ),
-   RGB ( 0, 0, 0 )
+COLORREF CBasePalette::m_paletteBase [ 64 ] =
+{
+   RGB2DWORD ( 102, 102, 102 ),
+   RGB2DWORD ( 0, 42, 136 ),
+   RGB2DWORD ( 20, 18, 167 ),
+   RGB2DWORD ( 59, 0, 164 ),
+   RGB2DWORD ( 92, 0, 126 ),
+   RGB2DWORD ( 110, 0, 64 ),
+   RGB2DWORD ( 108, 6, 0 ),
+   RGB2DWORD ( 86, 29, 0 ),
+   RGB2DWORD ( 51, 53, 0 ),
+   RGB2DWORD ( 11, 72, 0 ),
+   RGB2DWORD ( 0, 82, 0 ),
+   RGB2DWORD ( 0, 79, 8 ),
+   RGB2DWORD ( 0, 64, 77 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 173, 173, 173 ),
+   RGB2DWORD ( 21, 95, 217 ),
+   RGB2DWORD ( 66, 64, 255 ),
+   RGB2DWORD ( 117, 39, 254 ),
+   RGB2DWORD ( 160, 26, 204 ),
+   RGB2DWORD ( 183, 30, 123 ),
+   RGB2DWORD ( 181, 49, 32 ),
+   RGB2DWORD ( 153, 78, 0 ),
+   RGB2DWORD ( 107, 109, 0 ),
+   RGB2DWORD ( 56, 135, 0 ),
+   RGB2DWORD ( 12, 147, 0 ),
+   RGB2DWORD ( 0, 143, 50 ),
+   RGB2DWORD ( 0 ,124, 141 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 255, 254, 255 ),
+   RGB2DWORD ( 100, 176, 255 ),
+   RGB2DWORD ( 146, 144, 255 ),
+   RGB2DWORD ( 198, 118, 255 ),
+   RGB2DWORD ( 243, 106, 255 ),
+   RGB2DWORD ( 254, 110, 204 ),
+   RGB2DWORD ( 254, 129, 112 ),
+   RGB2DWORD ( 234, 158, 34 ),
+   RGB2DWORD ( 188, 190, 0 ),
+   RGB2DWORD ( 136, 216, 0 ),
+   RGB2DWORD ( 92, 228, 48 ),
+   RGB2DWORD ( 69, 224, 130 ),
+   RGB2DWORD ( 72, 205, 222 ),
+   RGB2DWORD ( 79, 79, 79 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 255, 254, 255 ),
+   RGB2DWORD ( 192, 223, 255 ),
+   RGB2DWORD ( 211, 210, 255 ),
+   RGB2DWORD ( 232, 200, 255 ),
+   RGB2DWORD ( 251, 194, 255 ),
+   RGB2DWORD ( 254, 196, 234 ),
+   RGB2DWORD ( 254, 204, 197 ),
+   RGB2DWORD ( 247, 216, 165 ),
+   RGB2DWORD ( 228, 229, 148 ),
+   RGB2DWORD ( 207, 239, 150 ),
+   RGB2DWORD ( 189, 244, 171 ),
+   RGB2DWORD ( 179, 243, 204 ),
+   RGB2DWORD ( 181, 235, 242 ),
+   RGB2DWORD ( 184, 184, 184 ),
+   RGB2DWORD ( 0, 0, 0 ),
+   RGB2DWORD ( 0, 0, 0 )
 };
 
-COLORREF CBasePalette::m_paletteVariants [ 8 ] [ 64 ]; 
+COLORREF CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
-COLORREF CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ]; 
+COLORREF CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
 
 static CBasePalette __init;
 
