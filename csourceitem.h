@@ -1,6 +1,7 @@
 #ifndef CSOURCEITEM_H
 #define CSOURCEITEM_H
 
+#include <QMessageBox>
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
 #include "codeeditorform.h"
@@ -27,8 +28,8 @@ public:
     QString caption() const;
     virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
     virtual void openItemEvent(QTabWidget* parent);
-    virtual bool onCloseQuery() { return true; }
-    virtual void onClose() {}
+    virtual bool onCloseQuery();
+    virtual void onClose();
     virtual int getTabIndex();
 
 private:

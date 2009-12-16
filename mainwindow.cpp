@@ -139,24 +139,36 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
     projectDataChangesEvent();
 }
 
-void MainWindow::on_tabWidget_tabCloseRequested(int index)
+IProjectTreeViewItem *MainWindow::matchTab(IProjectTreeViewItem *root, int tabIndex)
 {
-    QObject *projectItem = (QObject *)NULL;
-    bool foundItem = false;
-    for (int treeviewItemIndex = 0; treeviewItemIndex < projectTreeviewModel->children().count(); treeviewItemIndex++)
+    for (int treeviewItemIndex = 0;
+         treeviewItemIndex < ((IProjectTreeViewItem *)root)->childCount(); treeviewItemIndex++)
     {
-        projectItem = projectTreeviewModel->children().at(treeviewItemIndex);
-        if (!projectItem)
+        IProjectTreeViewItem *item = ((IProjectTreeViewItem *)root)->child(treeviewItemIndex);
+        if (!item)
             continue;
 
-        if (((IProjectTreeViewItem *)projectItem)->getTabIndex() == index)
+        if (((IProjectTreeViewItem *)item)->getTabIndex() == tabIndex)
+            return item;
+
+        if (((IProjectTreeViewItem *)item)->childCount() > 0)
         {
-            foundItem = true;
-            break;
+            IProjectTreeViewItem *result = matchTab(item, tabIndex);
+            if (result)
+                return result;
         }
     }
 
-    if (foundItem)
+    return (IProjectTreeViewItem *)NULL;
+}
+
+void MainWindow::on_tabWidget_tabCloseRequested(int index)
+{
+    IProjectTreeViewItem *projectItem = (IProjectTreeViewItem *)NULL;
+
+    projectItem = matchTab(nesicideProject, index);
+
+    if (projectItem)
     {
         if (((IProjectTreeViewItem *)projectItem)->onCloseQuery())
         {

@@ -103,3 +103,21 @@ void CSourceItem::set_sourceName(QString sourceName)
 {
     m_sourceName = sourceName;
 }
+
+bool CSourceItem::onCloseQuery()
+{
+    if (m_sourceCode != m_codeEditorForm->get_sourceCode())
+    {
+        return (QMessageBox::question(0, QString("Confirm Close"),
+                                      QString("This file has unsaved changes that\n"
+                                              "will be lost if closed. Close anyway?"),
+                                      QMessageBox::Yes, QMessageBox::Cancel) == QMessageBox::Yes);
+    } else
+        return true;
+
+}
+
+void CSourceItem::onClose()
+{
+
+}

@@ -28,6 +28,7 @@ private:
     Ui::MainWindow *ui;
     void projectDataChangesEvent();
     CProjectTreeViewModel *projectTreeviewModel;
+    IProjectTreeViewItem *matchTab(IProjectTreeViewItem *root, int tabIndex);
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
