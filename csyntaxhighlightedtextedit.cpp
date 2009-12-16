@@ -11,7 +11,7 @@ CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget *)
 #ifdef Q_WS_WIN
     this->setFont(QFont("Consolas", 11));
 #endif
-    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     this->setWordWrapMode(QTextOption::NoWrap);
     lineNumberArea = new LineNumberArea(this);
 
