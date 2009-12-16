@@ -255,3 +255,8 @@ void MainWindow::on_actionOpen_Project_triggered()
         projectDataChangesEvent();
     }
 }
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+
+}

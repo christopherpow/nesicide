@@ -79,6 +79,8 @@
     <addaction name="separator"/>
     <addaction name="actionOpen_Project"/>
     <addaction name="separator"/>
+    <addaction name="actionSave_Active_Document"/>
+    <addaction name="separator"/>
     <addaction name="actionSave_Project"/>
     <addaction name="actionSave_Project_As"/>
     <addaction name="separator"/>
@@ -204,7 +206,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -219,7 +221,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
    </property>
    <property name="text">
@@ -234,7 +236,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
    </property>
    <property name="text">
@@ -249,19 +251,19 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
     <string>Save &amp;Project</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionSave_Project_As">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save-as.svg</normaloff>:/resources/stock_save-as.svg</iconset>
    </property>
    <property name="text">
@@ -270,16 +272,13 @@
    <property name="iconText">
     <string>Save Project As...</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
-   </property>
   </action>
   <action name="action_Project_Browser">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -288,7 +287,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -300,7 +299,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/document-properties.svg</normaloff>:/resources/document-properties.svg</iconset>
    </property>
    <property name="text">
@@ -315,7 +314,7 @@
   </action>
   <action name="actionCreate_Project_from_ROM">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/drive-harddisk.svg</normaloff>:/resources/drive-harddisk.svg</iconset>
    </property>
    <property name="text">
@@ -330,7 +329,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/system-run.svg</normaloff>:/resources/system-run.svg</iconset>
    </property>
    <property name="text">
@@ -341,6 +340,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionSave_Active_Document">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save Active Document</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the currently selected document.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>
@@ -357,7 +371,9 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>

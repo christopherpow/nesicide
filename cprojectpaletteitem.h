@@ -20,6 +20,8 @@ public:
     virtual bool onCloseQuery() { return true; }
     virtual void onClose() {}
     virtual int getTabIndex() { return -1; }
+    virtual bool isDocumentSaveable() { return false; }
+    virtual void onSaveDocument() {}
 };
 
 #endif // CPROJECTPALETTEITEM_H

@@ -73,6 +73,8 @@ public:
     virtual bool onCloseQuery() = 0;
     virtual void onClose() = 0;
     virtual int getTabIndex() = 0;
+    virtual bool isDocumentSaveable() = 0;
+    virtual void onSaveDocument() = 0;
 private:
     QList<IProjectTreeViewItem*> childItems;
     IProjectTreeViewItem *parentItem;

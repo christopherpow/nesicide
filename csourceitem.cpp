@@ -127,3 +127,13 @@ void CSourceItem::onClose()
         m_codeEditorForm = (CodeEditorForm *)NULL;
     }
 }
+
+bool CSourceItem::isDocumentSaveable()
+{
+    return true;
+}
+
+void CSourceItem::onSaveDocument()
+{
+    m_sourceCode = m_codeEditorForm->get_sourceCode();
+}

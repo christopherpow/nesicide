@@ -31,6 +31,8 @@ public:
     virtual bool onCloseQuery();
     virtual void onClose();
     virtual int getTabIndex();
+    virtual bool isDocumentSaveable();
+    virtual void onSaveDocument();
 
 private:
     QString m_sourceName;
