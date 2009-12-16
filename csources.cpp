@@ -32,7 +32,38 @@ bool CSources::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CSources::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    if (m_pointerToArrayOfSourceItems)
+    {
+        for (int indexOfSourceItem=0; indexOfSourceItem<m_pointerToArrayOfSourceItems->count(); indexOfSourceItem++)
+        {
+            if (m_pointerToArrayOfSourceItems->at(indexOfSourceItem))
+            {
+                this->removeChild(m_pointerToArrayOfSourceItems->at(indexOfSourceItem));
+                delete m_pointerToArrayOfSourceItems->at(indexOfSourceItem);
+            }
+        }
+        delete m_pointerToArrayOfSourceItems;
+    }
+
+    m_pointerToArrayOfSourceItems = new QList<CSourceItem *>();
+
+    QDomNode childNode = node.firstChild();
+    do
+    {
+        if (childNode.nodeName() == "sourceitem") {
+
+            CSourceItem *pointerToSourceItem = new CSourceItem();
+            pointerToSourceItem->InitTreeItem(this);
+            m_pointerToArrayOfSourceItems->append(pointerToSourceItem);
+            this->appendChild(pointerToSourceItem);
+            if (!pointerToSourceItem->deserialize(doc, childNode))
+                return false;
+
+        } else
+            return false;
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
+    return true;
 }
 
 QString CSources::caption() const

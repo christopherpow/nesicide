@@ -31,7 +31,23 @@ bool CProject::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CProject::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    if (m_pointerToSources)
+        delete m_pointerToSources;
+
+    m_pointerToSources = new CSources();
+    m_pointerToSources->InitTreeItem(this);
+
+    QDomNode childNode = node.firstChild();
+    do
+    {
+        if (childNode.nodeName() == "sources") {
+            if (!m_pointerToSources->deserialize(doc, childNode))
+                return false;
+        } else
+            return false;
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
+    return true;
 }
 
 QString CProject::caption() const

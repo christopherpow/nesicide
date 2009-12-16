@@ -30,6 +30,7 @@ void CSourceItem::set_sourceCode(QString sourceCode)
 bool CSourceItem::serialize(QDomDocument &doc, QDomNode &node)
 {
     QDomElement sourcesElement = addElement( doc, node, "sourceitem" );
+    sourcesElement.setAttribute("sourcename", m_sourceName);
     QDomCDATASection dataSect = doc.createCDATASection(get_sourceCode());
     sourcesElement.appendChild(dataSect);
     return true;
@@ -37,7 +38,22 @@ bool CSourceItem::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CSourceItem::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+    QDomElement element = node.toElement();
+
+    if (element.isNull())
+        return false;
+
+    if (!element.hasAttribute("sourcename"))
+        return false;
+
+    m_sourceName = element.attribute("sourcename");
+    QDomCDATASection cdata = element.firstChild().toCDATASection();
+    if (cdata.isNull())
+        return false;
+
+    m_sourceCode = cdata.data();
+
+    return true;
 }
 
 QString CSourceItem::caption() const
@@ -65,6 +81,7 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
     else
     {
         m_codeEditorForm = new CodeEditorForm();
+        m_codeEditorForm->set_sourceCode(m_sourceCode);
         m_indexOfTab = tabWidget->addTab(m_codeEditorForm, this->caption());
     }
 

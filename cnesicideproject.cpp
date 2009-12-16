@@ -206,8 +206,8 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
 
         } else if (child.nodeName() == "project") {
 
-            //if (!m_pointerToProject->deserialize(doc, child))
-            //    return false;
+            if (!m_pointerToProject->deserialize(doc, child))
+                return false;
 
         } else if (child.nodeName() == "cartridge") {
 
