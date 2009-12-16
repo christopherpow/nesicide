@@ -80,7 +80,7 @@ bool CROMMapper004::SYNCH ( int scanline )
    bool fire = false;
    bool zero = false;
 
-   if ( (scanline == -1) || (scanline >= 0) && (scanline < 240) )
+   if ( (scanline == -1) || ((scanline >= 0) && (scanline < 240)) )
    {
       if ( m_irqReload )
       {

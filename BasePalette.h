@@ -7,10 +7,6 @@
 
 #include "NESICIDECommon.h"
 
-//#define GetDisplayPalette(bM,bER,bEG,bEB) \
-//( (bM)?*(*(m_paletteDisplayVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+(idx&0xF0)): \
-//*(*(m_paletteDisplayVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx) )
-
 class CBasePalette  
 {
 public:

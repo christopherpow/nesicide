@@ -2,16 +2,19 @@
 #define NESEMULATORTHREAD_H
 
 #include <QThread>
+
 #include "NESICIDECommon.h"
 #include "ccartridge.h"
 
 class NESEmulatorThread : public QThread
 {
+   Q_OBJECT
 public:
     NESEmulatorThread ( QObject* parent = 0);
     virtual ~NESEmulatorThread () {}
 
     void setRunning ( bool bRun ) { m_bRunning = bRun; }
+    bool isRunning ( void ) { return m_bRunning; }
     void setFrequency ( float iFreq );
     float getFrequency ( void ) { return m_fFreq; }
     void setFactorIndex ( int factorIdx ) { m_factorIdx = factorIdx; setFrequency(m_fFreq); }
@@ -20,6 +23,8 @@ public:
     bool isBreakpoint ( void ) { return m_bBreakpoint; }
 
     void setCartridge ( CCartridge* cartridge );
+
+    void setInputs ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
 
     // emulation events [signals?]
     void reset ( void );
