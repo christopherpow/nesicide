@@ -121,6 +121,20 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CNesicideProject::deserialize(QDomDocument&, QDomNode&)
 {
+    QDomDocument doc( "AdBookML" );
+    QFile file( "test.xml" );
+    if (!file.open(IO_ReadOnly))
+    {
+      return false;
+    }
+
+    if( !doc.setContent( &file ) )
+    {
+      file.close();
+      return false;
+    }
+    file.close();
+
     return true;
 }
 
