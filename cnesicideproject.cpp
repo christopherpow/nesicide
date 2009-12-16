@@ -159,9 +159,9 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
     // Load our properties. Note that the default value is returned if an attribute is missing.
     // This is the expected behavior.
     m_projectTitle = projectElement.attribute("title", "Untitled Project");
-    m_pointerToCartridge->set_enumMirrorMode((GameMirrorMode::eGameMirrorMode)
+    m_pointerToCartridge->setMirrorMode((GameMirrorMode::eGameMirrorMode)
                                              projectElement.attribute("mirrorMode").toInt());
-    m_pointerToCartridge->set_hasBatteryBackedRam(projectElement.attribute("hasBatteryBackedRam").toInt() == 1);
+    m_pointerToCartridge->setBatteryBackedRam(projectElement.attribute("hasBatteryBackedRam").toInt() == 1);
 
     // Initialize the palette.
     for (int row=0; row <= 0x3; row++) {
