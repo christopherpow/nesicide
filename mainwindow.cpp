@@ -159,7 +159,10 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
     if (foundItem)
     {
         if (((IProjectTreeViewItem *)projectItem)->onCloseQuery())
+        {
             ui->tabWidget->removeTab(index);
+            ((IProjectTreeViewItem *)projectItem)->onClose();
+        }
     } else {
         ui->tabWidget->removeTab(index);
         if (index == emulatorDlgTabIdx)
