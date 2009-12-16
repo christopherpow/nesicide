@@ -53,7 +53,13 @@ SOURCES += main.cpp \
     BasePalette.cpp \
     nesemulatorrenderer.cpp \
     nesemulatorthread.cpp \
-    cgltexturemanager.cpp
+    cgltexturemanager.cpp \
+    cproject.cpp \
+    csources.cpp \
+    csourceitem.cpp \
+    codeeditorform.cpp \
+    csyntaxhighlightedtextedit.cpp \
+    csyntaxhighlighter.cpp
 HEADERS += mainwindow.h \
     cnesicideproject.h \
     ixmlserializable.h \
@@ -104,12 +110,20 @@ HEADERS += mainwindow.h \
     nesemulatorrenderer.h \
     nesemulatorthread.h \
     main.h \
-    cgltexturemanager.h
+    cgltexturemanager.h \
+    cproject.h \
+    csources.h \
+    csourceitem.h \
+    codeeditorform.h \
+    csyntaxhighlightedtextedit.h \
+    csyntaxhighlighter.h
 FORMS += mainwindow.ui \
     paletteeditorwindow.ui \
     projectpropertiesdialog.ui \
     newprojectdialog.ui \
     prgromdisplaydialog.ui \
     chrromdisplaydialog.ui \
-    nesemulatordialog.ui
+    nesemulatordialog.ui \
+    codeeditorform.ui
 RESOURCES += resource.qrc
+OTHER_FILES += 
