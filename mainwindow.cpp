@@ -141,12 +141,33 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
-    ui->tabWidget->removeTab(index);
-    if (index == emulatorDlgTabIdx)
+    QObject *projectItem = (QObject *)NULL;
+    bool foundItem = false;
+    for (int treeviewItemIndex = 0; treeviewItemIndex < projectTreeviewModel->children().count(); treeviewItemIndex++)
     {
-        emulatorDlg->stopEmulation();
-        ui->actionEmulation_Window->setChecked(false);
-        emulatorDlgTabIdx = -1;
+        projectItem = projectTreeviewModel->children().at(treeviewItemIndex);
+        if (!projectItem)
+            continue;
+
+        if (((IProjectTreeViewItem *)projectItem)->getTabIndex() == index)
+        {
+            foundItem = true;
+            break;
+        }
+    }
+
+    if (foundItem)
+    {
+        if (((IProjectTreeViewItem *)projectItem)->onCloseQuery())
+            ui->tabWidget->removeTab(index);
+    } else {
+        ui->tabWidget->removeTab(index);
+        if (index == emulatorDlgTabIdx)
+        {
+            emulatorDlg->stopEmulation();
+            ui->actionEmulation_Window->setChecked(false);
+            emulatorDlgTabIdx = -1;
+        }
     }
 }
 
