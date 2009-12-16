@@ -8,6 +8,7 @@ CNesicideProject::CNesicideProject()
     m_pointerToListOfProjectPaletteEntries = new QList<CPaletteEntry>();
     m_pointerToProject = (CProject*)NULL;
     m_projectTitle = "(No project loaded)";
+    InitTreeItem();
 }
 
 CNesicideProject::~CNesicideProject()
@@ -42,8 +43,6 @@ bool CNesicideProject::get_isInitialized()
 
 void CNesicideProject::initializeProject()
 {
-    // Set the parent of this tree item to NULL since it is the top level item.
-    InitTreeItem();
     initializeNodes();
 
     // Load the default palette into the project
@@ -141,11 +140,47 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     return true;
 }
 
-bool CNesicideProject::deserialize(QDomDocument&, QDomNode&)
+bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
 {
+    m_isInitialized = false;
     initializeNodes();
 
+    // Read in the DOM element
+    QDomElement projectElement = doc.documentElement();
 
+    if (projectElement.isNull())
+        return false;
+
+    // For now, error out if the file version is not what we expect it to be. Eventually
+    // we need to split up the loader into versions for backwards compatibility.
+    if (projectElement.attribute("version", "") != "0.2")
+        return false;
+
+    // Load our properties. Note that the default value is returned if an attribute is missing.
+    // This is the expected behavior.
+    m_projectTitle = projectElement.attribute("title", "Untitled Project");
+    m_pointerToCartridge->set_enumMirrorMode((GameMirrorMode::eGameMirrorMode)
+                                             projectElement.attribute("mirrorMode").toInt());
+    m_pointerToCartridge->set_hasBatteryBackedRam(projectElement.attribute("hasBatteryBackedRam").toInt() == 1);
+
+
+    /*
+    // Create the root palette element, and give it a version attribute
+    QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
+
+    // Loop through all palette entries, and for each entry add an <entry /> tag that has the
+    // index, as well as the RGB properties of the palette.
+    for (int indexOfCurrentPaletteEntry=0; indexOfCurrentPaletteEntry <= 0x3F; indexOfCurrentPaletteEntry++)
+    {
+        QDomElement elm = addElement( doc, rootPaletteElement, "entry");
+        elm.setAttribute("index", indexOfCurrentPaletteEntry);
+        elm.setAttribute("r", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).red());
+        elm.setAttribute("g", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).green());
+        elm.setAttribute("b", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).blue());
+    }
+    */
+
+    m_isInitialized = true;
     return true;
 }
 
