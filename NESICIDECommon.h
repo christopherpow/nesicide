@@ -17,7 +17,7 @@
 // CPTODO: temporaries to prevent having to do glob srch/rplc yet
 typedef unsigned int UINT;
 #ifdef Q_WS_MAC
-#define RGB2DWORD(r,g,b) (r<<16|g<<8|b)
+#define RGB2DWORD(r,g,b) (r<<24|g<<16|b<<8)
 #endif
 #ifdef Q_WS_WIN
 #define RGB2DWORD(r,g,b) (r|g<<8|b<<16)
