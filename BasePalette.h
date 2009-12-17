@@ -11,7 +11,7 @@
 class CBasePalette  
 {
 public:
-   static inline QRgb GetPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
+   static inline QColor GetPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
    {
       if ( bMonochrome )
       {
@@ -19,7 +19,7 @@ public:
       }
       return *(*(m_paletteVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx);
    }
-   static inline QRgb GetDisplayPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
+   static inline QColor GetDisplayPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
    { 
       if ( bMonochrome )
       {
@@ -27,7 +27,7 @@ public:
       }
       return *(*(m_paletteDisplayVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx);
    }
-   static inline void SetPalette ( int idx, QRgb color )
+   static inline void SetPalette ( int idx, QColor color )
    { 
       m_paletteVariants[0][idx] = color;
       CalculateVariants ();
@@ -49,9 +49,9 @@ public:
    };
 
 protected:
-   static QRgb m_paletteBase [ 64 ];
-   static QRgb m_paletteVariants [ 8 ] [ 64 ];
-   static QRgb m_paletteDisplayVariants [ 8 ] [ 64 ];
+   static QColor m_paletteBase [ 64 ];
+   static QColor m_paletteVariants [ 8 ] [ 64 ];
+   static QColor m_paletteDisplayVariants [ 8 ] [ 64 ];
 };
 
 #endif // !defined(AFX_BASEPALETTE_H__1F178478_2CEF_4CDC_B006_95C428BF9926__INCLUDED_)

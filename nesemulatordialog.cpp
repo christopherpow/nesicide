@@ -8,7 +8,11 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NESEmulatorDialog)
 {
-   imgData = new char[256*256*3];
+   // add one to the array below because of the way a DWORD is
+   // banged into this memory at 3-byte intervals.  the last byte
+   // of the last written DWORD will otherwise write off the end
+   // of this array...
+   imgData = new char[(256*256*3)+1];
 
    ui->setupUi(this);
    ui->stopButton->setEnabled(false);

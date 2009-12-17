@@ -157,6 +157,12 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>272</width>
+       <height>256</height>
+      </size>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>

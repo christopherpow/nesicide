@@ -24,77 +24,77 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-QRgb CBasePalette::m_paletteBase [ 64 ] =
+QColor CBasePalette::m_paletteBase [ 64 ] =
 {
-   RGB2DWORD ( 102, 102, 102 ),
-   RGB2DWORD ( 0, 42, 136 ),
-   RGB2DWORD ( 20, 18, 167 ),
-   RGB2DWORD ( 59, 0, 164 ),
-   RGB2DWORD ( 92, 0, 126 ),
-   RGB2DWORD ( 110, 0, 64 ),
-   RGB2DWORD ( 108, 6, 0 ),
-   RGB2DWORD ( 86, 29, 0 ),
-   RGB2DWORD ( 51, 53, 0 ),
-   RGB2DWORD ( 11, 72, 0 ),
-   RGB2DWORD ( 0, 82, 0 ),
-   RGB2DWORD ( 0, 79, 8 ),
-   RGB2DWORD ( 0, 64, 77 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 173, 173, 173 ),
-   RGB2DWORD ( 21, 95, 217 ),
-   RGB2DWORD ( 66, 64, 255 ),
-   RGB2DWORD ( 117, 39, 254 ),
-   RGB2DWORD ( 160, 26, 204 ),
-   RGB2DWORD ( 183, 30, 123 ),
-   RGB2DWORD ( 181, 49, 32 ),
-   RGB2DWORD ( 153, 78, 0 ),
-   RGB2DWORD ( 107, 109, 0 ),
-   RGB2DWORD ( 56, 135, 0 ),
-   RGB2DWORD ( 12, 147, 0 ),
-   RGB2DWORD ( 0, 143, 50 ),
-   RGB2DWORD ( 0 ,124, 141 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 255, 254, 255 ),
-   RGB2DWORD ( 100, 176, 255 ),
-   RGB2DWORD ( 146, 144, 255 ),
-   RGB2DWORD ( 198, 118, 255 ),
-   RGB2DWORD ( 243, 106, 255 ),
-   RGB2DWORD ( 254, 110, 204 ),
-   RGB2DWORD ( 254, 129, 112 ),
-   RGB2DWORD ( 234, 158, 34 ),
-   RGB2DWORD ( 188, 190, 0 ),
-   RGB2DWORD ( 136, 216, 0 ),
-   RGB2DWORD ( 92, 228, 48 ),
-   RGB2DWORD ( 69, 224, 130 ),
-   RGB2DWORD ( 72, 205, 222 ),
-   RGB2DWORD ( 79, 79, 79 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 255, 254, 255 ),
-   RGB2DWORD ( 192, 223, 255 ),
-   RGB2DWORD ( 211, 210, 255 ),
-   RGB2DWORD ( 232, 200, 255 ),
-   RGB2DWORD ( 251, 194, 255 ),
-   RGB2DWORD ( 254, 196, 234 ),
-   RGB2DWORD ( 254, 204, 197 ),
-   RGB2DWORD ( 247, 216, 165 ),
-   RGB2DWORD ( 228, 229, 148 ),
-   RGB2DWORD ( 207, 239, 150 ),
-   RGB2DWORD ( 189, 244, 171 ),
-   RGB2DWORD ( 179, 243, 204 ),
-   RGB2DWORD ( 181, 235, 242 ),
-   RGB2DWORD ( 184, 184, 184 ),
-   RGB2DWORD ( 0, 0, 0 ),
-   RGB2DWORD ( 0, 0, 0 )
+   QColor ( 102, 102, 102 ),
+   QColor ( 0, 42, 136 ),
+   QColor ( 20, 18, 167 ),
+   QColor ( 59, 0, 164 ),
+   QColor ( 92, 0, 126 ),
+   QColor ( 110, 0, 64 ),
+   QColor ( 108, 6, 0 ),
+   QColor ( 86, 29, 0 ),
+   QColor ( 51, 53, 0 ),
+   QColor ( 11, 72, 0 ),
+   QColor ( 0, 82, 0 ),
+   QColor ( 0, 79, 8 ),
+   QColor ( 0, 64, 77 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 173, 173, 173 ),
+   QColor ( 21, 95, 217 ),
+   QColor ( 66, 64, 255 ),
+   QColor ( 117, 39, 254 ),
+   QColor ( 160, 26, 204 ),
+   QColor ( 183, 30, 123 ),
+   QColor ( 181, 49, 32 ),
+   QColor ( 153, 78, 0 ),
+   QColor ( 107, 109, 0 ),
+   QColor ( 56, 135, 0 ),
+   QColor ( 12, 147, 0 ),
+   QColor ( 0, 143, 50 ),
+   QColor ( 0 ,124, 141 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 255, 254, 255 ),
+   QColor ( 100, 176, 255 ),
+   QColor ( 146, 144, 255 ),
+   QColor ( 198, 118, 255 ),
+   QColor ( 243, 106, 255 ),
+   QColor ( 254, 110, 204 ),
+   QColor ( 254, 129, 112 ),
+   QColor ( 234, 158, 34 ),
+   QColor ( 188, 190, 0 ),
+   QColor ( 136, 216, 0 ),
+   QColor ( 92, 228, 48 ),
+   QColor ( 69, 224, 130 ),
+   QColor ( 72, 205, 222 ),
+   QColor ( 79, 79, 79 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 255, 254, 255 ),
+   QColor ( 192, 223, 255 ),
+   QColor ( 211, 210, 255 ),
+   QColor ( 232, 200, 255 ),
+   QColor ( 251, 194, 255 ),
+   QColor ( 254, 196, 234 ),
+   QColor ( 254, 204, 197 ),
+   QColor ( 247, 216, 165 ),
+   QColor ( 228, 229, 148 ),
+   QColor ( 207, 239, 150 ),
+   QColor ( 189, 244, 171 ),
+   QColor ( 179, 243, 204 ),
+   QColor ( 181, 235, 242 ),
+   QColor ( 184, 184, 184 ),
+   QColor ( 0, 0, 0 ),
+   QColor ( 0, 0, 0 )
 };
 
-QRgb CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
+QColor CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
-QRgb CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
+QColor CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
 
 static CBasePalette __init;
 
@@ -130,23 +130,20 @@ void CBasePalette::CalculateVariants ( void )
          m_paletteVariants [ idx1 ] [ idx2 ] = m_paletteVariants [ 0 ] [ idx2 ];
          m_paletteDisplayVariants [ idx1 ] [ idx2 ] = m_paletteVariants [ 0 ] [ idx2 ];
 
-         temp = (m_paletteVariants[idx1][idx2]&0xFF0000)>>16;
+         temp = m_paletteVariants[idx1][idx2].red();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 0 ];
          if ( temp > 0xFF ) temp = 0xFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] &= 0x00FFFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] |= (temp<<16);
+         m_paletteVariants [ idx1 ] [ idx2 ].setRed ( temp );
 
-         temp = (m_paletteVariants[idx1][idx2]&0xFF00)>>16;
+         temp = m_paletteVariants[idx1][idx2].green();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 1 ];
          if ( temp > 0xFF ) temp = 0xFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] &= 0xFF00FF;
-         m_paletteVariants [ idx1 ] [ idx2 ] |= (temp<<8);
+         m_paletteVariants [ idx1 ] [ idx2 ].setGreen ( temp );
 
-         temp = m_paletteVariants[idx1][idx2]&0xFF;
+         temp = m_paletteVariants[idx1][idx2].blue();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 2 ];
          if ( temp > 0xFF ) temp = 0xFF;
-         m_paletteVariants [ idx1 ] [ idx2 ] &= 0xFFFF00;
-         m_paletteVariants [ idx1 ] [ idx2 ] |= temp;
+         m_paletteVariants [ idx1 ] [ idx2 ].setBlue ( temp );
       }
    }
 }

@@ -568,14 +568,18 @@ void CPPU::SCANLINEEND ( void )
 void CPPU::RENDERRESET ( int scanline )
 {
    int idxx;
-   int idxy = scanline<<8;
-   QRgb base = CBasePalette::GetDisplayPalette(rPALETTE(0));
+   int idxy = (scanline<<8)*3;
+   int offsetx = 0;
+   QColor color(0,0,0);
 
    if ( m_pTV )
    {
        for ( idxx = 0; idxx < 256; idxx++ )
        {
-          *((QRgb*)(m_pTV+(idxy*3)+(idxx*3))) = base;
+          *(m_pTV+idxy+offsetx) = color.red();
+          *(m_pTV+idxy+offsetx+1) = color.green();
+          *(m_pTV+idxy+offsetx+2) = color.blue();
+          offsetx += 3;
        }
    }
 }
@@ -622,7 +626,7 @@ void CPPU::PIXELPIPELINES ( int x, int off, unsigned char *a, unsigned char *b1,
 
 bool CPPU::RENDERSCANLINE ( int scanline )
 {
-   int rasttv = scanline<<8;
+   int rasttv = (scanline<<8)*3;
    int idxx;
    int sprite;
    int p = 0;
@@ -630,7 +634,8 @@ bool CPPU::RENDERSCANLINE ( int scanline )
    SpriteBufferData* pSprite;
    int idx2;
    bool brkpt = false;
-   char* pTV = (char*)(m_pTV+(rasttv*3));
+   char* pTV = (char*)(m_pTV+rasttv);
+   QColor color;
 
    // even-odd framing for extra-cycle on pre-render scanline...
    m_frame = !m_frame; 
@@ -660,17 +665,26 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                if ( !(colorIdx&0x3) ) colorIdx = 0;
                if ( colorIdx&0x3 ) tvSet |= 1;
 
-               (*(QRgb*)pTV) = CBasePalette::GetDisplayPalette(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               color = CBasePalette::GetDisplayPalette(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               *pTV = color.red();
+               *(pTV+1) = color.green();
+               *(pTV+2) = color.blue();
             }
             else
             {
                if ( (m_ppuAddr&0x3F00) == 0x3F00 )
                {
-                  (*(QRgb*)pTV) = CBasePalette::GetDisplayPalette(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  color = CBasePalette::GetDisplayPalette(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV = color.red();
+                  *(pTV+1) = color.green();
+                  *(pTV+2) = color.blue();
                }
                else
                {
-                  (*(QRgb*)pTV) = CBasePalette::GetDisplayPalette(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  color = CBasePalette::GetDisplayPalette(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV = color.red();
+                  *(pTV+1) = color.green();
+                  *(pTV+2) = color.blue();
                }
             }
 
@@ -697,7 +711,10 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                              (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
                              ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
                         {
-                           (*(QRgb*)pTV) = CBasePalette::GetDisplayPalette(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                           color = CBasePalette::GetDisplayPalette(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                           *pTV = color.red();
+                           *(pTV+1) = color.green();
+                           *(pTV+2) = color.blue();
                         }
                         if ( (pSprite->spriteIdx == 0) && 
                              (!sprite0HitSet) && 
@@ -724,6 +741,7 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                }
             }
 
+            // Move to next pixel...
             pTV += 3;
             p++;
          }

@@ -103,23 +103,25 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
     glLoadIdentity();
 
     // Slightly offset the view to ensure proper pixel alignment
-    //glTranslatef(0.375,0.375,0);
+//    glTranslatef(0.5,0.5,0);
 }
 
 
 void CNESEmulatorRenderer::paintGL()
 {
+    float x = (width()/2.0)-128.0;
+    float y = (height()/2.0)-120.0;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindTexture (GL_TEXTURE_2D, textureID);
     glBegin(GL_QUADS);
         glTexCoord2f (0.0, 0.0);
-        glVertex3f(000.0f, 000.0f, 0.0f);
+        glVertex3f(x, y, 0.0f);
         glTexCoord2f (1.0, 0.0);
-        glVertex3f(256.0f, 000.0f, 0.0f);
+        glVertex3f(x+256.0f, y, 0.0f);
         glTexCoord2f (1.0, 1.0);
-        glVertex3f(256.0f, 240.0f, 0.0f);
+        glVertex3f(x+256.0f, y+256.0f, 0.0f);
         glTexCoord2f (0.0, 1.0);
-        glVertex3f(000.0f, 240.0f, 0.0f);
+        glVertex3f(x, y+256.0f, 0.0f);
     glEnd();
 }
 
