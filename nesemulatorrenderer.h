@@ -7,6 +7,7 @@
 
 class CNESEmulatorRenderer : public QGLWidget
 {
+   Q_OBJECT
 public:
     CNESEmulatorRenderer(QWidget *parent, char *imgData);
     ~CNESEmulatorRenderer();

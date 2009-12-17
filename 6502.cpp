@@ -456,7 +456,7 @@ void C6502::ORA ( void )
 //  +----------------+-----------------------+---------+---------+----------+
 void C6502::ASL ( void )
 {
-   unsigned short addr;
+   unsigned short addr = 0x0000;
    unsigned short val;
 
    if ( amode == AM_ACCUMULATOR )
@@ -711,7 +711,7 @@ void C6502::BIT ( void )
 //  +----------------+-----------------------+---------+---------+----------+
 void C6502::ROL ( void )
 {
-   unsigned short addr;
+   unsigned short addr = 0x0000;
    unsigned short val;
 
    if ( amode == AM_ACCUMULATOR )
@@ -911,7 +911,7 @@ void C6502::LSE ( void )
 //  +----------------+-----------------------+---------+---------+----------+
 void C6502::LSR ( void )
 {
-   unsigned short addr;
+   unsigned short addr = 0x0000;
    unsigned short val;
 
    if ( amode == AM_ACCUMULATOR )
@@ -1123,7 +1123,7 @@ void C6502::ADC ( void )
 //          June, 1976.
 void C6502::ROR ( void )
 {
-   UINT addr;
+   UINT addr = 0x0000;
    unsigned short val;
 
    if ( amode == AM_ACCUMULATOR )
@@ -2687,7 +2687,7 @@ void C6502::_MEM ( UINT addr, unsigned char data )
 
 UINT C6502::MAKEADDR ( int amode, unsigned char* data )
 {
-   unsigned short addr, addrpre;
+   unsigned short addr = 0x00, addrpre;
 
    if ( amode == AM_ZEROPAGE )
    {
@@ -2742,16 +2742,22 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
 
 // CPTODO: support funcs for inline disassembly and for tracer disassembly
 #if 0
-void C6502::Disassemble ( CString& dis8000, CString& disC000, char* szBinary, int len, bool decorate )
+void C6502::Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, int len, bool decorate )
 {
    C6502_opcode* pOp;
    int opSize;
    char* ptr8000;
    char* ptrC000;
+   QByteArray ba8000;
+   QByteArray baC000;
    unsigned char op;
 
-   ptr8000 = dis8000.GetBufferSetLength ( 524288 );
-   ptrC000 = disC000.GetBufferSetLength ( 524288 );
+   dis8000.reserve ( 524288 );
+   disC000.reserve ( 524288 );
+   ba8000 = dis8000.toUtf8 ();
+   baC000 = dis8000.toUtf8 ();
+   ptr8000 = ba8000.data ();
+   ptrC000 = baC000.data ();
 
    for ( int i = 0; i < len; )
    {
@@ -2769,14 +2775,14 @@ void C6502::Disassemble ( CString& dis8000, CString& disC000, char* szBinary, in
       {
          if ( decorate == true )
          {
-            ptr8000 += sprintf ( ptr8000, dispFmt[opSize], 
-                      (unsigned char)szBinary[i],
-                      (unsigned char)szBinary[i+1],
-                      (unsigned char)szBinary[i+2] );
-            ptrC000 += sprintf ( ptrC000, dispFmt[opSize], 
-                      (unsigned char)szBinary[i],
-                      (unsigned char)szBinary[i+1],
-                      (unsigned char)szBinary[i+2] );
+            ptr8000 += sprintf ( ptr8000, dispFmt[opSize],
+                                 szBinary[i],
+                                 szBinary[i+1],
+                                 szBinary[i+2] );
+            ptrC000 += sprintf ( ptrC000, dispFmt[opSize],
+                                 szBinary[i],
+                                 szBinary[i+1],
+                                 szBinary[i+2] );
          }
 
          ptr8000 += sprintf ( ptr8000, pOp->name );
@@ -2792,10 +2798,10 @@ void C6502::Disassemble ( CString& dis8000, CString& disC000, char* szBinary, in
             case AM_PREINDEXED_INDIRECT:
             case AM_POSTINDEXED_INDIRECT:
             case AM_RELATIVE:
-               ptr8000 += sprintf ( ptr8000, operandFmt[pOp->amode], 
-                         (unsigned char)szBinary[i+1] );
-               ptrC000 += sprintf ( ptrC000, operandFmt[pOp->amode], 
-                         (unsigned char)szBinary[i+1] );
+               ptr8000 += sprintf ( ptr8000, operandFmt[pOp->amode],
+                                    szBinary[i+1] );
+               ptrC000 += sprintf ( ptrC000, operandFmt[pOp->amode],
+                                    szBinary[i+1] );
             break;
 
             // Two byte operands
@@ -2803,12 +2809,12 @@ void C6502::Disassemble ( CString& dis8000, CString& disC000, char* szBinary, in
             case AM_ABSOLUTE_INDEXED_X:
             case AM_ABSOLUTE_INDEXED_Y:
             case AM_INDIRECT:
-               ptr8000 += sprintf ( ptr8000, operandFmt[pOp->amode], 
-                         (unsigned char)szBinary[i+2],
-                         (unsigned char)szBinary[i+1] );
-               ptrC000 += sprintf ( ptrC000, operandFmt[pOp->amode], 
-                         (unsigned char)szBinary[i+2],
-                         (unsigned char)szBinary[i+1] );
+               ptr8000 += sprintf ( ptr8000, operandFmt[pOp->amode],
+                                    szBinary[i+2],
+                                    szBinary[i+1] );
+               ptrC000 += sprintf ( ptrC000, operandFmt[pOp->amode],
+                                    szBinary[i+2],
+                                    szBinary[i+1] );
             break;
          }
 
@@ -2824,12 +2830,12 @@ void C6502::Disassemble ( CString& dis8000, CString& disC000, char* szBinary, in
       {
          if ( decorate == true )
          {
-            ptr8000 += sprintf ( ptr8000, dispFmt[1], (unsigned char)szBinary[i] );
-            ptrC000 += sprintf ( ptrC000, dispFmt[1], (unsigned char)szBinary[i] );
+            ptr8000 += sprintf ( ptr8000, dispFmt[1], szBinary[i] );
+            ptrC000 += sprintf ( ptrC000, dispFmt[1], szBinary[i] );
          }
 
-         ptr8000 += sprintf ( ptr8000, ".DB $%02X", (unsigned char)szBinary[i] );
-         ptrC000 += sprintf ( ptrC000, ".DB $%02X", (unsigned char)szBinary[i] );
+         ptr8000 += sprintf ( ptr8000, ".DB $%02X", szBinary[i] );
+         ptrC000 += sprintf ( ptrC000, ".DB $%02X", szBinary[i] );
 
          i++;
       }
@@ -2842,9 +2848,6 @@ void C6502::Disassemble ( CString& dis8000, CString& disC000, char* szBinary, in
 
    (*ptr8000) = 0;
    (*ptrC000) = 0;
-
-   dis8000.ReleaseBuffer ();
-   disC000.ReleaseBuffer ();
 }
 
 char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )

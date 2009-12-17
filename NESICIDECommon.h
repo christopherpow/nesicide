@@ -13,14 +13,18 @@
 #endif // WIN32
 
 // CPTODO: removed everything from here (for now) that is not needed yet...
-#define SWAPRB(x) ((x>>16)|(x&0xFF00)|(x<<16))
 
 // CPTODO: temporaries to prevent having to do glob srch/rplc yet
 typedef unsigned int UINT;
+#ifdef Q_WS_MAC
 #define RGB2DWORD(r,g,b) (r<<16|g<<8|b)
+#endif
+#ifdef Q_WS_WIN
+#define RGB2DWORD(r,g,b) (r|g<<8|b<<16)
+#endif
 
-#if 0
-extern char hex_char[];
+extern qint8 hex_char[16];
+
 #define sprintf02x(b,v) \
 { \
    (**b) = *(hex_char+((v)>>4)); (*b)++; \
@@ -57,7 +61,6 @@ extern char hex_char[];
    (**b) = '\n'; (*b)++; \
    (**b) = 0; \
 }
-#endif
 
 // APU emulation stuff
 #define FREQ_50HZ  (50.0)

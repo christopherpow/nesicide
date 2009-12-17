@@ -8,43 +8,32 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NESEmulatorDialog)
 {
-    imgData = new char[256*256*3];
+   imgData = new char[256*256*3];
 
-    ui->setupUi(this);
-    ui->stopButton->setVisible(false);
-    ui->pauseButton->setVisible(false);
-    ui->stepButton->setVisible(false);
+   ui->setupUi(this);
+   ui->stopButton->setEnabled(false);
+   ui->pauseButton->setEnabled(false);
+   ui->stepButton->setEnabled(false);
 
-    timer = new QBasicTimer();
+   renderer = new CNESEmulatorRenderer(ui->frame, imgData);
+   ui->frame->layout()->addWidget(renderer);
+   ui->frame->layout()->update();
 
-    renderer = new CNESEmulatorRenderer(ui->frame, imgData);
-    ui->frame->layout()->addWidget(renderer);
-    ui->frame->layout()->update();
+   memset ( imgData, 0, sizeof(imgData));
 
-    memset ( imgData, 0, sizeof(imgData));
+   QObject::connect(ui->playButton, SIGNAL(pressed()), emulator, SLOT(startEmulation()));
+   QObject::connect(ui->pauseButton, SIGNAL(pressed()), emulator, SLOT(pauseEmulation()));
+   QObject::connect(ui->stopButton, SIGNAL(pressed()), emulator, SLOT(stopEmulation()));
+   QObject::connect(ui->resetButton, SIGNAL(pressed()), emulator, SLOT(resetEmulator()));
 
-    m_joy [ JOY1 ] = 0x00;
-    m_joy [ JOY2 ] = 0x00;
-    CPPU::TV ( imgData );
+   m_joy [ JOY1 ] = 0x00;
+   m_joy [ JOY2 ] = 0x00;
+   CPPU::TV ( imgData );
 }
 
 NESEmulatorDialog::~NESEmulatorDialog()
 {
     delete ui;
-    delete timer;
-}
-void NESEmulatorDialog::timerEvent(QTimerEvent *event)
-{
-   if (event->timerId() == timer->timerId())
-   {
-      emulator->setInputs ( m_joy );
-      renderer->updateGL ();
-      timer->start(16, this);
-   }
-   else
-   {
-      QDialog::timerEvent(event);
-   }
 }
 
 void NESEmulatorDialog::stopEmulation()
@@ -138,6 +127,8 @@ void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
       m_joy [ JOY2 ] |= JOY_A;
    }
 #endif
+
+   emit controllerInput ( m_joy );
 }
 
 void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
@@ -214,18 +205,16 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
       m_joy [ JOY2 ] &= (~(JOY_A));
    }
 #endif
+
+   emit controllerInput ( m_joy );
 }
 
 void NESEmulatorDialog::on_playButton_clicked()
 {
-    ui->playButton->setVisible(false);
-    ui->stopButton->setVisible(true);
-    ui->pauseButton->setVisible(true);
-    ui->stepButton->setVisible(false);
-
-    emulator->setRunning ( true );
-
-    timer->start ( 16, this );
+    ui->playButton->setEnabled(false);
+    ui->stopButton->setEnabled(true);
+    ui->pauseButton->setEnabled(true);
+    ui->stepButton->setEnabled(false);
 }
 
 void NESEmulatorDialog::on_stopButton_clicked()
@@ -237,42 +226,22 @@ void NESEmulatorDialog::on_stopButton_clicked()
     if (!ui->stopButton->isVisible())
         return;
 
-    ui->playButton->setVisible(true);
-    ui->stopButton->setVisible(false);
-    ui->pauseButton->setVisible(false);
-    ui->stepButton->setVisible(false);
-
-    timer->stop ();
-
-    emulator->setRunning ( false );
+    ui->playButton->setEnabled(true);
+    ui->stopButton->setEnabled(false);
+    ui->pauseButton->setEnabled(false);
+    ui->stepButton->setEnabled(false);
 }
 
 void NESEmulatorDialog::on_pauseButton_clicked()
 {
-    ui->playButton->setVisible(true);
-    ui->stopButton->setVisible(true);
-    ui->pauseButton->setVisible(false);
-    ui->stepButton->setVisible(true);
-
-    timer->stop ();
-
-    emulator->setRunning ( false );
+    ui->playButton->setEnabled(true);
+    ui->stopButton->setEnabled(true);
+    ui->pauseButton->setEnabled(false);
+    ui->stepButton->setEnabled(true);
 }
 
 void NESEmulatorDialog::on_resetButton_clicked()
 {
-   bool wasRunning = emulator->isRunning ();
-
-   timer->stop ();
-   emulator->setRunning ( false );
-   emulator->reset ();
-
-   // If we were running, restart...
-   if ( wasRunning )
-   {
-      timer->start ( 16, this );
-      emulator->setRunning ( true );
-   }
 }
 
 void NESEmulatorDialog::on_stepButton_clicked()

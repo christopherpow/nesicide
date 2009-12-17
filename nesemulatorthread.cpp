@@ -5,8 +5,8 @@
 #include "6502.h"
 
 static float m_factor [ 6 ] = { 0.25, 0.5, 1.0, 2.0, 4.0, 100.0 };
-
-NESEmulatorThread::NESEmulatorThread (QObject *parent)
+#include <QMessageBox>
+NESEmulatorThread::NESEmulatorThread(QObject *parent)
 {
     m_factorIdx = 2;
 
@@ -19,8 +19,13 @@ NESEmulatorThread::NESEmulatorThread (QObject *parent)
     m_currVblankTime = 0;
     m_joy [ JOY1 ] = 0x00;
     m_joy [ JOY2 ] = 0x00;
-    m_bBreakpoint = false;
-    m_bRunning = false;
+    m_isAtBreakpoint = false;
+    m_isRunning = false;
+}
+
+void NESEmulatorThread::setDialog(QDialog* dialog)
+{
+   QObject::connect(dialog, SIGNAL(controllerInput(unsigned char*)), this, SLOT(controllerInput(unsigned char*)));
 }
 
 void NESEmulatorThread::setCartridge(CCartridge *cartridge)
@@ -75,10 +80,10 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
 #endif
 
     // Reset the emulator...
-    reset ();
+    resetEmulator ();
 }
 
-void NESEmulatorThread::reset()
+void NESEmulatorThread::resetEmulator()
 {
    // Reset mapper...
    mapperfunc [ m_pCartridge->getMapperNumber() ].reset ();
@@ -117,45 +122,55 @@ void NESEmulatorThread::setFrequency ( float fFreq )
    m_periodVblank = (1000.0/m_fFreqReal);
 }
 
+void NESEmulatorThread::startEmulation ()
+{
+   m_isRunning = true;
+}
+
+void NESEmulatorThread::pauseEmulation ()
+{
+   m_isRunning = false;
+}
+
+void NESEmulatorThread::stopEmulation ()
+{
+   m_isRunning = false;
+}
+
 void NESEmulatorThread::run ()
 {
-    static float adjust = 0.0;
-    static float elapsed = 0.0;
+    static int adjust = 0;
+    QTime time;
 
-// CPTODO: mmsys
-//    timeBeginPeriod ( 1 );
+    time.start ();
+
+    m_mutex.lock ();
 
     while ( 1 )
     {
-       while ( m_bRunning )
+       m_waiter.wait ( &m_mutex, 5 );
+
+       if ( m_isRunning )
        {
-// CPTODO: mmsys -- figure out how to do timing in Qt
-//          m_currVblankTime = timeGetTime ();
-#if 0
-          elapsed += (float)(m_currVblankTime-m_lastVblankTime);
-          if ( elapsed < ((float)m_periodVblank-1-(float)adjust) )
+          if ( time.elapsed() >= (m_periodVblank-adjust) )
           {
-             msleep ( 1000 );
-          }
-          else
-          {
-             adjust = (elapsed-(float)m_periodVblank);
-             elapsed = 0.0;
-#endif
+             adjust = (time.elapsed()-m_periodVblank);
+
+             time.start ();
+
              // Run emulator for one frame...
              // CPTODO: this needs to be re-factored into a RUN-by-PPU-clock-tick method.
              //         internally it does everything by PPU ticks...but in order to support
              //         breakpoints effectively it needs to be wound up to this level.
-             m_bBreakpoint = CNES::RUN ( m_joy );
-             if ( m_bBreakpoint )
-             {
-                m_bRunning = false;
-             }
+             m_isAtBreakpoint = CNES::RUN ( m_joy );
 
-#if 0
+             emit emulatedFrame();
+
+             if ( m_isAtBreakpoint )
+             {
+                m_isRunning = false;
+             }
           }
-          m_lastVblankTime = m_currVblankTime;
-#endif
        }
     }
 

@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "main.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -228,6 +230,7 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
         if (!emulatorDlg)
         {
             emulatorDlg = new NESEmulatorDialog();
+            emulator->setDialog ( emulatorDlg );
         }
         emulatorDlgTabIdx = ui->tabWidget->addTab(emulatorDlg, "Emulation Window");
         ui->tabWidget->setCurrentIndex(emulatorDlgTabIdx);

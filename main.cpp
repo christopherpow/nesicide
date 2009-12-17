@@ -2,7 +2,7 @@
 #include "mainwindow.h"
 #include "nesemulatorthread.h"
 
-NESEmulatorThread* emulator = new NESEmulatorThread();
+NESEmulatorThread* emulator = new NESEmulatorThread ();
 
 int main(int argc, char *argv[])
 {

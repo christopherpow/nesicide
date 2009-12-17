@@ -10,38 +10,46 @@ class NESEmulatorThread : public QThread
 {
    Q_OBJECT
 public:
-    NESEmulatorThread ( QObject* parent = 0);
-    virtual ~NESEmulatorThread () {}
+   NESEmulatorThread ( QObject* parent = 0 );
+   virtual ~NESEmulatorThread () {}
 
-    void setRunning ( bool bRun ) { m_bRunning = bRun; }
-    bool isRunning ( void ) { return m_bRunning; }
-    void setFrequency ( float iFreq );
-    float getFrequency ( void ) { return m_fFreq; }
-    void setFactorIndex ( int factorIdx ) { m_factorIdx = factorIdx; setFrequency(m_fFreq); }
-    int getFactorIndex ( void ) { return m_factorIdx; }
-    void setJoy ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
-    bool isBreakpoint ( void ) { return m_bBreakpoint; }
+   void setDialog(QDialog* dialog);
 
-    void setCartridge ( CCartridge* cartridge );
+   void setRunning ( bool run ) { m_isRunning = run; }
+   bool isRunning ( void ) { return m_isRunning; }
+   void setFrequency ( float iFreq );
+   float getFrequency ( void ) { return m_fFreq; }
+   void setFactorIndex ( int factorIdx ) { m_factorIdx = factorIdx; setFrequency(m_fFreq); }
+   int getFactorIndex ( void ) { return m_factorIdx; }
+   bool isAtBreakpoint ( void ) { return m_isAtBreakpoint; }
 
-    void setInputs ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
+   void setCartridge ( CCartridge* cartridge );
 
-    // emulation events [signals?]
-    void reset ( void );
+public slots:
+   void startEmulation ();
+   void pauseEmulation ();
+   void stopEmulation ();
+   void resetEmulator ();
+   void controllerInput ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
+
+signals:
+   void emulatedFrame ();
 
 protected:
-    virtual void run ();
+   virtual void run ();
 
-    CCartridge*   m_pCartridge;
-    bool          m_bRunning;
-    qint32         m_lastVblankTime;
-    qint32         m_currVblankTime;
-    float         m_periodVblank;
-    float         m_fFreq;
-    float         m_fFreqReal;
-    int m_factorIdx;
-    unsigned char m_joy [ NUM_JOY ];
-    bool          m_bBreakpoint;
+   QWaitCondition m_waiter;
+   QMutex         m_mutex;
+   CCartridge*   m_pCartridge;
+   bool          m_isRunning;
+   qint32         m_lastVblankTime;
+   qint32         m_currVblankTime;
+   float         m_periodVblank;
+   float         m_fFreq;
+   float         m_fFreqReal;
+   int m_factorIdx;
+   unsigned char m_joy [ NUM_JOY ];
+   bool          m_isAtBreakpoint;
 };
 
 #endif // NESEMULATORTHREAD_H
