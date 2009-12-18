@@ -1,6 +1,8 @@
 #include "cnesicideproject.h"
 #include "main.h"
 
+CNesicideProject *nesicideProject;
+
 CNesicideProject::CNesicideProject()
 {
     m_isInitialized = false;

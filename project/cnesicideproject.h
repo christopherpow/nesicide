@@ -62,4 +62,6 @@ private:
 
 };
 
+extern CNesicideProject *nesicideProject;
+
 #endif // CNESICIDEPROJECT_H
