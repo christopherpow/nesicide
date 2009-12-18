@@ -26,7 +26,7 @@ INCLUDEPATH = ./ \
     ./viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
-unix:INCLUDEPATH += += /usr/include/SDL
+unix:INCLUDEPATH += /usr/include/SDL
 TARGET = nesicide2
 TEMPLATE = app
 SOURCES += mainwindow.cpp \
