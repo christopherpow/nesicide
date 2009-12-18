@@ -6,7 +6,8 @@ QT += network \
     webkit \
     xml \
     multimedia
-INCLUDEPATH = ./common \
+INCLUDEPATH = ./ \
+    ./common \
     ./compiler \
     ./designers \
     ./designers/code_editor \
@@ -155,3 +156,5 @@ FORMS += mainwindow.ui \
     viewers/prg-rom/prgromdisplaydialog.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
+DESTDIR = ./output
+OBJECTS_DIR = ./output

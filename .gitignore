@@ -5,3 +5,4 @@ ui_*.cpp
 Makefile*
 object_script.nesicide2*
 *.pro.user
+./output
