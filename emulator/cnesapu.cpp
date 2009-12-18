@@ -22,6 +22,8 @@
 #include "cnes6502.h"
 #include "cnesppu.h"
 
+#include <QSemaphore>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -38,14 +40,11 @@ CAPUTriangle  CAPU::m_triangle;
 CAPUNoise     CAPU::m_noise;
 CAPUDMC       CAPU::m_dmc;
 
-// CPTODO: use phonon instead of wavOut...
-//HWAVEOUT       CAPU::m_hWaveDevice = NULL;
-//WAVEHDR        CAPU::m_waveBufQueue [ NUM_APU_BUFS ] = { 0, };
+SDL_AudioSpec  CAPU::m_sdlAudioSpec;
 unsigned short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 2000 ] = { { 0, }, };
 int            CAPU::m_waveBufDepth [ NUM_APU_BUFS ] = { 0, };
 int            CAPU::m_waveBufProduce = 0;
 int            CAPU::m_waveBufConsume = 0;
-bool           CAPU::m_waveBufWritten [ NUM_APU_BUFS ] = { 0, };
 int            CAPU::m_iFreq = 0;
 int            CAPU::m_iFactorIdx = 2;
 
@@ -324,6 +323,17 @@ static unsigned short m_tndTable [ 203 ] =
 
 static int m_samples [ 6 ] = { 11025, 22050, 44100, 88200, 176400, 0 };
 
+extern QSemaphore emulatorSemaphore;
+
+extern "C" void SDL_GetMoreData(void *userdata, Uint8 *stream, int len)
+{
+   CAPU::PLAY ( stream, len );
+
+   emulatorSemaphore.release();
+}
+
+static CAPU __init __attribute((unused));
+
 CAPU::CAPU()
 {
    m_square[0].SetChannel ( 0 );
@@ -331,11 +341,135 @@ CAPU::CAPU()
    m_triangle.SetChannel ( 2 );
    m_noise.SetChannel ( 3 );
    m_dmc.SetChannel ( 4 );
+
+   SDL_Init ( SDL_INIT_AUDIO );
+
+   m_sdlAudioSpec.channels = 1;
+   m_sdlAudioSpec.format = AUDIO_U16SYS;
+   m_sdlAudioSpec.freq = 44100;
+   m_sdlAudioSpec.samples = 735;
+   m_sdlAudioSpec.callback = SDL_GetMoreData;
+   m_sdlAudioSpec.userdata = (void*)this;
 }
 
 CAPU::~CAPU()
 {
+   SDL_Quit ();
+}
 
+void CAPU::OPEN ( void )
+{
+   SDL_AudioSpec obtained;
+   SDL_OpenAudio ( &m_sdlAudioSpec, &obtained );
+
+   memcpy ( &m_sdlAudioSpec, &obtained, sizeof(SDL_AudioSpec) );
+
+   SDL_PauseAudio ( 0 );
+}
+
+void CAPU::PLAY ( Uint8 *stream, int len )
+{
+   int  waveBufDepth;
+   unsigned short* waveBuf;
+
+   waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
+   waveBuf = *(m_waveBuf + m_waveBufConsume);
+
+   if ( waveBufDepth )
+   {
+      memcpy ( stream, waveBuf, len );
+      m_waveBufConsume++;
+      m_waveBufConsume %= NUM_APU_BUFS;
+   }
+}
+
+void CAPU::RUN ( void )
+{
+   int timerTicks = 41;
+   int sampleTick;
+   int samplesPerSeqTick1 = *(*(m_samplesPerSeqTick+m_iFreq));
+   int samplesPerSeqTick2 = *(*(m_samplesPerSeqTick+m_iFreq)+1);
+   int samplesPerSeqTick3 = *(*(m_samplesPerSeqTick+m_iFreq)+2);
+   int samplesPerSeqTick4 = *(*(m_samplesPerSeqTick+m_iFreq)+3);
+   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
+   int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
+
+   SDL_LockAudio ();
+
+   SEQTICK ();
+
+   for ( sampleTick = 0; sampleTick < samplesPerSeqTick1; sampleTick++ )
+   {
+      m_square[0].TIMERTICK ( timerTicks );
+      m_square[1].TIMERTICK ( timerTicks );
+      m_triangle.TIMERTICK ( timerTicks );
+      m_noise.TIMERTICK ( timerTicks );
+      m_dmc.TIMERTICK ( timerTicks );
+
+      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
+
+      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
+      (*pWaveBufDepth)++;
+   }
+
+   SEQTICK ();
+
+   for ( sampleTick = 0; sampleTick < samplesPerSeqTick2; sampleTick++ )
+   {
+      m_square[0].TIMERTICK ( timerTicks );
+      m_square[1].TIMERTICK ( timerTicks );
+      m_triangle.TIMERTICK ( timerTicks );
+      m_noise.TIMERTICK ( timerTicks );
+      m_dmc.TIMERTICK ( timerTicks );
+
+      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
+
+      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
+      (*pWaveBufDepth)++;
+   }
+
+   SEQTICK ();
+
+   for ( sampleTick = 0; sampleTick < samplesPerSeqTick3; sampleTick++ )
+   {
+      m_square[0].TIMERTICK ( timerTicks );
+      m_square[1].TIMERTICK ( timerTicks );
+      m_triangle.TIMERTICK ( timerTicks );
+      m_noise.TIMERTICK ( timerTicks );
+      m_dmc.TIMERTICK ( timerTicks );
+
+      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
+
+      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
+      (*pWaveBufDepth)++;
+   }
+
+   SEQTICK ();
+
+   for ( sampleTick = 0; sampleTick < samplesPerSeqTick4; sampleTick++ )
+   {
+      m_square[0].TIMERTICK ( timerTicks );
+      m_square[1].TIMERTICK ( timerTicks );
+      m_triangle.TIMERTICK ( timerTicks );
+      m_noise.TIMERTICK ( timerTicks );
+      m_dmc.TIMERTICK ( timerTicks );
+
+      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
+
+      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
+      (*pWaveBufDepth)++;
+   }
+
+   m_waveBufProduce++;
+   m_waveBufProduce %= NUM_APU_BUFS;
+   m_waveBufDepth [ m_waveBufProduce ] = 0;
+
+   SDL_UnlockAudio ();
+}
+
+void CAPU::CLOSE ( void )
+{
+   SDL_CloseAudio ();
 }
 
 void CAPU::GETDACS ( unsigned char* square1,
@@ -429,6 +563,9 @@ void CAPU::SEQTICK ( void )
 void CAPU::RESET ( void )
 {
    int idx;
+
+   CAPU::CLOSE ();
+
    for ( idx = 0; idx < 32; idx++ )
    {
       m_APUreg [ idx ] = 0x00;
@@ -445,195 +582,8 @@ void CAPU::RESET ( void )
    m_irqAsserted = false;
    m_sequence = 0;
    m_sequencerMode = 0;
-}
 
-void CAPU::OPEN ( void )
-{
-// CPTODO: use phonon instead of wavOut...
-#if 0
-   WAVEFORMATEX wfx;
-   int          idx;
-
-   wfx.wFormatTag = WAVE_FORMAT_PCM;
-   wfx.nChannels = 1;
-   wfx.nSamplesPerSec = m_samples[m_iFactorIdx];
-   wfx.nBlockAlign = 2;
-   wfx.nAvgBytesPerSec = (wfx.nSamplesPerSec*wfx.nBlockAlign);
-   wfx.wBitsPerSample = 16;
-   wfx.cbSize = 0;
-
-   if ( waveOutGetNumDevs() > 0 )
-   {
-	   waveOutOpen ( &m_hWaveDevice, 0, &wfx, 0, 0, CALLBACK_NULL|WAVE_MAPPED );
-   }
-
-   m_waveBufConsume = 0;
-   m_waveBufProduce = 0;
-   for ( idx = 0; idx < NUM_APU_BUFS; idx++ )
-   {
-      m_waveBufDepth [ idx ] = 0;
-      m_waveBufWritten [ idx ] = false;
-   }
-#endif
-}
-
-void CAPU::PLAY ( void )
-{
-// CPTODO: use phonon instead of wavOut...
-#if 0
-    int idx;
-   int difference;
-   WAVEHDR* pWaveBufQueue;
-   bool waveBufWritten;
-   int  waveBufDepth;
-   unsigned short* waveBuf;
-
-   if ( m_waveBufProduce >= m_waveBufConsume )
-   {
-      difference = m_waveBufProduce-m_waveBufConsume;
-   }
-   else
-   {
-      difference = m_waveBufProduce+NUM_APU_BUFS-m_waveBufConsume;
-   }
-
-   if ( difference > 1 )
-   {
-      do
-      {
-         pWaveBufQueue = m_waveBufQueue + m_waveBufConsume;
-         waveBufWritten = *(m_waveBufWritten+m_waveBufConsume);
-         waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
-         waveBuf = *(m_waveBuf + m_waveBufConsume);
-
-         if ( (!waveBufWritten) && (waveBufDepth) )
-         {
-   		   waveOutUnprepareHeader ( m_hWaveDevice, pWaveBufQueue, sizeof(WAVEHDR) );
-            pWaveBufQueue->dwBufferLength = (waveBufDepth<<1);
-		      pWaveBufQueue->lpData = (char*)waveBuf;
-		      pWaveBufQueue->dwFlags = 0;
-		      waveOutPrepareHeader ( m_hWaveDevice, pWaveBufQueue, sizeof(WAVEHDR) );
-		      waveOutWrite ( m_hWaveDevice, pWaveBufQueue, sizeof(WAVEHDR) );
-            waveBufWritten = true;
-            m_waveBufConsume++;
-            m_waveBufConsume %= NUM_APU_BUFS;
-         }
-         else
-         {
-            break;
-         }
-
-         difference--;
-      } while ( difference > 1 );
-   }
-
-   for ( idx = 0; idx < NUM_APU_BUFS; idx++ )
-   {
-   	if ( m_waveBufQueue[idx].dwFlags&WHDR_DONE )
-      {
-         m_waveBufWritten[idx] = false;
-      }
-   }
-#endif
-}
-
-void CAPU::RUN ( void )
-{
-   int timerTicks = 41;
-   int sampleTick;
-   int samplesPerSeqTick1 = *(*(m_samplesPerSeqTick+m_iFreq));
-   int samplesPerSeqTick2 = *(*(m_samplesPerSeqTick+m_iFreq)+1);
-   int samplesPerSeqTick3 = *(*(m_samplesPerSeqTick+m_iFreq)+2);
-   int samplesPerSeqTick4 = *(*(m_samplesPerSeqTick+m_iFreq)+3);
-   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
-   int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
-
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick1; sampleTick++ )
-   {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
-   }
-
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick2; sampleTick++ )
-   {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
-   }
-
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick3; sampleTick++ )
-   {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
-   }
-
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick4; sampleTick++ )
-   {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
-   }
-
-   m_waveBufProduce++;
-   m_waveBufProduce %= NUM_APU_BUFS;
-   m_waveBufDepth [ m_waveBufProduce ] = 0;
-}
-
-void CAPU::CLOSE ( void )
-{
-// CPTODO: use phonon instead of wavOut...
-#if 0
-    int idx;
-
-   waveOutReset ( m_hWaveDevice );
-   waveOutClose ( m_hWaveDevice );
-
-   m_waveBufConsume = 0;
-   m_waveBufProduce = 0;
-   for ( idx = 0; idx < NUM_APU_BUFS; idx++ )
-   {
-      m_waveBufDepth [ idx ] = 0;
-      m_waveBufWritten [ idx ] = false;
-   }
-#endif
+   CAPU::OPEN ();
 }
 
 CAPUOscillator::CAPUOscillator ()
@@ -807,6 +757,14 @@ UINT CAPUOscillator::CLKDIVIDER ( UINT sampleTicks )
    return periodClkEdges;
 }
 
+static int m_squareSeq [ 4 ] [ 8 ] =
+{
+   { 0, 1, 0, 0, 0, 0, 0, 0 },
+   { 0, 1, 1, 0, 0, 0, 0, 0 },
+   { 0, 1, 1, 1, 1, 0, 0, 0 },
+   { 1, 0, 0, 1, 1, 1, 1, 1 }
+};
+
 void CAPUSquare::APU ( UINT addr, unsigned char data )
 {
    CAPUOscillator::APU ( addr, data );
@@ -877,6 +835,14 @@ void CAPUSquare::TIMERTICK ( UINT sampleTicks )
    }
 }
 
+static int m_triangleSeq [ 32 ] =
+{
+   0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 0x9, 0x8,
+   0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0,
+   0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
+   0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF
+};
+
 void CAPUTriangle::APU ( UINT addr, unsigned char data )
 {
    CAPUOscillator::APU ( addr, data );
@@ -923,6 +889,26 @@ void CAPUTriangle::TIMERTICK ( UINT sampleTicks )
       SETDAC ( 0 );
    }
 }
+
+static unsigned short m_noisePeriod [ 16 ] =
+{
+   0x004,
+   0x008,
+   0x010,
+   0x020,
+   0x040,
+   0x060,
+   0x080,
+   0x0A0,
+   0x0CA,
+   0x0FE,
+   0x17C,
+   0x1FC,
+   0x2FA,
+   0x3F8,
+   0x7F2,
+   0xFE4
+};
 
 void CAPUNoise::APU ( UINT addr, unsigned char data )
 {
@@ -1012,6 +998,26 @@ void CAPUNoise::TIMERTICK ( UINT sampleTicks )
       SETDAC ( 0 );
    }
 }
+
+static unsigned short m_dmcPeriod [ 16 ] =
+{
+   0x1AC,
+   0x17C,
+   0x154,
+   0x140,
+   0x11E,
+   0x0FE,
+   0x0E2,
+   0x0D6,
+   0x0BE,
+   0x0A0,
+   0x08E,
+   0x080,
+   0x06A,
+   0x054,
+   0x048,
+   0x036
+};
 
 void CAPUDMC::APU ( UINT addr, unsigned char data )
 {
@@ -1241,3 +1247,4 @@ void CAPU::APU ( UINT addr, unsigned char data )
       }
    }
 }
+

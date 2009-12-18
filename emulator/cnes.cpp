@@ -84,9 +84,6 @@ bool CNES::RUN ( unsigned char* joy )
 //      CIO::LOGGER(1)->AddSample ( C6502::CYCLES(), *(ljoy+JOY2) );
 //   }
 
-   // Queue written audio frames...
-   CAPU::PLAY ();
-
 // CPTODO: part of joypad configuration is whether or not it is connected at all...
    // Feed Joypad inputs in...
 //   pControllerConfig = CONFIG.GetControllerConfig ( JOY1 );
@@ -195,6 +192,9 @@ bool CNES::RUN ( unsigned char* joy )
    if ( brkpt ) goto done;
 
    // Run APU for 1 frame...
+   // The RUN method fills a buffer.  The SDL library's callback method
+   // is passed this buffer, and that callback method is used to trigger
+   // emulation of the next frame.
    CAPU::RUN ();
 
 // CPTODO: this is not an appropriate way to break out of emulation on a

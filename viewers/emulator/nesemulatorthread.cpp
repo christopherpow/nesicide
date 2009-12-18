@@ -2,10 +2,13 @@
 #include "cnes.h"
 #include "cnesrom.h"
 #include "cnesppu.h"
+#include "cnesapu.h"
 #include "cnes6502.h"
 #include "cnesicideproject.h"
 
 static float m_factor [ 6 ] = { 0.25, 0.5, 1.0, 2.0, 4.0, 100.0 };
+
+QSemaphore emulatorSemaphore;
 
 NESEmulatorThread::NESEmulatorThread(QObject *parent)
 {
@@ -144,43 +147,26 @@ void NESEmulatorThread::stopEmulation ()
 
 void NESEmulatorThread::run ()
 {
-    static int adjust = 0;
-    QTime time;
+   while ( 1 )
+   {
+      emulatorSemaphore.acquire ();
 
-    time.start ();
+      if ( m_isRunning )
+      {
+         // Run emulator for one frame...
+         // CPTODO: this needs to be re-factored into a RUN-by-PPU-clock-tick method.
+         //         internally it does everything by PPU ticks...but in order to support
+         //         breakpoints effectively it needs to be wound up to this level.
+         m_isAtBreakpoint = CNES::RUN ( m_joy );
 
-    m_mutex.lock ();
+         emit emulatedFrame();
 
-    while ( 1 )
-    {
-       m_waiter.wait ( &m_mutex, 5 );
+         if ( m_isAtBreakpoint )
+         {
+            m_isRunning = false;
+         }
+      }
+   }
 
-       if ( m_isRunning )
-       {
-          if ( time.elapsed() >= (m_periodVblank-adjust) )
-          {
-             adjust = (time.elapsed()-m_periodVblank);
-
-             time.start ();
-
-             // Run emulator for one frame...
-             // CPTODO: this needs to be re-factored into a RUN-by-PPU-clock-tick method.
-             //         internally it does everything by PPU ticks...but in order to support
-             //         breakpoints effectively it needs to be wound up to this level.
-             m_isAtBreakpoint = CNES::RUN ( m_joy );
-
-             emit emulatedFrame();
-
-             if ( m_isAtBreakpoint )
-             {
-                m_isRunning = false;
-             }
-          }
-       }
-    }
-
-// CPTODO: mmsys
-//    timeEndPeriod ();
-
-    return;
+   return;
 }

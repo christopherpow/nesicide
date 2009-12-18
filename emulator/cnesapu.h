@@ -7,8 +7,7 @@
 
 #include "cnesicidecommon.h"
 
-// CPTODO: use phonon instead of wavOut...
-//#include "mmsystem.h"
+#include "SDL.h"
 
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40
@@ -85,14 +84,6 @@ protected:
    unsigned char  m_reg [ 4 ];
 };
 
-static int m_squareSeq [ 4 ] [ 8 ] = 
-{
-   { 0, 1, 0, 0, 0, 0, 0, 0 },
-   { 0, 1, 1, 0, 0, 0, 0, 0 },
-   { 0, 1, 1, 1, 1, 0, 0, 0 },
-   { 1, 0, 0, 1, 1, 1, 1, 1 }
-};
-
 class CAPUSquare : public CAPUOscillator
 {
 public:
@@ -113,14 +104,6 @@ protected:
    int           m_duty;
 };
 
-static int m_triangleSeq [ 32 ] = 
-{
-   0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 0x9, 0x8,
-   0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0,
-   0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
-   0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF
-};
-
 class CAPUTriangle : public CAPUOscillator
 {
 public:
@@ -135,26 +118,6 @@ public:
 
 protected:
    int           m_seqTick;
-};
-
-static unsigned short m_noisePeriod [ 16 ] = 
-{
-   0x004,
-   0x008,
-   0x010,
-   0x020,
-   0x040,
-   0x060,
-   0x080,
-   0x0A0,
-   0x0CA,
-   0x0FE,
-   0x17C,
-   0x1FC,
-   0x2FA,
-   0x3F8,
-   0x7F2,
-   0xFE4
 };
 
 class CAPUNoise : public CAPUOscillator
@@ -213,38 +176,18 @@ static unsigned char m_lengthLUT [ 32 ] =
    0x1E
 };
 
-static unsigned short m_dmcPeriod [ 16 ] = 
-{
-   0x1AC,
-   0x17C,
-   0x154,
-   0x140,
-   0x11E,
-   0x0FE,
-   0x0E2,
-   0x0D6,
-   0x0BE,
-   0x0A0,
-   0x08E,
-   0x080,
-   0x06A,
-   0x054,
-   0x048,
-   0x036
-};
-
 class CAPUDMC : public CAPUOscillator
 {
 public:
 	CAPUDMC() : CAPUOscillator(), 
+               m_dmaReaderAddrPtr(0x0000),
+               m_irqEnabled(false),
+               m_irqAsserted(false),
+               m_sampleBuffer(0x00),
+               m_sampleBufferFull(false),
                m_loop(false),
                m_sampleAddr(0x0000), 
                m_sampleLength(0x0000),
-               m_dmaReaderAddrPtr(0x0000),
-               m_irqEnabled(false), 
-               m_irqAsserted(false), 
-               m_sampleBuffer(0x00),
-               m_sampleBufferFull(false),
                m_outputShift(0x00),
                m_outputShiftCounter(0),
                m_silence(false),
@@ -331,7 +274,7 @@ public:
 
    static void OPEN ( void );
    static void RUN ( void );
-   static void PLAY ( void );
+   static void PLAY ( Uint8 *stream, int len );
    static void CLOSE ( void );
 
 protected:
@@ -351,15 +294,12 @@ protected:
    static CAPUNoise m_noise;
    static CAPUDMC m_dmc;
 
-   // CPTODO: use phonon instead of wavOut...
-//   static HWAVEOUT m_hWaveDevice;
-//   static WAVEHDR m_waveBufQueue [ NUM_APU_BUFS ];
+   static SDL_AudioSpec m_sdlAudioSpec;
    static bool m_waveBufsQueued;
    static unsigned short m_waveBuf [ NUM_APU_BUFS ][ 2000 ];
    static int m_waveBufDepth [ NUM_APU_BUFS ];
    static int m_waveBufProduce;
    static int m_waveBufConsume;
-   static bool m_waveBufWritten [ NUM_APU_BUFS ];
 };
 
 #endif // !defined(AFX_APU_H__AE53BDB6_796A_4B67_BC4D_CC86C1F0191C__INCLUDED_)

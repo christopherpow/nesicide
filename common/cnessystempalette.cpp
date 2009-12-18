@@ -96,7 +96,7 @@ QColor CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
 QColor CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
 
-static CBasePalette __init;
+static CBasePalette __init __attribute((unused));;
 
 void CBasePalette::CalculateVariants ( void )
 {

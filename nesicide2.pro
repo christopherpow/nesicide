@@ -6,7 +6,9 @@ QT += network \
     webkit \
     xml \
     multimedia
+LIBS += -L./libraries/SDL/ -lsdl
 INCLUDEPATH = ./ \
+    ./libraries/SDL \
     ./common \
     ./compiler \
     ./designers \

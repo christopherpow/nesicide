@@ -6,6 +6,8 @@
 #include "cnesicidecommon.h"
 #include "ccartridge.h"
 
+extern QSemaphore        emulatorSemaphore;
+
 class NESEmulatorThread : public QThread
 {
    Q_OBJECT
@@ -39,7 +41,6 @@ protected:
    virtual void run ();
 
    QWaitCondition m_waiter;
-   QMutex         m_mutex;
    CCartridge*   m_pCartridge;
    bool          m_isRunning;
    qint32         m_lastVblankTime;
