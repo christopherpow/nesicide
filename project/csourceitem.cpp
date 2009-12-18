@@ -125,6 +125,7 @@ void CSourceItem::onClose()
     {
         delete m_codeEditorForm;
         m_codeEditorForm = (CodeEditorForm *)NULL;
+        m_indexOfTab = -1;
     }
 }
 
@@ -136,4 +137,23 @@ bool CSourceItem::isDocumentSaveable()
 void CSourceItem::onSaveDocument()
 {
     m_sourceCode = m_codeEditorForm->get_sourceCode();
+}
+
+bool CSourceItem::canChangeName()
+{
+    return true;
+}
+
+bool CSourceItem::onNameChanged(QString newName)
+{
+    if (m_sourceName != newName)
+    {
+        m_sourceName = newName;
+        if (m_codeEditorForm && (m_indexOfTab != -1))
+        {
+            QTabWidget * tabWidget = (QTabWidget *)m_codeEditorForm->parentWidget()->parentWidget();
+            tabWidget->setTabText(m_indexOfTab, newName);
+        }
+    }
+    return true;
 }

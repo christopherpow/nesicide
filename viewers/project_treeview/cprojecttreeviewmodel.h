@@ -18,6 +18,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     void layoutChangedEvent();
+    bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
 private:
     IProjectTreeViewItem *rootItem;
 };

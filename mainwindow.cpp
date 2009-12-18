@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     emulatorDlg = (NESEmulatorDialog *)NULL;
     emulatorDlgTabIdx = -1;
     projectDataChangesEvent();
+
+    builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
+    builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
 
 MainWindow::~MainWindow()
@@ -58,12 +61,15 @@ void MainWindow::projectDataChangesEvent()
     ui->actionSave_Project->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
 
-    IProjectTreeViewItem *projectItem = matchTab(nesicideProject, ui->tabWidget->currentIndex());
-    if (projectItem)
+    if (ui->tabWidget->currentIndex() >= 0)
     {
-        ui->actionSave_Active_Document->setEnabled(((IProjectTreeViewItem *)projectItem)->isDocumentSaveable());
-    } else {
-        ui->actionSave_Active_Document->setEnabled(false);
+        IProjectTreeViewItem *projectItem = matchTab(nesicideProject, ui->tabWidget->currentIndex());
+        if (projectItem)
+        {
+            ui->actionSave_Active_Document->setEnabled(((IProjectTreeViewItem *)projectItem)->isDocumentSaveable());
+        } else {
+            ui->actionSave_Active_Document->setEnabled(false);
+        }
     }
 }
 
@@ -145,9 +151,12 @@ void MainWindow::on_actionNew_Project_triggered()
     NewProjectDialog *dlg = new NewProjectDialog();
     if (dlg->exec() == QDialog::Accepted)
     {
+        ui->projectTreeWidget->setModel(NULL);
         nesicideProject->set_projectTitle(dlg->getProjectTitle());
         nesicideProject->initializeProject();
+        ui->projectTreeWidget->setModel(projectTreeviewModel);
         projectDataChangesEvent();
+
     }
     delete dlg;
 }
@@ -272,7 +281,14 @@ void MainWindow::on_actionOpen_Project_triggered()
         }
         file.close();
 
+        ui->projectTreeWidget->setModel(NULL);
+
         nesicideProject->deserialize(doc, doc);
+        ui->projectTreeWidget->setModel(projectTreeviewModel);
+
+        while (ui->tabWidget->currentIndex() >= 0)
+            ui->tabWidget->removeTab(0);
+
         projectDataChangesEvent();
         projectFileName = fileName;
     }
@@ -313,3 +329,4 @@ void MainWindow::on_actionCompiler_Output_toggled(bool value)
 {
     ui->compilerOutputDockWidget->setVisible(value);
 }
+

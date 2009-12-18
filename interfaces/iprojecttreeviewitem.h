@@ -75,6 +75,8 @@ public:
     virtual int getTabIndex() = 0;
     virtual bool isDocumentSaveable() = 0;
     virtual void onSaveDocument() = 0;
+    virtual bool canChangeName() = 0;
+    virtual bool onNameChanged(QString newValue) = 0;
 private:
     QList<IProjectTreeViewItem*> childItems;
     IProjectTreeViewItem *parentItem;

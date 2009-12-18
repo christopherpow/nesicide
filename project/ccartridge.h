@@ -46,6 +46,8 @@ public:
     virtual int getTabIndex() { return -1; }
     virtual bool isDocumentSaveable() { return false; }
     virtual void onSaveDocument() {}
+    virtual bool canChangeName() { return false; }
+    virtual bool onNameChanged(QString) { return true; }
 
 private:
     CPRGROMBanks *m_pointerToPrgRomBanks;

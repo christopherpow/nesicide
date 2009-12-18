@@ -8,6 +8,7 @@
 #include "projectpropertiesdialog.h"
 #include "newprojectdialog.h"
 #include "nesemulatordialog.h"
+#include "cbuildertextlogger.h"
 
 namespace Ui {
     class MainWindow;

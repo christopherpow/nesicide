@@ -81,7 +81,8 @@ SOURCES += mainwindow.cpp \
     viewers/emulator/nesemulatordialog.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
-    viewers/project_treeview/cprojecttreeview.cpp
+    viewers/project_treeview/cprojecttreeview.cpp \
+    common/cbuildertextlogger.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -146,7 +147,8 @@ HEADERS += mainwindow.h \
     viewers/emulator/nesemulatordialog.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
-    viewers/project_treeview/cprojecttreeview.h
+    viewers/project_treeview/cprojecttreeview.h \
+    common/cbuildertextlogger.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

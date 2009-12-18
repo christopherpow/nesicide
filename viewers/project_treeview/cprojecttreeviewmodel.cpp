@@ -21,7 +21,19 @@ QVariant CProjectTreeViewModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags CProjectTreeViewModel::flags(const QModelIndex &index) const
 {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    IProjectTreeViewItem *item = static_cast<IProjectTreeViewItem*>(index.internalPointer());
+    if (!item)
+        return flags;
+    if (item->canChangeName())
+        flags |= Qt::ItemIsEditable;
+    return flags;
+}
+
+bool CProjectTreeViewModel::setData ( const QModelIndex & index, const QVariant & value, int )
+{
+    IProjectTreeViewItem *item = static_cast<IProjectTreeViewItem*>(index.internalPointer());
+    return item->onNameChanged(value.toString());
 }
 
 QVariant CProjectTreeViewModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -72,6 +84,7 @@ int CProjectTreeViewModel::rowCount(const QModelIndex &parent) const
         parentItem = rootItem;
     else
         parentItem = static_cast<IProjectTreeViewItem*>(parent.internalPointer());
+
 
     return parentItem->childCount();
 }
