@@ -6,6 +6,10 @@ QT += network \
     webkit \
     xml \
     multimedia
+INCLUDEPATH = ./emulator \
+              ./debugger \
+              ./compiler \
+              ./designers
 TARGET = nesicide2
 TEMPLATE = app
 SOURCES += main.cpp \
