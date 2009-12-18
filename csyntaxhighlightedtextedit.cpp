@@ -61,7 +61,7 @@ void CSyntaxHighlightedTextEdit::resizeEvent(QResizeEvent *e)
     QPlainTextEdit::resizeEvent(e);
 
     QRect cr = contentsRect();
-#ifdef Q_WS_WIN
+#ifndef Q_WS_MAC
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 #else
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(),
