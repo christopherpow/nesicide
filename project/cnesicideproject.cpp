@@ -1,7 +1,7 @@
 #include "cnesicideproject.h"
 #include "main.h"
 
-CNesicideProject *nesicideProject;
+CNesicideProject *nesicideProject = (CNesicideProject *)NULL;
 
 CNesicideProject::CNesicideProject()
 {
