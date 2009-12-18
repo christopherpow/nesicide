@@ -30,26 +30,26 @@ SOURCES += main.cpp \
     qtcolorpicker.cpp \
     nesemulatordialog.cpp \
     ctracer.cpp \
-    cnesrommapper068.cpp \
-    cnesrommapper065.cpp \
-    cnesrommapper011.cpp \
-    cnesrommapper010.cpp \
-    cnesrommapper009.cpp \
-    cnesrommapper007.cpp \
-    cnesrommapper005.cpp \
-    cnesrommapper004.cpp \
-    cnesrommapper003.cpp \
-    cnesrommapper002.cpp \
-    cnesrommapper001.cpp \
-    cnesrom.cpp \
-    cnesppu.cpp \
-    cnes.cpp \
-    cnesmappers.cpp \
+    emulator/cnesrommapper068.cpp \
+    emulator/cnesrommapper065.cpp \
+    emulator/cnesrommapper011.cpp \
+    emulator/cnesrommapper010.cpp \
+    emulator/cnesrommapper009.cpp \
+    emulator/cnesrommapper007.cpp \
+    emulator/cnesrommapper005.cpp \
+    emulator/cnesrommapper004.cpp \
+    emulator/cnesrommapper003.cpp \
+    emulator/cnesrommapper002.cpp \
+    emulator/cnesrommapper001.cpp \
+    emulator/cnesrom.cpp \
+    emulator/cnesppu.cpp \
+    emulator/cnes.cpp \
+    emulator/cnesmappers.cpp \
     cjoypadlogger.cpp \
-    cnesio.cpp \
+    emulator/cnesio.cpp \
     ccodedatalogger.cpp \
-    cnesapu.cpp \
-    cnes6502.cpp \
+    emulator/cnesapu.cpp \
+    emulator/cnes6502.cpp \
     cnessystempalette.cpp \
     nesemulatorrenderer.cpp \
     nesemulatorthread.cpp \
@@ -87,26 +87,26 @@ HEADERS += mainwindow.h \
     qtcolorpicker.h \
     defaultnespalette.h \
     nesemulatordialog.h \
-    cnesrommapper068.h \
-    cnesrommapper065.h \
-    cnesrommapper011.h \
-    cnesrommapper010.h \
-    cnesrommapper009.h \
-    cnesrommapper007.h \
-    cnesrommapper005.h \
-    cnesrommapper004.h \
-    cnesrommapper003.h \
-    cnesrommapper002.h \
-    cnesrommapper001.h \
-    cnesrom.h \
-    cnesppu.h \
-    cnes.h \
-    cnesmappers.h \
+    emulator/cnesrommapper068.h \
+    emulator/cnesrommapper065.h \
+    emulator/cnesrommapper011.h \
+    emulator/cnesrommapper010.h \
+    emulator/cnesrommapper009.h \
+    emulator/cnesrommapper007.h \
+    emulator/cnesrommapper005.h \
+    emulator/cnesrommapper004.h \
+    emulator/cnesrommapper003.h \
+    emulator/cnesrommapper002.h \
+    emulator/cnesrommapper001.h \
+    emulator/cnesrom.h \
+    emulator/cnesppu.h \
+    emulator/cnes.h \
+    emulator/cnesmappers.h \
     cjoypadlogger.h \
-    cnesio.h \
+    emulator/cnesio.h \
     ccodedatalogger.h \
-    cnesapu.h \
-    cnes6502.h \
+    emulator/cnesapu.h \
+    emulator/cnes6502.h \
     ctracer.h \
     cnessystempalette.h \
     cnesicidecommon.h \
