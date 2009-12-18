@@ -162,14 +162,8 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="alternatingRowColors">
-        <bool>false</bool>
-       </property>
-       <property name="uniformRowHeights">
-        <bool>false</bool>
+       <property name="autoExpandDelay">
+        <number>1</number>
        </property>
        <property name="animated">
         <bool>true</bool>

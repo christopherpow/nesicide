@@ -15,6 +15,7 @@ private:
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mouseDoubleClickEvent (QMouseEvent * event);
+    void keyPressEvent ( QKeyEvent * e );
 };
 
 #endif // CPROJECTTREEVIEW_H

@@ -2,6 +2,7 @@
 #define CSOURCEITEM_H
 
 #include <QMessageBox>
+#include <QTabWidget>
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
 #include "codeeditorform.h"
@@ -33,11 +34,13 @@ public:
     virtual int getTabIndex();
     virtual bool isDocumentSaveable();
     virtual void onSaveDocument();
+    virtual bool canChangeName();
+    virtual bool onNameChanged(QString newName);
 
 private:
     QString m_sourceName;
     QString m_sourceCode;
-    qint8 m_indexOfTab;
+    int m_indexOfTab;
     CodeEditorForm *m_codeEditorForm;
 };
 

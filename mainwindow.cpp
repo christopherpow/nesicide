@@ -151,11 +151,12 @@ void MainWindow::on_actionNew_Project_triggered()
     NewProjectDialog *dlg = new NewProjectDialog();
     if (dlg->exec() == QDialog::Accepted)
     {
+        ui->projectTreeWidget->setModel(NULL);
         nesicideProject->set_projectTitle(dlg->getProjectTitle());
         nesicideProject->initializeProject();
-        while (ui->tabWidget->currentIndex() >= 0)
-            ui->tabWidget->removeTab(0);
+        ui->projectTreeWidget->setModel(projectTreeviewModel);
         projectDataChangesEvent();
+
     }
     delete dlg;
 }
@@ -280,7 +281,10 @@ void MainWindow::on_actionOpen_Project_triggered()
         }
         file.close();
 
+        ui->projectTreeWidget->setModel(NULL);
+
         nesicideProject->deserialize(doc, doc);
+        ui->projectTreeWidget->setModel(projectTreeviewModel);
 
         while (ui->tabWidget->currentIndex() >= 0)
             ui->tabWidget->removeTab(0);
@@ -325,3 +329,4 @@ void MainWindow::on_actionCompiler_Output_toggled(bool value)
 {
     ui->compilerOutputDockWidget->setVisible(value);
 }
+

@@ -19,3 +19,20 @@ void CProjectTreeView::mouseDoubleClickEvent (QMouseEvent * event)
     if (item)
         item->openItemEvent(mdiTabWidget);
 }
+
+void CProjectTreeView::keyPressEvent ( QKeyEvent * e )
+{
+    if ((e->key() == Qt::Key_Backspace))
+    {
+        e->accept();
+
+        IProjectTreeViewItem *item = const_cast<IProjectTreeViewItem*>((IProjectTreeViewItem *)this->selectedIndexes().first().internalPointer());
+        if (!item)
+            return;
+
+        if (item->canChangeName())
+            edit(this->selectedIndexes().first());
+    }
+    else
+        e->ignore();
+}
