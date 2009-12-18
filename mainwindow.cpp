@@ -273,6 +273,8 @@ void MainWindow::on_actionOpen_Project_triggered()
         file.close();
 
         nesicideProject->deserialize(doc, doc);
+        update();
+        repaint();
         projectDataChangesEvent();
         projectFileName = fileName;
     }
