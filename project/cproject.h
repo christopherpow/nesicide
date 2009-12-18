@@ -4,12 +4,18 @@
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
 #include "csources.h"
+#include "csourceitem.h"
 
 class CProject : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CProject();
     ~CProject();
+
+    CSourceItem *getMainSource();
+    void setMainSource(CSourceItem *newSource);
+    CSources *getSources();
+    void setSources(CSources *newSources);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -29,6 +35,7 @@ public:
 
 private:
     CSources *m_pointerToSources;
+    CSourceItem *m_mainSource;
 };
 
 #endif // CPROJECT_H

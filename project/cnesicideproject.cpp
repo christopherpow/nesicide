@@ -42,6 +42,15 @@ bool CNesicideProject::get_isInitialized()
     return m_isInitialized;
 }
 
+CProject *CNesicideProject::getProject()
+{
+    return m_pointerToProject;
+}
+
+void CNesicideProject::setProject(CProject *project)
+{
+    m_pointerToProject = project;
+}
 
 void CNesicideProject::initializeProject()
 {

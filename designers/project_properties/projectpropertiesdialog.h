@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include "cpaletteitemdelegate.h"
 #include "defaultnespalette.h"
+#include "cnesicideproject.h"
+#include "csourceitem.h"
 
 namespace Ui {
     class ProjectPropertiesDialog;
@@ -20,7 +22,10 @@ public:
     ~ProjectPropertiesDialog();
     void setProjectName(QString newName);
     QString getProjectName();
+    void setMainSource(QString mainSource);
+    QString getMainSource();
     QList<QColor> currentPalette;
+    void initSourcesList();
 
 protected:
     void changeEvent(QEvent *e);

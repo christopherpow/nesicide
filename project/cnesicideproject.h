@@ -30,11 +30,13 @@ public:
     QList<CPaletteEntry> *get_pointerToListOfProjectPaletteEntries();
     bool get_isInitialized();
     CCartridge *get_pointerToCartridge();
+    CProject *getProject();
 
     // Member Setters
     void set_projectTitle(QString value);
     void set_pointerToListOfProjectPaletteEntries(QList<CPaletteEntry> *pointerToListOfProjectPaletteEntries);
     void set_pointerToCartridge(CCartridge *pointerToCartridge);
+    void setProject(CProject *project);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
