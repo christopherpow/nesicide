@@ -27,7 +27,7 @@ protected:
 
 private:
     Ui::ProjectPropertiesDialog *ui;
-    void updateUI();
+    void updateUI(int colid = -1);
     QDomElement addElement( QDomDocument &doc, QDomNode &node,
                             const QString &tag,
                             const QString &value = QString::null )
@@ -42,9 +42,9 @@ private:
     }
 
 private slots:
-    void on_blueDial_sliderMoved(int position);
-    void on_greenDial_sliderMoved(int position);
-    void on_redDial_sliderMoved(int position);
+    void on_blueHorizontalSlider_actionTriggered(int action);
+    void on_greenHorizontalSlider_actionTriggered(int action);
+    void on_redHorizontalSlider_actionTriggered(int action);
     void on_ImportPalettePushButton_clicked();
     void on_exportPalettePushButton_clicked();
     void on_resetPalettePushButton_clicked();

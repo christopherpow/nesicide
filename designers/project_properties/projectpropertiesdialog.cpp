@@ -46,7 +46,7 @@ void ProjectPropertiesDialog::changeEvent(QEvent *e)
 }
 
 
-void ProjectPropertiesDialog::updateUI()
+void ProjectPropertiesDialog::updateUI(int colid)
 {
     for (int i=0; i<=0x3F; i++)
     {
@@ -77,9 +77,12 @@ void ProjectPropertiesDialog::updateUI()
                                  QString(hexStr[(currentPalette.at(selectedIdx).blue() >> 4) & 0xF]) +
                                  QString(hexStr[currentPalette.at(selectedIdx).blue() & 0xF]));
 
-    ui->redDial->setValue(currentPalette.at(selectedIdx).red());
-    ui->greenDial->setValue(currentPalette.at(selectedIdx).green());
-    ui->blueDial->setValue(currentPalette.at(selectedIdx).blue());
+    if (colid != 1)
+        ui->redHorizontalSlider->setValue(currentPalette.at(selectedIdx).red());
+    if (colid != 2)
+        ui->greenHorizontalSlider->setValue(currentPalette.at(selectedIdx).green());
+    if (colid != 3)
+        ui->blueHorizontalSlider->setValue(currentPalette.at(selectedIdx).blue());
 
 }
 
@@ -215,63 +218,6 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
     }
 }
 
-void ProjectPropertiesDialog::on_redDial_sliderMoved(int)
-{
-    // Try to get the selected item
-    QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
-    int selectedIdx = item->text().toInt(0, 16);
-
-    // Don't do anything if we changed to an invalid item
-    if (!item)
-        return;
-
-    // Set the background color of the selected table cell to the values of our rgb dials
-    currentPalette.replace(selectedIdx, QColor(ui->redDial->value(),
-                                        ui->greenDial->value(),
-                                        ui->blueDial->value()));
-
-    // Refresh the user interface
-    updateUI();
-}
-
-void ProjectPropertiesDialog::on_greenDial_sliderMoved(int)
-{
-    // Try to get the selected item
-    QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
-    int selectedIdx = item->text().toInt(0, 16);
-
-    // Don't do anything if we changed to an invalid item
-    if (!item)
-        return;
-
-    // Set the background color of the selected table cell to the values of our rgb dials
-    currentPalette.replace(selectedIdx, QColor(ui->redDial->value(),
-                                        ui->greenDial->value(),
-                                        ui->blueDial->value()));
-
-    // Refresh the user interface
-    updateUI();
-}
-
-void ProjectPropertiesDialog::on_blueDial_sliderMoved(int)
-{
-    // Try to get the selected item
-    QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
-    int selectedIdx = item->text().toInt(0, 16);
-
-    // Don't do anything if we changed to an invalid item
-    if (!item)
-        return;
-
-    // Set the background color of the selected table cell to the values of our rgb dials
-    currentPalette.replace(selectedIdx, QColor(ui->redDial->value(),
-                                        ui->greenDial->value(),
-                                        ui->blueDial->value()));
-
-    // Refresh the user interface
-    updateUI();
-}
-
 QString ProjectPropertiesDialog::getProjectName()
 {
     return ui->projectNameLineEdit->text();
@@ -280,4 +226,62 @@ QString ProjectPropertiesDialog::getProjectName()
 void ProjectPropertiesDialog::setProjectName(QString newName)
 {
     ui->projectNameLineEdit->setText(newName);
+}
+
+
+void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
+{
+    // Try to get the selected item
+    QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
+    int selectedIdx = item->text().toInt(0, 16);
+
+    // Don't do anything if we changed to an invalid item
+    if (!item)
+        return;
+
+    // Set the background color of the selected table cell to the values of our rgb dials
+    currentPalette.replace(selectedIdx, QColor(ui->redHorizontalSlider->value(),
+                                        ui->greenHorizontalSlider->value(),
+                                        ui->blueHorizontalSlider->value()));
+
+    // Refresh the user interface
+    updateUI(1);
+}
+
+void ProjectPropertiesDialog::on_greenHorizontalSlider_actionTriggered(int action)
+{
+    // Try to get the selected item
+    QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
+    int selectedIdx = item->text().toInt(0, 16);
+
+    // Don't do anything if we changed to an invalid item
+    if (!item)
+        return;
+
+    // Set the background color of the selected table cell to the values of our rgb dials
+    currentPalette.replace(selectedIdx, QColor(ui->redHorizontalSlider->value(),
+                                        ui->greenHorizontalSlider->value(),
+                                        ui->blueHorizontalSlider->value()));
+
+    // Refresh the user interface
+    updateUI(2);
+}
+
+void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action)
+{
+    // Try to get the selected item
+    QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
+    int selectedIdx = item->text().toInt(0, 16);
+
+    // Don't do anything if we changed to an invalid item
+    if (!item)
+        return;
+
+    // Set the background color of the selected table cell to the values of our rgb dials
+    currentPalette.replace(selectedIdx, QColor(ui->redHorizontalSlider->value(),
+                                        ui->greenHorizontalSlider->value(),
+                                        ui->blueHorizontalSlider->value()));
+
+    // Refresh the user interface
+    updateUI(3);
 }

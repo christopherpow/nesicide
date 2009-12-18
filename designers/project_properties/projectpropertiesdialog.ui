@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
-    <height>447</height>
+    <width>468</width>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -200,21 +200,21 @@
          </column>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="7" column="1">
         <widget class="QCheckBox" name="checkBox_2">
          <property name="text">
           <string>Emphasize Red</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="3">
+       <item row="6" column="0" colspan="3">
         <widget class="Line" name="line">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="4" column="1">
         <widget class="QLabel" name="colorValueLabel">
          <property name="text">
           <string>#000000</string>
@@ -230,7 +230,7 @@
           <string>Export Palette...</string>
          </property>
          <property name="icon">
-          <iconset resource="resource.qrc">
+          <iconset resource="../../resource.qrc">
            <normaloff>:/resources/document-export.svg</normaloff>:/resources/document-export.svg</iconset>
          </property>
         </widget>
@@ -241,33 +241,8 @@
           <string>Import Palette...</string>
          </property>
          <property name="icon">
-          <iconset resource="resource.qrc">
+          <iconset resource="../../resource.qrc">
            <normaloff>:/resources/document-import.svg</normaloff>:/resources/document-import.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QDial" name="blueDial">
-         <property name="maximum">
-          <number>255</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="invertedControls">
-          <bool>false</bool>
-         </property>
-         <property name="wrapping">
-          <bool>false</bool>
-         </property>
-         <property name="notchTarget">
-          <double>8.000000000000000</double>
-         </property>
-         <property name="notchesVisible">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -301,53 +276,21 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QDial" name="redDial">
-         <property name="maximum">
-          <number>255</number>
-         </property>
-         <property name="wrapping">
-          <bool>false</bool>
-         </property>
-         <property name="notchTarget">
-          <double>8.000000000000000</double>
-         </property>
-         <property name="notchesVisible">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QDial" name="greenDial">
-         <property name="maximum">
-          <number>255</number>
-         </property>
-         <property name="wrapping">
-          <bool>false</bool>
-         </property>
-         <property name="notchTarget">
-          <double>8.000000000000000</double>
-         </property>
-         <property name="notchesVisible">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="2">
+       <item row="7" column="2">
         <widget class="QCheckBox" name="checkBox_3">
          <property name="text">
           <string>Emphasize Blue</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="7" column="0">
         <widget class="QCheckBox" name="checkBox_4">
          <property name="text">
           <string>Emphasize Green</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="9" column="0">
         <widget class="QCheckBox" name="checkBox">
          <property name="text">
           <string>Monochrome</string>
@@ -360,12 +303,12 @@
           <string>Reset Palette</string>
          </property>
          <property name="icon">
-          <iconset resource="resource.qrc">
+          <iconset resource="../../resource.qrc">
            <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
          </property>
         </widget>
        </item>
-       <item row="11" column="0" colspan="3">
+       <item row="10" column="0" colspan="3">
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
@@ -377,6 +320,63 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QSlider" name="redHorizontalSlider">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="pageStep">
+          <number>16</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSlider" name="greenHorizontalSlider">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="pageStep">
+          <number>16</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QSlider" name="blueHorizontalSlider">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="pageStep">
+          <number>16</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>16</number>
          </property>
         </widget>
        </item>
@@ -397,7 +397,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../../resource.qrc"/>
  </resources>
  <connections>
   <connection>
