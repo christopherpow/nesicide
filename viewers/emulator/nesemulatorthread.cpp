@@ -3,9 +3,10 @@
 #include "cnesrom.h"
 #include "cnesppu.h"
 #include "cnes6502.h"
+#include "cnesicideproject.h"
 
 static float m_factor [ 6 ] = { 0.25, 0.5, 1.0, 2.0, 4.0, 100.0 };
-#include <QMessageBox>
+
 NESEmulatorThread::NESEmulatorThread(QObject *parent)
 {
     m_factorIdx = 2;
@@ -124,7 +125,11 @@ void NESEmulatorThread::setFrequency ( float fFreq )
 
 void NESEmulatorThread::startEmulation ()
 {
-   m_isRunning = true;
+   if ( nesicideProject )
+   {
+      setCartridge ( nesicideProject->get_pointerToCartridge() );
+      m_isRunning = true;
+   }
 }
 
 void NESEmulatorThread::pauseEmulation ()

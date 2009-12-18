@@ -387,8 +387,6 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         }
 
-        emulator->setCartridge(m_pointerToCartridge);
-
         fileIn.close();
     }
 
