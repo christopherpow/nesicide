@@ -1,8 +1,8 @@
 #include "nesemulatorthread.h"
-#include "NES.h"
-#include "ROM.h"
-#include "PPU.h"
-#include "6502.h"
+#include "cnes.h"
+#include "cnesrom.h"
+#include "cnesppu.h"
+#include "cnes6502.h"
 
 static float m_factor [ 6 ] = { 0.25, 0.5, 1.0, 2.0, 4.0, 100.0 };
 #include <QMessageBox>

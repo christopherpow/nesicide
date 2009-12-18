@@ -2,7 +2,7 @@
 #include "ui_nesemulatordialog.h"
 #include "main.h"
 
-#include "PPU.h"
+#include "cnesppu.h"
 
 NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     QDialog(parent),

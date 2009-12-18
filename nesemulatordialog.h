@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QBasicTimer>
 
-#include "NESICIDECommon.h"
+#include "cnesicidecommon.h"
 #include "nesemulatorrenderer.h"
 
 namespace Ui {

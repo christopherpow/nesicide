@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-#include "NESICIDECommon.h"
+#include "cnesicidecommon.h"
 #include "ccartridge.h"
 
 class NESEmulatorThread : public QThread
