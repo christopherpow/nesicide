@@ -6,3 +6,9 @@ Makefile*
 object_script.nesicide2*
 *.pro.user
 ./output
+*.o
+moc_*
+*.moc
+qrc_*
+nesicide2
+nesicide2.exe
