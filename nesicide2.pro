@@ -88,7 +88,6 @@ HEADERS += mainwindow.h \
     common/cnessystempalette.h \
     common/cnesicidecommon.h \
     common/cgltexturemanager.h \
-    common/qtcolorpicker.h \
     common/defaultnespalette.h \
     common/cpaletteitemdelegate.h \
     common/cnessystempalette.h \
