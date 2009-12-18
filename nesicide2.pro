@@ -6,34 +6,39 @@ QT += network \
     webkit \
     xml \
     multimedia
-INCLUDEPATH = ./emulator \
-              ./debugger \
-              ./compiler \
-              ./designers
+INCLUDEPATH = ./common \
+    ./compiler \
+    ./designers \
+    ./designers/code_editor \
+    ./designers/new_project \
+    ./designers/palette_editor \
+    ./designers/project_properties \
+    ./emulator \
+    ./interfaces \
+    ./project \
+    ./resources \
+    ./viewers \
+    ./viewers/chr-rom \
+    ./viewers/emulator \
+    ./viewers/prg-rom \
+    ./viewers/project_treeview
 TARGET = nesicide2
 TEMPLATE = app
-SOURCES += main.cpp \
-    mainwindow.cpp \
-    cnesicideproject.cpp \
-    cprojecttreeviewmodel.cpp \
-    cprojecttreeview.cpp \
-    cprojectprimitives.cpp \
-    cprojectpalettes.cpp \
-    cprojectpaletteitem.cpp \
-    paletteeditorwindow.cpp \
-    projectpropertiesdialog.cpp \
-    newprojectdialog.cpp \
-    ccartridge.cpp \
-    cprgrombanks.cpp \
-    cprgrombank.cpp \
-    prgromdisplaydialog.cpp \
-    cchrrombanks.cpp \
-    cchrrombank.cpp \
-    chrromdisplaydialog.cpp \
-    cchrrompreviewrenderer.cpp \
-    qtcolorpicker.cpp \
-    nesemulatordialog.cpp \
-    ctracer.cpp \
+SOURCES += mainwindow.cpp \
+    main.cpp \
+    common/qtcolorpicker.cpp \
+    common/cnessystempalette.cpp \
+    common/cgltexturemanager.cpp \
+    compiler/csourceassembler.cpp \
+    compiler/cgraphicsassembler.cpp \
+    compiler/ccartridgebuilder.cpp \
+    designers/code_editor/csyntaxhighlighter.cpp \
+    designers/code_editor/csyntaxhighlightedtextedit.cpp \
+    designers/code_editor/codeeditorform.cpp \
+    designers/new_project/newprojectdialog.cpp \
+    designers/palette_editor/paletteeditorwindow.cpp \
+    designers/project_properties/projectpropertiesdialog.cpp \
+    emulator/ctracer.cpp \
     emulator/cnesrommapper068.cpp \
     emulator/cnesrommapper065.cpp \
     emulator/cnesrommapper011.cpp \
@@ -47,50 +52,57 @@ SOURCES += main.cpp \
     emulator/cnesrommapper001.cpp \
     emulator/cnesrom.cpp \
     emulator/cnesppu.cpp \
-    emulator/cnes.cpp \
     emulator/cnesmappers.cpp \
-    cjoypadlogger.cpp \
     emulator/cnesio.cpp \
-    ccodedatalogger.cpp \
     emulator/cnesapu.cpp \
     emulator/cnes6502.cpp \
-    cnessystempalette.cpp \
-    nesemulatorrenderer.cpp \
-    nesemulatorthread.cpp \
-    cgltexturemanager.cpp \
-    cproject.cpp \
-    csources.cpp \
-    csourceitem.cpp \
-    codeeditorform.cpp \
-    csyntaxhighlightedtextedit.cpp \
-    csyntaxhighlighter.cpp \
-    csourceassembler.cpp \
-    cgraphicsassembler.cpp \
-    ccartridgebuilder.cpp
+    emulator/cnes.cpp \
+    emulator/cjoypadlogger.cpp \
+    emulator/ccodedatalogger.cpp \
+    project/csources.cpp \
+    project/csourceitem.cpp \
+    project/cprojectprimitives.cpp \
+    project/cprojectpalettes.cpp \
+    project/cprojectpaletteitem.cpp \
+    project/cproject.cpp \
+    project/cprgrombanks.cpp \
+    project/cprgrombank.cpp \
+    project/cnesicideproject.cpp \
+    project/cchrrombanks.cpp \
+    project/cchrrombank.cpp \
+    project/ccartridge.cpp \
+    viewers/chr-rom/chrromdisplaydialog.cpp \
+    viewers/chr-rom/cchrrompreviewrenderer.cpp \
+    viewers/emulator/nesemulatorthread.cpp \
+    viewers/emulator/nesemulatorrenderer.cpp \
+    viewers/emulator/nesemulatordialog.cpp \
+    viewers/prg-rom/prgromdisplaydialog.cpp \
+    viewers/project_treeview/cprojecttreeviewmodel.cpp \
+    viewers/project_treeview/cprojecttreeview.cpp
 HEADERS += mainwindow.h \
-    cnesicideproject.h \
-    ixmlserializable.h \
-    cprojecttreeviewmodel.h \
-    cprojecttreeview.h \
-    iprojecttreeviewitem.h \
-    cprojectprimitives.h \
-    cprojectpalettes.h \
-    cprojectpaletteitem.h \
-    paletteeditorwindow.h \
-    projectpropertiesdialog.h \
-    cpaletteitemdelegate.h \
-    newprojectdialog.h \
-    ccartridge.h \
-    cprgrombanks.h \
-    cprgrombank.h \
-    prgromdisplaydialog.h \
-    cchrrombanks.h \
-    cchrrombank.h \
-    chrromdisplaydialog.h \
-    cchrrompreviewrenderer.h \
-    qtcolorpicker.h \
-    defaultnespalette.h \
-    nesemulatordialog.h \
+    main.h \
+    common/qtcolorpicker.h \
+    common/defaultnespalette.h \
+    common/cpaletteitemdelegate.h \
+    common/cnessystempalette.h \
+    common/cnesicidecommon.h \
+    common/cgltexturemanager.h \
+    common/qtcolorpicker.h \
+    common/defaultnespalette.h \
+    common/cpaletteitemdelegate.h \
+    common/cnessystempalette.h \
+    common/cnesicidecommon.h \
+    common/cgltexturemanager.h \
+    compiler/csourceassembler.h \
+    compiler/cgraphicsassembler.h \
+    compiler/ccartridgebuilder.h \
+    designers/code_editor/csyntaxhighlighter.h \
+    designers/code_editor/csyntaxhighlightedtextedit.h \
+    designers/code_editor/codeeditorform.h \
+    designers/new_project/newprojectdialog.h \
+    designers/palette_editor/paletteeditorwindow.h \
+    designers/project_properties/projectpropertiesdialog.h \
+    emulator/ctracer.h \
     emulator/cnesrommapper068.h \
     emulator/cnesrommapper065.h \
     emulator/cnesrommapper011.h \
@@ -104,36 +116,42 @@ HEADERS += mainwindow.h \
     emulator/cnesrommapper001.h \
     emulator/cnesrom.h \
     emulator/cnesppu.h \
-    emulator/cnes.h \
     emulator/cnesmappers.h \
-    cjoypadlogger.h \
     emulator/cnesio.h \
-    ccodedatalogger.h \
     emulator/cnesapu.h \
     emulator/cnes6502.h \
-    ctracer.h \
-    cnessystempalette.h \
-    cnesicidecommon.h \
-    nesemulatorrenderer.h \
-    nesemulatorthread.h \
-    main.h \
-    cgltexturemanager.h \
-    cproject.h \
-    csources.h \
-    csourceitem.h \
-    codeeditorform.h \
-    csyntaxhighlightedtextedit.h \
-    csyntaxhighlighter.h \
-    csourceassembler.h \
-    cgraphicsassembler.h \
-    ccartridgebuilder.h
+    emulator/cnes.h \
+    emulator/cjoypadlogger.h \
+    emulator/ccodedatalogger.h \
+    interfaces/ixmlserializable.h \
+    interfaces/iprojecttreeviewitem.h \
+    project/csources.h \
+    project/csourceitem.h \
+    project/cprojectprimitives.h \
+    project/cprojectpalettes.h \
+    project/cprojectpaletteitem.h \
+    project/cproject.h \
+    project/cprgrombanks.h \
+    project/cprgrombank.h \
+    project/cnesicideproject.h \
+    project/cchrrombanks.h \
+    project/cchrrombank.h \
+    project/ccartridge.h \
+    viewers/chr-rom/chrromdisplaydialog.h \
+    viewers/chr-rom/cchrrompreviewrenderer.h \
+    viewers/emulator/nesemulatorthread.h \
+    viewers/emulator/nesemulatorrenderer.h \
+    viewers/emulator/nesemulatordialog.h \
+    viewers/prg-rom/prgromdisplaydialog.h \
+    viewers/project_treeview/cprojecttreeviewmodel.h \
+    viewers/project_treeview/cprojecttreeview.h
 FORMS += mainwindow.ui \
-    paletteeditorwindow.ui \
-    projectpropertiesdialog.ui \
-    newprojectdialog.ui \
-    prgromdisplaydialog.ui \
-    chrromdisplaydialog.ui \
-    nesemulatordialog.ui \
-    codeeditorform.ui
+    designers/code_editor/codeeditorform.ui \
+    designers/new_project/newprojectdialog.ui \
+    designers/palette_editor/paletteeditorwindow.ui \
+    designers/project_properties/projectpropertiesdialog.ui \
+    viewers/chr-rom/chrromdisplaydialog.ui \
+    viewers/emulator/nesemulatordialog.ui \
+    viewers/prg-rom/prgromdisplaydialog.ui
 RESOURCES += resource.qrc
-OTHER_FILES += 
+OTHER_FILES += nesicide2.pro.user
