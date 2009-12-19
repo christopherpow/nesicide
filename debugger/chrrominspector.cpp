@@ -1,6 +1,8 @@
 #include "chrrominspector.h"
 #include "cnesppu.h"
 
+#include "cnesppu.h"
+
 CHRROMInspector::CHRROMInspector()
 {
    imgData = new char[256*256*3];
@@ -8,7 +10,7 @@ CHRROMInspector::CHRROMInspector()
    frame = new QFrame ( this );
    frame->setFrameRect ( this->rect() );
 
-   dialog = new CHRROMDisplayDialog ( frame, true );
+   dialog = new CHRROMDisplayDialog ( frame, (qint8*)CPPU::MEMPTR() );
    this->setWidget ( dialog );
 }
 

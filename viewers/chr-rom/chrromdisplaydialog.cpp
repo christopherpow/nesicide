@@ -2,6 +2,8 @@
 #include "ui_chrromdisplaydialog.h"
 #include "cnessystempalette.h"
 
+#include "main.h"
+
 CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
     QDialog(parent),
     ui(new Ui::CHRROMDisplayDialog)
@@ -91,7 +93,8 @@ void CHRROMDisplayDialog::renderData()
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
-    delete ui;
+   delete imgData;
+   delete ui;
 }
 
 void CHRROMDisplayDialog::resizeEvent(QResizeEvent *event)
