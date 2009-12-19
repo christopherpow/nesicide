@@ -6,12 +6,15 @@ QT += network \
     webkit \
     xml \
     multimedia
-win32:LIBS += -L./libraries/SDL/ -lsdl
-unix:LIBS += `sdl-config --libs`
+win32:LIBS += -L./libraries/SDL/ \
+    -lsdl
+unix:LIBS += `sdl-config \
+    --libs`
 INCLUDEPATH = ./ \
     ./libraries/SDL \
     ./common \
     ./compiler \
+    ./debugger \
     ./designers \
     ./designers/code_editor \
     ./designers/new_project \
@@ -26,7 +29,8 @@ INCLUDEPATH = ./ \
     ./viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
-unix:INCLUDEPATH += += /usr/include/SDL
+unix:INCLUDEPATH += += \
+    /usr/include/SDL
 TARGET = nesicide2
 TEMPLATE = app
 SOURCES += mainwindow.cpp \
@@ -84,7 +88,8 @@ SOURCES += mainwindow.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
-    common/cbuildertextlogger.cpp
+    common/cbuildertextlogger.cpp \
+    debugger/chrrominspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -150,7 +155,8 @@ HEADERS += mainwindow.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
     viewers/project_treeview/cprojecttreeview.h \
-    common/cbuildertextlogger.h
+    common/cbuildertextlogger.h \
+    debugger/chrrominspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

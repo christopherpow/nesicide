@@ -134,9 +134,9 @@ public:
    static inline unsigned char _ATTRTABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
    static inline unsigned char _PATTERNDATA ( unsigned short addr ) { return CROM::CHRMEM ( addr ); }
    static inline unsigned char _PALETTE ( unsigned char addr ) { if ( !(addr&0x3) ) addr = 0x00; return *(m_PALETTEmemory+addr); }
-   static unsigned char* MEMGET ( void ) { return m_PPUmemory; }
    static void MEMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_PPUmemory+addr,data,length); }
    static void MEMCLR ( void ) { memset(m_PPUmemory,0,MEM_4KB); }
+   static unsigned char* MEMPTR ( void ) { return m_PPUmemory; }
    static void PALETTESET ( unsigned char* data ) { memcpy(m_PALETTEmemory,data,MEM_32B);}
    static void OAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_PPUoam+addr,data,length); }
    static void OAMCLR ( void ) { memset(m_PPUoam,0,MEM_256B); }
