@@ -1,5 +1,5 @@
 #include "csyntaxhighlighter.h"
-
+#include "csourceassembler.h"
 CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
      : QSyntaxHighlighter(parent)
  {
@@ -7,18 +7,18 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
      keywordFormat.setForeground(Qt::darkBlue);
      keywordFormat.setFontWeight(QFont::Bold);
      QStringList keywordPatterns;
-     keywordPatterns
-             << "\\bbne\\b"
-             << "\\bbpl\\b"
-             << "\\bcpx\\b"
-             << "\\blda\\b"
-             << "\\binx\\b"
-             << "\\bjmp\\b"
-             << "\\bsta\\b"
+     for (int inx = 0; ; inx++)
+     {
+         if (AssemblerInstructionItems[inx].mnemonic.isEmpty())
+             break;
+         keywordPatterns << ("\\b" + AssemblerInstructionItems[inx].mnemonic + "\\b");
+     }
+
 
              ;
      foreach (const QString &pattern, keywordPatterns) {
          rule.pattern = QRegExp(pattern);
+         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
          rule.format = keywordFormat;
          highlightingRules.append(rule);
      }
