@@ -24,11 +24,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pPPUInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pPPUInspector->setAllowedAreas(Qt::RightDockWidgetArea);
     m_pPPUInspector->setWindowTitle("PPU Inspector");
-
-    this->addDockWidget(Qt::RightDockWidgetArea, m_pPPUInspector );
+    m_pPPUInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInspector );
+    QRect ppuRc = m_pPPUInspector->geometry();
+    ppuRc.setSize(QSize(300, 300));
+    m_pPPUInspector->setGeometry(ppuRc);
+    m_pPPUInspector->hide();
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
+
+
 }
 
 MainWindow::~MainWindow()

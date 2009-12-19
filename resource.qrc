@@ -22,5 +22,15 @@
         <file>resources/stock_right.svg</file>
         <file>resources/bash.svg</file>
         <file>resources/compile_16.svg</file>
+        <file>resources/22_preferences-other.png</file>
+        <file>resources/22_preferences-desktop-gaming.png</file>
+        <file>resources/22_document-new.png</file>
+        <file>resources/22_document-save.png</file>
+        <file>resources/22_document-save-as.png</file>
+        <file>resources/22_document-save-all.png</file>
+        <file>resources/22_document-open.png</file>
+        <file>resources/22_run-build.png</file>
+        <file>resources/22_preferences-desktop-display-color.png</file>
+        <file>resources/22_utilities-terminal.png</file>
     </qresource>
 </RCC>

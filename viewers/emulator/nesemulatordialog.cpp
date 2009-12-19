@@ -9,7 +9,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     ui(new Ui::NESEmulatorDialog)
 {
    imgData = new char[256*256*3];
-   memset ( imgData, 0, sizeof(imgData) );
+   memset ( imgData, 0, sizeof(char)*256*256*3 );
 
    ui->setupUi(this);
    ui->stopButton->setEnabled(false);

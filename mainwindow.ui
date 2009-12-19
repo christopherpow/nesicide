@@ -100,6 +100,7 @@
      <addaction name="separator"/>
      <addaction name="actionCompiler_Output"/>
      <addaction name="actionEmulation_Window"/>
+     <addaction name="actionPPU_Inspector"/>
     </widget>
     <addaction name="menu_Windows"/>
    </widget>
@@ -190,6 +191,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionEmulation_Window"/>
+   <addaction name="actionPPU_Inspector"/>
    <addaction name="actionCompiler_Output"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
@@ -249,7 +251,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -264,7 +266,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
    </property>
    <property name="text">
@@ -279,8 +281,8 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset>
-     <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_document-open.png</normaloff>:/resources/22_document-open.png</iconset>
    </property>
    <property name="text">
     <string>Open &amp;Project...</string>
@@ -294,8 +296,8 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset>
-     <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
    </property>
    <property name="text">
     <string>Save &amp;Project</string>
@@ -305,10 +307,6 @@
    </property>
   </action>
   <action name="actionSave_Project_As">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/resources/stock_save-as.svg</normaloff>:/resources/stock_save-as.svg</iconset>
-   </property>
    <property name="text">
     <string>Save Project &amp;As...</string>
    </property>
@@ -321,7 +319,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -330,7 +328,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -342,8 +340,8 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset>
-     <normaloff>:/resources/document-properties.svg</normaloff>:/resources/document-properties.svg</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
     <string>Project &amp;Properties...</string>
@@ -356,10 +354,6 @@
    </property>
   </action>
   <action name="actionCreate_Project_from_ROM">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/resources/drive-harddisk.svg</normaloff>:/resources/drive-harddisk.svg</iconset>
-   </property>
    <property name="text">
     <string>Create Project from &amp;ROM...</string>
    </property>
@@ -372,8 +366,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>:/resources/system-run.svg</normaloff>:/resources/system-run.svg</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
    </property>
    <property name="text">
     <string>Emulation Window</string>
@@ -387,7 +381,7 @@
   </action>
   <action name="actionSave_Active_Document">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
@@ -405,8 +399,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>:/resources/bash.svg</normaloff>:/resources/bash.svg</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
     <string>Compiler Output</string>
@@ -417,14 +411,26 @@
   </action>
   <action name="actionCompile_Project">
    <property name="icon">
-    <iconset>
-     <normaloff>:/resources/compile_16.svg</normaloff>:/resources/compile_16.svg</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_run-build.png</normaloff>:/resources/22_run-build.png</iconset>
    </property>
    <property name="text">
     <string>Compile Project</string>
    </property>
    <property name="shortcut">
     <string>F5</string>
+   </property>
+  </action>
+  <action name="actionPPU_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>PPU Inspector</string>
    </property>
   </action>
  </widget>
@@ -441,7 +447,9 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>
