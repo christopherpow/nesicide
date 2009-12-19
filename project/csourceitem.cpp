@@ -1,4 +1,5 @@
 #include "csourceitem.h"
+#include "cnesicideproject.h"
 
 CSourceItem::CSourceItem()
 {
@@ -43,7 +44,7 @@ bool CSourceItem::serialize(QDomDocument &doc, QDomNode &node)
     return true;
 }
 
-bool CSourceItem::deserialize(QDomDocument &doc, QDomNode &node)
+bool CSourceItem::deserialize(QDomDocument&, QDomNode &node)
 {
     QDomElement element = node.toElement();
 
@@ -69,7 +70,33 @@ QString CSourceItem::caption() const
 }
 void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
+    QMenu menu(parent);
+    menu.addAction("&Delete");
 
+    QAction *ret = menu.exec(event->globalPos());
+    if (ret)
+    {
+        if (ret->text() == "&Delete")
+        {
+            if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + get_sourceName(),
+                                  QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+                return;
+
+            if (nesicideProject->getProject()->getMainSource() == this)
+                nesicideProject->getProject()->setMainSource((CSourceItem *)NULL);
+
+            if (this->m_codeEditorForm)
+            {
+                QTabWidget *tabWidget = (QTabWidget *)this->m_codeEditorForm->parentWidget()->parentWidget();
+                tabWidget->removeTab(m_indexOfTab);
+            }
+
+            // TODO: Fix this logic so the memory doesn't get lost.
+            nesicideProject->getProject()->getSources()->removeChild(this);
+            nesicideProject->getProject()->getSources()->get_pointerToArrayOfSourceItems()->removeAll(this);
+            ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
+        }
+    }
 }
 
 void CSourceItem::openItemEvent(QTabWidget* tabWidget)
@@ -98,6 +125,7 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
 
 QString CSourceItem::get_sourceName()
 {
+
     return m_sourceName;
 }
 
