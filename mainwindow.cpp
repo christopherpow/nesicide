@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "chrrominspector.h"
+
 #include "main.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -17,6 +19,13 @@ MainWindow::MainWindow(QWidget *parent) :
     emulatorDlg = (NESEmulatorDialog *)NULL;
     emulatorDlgTabIdx = -1;
     projectDataChangesEvent();
+
+    m_pPPUInspector = new CHRROMInspector ();
+    m_pPPUInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pPPUInspector->setAllowedAreas(Qt::RightDockWidgetArea);
+    m_pPPUInspector->setWindowTitle("PPU Inspector");
+
+    this->addDockWidget(Qt::RightDockWidgetArea, m_pPPUInspector );
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");

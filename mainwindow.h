@@ -10,6 +10,7 @@
 #include "nesemulatordialog.h"
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
+#include "chrrominspector.h"
 
 namespace Ui {
     class MainWindow;
@@ -31,6 +32,7 @@ private:
     CProjectTreeViewModel *projectTreeviewModel;
     IProjectTreeViewItem *matchTab(IProjectTreeViewItem *root, int tabIndex);
     QString projectFileName;
+    CHRROMInspector* m_pPPUInspector;
     void saveProject(QString fileName);
 
 protected:

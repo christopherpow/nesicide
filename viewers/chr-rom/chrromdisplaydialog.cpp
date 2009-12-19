@@ -1,22 +1,8 @@
 #include "chrromdisplaydialog.h"
 #include "ui_chrromdisplaydialog.h"
+#include "cnessystempalette.h"
 
-
-const int defaultPalette[][3] = {
-    {0x75, 0x75, 0x75}, {0x27, 0x1B, 0x8F}, {0x00, 0x00, 0xAB}, {0x47, 0x00, 0x9F}, {0x8F, 0x00, 0x77},
-    {0xAB, 0x00, 0x13}, {0xA7, 0x00, 0x00}, {0x7F, 0x0B, 0x00}, {0x43, 0x2F, 0x00}, {0x00, 0x47, 0x00},
-    {0x00, 0x51, 0x00}, {0x00, 0x3F, 0x17}, {0x1B, 0x3F, 0x5F}, {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00},
-    {0x00, 0x00, 0x00}, {0xBC, 0xBC, 0xBC}, {0x00, 0x73, 0xEF}, {0x23, 0x3B, 0xEF}, {0x83, 0x00, 0xF3},
-    {0xBF, 0x00, 0xBF}, {0xE7, 0x00, 0x5B}, {0xDB, 0x2B, 0x00}, {0xCB, 0x4F, 0x0F}, {0x8B, 0x73, 0x00},
-    {0x00, 0x97, 0x00}, {0x00, 0xAB, 0x00}, {0x00, 0x93, 0x3B}, {0x00, 0x83, 0x8B}, {0x00, 0x00, 0x00},
-    {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00}, {0xFF, 0xFF, 0xFF}, {0x3F, 0xBF, 0xFF}, {0x5F, 0x97, 0xFF},
-    {0xA7, 0x8B, 0xFD}, {0xF7, 0x7B, 0xFF}, {0xFF, 0x77, 0xB7}, {0xFF, 0x77, 0x63}, {0xFF, 0x9B, 0x3B},
-    {0xF3, 0xBF, 0x3F}, {0x83, 0xD3, 0x13}, {0x4F, 0xDF, 0x4B}, {0x58, 0xF8, 0x98}, {0x00, 0xEB, 0xDB},
-    {0x4F, 0x4F, 0x4F}, {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00}, {0xFF, 0xFF, 0xFF}, {0xAB, 0xE7, 0xFF},
-    {0xC7, 0xD7, 0xFF}, {0xD7, 0xCB, 0xFF}, {0xFF, 0xC7, 0xFF}, {0xFF, 0xC7, 0xDB}, {0xFF, 0xBF, 0xB3},
-    {0xFF, 0xDB, 0xAB}, {0xFF, 0xE7, 0xA3}, {0xE3, 0xFF, 0xA3}, {0xAB, 0xF3, 0xBF}, {0xB3, 0xFF, 0xCF},
-    {0x9F, 0xFF, 0xF3}, {0xB8, 0xB8, 0xB8}, {0x00, 0x00, 0x00}, {0x00, 0x00, 0x00}
-};
+#include "main.h"
 
 CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
     QDialog(parent),
@@ -24,18 +10,18 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
 {
     ui->setupUi(this);
     imgData = new char[256*256*3];
-    for (int i=0; i<0x3F; i++)
+    for (int i=0; i<0x40; i++)
     {
-        ui->col0PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
-        ui->col1PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
-        ui->col2PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
-        ui->col3PushButton->insertColor(QColor(defaultPalette[i][0], defaultPalette[i][1], defaultPalette[i][2]), "");
+        ui->col0PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
+        ui->col1PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
+        ui->col2PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
+        ui->col3PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
     }
 
-    ui->col0PushButton->setCurrentColor(QColor(0x00,0x00,0x00));
-    ui->col1PushButton->setCurrentColor(QColor(0x66,0x66,0x66));
-    ui->col2PushButton->setCurrentColor(QColor(0xCC,0xCC,0xCC));
-    ui->col3PushButton->setCurrentColor(QColor(0xFF,0xFF,0xFF));
+    ui->col0PushButton->setCurrentColor(CBasePalette::GetPalette(0x0D));
+    ui->col1PushButton->setCurrentColor(CBasePalette::GetPalette(0x00));
+    ui->col2PushButton->setCurrentColor(CBasePalette::GetPalette(0x10));
+    ui->col3PushButton->setCurrentColor(CBasePalette::GetPalette(0x20));
 
     ui->col0PushButton->setText("");
     ui->col1PushButton->setText("");
@@ -74,21 +60,14 @@ void CHRROMDisplayDialog::renderData()
     unsigned char patternData2;
     unsigned char bit1, bit2;
     unsigned char colorIdx;
+    QColor color[4];
 
     memset ( imgData, 0,sizeof(imgData));
 
-    palette [ 0 ] [ 0 ] = ui->col0PushButton->currentColor().red();
-    palette [ 0 ] [ 1 ] = ui->col0PushButton->currentColor().green();
-    palette [ 0 ] [ 2 ] = ui->col0PushButton->currentColor().blue();
-    palette [ 1 ] [ 0 ] = ui->col1PushButton->currentColor().red();
-    palette [ 1 ] [ 1 ] = ui->col1PushButton->currentColor().green();
-    palette [ 1 ] [ 2 ] = ui->col1PushButton->currentColor().blue();
-    palette [ 2 ] [ 0 ] = ui->col2PushButton->currentColor().red();
-    palette [ 2 ] [ 1 ] = ui->col2PushButton->currentColor().green();
-    palette [ 2 ] [ 2 ] = ui->col2PushButton->currentColor().blue();
-    palette [ 3 ] [ 0 ] = ui->col3PushButton->currentColor().red();
-    palette [ 3 ] [ 1 ] = ui->col3PushButton->currentColor().green();
-    palette [ 3 ] [ 2 ] = ui->col3PushButton->currentColor().blue();
+    color[0] = ui->col0PushButton->currentColor();
+    color[1] = ui->col1PushButton->currentColor();
+    color[2] = ui->col2PushButton->currentColor();
+    color[3] = ui->col3PushButton->currentColor();
 
     for (int y = 0; y < 128; y++)
     {
@@ -104,9 +83,9 @@ void CHRROMDisplayDialog::renderData()
                bit1 = (patternData1>>(7-(xf)))&0x1;
                bit2 = (patternData2>>(7-(xf)))&0x1;
                colorIdx = (bit1|(bit2<<1));
-               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = palette[colorIdx][0];
-               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = palette[colorIdx][1];
-               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = palette[colorIdx][2];
+               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx].red();
+               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx].green();
+               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
            }
         }
     }
@@ -114,7 +93,8 @@ void CHRROMDisplayDialog::renderData()
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
-    delete ui;
+   delete imgData;
+   delete ui;
 }
 
 void CHRROMDisplayDialog::resizeEvent(QResizeEvent *event)

@@ -209,10 +209,10 @@ void CROMMapper001::MAPPER ( UINT addr, unsigned char data )
                {
                   if ( m_reg[0]&0x10 )
                   {
-                     m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( ((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB + (0<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( ((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB + (1<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( ((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB + (2<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( ((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB + (3<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB) );
                   }
                }
             break;
@@ -231,10 +231,10 @@ void CROMMapper001::MAPPER ( UINT addr, unsigned char data )
                {
                   if ( m_reg[0]&0x10 )
                   {
-                     m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( ((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB + (0<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( ((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB + (1<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( ((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB + (2<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( ((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB + (3<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB) );
                   }
                }
             break;
