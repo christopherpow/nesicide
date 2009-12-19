@@ -144,6 +144,11 @@ void MainWindow::on_actionProject_Properties_triggered()
     ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(
             this, nesicideProject->get_pointerToListOfProjectPaletteEntries());
     dlg->setProjectName(nesicideProject->get_projectTitle());
+    dlg->initSourcesList();
+    if (nesicideProject->getProject()->getMainSource())
+        dlg->setMainSource(nesicideProject->getProject()->getMainSource()->get_sourceName());
+    else
+        dlg->setMainSource("");
     if (dlg->exec() == QDialog::Accepted)
     {
         nesicideProject->set_projectTitle(dlg->getProjectName());
@@ -151,6 +156,16 @@ void MainWindow::on_actionProject_Properties_triggered()
         for (int paletteItemIndex=0; paletteItemIndex<dlg->currentPalette.count(); paletteItemIndex++)
             nesicideProject->get_pointerToListOfProjectPaletteEntries()->append(dlg->currentPalette.at(paletteItemIndex));
         projectDataChangesEvent();
+
+        for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
+        {
+            CSourceItem *sourceItem = (CSourceItem *)nesicideProject->getProject()->getSources()->child(sourceIndex);
+            if (sourceItem->get_sourceName() == dlg->getMainSource())
+            {
+                nesicideProject->getProject()->setMainSource(sourceItem);
+            }
+        }
+
     }
     delete dlg;
 }

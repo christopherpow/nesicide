@@ -228,6 +228,31 @@ void ProjectPropertiesDialog::setProjectName(QString newName)
     ui->projectNameLineEdit->setText(newName);
 }
 
+void ProjectPropertiesDialog::setMainSource(QString mainSource)
+{
+    if (mainSource.isEmpty())
+    {
+        ui->mainSourceComboBox->setCurrentIndex(-1);
+        return;
+    }
+
+    for (int idx = 0; idx < ui->mainSourceComboBox->count(); idx++)
+    {
+        if (ui->mainSourceComboBox->itemText(idx) == mainSource)
+        {
+            ui->mainSourceComboBox->setCurrentIndex(idx);
+            return;
+        }
+    }
+}
+
+QString ProjectPropertiesDialog::getMainSource()
+{
+    if (ui->mainSourceComboBox->currentIndex() == -1)
+        return "";
+    else
+        return ui->mainSourceComboBox->itemText(ui->mainSourceComboBox->currentIndex());
+}
 
 void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
 {
@@ -287,4 +312,14 @@ void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action
 
     // Refresh the user interface
     updateUI(3);
+}
+
+void ProjectPropertiesDialog::initSourcesList()
+{
+    ui->mainSourceComboBox->clear();
+    for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
+    {
+        CSourceItem *sourceItem = (CSourceItem *)nesicideProject->getProject()->getSources()->child(sourceIndex);
+        ui->mainSourceComboBox->addItem(sourceItem->get_sourceName());
+    }
 }
