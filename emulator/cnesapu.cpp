@@ -377,7 +377,7 @@ void CAPU::PLAY ( Uint8 *stream, int len )
 
    if ( waveBufDepth )
    {
-      memcpy ( stream, waveBuf, len );
+      SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, 64/*SDL_MIX_MAXVOLUME*/ );
       m_waveBufConsume++;
       m_waveBufConsume %= NUM_APU_BUFS;
    }
@@ -391,10 +391,11 @@ void CAPU::RUN ( void )
    int samplesPerSeqTick2 = *(*(m_samplesPerSeqTick+m_iFreq)+1);
    int samplesPerSeqTick3 = *(*(m_samplesPerSeqTick+m_iFreq)+2);
    int samplesPerSeqTick4 = *(*(m_samplesPerSeqTick+m_iFreq)+3);
-   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
-   int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
 
    SDL_LockAudio ();
+
+   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
+   int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
 
    SEQTICK ();
 
