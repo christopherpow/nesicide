@@ -3,3 +3,9 @@
 CCartridgeBuilder::CCartridgeBuilder()
 {
 }
+
+
+void CCartridgeBuilder::build()
+{
+
+}

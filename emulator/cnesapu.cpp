@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 // APU.cpp: implementation of the CAPU class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ enum
    APU_SEQ_CLK_ENVELOPE_CTR = 0x04
 };
 
-static int m_seq4 [ 4 ] = 
+static int m_seq4 [ 4 ] =
 {
    APU_SEQ_CLK_ENVELOPE_CTR,
    APU_SEQ_CLK_ENVELOPE_CTR|APU_SEQ_CLK_LENGTH_CTR,
@@ -64,7 +64,7 @@ static int m_seq4 [ 4 ] =
    APU_SEQ_CLK_ENVELOPE_CTR|APU_SEQ_CLK_LENGTH_CTR|APU_SEQ_INT_FLAG,
 };
 
-static int m_seq5 [ 5 ] = 
+static int m_seq5 [ 5 ] =
 {
    APU_SEQ_CLK_ENVELOPE_CTR,
    APU_SEQ_CLK_ENVELOPE_CTR|APU_SEQ_CLK_LENGTH_CTR,
@@ -114,7 +114,7 @@ static unsigned short m_squareTable [ 31 ] =
    0x3171
 };
 
-static unsigned short m_tndTable [ 203 ] = 
+static unsigned short m_tndTable [ 203 ] =
 {
    0x0000,
    0x0149,
@@ -345,7 +345,7 @@ CAPU::CAPU()
    SDL_Init ( SDL_INIT_AUDIO );
 
    m_sdlAudioSpec.channels = 1;
-   m_sdlAudioSpec.format = AUDIO_U16SYS;
+   m_sdlAudioSpec.format = AUDIO_U8SYS;
    m_sdlAudioSpec.freq = 44100;
    m_sdlAudioSpec.samples = 735;
    m_sdlAudioSpec.callback = SDL_GetMoreData;
@@ -645,7 +645,7 @@ void CAPUOscillator::CLKSWEEPUNIT ( void )
    {
       sweepPeriod = m_period;
       sweepPeriod >>= m_sweepShift;
-      if ( m_sweepNegate ) 
+      if ( m_sweepNegate )
       {
          sweepPeriod = ~sweepPeriod;
          if ( m_channel == 1 )
@@ -656,7 +656,7 @@ void CAPUOscillator::CLKSWEEPUNIT ( void )
       sweepPeriod += m_period;
    }
 
-   if ( (m_period < 8) || 
+   if ( (m_period < 8) ||
         (sweepPeriod > 0x7FF) )
    {
       m_volume = 0;
@@ -875,8 +875,8 @@ void CAPUTriangle::TIMERTICK ( UINT sampleTicks )
 {
    UINT ticks = CLKDIVIDER ( sampleTicks );
 
-   if ( (m_enabled) && 
-        (m_linearCounter) && 
+   if ( (m_enabled) &&
+        (m_linearCounter) &&
         (m_lengthCounter) )
    {
       m_seqTick += ticks;
@@ -983,7 +983,7 @@ void CAPUNoise::TIMERTICK ( UINT sampleTicks )
    }
    if ( (m_enabled) &&
         (m_lengthCounter) )
-   {      
+   {
       if ( set )
       {
          SETDAC ( m_volume );
@@ -1049,9 +1049,9 @@ void CAPUDMC::APU ( UINT addr, unsigned char data )
 }
 
 void CAPUDMC::ENABLE ( bool enabled )
-{ 
+{
    CAPUOscillator::ENABLE(enabled);
-   
+
    if ( enabled )
    {
       if ( !m_lengthCounter )
@@ -1129,7 +1129,7 @@ UINT CAPUDMC::DMAREADER ( void )
 void CAPUDMC::TIMERTICK ( UINT sampleTicks )
 {
    UINT ticks = CLKDIVIDER ( sampleTicks );
-   
+
    for ( ; ticks > 0; ticks-- )
    {
       DMAREADER ();

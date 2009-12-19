@@ -21,5 +21,6 @@
         <file>resources/stock_media-stop.svg</file>
         <file>resources/stock_right.svg</file>
         <file>resources/bash.svg</file>
+        <file>resources/compile_16.svg</file>
     </qresource>
 </RCC>

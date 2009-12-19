@@ -9,6 +9,7 @@
 #include "newprojectdialog.h"
 #include "nesemulatordialog.h"
 #include "cbuildertextlogger.h"
+#include "ccartridgebuilder.h"
 
 namespace Ui {
     class MainWindow;
@@ -36,6 +37,7 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);
     void on_actionSave_Active_Document_triggered();

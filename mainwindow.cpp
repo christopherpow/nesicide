@@ -345,3 +345,8 @@ void MainWindow::on_actionCompiler_Output_toggled(bool value)
     ui->compilerOutputDockWidget->setVisible(value);
 }
 
+
+void MainWindow::on_actionCompile_Project_triggered()
+{
+
+}
