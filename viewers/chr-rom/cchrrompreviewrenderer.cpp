@@ -3,7 +3,6 @@
 CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget *parent, char *imgData)
     : QGLWidget(parent)
 {
-   textureID = CGLTextureManager::getNewTextureID();
    imageData = imgData;
    scrollX = 0;
    scrollY = 0;
@@ -16,6 +15,7 @@ CCHRROMPreviewRenderer::~CCHRROMPreviewRenderer()
 
 void CCHRROMPreviewRenderer::initializeGL()
 {
+   textureID = CGLTextureManager::getNewTextureID();
     zoom = 100;
     // Enable flat shading
     glShadeModel(GL_FLAT);
@@ -55,6 +55,13 @@ void CCHRROMPreviewRenderer::initializeGL()
     // Load the actual texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 
+}
+
+void CCHRROMPreviewRenderer::updateGL()
+{
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+    repaint();
 }
 
 void CCHRROMPreviewRenderer::reloadData(char *imgData)

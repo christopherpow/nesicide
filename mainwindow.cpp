@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ppuRc.setSize(QSize(300, 300));
     m_pPPUInspector->setGeometry(ppuRc);
     m_pPPUInspector->hide();
-    QObject::connect(m_pPPUInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(on_PPUInspector_close(bool)));
+    QObject::connect(m_pPPUInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ppuInspector_close(bool)));
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
@@ -369,7 +369,7 @@ void MainWindow::on_actionPPU_Inspector_toggled(bool value)
    m_pPPUInspector->setVisible(value);
 }
 
-void MainWindow::on_PPUInspector_close (bool toplevel)
+void MainWindow::ppuInspector_close (bool toplevel)
 {
    ui->actionPPU_Inspector->setChecked(toplevel);
 }

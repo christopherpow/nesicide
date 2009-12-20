@@ -66,6 +66,9 @@ char           CPPU::m_szBinaryText [] = { 0, };
 
 char*          CPPU::m_pTV = NULL;
 
+char*          CPPU::m_pCHRMEMInspectorTV = NULL;
+char*          CPPU::m_pNameTableInspectorTV = NULL;
+
 unsigned char  CPPU::m_frame = 0;
 int            CPPU::m_curCycles = 0;
 SpriteBuffer     CPPU::m_spriteBuffer;
@@ -229,6 +232,42 @@ void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, 
    }
 
    *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;     
+}
+
+void CPPU::RENDERCHRMEM ( void )
+{
+   unsigned int ppuAddr = 0x0000;
+   unsigned char patternData1;
+   unsigned char patternData2;
+   unsigned char bit1, bit2;
+   unsigned char colorIdx;
+   QColor color[4];
+
+   color[0] = CBasePalette::GetPalette ( 0x0D );
+   color[1] = CBasePalette::GetPalette ( 0x10 );
+   color[2] = CBasePalette::GetPalette ( 0x20 );
+   color[3] = CBasePalette::GetPalette ( 0x30 );
+
+   for (int y = 0; y < 128; y++)
+   {
+       for (int x = 0; x < 256; x += 8)
+       {
+           ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
+           if ( x >= 128 ) ppuAddr += 0x1000;
+           patternData1 = CPPU::_MEM(ppuAddr);
+           patternData2 = CPPU::_MEM(ppuAddr+8);
+
+           for ( int xf = 0; xf < 8; xf++ )
+           {
+              bit1 = (patternData1>>(7-(xf)))&0x1;
+              bit2 = (patternData2>>(7-(xf)))&0x1;
+              colorIdx = (bit1|(bit2<<1));
+              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx].red();
+              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx].green();
+              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
+          }
+       }
+   }
 }
 
 UINT CPPU::RENDER ( UINT addr, char target )

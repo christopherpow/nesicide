@@ -11,12 +11,14 @@ namespace Ui {
 class CHRROMDisplayDialog : public QDialog {
     Q_OBJECT
 public:
-    CHRROMDisplayDialog(QWidget *parent, qint8 *data);
+    CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *data);
     ~CHRROMDisplayDialog();
+    void updateScrollbars();
+
+protected:
     CCHRROMPreviewRenderer *renderer;
     qint8 *chrrom;
     qint8 palette[4][3]; // 4 palettes, r, g, and b each...
-    void updateScrollbars();
 
 protected:
     void changeEvent(QEvent *e);
@@ -25,6 +27,9 @@ protected:
 private:
     Ui::CHRROMDisplayDialog *ui;
     char *imgData;
+    bool m_usePPU;
+
+public slots:
     void renderData();
 
 private slots:

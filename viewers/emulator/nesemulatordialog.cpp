@@ -20,12 +20,12 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   memset ( imgData, 0, sizeof(imgData));
-
    QObject::connect(ui->playButton, SIGNAL(pressed()), emulator, SLOT(startEmulation()));
    QObject::connect(ui->pauseButton, SIGNAL(pressed()), emulator, SLOT(pauseEmulation()));
    QObject::connect(ui->stopButton, SIGNAL(pressed()), emulator, SLOT(stopEmulation()));
    QObject::connect(ui->resetButton, SIGNAL(pressed()), emulator, SLOT(resetEmulator()));
+
+   QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
 
    m_joy [ JOY1 ] = 0x00;
    m_joy [ JOY2 ] = 0x00;
@@ -251,4 +251,9 @@ void NESEmulatorDialog::on_stepButton_clicked()
     //       Since PPU executes faster it makes sense to align the steps
     //       on PPU cycles but you can do it on CPU cycles if you really want to.
     // CPTODO: re-factor stepping routine first...
+}
+
+void NESEmulatorDialog::renderData()
+{
+   renderer->updateGL();
 }

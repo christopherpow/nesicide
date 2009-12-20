@@ -40,7 +40,6 @@ signals:
 protected:
    virtual void run ();
 
-   QWaitCondition m_waiter;
    CCartridge*   m_pCartridge;
    bool          m_isRunning;
    qint32         m_lastVblankTime;

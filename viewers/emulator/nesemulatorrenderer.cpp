@@ -5,12 +5,9 @@
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget *parent, char *imgData)
     : QGLWidget(parent)
 {
-   textureID = CGLTextureManager::getNewTextureID();
    imageData = imgData;
    scrollX = 0;
    scrollY = 0;
-
-   QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(updateGL()));
 }
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
@@ -20,6 +17,7 @@ CNESEmulatorRenderer::~CNESEmulatorRenderer()
 
 void CNESEmulatorRenderer::initializeGL()
 {
+   textureID = CGLTextureManager::getNewTextureID();
     zoom = 100;
     // Enable flat shading
     glShadeModel(GL_FLAT);
@@ -125,7 +123,7 @@ void CNESEmulatorRenderer::paintGL()
 
 void CNESEmulatorRenderer::changeZoom(int newZoom)
 {
-    zoom = newZoom;
-    resizeGL(this->width(), this->height());
-    this->repaint();
+//    zoom = newZoom;
+//    resizeGL(this->width(), this->height());
+//    this->repaint();
 }

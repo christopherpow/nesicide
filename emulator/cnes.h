@@ -5,8 +5,7 @@
 #if !defined ( NES_H )
 #define NES_H
 
-class CNES  
-{
+class CNES  {
 public:
 	CNES();
 	virtual ~CNES();
@@ -17,6 +16,7 @@ public:
    static unsigned int FRAME () { return m_frame; }
 
    static void RESET ( void );
+
 protected:
    static bool         m_bReplay;
    static unsigned int m_frame;

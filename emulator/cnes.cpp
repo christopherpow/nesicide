@@ -175,10 +175,10 @@ bool CNES::RUN ( unsigned char* joy )
 
 // CPTODO: update emulation inspection displays at 60Hz at selected scanlines...
       // Update PPU viewer at appropriate scanline...
-//      if ( idx == CPPU::GetPPUViewerScanline() )
-//      {
-//         pDoc->GetPPUViewerDlg()->Update();
-//      }
+      if ( idx == CPPU::GetPPUViewerScanline() )
+      {
+         CPPU::RENDERCHRMEM ();
+      }
 
       // Update OAM viewer at appropriate scanline...
 //      if ( idx == CPPU::GetOAMViewerScanline() )

@@ -1,15 +1,17 @@
 #include "chrromdisplaydialog.h"
 #include "ui_chrromdisplaydialog.h"
 #include "cnessystempalette.h"
+#include "cnesppu.h"
 
 #include "main.h"
 
-CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
+CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *data) :
     QDialog(parent),
     ui(new Ui::CHRROMDisplayDialog)
 {
     ui->setupUi(this);
     imgData = new char[256*256*3];
+    m_usePPU = usePPU;
     for (int i=0; i<0x40; i++)
     {
         ui->col0PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
@@ -33,8 +35,17 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, qint8 *data) :
     connect(ui->col2PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
     connect(ui->col3PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
 
-    chrrom = data;
-    renderData();
+    if ( m_usePPU )
+    {
+       CPPU::CHRMEMInspectorTV ( imgData );
+       QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+    }
+    else
+    {
+       // show CHR-ROM bank data...
+       chrrom = data;
+       renderData();
+    }
 
     renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
     ui->frame->layout()->addWidget(renderer);
@@ -62,32 +73,39 @@ void CHRROMDisplayDialog::renderData()
     unsigned char colorIdx;
     QColor color[4];
 
-    memset ( imgData, 0,sizeof(imgData));
-
-    color[0] = ui->col0PushButton->currentColor();
-    color[1] = ui->col1PushButton->currentColor();
-    color[2] = ui->col2PushButton->currentColor();
-    color[3] = ui->col3PushButton->currentColor();
-
-    for (int y = 0; y < 128; y++)
+    if ( m_usePPU )
     {
-        for (int x = 0; x < 256; x += 8)
-        {
-            ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
-            if ( x >= 128 ) ppuAddr += 0x1000;
-            patternData1 = *(chrrom+ppuAddr);
-            patternData2 = *(chrrom+ppuAddr+8);
+       renderer->updateGL ();
+    }
+    else
+    {
+       memset ( imgData, 0,sizeof(imgData));
 
-            for ( int xf = 0; xf < 8; xf++ )
-            {
-               bit1 = (patternData1>>(7-(xf)))&0x1;
-               bit2 = (patternData2>>(7-(xf)))&0x1;
-               colorIdx = (bit1|(bit2<<1));
-               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx].red();
-               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx].green();
-               imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
+       color[0] = ui->col0PushButton->currentColor();
+       color[1] = ui->col1PushButton->currentColor();
+       color[2] = ui->col2PushButton->currentColor();
+       color[3] = ui->col3PushButton->currentColor();
+
+       for (int y = 0; y < 128; y++)
+       {
+           for (int x = 0; x < 256; x += 8)
+           {
+               ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
+               if ( x >= 128 ) ppuAddr += 0x1000;
+               patternData1 = *(chrrom+ppuAddr);
+               patternData2 = *(chrrom+ppuAddr+8);
+
+               for ( int xf = 0; xf < 8; xf++ )
+               {
+                  bit1 = (patternData1>>(7-(xf)))&0x1;
+                  bit2 = (patternData2>>(7-(xf)))&0x1;
+                  colorIdx = (bit1|(bit2<<1));
+                  imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx].red();
+                  imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx].green();
+                  imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
+              }
            }
-        }
+       }
     }
 }
 

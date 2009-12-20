@@ -2,19 +2,38 @@
 
 QList<int> CGLTextureManager::m_arrayOfTextureIndexes;
 QMutex     CGLTextureManager::m_mutex;
+unsigned int CGLTextureManager::m_textures[] = { 0, };
+bool         CGLTextureManager::m_inited = false;
+
 CGLTextureManager::CGLTextureManager()
 {
+   int idx;
+   glGenTextures ( 10, m_textures );
+   int i = glGetError ();
+   for ( idx = 0; idx < 10; idx++ )
+   {
+      m_arrayOfTextureIndexes.append ( m_textures[idx] );
+   }
 }
 
 int CGLTextureManager::getNewTextureID()
 {
    m_mutex.lock ();
-   int textureID = 0;
-   while (m_arrayOfTextureIndexes.contains(textureID))
+   if ( !m_inited )
    {
-      textureID++;
+      CGLTextureManager ();
+      m_inited = true;
    }
-   m_arrayOfTextureIndexes.append(textureID);
+   int textureID = -1;
+   if ( m_arrayOfTextureIndexes.size() )
+   {
+      textureID = m_arrayOfTextureIndexes.at(0);
+      m_arrayOfTextureIndexes.removeAt(0);
+   }
+   else
+   {
+      // assert
+   }
    m_mutex.unlock ();
    return textureID;
 }
@@ -22,7 +41,7 @@ int CGLTextureManager::getNewTextureID()
 void CGLTextureManager::freeTextureID(int textureID)
 {
    m_mutex.lock ();
-   m_arrayOfTextureIndexes.removeAll(textureID);
+   m_arrayOfTextureIndexes.append ( textureID );
    m_mutex.unlock ();
 }
 

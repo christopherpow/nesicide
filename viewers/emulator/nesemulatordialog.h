@@ -35,6 +35,7 @@ private slots:
     void on_stopButton_clicked();
     void on_playButton_clicked();
     void on_resetButton_clicked();
+    void renderData ();
 
 signals:
     void controllerInput(unsigned char* input);

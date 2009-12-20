@@ -45,7 +45,7 @@ void CCHRROMBank::openItemEvent(QTabWidget *tabWidget)
     }
     else
     {
-        editor = new CHRROMDisplayDialog(0, data);
+        editor = new CHRROMDisplayDialog(0, false, data);
         tabId = tabWidget->addTab(editor, this->caption());
     }
 

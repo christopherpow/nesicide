@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QMutex>
+#include <QGLWidget>
 
 class CGLTextureManager
 {
@@ -14,6 +15,8 @@ public:
 protected:
     static QList<int> m_arrayOfTextureIndexes;
     static QMutex m_mutex;
+    static unsigned int m_textures [ 10 ];
+    static bool m_inited;
 };
 
 #endif // CGLTEXTUREMANAGER_H

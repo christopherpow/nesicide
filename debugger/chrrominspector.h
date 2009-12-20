@@ -12,11 +12,9 @@ class CHRROMInspector : public QDockWidget {
 public:
    CHRROMInspector();
    virtual ~CHRROMInspector();
+protected:
    CHRROMDisplayDialog* dialog;
    QFrame* frame;
-
-private:
-    char *imgData;
 };
 
 #endif // CHRROMINSPECTOR_H

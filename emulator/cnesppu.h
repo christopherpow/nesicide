@@ -169,7 +169,12 @@ public:
    static bool GATHERBKGND ( void );
    static inline void PIXELPIPELINES ( int x, int off, unsigned char* a, unsigned char* b1, unsigned char* b2 );
    static bool GATHERSPRITES ( int scanline );
+
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
+
+   static inline void CHRMEMInspectorTV ( char* pTV ) { m_pCHRMEMInspectorTV = pTV; }
+   static inline void NameTableInspectorTV ( char* pTV ) { m_pNameTableInspectorTV = pTV; }
+   static void RENDERCHRMEM ( void );
 
    static inline void SETBRKPT ( int type, UINT addr, UINT addr2, int iIf, UINT cond )
    { m_brkptType = type; m_brkptAddr = addr; m_brkptAddr2 = addr2; m_brkptIf = iIf; m_brkptCond = cond; }
@@ -229,6 +234,9 @@ protected:
    static BackgroundBuffer m_bkgndBuffer;
 
    static char*          m_pTV;
+
+   static char*          m_pCHRMEMInspectorTV;
+   static char*          m_pNameTableInspectorTV;
 
    static UINT           m_iPPUViewerScanline;
    static UINT           m_iOAMViewerScanline;
