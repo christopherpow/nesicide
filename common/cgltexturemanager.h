@@ -2,16 +2,18 @@
 #define CGLTEXTUREMANAGER_H
 
 #include <QList>
+#include <QMutex>
 
 class CGLTextureManager
 {
 public:
     CGLTextureManager();
-    int getNewTextureID();
-    void freeTextureID(int textureID);
+    static int getNewTextureID();
+    static void freeTextureID(int textureID);
 
 protected:
     static QList<int> m_arrayOfTextureIndexes;
+    static QMutex m_mutex;
 };
 
 #endif // CGLTEXTUREMANAGER_H

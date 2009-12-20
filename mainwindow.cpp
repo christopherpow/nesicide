@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pPPUInspector = new CHRROMInspector ();
     m_pPPUInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pPPUInspector->setAllowedAreas(Qt::RightDockWidgetArea);
     m_pPPUInspector->setWindowTitle("PPU Inspector");
     m_pPPUInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInspector );
@@ -30,11 +29,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ppuRc.setSize(QSize(300, 300));
     m_pPPUInspector->setGeometry(ppuRc);
     m_pPPUInspector->hide();
+    QObject::connect(m_pPPUInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(on_PPUInspector_close(bool)));
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
-
-
 }
 
 MainWindow::~MainWindow()
@@ -365,4 +363,14 @@ void MainWindow::on_actionCompile_Project_triggered()
 {
     CCartridgeBuilder cartridgeBuilder;
     cartridgeBuilder.build();
+}
+
+void MainWindow::on_actionPPU_Inspector_toggled(bool value)
+{
+   m_pPPUInspector->setVisible(value);
+}
+
+void MainWindow::on_PPUInspector_close (bool toplevel)
+{
+   ui->actionPPU_Inspector->setChecked(toplevel);
 }
