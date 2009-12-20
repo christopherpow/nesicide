@@ -361,7 +361,8 @@ void MainWindow::on_actionCompiler_Output_toggled(bool value)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-
+    CCartridgeBuilder cartridgeBuilder;
+    cartridgeBuilder.build();
 }
 
 void MainWindow::on_actionPPU_Inspector_toggled(bool value)

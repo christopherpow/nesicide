@@ -7,8 +7,8 @@
 
 typedef struct AssemblerInstrDetails
 {
-    qint8 opcode;
-    qint8 cycles;
+    uint opcode;
+    uint cycles;
 } AssemblerInstrDetails_s;
 
 typedef struct AssemblerInstructionItem
@@ -56,6 +56,8 @@ const AssemblerInstructionItem AssemblerInstructionItems[] =
     {"ROR", INST_NOOP, INST_NOOP, INST_NOOP, {0x66, 5}, {0x76, 6}, {0x6E, 6}, {0x7E, 7}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, {0x6A, 2}, INST_NOOP},
     {"INC", INST_NOOP, INST_NOOP, INST_NOOP, {0xE6, 5}, {0xF6, 6}, {0xEE, 6}, {0xFE, 7}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
     {"DEC", INST_NOOP, INST_NOOP, INST_NOOP, {0xC6, 5}, {0xD6, 6}, {0xCE, 6}, {0xDE, 7}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
+    {"JMP", INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, {0x4C, 3}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, {0xFF, 5}},
+    {"JSR", INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, {0x20, 6}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
     {"BRK", {0x00, 7}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
     {"RTS", {0x60, 6}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
     {"RTI", {0x40, 6}, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
@@ -92,14 +94,24 @@ const AssemblerInstructionItem AssemblerInstructionItems[] =
     {"",    INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP, INST_NOOP},
 };
 
+typedef struct LabelEntry
+{
+    QString labelName;
+    int lineNumber;
+} LabelEntry_s;
+
 class CSourceAssembler
 {
 public:
     CSourceAssembler();
-    qint8 *assemble(CSourceItem *rootSource);
+    bool assemble();
 
 private:
-    void stripComments(QStringList *source);
+    bool stripComments(QStringList *source);
+    bool trimBlankLines(QStringList *source);
+    bool convertOpcodesToDBs(QStringList *source);
+    bool getLabels(QStringList *source);
+    QList<LabelEntry_s> m_labelEntries;
 };
 
 #endif // CSOURCEASSEMBLER_H

@@ -11,6 +11,7 @@
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
 #include "chrrominspector.h"
+#include "ccartridgebuilder.h"
 
 namespace Ui {
     class MainWindow;
