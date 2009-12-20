@@ -2,22 +2,20 @@
 
 #include "main.h"
 
-CGLTextureManager staticGLTextureManager;
-
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget *parent, char *imgData)
     : QGLWidget(parent)
 {
-    textureID = glTextureManager.getNewTextureID();
-    imageData = imgData;
-    scrollX = 0;
-    scrollY = 0;
+   textureID = CGLTextureManager::getNewTextureID();
+   imageData = imgData;
+   scrollX = 0;
+   scrollY = 0;
 
-    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(updateGL()));
+   QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(updateGL()));
 }
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
 {
-    glTextureManager.freeTextureID(textureID);
+   CGLTextureManager::freeTextureID(textureID);
 }
 
 void CNESEmulatorRenderer::initializeGL()

@@ -3,16 +3,15 @@
 CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget *parent, char *imgData)
     : QGLWidget(parent)
 {
-    textureID = glTextureManager.getNewTextureID();
-    imageData = imgData;
-    scrollX = 0;
-    scrollY = 0;
-
+   textureID = CGLTextureManager::getNewTextureID();
+   imageData = imgData;
+   scrollX = 0;
+   scrollY = 0;
 }
 
 CCHRROMPreviewRenderer::~CCHRROMPreviewRenderer()
 {
-    glTextureManager.freeTextureID(textureID);
+   CGLTextureManager::freeTextureID(textureID);
 }
 
 void CCHRROMPreviewRenderer::initializeGL()

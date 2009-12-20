@@ -39,6 +39,8 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_PPUInspector_close(bool toplevel);
+    void on_actionPPU_Inspector_toggled(bool );
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);

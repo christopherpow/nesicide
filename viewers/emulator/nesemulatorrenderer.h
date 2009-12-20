@@ -22,7 +22,6 @@ public:
     int scrollY;
     char* imageData;
     int textureID;
-    CGLTextureManager glTextureManager;
 };
 
 #endif // CNESEMULATORRENDERER_H
