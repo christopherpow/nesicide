@@ -96,10 +96,12 @@ class CSourceAssembler
 {
 public:
     CSourceAssembler();
-    qint8 *assemble(CSourceItem *rootSource);
+    bool assemble();
 
 private:
-    void stripComments(QStringList *source);
+    bool stripComments(QStringList *source);
+    bool trimBlankLines(QStringList *source);
+    bool convertOpcodesToDBs(QStringList *source);
 };
 
 #endif // CSOURCEASSEMBLER_H
