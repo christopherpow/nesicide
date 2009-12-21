@@ -36,12 +36,6 @@ bool CSourceAssembler::assemble()
     }
 
 
-    builderTextLogger.write("--------------------------------------------------------------------------");
-    for (int i=0; i < source->length(); i++)
-        builderTextLogger.write(source->value(i));
-    builderTextLogger.write("--------------------------------------------------------------------------");
-
-
     delete binaryData;
     return true;
 }
@@ -284,12 +278,14 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                     }
 
 
-                } else if ((param1.trimmed().replace(' ', "").toUpper() == "Y)")
+                } else if ((param1.trimmed().replace(' ', "").toUpper() == "Y")
                     && (AssemblerInstructionItems[instructionIdx].ind_y.cycles > 0)
-                            && (param0.trimmed().at(0) == '(')) {
+                            && (param0.trimmed().at(0) == '(')
+                            && (param0.trimmed().at(param0.trimmed().length()-1) == ')')) {
                     //($##),Y // POSTINDEXED INDIRECT
                     bool ok;
-                    int immValue = numberToInt(&ok, param0.mid(1, param0.length() - 3));
+                    int immValue = numberToInt(&ok, param0.mid(2, param0.length() - 3));
+
                     if (!ok)
                     {
                         // TODO: Highlight the errors on the code editor (if visible)
@@ -317,10 +313,14 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
 
                     if ((AssemblerInstructionItems[instructionIdx].zpage_x.cycles > 0) && (immValue <= 0xFF)) {
                         // $##,Y // ZEROPAGE INDEXED Y
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].zpage_y.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue, 16).toUpper();
 
                     } else if ((AssemblerInstructionItems[instructionIdx].abs_x.cycles > 0) && (immValue <= 0xFFFF)) {
                         // $####,Y // ABSOLUTE INDEXED Y
-
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs_y.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue & 0xFF, 16).toUpper()
+                                  + ", $" + QString::number((immValue >> 8) & 0xFF, 16).toUpper();
                     } else {
                         // TODO: Highlight the errors on the code editor (if visible)
                         builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage, Y or Absolute, Y value specified "
