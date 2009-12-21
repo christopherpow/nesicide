@@ -9,7 +9,6 @@ CGLTextureManager::CGLTextureManager()
 {
    int idx;
    glGenTextures ( 10, m_textures );
-   int i = glGetError ();
    for ( idx = 0; idx < 10; idx++ )
    {
       m_arrayOfTextureIndexes.append ( m_textures[idx] );
