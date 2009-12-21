@@ -77,7 +77,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
 
         if ((curLine.at(0).toAscii() != '.') && (!curLine.isEmpty()))
         {
-            // Find the first 'word' of the line
+            // Find the first 'word' of the lineQString param0 = getParamItem(&curLine.mid(firstWord.length()), 0);
             if (curLine.indexOf(' ') > -1)
                 firstWord = curLine.mid(0, curLine.indexOf(' ')).toUpper();
             else
@@ -107,7 +107,137 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
             // For implied, there should be nothing after the opcode.
             if ((curLine == firstWord) && (AssemblerInstructionItems[instructionIdx].impl.cycles > 0))
             {
+                // IMPLIED
                 curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].impl.opcode, 16).toUpper();
+            } else if ((curLine == firstWord) && (AssemblerInstructionItems[instructionIdx].accum.cycles > 0)) {
+                // ACCUMULATOR
+                curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].accum.opcode, 16).toUpper();
+            } else if (getParamCount(curLine.mid(firstWord.length())) == 1) {
+                QString param0 = getParamItem(curLine.mid(firstWord.length()), 0);
+                if (param0.at(0) == '#')
+                {
+                    // IMMEDIATE
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid immediate specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].imm.opcode, 16).toUpper()
+                              + ", $" + QString::number(immValue, 16).toUpper();
+
+                } else {
+                    if ((AssemblerInstructionItems[instructionIdx].abs.cycles > 0)
+                        && (isLabel(param0))) {
+                        // ABSOLUTE (Label)
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs.opcode, 16).toUpper()
+                                  + ", " + param0;
+                    } else if ((AssemblerInstructionItems[instructionIdx].indirect.cycles > 0) &&
+                               (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')
+                        && (isLabel(param0))) {
+                        // INDIRECT (Label)
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].indirect.opcode, 16).toUpper()
+                                  + ", " + param0;
+                    } else if ((AssemblerInstructionItems[instructionIdx].indirect.cycles > 0) &&
+                               (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')) {
+                        // INDIRECT (Non Label)
+                        bool ok;
+                        int immValue = numberToInt(&ok, param0.mid(1));
+                        if (!ok)
+                        {
+                            // TODO: Highlight the errors on the code editor (if visible)
+                            builderTextLogger.write("<font color='red'>Error: Invalid indirect address specified on line " +
+                                                    QString::number(lineIdx + 1) + ".</font>");
+                            return false;
+                        }
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].indirect.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue & 0xFF, 16).toUpper()
+                                  + ", $" + QString::number((immValue >> 8) & 0xFF, 16).toUpper();
+
+                    } else if ((AssemblerInstructionItems[instructionIdx].rel.cycles > 0)
+                        && (isLabel(param0))) {
+                        // RELATIVE (Label)
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].rel.opcode, 16).toUpper()
+                                  + ", " + param0;
+
+                    }
+                    else if (AssemblerInstructionItems[instructionIdx].rel.cycles > 0)
+                    {
+                        // RELATIVE (Non Label)
+                        bool ok;
+                        int immValue = numberToInt(&ok, param0.mid(1));
+                        if (!ok)
+                        {
+                            // TODO: Highlight the errors on the code editor (if visible)
+                            builderTextLogger.write("<font color='red'>Error: Invalid relative address specified on line " +
+                                                    QString::number(lineIdx + 1) + ".</font>");
+                            return false;
+                        }
+
+                        if ((immValue < -127) || (immValue > 128))
+                        {
+                            // TODO: Highlight the errors on the code editor (if visible)
+                            builderTextLogger.write("<font color='red'>Error: Relative address value out of range (" +
+                                                    QString::number(immValue) + ") on line " +
+                                                    QString::number(lineIdx + 1) + ".</font>");
+                            return false;
+                        }
+
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].rel.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue, 16).toUpper();
+
+
+                    } else {
+                        bool ok;
+                        int immValue = numberToInt(&ok, param0.mid(1));
+                        if (!ok)
+                        {
+                            // TODO: Highlight the errors on the code editor (if visible)
+                            builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage or Absolute value specified "
+                                                    "on line " + QString::number(lineIdx + 1) + ".</font>");
+                            return false;
+                        }
+
+                        if ((immValue > 0xFFFF) || (immValue < 0))
+                        {
+                            // TODO: Highlight the errors on the code editor (if visible)
+                            builderTextLogger.write("<font color='red'>Error: Absolute value specified is out of range (" +
+                                                    QString::number(immValue) + ") "
+                                                    "on line " + QString::number(lineIdx + 1) + ".</font>");
+                            return false;
+                        }
+
+                        if ((immValue <= 0xFF) && (AssemblerInstructionItems[instructionIdx].zpage.cycles > 0))
+                        {
+                            // ZEROPAGE
+                            curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].zpage.opcode, 16).toUpper()
+                                      + ", $" + QString::number(immValue, 16).toUpper();
+                        } else if  (AssemblerInstructionItems[instructionIdx].abs.cycles > 0){
+                            // ABSOLUTE (Non Label)
+                            curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs.opcode, 16).toUpper()
+                                      + ", $" + QString::number(immValue & 0xFF, 16).toUpper()
+                                      + ", $" + QString::number((immValue >> 8) & 0xFF, 16).toUpper();
+                        } else {
+                            // TODO: Highlight the errors on the code editor (if visible)
+                            builderTextLogger.write("<font color='red'>Error: Invalid combination of operand and opcode on line " +
+                                                    QString::number(lineIdx + 1) + ".</font>");
+                            return false;
+                        }
+                    }
+
+                }
+            } else if (getParamCount(curLine.mid(firstWord.length())) == 2) {
+                QString param0 = getParamItem(curLine.mid(firstWord.length()), 0);
+                QString param1 = getParamItem(curLine.mid(firstWord.length()), 1);
+            } else {
+                // TODO: Highlight the errors on the code editor (if visible)
+                builderTextLogger.write("<font color='red'>Error: Invalid combination of operand and opcode on line " +
+                                        QString::number(lineIdx + 1) + ".</font>");
+                return false;
             }
 
         }
@@ -115,6 +245,47 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
         source->replace(lineIdx, curLine);
     }
     return true;
+}
+
+bool CSourceAssembler::isLabel(QString param)
+{
+    for (int i = 0; i < m_labelEntries.count(); i++)
+    {
+        if (m_labelEntries.at(i).labelName == param)
+            return true;
+    }
+    return false;
+}
+
+int CSourceAssembler::numberToInt(bool *ok, QString number)
+{
+
+    if (number.at(0) == '$') {
+        return number.mid(1).toInt(ok, 16);
+
+    } else if (number.at(0) == '%') {
+        int base = 0;
+        int immValue = 0;
+        for (int i=number.length()-1; i >= 0; i--) {
+            if (number.at(i) == '%')
+                break;
+            if ((number.at(i) == '0') || (number.at(i) == '1')) {
+               immValue += ((number.at(i) == '1' ? 1 : 0) << base);
+            } else {
+                *ok = false;
+                return 0;
+            }
+            base++;
+
+            *ok = true;
+            return immValue;
+        }
+    } else {
+        return number.mid(1).toInt(ok, 0);
+    }
+
+    *ok = false;
+    return 0;
 }
 
 bool CSourceAssembler::getLabels(QStringList *source)
@@ -156,4 +327,34 @@ bool CSourceAssembler::getLabels(QStringList *source)
     }
 
     return true;
+}
+
+int CSourceAssembler::getParamCount(QString sourceLine)
+{
+    if (sourceLine.indexOf(',') > -1)
+        return 2;
+    else
+        return 1;
+}
+
+QString CSourceAssembler::getParamItem(QString sourceLine, int paramNum)
+{
+    QString result;
+
+    if (paramNum > 1)
+        return result;
+
+    if ((sourceLine.indexOf(',') == -1) && (paramNum > 0))
+        return result;
+
+    if ((sourceLine.indexOf(',') == -1) && (paramNum == 0))
+        return sourceLine.trimmed();
+
+    if ((sourceLine.indexOf(',') > -1) && (paramNum == 0))
+        return sourceLine.mid(0, sourceLine.indexOf(','));
+
+    if ((sourceLine.indexOf(',') > -1) && (paramNum == 1))
+        return sourceLine.mid(sourceLine.indexOf(',') + 1);
+
+    return result;
 }
