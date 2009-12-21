@@ -100,6 +100,8 @@ typedef struct LabelEntry
     int lineNumber;
 } LabelEntry_s;
 
+
+
 class CSourceAssembler
 {
 public:
@@ -112,6 +114,11 @@ private:
     bool convertOpcodesToDBs(QStringList *source);
     bool getLabels(QStringList *source);
     QList<LabelEntry_s> m_labelEntries;
+    int getParamCount(QString sourceLine);
+    QString getParamItem(QString sourceLine, int paramNum);
+    int numberToInt(bool *ok, QString number);
+    bool isLabel(QString param);
+
 };
 
 #endif // CSOURCEASSEMBLER_H
