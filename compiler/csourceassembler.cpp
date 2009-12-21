@@ -234,11 +234,27 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                 QString param0 = getParamItem(curLine.mid(firstWord.length()), 0);
                 QString param1 = getParamItem(curLine.mid(firstWord.length()), 1);
 
-                if ((param1.trimmed().replace(' ', "").toUpper() == ",X)")
+                if ((param1.trimmed().replace(' ', "").toUpper() == "X)")
                     && (AssemblerInstructionItems[instructionIdx].ind_x.cycles > 0)
                     && (param0.trimmed().at(0) == '(')) {
                     // ($##,X) // PREINDEXED INDIRECT
-                } else if (param1.trimmed().replace(' ', "").toUpper() == ",X") {
+
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid value specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].ind_x.opcode, 16).toUpper()
+                              + ", $" + QString::number(immValue, 16).toUpper();
+
+
+
+                } else if (param1.trimmed().replace(' ', "").toUpper() == "X") {
                     bool ok;
                     int immValue = numberToInt(&ok, param0.mid(1));
                     if (!ok)
@@ -251,9 +267,14 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
 
                     if ((AssemblerInstructionItems[instructionIdx].zpage_x.cycles > 0) && (immValue <= 0xFF)) {
                         // $##,X // ZEROPAGE INDEXED X
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].zpage_x.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue, 16).toUpper();
 
                     } else if ((AssemblerInstructionItems[instructionIdx].abs_x.cycles > 0) && (immValue <= 0xFFFF)) {
                         // $####,X // ABSOLUTE INDEXED X
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs_x.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue & 0xFF, 16).toUpper()
+                                  + ", $" + QString::number((immValue >> 8) & 0xFF, 16).toUpper();
 
                     } else {
                         // TODO: Highlight the errors on the code editor (if visible)
@@ -263,12 +284,26 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                     }
 
 
-                } else if ((param1.trimmed().replace(' ', "").toUpper() == ",Y)")
+                } else if ((param1.trimmed().replace(' ', "").toUpper() == "Y)")
                     && (AssemblerInstructionItems[instructionIdx].ind_y.cycles > 0)
                             && (param0.trimmed().at(0) == '(')) {
                     //($##),Y // POSTINDEXED INDIRECT
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1, param0.length() - 3));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid value specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
 
-                } else if (param1.trimmed().replace(' ', "").toUpper() == ",Y") {
+                    curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].ind_y.opcode, 16).toUpper()
+                              + ", $" + QString::number(immValue, 16).toUpper();
+
+
+
+                } else if (param1.trimmed().replace(' ', "").toUpper() == "Y") {
 
                     bool ok;
                     int immValue = numberToInt(&ok, param0.mid(1));
