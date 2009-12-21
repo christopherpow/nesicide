@@ -10,7 +10,7 @@
 #include "nesemulatordialog.h"
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
-#include "chrrominspector.h"
+#include "chrmeminspector.h"
 #include "ccartridgebuilder.h"
 
 namespace Ui {
@@ -33,14 +33,14 @@ private:
     CProjectTreeViewModel *projectTreeviewModel;
     IProjectTreeViewItem *matchTab(IProjectTreeViewItem *root, int tabIndex);
     QString projectFileName;
-    CHRROMInspector* m_pPPUInspector;
+    CHRMEMInspector* m_pCHRMEMInspector;
     void saveProject(QString fileName);
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
-    void ppuInspector_close(bool toplevel);
+    void chrmemInspector_close(bool toplevel);
     void on_actionPPU_Inspector_toggled(bool );
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );

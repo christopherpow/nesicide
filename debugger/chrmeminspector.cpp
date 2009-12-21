@@ -1,9 +1,9 @@
-#include "chrrominspector.h"
+#include "chrmeminspector.h"
 #include "cnesppu.h"
 
 #include "cnesppu.h"
 
-CHRROMInspector::CHRROMInspector()
+CHRMEMInspector::CHRMEMInspector()
 {
    frame = new QFrame ( this );
    frame->setFrameRect ( this->rect() );
@@ -12,7 +12,7 @@ CHRROMInspector::CHRROMInspector()
    this->setWidget ( dialog );
 }
 
-CHRROMInspector::~CHRROMInspector()
+CHRMEMInspector::~CHRMEMInspector()
 {
    delete dialog;
    delete frame;

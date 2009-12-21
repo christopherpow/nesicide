@@ -89,7 +89,7 @@ SOURCES += mainwindow.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
     common/cbuildertextlogger.cpp \
-    debugger/chrrominspector.cpp
+    debugger/chrmeminspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -156,7 +156,7 @@ HEADERS += mainwindow.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
     viewers/project_treeview/cprojecttreeview.h \
     common/cbuildertextlogger.h \
-    debugger/chrrominspector.h
+    debugger/chrmeminspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

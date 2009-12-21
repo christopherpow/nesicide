@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "chrrominspector.h"
+#include "chrmeminspector.h"
 
 #include "main.h"
 
@@ -20,16 +20,16 @@ MainWindow::MainWindow(QWidget *parent) :
     emulatorDlgTabIdx = -1;
     projectDataChangesEvent();
 
-    m_pPPUInspector = new CHRROMInspector ();
-    m_pPPUInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pPPUInspector->setWindowTitle("PPU Inspector");
-    m_pPPUInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
-    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInspector );
-    QRect ppuRc = m_pPPUInspector->geometry();
+    m_pCHRMEMInspector = new CHRMEMInspector ();
+    m_pCHRMEMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pCHRMEMInspector->setWindowTitle("CHR Memory Inspector");
+    m_pCHRMEMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pCHRMEMInspector );
+    QRect ppuRc = m_pCHRMEMInspector->geometry();
     ppuRc.setSize(QSize(300, 300));
-    m_pPPUInspector->setGeometry(ppuRc);
-    m_pPPUInspector->hide();
-    QObject::connect(m_pPPUInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ppuInspector_close(bool)));
+    m_pCHRMEMInspector->setGeometry(ppuRc);
+    m_pCHRMEMInspector->hide();
+    QObject::connect(m_pCHRMEMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(chrmemInspector_close(bool)));
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
@@ -367,10 +367,10 @@ void MainWindow::on_actionCompile_Project_triggered()
 
 void MainWindow::on_actionPPU_Inspector_toggled(bool value)
 {
-   m_pPPUInspector->setVisible(value);
+   m_pCHRMEMInspector->setVisible(value);
 }
 
-void MainWindow::ppuInspector_close (bool toplevel)
+void MainWindow::chrmemInspector_close (bool toplevel)
 {
    ui->actionPPU_Inspector->setChecked(toplevel);
 }

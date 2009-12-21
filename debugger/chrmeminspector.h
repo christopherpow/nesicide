@@ -1,5 +1,5 @@
-#ifndef CHRROMINSPECTOR_H
-#define CHRROMINSPECTOR_H
+#ifndef CHRMEMINSPECTOR_H
+#define CHRMEMINSPECTOR_H
 
 #include <QDockWidget>
 #include <QFrame>
@@ -7,14 +7,14 @@
 
 #include "chrromdisplaydialog.h"
 
-class CHRROMInspector : public QDockWidget {
+class CHRMEMInspector : public QDockWidget {
    Q_OBJECT
 public:
-   CHRROMInspector();
-   virtual ~CHRROMInspector();
+   CHRMEMInspector();
+   virtual ~CHRMEMInspector();
 protected:
    CHRROMDisplayDialog* dialog;
    QFrame* frame;
 };
 
-#endif // CHRROMINSPECTOR_H
+#endif // CHRMEMINSPECTOR_H
