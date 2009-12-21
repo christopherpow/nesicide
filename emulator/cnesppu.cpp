@@ -67,6 +67,7 @@ char           CPPU::m_szBinaryText [] = { 0, };
 char*          CPPU::m_pTV = NULL;
 
 char*          CPPU::m_pCHRMEMInspectorTV = NULL;
+char*          CPPU::m_pOAMInspectorTV = NULL;
 char*          CPPU::m_pNameTableInspectorTV = NULL;
 
 unsigned char  CPPU::m_frame = 0;
@@ -267,6 +268,106 @@ void CPPU::RENDERCHRMEM ( void )
               m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
           }
        }
+   }
+}
+
+void CPPU::RENDEROAM ( void )
+{
+   int x, xf, y, yf;
+   unsigned short spritePatBase;
+   unsigned char patternIdx;
+   unsigned char spriteAttr;
+   int           spriteSize;
+   int           sprite;
+   unsigned char spriteFlipVert;
+   unsigned char spriteFlipHoriz;
+   unsigned char patternData1;
+   unsigned char patternData2;
+   unsigned char attribData;
+   unsigned char bit1, bit2;
+   unsigned char colorIdx;
+   unsigned char spriteY;
+   QColor color[4];
+
+   color[0] = CBasePalette::GetPalette ( 0x0D );
+   color[1] = CBasePalette::GetPalette ( 0x10 );
+   color[2] = CBasePalette::GetPalette ( 0x20 );
+   color[3] = CBasePalette::GetPalette ( 0x30 );
+
+   spriteSize = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE)) + 1;
+   if ( spriteSize == 1 )
+   {
+      spritePatBase = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
+   }
+
+   for ( y = 0; y < spriteSize<<4; y++ )
+   {
+      for ( x = 0; x < 256; x += PATTERN_SIZE ) // pattern-slice rendering...
+      {
+         sprite = (spriteSize==1)?((y>>3)<<5)+(x>>3):
+                                  ((y>>4)<<5)+(x>>3);
+         spriteY = CPPU::OAM ( SPRITEY, sprite );
+// CPTODO: find replacement way to do OnScreen check
+//         if ( ((m_bOnscreen) && ((spriteY+1) < SPRITE_YMAX)) ||
+//              (!m_bOnscreen) )
+         {
+            patternIdx = CPPU::OAM ( SPRITEPAT, sprite );
+            if ( spriteSize == 2 )
+            {
+               spritePatBase = (patternIdx&0x01)<<12;
+               patternIdx &= 0xFE;
+            }
+
+            // For 8x16 sprites...
+            if ( (spriteSize == 2) &&
+                 (((!spriteFlipVert) && (((y>>3)&1))) ||
+                 ((spriteFlipVert) && (!((y>>3)&1)))) )
+            {
+               patternIdx++;
+            }
+            spriteAttr = CPPU::OAM ( SPRITEATT, sprite );
+            spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
+            spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
+            attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
+
+            yf = y&0x7;
+            if ( spriteFlipVert )
+            {
+               yf = (7-yf);
+            }
+
+            patternData1 = CPPU::_MEM ( spritePatBase+(patternIdx<<4)+(yf) );
+            patternData2 = CPPU::_MEM ( spritePatBase+(patternIdx<<4)+(yf)+PATTERN_SIZE );
+
+            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
+            {
+               if ( spriteFlipHoriz )
+               {
+                  bit1 = (patternData1>>((xf)))&0x1;
+                  bit2 = (patternData2>>((xf)))&0x1;
+               }
+               else
+               {
+                  bit1 = (patternData1>>(7-(xf)))&0x1;
+                  bit2 = (patternData2>>(7-(xf)))&0x1;
+               }
+               colorIdx = (attribData|bit1|(bit2<<1));
+               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = CBasePalette::GetPalette(CPPU::_PALETTE(0x10+colorIdx)).red();
+               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = CBasePalette::GetPalette(CPPU::_PALETTE(0x10+colorIdx)).green();
+               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = CBasePalette::GetPalette(CPPU::_PALETTE(0x10+colorIdx)).blue();
+            }
+         }
+// CPTODO: find replacement way to do OnScreen check
+//         else
+//         {
+//            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
+//            {
+//               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = 0x00;
+//               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = 0x00;
+//               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = 0x00;
+//            }
+//         }
+      }
    }
 }
 

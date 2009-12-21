@@ -11,6 +11,7 @@
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
 #include "chrmeminspector.h"
+#include "oaminspector.h"
 #include "ccartridgebuilder.h"
 
 namespace Ui {
@@ -34,14 +35,17 @@ private:
     IProjectTreeViewItem *matchTab(IProjectTreeViewItem *root, int tabIndex);
     QString projectFileName;
     CHRMEMInspector* m_pCHRMEMInspector;
+    OAMInspector* m_pOAMInspector;
     void saveProject(QString fileName);
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void oamInspector_close(bool toplevel);
     void chrmemInspector_close(bool toplevel);
-    void on_actionPPU_Inspector_toggled(bool );
+    void on_actionCHRMEM_Inspector_toggled(bool );
+    void on_actionOAM_Inspector_toggled(bool );
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);

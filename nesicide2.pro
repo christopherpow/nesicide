@@ -89,7 +89,10 @@ SOURCES += mainwindow.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
     common/cbuildertextlogger.cpp \
-    debugger/chrmeminspector.cpp
+    debugger/chrmeminspector.cpp \
+    debugger/oaminspector.cpp \
+    debugger/oamdisplaydialog.cpp \
+    debugger/coampreviewrenderer.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -156,7 +159,10 @@ HEADERS += mainwindow.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
     viewers/project_treeview/cprojecttreeview.h \
     common/cbuildertextlogger.h \
-    debugger/chrmeminspector.h
+    debugger/chrmeminspector.h \
+    debugger/oaminspector.h \
+    debugger/oamdisplaydialog.h \
+    debugger/coampreviewrenderer.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -164,7 +170,8 @@ FORMS += mainwindow.ui \
     designers/project_properties/projectpropertiesdialog.ui \
     viewers/chr-rom/chrromdisplaydialog.ui \
     viewers/emulator/nesemulatordialog.ui \
-    viewers/prg-rom/prgromdisplaydialog.ui
+    viewers/prg-rom/prgromdisplaydialog.ui \
+    debugger/oamdisplaydialog.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
 DESTDIR = ./output

@@ -173,8 +173,10 @@ public:
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
 
    static inline void CHRMEMInspectorTV ( char* pTV ) { m_pCHRMEMInspectorTV = pTV; }
+   static inline void OAMInspectorTV ( char* pTV ) { m_pOAMInspectorTV = pTV; }
    static inline void NameTableInspectorTV ( char* pTV ) { m_pNameTableInspectorTV = pTV; }
    static void RENDERCHRMEM ( void );
+   static void RENDEROAM ( void );
 
    static inline void SETBRKPT ( int type, UINT addr, UINT addr2, int iIf, UINT cond )
    { m_brkptType = type; m_brkptAddr = addr; m_brkptAddr2 = addr2; m_brkptIf = iIf; m_brkptCond = cond; }
@@ -236,6 +238,7 @@ protected:
    static char*          m_pTV;
 
    static char*          m_pCHRMEMInspectorTV;
+   static char*          m_pOAMInspectorTV;
    static char*          m_pNameTableInspectorTV;
 
    static UINT           m_iPPUViewerScanline;

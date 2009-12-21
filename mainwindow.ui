@@ -100,7 +100,7 @@
      <addaction name="separator"/>
      <addaction name="actionCompiler_Output"/>
      <addaction name="actionEmulation_Window"/>
-     <addaction name="actionPPU_Inspector"/>
+     <addaction name="actionCHRMEM_Inspector"/>
     </widget>
     <addaction name="menu_Windows"/>
    </widget>
@@ -191,7 +191,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionEmulation_Window"/>
-   <addaction name="actionPPU_Inspector"/>
+   <addaction name="actionCHRMEM_Inspector"/>
+   <addaction name="actionOAM_Inspector"/>
    <addaction name="actionCompiler_Output"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
@@ -421,7 +422,7 @@
     <string>F5</string>
    </property>
   </action>
-  <action name="actionPPU_Inspector">
+  <action name="actionCHRMEM_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -430,7 +431,25 @@
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
-    <string>PPU Inspector</string>
+    <string>CHR Memory Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>CHR Memory Inspector</string>
+   </property>
+  </action>
+  <action name="actionOAM_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>OAM Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>OAM Inspector</string>
    </property>
   </action>
  </widget>

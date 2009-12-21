@@ -31,6 +31,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pCHRMEMInspector->hide();
     QObject::connect(m_pCHRMEMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(chrmemInspector_close(bool)));
 
+    m_pOAMInspector = new OAMInspector ();
+    m_pOAMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pOAMInspector->setWindowTitle("OAM Inspector");
+    m_pOAMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pOAMInspector );
+    QRect oamRc = m_pOAMInspector->geometry();
+    oamRc.setSize(QSize(300, 300));
+    m_pOAMInspector->setGeometry(oamRc);
+    m_pOAMInspector->hide();
+    QObject::connect(m_pOAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(oamInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -365,12 +376,22 @@ void MainWindow::on_actionCompile_Project_triggered()
     cartridgeBuilder.build();
 }
 
-void MainWindow::on_actionPPU_Inspector_toggled(bool value)
+void MainWindow::on_actionCHRMEM_Inspector_toggled(bool value)
 {
    m_pCHRMEMInspector->setVisible(value);
 }
 
 void MainWindow::chrmemInspector_close (bool toplevel)
 {
-   ui->actionPPU_Inspector->setChecked(toplevel);
+   ui->actionCHRMEM_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionOAM_Inspector_toggled(bool value)
+{
+   m_pOAMInspector->setVisible(value);
+}
+
+void MainWindow::oamInspector_close (bool toplevel)
+{
+   ui->actionOAM_Inspector->setChecked(toplevel);
 }
