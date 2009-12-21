@@ -233,6 +233,68 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
             } else if (getParamCount(curLine.mid(firstWord.length())) == 2) {
                 QString param0 = getParamItem(curLine.mid(firstWord.length()), 0);
                 QString param1 = getParamItem(curLine.mid(firstWord.length()), 1);
+
+                if ((param1.trimmed().replace(' ', "").toUpper() == ",X)")
+                    && (AssemblerInstructionItems[instructionIdx].ind_x.cycles > 0)
+                    && (param0.trimmed().at(0) == '(')) {
+                    // ($##,X) // PREINDEXED INDIRECT
+                } else if (param1.trimmed().replace(' ', "").toUpper() == ",X") {
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage or Absolute value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    if ((AssemblerInstructionItems[instructionIdx].zpage_x.cycles > 0) && (immValue <= 0xFF)) {
+                        // $##,X // ZEROPAGE INDEXED X
+
+                    } else if ((AssemblerInstructionItems[instructionIdx].abs_x.cycles > 0) && (immValue <= 0xFFFF)) {
+                        // $####,X // ABSOLUTE INDEXED X
+
+                    } else {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage, X or Absolute, X value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+
+                } else if ((param1.trimmed().replace(' ', "").toUpper() == ",Y)")
+                    && (AssemblerInstructionItems[instructionIdx].ind_y.cycles > 0)
+                            && (param0.trimmed().at(0) == '(')) {
+                    //($##),Y // POSTINDEXED INDIRECT
+
+                } else if (param1.trimmed().replace(' ', "").toUpper() == ",Y") {
+
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage or Absolute value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    if ((AssemblerInstructionItems[instructionIdx].zpage_x.cycles > 0) && (immValue <= 0xFF)) {
+                        // $##,Y // ZEROPAGE INDEXED Y
+
+                    } else if ((AssemblerInstructionItems[instructionIdx].abs_x.cycles > 0) && (immValue <= 0xFFFF)) {
+                        // $####,Y // ABSOLUTE INDEXED Y
+
+                    } else {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage, Y or Absolute, Y value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                }
+
             } else {
                 // TODO: Highlight the errors on the code editor (if visible)
                 builderTextLogger.write("<font color='red'>Error: Invalid combination of operand and opcode on line " +
