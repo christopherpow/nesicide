@@ -25,10 +25,6 @@
 #include "cnesio.h"
 #include "cnesapu.h"
 
-// CPTODO: include for emulation inspectors...
-//#include "PPUViewerDlg.h"
-//#include "OAMViewerDlg.h"
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -173,7 +169,6 @@ bool CNES::RUN ( unsigned char* joy )
          CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
       }
 
-// CPTODO: update emulation inspection displays at 60Hz at selected scanlines...
       // Update PPU viewer at appropriate scanline...
       if ( idx == CPPU::GetPPUViewerScanline() )
       {
@@ -181,10 +176,10 @@ bool CNES::RUN ( unsigned char* joy )
       }
 
       // Update OAM viewer at appropriate scanline...
-//      if ( idx == CPPU::GetOAMViewerScanline() )
-//      {
-//         pDoc->GetOAMViewerDlg()->Update();
-//      }
+      if ( idx == CPPU::GetOAMViewerScanline() )
+      {
+         CPPU::RENDEROAM ();
+      }
    }
 
    // Emulate PPU resting scanline...

@@ -1,32 +1,30 @@
-#ifndef CHRROMDISPLAYDIALOG_H
-#define CHRROMDISPLAYDIALOG_H
+#ifndef OAMDISPLAYDIALOG_H
+#define OAMDISPLAYDIALOG_H
 
 #include <QDialog>
-#include "cchrrompreviewrenderer.h"
+#include "coampreviewrenderer.h"
 
 namespace Ui {
-    class CHRROMDisplayDialog;
+    class OAMDisplayDialog;
 }
 
-class CHRROMDisplayDialog : public QDialog {
+class OAMDisplayDialog : public QDialog {
     Q_OBJECT
 public:
-    CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *data);
-    ~CHRROMDisplayDialog();
+    OAMDisplayDialog(QWidget *parent = 0);
+    ~OAMDisplayDialog();
     void updateScrollbars();
 
 protected:
-    CCHRROMPreviewRenderer *renderer;
-    qint8 *chrrom;
+    COAMPreviewRenderer *renderer;
 
 protected:
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *event);
 
 private:
-    Ui::CHRROMDisplayDialog *ui;
+    Ui::OAMDisplayDialog *ui;
     char *imgData;
-    bool m_usePPU;
 
 public slots:
     void renderData();
@@ -42,4 +40,4 @@ private slots:
     void colorChanged (const QColor &color);
 };
 
-#endif // CHRROMDISPLAYDIALOG_H
+#endif // OAMDISPLAYDIALOG_H
