@@ -39,18 +39,18 @@ bool CSourceAssembler::assemble()
 
 bool CSourceAssembler::assembleSource(QStringList *source)
 {
-    /*
-    CCHRROMBanks chrRomBanks = nesicideProject->get_pointerToCartridge().getPointerToChrRomBanks();
+
+    CCHRROMBanks *chrRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToChrRomBanks();
 
     // Delete the existing CHR-ROM banks.
-    while (chrRomBanks.childCount() > 0)
+    while (chrRomBanks->childCount() > 0)
     {
-        CCHRROMBank bank = chrRomBanks.banks.at(0);
-        chrRomBanks.banks.removeAt(0);
-        chrRomBanks.removeChild(bank);
+        CCHRROMBank *bank = chrRomBanks->banks.at(0);
+        chrRomBanks->banks.removeAt(0);
+        chrRomBanks->removeChild(bank);
         delete bank;
     }
-*/
+
     return true;
 
 }
