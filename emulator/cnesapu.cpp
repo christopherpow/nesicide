@@ -348,7 +348,7 @@ CAPU::CAPU()
    }
 
    m_sdlAudioSpec.channels = 1;
-   m_sdlAudioSpec.format = AUDIO_U16SYS;
+   m_sdlAudioSpec.format = AUDIO_S16SYS;
    m_sdlAudioSpec.freq = 44100;
    m_sdlAudioSpec.samples = 735;
    m_sdlAudioSpec.callback = SDL_GetMoreData;
