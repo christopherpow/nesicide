@@ -95,6 +95,10 @@ void MainWindow::projectDataChangesEvent()
     ui->actionProject_Properties->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
+    ui->actionEmulation_Window->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionCHRMEM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionOAM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionNameTable_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -208,6 +212,7 @@ void MainWindow::on_actionNew_Project_triggered()
         projectDataChangesEvent();
 
     }
+
     delete dlg;
 }
 
