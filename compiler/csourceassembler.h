@@ -4,6 +4,7 @@
 #include <QString>
 #include "csources.h"
 #include "csourceitem.h"
+#include "cprgrombank.h"
 
 typedef struct AssemblerInstrDetails
 {
@@ -97,7 +98,11 @@ const AssemblerInstructionItem AssemblerInstructionItems[] =
 typedef struct LabelEntry
 {
     QString labelName;
+    int origin;
+    int offset;
     int lineNumber;
+    int byteSize;
+    int bank;
 } LabelEntry_s;
 
 
@@ -114,12 +119,24 @@ private:
     bool convertOpcodesToDBs(QStringList *source);
     bool getLabels(QStringList *source);
     QList<LabelEntry_s> m_labelEntries;
+    QList<LabelEntry_s> m_labelUseList;
     int getParamCount(QString sourceLine);
     QString getParamItem(QString sourceLine, int paramNum);
-    int numberToInt(bool *ok, QString number);
+    uint numberToInt(bool *ok, QString number);
     bool isLabel(QString param);
     bool assembleSource(QStringList *source);
-
+    bool resolveLabels();
 };
+
+#define BANK_WRITEBYTE(x) curBank->get_pointerToBankData()[bankPtr++] = x; \
+if (bankPtr >= 0x4000) { \
+    curBank = new CPRGROMBank(); \
+    bankPtr = 0; \
+    curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count()); \
+    memset(curBank->get_pointerToBankData(), 0, sizeof(quint8) * 0x4000); \
+    curBank->InitTreeItem(prgRomBanks); \
+    prgRomBanks->appendChild(curBank); \
+    prgRomBanks->get_pointerToArrayOfBanks()->append(curBank); \
+}
 
 #endif // CSOURCEASSEMBLER_H

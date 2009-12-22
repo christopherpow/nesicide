@@ -13,13 +13,13 @@ public:
 
     // Member Getters
     qint8 get_indexOfPrgRomBank();
-    qint8 *get_pointerToBankData();
+    quint8 *get_pointerToBankData();
     PRGROMDisplayDialog *get_pointerToEditorDialog();
     int get_indexOfEditorTab();
 
     // Member Setters
     void set_indexOfPrgRomBank(qint8 indexOfPrgRomBank);
-    void set_pointerToBankData(qint8 *pointerToBankData);
+    void set_pointerToBankData(quint8 *pointerToBankData);
     void set_pointerToEditorDialog(PRGROMDisplayDialog *pointerToEditorDialog);
     void set_indexOfEditorTab(int indexOfEditorTab);
 
@@ -41,7 +41,7 @@ public:
 
 private:
     qint8 m_indexOfPrgRomBank;
-    qint8 *m_pointerToBankData;
+    quint8 *m_pointerToBankData;
     PRGROMDisplayDialog *m_pointerToEditorDialog;
     int m_indexOfEditorTab;
 

@@ -16,7 +16,7 @@ bool CSourceAssembler::assemble()
         return false;
     }
 
-    builderTextLogger.write("Assembling '" + rootSource->get_sourceName() + "'...");
+    builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226; Assembling '" + rootSource->get_sourceName() + "'...");
     QStringList *source = new QStringList(rootSource->get_sourceCode().split('\n'));
 
     stripComments(source);
@@ -33,22 +33,245 @@ bool CSourceAssembler::assemble()
     if (!assembleSource(source))
         return false;
 
+    // Resolve labels
+    if (!resolveLabels())
+        return false;
 
+    return true;
+}
+
+bool CSourceAssembler::resolveLabels()
+{
+    CPRGROMBanks *prgRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToPrgRomBanks();
+
+    for (int labelIdx = 0; labelIdx < m_labelUseList.count(); labelIdx++)
+    {
+        LabelEntry_s sourceLabel;
+        for (int i = 0; i < m_labelEntries.count(); i++) {
+            if (m_labelEntries.at(i).labelName == m_labelUseList.at(labelIdx).labelName)
+            {
+                sourceLabel = m_labelEntries.at(i);
+            }
+        }
+
+        if (sourceLabel.labelName == "") {
+            builderTextLogger.write("<font color='red'>Internal error while processing labels: Label not found.</font>");
+            return false;
+        }
+
+        LabelEntry_s labelEntry = m_labelUseList.at(labelIdx);
+        CPRGROMBank *destPrgRomBank = prgRomBanks->get_pointerToArrayOfBanks()->at(labelEntry.bank);
+
+        if (labelEntry.byteSize == 2) {
+
+            // Absolute addressing
+            uint labelPos = sourceLabel.origin + sourceLabel.offset + (sourceLabel.bank * 0x4000);
+            destPrgRomBank->get_pointerToBankData()[labelEntry.offset] = (labelPos & 0xFF);
+            destPrgRomBank->get_pointerToBankData()[labelEntry.offset + 1] = (labelPos >> 8);
+
+        } else {
+
+            // Relative addressing
+            int sourceLabelPos = sourceLabel.origin + sourceLabel.offset + (sourceLabel.bank * 0x4000);
+            int destLabelPos = labelEntry.origin + labelEntry.offset + (labelEntry.bank * 0x4000) + 1;
+            int diff = destLabelPos - sourceLabelPos;
+            if ((diff < -128) || (diff > 127)) {
+                builderTextLogger.write("<font color='red'>Label error: Relative address out of range.</font>");
+                return false;
+            }
+            destPrgRomBank->get_pointerToBankData()[labelEntry.offset] = (qint8)diff;
+
+        }
+    }
     return true;
 }
 
 bool CSourceAssembler::assembleSource(QStringList *source)
 {
 
-    CCHRROMBanks *chrRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToChrRomBanks();
+    CPRGROMBanks *prgRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToPrgRomBanks();
 
     // Delete the existing CHR-ROM banks.
-    while (chrRomBanks->childCount() > 0)
+    while (prgRomBanks->childCount() > 0)
     {
-        CCHRROMBank *bank = chrRomBanks->banks.at(0);
-        chrRomBanks->banks.removeAt(0);
-        chrRomBanks->removeChild(bank);
+        CPRGROMBank *bank = (CPRGROMBank *)prgRomBanks->child(0);
+        prgRomBanks->get_pointerToArrayOfBanks()->removeFirst();;
+        prgRomBanks->removeChild(bank);
         delete bank;
+    }
+
+    int bankPtr = 0x0000;
+
+    // Initialize our first bank
+    CPRGROMBank *curBank = new CPRGROMBank();
+    curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
+    memset(curBank->get_pointerToBankData(), 0, sizeof(quint8) * 0x4000);
+    curBank->InitTreeItem(prgRomBanks);
+    prgRomBanks->appendChild(curBank);
+    prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+
+    int currentOrg = 0x0000;
+    m_labelUseList.clear();
+
+    for (int lineIdx = 0; lineIdx < source->length(); lineIdx++)
+    {
+        QString curLine = QString(source->at(lineIdx)).trimmed();
+
+        // If the label is on this line, then set the current offset and origin
+        for (int labelIdx = 0; labelIdx < m_labelEntries.count(); labelIdx++)
+        {
+            if (m_labelEntries.at(labelIdx).lineNumber == lineIdx) {
+                // This line is where a label is, so set its value accordingly
+                LabelEntry_s labelEntry = m_labelEntries.at(labelIdx);
+                labelEntry.origin = currentOrg;
+                labelEntry.offset = bankPtr;
+                labelEntry.bank = curBank->get_indexOfPrgRomBank();
+                m_labelEntries.replace(labelIdx, labelEntry);
+            }
+        }
+
+        // If the line is empty there is nothing else to do
+        if (curLine.isEmpty())
+            continue;
+
+        // If there is a line that doesn't start with a dot, then something messed up in
+        // the previous passes.
+        if (curLine.at(0) != '.')
+        {
+            QString error = "<font color='red'>Error: Internal assembler problem. Offending line:\n";
+            error.append(curLine);
+            error.append("</font>");
+            builderTextLogger.write(error);
+            return false;
+        }
+
+        QString directive = curLine.mid(1, curLine.indexOf(' ') - 1);
+        if (directive == "db") {
+            // .db Data Byte Directive
+            QStringList items = curLine.mid(4).trimmed().split(',', QString::SkipEmptyParts);
+            for (int itemIdx = 0; itemIdx < items.count(); itemIdx++)
+            {
+                QString curValue = items.at(itemIdx).trimmed();
+
+                if (isLabel(curValue) || ((curValue.split('|').count() == 2) && (isLabel(curValue.split('|').at(1)))))
+                {
+                    QStringList labelDefList = curValue.split('|');
+                    if (labelDefList.count() != 2)
+                    {
+                        builderTextLogger.write("<font color='red'>Error: Invalid label definition specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    if (labelDefList.at(0) == "abs")
+                    {
+                        LabelEntry_s labelEntry;
+                        labelEntry.labelName = labelDefList.at(1);
+                        labelEntry.offset = bankPtr;
+                        labelEntry.origin = currentOrg;
+                        labelEntry.byteSize = 2;
+                        labelEntry.bank = curBank->get_indexOfPrgRomBank();
+                        m_labelUseList.append(labelEntry);
+                        BANK_WRITEBYTE(0x00);
+                        BANK_WRITEBYTE(0x00);
+                    } else if (labelDefList.at(0) == "rel") {
+                        LabelEntry_s labelEntry;
+                        labelEntry.labelName = labelDefList.at(1);
+                        labelEntry.offset = bankPtr;
+                        labelEntry.origin = currentOrg;
+                        labelEntry.byteSize = 1;
+                        labelEntry.bank = curBank->get_indexOfPrgRomBank();
+                        m_labelUseList.append(labelEntry);
+                        BANK_WRITEBYTE(0x00)
+                    } else {
+                        builderTextLogger.write("<font color='red'>Error: Invalid label value type specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+
+                } else {
+
+                    bool ok;
+                    int numValue = numberToInt(&ok, curValue);
+                    if ((!ok) || (numValue < 0) || (numValue > 0xFF))
+                    {
+                        builderTextLogger.write("<font color='red'>Error: Invalid numeric value specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+                    BANK_WRITEBYTE((quint8)numValue)
+                }
+            }
+        } else if (directive == "dw") {
+            // .db Data Byte Directive
+            QStringList items = curLine.mid(4).trimmed().split(',', QString::SkipEmptyParts);
+            for (int itemIdx = 0; itemIdx < items.count(); itemIdx++)
+            {
+                QString curValue = items.at(itemIdx).trimmed();
+
+                if (isLabel(curValue) || ((curValue.split('|').count() == 2) && (isLabel(curValue.split('|').at(1)))))
+                {
+                    QStringList labelDefList = curValue.split('|');
+                    if (labelDefList.count() != 2)
+                    {
+                        builderTextLogger.write("<font color='red'>Error: Invalid label definition specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    if (labelDefList.at(0) == "abs")
+                    {
+                        LabelEntry_s labelEntry;
+                        labelEntry.labelName = labelDefList.at(1);
+                        labelEntry.offset = bankPtr;
+                        labelEntry.origin = currentOrg;
+                        labelEntry.byteSize = 2;
+                        m_labelUseList.append(labelEntry);
+                        BANK_WRITEBYTE(0x00);
+                        BANK_WRITEBYTE(0x00);
+                    } else if (labelDefList.at(0) == "rel") {
+                        LabelEntry_s labelEntry;
+                        labelEntry.labelName = labelDefList.at(1);
+                        labelEntry.offset = bankPtr;
+                        labelEntry.origin = currentOrg;
+                        labelEntry.byteSize = 1;
+                        m_labelUseList.append(labelEntry);
+                        BANK_WRITEBYTE(0x00)
+                    } else {
+                        builderTextLogger.write("<font color='red'>Error: Invalid label value type specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+
+                } else {
+
+                    bool ok;
+                    int numValue = numberToInt(&ok, curValue);
+                    if ((!ok) || (numValue < 0) || (numValue > 0xFFFF))
+                    {
+                        builderTextLogger.write("<font color='red'>Error: Invalid numeric value specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    BANK_WRITEBYTE((quint8)(numValue & 0xFF))
+                    BANK_WRITEBYTE((quint8)(numValue >> 8))
+                }
+            }
+        } else if (directive == "org")
+        {
+            // .org Label Origin Directive
+            bool ok;
+            int numValue = numberToInt(&ok, curLine.mid(5).trimmed());
+            if ((!ok) || (numValue < 0))
+            {
+                builderTextLogger.write("<font color='red'>Error: Invalid origin address specified on line " +
+                                        QString::number(lineIdx + 1) + ".</font>");
+                return false;
+            }
+        }
     }
 
     return true;
@@ -155,7 +378,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                                (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')) {
                         // INDIRECT (Non Label)
                         bool ok;
-                        int immValue = numberToInt(&ok, param0.mid(1));
+                        int immValue = numberToInt(&ok, param0);
                         if (!ok)
                         {
                             // TODO: Highlight the errors on the code editor (if visible)
@@ -178,7 +401,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                     {
                         // RELATIVE (Non Label)
                         bool ok;
-                        int immValue = numberToInt(&ok, param0.mid(1));
+                        int immValue = numberToInt(&ok, param0);
                         if (!ok)
                         {
                             // TODO: Highlight the errors on the code editor (if visible)
@@ -202,7 +425,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
 
                     } else {
                         bool ok;
-                        int immValue = numberToInt(&ok, param0.mid(1));
+                        int immValue = numberToInt(&ok, param0);
                         if (!ok)
                         {
                             // TODO: Highlight the errors on the code editor (if visible)
@@ -249,7 +472,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                     // ($##,X) // PREINDEXED INDIRECT
 
                     bool ok;
-                    int immValue = numberToInt(&ok, param0.mid(1));
+                    int immValue = numberToInt(&ok, param0);
                     if (!ok)
                     {
                         // TODO: Highlight the errors on the code editor (if visible)
@@ -265,7 +488,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
 
                 } else if (param1.trimmed().replace(' ', "").toUpper() == "X") {
                     bool ok;
-                    int immValue = numberToInt(&ok, param0.mid(1));
+                    int immValue = numberToInt(&ok, param0);
                     if (!ok)
                     {
                         // TODO: Highlight the errors on the code editor (if visible)
@@ -299,7 +522,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                             && (param0.trimmed().at(param0.trimmed().length()-1) == ')')) {
                     //($##),Y // POSTINDEXED INDIRECT
                     bool ok;
-                    int immValue = numberToInt(&ok, param0.mid(2, param0.length() - 3));
+                    int immValue = numberToInt(&ok, param0.mid(1, param0.length() - 2));
 
                     if (!ok)
                     {
@@ -317,7 +540,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                 } else if (param1.trimmed().replace(' ', "").toUpper() == "Y") {
 
                     bool ok;
-                    int immValue = numberToInt(&ok, param0.mid(1));
+                    int immValue = numberToInt(&ok, param0);
                     if (!ok)
                     {
                         // TODO: Highlight the errors on the code editor (if visible)
@@ -369,11 +592,12 @@ bool CSourceAssembler::isLabel(QString param)
     return false;
 }
 
-int CSourceAssembler::numberToInt(bool *ok, QString number)
+uint CSourceAssembler::numberToInt(bool *ok, QString number)
 {
+    number = number.trimmed();
 
     if (number.at(0) == '$') {
-        return number.mid(1).toInt(ok, 16);
+        return number.mid(1).toUInt(ok, 16);
 
     } else if (number.at(0) == '%') {
         int base = 0;
@@ -393,7 +617,7 @@ int CSourceAssembler::numberToInt(bool *ok, QString number)
             return immValue;
         }
     } else {
-        return number.mid(1).toInt(ok, 0);
+        return number.mid(1).toUInt(ok, 0);
     }
 
     *ok = false;
@@ -430,7 +654,6 @@ bool CSourceAssembler::getLabels(QStringList *source)
         LabelEntry_s labelEntry;
         labelEntry.labelName = curLine.mid(0, labelPos);
         labelEntry.lineNumber = lineIdx;
-        builderTextLogger.write("Label Found [" + QString::number(lineIdx+1) + "]: " + labelEntry.labelName);
         m_labelEntries.append(labelEntry);
 
         curLine = curLine.mid(labelPos + 1);

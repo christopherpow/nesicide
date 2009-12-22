@@ -287,10 +287,6 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
         ui->tabWidget->removeTab(emulatorDlgTabIdx);
 }
 
-void MainWindow::on_MainWindow_destroyed()
-{
-}
-
 void MainWindow::closeEvent ( QCloseEvent * event )
 {
     if (emulatorDlg)

@@ -52,7 +52,6 @@ private slots:
     void on_actionSave_Active_Document_triggered();
     void on_tabWidget_currentChanged(int index);
     void on_actionOpen_Project_triggered();
-    void on_MainWindow_destroyed();
     void on_actionEmulation_Window_toggled(bool );
     void on_action_Project_Browser_toggled(bool );
     void on_projectBrowserDockWidget_visibilityChanged(bool visible);

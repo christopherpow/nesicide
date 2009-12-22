@@ -3,7 +3,7 @@
 CPRGROMBank::CPRGROMBank()
 {
     m_indexOfPrgRomBank = -1;
-    m_pointerToBankData = new qint8[0x4000];
+    m_pointerToBankData = new quint8[0x4000];
     m_pointerToEditorDialog = (PRGROMDisplayDialog *)0;
 }
 
@@ -26,12 +26,12 @@ void CPRGROMBank::set_indexOfPrgRomBank(qint8 indexOfPrgRomBank)
     m_indexOfPrgRomBank = indexOfPrgRomBank;
 }
 
-qint8 *CPRGROMBank::get_pointerToBankData()
+quint8 *CPRGROMBank::get_pointerToBankData()
 {
     return m_pointerToBankData;
 }
 
-void CPRGROMBank::set_pointerToBankData(qint8 *pointerToBankData)
+void CPRGROMBank::set_pointerToBankData(quint8 *pointerToBankData)
 {
     m_pointerToBankData = pointerToBankData;
 }
