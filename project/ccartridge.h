@@ -19,7 +19,7 @@ class CCartridge : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CCartridge();
-    ~CCartridge();
+    virtual ~CCartridge();
 
     // Member Getters
     GameMirrorMode::eGameMirrorMode getMirrorMode();

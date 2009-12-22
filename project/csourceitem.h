@@ -11,7 +11,7 @@ class CSourceItem : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CSourceItem();
-    ~CSourceItem();
+    virtual ~CSourceItem();
 
     // Member Getters
     QString get_sourceName();

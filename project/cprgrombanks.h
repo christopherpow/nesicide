@@ -11,7 +11,7 @@ class CPRGROMBanks : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CPRGROMBanks();
-    ~CPRGROMBanks();
+    virtual ~CPRGROMBanks();
 
     // Member Getters
     QList<CPRGROMBank *> *get_pointerToArrayOfBanks();

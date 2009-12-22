@@ -10,7 +10,7 @@ class CProject : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CProject();
-    ~CProject();
+    virtual ~CProject();
 
     CSourceItem *getMainSource();
     void setMainSource(CSourceItem *newSource);

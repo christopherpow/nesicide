@@ -12,7 +12,7 @@ class CSources : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CSources();
-    ~CSources();
+    virtual ~CSources();
 
     // Member Getters
     QList<CSourceItem *> *get_pointerToArrayOfSourceItems();
