@@ -1,27 +1,27 @@
-#include "oamdisplaydialog.h"
-#include "ui_oamdisplaydialog.h"
+#include "nametabledisplaydialog.h"
+#include "ui_nametabledisplaydialog.h"
 
 #include "cnessystempalette.h"
 #include "cnesppu.h"
 
 #include "main.h"
 
-OAMDisplayDialog::OAMDisplayDialog(QWidget *parent) :
+NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::OAMDisplayDialog)
+    ui(new Ui::NameTableDisplayDialog)
 {
     ui->setupUi(this);
-    imgData = new char[256*256*3];
+    imgData = new char[512*512*3];
 
-    CPPU::OAMInspectorTV ( imgData );
+    CPPU::NameTableInspectorTV ( imgData );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
 
-    renderer = new COAMPreviewRenderer(ui->frame,imgData);
+    renderer = new CNameTablePreviewRenderer(ui->frame,imgData);
     ui->frame->layout()->addWidget(renderer);
     ui->frame->layout()->update();
 }
 
-void OAMDisplayDialog::changeEvent(QEvent *e)
+void NameTableDisplayDialog::changeEvent(QEvent *e)
 {
     QDialog::changeEvent(e);
     switch (e->type()) {
@@ -33,64 +33,64 @@ void OAMDisplayDialog::changeEvent(QEvent *e)
     }
 }
 
-void OAMDisplayDialog::renderData()
+void NameTableDisplayDialog::renderData()
 {
    renderer->updateGL ();
 }
 
-OAMDisplayDialog::~OAMDisplayDialog()
+NameTableDisplayDialog::~NameTableDisplayDialog()
 {
    delete imgData;
    delete ui;
 }
 
-void OAMDisplayDialog::resizeEvent(QResizeEvent *event)
+void NameTableDisplayDialog::resizeEvent(QResizeEvent *event)
 {
     QDialog::resizeEvent(event);
     updateScrollbars();
 }
 
-void OAMDisplayDialog::on_zoomSlider_sliderMoved(int position)
+void NameTableDisplayDialog::on_zoomSlider_sliderMoved(int position)
 {
 }
 
-void OAMDisplayDialog::on_zoomSlider_actionTriggered(int action)
+void NameTableDisplayDialog::on_zoomSlider_actionTriggered(int action)
 {
 }
 
-void OAMDisplayDialog::on_zoomSlider_valueChanged(int value)
+void NameTableDisplayDialog::on_zoomSlider_valueChanged(int value)
 {
     renderer->changeZoom(value);
     ui->zoomValueLabel->setText(QString::number(value).append("%"));
     updateScrollbars();
 }
 
-void OAMDisplayDialog::updateScrollbars()
+void NameTableDisplayDialog::updateScrollbars()
 {
     int value = ui->zoomSlider->value();
-    int viewWidth = (float)256 * ((float)value / 100.0f);
-    int viewHeight = (float)32 * ((float)value / 100.0f);
+    int viewWidth = (float)512 * ((float)value / 100.0f);
+    int viewHeight = (float)480 * ((float)value / 100.0f);
     ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
     ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
     renderer->scrollX = ui->horizontalScrollBar->value();
     renderer->scrollY = ui->verticalScrollBar->value();
 }
 
-void OAMDisplayDialog::on_verticalScrollBar_actionTriggered(int action)
+void NameTableDisplayDialog::on_verticalScrollBar_actionTriggered(int action)
 {
 }
 
-void OAMDisplayDialog::on_horizontalScrollBar_actionTriggered(int action)
+void NameTableDisplayDialog::on_horizontalScrollBar_actionTriggered(int action)
 {
 }
 
-void OAMDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
+void NameTableDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
 {
     renderer->scrollX = ui->horizontalScrollBar->value();
     renderer->repaint();
 }
 
-void OAMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
+void NameTableDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 {
     renderer->scrollY = ui->verticalScrollBar->value();
     renderer->repaint();

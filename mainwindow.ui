@@ -101,6 +101,8 @@
      <addaction name="actionCompiler_Output"/>
      <addaction name="actionEmulation_Window"/>
      <addaction name="actionCHRMEM_Inspector"/>
+     <addaction name="actionOAM_Inspector"/>
+     <addaction name="actionNameTable_Inspector"/>
     </widget>
     <addaction name="menu_Windows"/>
    </widget>
@@ -193,6 +195,7 @@
    <addaction name="actionEmulation_Window"/>
    <addaction name="actionCHRMEM_Inspector"/>
    <addaction name="actionOAM_Inspector"/>
+   <addaction name="actionNameTable_Inspector"/>
    <addaction name="actionCompiler_Output"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
@@ -450,6 +453,21 @@
    </property>
    <property name="toolTip">
     <string>OAM Inspector</string>
+   </property>
+  </action>
+  <action name="actionNameTable_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>Name Table Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>Name Table Inspector</string>
    </property>
   </action>
  </widget>

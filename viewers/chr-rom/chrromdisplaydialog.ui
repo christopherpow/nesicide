@@ -51,7 +51,7 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="margin">
       <number>4</number>
