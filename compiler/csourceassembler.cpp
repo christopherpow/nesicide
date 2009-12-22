@@ -29,9 +29,30 @@ bool CSourceAssembler::assemble()
     if (!convertOpcodesToDBs(source))
         return false;
 
+    // Assemble source
+    if (!assembleSource(source))
+        return false;
 
 
     return true;
+}
+
+bool CSourceAssembler::assembleSource(QStringList *source)
+{
+    /*
+    CCHRROMBanks chrRomBanks = nesicideProject->get_pointerToCartridge().getPointerToChrRomBanks();
+
+    // Delete the existing CHR-ROM banks.
+    while (chrRomBanks.childCount() > 0)
+    {
+        CCHRROMBank bank = chrRomBanks.banks.at(0);
+        chrRomBanks.banks.removeAt(0);
+        chrRomBanks.removeChild(bank);
+        delete bank;
+    }
+*/
+    return true;
+
 }
 
 bool CSourceAssembler::stripComments(QStringList *source)
