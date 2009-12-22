@@ -114,6 +114,9 @@ bool CNES::RUN ( unsigned char* joy )
 //      CIO::JOY ( JOY2, 0x02 );
 //   }
 
+   // Update NameTable inspector...
+   CPPU::RENDERNAMETABLE ();
+
    // Do VBLANK processing (scanlines 0-19)...
    // Set VBLANK flag...
    CPPU::RESETCYCLECOUNTER ();
@@ -169,13 +172,13 @@ bool CNES::RUN ( unsigned char* joy )
          CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
       }
 
-      // Update PPU viewer at appropriate scanline...
+      // Update CHR memory inspector at appropriate scanline...
       if ( idx == CPPU::GetPPUViewerScanline() )
       {
          CPPU::RENDERCHRMEM ();
       }
 
-      // Update OAM viewer at appropriate scanline...
+      // Update OAM inspector at appropriate scanline...
       if ( idx == CPPU::GetOAMViewerScanline() )
       {
          CPPU::RENDEROAM ();

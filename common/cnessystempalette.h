@@ -11,7 +11,7 @@
 class CBasePalette  
 {
 public:
-   static inline QColor GetPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
+   static inline QColor& GetPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
    {
       if ( bMonochrome )
       {
@@ -19,7 +19,7 @@ public:
       }
       return *(*(m_paletteVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx);
    }
-   static inline QColor GetDisplayPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
+   static inline QColor& GetDisplayPalette ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
    { 
       if ( bMonochrome )
       {
@@ -27,7 +27,7 @@ public:
       }
       return *(*(m_paletteDisplayVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx);
    }
-   static inline void SetPalette ( int idx, QColor color )
+   static inline void SetPalette ( int idx, QColor& color )
    { 
       m_paletteVariants[0][idx] = color;
       CalculateVariants ();

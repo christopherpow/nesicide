@@ -42,6 +42,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pOAMInspector->hide();
     QObject::connect(m_pOAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(oamInspector_close(bool)));
 
+    m_pNameTableInspector = new NameTableInspector ();
+    m_pNameTableInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pNameTableInspector->setWindowTitle("Name Table Inspector");
+    m_pNameTableInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::RightDockWidgetArea, m_pNameTableInspector );
+    QRect ntRc = m_pNameTableInspector->geometry();
+    ntRc.setSize(QSize(600, 600));
+    m_pNameTableInspector->setGeometry(ntRc);
+    m_pNameTableInspector->hide();
+    QObject::connect(m_pNameTableInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ntInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -394,4 +405,14 @@ void MainWindow::on_actionOAM_Inspector_toggled(bool value)
 void MainWindow::oamInspector_close (bool toplevel)
 {
    ui->actionOAM_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionNameTable_Inspector_toggled(bool value)
+{
+   m_pNameTableInspector->setVisible(value);
+}
+
+void MainWindow::ntInspector_close (bool toplevel)
+{
+   ui->actionNameTable_Inspector->setChecked(toplevel);
 }

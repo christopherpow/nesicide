@@ -92,7 +92,10 @@ SOURCES += mainwindow.cpp \
     debugger/chrmeminspector.cpp \
     debugger/oaminspector.cpp \
     debugger/oamdisplaydialog.cpp \
-    debugger/coampreviewrenderer.cpp
+    debugger/coampreviewrenderer.cpp \
+    debugger/nametabledisplaydialog.cpp \
+    debugger/cnametablepreviewrenderer.cpp \
+    debugger/nametableinspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -162,7 +165,10 @@ HEADERS += mainwindow.h \
     debugger/chrmeminspector.h \
     debugger/oaminspector.h \
     debugger/oamdisplaydialog.h \
-    debugger/coampreviewrenderer.h
+    debugger/coampreviewrenderer.h \
+    debugger/nametabledisplaydialog.h \
+    debugger/cnametablepreviewrenderer.h \
+    debugger/nametableinspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -171,7 +177,8 @@ FORMS += mainwindow.ui \
     viewers/chr-rom/chrromdisplaydialog.ui \
     viewers/emulator/nesemulatordialog.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
-    debugger/oamdisplaydialog.ui
+    debugger/oamdisplaydialog.ui \
+    debugger/nametabledisplaydialog.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
 DESTDIR = ./output

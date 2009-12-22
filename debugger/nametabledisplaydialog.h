@@ -1,29 +1,29 @@
-#ifndef OAMDISPLAYDIALOG_H
-#define OAMDISPLAYDIALOG_H
+#ifndef NAMETABLEDISPLAYDIALOG_H
+#define NAMETABLEDISPLAYDIALOG_H
 
 #include <QDialog>
-#include "coampreviewrenderer.h"
+#include "cnametablepreviewrenderer.h"
 
 namespace Ui {
-    class OAMDisplayDialog;
+    class NameTableDisplayDialog;
 }
 
-class OAMDisplayDialog : public QDialog {
+class NameTableDisplayDialog : public QDialog {
     Q_OBJECT
 public:
-    OAMDisplayDialog(QWidget *parent = 0);
-    ~OAMDisplayDialog();
+    NameTableDisplayDialog(QWidget *parent = 0);
+    ~NameTableDisplayDialog();
     void updateScrollbars();
 
 protected:
-    COAMPreviewRenderer *renderer;
+    CNameTablePreviewRenderer *renderer;
 
 protected:
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *event);
 
 private:
-    Ui::OAMDisplayDialog *ui;
+    Ui::NameTableDisplayDialog *ui;
     char *imgData;
 
 public slots:
@@ -39,4 +39,4 @@ private slots:
     void on_zoomSlider_sliderMoved(int position);
 };
 
-#endif // OAMDISPLAYDIALOG_H
+#endif // NAMETABLEDISPLAYDIALOG_H
