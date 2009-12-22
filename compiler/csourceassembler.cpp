@@ -8,8 +8,6 @@ CSourceAssembler::CSourceAssembler()
 
 bool CSourceAssembler::assemble()
 {
-    qint8 *binaryData = new qint8[0x4000];
-    memset(binaryData, 0, 0x4000);
     CSourceItem *rootSource = nesicideProject->getProject()->getMainSource();
     if (!rootSource)
     {
@@ -23,20 +21,16 @@ bool CSourceAssembler::assemble()
 
     stripComments(source);
 
+    // Process the labels into a table and remove the syntax that declares them
     if (!getLabels(source))
-    {
-        delete binaryData;
         return false;
-    }
 
+    // Convert opcodes to .db directives
     if (!convertOpcodesToDBs(source))
-    {
-        delete binaryData;
         return false;
-    }
 
 
-    delete binaryData;
+
     return true;
 }
 
@@ -129,13 +123,13 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                         && (isLabel(param0))) {
                         // ABSOLUTE (Label)
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs.opcode, 16).toUpper()
-                                  + ", " + param0;
+                                  + ", abs|" + param0;
                     } else if ((AssemblerInstructionItems[instructionIdx].indirect.cycles > 0) &&
                                (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')
                         && (isLabel(param0))) {
                         // INDIRECT (Label)
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].indirect.opcode, 16).toUpper()
-                                  + ", " + param0;
+                                  + ", abs|" + param0;
                     } else if ((AssemblerInstructionItems[instructionIdx].indirect.cycles > 0) &&
                                (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')) {
                         // INDIRECT (Non Label)
@@ -156,7 +150,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                         && (isLabel(param0))) {
                         // RELATIVE (Label)
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].rel.opcode, 16).toUpper()
-                                  + ", " + param0;
+                                  + ", rel|" + param0;
 
                     }
                     else if (AssemblerInstructionItems[instructionIdx].rel.cycles > 0)
