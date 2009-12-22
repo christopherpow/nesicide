@@ -10,6 +10,7 @@ win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:LIBS += `sdl-config \
     --libs`
+mac:LIBS += -framework SDL
 INCLUDEPATH = ./ \
     ./libraries/SDL \
     ./common \
@@ -31,6 +32,8 @@ INCLUDEPATH = ./ \
     ./viewers/project_treeview
 unix:INCLUDEPATH += += \
     /usr/include/SDL
+mac:INCLUDEPATH += \
+    /Library/Frameworks/SDL.framework/Headers
 TARGET = nesicide2
 TEMPLATE = app
 SOURCES += mainwindow.cpp \

@@ -342,10 +342,13 @@ CAPU::CAPU()
    m_noise.SetChannel ( 3 );
    m_dmc.SetChannel ( 4 );
 
-   SDL_Init ( SDL_INIT_AUDIO );
+   if ( SDL_Init ( SDL_INIT_AUDIO ) < 0)
+   {
+       fprintf( stderr, "Could not initialize SDL audio: %s\n", SDL_GetError() );
+   }
 
    m_sdlAudioSpec.channels = 1;
-   m_sdlAudioSpec.format = AUDIO_U16SYS;
+   m_sdlAudioSpec.format = AUDIO_S16SYS;
    m_sdlAudioSpec.freq = 44100;
    m_sdlAudioSpec.samples = 735;
    m_sdlAudioSpec.callback = SDL_GetMoreData;
@@ -360,6 +363,11 @@ CAPU::~CAPU()
 void CAPU::OPEN ( void )
 {
    SDL_AudioSpec obtained;
+   if ( SDL_OpenAudio ( &m_sdlAudioSpec, &obtained ) < 0)
+   {
+       fprintf( stderr, "couldn't open audio: %s\n", SDL_GetError() );
+   }
+
    SDL_OpenAudio ( &m_sdlAudioSpec, &obtained );
 
    memcpy ( &m_sdlAudioSpec, &obtained, sizeof(SDL_AudioSpec) );

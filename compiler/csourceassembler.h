@@ -118,6 +118,7 @@ private:
     QString getParamItem(QString sourceLine, int paramNum);
     int numberToInt(bool *ok, QString number);
     bool isLabel(QString param);
+    bool assembleSource(QStringList *source);
 
 };
 

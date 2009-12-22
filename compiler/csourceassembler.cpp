@@ -8,8 +8,6 @@ CSourceAssembler::CSourceAssembler()
 
 bool CSourceAssembler::assemble()
 {
-    qint8 *binaryData = new qint8[0x4000];
-    memset(binaryData, 0, 0x4000);
     CSourceItem *rootSource = nesicideProject->getProject()->getMainSource();
     if (!rootSource)
     {
@@ -23,27 +21,38 @@ bool CSourceAssembler::assemble()
 
     stripComments(source);
 
+    // Process the labels into a table and remove the syntax that declares them
     if (!getLabels(source))
-    {
-        delete binaryData;
         return false;
-    }
 
+    // Convert opcodes to .db directives
     if (!convertOpcodesToDBs(source))
-    {
-        delete binaryData;
         return false;
+
+    // Assemble source
+    if (!assembleSource(source))
+        return false;
+
+
+    return true;
+}
+
+bool CSourceAssembler::assembleSource(QStringList *source)
+{
+
+    CCHRROMBanks *chrRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToChrRomBanks();
+
+    // Delete the existing CHR-ROM banks.
+    while (chrRomBanks->childCount() > 0)
+    {
+        CCHRROMBank *bank = chrRomBanks->banks.at(0);
+        chrRomBanks->banks.removeAt(0);
+        chrRomBanks->removeChild(bank);
+        delete bank;
     }
 
-
-    builderTextLogger.write("--------------------------------------------------------------------------");
-    for (int i=0; i < source->length(); i++)
-        builderTextLogger.write(source->value(i));
-    builderTextLogger.write("--------------------------------------------------------------------------");
-
-
-    delete binaryData;
     return true;
+
 }
 
 bool CSourceAssembler::stripComments(QStringList *source)
@@ -135,13 +144,13 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                         && (isLabel(param0))) {
                         // ABSOLUTE (Label)
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs.opcode, 16).toUpper()
-                                  + ", " + param0;
+                                  + ", abs|" + param0;
                     } else if ((AssemblerInstructionItems[instructionIdx].indirect.cycles > 0) &&
                                (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')
                         && (isLabel(param0))) {
                         // INDIRECT (Label)
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].indirect.opcode, 16).toUpper()
-                                  + ", " + param0;
+                                  + ", abs|" + param0;
                     } else if ((AssemblerInstructionItems[instructionIdx].indirect.cycles > 0) &&
                                (param0.at(0) == '(') && (param0.at(param0.length()-1) == ')')) {
                         // INDIRECT (Non Label)
@@ -162,7 +171,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                         && (isLabel(param0))) {
                         // RELATIVE (Label)
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].rel.opcode, 16).toUpper()
-                                  + ", " + param0;
+                                  + ", rel|" + param0;
 
                     }
                     else if (AssemblerInstructionItems[instructionIdx].rel.cycles > 0)
@@ -233,6 +242,109 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
             } else if (getParamCount(curLine.mid(firstWord.length())) == 2) {
                 QString param0 = getParamItem(curLine.mid(firstWord.length()), 0);
                 QString param1 = getParamItem(curLine.mid(firstWord.length()), 1);
+
+                if ((param1.trimmed().replace(' ', "").toUpper() == "X)")
+                    && (AssemblerInstructionItems[instructionIdx].ind_x.cycles > 0)
+                    && (param0.trimmed().at(0) == '(')) {
+                    // ($##,X) // PREINDEXED INDIRECT
+
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid value specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].ind_x.opcode, 16).toUpper()
+                              + ", $" + QString::number(immValue, 16).toUpper();
+
+
+
+                } else if (param1.trimmed().replace(' ', "").toUpper() == "X") {
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage or Absolute value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    if ((AssemblerInstructionItems[instructionIdx].zpage_x.cycles > 0) && (immValue <= 0xFF)) {
+                        // $##,X // ZEROPAGE INDEXED X
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].zpage_x.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue, 16).toUpper();
+
+                    } else if ((AssemblerInstructionItems[instructionIdx].abs_x.cycles > 0) && (immValue <= 0xFFFF)) {
+                        // $####,X // ABSOLUTE INDEXED X
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs_x.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue & 0xFF, 16).toUpper()
+                                  + ", $" + QString::number((immValue >> 8) & 0xFF, 16).toUpper();
+
+                    } else {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage, X or Absolute, X value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+
+                } else if ((param1.trimmed().replace(' ', "").toUpper() == "Y")
+                    && (AssemblerInstructionItems[instructionIdx].ind_y.cycles > 0)
+                            && (param0.trimmed().at(0) == '(')
+                            && (param0.trimmed().at(param0.trimmed().length()-1) == ')')) {
+                    //($##),Y // POSTINDEXED INDIRECT
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(2, param0.length() - 3));
+
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid value specified on line " +
+                                                QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].ind_y.opcode, 16).toUpper()
+                              + ", $" + QString::number(immValue, 16).toUpper();
+
+
+
+                } else if (param1.trimmed().replace(' ', "").toUpper() == "Y") {
+
+                    bool ok;
+                    int immValue = numberToInt(&ok, param0.mid(1));
+                    if (!ok)
+                    {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage or Absolute value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                    if ((AssemblerInstructionItems[instructionIdx].zpage_x.cycles > 0) && (immValue <= 0xFF)) {
+                        // $##,Y // ZEROPAGE INDEXED Y
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].zpage_y.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue, 16).toUpper();
+
+                    } else if ((AssemblerInstructionItems[instructionIdx].abs_x.cycles > 0) && (immValue <= 0xFFFF)) {
+                        // $####,Y // ABSOLUTE INDEXED Y
+                        curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].abs_y.opcode, 16).toUpper()
+                                  + ", $" + QString::number(immValue & 0xFF, 16).toUpper()
+                                  + ", $" + QString::number((immValue >> 8) & 0xFF, 16).toUpper();
+                    } else {
+                        // TODO: Highlight the errors on the code editor (if visible)
+                        builderTextLogger.write("<font color='red'>Error: Invalid ZeroPage, Y or Absolute, Y value specified "
+                                                "on line " + QString::number(lineIdx + 1) + ".</font>");
+                        return false;
+                    }
+
+                }
+
             } else {
                 // TODO: Highlight the errors on the code editor (if visible)
                 builderTextLogger.write("<font color='red'>Error: Invalid combination of operand and opcode on line " +
