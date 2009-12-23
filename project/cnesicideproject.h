@@ -18,7 +18,7 @@ class CNesicideProject : public IXMLSerializable, public IProjectTreeViewItem
 public:
     // Global Constructor / Destructors
     CNesicideProject();
-    ~CNesicideProject();
+    virtual ~CNesicideProject();
 
 
     // Helper functions

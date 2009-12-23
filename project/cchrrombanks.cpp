@@ -5,6 +5,11 @@ CCHRROMBanks::CCHRROMBanks()
     banks.clear();
 }
 
+CCHRROMBanks::~CCHRROMBanks()
+{
+
+}
+
 // IXMLSerializable Interface Implementation
 bool CCHRROMBanks::serialize(QDomDocument &doc, QDomNode &node)
 {

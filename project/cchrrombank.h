@@ -9,6 +9,7 @@ class CCHRROMBank : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CCHRROMBank();
+    virtual ~CCHRROMBank();
 
     qint8 bankID;
     qint8 *data;

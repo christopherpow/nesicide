@@ -11,7 +11,7 @@ class CProjectPrimitives : public IProjectTreeViewItem
 {
 public:
     CProjectPrimitives();
-    ~CProjectPrimitives();
+    virtual ~CProjectPrimitives();
     QString caption() const;
     CProjectPalettes *projectPalettes;
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);

@@ -9,7 +9,7 @@ class CPRGROMBank : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CPRGROMBank();
-    ~CPRGROMBank();
+    virtual ~CPRGROMBank();
 
     // Member Getters
     qint8 get_indexOfPrgRomBank();

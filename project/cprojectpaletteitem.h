@@ -11,6 +11,7 @@ class CProjectPaletteItem : public IProjectTreeViewItem
 {
 public:
     CProjectPaletteItem();
+    virtual ~CProjectPaletteItem();
     QString name;
 
     // IProjectTreeViewItem Interface Implmentation

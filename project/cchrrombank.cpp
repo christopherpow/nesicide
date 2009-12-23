@@ -6,6 +6,11 @@ CCHRROMBank::CCHRROMBank()
     data = new qint8[0x2000];
 }
 
+CCHRROMBank::~ CCHRROMBank()
+{
+    delete data;
+}
+
 bool CCHRROMBank::serialize(QDomDocument &doc, QDomNode &node)
 {
     // Create the root element for the CHR-ROM object
