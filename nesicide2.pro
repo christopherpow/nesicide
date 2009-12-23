@@ -10,7 +10,8 @@ win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:LIBS += `sdl-config \
     --libs`
-mac:LIBS += -framework SDL
+mac:LIBS += -framework \
+    SDL
 INCLUDEPATH = ./ \
     ./libraries/SDL \
     ./common \
@@ -32,8 +33,7 @@ INCLUDEPATH = ./ \
     ./viewers/project_treeview
 unix:INCLUDEPATH += += \
     /usr/include/SDL
-mac:INCLUDEPATH += \
-    /Library/Frameworks/SDL.framework/Headers
+mac:INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
 TARGET = nesicide2
 TEMPLATE = app
 SOURCES += mainwindow.cpp \
@@ -98,7 +98,8 @@ SOURCES += mainwindow.cpp \
     debugger/coampreviewrenderer.cpp \
     debugger/nametabledisplaydialog.cpp \
     debugger/cnametablepreviewrenderer.cpp \
-    debugger/nametableinspector.cpp
+    debugger/nametableinspector.cpp \
+    debugger/executiontracerdialog.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -171,7 +172,8 @@ HEADERS += mainwindow.h \
     debugger/coampreviewrenderer.h \
     debugger/nametabledisplaydialog.h \
     debugger/cnametablepreviewrenderer.h \
-    debugger/nametableinspector.h
+    debugger/nametableinspector.h \
+    debugger/executiontracerdialog.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -181,7 +183,8 @@ FORMS += mainwindow.ui \
     viewers/emulator/nesemulatordialog.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
     debugger/oamdisplaydialog.ui \
-    debugger/nametabledisplaydialog.ui
+    debugger/nametabledisplaydialog.ui \
+    debugger/executiontracerdialog.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
 DESTDIR = ./output
