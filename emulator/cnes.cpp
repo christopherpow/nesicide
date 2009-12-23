@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 // NES.cpp: implementation of the CNES class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ bool CNES::RUN ( unsigned char* joy )
    bool  brkpt = false;
    unsigned int   idx;
    unsigned char ljoy [ NUM_JOY ];
-   JoypadLoggerInfo* pSample;
+   //JoypadLoggerInfo* pSample;
 
 // CPTODO: removed joypad logging for now...
 //   if ( m_bReplay )
@@ -139,7 +139,7 @@ bool CNES::RUN ( unsigned char* joy )
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK)) );
 
    // Pre-render scanline...
-   brkpt = CPPU::RENDERSCANLINE ( -1 ); 
+   brkpt = CPPU::RENDERSCANLINE ( -1 );
    if ( brkpt ) goto done;
 
    // Clear Sprite 0 Hit flag and sprite overflow...

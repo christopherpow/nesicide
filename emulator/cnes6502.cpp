@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 // 6502.cpp: implementation of the C6502 class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -74,15 +74,15 @@ static int opcode_size [ NUM_ADDRESSING_MODES ] =
    2  // AM_RELATIVE
 };
 
-static const char* dispFmt[4] =
+/*static const char* dispFmt[4] =
 {
    "",
    "%02X       ",
    "%02X %02X    ",
    "%02X %02X %02X "
-};
+};*/
 
-static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
+/*static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
 {
    "", // AM_IMPLIED
    " #$%02X", // AM_IMMEDIATE
@@ -97,7 +97,7 @@ static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
    " ($%02X, X)", // AM_PREINDEXED_INDIRECT
    " ($%02X), Y", // AM_POSTINDEXED_INDIRECT
    " $%02X"  // AM_RELATIVE
-};
+};*/
 
 static C6502_opcode m_6502opcode [ 256 ] =
 {
@@ -374,12 +374,12 @@ char* C6502::MakePrintableBinaryText ( void )
    {
       if ( !(idx1&0xF) )
       {
-         if ( idx1 ) 
+         if ( idx1 )
          {
             (*ptr) = '\r'; ptr++;
             (*ptr) = '\n'; ptr++;
          }
-         sprintf04xc ( &ptr, idx1 );         
+         sprintf04xc ( &ptr, idx1 );
       }
       if ( idx1&0xF ) { (*ptr) = ' '; ptr++; }
       sprintf02x ( &ptr, *(m_6502memory+idx1) );
@@ -398,10 +398,10 @@ bool C6502::EMULATE ( bool bRun, int cycles )
    if ( (!m_killed) && (m_curCycles > 0) )
    {
       do
-      {         
+      {
          cycles = STEP ( &setbrkpt );
          if ( (m_pc == m_pcGoto) ||
-              (!bRun) ) 
+              (!bRun) )
          {
             brkpt = true;
             m_pcGoto = 0xFFFFFFFF;
@@ -496,7 +496,7 @@ unsigned char C6502::STEP ( bool* bBrkptHit )
       }
 
       // Update Tracer
-      TracerInfo* pSample = m_tracer.SetDisassembly ( pOpcode ); 
+      TracerInfo* pSample = m_tracer.SetDisassembly ( pOpcode );
       m_tracer.SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
 
       // Execute
@@ -529,7 +529,7 @@ void C6502::KIL ( void )
 // ~~~~~~~~~~~~~~~
 // AND byte with accumulator. If result is negative then carry is
 // set. Status flags: N,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Immediate   |AAC #arg   |$0B| 2 | 2
@@ -543,7 +543,7 @@ void C6502::ANC ( void )
 // ~~~~~~~~~~~~~~~
 // AND byte with accumulator, then shift right one bit in accumu-
 // lator. Status flags: N,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Immediate   |ASR #arg   |$4B| 2 | 2
@@ -561,7 +561,7 @@ void C6502::ALR ( void )
 // If only bit 5 is 1: set V, clear C.
 // If only bit 6 is 1: set C and V.
 // Status flags: N,V,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Immediate   |ARR #arg   |$6B| 2 | 2
@@ -574,7 +574,7 @@ void C6502::ARR ( void )
 // ~~~~~~~~~~~~~~~
 // Exact operation unknown. Read the referenced documents for
 // more information and observations.
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Immediate   |XAA #arg   |$8B| 2 | 2
@@ -587,7 +587,7 @@ void C6502::XAA ( void )
 // ~~~~~~~~~~~~~~~
 // AND X register with accumulator then AND result with 7 and
 // store in memory. Status flags: -
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Absolute,Y  |AXA arg,Y  |$9F| 3 | 5
@@ -602,11 +602,11 @@ void C6502::AXA ( void )
 // AND X register with accumulator and store result in stack
 // pointer, then AND stack pointer with the high byte of the
 // target address of the argument + 1. Store result in memory.
-// 
+//
 // S = X AND A, M = S AND HIGH(arg) + 1
-// 
+//
 // Status flags: -
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Absolute,Y  |XAS arg,Y  |$9B| 3 | 5
@@ -619,11 +619,11 @@ void C6502::TAS ( void )
 // ~~~~~~~~~~~~~~~
 // AND Y register with the high byte of the target address of the
 // argument + 1. Store the result in memory.
-// 
+//
 // M = Y AND HIGH(arg) + 1
-// 
+//
 // Status flags: -
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Absolute,X  |SYA arg,X  |$9C| 3 | 5
@@ -636,11 +636,11 @@ void C6502::SAY ( void )
 // ~~~~~~~~~~~~~~~
 // AND X register with the high byte of the target address of the
 // argument + 1. Store the result in memory.
-// 
+//
 // M = X AND HIGH(arg) + 1
-// 
+//
 // Status flags: -
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Absolute,Y  |SXA arg,Y  |$9E| 3 | 5
@@ -653,7 +653,7 @@ void C6502::XAS ( void )
 // ~~~~~~~~~~~~~~~
 // AND byte with accumulator, then transfer accumulator to X
 // register. Status flags: N,Z
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Immediate   |ATX #arg   |$AB| 2 | 2
@@ -672,7 +672,7 @@ void C6502::OAL ( void )
 // AND memory with stack pointer, transfer result to accumulator,
 // X register and stack pointer.
 // Status flags: N,Z
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Absolute,Y  |LAR arg,Y  |$BB| 3 | 4 *
@@ -695,7 +695,7 @@ void C6502::LAS ( void )
 // AND X register with accumulator and store result in X regis-
 // ter, then subtract byte from X register (without borrow).
 // Status flags: N,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Immediate   |AXS #arg   |$CB| 2 | 2
@@ -790,9 +790,9 @@ void C6502::ASL ( void )
 // SLO (SLO) [ASO]
 // ~~~~~~~~~~~~~~~
 // Shift left one bit in memory, then OR accumulator with memory.
-// 
+//
 // Status flags: N,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |SLO arg    |$07| 2 | 5
@@ -825,7 +825,7 @@ void C6502::ASO ( void )
 // ~~~~~~~~~~~~~~~
 // AND X register with accumulator and store result in memory.
 // Status flags: N,Z
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |AAX arg    |$87| 2 | 3
@@ -907,7 +907,7 @@ void C6502::CLC ( void )
 
    return;
 }
-         
+
 //  JSR          JSR Jump to new location saving return address           JSR
 //
 //  Operation:  PC + 2 toS, (PC + 1) -> PCL               N Z C I D V
@@ -1059,7 +1059,7 @@ void C6502::PLP ( void )
 
    return;
 }
-       
+
 //  BMI                    BMI Branch on result minus                     BMI
 //
 //  Operation:  Branch on N = 1                           N Z C I D V
@@ -1106,7 +1106,7 @@ void C6502::SEC ( void )
 
    return;
 }
-     
+
 //  RTI                    RTI Return from interrupt                      RTI
 //                                                        N Z C I D V
 //  Operation:  P fromS PC fromS                           From Stack
@@ -1167,7 +1167,7 @@ void C6502::EOR ( void )
 // ~~~~~~~~~~~~~~~
 // Shift right one bit in memory, then EOR accumulator with
 // memory. Status flags: N,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |SRE arg    |$47| 2 | 5
@@ -1394,7 +1394,7 @@ void C6502::ADC ( void )
 
    result = rA () + val + rC ();
 
-	wV ( !((rA()^val)&0x80) && ((rA()^result)&0x80) );
+    wV ( !((rA()^val)&0x80) && ((rA()^result)&0x80) );
    wA ( (unsigned char)result );
    wN ( rA()&0x80 );
    wZ ( !rA() );
@@ -1459,7 +1459,7 @@ void C6502::ROR ( void )
 // ~~~~~~~~~~~~~~~
 // Rotate one bit left in memory, then AND accumulator with
 // memory. Status flags: N,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |RLA arg    |$27| 2 | 5
@@ -1493,9 +1493,9 @@ void C6502::RLA ( void )
 // ~~~~~~~~~~~~~~~
 // Rotate one bit right in memory, then add memory to accumulator
 // (with carry).
-// 
+//
 // Status flags: N,V,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |RRA arg    |$67| 2 | 5
@@ -1519,10 +1519,10 @@ void C6502::RRA ( void )
    val >>= 1;
    val &= 0xFF;
    MEM ( addr, (unsigned char)val );
-   
+
    result = rA () + val + rC ();
 
-	wV ( !((rA()^val)&0x80) && ((rA()^result)&0x80) );
+    wV ( !((rA()^val)&0x80) && ((rA()^result)&0x80) );
    wA ( (unsigned char)result );
    wN ( rA()&0x80 );
    wZ ( !rA() );
@@ -1684,7 +1684,7 @@ void C6502::DEY ( void )
 
    return;
 }
-      
+
 //  TXA                TXA Transfer index X to accumulator                TXA
 //                                                        N Z C I D V
 //  Operation:  X -> A                                    / / _ _ _ _
@@ -1702,7 +1702,7 @@ void C6502::TXA ( void )
 
    return;
 }
-     
+
 //  BCC                     BCC Branch on Carry Clear                     BCC
 //                                                        N Z C I D V
 //  Operation:  Branch on C = 0                           _ _ _ _ _ _
@@ -1766,7 +1766,7 @@ void C6502::TXS ( void )
 
    return;
 }
- 
+
 //  LDY                   LDY Load index Y with memory                    LDY
 //                                                        N Z C I D V
 //  Operation:  M -> Y                                    / / _ _ _ _
@@ -1804,7 +1804,7 @@ void C6502::LDY ( void )
 // ~~~~~~~~~~~~~~~
 // Load accumulator and X register with memory.
 // Status flags: N,Z
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |LAX arg    |$A7| 2 | 3
@@ -1992,7 +1992,7 @@ void C6502::CLV ( void )
 
    return;
 }
-       
+
 //  TSX              TSX Transfer stack pointer to index X                TSX
 //
 //  Operation:  S -> X                                    N Z C I D V
@@ -2091,7 +2091,7 @@ void C6502::CMP ( void )
 // ~~~~~~~~~~~~~~~
 // Subtract 1 from memory (without borrow).
 // Status flags: C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |DCP arg    |$C7| 2 | 5
@@ -2302,7 +2302,7 @@ void C6502::SBC ( void )
 
    result = (rA() - val - (1-rC()));
 
-	wV ( ((rA()^val)&0x80) && ((rA()^result)&0x80) );
+    wV ( ((rA()^val)&0x80) && ((rA()^result)&0x80) );
    wA ( (unsigned char)result );
    wN ( rA()&0x80 );
    wZ ( !rA() );
@@ -2342,7 +2342,7 @@ void C6502::INC ( void )
 // ~~~~~~~~~~~~~~~
 // Increase memory by one, then subtract memory from accumulator
 // (with borrow). Status flags: N,V,Z,C
-// 
+//
 // Addressing  |Mnemonics  |Opc|Sz | n
 // ------------|-----------|---|---|---
 // Zero Page   |ISC arg    |$E7| 2 | 5
@@ -2391,7 +2391,7 @@ void C6502::INX ( void )
 
    return;
 }
-  
+
 //  NOP                         NOP No operation                          NOP
 //                                                        N Z C I D V
 //  Operation:  No Operation (2 cycles)                   _ _ _ _ _ _
@@ -2608,7 +2608,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
    else if ( addr >= 0x6000 )
    {
       (*pTarget) = eTarget_SRAM;
-      data = CROM::SRAM ( addr ); 
+      data = CROM::SRAM ( addr );
       if ( checkBrkpt )
       {
          switch ( m_brkptType )
@@ -2750,7 +2750,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
    {
       (*pTarget) = eTarget_RAM;
       addr &= 0x7FF; // RAM mirrored...
-      data = m_6502memory[addr]; 
+      data = m_6502memory[addr];
 
       if ( checkBrkpt )
       {
@@ -2809,7 +2809,7 @@ void C6502::STORE ( UINT addr, unsigned char data, bool checkBrkpt, char* pTarge
    else if ( addr < 0x8000 )
    {
       (*pTarget) = eTarget_SRAM;
-      CROM::SRAM ( addr, data ); 
+      CROM::SRAM ( addr, data );
    }
    else
    {
@@ -2897,7 +2897,7 @@ unsigned char C6502::DMA ( UINT addr, char source )
 {
    char target;
    unsigned char data = LOAD ( addr, false, &target );
-   
+
    m_tracer.AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
    if ( addr >= MEM_32KB )
    {
@@ -3179,7 +3179,7 @@ char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
          case AM_PREINDEXED_INDIRECT:
          case AM_POSTINDEXED_INDIRECT:
          case AM_RELATIVE:
-            buffer += sprintf ( buffer, operandFmt[pOp->amode], 
+            buffer += sprintf ( buffer, operandFmt[pOp->amode],
                                 (*(pOpcode+1)) );
          break;
 
@@ -3188,7 +3188,7 @@ char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
          case AM_ABSOLUTE_INDEXED_X:
          case AM_ABSOLUTE_INDEXED_Y:
          case AM_INDIRECT:
-            buffer += sprintf ( buffer, operandFmt[pOp->amode], 
+            buffer += sprintf ( buffer, operandFmt[pOp->amode],
                                 (*(pOpcode+2)),
                                 (*(pOpcode+1)) );
          break;

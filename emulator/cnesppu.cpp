@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 // PPU.cpp: implementation of the CPPU class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ char* CPPU::MakePrintableBinaryText ( void )
    {
       if ( !(idx1&0xF) )
       {
-         if ( idx1 ) 
+         if ( idx1 )
          {
             (*ptr) = '\r'; ptr++;
             (*ptr) = '\n'; ptr++;
@@ -128,7 +128,7 @@ UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char typ
 
    addr &= 0x3FFF;
 
-   if ( addr < 0x2000 ) 
+   if ( addr < 0x2000 )
    {
       data = CROM::CHRMEM ( addr );
 
@@ -142,7 +142,7 @@ UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char typ
    if ( addr >= 0x3000 )
    {
       if ( addr >= 0x3F00 )
-      {  
+      {
          if ( !(addr&0x3) )
          {
             addr = 0x3F00;
@@ -173,14 +173,14 @@ UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char typ
          m_tracer.AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
       }
    }
-   return data;      
+   return data;
 }
 
 void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, char source, char type )
-{ 
+{
    addr &= 0x3FFF;
 
-   if ( addr < 0x2000 ) 
+   if ( addr < 0x2000 )
    {
       if ( bTrace )
       {
@@ -198,7 +198,7 @@ void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, 
    if ( addr >= 0x3000 )
    {
       if ( addr >= 0x3F00 )
-      {  
+      {
          if ( bTrace )
          {
             m_tracer.AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
@@ -219,7 +219,7 @@ void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, 
 
       addr &= 0xEFFF;
    }
-   
+
    if ( bTrace )
    {
       if ( (addr&0x3FF) < 0x3C0 )
@@ -232,7 +232,7 @@ void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, 
       }
    }
 
-   *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;     
+   *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;
 }
 
 void CPPU::RENDERCHRMEM ( void )
@@ -374,7 +374,7 @@ void CPPU::RENDEROAM ( void )
 void CPPU::RENDERNAMETABLE ( void )
 {
    int x, xf, y;
-   int lbx, ubx, lby, uby;
+   //int lbx, ubx, lby, uby;
 
    UINT ppuAddr = 0x0000;
    unsigned short patternIdx;
@@ -712,7 +712,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 
          // Increment PPUADDR
          m_ppuAddr += m_ppuAddrIncrement;
-         
+
          // Toggling A12 causes IRQ count in some mappers...
          if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
          {
@@ -729,7 +729,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
       if ( addr == IOSPRITEDMA )
       {
          // DMA
-         int start = m_oamAddr; 
+         int start = m_oamAddr;
          for ( dma = 0; dma < NUM_OAM_REGS; dma++ )
          {
             *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|((dma+start)&0xFF), eLoggerSource_PPU );
@@ -747,14 +747,14 @@ void CPPU::FRAMESTART ( void )
 
 void CPPU::SCANLINESTART ( void )
 {
-   m_ppuAddr &= 0xFBE0; 
+   m_ppuAddr &= 0xFBE0;
    m_ppuAddr |= m_ppuAddrLatch&0x41F;
 }
 
 void CPPU::MIRROR ( int oneScreen, bool vert, bool extraVRAM )
-{ 
-   m_mirrorVert = vert; 
-   m_mirrorHoriz = !vert; 
+{
+   m_mirrorVert = vert;
+   m_mirrorHoriz = !vert;
    m_oneScreen = oneScreen;
    m_extraVRAM = extraVRAM;
 
@@ -778,15 +778,15 @@ void CPPU::MIRROR ( int oneScreen, bool vert, bool extraVRAM )
 
 void CPPU::MIRRORVERT ( void )
 {
-   m_mirrorVert = true; 
-   m_mirrorHoriz = false; 
+   m_mirrorVert = true;
+   m_mirrorHoriz = false;
    MIRROR ( 0, 1, 0, 1 );
 }
 
 void CPPU::MIRRORHORIZ ( void )
 {
-   m_mirrorVert = false; 
-   m_mirrorHoriz = true; 
+   m_mirrorVert = false;
+   m_mirrorHoriz = true;
    MIRROR ( 0, 0, 1, 1 );
 }
 
@@ -796,8 +796,8 @@ void CPPU::MIRROR ( int nt1, int nt2, int nt3, int nt4 )
    nt2 &= 0x3;
    nt3 &= 0x3;
    nt4 &= 0x3;
-   m_mirrorVert = false; 
-   m_mirrorHoriz = false; 
+   m_mirrorVert = false;
+   m_mirrorHoriz = false;
    Move1KBank ( 0x8, &(m_PPUmemory[(nt1<<UPSHIFT_1KB)]) );
    Move1KBank ( 0x9, &(m_PPUmemory[(nt2<<UPSHIFT_1KB)]) );
    Move1KBank ( 0xA, &(m_PPUmemory[(nt3<<UPSHIFT_1KB)]) );
@@ -905,7 +905,7 @@ bool CPPU::RENDERSCANLINE ( int scanline )
    QColor color;
 
    // even-odd framing for extra-cycle on pre-render scanline...
-   m_frame = !m_frame; 
+   m_frame = !m_frame;
 
    for ( idxx = 0; idxx < 256; idxx += 8 )
    {
@@ -958,7 +958,7 @@ bool CPPU::RENDERSCANLINE ( int scanline )
             for ( sprite = 0; sprite < m_spriteBuffer.count; sprite++ )
             {
                pSprite = m_spriteBuffer.data + (*(m_spriteBuffer.order+sprite));
-               idx2 = p - pSprite->spriteX; 
+               idx2 = p - pSprite->spriteX;
                if ( (idx2 >= 0) && (idx2 < PATTERN_SIZE) )
                {
                   if ( pSprite->spriteX+idx2 >= startSprite )
@@ -974,7 +974,7 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                      colorIdx |= (pSprite->attribData<<2);
                      if ( colorIdx&0x3 )
                      {
-                        if ( (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) && 
+                        if ( (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) &&
                              (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
                              ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
                         {
@@ -983,12 +983,12 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                            *(pTV+1) = color.green();
                            *(pTV+2) = color.blue();
                         }
-                        if ( (pSprite->spriteIdx == 0) && 
-                             (!sprite0HitSet) && 
+                        if ( (pSprite->spriteIdx == 0) &&
+                             (!sprite0HitSet) &&
                              (pSprite->spriteX+idx2 < 255) &&
                              ((tvSet&0x1) == 0x1) )
                         {
-                           if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) && 
+                           if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
                                 ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
                            {
                               wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
@@ -1112,7 +1112,7 @@ bool CPPU::GATHERBKGND ( void )
    if ( rPPU(PPUMASK)&PPUMASK_RENDER_BKGND )
    {
       m_ppuAddr++;
-      if ((m_ppuAddr&0x001F) == 0) 
+      if ((m_ppuAddr&0x001F) == 0)
       {
          m_ppuAddr   ^= 0x0400;
          m_ppuAddr   -= 0x0020;
@@ -1165,7 +1165,7 @@ bool CPPU::GATHERSPRITES ( int scanline )
             }
             break;
          }
-         
+
          pSprite->spriteIdx = sprite;
 
          patternIdx = OAM ( SPRITEPAT, sprite );
@@ -1180,11 +1180,11 @@ bool CPPU::GATHERSPRITES ( int scanline )
          pSprite->spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
 
          pSprite->spriteX = OAM ( SPRITEX, sprite );
-         
+
          pSprite->attribData = spriteAttr&SPRITE_PALETTE_IDX_MSK;
 
          // For 8x16 sprites...
-         if ( (spriteSize == 2) && 
+         if ( (spriteSize == 2) &&
               (((!pSprite->spriteFlipVert) && (idx1 >= PATTERN_SIZE)) ||
               ((pSprite->spriteFlipVert) && (idx1 < PATTERN_SIZE))) )
          {

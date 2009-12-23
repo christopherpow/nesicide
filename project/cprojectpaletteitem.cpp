@@ -24,6 +24,6 @@ void CProjectPaletteItem::openItemEvent(QTabWidget *tabWidget)
 {
     PaletteEditorWindow *wnd = new PaletteEditorWindow();
     //wnd->paletteItem = this;
-    int tabId = tabWidget->addTab(wnd, this->name);
+    tabWidget->addTab(wnd, this->name);
 
 }
