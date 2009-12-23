@@ -83,6 +83,7 @@ SOURCES += mainwindow.cpp \
     project/cchrrombanks.cpp \
     project/cchrrombank.cpp \
     project/ccartridge.cpp \
+    project/cbinaryfiles.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
     viewers/chr-rom/cchrrompreviewrenderer.cpp \
     viewers/emulator/nesemulatorthread.cpp \
@@ -99,8 +100,7 @@ SOURCES += mainwindow.cpp \
     debugger/nametabledisplaydialog.cpp \
     debugger/cnametablepreviewrenderer.cpp \
     debugger/nametableinspector.cpp \
-    debugger/executiontracerdialog.cpp \
-    cbinaryfiles.cpp
+    debugger/executiontracerdialog.cpp 
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -158,6 +158,7 @@ HEADERS += mainwindow.h \
     project/cchrrombanks.h \
     project/cchrrombank.h \
     project/ccartridge.h \
+    project/cbinaryfiles.h \
     viewers/chr-rom/chrromdisplaydialog.h \
     viewers/chr-rom/cchrrompreviewrenderer.h \
     viewers/emulator/nesemulatorthread.h \
@@ -174,8 +175,7 @@ HEADERS += mainwindow.h \
     debugger/nametabledisplaydialog.h \
     debugger/cnametablepreviewrenderer.h \
     debugger/nametableinspector.h \
-    debugger/executiontracerdialog.h \
-    cbinaryfiles.h
+    debugger/executiontracerdialog.h 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
