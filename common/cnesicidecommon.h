@@ -53,7 +53,7 @@ extern qint8 hex_char[16];
 // APU emulation stuff
 #define FREQ_50HZ  (50.0)
 #define FREQ_60HZ  (60.0)
-#define NUM_APU_BUFS 240
+#define NUM_APU_BUFS 8
 
 #if 0
 // Project configuration IDs

@@ -94,9 +94,7 @@ QColor CBasePalette::m_paletteBase [ 64 ] =
 
 QColor CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
-QColor CBasePalette::m_paletteDisplayVariants [ 8 ] [ 64 ];
-
-static CBasePalette __init __attribute((unused));;
+static CBasePalette __init __attribute((unused));
 
 void CBasePalette::CalculateVariants ( void )
 {
@@ -112,8 +110,6 @@ void CBasePalette::CalculateVariants ( void )
    {0.68, 0.79, 0.79},
    {0.70, 0.70, 0.70}};
 
-   memcpy ( m_paletteDisplayVariants[0], m_paletteVariants[0], sizeof(m_paletteBase) );
-
    for ( idx1 = 1; idx1 < 8; idx1++ )
    {
       // Calculate emphasis palettes:
@@ -127,8 +123,7 @@ void CBasePalette::CalculateVariants ( void )
       // 7: all
       for ( idx2 = 0; idx2 < NUM_PALETTES; idx2++ )
       {
-         m_paletteVariants [ idx1 ] [ idx2 ] = m_paletteVariants [ 0 ] [ idx2 ];
-         m_paletteDisplayVariants [ idx1 ] [ idx2 ] = m_paletteVariants [ 0 ] [ idx2 ];
+         m_paletteVariants [ idx1 ] [ idx2 ] = m_paletteBase [ idx2 ];
 
          temp = m_paletteVariants[idx1][idx2].red();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 0 ];
@@ -147,19 +142,3 @@ void CBasePalette::CalculateVariants ( void )
       }
    }
 }
-
-// CPTODO: use Qt methods for project palette serialization...
-#if 0
-void CBasePalette::Serialize ( CArchive& ar )
-{
-   if ( ar.IsStoring() )
-   {
-      ar.Write ( m_paletteVariants[0], sizeof(m_paletteBase) );
-   }
-   else
-   {
-      ar.Read ( m_paletteVariants[0], sizeof(m_paletteBase) );
-      CalculateVariants ();
-   }
-}
-#endif

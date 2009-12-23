@@ -488,9 +488,9 @@ void CPPU::RENDERNAMETABLE ( void )
                  (((lby <= uby) && (y >= lby) && (y <= uby)) ||
                  ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
             {
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0] = CBasePalette::GetPalette(CPPU::_PALETTE(colorIdx)).red()*.70;
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1] = CBasePalette::GetPalette(CPPU::_PALETTE(colorIdx)).green()*.70;
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2] = CBasePalette::GetPalette(CPPU::_PALETTE(colorIdx)).blue()*.70;
+               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] *= .70;
+               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] *= .70;
+               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] *= .70;
             }
          }
       }
@@ -932,7 +932,7 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                if ( !(colorIdx&0x3) ) colorIdx = 0;
                if ( colorIdx&0x3 ) tvSet |= 1;
 
-               color = CBasePalette::GetDisplayPalette(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               color = CBasePalette::GetPalette(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                *pTV = color.red();
                *(pTV+1) = color.green();
                *(pTV+2) = color.blue();
@@ -941,14 +941,14 @@ bool CPPU::RENDERSCANLINE ( int scanline )
             {
                if ( (m_ppuAddr&0x3F00) == 0x3F00 )
                {
-                  color = CBasePalette::GetDisplayPalette(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  color = CBasePalette::GetPalette(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                   *pTV = color.red();
                   *(pTV+1) = color.green();
                   *(pTV+2) = color.blue();
                }
                else
                {
-                  color = CBasePalette::GetDisplayPalette(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  color = CBasePalette::GetPalette(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                   *pTV = color.red();
                   *(pTV+1) = color.green();
                   *(pTV+2) = color.blue();
@@ -978,7 +978,7 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                              (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
                              ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
                         {
-                           color = CBasePalette::GetDisplayPalette(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                           color = CBasePalette::GetPalette(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                            *pTV = color.red();
                            *(pTV+1) = color.green();
                            *(pTV+2) = color.blue();
