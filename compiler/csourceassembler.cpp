@@ -74,12 +74,13 @@ bool CSourceAssembler::resolveLabels()
             // Relative addressing
             int sourceLabelPos = sourceLabel.origin + sourceLabel.offset + (sourceLabel.bank * 0x4000);
             int destLabelPos = labelEntry.origin + labelEntry.offset + (labelEntry.bank * 0x4000) + 1;
-            int diff = destLabelPos - sourceLabelPos;
+            int diff = sourceLabelPos- destLabelPos;
             if ((diff < -128) || (diff > 127)) {
                 builderTextLogger.write("<font color='red'>Label error: Relative address out of range.</font>");
                 return false;
             }
-            destPrgRomBank->get_pointerToBankData()[labelEntry.offset] = (qint8)diff;
+
+            destPrgRomBank->get_pointerToBankData()[labelEntry.offset] = calculate2sCompelment(diff);
 
         }
     }
@@ -146,7 +147,20 @@ bool CSourceAssembler::assembleSource(QStringList *source)
         }
 
         QString directive = curLine.mid(1, curLine.indexOf(' ') - 1);
-        if (directive == "db") {
+        if (directive == "padto") {
+            bool ok;
+            int numValue = numberToInt(&ok, curLine.mid(7).trimmed());
+            if ((!ok) || (numValue < 0) || (numValue > 0x3FFF))
+            {
+                builderTextLogger.write("<font color='red'>Error: Invalid pad-to address specified on line " +
+                                        QString::number(lineIdx + 1) + ".</font>");
+                return false;
+            }
+
+            while (bankPtr < numValue) {
+                BANK_WRITEBYTE(0x00);
+            }
+        } else if (directive == "db") {
             // .db Data Byte Directive
             QStringList items = curLine.mid(4).trimmed().split(',', QString::SkipEmptyParts);
             for (int itemIdx = 0; itemIdx < items.count(); itemIdx++)
@@ -271,7 +285,15 @@ bool CSourceAssembler::assembleSource(QStringList *source)
                                         QString::number(lineIdx + 1) + ".</font>");
                 return false;
             }
+            currentOrg = numValue;
         }
+    }
+
+    // If we are at the start of a new bank, then the bank is blank and we can delete it
+    if (bankPtr == 0) {
+        prgRomBanks->get_pointerToArrayOfBanks()->removeAll(curBank);
+        prgRomBanks->removeChild(curBank);
+        delete curBank;
     }
 
     return true;
@@ -410,7 +432,7 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                             return false;
                         }
 
-                        if ((immValue < -127) || (immValue > 128))
+                        if ((immValue < -128) || (immValue > 127))
                         {
                             // TODO: Highlight the errors on the code editor (if visible)
                             builderTextLogger.write("<font color='red'>Error: Relative address value out of range (" +
@@ -419,8 +441,10 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
                             return false;
                         }
 
+
                         curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].rel.opcode, 16).toUpper()
-                                  + ", $" + QString::number(immValue, 16).toUpper();
+                                  + ", $" + QString::number(calculate2sCompelment(immValue), 16).toUpper();
+
 
 
                     } else {
@@ -580,6 +604,18 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
         source->replace(lineIdx, curLine);
     }
     return true;
+}
+
+quint8 CSourceAssembler::calculate2sCompelment(int value)
+{
+    if (value > 0)
+        return (quint8)value;
+
+    // Negative value - do 2's compliment
+    quint8 newValue = abs(value);
+    newValue = ~newValue;
+    newValue += 1;
+    return newValue;
 }
 
 bool CSourceAssembler::isLabel(QString param)

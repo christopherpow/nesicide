@@ -126,6 +126,7 @@ private:
     bool isLabel(QString param);
     bool assembleSource(QStringList *source);
     bool resolveLabels();
+    quint8 calculate2sCompelment(int value);
 };
 
 #define BANK_WRITEBYTE(x) curBank->get_pointerToBankData()[bankPtr++] = x; \
