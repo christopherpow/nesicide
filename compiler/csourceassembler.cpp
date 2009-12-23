@@ -51,6 +51,7 @@ bool CSourceAssembler::resolveLabels()
             if (m_labelEntries.at(i).labelName == m_labelUseList.at(labelIdx).labelName)
             {
                 sourceLabel = m_labelEntries.at(i);
+                break;
             }
         }
 
@@ -59,7 +60,7 @@ bool CSourceAssembler::resolveLabels()
             return false;
         }
 
-        LabelEntry_s labelEntry = m_labelUseList.at(labelIdx);
+        LabelEntry_s labelEntry = m_labelUseList.value(labelIdx);
         CPRGROMBank *destPrgRomBank = prgRomBanks->get_pointerToArrayOfBanks()->at(labelEntry.bank);
 
         if (labelEntry.byteSize == 2) {
@@ -241,6 +242,7 @@ bool CSourceAssembler::assembleSource(QStringList *source)
                         labelEntry.offset = bankPtr;
                         labelEntry.origin = currentOrg;
                         labelEntry.byteSize = 2;
+                        labelEntry.bank = curBank->get_indexOfPrgRomBank();
                         m_labelUseList.append(labelEntry);
                         BANK_WRITEBYTE(0x00);
                         BANK_WRITEBYTE(0x00);
@@ -250,6 +252,7 @@ bool CSourceAssembler::assembleSource(QStringList *source)
                         labelEntry.offset = bankPtr;
                         labelEntry.origin = currentOrg;
                         labelEntry.byteSize = 1;
+                        labelEntry.bank = curBank->get_indexOfPrgRomBank();
                         m_labelUseList.append(labelEntry);
                         BANK_WRITEBYTE(0x00)
                     } else {
@@ -324,14 +327,15 @@ bool CSourceAssembler::trimBlankLines(QStringList *source)
 
 bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
 {
-    for (int lineIdx = 0; lineIdx < source->length(); lineIdx++)
+    for (int lineIdx = 0; lineIdx < source->count(); lineIdx++)
     {
-        QString curLine = QString(source->at(lineIdx)).trimmed();
+        QString curLine = QString(source->value(lineIdx)).trimmed();
         QString firstWord;
 
-        if ((curLine.at(0).toAscii() != '.') && (!curLine.isEmpty()))
+        if (!curLine.isEmpty())
+        if (curLine.at(0) != QChar('.'))
         {
-            // Find the first 'word' of the lineQString param0 = getParamItem(&curLine.mid(firstWord.length()), 0);
+            // Find the first 'word' of the line
             if (curLine.indexOf(' ') > -1)
                 firstWord = curLine.mid(0, curLine.indexOf(' ')).toUpper();
             else
