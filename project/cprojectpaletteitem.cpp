@@ -5,6 +5,11 @@ CProjectPaletteItem::CProjectPaletteItem()
     this->name = QString("palette0");
 }
 
+CProjectPaletteItem::~CProjectPaletteItem()
+{
+
+}
+
 QString CProjectPaletteItem::caption() const
 {
     return name;

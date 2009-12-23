@@ -5,6 +5,11 @@ CProjectPalettes::CProjectPalettes()
 
 }
 
+CProjectPalettes::~CProjectPalettes()
+{
+
+}
+
 QString CProjectPalettes::caption() const
 {
     return QString("Palettes");

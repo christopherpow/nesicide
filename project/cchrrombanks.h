@@ -10,6 +10,7 @@ class CCHRROMBanks : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
     CCHRROMBanks();
+    virtual ~CCHRROMBanks();
     QList<CCHRROMBank *> banks;
 
     // IXMLSerializable Interface Implementation

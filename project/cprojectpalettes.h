@@ -10,6 +10,7 @@ class CProjectPalettes : public IProjectTreeViewItem
 
 public:
     CProjectPalettes();
+    virtual ~CProjectPalettes();
     void newPaletteEvent();
 
     // IProjectTreeViewItem Interface Implmentation
