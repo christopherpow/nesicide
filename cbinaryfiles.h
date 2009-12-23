@@ -1,24 +1,14 @@
-#ifndef CPROJECT_H
-#define CPROJECT_H
+#ifndef CBINARYFILES_H
+#define CBINARYFILES_H
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
-#include "csources.h"
-#include "csourceitem.h"
-#include "cbinaryfiles.h"
 
-class CProject : public IXMLSerializable, public IProjectTreeViewItem
+class CBinaryFiles : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
-    CProject();
-    virtual ~CProject();
-
-    CSourceItem *getMainSource();
-    void setMainSource(CSourceItem *newSource);
-    CSources *getSources();
-    void setSources(CSources *newSources);
-    CBinaryFiles *getBinaryFiles();
-    void setBinaryFiles(CBinaryFiles *newBinaryFiles);
+    CBinaryFiles();
+    virtual ~CBinaryFiles();
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -26,7 +16,7 @@ public:
 
     // IProjectTreeViewItem Interface Implmentation
     QString caption() const;
-    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*);
     virtual void openItemEvent(QTabWidget*) {}
     virtual bool onCloseQuery() { return true; }
     virtual void onClose() {}
@@ -35,11 +25,6 @@ public:
     virtual void onSaveDocument() {}
     virtual bool canChangeName() { return false; }
     virtual bool onNameChanged(QString) { return true; }
-
-private:
-    CSources *m_pointerToSources;
-    CSourceItem *m_mainSource;
-    CBinaryFiles *m_pBinaryFiles;
 };
 
-#endif // CPROJECT_H
+#endif // CBINARYFILES_H

@@ -6,6 +6,10 @@ CProject::CProject()
     m_pointerToSources = new CSources();
     m_pointerToSources->InitTreeItem(this);
     this->appendChild(m_pointerToSources);
+
+    m_pBinaryFiles = new CBinaryFiles();
+    m_pBinaryFiles->InitTreeItem(this);
+    this->appendChild(m_pBinaryFiles);
 }
 
 CProject::~CProject()
@@ -32,6 +36,16 @@ CSources *CProject::getSources()
 void CProject::setSources(CSources *newSources)
 {
     m_pointerToSources = newSources;
+}
+
+CBinaryFiles *CProject::getBinaryFiles()
+{
+    return m_pBinaryFiles;
+}
+
+void CProject::setBinaryFiles(CBinaryFiles *newBinaryFiles)
+{
+    m_pBinaryFiles = newBinaryFiles;
 }
 
 bool CProject::serialize(QDomDocument &doc, QDomNode &node)

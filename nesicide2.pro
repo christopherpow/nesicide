@@ -99,7 +99,8 @@ SOURCES += mainwindow.cpp \
     debugger/nametabledisplaydialog.cpp \
     debugger/cnametablepreviewrenderer.cpp \
     debugger/nametableinspector.cpp \
-    debugger/executiontracerdialog.cpp
+    debugger/executiontracerdialog.cpp \
+    cbinaryfiles.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -173,7 +174,8 @@ HEADERS += mainwindow.h \
     debugger/nametabledisplaydialog.h \
     debugger/cnametablepreviewrenderer.h \
     debugger/nametableinspector.h \
-    debugger/executiontracerdialog.h
+    debugger/executiontracerdialog.h \
+    cbinaryfiles.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
