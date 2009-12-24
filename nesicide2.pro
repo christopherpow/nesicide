@@ -22,6 +22,7 @@ INCLUDEPATH = ./ \
     ./designers/new_project \
     ./designers/palette_editor \
     ./designers/project_properties \
+    ./designers/graphics_bank_editor \
     ./emulator \
     ./interfaces \
     ./project \
@@ -102,7 +103,10 @@ SOURCES += mainwindow.cpp \
     debugger/nametableinspector.cpp \
     debugger/executiontracerdialog.cpp \
     project/cbinaryfile.cpp \
-    project/cgraphics.cpp
+    project/cgraphics.cpp \
+    project/cgraphicsbanks.cpp \
+    project/cgraphicsbank.cpp \
+    designers/graphics_bank_editor/graphicsbankeditorform.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -179,7 +183,10 @@ HEADERS += mainwindow.h \
     debugger/nametableinspector.h \
     debugger/executiontracerdialog.h \
     project/cbinaryfile.h \
-    project/cgraphics.h
+    project/cgraphics.h \
+    project/cgraphicsbanks.h \
+    project/cgraphicsbank.h \
+    designers/graphics_bank_editor/graphicsbankeditorform.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -190,7 +197,8 @@ FORMS += mainwindow.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
     debugger/oamdisplaydialog.ui \
     debugger/nametabledisplaydialog.ui \
-    debugger/executiontracerdialog.ui
+    debugger/executiontracerdialog.ui \
+    designers/graphics_bank_editor/graphicsbankeditorform.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
 DESTDIR = ./output

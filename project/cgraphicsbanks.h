@@ -1,26 +1,30 @@
-#ifndef CGRAPHICS_H
-#define CGRAPHICS_H
+#ifndef CGRAPHICSBANKS_H
+#define CGRAPHICSBANKS_H
+
+#include <QList>
+#include <QInputDialog>
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
-#include "cgraphicsbanks.h"
+#include "cgraphicsbank.h"
+#include "cprojecttreeviewmodel.h"
 
-class CGraphics : public IXMLSerializable, public IProjectTreeViewItem
+class CGraphicsBanks : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
-    CGraphics();
-    virtual ~CGraphics();
+    CGraphicsBanks();
+    virtual ~CGraphicsBanks();
 
-    CGraphicsBanks *getGraphicsBanks();
-    void setGraphicsBanks(CGraphicsBanks *newGraphicsBanks);
+    QList<CGraphicsBank *> *getGraphicsBankArray();
+    void setGraphicsBankArray(QList<CGraphicsBank *> *newGraphicsBankArray);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
     virtual bool deserialize(QDomDocument &doc, QDomNode &node);
 
     // IProjectTreeViewItem Interface Implmentation
-    QString caption() const { return QString("Graphics"); }
-    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+    QString caption() const { return QString("Banks"); }
+    virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);
     virtual void openItemEvent(QTabWidget*) {}
     virtual bool onCloseQuery() { return true; }
     virtual void onClose() {}
@@ -31,7 +35,7 @@ public:
     virtual bool onNameChanged(QString) { return true; }
 
 private:
-    CGraphicsBanks *m_pGraphicsBanks;
+    QList<CGraphicsBank *> *m_paGraphicsBank;
 };
 
-#endif // CGRAPHICS_H
+#endif // CGRAPHICSBANKS_H
