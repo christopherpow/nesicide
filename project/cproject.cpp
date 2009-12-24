@@ -10,12 +10,32 @@ CProject::CProject()
     m_pBinaryFiles = new CBinaryFiles();
     m_pBinaryFiles->InitTreeItem(this);
     this->appendChild(m_pBinaryFiles);
+
+    m_pGraphics = new CGraphics();
+    m_pGraphics->InitTreeItem(this);
+    this->appendChild(m_pGraphics);
 }
 
 CProject::~CProject()
 {
     if (m_pointerToSources)
         delete m_pointerToSources;
+
+    if (m_pBinaryFiles)
+        delete m_pBinaryFiles;
+
+    if (m_pGraphics)
+        delete m_pGraphics;
+}
+
+CGraphics *CProject::getGraphics()
+{
+    return m_pGraphics;
+}
+
+void CProject::setGraphics(CGraphics *newGraphics)
+{
+    m_pGraphics = newGraphics;
 }
 
 CSourceItem *CProject::getMainSource()

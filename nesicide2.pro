@@ -101,7 +101,8 @@ SOURCES += mainwindow.cpp \
     debugger/cnametablepreviewrenderer.cpp \
     debugger/nametableinspector.cpp \
     debugger/executiontracerdialog.cpp \
-    project/cbinaryfile.cpp
+    project/cbinaryfile.cpp \
+    project/cgraphics.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -177,7 +178,8 @@ HEADERS += mainwindow.h \
     debugger/cnametablepreviewrenderer.h \
     debugger/nametableinspector.h \
     debugger/executiontracerdialog.h \
-    project/cbinaryfile.h
+    project/cbinaryfile.h \
+    project/cgraphics.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
