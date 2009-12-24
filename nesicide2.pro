@@ -201,5 +201,11 @@ FORMS += mainwindow.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
-DESTDIR = ./output
-OBJECTS_DIR = ./output
+debug {
+DESTDIR = ./output/debug
+OBJECTS_DIR = ./output/debug
+}
+release {
+DESTDIR = ./output/release
+OBJECTS_DIR = ./output/release
+}
