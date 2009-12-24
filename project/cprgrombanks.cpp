@@ -30,7 +30,7 @@ bool CPRGROMBanks::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CPRGROMBanks::deserialize(QDomDocument &, QDomNode &)
 {
-    return false;
+    return true;
 }
 
 QString CPRGROMBanks::caption() const

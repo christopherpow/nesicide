@@ -5,6 +5,8 @@
 #include "csources.h"
 #include "csourceitem.h"
 #include "cprgrombank.h"
+#include "cbinaryfiles.h"
+#include "cbinaryfile.h"
 
 typedef struct AssemblerInstrDetails
 {
@@ -127,6 +129,7 @@ private:
     bool assembleSource(QStringList *source);
     bool resolveLabels();
     quint8 calculate2sCompelment(int value);
+    QString processString(QString stringDef, QString *errorMsg);
 };
 
 #define BANK_WRITEBYTE(x) curBank->get_pointerToBankData()[bankPtr++] = x; \

@@ -161,6 +161,40 @@ bool CSourceAssembler::assembleSource(QStringList *source)
             while (bankPtr < numValue) {
                 BANK_WRITEBYTE(0x00);
             }
+        } else if (directive == "incbin") {
+            QString *errorMsg = new QString();
+            QString strValue = processString(curLine.mid(8).trimmed(), errorMsg);
+            if (!errorMsg->isEmpty()) {
+                errorMsg->prepend("<font color='red'>Error: ");
+                errorMsg->append("on line " + QString::number(lineIdx + 1) + ".</font>");
+                builderTextLogger.write(*errorMsg);
+                delete errorMsg;
+                return false;
+            }
+            delete errorMsg;
+            CBinaryFiles *binaryFiles = nesicideProject->getProject()->getBinaryFiles();
+            CBinaryFile *binFile = (CBinaryFile *)NULL;
+            for (int binIdx = 0; binIdx < binaryFiles->getBinaryFileList()->count(); binIdx++)
+            {
+                if (binaryFiles->getBinaryFileList()->value(binIdx)->caption() == strValue)
+                {
+                    binFile = binaryFiles->getBinaryFileList()->value(binIdx);
+                    break;
+                }
+            }
+
+            if (!binFile)
+            {
+                builderTextLogger.write("<font color='red'>Error: Invalid binary file name specified on line " +
+                                        QString::number(lineIdx + 1) + ".</font>");
+                return false;
+            }
+
+            for (int byteIdx = 0; byteIdx < binFile->getBinaryData()->count(); byteIdx++)
+                BANK_WRITEBYTE((quint8)binFile->getBinaryData()->at(byteIdx));
+
+            return true;
+
         } else if (directive == "db") {
             // .db Data Byte Directive
             QStringList items = curLine.mid(4).trimmed().split(',', QString::SkipEmptyParts);
@@ -301,6 +335,38 @@ bool CSourceAssembler::assembleSource(QStringList *source)
 
     return true;
 
+}
+
+QString CSourceAssembler::processString(QString stringDef, QString *errorMsg)
+{
+    errorMsg->clear();
+
+    if ((stringDef.length() < 2) || (stringDef.at(0) != '\"')
+        || (stringDef.at(stringDef.length()-1) != '\"')
+        || ((stringDef.at(stringDef.length()-1) == '\"') && (stringDef.at(stringDef.length()-1) == '\\')))
+    {
+        errorMsg->append("Invalid string syntax");
+        return QString("");
+    }
+
+    QString result;
+    bool isEscaped = false;
+    for (int i=1; i<stringDef.length()-1; i++)
+    {
+        if (!isEscaped) {
+            if (stringDef.at(i) == '\\') {
+                isEscaped = true;
+                continue;
+            } else {
+                result.append(stringDef.at(i));
+            }
+        } else {
+            result.append(stringDef.at(i));
+            isEscaped = false;
+        }
+    }
+
+    return result;
 }
 
 bool CSourceAssembler::stripComments(QStringList *source)
@@ -640,7 +706,7 @@ uint CSourceAssembler::numberToInt(bool *ok, QString number)
         return number.mid(1).toUInt(ok, 16);
 
     } else if (number.at(0) == '%') {
-        int base = 0;
+        int base = 1;
         int immValue = 0;
         for (int i=number.length()-1; i >= 0; i--) {
             if (number.at(i) == '%')

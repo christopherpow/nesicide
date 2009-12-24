@@ -25,7 +25,7 @@ bool CCHRROMBanks::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CCHRROMBanks::deserialize(QDomDocument &, QDomNode &)
 {
-    return false;
+    return true;
 }
 
 // IProjectTreeViewItem Interface Implmentation

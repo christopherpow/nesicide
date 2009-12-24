@@ -48,7 +48,8 @@ bool CSources::deserialize(QDomDocument &doc, QDomNode &node)
     m_pointerToArrayOfSourceItems = new QList<CSourceItem *>();
 
     QDomNode childNode = node.firstChild();
-    do
+
+    if (!childNode.isNull()) do
     {
         if (childNode.nodeName() == "sourceitem") {
 

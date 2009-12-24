@@ -60,6 +60,13 @@ bool CProject::serialize(QDomDocument &doc, QDomNode &node)
     } else
         return false;
 
+    if (m_pBinaryFiles)
+    {
+        if (!m_pBinaryFiles->serialize(doc, projectElement))
+            return false;
+    } else
+        return false;
+
     if (m_mainSource)
         projectElement.setAttribute("mainSource", m_mainSource->get_sourceName());
 
@@ -79,6 +86,9 @@ bool CProject::deserialize(QDomDocument &doc, QDomNode &node)
     {
         if (childNode.nodeName() == "sources") {
             if (!m_pointerToSources->deserialize(doc, childNode))
+                return false;
+        } else if (childNode.nodeName() == "binaryfiles") {
+            if (!m_pBinaryFiles->deserialize(doc, childNode))
                 return false;
         } else
             return false;

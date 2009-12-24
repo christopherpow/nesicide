@@ -1,23 +1,21 @@
-#ifndef CBINARYFILES_H
-#define CBINARYFILES_H
+#ifndef CBINARYFILE_H
+#define CBINARYFILE_H
 
-#include <QList>
-#include <QMenu>
-#include <QFileDialog>
+#include <QMessageBox>
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
-#include "cbinaryfile.h"
 #include "cprojecttreeviewmodel.h"
 
-class CBinaryFiles : public IXMLSerializable, public IProjectTreeViewItem
+class CBinaryFile : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
-    CBinaryFiles();
-    virtual ~CBinaryFiles();
+    CBinaryFile();
+    virtual ~CBinaryFile();
 
-    QList<CBinaryFile *> *getBinaryFileList();
-    void setBinaryFileList(QList<CBinaryFile *> * newBinaryFileList);
+    QByteArray *getBinaryData();
+    void setBinaryData(QByteArray *newBinaryData);
+    void setBinaryName(QString newName);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -32,11 +30,12 @@ public:
     virtual int getTabIndex() { return -1; }
     virtual bool isDocumentSaveable() { return false; }
     virtual void onSaveDocument() {}
-    virtual bool canChangeName() { return false; }
-    virtual bool onNameChanged(QString) { return true; }
+    virtual bool canChangeName() { return true; }
+    virtual bool onNameChanged(QString newName);
 
 private:
-    QList<CBinaryFile *> *m_pBinaryFileList;
+    QByteArray *m_binaryData;
+    QString m_binaryName;
 };
 
-#endif // CBINARYFILES_H
+#endif // CBINARYFILE_H
