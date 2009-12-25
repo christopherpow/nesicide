@@ -245,7 +245,7 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
             switch ( pSample->type )
             {
                case eTracer_Unknown:
-                  strcpy ( str, "" );
+                  str[0] = 0;
                break;
                case eTracer_InstructionFetch:
                   strcpy ( str, "Instruction Fetch" );
@@ -286,7 +286,7 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
             switch ( pSample->target )
             {
                case eTarget_Unknown:
-                  strcpy ( str, "" );
+                  str[0] = 0;
                break;
                case eTarget_RAM:
                   strcpy ( str, "RAM" );
@@ -332,7 +332,7 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
                       (pSample->type == eTracer_NMI) || 
                       (pSample->type == eTracer_IRQ) )
             {
-               strcpy ( str, "" );
+               str[0] = 0;
             }
             else
             {
@@ -342,7 +342,7 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
          case eTracerCol_CPU_EA:
             if ( pSample->ea == 0xFFFFFFFF )
             {
-               strcpy ( str, "" );
+               str[0] = 0;
             }
             else
             {
@@ -358,7 +358,7 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
                       (pSample->type == eTracer_NMI) || 
                       (pSample->type == eTracer_IRQ) )
             {
-               strcpy ( str, "" );
+               str[0] = 0;
             }
             else
             {
@@ -370,11 +370,19 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
             {
                sprintf ( str, "$%02X", pSample->a );
             }
+            else
+            {
+               str[0] = 0;
+            }
          break;
          case eTracerCol_CPU_X:
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->x );
+            }
+            else
+            {
+               str[0] = 0;
             }
          break;
          case eTracerCol_CPU_Y:
@@ -382,11 +390,19 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
             {
                sprintf ( str, "$%02X", pSample->y );
             }
+            else
+            {
+               str[0] = 0;
+            }
          break;
          case eTracerCol_CPU_SP:
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->sp );
+            }
+            else
+            {
+               str[0] = 0;
             }
          break;
          case eTracerCol_CPU_F:
@@ -394,13 +410,20 @@ void CTracer::GetPrintable ( unsigned int idx, int subItem, char* str )
             {
                sprintf ( str, "$%02X", pSample->f );
             }
+            else
+            {
+               str[0] = 0;
+            }
          break;
          case eTracerCol_Info:
             if ( (*(pSample->disassemble+3)) == 0x00 )
             {
                // Extra byte indicates whether an instruction should be decoded...
-// CPTODO: disassembly removed for now from Tracer
-//               C6502::Disassemble ( pSample->disassemble, str );
+               C6502::Disassemble ( pSample->disassemble, str );
+            }
+            else
+            {
+               str[0] = 0;
             }
          break;
       }

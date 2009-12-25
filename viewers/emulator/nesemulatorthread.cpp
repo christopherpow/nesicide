@@ -30,6 +30,13 @@ NESEmulatorThread::NESEmulatorThread(QObject *parent)
 void NESEmulatorThread::setDialog(QDialog* dialog)
 {
    QObject::connect(dialog, SIGNAL(controllerInput(unsigned char*)), this, SLOT(controllerInput(unsigned char*)));
+   QObject::connect(dialog, SIGNAL(killEmulator()), this, SLOT(killEmulator()));
+}
+
+void NESEmulatorThread::killEmulator()
+{
+   // dangerous?
+   delete this;
 }
 
 void NESEmulatorThread::setCartridge(CCartridge *cartridge)

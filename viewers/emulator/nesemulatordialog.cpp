@@ -40,6 +40,7 @@ NESEmulatorDialog::~NESEmulatorDialog()
 void NESEmulatorDialog::stopEmulation()
 {
     emit on_stopButton_clicked();
+    emit killEmulator();
 }
 
 void NESEmulatorDialog::changeEvent(QEvent *e)

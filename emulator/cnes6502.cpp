@@ -74,15 +74,15 @@ static int opcode_size [ NUM_ADDRESSING_MODES ] =
    2  // AM_RELATIVE
 };
 
-/*static const char* dispFmt[4] =
+static const char* dispFmt[4] =
 {
    "",
    "%02X       ",
    "%02X %02X    ",
    "%02X %02X %02X "
-};*/
+};
 
-/*static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
+static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
 {
    "", // AM_IMPLIED
    " #$%02X", // AM_IMMEDIATE
@@ -97,7 +97,7 @@ static int opcode_size [ NUM_ADDRESSING_MODES ] =
    " ($%02X, X)", // AM_PREINDEXED_INDIRECT
    " ($%02X), Y", // AM_POSTINDEXED_INDIRECT
    " $%02X"  // AM_RELATIVE
-};*/
+};
 
 static C6502_opcode m_6502opcode [ 256 ] =
 {
@@ -3151,6 +3151,7 @@ void C6502::Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, i
    (*ptr8000) = 0;
    (*ptrC000) = 0;
 }
+#endif
 
 char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
 {
@@ -3158,7 +3159,8 @@ char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
    C6502_opcode* pOp = m_6502opcode+(*pOpcode);
    int opSize = *(opcode_size+pOp->amode);
 
-   if ( (pOp->documented) || (CONFIG.IsIllegalsEnabled()) )
+   // CPTODO: rework illegals?
+   if ( (pOp->documented) /*|| (CONFIG.IsIllegalsEnabled())*/ )
    {
       if ( pOp->documented )
       {
@@ -3202,4 +3204,3 @@ char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
 
    return lbuffer;
 }
-#endif

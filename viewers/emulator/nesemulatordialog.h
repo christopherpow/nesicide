@@ -39,6 +39,7 @@ private slots:
 
 signals:
     void controllerInput(unsigned char* input);
+    void killEmulator();
 };
 
 #endif // NESEMULATORDIALOG_H

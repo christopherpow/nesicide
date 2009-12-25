@@ -12,6 +12,8 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
     ui->setupUi(this);
     tableViewModel = new CDebuggerExecutionTracerModel(this,&C6502::TRACER());
     ui->tableView->setModel(tableViewModel);
+    ui->tableView->setAlternatingRowColors(true);
+    ui->tableView->setGridStyle(Qt::NoPen);
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
 }
 

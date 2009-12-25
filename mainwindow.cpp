@@ -112,6 +112,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionCHRMEM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionOAM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionNameTable_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {

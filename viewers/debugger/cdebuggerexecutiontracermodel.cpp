@@ -11,6 +11,8 @@ CDebuggerExecutionTracerModel::~CDebuggerExecutionTracerModel()
 
 QVariant CDebuggerExecutionTracerModel::data(const QModelIndex &index, int role) const
 {
+   char data [ 64 ];
+
    if (!index.isValid())
       return QVariant();
 
@@ -19,7 +21,8 @@ QVariant CDebuggerExecutionTracerModel::data(const QModelIndex &index, int role)
 
    TracerInfo* pSample = static_cast<TracerInfo*>(index.internalPointer());
 
-   return pSample->addr;
+   m_pTracer->GetPrintable(index.row(), index.column(), data);
+   return data;
 }
 
 Qt::ItemFlags CDebuggerExecutionTracerModel::flags(const QModelIndex &index) const
@@ -48,7 +51,7 @@ int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &parent) const
 
 int CDebuggerExecutionTracerModel::columnCount(const QModelIndex &parent) const
 {
-    return 2;
+    return 13;
 }
 
 void CDebuggerExecutionTracerModel::layoutChangedEvent()
