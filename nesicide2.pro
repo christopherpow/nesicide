@@ -205,12 +205,4 @@ FORMS += mainwindow.ui \
     debugger/executiontracerdialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui
 RESOURCES += resource.qrc
-OTHER_FILES += nesicide2.pro.user
-debug { 
-    DESTDIR = ./output/debug
-    OBJECTS_DIR = ./output/debug
-}
-release { 
-    DESTDIR = ./output/release
-    OBJECTS_DIR = ./output/release
-}
+
