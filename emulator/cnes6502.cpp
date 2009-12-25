@@ -74,13 +74,13 @@ static int opcode_size [ NUM_ADDRESSING_MODES ] =
    2  // AM_RELATIVE
 };
 
-static const char* dispFmt[4] =
+/*static const char* dispFmt[4] =
 {
    "",
    "%02X       ",
    "%02X %02X    ",
    "%02X %02X %02X "
-};
+};*/
 
 static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
 {
@@ -3157,7 +3157,6 @@ char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
 {
    char* lbuffer = buffer;
    C6502_opcode* pOp = m_6502opcode+(*pOpcode);
-   int opSize = *(opcode_size+pOp->amode);
 
    // CPTODO: rework illegals?
    if ( (pOp->documented) /*|| (CONFIG.IsIllegalsEnabled())*/ )
