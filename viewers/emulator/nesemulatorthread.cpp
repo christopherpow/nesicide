@@ -25,6 +25,8 @@ NESEmulatorThread::NESEmulatorThread(QObject *parent)
     m_joy [ JOY2 ] = 0x00;
     m_isAtBreakpoint = false;
     m_isRunning = false;
+
+    m_pCartridge = NULL;
 }
 
 void NESEmulatorThread::setDialog(QDialog* dialog)
@@ -135,11 +137,11 @@ void NESEmulatorThread::setFrequency ( float fFreq )
 
 void NESEmulatorThread::startEmulation ()
 {
-   if ( nesicideProject )
+   if ( (nesicideProject) && (!m_pCartridge) )
    {
       setCartridge ( nesicideProject->get_pointerToCartridge() );
-      m_isRunning = true;
    }
+   m_isRunning = true;
 }
 
 void NESEmulatorThread::pauseEmulation ()
