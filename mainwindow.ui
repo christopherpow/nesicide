@@ -196,6 +196,7 @@
    <addaction name="actionCHRMEM_Inspector"/>
    <addaction name="actionOAM_Inspector"/>
    <addaction name="actionNameTable_Inspector"/>
+   <addaction name="actionExecution_Inspector"/>
    <addaction name="actionCompiler_Output"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
@@ -255,7 +256,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -270,7 +271,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
    </property>
    <property name="text">
@@ -285,7 +286,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_document-open.png</normaloff>:/resources/22_document-open.png</iconset>
    </property>
    <property name="text">
@@ -300,7 +301,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
    </property>
    <property name="text">
@@ -323,7 +324,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -332,7 +333,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -344,7 +345,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
@@ -370,7 +371,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
    </property>
    <property name="text">
@@ -385,7 +386,7 @@
   </action>
   <action name="actionSave_Active_Document">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
@@ -403,7 +404,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
@@ -415,7 +416,7 @@
   </action>
   <action name="actionCompile_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_run-build.png</normaloff>:/resources/22_run-build.png</iconset>
    </property>
    <property name="text">
@@ -430,7 +431,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -445,7 +446,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -460,7 +461,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -468,6 +469,21 @@
    </property>
    <property name="toolTip">
     <string>Name Table Inspector</string>
+   </property>
+  </action>
+  <action name="actionExecution_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>Execution Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>Execution Inspector</string>
    </property>
   </action>
  </widget>
@@ -484,9 +500,7 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resource.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>actionE_xit</sender>

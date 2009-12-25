@@ -2,6 +2,7 @@
 #define EXECUTIONTRACERDIALOG_H
 
 #include <QDialog>
+#include "cdebuggerexecutiontracermodel.h"
 
 namespace Ui {
     class ExecutionTracerDialog;
@@ -16,8 +17,12 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
+public slots:
+    void updateTracer();
+
 private:
     Ui::ExecutionTracerDialog *ui;
+    CDebuggerExecutionTracerModel *tableViewModel;
 };
 
 #endif // EXECUTIONTRACERDIALOG_H

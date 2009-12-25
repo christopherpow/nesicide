@@ -29,6 +29,7 @@ INCLUDEPATH = ./ \
     ./resources \
     ./viewers \
     ./viewers/chr-rom \
+    ./viewers/debugger \
     ./viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
@@ -106,7 +107,9 @@ SOURCES += mainwindow.cpp \
     project/cgraphics.cpp \
     project/cgraphicsbanks.cpp \
     project/cgraphicsbank.cpp \
-    designers/graphics_bank_editor/graphicsbankeditorform.cpp
+    designers/graphics_bank_editor/graphicsbankeditorform.cpp \
+    viewers/debugger/cdebuggerexecutiontracermodel.cpp \
+    debugger/executioninspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -186,7 +189,9 @@ HEADERS += mainwindow.h \
     project/cgraphics.h \
     project/cgraphicsbanks.h \
     project/cgraphicsbank.h \
-    designers/graphics_bank_editor/graphicsbankeditorform.h
+    designers/graphics_bank_editor/graphicsbankeditorform.h \
+    viewers/debugger/cdebuggerexecutiontracermodel.h \
+    debugger/executioninspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -201,11 +206,11 @@ FORMS += mainwindow.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui
 RESOURCES += resource.qrc
 OTHER_FILES += nesicide2.pro.user
-debug {
-DESTDIR = ./output/debug
-OBJECTS_DIR = ./output/debug
+debug { 
+    DESTDIR = ./output/debug
+    OBJECTS_DIR = ./output/debug
 }
-release {
-DESTDIR = ./output/release
-OBJECTS_DIR = ./output/release
+release { 
+    DESTDIR = ./output/release
+    OBJECTS_DIR = ./output/release
 }

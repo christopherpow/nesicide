@@ -20,14 +20,16 @@ MainWindow::MainWindow(QWidget *parent) :
     emulatorDlgTabIdx = -1;
     projectDataChangesEvent();
 
+    QRect rect;
+
     m_pCHRMEMInspector = new CHRMEMInspector ();
     m_pCHRMEMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pCHRMEMInspector->setWindowTitle("CHR Memory Inspector");
     m_pCHRMEMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pCHRMEMInspector );
-    QRect ppuRc = m_pCHRMEMInspector->geometry();
-    ppuRc.setSize(QSize(300, 300));
-    m_pCHRMEMInspector->setGeometry(ppuRc);
+    rect = m_pCHRMEMInspector->geometry();
+    rect.setSize(QSize(300, 300));
+    m_pCHRMEMInspector->setGeometry(rect);
     m_pCHRMEMInspector->hide();
     QObject::connect(m_pCHRMEMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(chrmemInspector_close(bool)));
 
@@ -36,9 +38,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pOAMInspector->setWindowTitle("OAM Inspector");
     m_pOAMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pOAMInspector );
-    QRect oamRc = m_pOAMInspector->geometry();
-    oamRc.setSize(QSize(300, 300));
-    m_pOAMInspector->setGeometry(oamRc);
+    rect = m_pOAMInspector->geometry();
+    rect.setSize(QSize(300, 300));
+    m_pOAMInspector->setGeometry(rect);
     m_pOAMInspector->hide();
     QObject::connect(m_pOAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(oamInspector_close(bool)));
 
@@ -47,11 +49,22 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pNameTableInspector->setWindowTitle("Name Table Inspector");
     m_pNameTableInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::RightDockWidgetArea, m_pNameTableInspector );
-    QRect ntRc = m_pNameTableInspector->geometry();
-    ntRc.setSize(QSize(600, 600));
-    m_pNameTableInspector->setGeometry(ntRc);
+    rect = m_pNameTableInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pNameTableInspector->setGeometry(rect);
     m_pNameTableInspector->hide();
     QObject::connect(m_pNameTableInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ntInspector_close(bool)));
+
+    m_pExecutionInspector = new ExecutionInspector();
+    m_pExecutionInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pExecutionInspector->setWindowTitle("Execution Inspector");
+    m_pExecutionInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
+    rect = m_pExecutionInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pExecutionInspector->setGeometry(rect);
+    m_pExecutionInspector->hide();
+    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(exeInspector_close(bool)));
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
@@ -416,4 +429,14 @@ void MainWindow::on_actionNameTable_Inspector_toggled(bool value)
 void MainWindow::ntInspector_close (bool toplevel)
 {
    ui->actionNameTable_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::exeInspector_close (bool toplevel)
+{
+   ui->actionExecution_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionExecution_Inspector_toggled(bool value)
+{
+   m_pExecutionInspector->setVisible(value);
 }
