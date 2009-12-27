@@ -274,7 +274,7 @@ void CPPU::RENDERCHRMEM ( void )
 void CPPU::RENDEROAM ( void )
 {
    int x, xf, y, yf;
-   unsigned short spritePatBase;
+   unsigned short spritePatBase = 0x0000;
    unsigned char patternIdx;
    unsigned char spriteAttr;
    int           spriteSize;
@@ -318,6 +318,11 @@ void CPPU::RENDEROAM ( void )
                patternIdx &= 0xFE;
             }
 
+            spriteAttr = CPPU::OAM ( SPRITEATT, sprite );
+            spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
+            spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
+            attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
+
             // For 8x16 sprites...
             if ( (spriteSize == 2) &&
                  (((!spriteFlipVert) && (((y>>3)&1))) ||
@@ -325,10 +330,6 @@ void CPPU::RENDEROAM ( void )
             {
                patternIdx++;
             }
-            spriteAttr = CPPU::OAM ( SPRITEATT, sprite );
-            spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
-            spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
-            attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
 
             yf = y&0x7;
             if ( spriteFlipVert )
@@ -1126,7 +1127,7 @@ bool CPPU::GATHERSPRITES ( int scanline )
 {
    int idx1, idx2;
    int sprite;
-   unsigned short spritePatBase;
+   unsigned short spritePatBase = 0x0000;
    short         spriteY;
    unsigned char patternIdx;
    unsigned char spriteAttr;
