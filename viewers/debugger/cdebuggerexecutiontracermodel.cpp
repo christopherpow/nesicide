@@ -1,8 +1,11 @@
 #include "cdebuggerexecutiontracermodel.h"
 
-CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject* parent, CTracer* pTracer)
-   : m_pTracer(pTracer)
+CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject* parent)
 {
+   m_pCPUTracer = C6502::TRACER();
+   m_pPPUTracer = CPPU::TRACER();
+   m_bShowCPU = true;
+   m_bShowPPU = false;
 }
 
 CDebuggerExecutionTracerModel::~CDebuggerExecutionTracerModel()
@@ -19,7 +22,25 @@ QVariant CDebuggerExecutionTracerModel::data(const QModelIndex &index, int role)
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   m_pTracer->GetPrintable(index.row(), index.column(), data);
+   if ( (m_bShowCPU) && (m_bShowPPU) )
+   {
+      if ( index.row()%4 )
+      {
+         m_pPPUTracer->GetPrintable(index.row()-((index.row()/4)+1), index.column(), data);
+      }
+      else
+      {
+         m_pCPUTracer->GetPrintable(index.row()/4, index.column(), data);
+      }
+   }
+   else if ( m_bShowCPU )
+   {
+      m_pCPUTracer->GetPrintable(index.row(), index.column(), data);
+   }
+   else if ( m_bShowPPU )
+   {
+      m_pPPUTracer->GetPrintable(index.row(), index.column(), data);
+   }
 
    return data;
 }
@@ -77,20 +98,46 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
       break;
    }
 
-   return  QString("Blah");
+   return  QVariant();
 }
 
 QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &parent) const
 {
-   if (!m_pTracer)
-      return QModelIndex();
-   else
-      return createIndex(row, column, m_pTracer->GetSample(row));
+   if ( (m_bShowCPU) && (m_bShowPPU) )
+   {
+      if ( row%4 )
+      {
+         return createIndex(row, column, m_pPPUTracer->GetSample(row-((row/4)+1)));
+      }
+      else
+      {
+         return createIndex(row, column, m_pCPUTracer->GetSample(row/4));
+      }
+   }
+   else if ( m_bShowCPU )
+   {
+      return createIndex(row, column, m_pCPUTracer->GetSample(row));
+   }
+   else if ( m_bShowPPU )
+   {
+      return createIndex(row, column, m_pPPUTracer->GetSample(row));
+   }
+   return QModelIndex();
 }
 
 int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &parent) const
 {
-   return m_pTracer->GetNumSamples();
+   int rows = 0;
+   if ( m_bShowCPU )
+   {
+      rows += m_pCPUTracer->GetNumSamples();
+   }
+   if ( m_bShowPPU )
+   {
+      rows += m_pPPUTracer->GetNumSamples();
+   }
+   rows--; // otherwise a repeat of the first row shows up...
+   return rows;
 }
 
 int CDebuggerExecutionTracerModel::columnCount(const QModelIndex &parent) const

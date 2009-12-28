@@ -272,7 +272,7 @@ public:
    static bool ISBRKPT ( void ) { bool hit = m_brkptHit; m_brkptHit = false; return hit; }
    static void CHECKBRKPT ( void );
 
-   static inline CTracer& TRACER ( void ) { return m_tracer; }
+   static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
 

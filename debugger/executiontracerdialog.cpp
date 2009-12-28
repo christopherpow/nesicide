@@ -10,7 +10,11 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
     ui(new Ui::ExecutionTracerDialog)
 {
     ui->setupUi(this);
-    tableViewModel = new CDebuggerExecutionTracerModel(this,&C6502::TRACER());
+    tableViewModel = new CDebuggerExecutionTracerModel(this);
+    tableViewModel->showCPU ( true );
+    tableViewModel->showPPU ( false );
+    ui->showCPU->setChecked(true);
+    ui->showPPU->setChecked(false);
     ui->tableView->setModel(tableViewModel);
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
 }
@@ -36,4 +40,14 @@ void ExecutionTracerDialog::changeEvent(QEvent *e)
 void ExecutionTracerDialog::updateTracer ()
 {
    tableViewModel->layoutChangedEvent();
+}
+
+void ExecutionTracerDialog::on_showCPU_toggled(bool checked)
+{
+   tableViewModel->showCPU ( checked );
+}
+
+void ExecutionTracerDialog::on_showPPU_toggled(bool checked)
+{
+   tableViewModel->showPPU ( checked );
 }

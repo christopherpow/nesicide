@@ -182,7 +182,7 @@ public:
    static inline void SETBRKPT ( int type, UINT addr, UINT addr2, int iIf, UINT cond )
    { m_brkptType = type; m_brkptAddr = addr; m_brkptAddr2 = addr2; m_brkptIf = iIf; m_brkptCond = cond; }
 
-   static inline CTracer& TRACER ( void ) { return m_tracer; }
+   static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
    static inline void INCCYCLE ( void ) { m_curCycles++; m_cycles++; }

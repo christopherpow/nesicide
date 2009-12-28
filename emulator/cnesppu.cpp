@@ -58,7 +58,7 @@ UINT           CPPU::m_brkptAddr2 = 0x0000;
 int            CPPU::m_brkptType = -1;
 UINT           CPPU::m_brkptCond = 0x0000;
 int            CPPU::m_brkptIf = -1;
-CTracer         CPPU::m_tracer;
+CTracer         CPPU::m_tracer(TRACER_DEFAULT_DEPTH*3);
 CCodeDataLogger CPPU::m_logger;
 unsigned int   CPPU::m_cycles = 0;
 int            CPPU::m_mode = MODE_NTSC;

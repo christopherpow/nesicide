@@ -39,6 +39,16 @@ CTracer::CTracer()
    m_sampleBufferDepth = TRACER_DEFAULT_DEPTH;
 }
 
+CTracer::CTracer(int depth)
+{
+   m_cursor = 0;
+   m_samples = 0;
+
+   m_pSampleBuffer = new TracerInfo [ depth ];
+
+   m_sampleBufferDepth = depth;
+}
+
 CTracer::~CTracer()
 {
    delete m_pSampleBuffer;

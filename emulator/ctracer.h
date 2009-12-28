@@ -107,6 +107,7 @@ public:
    void GetPrintable ( unsigned int idx, int subItem, char* str );
 
 	CTracer();
+   CTracer(int depth);
 	virtual ~CTracer();
 
 protected:

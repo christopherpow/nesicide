@@ -23,6 +23,10 @@ public slots:
 private:
     Ui::ExecutionTracerDialog *ui;
     CDebuggerExecutionTracerModel *tableViewModel;
+
+private slots:
+    void on_showPPU_toggled(bool checked);
+    void on_showCPU_toggled(bool checked);
 };
 
 #endif // EXECUTIONTRACERDIALOG_H

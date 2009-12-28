@@ -41,13 +41,22 @@
       <enum>Qt::NoPen</enum>
      </property>
      <property name="sortingEnabled">
-      <bool>true</bool>
+      <bool>false</bool>
+     </property>
+     <property name="cornerButtonEnabled">
+      <bool>false</bool>
      </property>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
      </attribute>
-     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+     <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>50</number>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
@@ -56,6 +65,24 @@
       <bool>false</bool>
      </attribute>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QCheckBox" name="showCPU">
+       <property name="text">
+        <string>Show CPU Execution</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showPPU">
+       <property name="text">
+        <string>Show PPU Execution</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
