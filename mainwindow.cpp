@@ -86,6 +86,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pPPUMemoryInspector->hide();
     QObject::connect(m_pPPUMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ppumemInspector_close(bool)));
 
+    m_pPPURegisterInspector = new MemoryInspector(eMemory_PPUregs);
+    m_pPPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pPPURegisterInspector->setWindowTitle("PPU Register Inspector");
+    m_pPPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pPPURegisterInspector );
+    rect = m_pPPURegisterInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pPPURegisterInspector->setGeometry(rect);
+    m_pPPURegisterInspector->hide();
+    QObject::connect(m_pPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ppuregInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -135,6 +146,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -482,4 +494,14 @@ void MainWindow::ppumemInspector_close (bool toplevel)
 void MainWindow::on_actionPPUMemory_Inspector_toggled(bool value)
 {
    m_pPPUMemoryInspector->setVisible(value);
+}
+
+void MainWindow::on_actionPPURegister_Inspector_toggled(bool value)
+{
+   m_pPPURegisterInspector->setVisible(value);
+}
+
+void MainWindow::ppuregInspector_close ( bool toplevel )
+{
+   ui->actionPPURegister_Inspector->setChecked(toplevel);
 }

@@ -106,6 +106,7 @@
      <addaction name="actionExecution_Inspector"/>
      <addaction name="actionCPUMemory_Inspector"/>
      <addaction name="actionPPUMemory_Inspector"/>
+     <addaction name="actionPPURegister_Inspector"/>
     </widget>
     <widget class="QMenu" name="menuType_Here">
      <property name="title">
@@ -208,6 +209,7 @@
    <addaction name="actionExecution_Inspector"/>
    <addaction name="actionCPUMemory_Inspector"/>
    <addaction name="actionPPUMemory_Inspector"/>
+   <addaction name="actionPPURegister_Inspector"/>
    <addaction name="actionCompiler_Output"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
@@ -525,6 +527,21 @@
    </property>
    <property name="toolTip">
     <string>PPU Memory Inspector</string>
+   </property>
+  </action>
+  <action name="actionPPURegister_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>PPU Register Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>PPU Register Inspector</string>
    </property>
   </action>
  </widget>

@@ -84,6 +84,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
          return createIndex(row, column, (int)C6502::_MEM(m_offset+((row<<4)|column)));
       break;
       case eMemory_PPUregs:
+         return createIndex(row, column, (int)CPPU::_PPU(m_offset+column));
       break;
       case eMemory_IOregs:
       break;
@@ -94,7 +95,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
       case eMemory_cartCHRMEM:
       break;
       case eMemory_PPU:
-      return createIndex(row, column, (int)CPPU::_MEM(m_offset+((row<<4)|column)));
+         return createIndex(row, column, (int)CPPU::_MEM(m_offset+((row<<4)|column)));
       break;
       case eMemory_PPUpalette:
       break;
@@ -145,7 +146,24 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
    {
       return 0;
    }
-   return 16;
+   switch ( m_display )
+   {
+      case eMemory_CPU:
+      case eMemory_cartSRAM:
+      case eMemory_cartEXRAM:
+      case eMemory_cartCHRMEM:
+      case eMemory_PPU:
+      case eMemory_PPUpalette:
+      case eMemory_PPUoam:
+         return 16;
+      case eMemory_PPUregs:
+         return 8;
+      break;
+      case eMemory_IOregs:
+         return 24;
+      break;
+   }
+   return 0;
 }
 
 void CDebuggerMemoryDisplayModel::layoutChangedEvent()
