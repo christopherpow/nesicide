@@ -109,7 +109,10 @@ SOURCES += mainwindow.cpp \
     project/cgraphicsbank.cpp \
     designers/graphics_bank_editor/graphicsbankeditorform.cpp \
     viewers/debugger/cdebuggerexecutiontracermodel.cpp \
-    debugger/executioninspector.cpp
+    debugger/executioninspector.cpp \
+    debugger/memorydisplaydialog.cpp \
+    debugger/memoryinspector.cpp \
+    viewers/debugger/cdebuggermemorydisplaymodel.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -191,7 +194,10 @@ HEADERS += mainwindow.h \
     project/cgraphicsbank.h \
     designers/graphics_bank_editor/graphicsbankeditorform.h \
     viewers/debugger/cdebuggerexecutiontracermodel.h \
-    debugger/executioninspector.h
+    debugger/executioninspector.h \
+    debugger/memorydisplaydialog.h \
+    debugger/memoryinspector.h \
+    viewers/debugger/cdebuggermemorydisplaymodel.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -203,6 +209,6 @@ FORMS += mainwindow.ui \
     debugger/oamdisplaydialog.ui \
     debugger/nametabledisplaydialog.ui \
     debugger/executiontracerdialog.ui \
-    designers/graphics_bank_editor/graphicsbankeditorform.ui
+    designers/graphics_bank_editor/graphicsbankeditorform.ui \
+    debugger/memorydisplaydialog.ui
 RESOURCES += resource.qrc
-

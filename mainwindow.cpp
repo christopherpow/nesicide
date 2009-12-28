@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "chrmeminspector.h"
-
 #include "main.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -66,6 +64,28 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pExecutionInspector->hide();
     QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(exeInspector_close(bool)));
 
+    m_pCPUMemoryInspector = new MemoryInspector(eMemory_CPU);
+    m_pCPUMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pCPUMemoryInspector->setWindowTitle("CPU Memory Inspector");
+    m_pCPUMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pCPUMemoryInspector );
+    rect = m_pCPUMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pCPUMemoryInspector->setGeometry(rect);
+    m_pCPUMemoryInspector->hide();
+    QObject::connect(m_pCPUMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(cpumemInspector_close(bool)));
+
+    m_pPPUMemoryInspector = new MemoryInspector(eMemory_PPU);
+    m_pPPUMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pPPUMemoryInspector->setWindowTitle("PPU Memory Inspector");
+    m_pPPUMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUMemoryInspector );
+    rect = m_pPPUMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pPPUMemoryInspector->setGeometry(rect);
+    m_pPPUMemoryInspector->hide();
+    QObject::connect(m_pPPUMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ppumemInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -113,6 +133,8 @@ void MainWindow::projectDataChangesEvent()
     ui->actionOAM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionNameTable_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionCPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -440,4 +462,24 @@ void MainWindow::exeInspector_close (bool toplevel)
 void MainWindow::on_actionExecution_Inspector_toggled(bool value)
 {
    m_pExecutionInspector->setVisible(value);
+}
+
+void MainWindow::cpumemInspector_close (bool toplevel)
+{
+   ui->actionCPUMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionCPUMemory_Inspector_toggled(bool value)
+{
+   m_pCPUMemoryInspector->setVisible(value);
+}
+
+void MainWindow::ppumemInspector_close (bool toplevel)
+{
+   ui->actionPPUMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionPPUMemory_Inspector_toggled(bool value)
+{
+   m_pPPUMemoryInspector->setVisible(value);
 }

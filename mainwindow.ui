@@ -103,8 +103,17 @@
      <addaction name="actionCHRMEM_Inspector"/>
      <addaction name="actionOAM_Inspector"/>
      <addaction name="actionNameTable_Inspector"/>
+     <addaction name="actionExecution_Inspector"/>
+     <addaction name="actionCPUMemory_Inspector"/>
+     <addaction name="actionPPUMemory_Inspector"/>
+    </widget>
+    <widget class="QMenu" name="menuType_Here">
+     <property name="title">
+      <string>Type Here</string>
+     </property>
     </widget>
     <addaction name="menu_Windows"/>
+    <addaction name="menuType_Here"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -197,6 +206,8 @@
    <addaction name="actionOAM_Inspector"/>
    <addaction name="actionNameTable_Inspector"/>
    <addaction name="actionExecution_Inspector"/>
+   <addaction name="actionCPUMemory_Inspector"/>
+   <addaction name="actionPPUMemory_Inspector"/>
    <addaction name="actionCompiler_Output"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
@@ -484,6 +495,36 @@
    </property>
    <property name="toolTip">
     <string>Execution Inspector</string>
+   </property>
+  </action>
+  <action name="actionCPUMemory_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>CPU Memory Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>CPU Memory Inspector</string>
+   </property>
+  </action>
+  <action name="actionPPUMemory_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>PPU Memory Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>PPU Memory Inspector</string>
    </property>
   </action>
  </widget>

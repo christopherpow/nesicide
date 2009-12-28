@@ -14,6 +14,7 @@
 #include "oaminspector.h"
 #include "nametableinspector.h"
 #include "executioninspector.h"
+#include "memoryinspector.h"
 #include "ccartridgebuilder.h"
 
 namespace Ui {
@@ -40,6 +41,8 @@ private:
     OAMInspector* m_pOAMInspector;
     NameTableInspector* m_pNameTableInspector;
     ExecutionInspector* m_pExecutionInspector;
+    MemoryInspector* m_pCPUMemoryInspector;
+    MemoryInspector* m_pPPUMemoryInspector;
     void saveProject(QString fileName);
 
 protected:
@@ -50,10 +53,14 @@ private slots:
     void ntInspector_close(bool toplevel);
     void chrmemInspector_close(bool toplevel);
     void exeInspector_close(bool toplevel);
+    void cpumemInspector_close(bool toplevel);
+    void ppumemInspector_close(bool toplevel);
     void on_actionCHRMEM_Inspector_toggled(bool );
     void on_actionOAM_Inspector_toggled(bool );
     void on_actionNameTable_Inspector_toggled(bool );
     void on_actionExecution_Inspector_toggled(bool );
+    void on_actionCPUMemory_Inspector_toggled(bool );
+    void on_actionPPUMemory_Inspector_toggled(bool );
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);
