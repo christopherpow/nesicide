@@ -114,9 +114,9 @@ void CBasePalette::CalculateVariants ( void )
 
    for ( idx2 = 0; idx2 < NUM_PALETTES; idx2++ )
    {
-      m_paletteRGBs [ idx1 ] [ idx2 ] [ 0 ] = m_paletteVariants[0][idx2].red();
-      m_paletteRGBs [ idx1 ] [ idx2 ] [ 1 ] = m_paletteVariants[0][idx2].green();
-      m_paletteRGBs [ idx1 ] [ idx2 ] [ 2 ] = m_paletteVariants[0][idx2].blue();
+      m_paletteRGBs [ 0 ] [ idx2 ] [ 0 ] = m_paletteVariants[0][idx2].red();
+      m_paletteRGBs [ 0 ] [ idx2 ] [ 1 ] = m_paletteVariants[0][idx2].green();
+      m_paletteRGBs [ 0 ] [ idx2 ] [ 2 ] = m_paletteVariants[0][idx2].blue();
    }
    for ( idx1 = 1; idx1 < 8; idx1++ )
    {

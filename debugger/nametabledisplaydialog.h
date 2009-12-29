@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "cnametablepreviewrenderer.h"
+#include "cnesppu.h"
 
 namespace Ui {
     class NameTableDisplayDialog;
@@ -14,11 +15,12 @@ public:
     NameTableDisplayDialog(QWidget *parent = 0);
     ~NameTableDisplayDialog();
     void updateScrollbars();
-
 protected:
     CNameTablePreviewRenderer *renderer;
 
 protected:
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *event);
 

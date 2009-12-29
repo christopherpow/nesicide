@@ -174,6 +174,7 @@ public:
 
    static inline void CHRMEMInspectorTV ( char* pTV ) { m_pCHRMEMInspectorTV = pTV; }
    static inline void OAMInspectorTV ( char* pTV ) { m_pOAMInspectorTV = pTV; }
+   static inline void EnableNameTableInspector ( bool enable ) { m_bNameTableInspector = enable; }
    static inline void NameTableInspectorTV ( char* pTV ) { m_pNameTableInspectorTV = pTV; }
    static void RENDERCHRMEM ( void );
    static void RENDEROAM ( void );
@@ -240,6 +241,7 @@ protected:
 
    static char*          m_pCHRMEMInspectorTV;
    static char*          m_pOAMInspectorTV;
+   static bool           m_bNameTableInspector;
    static char*          m_pNameTableInspectorTV;
 
    static UINT           m_iPPUViewerScanline;

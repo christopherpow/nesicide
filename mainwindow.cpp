@@ -97,16 +97,16 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pPPURegisterInspector->hide();
     QObject::connect(m_pPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ppuregInspector_close(bool)));
 
-    m_pIORegisterInspector = new MemoryInspector(eMemory_IOregs);
-    m_pIORegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pIORegisterInspector->setWindowTitle("APU Register Inspector");
-    m_pIORegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
-    addDockWidget(Qt::BottomDockWidgetArea, m_pIORegisterInspector );
-    rect = m_pIORegisterInspector->geometry();
+    m_pAPURegisterInspector = new MemoryInspector(eMemory_IOregs);
+    m_pAPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pAPURegisterInspector->setWindowTitle("APU Register Inspector");
+    m_pAPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pAPURegisterInspector );
+    rect = m_pAPURegisterInspector->geometry();
     rect.setSize(QSize(600, 600));
-    m_pIORegisterInspector->setGeometry(rect);
-    m_pIORegisterInspector->hide();
-    QObject::connect(m_pIORegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(ioregInspector_close(bool)));
+    m_pAPURegisterInspector->setGeometry(rect);
+    m_pAPURegisterInspector->hide();
+    QObject::connect(m_pAPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(apuregInspector_close(bool)));
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
@@ -520,7 +520,7 @@ void MainWindow::ppuregInspector_close ( bool toplevel )
 
 void MainWindow::on_actionAPURegister_Inspector_toggled(bool value)
 {
-   m_pIORegisterInspector->setVisible(value);
+   m_pAPURegisterInspector->setVisible(value);
 }
 
 void MainWindow::apuregInspector_close ( bool toplevel )

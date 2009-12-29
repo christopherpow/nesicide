@@ -69,6 +69,7 @@ char*          CPPU::m_pTV = NULL;
 char*          CPPU::m_pCHRMEMInspectorTV = NULL;
 char*          CPPU::m_pOAMInspectorTV = NULL;
 char*          CPPU::m_pNameTableInspectorTV = NULL;
+bool           CPPU::m_bNameTableInspector = false;
 
 unsigned char  CPPU::m_frame = 0;
 int            CPPU::m_curCycles = 0;
@@ -398,113 +399,116 @@ void CPPU::RENDERNAMETABLE ( void )
    unsigned char bit1, bit2;
    unsigned char colorIdx;
 
-   for ( y = 0; y < 480; y++ )
+   if ( m_bNameTableInspector )
    {
-      for ( x = 0; x < 512; x += PATTERN_SIZE ) // pattern-slice rendering...
+      for ( y = 0; y < 480; y++ )
       {
-         tileX = ppuAddr&0x001F;
-         tileY = (ppuAddr&0x03E0)>>5;
-         nameAddr = 0x2000 + (ppuAddr&0x0FFF);
-         attribAddr = 0x2000 + (ppuAddr&0x0C00) + 0x03C0 + ((tileY&0xFFFC)<<1) + (tileX>>2);
-         bkgndPatBase = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
-
-         patternIdx = bkgndPatBase+(CPPU::_NAMETABLE(nameAddr)<<4)+((ppuAddr&0x7000)>>12);
-         attribData = CPPU::_ATTRTABLE ( attribAddr );
-         patternData1 = CPPU::_PATTERNDATA ( patternIdx );
-         patternData2 = CPPU::_PATTERNDATA ( patternIdx+PATTERN_SIZE );
-
-         if ( (tileY&0x0002) == 0 )
+         for ( x = 0; x < 512; x += PATTERN_SIZE ) // pattern-slice rendering...
          {
-            if ( (tileX&0x0002) == 0 )
+            tileX = ppuAddr&0x001F;
+            tileY = (ppuAddr&0x03E0)>>5;
+            nameAddr = 0x2000 + (ppuAddr&0x0FFF);
+            attribAddr = 0x2000 + (ppuAddr&0x0C00) + 0x03C0 + ((tileY&0xFFFC)<<1) + (tileX>>2);
+            bkgndPatBase = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
+
+            patternIdx = bkgndPatBase+(CPPU::_NAMETABLE(nameAddr)<<4)+((ppuAddr&0x7000)>>12);
+            attribData = CPPU::_ATTRTABLE ( attribAddr );
+            patternData1 = CPPU::_PATTERNDATA ( patternIdx );
+            patternData2 = CPPU::_PATTERNDATA ( patternIdx+PATTERN_SIZE );
+
+            if ( (tileY&0x0002) == 0 )
             {
-               attribData = (attribData&0x03)<<2;
+               if ( (tileX&0x0002) == 0 )
+               {
+                  attribData = (attribData&0x03)<<2;
+               }
+               else
+               {
+                  attribData = (attribData&0x0C);
+               }
             }
             else
             {
-               attribData = (attribData&0x0C);
+               if ( (tileX&0x0002) == 0 )
+               {
+                  attribData = (attribData&0x30)>>2;
+               }
+               else
+               {
+                  attribData = (attribData&0xC0)>>4;
+               }
             }
-         }
-         else
-         {
-            if ( (tileX&0x0002) == 0 )
-            {
-               attribData = (attribData&0x30)>>2;
-            }
-            else
-            {
-               attribData = (attribData&0xC0)>>4;
-            }
-         }
 
-         for ( xf = 0; xf < PATTERN_SIZE; xf++ )
-         {
-            bit1 = (patternData1>>(7-(xf)))&0x1;
-            bit2 = (patternData2>>(7-(xf)))&0x1;
-            colorIdx = (attribData|bit1|(bit2<<1));
-            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(colorIdx));
-            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(colorIdx));
-            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(colorIdx));
-         }
-
-         ppuAddr++;
-         if ( x == 248 || x == 504 )
-         {
-            ppuAddr ^= 0x400;
-            ppuAddr -= 0x20;
-         }
-      }
-      if ( (ppuAddr&0x7000) == 0x7000 )
-      {
-         ppuAddr &= 0x8FFF;
-         if ( (ppuAddr&0x03E0) == 0x03A0 )
-         {
-            ppuAddr ^= 0x0800;
-            ppuAddr &= 0xFC1F;
-         }
-         else
-         {
-            if ( (ppuAddr&0x03E0) == 0x03E0 )
+            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
             {
+               bit1 = (patternData1>>(7-(xf)))&0x1;
+               bit2 = (patternData2>>(7-(xf)))&0x1;
+               colorIdx = (attribData|bit1|(bit2<<1));
+               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(colorIdx));
+               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(colorIdx));
+               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(colorIdx));
+            }
+
+            ppuAddr++;
+            if ( x == 248 || x == 504 )
+            {
+               ppuAddr ^= 0x400;
+               ppuAddr -= 0x20;
+            }
+         }
+         if ( (ppuAddr&0x7000) == 0x7000 )
+         {
+            ppuAddr &= 0x8FFF;
+            if ( (ppuAddr&0x03E0) == 0x03A0 )
+            {
+               ppuAddr ^= 0x0800;
                ppuAddr &= 0xFC1F;
             }
             else
             {
-               ppuAddr += 0x0020;
+               if ( (ppuAddr&0x03E0) == 0x03E0 )
+               {
+                  ppuAddr &= 0xFC1F;
+               }
+               else
+               {
+                  ppuAddr += 0x0020;
+               }
             }
          }
+         else
+         {
+            ppuAddr += 0x1000;
+         }
       }
-      else
-      {
-         ppuAddr += 0x1000;
-      }
-   }
 
 // CPTODO: implement shadow disablement
 #if 0
 //   if ( m_bShadow )
-   {
-      for ( y = 0; y < 480; y++ )
       {
-         for ( x = 0; x < 512; x++ )
+         for ( y = 0; y < 480; y++ )
          {
-            lbx = CPPU::_SCROLLX(x&0xFF,y%240);
-            ubx = lbx>>8?lbx&0xFF:lbx+255;
-            lby = CPPU::_SCROLLY(x&0xFF,y%240);
-            uby = lby/240?lby%240:lby+239;
-
-            if ( !( (((lbx <= ubx) && (x >= lbx) && (x <= ubx)) ||
-                 ((lbx > ubx) && (!((x <= lbx) && (x >= ubx))))) &&
-                 (((lby <= uby) && (y >= lby) && (y <= uby)) ||
-                 ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
+            for ( x = 0; x < 512; x++ )
             {
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] *= .70;
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] *= .70;
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] *= .70;
+               lbx = CPPU::_SCROLLX(x&0xFF,y%240);
+               ubx = lbx>>8?lbx&0xFF:lbx+255;
+               lby = CPPU::_SCROLLY(x&0xFF,y%240);
+               uby = lby/240?lby%240:lby+239;
+
+               if ( !( (((lbx <= ubx) && (x >= lbx) && (x <= ubx)) ||
+                    ((lbx > ubx) && (!((x <= lbx) && (x >= ubx))))) &&
+                    (((lby <= uby) && (y >= lby) && (y <= uby)) ||
+                    ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
+               {
+                  m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] *= .70;
+                  m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] *= .70;
+                  m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] *= .70;
+               }
             }
          }
       }
-   }
 #endif
+   }
 }
 
 UINT CPPU::RENDER ( UINT addr, char target )

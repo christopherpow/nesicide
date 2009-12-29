@@ -2,7 +2,6 @@
 #include "ui_nametabledisplaydialog.h"
 
 #include "cnessystempalette.h"
-#include "cnesppu.h"
 
 #include "main.h"
 
@@ -13,7 +12,8 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     ui->setupUi(this);
     imgData = new char[512*512*3];
 
-    CPPU::NameTableInspectorTV ( imgData );
+    CPPU::NameTableInspectorTV(imgData);
+
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
 
     renderer = new CNameTablePreviewRenderer(ui->frame,imgData);
@@ -21,16 +21,28 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     ui->frame->layout()->update();
 }
 
+void NameTableDisplayDialog::showEvent(QShowEvent *event)
+{
+    QDialog::changeEvent(event);
+    CPPU::EnableNameTableInspector(true);
+}
+
+void NameTableDisplayDialog::hideEvent(QHideEvent *event)
+{
+    QDialog::changeEvent(event);
+    CPPU::EnableNameTableInspector(false);
+}
+
 void NameTableDisplayDialog::changeEvent(QEvent *e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+   switch (e->type()) {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+      break;
+      default:
+      break;
+   }
 }
 
 void NameTableDisplayDialog::renderData()

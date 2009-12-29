@@ -44,7 +44,7 @@ private:
     MemoryInspector* m_pCPUMemoryInspector;
     MemoryInspector* m_pPPUMemoryInspector;
     MemoryInspector* m_pPPURegisterInspector;
-    MemoryInspector* m_pIORegisterInspector;
+    MemoryInspector* m_pAPURegisterInspector;
     void saveProject(QString fileName);
 
 protected:
