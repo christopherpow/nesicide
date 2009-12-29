@@ -94,6 +94,8 @@ QColor CBasePalette::m_paletteBase [ 64 ] =
 
 QColor CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
+char   CBasePalette::m_paletteRGBs [ 8 ] [ 64 ] [ 3 ];
+
 static CBasePalette __init __attribute((unused));
 
 void CBasePalette::CalculateVariants ( void )
@@ -110,6 +112,12 @@ void CBasePalette::CalculateVariants ( void )
    {0.68, 0.79, 0.79},
    {0.70, 0.70, 0.70}};
 
+   for ( idx2 = 0; idx2 < NUM_PALETTES; idx2++ )
+   {
+      m_paletteRGBs [ idx1 ] [ idx2 ] [ 0 ] = m_paletteVariants[0][idx2].red();
+      m_paletteRGBs [ idx1 ] [ idx2 ] [ 1 ] = m_paletteVariants[0][idx2].green();
+      m_paletteRGBs [ idx1 ] [ idx2 ] [ 2 ] = m_paletteVariants[0][idx2].blue();
+   }
    for ( idx1 = 1; idx1 < 8; idx1++ )
    {
       // Calculate emphasis palettes:
@@ -129,16 +137,19 @@ void CBasePalette::CalculateVariants ( void )
          temp = ((double)temp)*emphfactor [ idx1 ] [ 0 ];
          if ( temp > 0xFF ) temp = 0xFF;
          m_paletteVariants [ idx1 ] [ idx2 ].setRed ( temp );
+         m_paletteRGBs [ idx1 ] [ idx2 ] [ 0 ] = temp;
 
          temp = m_paletteVariants[idx1][idx2].green();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 1 ];
          if ( temp > 0xFF ) temp = 0xFF;
          m_paletteVariants [ idx1 ] [ idx2 ].setGreen ( temp );
+         m_paletteRGBs [ idx1 ] [ idx2 ] [ 1 ] = temp;
 
          temp = m_paletteVariants[idx1][idx2].blue();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 2 ];
          if ( temp > 0xFF ) temp = 0xFF;
          m_paletteVariants [ idx1 ] [ idx2 ].setBlue ( temp );
+         m_paletteRGBs [ idx1 ] [ idx2 ] [ 2 ] = temp;
       }
    }
 }

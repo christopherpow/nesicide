@@ -44,12 +44,14 @@ private:
     MemoryInspector* m_pCPUMemoryInspector;
     MemoryInspector* m_pPPUMemoryInspector;
     MemoryInspector* m_pPPURegisterInspector;
+    MemoryInspector* m_pIORegisterInspector;
     void saveProject(QString fileName);
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionAPURegister_Inspector_toggled(bool );
     void on_actionPPURegister_Inspector_toggled(bool );
     void oamInspector_close(bool toplevel);
     void ntInspector_close(bool toplevel);
@@ -58,6 +60,7 @@ private slots:
     void cpumemInspector_close(bool toplevel);
     void ppumemInspector_close(bool toplevel);
     void ppuregInspector_close(bool toplevel);
+    void apuregInspector_close(bool toplevel);
     void on_actionCHRMEM_Inspector_toggled(bool );
     void on_actionOAM_Inspector_toggled(bool );
     void on_actionNameTable_Inspector_toggled(bool );

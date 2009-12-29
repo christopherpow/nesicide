@@ -4,6 +4,7 @@
 #include <QAbstractTableModel>
 #include "cnes6502.h"
 #include "cnesppu.h"
+#include "cnesapu.h"
 
 #include "cnesicidecommon.h"
 

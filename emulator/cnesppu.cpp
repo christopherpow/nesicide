@@ -242,12 +242,20 @@ void CPPU::RENDERCHRMEM ( void )
    unsigned char patternData2;
    unsigned char bit1, bit2;
    unsigned char colorIdx;
-   QColor color[4];
+   int color[4][3];
 
-   color[0] = CBasePalette::GetPalette ( 0x0D );
-   color[1] = CBasePalette::GetPalette ( 0x10 );
-   color[2] = CBasePalette::GetPalette ( 0x20 );
-   color[3] = CBasePalette::GetPalette ( 0x30 );
+   color[0][0] = CBasePalette::GetPaletteR ( 0x0D );
+   color[0][1] = CBasePalette::GetPaletteG ( 0x0D );
+   color[0][2] = CBasePalette::GetPaletteB ( 0x0D );
+   color[1][0] = CBasePalette::GetPaletteR ( 0x10 );
+   color[1][1] = CBasePalette::GetPaletteG ( 0x10 );
+   color[1][2] = CBasePalette::GetPaletteB ( 0x10 );
+   color[2][0] = CBasePalette::GetPaletteR ( 0x20 );
+   color[2][1] = CBasePalette::GetPaletteG ( 0x20 );
+   color[2][2] = CBasePalette::GetPaletteB ( 0x20 );
+   color[3][0] = CBasePalette::GetPaletteR ( 0x30 );
+   color[3][1] = CBasePalette::GetPaletteG ( 0x30 );
+   color[3][2] = CBasePalette::GetPaletteB ( 0x30 );
 
    for (int y = 0; y < 128; y++)
    {
@@ -263,9 +271,9 @@ void CPPU::RENDERCHRMEM ( void )
               bit1 = (patternData1>>(7-(xf)))&0x1;
               bit2 = (patternData2>>(7-(xf)))&0x1;
               colorIdx = (bit1|(bit2<<1));
-              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx].red();
-              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx].green();
-              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
+              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx][0];
+              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx][1];
+              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx][2];
           }
        }
    }
@@ -353,9 +361,9 @@ void CPPU::RENDEROAM ( void )
                   bit2 = (patternData2>>(7-(xf)))&0x1;
                }
                colorIdx = (attribData|bit1|(bit2<<1));
-               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = CBasePalette::GetPalette(CPPU::_PALETTE(0x10+colorIdx)).red();
-               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = CBasePalette::GetPalette(CPPU::_PALETTE(0x10+colorIdx)).green();
-               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = CBasePalette::GetPalette(CPPU::_PALETTE(0x10+colorIdx)).blue();
+               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(0x10+colorIdx));
+               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(0x10+colorIdx));
+               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(0x10+colorIdx));
             }
          }
 // CPTODO: find replacement way to do OnScreen check
@@ -433,9 +441,9 @@ void CPPU::RENDERNAMETABLE ( void )
             bit1 = (patternData1>>(7-(xf)))&0x1;
             bit2 = (patternData2>>(7-(xf)))&0x1;
             colorIdx = (attribData|bit1|(bit2<<1));
-            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+0] = CBasePalette::GetPalette(CPPU::_PALETTE(colorIdx)).red();
-            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+1] = CBasePalette::GetPalette(CPPU::_PALETTE(colorIdx)).green();
-            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+2] = CBasePalette::GetPalette(CPPU::_PALETTE(colorIdx)).blue();
+            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(colorIdx));
+            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(colorIdx));
+            m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(colorIdx));
          }
 
          ppuAddr++;
@@ -838,15 +846,15 @@ void CPPU::RENDERRESET ( int scanline )
    int idxx;
    int idxy = (scanline<<8)*3;
    int offsetx = 0;
-   QColor color(0,0,0);
 
    if ( m_pTV )
    {
        for ( idxx = 0; idxx < 256; idxx++ )
        {
-          *(m_pTV+idxy+offsetx) = color.red();
-          *(m_pTV+idxy+offsetx+1) = color.green();
-          *(m_pTV+idxy+offsetx+2) = color.blue();
+          // black!
+          *(m_pTV+idxy+offsetx) = 0;
+          *(m_pTV+idxy+offsetx+1) = 0;
+          *(m_pTV+idxy+offsetx+2) = 0;
           offsetx += 3;
        }
    }
@@ -903,7 +911,6 @@ bool CPPU::RENDERSCANLINE ( int scanline )
    int idx2;
    bool brkpt = false;
    char* pTV = (char*)(m_pTV+rasttv);
-   QColor color;
 
    // even-odd framing for extra-cycle on pre-render scanline...
    m_frame = !m_frame;
@@ -933,26 +940,23 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                if ( !(colorIdx&0x3) ) colorIdx = 0;
                if ( colorIdx&0x3 ) tvSet |= 1;
 
-               color = CBasePalette::GetPalette(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               *pTV = color.red();
-               *(pTV+1) = color.green();
-               *(pTV+2) = color.blue();
+               *pTV = CBasePalette::GetPaletteR(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
             }
             else
             {
                if ( (m_ppuAddr&0x3F00) == 0x3F00 )
                {
-                  color = CBasePalette::GetPalette(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *pTV = color.red();
-                  *(pTV+1) = color.green();
-                  *(pTV+2) = color.blue();
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                }
                else
                {
-                  color = CBasePalette::GetPalette(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *pTV = color.red();
-                  *(pTV+1) = color.green();
-                  *(pTV+2) = color.blue();
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                }
             }
 
@@ -979,10 +983,9 @@ bool CPPU::RENDERSCANLINE ( int scanline )
                              (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
                              ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
                         {
-                           color = CBasePalette::GetPalette(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                           *pTV = color.red();
-                           *(pTV+1) = color.green();
-                           *(pTV+2) = color.blue();
+                           *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                           *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                           *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                         }
                         if ( (pSprite->spriteIdx == 0) &&
                              (!sprite0HitSet) &&

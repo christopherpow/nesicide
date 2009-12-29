@@ -87,6 +87,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
          return createIndex(row, column, (int)CPPU::_PPU(m_offset+column));
       break;
       case eMemory_IOregs:
+         return createIndex(row, column, (int)CAPU::_APU(m_offset+column));
       break;
       case eMemory_cartSRAM:
       break;
@@ -116,7 +117,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
          return 1;
       break;
       case eMemory_IOregs:
-         return 2;
+         return 1;
       break;
       case eMemory_cartSRAM:
          return (MEM_8KB>>4);
@@ -128,7 +129,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
          return (MEM_8KB>>4);
       break;
       case eMemory_PPU:
-         return (MEM_2KB>>4);
+         return (MEM_4KB>>4);
       break;
       case eMemory_PPUpalette:
          return (MEM_32B>>4);

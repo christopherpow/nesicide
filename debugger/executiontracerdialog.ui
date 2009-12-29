@@ -50,7 +50,7 @@
       <bool>true</bool>
      </attribute>
      <attribute name="horizontalHeaderCascadingSectionResizes">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>50</number>
@@ -62,6 +62,15 @@
       <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>17</number>
+     </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>17</number>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
     </widget>
