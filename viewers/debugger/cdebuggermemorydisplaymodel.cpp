@@ -55,7 +55,7 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex &index, int role) c
 
 Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
     return flags;
 }
 
@@ -89,6 +89,43 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
    }
 
    return  QString(buffer);
+}
+
+bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVariant & value, int )
+{
+   unsigned char data;
+   bool ok = false;
+
+   data = value.toString().toInt(&ok,16);
+   if ( ok && (data<256) )
+   {
+      switch ( m_display )
+      {
+         case eMemory_CPU:
+            C6502::_MEM(m_offset+(index.row()<<4)+index.column(), data);
+         break;
+         case eMemory_PPUregs:
+            CPPU::_PPU(m_offset+index.column(), data);
+         break;
+         case eMemory_IOregs:
+            CAPU::_APU(m_offset+(index.row()<<2)+index.column(), data);
+         break;
+         case eMemory_cartSRAM:
+         break;
+         case eMemory_cartEXRAM:
+         break;
+         case eMemory_cartCHRMEM:
+         break;
+         case eMemory_PPU:
+            CPPU::_MEM(m_offset+(index.row()<<4)+index.column(), data);
+         break;
+         case eMemory_PPUpalette:
+         break;
+         case eMemory_PPUoam:
+         break;
+      }
+   }
+   return ok;
 }
 
 QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModelIndex &parent) const

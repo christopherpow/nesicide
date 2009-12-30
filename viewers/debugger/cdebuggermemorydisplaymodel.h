@@ -11,20 +11,21 @@
 class CDebuggerMemoryDisplayModel : public QAbstractTableModel
 {
 public:
-    CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display);
-    virtual ~CDebuggerMemoryDisplayModel();
-    QVariant data(const QModelIndex &index, int role) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    void layoutChangedEvent();
+   CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display);
+   virtual ~CDebuggerMemoryDisplayModel();
+   QVariant data(const QModelIndex &index, int role) const;
+   Qt::ItemFlags flags(const QModelIndex &index) const;
+   bool setData ( const QModelIndex & index, const QVariant & value, int );
+   QVariant headerData(int section, Qt::Orientation orientation,
+                     int role = Qt::DisplayRole) const;
+   QModelIndex index(int row, int column,
+                   const QModelIndex &parent = QModelIndex()) const;
+   int rowCount(const QModelIndex &parent = QModelIndex()) const;
+   int columnCount(const QModelIndex &parent = QModelIndex()) const;
+   void layoutChangedEvent();
 private:
-    eMemoryType m_display;
-    unsigned int m_offset;
+   eMemoryType m_display;
+   unsigned int m_offset;
 };
 
 #endif // CDEBUGGERMEMORYDISPLAYMODEL_H

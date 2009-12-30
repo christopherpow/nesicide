@@ -381,13 +381,9 @@ void CAPU::PLAY ( Uint8 *stream, int len )
    waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
    waveBuf = *(m_waveBuf + m_waveBufConsume);
 
-   if ( len != 1470 ) qDebug ( "len=%d", len );
-   SDL_audiostatus sas = SDL_GetAudioStatus();
-   if ( sas != SDL_AUDIO_PLAYING ) qDebug ( "audio %d", sas );
    if ( waveBufDepth )
    {
-      memcpy ( stream, waveBuf, len );
-//      SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
+      SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
       m_waveBufConsume++;
       m_waveBufConsume %= NUM_APU_BUFS;
    }
