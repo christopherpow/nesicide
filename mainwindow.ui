@@ -105,18 +105,29 @@
      <property name="title">
       <string>Debugger</string>
      </property>
+     <widget class="QMenu" name="menuGraphical">
+      <property name="title">
+       <string>Graphical Inspectors</string>
+      </property>
+      <addaction name="actionCHRMEM_Inspector"/>
+      <addaction name="actionOAM_Inspector"/>
+      <addaction name="actionNameTable_Inspector"/>
+     </widget>
+     <widget class="QMenu" name="menuBinary_Inspectors">
+      <property name="title">
+       <string>Binary Inspectors</string>
+      </property>
+      <addaction name="actionAPURegister_Inspector"/>
+      <addaction name="actionPPURegister_Inspector"/>
+      <addaction name="separator"/>
+      <addaction name="actionCPUMemory_Inspector"/>
+      <addaction name="actionPPUMemory_Inspector"/>
+      <addaction name="actionCHRMemory_Inspector"/>
+     </widget>
+     <addaction name="menuGraphical"/>
+     <addaction name="menuBinary_Inspectors"/>
+     <addaction name="separator"/>
      <addaction name="actionExecution_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionCHRMEM_Inspector"/>
-     <addaction name="actionOAM_Inspector"/>
-     <addaction name="actionNameTable_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionCPUMemory_Inspector"/>
-     <addaction name="actionPPUMemory_Inspector"/>
-     <addaction name="actionCHRMemory_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionPPURegister_Inspector"/>
-     <addaction name="actionAPURegister_Inspector"/>
     </widget>
     <widget class="QMenu" name="menuType_Here_2">
      <property name="title">
@@ -282,7 +293,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -297,7 +308,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
    </property>
    <property name="text">
@@ -312,7 +323,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_document-open.png</normaloff>:/resources/22_document-open.png</iconset>
    </property>
    <property name="text">
@@ -327,7 +338,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
    </property>
    <property name="text">
@@ -350,7 +361,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -359,7 +370,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -371,7 +382,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
@@ -397,7 +408,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
    </property>
    <property name="text">
@@ -412,7 +423,7 @@
   </action>
   <action name="actionSave_Active_Document">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
@@ -430,7 +441,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
@@ -442,7 +453,7 @@
   </action>
   <action name="actionCompile_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_run-build.png</normaloff>:/resources/22_run-build.png</iconset>
    </property>
    <property name="text">
@@ -457,7 +468,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -472,7 +483,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -487,7 +498,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -502,7 +513,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -517,7 +528,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -532,7 +543,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -547,7 +558,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -562,7 +573,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -577,7 +588,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -601,7 +612,9 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>
