@@ -47,6 +47,7 @@ private:
     MemoryInspector* m_pPPURegisterInspector;
     MemoryInspector* m_pAPURegisterInspector;
     MemoryInspector* m_pOAMMemoryInspector;
+    MemoryInspector* m_pPaletteMemoryInspector;
     void saveProject(QString fileName);
 
 protected:
@@ -63,6 +64,7 @@ private slots:
     void exeInspector_close(bool toplevel);
     void cpumemInspector_close(bool toplevel);
     void ppumemInspector_close(bool toplevel);
+    void palettememInspector_close(bool toplevel);
     void ppuregInspector_close(bool toplevel);
     void apuregInspector_close(bool toplevel);
     void on_actionCHRMEM_Inspector_toggled(bool );
@@ -73,6 +75,7 @@ private slots:
     void on_actionPPUMemory_Inspector_toggled(bool );
     void on_actionCHRMemory_Inspector_toggled(bool );
     void on_actionOAMMemory_Inspector_toggled(bool );
+    void on_actionPaletteMemory_Inspector_toggled(bool );
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);

@@ -82,13 +82,13 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
          case eMemory_cartEXRAM:
          case eMemory_cartCHRMEM:
          case eMemory_PPU:
-         case eMemory_PPUpalette:
          case eMemory_PPUregs:
             sprintf ( buffer, "$%04X:", m_offset+(section<<4) );
          break;
          case eMemory_PPUoam:
             sprintf ( buffer, "%d", section );
          break;
+         case eMemory_PPUpalette:
          case eMemory_IOregs:
             sprintf ( buffer, "$%04X:", m_offset+(section<<2) );
          break;
@@ -128,6 +128,7 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
             CPPU::_MEM(m_offset+(index.row()<<4)+index.column(), data);
          break;
          case eMemory_PPUpalette:
+            CPPU::_MEM(m_offset+(index.row()<<2)+index.column(), data);
          break;
          case eMemory_PPUoam:
             CPPU::OAM(index.column(), index.row(), data);
@@ -161,6 +162,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
          return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<4)+column));
       break;
       case eMemory_PPUpalette:
+         return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<2)+column));
       break;
       case eMemory_PPUoam:
          return createIndex(row, column, (int)CPPU::OAM(column,row));
@@ -195,7 +197,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
          return (MEM_4KB>>4);
       break;
       case eMemory_PPUpalette:
-         return (MEM_32B>>4);
+         return (MEM_32B>>2);
       break;
       case eMemory_PPUoam:
          return (MEM_256B>>2);
@@ -217,13 +219,13 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
       case eMemory_cartEXRAM:
       case eMemory_cartCHRMEM:
       case eMemory_PPU:
-      case eMemory_PPUpalette:
          return 16;
       case eMemory_PPUregs:
          return 8;
       break;
       case eMemory_IOregs:
       case eMemory_PPUoam:
+      case eMemory_PPUpalette:
          return 4;
       break;
    }

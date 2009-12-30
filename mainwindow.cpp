@@ -130,6 +130,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pOAMMemoryInspector->hide();
     QObject::connect(m_pOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(binoammemInspector_close(bool)));
 
+    m_pPaletteMemoryInspector = new MemoryInspector(eMemory_PPUpalette);
+    m_pPaletteMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
+    m_pPaletteMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pPaletteMemoryInspector );
+    rect = m_pPaletteMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pPaletteMemoryInspector->setGeometry(rect);
+    m_pPaletteMemoryInspector->hide();
+    QObject::connect(m_pPaletteMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(palettememInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -181,6 +192,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionPaletteMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
@@ -540,6 +552,16 @@ void MainWindow::ppumemInspector_close (bool toplevel)
 void MainWindow::on_actionPPUMemory_Inspector_toggled(bool value)
 {
    m_pPPUMemoryInspector->setVisible(value);
+}
+
+void MainWindow::palettememInspector_close (bool toplevel)
+{
+   ui->actionPaletteMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionPaletteMemory_Inspector_toggled(bool value)
+{
+   m_pPaletteMemoryInspector->setVisible(value);
 }
 
 void MainWindow::on_actionPPURegister_Inspector_toggled(bool value)
