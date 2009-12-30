@@ -123,6 +123,7 @@
       <addaction name="actionCPUMemory_Inspector"/>
       <addaction name="actionPPUMemory_Inspector"/>
       <addaction name="actionCHRMemory_Inspector"/>
+      <addaction name="actionOAMMemory_Inspector"/>
      </widget>
      <addaction name="menuGraphical"/>
      <addaction name="menuBinary_Inspectors"/>
@@ -232,6 +233,7 @@
    <addaction name="actionCPUMemory_Inspector"/>
    <addaction name="actionPPUMemory_Inspector"/>
    <addaction name="actionCHRMemory_Inspector"/>
+   <addaction name="actionOAMMemory_Inspector"/>
    <addaction name="actionPPURegister_Inspector"/>
    <addaction name="actionAPURegister_Inspector"/>
   </widget>
@@ -596,6 +598,21 @@
    </property>
    <property name="toolTip">
     <string>CHR Memory Inspector</string>
+   </property>
+  </action>
+  <action name="actionOAMMemory_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>OAM Memory Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>OAM Memory Inspector</string>
    </property>
   </action>
  </widget>

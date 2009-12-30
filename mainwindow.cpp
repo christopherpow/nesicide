@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     rect.setSize(QSize(300, 300));
     m_pOAMInspector->setGeometry(rect);
     m_pOAMInspector->hide();
-    QObject::connect(m_pOAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(oamInspector_close(bool)));
+    QObject::connect(m_pOAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(gfxoammemInspector_close(bool)));
 
     m_pNameTableInspector = new NameTableInspector ();
     m_pNameTableInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -119,6 +119,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pCHRMemoryInspector->hide();
     QObject::connect(m_pCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(binchrmemInspector_close(bool)));
 
+    m_pOAMMemoryInspector = new MemoryInspector(eMemory_PPUoam);
+    m_pOAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
+    m_pOAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pOAMMemoryInspector );
+    rect = m_pOAMMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pOAMMemoryInspector->setGeometry(rect);
+    m_pOAMMemoryInspector->hide();
+    QObject::connect(m_pOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(binoammemInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -169,6 +180,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionCPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
@@ -475,9 +487,19 @@ void MainWindow::on_actionOAM_Inspector_toggled(bool value)
    m_pOAMInspector->setVisible(value);
 }
 
-void MainWindow::oamInspector_close (bool toplevel)
+void MainWindow::gfxoammemInspector_close (bool toplevel)
 {
    ui->actionOAM_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionOAMMemory_Inspector_toggled(bool value)
+{
+   m_pOAMMemoryInspector->setVisible(value);
+}
+
+void MainWindow::binoammemInspector_close (bool toplevel)
+{
+   ui->actionOAMMemory_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionNameTable_Inspector_toggled(bool value)
