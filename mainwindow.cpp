@@ -141,6 +141,28 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pPaletteMemoryInspector->hide();
     QObject::connect(m_pPaletteMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(palettememInspector_close(bool)));
 
+    m_pSRAMMemoryInspector = new MemoryInspector(eMemory_cartSRAM);
+    m_pSRAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
+    m_pSRAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pSRAMMemoryInspector );
+    rect = m_pSRAMMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pSRAMMemoryInspector->setGeometry(rect);
+    m_pSRAMMemoryInspector->hide();
+    QObject::connect(m_pSRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(cartsrammemInspector_close(bool)));
+
+    m_pEXRAMMemoryInspector = new MemoryInspector(eMemory_cartEXRAM);
+    m_pEXRAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
+    m_pEXRAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pEXRAMMemoryInspector );
+    rect = m_pEXRAMMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pEXRAMMemoryInspector->setGeometry(rect);
+    m_pEXRAMMemoryInspector->hide();
+    QObject::connect(m_pEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(cartexrammemInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -193,6 +215,8 @@ void MainWindow::projectDataChangesEvent()
     ui->actionCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPaletteMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionSRAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionEXRAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
@@ -592,5 +616,25 @@ void MainWindow::on_actionCHRMemory_Inspector_toggled(bool value)
 void MainWindow::binchrmemInspector_close ( bool toplevel )
 {
    ui->actionCHRMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionSRAMMemory_Inspector_toggled(bool value)
+{
+   m_pSRAMMemoryInspector->setVisible(value);
+}
+
+void MainWindow::cartsrammemInspector_close ( bool toplevel )
+{
+   ui->actionSRAMMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionEXRAMMemory_Inspector_toggled(bool value)
+{
+   m_pEXRAMMemoryInspector->setVisible(value);
+}
+
+void MainWindow::cartexrammemInspector_close ( bool toplevel )
+{
+   ui->actionEXRAMMemory_Inspector->setChecked(toplevel);
 }
 

@@ -44,6 +44,8 @@ private:
     MemoryInspector* m_pCPUMemoryInspector;
     MemoryInspector* m_pPPUMemoryInspector;
     MemoryInspector* m_pCHRMemoryInspector;
+    MemoryInspector* m_pSRAMMemoryInspector;
+    MemoryInspector* m_pEXRAMMemoryInspector;
     MemoryInspector* m_pPPURegisterInspector;
     MemoryInspector* m_pAPURegisterInspector;
     MemoryInspector* m_pOAMMemoryInspector;
@@ -65,6 +67,8 @@ private slots:
     void cpumemInspector_close(bool toplevel);
     void ppumemInspector_close(bool toplevel);
     void palettememInspector_close(bool toplevel);
+    void cartsrammemInspector_close(bool toplevel);
+    void cartexrammemInspector_close(bool toplevel);
     void ppuregInspector_close(bool toplevel);
     void apuregInspector_close(bool toplevel);
     void on_actionCHRMEM_Inspector_toggled(bool );
@@ -75,6 +79,8 @@ private slots:
     void on_actionPPUMemory_Inspector_toggled(bool );
     void on_actionCHRMemory_Inspector_toggled(bool );
     void on_actionOAMMemory_Inspector_toggled(bool );
+    void on_actionSRAMMemory_Inspector_toggled(bool );
+    void on_actionEXRAMMemory_Inspector_toggled(bool );
     void on_actionPaletteMemory_Inspector_toggled(bool );
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );

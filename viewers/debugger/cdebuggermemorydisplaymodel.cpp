@@ -118,8 +118,10 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
             CAPU::_APU(m_offset+(index.row()<<2)+index.column(), data);
          break;
          case eMemory_cartSRAM:
+            CROM::SRAM(m_offset+(index.row()<<4)+index.column(), data);
          break;
          case eMemory_cartEXRAM:
+            CROM::EXRAM(m_offset+(index.row()<<4)+index.column(), data);
          break;
          case eMemory_cartCHRMEM:
             CROM::CHRMEM(m_offset+(index.row()<<4)+index.column(), data);
@@ -152,8 +154,10 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
          return createIndex(row, column, (int)CAPU::_APU(m_offset+(row<<2)+column));
       break;
       case eMemory_cartSRAM:
+         return createIndex(row, column, (int)CROM::SRAM(m_offset+(row<<4)+column));
       break;
       case eMemory_cartEXRAM:
+         return createIndex(row, column, (int)CROM::EXRAM(m_offset+(row<<4)+column));
       break;
       case eMemory_cartCHRMEM:
          return createIndex(row, column, (int)CROM::CHRMEM(m_offset+(row<<4)+column));
