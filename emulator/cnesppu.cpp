@@ -67,7 +67,9 @@ char           CPPU::m_szBinaryText [] = { 0, };
 char*          CPPU::m_pTV = NULL;
 
 char*          CPPU::m_pCHRMEMInspectorTV = NULL;
+bool           CPPU::m_bCHRMEMInspector = false;
 char*          CPPU::m_pOAMInspectorTV = NULL;
+bool           CPPU::m_bOAMInspector = false;
 char*          CPPU::m_pNameTableInspectorTV = NULL;
 bool           CPPU::m_bNameTableInspector = false;
 
@@ -245,38 +247,41 @@ void CPPU::RENDERCHRMEM ( void )
    unsigned char colorIdx;
    int color[4][3];
 
-   color[0][0] = CBasePalette::GetPaletteR ( 0x0D );
-   color[0][1] = CBasePalette::GetPaletteG ( 0x0D );
-   color[0][2] = CBasePalette::GetPaletteB ( 0x0D );
-   color[1][0] = CBasePalette::GetPaletteR ( 0x10 );
-   color[1][1] = CBasePalette::GetPaletteG ( 0x10 );
-   color[1][2] = CBasePalette::GetPaletteB ( 0x10 );
-   color[2][0] = CBasePalette::GetPaletteR ( 0x20 );
-   color[2][1] = CBasePalette::GetPaletteG ( 0x20 );
-   color[2][2] = CBasePalette::GetPaletteB ( 0x20 );
-   color[3][0] = CBasePalette::GetPaletteR ( 0x30 );
-   color[3][1] = CBasePalette::GetPaletteG ( 0x30 );
-   color[3][2] = CBasePalette::GetPaletteB ( 0x30 );
-
-   for (int y = 0; y < 128; y++)
+   if ( m_bCHRMEMInspector )
    {
-       for (int x = 0; x < 256; x += 8)
-       {
-           ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
-           if ( x >= 128 ) ppuAddr += 0x1000;
-           patternData1 = CPPU::_MEM(ppuAddr);
-           patternData2 = CPPU::_MEM(ppuAddr+8);
+      color[0][0] = CBasePalette::GetPaletteR ( 0x0D );
+      color[0][1] = CBasePalette::GetPaletteG ( 0x0D );
+      color[0][2] = CBasePalette::GetPaletteB ( 0x0D );
+      color[1][0] = CBasePalette::GetPaletteR ( 0x10 );
+      color[1][1] = CBasePalette::GetPaletteG ( 0x10 );
+      color[1][2] = CBasePalette::GetPaletteB ( 0x10 );
+      color[2][0] = CBasePalette::GetPaletteR ( 0x20 );
+      color[2][1] = CBasePalette::GetPaletteG ( 0x20 );
+      color[2][2] = CBasePalette::GetPaletteB ( 0x20 );
+      color[3][0] = CBasePalette::GetPaletteR ( 0x30 );
+      color[3][1] = CBasePalette::GetPaletteG ( 0x30 );
+      color[3][2] = CBasePalette::GetPaletteB ( 0x30 );
 
-           for ( int xf = 0; xf < 8; xf++ )
-           {
-              bit1 = (patternData1>>(7-(xf)))&0x1;
-              bit2 = (patternData2>>(7-(xf)))&0x1;
-              colorIdx = (bit1|(bit2<<1));
-              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx][0];
-              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx][1];
-              m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx][2];
+      for (int y = 0; y < 128; y++)
+      {
+          for (int x = 0; x < 256; x += 8)
+          {
+              ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
+              if ( x >= 128 ) ppuAddr += 0x1000;
+              patternData1 = CPPU::_MEM(ppuAddr);
+              patternData2 = CPPU::_MEM(ppuAddr+8);
+
+              for ( int xf = 0; xf < 8; xf++ )
+              {
+                 bit1 = (patternData1>>(7-(xf)))&0x1;
+                 bit2 = (patternData2>>(7-(xf)))&0x1;
+                 colorIdx = (bit1|(bit2<<1));
+                 m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx][0];
+                 m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx][1];
+                 m_pCHRMEMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx][2];
+             }
           }
-       }
+      }
    }
 }
 
@@ -298,85 +303,88 @@ void CPPU::RENDEROAM ( void )
    unsigned char spriteY;
    QColor color[4];
 
-   color[0] = CBasePalette::GetPalette ( 0x0D );
-   color[1] = CBasePalette::GetPalette ( 0x10 );
-   color[2] = CBasePalette::GetPalette ( 0x20 );
-   color[3] = CBasePalette::GetPalette ( 0x30 );
-
-   spriteSize = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE)) + 1;
-   if ( spriteSize == 1 )
+   if ( m_bOAMInspector )
    {
-      spritePatBase = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
-   }
+      color[0] = CBasePalette::GetPalette ( 0x0D );
+      color[1] = CBasePalette::GetPalette ( 0x10 );
+      color[2] = CBasePalette::GetPalette ( 0x20 );
+      color[3] = CBasePalette::GetPalette ( 0x30 );
 
-   for ( y = 0; y < spriteSize<<4; y++ )
-   {
-      for ( x = 0; x < 256; x += PATTERN_SIZE ) // pattern-slice rendering...
+      spriteSize = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE)) + 1;
+      if ( spriteSize == 1 )
       {
-         sprite = (spriteSize==1)?((y>>3)<<5)+(x>>3):
-                                  ((y>>4)<<5)+(x>>3);
-         spriteY = CPPU::OAM ( SPRITEY, sprite );
-// CPTODO: find replacement way to do OnScreen check
-//         if ( ((m_bOnscreen) && ((spriteY+1) < SPRITE_YMAX)) ||
-//              (!m_bOnscreen) )
+         spritePatBase = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
+      }
+
+      for ( y = 0; y < spriteSize<<4; y++ )
+      {
+         for ( x = 0; x < 256; x += PATTERN_SIZE ) // pattern-slice rendering...
          {
-            patternIdx = CPPU::OAM ( SPRITEPAT, sprite );
-            if ( spriteSize == 2 )
+            sprite = (spriteSize==1)?((y>>3)<<5)+(x>>3):
+                                     ((y>>4)<<5)+(x>>3);
+            spriteY = CPPU::OAM ( SPRITEY, sprite );
+   // CPTODO: find replacement way to do OnScreen check
+   //         if ( ((m_bOnscreen) && ((spriteY+1) < SPRITE_YMAX)) ||
+   //              (!m_bOnscreen) )
             {
-               spritePatBase = (patternIdx&0x01)<<12;
-               patternIdx &= 0xFE;
-            }
-
-            spriteAttr = CPPU::OAM ( SPRITEATT, sprite );
-            spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
-            spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
-            attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
-
-            // For 8x16 sprites...
-            if ( (spriteSize == 2) &&
-                 (((!spriteFlipVert) && (((y>>3)&1))) ||
-                 ((spriteFlipVert) && (!((y>>3)&1)))) )
-            {
-               patternIdx++;
-            }
-
-            yf = y&0x7;
-            if ( spriteFlipVert )
-            {
-               yf = (7-yf);
-            }
-
-            patternData1 = CPPU::_MEM ( spritePatBase+(patternIdx<<4)+(yf) );
-            patternData2 = CPPU::_MEM ( spritePatBase+(patternIdx<<4)+(yf)+PATTERN_SIZE );
-
-            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
-            {
-               if ( spriteFlipHoriz )
+               patternIdx = CPPU::OAM ( SPRITEPAT, sprite );
+               if ( spriteSize == 2 )
                {
-                  bit1 = (patternData1>>((xf)))&0x1;
-                  bit2 = (patternData2>>((xf)))&0x1;
+                  spritePatBase = (patternIdx&0x01)<<12;
+                  patternIdx &= 0xFE;
                }
-               else
+
+               spriteAttr = CPPU::OAM ( SPRITEATT, sprite );
+               spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
+               spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
+               attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
+
+               // For 8x16 sprites...
+               if ( (spriteSize == 2) &&
+                    (((!spriteFlipVert) && (((y>>3)&1))) ||
+                    ((spriteFlipVert) && (!((y>>3)&1)))) )
                {
-                  bit1 = (patternData1>>(7-(xf)))&0x1;
-                  bit2 = (patternData2>>(7-(xf)))&0x1;
+                  patternIdx++;
                }
-               colorIdx = (attribData|bit1|(bit2<<1));
-               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(0x10+colorIdx));
-               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(0x10+colorIdx));
-               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(0x10+colorIdx));
+
+               yf = y&0x7;
+               if ( spriteFlipVert )
+               {
+                  yf = (7-yf);
+               }
+
+               patternData1 = CPPU::_MEM ( spritePatBase+(patternIdx<<4)+(yf) );
+               patternData2 = CPPU::_MEM ( spritePatBase+(patternIdx<<4)+(yf)+PATTERN_SIZE );
+
+               for ( xf = 0; xf < PATTERN_SIZE; xf++ )
+               {
+                  if ( spriteFlipHoriz )
+                  {
+                     bit1 = (patternData1>>((xf)))&0x1;
+                     bit2 = (patternData2>>((xf)))&0x1;
+                  }
+                  else
+                  {
+                     bit1 = (patternData1>>(7-(xf)))&0x1;
+                     bit2 = (patternData2>>(7-(xf)))&0x1;
+                  }
+                  colorIdx = (attribData|bit1|(bit2<<1));
+                  m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(0x10+colorIdx));
+                  m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(0x10+colorIdx));
+                  m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(0x10+colorIdx));
+               }
             }
+   // CPTODO: find replacement way to do OnScreen check
+   //         else
+   //         {
+   //            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
+   //            {
+   //               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = 0x00;
+   //               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = 0x00;
+   //               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = 0x00;
+   //            }
+   //         }
          }
-// CPTODO: find replacement way to do OnScreen check
-//         else
-//         {
-//            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
-//            {
-//               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = 0x00;
-//               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = 0x00;
-//               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = 0x00;
-//            }
-//         }
       }
    }
 }

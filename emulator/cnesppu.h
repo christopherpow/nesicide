@@ -172,7 +172,9 @@ public:
 
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
 
+   static inline void EnableCHRMEMInspector ( bool enable ) { m_bCHRMEMInspector = enable; }
    static inline void CHRMEMInspectorTV ( char* pTV ) { m_pCHRMEMInspectorTV = pTV; }
+   static inline void EnableOAMInspector ( bool enable ) { m_bOAMInspector = enable; }
    static inline void OAMInspectorTV ( char* pTV ) { m_pOAMInspectorTV = pTV; }
    static inline void EnableNameTableInspector ( bool enable ) { m_bNameTableInspector = enable; }
    static inline void NameTableInspectorTV ( char* pTV ) { m_pNameTableInspectorTV = pTV; }
@@ -239,7 +241,9 @@ protected:
 
    static char*          m_pTV;
 
+   static bool           m_bCHRMEMInspector;
    static char*          m_pCHRMEMInspectorTV;
+   static bool           m_bOAMInspector;
    static char*          m_pOAMInspectorTV;
    static bool           m_bNameTableInspector;
    static char*          m_pNameTableInspectorTV;

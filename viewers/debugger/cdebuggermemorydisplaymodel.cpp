@@ -70,7 +70,22 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
    }
    else
    {
-      sprintf ( buffer, "$%04X:", m_offset+(section<<4) );
+      switch ( m_display )
+      {
+         case eMemory_CPU:
+         case eMemory_cartSRAM:
+         case eMemory_cartEXRAM:
+         case eMemory_cartCHRMEM:
+         case eMemory_PPU:
+         case eMemory_PPUpalette:
+         case eMemory_PPUoam:
+         case eMemory_PPUregs:
+            sprintf ( buffer, "$%04X:", m_offset+(section<<4) );
+         break;
+         case eMemory_IOregs:
+            sprintf ( buffer, "$%04X:", m_offset+(section<<2) );
+         break;
+      }
    }
 
    return  QString(buffer);
@@ -81,13 +96,13 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
    switch ( m_display )
    {
       case eMemory_CPU:
-         return createIndex(row, column, (int)C6502::_MEM(m_offset+((row<<4)|column)));
+         return createIndex(row, column, (int)C6502::_MEM(m_offset+(row<<4)+column));
       break;
       case eMemory_PPUregs:
          return createIndex(row, column, (int)CPPU::_PPU(m_offset+column));
       break;
       case eMemory_IOregs:
-         return createIndex(row, column, (int)CAPU::_APU(m_offset+column));
+         return createIndex(row, column, (int)CAPU::_APU(m_offset+(row<<2)+column));
       break;
       case eMemory_cartSRAM:
       break;
@@ -117,7 +132,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
          return 1;
       break;
       case eMemory_IOregs:
-         return 1;
+         return 6;
       break;
       case eMemory_cartSRAM:
          return (MEM_8KB>>4);
@@ -161,7 +176,7 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
          return 8;
       break;
       case eMemory_IOregs:
-         return 24;
+         return 4;
       break;
    }
    return 0;

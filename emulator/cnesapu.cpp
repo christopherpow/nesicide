@@ -41,7 +41,7 @@ CAPUNoise     CAPU::m_noise;
 CAPUDMC       CAPU::m_dmc;
 
 SDL_AudioSpec  CAPU::m_sdlAudioSpec;
-unsigned short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 2000 ] = { { 0, }, };
+short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 2000 ] = { { 0, }, };
 int            CAPU::m_waveBufDepth [ NUM_APU_BUFS ] = { 0, };
 int            CAPU::m_waveBufProduce = 0;
 int            CAPU::m_waveBufConsume = 0;
@@ -79,7 +79,7 @@ static int m_samplesPerSeqTick [ 2 ] [ 4 ] =
    { 221, 220, 221, 220 }
 };
 
-static unsigned short m_squareTable [ 31 ] =
+static short m_squareTable [ 31 ] =
 {
    0x0000,
    0x023A,
@@ -114,7 +114,7 @@ static unsigned short m_squareTable [ 31 ] =
    0x3171
 };
 
-static unsigned short m_tndTable [ 203 ] =
+static short m_tndTable [ 203 ] =
 {
    0x0000,
    0x0149,
@@ -370,22 +370,24 @@ void CAPU::OPEN ( void )
 
    SDL_OpenAudio ( &m_sdlAudioSpec, &obtained );
 
-   memcpy ( &m_sdlAudioSpec, &obtained, sizeof(SDL_AudioSpec) );
-
    SDL_PauseAudio ( 0 );
 }
 
 void CAPU::PLAY ( Uint8 *stream, int len )
 {
    int  waveBufDepth;
-   unsigned short* waveBuf;
+   short* waveBuf;
 
    waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
    waveBuf = *(m_waveBuf + m_waveBufConsume);
 
+   if ( len != 1470 ) qDebug ( "len=%d", len );
+   SDL_audiostatus sas = SDL_GetAudioStatus();
+   if ( sas != SDL_AUDIO_PLAYING ) qDebug ( "audio %d", sas );
    if ( waveBufDepth )
    {
-      SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, 64/*SDL_MIX_MAXVOLUME*/ );
+      memcpy ( stream, waveBuf, len );
+//      SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
       m_waveBufConsume++;
       m_waveBufConsume %= NUM_APU_BUFS;
    }
@@ -402,7 +404,7 @@ void CAPU::RUN ( void )
 
    SDL_LockAudio ();
 
-   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
+   short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
    int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
 
    SEQTICK ();

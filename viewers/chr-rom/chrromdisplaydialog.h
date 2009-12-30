@@ -20,6 +20,8 @@ protected:
     qint8 *chrrom;
 
 protected:
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *event);
 

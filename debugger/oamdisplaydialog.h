@@ -19,6 +19,8 @@ protected:
     COAMPreviewRenderer *renderer;
 
 protected:
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *event);
 

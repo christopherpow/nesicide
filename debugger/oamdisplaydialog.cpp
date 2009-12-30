@@ -33,6 +33,18 @@ void OAMDisplayDialog::changeEvent(QEvent *e)
     }
 }
 
+void OAMDisplayDialog::showEvent(QShowEvent *event)
+{
+   QDialog::showEvent(event);
+   CPPU::EnableOAMInspector(true);
+}
+
+void OAMDisplayDialog::hideEvent(QHideEvent *event)
+{
+   QDialog::hideEvent(event);
+   CPPU::EnableOAMInspector(false);
+}
+
 void OAMDisplayDialog::renderData()
 {
    renderer->updateGL ();

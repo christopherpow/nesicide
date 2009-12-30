@@ -158,8 +158,6 @@ void NESEmulatorThread::run ()
 {
    while ( 1 )
    {
-      emulatorSemaphore.acquire ();
-
       if ( m_isRunning )
       {
          // Run emulator for one frame...
@@ -175,6 +173,8 @@ void NESEmulatorThread::run ()
             m_isRunning = false;
          }
       }
+
+      emulatorSemaphore.acquire ();
    }
 
    return;

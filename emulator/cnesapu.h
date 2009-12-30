@@ -295,8 +295,7 @@ protected:
    static CAPUDMC m_dmc;
 
    static SDL_AudioSpec m_sdlAudioSpec;
-   static bool m_waveBufsQueued;
-   static unsigned short m_waveBuf [ NUM_APU_BUFS ][ 2000 ];
+   static short m_waveBuf [ NUM_APU_BUFS ][ 2000 ];
    static int m_waveBufDepth [ NUM_APU_BUFS ];
    static int m_waveBufProduce;
    static int m_waveBufConsume;

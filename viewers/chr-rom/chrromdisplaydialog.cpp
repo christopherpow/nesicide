@@ -64,6 +64,18 @@ void CHRROMDisplayDialog::colorChanged (const QColor &color)
     renderer->reloadData(imgData);
 }
 
+void CHRROMDisplayDialog::showEvent(QShowEvent *event)
+{
+   QDialog::showEvent(event);
+   CPPU::EnableCHRMEMInspector(true);
+}
+
+void CHRROMDisplayDialog::hideEvent(QHideEvent *event)
+{
+   QDialog::hideEvent(event);
+   CPPU::EnableCHRMEMInspector(false);
+}
+
 void CHRROMDisplayDialog::renderData()
 {
     unsigned int ppuAddr = 0x0000;
