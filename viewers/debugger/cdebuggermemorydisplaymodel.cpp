@@ -55,8 +55,13 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex &index, int role) c
 
 Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-    return flags;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   if ( (m_display != eMemory_cartCHRMEM) ||
+        (!(CROM::IsWriteProtected())) )
+   {
+      flags |= Qt::ItemIsEditable;
+   }
+   return flags;
 }
 
 QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -115,6 +120,7 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
          case eMemory_cartEXRAM:
          break;
          case eMemory_cartCHRMEM:
+            CROM::CHRMEM(m_offset+(index.row()<<4)+index.column(), data);
          break;
          case eMemory_PPU:
             CPPU::_MEM(m_offset+(index.row()<<4)+index.column(), data);
@@ -146,9 +152,10 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
       case eMemory_cartEXRAM:
       break;
       case eMemory_cartCHRMEM:
+         return createIndex(row, column, (int)CROM::CHRMEM(m_offset+(row<<4)+column));
       break;
       case eMemory_PPU:
-         return createIndex(row, column, (int)CPPU::_MEM(m_offset+((row<<4)|column)));
+         return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<4)+column));
       break;
       case eMemory_PPUpalette:
       break;

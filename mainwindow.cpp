@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     rect.setSize(QSize(300, 300));
     m_pCHRMEMInspector->setGeometry(rect);
     m_pCHRMEMInspector->hide();
-    QObject::connect(m_pCHRMEMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(chrmemInspector_close(bool)));
+    QObject::connect(m_pCHRMEMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(gfxchrmemInspector_close(bool)));
 
     m_pOAMInspector = new OAMInspector ();
     m_pOAMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -108,6 +108,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pAPURegisterInspector->hide();
     QObject::connect(m_pAPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(apuregInspector_close(bool)));
 
+    m_pCHRMemoryInspector = new MemoryInspector(eMemory_cartCHRMEM);
+    m_pCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
+    m_pCHRMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pCHRMemoryInspector );
+    rect = m_pCHRMemoryInspector->geometry();
+    rect.setSize(QSize(600, 600));
+    m_pCHRMemoryInspector->setGeometry(rect);
+    m_pCHRMemoryInspector->hide();
+    QObject::connect(m_pCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(binchrmemInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -157,6 +168,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
@@ -453,7 +465,7 @@ void MainWindow::on_actionCHRMEM_Inspector_toggled(bool value)
    m_pCHRMEMInspector->setVisible(value);
 }
 
-void MainWindow::chrmemInspector_close (bool toplevel)
+void MainWindow::gfxchrmemInspector_close (bool toplevel)
 {
    ui->actionCHRMEM_Inspector->setChecked(toplevel);
 }
@@ -526,5 +538,15 @@ void MainWindow::on_actionAPURegister_Inspector_toggled(bool value)
 void MainWindow::apuregInspector_close ( bool toplevel )
 {
    ui->actionAPURegister_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionCHRMemory_Inspector_toggled(bool value)
+{
+   m_pCHRMemoryInspector->setVisible(value);
+}
+
+void MainWindow::binchrmemInspector_close ( bool toplevel )
+{
+   ui->actionCHRMemory_Inspector->setChecked(toplevel);
 }
 

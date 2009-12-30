@@ -33,12 +33,21 @@ void NESEmulatorThread::setDialog(QDialog* dialog)
 {
    QObject::connect(dialog, SIGNAL(controllerInput(unsigned char*)), this, SLOT(controllerInput(unsigned char*)));
    QObject::connect(dialog, SIGNAL(killEmulator()), this, SLOT(killEmulator()));
+   QObject::connect(dialog, SIGNAL(primeEmulator()), this, SLOT(primeEmulator()));
 }
 
 void NESEmulatorThread::killEmulator()
 {
    // dangerous?
    delete this;
+}
+
+void NESEmulatorThread::primeEmulator()
+{
+   if ( (nesicideProject) && (!m_pCartridge) )
+   {
+      setCartridge ( nesicideProject->get_pointerToCartridge() );
+   }
 }
 
 void NESEmulatorThread::setCartridge(CCartridge *cartridge)
@@ -137,10 +146,6 @@ void NESEmulatorThread::setFrequency ( float fFreq )
 
 void NESEmulatorThread::startEmulation ()
 {
-   if ( (nesicideProject) && (!m_pCartridge) )
-   {
-      setCartridge ( nesicideProject->get_pointerToCartridge() );
-   }
    m_isRunning = true;
 }
 

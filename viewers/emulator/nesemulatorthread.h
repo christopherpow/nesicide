@@ -33,6 +33,7 @@ public slots:
    void stopEmulation ();
    void resetEmulator ();
    void controllerInput ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
+   void primeEmulator ();
    void killEmulator ();
 
 signals:

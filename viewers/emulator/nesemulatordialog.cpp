@@ -40,7 +40,6 @@ NESEmulatorDialog::~NESEmulatorDialog()
 void NESEmulatorDialog::stopEmulation()
 {
     emit on_stopButton_clicked();
-    emit killEmulator();
 }
 
 void NESEmulatorDialog::changeEvent(QEvent *e)
@@ -209,6 +208,11 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
 #endif
 
    emit controllerInput ( m_joy );
+}
+
+void NESEmulatorDialog::showEvent(QShowEvent *event)
+{
+   emit primeEmulator();
 }
 
 void NESEmulatorDialog::on_playButton_clicked()
