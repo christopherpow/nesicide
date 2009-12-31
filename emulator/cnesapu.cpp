@@ -41,7 +41,7 @@ CAPUNoise     CAPU::m_noise;
 CAPUDMC       CAPU::m_dmc;
 
 SDL_AudioSpec  CAPU::m_sdlAudioSpec;
-short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 2000 ] = { { 0, }, };
+unsigned short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 2000 ] = { { 0, }, };
 int            CAPU::m_waveBufDepth [ NUM_APU_BUFS ] = { 0, };
 int            CAPU::m_waveBufProduce = 0;
 int            CAPU::m_waveBufConsume = 0;
@@ -79,7 +79,7 @@ static int m_samplesPerSeqTick [ 2 ] [ 4 ] =
    { 221, 220, 221, 220 }
 };
 
-static short m_squareTable [ 31 ] =
+static unsigned short m_squareTable [ 31 ] =
 {
    0x0000,
    0x023A,
@@ -114,7 +114,7 @@ static short m_squareTable [ 31 ] =
    0x3171
 };
 
-static short m_tndTable [ 203 ] =
+static unsigned short m_tndTable [ 203 ] =
 {
    0x0000,
    0x0149,
@@ -326,7 +326,7 @@ static short m_tndTable [ 203 ] =
 extern QSemaphore emulatorSemaphore;
 
 extern "C" void SDL_GetMoreData(void *userdata, Uint8 *stream, int len)
-{
+{   
    CAPU::PLAY ( stream, len );
 
    emulatorSemaphore.release();
@@ -376,7 +376,7 @@ void CAPU::OPEN ( void )
 void CAPU::PLAY ( Uint8 *stream, int len )
 {
    int  waveBufDepth;
-   short* waveBuf;
+   unsigned short* waveBuf;
 
    waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
    waveBuf = *(m_waveBuf + m_waveBufConsume);
@@ -400,7 +400,7 @@ void CAPU::RUN ( void )
 
    SDL_LockAudio ();
 
-   short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
+   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
    int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
 
    SEQTICK ();

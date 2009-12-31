@@ -13,6 +13,15 @@
   <property name="windowTitle">
    <string>NESICIDE2</string>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
@@ -109,30 +118,25 @@
       <property name="title">
        <string>Graphical Inspectors</string>
       </property>
-      <addaction name="actionCHRMEM_Inspector"/>
-      <addaction name="actionOAM_Inspector"/>
-      <addaction name="actionNameTable_Inspector"/>
+      <addaction name="actionGfxCHRMemory_Inspector"/>
+      <addaction name="actionGfxOAMMemory_Inspector"/>
+      <addaction name="actionGfxNameTableMemory_Inspector"/>
      </widget>
      <widget class="QMenu" name="menuBinary_Inspectors">
       <property name="title">
        <string>Binary Inspectors</string>
       </property>
-      <addaction name="actionAPURegister_Inspector"/>
-      <addaction name="actionPPURegister_Inspector"/>
+      <addaction name="actionBinAPURegister_Inspector"/>
+      <addaction name="actionBinPPURegister_Inspector"/>
       <addaction name="separator"/>
-      <addaction name="actionCPUMemory_Inspector"/>
-      <addaction name="actionPPUMemory_Inspector"/>
-      <addaction name="actionOAMMemory_Inspector"/>
-      <addaction name="actionPaletteMemory_Inspector"/>
+      <addaction name="actionBinCPUMemory_Inspector"/>
+      <addaction name="actionBinPPUMemory_Inspector"/>
+      <addaction name="actionBinOAMMemory_Inspector"/>
+      <addaction name="actionBinPaletteMemory_Inspector"/>
       <addaction name="separator"/>
-      <addaction name="actionCHRMemory_Inspector"/>
-      <addaction name="actionSRAMMemory_Inspector"/>
-      <addaction name="actionEXRAMMemory_Inspector"/>
-     </widget>
-     <widget class="QMenu" name="menu">
-      <property name="title">
-       <string/>
-      </property>
+      <addaction name="actionBinCHRMemory_Inspector"/>
+      <addaction name="actionBinSRAMMemory_Inspector"/>
+      <addaction name="actionBinEXRAMMemory_Inspector"/>
      </widget>
      <addaction name="menuGraphical"/>
      <addaction name="menuBinary_Inspectors"/>
@@ -235,19 +239,22 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionEmulation_Window"/>
-   <addaction name="actionCHRMEM_Inspector"/>
-   <addaction name="actionOAM_Inspector"/>
-   <addaction name="actionNameTable_Inspector"/>
    <addaction name="actionExecution_Inspector"/>
-   <addaction name="actionCPUMemory_Inspector"/>
-   <addaction name="actionPPUMemory_Inspector"/>
-   <addaction name="actionCHRMemory_Inspector"/>
-   <addaction name="actionOAMMemory_Inspector"/>
-   <addaction name="actionPaletteMemory_Inspector"/>
-   <addaction name="actionSRAMMemory_Inspector"/>
-   <addaction name="actionEXRAMMemory_Inspector"/>
-   <addaction name="actionPPURegister_Inspector"/>
-   <addaction name="actionAPURegister_Inspector"/>
+   <addaction name="separator"/>
+   <addaction name="actionGfxCHRMemory_Inspector"/>
+   <addaction name="actionGfxOAMMemory_Inspector"/>
+   <addaction name="actionGfxNameTableMemory_Inspector"/>
+   <addaction name="separator"/>
+   <addaction name="actionBinCPUMemory_Inspector"/>
+   <addaction name="actionBinPPUMemory_Inspector"/>
+   <addaction name="actionBinCHRMemory_Inspector"/>
+   <addaction name="actionBinOAMMemory_Inspector"/>
+   <addaction name="actionBinPaletteMemory_Inspector"/>
+   <addaction name="actionBinSRAMMemory_Inspector"/>
+   <addaction name="actionBinEXRAMMemory_Inspector"/>
+   <addaction name="separator"/>
+   <addaction name="actionBinPPURegister_Inspector"/>
+   <addaction name="actionBinAPURegister_Inspector"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
    <property name="sizePolicy">
@@ -307,7 +314,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -322,7 +329,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
    </property>
    <property name="text">
@@ -337,7 +344,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_document-open.png</normaloff>:/resources/22_document-open.png</iconset>
    </property>
    <property name="text">
@@ -352,7 +359,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
    </property>
    <property name="text">
@@ -375,7 +382,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -384,7 +391,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -396,7 +403,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
@@ -422,7 +429,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
    </property>
    <property name="text">
@@ -437,7 +444,7 @@
   </action>
   <action name="actionSave_Active_Document">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
@@ -455,7 +462,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
@@ -467,7 +474,7 @@
   </action>
   <action name="actionCompile_Project">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_run-build.png</normaloff>:/resources/22_run-build.png</iconset>
    </property>
    <property name="text">
@@ -477,49 +484,49 @@
     <string>F5</string>
    </property>
   </action>
-  <action name="actionCHRMEM_Inspector">
+  <action name="actionGfxCHRMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
     <string>CHR Memory Inspector</string>
    </property>
    <property name="toolTip">
-    <string>CHR Memory Inspector</string>
+    <string>Graphical CHR Memory Inspector</string>
    </property>
   </action>
-  <action name="actionOAM_Inspector">
+  <action name="actionGfxOAMMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
     <string>OAM Inspector</string>
    </property>
    <property name="toolTip">
-    <string>OAM Inspector</string>
+    <string>Graphical OAM Inspector</string>
    </property>
   </action>
-  <action name="actionNameTable_Inspector">
+  <action name="actionGfxNameTableMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
-    <string>Name Table Inspector</string>
+    <string>NameTable Inspector</string>
    </property>
    <property name="toolTip">
-    <string>Name Table Inspector</string>
+    <string>Graphical NameTable Inspector</string>
    </property>
   </action>
   <action name="actionExecution_Inspector">
@@ -527,7 +534,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -537,12 +544,12 @@
     <string>Execution Inspector</string>
    </property>
   </action>
-  <action name="actionCPUMemory_Inspector">
+  <action name="actionBinCPUMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -552,12 +559,12 @@
     <string>CPU Memory Inspector</string>
    </property>
   </action>
-  <action name="actionPPUMemory_Inspector">
+  <action name="actionBinPPUMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -567,12 +574,12 @@
     <string>PPU Memory Inspector</string>
    </property>
   </action>
-  <action name="actionPPURegister_Inspector">
+  <action name="actionBinPPURegister_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -582,12 +589,12 @@
     <string>PPU Register Inspector</string>
    </property>
   </action>
-  <action name="actionAPURegister_Inspector">
+  <action name="actionBinAPURegister_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -597,12 +604,12 @@
     <string>APU Register Inspector</string>
    </property>
   </action>
-  <action name="actionCHRMemory_Inspector">
+  <action name="actionBinCHRMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -612,12 +619,12 @@
     <string>CHR Memory Inspector</string>
    </property>
   </action>
-  <action name="actionOAMMemory_Inspector">
+  <action name="actionBinOAMMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -627,12 +634,12 @@
     <string>OAM Memory Inspector</string>
    </property>
   </action>
-  <action name="actionPaletteMemory_Inspector">
+  <action name="actionBinPaletteMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -642,12 +649,12 @@
     <string>Palette Memory Inspector</string>
    </property>
   </action>
-  <action name="actionSRAMMemory_Inspector">
+  <action name="actionBinSRAMMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -657,12 +664,12 @@
     <string>Cartridge SRAM Memory Inspector</string>
    </property>
   </action>
-  <action name="actionEXRAMMemory_Inspector">
+  <action name="actionBinEXRAMMemory_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -686,7 +693,9 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>
