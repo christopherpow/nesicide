@@ -10,15 +10,15 @@ MemoryDisplayDialog::MemoryDisplayDialog(QWidget *parent, eMemoryType display) :
     ui(new Ui::MemoryDisplayDialog)
 {
     ui->setupUi(this);
-    tableViewModel = new CDebuggerMemoryDisplayModel(this,display);
-    ui->tableView->setModel(tableViewModel);
+    model = new CDebuggerMemoryDisplayModel(this,display);
+    ui->tableView->setModel(model);
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
 }
 
 MemoryDisplayDialog::~MemoryDisplayDialog()
 {
     delete ui;
-    delete tableViewModel;
+    delete model;
 }
 
 void MemoryDisplayDialog::changeEvent(QEvent *e)
@@ -35,5 +35,5 @@ void MemoryDisplayDialog::changeEvent(QEvent *e)
 
 void MemoryDisplayDialog::updateMemory ()
 {
-   tableViewModel->layoutChangedEvent();
+   model->layoutChangedEvent();
 }

@@ -24,7 +24,7 @@ public slots:
 
 private:
     Ui::MemoryDisplayDialog *ui;
-    CDebuggerMemoryDisplayModel *tableViewModel;
+    CDebuggerMemoryDisplayModel *model;
 };
 
 #endif // MEMORYDISPLAYDIALOG_H

@@ -112,7 +112,10 @@ SOURCES += mainwindow.cpp \
     debugger/executioninspector.cpp \
     debugger/memorydisplaydialog.cpp \
     debugger/memoryinspector.cpp \
-    viewers/debugger/cdebuggermemorydisplaymodel.cpp
+    viewers/debugger/cdebuggermemorydisplaymodel.cpp \
+    debugger/registerdisplaydialog.cpp \
+    viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
+    debugger/registerinspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -197,7 +200,10 @@ HEADERS += mainwindow.h \
     debugger/executioninspector.h \
     debugger/memorydisplaydialog.h \
     debugger/memoryinspector.h \
-    viewers/debugger/cdebuggermemorydisplaymodel.h
+    viewers/debugger/cdebuggermemorydisplaymodel.h \
+    debugger/registerdisplaydialog.h \
+    viewers/debugger/cdebuggerregisterdisplaymodel.h \
+    debugger/registerinspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -210,5 +216,6 @@ FORMS += mainwindow.ui \
     debugger/nametabledisplaydialog.ui \
     debugger/executiontracerdialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
-    debugger/memorydisplaydialog.ui
+    debugger/memorydisplaydialog.ui \
+    debugger/registerdisplaydialog.ui
 RESOURCES += resource.qrc

@@ -15,6 +15,7 @@
 #include "nametableinspector.h"
 #include "executioninspector.h"
 #include "memoryinspector.h"
+#include "registerinspector.h"
 #include "ccartridgebuilder.h"
 
 namespace Ui {
@@ -49,8 +50,8 @@ private:
     MemoryInspector* m_pBinCHRMemoryInspector;
     MemoryInspector* m_pBinSRAMMemoryInspector;
     MemoryInspector* m_pBinEXRAMMemoryInspector;
-    MemoryInspector* m_pBinPPURegisterInspector;
-    MemoryInspector* m_pBinAPURegisterInspector;
+    RegisterInspector* m_pBinPPURegisterInspector;
+    RegisterInspector* m_pBinAPURegisterInspector;
     MemoryInspector* m_pBinOAMMemoryInspector;
     MemoryInspector* m_pBinPaletteMemoryInspector;
 

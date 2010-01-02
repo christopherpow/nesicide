@@ -104,7 +104,6 @@ public:
    TracerInfo* SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f );
    void SetEffectiveAddress ( TracerInfo* pS, unsigned int ea ) { if ( pS ) pS->ea = ea; }
 //   int Find ( CString str, int start );
-   void GetPrintable ( unsigned int idx, int subItem, char* str );
 
 	CTracer();
    CTracer(int depth);

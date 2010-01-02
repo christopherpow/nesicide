@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pExecutionInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
     m_pExecutionInspector->hide();
-    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(exeInspector_close(bool)));
+    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
 
     m_pBinCPUMemoryInspector = new MemoryInspector(eMemory_CPU);
     m_pBinCPUMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinPPUMemoryInspector->hide();
     QObject::connect(m_pBinPPUMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPUMemoryInspector_close(bool)));
 
-    m_pBinPPURegisterInspector = new MemoryInspector(eMemory_PPUregs);
+    m_pBinPPURegisterInspector = new RegisterInspector(eMemory_PPUregs);
     m_pBinPPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
     m_pBinPPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinPPURegisterInspector->hide();
     QObject::connect(m_pBinPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPURegisterInspector_close(bool)));
 
-    m_pBinAPURegisterInspector = new MemoryInspector(eMemory_IOregs);
+    m_pBinAPURegisterInspector = new RegisterInspector(eMemory_IOregs);
     m_pBinAPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
     m_pBinAPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -112,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinSRAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
     m_pBinSRAMMemoryInspector->hide();
-    QObject::connect(m_pBinSRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSRAMMemoryInspector_close(bool)));
+    QObject::connect(m_pBinSRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinSRAMMemoryInspector_close(bool)));
 
     m_pBinEXRAMMemoryInspector = new MemoryInspector(eMemory_cartEXRAM);
     m_pBinEXRAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -120,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinEXRAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );
     m_pBinEXRAMMemoryInspector->hide();
-    QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEXRAMMemoryInspector_close(bool)));
+    QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinEXRAMMemoryInspector_close(bool)));
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
