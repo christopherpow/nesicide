@@ -42,6 +42,7 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
    // get register value from model...
    bool ok;
    unsigned char value;
+   char data [ 8 ];
 
    // reduce to the bits we care about...
    if ( m_pBitfield )
@@ -55,7 +56,10 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
       else
       {
          QLineEdit *edit = static_cast<QLineEdit*>(editor);
-         edit->setText(index.model()->data(index, Qt::EditRole).toString());
+
+         sprintf ( data, "%02X", value );
+
+         edit->setText(data);
       }
    }
    else
