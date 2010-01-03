@@ -2,32 +2,32 @@
 
 CBitfieldData* tblPPUCTRLBitfields [] =
 {
-   new CBitfieldData("NameTable", 0, 2, 4, "NT1", "NT2", "NT3", "NT4"),
-   new CBitfieldData("VRAM Address Increment", 2, 1, 2, "+1", "+32"),
-   new CBitfieldData("Sprite Pattern Table", 3, 1, 2, "$0000", "$1000"),
-   new CBitfieldData("Playfield Pattern Table", 4, 1, 2, "$0000", "$1000"),
-   new CBitfieldData("Sprite Size", 5, 1, 2, "8x8", "8x16"),
+   new CBitfieldData("Generate NMI", 7, 1, 2, "No", "Yes"),
    new CBitfieldData("PPU Master/Slave", 6, 1, 2, "Master", "Slave"),
-   new CBitfieldData("Generate NMI", 7, 1, 2, "No", "Yes")
+   new CBitfieldData("Sprite Size", 5, 1, 2, "8x8", "8x16"),
+   new CBitfieldData("Playfield Pattern Table", 4, 1, 2, "$0000", "$1000"),
+   new CBitfieldData("Sprite Pattern Table", 3, 1, 2, "$0000", "$1000"),
+   new CBitfieldData("VRAM Address Increment", 2, 1, 2, "+1", "+32"),
+   new CBitfieldData("NameTable", 0, 2, 4, "NT1", "NT2", "NT3", "NT4")
 };
 
 CBitfieldData* tblPPUMASKBitfields [] =
 {
-   new CBitfieldData("Greyscale", 0, 1, 2, "No", "Yes"),
-   new CBitfieldData("Playfield Clipping", 1, 1, 2, "Yes", "No"),
-   new CBitfieldData("Sprite Clipping", 2, 1, 2, "Yes", "No"),
-   new CBitfieldData("Playfield Rendering", 3, 1, 2, "Off", "On"),
-   new CBitfieldData("Sprite Rendering", 4, 1, 2, "Off", "On"),
-   new CBitfieldData("Red Emphasis", 5, 1, 2, "Off", "On"),
+   new CBitfieldData("Blue Emphasis", 7, 1, 2, "Off", "On"),
    new CBitfieldData("Green Emphasis", 6, 1, 2, "Off", "On"),
-   new CBitfieldData("Blue Emphasis", 7, 1, 2, "Off", "On")
+   new CBitfieldData("Red Emphasis", 5, 1, 2, "Off", "On"),
+   new CBitfieldData("Sprite Rendering", 4, 1, 2, "Off", "On"),
+   new CBitfieldData("Playfield Rendering", 3, 1, 2, "Off", "On"),
+   new CBitfieldData("Sprite Clipping", 2, 1, 2, "Yes", "No"),
+   new CBitfieldData("Playfield Clipping", 1, 1, 2, "Yes", "No"),
+   new CBitfieldData("Greyscale", 0, 1, 2, "No", "Yes")
 };
 
 CBitfieldData* tblPPUSTATUSBitfields [] =
 {
-   new CBitfieldData("Sprite Overflow", 5, 1, 2, "No", "Yes"),
+   new CBitfieldData("Vertical Blank", 7, 1, 2, "No", "Yes"),
    new CBitfieldData("Sprite 0 Hit", 6, 1, 2, "No", "Yes"),
-   new CBitfieldData("Vertical Blank", 7, 1, 2, "No", "Yes")
+   new CBitfieldData("Sprite Overflow", 5, 1, 2, "No", "Yes")
 };
 
 CBitfieldData* tblOAMADDRBitfields [] =
@@ -69,10 +69,10 @@ CRegisterData* tblPPURegisters [] =
 
 CBitfieldData* tblAPUSQCTRLBitfields [] =
 {
-   new CBitfieldData("Volume/Envelope", 0, 4, 0),
-   new CBitfieldData("Envelope Enabled", 4, 1, 2, "No", "Yes"),
+   new CBitfieldData("Duty Cycle", 6, 2, 4, "25%", "50%", "75%", "12.5%"),
    new CBitfieldData("Channel State", 5, 1, 2, "Running", "Halted"),
-   new CBitfieldData("Duty Cycle", 6, 2, 4, "25%", "50%", "75%", "12.5%")
+   new CBitfieldData("Envelope Enabled", 4, 1, 2, "No", "Yes"),
+   new CBitfieldData("Volume/Envelope", 0, 4, 0)
 };
 
 CBitfieldData* tblAPUSQSWEEPBitfields [] =
@@ -90,8 +90,8 @@ CBitfieldData* tblAPUPERIODLOBitfields [] =
 
 CBitfieldData* tblAPUPERIODLENBitfields [] =
 {
-   new CBitfieldData("Period High-bits", 0, 3, 0),
-   new CBitfieldData("Length", 3, 5, 32, "$0A","$FE","$14","$02","$28","$04","$50","$06","$A0","$08","$3C","$0A","$0E","$0C","$1A","$0E","$0C","$10","$18","$12","$30","$14","$60","$16","$C0","$18","$48","$1A","$10","$1C","$20","$1E")
+   new CBitfieldData("Length", 3, 5, 32, "$0A","$FE","$14","$02","$28","$04","$50","$06","$A0","$08","$3C","$0A","$0E","$0C","$1A","$0E","$0C","$10","$18","$12","$30","$14","$60","$16","$C0","$18","$48","$1A","$10","$1C","$20","$1E"),
+   new CBitfieldData("Period High-bits", 0, 3, 0)
 };
 
 CBitfieldData* tblAPUTRICTRLBitfields [] =
@@ -107,15 +107,15 @@ CBitfieldData* tblAPUDMZBitfields [] =
 
 CBitfieldData* tblAPUNZCTRLBitfields [] =
 {
-   new CBitfieldData("Volume/Envelope", 0, 4, 0),
-   new CBitfieldData("Envelope Enabled", 4, 1, 2, "No", "Yes"),
    new CBitfieldData("Channel State", 5, 1, 2, "Running", "Halted"),
+   new CBitfieldData("Envelope Enabled", 4, 1, 2, "No", "Yes"),
+   new CBitfieldData("Volume/Envelope", 0, 4, 0)
 };
 
 CBitfieldData* tblAPUNZPERIODBitfields [] =
 {
-   new CBitfieldData("Period", 0, 4, 16, "$004","$008","$010","$020","$040","$060","$080","$0A0","$0CA","$0FE","$17C","$1FC","$2FA","$3F8","$7F2","$FE4"),
-   new CBitfieldData("Mode", 7, 1, 2, "32,767 samples", "93 samples")
+   new CBitfieldData("Mode", 7, 1, 2, "32,767 samples", "93 samples"),
+   new CBitfieldData("Period", 0, 4, 16, "$004","$008","$010","$020","$040","$060","$080","$0A0","$0CA","$0FE","$17C","$1FC","$2FA","$3F8","$7F2","$FE4")
 };
 
 CBitfieldData* tblAPUNZLENBitfields [] =
@@ -125,9 +125,9 @@ CBitfieldData* tblAPUNZLENBitfields [] =
 
 CBitfieldData* tblAPUDMCCTRLBitfields [] =
 {
-   new CBitfieldData("Period", 0, 4, 16, "$1AC","$17C","$154","$140","$11E","$0FE","$0E2","$0D6","$0BE","$0A0","$08E","$080","$06A","$054","$048","$036"),
+   new CBitfieldData("IRQ Enabled", 7, 1, 2, "No", "Yes"),
    new CBitfieldData("Loop", 6, 1, 2, "No", "Yes"),
-   new CBitfieldData("IRQ Enabled", 7, 1, 2, "No", "Yes")
+   new CBitfieldData("Period", 0, 4, 16, "$1AC","$17C","$154","$140","$11E","$0FE","$0E2","$0D6","$0BE","$0A0","$08E","$080","$06A","$054","$048","$036")
 };
 
 CBitfieldData* tblAPUDMCVOLBitfields [] =
@@ -147,13 +147,13 @@ CBitfieldData* tblAPUDMCLENBitfields [] =
 
 CBitfieldData* tblAPUCTRLBitfields [] =
 {
-   new CBitfieldData("Square1 Channel", 0, 1, 2, "Disabled", "Enabled"),
-   new CBitfieldData("Square2 Channel", 1, 1, 2, "Disabled", "Enabled"),
-   new CBitfieldData("Triangle Channel", 2, 1, 2, "Disabled", "Enabled"),
-   new CBitfieldData("Noise Channel", 3, 1, 2, "Disabled", "Enabled"),
-   new CBitfieldData("Delta Modulation Channel", 4, 1, 2, "Disabled", "Enabled"),
+   new CBitfieldData("DMC IRQ", 7, 1, 2, "Not Asserted", "Asserted"),
    new CBitfieldData("APU IRQ", 6, 1, 2, "Not Asserted", "Asserted"),
-   new CBitfieldData("DMC IRQ", 7, 1, 2, "Not Asserted", "Asserted")
+   new CBitfieldData("Delta Modulation Channel", 4, 1, 2, "Disabled", "Enabled"),
+   new CBitfieldData("Noise Channel", 3, 1, 2, "Disabled", "Enabled"),
+   new CBitfieldData("Triangle Channel", 2, 1, 2, "Disabled", "Enabled"),
+   new CBitfieldData("Square2 Channel", 1, 1, 2, "Disabled", "Enabled"),
+   new CBitfieldData("Square1 Channel", 0, 1, 2, "Disabled", "Enabled"),
 };
 
 CBitfieldData* tblAPUMASKBitfields [] =
