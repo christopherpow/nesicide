@@ -206,7 +206,6 @@ HEADERS += mainwindow.h \
     debugger/registerdisplaydialog.h \
     viewers/debugger/cdebuggerregisterdisplaymodel.h \
     debugger/registerinspector.h \
-    debugger/cdebuggerregistercomboboxdelegate.h \
     viewers/debugger/cregisterdata.h \
     viewers/debugger/cdebuggerregistercomboboxdelegate.h
 FORMS += mainwindow.ui \
