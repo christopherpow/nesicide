@@ -115,7 +115,9 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cdebuggermemorydisplaymodel.cpp \
     debugger/registerdisplaydialog.cpp \
     viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
-    debugger/registerinspector.cpp
+    debugger/registerinspector.cpp \
+    viewers/debugger/cregisterdata.cpp \
+    viewers/debugger/cdebuggerregistercomboboxdelegate.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -203,7 +205,10 @@ HEADERS += mainwindow.h \
     viewers/debugger/cdebuggermemorydisplaymodel.h \
     debugger/registerdisplaydialog.h \
     viewers/debugger/cdebuggerregisterdisplaymodel.h \
-    debugger/registerinspector.h
+    debugger/registerinspector.h \
+    debugger/cdebuggerregistercomboboxdelegate.h \
+    viewers/debugger/cregisterdata.h \
+    viewers/debugger/cdebuggerregistercomboboxdelegate.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

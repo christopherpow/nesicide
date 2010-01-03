@@ -65,13 +65,16 @@
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>17</number>
+      <number>23</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>23</number>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>17</number>
+      <number>23</number>
      </attribute>
-     <attribute name="horizontalHeaderCascadingSectionResizes">
-      <bool>false</bool>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>23</number>
      </attribute>
     </widget>
    </item>

@@ -136,6 +136,7 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
             CPPU::OAM(index.column(), index.row(), data);
          break;
       }
+      emit dataChanged(index,index);
    }
    return ok;
 }

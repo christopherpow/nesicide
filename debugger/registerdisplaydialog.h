@@ -4,8 +4,10 @@
 #include <QDialog>
 #include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggerregisterdisplaymodel.h"
+#include "cdebuggerregistercomboboxdelegate.h"
 
 #include "cnesicidecommon.h"
+#include "cregisterdata.h"
 
 namespace Ui {
     class RegisterDisplayDialog;
@@ -27,8 +29,13 @@ private:
     Ui::RegisterDisplayDialog *ui;
     CDebuggerMemoryDisplayModel *binaryModel;
     CDebuggerRegisterDisplayModel *bitfieldModel;
+    CDebuggerRegisterComboBoxDelegate * bitfieldDelegate;
+    CRegisterData** m_tblRegisters;
+    int m_register;
 
 private slots:
+    void on_bitfieldView_doubleClicked(QModelIndex index);
+    void on_bitfieldView_clicked(QModelIndex index);
     void on_binaryView_doubleClicked(QModelIndex index);
     void on_binaryView_clicked(QModelIndex index);
 };
