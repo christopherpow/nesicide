@@ -89,3 +89,11 @@ void RegisterDisplayDialog::on_bitfieldView_doubleClicked(QModelIndex index)
    bitfieldDelegate->setBitfield ( m_tblRegisters[m_register]->GetBitfield(index.row()) );
    binaryModel->layoutChangedEvent();
 }
+
+void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
+{
+   int cols = index.model()->columnCount();
+   m_register = (index.row()*cols)+index.column();
+   bitfieldModel->setRegister ( m_register );
+   bitfieldModel->layoutChangedEvent();
+}
