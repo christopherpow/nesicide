@@ -31,6 +31,9 @@
      <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
      </property>
+     <property name="textElideMode">
+      <enum>Qt::ElideNone</enum>
+     </property>
      <property name="showGrid">
       <bool>false</bool>
      </property>
@@ -44,10 +47,10 @@
       <bool>false</bool>
      </attribute>
      <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>23</number>
+      <number>26</number>
      </attribute>
      <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>23</number>
+      <number>26</number>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
@@ -58,11 +61,11 @@
      <attribute name="verticalHeaderMinimumSectionSize">
       <number>23</number>
      </attribute>
-     <attribute name="verticalHeaderDefaultSectionSize">
-      <number>23</number>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>26</number>
      </attribute>
-     <attribute name="verticalHeaderMinimumSectionSize">
-      <number>23</number>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>26</number>
      </attribute>
     </widget>
    </item>
