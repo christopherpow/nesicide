@@ -39,7 +39,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
       CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( index.row() );
       if ( pBitfield->GetNumValues() )
       {
-         sprintf ( data, "%s (%X)", pBitfield->GetValue(regData), (unsigned char)pBitfield->GetValueRaw(regData) );
+         sprintf ( data, "%X: %s", (unsigned char)pBitfield->GetValueRaw(regData), pBitfield->GetValue(regData) );
       }
       else
       {
