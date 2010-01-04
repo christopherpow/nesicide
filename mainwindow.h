@@ -52,7 +52,7 @@ private:
     MemoryInspector* m_pBinEXRAMMemoryInspector;
     RegisterInspector* m_pBinPPURegisterInspector;
     RegisterInspector* m_pBinAPURegisterInspector;
-    MemoryInspector* m_pBinOAMMemoryInspector;
+    RegisterInspector* m_pBinOAMMemoryInspector;
     MemoryInspector* m_pBinPaletteMemoryInspector;
 
 protected:

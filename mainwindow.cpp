@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinCHRMemoryInspector->hide();
     QObject::connect(m_pBinCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCHRMemoryInspector_close(bool)));
 
-    m_pBinOAMMemoryInspector = new MemoryInspector(eMemory_PPUoam);
+    m_pBinOAMMemoryInspector = new RegisterInspector(eMemory_PPUoam);
     m_pBinOAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
     m_pBinOAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);

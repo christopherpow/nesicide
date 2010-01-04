@@ -88,5 +88,6 @@ protected:
 
 extern CRegisterData* tblPPURegisters [];
 extern CRegisterData* tblAPURegisters [];
+extern CRegisterData* tblOAMRegisters [];
 
 #endif // CREGISTERDATA_H

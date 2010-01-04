@@ -25,6 +25,9 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
        case eMemory_IOregs:
           m_tblRegisters = tblAPURegisters;
        break;
+       case eMemory_PPUoam:
+          m_tblRegisters = tblOAMRegisters;
+       break;
        default:
           m_tblRegisters = NULL;
        break;

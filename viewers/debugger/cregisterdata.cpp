@@ -190,3 +190,349 @@ CRegisterData* tblAPURegisters [] =
    new CRegisterData("APUMASK", 2, tblAPUMASKBitfields),
 };
 
+CBitfieldData* tblOAMYBitfields [] =
+{
+   new CBitfieldData("Y Position", 0, 8, 0),
+};
+
+CBitfieldData* tblOAMPATBitfields [] =
+{
+   new CBitfieldData("Tile Index", 0, 8, 0),
+};
+
+CBitfieldData* tblOAMATTBitfields [] =
+{
+   new CBitfieldData("Flip Vertical", 7, 1, 2, "No", "Yes"),
+   new CBitfieldData("Flip Horizontal", 6, 1, 2, "No", "Yes"),
+   new CBitfieldData("Priority", 5, 1, 2, "In-front of Playfield", "Behind Playfield"),
+   new CBitfieldData("Palette Index", 0, 2, 4, "$3F10", "$3F14", "$3F18", "$3F1C")
+};
+
+CBitfieldData* tblOAMXBitfields [] =
+{
+   new CBitfieldData("X Position", 0, 8, 0),
+};
+
+CRegisterData* tblOAMRegisters [] =
+{
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields),
+   // Sprite
+   new CRegisterData("OAMX", 1, tblOAMXBitfields),
+   new CRegisterData("OAMPAT", 1, tblOAMPATBitfields),
+   new CRegisterData("OAMATT", 4, tblOAMATTBitfields),
+   new CRegisterData("OAMY", 1, tblOAMYBitfields)
+};

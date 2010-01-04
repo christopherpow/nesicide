@@ -15,6 +15,9 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject* parent, eM
          m_tblRegisters = tblAPURegisters;
       break;
       case eMemory_PPUoam:
+         m_offset = 0x0000;
+         m_tblRegisters = tblOAMRegisters;
+      break;
       default:
          m_offset = 0;
          m_tblRegisters = NULL;
@@ -96,7 +99,7 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
             CAPU::_APU(m_offset+m_register, data);
          break;
          case eMemory_PPUoam:
-            CPPU::OAM(index.column(), index.row(), data);
+            CPPU::OAM((m_offset+m_register)%4,(m_offset+m_register)/4, data);
          break;
          default:
          break;
@@ -117,7 +120,7 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
          return createIndex(row, column, (int)CAPU::_APU(m_offset+m_register));
       break;
       case eMemory_PPUoam:
-         return createIndex(row, column, (int)CPPU::OAM(column,row));
+         return createIndex(row, column, (int)CPPU::OAM((m_offset+m_register)%4,(m_offset+m_register)/4));
       break;
       default:
          return QModelIndex();
