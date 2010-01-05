@@ -6,6 +6,10 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject* parent, eM
    m_register = 0;
    switch ( m_display )
    {
+      case eMemory_CPUregs:
+         m_offset = 0x0000;
+         m_tblRegisters = tblCPURegisters;
+      break;
       case eMemory_PPUregs:
          m_offset = 0x2000;
          m_tblRegisters = tblPPURegisters;
@@ -37,22 +41,22 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
       return QVariant();
 
    int regData = (int)index.internalPointer();
+   CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( index.row() );
    if ( role == Qt::DisplayRole )
    {
-      CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( index.row() );
       if ( pBitfield->GetNumValues() )
       {
-         sprintf ( data, "%X: %s", (unsigned char)pBitfield->GetValueRaw(regData), pBitfield->GetValue(regData) );
+         sprintf ( data, "%X: %s", pBitfield->GetValueRaw(regData), pBitfield->GetValue(regData) );
       }
       else
       {
-         sprintf ( data, "%02X", (unsigned char)pBitfield->GetValueRaw(regData) );
+         sprintf ( data, pBitfield->GetDisplayFormat(), pBitfield->GetValueRaw(regData) );
       }
       return QVariant(data);
    }
    else if ( role == Qt::EditRole )
    {
-      sprintf ( data, "%02X", (unsigned char)regData );
+      sprintf ( data, pBitfield->GetDisplayFormat(), regData );
       return QVariant(data);
    }
    return QVariant();
@@ -84,14 +88,37 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
 
 bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const QVariant & value, int )
 {
-   unsigned char data;
+   int data;
    bool ok = false;
 
    data = value.toString().toInt(&ok,16);
-   if ( ok && (data<256) )
+   if ( ok )
    {
       switch ( m_display )
       {
+         case eMemory_CPUregs:
+            switch ( m_register )
+            {
+               case 0:
+                  C6502::__PC(data);
+               break;
+               case 1:
+                  C6502::_A(data);
+               break;
+               case 2:
+                  C6502::_X(data);
+               break;
+               case 3:
+                  C6502::_Y(data);
+               break;
+               case 4:
+                  C6502::_SP(data);
+               break;
+               case 5:
+                  C6502::_F(data);
+               break;
+            }
+         break;
          case eMemory_PPUregs:
             CPPU::_PPU(m_offset+m_register, data);
          break;
@@ -113,6 +140,29 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
 {
    switch ( m_display )
    {
+      case eMemory_CPUregs:
+         switch ( m_register )
+         {
+            case 0:
+               return createIndex(row, column, (int)C6502::__PC());
+            break;
+            case 1:
+               return createIndex(row, column, (int)C6502::_A());
+            break;
+            case 2:
+               return createIndex(row, column, (int)C6502::_X());
+            break;
+            case 3:
+               return createIndex(row, column, (int)C6502::_Y());
+            break;
+            case 4:
+               return createIndex(row, column, (int)0x100|C6502::_SP());
+            break;
+            case 5:
+               return createIndex(row, column, (int)C6502::_F());
+            break;
+         }
+      break;
       case eMemory_PPUregs:
          return createIndex(row, column, (int)CPPU::_PPU(m_offset+m_register));
       break;

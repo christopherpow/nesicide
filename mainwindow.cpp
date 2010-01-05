@@ -50,6 +50,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pExecutionInspector->hide();
     QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
 
+    m_pBinCPURegisterInspector = new RegisterInspector(eMemory_CPUregs);
+    m_pBinCPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
+    m_pBinCPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
+    m_pBinCPURegisterInspector->hide();
+    QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
+
     m_pBinCPUMemoryInspector = new MemoryInspector(eMemory_CPU);
     m_pBinCPUMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinCPUMemoryInspector->setWindowTitle("CPU Memory Inspector");
@@ -169,6 +177,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinCPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
@@ -515,6 +524,16 @@ void MainWindow::on_actionBinOAMMemory_Inspector_toggled(bool value)
 void MainWindow::reflectedBinOAMMemoryInspector_close (bool toplevel)
 {
    ui->actionBinOAMMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionBinCPURegister_Inspector_toggled(bool value)
+{
+   m_pBinCPURegisterInspector->setVisible(value);
+}
+
+void MainWindow::reflectedBinCPURegisterInspector_close ( bool toplevel )
+{
+   ui->actionBinCPURegister_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionBinCPUMemory_Inspector_toggled(bool value)

@@ -301,6 +301,7 @@ typedef struct
 typedef enum
 {
    eMemory_CPU = 0,
+   eMemory_CPUregs,
    eMemory_PPUregs,
    eMemory_IOregs,
    eMemory_cartSRAM,

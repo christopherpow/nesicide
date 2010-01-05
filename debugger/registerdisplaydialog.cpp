@@ -19,6 +19,9 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     ui->bitfieldView->setItemDelegate(bitfieldDelegate);
     switch ( display )
     {
+       case eMemory_CPUregs:
+          m_tblRegisters = tblCPURegisters;
+       break;
        case eMemory_PPUregs:
           m_tblRegisters = tblPPURegisters;
        break;

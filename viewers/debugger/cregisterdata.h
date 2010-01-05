@@ -6,13 +6,14 @@
 class CBitfieldData
 {
 public:
-   CBitfieldData(const char* name, char start, char width, int values, ... )
+   CBitfieldData(const char* name, char start, char width, const char* displayFormat, int values, ... )
    {
       int idx;
       m_name = name;
       m_values = values;
       m_start = start;
       m_width = width;
+      m_displayFormat = displayFormat;
       if ( values )
       {
          va_list va;
@@ -33,13 +34,14 @@ public:
    }
    int GetNumValues ( void ) const { return m_values; }
    const char* GetName ( void ) const { return m_name; }
+   const char* GetDisplayFormat ( void ) const { return m_displayFormat; }
    char* GetValue ( int data ) const
    {
       data >>= m_start;
       data &= ((1<<m_width)-1);
       return m_value[data];
    }
-   unsigned char GetValueRaw ( int data ) const
+   int GetValueRaw ( int data ) const
    {
       data >>= m_start;
       data &= ((1<<m_width)-1);
@@ -49,9 +51,9 @@ public:
    {
       return m_value[index];
    }
-   unsigned char InsertValue ( int data, int bitsToInsert )
+   int InsertValue ( int data, int bitsToInsert )
    {
-      char mask = ((1<<m_width)-1);
+      int mask = ((1<<m_width)-1);
       mask <<= m_start;
       data &= (~(mask));
       bitsToInsert <<= m_start;
@@ -61,6 +63,7 @@ public:
 
 protected:
    const char* m_name;
+   const char* m_displayFormat;
    char  m_start;
    char  m_width;
    char** m_value;
@@ -86,6 +89,7 @@ protected:
    CBitfieldData** m_field;
 };
 
+extern CRegisterData* tblCPURegisters [];
 extern CRegisterData* tblPPURegisters [];
 extern CRegisterData* tblAPURegisters [];
 extern CRegisterData* tblOAMRegisters [];

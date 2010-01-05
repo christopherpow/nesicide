@@ -9,6 +9,7 @@ QWidget *CDebuggerRegisterComboBoxDelegate::createEditor(QWidget *parent,
      const QStyleOptionViewItem &/* option */,
      const QModelIndex &/* index */) const
 {
+   char data [ 64 ];
    int idx;
 
    if ( m_pBitfield )
@@ -18,7 +19,8 @@ QWidget *CDebuggerRegisterComboBoxDelegate::createEditor(QWidget *parent,
          QComboBox *editor = new QComboBox(parent);
          for ( idx = 0; idx < m_pBitfield->GetNumValues(); idx++ )
          {
-            editor->addItem ( m_pBitfield->GetValueByIndex(idx), QVariant(idx) );
+            sprintf ( data, "%X: %s", idx, m_pBitfield->GetValueByIndex(idx) );
+            editor->addItem ( data, QVariant(idx) );
          }
          editor->setEditable(false);
          return editor;
@@ -41,7 +43,7 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
 {
    // get register value from model...
    bool ok;
-   unsigned char value;
+   int value;
    char data [ 8 ];
 
    // reduce to the bits we care about...
@@ -57,7 +59,7 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
       {
          QLineEdit *edit = static_cast<QLineEdit*>(editor);
 
-         sprintf ( data, "%02X", value );
+         sprintf ( data, m_pBitfield->GetDisplayFormat(), value );
 
          edit->setText(data);
       }
@@ -74,7 +76,7 @@ void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget *editor, QAbstractI
 {
    // get register value from model...
    bool ok;
-   unsigned char value;
+   int value;
    char data [ 8 ];
 
    if ( m_pBitfield )
@@ -87,7 +89,7 @@ void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget *editor, QAbstractI
 
          value = m_pBitfield->InsertValue ( index.model()->data(index, Qt::EditRole).toString().toInt(&ok,16), bitfieldValue );
 
-         sprintf ( data, "%02X", value );
+         sprintf ( data, m_pBitfield->GetDisplayFormat(), value );
 
          model->setData(index, data, Qt::EditRole);
       }
@@ -97,7 +99,7 @@ void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget *editor, QAbstractI
 
          value = m_pBitfield->InsertValue ( index.model()->data(index, Qt::EditRole).toString().toInt(&ok,16), edit->text().toInt(&ok,16) );
 
-         sprintf ( data, "%02X", value );
+         sprintf ( data, m_pBitfield->GetDisplayFormat(), value );
 
          model->setData(index, data, Qt::EditRole);
       }

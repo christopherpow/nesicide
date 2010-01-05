@@ -1,12 +1,12 @@
 #ifndef CDEBUGGERREGISTERCOMBOBOXDELEGATE_H
 #define CDEBUGGERREGISTERCOMBOBOXDELEGATE_H
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 #include <QComboBox>
 #include <QLineEdit>
 #include "cregisterdata.h"
 
-class CDebuggerRegisterComboBoxDelegate : public QItemDelegate {
+class CDebuggerRegisterComboBoxDelegate : public QStyledItemDelegate {
    Q_OBJECT
 public:
    CDebuggerRegisterComboBoxDelegate();
@@ -18,9 +18,9 @@ public:
    void setEditorData(QWidget *editor, const QModelIndex &index) const;
    void setModelData(QWidget *editor, QAbstractItemModel *model,
                    const QModelIndex &index) const;
-
    void updateEditorGeometry(QWidget *editor,
      const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 private:
    CBitfieldData* m_pBitfield;
 };

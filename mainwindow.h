@@ -42,6 +42,7 @@ private:
 
     // Debugger inspector dockables
     ExecutionInspector* m_pExecutionInspector;
+    RegisterInspector* m_pBinCPURegisterInspector;
     CHRMEMInspector* m_pGfxCHRMemoryInspector;
     OAMInspector* m_pGfxOAMMemoryInspector;
     NameTableInspector* m_pGfxNameTableMemoryInspector;
@@ -63,6 +64,7 @@ private slots:
     void on_actionGfxCHRMemory_Inspector_toggled(bool );
     void on_actionGfxOAMMemory_Inspector_toggled(bool );
     void on_actionGfxNameTableMemory_Inspector_toggled(bool );
+    void on_actionBinCPURegister_Inspector_toggled(bool );
     void on_actionBinCPUMemory_Inspector_toggled(bool );
     void on_actionBinPPUMemory_Inspector_toggled(bool );
     void on_actionBinCHRMemory_Inspector_toggled(bool );
@@ -76,6 +78,7 @@ private slots:
     void reflectedGfxCHRMemoryInspector_close(bool toplevel);
     void reflectedGfxNameTableMemoryInspector_close(bool toplevel);
     void reflectedGfxOAMMemoryInspector_close(bool toplevel);
+    void reflectedBinCPURegisterInspector_close(bool toplevel);
     void reflectedBinCPUMemoryInspector_close(bool toplevel);
     void reflectedBinPPUMemoryInspector_close(bool toplevel);
     void reflectedBinOAMMemoryInspector_close(bool toplevel);

@@ -8,6 +8,9 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemor
       case eMemory_CPU:
          m_offset = 0;
       break;
+      case eMemory_CPUregs:
+         m_offset = 0;
+      break;
       case eMemory_PPUregs:
          m_offset = 0x2000;
       break;
@@ -71,12 +74,43 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
    char buffer [ 8 ];
    if ( orientation == Qt::Horizontal )
    {
-      sprintf ( buffer, "x%1X", section );
+      switch ( m_display )
+      {
+         case eMemory_CPUregs:
+            switch ( section )
+            {
+               case 0:
+                  sprintf ( buffer, "PC" );
+               break;
+               case 1:
+                  sprintf ( buffer, "A" );
+               break;
+               case 2:
+                  sprintf ( buffer, "X" );
+               break;
+               case 3:
+                  sprintf ( buffer, "Y" );
+               break;
+               case 4:
+                  sprintf ( buffer, "SP" );
+               break;
+               case 5:
+                  sprintf ( buffer, "Flags" );
+               break;
+            }
+         break;
+         default:
+            sprintf ( buffer, "x%1X", section );
+         break;
+      }
    }
    else
    {
       switch ( m_display )
       {
+         case eMemory_CPUregs:
+            sprintf ( buffer, "CPU" );
+         break;
          case eMemory_CPU:
          case eMemory_cartSRAM:
          case eMemory_cartEXRAM:
@@ -100,14 +134,37 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
 
 bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVariant & value, int )
 {
-   unsigned char data;
+   unsigned int data;
    bool ok = false;
 
    data = value.toString().toInt(&ok,16);
-   if ( ok && (data<256) )
+   if ( ok )
    {
       switch ( m_display )
       {
+         case eMemory_CPUregs:
+            switch ( index.column() )
+            {
+               case 0:
+                  C6502::__PC(data);
+               break;
+               case 1:
+                  C6502::_A(data);
+               break;
+               case 2:
+                  C6502::_X(data);
+               break;
+               case 3:
+                  C6502::_Y(data);
+               break;
+               case 4:
+                  C6502::_SP(data);
+               break;
+               case 5:
+                  C6502::_F(data);
+               break;
+            }
+         break;
          case eMemory_CPU:
             C6502::_MEM(m_offset+(index.row()<<4)+index.column(), data);
          break;
@@ -145,6 +202,29 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
 {
    switch ( m_display )
    {
+      case eMemory_CPUregs:
+         switch ( column )
+         {
+            case 0:
+               return createIndex(row, column, (int)C6502::__PC());
+            break;
+            case 1:
+               return createIndex(row, column, (int)C6502::_A());
+            break;
+            case 2:
+               return createIndex(row, column, (int)C6502::_X());
+            break;
+            case 3:
+               return createIndex(row, column, (int)C6502::_Y());
+            break;
+            case 4:
+               return createIndex(row, column, (int)0x100|C6502::_SP());
+            break;
+            case 5:
+               return createIndex(row, column, (int)C6502::_F());
+            break;
+         }
+      break;
       case eMemory_CPU:
          return createIndex(row, column, (int)C6502::_MEM(m_offset+(row<<4)+column));
       break;
@@ -180,6 +260,9 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
 {
    switch ( m_display )
    {
+      case eMemory_CPUregs:
+         return 1;
+      break;
       case eMemory_CPU:
          return (MEM_2KB>>4);
       break;
@@ -219,6 +302,9 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
    }
    switch ( m_display )
    {
+      case eMemory_CPUregs:
+         return 6;
+      break;
       case eMemory_CPU:
       case eMemory_cartSRAM:
       case eMemory_cartEXRAM:
