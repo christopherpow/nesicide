@@ -22,9 +22,44 @@
 
 #include "cnesppu.h"
 
+#include "cregisterdata.h"
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
+// Mapper 001 Registers
+static CBitfieldData* tbl8000_9FFFBitfields [] =
+{
+   new CBitfieldData("CHR Mode", 4, 1, "%X", 2, "8KB mapping", "4KB mapping"),
+   new CBitfieldData("PRG Size", 3, 1, "%X", 2, "32KB", "16KB"),
+   new CBitfieldData("Slot Select", 2, 1, "%X", 2, "$C000 swappable, $8000 fixed to page $00", "$8000 swappable, $C000 fixed to page $0F"),
+   new CBitfieldData("Mirroring", 0, 2, "%X", 4, "One-screen $2000", "One-screen $2400", "Vertical", "Horizontal")
+};
+
+static CBitfieldData* tblA000_BFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank 0", 0, 5, "%02X", 0)
+};
+
+static CBitfieldData* tblC000_DFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank 1", 0, 5, "%02X", 0)
+};
+
+static CBitfieldData* tblE000_FFFFBitfields [] =
+{
+   new CBitfieldData("WRAM State", 4, 1, "%X", 2, "Enabled", "Disabled"),
+   new CBitfieldData("PRG Bank", 0, 4, "%X", 0)
+};
+
+static CRegisterData* tblRegisters [] =
+{
+   new CRegisterData(0x8000, "Control", 4, tbl8000_9FFFBitfields),
+   new CRegisterData(0xA000, "CHR Mapping 1", 1, tblA000_BFFFBitfields),
+   new CRegisterData(0xC000, "CHR Mapping 2", 1, tblC000_DFFFBitfields),
+   new CRegisterData(0xE000, "PRG Mapping", 2, tblE000_FFFFBitfields)
+};
 
 // MMC1 stuff
 unsigned char  CROMMapper001::m_reg [] = { 0x0C, 0x00, 0x00, 0x00 };
@@ -44,17 +79,32 @@ CROMMapper001::~CROMMapper001()
 
 }
 
-void CROMMapper001::DISPLAY ( char* sz )
+void CROMMapper001::RESET ()
 {
-   static const char* fmt = "8000-9FFF:%02X\r\n"
-                      "A000-BFFF:%02X\r\n"
-                      "C000-DFFF:%02X\r\n"
-                      "E000-FFFF:%02X\r\n";
-   int bytes;
-   
-   bytes = sprintf ( sz, fmt, m_reg[0], m_reg[1], m_reg[2], m_reg[3] );
+   int idx;
 
-   CROM::DISPLAY ( sz+bytes );
+   CROM::RESET ();
+
+   m_mapper = 1;
+   m_tblRegisters = tblRegisters;
+   m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
+
+   m_sr = 0;
+   m_srCount = 0;
+   for ( idx = 0; idx < 4; idx++ )
+   {
+      m_reg [ idx ] = m_regdef [ idx ];
+   }
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_PRGROMbank [ 0 ] = 0;
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
+   m_PRGROMbank [ 1 ] = 0;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
+   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
+
+   // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
 void CROMMapper001::LOAD ( MapperState* data )
@@ -99,32 +149,6 @@ void CROMMapper001::SAVE ( MapperState* data )
    data->data.mapper001.sr = m_sr;
    data->data.mapper001.srCount = m_srCount;
    data->data.mapper001.lastWriteAddr = m_lastWriteAddr;
-}
-
-void CROMMapper001::RESET ()
-{
-   int idx;
-
-   CROM::RESET ();
-
-   m_mapper = 1;
-
-   m_sr = 0;
-   m_srCount = 0;
-   for ( idx = 0; idx < 4; idx++ )
-   {
-      m_reg [ idx ] = m_regdef [ idx ];
-   }
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
-
-   // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
 UINT CROMMapper001::MAPPER ( UINT addr )

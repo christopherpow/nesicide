@@ -19,7 +19,6 @@ public:
    static bool SYNCH ( int scanline );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
-   static void DISPLAY ( char* sz );
 
 protected:
    // Irem H-3001

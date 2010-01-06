@@ -120,20 +120,10 @@ void CROMMapper005::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-void CROMMapper005::DISPLAY ( char* sz )
-{
-   static const char* fmt = "prgm:%02X\r\nchrm:%02X\r\nirqe:%02X\r\nirqs:%02X\r\nirqf:%02X";
-   int bytes;
-
-   bytes = sprintf ( sz, fmt, m_prgMode, m_chrMode, m_irqEnabled, m_irqScanline, m_irqStatus );
-
-   CROM::DISPLAY ( sz+bytes );
-}
-
 UINT CROMMapper005::MAPPER ( UINT addr )
 {
-   // if PRG RAM has been mapped in it will already be there...
-   return CROM::PRGROM ( addr );
+   // CPTODO: return MMC5 registers here...
+   return 0xA1;
 }
 
 void CROMMapper005::MAPPER ( UINT addr, unsigned char data )

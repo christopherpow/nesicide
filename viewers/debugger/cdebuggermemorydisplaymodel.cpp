@@ -1,8 +1,11 @@
 #include "cdebuggermemorydisplaymodel.h"
 
+#include "cnesmappers.h"
+
 CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display)
 {
    m_display = display;
+   m_tblRegisters = NULL;
    switch ( m_display )
    {
       case eMemory_CPU:
@@ -24,6 +27,9 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemor
          m_offset = 0x5C00;
       break;
       case eMemory_cartCHRMEM:
+         m_offset = 0;
+      break;
+      case eMemory_cartMapper:         
          m_offset = 0;
       break;
       case eMemory_PPU:
@@ -71,7 +77,7 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
 {
    if (role != Qt::DisplayRole)
       return QVariant();
-   char buffer [ 8 ];
+   char buffer [ 64 ] = { 0, };
    if ( orientation == Qt::Horizontal )
    {
       switch ( m_display )
@@ -110,6 +116,12 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
       {
          case eMemory_CPUregs:
             sprintf ( buffer, "CPU" );
+         break;
+         case eMemory_cartMapper:
+            if ( m_tblRegisters )
+            {
+               sprintf ( buffer, m_tblRegisters[section]->GetName());
+            }
          break;
          case eMemory_CPU:
          case eMemory_cartSRAM:
@@ -183,6 +195,9 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
          case eMemory_cartCHRMEM:
             CROM::CHRMEM(m_offset+(index.row()<<4)+index.column(), data);
          break;
+         case eMemory_cartMapper:
+            mapperfunc[CROM::MAPPER()].highwrite(m_tblRegisters[index.row()]->GetAddr(), data);
+         break;
          case eMemory_PPU:
             CPPU::_MEM(m_offset+(index.row()<<4)+index.column(), data);
          break;
@@ -243,6 +258,16 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
       case eMemory_cartCHRMEM:
          return createIndex(row, column, (int)CROM::CHRMEM(m_offset+(row<<4)+column));
       break;
+      case eMemory_cartMapper:
+         if ( m_tblRegisters )
+         {
+            return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[row]->GetAddr()));
+         }
+         else
+         {
+            return QModelIndex();
+         }
+      break;
       case eMemory_PPU:
          return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<4)+column));
       break;
@@ -281,6 +306,9 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
       case eMemory_cartCHRMEM:
          return (MEM_8KB>>4);
       break;
+      case eMemory_cartMapper:
+         return CROM::NUMREGISTERS();
+      break;
       case eMemory_PPU:
          return (MEM_4KB>>4);
       break;
@@ -305,6 +333,14 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
       case eMemory_CPUregs:
          return 6;
       break;
+      case eMemory_cartMapper:
+         if ( CROM::MAPPER() == 0 )
+         {
+            // Nothing to display here...
+            return 0;
+         }
+         return 1;
+      break;
       case eMemory_CPU:
       case eMemory_cartSRAM:
       case eMemory_cartEXRAM:
@@ -325,5 +361,10 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
 
 void CDebuggerMemoryDisplayModel::layoutChangedEvent()
 {
-    this->layoutChanged();
+   if ( m_display == eMemory_cartMapper )
+   {
+      // get the registers from the mapper just incase a cart has been loaded...
+      m_tblRegisters = CROM::REGISTERS();
+   }
+   this->layoutChanged();
 }

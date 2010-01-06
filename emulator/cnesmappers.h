@@ -54,7 +54,6 @@ typedef bool (*SYNCVFUNC)(void);
 typedef void (*LOADFUNC)(MapperState* data);
 typedef void (*SAVEFUNC)(MapperState* data);
 typedef void (*LATCHFUNC)(UINT addr);
-typedef void (*DISPLAYFUNC)(char* sz);
 
 typedef struct _MapperInfo
 {
@@ -74,8 +73,6 @@ typedef struct _MapperFuncs
    LATCHFUNC latch;
    LOADFUNC load;
    SAVEFUNC save;
-   DISPLAYFUNC display;
-   MAPPERRFUNC internalread;
 } MapperFuncs;
 
 extern MapperInfo  mapper[];

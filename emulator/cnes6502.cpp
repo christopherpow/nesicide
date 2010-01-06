@@ -2575,7 +2575,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
    if ( addr >= 0x8000 )
    {
       (*pTarget) = eTarget_ROM;
-      data = mapperfunc [ CROM::MAPPER() ].highread ( addr );
+      data = CROM::PRGROM ( addr );
       if ( checkBrkpt )
       {
          switch ( m_brkptType )

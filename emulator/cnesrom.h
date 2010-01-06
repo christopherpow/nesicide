@@ -8,6 +8,8 @@
 #include "cnesicidecommon.h"
 #include "cnesmappers.h"
 
+#include "cregisterdata.h"
+
 #include "ccodedatalogger.h"
 
 #define NUM_ROM_BANKS 32
@@ -57,6 +59,8 @@ public:
    static inline void EXRAM ( UINT addr, unsigned char data ) { *(m_EXRAMmemory+(addr-EXRAM_START)) = data; }
    static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+(*(m_PRGROMbank+PRGBANK_NUM(addr)))); }
    static inline unsigned char* CHRRAMPTR ( UINT addr ) { return &(m_CHRRAMmemory[addr]); }
+   static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
+   static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
 
    // Mapper interface
    static UINT MAPPER ( void ) { return m_mapper; }
@@ -69,8 +73,6 @@ public:
    static void LATCH ( UINT addr ) {}
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
-   static void DISPLAY ( char* sz );
-   static UINT INTERNAL ( UINT addr ) { return PRGROM(addr); }
 
 protected:
    static unsigned char  m_SRAMmemory [ MEM_64KB ];
@@ -88,8 +90,10 @@ protected:
    static unsigned char* m_pCHRmemory [ 8 ];
    static unsigned char* m_pSRAMmemory;
 
-   // Code/data logger stuff...
+   // Other UI stuff...
    static CCodeDataLogger* m_pLogger [ NUM_ROM_BANKS ];
+   static CRegisterData** m_tblRegisters;
+   static int             m_numRegisters;
 };
 
 #endif // !defined(AFX_ROM_H__C90CA742_0CBF_4014_A38A_6B0C9D2C0125__INCLUDED_)

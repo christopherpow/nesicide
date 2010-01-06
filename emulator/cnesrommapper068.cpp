@@ -73,11 +73,6 @@ void CROMMapper068::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-void CROMMapper068::DISPLAY ( char* sz )
-{
-   CROM::DISPLAY ( sz );
-}
-
 UINT CROMMapper068::MAPPER ( UINT addr )
 {
    // TODO: Implement mapper 68 fully.

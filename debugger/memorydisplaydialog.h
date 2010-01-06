@@ -5,6 +5,7 @@
 #include "cdebuggermemorydisplaymodel.h"
 
 #include "cnesicidecommon.h"
+#include "cregisterdata.h"
 
 namespace Ui {
     class MemoryDisplayDialog;
@@ -17,9 +18,11 @@ public:
     ~MemoryDisplayDialog();
 
 protected:
+    void contextMenuEvent(QContextMenuEvent *e);
     void changeEvent(QEvent *e);
 
 public slots:
+    void cartridgeLoaded();
     void updateMemory();
 
 private:

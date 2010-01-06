@@ -26,6 +26,7 @@ public:
 private:
    eMemoryType m_display;
    unsigned int m_offset;
+   CRegisterData** m_tblRegisters;
 };
 
 #endif // CDEBUGGERMEMORYDISPLAYMODEL_H

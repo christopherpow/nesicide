@@ -25,6 +25,10 @@ ExecutionTracerDialog::~ExecutionTracerDialog()
     delete tableViewModel;
 }
 
+void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent *e)
+{
+}
+
 void ExecutionTracerDialog::changeEvent(QEvent *e)
 {
     QDialog::changeEvent(e);

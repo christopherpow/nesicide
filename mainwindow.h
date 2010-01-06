@@ -55,6 +55,7 @@ private:
     RegisterInspector* m_pBinAPURegisterInspector;
     RegisterInspector* m_pBinOAMMemoryInspector;
     MemoryInspector* m_pBinPaletteMemoryInspector;
+    RegisterInspector* m_pBinMapperMemoryInspector;
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
@@ -74,6 +75,7 @@ private slots:
     void on_actionBinPaletteMemory_Inspector_toggled(bool );
     void on_actionBinAPURegister_Inspector_toggled(bool );
     void on_actionBinPPURegister_Inspector_toggled(bool );
+    void on_actionBinMapperMemory_Inspector_toggled(bool );
     void reflectedExecutionInspector_close(bool toplevel);
     void reflectedGfxCHRMemoryInspector_close(bool toplevel);
     void reflectedGfxNameTableMemoryInspector_close(bool toplevel);
@@ -88,6 +90,7 @@ private slots:
     void reflectedBinEXRAMMemoryInspector_close(bool toplevel);
     void reflectedBinPPURegisterInspector_close(bool toplevel);
     void reflectedBinAPURegisterInspector_close(bool toplevel);
+    void reflectedBinMapperMemoryInspector_close(bool toplevel);
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);

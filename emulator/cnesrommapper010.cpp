@@ -87,20 +87,6 @@ void CROMMapper010::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-void CROMMapper010::DISPLAY ( char* sz )
-{
-   static const char* fmt = "A000-AFFF:%02X\r\n"
-                      "B000-BFFF:%02X\r\n"
-                      "C000-CFFF:%02X\r\n"
-                      "D000-DFFF:%02X\r\n"
-                      "E000-EFFF:%02X\r\n"
-                      "F000-FFFF:%02X\r\n";
-   int bytes;
-
-   bytes = sprintf ( sz, fmt, m_reg[0], m_reg[1], m_reg[2], m_reg[3], m_reg[4], m_reg[5] );
-   CROM::DISPLAY ( sz+bytes );
-}
-
 UINT CROMMapper010::MAPPER ( UINT addr )
 {
    switch ( addr&0xF000 )

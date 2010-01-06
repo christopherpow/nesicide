@@ -73,8 +73,9 @@ protected:
 class CRegisterData
 {
 public:
-   CRegisterData(const char* name, int fields, CBitfieldData** tblField )
+   CRegisterData(int addr, const char* name, int fields, CBitfieldData** tblField )
    {
+      m_addr = addr;
       m_name = name;
       m_fields = fields;
       m_field = tblField;
@@ -83,7 +84,9 @@ public:
    const char* GetName ( void ) const { return m_name; }
    int GetNumBitfields ( void ) const { return m_fields; }
    CBitfieldData* GetBitfield ( int field ) const { return m_field[field]; }
+   int GetAddr ( void ) const { return m_addr; }
 protected:
+   int m_addr;
    const char* m_name;
    char m_fields;
    CBitfieldData** m_field;

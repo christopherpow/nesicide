@@ -91,11 +91,6 @@ void CROMMapper065::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-void CROMMapper065::DISPLAY ( char* sz )
-{
-   CROM::DISPLAY ( sz );
-}
-
 UINT CROMMapper065::MAPPER ( UINT addr )
 {
    switch ( addr )

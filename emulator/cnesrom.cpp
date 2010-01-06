@@ -40,8 +40,10 @@ UINT           CROM::m_numPrgBanks = 0;
 UINT           CROM::m_numChrBanks = 0;
 
 CCodeDataLogger* CROM::m_pLogger [] = { NULL, };
+CRegisterData**  CROM::m_tblRegisters = NULL;
+int              CROM::m_numRegisters = 0;
 
-static CROM rom = CROM();
+static CROM __init __attribute((unused));
 
 CROM::CROM()
 {
@@ -125,11 +127,6 @@ void CROM::RESET ()
    {
       m_pLogger [ bank ]->ClearData ();
    }
-}
-
-void CROM::DISPLAY ( char* sz )
-{
-   sprintf ( sz, "NROM" );
 }
 
 void CROM::LOAD ( MapperState* data )

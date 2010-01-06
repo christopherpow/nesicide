@@ -89,13 +89,3 @@ void CROMMapper007::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-void CROMMapper007::DISPLAY ( char* sz )
-{
-   static const char* fmt = "8000-FFFF:%02X\r\n";
-   int bytes;
-   
-   bytes = sprintf ( sz, fmt, m_reg );
-
-   CROM::DISPLAY ( sz+bytes );
-}
-

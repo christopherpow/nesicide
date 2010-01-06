@@ -20,9 +20,22 @@
 
 #include "cnesrommapper002.h"
 
+#include "cregisterdata.h"
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
+// Mapper 002 Registers
+static CBitfieldData* tbl8000_FFFFBitfields [] =
+{
+   new CBitfieldData("PRG Bank", 0, 8, "%02X", 0)
+};
+
+static CRegisterData* tblRegisters [] =
+{
+   new CRegisterData(0x8000, "PRG Mapping", 1, tbl8000_FFFFBitfields),
+};
 
 unsigned char  CROMMapper002::m_reg = 0x00;
 
@@ -41,6 +54,8 @@ void CROMMapper002::RESET ()
    CROM::RESET ();
 
    m_mapper = 2;
+   m_tblRegisters = tblRegisters;
+   m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
    m_PRGROMbank [ 0 ] = 0;
@@ -78,14 +93,3 @@ void CROMMapper002::SAVE ( MapperState* data )
 {
    CROM::SAVE ( data );
 }
-
-void CROMMapper002::DISPLAY ( char* sz )
-{
-   static const char* fmt = "8000-FFFF:%02X\r\n";
-   int bytes;
-   
-   bytes = sprintf ( sz, fmt, m_reg );
-
-   CROM::DISPLAY ( sz+bytes );
-}
-

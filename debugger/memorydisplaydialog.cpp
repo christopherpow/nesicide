@@ -12,6 +12,8 @@ MemoryDisplayDialog::MemoryDisplayDialog(QWidget *parent, eMemoryType display) :
     ui->setupUi(this);
     model = new CDebuggerMemoryDisplayModel(this,display);
     ui->tableView->setModel(model);
+
+    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
 }
 
@@ -19,6 +21,10 @@ MemoryDisplayDialog::~MemoryDisplayDialog()
 {
     delete ui;
     delete model;
+}
+
+void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
+{
 }
 
 void MemoryDisplayDialog::changeEvent(QEvent *e)
@@ -31,6 +37,11 @@ void MemoryDisplayDialog::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void MemoryDisplayDialog::cartridgeLoaded ()
+{
+   model->layoutChangedEvent();
 }
 
 void MemoryDisplayDialog::updateMemory ()

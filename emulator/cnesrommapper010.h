@@ -19,7 +19,6 @@ public:
    static void LATCH ( UINT addr );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
-   static void DISPLAY ( char* sz );
 
 protected:
    // MMC3

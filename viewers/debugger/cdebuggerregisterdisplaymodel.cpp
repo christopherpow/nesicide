@@ -1,5 +1,7 @@
 #include "cdebuggerregisterdisplaymodel.h"
 
+#include "cnesmappers.h"
+
 CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject* parent, eMemoryType display)
 {
    m_display = display;
@@ -22,6 +24,10 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject* parent, eM
          m_offset = 0x0000;
          m_tblRegisters = tblOAMRegisters;
       break;
+      case eMemory_cartMapper:
+         m_offset = 0x0000;
+         m_tblRegisters = CROM::REGISTERS();
+      break;
       default:
          m_offset = 0;
          m_tblRegisters = NULL;
@@ -41,23 +47,27 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
       return QVariant();
 
    int regData = (int)index.internalPointer();
-   CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( index.row() );
-   if ( role == Qt::DisplayRole )
+
+   if ( m_tblRegisters )
    {
-      if ( pBitfield->GetNumValues() )
+      CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( index.row() );
+      if ( role == Qt::DisplayRole )
       {
-         sprintf ( data, "%X: %s", pBitfield->GetValueRaw(regData), pBitfield->GetValue(regData) );
+         if ( pBitfield->GetNumValues() )
+         {
+            sprintf ( data, "%X: %s", pBitfield->GetValueRaw(regData), pBitfield->GetValue(regData) );
+         }
+         else
+         {
+            sprintf ( data, pBitfield->GetDisplayFormat(), pBitfield->GetValueRaw(regData) );
+         }
+         return QVariant(data);
       }
-      else
+      else if ( role == Qt::EditRole )
       {
-         sprintf ( data, pBitfield->GetDisplayFormat(), pBitfield->GetValueRaw(regData) );
+         sprintf ( data, pBitfield->GetDisplayFormat(), regData );
+         return QVariant(data);
       }
-      return QVariant(data);
-   }
-   else if ( role == Qt::EditRole )
-   {
-      sprintf ( data, pBitfield->GetDisplayFormat(), regData );
-      return QVariant(data);
    }
    return QVariant();
 }
@@ -72,15 +82,18 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
 {
    if (role != Qt::DisplayRole)
       return QVariant();
-   char buffer [ 64 ];
+   char buffer [ 64 ] = { 0, };
    if ( orientation == Qt::Horizontal )
    {
       sprintf ( buffer, "Value" );
    }
    else
    {
-      CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( section );
-      sprintf ( buffer, pBitfield->GetName() );
+      if ( m_tblRegisters )
+      {
+         CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( section );
+         sprintf ( buffer, pBitfield->GetName() );
+      }
    }
 
    return  QString(buffer);
@@ -128,6 +141,9 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
          case eMemory_PPUoam:
             CPPU::OAM((m_offset+m_register)%4,(m_offset+m_register)/4, data);
          break;
+         case eMemory_cartMapper:
+            mapperfunc[CROM::MAPPER()].highwrite(m_tblRegisters[m_register]->GetAddr(), data);
+         break;
          default:
          break;
       }
@@ -172,6 +188,16 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
       case eMemory_PPUoam:
          return createIndex(row, column, (int)CPPU::OAM((m_offset+m_register)%4,(m_offset+m_register)/4));
       break;
+      case eMemory_cartMapper:
+         if ( m_tblRegisters )
+         {
+            return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[m_register]->GetAddr()));
+         }
+         else
+         {
+            return QModelIndex();
+         }
+      break;
       default:
          return QModelIndex();
       break;
@@ -181,15 +207,32 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
 
 int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &parent) const
 {
-   return m_tblRegisters[m_register]->GetNumBitfields();
+   if ( m_tblRegisters )
+   {
+      return m_tblRegisters[m_register]->GetNumBitfields();
+   }
+   return 0;
 }
 
 int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex &parent) const
 {
+   if ( m_display == eMemory_cartMapper )
+   {
+      if ( CROM::MAPPER() == 0 )
+      {
+         // Nothing to display here...
+         return 0;
+      }
+   }
    return 1;
 }
 
 void CDebuggerRegisterDisplayModel::layoutChangedEvent()
 {
-    this->layoutChanged();
+   if ( m_display == eMemory_cartMapper )
+   {
+      // get the registers from the mapper just incase a cart has been loaded...
+      m_tblRegisters = CROM::REGISTERS();
+   }
+   this->layoutChanged();
 }

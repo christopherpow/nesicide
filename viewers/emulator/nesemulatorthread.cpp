@@ -103,6 +103,9 @@ void NESEmulatorThread::setCartridge(CCartridge *cartridge)
 
     // Reset the emulator...
     resetEmulator ();
+
+    emit cartridgeLoaded();
+
 }
 
 void NESEmulatorThread::resetEmulator()

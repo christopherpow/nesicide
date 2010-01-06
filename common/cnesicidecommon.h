@@ -297,19 +297,19 @@ typedef struct
 #define MASK_64KB 0xFFFF
 #define SHIFT_64KB_8KB 13
 
-// CPTODO: don't forget mapper displays...
 typedef enum
 {
    eMemory_CPU = 0,
    eMemory_CPUregs,
    eMemory_PPUregs,
+   eMemory_PPU,
+   eMemory_PPUpalette,
+   eMemory_PPUoam,
    eMemory_IOregs,
    eMemory_cartSRAM,
    eMemory_cartEXRAM,
    eMemory_cartCHRMEM,
-   eMemory_PPU,
-   eMemory_PPUpalette,
-   eMemory_PPUoam
+   eMemory_cartMapper
 } eMemoryType;
 
 #define EXRAM_START 0x5C00

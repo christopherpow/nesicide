@@ -2,12 +2,12 @@
 #include "ui_registerdisplaydialog.h"
 
 #include "cnes6502.h"
-#include "cregisterdata.h"
 
 #include "main.h"
 
 RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType display) :
     QDialog(parent),
+    m_display(display),
     ui(new Ui::RegisterDisplayDialog)
 {
     ui->setupUi(this);
@@ -31,6 +31,9 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
        case eMemory_PPUoam:
           m_tblRegisters = tblOAMRegisters;
        break;
+       case eMemory_cartMapper:
+          m_tblRegisters = CROM::REGISTERS();
+       break;
        default:
           m_tblRegisters = NULL;
        break;
@@ -39,6 +42,7 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
     QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
 
+    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
 }
 
@@ -48,6 +52,16 @@ RegisterDisplayDialog::~RegisterDisplayDialog()
    delete binaryModel;
    delete bitfieldModel;
    delete bitfieldDelegate;
+}
+
+void RegisterDisplayDialog::showEvent(QShowEvent *e)
+{
+   binaryModel->layoutChangedEvent();
+   bitfieldModel->layoutChangedEvent();
+}
+
+void RegisterDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
+{
 }
 
 void RegisterDisplayDialog::changeEvent(QEvent *e)
@@ -60,6 +74,16 @@ void RegisterDisplayDialog::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void RegisterDisplayDialog::cartridgeLoaded ()
+{
+   if ( m_display == eMemory_cartMapper )
+   {
+      m_tblRegisters = CROM::REGISTERS();
+   }
+   binaryModel->layoutChangedEvent();
+   bitfieldModel->layoutChangedEvent();
 }
 
 void RegisterDisplayDialog::updateMemory ()

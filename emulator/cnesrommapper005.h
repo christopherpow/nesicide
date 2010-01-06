@@ -23,7 +23,6 @@ public:
    static void SETPPU ( void );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
-   static void DISPLAY ( char* sz );
 
 protected:
    // MMC5

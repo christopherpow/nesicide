@@ -38,6 +38,7 @@ public slots:
 
 signals:
    void emulatedFrame ();
+   void cartridgeLoaded ();
 
 protected:
    virtual void run ();

@@ -66,11 +66,6 @@ void CROMMapper011::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-void CROMMapper011::DISPLAY ( char* sz )
-{
-   CROM::DISPLAY ( sz );
-}
-
 UINT CROMMapper011::MAPPER ( UINT addr )
 {
    return m_reg;

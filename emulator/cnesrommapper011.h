@@ -18,7 +18,6 @@ public:
    static void MAPPER ( UINT addr, unsigned char data );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
-   static void DISPLAY ( char* sz );
 
 protected:
    static unsigned char m_reg;

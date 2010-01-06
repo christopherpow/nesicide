@@ -21,9 +21,12 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
+    void showEvent(QShowEvent *e);
 
 public slots:
    void updateMemory();
+   void cartridgeLoaded();
 
 private:
     Ui::RegisterDisplayDialog *ui;
@@ -31,6 +34,7 @@ private:
     CDebuggerRegisterDisplayModel *bitfieldModel;
     CDebuggerRegisterComboBoxDelegate * bitfieldDelegate;
     CRegisterData** m_tblRegisters;
+    eMemoryType m_display;
     int m_register;
 
 private slots:

@@ -130,6 +130,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinEXRAMMemoryInspector->hide();
     QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinEXRAMMemoryInspector_close(bool)));
 
+    m_pBinMapperMemoryInspector = new RegisterInspector(eMemory_cartMapper);
+    m_pBinMapperMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Inspector");
+    m_pBinMapperMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
+    m_pBinMapperMemoryInspector->hide();
+    QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
+
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
 }
@@ -187,6 +195,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionBinEXRAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -614,5 +623,15 @@ void MainWindow::on_actionBinEXRAMMemory_Inspector_toggled(bool value)
 void MainWindow::reflectedBinEXRAMMemoryInspector_close ( bool toplevel )
 {
    ui->actionBinEXRAMMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionBinMapperMemory_Inspector_toggled(bool value)
+{
+   m_pBinMapperMemoryInspector->setVisible(value);
+}
+
+void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
+{
+   ui->actionBinMapperMemory_Inspector->setChecked(toplevel);
 }
 
