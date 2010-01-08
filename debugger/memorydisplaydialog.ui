@@ -25,6 +25,9 @@
      <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+     </property>
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
@@ -60,15 +63,6 @@
      </attribute>
      <attribute name="verticalHeaderMinimumSectionSize">
       <number>23</number>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>26</number>
-     </attribute>
-     <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>26</number>
      </attribute>
     </widget>
    </item>

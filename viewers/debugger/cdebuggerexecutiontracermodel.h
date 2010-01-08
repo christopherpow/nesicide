@@ -8,6 +8,7 @@
 
 class CDebuggerExecutionTracerModel : public QAbstractTableModel
 {
+   Q_OBJECT
 public:
     CDebuggerExecutionTracerModel(QObject* parent);
     virtual ~CDebuggerExecutionTracerModel();

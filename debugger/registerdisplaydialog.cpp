@@ -7,7 +7,6 @@
 
 RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType display) :
     QDialog(parent),
-    m_display(display),
     ui(new Ui::RegisterDisplayDialog)
 {
     ui->setupUi(this);
@@ -17,6 +16,7 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     bitfieldDelegate = new CDebuggerRegisterComboBoxDelegate();
     ui->bitfieldView->setModel(bitfieldModel);
     ui->bitfieldView->setItemDelegate(bitfieldDelegate);
+    m_display = display;
     switch ( display )
     {
        case eMemory_CPUregs:
@@ -39,6 +39,7 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
        break;
     }
     m_register = 0;
+    ui->label->setText ( "" );
     QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
     QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
 
@@ -82,6 +83,10 @@ void RegisterDisplayDialog::cartridgeLoaded ()
    {
       m_tblRegisters = CROM::REGISTERS();
    }
+   if ( m_tblRegisters )
+   {
+      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+   }
    binaryModel->layoutChangedEvent();
    bitfieldModel->layoutChangedEvent();
 }
@@ -96,6 +101,10 @@ void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)
 {
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
+   if ( m_tblRegisters )
+   {
+      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+   }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
 }
@@ -104,6 +113,10 @@ void RegisterDisplayDialog::on_binaryView_doubleClicked(QModelIndex index)
 {
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
+   if ( m_tblRegisters )
+   {
+      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+   }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
 }
@@ -124,6 +137,10 @@ void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
 {
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
+   if ( m_tblRegisters )
+   {
+      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+   }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
 }

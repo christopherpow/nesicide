@@ -32,6 +32,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
@@ -61,6 +64,12 @@
       </attribute>
      </widget>
      <widget class="QTableView" name="bitfieldView">
+      <property name="editTriggers">
+       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::SingleSelection</enum>
       </property>
@@ -79,6 +88,17 @@
       <attribute name="verticalHeaderMinimumSectionSize">
        <number>23</number>
       </attribute>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="indent">
+       <number>0</number>
+      </property>
      </widget>
     </widget>
    </item>

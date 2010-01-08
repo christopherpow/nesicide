@@ -9,7 +9,7 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemor
    switch ( m_display )
    {
       case eMemory_CPU:
-         m_offset = 0;
+         m_offset = 0x0000;
       break;
       case eMemory_CPUregs:
          m_offset = 0;
@@ -22,6 +22,9 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemor
       break;
       case eMemory_cartSRAM:
          m_offset = 0x6000;
+      break;
+      case eMemory_cartROM:
+         m_offset = 0x8000;
       break;
       case eMemory_cartEXRAM:
          m_offset = 0x5C00;
@@ -120,23 +123,24 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
          case eMemory_cartMapper:
             if ( m_tblRegisters )
             {
-               sprintf ( buffer, m_tblRegisters[section]->GetName());
+               sprintf ( buffer, "$%04X", m_tblRegisters[section]->GetAddr());
             }
          break;
          case eMemory_CPU:
+         case eMemory_cartROM:
          case eMemory_cartSRAM:
          case eMemory_cartEXRAM:
          case eMemory_cartCHRMEM:
          case eMemory_PPU:
          case eMemory_PPUregs:
-            sprintf ( buffer, "$%04X:", m_offset+(section<<4) );
+            sprintf ( buffer, "$%04X", m_offset+(section<<4) );
          break;
          case eMemory_PPUoam:
             sprintf ( buffer, "%d", section );
          break;
          case eMemory_PPUpalette:
          case eMemory_IOregs:
-            sprintf ( buffer, "$%04X:", m_offset+(section<<2) );
+            sprintf ( buffer, "$%04X", m_offset+(section<<2) );
          break;
       }
    }
@@ -186,6 +190,9 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
          case eMemory_IOregs:
             CAPU::_APU(m_offset+(index.row()<<2)+index.column(), data);
          break;
+         case eMemory_cartROM:
+            mapperfunc[CROM::MAPPER()].highwrite(m_offset+(index.row()<<4)+index.column(), data);
+         break;
          case eMemory_cartSRAM:
             CROM::SRAM(m_offset+(index.row()<<4)+index.column(), data);
          break;
@@ -196,7 +203,14 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
             CROM::CHRMEM(m_offset+(index.row()<<4)+index.column(), data);
          break;
          case eMemory_cartMapper:
-            mapperfunc[CROM::MAPPER()].highwrite(m_tblRegisters[index.row()]->GetAddr(), data);
+            if ( m_tblRegisters[index.row()]->GetAddr() < MEM_32KB )
+            {
+               mapperfunc[CROM::MAPPER()].lowwrite(m_tblRegisters[index.row()]->GetAddr(), data);
+            }
+            else
+            {
+               mapperfunc[CROM::MAPPER()].highwrite(m_tblRegisters[index.row()]->GetAddr(), data);
+            }
          break;
          case eMemory_PPU:
             CPPU::_MEM(m_offset+(index.row()<<4)+index.column(), data);
@@ -249,6 +263,9 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
       case eMemory_IOregs:
          return createIndex(row, column, (int)CAPU::_APU(m_offset+(row<<2)+column));
       break;
+      case eMemory_cartROM:
+         return createIndex(row, column, (int)CROM::PRGROM(m_offset+(row<<4)+column));
+      break;
       case eMemory_cartSRAM:
          return createIndex(row, column, (int)CROM::SRAM(m_offset+(row<<4)+column));
       break;
@@ -261,7 +278,14 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
       case eMemory_cartMapper:
          if ( m_tblRegisters )
          {
-            return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[row]->GetAddr()));
+            if ( m_tblRegisters[row]->GetAddr() < MEM_32KB )
+            {
+               return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(m_tblRegisters[row]->GetAddr()));
+            }
+            else
+            {
+               return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[row]->GetAddr()));
+            }
          }
          else
          {
@@ -296,6 +320,9 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
       break;
       case eMemory_IOregs:
          return 6;
+      break;
+      case eMemory_cartROM:
+         return (MEM_32KB>>4);
       break;
       case eMemory_cartSRAM:
          return (MEM_8KB>>4);
@@ -342,6 +369,7 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
          return 1;
       break;
       case eMemory_CPU:
+      case eMemory_cartROM:
       case eMemory_cartSRAM:
       case eMemory_cartEXRAM:
       case eMemory_cartCHRMEM:

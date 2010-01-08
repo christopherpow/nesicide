@@ -58,21 +58,29 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinCPURegisterInspector->hide();
     QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
 
-    m_pBinCPUMemoryInspector = new MemoryInspector(eMemory_CPU);
-    m_pBinCPUMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pBinCPUMemoryInspector->setWindowTitle("CPU Memory Inspector");
-    m_pBinCPUMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
-    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPUMemoryInspector );
-    m_pBinCPUMemoryInspector->hide();
-    QObject::connect(m_pBinCPUMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPUMemoryInspector_close(bool)));
+    m_pBinCPURAMInspector = new MemoryInspector(eMemory_CPU);
+    m_pBinCPURAMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pBinCPURAMInspector->setWindowTitle("CPU Memory Inspector");
+    m_pBinCPURAMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
+    m_pBinCPURAMInspector->hide();
+    QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
 
-    m_pBinPPUMemoryInspector = new MemoryInspector(eMemory_PPU);
-    m_pBinPPUMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pBinPPUMemoryInspector->setWindowTitle("PPU Memory Inspector");
-    m_pBinPPUMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
-    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPUMemoryInspector );
-    m_pBinPPUMemoryInspector->hide();
-    QObject::connect(m_pBinPPUMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPUMemoryInspector_close(bool)));
+    m_pBinROMInspector = new MemoryInspector(eMemory_cartROM);
+    m_pBinROMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pBinROMInspector->setWindowTitle("ROM Inspector");
+    m_pBinROMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
+    m_pBinROMInspector->hide();
+    QObject::connect(m_pBinROMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinROMInspector_close(bool)));
+
+    m_pBinNameTableMemoryInspector = new MemoryInspector(eMemory_PPU);
+    m_pBinNameTableMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pBinNameTableMemoryInspector->setWindowTitle("PPU Memory Inspector");
+    m_pBinNameTableMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
+    m_pBinNameTableMemoryInspector->hide();
+    QObject::connect(m_pBinNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinNameTableMemoryInspector_close(bool)));
 
     m_pBinPPURegisterInspector = new RegisterInspector(eMemory_PPUregs);
     m_pBinPPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -186,8 +194,9 @@ void MainWindow::projectDataChangesEvent()
     ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinCPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinPPUMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionBinCPURAM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionBinROM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionBinNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinPaletteMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
@@ -545,24 +554,34 @@ void MainWindow::reflectedBinCPURegisterInspector_close ( bool toplevel )
    ui->actionBinCPURegister_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinCPUMemory_Inspector_toggled(bool value)
+void MainWindow::on_actionBinCPURAM_Inspector_toggled(bool value)
 {
-   m_pBinCPUMemoryInspector->setVisible(value);
+   m_pBinCPURAMInspector->setVisible(value);
 }
 
-void MainWindow::reflectedBinCPUMemoryInspector_close (bool toplevel)
+void MainWindow::reflectedBinCPURAMInspector_close (bool toplevel)
 {
-   ui->actionBinCPUMemory_Inspector->setChecked(toplevel);
+   ui->actionBinCPURAM_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinPPUMemory_Inspector_toggled(bool value)
+void MainWindow::on_actionBinROM_Inspector_toggled(bool value)
 {
-   m_pBinPPUMemoryInspector->setVisible(value);
+   m_pBinROMInspector->setVisible(value);
 }
 
-void MainWindow::reflectedBinPPUMemoryInspector_close (bool toplevel)
+void MainWindow::reflectedBinROMInspector_close (bool toplevel)
 {
-   ui->actionBinPPUMemory_Inspector->setChecked(toplevel);
+   ui->actionBinROM_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionBinNameTableMemory_Inspector_toggled(bool value)
+{
+   m_pBinNameTableMemoryInspector->setVisible(value);
+}
+
+void MainWindow::reflectedBinNameTableMemoryInspector_close (bool toplevel)
+{
+   ui->actionBinNameTableMemory_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionBinPaletteMemory_Inspector_toggled(bool value)

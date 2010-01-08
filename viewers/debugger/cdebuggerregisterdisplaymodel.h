@@ -12,6 +12,7 @@
 
 class CDebuggerRegisterDisplayModel : public QAbstractTableModel
 {
+   Q_OBJECT
 public:
    CDebuggerRegisterDisplayModel(QObject* parent = 0, eMemoryType display = eMemory_PPUregs);
    virtual ~CDebuggerRegisterDisplayModel();
@@ -26,11 +27,11 @@ public:
    int columnCount(const QModelIndex &parent = QModelIndex()) const;
    void setRegister ( int newRegister ) { m_register = newRegister; layoutChangedEvent(); }
    void layoutChangedEvent();
+
 private:
    eMemoryType m_display;
    int         m_register;
    CRegisterData** m_tblRegisters;
-   unsigned int m_offset;
 };
 
 #endif // CDEBUGGERREGISTERDISPLAYMODEL_H

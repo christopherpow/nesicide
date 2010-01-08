@@ -46,8 +46,9 @@ private:
     CHRMEMInspector* m_pGfxCHRMemoryInspector;
     OAMInspector* m_pGfxOAMMemoryInspector;
     NameTableInspector* m_pGfxNameTableMemoryInspector;
-    MemoryInspector* m_pBinCPUMemoryInspector;
-    MemoryInspector* m_pBinPPUMemoryInspector;
+    MemoryInspector* m_pBinCPURAMInspector;
+    MemoryInspector* m_pBinROMInspector;
+    MemoryInspector* m_pBinNameTableMemoryInspector;
     MemoryInspector* m_pBinCHRMemoryInspector;
     MemoryInspector* m_pBinSRAMMemoryInspector;
     MemoryInspector* m_pBinEXRAMMemoryInspector;
@@ -66,8 +67,9 @@ private slots:
     void on_actionGfxOAMMemory_Inspector_toggled(bool );
     void on_actionGfxNameTableMemory_Inspector_toggled(bool );
     void on_actionBinCPURegister_Inspector_toggled(bool );
-    void on_actionBinCPUMemory_Inspector_toggled(bool );
-    void on_actionBinPPUMemory_Inspector_toggled(bool );
+    void on_actionBinCPURAM_Inspector_toggled(bool );
+    void on_actionBinROM_Inspector_toggled(bool );
+    void on_actionBinNameTableMemory_Inspector_toggled(bool );
     void on_actionBinCHRMemory_Inspector_toggled(bool );
     void on_actionBinOAMMemory_Inspector_toggled(bool );
     void on_actionBinSRAMMemory_Inspector_toggled(bool );
@@ -81,8 +83,9 @@ private slots:
     void reflectedGfxNameTableMemoryInspector_close(bool toplevel);
     void reflectedGfxOAMMemoryInspector_close(bool toplevel);
     void reflectedBinCPURegisterInspector_close(bool toplevel);
-    void reflectedBinCPUMemoryInspector_close(bool toplevel);
-    void reflectedBinPPUMemoryInspector_close(bool toplevel);
+    void reflectedBinCPURAMInspector_close(bool toplevel);
+    void reflectedBinROMInspector_close(bool toplevel);
+    void reflectedBinNameTableMemoryInspector_close(bool toplevel);
     void reflectedBinOAMMemoryInspector_close(bool toplevel);
     void reflectedBinCHRMemoryInspector_close(bool toplevel);
     void reflectedBinPaletteMemoryInspector_close(bool toplevel);

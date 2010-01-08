@@ -9,27 +9,21 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject* parent, eM
    switch ( m_display )
    {
       case eMemory_CPUregs:
-         m_offset = 0x0000;
          m_tblRegisters = tblCPURegisters;
       break;
       case eMemory_PPUregs:
-         m_offset = 0x2000;
          m_tblRegisters = tblPPURegisters;
       break;
       case eMemory_IOregs:
-         m_offset = 0x4000;
          m_tblRegisters = tblAPURegisters;
       break;
       case eMemory_PPUoam:
-         m_offset = 0x0000;
          m_tblRegisters = tblOAMRegisters;
       break;
       case eMemory_cartMapper:
-         m_offset = 0x0000;
          m_tblRegisters = CROM::REGISTERS();
       break;
       default:
-         m_offset = 0;
          m_tblRegisters = NULL;
       break;
    }
@@ -103,104 +97,131 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
 {
    int data;
    bool ok = false;
+   int addr;
 
-   data = value.toString().toInt(&ok,16);
-   if ( ok )
+   if ( m_tblRegisters )
    {
-      switch ( m_display )
+      addr = m_tblRegisters[m_register]->GetAddr();
+      data = value.toString().toInt(&ok,16);
+
+      if ( ok )
       {
-         case eMemory_CPUregs:
-            switch ( m_register )
-            {
-               case 0:
-                  C6502::__PC(data);
-               break;
-               case 1:
-                  C6502::_A(data);
-               break;
-               case 2:
-                  C6502::_X(data);
-               break;
-               case 3:
-                  C6502::_Y(data);
-               break;
-               case 4:
-                  C6502::_SP(data);
-               break;
-               case 5:
-                  C6502::_F(data);
-               break;
-            }
-         break;
-         case eMemory_PPUregs:
-            CPPU::_PPU(m_offset+m_register, data);
-         break;
-         case eMemory_IOregs:
-            CAPU::_APU(m_offset+m_register, data);
-         break;
-         case eMemory_PPUoam:
-            CPPU::OAM((m_offset+m_register)%4,(m_offset+m_register)/4, data);
-         break;
-         case eMemory_cartMapper:
-            mapperfunc[CROM::MAPPER()].highwrite(m_tblRegisters[m_register]->GetAddr(), data);
-         break;
-         default:
-         break;
+         switch ( m_display )
+         {
+            case eMemory_CPUregs:
+               switch ( m_register )
+               {
+                  case 0:
+                     C6502::__PC(data);
+                  break;
+                  case 1:
+                     C6502::_A(data);
+                  break;
+                  case 2:
+                     C6502::_X(data);
+                  break;
+                  case 3:
+                     C6502::_Y(data);
+                  break;
+                  case 4:
+                     C6502::_SP(data);
+                  break;
+                  case 5:
+                     C6502::_F(data);
+                  break;
+               }
+            break;
+            case eMemory_PPUregs:
+               CPPU::_PPU(addr, data);
+            break;
+            case eMemory_IOregs:
+               CAPU::_APU(addr, data);
+            break;
+            case eMemory_PPUoam:
+               CPPU::OAM(addr%NUM_OAM_REGS,addr/NUM_OAM_REGS, data);
+            break;
+            case eMemory_cartMapper:
+               if ( addr < MEM_32KB )
+               {
+                  mapperfunc[CROM::MAPPER()].lowwrite(addr, data);
+               }
+               else
+               {
+                  mapperfunc[CROM::MAPPER()].highwrite(addr, data);
+               }
+            break;
+            default:
+            break;
+         }
+         emit dataChanged(index,index);
       }
-      emit dataChanged(index,index);
    }
    return ok;
 }
 
 QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QModelIndex &parent) const
 {
-   switch ( m_display )
+   int addr;
+
+   if ( m_tblRegisters )
    {
-      case eMemory_CPUregs:
-         switch ( m_register )
-         {
-            case 0:
-               return createIndex(row, column, (int)C6502::__PC());
-            break;
-            case 1:
-               return createIndex(row, column, (int)C6502::_A());
-            break;
-            case 2:
-               return createIndex(row, column, (int)C6502::_X());
-            break;
-            case 3:
-               return createIndex(row, column, (int)C6502::_Y());
-            break;
-            case 4:
-               return createIndex(row, column, (int)0x100|C6502::_SP());
-            break;
-            case 5:
-               return createIndex(row, column, (int)C6502::_F());
-            break;
-         }
-      break;
-      case eMemory_PPUregs:
-         return createIndex(row, column, (int)CPPU::_PPU(m_offset+m_register));
-      break;
-      case eMemory_IOregs:
-         return createIndex(row, column, (int)CAPU::_APU(m_offset+m_register));
-      break;
-      case eMemory_PPUoam:
-         return createIndex(row, column, (int)CPPU::OAM((m_offset+m_register)%4,(m_offset+m_register)/4));
-      break;
-      case eMemory_cartMapper:
-         if ( m_tblRegisters )
-         {
-            return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[m_register]->GetAddr()));
-         }
-         else
-         {
+      addr = m_tblRegisters[m_register]->GetAddr();
+
+      switch ( m_display )
+      {
+         case eMemory_CPUregs:
+            switch ( m_register )
+            {
+               case 0:
+                  return createIndex(row, column, (int)C6502::__PC());
+               break;
+               case 1:
+                  return createIndex(row, column, (int)C6502::_A());
+               break;
+               case 2:
+                  return createIndex(row, column, (int)C6502::_X());
+               break;
+               case 3:
+                  return createIndex(row, column, (int)C6502::_Y());
+               break;
+               case 4:
+                  return createIndex(row, column, (int)0x100|C6502::_SP());
+               break;
+               case 5:
+                  return createIndex(row, column, (int)C6502::_F());
+               break;
+            }
+         break;
+         case eMemory_PPUregs:
+            return createIndex(row, column, (int)CPPU::_PPU(addr));
+         break;
+         case eMemory_IOregs:
+            return createIndex(row, column, (int)CAPU::_APU(addr));
+         break;
+         case eMemory_PPUoam:
+            return createIndex(row, column, (int)CPPU::OAM(addr%NUM_OAM_REGS,addr/NUM_OAM_REGS));
+         break;
+         case eMemory_cartMapper:
+            if ( m_tblRegisters )
+            {
+               if ( addr < MEM_32KB )
+               {
+                  return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(addr));
+               }
+               else
+               {
+                  return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(addr));
+               }
+            }
+            else
+            {
+               return QModelIndex();
+            }
+         break;
+         default:
             return QModelIndex();
-         }
-      break;
-      default:
-         return QModelIndex();
-      break;
+         break;
+      }
    }
    return QModelIndex();
 }
@@ -216,15 +237,12 @@ int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &parent) const
 
 int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex &parent) const
 {
-   if ( m_display == eMemory_cartMapper )
+   if ( m_tblRegisters )
    {
-      if ( CROM::MAPPER() == 0 )
-      {
-         // Nothing to display here...
-         return 0;
-      }
+      return 1;
    }
-   return 1;
+   // Nothing to display here...
+   return 0;
 }
 
 void CDebuggerRegisterDisplayModel::layoutChangedEvent()

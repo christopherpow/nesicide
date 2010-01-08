@@ -306,6 +306,7 @@ typedef enum
    eMemory_PPUpalette,
    eMemory_PPUoam,
    eMemory_IOregs,
+   eMemory_cartROM,
    eMemory_cartSRAM,
    eMemory_cartEXRAM,
    eMemory_cartCHRMEM,

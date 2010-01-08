@@ -10,6 +10,7 @@
 
 class CDebuggerMemoryDisplayModel : public QAbstractTableModel
 {
+   Q_OBJECT
 public:
    CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display);
    virtual ~CDebuggerMemoryDisplayModel();
