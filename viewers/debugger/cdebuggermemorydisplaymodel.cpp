@@ -361,12 +361,12 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
          return 6;
       break;
       case eMemory_cartMapper:
-         if ( CROM::MAPPER() == 0 )
+         if ( m_tblRegisters )
          {
-            // Nothing to display here...
-            return 0;
+            return 1;
          }
-         return 1;
+         // Nothing to display here...
+         return 0;
       break;
       case eMemory_CPU:
       case eMemory_cartROM:

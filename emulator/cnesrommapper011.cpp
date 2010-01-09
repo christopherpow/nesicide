@@ -22,9 +22,24 @@
 
 #include "cnesppu.h"
 
+#include "cregisterdata.h"
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
+// Mapper 011 Registers
+static CBitfieldData* tbl8000_FFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank", 4, 4, "%X", 0),
+   new CBitfieldData("Lockout", 2, 2, "%X", 0),
+   new CBitfieldData("CHR Bank", 0, 2, "%X", 0)
+};
+
+static CRegisterData* tblRegisters [] =
+{
+   new CRegisterData(0x8000, "PRG/CHR Mapping", 3, tbl8000_FFFFBitfields)
+};
 
 unsigned char  CROMMapper011::m_reg = 0x00;
 
@@ -43,6 +58,8 @@ void CROMMapper011::RESET ()
    CROM::RESET ();
 
    m_mapper = 11;
+   m_tblRegisters = tblRegisters;
+   m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
    m_PRGROMbank [ 0 ] = 0;

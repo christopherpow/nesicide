@@ -331,7 +331,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         bool hasTrainer = (romCB1 & 0x04);
 
         // Extract the four lower bits of the mapper number
-        m_pointerToCartridge->setMapperNumber(romCB1 >> 4);
+        m_pointerToCartridge->setMapperNumber((romCB1>>4)&0x0F);
 
         // ROM Control Byte 2:
         // • Bits 0-3 - Reserved for future usage and should all be 0.
