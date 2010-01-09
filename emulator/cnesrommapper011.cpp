@@ -33,7 +33,7 @@ static CBitfieldData* tbl8000_FFFFBitfields [] =
 {
    new CBitfieldData("CHR Bank", 4, 4, "%X", 0),
    new CBitfieldData("Lockout", 2, 2, "%X", 0),
-   new CBitfieldData("CHR Bank", 0, 2, "%X", 0)
+   new CBitfieldData("PRG Bank", 0, 2, "%X", 0)
 };
 
 static CRegisterData* tblRegisters [] =
