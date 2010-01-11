@@ -9,7 +9,6 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BreakpointDialog)
 {
-   m_pRegister = NULL;
    ui->setupUi(this);
    brkptConditions.append ( "Equals" );
    brkptConditions.append ( "Does Not Equal" );
@@ -19,6 +18,9 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
    ui->conditionWidget->setCurrentIndex ( 0 );
    ui->dataWidget->setCurrentIndex ( 0 );
    ui->type->setCurrentIndex ( 0 );
+
+   m_pRegister = NULL;
+   m_pBitfield = NULL;
 }
 
 BreakpointDialog::~BreakpointDialog()
@@ -40,7 +42,7 @@ void BreakpointDialog::changeEvent(QEvent *e)
 
 void BreakpointDialog::on_type_currentIndexChanged(int index)
 {
-   int idx1, idx2;
+   int idx;
 
    ui->condition->clear();
    ui->condition->addItems ( brkptConditions );
@@ -65,15 +67,10 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( 2 );
          ui->register_2->clear();
          ui->bitfield->clear();
-         for ( idx1 = 0; idx1 < NUM_CPU_REGISTERS; idx1++ )
+         for ( idx = 0; idx < NUM_CPU_REGISTERS; idx++ )
          {
-            ui->register_2->addItem ( tblCPURegisters[idx1]->GetName() );
+            ui->register_2->addItem ( tblCPURegisters[idx]->GetName() );
          }
-//         for ( idx2 = 0; idx2 < tblCPURegisters[0]->GetNumBitfields(); idx2++ )
-//         {
-//            CBitfieldData* pBitfield = tblCPURegisters[0]->GetBitfield(idx2);
-//            ui->bitfield->addItem ( pBitfield->GetName() );
-//         }
       break;
       case 5:
          ui->itemWidget->setCurrentIndex ( 2 );
@@ -92,15 +89,10 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( 2 );
          ui->register_2->clear();
          ui->bitfield->clear();
-         for ( idx1 = 0; idx1 < NUM_PPU_REGISTERS; idx1++ )
+         for ( idx = 0; idx < NUM_PPU_REGISTERS; idx++ )
          {
-            ui->register_2->addItem ( tblPPURegisters[idx1]->GetName() );
+            ui->register_2->addItem ( tblPPURegisters[idx]->GetName() );
          }
-//         for ( idx2 = 0; idx2 < tblPPURegisters[0]->GetNumBitfields(); idx2++ )
-//         {
-//            CBitfieldData* pBitfield = tblPPURegisters[0]->GetBitfield(idx2);
-//            ui->bitfield->addItem ( pBitfield->GetName() );
-//         }
       break;
       case 9:
          ui->itemWidget->setCurrentIndex ( 2 );
@@ -118,15 +110,10 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( 2 );
          ui->register_2->clear();
          ui->bitfield->clear();
-         for ( idx1 = 0; idx1 < NUM_APU_REGISTERS; idx1++ )
+         for ( idx = 0; idx < NUM_APU_REGISTERS; idx++ )
          {
-            ui->register_2->addItem ( tblAPURegisters[idx1]->GetName() );
+            ui->register_2->addItem ( tblAPURegisters[idx]->GetName() );
          }
-//         for ( idx2 = 0; idx2 < tblAPURegisters[0]->GetNumBitfields(); idx2++ )
-//         {
-//            CBitfieldData* pBitfield = tblAPURegisters[0]->GetBitfield(idx2);
-//            ui->bitfield->addItem ( pBitfield->GetName() );
-//         }
       break;
       case 12:
          ui->itemWidget->setCurrentIndex ( 2 );
@@ -139,15 +126,10 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( 2 );
          ui->register_2->clear();
          ui->bitfield->clear();
-         for ( idx1 = 0; idx1 < CROM::NUMREGISTERS(); idx1++ )
+         for ( idx = 0; idx < CROM::NUMREGISTERS(); idx++ )
          {
-            ui->register_2->addItem ( CROM::REGISTERS()[idx1]->GetName() );
+            ui->register_2->addItem ( CROM::REGISTERS()[idx]->GetName() );
          }
-//         for ( idx2 = 0; idx2 < CROM::REGISTERS()[0]->GetNumBitfields(); idx2++ )
-//         {
-//            CBitfieldData* pBitfield = CROM::REGISTERS()[0]->GetBitfield(idx2);
-//            ui->bitfield->addItem ( pBitfield->GetName() );
-//         }
       break;
       case 14:
          ui->itemWidget->setCurrentIndex ( 2 );
@@ -164,7 +146,7 @@ void BreakpointDialog::on_pushButton_clicked()
 
 void BreakpointDialog::on_register_2_currentIndexChanged(int index)
 {
-   int idx2;
+   int idx;
    switch ( ui->type->currentIndex() )
    {
       case 4:
@@ -186,10 +168,43 @@ void BreakpointDialog::on_register_2_currentIndexChanged(int index)
    ui->bitfield->clear();
    if ( m_pRegister )
    {
-      for ( idx2 = 0; idx2 < m_pRegister->GetNumBitfields(); idx2++ )
+      for ( idx = 0; idx < m_pRegister->GetNumBitfields(); idx++ )
       {
-         CBitfieldData* pBitfield = m_pRegister->GetBitfield(idx2);
+         CBitfieldData* pBitfield = m_pRegister->GetBitfield(idx);
          ui->bitfield->addItem ( pBitfield->GetName() );
+      }
+   }
+}
+
+void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
+{
+   int idx;
+
+   ui->data2->clear();
+   if ( m_pRegister )
+   {
+      if ( index >= 0 )
+      {
+         m_pBitfield = m_pRegister->GetBitfield ( index );
+      }
+      else
+      {
+         m_pBitfield = NULL;
+      }
+      if ( m_pBitfield )
+      {
+         if ( m_pBitfield->GetNumValues() )
+         {
+            ui->dataWidget->setCurrentIndex ( 2 );
+            for ( idx = 0; idx < m_pBitfield->GetNumValues(); idx++ )
+            {
+               ui->data2->addItem ( m_pBitfield->GetValueByIndex(idx) );
+            }
+         }
+         else
+         {
+            ui->dataWidget->setCurrentIndex ( 1 );
+         }
       }
    }
 }

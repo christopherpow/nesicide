@@ -21,8 +21,10 @@ protected:
 private:
    Ui::BreakpointDialog *ui;
    CRegisterData* m_pRegister;
+   CBitfieldData* m_pBitfield;
 
 private slots:
+    void on_bitfield_currentIndexChanged(int index);
     void on_register_2_currentIndexChanged(int index);
     void on_pushButton_clicked();
     void on_type_currentIndexChanged(int index);
