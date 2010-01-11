@@ -14,99 +14,10 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Break on:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2" colspan="2">
-    <widget class="QComboBox" name="type">
-     <property name="maxVisibleItems">
-      <number>16</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>CPU Execution</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CPU Memory Access (Read or Write)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CPU Memory Read</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CPU Memory Write</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CPU State</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CPU Event</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PPU Fetch</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PPU DMA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PPU State</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PPU Event</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>APU DMA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>APU State</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>APU Event</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Cartridge (Mapper) State</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Cartridge (Mapper) Event</string>
-      </property>
-     </item>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="4">
     <widget class="QStackedWidget" name="itemWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -136,7 +47,7 @@
       </layout>
      </widget>
      <widget class="QWidget" name="regpage">
-      <layout class="QGridLayout" name="gridLayout_3">
+      <layout class="QFormLayout" name="formLayout_2">
        <property name="margin">
         <number>0</number>
        </property>
@@ -147,18 +58,18 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
+       <item row="0" column="1">
+        <widget class="QComboBox" name="register_2"/>
+       </item>
+       <item row="1" column="0">
         <widget class="QLabel" name="bitfieldlabel">
          <property name="text">
           <string>Bitfield:</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="4">
+       <item row="1" column="1">
         <widget class="QComboBox" name="bitfield"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="register_2"/>
        </item>
       </layout>
      </widget>
@@ -172,7 +83,7 @@
      </property>
      <widget class="QWidget" name="emptyCondition"/>
      <widget class="QWidget" name="addrCondition">
-      <layout class="QGridLayout" name="gridLayout_4">
+      <layout class="QFormLayout" name="formLayout_3">
        <property name="margin">
         <number>0</number>
        </property>
@@ -193,7 +104,7 @@
    <item row="4" column="0">
     <widget class="QStackedWidget" name="dataWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page_4">
       <layout class="QGridLayout" name="gridLayout_7">
@@ -201,11 +112,9 @@
         <number>0</number>
        </property>
       </layout>
-      <zorder>condition</zorder>
-      <zorder>conditionlabel</zorder>
      </widget>
      <widget class="QWidget" name="page_5">
-      <layout class="QGridLayout" name="gridLayout_5">
+      <layout class="QFormLayout" name="formLayout_5">
        <property name="margin">
         <number>0</number>
        </property>
@@ -222,7 +131,7 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_6">
-      <layout class="QGridLayout" name="gridLayout_6">
+      <layout class="QFormLayout" name="formLayout_4">
        <property name="margin">
         <number>0</number>
        </property>
@@ -249,6 +158,108 @@
    </item>
    <item row="5" column="0" colspan="4">
     <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item row="0" column="0" colspan="4">
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Break on:</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="type">
+       <property name="maxVisibleItems">
+        <number>16</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>CPU Execution</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Memory Access (Read or Write)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Memory Read</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Memory Write</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Event</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU Fetch</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU DMA</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU Event</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>APU DMA</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>APU State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>APU Event</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cartridge (Mapper) State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cartridge (Mapper) Event</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
