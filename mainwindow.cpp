@@ -18,6 +18,14 @@ MainWindow::MainWindow(QWidget *parent) :
     emulatorDlgTabIdx = -1;
     projectDataChangesEvent();
 
+    m_pBreakpointInspector = new BreakpointInspector ();
+    m_pBreakpointInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pBreakpointInspector->setWindowTitle("Breakpoints");
+    m_pBreakpointInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
+    m_pBreakpointInspector->hide();
+    QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
+
     m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
     m_pGfxCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pGfxCHRMemoryInspector->setWindowTitle("Graphical CHR Memory Inspector");
@@ -190,6 +198,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
     ui->actionEmulation_Window->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
@@ -502,6 +511,16 @@ void MainWindow::on_actionExecution_Inspector_toggled(bool value)
 void MainWindow::reflectedExecutionInspector_close (bool toplevel)
 {
    ui->actionExecution_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionBreakpoint_Inspector_toggled(bool value)
+{
+   m_pBreakpointInspector->setVisible(value);
+}
+
+void MainWindow::reflectedBreakpointInspector_close (bool toplevel)
+{
+   ui->actionBreakpoint_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionGfxCHRMemory_Inspector_toggled(bool value)

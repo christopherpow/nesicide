@@ -144,3 +144,27 @@ void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
 }
+
+void RegisterDisplayDialog::on_binaryView_activated(QModelIndex index)
+{
+   int cols = index.model()->columnCount();
+   m_register = (index.row()*cols)+index.column();
+   if ( m_tblRegisters )
+   {
+      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+   }
+   bitfieldModel->setRegister ( m_register );
+   bitfieldModel->layoutChangedEvent();
+}
+
+void RegisterDisplayDialog::on_binaryView_entered(QModelIndex index)
+{
+   int cols = index.model()->columnCount();
+   m_register = (index.row()*cols)+index.column();
+   if ( m_tblRegisters )
+   {
+      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+   }
+   bitfieldModel->setRegister ( m_register );
+   bitfieldModel->layoutChangedEvent();
+}

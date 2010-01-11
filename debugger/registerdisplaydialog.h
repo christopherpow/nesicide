@@ -38,6 +38,8 @@ private:
     int m_register;
 
 private slots:
+    void on_binaryView_entered(QModelIndex index);
+    void on_binaryView_activated(QModelIndex index);
     void on_binaryView_pressed(QModelIndex index);
     void on_bitfieldView_doubleClicked(QModelIndex index);
     void on_bitfieldView_clicked(QModelIndex index);

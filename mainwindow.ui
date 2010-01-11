@@ -145,6 +145,7 @@
      <addaction name="menuBinary_Inspectors"/>
      <addaction name="separator"/>
      <addaction name="actionExecution_Inspector"/>
+     <addaction name="actionBreakpoint_Inspector"/>
     </widget>
     <widget class="QMenu" name="menuType_Here_2">
      <property name="title">
@@ -242,6 +243,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionEmulation_Window"/>
+   <addaction name="actionBreakpoint_Inspector"/>
    <addaction name="actionExecution_Inspector"/>
    <addaction name="actionBinCPURegister_Inspector"/>
    <addaction name="actionBinROM_Inspector"/>
@@ -728,6 +730,21 @@
    </property>
    <property name="toolTip">
     <string>Cartridge PRG-ROM Inspector</string>
+   </property>
+  </action>
+  <action name="actionBreakpoint_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>Breakpoints</string>
+   </property>
+   <property name="toolTip">
+    <string>Breakpoints</string>
    </property>
   </action>
  </widget>

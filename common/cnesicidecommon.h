@@ -355,15 +355,6 @@ enum
 #define NUM_PLANES 2
 #define NUM_BYTES_PER_PLANE 8
 
-#if 0
-typedef struct
-{
-   int  index;
-   unsigned char palette [ 4 ];
-   unsigned char bit [ PATTERN_SIZE ] [ PATTERN_SIZE ];
-} pattern_raw_data_struct;
-#endif
-
 // Emulator threads stuff
 
 #define BRKPT_NONE       0
@@ -437,44 +428,5 @@ typedef struct
 #define idxJOY_START     6
 #define idxJOY_B         7
 #define idxJOY_A         8
-
-#if 0
-typedef enum
-{
-   eResize_SnapRight    = 0x001,
-   eResize_SnapBottom   = 0x002,
-   eResize_Resize       = 0x004,
-   eResize_AdjustRight  = 0x008,
-   eResize_AdjustBottom = 0x010,
-   eResize_AdjustBoth   = 0x020,
-   eResize_MoveRight    = 0x040,
-   eResize_MoveBottom   = 0x080,
-   eResize_MoveBoth     = 0x100,
-   eResize_SlideRight   = 0x200,
-   eResize_SlideBottom  = 0x400,
-   eResize_SlideBoth    = 0x800
-};
-
-typedef struct _WindowResizes
-{
-   int id;
-   int type;
-   int cx;
-   int cy;
-   int xmin;
-   int ymin;
-   int xmax;
-   int ymax;
-} WindowResizes;
-
-// screen coordinate to pixel conversion...
-void PointToPixel(CRect& rRect, CPoint &rPoint);
-void PointToNameTable ( CRect& rRect, CPoint& rPoint, int size );
-
-#define ASSEMBLER_PASS_IF_PRESENT 0
-#define ASSEMBLER_FAIL_IF_PRESENT 1
-#define ASSEMBLER_PASS_IF_MISSING 2
-#define ASSEMBLER_FAIL_IF_MISSING 3
-#endif
 
 #endif // #if !defined ( NESICIDE_COMMON_H )

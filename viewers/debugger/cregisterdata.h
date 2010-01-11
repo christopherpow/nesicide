@@ -3,6 +3,10 @@
 
 #include "stdarg.h"
 
+#define NUM_CPU_REGISTERS 6
+#define NUM_PPU_REGISTERS 8
+#define NUM_APU_REGISTERS 24
+
 class CBitfieldData
 {
 public:

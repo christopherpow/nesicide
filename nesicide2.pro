@@ -117,7 +117,9 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
     debugger/registerinspector.cpp \
     viewers/debugger/cregisterdata.cpp \
-    viewers/debugger/cdebuggerregistercomboboxdelegate.cpp
+    viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
+    debugger/breakpointdialog.cpp \
+    debugger/breakpointinspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -207,7 +209,9 @@ HEADERS += mainwindow.h \
     viewers/debugger/cdebuggerregisterdisplaymodel.h \
     debugger/registerinspector.h \
     viewers/debugger/cregisterdata.h \
-    viewers/debugger/cdebuggerregistercomboboxdelegate.h
+    viewers/debugger/cdebuggerregistercomboboxdelegate.h \
+    debugger/breakpointdialog.h \
+    debugger/breakpointinspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -221,5 +225,6 @@ FORMS += mainwindow.ui \
     debugger/executiontracerdialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
     debugger/memorydisplaydialog.ui \
-    debugger/registerdisplaydialog.ui
+    debugger/registerdisplaydialog.ui \
+    debugger/breakpointdialog.ui
 RESOURCES += resource.qrc
