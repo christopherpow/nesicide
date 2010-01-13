@@ -30,6 +30,53 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+// CPU Registers
+static CBitfieldData* tblCPUPCBitfields [] =
+{
+   new CBitfieldData("Instruction Pointer", 0, 16, "%04X", 0),
+};
+
+static CBitfieldData* tblCPUABitfields [] =
+{
+   new CBitfieldData("Accumulator", 0, 8, "%02X", 0),
+};
+
+static CBitfieldData* tblCPUXBitfields [] =
+{
+   new CBitfieldData("X Index", 0, 8, "%02X", 0),
+};
+
+static CBitfieldData* tblCPUYBitfields [] =
+{
+   new CBitfieldData("Y Index", 0, 8, "%02X", 0),
+};
+
+static CBitfieldData* tblCPUSPBitfields [] =
+{
+   new CBitfieldData("Stack Pointer", 0, 12, "%03X", 0),
+};
+
+static CBitfieldData* tblCPUFBitfields [] =
+{
+   new CBitfieldData("Negative", 7, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Overflow", 6, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Break", 4, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Decimal Mode", 3, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Interrupt", 2, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Zero", 1, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Carry", 0, 1, "%X", 2, "No", "Yes")
+};
+
+static CRegisterData* tblCPURegisters [] =
+{
+   new CRegisterData(0, "CPUPC", 1, tblCPUPCBitfields),
+   new CRegisterData(1, "CPUA", 1, tblCPUABitfields),
+   new CRegisterData(2, "CPUX", 1, tblCPUXBitfields),
+   new CRegisterData(3, "CPUY", 1, tblCPUYBitfields),
+   new CRegisterData(4, "CPUSP", 1, tblCPUSPBitfields),
+   new CRegisterData(5, "CPUF", 7, tblCPUFBitfields)
+};
+
 bool            C6502::m_killed = false;              // KIL opcode not executed
 unsigned char   C6502::m_6502memory [] = { 0, };
 char            C6502::m_szBinaryText [] = { 0, };
@@ -56,6 +103,9 @@ int             C6502::m_curCycles = 0;
 
 int             C6502::amode;
 unsigned char*  C6502::data = NULL;
+
+CRegisterData** C6502::m_tblRegisters = tblCPURegisters;
+int             C6502::m_numRegisters = NUM_CPU_REGISTERS;
 
 static int opcode_size [ NUM_ADDRESSING_MODES ] =
 {

@@ -6,6 +6,8 @@
 #define APU_H
 
 #include "cnesicidecommon.h"
+#include "cregisterdata.h"
+
 #undef main
 #include "SDL.h"
 
@@ -277,6 +279,9 @@ public:
    static void PLAY ( Uint8 *stream, int len );
    static void CLOSE ( void );
 
+   static CRegisterData** REGISTERS() { return m_tblRegisters; }
+   static int NUMREGISTERS() { return m_numRegisters; }
+
 protected:
    static unsigned char m_APUreg [ 32 ];
    static unsigned char m_APUregDirty [ 32 ];
@@ -299,6 +304,9 @@ protected:
    static int m_waveBufDepth [ NUM_APU_BUFS ];
    static int m_waveBufProduce;
    static int m_waveBufConsume;
+
+   static CRegisterData** m_tblRegisters;
+   static int             m_numRegisters;
 };
 
 #endif // !defined(AFX_APU_H__AE53BDB6_796A_4B67_BC4D_CC86C1F0191C__INCLUDED_)

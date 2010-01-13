@@ -31,7 +31,7 @@
         <string>Run</string>
        </property>
        <property name="icon">
-        <iconset resource="resource.qrc">
+        <iconset resource="../../resource.qrc">
          <normaloff>:/resources/stock_media-play.svg</normaloff>:/resources/stock_media-play.svg</iconset>
        </property>
        <property name="iconSize">
@@ -54,7 +54,7 @@
         <string>Stop</string>
        </property>
        <property name="icon">
-        <iconset resource="resource.qrc">
+        <iconset resource="../../resource.qrc">
          <normaloff>:/resources/stock_media-stop.svg</normaloff>:/resources/stock_media-stop.svg</iconset>
        </property>
        <property name="iconSize">
@@ -77,7 +77,7 @@
         <string>Pause</string>
        </property>
        <property name="icon">
-        <iconset resource="resource.qrc">
+        <iconset resource="../../resource.qrc">
          <normaloff>:/resources/stock_media-pause.svg</normaloff>:/resources/stock_media-pause.svg</iconset>
        </property>
        <property name="iconSize">
@@ -100,7 +100,7 @@
         <string>Step</string>
        </property>
        <property name="icon">
-        <iconset resource="resource.qrc">
+        <iconset resource="../../resource.qrc">
          <normaloff>:/resources/stock_right.svg</normaloff>:/resources/stock_right.svg</iconset>
        </property>
        <property name="iconSize">
@@ -139,11 +139,14 @@
         <string>Reset</string>
        </property>
        <property name="icon">
-        <iconset resource="resource.qrc">
+        <iconset resource="../../resource.qrc">
          <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
        </property>
       </widget>
      </item>
@@ -182,7 +185,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../../resource.qrc"/>
  </resources>
  <connections/>
 </ui>

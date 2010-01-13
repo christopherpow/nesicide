@@ -96,9 +96,6 @@ protected:
    CBitfieldData** m_field;
 };
 
-extern CRegisterData* tblCPURegisters [];
-extern CRegisterData* tblPPURegisters [];
-extern CRegisterData* tblAPURegisters [];
 extern CRegisterData* tblOAMRegisters [];
 
 #endif // CREGISTERDATA_H

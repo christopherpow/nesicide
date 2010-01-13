@@ -20,7 +20,6 @@ public:
     CNESEmulatorRenderer *renderer;
 
 protected:
-    void showEvent(QShowEvent *event);
     void changeEvent(QEvent *e);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);

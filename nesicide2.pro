@@ -119,7 +119,9 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cregisterdata.cpp \
     viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
     debugger/breakpointdialog.cpp \
-    debugger/breakpointinspector.cpp
+    debugger/breakpointinspector.cpp \
+    debugger/cbreakpointinfo.cpp \
+    viewers/debugger/cbreakpointdisplaymodel.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -211,7 +213,9 @@ HEADERS += mainwindow.h \
     viewers/debugger/cregisterdata.h \
     viewers/debugger/cdebuggerregistercomboboxdelegate.h \
     debugger/breakpointdialog.h \
-    debugger/breakpointinspector.h
+    debugger/breakpointinspector.h \
+    debugger/cbreakpointinfo.h \
+    viewers/debugger/cbreakpointdisplaymodel.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

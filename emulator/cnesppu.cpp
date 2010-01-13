@@ -29,6 +29,81 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+// PPU Registers
+static CBitfieldData* tblPPUCTRLBitfields [] =
+{
+   new CBitfieldData("Generate NMI", 7, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("PPU Master/Slave", 6, 1, "%X", 2, "Master", "Slave"),
+   new CBitfieldData("Sprite Size", 5, 1, "%X", 2, "8x8", "8x16"),
+   new CBitfieldData("Playfield Pattern Table", 4, 1, "%X", 2, "$0000", "$1000"),
+   new CBitfieldData("Sprite Pattern Table", 3, 1, "%X", 2, "$0000", "$1000"),
+   new CBitfieldData("VRAM Address Increment", 2, 1, "%X", 2, "+1", "+32"),
+   new CBitfieldData("NameTable", 0, 2, "%X", 4, "NT1", "NT2", "NT3", "NT4")
+};
+
+static CBitfieldData* tblPPUMASKBitfields [] =
+{
+   new CBitfieldData("Blue Emphasis", 7, 1, "%X", 2, "Off", "On"),
+   new CBitfieldData("Green Emphasis", 6, 1, "%X", 2, "Off", "On"),
+   new CBitfieldData("Red Emphasis", 5, 1, "%X", 2, "Off", "On"),
+   new CBitfieldData("Sprite Rendering", 4, 1, "%X", 2, "Off", "On"),
+   new CBitfieldData("Playfield Rendering", 3, 1, "%X", 2, "Off", "On"),
+   new CBitfieldData("Sprite Clipping", 2, 1, "%X", 2, "Yes", "No"),
+   new CBitfieldData("Playfield Clipping", 1, 1, "%X", 2, "Yes", "No"),
+   new CBitfieldData("Greyscale", 0, 1, "%X", 2, "No", "Yes")
+};
+
+static CBitfieldData* tblPPUSTATUSBitfields [] =
+{
+   new CBitfieldData("Vertical Blank", 7, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Sprite 0 Hit", 6, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Sprite Overflow", 5, 1, "%X", 2, "No", "Yes")
+};
+
+static CBitfieldData* tblOAMADDRBitfields [] =
+{
+   new CBitfieldData("OAM Address", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblOAMDATABitfields [] =
+{
+   new CBitfieldData("OAM Data", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblPPUSCROLLBitfields [] =
+{
+   new CBitfieldData("PPU Scroll", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblPPUADDRBitfields [] =
+{
+   new CBitfieldData("PPU Address", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblPPUDATABitfields [] =
+{
+   new CBitfieldData("PPU Data", 0, 8, "%02X", 0)
+};
+
+static CRegisterData* tblPPURegisters [] =
+{
+   new CRegisterData(0x2000, "PPUCTRL", 7, tblPPUCTRLBitfields),
+   new CRegisterData(0x2001, "PPUMASK", 8, tblPPUMASKBitfields),
+   new CRegisterData(0x2002, "PPUSTATUS", 3, tblPPUSTATUSBitfields),
+   new CRegisterData(0x2003, "OAMADDR", 1, tblOAMADDRBitfields),
+   new CRegisterData(0x2004, "OAMDATA", 1, tblOAMDATABitfields),
+   new CRegisterData(0x2005, "PPUSCROLL", 1, tblPPUSCROLLBitfields),
+   new CRegisterData(0x2006, "PPUADDR", 1, tblPPUADDRBitfields),
+   new CRegisterData(0x2007, "PPUDATA", 1, tblPPUDATABitfields)
+};
+
+// PPU Event breakpoints
+#define NUM_PPU_EVENTS 1
+static BreakpointEventInfo tblPPUEvents [ NUM_PPU_EVENTS ] =
+{
+   { "Raster Position (X,Y)", 2, "Break at pixel (%d,%d)" }
+};
+
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
 unsigned char  CPPU::m_PALETTEmemory [] = { 0, };
 unsigned char* CPPU::m_pPPUmemory [] = { m_PPUmemory+(0<<UPSHIFT_1KB),
@@ -87,6 +162,12 @@ unsigned char  CPPU::m_lastSprite0HitY = 0xFF;
 
 UINT CPPU::m_iPPUViewerScanline = 0;
 UINT CPPU::m_iOAMViewerScanline = 0;
+
+CRegisterData** CPPU::m_tblRegisters = tblPPURegisters;
+int             CPPU::m_numRegisters = NUM_PPU_REGISTERS;
+
+BreakpointEventInfo* CPPU::m_tblBreakpointEvents = tblPPUEvents;
+int                  CPPU::m_numBreakpointEvents = NUM_PPU_EVENTS;
 
 CPPU::CPPU()
 {

@@ -2,6 +2,8 @@
 #include "ui_registerdisplaydialog.h"
 
 #include "cnes6502.h"
+#include "cnesppu.h"
+#include "cnesapu.h"
 
 #include "main.h"
 
@@ -20,13 +22,13 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     switch ( display )
     {
        case eMemory_CPUregs:
-          m_tblRegisters = tblCPURegisters;
+         m_tblRegisters = C6502::REGISTERS();
        break;
        case eMemory_PPUregs:
-          m_tblRegisters = tblPPURegisters;
+          m_tblRegisters = CPPU::REGISTERS();
        break;
        case eMemory_IOregs:
-          m_tblRegisters = tblAPURegisters;
+          m_tblRegisters = CAPU::REGISTERS();
        break;
        case eMemory_PPUoam:
           m_tblRegisters = tblOAMRegisters;

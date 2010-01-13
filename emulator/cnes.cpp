@@ -31,6 +31,7 @@
 
 bool         CNES::m_bReplay = false;
 unsigned int CNES::m_frame = 0;
+CBreakpointInfo CNES::m_breakpoints;
 
 CNES::CNES()
 {

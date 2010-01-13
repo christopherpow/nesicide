@@ -9,6 +9,7 @@
 
 #include "ctracer.h"
 #include "ccodedatalogger.h"
+#include "cregisterdata.h"
 
 #define VECTOR_IRQ   0xFFFE
 #define VECTOR_RESET 0xFFFC
@@ -276,6 +277,9 @@ public:
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
 
+   static CRegisterData** REGISTERS() { return m_tblRegisters; }
+   static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
+
 protected:
    static bool            m_killed;
    static unsigned char   m_6502memory [ MEM_2KB ];
@@ -303,6 +307,9 @@ protected:
 
    static int             amode; // TODO: rename!
    static unsigned char*  data; // TODO: rename!
+
+   static CRegisterData** m_tblRegisters;
+   static int             m_numRegisters;
 };
 
 typedef struct _C6502_opcode

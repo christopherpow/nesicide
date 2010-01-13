@@ -2,22 +2,22 @@
 #include "ui_breakpointdialog.h"
 
 #include "cnesrom.h"
-
-static QStringList brkptConditions;
+#include "cnes6502.h"
+#include "cnesppu.h"
+#include "cnesapu.h"
 
 BreakpointDialog::BreakpointDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BreakpointDialog)
 {
    ui->setupUi(this);
-   brkptConditions.append ( "Equals" );
-   brkptConditions.append ( "Does Not Equal" );
-   brkptConditions.append ( "Is Less Than" );
-   brkptConditions.append ( "Is Greater Than" );
-   ui->itemWidget->setCurrentIndex ( 0 );
-   ui->conditionWidget->setCurrentIndex ( 0 );
-   ui->dataWidget->setCurrentIndex ( 0 );
-   ui->type->setCurrentIndex ( 0 );
+   ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
+   ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+   ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+   ui->type->setCurrentIndex ( eBreakOnCPUExecution );
+
+   model = new CBreakpointDisplayModel();
+   ui->listView->setModel ( model );
 
    m_pRegister = NULL;
    m_pBitfield = NULL;
@@ -44,122 +44,112 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
 {
    int idx;
 
-   ui->condition->clear();
-   ui->condition->addItems ( brkptConditions );
-
    switch ( index )
    {
-      case 0:
-         ui->itemWidget->setCurrentIndex ( 0 );
-         ui->conditionWidget->setCurrentIndex ( 0 );
-         ui->dataWidget->setCurrentIndex ( 0 );
+      case eBreakOnCPUExecution:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
       break;
-      case 1:
-      case 2:
-      case 3:
-         ui->itemWidget->setCurrentIndex ( 0 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 1 );
+      case eBreakOnCPUMemoryAccess:
+      case eBreakOnCPUMemoryRead:
+      case eBreakOnCPUMemoryWrite:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
       break;
-      case 4:
-         ui->itemWidget->setCurrentIndex ( 1 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 2 );
-         ui->register_2->clear();
+      case eBreakOnCPUState:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->reg->clear();
          ui->bitfield->clear();
          for ( idx = 0; idx < NUM_CPU_REGISTERS; idx++ )
          {
-            ui->register_2->addItem ( tblCPURegisters[idx]->GetName() );
+            ui->reg->addItem ( C6502::REGISTERS()[idx]->GetName() );
          }
       break;
-      case 5:
-         ui->itemWidget->setCurrentIndex ( 2 );
-         ui->conditionWidget->setCurrentIndex ( 0 );
-         ui->dataWidget->setCurrentIndex ( 2 );
+      case eBreakOnCPUEvent:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
       break;
-      case 6:
-      case 7:
-         ui->itemWidget->setCurrentIndex ( 0 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 1 );
+      case eBreakOnPPUFetch:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
       break;
-      case 8:
-         ui->itemWidget->setCurrentIndex ( 1 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 2 );
-         ui->register_2->clear();
+      case eBreakOnPPUState:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->reg->clear();
          ui->bitfield->clear();
          for ( idx = 0; idx < NUM_PPU_REGISTERS; idx++ )
          {
-            ui->register_2->addItem ( tblPPURegisters[idx]->GetName() );
+            ui->reg->addItem ( CPPU::REGISTERS()[idx]->GetName() );
          }
       break;
-      case 9:
-         ui->itemWidget->setCurrentIndex ( 2 );
-         ui->conditionWidget->setCurrentIndex ( 0 );
-         ui->dataWidget->setCurrentIndex ( 2 );
+      case eBreakOnPPUEvent:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         for ( idx = 0; idx < CPPU::NUMBREAKPOINTEVENTS(); idx++ )
+         {
+            ui->event->addItem ( CPPU::BREAKPOINTEVENTS()[idx].name );
+         }
       break;
-      case 10:
-         ui->itemWidget->setCurrentIndex ( 0 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 1 );
-      break;
-      case 11:
-         ui->itemWidget->setCurrentIndex ( 1 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 2 );
-         ui->register_2->clear();
+      case eBreakOnAPUState:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->reg->clear();
          ui->bitfield->clear();
          for ( idx = 0; idx < NUM_APU_REGISTERS; idx++ )
          {
-            ui->register_2->addItem ( tblAPURegisters[idx]->GetName() );
+            ui->reg->addItem ( CAPU::REGISTERS()[idx]->GetName() );
          }
       break;
-      case 12:
-         ui->itemWidget->setCurrentIndex ( 2 );
-         ui->conditionWidget->setCurrentIndex ( 0 );
-         ui->dataWidget->setCurrentIndex ( 2 );
+      case eBreakOnAPUEvent:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
       break;
-      case 13:
-         ui->itemWidget->setCurrentIndex ( 1 );
-         ui->conditionWidget->setCurrentIndex ( 1 );
-         ui->dataWidget->setCurrentIndex ( 2 );
-         ui->register_2->clear();
+      case eBreakOnMapperState:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->reg->clear();
          ui->bitfield->clear();
          for ( idx = 0; idx < CROM::NUMREGISTERS(); idx++ )
          {
-            ui->register_2->addItem ( CROM::REGISTERS()[idx]->GetName() );
+            ui->reg->addItem ( CROM::REGISTERS()[idx]->GetName() );
          }
       break;
-      case 14:
-         ui->itemWidget->setCurrentIndex ( 2 );
-         ui->conditionWidget->setCurrentIndex ( 0 );
-         ui->dataWidget->setCurrentIndex ( 2 );
+      case eBreakOnMapperEvent:
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
       break;
    }
 }
 
-void BreakpointDialog::on_pushButton_clicked()
-{
-
-}
-
-void BreakpointDialog::on_register_2_currentIndexChanged(int index)
+void BreakpointDialog::on_reg_currentIndexChanged(int index)
 {
    int idx;
    switch ( ui->type->currentIndex() )
    {
-      case 4:
-         m_pRegister = tblCPURegisters [ ui->register_2->currentIndex() ];
+      case eBreakOnCPUState:
+         m_pRegister = C6502::REGISTERS() [ ui->reg->currentIndex() ];
       break;
-      case 8:
-         m_pRegister = tblPPURegisters [ ui->register_2->currentIndex() ];
+      case eBreakOnPPUState:
+         m_pRegister = CPPU::REGISTERS() [ ui->reg->currentIndex() ];
       break;
-      case 11:
-         m_pRegister = tblAPURegisters [ ui->register_2->currentIndex() ];
+      case eBreakOnAPUState:
+         m_pRegister = CAPU::REGISTERS() [ ui->reg->currentIndex() ];
       break;
-      case 13:
-         m_pRegister = CROM::REGISTERS() [ ui->register_2->currentIndex() ];
+      case eBreakOnMapperState:
+         m_pRegister = CROM::REGISTERS() [ ui->reg->currentIndex() ];
       break;
       default:
          m_pRegister = NULL;
@@ -172,6 +162,15 @@ void BreakpointDialog::on_register_2_currentIndexChanged(int index)
       {
          CBitfieldData* pBitfield = m_pRegister->GetBitfield(idx);
          ui->bitfield->addItem ( pBitfield->GetName() );
+      }
+      if ( m_pRegister->GetNumBitfields() > 1 )
+      {
+         ui->bitfield->setEnabled ( true );
+      }
+      else
+      {
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
+         ui->bitfield->setEnabled ( false );
       }
    }
 }
@@ -195,7 +194,7 @@ void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
       {
          if ( m_pBitfield->GetNumValues() )
          {
-            ui->dataWidget->setCurrentIndex ( 2 );
+            ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
             for ( idx = 0; idx < m_pBitfield->GetNumValues(); idx++ )
             {
                ui->data2->addItem ( m_pBitfield->GetValueByIndex(idx) );
@@ -203,8 +202,129 @@ void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
          }
          else
          {
-            ui->dataWidget->setCurrentIndex ( 1 );
+            ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
          }
       }
    }
+}
+
+void BreakpointDialog::on_addButton_clicked()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   bool ok;
+   int  item1;
+   int  item2;
+   int  data;
+   int  event = 0;
+
+   switch ( ui->itemWidget->currentIndex() )
+   {
+      case eBreakpointItemNone:
+         // No item...
+      break;
+      case eBreakpointItemAddress:
+         // Address item...
+         item1 = ui->addr1->text().toInt(&ok, 16);
+         item2 = ui->addr2->text().toInt(&ok, 16);
+      break;
+      case eBreakpointItemRegister:
+         // Register item...
+         item1 = ui->reg->currentIndex ();
+         item2 = ui->bitfield->currentIndex ();
+         // sometimes no bitfield...
+         if ( item2 < 0 ) item2 = 0;
+      break;
+      case eBreakpointItemEvent:
+         item1 = ui->eventData1->text().toInt(&ok, 16);
+         item2 = ui->eventData2->text().toInt(&ok, 16);
+         event = ui->event->currentIndex ();
+      break;
+   }
+   switch ( ui->dataWidget->currentIndex() )
+   {
+      case eBreakpointDataNone:
+         // No data...
+      break;
+      case eBreakpointDataPure:
+         // Direct value data...
+         data = ui->data1->text().toInt(&ok, 16);
+      break;
+      case eBreakpointDataPick:
+         // Picklist data...
+         data = ui->data2->currentIndex ();
+      break;
+   }
+
+   pBreakpoints->AddBreakpoint ( (eBreakpointType)ui->type->currentIndex(),
+                                 (eBreakpointItemType)ui->itemWidget->currentIndex(),
+                                 event,
+                                 item1,
+                                 item2,
+                                 (eBreakpointConditionType)ui->conditionWidget->currentIndex(),
+                                 ui->condition->currentIndex(),
+                                 (eBreakpointDataType)ui->dataWidget->currentIndex(),
+                                 data );
+
+   model->layoutChangedEvent();
+}
+
+void BreakpointDialog::DisplayBreakpoint ( int idx )
+{
+   char buffer [ 16 ];
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint ( idx );
+
+   ui->type->setCurrentIndex ( pBreakpoint->type );
+   ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
+   switch ( pBreakpoint->itemType )
+   {
+      case eBreakpointItemAddress:
+         sprintf ( buffer, "%X", pBreakpoint->item1 );
+         ui->addr1->setText ( buffer );
+         sprintf ( buffer, "%X", pBreakpoint->item2 );
+         ui->addr2->setText ( buffer );
+      break;
+      case eBreakpointItemRegister:
+         ui->reg->setCurrentIndex ( pBreakpoint->item1 );
+         ui->bitfield->setCurrentIndex ( pBreakpoint->item2 );
+      break;
+   }
+   ui->conditionWidget->setCurrentIndex ( pBreakpoint->conditionType );
+   ui->condition->setCurrentIndex ( pBreakpoint->condition );
+   ui->dataWidget->setCurrentIndex ( pBreakpoint->dataType );
+   switch ( pBreakpoint->dataType )
+   {
+      case eBreakpointDataPure:
+         sprintf ( buffer, "%X", pBreakpoint->data );
+         ui->data1->setText ( buffer );
+      break;
+      case eBreakpointDataPick:
+         ui->data2->setCurrentIndex ( pBreakpoint->data );
+      break;
+   }
+}
+
+void BreakpointDialog::on_listView_activated(QModelIndex index)
+{
+   DisplayBreakpoint ( index.row() );
+}
+
+void BreakpointDialog::on_listView_clicked(QModelIndex index)
+{
+   DisplayBreakpoint ( index.row() );
+}
+
+void BreakpointDialog::on_listView_doubleClicked(QModelIndex index)
+{
+   DisplayBreakpoint ( index.row() );
+}
+
+void BreakpointDialog::on_listView_entered(QModelIndex index)
+{
+   DisplayBreakpoint ( index.row() );
+}
+
+void BreakpointDialog::on_listView_pressed(QModelIndex index)
+{
+   DisplayBreakpoint ( index.row() );
 }

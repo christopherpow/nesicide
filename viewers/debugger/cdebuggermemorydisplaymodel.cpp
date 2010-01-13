@@ -358,7 +358,7 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
    switch ( m_display )
    {
       case eMemory_CPUregs:
-         return 6;
+         return NUM_CPU_REGISTERS;
       break;
       case eMemory_cartMapper:
          if ( m_tblRegisters )
@@ -376,7 +376,7 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex &parent) const
       case eMemory_PPU:
          return 16;
       case eMemory_PPUregs:
-         return 8;
+         return NUM_PPU_REGISTERS;
       break;
       case eMemory_IOregs:
       case eMemory_PPUoam:

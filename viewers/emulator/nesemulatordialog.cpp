@@ -210,11 +210,6 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
    emit controllerInput ( m_joy );
 }
 
-void NESEmulatorDialog::showEvent(QShowEvent *event)
-{
-   emit primeEmulator();
-}
-
 void NESEmulatorDialog::on_playButton_clicked()
 {
     ui->playButton->setEnabled(false);

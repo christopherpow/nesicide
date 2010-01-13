@@ -14,10 +14,10 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0" colspan="4">
+   <item row="2" column="0" colspan="2">
     <widget class="QStackedWidget" name="itemWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -39,10 +39,18 @@
         </widget>
        </item>
        <item row="0" column="4">
-        <widget class="QLineEdit" name="addr2"/>
+        <widget class="QLineEdit" name="addr2">
+         <property name="maxLength">
+          <number>4</number>
+         </property>
+        </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="addr1"/>
+        <widget class="QLineEdit" name="addr1">
+         <property name="maxLength">
+          <number>4</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -59,7 +67,11 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="register_2"/>
+        <widget class="QComboBox" name="reg">
+         <property name="maxVisibleItems">
+          <number>25</number>
+         </property>
+        </widget>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="bitfieldlabel">
@@ -73,13 +85,53 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="eventpage">
+      <layout class="QFormLayout" name="formLayout_6">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Event:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="event"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Data2:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="eventData2"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Data1:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="eventData1"/>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="page"/>
     </widget>
    </item>
-   <item row="3" column="0" colspan="4">
+   <item row="3" column="0" colspan="2">
     <widget class="QStackedWidget" name="conditionWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="emptyCondition"/>
      <widget class="QWidget" name="addrCondition">
@@ -95,7 +147,33 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="condition"/>
+        <widget class="QComboBox" name="condition">
+         <item>
+          <property name="text">
+           <string>Anything</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Equals</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Does Not Equal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Is Greater Than</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Is Less Than</string>
+          </property>
+         </item>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -104,7 +182,7 @@
    <item row="4" column="0">
     <widget class="QStackedWidget" name="dataWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page_4">
       <layout class="QGridLayout" name="gridLayout_7">
@@ -149,17 +227,14 @@
      </widget>
     </widget>
    </item>
-   <item row="4" column="3">
-    <widget class="QPushButton" name="pushButton">
+   <item row="4" column="1">
+    <widget class="QPushButton" name="addButton">
      <property name="text">
       <string>Add</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="4">
-    <widget class="QListWidget" name="listWidget"/>
-   </item>
-   <item row="0" column="0" colspan="4">
+   <item row="0" column="0" colspan="2">
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label">
@@ -219,22 +294,12 @@
        </item>
        <item>
         <property name="text">
-         <string>PPU DMA</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>PPU State</string>
         </property>
        </item>
        <item>
         <property name="text">
          <string>PPU Event</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>APU DMA</string>
         </property>
        </item>
        <item>
@@ -260,6 +325,19 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QListView" name="listView">
+     <property name="editTriggers">
+      <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="textElideMode">
+      <enum>Qt::ElideNone</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

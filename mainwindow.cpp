@@ -12,10 +12,11 @@ MainWindow::MainWindow(QWidget *parent) :
     projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
     ui->projectTreeWidget->mdiTabWidget = ui->tabWidget;
     ui->projectTreeWidget->setModel(projectTreeviewModel);
-    projectDataChangesEvent();
 
-    emulatorDlg = (NESEmulatorDialog *)NULL;
+    emulatorDlg = new NESEmulatorDialog();
+    emulator->setDialog ( emulatorDlg );
     emulatorDlgTabIdx = -1;
+
     projectDataChangesEvent();
 
     m_pBreakpointInspector = new BreakpointInspector ();
@@ -225,6 +226,9 @@ void MainWindow::projectDataChangesEvent()
             ui->actionSave_Active_Document->setEnabled(false);
         }
     }
+
+    // set up emulator if it needs to be...
+    emulator->primeEmulator ();
 }
 
 void MainWindow::on_actionSave_Project_triggered()
@@ -406,11 +410,6 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 {
     if (value)
     {
-        if (!emulatorDlg)
-        {
-            emulatorDlg = new NESEmulatorDialog();
-            emulator->setDialog ( emulatorDlg );
-        }
         emulatorDlgTabIdx = ui->tabWidget->addTab(emulatorDlg, "Emulation Window");
         ui->tabWidget->setCurrentIndex(emulatorDlgTabIdx);
     }
@@ -420,10 +419,9 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 
 void MainWindow::closeEvent ( QCloseEvent * event )
 {
-    if (emulatorDlg)
-        emulatorDlg->stopEmulation();
+   emulatorDlg->stopEmulation();
 
-    QWidget::closeEvent(event);
+   QWidget::closeEvent(event);
 }
 
 void MainWindow::on_actionOpen_Project_triggered()

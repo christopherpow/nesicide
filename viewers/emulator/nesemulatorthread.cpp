@@ -44,7 +44,8 @@ void NESEmulatorThread::killEmulator()
 
 void NESEmulatorThread::primeEmulator()
 {
-   if ( (nesicideProject) && (!m_pCartridge) )
+   if ( (nesicideProject) &&
+        (nesicideProject->get_pointerToCartridge()) )
    {
       setCartridge ( nesicideProject->get_pointerToCartridge() );
    }

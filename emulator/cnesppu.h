@@ -12,6 +12,9 @@
 
 #include "cnesrom.h"
 
+#include "cregisterdata.h"
+#include "cbreakpointinfo.h"
+
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
 #define PPUMASK    0x2001
@@ -196,6 +199,12 @@ public:
    static void SetOAMViewerScanline ( UINT scanline ) { m_iOAMViewerScanline = scanline; }
    static UINT GetOAMViewerScanline ( void ) { return m_iOAMViewerScanline; }
 
+   static CRegisterData** REGISTERS() { return m_tblRegisters; }
+   static int NUMREGISTERS() { return m_numRegisters; }
+
+   static BreakpointEventInfo* BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
+   static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
+
 protected:
    static unsigned char  m_PALETTEmemory [ MEM_32B ];
    static unsigned char  m_PPUmemory [ MEM_4KB ];
@@ -250,6 +259,12 @@ protected:
 
    static UINT           m_iPPUViewerScanline;
    static UINT           m_iOAMViewerScanline;
+
+   static CRegisterData** m_tblRegisters;
+   static int             m_numRegisters;
+
+   static BreakpointEventInfo* m_tblBreakpointEvents;
+   static int                  m_numBreakpointEvents;
 };
 
 #endif // !defined(AFX_PPU_H__F380E9AE_E43D_4115_8CF7_18747040C173__INCLUDED_)
