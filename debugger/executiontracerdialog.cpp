@@ -17,6 +17,7 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
     ui->showPPU->setChecked(false);
     ui->tableView->setModel(tableViewModel);
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
+    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
 }
 
 ExecutionTracerDialog::~ExecutionTracerDialog()

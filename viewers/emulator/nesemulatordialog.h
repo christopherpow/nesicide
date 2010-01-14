@@ -35,12 +35,15 @@ private slots:
     void on_stopButton_clicked();
     void on_playButton_clicked();
     void on_resetButton_clicked();
-    void renderData ();
+    void renderData();
 
 signals:
     void controllerInput(unsigned char* input);
     void primeEmulator();
     void killEmulator();
+    void startEmulation();
+    void pauseEmulation();
+    void resetEmulator();
 };
 
 #endif // NESEMULATORDIALOG_H

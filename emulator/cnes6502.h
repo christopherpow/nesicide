@@ -269,6 +269,7 @@ public:
    static void MEMCLR ( void ) { memset(m_6502memory,0,MEM_2KB); }
 
    static inline UINT MAKEADDR ( int amode, unsigned char* data );
+   static bool SYNC ( void ) { return m_sync; }
 
    static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
@@ -297,6 +298,7 @@ protected:
 
    static int             amode; // TODO: rename!
    static unsigned char*  data; // TODO: rename!
+   static bool            m_sync;
 
    static CRegisterData** m_tblRegisters;
    static int             m_numRegisters;

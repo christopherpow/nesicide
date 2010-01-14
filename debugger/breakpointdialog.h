@@ -41,6 +41,7 @@ private slots:
     void on_reg_currentIndexChanged(int index);
     void on_addButton_clicked();
     void on_type_currentIndexChanged(int index);
+    void updateData();
 };
 
 #endif // BREAKPOINTDIALOG_H

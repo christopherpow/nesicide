@@ -21,12 +21,14 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   QObject::connect(ui->playButton, SIGNAL(pressed()), emulator, SLOT(startEmulation()));
-   QObject::connect(ui->pauseButton, SIGNAL(pressed()), emulator, SLOT(pauseEmulation()));
+   QObject::connect(this, SIGNAL(startEmulation()), emulator, SLOT(startEmulation()));
+   QObject::connect(this, SIGNAL(pauseEmulation()), emulator, SLOT(pauseEmulation()));
    QObject::connect(ui->stopButton, SIGNAL(pressed()), emulator, SLOT(stopEmulation()));
-   QObject::connect(ui->resetButton, SIGNAL(pressed()), emulator, SLOT(resetEmulator()));
+   QObject::connect(this, SIGNAL(resetEmulator()), emulator, SLOT(resetEmulator()));
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
+   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(on_pauseButton_clicked()));
+   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
 
    m_joy [ JOY1 ] = 0x00;
    m_joy [ JOY2 ] = 0x00;
@@ -217,6 +219,8 @@ void NESEmulatorDialog::on_playButton_clicked()
     ui->stopButton->setEnabled(true);
     ui->pauseButton->setEnabled(true);
     ui->stepButton->setEnabled(false);
+
+    emit startEmulation();
 }
 
 void NESEmulatorDialog::on_stopButton_clicked()
@@ -240,10 +244,13 @@ void NESEmulatorDialog::on_pauseButton_clicked()
     ui->stopButton->setEnabled(true);
     ui->pauseButton->setEnabled(false);
     ui->stepButton->setEnabled(true);
+
+    emit pauseEmulation();
 }
 
 void NESEmulatorDialog::on_resetButton_clicked()
-{
+{   
+   emit resetEmulator();
 }
 
 void NESEmulatorDialog::on_stepButton_clicked()

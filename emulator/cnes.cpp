@@ -34,9 +34,9 @@
 bool         CNES::m_bReplay = false;
 unsigned int CNES::m_frame = 0;
 CBreakpointInfo CNES::m_breakpoints;
-bool            CNES::m_bAtBreakpoint = false;
 
 QSemaphore breakpointSemaphore(1);
+extern QSemaphore breakpointWatcherSemaphore;
 
 CNES::CNES()
 {
@@ -209,12 +209,15 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
       pBreakpoint = m_breakpoints.GetBreakpoint(idx);
       if ( pBreakpoint->target == target )
       {
+         pBreakpoint->hit = false;
          switch ( pBreakpoint->type )
          {
             case eBreakOnCPUExecution:
                data = C6502::__PC();
-               if ( data == pBreakpoint->item1 )
+               if ( (C6502::SYNC()) &&
+                    (data == pBreakpoint->item1) )
                {
+                  pBreakpoint->hit = true;
                   CNES::FORCEBREAKPOINT();
                }
             break;
@@ -225,6 +228,6 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
 
 void CNES::FORCEBREAKPOINT ( void )
 {
-   m_bAtBreakpoint = true;
    breakpointSemaphore.acquire();
+   breakpointWatcherSemaphore.release();
 }

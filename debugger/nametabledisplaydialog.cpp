@@ -15,6 +15,7 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     CPPU::NameTableInspectorTV(imgData);
 
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
     renderer = new CNameTablePreviewRenderer(ui->frame,imgData);
     ui->frame->layout()->addWidget(renderer);

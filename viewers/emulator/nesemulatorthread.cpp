@@ -154,7 +154,6 @@ void NESEmulatorThread::startEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    if ( !breakpointSemaphore.tryAcquire(1) )
    {
-      CNES::CLEARBREAKPOINT();
       breakpointSemaphore.release();
    }
    m_isRunning = true;

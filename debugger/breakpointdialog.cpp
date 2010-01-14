@@ -6,6 +6,8 @@
 #include "cnesppu.h"
 #include "cnesapu.h"
 
+#include "main.h"
+
 BreakpointDialog::BreakpointDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BreakpointDialog)
@@ -22,6 +24,8 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
    m_pRegister = NULL;
    m_pBitfield = NULL;
    m_pEvent = NULL;
+
+   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateData()));
 }
 
 BreakpointDialog::~BreakpointDialog()
@@ -39,6 +43,11 @@ void BreakpointDialog::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void BreakpointDialog::updateData()
+{
+   model->layoutChangedEvent();
 }
 
 void BreakpointDialog::on_type_currentIndexChanged(int index)

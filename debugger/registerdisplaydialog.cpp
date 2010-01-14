@@ -47,6 +47,7 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
 
     QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
+    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 }
 
 RegisterDisplayDialog::~RegisterDisplayDialog()

@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     emulator->setDialog ( emulatorDlg );
     emulatorDlgTabIdx = -1;
 
+    breakpointWatcher->setDialog ( emulatorDlg );
+
     projectDataChangesEvent();
 
     m_pBreakpointInspector = new BreakpointInspector ();

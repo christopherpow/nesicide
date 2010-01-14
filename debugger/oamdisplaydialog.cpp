@@ -15,6 +15,7 @@ OAMDisplayDialog::OAMDisplayDialog(QWidget *parent) :
 
     CPPU::OAMInspectorTV ( imgData );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
     renderer = new COAMPreviewRenderer(ui->frame,imgData);
     ui->frame->layout()->addWidget(renderer);

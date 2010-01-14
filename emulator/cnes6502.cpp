@@ -96,6 +96,7 @@ int             C6502::m_curCycles = 0;
 
 int             C6502::amode;
 unsigned char*  C6502::data = NULL;
+bool            C6502::m_sync = false;
 
 CRegisterData** C6502::m_tblRegisters = tblCPURegisters;
 int             C6502::m_numRegisters = NUM_CPU_REGISTERS;
@@ -467,6 +468,9 @@ unsigned char C6502::STEP ( void )
    // Reset effective address...
    m_ea = 0xFFFFFFFF;
 
+   // Indicate opcode fetch...
+   m_sync = true;
+
    // Fetch
    (*pOpcode) = FETCH ( m_pc );
    (*(pOpcode+3)) = 0; // no extra cycle yet
@@ -488,8 +492,11 @@ unsigned char C6502::STEP ( void )
       // KIL opcodes halt PC dead!  Force break...
       CNES::FORCEBREAKPOINT ();
    }
+
+   // Indicate NOT opcode fetch...
+   m_sync = false;
+
    INCPC ();
-   CNES::CHECKBREAKPOINT ( eBreakInCPU );
 
    // Get information about current opcode...
    pOpcodeStruct = m_6502opcode+(*pOpcode);
@@ -510,14 +517,12 @@ unsigned char C6502::STEP ( void )
       {
          (*(pOpcode+1)) = FETCH ( m_pc );
          INCPC ();
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
       // Get third opcode byte
       if ( opcodeSize > 2 )
       {
          (*(pOpcode+2)) = FETCH ( m_pc );
          INCPC ();
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
 
       // Update Tracer
@@ -530,8 +535,6 @@ unsigned char C6502::STEP ( void )
       // Update Tracer
       m_tracer.SetEffectiveAddress ( pSample, rEA() );
    }
-
-   CNES::CHECKBREAKPOINT ( eBreakInCPU );
 
    cycles = pOpcodeStruct->cycles;
    cycles += (*(pOpcode+3)); // use extra cycle indication from opcode execution

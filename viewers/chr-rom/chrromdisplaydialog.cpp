@@ -39,6 +39,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *da
     {
        CPPU::CHRMEMInspectorTV ( imgData );
        QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+       QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
     }
     else
     {
