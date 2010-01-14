@@ -13,8 +13,103 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0" colspan="2">
+  <layout class="QFormLayout" name="formLayout_7">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Break on:</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="type">
+       <property name="maxVisibleItems">
+        <number>16</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>CPU Execution</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Memory Access (Read or Write)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Memory Read</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Memory Write</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CPU Event</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU Fetch</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU Event</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>APU State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>APU Event</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cartridge (Mapper) State</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cartridge (Mapper) Event</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2">
     <widget class="QStackedWidget" name="itemWidget">
      <property name="currentIndex">
       <number>2</number>
@@ -128,10 +223,10 @@
      <widget class="QWidget" name="page"/>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="QStackedWidget" name="conditionWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="emptyCondition"/>
      <widget class="QWidget" name="addrCondition">
@@ -179,154 +274,7 @@
      </widget>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QStackedWidget" name="dataWidget">
-     <property name="currentIndex">
-      <number>1</number>
-     </property>
-     <widget class="QWidget" name="page_4">
-      <layout class="QGridLayout" name="gridLayout_7">
-       <property name="margin">
-        <number>0</number>
-       </property>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_5">
-      <layout class="QFormLayout" name="formLayout_5">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="datalabel">
-         <property name="text">
-          <string>Condition:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="data1"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_6">
-      <layout class="QFormLayout" name="formLayout_4">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="datalabel_2">
-         <property name="text">
-          <string>Condition:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="data2"/>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QPushButton" name="addButton">
-     <property name="text">
-      <string>Add</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Break on:</string>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="type">
-       <property name="maxVisibleItems">
-        <number>16</number>
-       </property>
-       <item>
-        <property name="text">
-         <string>CPU Execution</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>CPU Memory Access (Read or Write)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>CPU Memory Read</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>CPU Memory Write</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>CPU State</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>CPU Event</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>PPU Fetch</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>PPU State</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>PPU Event</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>APU State</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>APU Event</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Cartridge (Mapper) State</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Cartridge (Mapper) Event</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="5" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QListView" name="listView">
      <property name="editTriggers">
       <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
@@ -338,6 +286,72 @@
       <enum>Qt::ElideNone</enum>
      </property>
     </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="addButton">
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="removeButton">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QStackedWidget" name="dataWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_4">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_5">
+        <layout class="QFormLayout" name="formLayout_5">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="data1"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="datalabel">
+           <property name="text">
+            <string>Condition:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_6">
+        <layout class="QFormLayout" name="formLayout_4">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="datalabel_2">
+           <property name="text">
+            <string>Condition:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="data2"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

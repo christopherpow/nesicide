@@ -25,6 +25,8 @@
 #include "cnesio.h"
 #include "cnesapu.h"
 
+#include <QSemaphore>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -32,6 +34,9 @@
 bool         CNES::m_bReplay = false;
 unsigned int CNES::m_frame = 0;
 CBreakpointInfo CNES::m_breakpoints;
+bool            CNES::m_bAtBreakpoint = false;
+
+QSemaphore breakpointSemaphore(1);
 
 CNES::CNES()
 {
@@ -48,11 +53,10 @@ void CNES::RESET ( void )
    m_bReplay = false;
 }
 
-bool CNES::RUN ( unsigned char* joy )
+void CNES::RUN ( unsigned char* joy )
 {
 // CPTODO: get controller configuration...
 //   UINT* pControllerConfig;
-   bool  brkpt = false;
    unsigned int   idx;
    unsigned char ljoy [ NUM_JOY ];
    //JoypadLoggerInfo* pSample;
@@ -129,19 +133,16 @@ bool CNES::RUN ( unsigned char* joy )
    if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
    {
       C6502::NMI ( eSource_PPU );
-      CPPU::NMI ( eSource_PPU ); // Just for Tracer tag
    }
 
    // Emulate 20 VBLANK non-render scanlines...
-   brkpt = CPPU::NONRENDERSCANLINE ( 20 );
-   if ( brkpt ) goto done;
+   CPPU::NONRENDERSCANLINE ( 20 );
 
    // Clear VBLANK flag...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK)) );
 
    // Pre-render scanline...
-   brkpt = CPPU::RENDERSCANLINE ( -1 );
-   if ( brkpt ) goto done;
+   CPPU::RENDERSCANLINE ( -1 );
 
    // Clear Sprite 0 Hit flag and sprite overflow...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
@@ -149,7 +150,6 @@ bool CNES::RUN ( unsigned char* joy )
    if ( mapperfunc[CROM::MAPPER()].synch(0) )
    {
       C6502::IRQ( eSource_Mapper );
-      CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
    }
 
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
@@ -157,20 +157,17 @@ bool CNES::RUN ( unsigned char* joy )
    {
       if ( (idx >= 8) && (idx <= 231) )
       {
-         brkpt = CPPU::RENDERSCANLINE ( idx );
-         if ( brkpt ) goto done;
+         CPPU::RENDERSCANLINE ( idx );
       }
       else
       {
-         brkpt = CPPU::RENDERSCANLINE ( idx );
-         if ( brkpt ) goto done;
+         CPPU::RENDERSCANLINE ( idx );
          CPPU::RENDERRESET ( idx );
       }
 
       if ( mapperfunc[CROM::MAPPER()].synch(idx) )
       {
          C6502::IRQ( eSource_Mapper );
-         CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
       }
 
       // Update CHR memory inspector at appropriate scanline...
@@ -187,8 +184,7 @@ bool CNES::RUN ( unsigned char* joy )
    }
 
    // Emulate PPU resting scanline...
-   brkpt = CPPU::NONRENDERSCANLINE ( 1 );
-   if ( brkpt ) goto done;
+   CPPU::NONRENDERSCANLINE ( 1 );
 
    // Run APU for 1 frame...
    // The RUN method fills a buffer.  The SDL library's callback method
@@ -196,12 +192,39 @@ bool CNES::RUN ( unsigned char* joy )
    // emulation of the next frame.
    CAPU::RUN ();
 
-// CPTODO: this is not an appropriate way to break out of emulation on a
-// breakpoint...when we continue we'll act as if the previous frame was complete
-// which is usually NOT the case.  need to figure out a way to pick up RIGHT
-// where we left off...at the exact PPU/CPU cycle...
-done:
+   // Increment PPU frame counter...
    m_frame++;
+}
 
-   return brkpt;
+void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
+{
+   int idx;
+   BreakpointInfo* pBreakpoint;
+   int data;
+
+   // For all breakpoints...
+   for ( idx = 0; idx < m_breakpoints.GetNumBreakpoints(); idx++ )
+   {
+      // Are there any for the specified target?
+      pBreakpoint = m_breakpoints.GetBreakpoint(idx);
+      if ( pBreakpoint->target == target )
+      {
+         switch ( pBreakpoint->type )
+         {
+            case eBreakOnCPUExecution:
+               data = C6502::__PC();
+               if ( data == pBreakpoint->item1 )
+               {
+                  CNES::FORCEBREAKPOINT();
+               }
+            break;
+         }
+      }
+   }
+}
+
+void CNES::FORCEBREAKPOINT ( void )
+{
+   m_bAtBreakpoint = true;
+   breakpointSemaphore.acquire();
 }

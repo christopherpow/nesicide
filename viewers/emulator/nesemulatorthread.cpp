@@ -9,6 +9,7 @@
 static float m_factor [ 6 ] = { 0.25, 0.5, 1.0, 2.0, 4.0, 100.0 };
 
 QSemaphore emulatorSemaphore;
+extern QSemaphore breakpointSemaphore;
 
 NESEmulatorThread::NESEmulatorThread(QObject *parent)
 {
@@ -150,6 +151,12 @@ void NESEmulatorThread::setFrequency ( float fFreq )
 
 void NESEmulatorThread::startEmulation ()
 {
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !breakpointSemaphore.tryAcquire(1) )
+   {
+      CNES::CLEARBREAKPOINT();
+      breakpointSemaphore.release();
+   }
    m_isRunning = true;
 }
 
@@ -165,6 +172,9 @@ void NESEmulatorThread::stopEmulation ()
 
 void NESEmulatorThread::run ()
 {
+   // Seed mechanism for breaking...
+   breakpointSemaphore.acquire ();
+
    while ( 1 )
    {
       if ( m_isRunning )
@@ -173,14 +183,9 @@ void NESEmulatorThread::run ()
          // CPTODO: this needs to be re-factored into a RUN-by-PPU-clock-tick method.
          //         internally it does everything by PPU ticks...but in order to support
          //         breakpoints effectively it needs to be wound up to this level.
-         m_isAtBreakpoint = CNES::RUN ( m_joy );
+         CNES::RUN ( m_joy );
 
          emit emulatedFrame();
-
-         if ( m_isAtBreakpoint )
-         {
-            m_isRunning = false;
-         }
       }
 
       emulatorSemaphore.acquire ();

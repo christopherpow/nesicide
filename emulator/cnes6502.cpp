@@ -89,13 +89,6 @@ unsigned int    C6502::m_ea = 0xFFFFFFFF;
 UINT            C6502::m_pcGoto = 0xFFFFFFFF;
 unsigned char   C6502::m_sp = 0xFF;
 
-UINT            C6502::m_brkptAddr = 0x0000;
-UINT            C6502::m_brkptAddr2 = 0x0000;
-int             C6502::m_brkptType = -1;
-bool            C6502::m_brkptHit = false;
-UINT            C6502::m_brkptCond = 0x0000;
-int             C6502::m_brkptIf = -1;
-
 CTracer         C6502::m_tracer;
 CCodeDataLogger C6502::m_logger ( MEM_2KB, MASK_2KB );
 unsigned int    C6502::m_cycles = 0;
@@ -440,42 +433,30 @@ char* C6502::MakePrintableBinaryText ( void )
 }
 #endif
 
-bool C6502::EMULATE ( bool bRun, int cycles )
+void C6502::EMULATE ( bool bRun, int cycles )
 {
-   bool setbrkpt = false;
-   bool brkpt = false;
    m_curCycles += cycles;
    if ( (!m_killed) && (m_curCycles > 0) )
    {
       do
       {
-         cycles = STEP ( &setbrkpt );
+         cycles = STEP();
          if ( (m_pc == m_pcGoto) ||
               (!bRun) )
          {
-            brkpt = true;
+            CNES::FORCEBREAKPOINT();
             m_pcGoto = 0xFFFFFFFF;
          }
          m_curCycles -= cycles;
-      } while ( (!m_killed) && (m_curCycles > 0) && (!setbrkpt) && (!brkpt)  );
-      if ( (bRun) && (setbrkpt) )
-      {
-// CPTODO: Qt method for messageboxes?  better yet...set a flag and stop emulation and let the UI handle it.
-//         MessageBox ( AfxGetMainWnd()->GetSafeHwnd(), "Execution stopped due to breakpoint.", "Breakpoint", MB_ICONSTOP );
-         brkpt = true;
-      }
+      } while ( (!m_killed) && (m_curCycles > 0) );
       if ( m_killed )
       {
-// CPTODO: Qt method for messageboxes?  better yet...set a flag and stop emulation and let the UI handle it.
-//         MessageBox ( AfxGetMainWnd()->GetSafeHwnd(), "Execution stopped due to KIL opcode.\nKIL opcodes are: $02,$12,$22,$32,$42,$52,$62,$72,$92,$B2,$D2,$F2", "CPU halted", MB_ICONSTOP );
-         brkpt = true;
+         CNES::FORCEBREAKPOINT();
       }
    }
-
-   return brkpt;
 }
 
-unsigned char C6502::STEP ( bool* bBrkptHit )
+unsigned char C6502::STEP ( void )
 {
    UINT cycles;
    unsigned char opData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
@@ -489,26 +470,26 @@ unsigned char C6502::STEP ( bool* bBrkptHit )
    // Fetch
    (*pOpcode) = FETCH ( m_pc );
    (*(pOpcode+3)) = 0; // no extra cycle yet
-   INCPC ();
 // CPTODO: configuration (registry) object removed for now...
-//   if ( (CONFIG.IsIllegalsEnabled()) &&
-//        (((*pOpcode) == 0x02) ||
-//        ((*pOpcode) == 0x12) ||
-//        ((*pOpcode) == 0x22) ||
-//        ((*pOpcode) == 0x32) ||
-//        ((*pOpcode) == 0x42) ||
-//        ((*pOpcode) == 0x52) ||
-//        ((*pOpcode) == 0x62) ||
-//        ((*pOpcode) == 0x72) ||
-//        ((*pOpcode) == 0x92) ||
-//        ((*pOpcode) == 0xB2) ||
-//        ((*pOpcode) == 0xD2) ||
-//        ((*pOpcode) == 0xF2)) )
-//   {
-//      // KIL opcodes halt PC dead!  Simulate by moving it back...
-//      DECPC ();
-//   }
-   (*bBrkptHit) = ISBRKPT ();
+   if ( /*(CONFIG.IsIllegalsEnabled()) && */
+        (((*pOpcode) == 0x02) ||
+        ((*pOpcode) == 0x12) ||
+        ((*pOpcode) == 0x22) ||
+        ((*pOpcode) == 0x32) ||
+        ((*pOpcode) == 0x42) ||
+        ((*pOpcode) == 0x52) ||
+        ((*pOpcode) == 0x62) ||
+        ((*pOpcode) == 0x72) ||
+        ((*pOpcode) == 0x92) ||
+        ((*pOpcode) == 0xB2) ||
+        ((*pOpcode) == 0xD2) ||
+        ((*pOpcode) == 0xF2)) )
+   {
+      // KIL opcodes halt PC dead!  Force break...
+      CNES::FORCEBREAKPOINT ();
+   }
+   INCPC ();
+   CNES::CHECKBREAKPOINT ( eBreakInCPU );
 
    // Get information about current opcode...
    pOpcodeStruct = m_6502opcode+(*pOpcode);
@@ -529,20 +510,14 @@ unsigned char C6502::STEP ( bool* bBrkptHit )
       {
          (*(pOpcode+1)) = FETCH ( m_pc );
          INCPC ();
-         if ( !(*bBrkptHit) )
-         {
-            (*bBrkptHit) = ISBRKPT ();
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
       // Get third opcode byte
       if ( opcodeSize > 2 )
       {
          (*(pOpcode+2)) = FETCH ( m_pc );
          INCPC ();
-         if ( !(*bBrkptHit) )
-         {
-            (*bBrkptHit) = ISBRKPT ();
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
 
       // Update Tracer
@@ -556,10 +531,7 @@ unsigned char C6502::STEP ( bool* bBrkptHit )
       m_tracer.SetEffectiveAddress ( pSample, rEA() );
    }
 
-   if ( !(*bBrkptHit) )
-   {
-      (*bBrkptHit) = ISBRKPT ();
-   }
+   CNES::CHECKBREAKPOINT ( eBreakInCPU );
 
    cycles = pOpcodeStruct->cycles;
    cycles += (*(pOpcode+3)); // use extra cycle indication from opcode execution
@@ -2573,51 +2545,6 @@ void C6502::RESET ( void )
    wPC ( MAKE16(MEM(VECTOR_RESET),MEM(VECTOR_RESET+1)) );
 }
 
-void C6502::CHECKBRKPT ( void )
-{
-   unsigned char data;
-   bool set = false;
-   if ( (m_brkptType >= BRKPT_CPU_A) && (m_brkptType <= BRKPT_CPU_SP) )
-   {
-      switch ( m_brkptType )
-      {
-         case BRKPT_CPU_A:
-            data = m_a;
-            set = true;
-         break;
-         case BRKPT_CPU_X:
-            data = m_x;
-            set = true;
-         break;
-         case BRKPT_CPU_Y:
-            data = m_y;
-            set = true;
-         break;
-         case BRKPT_CPU_F:
-            data = m_f;
-            set = true;
-         break;
-         case BRKPT_CPU_SP:
-            data = m_sp;
-            set = true;
-         break;
-      }
-      if ( set )
-      {
-         if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-              ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-              ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-              ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-              ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-              ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-              ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-         {
-            m_brkptHit = true;
-         }
-      }
-   }
-}
-
 unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
 {
    unsigned char data = 0xff;
@@ -2628,31 +2555,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CROM::PRGROM ( addr );
       if ( checkBrkpt )
       {
-         switch ( m_brkptType )
-         {
-            case BRKPT_CPU_ACCESS:
-            case BRKPT_CPU_READ:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-            case BRKPT_CPU_EXEC:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  m_brkptHit = true;
-               }
-            break;
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
    }
    else if ( addr >= 0x6000 )
@@ -2661,31 +2564,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CROM::SRAM ( addr );
       if ( checkBrkpt )
       {
-         switch ( m_brkptType )
-         {
-            case BRKPT_CPU_ACCESS:
-            case BRKPT_CPU_READ:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-            case BRKPT_CPU_EXEC:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  m_brkptHit = true;
-               }
-            break;
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
    }
    else if ( addr >= 0x5000 )
@@ -2694,31 +2573,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
       if ( checkBrkpt )
       {
-         switch ( m_brkptType )
-         {
-            case BRKPT_CPU_ACCESS:
-            case BRKPT_CPU_READ:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-            case BRKPT_CPU_EXEC:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  m_brkptHit = true;
-               }
-            break;
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
    }
    else if ( addr >= 0x4000 )
@@ -2731,25 +2586,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CIO::IO ( addr );
       if ( checkBrkpt )
       {
-         switch ( m_brkptType )
-         {
-            case BRKPT_IO_ACCESS:
-            case BRKPT_IO_READ:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
    }
    else if ( addr >= 0x2000 )
@@ -2758,42 +2595,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CPPU::PPU ( addr );
       if ( checkBrkpt )
       {
-         switch ( m_brkptType )
-         {
-            case BRKPT_CPU_ACCESS:
-            case BRKPT_CPU_READ:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-
-            case BRKPT_PPU_ACCESS:
-            case BRKPT_PPU_READ:
-               if ( (CPPU::_PPUADDR() >= m_brkptAddr) && (CPPU::_PPUADDR() <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
    }
    else
@@ -2804,25 +2606,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
 
       if ( checkBrkpt )
       {
-         switch ( m_brkptType )
-         {
-            case BRKPT_CPU_ACCESS:
-            case BRKPT_CPU_READ:
-               if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-               {
-                  if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                       ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                       ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-                  {
-                     m_brkptHit = true;
-                  }
-               }
-            break;
-         }
+         CNES::CHECKBREAKPOINT ( eBreakInCPU );
       }
    }
 
@@ -2869,59 +2653,7 @@ void C6502::STORE ( UINT addr, unsigned char data, bool checkBrkpt, char* pTarge
 
    if ( checkBrkpt )
    {
-      switch ( m_brkptType )
-      {
-         case BRKPT_CPU_ACCESS:
-         case BRKPT_CPU_WRITE:
-            if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-            {
-               if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                    ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-               {
-                  m_brkptHit = true;
-               }
-            }
-         break;
-
-         case BRKPT_IO_ACCESS:
-         case BRKPT_IO_WRITE:
-            if ( (addr >= m_brkptAddr) && (addr <= m_brkptAddr2) )
-            {
-               if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                    ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-               {
-                  m_brkptHit = true;
-               }
-            }
-         break;
-
-         case BRKPT_PPU_ACCESS:
-         case BRKPT_PPU_WRITE:
-            if ( (CPPU::_PPUADDR() >= m_brkptAddr) && (CPPU::_PPUADDR() <= m_brkptAddr2) )
-            {
-               if ( (m_brkptIf == -1) || (m_brkptIf == BRKPT_NA) ||
-                    ((m_brkptIf == BRKPT_EQ) && (data == m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_NE) && (data != m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_LT) && (data < m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_GT) && (data > m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_BS) && (data&m_brkptCond)) ||
-                    ((m_brkptIf == BRKPT_BC) && (!(data&m_brkptCond))) )
-               {
-                  m_brkptHit = true;
-               }
-            }
-         break;
-      }
+      CNES::CHECKBREAKPOINT ( eBreakInCPU );
    }
 }
 

@@ -99,9 +99,9 @@ static CRegisterData* tblPPURegisters [] =
 
 // PPU Event breakpoints
 #define NUM_PPU_EVENTS 1
-static BreakpointEventInfo tblPPUEvents [ NUM_PPU_EVENTS ] =
+static CBreakpointEventInfo* tblPPUEvents [] =
 {
-   { "Raster Position (X,Y)", 2, "Break at pixel (%d,%d)" }
+   new CBreakpointEventInfo("Raster Position (Data1=X,Data2=Y)", 2, "Break at pixel (%d,%d)", 10)
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
@@ -128,11 +128,7 @@ bool           CPPU::m_mirrorVert = false;
 bool           CPPU::m_mirrorHoriz = false;
 int            CPPU::m_oneScreen = -1;
 bool           CPPU::m_extraVRAM = false;
-UINT           CPPU::m_brkptAddr = 0x0000;
-UINT           CPPU::m_brkptAddr2 = 0x0000;
-int            CPPU::m_brkptType = -1;
-UINT           CPPU::m_brkptCond = 0x0000;
-int            CPPU::m_brkptIf = -1;
+
 CTracer         CPPU::m_tracer(TRACER_DEFAULT_DEPTH*3);
 CCodeDataLogger CPPU::m_logger;
 unsigned int   CPPU::m_cycles = 0;
@@ -166,8 +162,8 @@ UINT CPPU::m_iOAMViewerScanline = 0;
 CRegisterData** CPPU::m_tblRegisters = tblPPURegisters;
 int             CPPU::m_numRegisters = NUM_PPU_REGISTERS;
 
-BreakpointEventInfo* CPPU::m_tblBreakpointEvents = tblPPUEvents;
-int                  CPPU::m_numBreakpointEvents = NUM_PPU_EVENTS;
+CBreakpointEventInfo** CPPU::m_tblBreakpointEvents = tblPPUEvents;
+int                    CPPU::m_numBreakpointEvents = NUM_PPU_EVENTS;
 
 CPPU::CPPU()
 {
@@ -708,7 +704,6 @@ UINT CPPU::PPU ( UINT addr )
             if ( mapperfunc[CROM::MAPPER()].synch(-1) )
             {
                C6502::IRQ( eSource_Mapper );
-               CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
             }
          }
       }
@@ -800,7 +795,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
             if ( mapperfunc[CROM::MAPPER()].synch(-1) )
             {
                C6502::IRQ( eSource_Mapper );
-               CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
             }
          }
       }
@@ -821,7 +815,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
             if ( mapperfunc[CROM::MAPPER()].synch(-1) )
             {
                C6502::IRQ( eSource_Mapper );
-               CPPU::IRQ ( eSource_Mapper ); // Just for Tracer tag
             }
          }
       }
@@ -953,10 +946,9 @@ void CPPU::RENDERRESET ( int scanline )
    }
 }
 
-bool CPPU::NONRENDERSCANLINE ( int scanlines )
+void CPPU::NONRENDERSCANLINE ( int scanlines )
 {
    int idxx, idxy;
-   bool brkpt = false;
 
    for ( idxy = 0; idxy < scanlines; idxy++ )
    {
@@ -964,18 +956,10 @@ bool CPPU::NONRENDERSCANLINE ( int scanlines )
       {
          m_cycles += 1;
          m_curCycles += 1;
-         brkpt = C6502::EMULATE ( true, m_curCycles/3 );
-         if ( brkpt ) goto done;
+         C6502::EMULATE ( true, m_curCycles/3 );
          m_curCycles %= 3;
       }
    }
-
-   // CPTODO: this is not an appropriate way to break out of emulation on a
-   // breakpoint...when we continue we'll act as if the previous frame was complete
-   // which is usually NOT the case.  need to figure out a way to pick up RIGHT
-   // where we left off...at the exact PPU/CPU cycle...
-done:
-   return brkpt;
 }
 
 void CPPU::PIXELPIPELINES ( int x, int off, unsigned char *a, unsigned char *b1, unsigned char *b2 )
@@ -993,7 +977,7 @@ void CPPU::PIXELPIPELINES ( int x, int off, unsigned char *a, unsigned char *b1,
    pBkgnd2->patternData2 <<= 1;
 }
 
-bool CPPU::RENDERSCANLINE ( int scanline )
+void CPPU::RENDERSCANLINE ( int scanline )
 {
    int rasttv = (scanline<<8)*3;
    int idxx;
@@ -1002,7 +986,6 @@ bool CPPU::RENDERSCANLINE ( int scanline )
    bool sprite0HitSet = false;
    SpriteBufferData* pSprite;
    int idx2;
-   bool brkpt = false;
    char* pTV = (char*)(m_pTV+rasttv);
 
    // even-odd framing for extra-cycle on pre-render scanline...
@@ -1154,13 +1137,11 @@ bool CPPU::RENDERSCANLINE ( int scanline )
       // account for extra clock (341)
       EXTRA ();
    }
-   brkpt = C6502::EMULATE ( true, m_curCycles/3 );
+   C6502::EMULATE ( true, m_curCycles/3 );
    m_curCycles %= 3;
-
-   return brkpt;
 }
 
-bool CPPU::GATHERBKGND ( void )
+void CPPU::GATHERBKGND ( void )
 {
    UINT ppuAddr = rPPUADDR();
    unsigned short patternIdx;
@@ -1170,7 +1151,6 @@ bool CPPU::GATHERBKGND ( void )
    int attribAddr = 0x2000 + (ppuAddr&0x0C00) + 0x03C0 + ((tileY&0xFFFC)<<1) + (tileX>>2);
    int bkgndPatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
    BackgroundBufferData* pBkgnd = m_bkgndBuffer.data + 1;
-   bool brkpt = false;
 
    m_bkgndBuffer.data[0].attribData = m_bkgndBuffer.data[1].attribData;
 
@@ -1203,7 +1183,7 @@ bool CPPU::GATHERBKGND ( void )
       }
    }
 
-   brkpt = C6502::EMULATE ( true, m_curCycles/3 );
+   C6502::EMULATE ( true, m_curCycles/3 );
    m_curCycles %= 3;
 
    if ( rPPU(PPUMASK)&PPUMASK_RENDER_BKGND )
@@ -1215,11 +1195,9 @@ bool CPPU::GATHERBKGND ( void )
          m_ppuAddr   -= 0x0020;
       }
    }
-
-   return brkpt;
 }
 
-bool CPPU::GATHERSPRITES ( int scanline )
+void CPPU::GATHERSPRITES ( int scanline )
 {
    int idx1, idx2;
    int sprite;
@@ -1229,7 +1207,6 @@ bool CPPU::GATHERSPRITES ( int scanline )
    unsigned char spriteAttr;
    int           spriteSize;
    SpriteBufferData* pSprite;
-   bool brkpt = false;
 
    m_spriteBuffer.count = 0;
    m_spriteBuffer.order [ 0 ] = 0;
@@ -1299,8 +1276,7 @@ bool CPPU::GATHERSPRITES ( int scanline )
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
 
-         brkpt = C6502::EMULATE ( true, m_curCycles/3 );
-         if ( brkpt ) goto done;
+         C6502::EMULATE ( true, m_curCycles/3 );
          m_curCycles %= 3;
 
          m_spriteBuffer.count++;
@@ -1316,8 +1292,7 @@ bool CPPU::GATHERSPRITES ( int scanline )
       GARBAGE ( eTarget_PatternMemory );
       GARBAGE ( eTarget_PatternMemory );
 
-      brkpt = C6502::EMULATE ( true, m_curCycles/3 );
-      if ( brkpt ) goto done;
+      C6502::EMULATE ( true, m_curCycles/3 );
       m_curCycles %= 3;
    }
 
@@ -1336,11 +1311,4 @@ bool CPPU::GATHERSPRITES ( int scanline )
          }
       }
    }
-
-   // CPTODO: this is not an appropriate way to break out of emulation on a
-   // breakpoint...when we continue we'll act as if the previous frame was complete
-   // which is usually NOT the case.  need to figure out a way to pick up RIGHT
-   // where we left off...at the exact PPU/CPU cycle...
-done:
-   return brkpt;
 }

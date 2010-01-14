@@ -682,7 +682,6 @@ void CAPU::SEQTICK ( void )
          {
             m_irqAsserted = true;
             C6502::IRQ ( eSource_APU );
-            CPPU::IRQ ( eSource_APU ); // Just for Tracer tag
          }
       }
    }

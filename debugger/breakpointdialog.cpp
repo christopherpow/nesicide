@@ -21,6 +21,7 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
 
    m_pRegister = NULL;
    m_pBitfield = NULL;
+   m_pEvent = NULL;
 }
 
 BreakpointDialog::~BreakpointDialog()
@@ -96,7 +97,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          for ( idx = 0; idx < CPPU::NUMBREAKPOINTEVENTS(); idx++ )
          {
-            ui->event->addItem ( CPPU::BREAKPOINTEVENTS()[idx].name );
+            ui->event->addItem ( CPPU::BREAKPOINTEVENTS()[idx]->GetName() );
          }
       break;
       case eBreakOnAPUState:
@@ -235,9 +236,12 @@ void BreakpointDialog::on_addButton_clicked()
          if ( item2 < 0 ) item2 = 0;
       break;
       case eBreakpointItemEvent:
-         item1 = ui->eventData1->text().toInt(&ok, 16);
-         item2 = ui->eventData2->text().toInt(&ok, 16);
-         event = ui->event->currentIndex ();
+         if ( m_pEvent )
+         {
+            item1 = ui->eventData1->text().toInt(&ok, m_pEvent->GetElementRadix());
+            item2 = ui->eventData2->text().toInt(&ok, m_pEvent->GetElementRadix());
+            event = ui->event->currentIndex ();
+         }
       break;
    }
    switch ( ui->dataWidget->currentIndex() )
@@ -327,4 +331,60 @@ void BreakpointDialog::on_listView_entered(QModelIndex index)
 void BreakpointDialog::on_listView_pressed(QModelIndex index)
 {
    DisplayBreakpoint ( index.row() );
+}
+
+void BreakpointDialog::on_event_currentIndexChanged(int index)
+{
+   switch ( ui->type->currentIndex() )
+   {
+      case eBreakOnCPUEvent:
+         // No events yet...
+         m_pEvent = NULL;
+      break;
+      case eBreakOnPPUEvent:
+         m_pEvent = CPPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+      break;
+      case eBreakOnAPUEvent:
+         // No events yet...
+         m_pEvent = NULL;
+      break;
+      case eBreakOnMapperEvent:
+         // No events yet...
+         m_pEvent = NULL;
+      break;
+      default:
+         // No events...
+         m_pEvent = NULL;
+      break;
+   }
+   if ( m_pEvent )
+   {
+      if ( m_pEvent->GetNumElements() == 2 )
+      {
+         ui->eventData1->setEnabled ( true );
+         ui->eventData2->setEnabled ( true );
+      }
+      else if ( m_pEvent->GetNumElements() == 1 )
+      {
+         ui->eventData1->setEnabled ( true );
+         ui->eventData2->setEnabled ( false );
+      }
+      else
+      {
+         ui->eventData1->setEnabled ( false );
+         ui->eventData2->setEnabled ( false );
+      }
+   }
+}
+
+void BreakpointDialog::on_removeButton_clicked()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+
+   if ( ui->listView->currentIndex().row() >= 0 )
+   {
+      pBreakpoints->RemoveBreakpoint(ui->listView->currentIndex().row());
+   }
+
+   model->layoutChangedEvent();
 }

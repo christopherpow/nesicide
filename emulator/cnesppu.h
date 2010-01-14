@@ -119,10 +119,6 @@ public:
    static inline void Move1KBank ( int bank, unsigned char* point ) { if ( bank >= 8 ) m_pPPUmemory[bank-8] = point; }
    static char* MakePrintableBinaryText ( void );
 
-   // Routines just to pump Tracer for useful trace tags...
-   static inline void NMI ( char source ) { m_tracer.AddNMI(source); }
-   static inline void IRQ ( char source ) { m_tracer.AddIRQ(source); }
-
    static void RESET ( void );
    static void PPU ( UINT addr, unsigned char data );
    static UINT PPU ( UINT addr );
@@ -167,11 +163,11 @@ public:
    static inline void SCANLINESTART ( void );
    static inline void SCANLINEEND ( void );
    static void RENDERRESET ( int scanline );
-   static bool RENDERSCANLINE ( int scanline );
-   static bool NONRENDERSCANLINE ( int scanline );
-   static bool GATHERBKGND ( void );
+   static void RENDERSCANLINE ( int scanline );
+   static void NONRENDERSCANLINE ( int scanline );
+   static void GATHERBKGND ( void );
    static inline void PIXELPIPELINES ( int x, int off, unsigned char* a, unsigned char* b1, unsigned char* b2 );
-   static bool GATHERSPRITES ( int scanline );
+   static void GATHERSPRITES ( int scanline );
 
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
 
@@ -184,9 +180,6 @@ public:
    static void RENDERCHRMEM ( void );
    static void RENDEROAM ( void );
    static void RENDERNAMETABLE ( void );
-
-   static inline void SETBRKPT ( int type, UINT addr, UINT addr2, int iIf, UINT cond )
-   { m_brkptType = type; m_brkptAddr = addr; m_brkptAddr2 = addr2; m_brkptIf = iIf; m_brkptCond = cond; }
 
    static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
@@ -202,7 +195,7 @@ public:
    static CRegisterData** REGISTERS() { return m_tblRegisters; }
    static int NUMREGISTERS() { return m_numRegisters; }
 
-   static BreakpointEventInfo* BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
+   static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
    static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
 
 protected:
@@ -223,11 +216,7 @@ protected:
    static bool           m_mirrorHoriz;
    static int            m_oneScreen;
    static bool           m_extraVRAM;
-   static UINT           m_brkptAddr;
-   static UINT           m_brkptAddr2;
-   static int            m_brkptType;
-   static UINT           m_brkptCond;
-   static int            m_brkptIf;
+
    static CTracer         m_tracer;
    static CCodeDataLogger m_logger;
    static unsigned int   m_cycles;
@@ -263,8 +252,8 @@ protected:
    static CRegisterData** m_tblRegisters;
    static int             m_numRegisters;
 
-   static BreakpointEventInfo* m_tblBreakpointEvents;
-   static int                  m_numBreakpointEvents;
+   static CBreakpointEventInfo** m_tblBreakpointEvents;
+   static int                    m_numBreakpointEvents;
 };
 
 #endif // !defined(AFX_PPU_H__F380E9AE_E43D_4115_8CF7_18747040C173__INCLUDED_)

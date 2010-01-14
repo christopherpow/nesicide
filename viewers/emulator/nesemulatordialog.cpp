@@ -2,6 +2,7 @@
 #include "ui_nesemulatordialog.h"
 #include "main.h"
 
+#include "cnes.h"
 #include "cnesppu.h"
 
 NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :

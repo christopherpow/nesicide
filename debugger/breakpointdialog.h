@@ -25,10 +25,13 @@ private:
    Ui::BreakpointDialog *ui;
    CRegisterData* m_pRegister;
    CBitfieldData* m_pBitfield;
+   CBreakpointEventInfo* m_pEvent;
    CBreakpointDisplayModel* model;
    void DisplayBreakpoint ( int idx );
 
 private slots:
+    void on_removeButton_clicked();
+    void on_event_currentIndexChanged(int index);
     void on_listView_pressed(QModelIndex index);
     void on_listView_entered(QModelIndex index);
     void on_listView_doubleClicked(QModelIndex index);
