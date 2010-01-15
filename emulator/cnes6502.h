@@ -132,7 +132,6 @@ public:
    // Disassembly routines for display
 //   static void Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, int len, bool decorate );
    static char* Disassemble ( unsigned char* pOpcode, char* buffer );
-   static char* MakePrintableBinaryText ( void );
 
    // Emulation routines
    static void EMULATE ( bool bRun, int cycles );

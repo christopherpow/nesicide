@@ -19,6 +19,7 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
       return QVariant();
 
    pBreakpoints->GetPrintable(index.row(),data);
+
    return data;
 }
 

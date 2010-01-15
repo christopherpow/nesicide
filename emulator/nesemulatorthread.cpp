@@ -152,7 +152,19 @@ void NESEmulatorThread::setFrequency ( float fFreq )
 void NESEmulatorThread::startEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !breakpointSemaphore.tryAcquire(1) )
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+   m_isRunning = true;
+}
+
+void NESEmulatorThread::stepEmulation ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   // But ensure we come right back...
+   CNES::STEPBREAKPOINT();
+   if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
    }
@@ -178,6 +190,9 @@ void NESEmulatorThread::run ()
    {
       if ( m_isRunning )
       {
+         // Make sure breakpoint semaphore is on the precipice...
+         breakpointSemaphore.tryAcquire();
+
          // Run emulator for one frame...
          // CPTODO: this needs to be re-factored into a RUN-by-PPU-clock-tick method.
          //         internally it does everything by PPU ticks...but in order to support

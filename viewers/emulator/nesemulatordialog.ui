@@ -46,29 +46,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="stopButton">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Stop</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../resource.qrc">
-         <normaloff>:/resources/stock_media-stop.svg</normaloff>:/resources/stock_media-stop.svg</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextBesideIcon</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QToolButton" name="pauseButton">
        <property name="enabled">
         <bool>true</bool>
@@ -97,7 +74,7 @@
         <bool>true</bool>
        </property>
        <property name="text">
-        <string>Step</string>
+        <string>Step PPU</string>
        </property>
        <property name="icon">
         <iconset resource="../../resource.qrc">

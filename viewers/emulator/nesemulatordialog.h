@@ -32,7 +32,6 @@ private:
 private slots:
     void on_stepButton_clicked();
     void on_pauseButton_clicked();
-    void on_stopButton_clicked();
     void on_playButton_clicked();
     void on_resetButton_clicked();
     void renderData();
@@ -43,6 +42,7 @@ signals:
     void killEmulator();
     void startEmulation();
     void pauseEmulation();
+    void stepEmulation();
     void resetEmulator();
 };
 

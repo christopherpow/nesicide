@@ -222,9 +222,9 @@ void BreakpointDialog::on_addButton_clicked()
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    bool ok;
-   int  item1;
-   int  item2;
-   int  data;
+   int  item1 = 0;
+   int  item2 = 0;
+   int  data = 0;
    int  event = 0;
 
    switch ( ui->itemWidget->currentIndex() )

@@ -13,9 +13,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    memset ( imgData, 0, sizeof(char)*256*256*3 );
 
    ui->setupUi(this);
-   ui->stopButton->setEnabled(false);
    ui->pauseButton->setEnabled(false);
-   ui->stepButton->setEnabled(false);
 
    renderer = new CNESEmulatorRenderer(ui->frame, imgData);
    ui->frame->layout()->addWidget(renderer);
@@ -23,7 +21,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 
    QObject::connect(this, SIGNAL(startEmulation()), emulator, SLOT(startEmulation()));
    QObject::connect(this, SIGNAL(pauseEmulation()), emulator, SLOT(pauseEmulation()));
-   QObject::connect(ui->stopButton, SIGNAL(pressed()), emulator, SLOT(stopEmulation()));
+   QObject::connect(this, SIGNAL(stepEmulation()), emulator, SLOT(stepEmulation()));
    QObject::connect(this, SIGNAL(resetEmulator()), emulator, SLOT(resetEmulator()));
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
@@ -42,7 +40,7 @@ NESEmulatorDialog::~NESEmulatorDialog()
 
 void NESEmulatorDialog::stopEmulation()
 {
-    emit on_stopButton_clicked();
+    emit pauseEmulation();
 }
 
 void NESEmulatorDialog::changeEvent(QEvent *e)
@@ -215,37 +213,20 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
 
 void NESEmulatorDialog::on_playButton_clicked()
 {
-    ui->playButton->setEnabled(false);
-    ui->stopButton->setEnabled(true);
-    ui->pauseButton->setEnabled(true);
-    ui->stepButton->setEnabled(false);
+   ui->playButton->setEnabled(false);
+   ui->pauseButton->setEnabled(true);
+   ui->stepButton->setEnabled(false);
 
-    emit startEmulation();
-}
-
-void NESEmulatorDialog::on_stopButton_clicked()
-{
-    // The following happens if the user closes the emulation window from the main UI. The main
-    // UI calls a stop method to halt emulation, which method generates a signal that hits this slot.
-    // In some cases the emulator is already stopped (in which the stop button will be hidden) so
-    // we simply check for this condition before trying to do anything else.
-    if (!ui->stopButton->isVisible())
-        return;
-
-    ui->playButton->setEnabled(true);
-    ui->stopButton->setEnabled(false);
-    ui->pauseButton->setEnabled(false);
-    ui->stepButton->setEnabled(false);
+   emit startEmulation();
 }
 
 void NESEmulatorDialog::on_pauseButton_clicked()
 {
-    ui->playButton->setEnabled(true);
-    ui->stopButton->setEnabled(true);
-    ui->pauseButton->setEnabled(false);
-    ui->stepButton->setEnabled(true);
+   ui->playButton->setEnabled(true);
+   ui->pauseButton->setEnabled(false);
+   ui->stepButton->setEnabled(true);
 
-    emit pauseEmulation();
+   emit pauseEmulation();
 }
 
 void NESEmulatorDialog::on_resetButton_clicked()
@@ -255,10 +236,10 @@ void NESEmulatorDialog::on_resetButton_clicked()
 
 void NESEmulatorDialog::on_stepButton_clicked()
 {
-    // TODO: Run one PPU cycle's worth of clocks on the PPU.
-    //       Since PPU executes faster it makes sense to align the steps
-    //       on PPU cycles but you can do it on CPU cycles if you really want to.
-    // CPTODO: re-factor stepping routine first...
+   // TODO: Run one PPU cycle's worth of clocks on the PPU.
+   //       Since PPU executes faster it makes sense to align the steps
+   //       on PPU cycles but you can do it on CPU cycles if you really want to.
+   emit stepEmulation();
 }
 
 void NESEmulatorDialog::renderData()

@@ -88,7 +88,6 @@ SOURCES += mainwindow.cpp \
     project/cbinaryfiles.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
     viewers/chr-rom/cchrrompreviewrenderer.cpp \
-    viewers/emulator/nesemulatorthread.cpp \
     viewers/emulator/nesemulatorrenderer.cpp \
     viewers/emulator/nesemulatordialog.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
@@ -116,13 +115,14 @@ SOURCES += mainwindow.cpp \
     debugger/registerdisplaydialog.cpp \
     viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
     debugger/registerinspector.cpp \
-    viewers/debugger/cregisterdata.cpp \
     viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
     debugger/breakpointdialog.cpp \
     debugger/breakpointinspector.cpp \
     debugger/cbreakpointinfo.cpp \
     viewers/debugger/cbreakpointdisplaymodel.cpp \
-    debugger/breakpointwatcherthread.cpp
+    debugger/breakpointwatcherthread.cpp \
+    emulator/nesemulatorthread.cpp \
+    debugger/cregisterdata.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -183,7 +183,6 @@ HEADERS += mainwindow.h \
     project/cbinaryfiles.h \
     viewers/chr-rom/chrromdisplaydialog.h \
     viewers/chr-rom/cchrrompreviewrenderer.h \
-    viewers/emulator/nesemulatorthread.h \
     viewers/emulator/nesemulatorrenderer.h \
     viewers/emulator/nesemulatordialog.h \
     viewers/prg-rom/prgromdisplaydialog.h \
@@ -211,13 +210,14 @@ HEADERS += mainwindow.h \
     debugger/registerdisplaydialog.h \
     viewers/debugger/cdebuggerregisterdisplaymodel.h \
     debugger/registerinspector.h \
-    viewers/debugger/cregisterdata.h \
     viewers/debugger/cdebuggerregistercomboboxdelegate.h \
     debugger/breakpointdialog.h \
     debugger/breakpointinspector.h \
     debugger/cbreakpointinfo.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
-    debugger/breakpointwatcherthread.h
+    debugger/breakpointwatcherthread.h \
+    emulator/nesemulatorthread.h \
+    debugger/cregisterdata.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

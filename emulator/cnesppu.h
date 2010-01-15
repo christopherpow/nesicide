@@ -117,7 +117,6 @@ public:
 
    // Emulation routines
    static inline void Move1KBank ( int bank, unsigned char* point ) { if ( bank >= 8 ) m_pPPUmemory[bank-8] = point; }
-   static char* MakePrintableBinaryText ( void );
 
    static void RESET ( void );
    static void PPU ( UINT addr, unsigned char data );
@@ -184,7 +183,7 @@ public:
    static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
-   static inline void INCCYCLE ( void ) { m_curCycles++; m_cycles++; }
+   static inline void INCCYCLE ( void );
    static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; }
 
    static void SetPPUViewerScanline ( UINT scanline ) { m_iPPUViewerScanline = scanline; }

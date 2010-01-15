@@ -173,34 +173,12 @@ CPPU::~CPPU()
 {
 }
 
-// CPTODO: support function for displaying PPU memory as bintext
-#if 0
-char* CPPU::MakePrintableBinaryText ( void )
+void CPPU::INCCYCLE()
 {
-   int idx1;
-   char* ptr = m_szBinaryText;
-   unsigned char data;
-
-   for ( idx1 = 0; idx1 < MEM_16KB; idx1++ )
-   {
-      if ( !(idx1&0xF) )
-      {
-         if ( idx1 )
-         {
-            (*ptr) = '\r'; ptr++;
-            (*ptr) = '\n'; ptr++;
-         }
-         sprintf04xc ( &ptr, idx1 );
-      }
-      if ( idx1&0xF ) { (*ptr) = ' '; ptr++; }
-      data = CPPU::LOAD(idx1,false,false);
-      sprintf02x ( &ptr, data );
-   }
-   (*ptr) = 0;
-
-   return m_szBinaryText;
+   m_curCycles++;
+   m_cycles++;
+   CNES::CHECKBREAKPOINT(eBreakInPPU);
 }
-#endif
 
 UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char type )
 {
@@ -604,8 +582,9 @@ UINT CPPU::RENDER ( UINT addr, char target )
 
    m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eLoggerSource_PPU );
 
-   m_curCycles += 2; // Address/Data bus multiplexed thus 2 cycles required per access...
-   m_cycles += 2; // Address/Data bus multiplexed thus 2 cycles required per access...
+   // Address/Data bus multiplexed thus 2 cycles required per access...
+   INCCYCLE();
+   INCCYCLE();
 
    return data;
 }
@@ -614,16 +593,17 @@ void CPPU::GARBAGE ( char target )
 {
    m_tracer.AddGarbageFetch ( m_cycles, target );
 
-   m_curCycles += 2; // Address/Data bus multiplexed thus 2 cycles required per access...
-   m_cycles += 2; // Address/Data bus multiplexed thus 2 cycles required per access...
+   // Address/Data bus multiplexed thus 2 cycles required per access...
+   INCCYCLE();
+   INCCYCLE();
 }
 
 void CPPU::EXTRA ()
 {
    m_tracer.AddGarbageFetch ( m_cycles, eTarget_Unknown );
 
-   m_curCycles++; // Idle cycle...
-   m_cycles++; // Idle cycle...
+   // Idle cycle...
+   INCCYCLE();
 }
 
 void CPPU::RESET ( void )
@@ -929,6 +909,7 @@ void CPPU::SCANLINEEND ( void )
 
 void CPPU::RENDERRESET ( int scanline )
 {
+#if 0
    int idxx;
    int idxy = (scanline<<8)*3;
    int offsetx = 0;
@@ -944,6 +925,7 @@ void CPPU::RENDERRESET ( int scanline )
           offsetx += 3;
        }
    }
+#endif
 }
 
 void CPPU::NONRENDERSCANLINE ( int scanlines )
@@ -954,8 +936,7 @@ void CPPU::NONRENDERSCANLINE ( int scanlines )
    {
       for ( idxx = 0; idxx < 341; idxx++ )
       {
-         m_cycles += 1;
-         m_curCycles += 1;
+         INCCYCLE();
          C6502::EMULATE ( true, m_curCycles/3 );
          m_curCycles %= 3;
       }

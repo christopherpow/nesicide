@@ -34,6 +34,8 @@
 bool         CNES::m_bReplay = false;
 unsigned int CNES::m_frame = 0;
 CBreakpointInfo CNES::m_breakpoints;
+bool            CNES::m_bAtBreakpoint = false;
+bool            CNES::m_bStepBreakpoint = false;
 
 QSemaphore breakpointSemaphore(1);
 extern QSemaphore breakpointWatcherSemaphore;
@@ -202,6 +204,13 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
    BreakpointInfo* pBreakpoint;
    int data;
 
+   // If stepping, break...
+   if ( m_bStepBreakpoint )
+   {
+      m_bStepBreakpoint = false;
+      FORCEBREAKPOINT();
+   }
+
    // For all breakpoints...
    for ( idx = 0; idx < m_breakpoints.GetNumBreakpoints(); idx++ )
    {
@@ -218,7 +227,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
                     (data == pBreakpoint->item1) )
                {
                   pBreakpoint->hit = true;
-                  CNES::FORCEBREAKPOINT();
+                  FORCEBREAKPOINT();
                }
             break;
          }
@@ -228,6 +237,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
 
 void CNES::FORCEBREAKPOINT ( void )
 {
-   breakpointSemaphore.acquire();
+   m_bAtBreakpoint = true;
    breakpointWatcherSemaphore.release();
+   breakpointSemaphore.acquire();
 }

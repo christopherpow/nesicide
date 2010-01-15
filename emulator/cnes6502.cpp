@@ -407,33 +407,6 @@ C6502::C6502()
 {
 }
 
-// CPTODO: support func to print CPU memory as bintext
-#if 0
-char* C6502::MakePrintableBinaryText ( void )
-{
-   int idx1;
-   char* ptr = m_szBinaryText;
-
-   for ( idx1 = 0; idx1 < MEM_2KB; idx1++ )
-   {
-      if ( !(idx1&0xF) )
-      {
-         if ( idx1 )
-         {
-            (*ptr) = '\r'; ptr++;
-            (*ptr) = '\n'; ptr++;
-         }
-         sprintf04xc ( &ptr, idx1 );
-      }
-      if ( idx1&0xF ) { (*ptr) = ' '; ptr++; }
-      sprintf02x ( &ptr, *(m_6502memory+idx1) );
-   }
-   (*ptr) = 0;
-
-   return m_szBinaryText;
-}
-#endif
-
 void C6502::EMULATE ( bool bRun, int cycles )
 {
    m_curCycles += cycles;
