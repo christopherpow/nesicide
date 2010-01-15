@@ -156,6 +156,10 @@ void NESEmulatorThread::startEmulation ()
    {
       breakpointSemaphore.release();
    }
+
+   // Trigger Breakpoint dialog redraw...
+   emit breakpointClear();
+
    m_isRunning = true;
 }
 

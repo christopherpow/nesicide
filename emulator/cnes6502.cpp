@@ -2531,7 +2531,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CROM::PRGROM ( addr );
       if ( checkBrkpt )
       {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
       }
    }
    else if ( addr >= 0x6000 )
@@ -2540,7 +2540,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CROM::SRAM ( addr );
       if ( checkBrkpt )
       {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
       }
    }
    else if ( addr >= 0x5000 )
@@ -2549,7 +2549,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
       if ( checkBrkpt )
       {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
       }
    }
    else if ( addr >= 0x4000 )
@@ -2562,7 +2562,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CIO::IO ( addr );
       if ( checkBrkpt )
       {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
       }
    }
    else if ( addr >= 0x2000 )
@@ -2571,7 +2571,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
       data = CPPU::PPU ( addr );
       if ( checkBrkpt )
       {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
       }
    }
    else
@@ -2582,7 +2582,7 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
 
       if ( checkBrkpt )
       {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
       }
    }
 
@@ -2629,7 +2629,7 @@ void C6502::STORE ( UINT addr, unsigned char data, bool checkBrkpt, char* pTarge
 
    if ( checkBrkpt )
    {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU );
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
    }
 }
 

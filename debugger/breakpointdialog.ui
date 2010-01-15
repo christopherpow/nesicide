@@ -112,7 +112,7 @@
    <item row="1" column="0" colspan="2">
     <widget class="QStackedWidget" name="itemWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -355,6 +355,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>type</tabstop>
+  <tabstop>addr1</tabstop>
+  <tabstop>addr2</tabstop>
+  <tabstop>data2</tabstop>
+  <tabstop>reg</tabstop>
+  <tabstop>bitfield</tabstop>
+  <tabstop>data1</tabstop>
+  <tabstop>event</tabstop>
+  <tabstop>eventData1</tabstop>
+  <tabstop>eventData2</tabstop>
+  <tabstop>condition</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>removeButton</tabstop>
+  <tabstop>listView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

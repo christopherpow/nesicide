@@ -224,6 +224,8 @@ public:
    static UINT __PC ( void ) { return m_pc; }
    static void __PC ( unsigned short pc ) { m_pc = pc; }
 
+   static UINT _EA ( void ) { return m_ea; }
+
    static UINT _SP ( void ) { return m_sp; }
    static void _SP ( unsigned char sp ) { m_sp = sp; }
    static inline UINT POP ( void ) { INCSP(); return GETSTACKDATA(); }

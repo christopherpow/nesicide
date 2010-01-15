@@ -26,6 +26,7 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
    m_pEvent = NULL;
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateData()));
+   QObject::connect(emulator, SIGNAL(breakpointClear()), this, SLOT(updateData()));
 }
 
 BreakpointDialog::~BreakpointDialog()
@@ -396,4 +397,9 @@ void BreakpointDialog::on_removeButton_clicked()
    }
 
    model->layoutChangedEvent();
+}
+
+void BreakpointDialog::on_addr1_textChanged(QString )
+{
+    ui->addr2->setText(ui->addr1->text());
 }

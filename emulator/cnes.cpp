@@ -198,11 +198,11 @@ void CNES::RUN ( unsigned char* joy )
    m_frame++;
 }
 
-void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
+void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int data )
 {
    int idx;
    BreakpointInfo* pBreakpoint;
-   int data;
+   int addr;
 
    // If stepping, break...
    if ( m_bStepBreakpoint )
@@ -218,18 +218,68 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target )
       pBreakpoint = m_breakpoints.GetBreakpoint(idx);
       if ( pBreakpoint->target == target )
       {
+         // Not hit yet...
          pBreakpoint->hit = false;
-         switch ( pBreakpoint->type )
+
+         // Promote "Access" types...
+         if ( (pBreakpoint->type == eBreakOnCPUMemoryAccess) &&
+              ((type == eBreakOnCPUMemoryRead) || (type == eBreakOnCPUMemoryWrite)) )
          {
-            case eBreakOnCPUExecution:
-               data = C6502::__PC();
-               if ( (C6502::SYNC()) &&
-                    (data == pBreakpoint->item1) )
-               {
-                  pBreakpoint->hit = true;
-                  FORCEBREAKPOINT();
-               }
-            break;
+            type = eBreakOnCPUMemoryAccess;
+         }
+         if ( pBreakpoint->type == type )
+         {
+            switch ( type )
+            {
+               case eBreakOnCPUExecution:
+                  addr = C6502::__PC();
+                  if ( (C6502::SYNC()) &&
+                       (addr >= pBreakpoint->item1) &&
+                       (addr <= pBreakpoint->item2) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+               break;
+               case eBreakOnCPUMemoryAccess:
+               case eBreakOnCPUMemoryRead:
+               case eBreakOnCPUMemoryWrite:
+                  addr = C6502::_EA();
+                  if ( (addr >= pBreakpoint->item1) &&
+                       (addr <= pBreakpoint->item2) )
+                  {
+                     if ( pBreakpoint->condition == eBreakIfAnything )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                               (data == pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                               (data != pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                               (data < pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                               (data > pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                  }
+               break;
+            }
          }
       }
    }

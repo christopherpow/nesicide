@@ -30,6 +30,7 @@ private:
    void DisplayBreakpoint ( int idx );
 
 private slots:
+    void on_addr1_textChanged(QString );
     void on_removeButton_clicked();
     void on_event_currentIndexChanged(int index);
     void on_listView_pressed(QModelIndex index);

@@ -20,7 +20,7 @@ public:
 
    static void RESET ( void );
    static CBreakpointInfo* BREAKPOINTS ( void ) { return &m_breakpoints; }
-   static void CHECKBREAKPOINT ( eBreakpointTarget target );
+   static void CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type = (eBreakpointType)-1, int data = 0 );
    static void FORCEBREAKPOINT ( void );
    static bool ATBREAKPOINT ( void ) { return m_bAtBreakpoint; }
    static void CLEARBREAKPOINT ( void ) { m_bAtBreakpoint = false; }
