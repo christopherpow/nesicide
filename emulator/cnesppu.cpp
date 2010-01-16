@@ -180,7 +180,7 @@ void CPPU::INCCYCLE()
    CNES::CHECKBREAKPOINT(eBreakInPPU);
 }
 
-UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char type )
+UINT CPPU::LOAD ( UINT addr, char source, char type )
 {
    unsigned char data = 0xFF;
 
@@ -190,10 +190,9 @@ UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char typ
    {
       data = CROM::CHRMEM ( addr );
 
-      if ( bTrace )
-      {
-         m_tracer.AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
-      }
+      // Add Tracer sample...
+      m_tracer.AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+
       return data;
    }
 
@@ -208,10 +207,9 @@ UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char typ
 
          data = *(m_PALETTEmemory+(addr&0x1F));
 
-         if ( bTrace )
-         {
-            m_tracer.AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
-         }
+         // Add Tracer sample...
+         m_tracer.AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
+
          return data;
       }
 
@@ -220,30 +218,27 @@ UINT CPPU::LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source, char typ
 
    data = *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF));
 
-   if ( bTrace )
+   // Add Tracer sample...
+   if ( (addr&0x3FF) < 0x3C0 )
    {
-      if ( (addr&0x3FF) < 0x3C0 )
-      {
-         m_tracer.AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
-      }
-      else
-      {
-         m_tracer.AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
-      }
+      m_tracer.AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
    }
+   else
+   {
+      m_tracer.AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+   }
+
    return data;
 }
 
-void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, char source, char type )
+void CPPU::STORE ( UINT addr, unsigned char data, char source, char type )
 {
    addr &= 0x3FFF;
 
    if ( addr < 0x2000 )
    {
-      if ( bTrace )
-      {
-         m_tracer.AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
-      }
+      // Add Tracer sample...
+      m_tracer.AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
 
       if ( CROM::IsWriteProtected() == false )
       {
@@ -257,10 +252,8 @@ void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, 
    {
       if ( addr >= 0x3F00 )
       {
-         if ( bTrace )
-         {
-            m_tracer.AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
-         }
+         // Add Tracer sample...
+         m_tracer.AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
 
          if ( !(addr&0xF) )
          {
@@ -278,16 +271,14 @@ void CPPU::STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, 
       addr &= 0xEFFF;
    }
 
-   if ( bTrace )
+   // Add Tracer sample...
+   if ( (addr&0x3FF) < 0x3C0 )
    {
-      if ( (addr&0x3FF) < 0x3C0 )
-      {
-         m_tracer.AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
-      }
-      else
-      {
-         m_tracer.AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
-      }
+      m_tracer.AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
+   }
+   else
+   {
+      m_tracer.AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
    }
 
    *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;
@@ -578,13 +569,16 @@ UINT CPPU::RENDER ( UINT addr, char target )
 {
    UINT data;
 
-   data = LOAD ( addr, true, false, eSource_PPU, target );
+   data = LOAD ( addr, eSource_PPU, target );
 
    m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eLoggerSource_PPU );
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    INCCYCLE();
    INCCYCLE();
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, data );
 
    return data;
 }
@@ -596,6 +590,9 @@ void CPPU::GARBAGE ( char target )
    // Address/Data bus multiplexed thus 2 cycles required per access...
    INCCYCLE();
    INCCYCLE();
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, 0 );
 }
 
 void CPPU::EXTRA ()
@@ -604,6 +601,9 @@ void CPPU::EXTRA ()
 
    // Idle cycle...
    INCCYCLE();
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, 0 );
 }
 
 void CPPU::RESET ( void )
@@ -667,14 +667,17 @@ UINT CPPU::PPU ( UINT addr )
 
          if ( oldPpuAddr < 0x3F00 )
          {
-            m_ppuReadLatch2007 = LOAD ( oldPpuAddr, true, true, eSource_CPU, eTracer_DataRead );
+            m_ppuReadLatch2007 = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
 
             data = m_ppuReadLatch;
          }
          else
          {
-            data = LOAD ( oldPpuAddr, true, true, eSource_CPU, eTracer_DataRead );
+            data = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
          }
+
+         // Check for breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
 
          m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eLoggerSource_CPU );
 
@@ -780,11 +783,14 @@ void CPPU::PPU ( UINT addr, unsigned char data )
       }
       else if ( addr == PPUDATA )
       {
-         STORE ( m_ppuAddr, data, true, true, eSource_CPU, eTracer_DataWrite );
+         STORE ( m_ppuAddr, data, eSource_CPU, eTracer_DataWrite );
 
          oldPpuAddr = m_ppuAddr;
 
          m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eLoggerSource_CPU );
+
+         // Check for breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
 
          // Increment PPUADDR
          m_ppuAddr += m_ppuAddrIncrement;

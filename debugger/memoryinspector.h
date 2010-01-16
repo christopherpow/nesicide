@@ -13,9 +13,14 @@ class MemoryInspector : public QDockWidget
 public:
    MemoryInspector(eMemoryType display);
    virtual ~MemoryInspector();
+
+public slots:
+   void showMe(eMemoryType display);
+
 protected:
    MemoryDisplayDialog* dialog;
    QFrame* frame;
+   eMemoryType m_display;
 };
 
 #endif // MEMORYINSPECTOR_H

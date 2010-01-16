@@ -13,6 +13,10 @@ class ExecutionInspector : public QDockWidget
 public:
    ExecutionInspector();
    virtual ~ExecutionInspector();
+
+public slots:
+   void showMe();
+
 protected:
    ExecutionTracerDialog* dialog;
    QFrame* frame;

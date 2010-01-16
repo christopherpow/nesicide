@@ -15,11 +15,15 @@ public:
     ~ExecutionTracerDialog();
 
 protected:
+    void showEvent(QShowEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void changeEvent(QEvent *e);
 
 public slots:
     void updateTracer();
+
+signals:
+    void showMe();
 
 private:
     Ui::ExecutionTracerDialog *ui;

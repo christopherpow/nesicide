@@ -24,9 +24,13 @@ public:
    int rowCount(const QModelIndex &parent = QModelIndex()) const;
    int columnCount(const QModelIndex &parent = QModelIndex()) const;
    void layoutChangedEvent();
+   eMemoryType memoryType() const { return m_display; }
+   unsigned int memoryBottom() const { return m_offset; }
+   unsigned int memoryTop() const { return m_offset+m_length-1; }
 private:
    eMemoryType m_display;
-   unsigned int m_offset;
+   int m_offset;
+   int m_length;
    CRegisterData** m_tblRegisters;
 };
 

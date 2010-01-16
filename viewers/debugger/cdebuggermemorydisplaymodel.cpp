@@ -10,39 +10,51 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemor
    {
       case eMemory_CPU:
          m_offset = 0x0000;
+         m_length = MEM_2KB;
       break;
       case eMemory_CPUregs:
-         m_offset = 0;
+         m_offset = 0; // bogus...
+         m_length = 6; // bogus...
       break;
       case eMemory_PPUregs:
          m_offset = 0x2000;
+         m_length = MEM_8KB; // it's really 8 bytes mirrored to 0x4000...
       break;
       case eMemory_IOregs:
          m_offset = 0x4000;
+         m_length = 0x18; // this should perhaps be MEM_4KB or something else...mirroring?
       break;
       case eMemory_cartSRAM:
          m_offset = 0x6000;
+         m_length = MEM_8KB;
       break;
       case eMemory_cartROM:
          m_offset = 0x8000;
+         m_length = MEM_32KB;
       break;
       case eMemory_cartEXRAM:
          m_offset = 0x5C00;
+         m_length = MEM_1KB;
       break;
       case eMemory_cartCHRMEM:
          m_offset = 0;
+         m_length = MEM_8KB;
       break;
       case eMemory_cartMapper:         
-         m_offset = 0;
+         m_offset = 0; // bogus...
+         m_length = 0; // bogus...
       break;
       case eMemory_PPU:
          m_offset = 0x2000;
+         m_length = MEM_8KB-MEM_256B; // mirroring but last 256 bytes are palette...
       break;
       case eMemory_PPUpalette:
          m_offset = 0x3F00;
+         m_length = MEM_256B; // it's really 32 bytes mirrored to 0x4000...
       break;
       case eMemory_PPUoam:
-         m_offset = 0;
+         m_offset = 0; // bogus...
+         m_length = 0; // bogus...
       break;
    }
 }

@@ -62,6 +62,7 @@ void RegisterDisplayDialog::showEvent(QShowEvent *e)
 {
    binaryModel->layoutChangedEvent();
    bitfieldModel->layoutChangedEvent();
+   ui->binaryView->resizeColumnsToContents();
 }
 
 void RegisterDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
@@ -96,8 +97,11 @@ void RegisterDisplayDialog::cartridgeLoaded ()
 
 void RegisterDisplayDialog::updateMemory ()
 {
-   binaryModel->layoutChangedEvent();
-   bitfieldModel->layoutChangedEvent();
+   if ( this->isVisible() )
+   {
+      binaryModel->layoutChangedEvent();
+      bitfieldModel->layoutChangedEvent();
+   }
 }
 
 void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)

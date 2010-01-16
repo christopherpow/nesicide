@@ -77,6 +77,21 @@
        </item>
        <item>
         <property name="text">
+         <string>PPU Portal Access (Read or Write)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU Portal Read</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PPU Portal Write</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>PPU State</string>
         </property>
        </item>

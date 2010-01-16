@@ -26,6 +26,11 @@ ExecutionTracerDialog::~ExecutionTracerDialog()
     delete tableViewModel;
 }
 
+void ExecutionTracerDialog::showEvent(QShowEvent* e)
+{
+   ui->tableView->resizeColumnsToContents();
+}
+
 void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent *e)
 {
 }
@@ -44,6 +49,22 @@ void ExecutionTracerDialog::changeEvent(QEvent *e)
 
 void ExecutionTracerDialog::updateTracer ()
 {
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   int idx;
+
+   // Check breakpoints for hits and highlight if necessary...
+   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+   {
+      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      if ( (pBreakpoint->type == eBreakOnCPUExecution) &&
+           (pBreakpoint->hit) )
+      {
+         // Update display...
+         emit showMe();
+         ui->tableView->setCurrentIndex(tableViewModel->index(0,0));
+      }
+   }
+
    tableViewModel->layoutChangedEvent();
 }
 

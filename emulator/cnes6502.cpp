@@ -2521,7 +2521,7 @@ void C6502::RESET ( void )
    wPC ( MAKE16(MEM(VECTOR_RESET),MEM(VECTOR_RESET+1)) );
 }
 
-unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
+unsigned char C6502::LOAD ( UINT addr, char* pTarget )
 {
    unsigned char data = 0xff;
 
@@ -2529,28 +2529,16 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
    {
       (*pTarget) = eTarget_ROM;
       data = CROM::PRGROM ( addr );
-      if ( checkBrkpt )
-      {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-      }
    }
    else if ( addr >= 0x6000 )
    {
       (*pTarget) = eTarget_SRAM;
       data = CROM::SRAM ( addr );
-      if ( checkBrkpt )
-      {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-      }
    }
    else if ( addr >= 0x5000 )
    {
       (*pTarget) = eTarget_Mapper;
       data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
-      if ( checkBrkpt )
-      {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-      }
    }
    else if ( addr >= 0x4000 )
    {
@@ -2560,36 +2548,23 @@ unsigned char C6502::LOAD ( UINT addr, bool checkBrkpt, char* pTarget )
          (*pTarget) = eTarget_IORegister;
       }
       data = CIO::IO ( addr );
-      if ( checkBrkpt )
-      {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-      }
    }
    else if ( addr >= 0x2000 )
    {
       (*pTarget) = eTarget_PPURegister;
       data = CPPU::PPU ( addr );
-      if ( checkBrkpt )
-      {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-      }
    }
    else
    {
       (*pTarget) = eTarget_RAM;
       addr &= 0x7FF; // RAM mirrored...
       data = m_6502memory[addr];
-
-      if ( checkBrkpt )
-      {
-         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-      }
    }
 
    return data;
 }
 
-void C6502::STORE ( UINT addr, unsigned char data, bool checkBrkpt, char* pTarget )
+void C6502::STORE ( UINT addr, unsigned char data, char* pTarget )
 {
    if ( addr < 0x2000 )
    {
@@ -2626,20 +2601,21 @@ void C6502::STORE ( UINT addr, unsigned char data, bool checkBrkpt, char* pTarge
       (*pTarget) = eTarget_Mapper;
       mapperfunc [ CROM::MAPPER() ].highwrite ( addr, data );
    }
-
-   if ( checkBrkpt )
-   {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
-   }
 }
 
 unsigned char C6502::FETCH ( UINT addr )
 {
    char target;
-   unsigned char data = LOAD ( addr, true, &target );
+   unsigned char data = LOAD ( addr, &target );
 
+   // Add Tracer sample...
    m_tracer.AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
-   if ( addr >= MEM_32KB )
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
+
+   // If ROM is being accessed, log code/data logger...
+   if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
       if ( pLogger )
@@ -2654,10 +2630,15 @@ unsigned char C6502::FETCH ( UINT addr )
 unsigned char C6502::DMA ( UINT addr, char source )
 {
    char target;
-   unsigned char data = LOAD ( addr, false, &target );
+   unsigned char data = LOAD ( addr, &target );
 
+   // Add Tracer sample...
    m_tracer.AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
-   if ( addr >= MEM_32KB )
+
+   // At some point might want to add a breakpoint here...
+
+   // If ROM or RAM is being accessed, log code/data logger...
+   if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
       if ( pLogger )
@@ -2665,7 +2646,7 @@ unsigned char C6502::DMA ( UINT addr, char source )
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
       }
    }
-   else if ( addr < MEM_2KB )
+   else if ( target == eTarget_RAM )
    {
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
    }
@@ -2676,11 +2657,16 @@ unsigned char C6502::DMA ( UINT addr, char source )
 unsigned char C6502::MEM ( UINT addr )
 {
    char target;
-   unsigned char data = LOAD ( addr, true, &target );
+   unsigned char data = LOAD ( addr, &target );
 
+   // Add Tracer sample...
    m_tracer.AddSample ( m_cycles, eTracer_DataRead, eSource_CPU, target, addr, data );
 
-   if ( addr >= MEM_32KB )
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+
+   // If ROM or RAM is being accessed, log code/data logger...
+   if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
       if ( pLogger )
@@ -2688,7 +2674,7 @@ unsigned char C6502::MEM ( UINT addr )
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
       }
    }
-   else if ( addr < MEM_2KB )
+   else if ( target == eTarget_RAM )
    {
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
    }
@@ -2700,14 +2686,14 @@ unsigned char C6502::_DMA ( UINT addr )
 {
    char target;
 
-   return LOAD ( addr, false, &target );
+   return LOAD ( addr, &target );
 }
 
 unsigned char C6502::_MEM ( UINT addr )
 {
    char target;
 
-   return LOAD ( addr, false, &target );
+   return LOAD ( addr, &target );
 }
 
 void C6502::MEM ( UINT addr, unsigned char data )
@@ -2720,29 +2706,32 @@ void C6502::MEM ( UINT addr, unsigned char data )
       return;
    }
 
-   // store unknown target because otherwise the trace will be out of order...
+   // Store unknown target because otherwise the trace will be out of order...
    pSample = m_tracer.AddSample ( m_cycles, eTracer_DataWrite, eSource_CPU, 0, addr, data );
 
+   STORE ( addr, data, &target );
+
    // Code/Data Logger accesses of internal CPU RAM...
-   if ( addr < MEM_2KB )
+   if ( target == eTarget_RAM )
    {
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eLoggerSource_CPU );
    }
-
-   STORE ( addr, data, true, &target );
 
    // store real target...
    if ( pSample )
    {
       pSample->target = target;
+
    }
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
 }
 
 void C6502::_MEM ( UINT addr, unsigned char data )
 {
    char target;
 
-   STORE ( addr, data, false, &target );
+   STORE ( addr, data, &target );
 }
 
 UINT C6502::MAKEADDR ( int amode, unsigned char* data )
@@ -2796,7 +2785,10 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
          (*(data+2)) = 1; // extra cycles stored here...
       }
    }
+
+   // Set "Effective Address" for use by Tracer, Breakpoints, etc...
    m_ea = addr;
+
    return addr;
 }
 

@@ -65,6 +65,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
       case eBreakOnCPUMemoryAccess:
       case eBreakOnCPUMemoryRead:
       case eBreakOnCPUMemoryWrite:
+      case eBreakOnPPUPortalAccess:
+      case eBreakOnPPUPortalRead:
+      case eBreakOnPPUPortalWrite:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );

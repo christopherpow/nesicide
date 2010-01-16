@@ -12,6 +12,9 @@ typedef enum
    eBreakOnCPUState,
    eBreakOnCPUEvent,
    eBreakOnPPUFetch,
+   eBreakOnPPUPortalAccess,
+   eBreakOnPPUPortalRead,
+   eBreakOnPPUPortalWrite,
    eBreakOnPPUState,
    eBreakOnPPUEvent,
    eBreakOnAPUState,
@@ -88,6 +91,7 @@ typedef struct
    CBreakpointEventInfo* pEvent;
    int item1;
    int item2;
+   int itemActual;
    eBreakpointConditionType conditionType;
    int condition;
    eBreakpointDataType dataType;

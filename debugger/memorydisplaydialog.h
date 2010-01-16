@@ -18,6 +18,7 @@ public:
     ~MemoryDisplayDialog();
 
 protected:
+    void showEvent(QShowEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void changeEvent(QEvent *e);
 
@@ -25,9 +26,13 @@ public slots:
     void cartridgeLoaded();
     void updateMemory();
 
+signals:
+    void showMe(eMemoryType display);
+
 private:
     Ui::MemoryDisplayDialog *ui;
     CDebuggerMemoryDisplayModel *model;
+    eMemoryType m_display;
 };
 
 #endif // MEMORYDISPLAYDIALOG_H

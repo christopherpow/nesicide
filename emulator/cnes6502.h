@@ -261,8 +261,8 @@ public:
    static unsigned char DMA ( UINT addr, char source );
    static unsigned char _DMA ( UINT addr );
    static unsigned char FETCH ( UINT addr );
-   static unsigned char LOAD ( UINT addr, bool checkBrkpt, char* pTarget );
-   static void STORE ( UINT addr, unsigned char data, bool checkBrkpt, char* pTarget );
+   static unsigned char LOAD ( UINT addr, char* pTarget );
+   static void STORE ( UINT addr, unsigned char data, char* pTarget );
    static unsigned char _MEM ( UINT addr );
    static void MEM ( UINT addr, unsigned char data );
    static void _MEM ( UINT addr, unsigned char data );

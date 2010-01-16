@@ -121,8 +121,8 @@ public:
    static void RESET ( void );
    static void PPU ( UINT addr, unsigned char data );
    static UINT PPU ( UINT addr );
-   static void STORE ( UINT addr, unsigned char data, bool bTrace, bool checkBrkpt, char source = eSource_PPU, char type = eTracer_Unknown );
-   static UINT LOAD ( UINT addr, bool bTrace, bool checkBrkpt, char source = eSource_PPU, char type = eTracer_Unknown );
+   static void STORE ( UINT addr, unsigned char data, char source = eSource_PPU, char type = eTracer_Unknown );
+   static UINT LOAD ( UINT addr, char source = eSource_PPU, char type = eTracer_Unknown );
    static UINT RENDER ( UINT addr, char source );
    static void GARBAGE ( char target );
    static void EXTRA ();

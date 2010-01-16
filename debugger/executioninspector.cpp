@@ -9,10 +9,17 @@ ExecutionInspector::ExecutionInspector()
 
    dialog = new ExecutionTracerDialog ( frame );
    this->setWidget ( dialog );
+
+   QObject::connect(dialog,SIGNAL(showMe()),this,SLOT(showMe()));
 }
 
 ExecutionInspector::~ExecutionInspector()
 {
    delete dialog;
    delete frame;
+}
+
+void ExecutionInspector::showMe()
+{
+   this->show();
 }

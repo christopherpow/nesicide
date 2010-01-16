@@ -15,6 +15,7 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
    if ( m_numBreakpoints < NUM_BREAKPOINTS )
    {
       m_breakpoint [ m_numBreakpoints ].hit = false;
+      m_breakpoint [ m_numBreakpoints ].itemActual = -1;
       m_breakpoint [ m_numBreakpoints ].type = (eBreakpointType)type;
       m_breakpoint [ m_numBreakpoints ].pEvent = NULL;
       switch ( type )
@@ -28,6 +29,9 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
             m_breakpoint [ m_numBreakpoints ].target = eBreakInCPU;
          break;
          case eBreakOnPPUFetch:
+         case eBreakOnPPUPortalAccess:
+         case eBreakOnPPUPortalRead:
+         case eBreakOnPPUPortalWrite:
          case eBreakOnPPUState:
          case eBreakOnPPUEvent:
             m_breakpoint [ m_numBreakpoints ].target = eBreakInPPU;
@@ -73,18 +77,19 @@ void CBreakpointInfo::RemoveBreakpoint ( int index )
    int idx;
    for ( idx = index; idx < NUM_BREAKPOINTS-1; idx++ )
    {
-      m_breakpoint [ idx ].hit = m_breakpoint [ idx+1 ].hit;
       m_breakpoint [ idx ].type = m_breakpoint [ idx+1 ].type;
       m_breakpoint [ idx ].target = m_breakpoint [ idx+1 ].target;
-      m_breakpoint [ idx ].conditionType = m_breakpoint [ idx+1 ].conditionType;
-      m_breakpoint [ idx ].condition = m_breakpoint [ idx+1 ].condition;
       m_breakpoint [ idx ].itemType = m_breakpoint [ idx+1 ].itemType;
       m_breakpoint [ idx ].event = m_breakpoint [ idx+1 ].event;
       m_breakpoint [ idx ].pEvent = m_breakpoint [ idx+1 ].pEvent;
       m_breakpoint [ idx ].item1 = m_breakpoint [ idx+1 ].item1;
       m_breakpoint [ idx ].item2 = m_breakpoint [ idx+1 ].item2;
+      m_breakpoint [ idx ].itemActual = m_breakpoint [ idx+1 ].itemActual;
+      m_breakpoint [ idx ].conditionType = m_breakpoint [ idx+1 ].conditionType;
+      m_breakpoint [ idx ].condition = m_breakpoint [ idx+1 ].condition;
       m_breakpoint [ idx ].dataType = m_breakpoint [ idx+1 ].dataType;
       m_breakpoint [ idx ].data = m_breakpoint [ idx+1 ].data;
+      m_breakpoint [ idx ].hit = m_breakpoint [ idx+1 ].hit;
    }
    m_numBreakpoints--;
 }
@@ -119,12 +124,12 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
             case eBreakIfAnything:
                if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
                {
-                  sprintf ( msg, "Break if CPU reads or writes anything at $%04X",
+                  sprintf ( msg, "Break if CPU reads or writes anything at address $%04X",
                                    m_breakpoint[idx].item1 );
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads or writes anything between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads or writes anything between address $%04X and $%04X",
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
                }
@@ -138,7 +143,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads or writes $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads or writes $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -153,7 +158,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads or writes anything but $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads or writes anything but $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -168,7 +173,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads or writes greater than $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads or writes greater than $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -183,7 +188,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads or writes less than $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads or writes less than $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -197,12 +202,12 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
             case eBreakIfAnything:
                if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
                {
-                  sprintf ( msg, "Break if CPU reads anything at $%04X",
+                  sprintf ( msg, "Break if CPU reads anything at address $%04X",
                                    m_breakpoint[idx].item1 );
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads anything between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads anything between address $%04X and $%04X",
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
                }
@@ -216,7 +221,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -231,7 +236,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads anything but $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads anything but $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -246,7 +251,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads greater than $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads greater than $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -261,7 +266,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU reads less than $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU reads less than $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -275,12 +280,12 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
             case eBreakIfAnything:
                if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
                {
-                  sprintf ( msg, "Break if CPU writes anything at $%04X",
+                  sprintf ( msg, "Break if CPU writes anything at address $%04X",
                                    m_breakpoint[idx].item1 );
                }
                else
                {
-                  sprintf ( msg, "Break if CPU writes anything between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU writes anything between address $%04X and $%04X",
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
                }
@@ -294,7 +299,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU writes $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU writes $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -309,7 +314,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU writes anything but $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU writes anything but $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -324,7 +329,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU writes greater than $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU writes greater than $%02X between address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
@@ -339,7 +344,241 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                }
                else
                {
-                  sprintf ( msg, "Break if CPU writes less than $%02X between $%04X and $%04X",
+                  sprintf ( msg, "Break if CPU writes less than $%02X between address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+         }
+      break;
+      case eBreakOnPPUPortalAccess:
+         switch ( m_breakpoint[idx].condition )
+         {
+            case eBreakIfAnything:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything at PPU address $%04X",
+                                   m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything at PPU address between $%04X and $%04X",
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfNotEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything but $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything but $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfGreaterThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes greater than $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes greater than $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfLessThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes less than $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes less than $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+         }
+      break;
+      case eBreakOnPPUPortalRead:
+         switch ( m_breakpoint[idx].condition )
+         {
+            case eBreakIfAnything:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads anything at PPU address $%04X",
+                                   m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads anything between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfNotEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads anything but $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads anything but $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfGreaterThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads greater than $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads greater than $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfLessThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads less than $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads less than $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+         }
+      break;
+      case eBreakOnPPUPortalWrite:
+         switch ( m_breakpoint[idx].condition )
+         {
+            case eBreakIfAnything:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes anything at PPU address $%04X",
+                                   m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes anything between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfNotEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes anything but $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes anything but $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfGreaterThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes greater than $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes greater than $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfLessThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes less than $%02X at PPU address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes less than $%02X between PPU address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
