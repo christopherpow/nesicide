@@ -29,6 +29,9 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
             m_breakpoint [ m_numBreakpoints ].target = eBreakInCPU;
          break;
          case eBreakOnPPUFetch:
+         case eBreakOnOAMPortalAccess:
+         case eBreakOnOAMPortalRead:
+         case eBreakOnOAMPortalWrite:
          case eBreakOnPPUPortalAccess:
          case eBreakOnPPUPortalRead:
          case eBreakOnPPUPortalWrite:
@@ -579,6 +582,240 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                else
                {
                   sprintf ( msg, "Break if CPU writes less than $%02X between PPU address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+         }
+      break;
+      case eBreakOnOAMPortalAccess:
+         switch ( m_breakpoint[idx].condition )
+         {
+            case eBreakIfAnything:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything at PPU OAM address $%04X",
+                                   m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything at PPU OAM address between $%04X and $%04X",
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfNotEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything but $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes anything but $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfGreaterThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes greater than $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes greater than $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfLessThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads or writes less than $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads or writes less than $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+         }
+      break;
+      case eBreakOnOAMPortalRead:
+         switch ( m_breakpoint[idx].condition )
+         {
+            case eBreakIfAnything:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads anything at PPU OAM address $%04X",
+                                   m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads anything between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfNotEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads anything but $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads anything but $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfGreaterThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads greater than $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads greater than $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfLessThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU reads less than $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU reads less than $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+         }
+      break;
+      case eBreakOnOAMPortalWrite:
+         switch ( m_breakpoint[idx].condition )
+         {
+            case eBreakIfAnything:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes anything at PPU OAM address $%04X",
+                                   m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes anything between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfNotEqual:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes anything but $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes anything but $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfGreaterThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes greater than $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes greater than $%02X between PPU OAM address $%04X and $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1,
+                            m_breakpoint[idx].item2 );
+               }
+            break;
+            case eBreakIfLessThan:
+               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+               {
+                  sprintf ( msg, "Break if CPU writes less than $%02X at PPU OAM address $%04X",
+                            m_breakpoint[idx].data,
+                            m_breakpoint[idx].item1 );
+               }
+               else
+               {
+                  sprintf ( msg, "Break if CPU writes less than $%02X between PPU OAM address $%04X and $%04X",
                             m_breakpoint[idx].data,
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );

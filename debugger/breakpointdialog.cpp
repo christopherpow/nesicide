@@ -19,7 +19,7 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
    ui->type->setCurrentIndex ( eBreakOnCPUExecution );
 
    model = new CBreakpointDisplayModel();
-   ui->listView->setModel ( model );
+   ui->tableView->setModel ( model );
 
    m_pRegister = NULL;
    m_pBitfield = NULL;
@@ -48,7 +48,19 @@ void BreakpointDialog::changeEvent(QEvent *e)
 
 void BreakpointDialog::updateData()
 {
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   int idx;
+
    model->layoutChangedEvent();
+
+   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+   {
+      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      if ( pBreakpoint->hit )
+      {
+         emit showMe();
+      }
+   }
 }
 
 void BreakpointDialog::on_type_currentIndexChanged(int index)
@@ -65,6 +77,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
       case eBreakOnCPUMemoryAccess:
       case eBreakOnCPUMemoryRead:
       case eBreakOnCPUMemoryWrite:
+      case eBreakOnOAMPortalAccess:
+      case eBreakOnOAMPortalRead:
+      case eBreakOnOAMPortalWrite:
       case eBreakOnPPUPortalAccess:
       case eBreakOnPPUPortalRead:
       case eBreakOnPPUPortalWrite:
@@ -305,6 +320,14 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          ui->reg->setCurrentIndex ( pBreakpoint->item1 );
          ui->bitfield->setCurrentIndex ( pBreakpoint->item2 );
       break;
+      case eBreakpointItemEvent:
+         sprintf ( buffer, "%X", pBreakpoint->item1 );
+         ui->eventData1->setText ( buffer );
+         sprintf ( buffer, "%X", pBreakpoint->item2 );
+         ui->eventData2->setText ( buffer );
+      break;
+      case eBreakpointItemNone:
+      break;
    }
    ui->conditionWidget->setCurrentIndex ( pBreakpoint->conditionType );
    ui->condition->setCurrentIndex ( pBreakpoint->condition );
@@ -318,30 +341,32 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
       case eBreakpointDataPick:
          ui->data2->setCurrentIndex ( pBreakpoint->data );
       break;
+      case eBreakpointDataNone:
+      break;
    }
 }
 
-void BreakpointDialog::on_listView_activated(QModelIndex index)
+void BreakpointDialog::on_tableView_activated(QModelIndex index)
 {
    DisplayBreakpoint ( index.row() );
 }
 
-void BreakpointDialog::on_listView_clicked(QModelIndex index)
+void BreakpointDialog::on_tableView_clicked(QModelIndex index)
 {
    DisplayBreakpoint ( index.row() );
 }
 
-void BreakpointDialog::on_listView_doubleClicked(QModelIndex index)
+void BreakpointDialog::on_tableView_doubleClicked(QModelIndex index)
 {
    DisplayBreakpoint ( index.row() );
 }
 
-void BreakpointDialog::on_listView_entered(QModelIndex index)
+void BreakpointDialog::on_tableView_entered(QModelIndex index)
 {
    DisplayBreakpoint ( index.row() );
 }
 
-void BreakpointDialog::on_listView_pressed(QModelIndex index)
+void BreakpointDialog::on_tableView_pressed(QModelIndex index)
 {
    DisplayBreakpoint ( index.row() );
 }
@@ -394,9 +419,9 @@ void BreakpointDialog::on_removeButton_clicked()
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
 
-   if ( ui->listView->currentIndex().row() >= 0 )
+   if ( ui->tableView->currentIndex().row() >= 0 )
    {
-      pBreakpoints->RemoveBreakpoint(ui->listView->currentIndex().row());
+      pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
    }
 
    model->layoutChangedEvent();

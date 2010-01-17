@@ -218,14 +218,16 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
       pBreakpoint = m_breakpoints.GetBreakpoint(idx);
       if ( pBreakpoint->target == target )
       {
-         // Not hit yet...
-         pBreakpoint->hit = false;
-
          // Promote "Access" types...
          if ( (pBreakpoint->type == eBreakOnCPUMemoryAccess) &&
               ((type == eBreakOnCPUMemoryRead) || (type == eBreakOnCPUMemoryWrite)) )
          {
             type = eBreakOnCPUMemoryAccess;
+         }
+         if ( (pBreakpoint->type == eBreakOnOAMPortalAccess) &&
+              ((type == eBreakOnOAMPortalRead) || (type == eBreakOnOAMPortalWrite)) )
+         {
+            type = eBreakOnOAMPortalAccess;
          }
          if ( (pBreakpoint->type == eBreakOnPPUPortalAccess) &&
               ((type == eBreakOnPPUPortalRead) || (type == eBreakOnPPUPortalWrite)) )
@@ -234,6 +236,9 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
          }
          if ( pBreakpoint->type == type )
          {
+            // Not hit yet...
+            pBreakpoint->hit = false;
+
             switch ( pBreakpoint->type )
             {
                case eBreakOnCPUExecution:
@@ -286,6 +291,50 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      }
                   }
                break;
+               case eBreakOnCPUState:
+               break;
+               case eBreakOnCPUEvent:
+               break;
+               case eBreakOnOAMPortalAccess:
+               case eBreakOnOAMPortalRead:
+               case eBreakOnOAMPortalWrite:
+                  addr = CPPU::_OAMADDR();
+                  if ( (addr >= pBreakpoint->item1) &&
+                       (addr <= pBreakpoint->item2) )
+                  {
+                     pBreakpoint->itemActual = addr;
+                     if ( pBreakpoint->condition == eBreakIfAnything )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                               (data == pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                               (data != pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                               (data < pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                     else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                               (data > pBreakpoint->data) )
+                     {
+                        pBreakpoint->hit = true;
+                        FORCEBREAKPOINT();
+                     }
+                  }
+               break;
+               case eBreakOnPPUFetch:
                case eBreakOnPPUPortalAccess:
                case eBreakOnPPUPortalRead:
                case eBreakOnPPUPortalWrite:

@@ -139,6 +139,7 @@ public:
    static void OAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_PPUoam+addr,data,length); }
    static void OAMCLR ( void ) { memset(m_PPUoam,0,MEM_256B); }
    static unsigned char* OAMPTR ( UINT addr ) { return &(m_PPUoam[addr]); }
+   static inline unsigned short _OAMADDR ( void ) { return m_oamAddr; }
    static inline UINT OAM ( UINT oam, UINT sprite ) { return *(m_PPUoam+(sprite*OAM_SIZE)+oam); }
    static inline void OAM ( UINT oam, UINT sprite, unsigned char data ) { *(m_PPUoam+(sprite*OAM_SIZE)+oam) = data; }
    static inline unsigned short _PPUADDR ( void ) { return m_ppuAddr; }

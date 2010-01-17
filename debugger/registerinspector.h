@@ -13,9 +13,14 @@ class RegisterInspector : public QDockWidget
 public:
    RegisterInspector(eMemoryType display);
    virtual ~RegisterInspector();
+
+public slots:
+   void showMe(eMemoryType display);
+
 protected:
    RegisterDisplayDialog* dialog;
    QFrame* frame;
+   eMemoryType m_display;
 };
 
 #endif // REGISTERINSPECTOR_H

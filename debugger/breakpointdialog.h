@@ -29,15 +29,18 @@ private:
    CBreakpointDisplayModel* model;
    void DisplayBreakpoint ( int idx );
 
+signals:
+   void showMe();
+
 private slots:
     void on_addr1_textChanged(QString );
     void on_removeButton_clicked();
     void on_event_currentIndexChanged(int index);
-    void on_listView_pressed(QModelIndex index);
-    void on_listView_entered(QModelIndex index);
-    void on_listView_doubleClicked(QModelIndex index);
-    void on_listView_clicked(QModelIndex index);
-    void on_listView_activated(QModelIndex index);
+    void on_tableView_pressed(QModelIndex index);
+    void on_tableView_entered(QModelIndex index);
+    void on_tableView_doubleClicked(QModelIndex index);
+    void on_tableView_clicked(QModelIndex index);
+    void on_tableView_activated(QModelIndex index);
     void on_bitfield_currentIndexChanged(int index);
     void on_reg_currentIndexChanged(int index);
     void on_addButton_clicked();

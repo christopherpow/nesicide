@@ -61,6 +61,17 @@ void ExecutionTracerDialog::updateTracer ()
       {
          // Update display...
          emit showMe();
+         ui->showCPU->setChecked(true);
+         ui->showPPU->setChecked(false);
+         ui->tableView->setCurrentIndex(tableViewModel->index(0,0));
+      }
+      else if ( (pBreakpoint->type == eBreakOnPPUFetch) &&
+                (pBreakpoint->hit) )
+      {
+         // Update display...
+         emit showMe();
+         ui->showCPU->setChecked(false);
+         ui->showPPU->setChecked(true);
          ui->tableView->setCurrentIndex(tableViewModel->index(0,0));
       }
    }
@@ -70,10 +81,12 @@ void ExecutionTracerDialog::updateTracer ()
 
 void ExecutionTracerDialog::on_showCPU_toggled(bool checked)
 {
-   tableViewModel->showCPU ( checked );
+   tableViewModel->showCPU ( checked );   
+   tableViewModel->layoutChangedEvent();
 }
 
 void ExecutionTracerDialog::on_showPPU_toggled(bool checked)
 {
-   tableViewModel->showPPU ( checked );
+   tableViewModel->showPPU ( checked );   
+   tableViewModel->layoutChangedEvent();
 }

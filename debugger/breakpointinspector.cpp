@@ -9,10 +9,17 @@ BreakpointInspector::BreakpointInspector()
 
    dialog = new BreakpointDialog ( frame );
    this->setWidget ( dialog );
+
+   QObject::connect(dialog,SIGNAL(showMe()),this,SLOT(showMe()));
 }
 
 BreakpointInspector::~BreakpointInspector()
 {
    delete dialog;
    delete frame;
+}
+
+void BreakpointInspector::showMe()
+{
+   this->show();
 }

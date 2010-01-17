@@ -657,6 +657,9 @@ UINT CPPU::PPU ( UINT addr )
       else if ( addr == OAMDATA )
       {
          data = *(m_PPUoam+m_oamAddr);
+
+         // Check for breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
       }
       else if ( addr == PPUDATA )
       {
@@ -679,6 +682,7 @@ UINT CPPU::PPU ( UINT addr )
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
 
+         // Log Code/Data logger...
          m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eLoggerSource_CPU );
 
          // Toggling A12 causes IRQ count in some mappers...
@@ -735,6 +739,10 @@ void CPPU::PPU ( UINT addr, unsigned char data )
       else if ( addr == OAMDATA )
       {
          *(m_PPUoam+m_oamAddr) = data;
+
+         // Check for breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalWrite, data );
+
          m_oamAddr++;
       }
       else if ( addr == PPUSCROLL )

@@ -13,6 +13,10 @@ class BreakpointInspector : public QDockWidget
 public:
    BreakpointInspector();
    virtual ~BreakpointInspector();
+
+public slots:
+   void showMe();
+
 protected:
    BreakpointDialog* dialog;
    QFrame* frame;

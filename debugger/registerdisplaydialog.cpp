@@ -97,11 +97,63 @@ void RegisterDisplayDialog::cartridgeLoaded ()
 
 void RegisterDisplayDialog::updateMemory ()
 {
-   if ( this->isVisible() )
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   eMemoryType memoryType = binaryModel->memoryType();
+   int idx;
+   int row = 0, col = 0;
+   int low = 0, high = 0;
+   int itemActual;
+
+   // Check breakpoints for hits and highlight if necessary...
+   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
-      binaryModel->layoutChangedEvent();
-      bitfieldModel->layoutChangedEvent();
+      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      if ( pBreakpoint->hit )
+      {
+         if ( (pBreakpoint->type == eBreakOnOAMPortalAccess) ||
+              (pBreakpoint->type == eBreakOnOAMPortalRead) ||
+              (pBreakpoint->type == eBreakOnOAMPortalWrite) ||
+              (pBreakpoint->type == eBreakOnCPUState) ||
+              (pBreakpoint->type == eBreakOnPPUState) ||
+              (pBreakpoint->type == eBreakOnAPUState) ||
+              (pBreakpoint->type == eBreakOnMapperState) )
+         {
+            // Check memory range...
+            low = binaryModel->memoryBottom();
+            high = binaryModel->memoryTop();
+
+            if ( (pBreakpoint->itemActual >= low) &&
+                 (pBreakpoint->itemActual <= high) )
+            {
+               if ( ((pBreakpoint->target == eBreakInCPU) &&
+                    ((memoryType == eMemory_CPUregs) ||
+                    (memoryType == eMemory_PPUregs) ||
+                    (memoryType == eMemory_IOregs) ||
+                    (memoryType == eMemory_cartMapper))) ||
+                    ((pBreakpoint->target == eBreakInPPU) &&
+                    (memoryType == eMemory_PPUoam)) )
+               {
+                  // Change memory address into row/column of display...
+                  itemActual = pBreakpoint->itemActual - binaryModel->memoryBottom();
+                  row = itemActual/binaryModel->columnCount();
+                  col = itemActual%binaryModel->columnCount();
+
+                  // Update display...
+                  emit showMe(memoryType);
+                  ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
+               }
+            }
+         }
+      }
    }
+
+   binaryModel->layoutChangedEvent();
+   bitfieldModel->layoutChangedEvent();
+//   if ( this->isVisible() )
+//   {
+//      binaryModel->layoutChangedEvent();
+//      bitfieldModel->layoutChangedEvent();
+//   }
 }
 
 void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)
