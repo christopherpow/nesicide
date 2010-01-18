@@ -2723,6 +2723,7 @@ void C6502::MEM ( UINT addr, unsigned char data )
       pSample->target = target;
 
    }
+
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
 }

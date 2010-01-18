@@ -177,7 +177,6 @@ void CPPU::INCCYCLE()
 {
    m_curCycles++;
    m_cycles++;
-   CNES::CHECKBREAKPOINT(eBreakInPPU);
 }
 
 UINT CPPU::LOAD ( UINT addr, char source, char type )
