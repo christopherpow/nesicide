@@ -41,7 +41,7 @@
      <item row="0" column="1">
       <widget class="QComboBox" name="type">
        <property name="maxVisibleItems">
-        <number>16</number>
+        <number>20</number>
        </property>
        <item>
         <property name="text">
@@ -420,12 +420,6 @@
        </attribute>
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
-        <number>23</number>
-       </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
-        <number>23</number>
        </attribute>
        <attribute name="verticalHeaderDefaultSectionSize">
         <number>23</number>

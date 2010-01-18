@@ -1325,6 +1325,8 @@ UINT CAPU::APU ( UINT addr )
 
    m_irqAsserted = false;
 
+   CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState);
+
    return data;
 }
 
@@ -1379,5 +1381,7 @@ void CAPU::APU ( UINT addr, unsigned char data )
          SEQTICK ();
       }
    }
+
+   CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState);
 }
 

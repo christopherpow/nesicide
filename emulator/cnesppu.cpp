@@ -591,7 +591,7 @@ void CPPU::GARBAGE ( char target )
    INCCYCLE();
 
    // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, 0 );
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
 }
 
 void CPPU::EXTRA ()
@@ -602,7 +602,7 @@ void CPPU::EXTRA ()
    INCCYCLE();
 
    // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, 0 );
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
 }
 
 void CPPU::RESET ( void )
@@ -705,6 +705,9 @@ UINT CPPU::PPU ( UINT addr )
          data = *(m_PPUoam+m_oamAddr);
       }
    }
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState );
 
    return data;
 }
@@ -824,6 +827,9 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
       }
    }
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState );
 }
 
 void CPPU::FRAMESTART ( void )

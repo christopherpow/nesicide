@@ -112,11 +112,7 @@ void RegisterDisplayDialog::updateMemory ()
       {
          if ( (pBreakpoint->type == eBreakOnOAMPortalAccess) ||
               (pBreakpoint->type == eBreakOnOAMPortalRead) ||
-              (pBreakpoint->type == eBreakOnOAMPortalWrite) ||
-              (pBreakpoint->type == eBreakOnCPUState) ||
-              (pBreakpoint->type == eBreakOnPPUState) ||
-              (pBreakpoint->type == eBreakOnAPUState) ||
-              (pBreakpoint->type == eBreakOnMapperState) )
+              (pBreakpoint->type == eBreakOnOAMPortalWrite) )
          {
             // Check memory range...
             low = binaryModel->memoryBottom();
@@ -125,12 +121,7 @@ void RegisterDisplayDialog::updateMemory ()
             if ( (pBreakpoint->itemActual >= low) &&
                  (pBreakpoint->itemActual <= high) )
             {
-               if ( ((pBreakpoint->target == eBreakInCPU) &&
-                    ((memoryType == eMemory_CPUregs) ||
-                    (memoryType == eMemory_PPUregs) ||
-                    (memoryType == eMemory_IOregs) ||
-                    (memoryType == eMemory_cartMapper))) ||
-                    ((pBreakpoint->target == eBreakInPPU) &&
+               if ( ((pBreakpoint->target == eBreakInPPU) &&
                     (memoryType == eMemory_PPUoam)) )
                {
                   // Change memory address into row/column of display...
@@ -144,16 +135,38 @@ void RegisterDisplayDialog::updateMemory ()
                }
             }
          }
+         else if ( (pBreakpoint->type == eBreakOnCPUState) ||
+                   (pBreakpoint->type == eBreakOnPPUState) ||
+                   (pBreakpoint->type == eBreakOnAPUState) ||
+                   (pBreakpoint->type == eBreakOnMapperState) )
+         {
+            if ( ((pBreakpoint->target == eBreakInCPU) &&
+                 (memoryType == eMemory_CPUregs)) ||
+                 ((pBreakpoint->target == eBreakInPPU) &&
+                 (memoryType == eMemory_PPUregs)) ||
+                 ((pBreakpoint->target == eBreakInAPU) &&
+                 (memoryType == eMemory_IOregs)) ||
+                 ((pBreakpoint->target == eBreakInMapper) &&
+                 (memoryType == eMemory_cartMapper)) )
+            {
+               // Change register address into row/column of display...
+               // Fortunately for us the register views are aligned such that the
+               // breakpoint contains all that we need already!
+               col = pBreakpoint->item1;
+               row = pBreakpoint->item2;
+
+               // Update display...
+               emit showMe(memoryType);
+               ui->binaryView->setCurrentIndex(binaryModel->index(0,col));
+               bitfieldModel->setRegister ( col );
+               ui->bitfieldView->setCurrentIndex(bitfieldModel->index(row,0));
+            }
+         }
       }
    }
 
    binaryModel->layoutChangedEvent();
    bitfieldModel->layoutChangedEvent();
-//   if ( this->isVisible() )
-//   {
-//      binaryModel->layoutChangedEvent();
-//      bitfieldModel->layoutChangedEvent();
-//   }
 }
 
 void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)

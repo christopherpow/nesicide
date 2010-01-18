@@ -202,7 +202,10 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
 {
    int idx;
    BreakpointInfo* pBreakpoint;
+   CRegisterData* pRegister;
+   CBitfieldData* pBitfield;
    int addr;
+   int value;
 
    // If stepping, break...
    if ( m_bStepBreakpoint )
@@ -292,6 +295,61 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                   }
                break;
                case eBreakOnCPUState:
+                  pRegister = C6502::REGISTERS()[pBreakpoint->item1];
+                  pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+
+                  // Get actual register data...
+                  switch ( pBreakpoint->item1 )
+                  {
+                     case 0:
+                        value = C6502::__PC();
+                     break;
+                     case 1:
+                        value = C6502::_A();
+                     break;
+                     case 2:
+                        value = C6502::_X();
+                     break;
+                     case 3:
+                        value = C6502::_Y();
+                     break;
+                     case 4:
+                        value = C6502::_SP();
+                     break;
+                     case 5:
+                        value = C6502::_F();
+                     break;
+                  }
+
+                  if ( pBreakpoint->condition == eBreakIfAnything )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                            (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                            (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                            (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                            (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
                break;
                case eBreakOnCPUEvent:
                break;
@@ -373,6 +431,124 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         FORCEBREAKPOINT();
                      }
                   }
+               break;
+               case eBreakOnPPUState:
+                  pRegister = CPPU::REGISTERS()[pBreakpoint->item1];
+                  pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+
+                  // Get actual register data...
+                  value = CPPU::_PPU(pRegister->GetAddr());
+
+                  if ( pBreakpoint->condition == eBreakIfAnything )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                            (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                            (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                            (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                            (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+               break;
+               case eBreakOnPPUEvent:
+               break;
+               case eBreakOnAPUState:
+                  pRegister = CAPU::REGISTERS()[pBreakpoint->item1];
+                  pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+
+                  // Get actual register data...
+                  value = CAPU::_APU(pRegister->GetAddr());
+
+                  if ( pBreakpoint->condition == eBreakIfAnything )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                            (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                            (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                            (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                            (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+               break;
+               case eBreakOnAPUEvent:
+               break;
+               case eBreakOnMapperState:
+                  pRegister = CROM::REGISTERS()[pBreakpoint->item1];
+                  pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+
+                  // Get actual register data...
+                  // CPTODO: lowmapper breakpoints...
+                  value = mapperfunc[CROM::MAPPER()].highread(pRegister->GetAddr());
+
+                  if ( pBreakpoint->condition == eBreakIfAnything )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                            (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                            (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                            (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+                  else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                            (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                  {
+                     pBreakpoint->hit = true;
+                     FORCEBREAKPOINT();
+                  }
+               break;
+               case eBreakOnMapperEvent:
                break;
             }
          }

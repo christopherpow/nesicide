@@ -84,16 +84,16 @@
 #define rEA() m_ea
 
 #define rA() m_a
-#define wA(a) { m_a = a; CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wA(a) { m_a = a; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 
 #define rX() m_x
-#define wX(x) { m_x = x; CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wX(x) { m_x = x; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 
 #define rY() m_y
-#define wY(y) { m_y = y; CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wY(y) { m_y = y; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 
 #define rF() m_f
-#define wF(f) { m_f = f; CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wF(f) { m_f = f; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 
 #define rN() (m_f&FLAG_N)
 #define rV() (m_f&FLAG_V)
@@ -104,25 +104,25 @@
 #define rC() (m_f&FLAG_C)
 #define sN() { m_f|=FLAG_N; }
 #define cN() { m_f&=~(FLAG_N); }
-#define wN(set) { m_f&=(~(FLAG_N)); m_f|=((!!(set))<<FLAG_N_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wN(set) { m_f&=(~(FLAG_N)); m_f|=((!!(set))<<FLAG_N_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 #define sV() { m_f|=FLAG_V; }
 #define cV() { m_f&=~(FLAG_V); }
-#define wV(set) { m_f&=(~(FLAG_V)); m_f|=((!!(set))<<FLAG_V_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wV(set) { m_f&=(~(FLAG_V)); m_f|=((!!(set))<<FLAG_V_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 #define sB() { m_f|=FLAG_B; }
 #define cB() { m_f&=~(FLAG_B); }
-#define wB(set) { m_f&=(~(FLAG_B)); m_f|=((!!(set))<<FLAG_B_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wB(set) { m_f&=(~(FLAG_B)); m_f|=((!!(set))<<FLAG_B_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 #define sD() { m_f|=FLAG_D; }
 #define cD() { m_f&=~(FLAG_D); }
-#define wD(set) { m_f&=(~(FLAG_D)); m_f|=((!!(set))<<FLAG_D_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wD(set) { m_f&=(~(FLAG_D)); m_f|=((!!(set))<<FLAG_D_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 #define sI() { m_f|=FLAG_I; }
 #define cI() { m_f&=~(FLAG_I); }
-#define wI(set) { m_f&=(~(FLAG_I)); m_f|=((!!(set))<<FLAG_I_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wI(set) { m_f&=(~(FLAG_I)); m_f|=((!!(set))<<FLAG_I_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 #define sZ() { m_f|=FLAG_Z; }
 #define cZ() { m_f&=~(FLAG_Z); }
-#define wZ(set) { m_f&=(~(FLAG_Z)); m_f|=((!!(set))<<FLAG_Z_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wZ(set) { m_f&=(~(FLAG_Z)); m_f|=((!!(set))<<FLAG_Z_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 #define sC() { m_f|=FLAG_C; }
 #define cC() { m_f&=~(FLAG_C); }
-#define wC(set) { m_f&=(~(FLAG_C)); m_f|=((!!(set))<<FLAG_C_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU); }
+#define wC(set) { m_f&=(~(FLAG_C)); m_f|=((!!(set))<<FLAG_C_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
 
 class C6502  
 {
