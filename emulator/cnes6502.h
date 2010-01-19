@@ -71,12 +71,12 @@
 #define GETLO8(wd) (wd&0xFF)
 
 #define rPC() (UINT)m_pc
-#define wPC(pc) m_pc = (pc)
+#define wPC(pc) { m_pc = (pc); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,0); }
 #define INCPC() { m_pc++; }
 #define DECPC() { m_pc--; }
 
 #define rSP() m_sp
-#define wSP(sp) m_sp = (sp)
+#define wSP(sp) { m_sp = (sp); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,4); }
 #define DECSP() m_sp--
 #define INCSP() m_sp++
 #define PUSH(data) { MEM(GETSTACKADDR(),data); DECSP(); }
@@ -84,16 +84,16 @@
 #define rEA() m_ea
 
 #define rA() m_a
-#define wA(a) { m_a = a; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wA(a) { m_a = a; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,1); }
 
 #define rX() m_x
-#define wX(x) { m_x = x; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wX(x) { m_x = x; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,2); }
 
 #define rY() m_y
-#define wY(y) { m_y = y; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wY(y) { m_y = y; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,3); }
 
 #define rF() m_f
-#define wF(f) { m_f = f; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wF(f) { m_f = f; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 
 #define rN() (m_f&FLAG_N)
 #define rV() (m_f&FLAG_V)
@@ -104,25 +104,25 @@
 #define rC() (m_f&FLAG_C)
 #define sN() { m_f|=FLAG_N; }
 #define cN() { m_f&=~(FLAG_N); }
-#define wN(set) { m_f&=(~(FLAG_N)); m_f|=((!!(set))<<FLAG_N_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wN(set) { m_f&=(~(FLAG_N)); m_f|=((!!(set))<<FLAG_N_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 #define sV() { m_f|=FLAG_V; }
 #define cV() { m_f&=~(FLAG_V); }
-#define wV(set) { m_f&=(~(FLAG_V)); m_f|=((!!(set))<<FLAG_V_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wV(set) { m_f&=(~(FLAG_V)); m_f|=((!!(set))<<FLAG_V_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 #define sB() { m_f|=FLAG_B; }
 #define cB() { m_f&=~(FLAG_B); }
-#define wB(set) { m_f&=(~(FLAG_B)); m_f|=((!!(set))<<FLAG_B_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wB(set) { m_f&=(~(FLAG_B)); m_f|=((!!(set))<<FLAG_B_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 #define sD() { m_f|=FLAG_D; }
 #define cD() { m_f&=~(FLAG_D); }
-#define wD(set) { m_f&=(~(FLAG_D)); m_f|=((!!(set))<<FLAG_D_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wD(set) { m_f&=(~(FLAG_D)); m_f|=((!!(set))<<FLAG_D_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 #define sI() { m_f|=FLAG_I; }
 #define cI() { m_f&=~(FLAG_I); }
-#define wI(set) { m_f&=(~(FLAG_I)); m_f|=((!!(set))<<FLAG_I_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wI(set) { m_f&=(~(FLAG_I)); m_f|=((!!(set))<<FLAG_I_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 #define sZ() { m_f|=FLAG_Z; }
 #define cZ() { m_f&=~(FLAG_Z); }
-#define wZ(set) { m_f&=(~(FLAG_Z)); m_f|=((!!(set))<<FLAG_Z_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wZ(set) { m_f&=(~(FLAG_Z)); m_f|=((!!(set))<<FLAG_Z_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 #define sC() { m_f|=FLAG_C; }
 #define cC() { m_f&=~(FLAG_C); }
-#define wC(set) { m_f&=(~(FLAG_C)); m_f|=((!!(set))<<FLAG_C_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState); }
+#define wC(set) { m_f&=(~(FLAG_C)); m_f|=((!!(set))<<FLAG_C_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 
 class C6502  
 {

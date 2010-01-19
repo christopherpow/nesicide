@@ -67,6 +67,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
 {
    int idx;
 
+   ui->addButton->setEnabled(true);
    switch ( index )
    {
       case eBreakOnCPUExecution:
@@ -102,6 +103,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+
+         // No CPU events yet...
+         ui->addButton->setEnabled(false);
       break;
       case eBreakOnPPUFetch:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
@@ -143,6 +147,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+
+         // No APU events yet...
+         ui->addButton->setEnabled(false);
       break;
       case eBreakOnMapperState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
@@ -150,15 +157,32 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->reg->clear();
          ui->bitfield->clear();
-         for ( idx = 0; idx < CROM::NUMREGISTERS(); idx++ )
+         if ( CROM::REGISTERS() )
          {
-            ui->reg->addItem ( CROM::REGISTERS()[idx]->GetName() );
+            for ( idx = 0; idx < CROM::NUMREGISTERS(); idx++ )
+            {
+               ui->reg->addItem ( CROM::REGISTERS()[idx]->GetName() );
+            }
+         }
+         else
+         {
+            ui->addButton->setEnabled(false);
          }
       break;
       case eBreakOnMapperEvent:
-         ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
-         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
-         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         if ( CROM::REGISTERS() )
+         {
+            ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
+            ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+            ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+
+            // No Mapper events yet...
+            ui->addButton->setEnabled(false);
+         }
+         else
+         {
+            ui->addButton->setEnabled(false);
+         }
       break;
    }
 }

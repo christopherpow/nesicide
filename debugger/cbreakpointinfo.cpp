@@ -1130,78 +1130,81 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
       case eBreakOnAPUEvent:
       break;
       case eBreakOnMapperState:
-         pRegister = CROM::REGISTERS()[m_breakpoint[idx].item1];
-         pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
-         switch ( m_breakpoint[idx].dataType )
+         if ( CROM::REGISTERS() )
          {
-            case eBreakpointDataPure:
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                  break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is $%02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                  break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not $%02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                  break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than $%02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                  break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than $%02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                  break;
-               }
-            break;
-            case eBreakpointDataPick:
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                  break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                  break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                  break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than $%X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                  break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than $%X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                  break;
-               }
-            break;
+            pRegister = CROM::REGISTERS()[m_breakpoint[idx].item1];
+            pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
+            switch ( m_breakpoint[idx].dataType )
+            {
+               case eBreakpointDataPure:
+                  switch ( m_breakpoint[idx].condition )
+                  {
+                     case eBreakIfAnything:
+                        sprintf ( msg, "Break if %s::%s is accessed",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName() );
+                     break;
+                     case eBreakIfEqual:
+                        sprintf ( msg, "Break if %s::%s is $%02X",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  m_breakpoint[idx].data );
+                     break;
+                     case eBreakIfNotEqual:
+                        sprintf ( msg, "Break if %s::%s is not $%02X",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  m_breakpoint[idx].data );
+                     break;
+                     case eBreakIfGreaterThan:
+                        sprintf ( msg, "Break if %s::%s is greater than $%02X",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  m_breakpoint[idx].data );
+                     break;
+                     case eBreakIfLessThan:
+                        sprintf ( msg, "Break if %s::%s is less than $%02X",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  m_breakpoint[idx].data );
+                     break;
+                  }
+               break;
+               case eBreakpointDataPick:
+                  switch ( m_breakpoint[idx].condition )
+                  {
+                     case eBreakIfAnything:
+                        sprintf ( msg, "Break if %s::%s is accessed",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName() );
+                     break;
+                     case eBreakIfEqual:
+                        sprintf ( msg, "Break if %s::%s is '%s'",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                     break;
+                     case eBreakIfNotEqual:
+                        sprintf ( msg, "Break if %s::%s is not '%s'",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                     break;
+                     case eBreakIfGreaterThan:
+                        sprintf ( msg, "Break if %s::%s is greater than $%X",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  m_breakpoint[idx].data );
+                     break;
+                     case eBreakIfLessThan:
+                        sprintf ( msg, "Break if %s::%s is less than $%X",
+                                  pRegister->GetName(),
+                                  pBitfield->GetName(),
+                                  m_breakpoint[idx].data );
+                     break;
+                  }
+               break;
+            }
          }
       break;
       case eBreakOnMapperEvent:

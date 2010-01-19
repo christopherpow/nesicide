@@ -697,6 +697,9 @@ UINT CPPU::PPU ( UINT addr )
       {
          data = m_ppuReadLatch;
       }
+
+      // Check for breakpoint...
+      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
    }
    else if ( addr < 0x5000 )
    {
@@ -707,7 +710,7 @@ UINT CPPU::PPU ( UINT addr )
    }
 
    // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState );
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
 
    return data;
 }
@@ -814,6 +817,9 @@ void CPPU::PPU ( UINT addr, unsigned char data )
             }
          }
       }
+
+      // Check for breakpoint...
+      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
    }
    else if ( addr < 0x5000 )
    {
@@ -827,9 +833,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
       }
    }
-
-   // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState );
 }
 
 void CPPU::FRAMESTART ( void )
