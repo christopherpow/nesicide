@@ -6,6 +6,7 @@
 #define NES_H
 
 #include "cbreakpointinfo.h"
+#include "ctracer.h"
 
 class CNES
 {
@@ -17,6 +18,8 @@ public:
    static void REPLAY ( bool enable ) { m_bReplay = enable; }
    static bool REPLAY () { return m_bReplay; }
    static unsigned int FRAME () { return m_frame; }
+
+   static inline CTracer* TRACER ( void ) { return &m_tracer; }
 
    static void RESET ( void );
    static CBreakpointInfo* BREAKPOINTS ( void ) { return &m_breakpoints; }
@@ -32,6 +35,8 @@ protected:
    static CBreakpointInfo m_breakpoints;
    static bool            m_bAtBreakpoint;
    static bool            m_bStepBreakpoint;
+
+   static CTracer         m_tracer;
 };
 
 #endif // !defined(AFX_NES_H__075DAA92_13A4_4462_9903_FBD07E97E908__INCLUDED_)

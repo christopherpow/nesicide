@@ -99,6 +99,8 @@ public:
 	bool ReallocateTracerMemory ( int newDepth );
    unsigned int GetNumSamples ( void ) const { return m_samples; }
    TracerInfo* GetSample ( unsigned int sample );
+   TracerInfo* GetCPUSample ( unsigned int sample );
+   TracerInfo* GetPPUSample ( unsigned int sample );
    TracerInfo* GetLastSample ( void );
    TracerInfo* SetDisassembly ( unsigned char* szD );
    TracerInfo* SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f );
@@ -109,11 +111,21 @@ public:
    CTracer(int depth);
 	virtual ~CTracer();
 
+   unsigned int GetNumCPUSamples() const { return m_cpuSamples; }
+   unsigned int GetNumPPUSamples() const { return m_ppuSamples; }
+
 protected:
    unsigned int m_cursor;
    unsigned int m_samples;
    unsigned int m_sampleBufferDepth;
-   TracerInfo* m_pSampleBuffer;
+   TracerInfo* m_pSamples;
+
+   TracerInfo** m_ppCPUSamples;
+   TracerInfo** m_ppPPUSamples;
+   unsigned int m_cpuCursor;
+   unsigned int m_cpuSamples;
+   unsigned int m_ppuCursor;
+   unsigned int m_ppuSamples;
 };
 
 #endif // !defined(AFX_TRACER_H__19AABF5C_F4D9_4381_81E5_6BF73C9B74B1__INCLUDED_)

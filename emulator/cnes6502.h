@@ -272,7 +272,6 @@ public:
    static inline UINT MAKEADDR ( int amode, unsigned char* data );
    static bool SYNC ( void ) { return m_sync; }
 
-   static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
 
@@ -292,7 +291,6 @@ protected:
    static unsigned int    m_ea;
    static UINT            m_pcGoto;
 
-   static CTracer         m_tracer;
    static CCodeDataLogger m_logger;
    static unsigned int    m_cycles;
    static int             m_curCycles; // must be allowed to go negative!

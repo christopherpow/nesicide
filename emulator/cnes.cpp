@@ -37,6 +37,8 @@ CBreakpointInfo CNES::m_breakpoints;
 bool            CNES::m_bAtBreakpoint = false;
 bool            CNES::m_bStepBreakpoint = false;
 
+CTracer         CNES::m_tracer;
+
 QSemaphore breakpointSemaphore(1);
 extern QSemaphore breakpointWatcherSemaphore;
 
@@ -204,8 +206,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
    BreakpointInfo* pBreakpoint;
    CRegisterData* pRegister;
    CBitfieldData* pBitfield;
-   int addr;
-   int value;
+   int addr = 0;
+   int value = 0;
 
    // If stepping, break...
    if ( m_bStepBreakpoint )

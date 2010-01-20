@@ -3,8 +3,8 @@
 
 #include <QAbstractTableModel>
 #include "ctracer.h"
+#include "cnes.h"
 #include "cnes6502.h"
-#include "cnesppu.h"
 
 class CDebuggerExecutionTracerModel : public QAbstractTableModel
 {
@@ -24,8 +24,7 @@ public:
     void showCPU ( bool show ) { m_bShowCPU = show; }
     void showPPU ( bool show ) { m_bShowPPU = show; }
 private:
-    CTracer *m_pCPUTracer;
-    CTracer *m_pPPUTracer;
+    CTracer *m_pTracer;
     bool    m_bShowCPU;
     bool    m_bShowPPU;
 };

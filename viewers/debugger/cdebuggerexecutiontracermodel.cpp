@@ -1,11 +1,10 @@
 #include "cdebuggerexecutiontracermodel.h"
 
-void GetPrintable ( CTracer* pTracer, unsigned int idx, int subItem, char* str );
+void GetPrintable ( TracerInfo* pSample, int subItem, char* str );
 
 CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject* parent)
 {
-   m_pCPUTracer = C6502::TRACER();
-   m_pPPUTracer = CPPU::TRACER();
+   m_pTracer = CNES::TRACER();
    m_bShowCPU = true;
    m_bShowPPU = false;
 }
@@ -24,25 +23,7 @@ QVariant CDebuggerExecutionTracerModel::data(const QModelIndex &index, int role)
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   if ( (m_bShowCPU) && (m_bShowPPU) )
-   {
-      if ( index.row()%4 )
-      {
-         GetPrintable(m_pPPUTracer, index.row()-((index.row()/4)+1), index.column(), data);
-      }
-      else
-      {
-         GetPrintable(m_pCPUTracer, index.row()/4, index.column(), data);
-      }
-   }
-   else if ( m_bShowCPU )
-   {
-      GetPrintable(m_pCPUTracer, index.row(), index.column(), data);
-   }
-   else if ( m_bShowPPU )
-   {
-      GetPrintable(m_pPPUTracer, index.row(), index.column(), data);
-   }
+   GetPrintable((TracerInfo*)index.internalPointer(), index.column(), data);
 
    return data;
 }
@@ -57,47 +38,55 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
 {
    if (role != Qt::DisplayRole)
       return QVariant();
-   switch ( section )
+
+   if ( orientation == Qt::Horizontal )
    {
-      case eTracerCol_Cycle:
-         return QString("Cycle");
-      break;
-      case eTracerCol_Source:
-         return QString("Source");
-      break;
-      case eTracerCol_Type:
-         return QString("Type");
-      break;
-      case eTracerCol_Target:
-         return QString("Target");
-      break;
-      case eTracerCol_Addr:
-         return QString("Address");
-      break;
-      case eTracerCol_Data:
-         return QString("Data");
-      break;
-      case eTracerCol_Info:
-         return QString("Info");
-      break;
-      case eTracerCol_CPU_A:
-         return QString("A");
-      break;
-      case eTracerCol_CPU_X:
-         return QString("X");
-      break;
-      case eTracerCol_CPU_Y:
-         return QString("Y");
-      break;
-      case eTracerCol_CPU_SP:
-         return QString("SP");
-      break;
-      case eTracerCol_CPU_F:
-         return QString("Flags");
-      break;
-      case eTracerCol_CPU_EA:
-         return QString("Effective Address");
-      break;
+      switch ( section )
+      {
+         case eTracerCol_Cycle:
+            return QString("Cycle");
+         break;
+         case eTracerCol_Source:
+            return QString("Source");
+         break;
+         case eTracerCol_Type:
+            return QString("Type");
+         break;
+         case eTracerCol_Target:
+            return QString("Target");
+         break;
+         case eTracerCol_Addr:
+            return QString("Address");
+         break;
+         case eTracerCol_Data:
+            return QString("Data");
+         break;
+         case eTracerCol_Info:
+            return QString("Info");
+         break;
+         case eTracerCol_CPU_A:
+            return QString("A");
+         break;
+         case eTracerCol_CPU_X:
+            return QString("X");
+         break;
+         case eTracerCol_CPU_Y:
+            return QString("Y");
+         break;
+         case eTracerCol_CPU_SP:
+            return QString("SP");
+         break;
+         case eTracerCol_CPU_F:
+            return QString("Flags");
+         break;
+         case eTracerCol_CPU_EA:
+            return QString("Effective Address");
+         break;
+      }
+   }
+   else
+   {
+      return section;
    }
 
    return  QVariant();
@@ -105,24 +94,18 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
 
 QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &parent) const
 {
+   // CPTODO: need to address index for combined tracers
    if ( (m_bShowCPU) && (m_bShowPPU) )
    {
-      if ( row%4 )
-      {
-         return createIndex(row, column, m_pPPUTracer->GetSample(row-((row/4)+1)));
-      }
-      else
-      {
-         return createIndex(row, column, m_pCPUTracer->GetSample(row/4));
-      }
+      return createIndex(row, column, m_pTracer->GetSample(row));
    }
    else if ( m_bShowCPU )
    {
-      return createIndex(row, column, m_pCPUTracer->GetSample(row));
+      return createIndex(row, column, m_pTracer->GetCPUSample(row));
    }
    else if ( m_bShowPPU )
    {
-      return createIndex(row, column, m_pPPUTracer->GetSample(row));
+      return createIndex(row, column, m_pTracer->GetPPUSample(row));
    }
    return QModelIndex();
 }
@@ -130,13 +113,14 @@ QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QMod
 int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &parent) const
 {
    int rows = 0;
+
    if ( m_bShowCPU )
    {
-      rows += m_pCPUTracer->GetNumSamples();
+      rows += m_pTracer->GetNumCPUSamples();
    }
    if ( m_bShowPPU )
    {
-      rows += m_pPPUTracer->GetNumSamples();
+      rows += m_pTracer->GetNumPPUSamples();
    }
    rows--; // otherwise a repeat of the first row shows up...
    return rows;
@@ -156,10 +140,8 @@ void CDebuggerExecutionTracerModel::layoutChangedEvent()
     this->layoutChanged();
 }
 
-void GetPrintable ( CTracer* pTracer, unsigned int idx, int subItem, char* str )
+void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 {
-   TracerInfo* pSample = pTracer->GetSample(idx);
-
    if ( pSample )
    {
       switch ( subItem )

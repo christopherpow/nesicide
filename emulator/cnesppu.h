@@ -181,7 +181,6 @@ public:
    static void RENDEROAM ( void );
    static void RENDERNAMETABLE ( void );
 
-   static inline CTracer* TRACER ( void ) { return &m_tracer; }
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
    static inline void INCCYCLE ( void );
@@ -217,7 +216,6 @@ protected:
    static int            m_oneScreen;
    static bool           m_extraVRAM;
 
-   static CTracer         m_tracer;
    static CCodeDataLogger m_logger;
    static unsigned int   m_cycles;
    static unsigned char  m_frame;

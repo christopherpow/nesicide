@@ -89,7 +89,6 @@ unsigned int    C6502::m_ea = 0xFFFFFFFF;
 UINT            C6502::m_pcGoto = 0xFFFFFFFF;
 unsigned char   C6502::m_sp = 0xFF;
 
-CTracer         C6502::m_tracer;
 CCodeDataLogger C6502::m_logger ( MEM_2KB, MASK_2KB );
 unsigned int    C6502::m_cycles = 0;
 int             C6502::m_curCycles = 0;
@@ -499,14 +498,14 @@ unsigned char C6502::STEP ( void )
       }
 
       // Update Tracer
-      TracerInfo* pSample = m_tracer.SetDisassembly ( pOpcode );
-      m_tracer.SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
+      TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( pOpcode );
+      CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
 
       // Execute
       pOpcodeStruct->pFn ();
 
       // Update Tracer
-      m_tracer.SetEffectiveAddress ( pSample, rEA() );
+      CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
    }
 
    cycles = pOpcodeStruct->cycles;
@@ -2476,7 +2475,7 @@ void C6502::IRQ ( char source )
 {
    if ( (!m_killed) && (!rI()) )
    {
-      m_tracer.AddIRQ ( source );
+      CNES::TRACER()->AddIRQ ( source );
 
       PUSH ( GETHI8(rPC()) );
       PUSH ( GETLO8(rPC()) );
@@ -2491,7 +2490,7 @@ void C6502::NMI ( char source )
 {
    if ( !m_killed )
    {
-      m_tracer.AddNMI ( source );
+      CNES::TRACER()->AddNMI ( source );
 
       PUSH ( GETHI8(rPC()) );
       PUSH ( GETLO8(rPC()) );
@@ -2507,7 +2506,7 @@ void C6502::RESET ( void )
 
    CAPU::RESET ();
 
-   m_tracer.AddRESET ();
+   CNES::TRACER()->AddRESET ();
 
    m_cycles = 0;
    m_curCycles = 0;
@@ -2609,7 +2608,7 @@ unsigned char C6502::FETCH ( UINT addr )
    unsigned char data = LOAD ( addr, &target );
 
    // Add Tracer sample...
-   m_tracer.AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
+   CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
@@ -2633,7 +2632,7 @@ unsigned char C6502::DMA ( UINT addr, char source )
    unsigned char data = LOAD ( addr, &target );
 
    // Add Tracer sample...
-   m_tracer.AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
+   CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
 
    // At some point might want to add a breakpoint here...
 
@@ -2660,7 +2659,7 @@ unsigned char C6502::MEM ( UINT addr )
    unsigned char data = LOAD ( addr, &target );
 
    // Add Tracer sample...
-   m_tracer.AddSample ( m_cycles, eTracer_DataRead, eSource_CPU, target, addr, data );
+   CNES::TRACER()->AddSample ( m_cycles, eTracer_DataRead, eSource_CPU, target, addr, data );
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
@@ -2707,7 +2706,7 @@ void C6502::MEM ( UINT addr, unsigned char data )
    }
 
    // Store unknown target because otherwise the trace will be out of order...
-   pSample = m_tracer.AddSample ( m_cycles, eTracer_DataWrite, eSource_CPU, 0, addr, data );
+   pSample = CNES::TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eSource_CPU, 0, addr, data );
 
    STORE ( addr, data, &target );
 

@@ -34,7 +34,14 @@ CTracer::CTracer()
    m_cursor = 0;
    m_samples = 0;
 
-   m_pSampleBuffer = new TracerInfo [ TRACER_DEFAULT_DEPTH ];
+   m_cpuCursor = 0;
+   m_cpuSamples = 0;
+   m_ppuCursor = 0;
+   m_ppuSamples = 0;
+
+   m_pSamples = new TracerInfo [ TRACER_DEFAULT_DEPTH ];
+   m_ppCPUSamples = new TracerInfo* [ TRACER_DEFAULT_DEPTH ];
+   m_ppPPUSamples = new TracerInfo* [ TRACER_DEFAULT_DEPTH ];
 
    m_sampleBufferDepth = TRACER_DEFAULT_DEPTH;
 }
@@ -44,27 +51,27 @@ CTracer::CTracer(int depth)
    m_cursor = 0;
    m_samples = 0;
 
-   m_pSampleBuffer = new TracerInfo [ depth ];
+   m_pSamples = new TracerInfo [ depth ];
 
    m_sampleBufferDepth = depth;
 }
 
 CTracer::~CTracer()
 {
-   delete m_pSampleBuffer;
+   delete m_pSamples;
 }
 
 bool CTracer::ReallocateTracerMemory(int newDepth)
 {
    bool ok = true;
 
-   delete m_pSampleBuffer;
+   delete m_pSamples;
 
-   m_pSampleBuffer = new TracerInfo [ newDepth ];
+   m_pSamples = new TracerInfo [ newDepth ];
 
    m_sampleBufferDepth = newDepth;
 
-   if ( !m_pSampleBuffer )
+   if ( !m_pSamples )
    {
       ok = false;
    }
@@ -75,12 +82,15 @@ bool CTracer::ReallocateTracerMemory(int newDepth)
 TracerInfo* CTracer::AddSample(unsigned int cycle, char type, char source, char target, unsigned short addr, unsigned char data)
 {
    TracerInfo* pSample = NULL;
+   TracerInfo** ppCPUSample = NULL;
+   TracerInfo** ppPPUSample = NULL;
+   TracerInfo* pLastSample = GetLastSample();
 
 // CPTODO: removed check for enabled
 //   if ( CONFIG.IsTracerEnabled() )
    {
-      pSample = m_pSampleBuffer + m_cursor;
-   
+      pSample = m_pSamples + m_cursor;
+
       pSample->cycle = cycle;
       pSample->type = type;
       pSample->source = source;
@@ -91,8 +101,73 @@ TracerInfo* CTracer::AddSample(unsigned int cycle, char type, char source, char 
       pSample->ea = 0xFFFFFFFF;
       pSample->regsset = 0;
 
+      switch ( source )
+      {
+         case eSource_CPU:
+            ppCPUSample = m_ppCPUSamples + m_cpuCursor;
+            (*ppCPUSample) = pSample;
+
+            m_cpuCursor++;
+            m_cpuCursor %= m_sampleBufferDepth;
+
+            if ( m_samples < m_sampleBufferDepth )
+            {
+               if ( m_cpuSamples < m_sampleBufferDepth )
+               {
+                  m_cpuSamples++;
+               }
+            }
+            else
+            {
+               if ( m_cpuSamples < m_sampleBufferDepth )
+               {
+                  m_cpuSamples++;
+               }
+               if ( pLastSample->source == eSource_CPU )
+               {
+                  m_cpuSamples--;
+               }
+               else if ( pLastSample->source == eSource_PPU )
+               {
+                  m_ppuSamples--;
+               }
+            }
+         break;
+         case eSource_PPU:
+            ppPPUSample = m_ppPPUSamples + m_ppuCursor;
+            (*ppPPUSample) = pSample;
+
+            m_ppuCursor++;
+            m_ppuCursor %= m_sampleBufferDepth;
+
+            if ( m_samples < m_sampleBufferDepth )
+            {
+               if ( m_ppuSamples < m_sampleBufferDepth )
+               {
+                  m_ppuSamples++;
+               }
+            }
+            else
+            {
+               if ( m_ppuSamples < m_sampleBufferDepth )
+               {
+                  m_ppuSamples++;
+               }
+               if ( pLastSample->source == eSource_CPU )
+               {
+                  m_cpuSamples--;
+               }
+               else if ( pLastSample->source == eSource_PPU )
+               {
+                  m_ppuSamples--;
+               }
+            }
+         break;
+      }
+
       m_cursor++;
       m_cursor %= m_sampleBufferDepth;
+
       if ( m_samples < m_sampleBufferDepth )
       {
          m_samples++;
@@ -145,7 +220,7 @@ TracerInfo* CTracer::GetLastSample ( void )
          getsample = m_sampleBufferDepth-1;
       }
 
-      pSample = m_pSampleBuffer+getsample;
+      pSample = m_pSamples+getsample;
    }
 
    return pSample;
@@ -163,7 +238,37 @@ TracerInfo* CTracer::GetSample ( unsigned int sample )
       getsample = m_sampleBufferDepth+getsample-1;
    }
 
-   return m_pSampleBuffer+getsample;
+   return m_pSamples+getsample;
+}
+
+TracerInfo* CTracer::GetCPUSample ( unsigned int sample )
+{
+   int getsample = m_cpuCursor;
+
+   getsample -= sample;
+   getsample -= 1;
+
+   if ( getsample < 0 )
+   {
+      getsample = m_sampleBufferDepth+getsample-1;
+   }
+
+   return *(m_ppCPUSamples+getsample);
+}
+
+TracerInfo* CTracer::GetPPUSample ( unsigned int sample )
+{
+   int getsample = m_ppuCursor;
+
+   getsample -= sample;
+   getsample -= 1;
+
+   if ( getsample < 0 )
+   {
+      getsample = m_sampleBufferDepth+getsample-1;
+   }
+
+   return *(m_ppPPUSamples+getsample);
 }
 
 // CPTODO: support functions for finding stuff in the Tracer info from the Tracer dialog.
