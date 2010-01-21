@@ -82,6 +82,9 @@ void CROMMapper002::MAPPER ( UINT addr, unsigned char data )
    m_PRGROMbank [ 0 ] = m_reg;
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_reg ] + (1<<UPSHIFT_8KB);
    m_PRGROMbank [ 1 ] = m_reg;
+
+   // Check mapper state breakpoints...
+   CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
 }
 
 void CROMMapper002::LOAD ( MapperState* data )

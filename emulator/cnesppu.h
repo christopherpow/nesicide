@@ -159,6 +159,9 @@ public:
    static inline unsigned char _SPRITE0HITX ( void ) { return m_lastSprite0HitX; }
    static inline unsigned char _SPRITE0HITY ( void ) { return m_lastSprite0HitY; }
 
+   static inline unsigned char _X ( void ) { return m_x; }
+   static inline unsigned char _Y ( void ) { return m_y; }
+
    static inline void FRAMESTART ( void );
    static inline void SCANLINESTART ( void );
    static inline void SCANLINEEND ( void );
@@ -229,6 +232,9 @@ protected:
 
    static unsigned char  m_lastSprite0HitX;
    static unsigned char  m_lastSprite0HitY;
+
+   static unsigned char  m_x;
+   static unsigned char  m_y;
 
    static char           m_szBinaryText [ 70000 ];
 

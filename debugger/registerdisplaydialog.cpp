@@ -132,6 +132,8 @@ void RegisterDisplayDialog::updateMemory ()
                   // Update display...
                   emit showMe(memoryType);
                   ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
+                  on_binaryView_clicked(binaryModel->index(row,col));
+                  ui->bitfieldView->setCurrentIndex(bitfieldModel->index(row,col));
                }
             }
          }
@@ -149,17 +151,11 @@ void RegisterDisplayDialog::updateMemory ()
                  ((pBreakpoint->target == eBreakInMapper) &&
                  (memoryType == eMemory_cartMapper)) )
             {
-               // Change register address into row/column of display...
-               // Fortunately for us the register views are aligned such that the
-               // breakpoint contains all that we need already!
-               col = pBreakpoint->item1;
-               row = pBreakpoint->item2;
-
                // Update display...
                emit showMe(memoryType);
-               ui->binaryView->setCurrentIndex(binaryModel->index(0,col));
-               bitfieldModel->setRegister ( col );
-               ui->bitfieldView->setCurrentIndex(bitfieldModel->index(row,0));
+               ui->binaryView->setCurrentIndex(binaryModel->index(pBreakpoint->item1,0));
+               on_binaryView_clicked(binaryModel->index(pBreakpoint->item1,0));
+               ui->bitfieldView->setCurrentIndex(bitfieldModel->index(pBreakpoint->item2,0));
             }
          }
       }

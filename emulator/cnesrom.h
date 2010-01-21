@@ -7,6 +7,7 @@
 
 #include "cnesicidecommon.h"
 #include "cnesmappers.h"
+#include "cnes.h"
 
 #include "cregisterdata.h"
 

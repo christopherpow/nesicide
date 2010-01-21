@@ -482,6 +482,15 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                   }
                break;
                case eBreakOnPPUEvent:
+                  // If this is the right event to check, check it...
+                  if ( pBreakpoint->event == data )
+                  {
+                     pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint);
+                     if ( pBreakpoint->hit )
+                     {
+                        FORCEBREAKPOINT();
+                     }
+                  }
                break;
                case eBreakOnAPUState:
                   // Is the breakpoint on this register?

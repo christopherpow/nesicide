@@ -77,6 +77,9 @@ void CROMMapper007::MAPPER ( UINT addr, unsigned char data )
    m_PRGROMbank [ 3 ] = ((m_reg&0xF)<<1)+1;
 
    CPPU::MIRROR ( (m_reg&0x10)>>4 );
+
+   // Check mapper state breakpoints...
+   CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
 }
 
 void CROMMapper007::LOAD ( MapperState* data )

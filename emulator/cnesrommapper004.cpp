@@ -293,7 +293,8 @@ UINT CROMMapper004::MAPPER ( UINT addr )
 
 void CROMMapper004::MAPPER ( UINT addr, unsigned char data )
 {
-   m_reg [ (((addr-0x8000)/0x2000)*2)+(addr&0x0001) ] = data;
+   int reg = (((addr-0x8000)/0x2000)*2)+(addr&0x0001);
+   m_reg [ reg ] = data;
 
    switch ( addr&0xE001 )
    {
@@ -368,4 +369,7 @@ void CROMMapper004::MAPPER ( UINT addr, unsigned char data )
          m_irqEnable = true;
       break;
    }
+
+   // Check mapper state breakpoints...
+   CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
 }

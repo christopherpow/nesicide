@@ -293,6 +293,10 @@ void CROMMapper001::MAPPER ( UINT addr, unsigned char data )
                }
             break;
          }
+
+         // Check mapper state breakpoints...
+         // m_sel is convenient register number...
+         CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,m_sel);
       }
    }
 }

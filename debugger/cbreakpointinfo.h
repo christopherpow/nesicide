@@ -67,9 +67,10 @@ typedef enum
 class CBreakpointEventInfo
 {
 public:
-   CBreakpointEventInfo(const char* name, int elements, const char* displayFormat, int elementRadix )
+   CBreakpointEventInfo(const char* name, bool (*evalFunc)(struct _BreakpointInfo* pBreakpoint), int elements, const char* displayFormat, int elementRadix )
    {
       m_name = name;
+      m_evalFunc = evalFunc;
       m_elements = elements;
       m_displayFormat = displayFormat;
       m_elementRadix = elementRadix;
@@ -78,14 +79,16 @@ public:
    int         GetNumElements ( void ) const { return m_elements; }
    const char* GetDisplayFormat ( void ) const { return m_displayFormat; }
    int         GetElementRadix ( void ) const { return m_elementRadix; }
+   bool        Evaluate ( struct _BreakpointInfo* pBreakpoint ) { return m_evalFunc(pBreakpoint); }
 private:
    const char* m_name;
+   bool        (*m_evalFunc)(struct _BreakpointInfo* pBreakpoint);
    int         m_elements;
    const char* m_displayFormat;
    int         m_elementRadix;
 };
 
-typedef struct
+typedef struct _BreakpointInfo
 {
    eBreakpointType type;
    eBreakpointTarget target;

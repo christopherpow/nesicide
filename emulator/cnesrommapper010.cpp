@@ -115,9 +115,11 @@ UINT CROMMapper010::MAPPER ( UINT addr )
 
 void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
 {
+   int reg;
    switch ( addr&0xF000 )
    {
       case 0xA000:
+         reg = 0;
          m_reg [ 0 ] = data;
          m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data>>1 ] + ((data&0x01)<<UPSHIFT_8KB);
          m_PRGROMbank [ 0 ] = data>>1;
@@ -125,6 +127,7 @@ void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
          m_PRGROMbank [ 1 ] = data>>1;  // TODO: THIS IS WRONG!! 
       break;
       case 0xB000:
+         reg = 1;
          m_reg [ 1 ] = data;
          m_latch0FD = data;
          if ( m_latch0 == 0xFD )
@@ -136,6 +139,7 @@ void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
          }
       break;
       case 0xC000:
+         reg = 2;
          m_reg [ 2 ] = data;
          m_latch0FE = data;
          if ( m_latch0 == 0xFE )
@@ -147,6 +151,7 @@ void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
          }
       break;
       case 0xD000:
+         reg = 3;
          m_reg [ 3 ] = data;
          m_latch1FD = data;
          if ( m_latch1 == 0xFD )
@@ -158,6 +163,7 @@ void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
          }
       break;
       case 0xE000:
+         reg = 4;
          m_reg [ 4 ] = data;
          m_latch1FE = data;
          if ( m_latch1 == 0xFE )
@@ -169,6 +175,7 @@ void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
          }
       break;
       case 0xF000:
+         reg = 5;
          m_reg [ 5 ] = data;
          if ( !(CPPU::FOURSCREEN()) )
          {
@@ -183,6 +190,9 @@ void CROMMapper010::MAPPER ( UINT addr, unsigned char data )
          }
       break;
    }
+
+   // Check mapper state breakpoints...
+   CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
 }
 
 void CROMMapper010::LATCH ( UINT addr )

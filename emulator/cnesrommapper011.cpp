@@ -109,4 +109,7 @@ void CROMMapper011::MAPPER ( UINT addr, unsigned char data )
    m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (5<<UPSHIFT_1KB);
    m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (6<<UPSHIFT_1KB);
    m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (7<<UPSHIFT_1KB);
+
+   // Check mapper state breakpoints...
+   CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
 }
