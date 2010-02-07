@@ -49,13 +49,13 @@ void CROMMapper065::RESET ()
 
    m_irqCounter = 0x00;
    m_irqEnable = false;
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+   m_PRGROMbank [ 2 ] = m_numPrgBanks-2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
 
    // CHR ROM/RAM already set up in CROM::RESET()...
@@ -156,8 +156,8 @@ void CROMMapper065::MAPPER ( UINT addr, unsigned char data )
    {
       case 0x8000:
          m_reg [ 0 ] = data;
-         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data>>1)%m_numPrgBanks ] + (0<<UPSHIFT_8KB);
-         m_PRGROMbank [ 0 ] = (data>>1)%m_numPrgBanks;
+         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
+         m_PRGROMbank [ 0 ] = data;
       break;
       case 0x9000:
          m_reg [ 1 ] = data;
@@ -179,8 +179,8 @@ void CROMMapper065::MAPPER ( UINT addr, unsigned char data )
       break;
       case 0xA000:
          m_reg [ 7 ] = data;
-         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data>>1)%m_numPrgBanks ] + (1<<UPSHIFT_8KB);
-         m_PRGROMbank [ 1 ] = (data>>1)%m_numPrgBanks;
+         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data ];
+         m_PRGROMbank [ 1 ] = data;
       break;
       case 0xB000:
          m_reg [ 8 ] = data;
@@ -216,8 +216,8 @@ void CROMMapper065::MAPPER ( UINT addr, unsigned char data )
       break;
       case 0xC000:
          m_reg [ 16 ] = data;
-         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ (data>>1)%m_numPrgBanks ] + (0<<UPSHIFT_8KB);
-         m_PRGROMbank [ 2 ] = (data>>1)%m_numPrgBanks;
+         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data ];
+         m_PRGROMbank [ 2 ] = data;
       break;
    }
 }

@@ -123,13 +123,13 @@ void CROMMapper004::RESET ()
    m_irqCounter = 0x00;
    m_irqLatch = 0x00;
    m_irqEnable = false;
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+   m_PRGROMbank [ 2 ] = m_numPrgBanks-2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
 
    // CHR ROM/RAM already set up in CROM::RESET()...
@@ -169,27 +169,27 @@ bool CROMMapper004::SYNCH ( int scanline )
 }
 
 void CROMMapper004::SETCPU ( void )
-{
+{   
    if ( m_reg[0]&0x40 )
    {
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-      m_PRGROMbank [ 0 ] = m_numPrgBanks-1;
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_prg[1]>>1 ] + ((m_prg[1]&0x1)<<UPSHIFT_8KB);
-      m_PRGROMbank [ 1 ] = m_prg[1]>>1;
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_prg[0]>>1 ] + ((m_prg[0]&0x1)<<UPSHIFT_8KB);
-      m_PRGROMbank [ 2 ] = m_prg[0]>>1;
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+      m_PRGROMbank [ 0 ] = m_numPrgBanks-2;
+      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_prg[1] ];
+      m_PRGROMbank [ 1 ] = m_prg[1];
+      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_prg[0] ];
+      m_PRGROMbank [ 2 ] = m_prg[0];
+      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
       m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
    }
    else
    {
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (m_prg[0])>>1 ] + ((m_prg[0]&0x1)<<UPSHIFT_8KB);
-      m_PRGROMbank [ 0 ] = (m_prg[0])>>1;
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (m_prg[1])>>1 ] + ((m_prg[1]&0x1)<<UPSHIFT_8KB);
-      m_PRGROMbank [ 1 ] = (m_prg[1])>>1;
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-      m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_prg[0] ];
+      m_PRGROMbank [ 0 ] = m_prg[0];
+      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_prg[1] ];
+      m_PRGROMbank [ 1 ] = m_prg[1];
+      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+      m_PRGROMbank [ 2 ] = m_numPrgBanks-2;
+      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
       m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
    }
 }

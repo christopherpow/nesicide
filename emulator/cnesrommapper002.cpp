@@ -57,13 +57,13 @@ void CROMMapper002::RESET ()
    m_tblRegisters = tblRegisters;
    m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+   m_PRGROMbank [ 2 ] = m_numPrgBanks-2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
 
    // CHR ROM/RAM already set up in CROM::RESET()...
@@ -76,12 +76,16 @@ UINT CROMMapper002::MAPPER ( UINT addr )
 
 void CROMMapper002::MAPPER ( UINT addr, unsigned char data )
 {
+   unsigned char bank;
+
    m_reg = data%m_numPrgBanks;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_reg ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 0 ] = m_reg;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_reg ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = m_reg;
+   bank = m_reg<<1;
+
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
+   m_PRGROMbank [ 0 ] = bank;
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
+   m_PRGROMbank [ 1 ] = bank+1;
 
    // Check mapper state breakpoints...
    CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);

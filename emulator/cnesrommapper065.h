@@ -27,4 +27,4 @@ protected:
    static bool           m_irqEnable;
 };
 
-#endif // !defined(AFX_ROMMAPPER065_H__128A8157_B38D_42BE_8549_05396E0D1387__INCLUDED_)
+#endif

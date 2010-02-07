@@ -31,4 +31,4 @@ protected:
    static unsigned char  m_latch1FE;
 };
 
-#endif // !defined(AFX_ROMMAPPER009_H__26330150_5EA0_47C0_8B1F_545A3E7DC97B__INCLUDED_)
+#endif

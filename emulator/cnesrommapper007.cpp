@@ -46,12 +46,12 @@ void CROMMapper007::RESET ()
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = 1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 3 ] = 1;
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
+   m_PRGROMbank [ 2 ] = 2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+   m_PRGROMbank [ 3 ] = 3;
 
    CPPU::MIRROR ( 0 );
 
@@ -65,16 +65,20 @@ UINT CROMMapper007::MAPPER ( UINT addr )
 
 void CROMMapper007::MAPPER ( UINT addr, unsigned char data )
 {
+   unsigned char bank;
+
    m_reg = data;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (m_reg&0xF)<<1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 0 ] = (m_reg&0xF)<<1;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (m_reg&0xF)<<1 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = (m_reg&0xF)<<1;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ ((m_reg&0xF)<<1)+1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = ((m_reg&0xF)<<1)+1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ ((m_reg&0xF)<<1)+1 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 3 ] = ((m_reg&0xF)<<1)+1;
+   bank = (m_reg&0xF)<<2;
+
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
+   m_PRGROMbank [ 0 ] = bank;
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
+   m_PRGROMbank [ 1 ] = bank+1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
+   m_PRGROMbank [ 2 ] = bank+2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+   m_PRGROMbank [ 3 ] = bank+3;
 
    CPPU::MIRROR ( (m_reg&0x10)>>4 );
 

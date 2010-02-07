@@ -144,8 +144,9 @@
      <addaction name="menuGraphical"/>
      <addaction name="menuBinary_Inspectors"/>
      <addaction name="separator"/>
-     <addaction name="actionExecution_Inspector"/>
+     <addaction name="actionCode_Inspector"/>
      <addaction name="actionBreakpoint_Inspector"/>
+     <addaction name="actionExecution_Inspector"/>
     </widget>
     <widget class="QMenu" name="menuType_Here_2">
      <property name="title">
@@ -244,6 +245,7 @@
    </attribute>
    <addaction name="actionEmulation_Window"/>
    <addaction name="actionBreakpoint_Inspector"/>
+   <addaction name="actionCode_Inspector"/>
    <addaction name="actionExecution_Inspector"/>
    <addaction name="actionBinCPURegister_Inspector"/>
    <addaction name="actionBinROM_Inspector"/>
@@ -745,6 +747,21 @@
    </property>
    <property name="toolTip">
     <string>Breakpoints</string>
+   </property>
+  </action>
+  <action name="actionCode_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>Code Browser</string>
+   </property>
+   <property name="toolTip">
+    <string>Code Browser</string>
    </property>
   </action>
  </widget>

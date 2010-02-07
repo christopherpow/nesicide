@@ -31,7 +31,7 @@ public:
     virtual ~CROM();
 
    // Priming interfaces (data setup/initialization)
-   static void Clear16KBanks () { m_numPrgBanks = 0; }
+   static void Clear16KBanks ();
    static void Clear8KBanks () { m_numChrBanks = 0; }
    static void Set8KBank ( int bank, unsigned char* data );
    static void Set16KBank ( int bank, unsigned char* data );
@@ -46,10 +46,8 @@ public:
    // Operations
    static bool IsWriteProtected ( void ) { return (m_numChrBanks>0); }
    static inline UINT PRGROMBANK ( UINT addr ) { return *(m_PRGROMbank+PRGBANK_NUM(addr)); }
+   static inline UINT ABSADDR ( UINT addr ) { return (PRGROMBANK(addr)*MEM_8KB)+PRGBANK_OFF(addr); }
 //   static UINT CHRMEMBANK ( UINT addr ) { return m_CHRbank[CHRBANK_NUM(addr)]; }
-
-   // Data accessors
-   static void RESET ();
    static inline UINT PRGROM ( UINT addr ) { return *(*(m_pPRGROMmemory+PRGBANK_NUM(addr))+(PRGBANK_OFF(addr))); }
    static inline void PRGROM ( UINT addr, unsigned char data ) {}
    static inline void CHRMEM ( UINT addr, unsigned char data ) { *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))) = data; }
@@ -58,12 +56,16 @@ public:
    static inline void SRAM ( UINT addr, unsigned char data ) { *(m_pSRAMmemory+SRAMBANK_OFF(addr)) = data; }
    static inline UINT EXRAM ( UINT addr ) { return *(m_EXRAMmemory+(addr-EXRAM_START)); }
    static inline void EXRAM ( UINT addr, unsigned char data ) { *(m_EXRAMmemory+(addr-EXRAM_START)) = data; }
-   static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+(*(m_PRGROMbank+PRGBANK_NUM(addr)))); }
+   static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGROMBANK(addr)); }
    static inline unsigned char* CHRRAMPTR ( UINT addr ) { return &(m_CHRRAMmemory[addr]); }
    static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
+   static inline char* DISASSEMBLY ( int addr ) { return m_PRGROMdisassembly[PRGROMBANK(addr)][PRGBANK_OFF(addr)]; }
+   static inline unsigned short SLOC2ADDR ( unsigned short addr, int sloc ) { return m_PRGROMsloc2addr[PRGROMBANK(addr)][sloc]; }
+   static inline int SLOC ( int addr ) { return m_PRGROMsloc[PRGROMBANK(addr)]; }
 
-   // Mapper interface
+   // Mapper interfaces [not usually called directly, rather through mapperfunc array]
+   static void RESET ();
    static UINT MAPPER ( void ) { return m_mapper; }
    static UINT MAPPER ( UINT addr ) { return PRGROM(addr); }
    static void MAPPER ( UINT addr, unsigned char data ) {};
@@ -78,7 +80,10 @@ public:
 protected:
    static unsigned char  m_SRAMmemory [ MEM_64KB ];
    static unsigned char  m_EXRAMmemory [ MEM_1KB ];
-   static unsigned char  m_PRGROMmemory [ NUM_ROM_BANKS ][ MEM_16KB ];
+   static unsigned char  m_PRGROMmemory [ NUM_ROM_BANKS ][ MEM_8KB ];
+   static char*          m_PRGROMdisassembly [ NUM_ROM_BANKS ][ MEM_8KB ];
+   static unsigned short m_PRGROMsloc2addr [ NUM_ROM_BANKS ][ MEM_8KB ];
+   static int            m_PRGROMsloc [ NUM_ROM_BANKS ];
    static unsigned char  m_CHRROMmemory [ NUM_ROM_BANKS ][ MEM_8KB ];
    static unsigned char  m_CHRRAMmemory [ MEM_8KB ];
 
@@ -97,4 +102,4 @@ protected:
    static int             m_numRegisters;
 };
 
-#endif // !defined(AFX_ROM_H__C90CA742_0CBF_4014_A38A_6B0C9D2C0125__INCLUDED_)
+#endif

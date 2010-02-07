@@ -7,7 +7,7 @@
 
 #include "cnesicidecommon.h"
 
-#define LOGGER_DEPTH PRG_BANK_SIZE
+#define LOGGER_DEPTH MEM_8KB
 
 #define LAST_VALUE_LIST_LEN 10
 
@@ -56,7 +56,7 @@ typedef struct _LoggerInfo
 class CCodeDataLogger  
 {
 public:
-	CCodeDataLogger(UINT size = PRG_BANK_SIZE, UINT mask = MASK_16KB);
+   CCodeDataLogger(UINT size = MEM_8KB, UINT mask = MASK_8KB);
 	virtual ~CCodeDataLogger();
 
    void ClearData ( void );
@@ -84,4 +84,4 @@ protected:
    LoggerInfo* m_pLogger;
 };
 
-#endif // !defined(AFX_CODEDATALOGGER_H__CEA2BB9D_4ED5_41D0_8447_466D7D560BB4__INCLUDED_)
+#endif

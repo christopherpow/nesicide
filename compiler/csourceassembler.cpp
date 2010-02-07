@@ -16,7 +16,7 @@ bool CSourceAssembler::assemble()
         return false;
     }
 
-    builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226; Assembling '" + rootSource->get_sourceName() + "'...");
+    builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
     QStringList *source = new QStringList(rootSource->get_sourceCode().split('\n'));
 
     stripComments(source);
@@ -429,11 +429,11 @@ bool CSourceAssembler::convertOpcodesToDBs(QStringList *source)
             // We have a valid opcode, so let's process it.
 
             // For implied, there should be nothing after the opcode.
-            if ((curLine == firstWord) && (AssemblerInstructionItems[instructionIdx].impl.cycles > 0))
+            if ((curLine.length() == firstWord.length()) && (AssemblerInstructionItems[instructionIdx].impl.cycles > 0))
             {
                 // IMPLIED
                 curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].impl.opcode, 16).toUpper();
-            } else if ((curLine == firstWord) && (AssemblerInstructionItems[instructionIdx].accum.cycles > 0)) {
+            } else if ((curLine.length() == firstWord.length()) && (AssemblerInstructionItems[instructionIdx].accum.cycles > 0)) {
                 // ACCUMULATOR
                 curLine = ".db $" + QString::number(AssemblerInstructionItems[instructionIdx].accum.opcode, 16).toUpper();
             } else if (getParamCount(curLine.mid(firstWord.length())) == 1) {

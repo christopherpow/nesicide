@@ -51,13 +51,13 @@ void CROMMapper068::RESET ()
    {
       m_reg [ idx ] = 0x00;
    }
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+   m_PRGROMbank [ 2 ] = m_numPrgBanks-2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
 
    // CHR ROM/RAM already set up in CROM::RESET()...
@@ -254,10 +254,10 @@ void CROMMapper068::MAPPER ( UINT addr, unsigned char data )
          }
       break;
       case 0xF000:
-         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ] + (0<<UPSHIFT_8KB);
+         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
          m_PRGROMbank [ 0 ] = data;
-         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data ] + (1<<UPSHIFT_8KB);
-         m_PRGROMbank [ 1 ] = data;
+         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data+1 ];
+         m_PRGROMbank [ 1 ] = data+1;
       break;
    }
 }

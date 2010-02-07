@@ -68,4 +68,4 @@ protected:
    static char   m_paletteRGBs [ 8 ] [ 64 ] [ 3 ];
 };
 
-#endif // !defined(AFX_BASEPALETTE_H__1F178478_2CEF_4CDC_B006_95C428BF9926__INCLUDED_)
+#endif

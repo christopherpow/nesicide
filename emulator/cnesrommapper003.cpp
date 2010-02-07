@@ -59,14 +59,14 @@ void CROMMapper003::RESET ()
    m_tblRegisters = tblRegisters;
    m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = 1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 3 ] = 1;
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
+   m_PRGROMbank [ 2 ] = 2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+   m_PRGROMbank [ 3 ] = 3;
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }

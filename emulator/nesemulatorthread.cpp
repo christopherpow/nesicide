@@ -118,10 +118,6 @@ void NESEmulatorThread::resetEmulator()
    // Reset emulated PPU...
    CPPU::RESET ();
 
-   // CPTODO: reset dialogs when they exist...probalby somewhere else, though?
-   //    pDoc->GetCodeDataLoggerDlg()->Reset();
-   //    pDoc->GetTracerDlg()->Reset();
-
    // Reset emulated 6502 and APU [APU reset internal to 6502]...
    C6502::RESET ();
 
@@ -133,9 +129,6 @@ void NESEmulatorThread::resetEmulator()
 
    // Clear the rest...
    CNES::RESET ();
-
-// CPTODO: removed joypad logger for now...
-//   pDoc->GetJoypadLoggerDlg()->Reset ();
 
    // Reset emulated I/O devices...
    m_joy [ JOY1 ] = 0x00;
@@ -198,9 +191,6 @@ void NESEmulatorThread::run ()
          breakpointSemaphore.tryAcquire();
 
          // Run emulator for one frame...
-         // CPTODO: this needs to be re-factored into a RUN-by-PPU-clock-tick method.
-         //         internally it does everything by PPU ticks...but in order to support
-         //         breakpoints effectively it needs to be wound up to this level.
          CNES::RUN ( m_joy );
 
          emit emulatedFrame();

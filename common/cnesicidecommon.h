@@ -11,7 +11,8 @@
 // CPTODO: temporaries to prevent having to do glob srch/rplc yet
 typedef unsigned int UINT;
 
-extern qint8 hex_char[16];
+static qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 #define sprintf02x(b,v) \
 { \
@@ -346,9 +347,6 @@ enum
 #define PRG_BANK 0
 #define CHR_BANK 1
 #define TRN_BANK 2
-#define PRG_BANK_SIZE ( 16*1024 )
-#define CHR_BANK_SIZE ( 8*1024 )
-#define TRN_BANK_SIZE ( 512 )
 
 #define ROM_BANK_BIN_LINE_LEN 16
 

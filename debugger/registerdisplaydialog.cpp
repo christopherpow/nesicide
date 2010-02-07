@@ -41,6 +41,14 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
        break;
     }
     m_register = 0;
+    if ( m_display == eMemory_cartMapper )
+    {
+       ui->info->setVisible(true);
+    }
+    else
+    {
+       ui->info->setVisible(false);
+    }
     ui->label->setText ( "" );
     QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
     QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
@@ -83,13 +91,18 @@ void RegisterDisplayDialog::changeEvent(QEvent *e)
 
 void RegisterDisplayDialog::cartridgeLoaded ()
 {
+   char buffer [ 128 ];
+
    if ( m_display == eMemory_cartMapper )
    {
       m_tblRegisters = CROM::REGISTERS();
+      sprintf ( buffer, "Mapper %d: ", CROM::MAPPER() );
+      ui->info->setText ( buffer );
    }
    if ( m_tblRegisters )
    {
-      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      ui->label->setText ( buffer );
    }
    binaryModel->layoutChangedEvent();
    bitfieldModel->layoutChangedEvent();
@@ -153,8 +166,8 @@ void RegisterDisplayDialog::updateMemory ()
             {
                // Update display...
                emit showMe(memoryType);
-               ui->binaryView->setCurrentIndex(binaryModel->index(pBreakpoint->item1,0));
-               on_binaryView_clicked(binaryModel->index(pBreakpoint->item1,0));
+               ui->binaryView->setCurrentIndex(binaryModel->index(0,pBreakpoint->item1));
+               on_binaryView_clicked(binaryModel->index(0,pBreakpoint->item1));
                ui->bitfieldView->setCurrentIndex(bitfieldModel->index(pBreakpoint->item2,0));
             }
          }
@@ -167,11 +180,13 @@ void RegisterDisplayDialog::updateMemory ()
 
 void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)
 {
+   char buffer [ 128 ];
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
    if ( m_tblRegisters )
    {
-      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      ui->label->setText ( buffer );
    }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
@@ -179,11 +194,13 @@ void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)
 
 void RegisterDisplayDialog::on_binaryView_doubleClicked(QModelIndex index)
 {
+   char buffer [ 128 ];
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
    if ( m_tblRegisters )
    {
-      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      ui->label->setText ( buffer );
    }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
@@ -203,11 +220,13 @@ void RegisterDisplayDialog::on_bitfieldView_doubleClicked(QModelIndex index)
 
 void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
 {
+   char buffer [ 128 ];
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
    if ( m_tblRegisters )
    {
-      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      ui->label->setText ( buffer );
    }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
@@ -215,11 +234,13 @@ void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
 
 void RegisterDisplayDialog::on_binaryView_activated(QModelIndex index)
 {
+   char buffer [ 128 ];
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
    if ( m_tblRegisters )
    {
-      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      ui->label->setText ( buffer );
    }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();
@@ -227,11 +248,13 @@ void RegisterDisplayDialog::on_binaryView_activated(QModelIndex index)
 
 void RegisterDisplayDialog::on_binaryView_entered(QModelIndex index)
 {
+   char buffer [ 128 ];
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
    if ( m_tblRegisters )
    {
-      ui->label->setText ( m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      ui->label->setText ( buffer );
    }
    bitfieldModel->setRegister ( m_register );
    bitfieldModel->layoutChangedEvent();

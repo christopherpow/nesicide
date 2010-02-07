@@ -309,4 +309,4 @@ protected:
    static int             m_numRegisters;
 };
 
-#endif // !defined(AFX_APU_H__AE53BDB6_796A_4B67_BC4D_CC86C1F0191C__INCLUDED_)
+#endif

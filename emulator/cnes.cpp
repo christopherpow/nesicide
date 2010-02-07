@@ -543,8 +543,14 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
                      // Get actual register data...
-                     // CPTODO: lowmapper breakpoints...
-                     value = mapperfunc[CROM::MAPPER()].highread(pRegister->GetAddr());
+                     if ( pRegister->GetAddr() >= MEM_32KB )
+                     {
+                        value = mapperfunc[CROM::MAPPER()].highread(pRegister->GetAddr());
+                     }
+                     else
+                     {
+                        value = mapperfunc[CROM::MAPPER()].lowread(pRegister->GetAddr());
+                     }
 
                      if ( pBreakpoint->condition == eBreakIfAnything )
                      {
