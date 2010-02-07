@@ -12,9 +12,13 @@ unix:LIBS += `sdl-config \
     --libs`
 mac:LIBS += -framework \
     SDL
-INCLUDEPATH = ./ \
-    ./libraries/SDL \
-    ./common \
+win32:INCLUDEPATH = ./ \
+    ./libraries/SDL
+unix:INCLUDEPATH = ./ \
+    /usr/include/SDL
+mac:INCLUDEPATH = ./ \
+    ./libraries/SDL
+INCLUDEPATH += ./common \
     ./compiler \
     ./debugger \
     ./designers \

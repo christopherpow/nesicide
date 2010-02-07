@@ -1,5 +1,5 @@
 #undef main
-#include <sdl.h>
+#include <SDL.h>
 #undef main
 #include <QtGui/QApplication>
 #include "main.h"
