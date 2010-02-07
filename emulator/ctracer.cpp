@@ -84,7 +84,7 @@ TracerInfo* CTracer::AddSample(unsigned int cycle, char type, char source, char 
    TracerInfo* pSample = NULL;
    TracerInfo** ppCPUSample = NULL;
    TracerInfo** ppPPUSample = NULL;
-   TracerInfo* pLastSample = GetLastSample();
+   TracerInfo* pLastSample;
 
 // CPTODO: removed check for enabled
 //   if ( CONFIG.IsTracerEnabled() )
@@ -101,37 +101,19 @@ TracerInfo* CTracer::AddSample(unsigned int cycle, char type, char source, char 
       pSample->ea = 0xFFFFFFFF;
       pSample->regsset = 0;
 
+      m_cursor++;
+      m_cursor %= m_sampleBufferDepth;
+
       switch ( source )
       {
          case eSource_CPU:
+         case eSource_APU:
+         case eSource_Mapper:
             ppCPUSample = m_ppCPUSamples + m_cpuCursor;
             (*ppCPUSample) = pSample;
 
             m_cpuCursor++;
             m_cpuCursor %= m_sampleBufferDepth;
-
-            if ( m_samples < m_sampleBufferDepth )
-            {
-               if ( m_cpuSamples < m_sampleBufferDepth )
-               {
-                  m_cpuSamples++;
-               }
-            }
-            else
-            {
-               if ( m_cpuSamples < m_sampleBufferDepth )
-               {
-                  m_cpuSamples++;
-               }
-               if ( pLastSample->source == eSource_CPU )
-               {
-                  m_cpuSamples--;
-               }
-               else if ( pLastSample->source == eSource_PPU )
-               {
-                  m_ppuSamples--;
-               }
-            }
          break;
          case eSource_PPU:
             ppPPUSample = m_ppPPUSamples + m_ppuCursor;
@@ -139,38 +121,55 @@ TracerInfo* CTracer::AddSample(unsigned int cycle, char type, char source, char 
 
             m_ppuCursor++;
             m_ppuCursor %= m_sampleBufferDepth;
-
-            if ( m_samples < m_sampleBufferDepth )
-            {
-               if ( m_ppuSamples < m_sampleBufferDepth )
-               {
-                  m_ppuSamples++;
-               }
-            }
-            else
-            {
-               if ( m_ppuSamples < m_sampleBufferDepth )
-               {
-                  m_ppuSamples++;
-               }
-               if ( pLastSample->source == eSource_CPU )
-               {
-                  m_cpuSamples--;
-               }
-               else if ( pLastSample->source == eSource_PPU )
-               {
-                  m_ppuSamples--;
-               }
-            }
          break;
       }
-
-      m_cursor++;
-      m_cursor %= m_sampleBufferDepth;
 
       if ( m_samples < m_sampleBufferDepth )
       {
          m_samples++;
+
+         switch ( source )
+         {
+            case eSource_CPU:
+            case eSource_APU:
+            case eSource_Mapper:
+               m_cpuSamples++;
+            break;
+            case eSource_PPU:
+               m_ppuSamples++;
+            break;
+         }
+      }
+      else
+      {
+         pLastSample = GetLastSample();
+
+         switch ( source )
+         {
+            case eSource_CPU:
+            case eSource_APU:
+            case eSource_Mapper:
+               if ( m_cpuSamples < m_sampleBufferDepth )
+               {
+                  m_cpuSamples++;
+               }
+            break;
+            case eSource_PPU:
+               if ( m_ppuSamples < m_sampleBufferDepth )
+               {
+                  m_ppuSamples++;
+               }
+            break;
+         }
+
+         if ( pLastSample->source == eSource_PPU )
+         {
+            m_ppuSamples--;
+         }
+         else
+         {
+            m_cpuSamples--;
+         }
       }
    }
 

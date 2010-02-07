@@ -62,16 +62,16 @@ void CROMMapper005::RESET ()
    m_irqScanline = 0;
    m_irqStatus = 0;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 0 ] = m_numPrgBanks-1;
    m_prgRAM [ 0 ] = false;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 1 ] = m_numPrgBanks-1;
    m_prgRAM [ 1 ] = false;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
    m_prgRAM [ 2 ] = false;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
    m_prgRAM [ 3 ] = false;
 
@@ -228,8 +228,8 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
                }
                else
                {
-                  m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data>>1) ] + ((data&1)<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 0 ] = (data>>1);
+                  m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
+                  m_PRGROMbank [ 0 ] = data;
                }
             }
          break;
@@ -244,14 +244,14 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
                   m_pPRGROMmemory [ 0 ] = m_SRAMmemory + (data<<UPSHIFT_8KB) + (0<<UPSHIFT_8KB);
                   m_PRGROMbank [ 0 ] = data;
                   m_pPRGROMmemory [ 1 ] = m_SRAMmemory + (data<<UPSHIFT_8KB) + (1<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 1 ] = data;
+                  m_PRGROMbank [ 1 ] = data+1;
                }
                else
                {
-                  m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data>>1) ] + (0<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 0 ] = (data>>1);
-                  m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data>>1) ] + (1<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 1 ] = (data>>1);
+                  m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
+                  m_PRGROMbank [ 0 ] = data;
+                  m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data+1 ];
+                  m_PRGROMbank [ 1 ] = data+1;
                }
             }
             else if ( m_prgMode == 3 )
@@ -263,8 +263,8 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
                }
                else
                {
-                  m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data>>1) ] + ((data&1)<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 1 ] = (data>>1);
+                  m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data ];
+                  m_PRGROMbank [ 1 ] = data;
                }
             }
          break;
@@ -281,8 +281,8 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
                }
                else
                {
-                  m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ (data>>1) ] + ((data&1)<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 2 ] = (data>>1);
+                  m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data ];
+                  m_PRGROMbank [ 2 ] = data;
                }
             }
          break;
@@ -292,26 +292,26 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
             if ( m_prgRAM[3] ) data &= 0x7;
             if ( m_prgMode == 0 )
             {
-               m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data>>1 ] + (0<<UPSHIFT_8KB);
-               m_PRGROMbank [ 0 ] = data>>1;
-               m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data>>1 ] + (1<<UPSHIFT_8KB);
-               m_PRGROMbank [ 1 ] = data>>1;
-               m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ (data>>1)+1 ] + (0<<UPSHIFT_8KB);
-               m_PRGROMbank [ 2 ] = (data>>1)+1;
-               m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ (data>>1)+1 ] + (1<<UPSHIFT_8KB);
-               m_PRGROMbank [ 3 ] = (data>>1)+1;
+               m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
+               m_PRGROMbank [ 0 ] = data;
+               m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data+1 ];
+               m_PRGROMbank [ 1 ] = data+1;
+               m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data+2 ];
+               m_PRGROMbank [ 2 ] = data+2;
+               m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ data+3 ];
+               m_PRGROMbank [ 3 ] = data+3;
             }
             else if ( m_prgMode == 1 )
             {
-               m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ (data>>1) ] + (0<<UPSHIFT_8KB);
-               m_PRGROMbank [ 2 ] = (data>>1);
-               m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ (data>>1) ] + (1<<UPSHIFT_8KB);
-               m_PRGROMbank [ 3 ] = (data>>1);
+               m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data ];
+               m_PRGROMbank [ 2 ] = data;
+               m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ data+1 ];
+               m_PRGROMbank [ 3 ] = data+1;
             }
             else if ( (m_prgMode == 2) || (m_prgMode == 3) )
             {
-               m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ (data>>1) ] + ((data&1)<<UPSHIFT_8KB);
-               m_PRGROMbank [ 3 ] = (data>>1);
+               m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ data ];
+               m_PRGROMbank [ 3 ] = data;
             }
          break;
          case 0x5120:

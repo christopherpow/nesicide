@@ -126,7 +126,10 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cbreakpointdisplaymodel.cpp \
     debugger/breakpointwatcherthread.cpp \
     emulator/nesemulatorthread.cpp \
-    debugger/cregisterdata.cpp
+    debugger/cregisterdata.cpp \
+    debugger/codebrowserdialog.cpp \
+    debugger/codeinspector.cpp \
+    viewers/debugger/ccodebrowserdisplaymodel.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -221,7 +224,10 @@ HEADERS += mainwindow.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
     emulator/nesemulatorthread.h \
-    debugger/cregisterdata.h
+    debugger/cregisterdata.h \
+    debugger/codebrowserdialog.h \
+    debugger/codeinspector.h \
+    viewers/debugger/ccodebrowserdisplaymodel.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -236,5 +242,6 @@ FORMS += mainwindow.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
     debugger/memorydisplaydialog.ui \
     debugger/registerdisplaydialog.ui \
-    debugger/breakpointdialog.ui
+    debugger/breakpointdialog.ui \
+    debugger/codebrowserdialog.ui
 RESOURCES += resource.qrc

@@ -17,6 +17,7 @@
 #include "memoryinspector.h"
 #include "registerinspector.h"
 #include "breakpointinspector.h"
+#include "codeinspector.h"
 
 namespace Ui {
     class MainWindow;
@@ -58,11 +59,13 @@ private:
     MemoryInspector* m_pBinPaletteMemoryInspector;
     RegisterInspector* m_pBinMapperMemoryInspector;
     BreakpointInspector* m_pBreakpointInspector;
+    CodeInspector* m_pCodeInspector;
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionCode_Inspector_toggled(bool );
     void on_actionExecution_Inspector_toggled(bool );
     void on_actionBreakpoint_Inspector_toggled(bool );
     void on_actionGfxCHRMemory_Inspector_toggled(bool );
@@ -80,6 +83,7 @@ private slots:
     void on_actionBinAPURegister_Inspector_toggled(bool );
     void on_actionBinPPURegister_Inspector_toggled(bool );
     void on_actionBinMapperMemory_Inspector_toggled(bool );
+    void reflectedCodeInspector_close(bool toplevel);
     void reflectedExecutionInspector_close(bool toplevel);
     void reflectedBreakpointInspector_close(bool toplevel);
     void reflectedGfxCHRMemoryInspector_close(bool toplevel);

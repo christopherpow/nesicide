@@ -128,4 +128,4 @@ protected:
    unsigned int m_ppuSamples;
 };
 
-#endif // !defined(AFX_TRACER_H__19AABF5C_F4D9_4381_81E5_6BF73C9B74B1__INCLUDED_)
+#endif

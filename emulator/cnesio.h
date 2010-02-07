@@ -30,4 +30,4 @@ protected:
    static CJoypadLogger  m_logger [ NUM_JOY ];
 };
 
-#endif // !defined(AFX_IO_H__6E58BB6C_4EE1_4AF5_93D7_88FDE9DDB8C3__INCLUDED_)
+#endif

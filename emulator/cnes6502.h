@@ -130,7 +130,7 @@ public:
 	C6502();
 
    // Disassembly routines for display
-//   static void Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, int len, bool decorate );
+   static void Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned short* sloc2addr, int* sourceLength, bool decorate );
    static char* Disassemble ( unsigned char* pOpcode, char* buffer );
 
    // Emulation routines
@@ -313,4 +313,4 @@ typedef struct _C6502_opcode
    bool documented;
 } C6502_opcode;
 
-#endif // !defined(AFX_6502_H__05B65C6F_076A_4975_9B2A_E7E2F4466F0A__INCLUDED_)
+#endif

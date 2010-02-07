@@ -463,6 +463,7 @@ void CPPU::RENDERNAMETABLE ( void )
    unsigned char patternData2;
    unsigned char bit1, bit2;
    unsigned char colorIdx;
+   unsigned char lbx, lby, ubx, uby;
 
    if ( m_bNameTableInspector )
    {
@@ -549,7 +550,7 @@ void CPPU::RENDERNAMETABLE ( void )
 
 // CPTODO: implement shadow disablement
 #if 0
-//   if ( m_bShadow )
+      //   if ( m_bShadow )
       {
          for ( y = 0; y < 480; y++ )
          {
@@ -565,9 +566,30 @@ void CPPU::RENDERNAMETABLE ( void )
                     (((lby <= uby) && (y >= lby) && (y <= uby)) ||
                     ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
                {
-                  m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] *= .70;
-                  m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] *= .70;
-                  m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] *= .70;
+                  if ( m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] >= 0x30 )
+                  {
+                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] -= 0x30;
+                  }
+                  else
+                  {
+                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] = 0x00;
+                  }
+                  if ( m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] >= 0x30 )
+                  {
+                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] -= 0x30;
+                  }
+                  else
+                  {
+                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] = 0x00;
+                  }
+                  if ( m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] >= 0x30 )
+                  {
+                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] -= 0x30;
+                  }
+                  else
+                  {
+                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] = 0x00;
+                  }
                }
             }
          }

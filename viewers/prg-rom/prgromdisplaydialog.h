@@ -12,10 +12,14 @@ class PRGROMDisplayDialog : public QDialog {
 public:
     PRGROMDisplayDialog(QWidget *parent = 0);
     ~PRGROMDisplayDialog();
-    void setRomData(QString data);
+    void setRomData(unsigned char* data) { m_data = data; }
 
 protected:
     void changeEvent(QEvent *e);
+    void showEvent(QShowEvent *e);
+
+protected:
+    unsigned char* m_data;
 
 private:
     Ui::PRGROMDisplayDialog *ui;

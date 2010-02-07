@@ -260,4 +260,4 @@ protected:
    static int                    m_numBreakpointEvents;
 };
 
-#endif // !defined(AFX_PPU_H__F380E9AE_E43D_4115_8CF7_18747040C173__INCLUDED_)
+#endif

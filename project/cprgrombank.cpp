@@ -82,13 +82,6 @@ void CPRGROMBank::contextMenuEvent(QContextMenuEvent *, QTreeView *)
 
 }
 
-unsigned char c2a(unsigned char c)
-{
-   static unsigned char hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-   return hex_char [ c ];
-}
-
 void CPRGROMBank::openItemEvent(QTabWidget *tabWidget)
 {
 
@@ -106,21 +99,11 @@ void CPRGROMBank::openItemEvent(QTabWidget *tabWidget)
     else
     {
         m_pointerToEditorDialog = new PRGROMDisplayDialog();
+        m_pointerToEditorDialog->setRomData(m_pointerToBankData);
         m_indexOfEditorTab = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
     }
 
-    QString rt;
-    for(int i=0; i<0x4000; i++)
-    {
-        char l = (m_pointerToBankData[i]>>4)&0x0F;
-        char r = m_pointerToBankData[i]&0x0F;
-        QChar c[2] = { c2a(l), c2a(r) };
-        rt += QString(c,2);
-        rt += " ";
-    }
-
     tabWidget->setCurrentIndex(m_indexOfEditorTab);
-    m_pointerToEditorDialog->setRomData(rt);
 }
 
 

@@ -37,4 +37,4 @@ protected:
    JoypadLoggerInfo* m_pSampleBuffer;
 };
 
-#endif // !defined(AFX_JOYPADLOGGER_H__5731F830_791B_4A1A_B8C9_35F6EF9259D6__INCLUDED_)
+#endif

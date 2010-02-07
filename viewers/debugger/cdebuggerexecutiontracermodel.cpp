@@ -94,7 +94,6 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
 
 QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &parent) const
 {
-   // CPTODO: need to address index for combined tracers
    if ( (m_bShowCPU) && (m_bShowPPU) )
    {
       return createIndex(row, column, m_pTracer->GetSample(row));

@@ -51,13 +51,13 @@ void CROMMapper009::RESET ()
 
    m_mapper = 9;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-2 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = m_numPrgBanks-2;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = m_numPrgBanks-1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ] + (1<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
+   m_PRGROMbank [ 1 ] = m_numPrgBanks-3;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+   m_PRGROMbank [ 2 ] = m_numPrgBanks-2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
    m_PRGROMbank [ 3 ] = m_numPrgBanks-1;
 
    m_latch0 = 0xFE;
@@ -121,8 +121,8 @@ void CROMMapper009::MAPPER ( UINT addr, unsigned char data )
       case 0xA000:
          reg = 0;
          m_reg [ 0 ] = data;
-         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data>>1 ] + ((data&0x01)<<UPSHIFT_8KB);
-         m_PRGROMbank [ 0 ] = data>>1;
+         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
+         m_PRGROMbank [ 0 ] = data;
       break;
       case 0xB000:
          reg = 1;

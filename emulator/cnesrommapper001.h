@@ -29,4 +29,4 @@ protected:
    static UINT           m_lastWriteAddr;
 };
 
-#endif // !defined(AFX_ROMMAPPER001_H__1D064609_4ED7_44D8_BF4C_27BBC617D374__INCLUDED_)
+#endif

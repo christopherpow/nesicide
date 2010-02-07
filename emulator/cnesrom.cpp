@@ -20,6 +20,7 @@
 
 #include "cnesrom.h"
 #include "cnesppu.h"
+#include "cnes6502.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -27,7 +28,10 @@
 
 unsigned char  CROM::m_SRAMmemory [] = { 0, };
 unsigned char  CROM::m_EXRAMmemory [] = { 0, };
-unsigned char  CROM::m_PRGROMmemory [][ MEM_16KB ] = { { 0, }, };
+unsigned char  CROM::m_PRGROMmemory [][ MEM_8KB ] = { { 0, }, };
+char*          CROM::m_PRGROMdisassembly [][ MEM_8KB ] = { { 0, }, };
+unsigned short CROM::m_PRGROMsloc2addr [][ MEM_8KB ] = { { 0, }, };
+int            CROM::m_PRGROMsloc [] = { 0, };
 unsigned char  CROM::m_CHRROMmemory [][ MEM_8KB ] = { { 0, }, };
 unsigned char  CROM::m_CHRRAMmemory [ MEM_8KB ] = { 0, };
 UINT           CROM::m_PRGROMbank [] = { 0, 0, 0, 0 };
@@ -54,23 +58,62 @@ CROM::CROM()
       m_pLogger [ bank ] = new CCodeDataLogger ();
    }
 
+
    CROM::RESET ();
 }
 
 CROM::~CROM()
 {
    int bank;
+   int addr;
+   char* val = 0;
 
    for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
    {
       delete m_pLogger [ bank ];
+
+      // Blow away disassembly strings...
+      for ( addr = 0 ; addr < MEM_8KB; addr++ )
+      {
+         if ( val != m_PRGROMdisassembly[bank][addr] )
+         {
+            val = m_PRGROMdisassembly[bank][addr];
+            delete [] m_PRGROMdisassembly[bank][addr];
+         }
+      }
    }
+}
+
+void CROM::Clear16KBanks ()
+{
+   unsigned int bank;
+   int addr;
+   char* val = 0;
+
+   for ( bank = 0; bank < m_numPrgBanks; bank++ )
+   {
+      // Blow away disassembly strings...
+      for ( addr = 0 ; addr < MEM_8KB; addr++ )
+      {
+         if ( val != m_PRGROMdisassembly[bank][addr] )
+         {
+            val = m_PRGROMdisassembly[bank][addr];
+            delete [] m_PRGROMdisassembly[bank][addr];
+         }
+      }
+   }
+
+   m_numPrgBanks = 0;
 }
 
 void CROM::Set16KBank ( int bank, unsigned char* data )
 {
-   memcpy ( m_PRGROMmemory[bank], data, MEM_16KB );
-   m_numPrgBanks = bank + 1;
+   memcpy ( m_PRGROMmemory[m_numPrgBanks], data, MEM_8KB );
+   C6502::Disassemble(m_PRGROMdisassembly[m_numPrgBanks],m_PRGROMmemory[m_numPrgBanks],MEM_8KB,m_PRGROMsloc2addr[m_numPrgBanks],&(m_PRGROMsloc[m_numPrgBanks]),true);
+   m_numPrgBanks++;
+   memcpy ( m_PRGROMmemory[m_numPrgBanks], data+MEM_8KB, MEM_8KB );
+   C6502::Disassemble(m_PRGROMdisassembly[m_numPrgBanks],m_PRGROMmemory[m_numPrgBanks],MEM_8KB,m_PRGROMsloc2addr[m_numPrgBanks],&(m_PRGROMsloc[m_numPrgBanks]),true);
+   m_numPrgBanks++;
 }
 
 void CROM::Set8KBank ( int bank, unsigned char* data )
@@ -82,13 +125,16 @@ void CROM::Set8KBank ( int bank, unsigned char* data )
 void CROM::DoneLoadingBanks ()
 {
    // This is called when the ROM loader is done so that fixup can be done...
-   if ( m_numPrgBanks == 1 )
+   if ( m_numPrgBanks == 2 )
    {
-       // If the ROM contains only one PRG-ROM bank then it needs to be replicated
-       // to the second PRG-ROM bank slot...
-       memcpy ( m_PRGROMmemory[1], m_PRGROMmemory[0], MEM_16KB );
-
-       m_numPrgBanks += 1;
+      // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
+      // to the second PRG-ROM bank slot...
+      memcpy ( m_PRGROMmemory[2], m_PRGROMmemory[0], MEM_8KB );
+      C6502::Disassemble(m_PRGROMdisassembly[2],m_PRGROMmemory[2],MEM_8KB,m_PRGROMsloc2addr[2],&(m_PRGROMsloc[2]),true);
+      m_numPrgBanks++;
+      memcpy ( m_PRGROMmemory[3], m_PRGROMmemory[1], MEM_8KB );
+      C6502::Disassemble(m_PRGROMdisassembly[3],m_PRGROMmemory[3],MEM_8KB,m_PRGROMsloc2addr[3],&(m_PRGROMsloc[3]),true);
+      m_numPrgBanks++;
    }
 }
 
@@ -98,14 +144,14 @@ void CROM::RESET ()
 
    m_mapper = 0;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 0 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 1 ] = 0;
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 1 ] + (0<<UPSHIFT_8KB);
-   m_PRGROMbank [ 2 ] = 1;
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ] + (1<<UPSHIFT_8KB);
-   m_PRGROMbank [ 3 ] = 1;
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_PRGROMbank [ 1 ] = 1;
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
+   m_PRGROMbank [ 2 ] = 2;
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+   m_PRGROMbank [ 3 ] = 3;
 
    // Assume no VROM...point to VRAM...
    for ( bank = 0; bank < 8; bank++ )

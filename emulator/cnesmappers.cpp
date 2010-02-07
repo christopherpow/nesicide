@@ -28,7 +28,7 @@
 #include "cnesrommapper065.h"
 #include "cnesrommapper068.h"
 
-MapperFuncs mapperfunc[256] =
+MapperFuncs mapperfunc[] =
 {
    /* 000 */ { CROM::RESET, CROM::MAPPER, CROM::MAPPER, CROM::LMAPPER, CROM::LMAPPER, CROM::SYNCH, CROM::SYNCV, CROM::LATCH, CROM::LOAD, CROM::SAVE },
    /* 001 */ { CROMMapper001::RESET, CROMMapper001::MAPPER, CROMMapper001::MAPPER, CROM::LMAPPER, CROM::LMAPPER, CROM::SYNCH, CROM::SYNCV, CROM::LATCH, CROMMapper001::LOAD, CROMMapper001::SAVE },
@@ -106,7 +106,7 @@ MapperFuncs mapperfunc[256] =
    /* 255 */ { CROM::RESET, CROM::MAPPER, CROM::MAPPER, CROM::LMAPPER, CROM::LMAPPER, CROM::SYNCH, CROM::SYNCV, CROM::LATCH, CROM::LOAD, CROM::SAVE },
 };
 
-MapperInfo mapper[256] = 
+MapperInfo mapper[] =
 {
    { "NONE", 0 },
    { "NES-NROM", 0 },

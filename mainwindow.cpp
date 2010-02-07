@@ -61,6 +61,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pExecutionInspector->hide();
     QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
 
+    m_pCodeInspector = new CodeInspector();
+    m_pCodeInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pCodeInspector->setWindowTitle("Code Inspector");
+    m_pCodeInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pCodeInspector );
+    m_pCodeInspector->hide();
+    QObject::connect(m_pCodeInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeInspector_close(bool)));
+
     m_pBinCPURegisterInspector = new RegisterInspector(eMemory_CPUregs);
     m_pBinCPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
@@ -202,6 +210,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionEmulation_Window->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionCode_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
@@ -673,3 +682,12 @@ void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
    ui->actionBinMapperMemory_Inspector->setChecked(toplevel);
 }
 
+void MainWindow::on_actionCode_Inspector_toggled(bool value)
+{
+   m_pCodeInspector->setVisible(value);
+}
+
+void MainWindow::reflectedCodeInspector_close ( bool toplevel )
+{
+   ui->actionCode_Inspector->setChecked(toplevel);
+}

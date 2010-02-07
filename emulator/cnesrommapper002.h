@@ -23,4 +23,4 @@ protected:
    static unsigned char  m_reg;
 };
 
-#endif // !defined(AFX_ROMMAPPER002_H__DC9CDCE4_C2E6_445A_A41B_AAB22ECFCCBE__INCLUDED_)
+#endif

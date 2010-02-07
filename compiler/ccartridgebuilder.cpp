@@ -1,5 +1,8 @@
 #include "ccartridgebuilder.h"
 
+#include "cnesicideproject.h"
+#include "main.h"
+
 CCartridgeBuilder::CCartridgeBuilder()
 {
 }
@@ -17,4 +20,5 @@ void CCartridgeBuilder::build()
     }
     builderTextLogger.write("<b>Build completed successfully.</b>");
 
+    emulator->setCartridge(nesicideProject->get_pointerToCartridge());
 }

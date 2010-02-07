@@ -42,4 +42,4 @@ protected:
    static unsigned char  m_fillAttr;
 };
 
-#endif // !defined(AFX_ROMMAPPER005_H__412F2CB8_ADF3_4EAF_9FC3_5C9E24A80A29__INCLUDED_)
+#endif

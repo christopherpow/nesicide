@@ -139,8 +139,8 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>272</width>
-       <height>256</height>
+       <width>256</width>
+       <height>240</height>
       </size>
      </property>
      <property name="focusPolicy">

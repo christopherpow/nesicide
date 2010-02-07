@@ -26,6 +26,8 @@
 
 #include "cnesmappers.h"
 
+#include "cnesicidecommon.h"
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -117,13 +119,13 @@ static int opcode_size [ NUM_ADDRESSING_MODES ] =
    2  // AM_RELATIVE
 };
 
-/*static const char* dispFmt[4] =
+static const char* dispFmt[4] =
 {
    "",
    "%02X       ",
    "%02X %02X    ",
    "%02X %02X %02X "
-};*/
+};
 
 static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
 {
@@ -2792,53 +2794,37 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    return addr;
 }
 
-// CPTODO: support funcs for inline disassembly and for tracer disassembly
-#if 0
-void C6502::Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, int len, bool decorate )
+void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned short* sloc2addr, int* sourceLength, bool decorate )
 {
    C6502_opcode* pOp;
    int opSize;
-   char* ptr8000;
-   char* ptrC000;
-   QByteArray ba8000;
-   QByteArray baC000;
    unsigned char op;
+   char* ptr;
 
-   dis8000.reserve ( 524288 );
-   disC000.reserve ( 524288 );
-   ba8000 = dis8000.toUtf8 ();
-   baC000 = dis8000.toUtf8 ();
-   ptr8000 = ba8000.data ();
-   ptrC000 = baC000.data ();
+   (*sourceLength) = 0;
 
-   for ( int i = 0; i < len; )
+   for ( int i = 0; i < binaryLength; )
    {
-      if ( decorate == true )
-      {
-         sprintf04xc ( &ptr8000, 0x8000+i );
-         sprintf04xc ( &ptrC000, 0xC000+i );
-      }
-
-      op = *(szBinary+i);
+      op = *(binary+i);
       pOp = m_6502opcode+op;
       opSize = *(opcode_size+pOp->amode);
 
-      if ( (pOp->documented) && ((len-i) >= opSize) )
+      (*disassembly) = new char [ 32 ];
+      ptr = (*disassembly);
+
+      // save sloc
+      (*sloc2addr) = i;
+      sloc2addr++;
+      (*sourceLength)++;
+
+      if ( (pOp->documented) && ((binaryLength-i) >= opSize) )
       {
          if ( decorate == true )
          {
-            ptr8000 += sprintf ( ptr8000, dispFmt[opSize],
-                                 szBinary[i],
-                                 szBinary[i+1],
-                                 szBinary[i+2] );
-            ptrC000 += sprintf ( ptrC000, dispFmt[opSize],
-                                 szBinary[i],
-                                 szBinary[i+1],
-                                 szBinary[i+2] );
+            ptr += sprintf ( ptr, dispFmt[opSize], binary[i], binary[i+1], binary[i+2] );
          }
 
-         ptr8000 += sprintf ( ptr8000, pOp->name );
-         ptrC000 += sprintf ( ptrC000, pOp->name );
+         ptr += sprintf ( ptr, pOp->name );
 
          switch ( pOp->amode )
          {
@@ -2850,10 +2836,7 @@ void C6502::Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, i
             case AM_PREINDEXED_INDIRECT:
             case AM_POSTINDEXED_INDIRECT:
             case AM_RELATIVE:
-               ptr8000 += sprintf ( ptr8000, operandFmt[pOp->amode],
-                                    szBinary[i+1] );
-               ptrC000 += sprintf ( ptrC000, operandFmt[pOp->amode],
-                                    szBinary[i+1] );
+               ptr += sprintf ( ptr, operandFmt[pOp->amode], binary[i+1] );
             break;
 
             // Two byte operands
@@ -2861,47 +2844,36 @@ void C6502::Disassemble ( QString& dis8000, QString& disC000, qint8* szBinary, i
             case AM_ABSOLUTE_INDEXED_X:
             case AM_ABSOLUTE_INDEXED_Y:
             case AM_INDIRECT:
-               ptr8000 += sprintf ( ptr8000, operandFmt[pOp->amode],
-                                    szBinary[i+2],
-                                    szBinary[i+1] );
-               ptrC000 += sprintf ( ptrC000, operandFmt[pOp->amode],
-                                    szBinary[i+2],
-                                    szBinary[i+1] );
+               ptr += sprintf ( ptr, operandFmt[pOp->amode], binary[i+2], binary[i+1] );
             break;
          }
 
-         if ( decorate == false )
+         if ( opSize > 2 )
          {
-            ptr8000 += sprintf ( ptr8000, "\t\t; $%04X", i );
-            ptrC000 += sprintf ( ptrC000, "\t\t; $%04X", i );
+            (*(disassembly+2)) = (*disassembly);
+         }
+         if ( opSize > 1 )
+         {
+            (*(disassembly+1)) = (*disassembly);
          }
 
          i += opSize;
+         disassembly += opSize;
       }
       else
       {
          if ( decorate == true )
          {
-            ptr8000 += sprintf ( ptr8000, dispFmt[1], szBinary[i] );
-            ptrC000 += sprintf ( ptrC000, dispFmt[1], szBinary[i] );
+            ptr += sprintf ( ptr, dispFmt[1], binary[i], binary[i] );
          }
 
-         ptr8000 += sprintf ( ptr8000, ".DB $%02X", szBinary[i] );
-         ptrC000 += sprintf ( ptrC000, ".DB $%02X", szBinary[i] );
+         ptr += sprintf ( ptr, ".DB $%02X", binary[i] );
 
          i++;
+         disassembly++;
       }
-
-      (*ptr8000) = '\r'; ptr8000++;
-      (*ptr8000) = '\n'; ptr8000++;;
-      (*ptrC000) = '\r'; ptrC000++;
-      (*ptrC000) = '\n'; ptrC000++;;
    }
-
-   (*ptr8000) = 0;
-   (*ptrC000) = 0;
 }
-#endif
 
 char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
 {

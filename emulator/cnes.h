@@ -39,4 +39,4 @@ protected:
    static CTracer         m_tracer;
 };
 
-#endif // !defined(AFX_NES_H__075DAA92_13A4_4462_9903_FBD07E97E908__INCLUDED_)
+#endif
