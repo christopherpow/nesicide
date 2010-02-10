@@ -14,6 +14,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     tableViewModel = new CCodeBrowserDisplayModel(this);
     ui->tableView->setModel(tableViewModel);
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
+    QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateDisassembly()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateBrowser()) );
 }
 
@@ -46,7 +47,19 @@ void CodeBrowserDialog::changeEvent(QEvent *e)
     }
 }
 
-void CodeBrowserDialog::updateBrowser ()
+void CodeBrowserDialog::updateDisassembly()
+{
+   // Update display...
+   CROM::DISASSEMBLE();
+
+   emit showMe();
+
+   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+
+   tableViewModel->layoutChangedEvent();
+}
+
+void CodeBrowserDialog::updateBrowser()
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int idx;
@@ -59,9 +72,11 @@ void CodeBrowserDialog::updateBrowser ()
            (pBreakpoint->hit) )
       {
          // Update display...
+         CROM::DISASSEMBLE();
+
          emit showMe();
-//CPTODO: address this...
-//         ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(pBreakpoint->itemActual),0));
+
+         ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(pBreakpoint->itemActual),0));
       }
    }
 

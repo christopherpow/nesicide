@@ -21,6 +21,7 @@ protected:
 
 public slots:
     void updateBrowser();
+    void updateDisassembly();
 
 signals:
     void showMe();

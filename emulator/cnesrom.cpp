@@ -26,18 +26,20 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-unsigned char  CROM::m_SRAMmemory [] = { 0, };
-unsigned char  CROM::m_EXRAMmemory [] = { 0, };
 unsigned char  CROM::m_PRGROMmemory [][ MEM_8KB ] = { { 0, }, };
+unsigned char  CROM::m_PRGROMopcodeMask [][ MEM_8KB ] = { { 0, }, };
 char*          CROM::m_PRGROMdisassembly [][ MEM_8KB ] = { { 0, }, };
 unsigned short CROM::m_PRGROMsloc2addr [][ MEM_8KB ] = { { 0, }, };
+unsigned short CROM::m_PRGROMaddr2sloc [][ MEM_8KB ] = { { 0, }, };
 int            CROM::m_PRGROMsloc [] = { 0, };
 unsigned char  CROM::m_CHRROMmemory [][ MEM_8KB ] = { { 0, }, };
 unsigned char  CROM::m_CHRRAMmemory [ MEM_8KB ] = { 0, };
 UINT           CROM::m_PRGROMbank [] = { 0, 0, 0, 0 };
 unsigned char* CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
 unsigned char* CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-unsigned char* CROM::m_pSRAMmemory = m_SRAMmemory; 
+unsigned char  CROM::m_SRAMmemory [] = { 0, };
+unsigned char  CROM::m_EXRAMmemory [] = { 0, };
+unsigned char* CROM::m_pSRAMmemory = m_SRAMmemory;
 
 UINT           CROM::m_mapper = 0; 
 UINT           CROM::m_numPrgBanks = 0;
@@ -52,12 +54,17 @@ static CROM __init __attribute((unused));
 CROM::CROM()
 {
    int bank;
+   int addr;
 
    for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
    {
       m_pLogger [ bank ] = new CCodeDataLogger ();
-   }
 
+      for ( addr = 0; addr < MEM_8KB; addr++ )
+      {
+         m_PRGROMdisassembly[bank][addr] = new char [ 32 ];
+      }
+   }
 
    CROM::RESET ();
 }
@@ -72,14 +79,9 @@ CROM::~CROM()
    {
       delete m_pLogger [ bank ];
 
-      // Blow away disassembly strings...
-      for ( addr = 0 ; addr < MEM_8KB; addr++ )
+      for ( addr = 0; addr < MEM_8KB; addr++ )
       {
-         if ( val != m_PRGROMdisassembly[bank][addr] )
-         {
-            val = m_PRGROMdisassembly[bank][addr];
-            delete [] m_PRGROMdisassembly[bank][addr];
-         }
+         delete [] m_PRGROMdisassembly[bank][addr];
       }
    }
 }
@@ -90,29 +92,14 @@ void CROM::Clear16KBanks ()
    int addr;
    char* val = 0;
 
-   for ( bank = 0; bank < m_numPrgBanks; bank++ )
-   {
-      // Blow away disassembly strings...
-      for ( addr = 0 ; addr < MEM_8KB; addr++ )
-      {
-         if ( val != m_PRGROMdisassembly[bank][addr] )
-         {
-            val = m_PRGROMdisassembly[bank][addr];
-            delete [] m_PRGROMdisassembly[bank][addr];
-         }
-      }
-   }
-
    m_numPrgBanks = 0;
 }
 
 void CROM::Set16KBank ( int bank, unsigned char* data )
 {
    memcpy ( m_PRGROMmemory[m_numPrgBanks], data, MEM_8KB );
-   C6502::Disassemble(m_PRGROMdisassembly[m_numPrgBanks],m_PRGROMmemory[m_numPrgBanks],MEM_8KB,m_PRGROMsloc2addr[m_numPrgBanks],&(m_PRGROMsloc[m_numPrgBanks]),true);
    m_numPrgBanks++;
    memcpy ( m_PRGROMmemory[m_numPrgBanks], data+MEM_8KB, MEM_8KB );
-   C6502::Disassemble(m_PRGROMdisassembly[m_numPrgBanks],m_PRGROMmemory[m_numPrgBanks],MEM_8KB,m_PRGROMsloc2addr[m_numPrgBanks],&(m_PRGROMsloc[m_numPrgBanks]),true);
    m_numPrgBanks++;
 }
 
@@ -130,11 +117,29 @@ void CROM::DoneLoadingBanks ()
       // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
       // to the second PRG-ROM bank slot...
       memcpy ( m_PRGROMmemory[2], m_PRGROMmemory[0], MEM_8KB );
-      C6502::Disassemble(m_PRGROMdisassembly[2],m_PRGROMmemory[2],MEM_8KB,m_PRGROMsloc2addr[2],&(m_PRGROMsloc[2]),true);
       m_numPrgBanks++;
       memcpy ( m_PRGROMmemory[3], m_PRGROMmemory[1], MEM_8KB );
-      C6502::Disassemble(m_PRGROMdisassembly[3],m_PRGROMmemory[3],MEM_8KB,m_PRGROMsloc2addr[3],&(m_PRGROMsloc[3]),true);
       m_numPrgBanks++;
+   }
+
+   // Initial disassembly will be 'crap' but do it anyway...
+   DISASSEMBLE();
+}
+
+void CROM::DISASSEMBLE ()
+{
+   unsigned int bank;
+
+   for ( bank = 0; bank < m_numPrgBanks; bank++ )
+   {
+      C6502::Disassemble ( m_PRGROMdisassembly[bank],
+                           m_PRGROMmemory[bank],
+                           MEM_8KB,
+                           m_PRGROMopcodeMask[bank],
+                           m_PRGROMsloc2addr[bank],
+                           m_PRGROMaddr2sloc[bank],
+                           &(m_PRGROMsloc[bank]),
+                           true );
    }
 }
 

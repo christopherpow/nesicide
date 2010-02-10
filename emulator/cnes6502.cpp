@@ -2612,18 +2612,22 @@ unsigned char C6502::FETCH ( UINT addr )
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
 
-   // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
-
    // If ROM is being accessed, log code/data logger...
    if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
-      if ( pLogger )
-      {
-         pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
-      }
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+
+      // ... and update opcode masking for disassembler...
+      CROM::OPCODEMASK ( addr, (unsigned char)m_sync );
    }
+   else if ( target == eTarget_RAM )
+   {
+      m_logger.LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+   }
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
 
    return data;
 }
@@ -2642,10 +2646,7 @@ unsigned char C6502::DMA ( UINT addr, char source )
    if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
-      if ( pLogger )
-      {
-         pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
-      }
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
    }
    else if ( target == eTarget_RAM )
    {
@@ -2663,22 +2664,19 @@ unsigned char C6502::MEM ( UINT addr )
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_DataRead, eSource_CPU, target, addr, data );
 
-   // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
-
    // If ROM or RAM is being accessed, log code/data logger...
    if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
-      if ( pLogger )
-      {
-         pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
-      }
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
    }
    else if ( target == eTarget_RAM )
    {
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
    }
+
+   // Check for breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
 
    return data;
 }
@@ -2794,12 +2792,13 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    return addr;
 }
 
-void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned short* sloc2addr, int* sourceLength, bool decorate )
+void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength, bool decorate )
 {
    C6502_opcode* pOp;
    int opSize;
    unsigned char op;
    char* ptr;
+   unsigned char mask;
 
    (*sourceLength) = 0;
 
@@ -2809,15 +2808,19 @@ void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryL
       pOp = m_6502opcode+op;
       opSize = *(opcode_size+pOp->amode);
 
-      (*disassembly) = new char [ 32 ];
+      mask = *(opcodeMask+i);
+
       ptr = (*disassembly);
 
       // save sloc
       (*sloc2addr) = i;
       sloc2addr++;
-      (*sourceLength)++;
+      (*addr2sloc) = (*sourceLength);
+      addr2sloc++;
 
-      if ( (pOp->documented) && ((binaryLength-i) >= opSize) )
+      // If we've discovered this address has been executed by the 6502 we'll
+      // attempt to provide disassembly for it...
+      if ( (mask) && (pOp->documented) && ((binaryLength-i) >= opSize) )
       {
          if ( decorate == true )
          {
@@ -2850,11 +2853,15 @@ void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryL
 
          if ( opSize > 2 )
          {
-            (*(disassembly+2)) = (*disassembly);
+            strcpy((*(disassembly+2)), (*disassembly));
+            (*addr2sloc) = (*sourceLength);
+            addr2sloc++;
          }
          if ( opSize > 1 )
          {
-            (*(disassembly+1)) = (*disassembly);
+            strcpy((*(disassembly+1)), (*disassembly));
+            (*addr2sloc) = (*sourceLength);
+            addr2sloc++;
          }
 
          i += opSize;
@@ -2872,6 +2879,8 @@ void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryL
          i++;
          disassembly++;
       }
+
+      (*sourceLength)++;
    }
 }
 

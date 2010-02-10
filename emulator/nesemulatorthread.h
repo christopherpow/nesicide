@@ -23,7 +23,6 @@ public:
    float getFrequency ( void ) { return m_fFreq; }
    void setFactorIndex ( int factorIdx ) { m_factorIdx = factorIdx; setFrequency(m_fFreq); }
    int getFactorIndex ( void ) { return m_factorIdx; }
-   bool isAtBreakpoint ( void ) { return m_isAtBreakpoint; }
 
    void setCartridge ( CCartridge* cartridge );
 
@@ -31,7 +30,6 @@ public slots:
    void startEmulation ();
    void pauseEmulation ();
    void stepEmulation ();
-   void stopEmulation ();
    void resetEmulator ();
    void controllerInput ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
    void primeEmulator ();
@@ -41,12 +39,14 @@ signals:
    void emulatedFrame ();
    void cartridgeLoaded ();
    void breakpointClear ();
+   void emulatorPaused ();
 
 protected:
    virtual void run ();
 
    CCartridge*   m_pCartridge;
    bool          m_isRunning;
+   bool          m_isPaused;
    qint32         m_lastVblankTime;
    qint32         m_currVblankTime;
    float         m_periodVblank;
@@ -54,7 +54,6 @@ protected:
    float         m_fFreqReal;
    int m_factorIdx;
    unsigned char m_joy [ NUM_JOY ];
-   bool          m_isAtBreakpoint;
 };
 
 #endif // NESEMULATORTHREAD_H

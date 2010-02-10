@@ -15,8 +15,12 @@
 
 #define NUM_ROM_BANKS 32
 
-#define PRGBANK_NUM(addr) ( (addr&MASK_32KB)>>SHIFT_32KB_8KB )
+// Resolve a 6502-address to one of 4 8KB PRG ROM banks [0:$8000-$9FFF, 1:$A000-$BFFF, 2:$C000-$DFFF, or 3:$E000-$FFFF]
+#define PRGBANK_VIRT(addr) ( (addr&MASK_32KB)>>SHIFT_32KB_8KB )
+// Retrieve the bank-offset address portion of a 6502-address for use within PRG ROM banks
 #define PRGBANK_OFF(addr) ( addr&MASK_8KB )
+// Resolve a 6502-address to one of the 8KB PRG ROM banks within a ROM file [the absolute physical address]
+#define PRGBANK_PHYS(addr) ( *(m_PRGROMbank+PRGBANK_VIRT(addr)) )
 
 #define CHRBANK_NUM(addr) ( addr>>SHIFT_8KB_1KB )
 #define CHRBANK_OFF(addr) ( addr&MASK_1KB )
@@ -45,10 +49,10 @@ public:
 
    // Operations
    static bool IsWriteProtected ( void ) { return (m_numChrBanks>0); }
-   static inline UINT PRGROMBANK ( UINT addr ) { return *(m_PRGROMbank+PRGBANK_NUM(addr)); }
-   static inline UINT ABSADDR ( UINT addr ) { return (PRGROMBANK(addr)*MEM_8KB)+PRGBANK_OFF(addr); }
+   static inline UINT ABSADDR ( UINT addr ) { return (PRGBANK_PHYS(addr)*MEM_8KB)+PRGBANK_OFF(addr); }
 //   static UINT CHRMEMBANK ( UINT addr ) { return m_CHRbank[CHRBANK_NUM(addr)]; }
-   static inline UINT PRGROM ( UINT addr ) { return *(*(m_pPRGROMmemory+PRGBANK_NUM(addr))+(PRGBANK_OFF(addr))); }
+   static inline unsigned char* CHRRAMPTR ( UINT addr ) { return &(m_CHRRAMmemory[addr]); }
+   static inline UINT PRGROM ( UINT addr ) { return *(*(m_pPRGROMmemory+PRGBANK_VIRT(addr))+(PRGBANK_OFF(addr))); }
    static inline void PRGROM ( UINT addr, unsigned char data ) {}
    static inline void CHRMEM ( UINT addr, unsigned char data ) { *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))) = data; }
    static inline UINT CHRMEM ( UINT addr ) { return *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))); }
@@ -56,13 +60,16 @@ public:
    static inline void SRAM ( UINT addr, unsigned char data ) { *(m_pSRAMmemory+SRAMBANK_OFF(addr)) = data; }
    static inline UINT EXRAM ( UINT addr ) { return *(m_EXRAMmemory+(addr-EXRAM_START)); }
    static inline void EXRAM ( UINT addr, unsigned char data ) { *(m_EXRAMmemory+(addr-EXRAM_START)) = data; }
-   static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGROMBANK(addr)); }
-   static inline unsigned char* CHRRAMPTR ( UINT addr ) { return &(m_CHRRAMmemory[addr]); }
+   static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGBANK_PHYS(addr)); }
    static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
-   static inline char* DISASSEMBLY ( int addr ) { return m_PRGROMdisassembly[PRGROMBANK(addr)][PRGBANK_OFF(addr)]; }
-   static inline unsigned short SLOC2ADDR ( unsigned short addr, int sloc ) { return m_PRGROMsloc2addr[PRGROMBANK(addr)][sloc]; }
-   static inline int SLOC ( int addr ) { return m_PRGROMsloc[PRGROMBANK(addr)]; }
+   static inline void OPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
+   static inline char* DISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
+   static inline unsigned short SLOC2ADDR ( UINT addr, unsigned short sloc ) { return *(*(m_PRGROMsloc2addr+PRGBANK_PHYS(addr))+sloc); }
+   static inline unsigned short ADDR2SLOC ( UINT addr ) { return *(*(m_PRGROMaddr2sloc+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
+   fix the above two functions to take into account bank slocs of previous banks
+   static inline unsigned short SLOC ( UINT addr ) { return *(m_PRGROMsloc+PRGBANK_PHYS(addr)); }
+   static void DISASSEMBLE ();
 
    // Mapper interfaces [not usually called directly, rather through mapperfunc array]
    static void RESET ();
@@ -78,14 +85,19 @@ public:
    static void SAVE ( MapperState* data );
 
 protected:
-   static unsigned char  m_SRAMmemory [ MEM_64KB ];
-   static unsigned char  m_EXRAMmemory [ MEM_1KB ];
    static unsigned char  m_PRGROMmemory [ NUM_ROM_BANKS ][ MEM_8KB ];
+   static unsigned char  m_PRGROMopcodeMask [ NUM_ROM_BANKS ][ MEM_8KB ];
    static char*          m_PRGROMdisassembly [ NUM_ROM_BANKS ][ MEM_8KB ];
    static unsigned short m_PRGROMsloc2addr [ NUM_ROM_BANKS ][ MEM_8KB ];
+   static unsigned short m_PRGROMaddr2sloc [ NUM_ROM_BANKS ][ MEM_8KB ];
    static int            m_PRGROMsloc [ NUM_ROM_BANKS ];
+
    static unsigned char  m_CHRROMmemory [ NUM_ROM_BANKS ][ MEM_8KB ];
    static unsigned char  m_CHRRAMmemory [ MEM_8KB ];
+
+   static unsigned char  m_SRAMmemory [ MEM_64KB ];
+
+   static unsigned char  m_EXRAMmemory [ MEM_1KB ];
 
    // Mapper stuff...
    static UINT           m_mapper;

@@ -24,8 +24,8 @@ NESEmulatorThread::NESEmulatorThread(QObject *parent)
     m_currVblankTime = 0;
     m_joy [ JOY1 ] = 0x00;
     m_joy [ JOY2 ] = 0x00;
-    m_isAtBreakpoint = false;
     m_isRunning = false;
+    m_isPaused = false;
 
     m_pCartridge = NULL;
 }
@@ -154,6 +154,7 @@ void NESEmulatorThread::startEmulation ()
    emit breakpointClear();
 
    m_isRunning = true;
+   m_isPaused = false;
 }
 
 void NESEmulatorThread::stepEmulation ()
@@ -165,17 +166,18 @@ void NESEmulatorThread::stepEmulation ()
    {
       breakpointSemaphore.release();
    }
+
+   // Trigger Breakpoint dialog redraw...
+   emit breakpointClear();
+
    m_isRunning = true;
+   m_isPaused = false;
 }
 
 void NESEmulatorThread::pauseEmulation ()
 {
    m_isRunning = false;
-}
-
-void NESEmulatorThread::stopEmulation ()
-{
-   m_isRunning = false;
+   m_isPaused = true;
 }
 
 void NESEmulatorThread::run ()
@@ -183,7 +185,7 @@ void NESEmulatorThread::run ()
    // Seed mechanism for breaking...
    breakpointSemaphore.acquire ();
 
-   while ( 1 )
+   for ( ; ; )
    {
       if ( m_isRunning )
       {
@@ -194,6 +196,13 @@ void NESEmulatorThread::run ()
          CNES::RUN ( m_joy );
 
          emit emulatedFrame();
+      }
+
+      // Trigger inspectors to update on a pause also...
+      if ( m_isPaused )
+      {
+         emit emulatorPaused();
+         m_isPaused = false;
       }
 
       emulatorSemaphore.acquire ();

@@ -130,7 +130,7 @@ public:
 	C6502();
 
    // Disassembly routines for display
-   static void Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned short* sloc2addr, int* sourceLength, bool decorate );
+   static void Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength, bool decorate );
    static char* Disassemble ( unsigned char* pOpcode, char* buffer );
 
    // Emulation routines

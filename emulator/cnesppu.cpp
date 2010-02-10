@@ -463,7 +463,9 @@ void CPPU::RENDERNAMETABLE ( void )
    unsigned char patternData2;
    unsigned char bit1, bit2;
    unsigned char colorIdx;
+#if 0
    unsigned char lbx, lby, ubx, uby;
+#endif
 
    if ( m_bNameTableInspector )
    {
