@@ -65,8 +65,8 @@ public:
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
    static inline void OPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
    static inline char* DISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
-   static inline unsigned short SLOC2ADDR ( UINT addr, unsigned short sloc ) { return *(*(m_PRGROMsloc2addr+PRGBANK_PHYS(addr))+sloc); }
-   static inline unsigned short ADDR2SLOC ( UINT addr ) { return *(*(m_PRGROMaddr2sloc+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
+   static UINT SLOC2ADDR ( unsigned short sloc );
+   static unsigned short ADDR2SLOC ( UINT addr );
    static inline unsigned short SLOC ( UINT addr ) { return *(m_PRGROMsloc+PRGBANK_PHYS(addr)); }
    static void DISASSEMBLE ();
 

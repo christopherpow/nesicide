@@ -73,7 +73,6 @@ CROM::~CROM()
 {
    int bank;
    int addr;
-   char* val = 0;
 
    for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
    {
@@ -88,10 +87,6 @@ CROM::~CROM()
 
 void CROM::Clear16KBanks ()
 {
-   unsigned int bank;
-   int addr;
-   char* val = 0;
-
    m_numPrgBanks = 0;
 }
 
@@ -141,6 +136,64 @@ void CROM::DISASSEMBLE ()
                            &(m_PRGROMsloc[bank]),
                            true );
    }
+}
+
+UINT CROM::SLOC2ADDR ( unsigned short sloc )
+{
+   int sloc8000 = CROM::SLOC(0x8000);
+   int slocA000 = sloc8000+CROM::SLOC(0xA000);
+   int slocC000 = slocA000+CROM::SLOC(0xC000);
+   int slocE000 = slocC000+CROM::SLOC(0xE000);
+   int addr = 0;
+
+   if ( sloc < sloc8000 )
+   {
+      addr = 0x8000;
+   }
+   else if ( sloc < slocA000 )
+   {
+      addr = 0xA000;
+      sloc -= sloc8000;
+   }
+   else if ( sloc < slocC000 )
+   {
+      addr = 0xC000;
+      sloc -= slocA000;
+   }
+   else if ( sloc < slocE000 )
+   {
+      addr = 0xE000;
+      sloc -= slocC000;
+   }
+
+   return addr+(*(*(m_PRGROMsloc2addr+PRGBANK_PHYS(addr))+sloc));
+}
+
+unsigned short CROM::ADDR2SLOC ( UINT addr )
+{
+   int sloc8000 = CROM::SLOC(0x8000);
+   int slocA000 = sloc8000+CROM::SLOC(0xA000);
+   int slocC000 = slocA000+CROM::SLOC(0xC000);
+   int sloc;
+
+   if ( addr < 0xA000 )
+   {
+      sloc = 0;
+   }
+   else if ( addr < 0xC000 )
+   {
+      sloc = sloc8000;
+   }
+   else if ( addr < 0xE000 )
+   {
+      sloc = slocA000;
+   }
+   else
+   {
+      sloc = slocC000;
+   }
+
+   return sloc+(*(*(m_PRGROMaddr2sloc+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)));
 }
 
 void CROM::RESET ()

@@ -30,6 +30,7 @@ Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex &index) const
 QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
    char buffer [ 6 ];
+   int addr;
 
    if (role != Qt::DisplayRole)
       return QVariant();
@@ -40,28 +41,7 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    }
    else
    {
-      int sloc8000 = CROM::SLOC(0x8000);
-      int slocA000 = CROM::SLOC(0xA000);
-      int slocC000 = CROM::SLOC(0xC000);
-      int slocE000 = CROM::SLOC(0xE000);
-      int addr;
-
-      if ( section < sloc8000 )
-      {
-         addr = 0x8000+CROM::SLOC2ADDR(0x8000,section);
-      }
-      else if ( section < (sloc8000+slocA000) )
-      {
-         addr = 0xA000+CROM::SLOC2ADDR(0xA000,section-sloc8000);
-      }
-      else if ( section < (sloc8000+slocA000+slocC000) )
-      {
-         addr = 0xC000+CROM::SLOC2ADDR(0xC000,section-sloc8000-slocA000);
-      }
-      else if ( section < (sloc8000+slocA000+slocC000+slocE000) )
-      {
-         addr = 0xE000+CROM::SLOC2ADDR(0xE000,section-sloc8000-slocA000-slocC000);
-      }
+      addr = CROM::SLOC2ADDR(section);
 
       sprintf ( buffer, "$%04X", addr );
       return buffer;
@@ -72,28 +52,9 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
 
 QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex &parent) const
 {
-   int sloc8000 = CROM::SLOC(0x8000);
-   int slocA000 = CROM::SLOC(0xA000);
-   int slocC000 = CROM::SLOC(0xC000);
-   int slocE000 = CROM::SLOC(0xE000);
    int addr;
 
-   if ( row < sloc8000 )
-   {
-      addr = 0x8000+CROM::SLOC2ADDR(0x8000,row);
-   }
-   else if ( row < (sloc8000+slocA000) )
-   {
-      addr = 0xA000+CROM::SLOC2ADDR(0xA000,row-sloc8000);
-   }
-   else if ( row < (sloc8000+slocA000+slocC000) )
-   {
-      addr = 0xC000+CROM::SLOC2ADDR(0xC000,row-sloc8000-slocA000);
-   }
-   else if ( row < (sloc8000+slocA000+slocC000+slocE000) )
-   {
-      addr = 0xE000+CROM::SLOC2ADDR(0xE000,row-sloc8000-slocA000-slocC000);
-   }
+   addr = CROM::SLOC2ADDR(row);
 
    return createIndex(row, column, CROM::DISASSEMBLY(addr));
 }
