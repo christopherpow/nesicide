@@ -2,7 +2,9 @@
 #include "ui_executiontracerdialog.h"
 
 #include "cnes6502.h"
+#include "cnesrom.h"
 
+#include "inspectorregistry.h"
 #include "main.h"
 
 ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
@@ -33,6 +35,10 @@ void ExecutionTracerDialog::showEvent(QShowEvent* e)
 
 void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent *e)
 {
+   QMenu menu;
+
+   menu.addAction(ui->actionBreak_on_CPU_execution_here);
+   menu.exec(e->globalPos());
 }
 
 void ExecutionTracerDialog::changeEvent(QEvent *e)
@@ -85,4 +91,8 @@ void ExecutionTracerDialog::on_showPPU_toggled(bool checked)
 {
    tableViewModel->showPPU ( checked );   
    tableViewModel->layoutChangedEvent();
+}
+
+void ExecutionTracerDialog::on_actionBreak_on_CPU_execution_here_triggered()
+{
 }

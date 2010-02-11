@@ -79,6 +79,14 @@
     </widget>
    </item>
   </layout>
+  <action name="actionBreak_on_CPU_execution_here">
+   <property name="text">
+    <string>Break on CPU execution here</string>
+   </property>
+   <property name="toolTip">
+    <string>Break on CPU execution here</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

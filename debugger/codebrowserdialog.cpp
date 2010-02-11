@@ -4,6 +4,7 @@
 #include "cnes6502.h"
 #include "cnesrom.h"
 
+#include "inspectorregistry.h"
 #include "main.h"
 
 CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
@@ -38,6 +39,10 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
 
 void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
 {
+   QMenu menu;
+
+   menu.addAction(ui->actionBreak_on_CPU_execution_here);
+   menu.exec(e->globalPos());
 }
 
 void CodeBrowserDialog::changeEvent(QEvent *e)
@@ -86,4 +91,23 @@ void CodeBrowserDialog::updateBrowser()
    tableViewModel->layoutChangedEvent();
 
    ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+}
+
+void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   QModelIndex index = ui->tableView->currentIndex();
+   int addr = CROM::SLOC2ADDR(index.row());
+
+   pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
+                                 eBreakpointItemAddress,
+                                 0,
+                                 addr,
+                                 addr,
+                                 eBreakpointConditionNone,
+                                 0,
+                                 eBreakpointDataNone,
+                                 0 );
+
+   InspectorRegistry::getInspector("Breakpoints")->show();
 }

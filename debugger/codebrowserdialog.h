@@ -29,6 +29,9 @@ signals:
 private:
     Ui::CodeBrowserDialog *ui;
     CCodeBrowserDisplayModel *tableViewModel;
+
+private slots:
+    void on_actionBreak_on_CPU_execution_here_triggered();
 };
 
 #endif // CODEBROWSERDIALOG_H

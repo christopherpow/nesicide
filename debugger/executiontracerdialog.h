@@ -30,6 +30,7 @@ private:
     CDebuggerExecutionTracerModel *tableViewModel;
 
 private slots:
+    void on_actionBreak_on_CPU_execution_here_triggered();
     void on_showPPU_toggled(bool checked);
     void on_showCPU_toggled(bool checked);
 };
