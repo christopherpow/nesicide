@@ -460,3 +460,71 @@ void BreakpointDialog::on_addr1_textChanged(QString )
 {
     ui->addr2->setText(ui->addr1->text());
 }
+
+void BreakpointDialog::on_modifyButton_clicked()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   bool ok;
+   int  item1 = 0;
+   int  item2 = 0;
+   int  data = 0;
+   int  event = 0;
+   QModelIndex sel = ui->tableView->currentIndex();
+
+   if ( sel.row() >= 0 )
+   {
+      switch ( ui->itemWidget->currentIndex() )
+      {
+         case eBreakpointItemNone:
+            // No item...
+         break;
+         case eBreakpointItemAddress:
+            // Address item...
+            item1 = ui->addr1->text().toInt(&ok, 16);
+            item2 = ui->addr2->text().toInt(&ok, 16);
+         break;
+         case eBreakpointItemRegister:
+            // Register item...
+            item1 = ui->reg->currentIndex ();
+            item2 = ui->bitfield->currentIndex ();
+            // sometimes no bitfield...
+            if ( item2 < 0 ) item2 = 0;
+         break;
+         case eBreakpointItemEvent:
+            if ( m_pEvent )
+            {
+               item1 = ui->eventData1->text().toInt(&ok, m_pEvent->GetElementRadix());
+               item2 = ui->eventData2->text().toInt(&ok, m_pEvent->GetElementRadix());
+               event = ui->event->currentIndex ();
+            }
+         break;
+      }
+      switch ( ui->dataWidget->currentIndex() )
+      {
+         case eBreakpointDataNone:
+            // No data...
+         break;
+         case eBreakpointDataPure:
+            // Direct value data...
+            data = ui->data1->text().toInt(&ok, 16);
+         break;
+         case eBreakpointDataPick:
+            // Picklist data...
+            data = ui->data2->currentIndex ();
+         break;
+      }
+   }
+
+   pBreakpoints->ModifyBreakpoint ( sel.row(),
+                                    (eBreakpointType)ui->type->currentIndex(),
+                                    (eBreakpointItemType)ui->itemWidget->currentIndex(),
+                                    event,
+                                    item1,
+                                    item2,
+                                    (eBreakpointConditionType)ui->conditionWidget->currentIndex(),
+                                    ui->condition->currentIndex(),
+                                    (eBreakpointDataType)ui->dataWidget->currentIndex(),
+                                    data );
+
+   model->layoutChangedEvent();
+}

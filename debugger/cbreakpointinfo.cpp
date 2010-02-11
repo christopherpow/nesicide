@@ -10,14 +10,14 @@ CBreakpointInfo::CBreakpointInfo()
 {
 }
 
-void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
+void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
 {
-   if ( m_numBreakpoints < NUM_BREAKPOINTS )
+   if ( bp < NUM_BREAKPOINTS )
    {
-      m_breakpoint [ m_numBreakpoints ].hit = false;
-      m_breakpoint [ m_numBreakpoints ].itemActual = -1;
-      m_breakpoint [ m_numBreakpoints ].type = (eBreakpointType)type;
-      m_breakpoint [ m_numBreakpoints ].pEvent = NULL;
+      m_breakpoint [ bp ].hit = false;
+      m_breakpoint [ bp ].itemActual = -1;
+      m_breakpoint [ bp ].type = (eBreakpointType)type;
+      m_breakpoint [ bp ].pEvent = NULL;
       switch ( type )
       {
          case eBreakOnCPUExecution:
@@ -26,7 +26,7 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
          case eBreakOnCPUMemoryWrite:
          case eBreakOnCPUState:
          case eBreakOnCPUEvent:
-            m_breakpoint [ m_numBreakpoints ].target = eBreakInCPU;
+            m_breakpoint [ bp ].target = eBreakInCPU;
          break;
          case eBreakOnPPUFetch:
          case eBreakOnOAMPortalAccess:
@@ -37,29 +37,29 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
          case eBreakOnPPUPortalWrite:
          case eBreakOnPPUState:
          case eBreakOnPPUEvent:
-            m_breakpoint [ m_numBreakpoints ].target = eBreakInPPU;
+            m_breakpoint [ bp ].target = eBreakInPPU;
          break;
          case eBreakOnAPUState:
          case eBreakOnAPUEvent:
-            m_breakpoint [ m_numBreakpoints ].target = eBreakInAPU;
+            m_breakpoint [ bp ].target = eBreakInAPU;
          break;
          case eBreakOnMapperState:
          case eBreakOnMapperEvent:
-            m_breakpoint [ m_numBreakpoints ].target = eBreakInMapper;
+            m_breakpoint [ bp ].target = eBreakInMapper;
          break;
       }
-      m_breakpoint [ m_numBreakpoints ].conditionType = conditionType;
-      m_breakpoint [ m_numBreakpoints ].condition = condition;
-      m_breakpoint [ m_numBreakpoints ].itemType = itemType;
-      m_breakpoint [ m_numBreakpoints ].event = event;
+      m_breakpoint [ bp ].conditionType = conditionType;
+      m_breakpoint [ bp ].condition = condition;
+      m_breakpoint [ bp ].itemType = itemType;
+      m_breakpoint [ bp ].event = event;
       if ( event >= 0 )
       {
-         switch ( m_breakpoint [ m_numBreakpoints ].target )
+         switch ( m_breakpoint [ bp ].target )
          {
             case eBreakInCPU:
             break;
             case eBreakInPPU:
-               m_breakpoint [ m_numBreakpoints ].pEvent = CPPU::BREAKPOINTEVENTS()[event];
+               m_breakpoint [ bp ].pEvent = CPPU::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInAPU:
             break;
@@ -67,10 +67,27 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
             break;
          }
       }
-      m_breakpoint [ m_numBreakpoints ].item1 = item1;
-      m_breakpoint [ m_numBreakpoints ].item2 = item2;
-      m_breakpoint [ m_numBreakpoints ].dataType = dataType;
-      m_breakpoint [ m_numBreakpoints ].data = data;
+      m_breakpoint [ bp ].item1 = item1;
+      m_breakpoint [ bp ].item2 = item2;
+      m_breakpoint [ bp ].dataType = dataType;
+      m_breakpoint [ bp ].data = data;
+   }
+}
+
+void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
+{
+   if ( m_numBreakpoints < NUM_BREAKPOINTS )
+   {
+      ModifyBreakpoint ( m_numBreakpoints,
+                         type,
+                         itemType,
+                         event,
+                         item1,
+                         item2,
+                         conditionType,
+                         condition,
+                         dataType,
+                         data );
       m_numBreakpoints++;
    }
 }

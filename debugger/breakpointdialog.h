@@ -34,6 +34,7 @@ signals:
    void showMe();
 
 private slots:
+    void on_modifyButton_clicked();
     void on_addr1_textChanged(QString );
     void on_removeButton_clicked();
     void on_event_currentIndexChanged(int index);
