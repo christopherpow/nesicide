@@ -62,7 +62,7 @@ CROM::CROM()
 
       for ( addr = 0; addr < MEM_8KB; addr++ )
       {
-         m_PRGROMdisassembly[bank][addr] = new char [ 32 ];
+         m_PRGROMdisassembly[bank][addr] = new char [ 16 ];
       }
    }
 
@@ -133,8 +133,7 @@ void CROM::DISASSEMBLE ()
                            m_PRGROMopcodeMask[bank],
                            m_PRGROMsloc2addr[bank],
                            m_PRGROMaddr2sloc[bank],
-                           &(m_PRGROMsloc[bank]),
-                           true );
+                           &(m_PRGROMsloc[bank]) );
    }
 }
 

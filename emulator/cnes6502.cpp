@@ -119,14 +119,6 @@ static int opcode_size [ NUM_ADDRESSING_MODES ] =
    2  // AM_RELATIVE
 };
 
-static const char* dispFmt[4] =
-{
-   "",
-   "%02X       ",
-   "%02X %02X    ",
-   "%02X %02X %02X "
-};
-
 static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
 {
    "", // AM_IMPLIED
@@ -408,7 +400,7 @@ C6502::C6502()
 {
 }
 
-void C6502::EMULATE ( bool bRun, int cycles )
+void C6502::EMULATE ( int cycles )
 {
    m_curCycles += cycles;
    if ( (!m_killed) && (m_curCycles > 0) )
@@ -416,8 +408,7 @@ void C6502::EMULATE ( bool bRun, int cycles )
       do
       {
          cycles = STEP();
-         if ( (m_pc == m_pcGoto) ||
-              (!bRun) )
+         if ( m_pc == m_pcGoto )
          {
             CNES::FORCEBREAKPOINT();
             m_pcGoto = 0xFFFFFFFF;
@@ -2792,7 +2783,15 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    return addr;
 }
 
-void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength, bool decorate )
+unsigned char C6502::OpcodeSize ( unsigned char op )
+{
+   C6502_opcode* pOp;
+
+   pOp = m_6502opcode+op;
+   return *(opcode_size+pOp->amode);
+}
+
+void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength )
 {
    C6502_opcode* pOp;
    int opSize;
@@ -2822,11 +2821,6 @@ void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryL
       // attempt to provide disassembly for it...
       if ( (mask) && (pOp->documented) && ((binaryLength-i) >= opSize) )
       {
-         if ( decorate == true )
-         {
-            ptr += sprintf ( ptr, dispFmt[opSize], binary[i], binary[i+1], binary[i+2] );
-         }
-
          ptr += sprintf ( ptr, pOp->name );
 
          switch ( pOp->amode )
@@ -2869,11 +2863,6 @@ void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryL
       }
       else
       {
-         if ( decorate == true )
-         {
-            ptr += sprintf ( ptr, dispFmt[1], binary[i], binary[i] );
-         }
-
          ptr += sprintf ( ptr, ".DB $%02X", binary[i] );
 
          i++;

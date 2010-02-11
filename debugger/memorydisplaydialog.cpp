@@ -3,6 +3,7 @@
 
 #include "cnes.h"
 
+#include "inspectorregistry.h"
 #include "main.h"
 
 MemoryDisplayDialog::MemoryDisplayDialog(QWidget *parent, eMemoryType display) :
@@ -33,6 +34,17 @@ void MemoryDisplayDialog::showEvent(QShowEvent *e)
 
 void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
 {
+   QMenu menu;
+
+   switch ( m_display )
+   {
+      case eMemory_CPU:
+         menu.addAction(ui->actionBreak_on_CPU_access_here);
+         menu.addAction(ui->actionBreak_on_CPU_read_here);
+         menu.addAction(ui->actionBreak_on_CPU_write_here);
+      break;
+   }
+   menu.exec(e->globalPos());
 }
 
 void MemoryDisplayDialog::changeEvent(QEvent *e)
@@ -106,4 +118,67 @@ void MemoryDisplayDialog::updateMemory ()
    }
 
    model->layoutChangedEvent();
+}
+
+void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   QModelIndex index = ui->tableView->currentIndex();
+   int row = index.row();
+   int col = index.column();
+   int addr = (row*model->columnCount())+col;
+
+   pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+                                 eBreakpointItemAddress,
+                                 0,
+                                 addr,
+                                 addr,
+                                 eBreakpointConditionTest,
+                                 0,
+                                 eBreakpointDataPure,
+                                 0 );
+
+   InspectorRegistry::getInspector("Breakpoints")->show();
+}
+
+void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   QModelIndex index = ui->tableView->currentIndex();
+   int row = index.row();
+   int col = index.column();
+   int addr = (row*model->columnCount())+col;
+
+   pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
+                                 eBreakpointItemAddress,
+                                 0,
+                                 addr,
+                                 addr,
+                                 eBreakpointConditionTest,
+                                 0,
+                                 eBreakpointDataPure,
+                                 0 );
+
+   InspectorRegistry::getInspector("Breakpoints")->show();
+}
+
+void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   QModelIndex index = ui->tableView->currentIndex();
+   int row = index.row();
+   int col = index.column();
+   int addr = (row*model->columnCount())+col;
+
+   pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
+                                 eBreakpointItemAddress,
+                                 0,
+                                 addr,
+                                 addr,
+                                 eBreakpointConditionTest,
+                                 0,
+                                 eBreakpointDataPure,
+                                 0 );
+
+   InspectorRegistry::getInspector("Breakpoints")->show();
 }

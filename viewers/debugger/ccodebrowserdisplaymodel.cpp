@@ -1,5 +1,6 @@
 #include "ccodebrowserdisplaymodel.h"
 
+#include "cnes6502.h"
 #include "cnesrom.h"
 
 CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject* parent)
@@ -12,13 +13,44 @@ CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
 
 QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) const
 {
+   UINT addr = (UINT)index.internalPointer();
+   char buffer [ 3 ];
+   unsigned char opSize;
+
    if (!index.isValid())
       return QVariant();
 
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   return (char*)index.internalPointer();
+   switch ( index.column() )
+   {
+      case 0:
+         sprintf ( buffer, "%02X", CROM::PRGROM(addr+index.column()) );
+         return buffer;
+      break;
+      case 1:
+         opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
+         if ( index.column() < opSize )
+         {
+            sprintf ( buffer, "%02X", CROM::PRGROM(addr+index.column()) );
+            return buffer;
+         }
+      break;
+      case 2:
+         opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
+         if ( index.column() < opSize )
+         {
+            sprintf ( buffer, "%02X", CROM::PRGROM(addr+index.column()) );
+            return buffer;
+         }
+      break;
+      case 3:
+         return CROM::DISASSEMBLY(addr);
+      break;
+   }
+
+   return QVariant();
 }
 
 Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex &index) const
@@ -37,7 +69,21 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
 
    if ( orientation == Qt::Horizontal )
    {
-      return "Disassembly";
+      switch ( section )
+      {
+         case 0:
+            return "Op";
+         break;
+         case 1:
+            return "Lo";
+         break;
+         case 2:
+            return "Hi";
+         break;
+         case 3:
+            return "Disassembly";
+         break;
+      }
    }
    else
    {
@@ -56,7 +102,7 @@ QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelInd
 
    addr = CROM::SLOC2ADDR(row);
 
-   return createIndex(row, column, CROM::DISASSEMBLY(addr));
+   return createIndex(row, column, addr);
 }
 
 int CCodeBrowserDisplayModel::rowCount(const QModelIndex &parent) const
@@ -74,7 +120,7 @@ int CCodeBrowserDisplayModel::columnCount(const QModelIndex &parent) const
    {
       return 0;
    }
-   return 1;
+   return 4;
 }
 
 void CCodeBrowserDisplayModel::layoutChangedEvent()

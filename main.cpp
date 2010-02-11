@@ -7,6 +7,7 @@
 
 NESEmulatorThread* emulator = new NESEmulatorThread ();
 BreakpointWatcherThread* breakpointWatcher = new BreakpointWatcherThread ();
+QHash<QString,QDockWidget*> inspectors;
 
 int main(int argc, char *argv[])
 {

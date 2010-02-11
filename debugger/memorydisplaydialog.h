@@ -33,6 +33,11 @@ private:
     Ui::MemoryDisplayDialog *ui;
     CDebuggerMemoryDisplayModel *model;
     eMemoryType m_display;
+
+private slots:
+    void on_actionBreak_on_CPU_write_here_triggered();
+    void on_actionBreak_on_CPU_read_here_triggered();
+    void on_actionBreak_on_CPU_access_here_triggered();
 };
 
 #endif // MEMORYDISPLAYDIALOG_H

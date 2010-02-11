@@ -129,7 +129,8 @@ SOURCES += mainwindow.cpp \
     debugger/cregisterdata.cpp \
     debugger/codebrowserdialog.cpp \
     debugger/codeinspector.cpp \
-    viewers/debugger/ccodebrowserdisplaymodel.cpp
+    viewers/debugger/ccodebrowserdisplaymodel.cpp \
+    common/inspectorregistry.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -227,7 +228,8 @@ HEADERS += mainwindow.h \
     debugger/cregisterdata.h \
     debugger/codebrowserdialog.h \
     debugger/codeinspector.h \
-    viewers/debugger/ccodebrowserdisplaymodel.h
+    viewers/debugger/ccodebrowserdisplaymodel.h \
+    common/inspectorregistry.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

@@ -26,7 +26,12 @@ CodeBrowserDialog::~CodeBrowserDialog()
 
 void CodeBrowserDialog::showEvent(QShowEvent* e)
 {
+   // Update display...
+   CROM::DISASSEMBLE();
+
    tableViewModel->layoutChangedEvent();
+
+   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
 
    ui->tableView->resizeColumnsToContents();
 }
@@ -54,9 +59,9 @@ void CodeBrowserDialog::updateDisassembly()
 
    emit showMe();
 
-   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
-
    tableViewModel->layoutChangedEvent();
+
+   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
 }
 
 void CodeBrowserDialog::updateBrowser()
@@ -68,17 +73,17 @@ void CodeBrowserDialog::updateBrowser()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-      if ( (pBreakpoint->type == eBreakOnCPUExecution) &&
-           (pBreakpoint->hit) )
+      if ( pBreakpoint->hit )
       {
          // Update display...
          CROM::DISASSEMBLE();
 
          emit showMe();
-
-         ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(pBreakpoint->itemActual),0));
+         break;
       }
    }
 
    tableViewModel->layoutChangedEvent();
+
+   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
 }

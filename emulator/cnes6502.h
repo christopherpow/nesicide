@@ -130,14 +130,16 @@ public:
 	C6502();
 
    // Disassembly routines for display
-   static void Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength, bool decorate );
+   static void Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength );
    static char* Disassemble ( unsigned char* pOpcode, char* buffer );
 
    // Emulation routines
-   static void EMULATE ( bool bRun, int cycles );
+   static void EMULATE ( int cycles );
    static void GOTO ( UINT pcGoto ) { m_pcGoto = pcGoto; }
    static void GOTO () { m_pcGoto = 0xFFFFFFFF; }
    static unsigned char STEP ( void );
+
+   static unsigned char OpcodeSize ( unsigned char op );
 
    static void RESET ( void );
    static void IRQ ( char source );

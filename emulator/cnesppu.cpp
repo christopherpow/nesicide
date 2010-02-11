@@ -992,7 +992,7 @@ void CPPU::NONRENDERSCANLINE ( int scanlines )
       for ( idxx = 0; idxx < 341; idxx++ )
       {
          INCCYCLE();
-         C6502::EMULATE ( true, m_curCycles/3 );
+         C6502::EMULATE ( m_curCycles/3 );
          m_curCycles %= 3;
 
          // Check for breakpoint...
@@ -1184,7 +1184,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
       // account for extra clock (341)
       EXTRA ();
    }
-   C6502::EMULATE ( true, m_curCycles/3 );
+   C6502::EMULATE ( m_curCycles/3 );
    m_curCycles %= 3;
 }
 
@@ -1230,7 +1230,7 @@ void CPPU::GATHERBKGND ( void )
       }
    }
 
-   C6502::EMULATE ( true, m_curCycles/3 );
+   C6502::EMULATE ( m_curCycles/3 );
    m_curCycles %= 3;
 
    if ( rPPU(PPUMASK)&PPUMASK_RENDER_BKGND )
@@ -1323,7 +1323,7 @@ void CPPU::GATHERSPRITES ( int scanline )
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
 
-         C6502::EMULATE ( true, m_curCycles/3 );
+         C6502::EMULATE ( m_curCycles/3 );
          m_curCycles %= 3;
 
          m_spriteBuffer.count++;
@@ -1339,7 +1339,7 @@ void CPPU::GATHERSPRITES ( int scanline )
       GARBAGE ( eTarget_PatternMemory );
       GARBAGE ( eTarget_PatternMemory );
 
-      C6502::EMULATE ( true, m_curCycles/3 );
+      C6502::EMULATE ( m_curCycles/3 );
       m_curCycles %= 3;
    }
 

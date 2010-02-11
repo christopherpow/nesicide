@@ -46,6 +46,11 @@ void BreakpointDialog::changeEvent(QEvent *e)
     }
 }
 
+void BreakpointDialog::showEvent(QShowEvent *e)
+{
+   model->layoutChangedEvent();
+}
+
 void BreakpointDialog::updateData()
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();

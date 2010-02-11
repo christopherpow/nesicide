@@ -1,6 +1,7 @@
 #include "breakpointinspector.h"
 
 #include "breakpointdialog.h"
+#include "inspectorregistry.h"
 
 BreakpointInspector::BreakpointInspector()
 {
