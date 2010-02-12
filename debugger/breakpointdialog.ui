@@ -151,7 +151,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -237,159 +237,54 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="event"/>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Data2:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="eventData2"/>
-       </item>
-       <item row="2" column="0">
+       <item row="1" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Data1:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="1" column="1">
         <widget class="QLineEdit" name="eventData1"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Data2:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="eventData2"/>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page"/>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QStackedWidget" name="conditionWidget">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="currentIndex">
-      <number>1</number>
-     </property>
-     <widget class="QWidget" name="emptyCondition"/>
-     <widget class="QWidget" name="addrCondition">
-      <layout class="QFormLayout" name="formLayout_3">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="conditionlabel">
-         <property name="text">
-          <string>Break if:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="condition">
-         <item>
-          <property name="text">
-           <string>Anything</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Equals</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Does Not Equal</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Is Greater Than</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Is Less Than</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="1">
+     <property name="horizontalSpacing">
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="2">
       <widget class="QPushButton" name="addButton">
        <property name="text">
         <string>Add</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QPushButton" name="removeButton">
        <property name="text">
         <string>Remove</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QStackedWidget" name="dataWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="page_4">
-        <layout class="QGridLayout" name="gridLayout_7">
-         <property name="margin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="page_5">
-        <layout class="QFormLayout" name="formLayout_5">
-         <property name="margin">
-          <number>0</number>
-         </property>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="data1"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="datalabel">
-           <property name="text">
-            <string>Condition:</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="page_6">
-        <layout class="QFormLayout" name="formLayout_4">
-         <property name="margin">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="datalabel_2">
-           <property name="text">
-            <string>Condition:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="data2"/>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="4">
+     <item row="1" column="0" colspan="5">
       <widget class="QTableView" name="tableView">
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
@@ -429,14 +324,128 @@
        </attribute>
       </widget>
      </item>
-     <item row="0" column="2">
+     <item row="0" column="3">
       <widget class="QPushButton" name="modifyButton">
        <property name="text">
         <string>Modify</string>
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QStackedWidget" name="dataWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="page_4">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_5">
+        <layout class="QFormLayout" name="formLayout_5">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="data1"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="datalabel">
+           <property name="text">
+            <string>Condition:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_6">
+        <layout class="QFormLayout" name="formLayout_4">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="datalabel_2">
+           <property name="text">
+            <string>Condition:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="data2"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
     </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QStackedWidget" name="conditionWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="emptyCondition"/>
+     <widget class="QWidget" name="addrCondition">
+      <layout class="QFormLayout" name="formLayout_3">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="condition">
+         <item>
+          <property name="text">
+           <string>Anything</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Equals</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Does Not Equal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Is Greater Than</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Is Less Than</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="conditionlabel">
+         <property name="text">
+          <string>Break if:</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -447,10 +456,7 @@
   <tabstop>data2</tabstop>
   <tabstop>reg</tabstop>
   <tabstop>bitfield</tabstop>
-  <tabstop>data1</tabstop>
   <tabstop>event</tabstop>
-  <tabstop>eventData1</tabstop>
-  <tabstop>eventData2</tabstop>
   <tabstop>condition</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>removeButton</tabstop>

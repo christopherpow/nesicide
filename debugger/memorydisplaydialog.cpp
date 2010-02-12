@@ -34,11 +34,15 @@ void MemoryDisplayDialog::showEvent(QShowEvent *e)
 
 void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-   QMenu menu;
+   QMenu menu;   
 
    switch ( m_display )
    {
       case eMemory_CPU:
+      case eMemory_cartROM:
+      case eMemory_cartSRAM:
+      case eMemory_cartEXRAM:
+      case eMemory_cartMapper:
          menu.addAction(ui->actionBreak_on_CPU_access_here);
          menu.addAction(ui->actionBreak_on_CPU_read_here);
          menu.addAction(ui->actionBreak_on_CPU_write_here);
@@ -126,7 +130,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = (row*model->columnCount())+col;
+   int addr = model->memoryBottom()+(row*model->columnCount())+col;
 
    pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
                                  eBreakpointItemAddress,
@@ -138,6 +142,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
                                  eBreakpointDataPure,
                                  0 );
 
+   InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
 }
 
@@ -147,7 +152,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = (row*model->columnCount())+col;
+   int addr = model->memoryBottom()+(row*model->columnCount())+col;
 
    pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
                                  eBreakpointItemAddress,
@@ -159,6 +164,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
                                  eBreakpointDataPure,
                                  0 );
 
+   InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
 }
 
@@ -168,7 +174,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = (row*model->columnCount())+col;
+   int addr = model->memoryBottom()+(row*model->columnCount())+col;
 
    pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
                                  eBreakpointItemAddress,
@@ -180,5 +186,6 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
                                  eBreakpointDataPure,
                                  0 );
 
+   InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
 }

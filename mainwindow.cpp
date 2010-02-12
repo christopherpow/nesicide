@@ -372,6 +372,7 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
         return;
 
     nesicideProject->createProjectFromRom(fileName);
+    ui->actionEmulation_Window->setChecked(true);
     on_actionEmulation_Window_toggled(true);
     projectDataChangesEvent();
 }

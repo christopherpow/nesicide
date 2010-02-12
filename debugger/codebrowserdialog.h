@@ -31,6 +31,7 @@ private:
     CCodeBrowserDisplayModel *tableViewModel;
 
 private slots:
+    void on_actionRun_to_here_triggered();
     void on_actionBreak_on_CPU_execution_here_triggered();
 };
 

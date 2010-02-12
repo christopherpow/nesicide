@@ -42,6 +42,7 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    QMenu menu;
 
    menu.addAction(ui->actionBreak_on_CPU_execution_here);
+   menu.addAction(ui->actionRun_to_here);
    menu.exec(e->globalPos());
 }
 
@@ -109,5 +110,13 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
                                  eBreakpointDataNone,
                                  0 );
 
+   InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
+}
+
+void CodeBrowserDialog::on_actionRun_to_here_triggered()
+{
+   QModelIndex index = ui->tableView->currentIndex();
+   int addr = CROM::SLOC2ADDR(index.row());
+   C6502::GOTO(addr);
 }

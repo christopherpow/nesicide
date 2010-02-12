@@ -76,6 +76,9 @@
      <attribute name="verticalHeaderMinimumSectionSize">
       <number>23</number>
      </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>true</bool>
+     </attribute>
     </widget>
    </item>
   </layout>
@@ -85,6 +88,14 @@
    </property>
    <property name="toolTip">
     <string>Break on CPU execution here</string>
+   </property>
+  </action>
+  <action name="actionRun_to_here">
+   <property name="text">
+    <string>Run to here</string>
+   </property>
+   <property name="toolTip">
+    <string>Run to here</string>
    </property>
   </action>
  </widget>
