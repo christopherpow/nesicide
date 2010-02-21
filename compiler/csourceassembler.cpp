@@ -2,6 +2,8 @@
 #include "cnesicideproject.h"
 #include "cbuildertextlogger.h"
 
+#include "pasm_lib.h"
+
 CSourceAssembler::CSourceAssembler()
 {
 }
@@ -9,6 +11,10 @@ CSourceAssembler::CSourceAssembler()
 bool CSourceAssembler::assemble()
 {
     CSourceItem *rootSource = nesicideProject->getProject()->getMainSource();
+    CPRGROMBanks *prgRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToPrgRomBanks();
+    char* romData = NULL;
+    int romLength = 0;
+
     if (!rootSource)
     {
         builderTextLogger.write("Error: No main source has been defined.");
@@ -17,6 +23,8 @@ bool CSourceAssembler::assemble()
     }
 
     builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
+
+#if defined ( SARBIN_ASSEMBLER )
     QStringList *source = new QStringList(rootSource->get_sourceCode().split('\n'));
 
     stripComments(source);
@@ -36,6 +44,20 @@ bool CSourceAssembler::assemble()
     // Resolve labels
     if (!resolveLabels())
         return false;
+#else
+   pasm_assemble ( rootSource->get_sourceCode().toLatin1().data(), &romData, &romLength, NULL );
+
+   // Initialize our first bank
+   CPRGROMBank *curBank = new CPRGROMBank();
+   curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
+   memset(curBank->get_pointerToBankData(), 0, 0x4000);
+   curBank->InitTreeItem(prgRomBanks);
+   prgRomBanks->appendChild(curBank);
+   prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+
+   curBank->set_pointerToBankData ( (quint8*)romData );
+
+#endif
 
     return true;
 }
