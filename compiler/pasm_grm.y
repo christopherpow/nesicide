@@ -1,6 +1,5 @@
 %{
 #include <stdio.h>
-#include "6502.h"
 #include "pasm_types.h"
 
 #define YYERROR_VERBOSE
@@ -119,12 +118,14 @@ char e [ 256 ];
 %nonassoc '~' UMINUS
 %nonassoc '>' '<'
 %start program
+//lines: statement
+//          | lines statement
 %%
 program: lines
 
-lines: statement
+lines: /* empty */
           | lines statement
-			 ;
+          ;
 
 statement: identifier instruction TERM
            | identifier TERM 
@@ -299,7 +300,7 @@ instruction: INCBIN QUOTEDSTRING {
 //}
 			  | INSTR {
 	unsigned char f;
-	if ( (f=valid_instr_amode($1,AM_IMPLIED)) != INVALID_INSTR )
+   if ( (f=valid_instr_amode($1,AM_IMPLIED)) != INVALID_INSTR )
 	{
 		emit_bin_implied ( &(m_6502opcode[f]) );
 	}

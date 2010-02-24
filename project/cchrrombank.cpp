@@ -27,7 +27,7 @@ bool CCHRROMBank::deserialize(QDomDocument &, QDomNode &)
 
 QString CCHRROMBank::caption() const
 {
-    return "Bank " + QString::number(bankID, 10);
+    return "CHR Bank " + QString::number(bankID, 10);
 }
 
 void CCHRROMBank::contextMenuEvent(QContextMenuEvent *, QTreeView *)

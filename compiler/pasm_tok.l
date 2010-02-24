@@ -24,7 +24,6 @@ comment  ";".*$
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
-#include "6502.h"
 
 extern void add_error ( char* s );
 extern char e [ 256 ];

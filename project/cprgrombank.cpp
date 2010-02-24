@@ -74,7 +74,7 @@ bool CPRGROMBank::deserialize(QDomDocument &, QDomNode &)
 
 QString CPRGROMBank::caption() const
 {
-    return "Bank " + QString::number(m_indexOfPrgRomBank, 10);
+    return "PRG Bank " + QString::number(m_indexOfPrgRomBank, 10);
 }
 
 void CPRGROMBank::contextMenuEvent(QContextMenuEvent *, QTreeView *)

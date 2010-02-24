@@ -55,6 +55,10 @@ typedef struct _number_ref_compound_type
    compound_type type;
    struct _ref_type ref;
    struct _number_type num;
+   char   op;                               // root operation
+   struct _number_ref_compound_type *left;  // tree child
+   struct _number_ref_compound_type *middle; // tree child
+   struct _number_ref_compound_type *right; // tree child
 } number_ref_compound_type;
 
 typedef enum _segment_type

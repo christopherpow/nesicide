@@ -14,6 +14,7 @@ bool CSourceAssembler::assemble()
     CPRGROMBanks *prgRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToPrgRomBanks();
     char* romData = NULL;
     int romLength = 0;
+   int bank;
 
     if (!rootSource)
     {
@@ -47,15 +48,21 @@ bool CSourceAssembler::assemble()
 #else
    pasm_assemble ( rootSource->get_sourceCode().toLatin1().data(), &romData, &romLength, NULL );
 
-   // Initialize our first bank
-   CPRGROMBank *curBank = new CPRGROMBank();
-   curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
-   memset(curBank->get_pointerToBankData(), 0, 0x4000);
-   curBank->InitTreeItem(prgRomBanks);
-   prgRomBanks->appendChild(curBank);
-   prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+   // Remove all banks...
 
-   curBank->set_pointerToBankData ( (quint8*)romData );
+
+   // Set up PRG-ROM banks...
+   for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
+   {
+      CPRGROMBank *curBank = new CPRGROMBank();
+      curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
+      memset(curBank->get_pointerToBankData(), 0, 0x4000);
+      curBank->InitTreeItem(prgRomBanks);
+      prgRomBanks->appendChild(curBank);
+      prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+
+      curBank->set_pointerToBankData ( (quint8*)romData );
+   }
 
 #endif
 
