@@ -2,14 +2,9 @@
 
 #include "pasm_types.h"
 
-// prototype of bison-generated parser function
-
 extern unsigned char check_fixup ( void );
 
-char* errorStorage = NULL;
 //extern char currentFile[];
-
-int errorCount = 0;
 
 int yyparse();
 
@@ -18,6 +13,8 @@ int main(int argc, char **argv)
    unsigned char error;
    char* buffer = NULL;
    int length;
+   int tries = 0;
+   int promoted = -1;
    FILE* output;
 
    if ((argc > 1) && (freopen(argv[1], "r", stdin) == NULL))
@@ -31,10 +28,31 @@ int main(int argc, char **argv)
    add_binary_bank ( data_segment, ANONYMOUS_BANK );
    add_binary_bank ( text_segment, ANONYMOUS_BANK );
 
+   // Parse language to intermediate representation...
    yyparse();
 
+   // Reduce all expressions that had symbol references that weren't reducible...
+   reduce_expressions ();
+
+   // Lather, rinse, and repeat fixing and reducing until we're DONE...
+   do
+   {
+      // Promote to zeropage if possible...
+      // But don't bother fixing relatives yet...
+      promoted = promote_instructions ( 0 );
+   } while ( (promoted > 0) && ((++tries) < MAX_FIXUP_TRIES) );
+
+   // Now bother with the relatives...
+   promoted = promote_instructions ( 1 );
+
+   // There should not have been any promotions in the last
+   // run...check for that?  Maybe just let fixup spit out the errors...
+
+   // Provide errors for incomplete fixup (undefined references)...
    check_fixup ();
-   output_binary_direct ( &buffer, &length );
+
+   // Output final binary representation to buffer...
+   output_binary ( &buffer, &length );
 
    output = fopen ( "a.out", "wb" );
    if ( output )

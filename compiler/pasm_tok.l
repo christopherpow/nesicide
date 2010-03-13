@@ -1,26 +1,39 @@
-word    [_'@a-zA-Z][_\-'@a-zA-Z0-9]+
-datab   ".db"
-datab2  ".byte"
+word    [_'@a-zA-Z]+[_'@a-zA-Z0-9]?
+datab1  ".byte"
+datab2  ".db"
+datab3  ".dcb"
+datab4  ".dc.b"
 ascii   ".ascii"
-dataw   ".dw"
-dataw2  ".word"
-dataw3  ".address"
+dataw1  ".word"
+dataw2  ".dw"
+dataw3  ".dcw"
+dataw4  ".dc.w"
+dataw5  ".address"
+dsb     ".dsb"
+dsw     ".dsw"
 origin  ".org"
 space   ".space"
 advance ".advance"
+pad     ".pad"
+align   ".align"
 text    ".text"
 segment ".segment"
 data    ".data"
 incbin  ".incbin"
 incobj  ".incobj"
 include ".include"
+repeat  ".rept"
+endrepeat ".endr"
+enum    ".enum"
+endenum ".ende"
 hexdigits "$"([0-9a-fA-F]{1,5})"h"?
 decdigits ([0-9]{0,5})
 octdigits "0"([0-9]{0,6})
 bindigits "%"([01]{1,16})
-label		"@"?{word}?":"([+]*|[-]*)
+label    {word}?":"([+]*|[-]*)
 quotedstring [\"].*[\"]
 comment  ";".*$
+%s ENUMSTATE
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
@@ -32,7 +45,8 @@ extern char e [ 256 ];
 
 unsigned int stab_ent = 0;
 unsigned int stab_max = 0;
-int          yylineno = 1;
+int          yylineno = 0;
+int parenlevel = 0;
 
 symbol_table* stab = NULL;
 
@@ -46,13 +60,7 @@ extern binary_table* cur;
 
 int autolabel = 0x1000;
 
-number_ref_compound_type com [ 4096 ];
-ref_type ref [ 4096 ];
-number_type num [ 4096 ];
 char* text [ 4096 ];
-int comidx = 0;
-int numidx = 0;
-int refidx = 0;
 int textidx = 0;
 
 unsigned char add_symbol ( char* symbol, symbol_table** ptr );
@@ -62,72 +70,31 @@ void clear_cheap_labels ( void );
 
 number_type* get_next_numtype ( void )
 {
-	number_type* p = &(num[numidx]);
-	numidx++;
-	if ( numidx == (sizeof(num)/sizeof(num[0])) )
-	{
-		numidx = 0;
-	}
+   number_type* p = (number_type*) malloc ( sizeof(number_type) );
+   p->zp_ok = 0;
 	return p;
 }
 
 ref_type* get_next_reftype ( void )
 {
-	ref_type* p = &(ref[refidx]);
-	refidx++;
-	if ( refidx == (sizeof(ref)/sizeof(ref[0])) )
-	{
-		refidx = 0;
-	}
-	return p;
+   ref_type* p = (ref_type*) malloc ( sizeof(ref_type) );
+   return p;
 }
 
-number_ref_compound_type* get_next_compoundtype ( void )
+expr_type* get_next_exprtype ( void )
 {
-	number_ref_compound_type* p = &(com[comidx]);
-	comidx++;
-	if ( comidx == (sizeof(com)/sizeof(com[0])) )
-	{
-		comidx = 0;
-	}
-	return p;
-}
-
-void copy_compound_type ( number_ref_compound_type* d, number_ref_compound_type* s )
-{
-	memcpy ( d, s, sizeof(number_ref_compound_type) );
-}
-
-void combine_compound_types ( number_ref_compound_type* d, 
-                              number_ref_compound_type* s1,
-										number_ref_compound_type* s2  )
-{
-	memcpy ( d, s1, sizeof(number_ref_compound_type) );
-}
-
-unsigned int get_compound_value ( number_ref_compound_type* s )
-{
-	if ( s->type == number_only )
-	{
-	printf ( "num\n" );
-		return s->num.number;
-	}
-	else if ( s->type == reference_only )
-	{
-	printf ( "ref\n" );
-		return s->ref.ref.symtab->addr;
-	}
-	else
-	{
-	printf ( "com\n" );
-		return s->ref.ref.symtab->addr + s->num.number;
-	}
+   expr_type* p = (expr_type*) malloc ( sizeof(expr_type) );
+   p->parent = NULL;
+   p->left = NULL;
+   p->right = NULL;
+   return p;
 }
 
 unsigned char valid_instr ( char* instr );
+unsigned char addressing_mode ( unsigned char instr );
 %}
 %%
-{label}	{ 
+{label}	{
 	char* label = strdup(yytext);
 	unsigned char f;
 	symbol_table* p = NULL;
@@ -164,6 +131,19 @@ unsigned char valid_instr ( char* instr );
 	char* start = yytext;
 	ref_type* ref;
 
+   if ( (yytext[1] == 0) &&
+        ((yytext[0] == 'x') ||
+        (yytext[0] == 'X')) )
+   {
+      return tolower(yytext[0]);
+   }
+   else if ( (yytext[1] == 0) &&
+             ((yytext[0] == 'y') ||
+             (yytext[0] == 'Y')) )
+   {
+	   return tolower(yytext[0]);
+   }
+
 	symbol_table* p = NULL;
 	if ( (p=find_symbol(start,cur->idx)) != NULL )
 	{
@@ -178,15 +158,13 @@ unsigned char valid_instr ( char* instr );
 			ref->type = reference_symtab;
 		}
 
-		ref->modifier = no_modifier;
-
 		ref->ref.symtab = p;
 		yylval.ref = ref;
 		return LABELREF;
 	}
 	else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
 	{
-		yylval.instr = f;
+      yylval.instr = f;
 		return INSTR;
 	}
 	else if ( yytext[0] == '\'' &&
@@ -203,24 +181,51 @@ unsigned char valid_instr ( char* instr );
 	yylval.ref = ref;
 	return LABELREF;
 }
-{datab} |
+{datab1} |
 {datab2} |
-{ascii} { 
+{datab3} |
+{datab4} |
+{ascii} {
    return DATAB; 
 }
-{dataw} |
+{dataw1} |
 {dataw2} |
-{dataw3} { 
+{dataw3} |
+{dataw4} |
+{dataw5} {
    return DATAW; 
 }
 {origin} { 
-   return ORIGN;
+   return ORIGIN;
 }
+{dsb} |
+{dsw}  {
+   return FILLSPACE;
+}
+
 {space} { 
-   return SPACE;
+   return VARSPACE;
 }
-{advance} { 
+{advance} |
+{pad} {
    return ADVANCE;
+}
+{align} {
+   return ALIGN;
+}
+{repeat} {
+   return REPEAT;
+}
+{endrepeat} {
+   return ENDREPEAT;
+}
+{enum} {
+//   BEGIN(ENUMSTATE);
+   return ENUMERATE;
+}
+{endenum} {
+//   BEGIN(INITIAL);
+   return ENDENUMERATE;
 }
 {text} |
 {segment} {
@@ -247,7 +252,6 @@ unsigned char valid_instr ( char* instr );
 {hexdigits} { 
 	number_type* num = get_next_numtype ();
 	num->number = strtoul(yytext+1,NULL,16);
-	num->zp_ok = 0;
 	if ( (num->number >= -128) &&
 	     (num->number < 256) )
 	{
@@ -259,7 +263,6 @@ unsigned char valid_instr ( char* instr );
 {decdigits} { 
 	number_type* num = get_next_numtype ();
 	num->number = strtoul(yytext,NULL,10);
-	num->zp_ok = 0;
 	if ( (num->number >= -128) &&
 		  (num->number < 256) )
 	{
@@ -271,7 +274,6 @@ unsigned char valid_instr ( char* instr );
 {octdigits} { 
 	number_type* num = get_next_numtype ();
 	num->number = strtoul(yytext+1,NULL,8);
-	num->zp_ok = 0;
 	if ( (num->number >= -128) &&
 	     (num->number < 256) )
 	{
@@ -283,7 +285,6 @@ unsigned char valid_instr ( char* instr );
 {bindigits} { 
 	number_type* num = get_next_numtype ();
 	num->number = strtoul(yytext+1,NULL,2);
-	num->zp_ok = 0;
 	if ( (num->number >= -128) &&
 	     (num->number < 256) )
 	{
@@ -295,25 +296,27 @@ unsigned char valid_instr ( char* instr );
 {comment} { 
    /* throw away */
 }
-[ \t]* { 
+[ \t]+ {
    /* throw away */ 
 }
 \r\n {
    yylineno++;
-	return TERM;
+   return TERM;
 }
 \n\r {
    yylineno++;
-	return TERM;
+   return TERM;
 }
 \n {
    yylineno++;
-	return TERM;
+   return TERM;
 }
 
-[@#=,+\-\*\/\(\)\|&\~\<\>\[\]] { return yytext[0]; }
+[@#=+\-\*\/\|&\~\<\>\[\]] { return yytext[0]; }
 
-[xyXY] { return tolower(yytext[0]); }
+[\(] { parenlevel++; return yytext[0]; }
+[\)] { parenlevel--; return yytext[0]; }
+[,] { return yytext[0]; }
 
 . { 
 	sprintf ( e, "parse error in input at: %s", yytext );
@@ -396,7 +399,7 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 	*ptr = NULL;
 
 	if ( symbol[0] != '@' )
-	{
+   {
 		for ( i = 0; i < stab_ent; i++ )
 		{
 			if ( (strcmp(stab[i].symbol,symbol) == 0) && 
@@ -421,10 +424,10 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 			{
 				memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
 				strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
-				stab[stab_ent].addr = 0x0000;
 				stab[stab_ent].ir = NULL;
 				stab[stab_ent].btab_ent = cur->idx;
 				stab[stab_ent].global = 0;
+            stab[stab_ent].expr = NULL;
 			}
 		}
 		else
@@ -443,10 +446,10 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 			{
 				memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
 				strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
-				stab[stab_ent].addr = 0x0000;
 				stab[stab_ent].ir = NULL;
 				stab[stab_ent].btab_ent = cur->idx;
 				stab[stab_ent].global = 0;
+            stab[stab_ent].expr = NULL;
 			}
 		}
 		else
@@ -460,11 +463,11 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 				{
 					memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
 					strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
-					stab[stab_ent].addr = 0x0000;
 					stab[stab_ent].ir = NULL;
 					stab[stab_ent].btab_ent = cur->idx;
 					stab[stab_ent].global = 0;
-				}
+               stab[stab_ent].expr = NULL;
+            }
 			}
 			else
 			{
@@ -477,33 +480,6 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 
 	*ptr = &(stab[stab_ent]);
 	stab_ent++;
-
-	return a;
-}
-
-unsigned char valid_instr ( char* instr )
-{
-	unsigned char a = INVALID_INSTR;
-	char     upinstr [ 4 ];
-	int i;
-
-	for ( i = 0; i < 3; i++ )
-	{
-		upinstr[i] = toupper(instr[i]);
-	}
-	upinstr[3] = 0;
-
-	if ( strlen(instr) == 3 )
-	{
-		for ( i = 0; i < 256; i++ )
-		{
-			if ( (strlen(m_6502opcode[i].name) > 0) && (strcmp(m_6502opcode[i].name,upinstr) == 0) )
-			{
-				a = i;
-				return a;
-			}
-		}
-	}
 
 	return a;
 }

@@ -13,9 +13,9 @@
 
 #include "cnes.h"
 
-#define VECTOR_IRQ   0xFFFE
-#define VECTOR_RESET 0xFFFC
 #define VECTOR_NMI   0xFFFA
+#define VECTOR_RESET 0xFFFC
+#define VECTOR_IRQ   0xFFFE
 
 #define FLAG_C 0x01
 #define FLAG_Z 0x02

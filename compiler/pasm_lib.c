@@ -4,19 +4,19 @@
 
 // prototype of bison-generated parser function
 
-int errorCount = 0;
 extern FILE* yyin;
 extern incobj_callback_fn incobj_fn;
 extern symbol_table* stab;
 extern int stab_ent;
+
+extern char* errorStorage;
+extern int errorCount;
 
 //extern char currentFile[];
 
 extern void initialize ( void );
 
 int yyparse();
-
-char* errorStorage = NULL;
 
 void pasm_get_errors ( char** errors )
 {
@@ -60,6 +60,9 @@ int pasm_get_num_symbols ( void )
 
 int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj )
 {
+   int tries = 0;
+   int promoted;
+
    incobj_fn = incobj;
 
    initialize ();
@@ -72,10 +75,31 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
    yy_scan_string ( buffer_in );
    yyin = NULL;
 
+   // Parse language to intermediate representation...
    yyparse();
 
+   // Reduce all expressions that had symbol references that weren't reducible...
+   reduce_expressions ();
+
+   // Lather, rinse, and repeat fixing and reducing until we're DONE...
+   do
+   {
+      // Promote to zeropage if possible...
+      // But don't bother fixing relatives yet...
+      promoted = promote_instructions ( 0 );
+   } while ( (promoted > 0) && ((++tries) < MAX_FIXUP_TRIES) );
+
+   // Now bother with the relatives...
+   promoted = promote_instructions ( 1 );
+
+   // There should not have been any promotions in the last
+   // run...check for that?  Maybe just let fixup spit out the errors...
+
+   // Provide errors for incomplete fixup (undefined references)...
    check_fixup ();
-   output_binary_direct ( buffer_out, size );
+
+   // Output final binary representation to buffer...
+   output_binary ( buffer_out, size );
 
    return 0;
 }
