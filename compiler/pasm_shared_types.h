@@ -3,6 +3,12 @@
 
 #define MAX_FIXUP_TRIES 5
 
+typedef enum
+{
+   symbol_global,
+   symbol_label
+} symbol_type;
+
 typedef struct _symbol_table
 {
 	char*          symbol;

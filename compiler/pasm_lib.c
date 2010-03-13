@@ -53,6 +53,34 @@ int pasm_get_symbol_data ( symbol_table* symbol, char* data, int size )
    return bytes;
 }
 
+symbol_type pasm_get_symbol_type ( struct _symbol_table* symbol )
+{
+   symbol_type value;
+   if ( symbol->expr )
+   {
+      value = symbol_global;
+   }
+   else
+   {
+      value = symbol_label;
+   }
+   return value;
+}
+
+int pasm_get_symbol_value ( symbol_table* symbol )
+{
+   int value;
+   if ( symbol->expr )
+   {
+      value = evaluate_expression ( symbol->expr );
+   }
+   else
+   {
+      value = symbol->ir->addr;
+   }
+   return value;
+}
+
 int pasm_get_num_symbols ( void )
 {
    return stab_ent;
