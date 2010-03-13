@@ -15,3 +15,7 @@ lex.yy.c : pasm_tok.l
 
 pasm_grm.tab.c : pasm_grm.y
 	bison -dv -r all pasm_grm.y
+
+# for debug use:
+# flex -sid
+# bison -dvt

@@ -503,14 +503,14 @@ void dump_expression ( expr_type* expr );
 // and a pre- or post-indexed indirect addressing mode
 // expect ('s as part of the token stream for reducing,
 // while an expression expects a ( as a shifted token.
-%left ','
 %left '+' '-'
 %left '*' '/'
 %left '~' '>' '<'
 %left '(' ')'
+%left ','
 
 // Attempt to force precedence on line ending over anything else!
-%right TERM
+%left TERM
 
 // Starting rule for grammar parser.
 %start program
@@ -538,6 +538,7 @@ instruction: no_params
            | index_reg_param
            | preindexed_indirect_param
            | postindexed_indirect_param
+           | disambiguation_1
            | directive
            ;
 
@@ -993,10 +994,30 @@ indirect_param: INSTR '(' expr ')' TERM {
    // reduce expression...
    reduce_expression ( $3, NULL );
 
+   // special handling here...the ()'s could have been ripped off of a
+   // parenthesized expression, so we need to check to see if this is really
+   // an absolute or zero-page instruction format in disguise (due to the
+   // stolen parenthesis...
+
    if ( (f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
       ptr = emit_bin_indirect ( &(m_6502opcode[f]), $3 );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      ptr = emit_bin_absolute ( &(m_6502opcode[f]), $3 );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      ptr = emit_bin_zeropage ( &(m_6502opcode[f]), $3 );
+   }
+   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      ptr = emit_bin_relative ( &(m_6502opcode[f]), $3 );
    }
    else
    {
@@ -1029,7 +1050,7 @@ preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
 ;
 
 postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
-	unsigned char f;
+   unsigned char f;
    ir_table* ptr;
 
    // reduce expression...
@@ -1039,6 +1060,36 @@ postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
       ptr = emit_bin_post_idx_ind ( &(m_6502opcode[f]), $3 );
+   }
+   else
+   {
+      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
+   }
+}
+
+disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
+   unsigned char f;
+   ir_table* ptr;
+
+   // note:  this rule exists purely to disambiguate the situations where
+   // a parenthesized expression is followed by a ,x which is NOT meant to be
+   // interpreted as a pre-indexed indirect addressing mode, but rather either
+   // an absolute indexed or zeropage indexed addressing mode.
+
+   // reduce expression...
+   reduce_expression ( $3, NULL );
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      ptr = emit_bin_abs_idx_x ( &(m_6502opcode[f]), $3 );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      ptr = emit_bin_zp_idx_x ( &(m_6502opcode[f]), $3 );
    }
    else
    {

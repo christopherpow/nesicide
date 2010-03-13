@@ -24,6 +24,10 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+// CPTODO put this somewhere more meaningful
+qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
 QColor CBasePalette::m_paletteBase [ 64 ] =
 {
    QColor ( 102, 102, 102 ),
