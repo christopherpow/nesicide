@@ -45,7 +45,9 @@ extern char e [ 256 ];
 
 unsigned int stab_ent = 0;
 unsigned int stab_max = 0;
+#ifndef __APPLE__ //strange mac os x related bug? :S
 int          yylineno = 0;
+#endif
 int parenlevel = 0;
 
 symbol_table* stab = NULL;
@@ -326,7 +328,7 @@ unsigned char addressing_mode ( unsigned char instr );
 %%
 int get_current_buffer ( void )
 {
-	return (int)yy_current_buffer;
+	return (int)YY_CURRENT_BUFFER;
 }
 
 symbol_table* find_symbol ( char* symbol, int bank )
