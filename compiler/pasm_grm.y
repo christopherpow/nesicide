@@ -1460,6 +1460,13 @@ int promote_instructions ( unsigned char fix_branches )
                      cur->addr--;
                   }
                }
+               else
+               {
+                  ptr->data[1] = value&0xFF;
+                  ptr->data[2] = (value>>8)&0xFF;
+                  ptr->fixup = fixup_fixed;
+                  // done!
+               }
             }
             else if ( (evaluated) && (!value_zp_ok) )
             {
@@ -1501,6 +1508,13 @@ int promote_instructions ( unsigned char fix_branches )
                   {
                      cur->addr--;
                   }
+               }
+               else
+               {
+                  ptr->data[1] = value&0xFF;
+                  ptr->data[2] = (value>>8)&0xFF;
+                  ptr->fixup = fixup_fixed;
+                  // done!
                }
             }
             else if ( (evaluated) && (!value_zp_ok) )
@@ -1544,6 +1558,13 @@ int promote_instructions ( unsigned char fix_branches )
                      cur->addr--;
                   }
                }
+               else
+               {
+                  ptr->data[1] = value&0xFF;
+                  ptr->data[2] = (value>>8)&0xFF;
+                  ptr->fixup = fixup_fixed;
+                  // done!
+               }
             }
             else if ( (evaluated) && (!value_zp_ok) )
             {
@@ -1578,6 +1599,14 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_pre_idx_ind:
+            if ( (evaluated) && (value_zp_ok) )
+            {
+               ptr->data[1] = value&0xFF;
+               ptr->fixup = fixup_fixed;
+               // done!
+            }
+         break;
+
          case fixup_post_idx_ind:
             if ( (evaluated) && (value_zp_ok) )
             {
@@ -1585,7 +1614,39 @@ int promote_instructions ( unsigned char fix_branches )
                ptr->fixup = fixup_fixed;
                // done!
             }
+            else
+            {
+               // disambiguation: if we've decided this instruction is a post-indexed indirect
+               // addressing mode but the expression evaluates outside of zeropage, check to see if
+               // the instruction is absolute indexed by y addressing mode capable and if so WARN
+               // and demote...
+               unsigned char f;
+               if ( (f=valid_instr_amode(ptr->data[0],AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
+               {
+                  ptr->fixup = fixup_abs_idx_y;
 
+                  // indicate we're probably not done fixing yet...
+                  promotions++;
+
+                  ptr->data[0] = f&0xFF;
+                  ptr->len = 3; // DEMOTION
+
+                  walk_ptr = ptr;
+                  for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
+                  {
+                     walk_ptr->addr++; // DEMOTION
+                     if ( walk_ptr->multi == 1 ) walk_ptr->len -= 1; // DEMOTION
+                  }
+                  if ( ptr->btab_ent == cur->idx )
+                  {
+                     cur->addr++; // DEMOTION
+                  }
+
+                  sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
+                  yyerror ( e );
+                  fprintf ( stderr, "error: %d: demotion of assumed post-indexed indirect instruction to absolute indexed instruction\n", yylineno );
+               }
+            }
          break;
 
          case fixup_indirect:
@@ -2555,17 +2616,6 @@ ir_table* emit_bin_immediate ( C6502_opcode* opcode, expr_type* expr )
    ptr->fixup = fixup_immediate;
 	ptr->data[0] = opcode->op;
 
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
-
    ptr->expr = expr;
 
    ptr->len = 2;
@@ -2597,17 +2647,6 @@ ir_table* emit_bin_zeropage ( C6502_opcode* opcode, expr_type* expr )
    ptr->fixup = fixup_zeropage;
    ptr->data[0] = opcode->op;
 
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
-
    ptr->expr = expr;
 
    ptr->len = 2;
@@ -2622,16 +2661,6 @@ ir_table* emit_bin_relative ( C6502_opcode* opcode, expr_type* expr )
    ptr->fixup = fixup_relative;
    ptr->data[0] = opcode->op;
 
-   // see if we can reduce the expression completely and if so, do so...
-   if ( expr->type == expression_number )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
-
    ptr->expr = expr;
 
 	ptr->len = 2;
@@ -2645,17 +2674,6 @@ ir_table* emit_bin_indirect ( C6502_opcode* opcode, expr_type* expr )
 	ir_table* ptr = emit_ir ();
 	ptr->data[0] = opcode->op;
    ptr->fixup = fixup_indirect;
-
-   // see if we can reduce the expression completely and if so, do so...
-   if ( expr->type == expression_number )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->data[2] = (expr->node.num->number>>8)&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
 
    ptr->expr = expr;
 
@@ -2705,17 +2723,6 @@ ir_table* emit_bin_zp_idx_x ( C6502_opcode* opcode, expr_type* expr )
 	ptr->data[0] = opcode->op;
    ptr->fixup = fixup_zp_idx;
 
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
-
    ptr->expr = expr;
 
    ptr->len = 2;
@@ -2729,17 +2736,6 @@ ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr )
 	ir_table* ptr = emit_ir ();
 	ptr->data[0] = opcode->op;
    ptr->fixup = fixup_zp_idx;
-
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
 
    ptr->expr = expr;
 
@@ -2755,17 +2751,6 @@ ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 	ptr->data[0] = opcode->op;
    ptr->fixup = fixup_pre_idx_ind;
 
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
-
    ptr->expr = expr;
 
    ptr->len = 2;
@@ -2779,17 +2764,6 @@ ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 	ir_table* ptr = emit_ir ();
 	ptr->data[0] = opcode->op;
    ptr->fixup = fixup_post_idx_ind;
-
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[1] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
 
    ptr->expr = expr;
 
