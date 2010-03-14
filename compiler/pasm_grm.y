@@ -1644,7 +1644,7 @@ int promote_instructions ( unsigned char fix_branches )
 
                   sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
                   yyerror ( e );
-                  fprintf ( stderr, "error: %d: demotion of assumed post-indexed indirect instruction to absolute indexed instruction\n", yylineno );
+                  fprintf ( stderr, "warning: %d: demotion of assumed post-indexed indirect instruction to absolute indexed instruction\n", ptr->source_linenum );
                }
             }
          break;
@@ -1672,7 +1672,7 @@ int promote_instructions ( unsigned char fix_branches )
                {
                   sprintf ( e, "branch to expression out of range" );
                   yyerror ( e );
-                  fprintf ( stderr, "error: %d: branch to expression out of range\n", yylineno );
+                  fprintf ( stderr, "error: %d: branch to expression out of range\n", ptr->source_linenum );
                }
                // done!
             }
@@ -2389,6 +2389,7 @@ ir_table* emit_ir ( void )
          ir_tail->align = 0;
          ir_tail->label = 0;
 			ir_tail->fixed = 0;
+         ir_tail->source_linenum = yylineno;
 			ir_tail->next = NULL;
 			ir_tail->prev = NULL;
          ir_tail->expr = NULL;
@@ -2415,6 +2416,7 @@ ir_table* emit_ir ( void )
          ir_tail->align = 0;
          ir_tail->label = 0;
 			ir_tail->fixed = 0;
+         ir_tail->source_linenum = yylineno;
          ir_tail->expr = NULL;
       }
 		else
@@ -2454,6 +2456,7 @@ ir_table* reemit_ir ( ir_table* head, ir_table* tail )
       ptr->fixed = head->fixed;
       ptr->label = head->label;
       ptr->fixup = head->fixup;
+      ptr->source_linenum = head->source_linenum;
       if ( head->expr )
       {
          ptr->expr = copy_expression ( head->expr );

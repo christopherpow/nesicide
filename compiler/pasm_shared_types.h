@@ -94,6 +94,7 @@ typedef struct _ir_table
    unsigned char fixed;
    unsigned char label;
    fixup_type    fixup;
+   int           source_linenum;
    struct _ir_table* next;
    struct _ir_table* prev;
    struct _expr_type* expr;
