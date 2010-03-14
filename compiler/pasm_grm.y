@@ -1,5 +1,7 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
 #include "pasm_types.h"
 
 // Make yacc errors more meaningful

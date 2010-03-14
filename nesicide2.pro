@@ -6,7 +6,8 @@ QT += network \
     webkit \
     xml \
     multimedia
-LIBS += compiler/pasm.lib
+win32:LIBS += compiler/pasm.lib
+unix:LIBS += compiler/libpasm.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:LIBS += `sdl-config \
