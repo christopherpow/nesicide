@@ -13,10 +13,12 @@ int main(int argc, char **argv)
 {
    unsigned char error;
    char* buffer = NULL;
-   int length;
+   int length = 0;
    int tries = 0;
    int promoted = -1;
    FILE* output;
+
+printf ( "sizeof(s)=%d\n", sizeof(symbol_table) );
 
    if ((argc > 1) && (freopen(argv[1], "r", stdin) == NULL))
    {
@@ -36,6 +38,7 @@ int main(int argc, char **argv)
    reduce_expressions ();
 
    // Lather, rinse, and repeat fixing and reducing until we're DONE...
+   dump_symbol_table ();
    do
    {
       // Promote to zeropage if possible...
@@ -55,15 +58,15 @@ int main(int argc, char **argv)
    // Output final binary representation to buffer...
    output_binary ( &buffer, &length );
 
-   output = fopen ( "a.out", "wb" );
-   if ( output )
+   if ( length )
    {
-      fwrite ( buffer, 1, length, output );
-      fclose ( output );
+      output = fopen ( "a.out", "wb" );
+      if ( output )
+      {
+         fwrite ( buffer, 1, length, output );
+         fclose ( output );
+      }
    }
-
-//   dump_symbol_table ();
-//   dump_fixup_table ();
 
    return 0;
 }

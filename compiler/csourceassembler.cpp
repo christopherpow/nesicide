@@ -21,7 +21,6 @@ bool CSourceAssembler::assemble()
    int bank;
    int s;
    symbol_table* syms;
-   symbol_type symType;
 
    if (!rootSource)
    {
@@ -50,11 +49,13 @@ bool CSourceAssembler::assemble()
       numSymbols = pasm_get_num_symbols();
       strBuffer.sprintf("<b>Symbol Table (%d symbols defined)</b>", numSymbols);
       builderTextLogger.write(strBuffer);
-      pasm_get_symbols(&syms);
       for ( s = 0; s < numSymbols; s++ )
       {
-         symType = pasm_get_symbol_type(&(syms[s]));
-         strBuffer.sprintf("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$%04X", symType==symbol_global?"GLOBAL":"LABEL", syms[s].symbol, pasm_get_symbol_value(&(syms[s])));
+         strBuffer.sprintf("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$%04X at line %d",
+                           (pasm_get_symbol_type(s)==symbol_global)?"GLOBAL":"LABEL",
+                           pasm_get_symbol(s),
+                           pasm_get_symbol_value(s),
+                           pasm_get_symbol_linenum(s));
          builderTextLogger.write(strBuffer);
       }
    }

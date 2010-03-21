@@ -478,6 +478,11 @@ unsigned char C6502::STEP ( void )
       )
    {
       // Get second opcode byte
+      // Check for dummy-read needed for single-byte instructions...
+      if ( opcodeSize == 1 )
+      {
+         (*(pOpcode+1)) = FETCH ( m_pc );
+      }
       if ( opcodeSize > 1 )
       {
          (*(pOpcode+1)) = FETCH ( m_pc );
@@ -759,6 +764,9 @@ void C6502::ASL ( void )
    {
       addr = MAKEADDR ( amode, data );
       val = MEM ( addr );
+
+      // dummy write
+      MEM ( addr, val );
    }
    val <<= 1;
    wC ( val&0x100 );
@@ -1014,6 +1022,9 @@ void C6502::ROL ( void )
    {
       addr = MAKEADDR ( amode, data );
       val = MEM ( addr );
+
+      // dummy write
+      MEM ( addr, val );
    }
    val <<= 1;
    val |= rC();
@@ -1214,6 +1225,9 @@ void C6502::LSR ( void )
    {
       addr = MAKEADDR ( amode, data );
       val = MEM ( addr );
+
+      // dummy write
+      MEM ( addr, val );
    }
    wC ( val&0x01 );
    val >>= 1;
@@ -1426,6 +1440,9 @@ void C6502::ROR ( void )
    {
       addr = MAKEADDR ( amode, data );
       val = MEM ( addr );
+
+      // dummy write
+      MEM ( addr, val );
    }
    val |= ( rC()*0x100 );
    wC ( val&0x01 );
@@ -2129,6 +2146,10 @@ void C6502::DEC ( void )
 
    addr = MAKEADDR ( amode, data );
    val = MEM ( addr );
+
+   // dummy write
+   MEM ( addr, val );
+
    val -= 1;
    MEM ( addr, val );
    wN ( val&0x80 );
@@ -2320,6 +2341,10 @@ void C6502::INC ( void )
 
    addr = MAKEADDR ( amode, data );
    val = MEM ( addr );
+
+   // dummy write
+   MEM ( addr, val );
+
    val++;
    MEM ( addr, val );
    wN ( val&0x80 );
@@ -2735,10 +2760,14 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    }
    else if ( amode == AM_ZEROPAGE_INDEXED_X )
    {
+      // dummy read
+      MEM(*data);
       addr = ((*data)+rX())&0xFF;
    }
    else if ( amode == AM_ZEROPAGE_INDEXED_Y )
    {
+      // dummy read
+      MEM(*data);
       addr = ((*data)+rY())&0xFF;
    }
    else if ( amode == AM_ABSOLUTE )
@@ -2751,6 +2780,8 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
       addr = addrpre+rX();
       if ( (addrpre>>8) != (addr>>8) )
       {
+         // dummy read
+         MEM((addrpre&0xFF00)+((addrpre+rX())&0xFF));
          (*(data+2)) = 1; // extra cycles stored here...
       }
    }
@@ -2760,11 +2791,15 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
       addr = addrpre+rY();
       if ( (addrpre>>8) != (addr>>8) )
       {
+         // dummy read
+         MEM((addrpre&0xFF00)+((addrpre+rY())&0xFF));
          (*(data+2)) = 1; // extra cycles stored here...
       }
    }
    else if ( amode == AM_PREINDEXED_INDIRECT )
    {
+      // dummy read
+      MEM(*data);
       addr = MAKE16(MEM(((*data)+rX())&0xFF),MEM(((*data)+rX()+1)&0xFF));
    }
    else if ( amode == AM_POSTINDEXED_INDIRECT )
@@ -2773,6 +2808,8 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
       addr = addrpre+rY();
       if ( (addrpre>>8) != (addr>>8) )
       {
+         // dummy read
+         MEM((addrpre&0xFF00)+((addrpre+rY())&0xFF));
          (*(data+2)) = 1; // extra cycles stored here...
       }
    }

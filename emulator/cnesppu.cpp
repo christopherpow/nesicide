@@ -682,21 +682,21 @@ UINT CPPU::PPU ( UINT addr )
    if ( addr < 0x4000 )
    {
       fixAddr = addr&0x0007;
-      if ( addr == PPUSTATUS )
+      if ( fixAddr == PPUSTATUS_REG )
       {
          data = *(m_PPUreg+fixAddr);
          *(m_PPUreg+fixAddr) &= (~PPUSTATUS_VBLANK); // VBLANK clear-on-read
          m_ppuRegByte = 0; // Clear PPUADDR address latch
          data = (data&0xE0)|(m_ppuReadLatch&0x1F);
       }
-      else if ( addr == OAMDATA )
+      else if ( fixAddr == OAMDATA_REG )
       {
          data = *(m_PPUoam+m_oamAddr);
 
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
       }
-      else if ( addr == PPUDATA )
+      else if ( fixAddr == PPUDATA_REG )
       {
          m_ppuReadLatch = m_ppuReadLatch2007;
          oldPpuAddr = m_ppuAddr;
@@ -759,22 +759,22 @@ void CPPU::PPU ( UINT addr, unsigned char data )
    if ( addr < 0x4000 )
    {
       fixAddr = addr&0x0007;
-      if ( addr != PPUSTATUS )
+      if ( fixAddr != PPUSTATUS_REG )
       {
          *(m_PPUreg+fixAddr) = data;
       }
 
-      if ( addr == PPUCTRL )
+      if ( fixAddr == PPUCTRL_REG )
       {
          m_ppuAddrLatch &= 0x73FF;
          m_ppuAddrLatch |= ((((unsigned short)data&0x03))<<10);
          m_ppuAddrIncrement = (((!!(data&PPUCTRL_VRAM_ADDR_INC))*31)+1);
       }
-      else if ( addr == OAMADDR )
+      else if ( fixAddr == OAMADDR_REG )
       {
          m_oamAddr = data;
       }
-      else if ( addr == OAMDATA )
+      else if ( fixAddr == OAMDATA_REG )
       {
          *(m_PPUoam+m_oamAddr) = data;
 
@@ -783,7 +783,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 
          m_oamAddr++;
       }
-      else if ( addr == PPUSCROLL )
+      else if ( fixAddr == PPUSCROLL_REG )
       {
          if ( m_ppuRegByte )
          {
@@ -801,7 +801,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
          m_ppuRegByte = !m_ppuRegByte;
       }
-      else if ( addr == PPUADDR )
+      else if ( fixAddr == PPUADDR_REG )
       {
          oldPpuAddr = m_ppuAddr;
          if ( m_ppuRegByte )
@@ -827,7 +827,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
             }
          }
       }
-      else if ( addr == PPUDATA )
+      else if ( fixAddr == PPUDATA_REG )
       {
          STORE ( m_ppuAddr, data, eSource_CPU, eTracer_DataWrite );
 

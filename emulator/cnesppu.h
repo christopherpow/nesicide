@@ -24,6 +24,14 @@
 #define PPUSCROLL  0x2005
 #define PPUADDR    0x2006
 #define PPUDATA    0x2007
+#define PPUCTRL_REG   0
+#define PPUMASK_REG   1
+#define PPUSTATUS_REG 2
+#define OAMADDR_REG   3
+#define OAMDATA_REG   4
+#define PPUSCROLL_REG 5
+#define PPUADDR_REG   6
+#define PPUDATA_REG   7
 #define NUM_PPU_REGS 8
 
 #define MODE_NTSC 0

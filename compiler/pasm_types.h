@@ -6,6 +6,10 @@
 #define INVALID_INSTR 0xFF
 #define SYMBOL_NOT_FOUND 0xFFFFFFFF
 
+#if defined ( __cplusplus )
+extern "C" {
+#endif
+
 #define ANONYMOUS_BANK "_anonymous_"
 
 typedef int (*incobj_callback_fn) ( char* objname, char** objdata, int* size );
@@ -24,4 +28,8 @@ typedef struct _binary_table
    unsigned int   addr;
 } binary_table;
 
-#endif 
+#if defined ( __cplusplus )
+}
+#endif
+
+#endif

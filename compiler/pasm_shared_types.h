@@ -1,6 +1,10 @@
 #if !defined ( PASM_SHARED_TYPES_H )
 #define PASM_SHARED_TYPES_H
 
+#if defined ( __cplusplus )
+extern "C" {
+#endif
+
 #define MAX_FIXUP_TRIES 5
 
 typedef enum
@@ -11,24 +15,24 @@ typedef enum
 
 typedef struct _symbol_table
 {
-	char*          symbol;
+   int            idx;
+   char*          symbol;
    struct _ir_table* ir;
    struct _expr_type* expr;
    unsigned int  btab_ent;
-   unsigned char global;
+   unsigned char bork; // wtf?  without this the structs are messed up
 } symbol_table;
 
 typedef union _ref_union
 {
    char* symbol;
-   struct _symbol_table* symtab;
+   int stab_ent;
 } ref_union;
 
 typedef enum
 {
    reference_symbol,
-   reference_symtab,
-   reference_global
+   reference_symtab
 } reference_type;
 
 typedef struct _ref_type
@@ -99,5 +103,9 @@ typedef struct _ir_table
    struct _ir_table* prev;
    struct _expr_type* expr;
 } ir_table;
+
+#if defined ( __cplusplus )
+}
+#endif
 
 #endif

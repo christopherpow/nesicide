@@ -1,4 +1,4 @@
-word    [_'@a-zA-Z]+[_'@a-zA-Z0-9]?
+word    [_'@a-zA-Z][_'@a-zA-Z0-9]*
 datab1  ".byte"
 datab2  ".db"
 datab3  ".dcb"
@@ -74,7 +74,7 @@ number_type* get_next_numtype ( void )
 {
    number_type* p = (number_type*) malloc ( sizeof(number_type) );
    p->zp_ok = 0;
-	return p;
+   return p;
 }
 
 ref_type* get_next_reftype ( void )
@@ -124,7 +124,7 @@ unsigned char addressing_mode ( unsigned char instr );
 	current_label = p;
 	ref = get_next_reftype ();
 	ref->type = reference_symtab;
-	ref->ref.symtab = p;
+   ref->ref.stab_ent = p->idx;
 	yylval.ref = ref;
 	return LABEL;
 }
@@ -151,16 +151,8 @@ unsigned char addressing_mode ( unsigned char instr );
 	{
 		ref = get_next_reftype ();
 
-		if ( p->global )
-		{
-			ref->type = reference_global;
-		}
-		else
-		{
-			ref->type = reference_symtab;
-		}
-
-		ref->ref.symtab = p;
+      ref->type = reference_symtab;
+      ref->ref.stab_ent = p->idx;
 		yylval.ref = ref;
 		return LABELREF;
 	}
@@ -200,11 +192,12 @@ unsigned char addressing_mode ( unsigned char instr );
 {origin} { 
    return ORIGIN;
 }
-{dsb} |
-{dsw}  {
-   return FILLSPACE;
+{dsb}  {
+   return FILLSPACEB;
 }
-
+{dsw}  {
+   return FILLSPACEW;
+}
 {space} { 
    return VARSPACE;
 }
@@ -342,7 +335,7 @@ symbol_table* find_symbol ( char* symbol, int bank )
 		for ( i = 0; i < cltab_ent; i++ )
 		{
 			if ( (strcmp(cltab[i]->symbol,symbol) == 0) &&
-				  ((cltab[i]->btab_ent == bank) || (cltab[i]->global) ||
+              ((cltab[i]->btab_ent == bank) || (cltab[i]->expr) ||
 				  (((btab[bank].type == text_segment) && (btab[cltab[i]->btab_ent].type == data_segment)) || 
 				  ((btab[bank].type == data_segment) && (btab[cltab[i]->btab_ent].type == text_segment)))) )
 			{
@@ -355,8 +348,8 @@ symbol_table* find_symbol ( char* symbol, int bank )
 		// otherwise, search symbol table entirely...
 		for ( i = 0; i < stab_ent; i++ )
 		{
-			if ( (strcmp(stab[i].symbol,symbol) == 0) &&
-				  ((stab[i].btab_ent == bank) || (stab[i].global) ||
+         if ( (strncmp(symbol,stab[i].symbol,strlen(symbol)) == 0) &&
+              ((stab[i].btab_ent == bank) || (stab[i].expr) ||
 				  (((btab[bank].type == text_segment) && (btab[stab[i].btab_ent].type == data_segment)) || 
 				  ((btab[bank].type == data_segment) && (btab[stab[i].btab_ent].type == text_segment)))) )
 			{
@@ -424,11 +417,11 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 			stab[stab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
 			if ( stab[stab_ent].symbol != NULL )
 			{
+            stab[stab_ent].idx = stab_ent;
 				memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
 				strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
 				stab[stab_ent].ir = NULL;
 				stab[stab_ent].btab_ent = cur->idx;
-				stab[stab_ent].global = 0;
             stab[stab_ent].expr = NULL;
 			}
 		}
@@ -446,28 +439,29 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 			stab[stab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
 			if ( stab[stab_ent].symbol != NULL )
 			{
-				memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
+            stab[stab_ent].idx = stab_ent;
+            memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
 				strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
 				stab[stab_ent].ir = NULL;
 				stab[stab_ent].btab_ent = cur->idx;
-				stab[stab_ent].global = 0;
             stab[stab_ent].expr = NULL;
 			}
 		}
 		else
 		{
 			stab_max += STAB_ENT_INC;
+
 			stab = (symbol_table*) realloc ( stab, stab_max*sizeof(symbol_table) );
-			if ( stab != NULL )
+         if ( stab != NULL )
 			{
 				stab[stab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
 				if ( stab[stab_ent].symbol != NULL )
 				{
-					memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
+               stab[stab_ent].idx = stab_ent;
+               memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
 					strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
 					stab[stab_ent].ir = NULL;
 					stab[stab_ent].btab_ent = cur->idx;
-					stab[stab_ent].global = 0;
                stab[stab_ent].expr = NULL;
             }
 			}

@@ -454,6 +454,13 @@ extern QSemaphore emulatorSemaphore;
 
 extern "C" void SDL_GetMoreData(void *userdata, Uint8 *stream, int len)
 {   
+   if ( len != 1470 )
+   {
+      while ( 1 )
+      {
+         len--;
+      }
+   }
    CAPU::PLAY ( stream, len );
 
    emulatorSemaphore.release();
@@ -508,7 +515,7 @@ void CAPU::PLAY ( Uint8 *stream, int len )
    waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
    waveBuf = *(m_waveBuf + m_waveBufConsume);
 
-   if ( waveBufDepth )
+   if ( (waveBufDepth<<1) >= len )
    {
       SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
       m_waveBufConsume++;

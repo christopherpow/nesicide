@@ -29,14 +29,19 @@ int pasm_get_num_errors ( void )
    return errorCount;
 }
 
-void pasm_get_symbols ( symbol_table** symbols )
+char* pasm_get_symbol ( int symbol )
 {
-   (*symbols) = stab;
+   return stab[symbol].symbol;
 }
 
-int pasm_get_symbol_data ( symbol_table* symbol, char* data, int size )
+int pasm_get_symbol_linenum ( int symbol )
 {
-   ir_table* ptr = symbol->ir;
+   return stab[symbol].ir->source_linenum;
+}
+
+int pasm_get_symbol_data ( int symbol, char* data, int size )
+{
+   ir_table* ptr = stab[symbol].ir;
    int bytes = 0;
 
    if ( ptr != NULL )
@@ -54,10 +59,10 @@ int pasm_get_symbol_data ( symbol_table* symbol, char* data, int size )
    return bytes;
 }
 
-symbol_type pasm_get_symbol_type ( struct _symbol_table* symbol )
+symbol_type pasm_get_symbol_type ( int symbol )
 {
    symbol_type value;
-   if ( symbol->expr )
+   if ( stab[symbol].expr )
    {
       value = symbol_global;
    }
@@ -68,16 +73,16 @@ symbol_type pasm_get_symbol_type ( struct _symbol_table* symbol )
    return value;
 }
 
-int pasm_get_symbol_value ( symbol_table* symbol )
+int pasm_get_symbol_value ( int symbol )
 {
    int value;
-   if ( symbol->expr )
+   if ( stab[symbol].expr )
    {
-      value = evaluate_expression ( symbol->expr );
+      value = evaluate_expression ( stab[symbol].expr );
    }
    else
    {
-      value = symbol->ir->addr;
+      value = stab[symbol].ir->addr;
    }
    return value;
 }

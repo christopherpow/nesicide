@@ -26,7 +26,7 @@
 // This is the structure representing an opcode
 // both by index [for reverse-lookup if necessary]
 // and by name.  Also included are the addressing
-// mode [used for immediate representation
+// mode [used for intermediate representation
 // emittance, and promotions], the number of cycles
 // and whether or not the opcode is documented
 // [for assembler output or diagnostics].
@@ -310,6 +310,9 @@ static C6502_opcode m_6502opcode [ 256 ] =
 // in the assembly code we're parsing.
 #define BTAB_ENT_INC 1
 
+// Default fill value to use for .space, .dsw, .dsb, etc.
+#define DEFAULT_FILL 0x0000
+
 // Hook function for retrieving data from NESICIDE.
 incobj_callback_fn incobj_fn = NULL;
 
@@ -319,19 +322,19 @@ int yywrap(void);
 
 //char currentFile [ 256 ];
 
-// Immediate representation queue pointers.  The assembly
+// Intermediate representation queue pointers.  The assembly
 // code we're parsing is first built as a linked list of
-// immediate representation structures.  Once the assembly
+// intermediate representation structures.  Once the assembly
 // code has been fully and completely parsed we run some
 // reduction/optimization algorithms to complete the
-// immediate representation and make it ready for binary
+// intermediate representation and make it ready for binary
 // output.
 ir_table* ir_head = NULL;
 ir_table* ir_tail = NULL;
 
-// Repeat macro immediate representation pointer stack.
+// Repeat macro intermediate representation pointer stack.
 // Allow for MAX_REPEATS nested REPT/ENDR macros, keeping
-// track of the starting immediate representation node
+// track of the starting intermediate representation node
 // for each nesting level.
 #define MAX_REPEATS 10
 ir_table* ir_repeat_head [ MAX_REPEATS ];
@@ -351,7 +354,7 @@ int btab_ent_prior_to_enum = -1;
 // where a grammar rule needs to create a symbol, such as
 // the rule for assigning a value to a global symbol.
 // When a symbol that is a label [ie. not a global] is
-// declared the immediate representation link to where
+// declared the intermediate representation link to where
 // it was declared is stored in the symbol structure so
 // the address of the symbol can be computed.
 extern symbol_table* stab;
@@ -373,7 +376,7 @@ unsigned char add_binary_bank ( segment_type type, char* symbol );
 unsigned char set_binary_bank ( segment_type type, char* bankname );
 void set_binary_addr ( unsigned int addr );
 
-// This function takes the completed immediate representation
+// This function takes the completed intermediate representation
 // and outputs it as a flat binary stream ready to be sent to a file.
 void output_binary( char** buffer, int* size );
 
@@ -413,7 +416,7 @@ unsigned int distance ( ir_table* from, ir_table* to );
 // make a copy of, or evaluate the current value of an
 // expression.  Expression reduction is done when an
 // assembly code line is parsed that contains an expression,
-// and also during the final immediate representation
+// and also during the final intermediate representation
 // processing phase after parsing is complete.  Expressions
 // that reference label symbols or global symbols will evaluate
 // correctly only when all symbols and their values are known.
@@ -422,20 +425,21 @@ unsigned int distance ( ir_table* from, ir_table* to );
 // addressing mode], can change the address of label symbols.
 void reduce_expression ( expr_type* expr, symbol_table* hint );
 expr_type* copy_expression ( expr_type* expr );
-int evaluate_expression ( expr_type* expr, unsigned char* evaluated );
+int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symbol );
+void destroy_expression ( expr_type* expr );
 
-// Immediate representation creation routines.
-// These routines create an immediate representation node
+// Intermediate representation creation routines.
+// These routines create an intermediate representation node
 // for a given parsed assembly code line and add it to
 // the list.  They also attempt rudimentary expression
 // removal if the expression is a constant that is known
 // not to change.
 ir_table* emit_ir ( void );
 ir_table* emit_fix ( void );
-ir_table* emit_label ( int m );
+ir_table* emit_label ( int m, int fill );
 ir_table* emit_bin ( expr_type* expr );
 ir_table* emit_bin2 ( expr_type* expr );
-ir_table* emit_bin_space ( unsigned char data, int m );
+ir_table* emit_bin_space ( int m, int fill );
 ir_table* emit_bin_align ( int m );
 ir_table* emit_bin_data ( unsigned char data );
 ir_table* emit_bin_implied ( C6502_opcode* opcode );
@@ -466,6 +470,7 @@ extern char* yytext;
 void dump_symbol_table ( void );
 void dump_binary_table ( void );
 void dump_ir_table ( void );
+void dump_ir_expressions ( void );
 void dump_expression ( expr_type* expr );
 %}
 // Representation of possible types passed to the grammar parser
@@ -482,7 +487,7 @@ void dump_expression ( expr_type* expr );
 // Terminal tokens passed to the grammar parser from
 // the lexical analyzer.
 %token TERM DATAB DATAW REPEAT ENDREPEAT
-%token ORIGIN FILLSPACE VARSPACE ADVANCE ALIGN
+%token ORIGIN FILLSPACEB FILLSPACEW VARSPACE ADVANCE ALIGN
 %token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
@@ -517,9 +522,15 @@ void dump_expression ( expr_type* expr );
 // Starting rule for grammar parser.
 %start program
 %%
+// A program is a list of statements...
 program: program statement
          | statement
 
+// A statement is either:
+// a) A lable on a line by itself,
+// b) An instruction on a line by itself [instruction terminators follow in individual rules below],
+// c) A label and instruction on the same line, or
+// d) A blank line
 statement: identifier TERM
            | instruction
            | identifier instruction
@@ -528,12 +539,13 @@ statement: identifier TERM
 
 identifier: LABEL {
    ir_table* ptr;
-   ptr = emit_label ( 0 );
-   update_symbol_ir ( $1->ref.symtab, ptr );
-	//dump_symbol_table ();
+   ptr = emit_label ( 0, DEFAULT_FILL );
+   update_symbol_ir ( &(stab[$1->ref.stab_ent]), ptr );
+   //dump_symbol_table ();
 }
 			  ;
 
+// An instruction follows a specific format, each of which has a rule or rules to reduce...
 instruction: no_params
            | expression_param
            | indirect_param
@@ -544,6 +556,7 @@ instruction: no_params
            | directive
            ;
 
+// Directive .incbin "<file>" includes a binary file into the intermediate representation stream...
 directive: INCBIN QUOTEDSTRING {
 	char* fn = strdup ( $2 );
 	int c;
@@ -564,6 +577,7 @@ directive: INCBIN QUOTEDSTRING {
 		fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn );
 	}
 }
+// Directive .incobj "<file>" includes a NESICIDE object into the parser stream...
            | INCOBJ QUOTEDSTRING TERM {
 	char* data = NULL; 
 	char* fn = strdup ( $2 );
@@ -613,6 +627,7 @@ directive: INCBIN QUOTEDSTRING {
 		fprintf ( stderr, "error: %d: use of .incobj directive not supported: %s\n", yylineno, fn );
 	}
 }
+// Directive .include "<file>" includes a source file into the parser stream...
            | INCLUDE QUOTEDSTRING TERM {
 	char* fn = strdup ( $2 );
 	char* buffer;
@@ -666,62 +681,88 @@ directive: INCBIN QUOTEDSTRING {
 		fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn );
 	}
 }
+// Directive <label-name> = <expression> reduces <expression> and assigns the
+// expression's value to the global symbol <label-name>.  This is not a #define,
+// it is equivalent to ASM6 syntax.  Expression evaluation occurs, rather than
+// direct in-line replacement of <expression> wherever it occurs.
            | LABELREF '=' expr TERM {
    unsigned char f;
    symbol_table* p = NULL;
    if ( $1->type == reference_symbol )
    {
       f=add_symbol($1->ref.symbol,&p);
-      if ( !f )
-      {
-         sprintf ( e, "multiple declarations of symbol: %s", $1->ref.symbol );
-         yyerror ( e );
-         fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, $1->ref.symbol );
-      }
-      if ( p )
-      {
-         // reduce expression
-         reduce_expression ( $3, NULL );
-
-         p->global = 1;
-         p->expr = $3;
-         p->ir = NULL;
-      }
    }
    else
    {
-      sprintf ( e, "multiple declarations of symbol: %s", $1->ref.symtab->symbol );
-      yyerror ( e );
-      fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, $1->ref.symtab->symbol );
+      p = &(stab[$1->ref.stab_ent]);
+      f = 1;
+   }
+   if ( !f )
+   {
+      // allow redefinition of globals...
+      destroy_expression ( p->expr );
+   }
+   if ( p )
+   {
+      // reduce expression
+      reduce_expression ( $3, NULL );
+
+      p->expr = $3;
+      p->ir = NULL;
    }
    //dump_symbol_table ();
 }
+// CPTODO: attempting to replicate ASM6 syntax for ENUM variable assignment.
+// Currently this causes shift/reduce conflicts on LABELREF.  Working with states
+// in the lexer to disambiguate the LABELREF as a different token to prevent
+// these conflicts.  Not resolved yet.
 //           | LABELREF DATAB blist TERM {
 //}
 //           | LABELREF DATAW wlist TERM {
 //}
+// Anything not recognized by the lexer that matches the lexer's {word} rule
+// is passed to the parser as a LABELREF.  If we get a stray LABELREF token
+// it therefore indicates some kind of parse error in the lexer.
            | LABELREF {
-   sprintf ( e, "parse error, unrecognized token: %s", $1->type==reference_symbol?$1->ref.symbol:$1->ref.symtab->symbol );
+   sprintf ( e, "parse error, unrecognized token: %s", $1->type==reference_symbol?$1->ref.symbol:stab[$1->ref.stab_ent].symbol );
    yyerror ( e );
-   fprintf ( stderr, "error: %d: parse error, unrecognized token: %s\n", yylineno, $1->type==reference_symbol?$1->ref.symbol:$1->ref.symtab->symbol );
+   fprintf ( stderr, "error: %d: parse error, unrecognized token: %s\n", yylineno, $1->type==reference_symbol?$1->ref.symbol:stab[$1->ref.stab_ent].symbol );
 }
+// Directive byte/word lists.  The blist/wlist rules take care of outputting
+// the intermediate representation of the list for us, so there's nothing more
+// to do when these rules are reduced.
            | DATAB blist TERM
            | DATAW wlist TERM
+// Directive <.text|.data|.segment> "<name>" sets the current segment or creates a new one
+// based on whether or not it has seen <name> segment declared yet.  Segments are
+// equivalent to banks, which may be a bit of a misnomer that I need to work through.
+// CPTODO: address ASM6 BASE directive.
            | SEGMENT QUOTEDSTRING TERM {
    if ( set_binary_bank($1,$2) == 0 )
    {
       add_binary_bank ( $1, $2 );
    }
 }
+// Directive <.text|.data|.segment> <label> sets the current segment or creates a new one
+// based on whether or not it has seen <label> segment declared yet.  Segments are
+// equivalent to banks, which may be a bit of a misnomer that I need to work through.
+// Note this is equivalent to the above rule but means the segment name does not need
+// to be quoted.
+// CPTODO: address ASM6 BASE directive.
            | SEGMENT LABELREF TERM {
    if ( set_binary_bank($1,$2->ref.symbol) == 0 )
    {
       add_binary_bank ( $1, $2->ref.symbol );
    }
 }
+// Directive <.text|.data> sets the current segment to the default segment.  One
+// text and one data segment are created by default when parsing starts, so in some
+// situations no segmenting is necessary to achieve a working program.
            | SEGMENT TERM {
    set_binary_bank ( $1, ANONYMOUS_BANK );
 }
+// Directive .org <addr> sets the current segment's address to <addr>.  The
+// next emitted intermediate representation node will have <addr> as its address.
            | ORIGIN DIGITS TERM {
    if ( $2->number >= 0 )
    {
@@ -735,27 +776,52 @@ directive: INCBIN QUOTEDSTRING {
       fprintf ( stderr, "error: %d: negative origin not allowed\n", yylineno );
    }
 }
+// Directive .space <label> <value> creates a space <value> bytes long for
+// symbol <label> at the current position within the intermediate representation.
+// Can be used to declare variables in .data segment.
            | VARSPACE LABELREF DIGITS TERM {
-   symbol_table* symtab;
+   symbol_table* symtab = NULL;
    ir_table* ptr;
 
    if ( $2->type == reference_symtab )
    {
-      sprintf ( e, "multiple declarations of symbol: %s", $2->ref.symtab->symbol );
+      sprintf ( e, "multiple declarations of symbol: %s", stab[$2->ref.stab_ent].symbol );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, $2->ref.symtab->symbol );
+      fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, stab[$2->ref.stab_ent].symbol );
    }
    else
    {
       add_symbol ( $2->ref.symbol, &symtab );
-      ptr = emit_label ( $3->number );
+      ptr = emit_label ( $3->number, DEFAULT_FILL );
       update_symbol_ir ( symtab, ptr );
       //dump_symbol_table ();
    }
 }
-           | FILLSPACE DIGITS TERM {
-   emit_label ( $2->number );
+// Directive .dsb <length> creates a space <length> bytes long at the
+// current position within the intermediate representation.
+           | FILLSPACEB DIGITS TERM {
+   emit_label ( $2->number, DEFAULT_FILL );
 }
+// Directive .dsb <length>, <value> creates a space <length> bytes long filled
+// with <value> at the current position within the intermediate representation.
+           | FILLSPACEB DIGITS ',' DIGITS TERM {
+   emit_label ( $2->number, $4->number );
+}
+// Directive .dsb <value> creates a space <value> words long at the
+// current position within the intermediate representation.
+           | FILLSPACEW DIGITS TERM {
+   emit_label ( $2->number<<1, DEFAULT_FILL );
+}
+// Directive .dsb <length>, <value> creates a space <length> words long filled
+// with <value> at the current position within the intermediate representation.
+           | FILLSPACEW DIGITS ',' DIGITS TERM {
+   emit_label ( $2->number<<1, $4->number );
+}
+// Directive .align <alignment> aligns the address of the next emitted
+// intermediate representation to <alignment>.  For example, .align 8 encountered
+// when the current segment address is 0x804e will align the address to 0x8050.
+// Bigger .align values can be used but are really probably better served
+// using the .advance directive.
            | ALIGN DIGITS TERM {
    int j;
    if ( $2->number > 0 )
@@ -763,12 +829,32 @@ directive: INCBIN QUOTEDSTRING {
       emit_bin_align ( $2->number );
    }
 }
+// Directive .advance <addr> fills the space from the current segment
+// address to <addr> with the default fill value.  This has the same effect
+// as .space directive but the addition of a fixed intermediate representation
+// node makes the set-to address unchangeable by instruction promotions that
+// occur prior in the intermediate representation stream.  Consider the somewhat
+// meaningless example:
+// .org $0
+// DATA=$80
+// lda DATA
+// .advance 8
+// ...
+// In the above example, whether or not the lda DATA can be zeropage or
+// absolute addressing mode is not known until the value of DATA can be
+// completely evaluated.  Default behavior is to assume absolute and promote
+// to zeropage if the expression evaluates to a zeropage value and the instruction
+// has a zeropage addressing mode equivalent.  Thus the .advance directive above
+// will emit a space of 5 bytes and a fix at address 8.  When DATA is completely
+// evaluated the lda will be promoted to zeropage.  At that time all instructions
+// up to the next fix point are shifted back a byte and the space emitted
+// for the advance is bumped up a byte.
            | ADVANCE DIGITS TERM {
    int j;
    if ( cur->addr <= $2->number )
    {
       j = ($2->number-cur->addr);
-      emit_bin_space ( 0x00, j );
+      emit_bin_space ( j, DEFAULT_FILL );
       emit_fix ();
    }
    else
@@ -778,6 +864,27 @@ directive: INCBIN QUOTEDSTRING {
       fprintf ( stderr, "error: %d: negative offset in .advance directive based on current address\n", yylineno );
    }
 }
+// Directive .advance <addr>, <value> is equivalent to .advance <addr>
+// except that it fills the space with <value> instead of the default
+// fill value.
+           | ADVANCE DIGITS ',' DIGITS TERM {
+   int j;
+   if ( cur->addr <= $2->number )
+   {
+      j = ($2->number-cur->addr);
+      emit_bin_space ( j, $4->number );
+      emit_fix ();
+   }
+   else
+   {
+      sprintf ( e, "negative offset in .advance directive based on current address" );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: negative offset in .advance directive based on current address\n", yylineno );
+   }
+}
+// Directive .enum <addr> is equivalent to ASM6 ENUM directive.  I find this
+// directive a bit hokey but am including it in an effort to be compatible
+// with ASM6.  Note that I try to emulate it using my segment model.
          | ENUMERATE DIGITS TERM {
    // Emulate ASM6 by pretending we just saw a .data segment
    // directive followed by an .org directive...
@@ -797,6 +904,9 @@ directive: INCBIN QUOTEDSTRING {
       fprintf ( stderr, "error: %d: negative .enum not allowed\n", yylineno );
    }
 }
+// Directive .ende is equivalent to ASM6 ENDE directive.  I find this
+// directive a bit hokey but am including it in an effort to be compatible
+// with ASM6.  Note that I try to emulate it using my segment model.
          | ENDENUMERATE TERM {
    // Emulate ASM6 by pretending we just saw a .text segment
    // directive...
@@ -812,15 +922,20 @@ directive: INCBIN QUOTEDSTRING {
       fprintf ( stderr, "error: %d: .ende directive without corresponding .enum directive\n", yylineno );
    }
 }
+// Directive .rept <count> is equivalent to ASM6 REPT directive.  It
+// repeats a section of intermediate representation nodes found between
+// .rept and .endr directives.  Repeats can be nested up to MAX_REPEATS
+// deep.  Currently this is fixed but certainly could be dynamic.  I just
+// don't see much value in nesting repeated sections of stuff more than 10 deep.
          | REPEAT DIGITS TERM {
    ir_table* ptr;
    if ( $2->number > 1 )
    {
       if ( repeat_level < MAX_REPEATS )
       {
-         // Create a dummy immediate representation node
+         // Create a dummy intermediate representation node
          // to cling to as the repeat begin point.
-         ptr = emit_label ( 0 );
+         ptr = emit_label ( 0, DEFAULT_FILL );
 
          // Store repeat begin point...
          ir_repeat_head [ repeat_level ] = ptr;
@@ -841,12 +956,15 @@ directive: INCBIN QUOTEDSTRING {
       fprintf ( stderr, "error: %d: meaningless REPT 0 encountered\n", yylineno );
    }
 }
+// Directive .endr is equivalent to ASM6 ENDR directive.  It
+// causes the repeated emittance of instructions found between it
+// and the .rept <count> directive that this .endr is tied to.
          | ENDREPEAT TERM {
    ir_table* ir_repeat_tail;
 
-   // Create a dummy immediate representation node
+   // Create a dummy intermediate representation node
    // to cling to as the repeat end point.
-   ir_repeat_tail = emit_label ( 0 );
+   ir_repeat_tail = emit_label ( 0, DEFAULT_FILL );
 
    if ( repeat_level )
    {
@@ -873,6 +991,9 @@ directive: INCBIN QUOTEDSTRING {
 }
 ;
 
+// Parser for accumulator and implied addressing modes.
+// There's no ambiguities here to note.  An instruction with
+// no parameters can only be of one form or the other.
 no_params: INSTR TERM {
 	unsigned char f;
    if ( (f=valid_instr_amode($1,AM_IMPLIED)) != INVALID_INSTR )
@@ -892,6 +1013,9 @@ no_params: INSTR TERM {
 }
 ;
 
+// Parser for immediate addressing modes.
+// There's no ambiguities here to note.  An instruction with
+// '#' can only be of immediate form.
 expression_param: INSTR '#' expr TERM {
 	unsigned char f;
    ir_table*     ptr;
@@ -911,6 +1035,18 @@ expression_param: INSTR '#' expr TERM {
       fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
+// Parser for absolute, zeropage, and relative addressing modes.
+// Ambiguity creeps in here a bit.  First, we have the possibility that
+// the instruction's expression may evaluate to an absolute (2-byte)
+// value.  Second we have the opposing possibility that the instruction's
+// expression evaluates to a zero-page (1-byte) value.  Thirdly, we
+// have the possibility that the instruction is a branch and thus
+// the expression should evaluate to an offset.
+// For the first two cases we start by assuming the worst; the expression
+// will evaluate to an absolute value, and emit an absolute addressing mode immediate
+// representation if the instruction supports absolute addressing mode.
+// If there's no absolute addressing mode then we emit a zero-page
+// addressing mode [again, if it exists].  Finally we check for branches.
            | INSTR expr TERM {
    unsigned char f;
    ir_table*     ptr;
@@ -942,6 +1078,16 @@ expression_param: INSTR '#' expr TERM {
 }
 ;
 
+// Parser for absolute indexed-by-x, and zeropage indexed-by-x addressing modes.
+// Ambiguity creeps in here a bit.  First, we have the possibility that
+// the instruction's expression may evaluate to an absolute (2-byte)
+// value.  Second we have the opposing possibility that the instruction's
+// expression evaluates to a zero-page (1-byte) value.
+// For these two cases we start by assuming the worst; the expression
+// will evaluate to an absolute value, and emit an absolute addressing mode immediate
+// representation if the instruction supports absolute addressing mode.
+// If there's no absolute addressing mode then we emit a zero-page
+// addressing mode [again, if it exists].
 index_reg_param: INSTR expr ',' 'x' TERM {
    unsigned char f;
    ir_table*     ptr;
@@ -966,6 +1112,16 @@ index_reg_param: INSTR expr ',' 'x' TERM {
       fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
+// Parser for absolute indexed-by-y, and zeropage indexed-by-y addressing modes.
+// Ambiguity creeps in here a bit.  First, we have the possibility that
+// the instruction's expression may evaluate to an absolute (2-byte)
+// value.  Second we have the opposing possibility that the instruction's
+// expression evaluates to a zero-page (1-byte) value.
+// For these two cases we start by assuming the worst; the expression
+// will evaluate to an absolute value, and emit an absolute addressing mode immediate
+// representation if the instruction supports absolute addressing mode.
+// If there's no absolute addressing mode then we emit a zero-page
+// addressing mode [again, if it exists].
            | INSTR expr ',' 'y' TERM {
 	unsigned char f;
    ir_table*     ptr;
@@ -989,6 +1145,26 @@ index_reg_param: INSTR expr ',' 'x' TERM {
 }
 ;
 
+// Parser for indirect addressing modes.
+// Ambiguity creeps in here a LOT.  First, we have the
+// ambiguous ()'s.  Since we are evaluating a rule where
+// the parser has decided the parenthesis are not part
+// of the expression [expression rules also reduce ()'s]
+// we might assume the instruction can only be an
+// indirect addressing mode variant.  This turns out not
+// to be the case given the precedence rules set up for ()'s.
+// In reality any instruction of the form:
+// opcode (value)
+// will reduce to this rule.  This includes instructions
+// that have absolute, zero-page and even relative addressing
+// modes.  Because I don't want the parser to be too strict
+// I want to allow parenthesis.  Thus to disambiguate the
+// situation, we need to check for implied [there's what...
+// one JMP?] first, and then also check for absolute, zero-page,
+// and relative addressing modes.  The checking for the
+// absolute, and zero-page addressing modes is done in the
+// same way as is described for other instruction rules.
+// Depending on the programmer's style this could be a busy rule.
 indirect_param: INSTR '(' expr ')' TERM {
    unsigned char f;
    ir_table*     ptr;
@@ -1030,6 +1206,9 @@ indirect_param: INSTR '(' expr ')' TERM {
 }
 ;
 
+// Parser for pre-indexed indirect addressing mode.
+// There's no ambiguities here to note.  An instruction with
+// this form can only be preindexed indirect addressing.
 preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
 	unsigned char f;
    ir_table* ptr;
@@ -1051,6 +1230,9 @@ preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
 }
 ;
 
+// Parser for post-indexed indirect addressing mode.
+// There's no ambiguities here to note.  An instruction with
+// this form can only be post-indexed indirect addressing.
 postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    unsigned char f;
    ir_table* ptr;
@@ -1071,6 +1253,18 @@ postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    }
 }
 
+// DISAMBIGUATION: This rule exists purely to catch cases of extreme
+// parenthesizing by the programmer.  It is possible that the programmer
+// could use ()'s to delineate an expression in what he *intends* to be
+// an absolute or zero-page addressing mode instruction.  Without this
+// disambiguation rule, the parser dies on the 'x' because it is trying
+// to parse the instruction using the post-indexed indirect parameter rule
+// above.  Once it gets to the 'y' of the rule and sees an 'x' it has a
+// rule break and quits.  It was, after all, expecting a 'y' but didn't
+// get a 'y' so it doesn't know what to do.  With the addition of this
+// 'fake' rule the ambiguous situation becomes clear to the parser and
+// it can go ahead and generate the appropriate absolute or zero-page
+// addressing mode intermediate representation.
 disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
    unsigned char f;
    ir_table* ptr;
@@ -1150,9 +1344,10 @@ expr : DIGITS {
    $$->node.num = $1;
 }
       | LABELREF {
-   if ( $1->type == reference_global )
+   if ( ($1->type == reference_symtab) &&
+        (stab[$1->ref.stab_ent].expr) )
    {
-      $$ = copy_expression ( $1->ref.symtab->expr );
+      $$ = copy_expression ( stab[$1->ref.stab_ent].expr );
    }
    else
    {
@@ -1260,6 +1455,7 @@ void initialize ( void )
 
 	for ( ptr = ir_head; ptr != NULL; ptr = ptr->next )
 	{
+      if ( ptd->expr != NULL ) destroy_expression ( ptd->expr );
 		if ( ptd != NULL ) free ( ptd );
 		ptd = ptr;
 	}
@@ -1269,6 +1465,10 @@ void initialize ( void )
 
 	for ( idx = 0; idx < stab_ent; idx++ )
 	{
+      if ( stab[idx].expr != NULL )
+      {
+         destroy_expression ( stab[idx].expr );
+      }
 		free ( stab[idx].symbol );
 	}
 	free ( stab );
@@ -1288,12 +1488,12 @@ void initialize ( void )
 
 void add_error(char *s)
 {
-	static char error_buffer [ 2048 ];
+   static char error_buffer [ 2048 ] = { 0, };
 
 	errorCount++;
 	if ( errorStorage == NULL )
 	{
-		if ( current_label == NULL )
+      if ( 1 )//current_label == NULL )
 		{
 //			if ( strlen(currentFile) )
 //			{
@@ -1326,7 +1526,7 @@ void add_error(char *s)
 	}
 	else
 	{
-		if ( current_label == NULL )
+      if ( 1 )//current_label == NULL )
 		{
 			sprintf ( error_buffer, "error: %d: ", yylineno );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
@@ -1336,7 +1536,7 @@ void add_error(char *s)
 		}
 		else
 		{
-			sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
+         sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
 			strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
@@ -1405,7 +1605,7 @@ int promote_instructions ( unsigned char fix_branches )
       if ( expr )
       {
          // try a symbol reduction to see if we can promote this to zeropage...
-         value = evaluate_expression ( expr, &evaluated );
+         value = evaluate_expression ( expr, &evaluated, NULL );
          value_zp_ok = 0;
          if ( (value >= -128) &&
               (value < 256) )
@@ -1664,7 +1864,17 @@ int promote_instructions ( unsigned char fix_branches )
          case fixup_relative:
             if ( fix_branches && evaluated )
             {
-               di = -(ptr->next->addr - value);
+               if ( (value > 255) ||
+                    (value < -128) )
+               {
+                  // must be a branch to a label (calculate distance)...
+                  di = -((ptr->addr+ptr->len) - value);
+               }
+               else
+               {
+                  // must be a direct branch to a numeric offset, directly use distance...
+                  di = value;
+               }
                if ( (di >= -128) && (di <= 127) )
                {
                   ptr->data[1] = di&0xFF;
@@ -1708,12 +1918,38 @@ unsigned int distance ( ir_table* from, ir_table* to )
 
 void check_fixup ( void )
 {
-// CPTODO implement
-#if 0
-   sprintf ( e, "reference to undefined or unreachable symbol: %s", ftab[i].symbol );
-   yyerror ( e );
-   fprintf ( stderr, "error: %d: reference to undefined or unreachable symbol: %s\n", ftab[i].lineno, ftab[i].symbol );
-#endif
+   ir_table* ptr;
+   expr_type* expr;
+   int value;
+   unsigned char evaluated = 1;
+   unsigned char value_zp_ok;
+   char* symbol;
+
+   for ( ptr = ir_head; ptr != NULL; ptr = ptr->next )
+   {
+      expr = ptr->expr;
+
+      if ( expr )
+      {
+         // check expression evaluates...
+         symbol = NULL;
+         value = evaluate_expression ( expr, &evaluated, &symbol );
+
+         // if not, emit an error...
+         if ( (!evaluated) && symbol )
+         {
+            sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
+            yyerror ( e );
+            fprintf ( stderr, "error: %d: reference to undefined or unreachable symbol: %s\n", ptr->source_linenum, symbol );
+         }
+         else if ( !evaluated )
+         {
+            sprintf ( e, "unable to determine value of expression" );
+            yyerror ( e );
+            fprintf ( stderr, "unable to determine value of expression\n", ptr->source_linenum );
+         }
+      }
+   }
 }
 
 unsigned char add_binary_bank ( segment_type type, char* symbol )
@@ -1922,6 +2158,21 @@ void update_symbol_ir ( symbol_table* stab, ir_table* ir )
    stab->ir = ir;
 }
 
+void dump_ir_expressions ( void )
+{
+   ir_table* ptr = ir_head;
+   int       i;
+
+   for ( ; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptr->expr )
+      {
+         printf ( "%08x %08x %04X: \n", ptr, ptr->expr, ptr->addr );
+         dump_expression ( ptr->expr );
+      }
+   }
+}
+
 void dump_ir_table ( void )
 {
 	ir_table* ptr = ir_head;
@@ -1932,7 +2183,9 @@ void dump_ir_table ( void )
       if ( (ptr->multi == 0) && (ptr->label == 0) )
 		{
 			printf ( "%08x %d %04X: ", ptr, ptr->btab_ent, ptr->addr );
-			for ( i = 0; i < ptr->len; i++ )
+
+         // only dump out three bytes!
+         for ( i = 0; i < ptr->len&3; i++ )
 			{
 				printf ( "%02X ", ptr->data[i] );
 			}
@@ -1954,7 +2207,8 @@ void dump_symbol_table ( void )
 	int i;
 	for ( i = 0; i < stab_ent; i++ )
 	{
-      if ( stab[i].global )
+      // globals have expressions
+      if ( stab[i].expr )
       {
          printf ( "%d: %s global: expression:\n", i, stab[i].symbol );
          dump_expression ( stab[i].expr );
@@ -2014,13 +2268,38 @@ void dump_expression ( expr_type* expr )
       }
       else if ( expr->node.ref->type == reference_symtab )
       {
-         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.symtab->symbol );
-      }
-      else
-      {
-         printf ( "m%08x l%08x r%08x: global: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.symtab->symbol );
+//         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.symtab->symbol );
       }
    }
+}
+
+void destroy_expression ( expr_type* expr )
+{
+   if ( expr->left )
+   {
+      destroy_expression ( expr->left );
+   }
+   if ( expr->right )
+   {
+      destroy_expression ( expr->right );
+   }
+
+   switch ( expr->type )
+   {
+      case expression_number:
+         free ( expr->node.num );
+      break;
+      case expression_reference:
+         if ( expr->node.ref->type == reference_symbol )
+         {
+            free ( expr->node.ref->ref.symbol );
+         }
+         free ( expr->node.ref );
+      break;
+   }
+   free ( expr );
+
+   return;
 }
 
 expr_type* copy_expression ( expr_type* expr )
@@ -2085,7 +2364,7 @@ void reduce_expressions ( void )
       {
          if ( (i != j) &&
               (stab[i].expr) &&
-              (stab[j].global) )
+              (stab[j].expr) )
          {
             reduce_expression ( stab[i].expr, &(stab[j]) );
          }
@@ -2101,7 +2380,7 @@ void reduce_expressions ( void )
    }
 }
 
-int evaluate_expression ( expr_type* expr, unsigned char* evaluated )
+int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symbol )
 {
    int left = 0;
    int right = 0;
@@ -2109,11 +2388,11 @@ int evaluate_expression ( expr_type* expr, unsigned char* evaluated )
 
    if ( expr->left )
    {
-      left = evaluate_expression ( expr->left, evaluated );
+      left = evaluate_expression ( expr->left, evaluated, symbol );
    }
    if ( expr->right )
    {
-      right = evaluate_expression ( expr->right, evaluated );
+      right = evaluate_expression ( expr->right, evaluated, symbol );
    }
    if ( expr->type == expression_number )
    {
@@ -2122,9 +2401,9 @@ int evaluate_expression ( expr_type* expr, unsigned char* evaluated )
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_symtab) )
    {
-      if ( expr->node.ref->ref.symtab->ir )
+      if ( stab[expr->node.ref->ref.stab_ent].ir )
       {
-         value = expr->node.ref->ref.symtab->ir->addr;
+         value = stab[expr->node.ref->ref.stab_ent].ir->addr;
       }
    }
    else if ( expr->type == expression_operator )
@@ -2169,6 +2448,12 @@ int evaluate_expression ( expr_type* expr, unsigned char* evaluated )
    else
    {
       (*evaluated) = 0;
+      if ( (symbol) &&
+           (expr->type == expression_reference) &&
+           (expr->node.ref->type == reference_symbol) )
+      {
+         (*symbol) = expr->node.ref->ref.symbol;
+      }
    }
    return value;
 }
@@ -2192,7 +2477,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
    {
       if ( (expr->type == expression_reference) &&
            (expr->node.ref->type == reference_symbol) &&
-           (hint->global) &&
+           (hint->expr) &&
            (strcmp(expr->node.ref->ref.symbol,hint->symbol) == 0) )
       {
          // glue global's expression to this tree...
@@ -2220,19 +2505,25 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
       }
       if ( (expr->type == expression_reference) &&
            (expr->node.ref->type == reference_symbol) &&
-           (!(hint->global)) &&
+           (!(hint->expr)) &&
            (strcmp(expr->node.ref->ref.symbol,hint->symbol) == 0) )
       {
          // glue global's reference node to this tree...
          free ( expr->node.ref->ref.symbol );
          expr->node.ref->type = reference_symtab;
-         expr->node.ref->ref.symtab = hint;
+         expr->node.ref->ref.stab_ent = hint->idx;
       }
    }
 
+#if 0
+// CPTODO: determine if this code is useless...
+// I think it is because if a global symbol is declared
+// its expression is known and when it is used in another
+// expression its expression will already be copied...
    // check for reducible globals...
    if ( (expr->type == expression_reference) &&
-        (expr->node.ref->type == reference_global) )
+        (expr->node.ref->type == reference_symtab) &&
+        (expr->node.ref->ref.symtab->expr) )
    {
       // glue global's expression to this tree...
       temp2 = expr->node.ref->ref.symtab->expr;
@@ -2258,6 +2549,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          (*temp3) = expr;
       }
    }
+#endif
 
    // check for reducible operators...
    if ( expr->type == expression_operator )
@@ -2427,7 +2719,6 @@ ir_table* emit_ir ( void )
 			fprintf ( stderr, "error: cannot allocate memory!\n" );
 		}
 	}
-   //dump_ir_table ();
 	return ir_tail;
 }
 
@@ -2481,15 +2772,28 @@ ir_table* emit_fix ( void )
    return ptr;
 }
 
-ir_table* emit_label ( int m )
+ir_table* emit_label ( int m, int fill )
 {
 	ir_table* ptr = emit_ir ();
    ptr->fixup = fixup_fixed;
    ptr->len = m;
+   ptr->data[0] = fill;
 	ptr->label = 1;
    ptr->addr = cur->addr;
 	cur->addr += ptr->len;
 
+   return ptr;
+}
+
+ir_table* emit_bin_space ( int m, int fill )
+{
+   ir_table* ptr = emit_ir ();
+   ptr->fixup = fixup_fixed;
+   ptr->len = m;
+   ptr->data[0] = fill;
+   ptr->multi = 1;
+   ptr->addr = cur->addr;
+   cur->addr += ptr->len;
    return ptr;
 }
 
@@ -2547,18 +2851,6 @@ ir_table* emit_bin_data ( unsigned char data )
    ptr->fixup = fixup_fixed;
    ptr->data[0] = data;
    ptr->len = 1;
-   ptr->addr = cur->addr;
-   cur->addr += ptr->len;
-   return ptr;
-}
-
-ir_table* emit_bin_space ( unsigned char data, int m )
-{
-   ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->data[0] = data;
-   ptr->len = m;
-   ptr->multi = 1;
    ptr->addr = cur->addr;
    cur->addr += ptr->len;
    return ptr;

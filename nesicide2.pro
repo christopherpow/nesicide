@@ -6,7 +6,7 @@ QT += network \
     webkit \
     xml \
     multimedia
-win32:LIBS += compiler/pasm.lib
+win32:LIBS += compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
@@ -231,7 +231,10 @@ HEADERS += mainwindow.h \
     debugger/codebrowserdialog.h \
     debugger/codeinspector.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
-    common/inspectorregistry.h
+    common/inspectorregistry.h \
+    compiler/pasm_types.h \
+    compiler/pasm_shared_types.h \
+    compiler/pasm_lib.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
