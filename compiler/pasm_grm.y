@@ -316,10 +316,12 @@ static C6502_opcode m_6502opcode [ 256 ] =
 // Hook function for retrieving data from NESICIDE.
 incobj_callback_fn incobj_fn = NULL;
 
+// Standard YACC functions.
 int yyerror(char *s);
 int yylex(void);
 int yywrap(void);
 
+// Current file being parsed for more meaningful error/warnings.
 //char currentFile [ 256 ];
 
 // Intermediate representation queue pointers.  The assembly
@@ -455,6 +457,8 @@ ir_table* emit_bin_zp_idx_x ( C6502_opcode* opcode, expr_type* expr );
 ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr );
 ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr );
 ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr );
+
+// Function used to support ENUM and MACRO directives.
 ir_table* reemit_ir ( ir_table* head, ir_table* tail );
 
 // Error generation.  All parsing errors are constructed into
@@ -697,13 +701,22 @@ directive: INCBIN QUOTEDSTRING {
       p = &(stab[$1->ref.stab_ent]);
       f = 1;
    }
-   if ( !f )
-   {
-      // allow redefinition of globals...
-      destroy_expression ( p->expr );
-   }
    if ( p )
    {
+      // error re-declaration of label as global...
+      if ( p->ir )
+      {
+         sprintf ( e, "re-declaration of label as global: %s", p->symbol );
+         yyerror ( e );
+         fprintf ( stderr, "error: %d: re-declaration of label as global: %s\n", yylineno, p->symbol );
+      }
+
+      // allow redefinition of globals...
+      if ( p->expr )
+      {
+         destroy_expression ( p->expr );
+      }
+
       // reduce expression
       reduce_expression ( $3, NULL );
 
@@ -1126,6 +1139,9 @@ index_reg_param: INSTR expr ',' 'x' TERM {
 	unsigned char f;
    ir_table*     ptr;
 
+   // reduce expression...
+   reduce_expression ( $2, NULL );
+
    if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
@@ -1297,9 +1313,15 @@ disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
          ;
 
 blist: blist ',' expr {
+   // reduce expression...
+   reduce_expression ( $3, NULL );
+
    emit_bin ( $3 );
 }
      | expr {
+   // reduce expression...
+   reduce_expression ( $1, NULL );
+
    emit_bin ( $1 );
 }
     | blist ',' QUOTEDSTRING {
@@ -1331,9 +1353,15 @@ blist: blist ',' expr {
     ;
 
 wlist: wlist ',' expr {
+   // reduce expression...
+   reduce_expression ( $3, NULL );
+
    emit_bin2 ( $3 );
 }
      | expr {
+   // reduce expression...
+   reduce_expression ( $1, NULL );
+
    emit_bin2 ( $1 );
 }
     ;
@@ -1344,6 +1372,10 @@ expr : DIGITS {
    $$->node.num = $1;
 }
       | LABELREF {
+   // copy a declared global's expression directly into this
+   // expression tree, to reduce expression parsing later on...
+   // otherwise store a reference to the as-yet-unknown symbol
+   // for later evaluation.
    if ( ($1->type == reference_symtab) &&
         (stab[$1->ref.stab_ent].expr) )
    {
@@ -1357,10 +1389,11 @@ expr : DIGITS {
    }
 }
      | '(' expr ')' {
-   // swallow
+   // swallow useless parenthesis...
    $$ = $2;
 }
      | '>' expr {
+   // "big-end-of" operator...
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
    $$->node.op = '>';
@@ -1368,6 +1401,7 @@ expr : DIGITS {
    $$->right->parent = $$;
 }
      | '<' expr {
+   // "little-end-of" operator...
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
    $$->node.op = '<';
@@ -2410,12 +2444,12 @@ int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symb
    {
       if ( expr->node.op == '>' )
       {
-         right &= 0xFF;
+         right = (right>>8)&0xFF;
          value = right;
       }
       else if ( expr->node.op == '<' )
       {
-         right = (right>>8)&0xFF;
+         right &= 0xFF;
          value = right;
       }
       else if ( expr->node.op == '-' )
@@ -2515,42 +2549,6 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
       }
    }
 
-#if 0
-// CPTODO: determine if this code is useless...
-// I think it is because if a global symbol is declared
-// its expression is known and when it is used in another
-// expression its expression will already be copied...
-   // check for reducible globals...
-   if ( (expr->type == expression_reference) &&
-        (expr->node.ref->type == reference_symtab) &&
-        (expr->node.ref->ref.symtab->expr) )
-   {
-      // glue global's expression to this tree...
-      temp2 = expr->node.ref->ref.symtab->expr;
-      temp = expr->parent;
-      if ( (temp) && (temp->left == expr) )
-      {
-         temp3 = &(temp->left);
-      }
-      else if ( (temp) && (temp->right == expr) )
-      {
-         temp3 = &(temp->right);
-      }
-      else
-      {
-         temp3 = NULL;
-      }
-      free ( expr->node.ref );
-      free ( expr );
-      expr = copy_expression ( temp2 );
-      expr->parent = temp;
-      if ( temp3 )
-      {
-         (*temp3) = expr;
-      }
-   }
-#endif
-
    // check for reducible operators...
    if ( expr->type == expression_operator )
    {
@@ -2562,13 +2560,13 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          if ( expr->node.op == '>' )
          {
             expr->node.num = expr->right->node.num;
-            expr->node.num->number &= 0xFF;
+            expr->node.num->number = (expr->node.num->number>>8)&0xFF;
             expr->node.num->zp_ok = 1;
          }
          else if ( expr->node.op == '<' )
          {
             expr->node.num = expr->right->node.num;
-            expr->node.num->number = (expr->node.num->number>>8)&0xFF;
+            expr->node.num->number &= 0xFF;
             expr->node.num->zp_ok = 1;
          }
          else if ( expr->node.op == '-' )

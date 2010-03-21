@@ -373,17 +373,11 @@ void add_cheap_label ( symbol_table* ptr )
 		add_error ( e );
 		fprintf ( stderr, "error: too many cheap labels (@label:)\n" );
 	}
-
-	for ( idx = 0; idx < cltab_ent; idx++ )
-	{
-		printf ( "cheap: %s\n", cltab[idx]->symbol );
-	}
 }
 
 void clear_cheap_labels ( void )
 {
 	cltab_ent = 0;
-//	printf ( "cheap cleared!\n" );
 }
 
 unsigned char add_symbol ( char* symbol, symbol_table** ptr )

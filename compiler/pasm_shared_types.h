@@ -20,7 +20,6 @@ typedef struct _symbol_table
    struct _ir_table* ir;
    struct _expr_type* expr;
    unsigned int  btab_ent;
-   unsigned char bork; // wtf?  without this the structs are messed up
 } symbol_table;
 
 typedef union _ref_union

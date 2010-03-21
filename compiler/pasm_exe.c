@@ -18,8 +18,6 @@ int main(int argc, char **argv)
    int promoted = -1;
    FILE* output;
 
-printf ( "sizeof(s)=%d\n", sizeof(symbol_table) );
-
    if ((argc > 1) && (freopen(argv[1], "r", stdin) == NULL))
    {
       fprintf ( stderr, "error: cannot open input file: %s\n", argv[1] );
@@ -38,7 +36,6 @@ printf ( "sizeof(s)=%d\n", sizeof(symbol_table) );
    reduce_expressions ();
 
    // Lather, rinse, and repeat fixing and reducing until we're DONE...
-   dump_symbol_table ();
    do
    {
       // Promote to zeropage if possible...

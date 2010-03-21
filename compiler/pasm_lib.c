@@ -3,8 +3,6 @@
 
 #include "pasm_types.h"
 
-// prototype of bison-generated parser function
-
 extern FILE* yyin;
 extern incobj_callback_fn incobj_fn;
 extern symbol_table* stab;
