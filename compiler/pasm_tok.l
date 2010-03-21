@@ -37,6 +37,7 @@ comment  ";".*$
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
+#include "string.h"
 
 extern void add_error ( char* s );
 extern char e [ 256 ];
@@ -186,8 +187,8 @@ unsigned char addressing_mode ( unsigned char instr );
 
    while ( k->directive != NULL )
    {
-      if ( (strncmp(yytext,k->directive,strlen(yytext)) == 0) ||
-           (strncmp(yytext,k->dotdirective,strlen(yytext)) == 0) )
+      if ( (strnicmp(yytext,k->directive,strlen(yytext)) == 0) ||
+           (strnicmp(yytext,k->dotdirective,strlen(yytext)) == 0) )
       {
          if ( k->handler )
          {
