@@ -1,4 +1,4 @@
-word    [_'@a-zA-Z][_'@a-zA-Z0-9]*
+word    [_'.@a-zA-Z][_'.@a-zA-Z0-9]*
 datab1  ".byte"
 datab2  ".db"
 datab3  ".dcb"
@@ -40,6 +40,56 @@ comment  ";".*$
 
 extern void add_error ( char* s );
 extern char e [ 256 ];
+
+typedef struct _keyword
+{
+   const char* directive;
+   const char* dotdirective;
+   int         token;
+   void (*handler)();
+} keyword;
+
+void d_textsegment ( void )
+{
+   yylval.seg = text_segment;
+}
+
+void d_datasegment ( void )
+{
+   yylval.seg = data_segment;
+}
+
+keyword keywords [] =
+{
+   { "byte", ".byte", DATAB, NULL },
+   { "db", ".db", DATAB, NULL },
+   { "dcb", ".dcb", DATAB, NULL },
+   { "dc.b", ".dc.b", DATAB, NULL },
+   { "ascii", ".ascii", DATAB, NULL },
+   { "word", ".word", DATAW, NULL },
+   { "dw", ".dw", DATAW, NULL },
+   { "dcw", ".dcw", DATAW, NULL },
+   { "dc.w", ".dc.w", DATAW, NULL },
+   { "address", ".address", DATAW, NULL },
+   { "dsb", ".dsb", FILLSPACEB, NULL },
+   { "dsw", ".dsw", FILLSPACEW, NULL },
+   { "org", ".org", ORIGIN, NULL },
+   { "space", ".space", VARSPACE, NULL },
+   { "advance", ".advance", ADVANCE, NULL },
+   { "pad", ".pad", ADVANCE, NULL },
+   { "align", ".align", ALIGN, NULL },
+   { "text", ".text", SEGMENT, d_textsegment },
+   { "segment", ".segment", SEGMENT, d_textsegment },
+   { "data", ".data", SEGMENT, d_datasegment },
+   { "incbin", ".incbin", INCBIN, NULL },
+   { "incobj", ".incobj", INCOBJ, NULL },
+   { "include", ".include", INCLUDE, NULL },
+   { "rept", ".rept", REPEAT, NULL },
+   { "endr", ".endr", ENDREPEAT, NULL },
+   { "enum", ".enum", ENUMERATE, NULL },
+   { "ende", ".ende", ENDENUMERATE, NULL },
+   { NULL, NULL, 0, NULL }
+};
 
 #define STAB_ENT_INC 32
 
@@ -132,6 +182,21 @@ unsigned char addressing_mode ( unsigned char instr );
 	unsigned char f;
 	char* start = yytext;
 	ref_type* ref;
+   keyword* k = keywords;
+
+   while ( k->directive != NULL )
+   {
+      if ( (strncmp(yytext,k->directive,strlen(yytext)) == 0) ||
+           (strncmp(yytext,k->dotdirective,strlen(yytext)) == 0) )
+      {
+         if ( k->handler )
+         {
+            k->handler ();
+         }
+         return k->token;
+      }
+      k++;
+   }
 
    if ( (yytext[1] == 0) &&
         ((yytext[0] == 'x') ||
@@ -175,71 +240,6 @@ unsigned char addressing_mode ( unsigned char instr );
 	yylval.ref = ref;
 	return LABELREF;
 }
-{datab1} |
-{datab2} |
-{datab3} |
-{datab4} |
-{ascii} {
-   return DATAB; 
-}
-{dataw1} |
-{dataw2} |
-{dataw3} |
-{dataw4} |
-{dataw5} {
-   return DATAW; 
-}
-{origin} { 
-   return ORIGIN;
-}
-{dsb}  {
-   return FILLSPACEB;
-}
-{dsw}  {
-   return FILLSPACEW;
-}
-{space} { 
-   return VARSPACE;
-}
-{advance} |
-{pad} {
-   return ADVANCE;
-}
-{align} {
-   return ALIGN;
-}
-{repeat} {
-   return REPEAT;
-}
-{endrepeat} {
-   return ENDREPEAT;
-}
-{enum} {
-//   BEGIN(ENUMSTATE);
-   return ENUMERATE;
-}
-{endenum} {
-//   BEGIN(INITIAL);
-   return ENDENUMERATE;
-}
-{text} |
-{segment} {
-	yylval.seg = text_segment;
-	return SEGMENT;
-}
-{data} {
-	yylval.seg = data_segment;
-	return SEGMENT;
-}
-{incbin} {
-	return INCBIN;
-}
-{incobj} {
-	return INCOBJ;
-}
-{include} {
-	return INCLUDE;
-}
 {quotedstring} {
 	yylval.text = strdup ( yytext );
 	return QUOTEDSTRING;
@@ -253,7 +253,7 @@ unsigned char addressing_mode ( unsigned char instr );
 		num->zp_ok = 1;
 	}
 	yylval.num = num;
-   return DIGITS; 
+   return DIGITS;
 }
 {decdigits} { 
 	number_type* num = get_next_numtype ();
@@ -275,7 +275,7 @@ unsigned char addressing_mode ( unsigned char instr );
 		num->zp_ok = 1;
 	}
 	yylval.num = num;
-   return DIGITS; 
+   return DIGITS;
 }
 {bindigits} { 
 	number_type* num = get_next_numtype ();
@@ -286,13 +286,13 @@ unsigned char addressing_mode ( unsigned char instr );
 		num->zp_ok = 1;
 	}
 	yylval.num = num;
-   return DIGITS; 
+   return DIGITS;
 }
 {comment} { 
    /* throw away */
 }
 [ \t]+ {
-   /* throw away */ 
+   /* throw away */
 }
 \r\n {
    yylineno++;
@@ -307,7 +307,7 @@ unsigned char addressing_mode ( unsigned char instr );
    return TERM;
 }
 
-[@#=+\-\*\/\|&\~\<\>\[\]] { return yytext[0]; }
+[!@#=+\-\*\/\|&\~\<\>\[\]] { return yytext[0]; }
 
 [\(] { parenlevel++; return yytext[0]; }
 [\)] { parenlevel--; return yytext[0]; }

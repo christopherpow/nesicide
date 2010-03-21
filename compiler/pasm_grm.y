@@ -516,7 +516,7 @@ void dump_expression ( expr_type* expr );
 // while an expression expects a ( as a shifted token.
 %left '+' '-'
 %left '*' '/'
-%left '~' '>' '<'
+%left '!' '~' '>' '<'
 %left '(' ')'
 %left ','
 
@@ -1405,6 +1405,13 @@ expr : DIGITS {
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
    $$->node.op = '<';
+   $$->right = $2;
+   $$->right->parent = $$;
+}
+     | '!' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '!';
    $$->right = $2;
    $$->right->parent = $$;
 }
@@ -2452,6 +2459,11 @@ int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symb
          right &= 0xFF;
          value = right;
       }
+      else if ( expr->node.op == '!' )
+      {
+         right = !right;
+         value = right;
+      }
       else if ( expr->node.op == '-' )
       {
          right = (-right);
@@ -2567,6 +2579,13 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          {
             expr->node.num = expr->right->node.num;
             expr->node.num->number &= 0xFF;
+            expr->node.num->zp_ok = 1;
+         }
+         else if ( expr->node.op == '!' )
+         {
+            expr->node.num = expr->right->node.num;
+            expr->node.num->number = !expr->node.num->number;
+            // result should be 0 or 1
             expr->node.num->zp_ok = 1;
          }
          else if ( expr->node.op == '-' )

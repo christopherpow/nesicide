@@ -20,7 +20,6 @@ bool CSourceAssembler::assemble()
    int numSymbols;
    int bank;
    int s;
-   symbol_table* syms;
 
    if (!rootSource)
    {
