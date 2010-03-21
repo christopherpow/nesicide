@@ -1,31 +1,4 @@
 word    [_'.@a-zA-Z][_'.@a-zA-Z0-9]*
-datab1  ".byte"
-datab2  ".db"
-datab3  ".dcb"
-datab4  ".dc.b"
-ascii   ".ascii"
-dataw1  ".word"
-dataw2  ".dw"
-dataw3  ".dcw"
-dataw4  ".dc.w"
-dataw5  ".address"
-dsb     ".dsb"
-dsw     ".dsw"
-origin  ".org"
-space   ".space"
-advance ".advance"
-pad     ".pad"
-align   ".align"
-text    ".text"
-segment ".segment"
-data    ".data"
-incbin  ".incbin"
-incobj  ".incobj"
-include ".include"
-repeat  ".rept"
-endrepeat ".endr"
-enum    ".enum"
-endenum ".ende"
 hexdigits "$"([0-9a-fA-F]{1,5})"h"?
 decdigits ([0-9]{0,5})
 octdigits "0"([0-9]{0,6})
@@ -73,7 +46,9 @@ keyword keywords [] =
    { "dc.w", ".dc.w", DATAW, NULL },
    { "address", ".address", DATAW, NULL },
    { "dsb", ".dsb", FILLSPACEB, NULL },
+   { "ds.b", ".ds.b", FILLSPACEB, NULL },
    { "dsw", ".dsw", FILLSPACEW, NULL },
+   { "ds.w", ".ds.w", FILLSPACEW, NULL },
    { "org", ".org", ORIGIN, NULL },
    { "space", ".space", VARSPACE, NULL },
    { "advance", ".advance", ADVANCE, NULL },
@@ -83,12 +58,15 @@ keyword keywords [] =
    { "segment", ".segment", SEGMENT, d_textsegment },
    { "data", ".data", SEGMENT, d_datasegment },
    { "incbin", ".incbin", INCBIN, NULL },
+   { "bin", ".bin", INCBIN, NULL },
    { "incobj", ".incobj", INCOBJ, NULL },
    { "include", ".include", INCLUDE, NULL },
+   { "incsrc", ".incsrc", INCLUDE, NULL },
    { "rept", ".rept", REPEAT, NULL },
    { "endr", ".endr", ENDREPEAT, NULL },
    { "enum", ".enum", ENUMERATE, NULL },
    { "ende", ".ende", ENDENUMERATE, NULL },
+   { "fillvalue", ".fillvalue", FILLVALUE, NULL },
    { NULL, NULL, 0, NULL }
 };
 
@@ -242,7 +220,7 @@ unsigned char addressing_mode ( unsigned char instr );
 	return LABELREF;
 }
 {quotedstring} {
-	yylval.text = strdup ( yytext );
+   yylval.text = yytext;
 	return QUOTEDSTRING;
 }
 {hexdigits} { 

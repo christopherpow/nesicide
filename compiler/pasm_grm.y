@@ -312,6 +312,7 @@ static C6502_opcode m_6502opcode [ 256 ] =
 
 // Default fill value to use for .space, .dsw, .dsb, etc.
 #define DEFAULT_FILL 0x0000
+int fillValue = DEFAULT_FILL;
 
 // Hook function for retrieving data from NESICIDE.
 incobj_callback_fn incobj_fn = NULL;
@@ -492,7 +493,7 @@ void dump_expression ( expr_type* expr );
 // the lexical analyzer.
 %token TERM DATAB DATAW REPEAT ENDREPEAT
 %token ORIGIN FILLSPACEB FILLSPACEW VARSPACE ADVANCE ALIGN
-%token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE
+%token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE FILLVALUE
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
 %token <ref> LABEL LABELREF
@@ -543,7 +544,7 @@ statement: identifier TERM
 
 identifier: LABEL {
    ir_table* ptr;
-   ptr = emit_label ( 0, DEFAULT_FILL );
+   ptr = emit_label ( 0, fillValue );
    update_symbol_ir ( &(stab[$1->ref.stab_ent]), ptr );
    //dump_symbol_table ();
 }
@@ -576,10 +577,11 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-		sprintf ( e, "cannot open included file: %s", fn );
+      sprintf ( e, "cannot open included file: %s", fn-1 );
 		yyerror ( e );
-		fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn );
+      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn-1 );
 	}
+   free ( fn-1 );
 }
 // Directive .incobj "<file>" includes a NESICIDE object into the parser stream...
            | INCOBJ QUOTEDSTRING TERM {
@@ -626,10 +628,11 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-		sprintf ( e, "use of .incobj directive not supported: %s", fn );
+      sprintf ( e, "use of .incobj directive not supported: %s", fn-1 );
 		yyerror ( e );
-		fprintf ( stderr, "error: %d: use of .incobj directive not supported: %s\n", yylineno, fn );
+      fprintf ( stderr, "error: %d: use of .incobj directive not supported: %s\n", yylineno, fn-1 );
 	}
+   free ( fn-1 );
 }
 // Directive .include "<file>" includes a source file into the parser stream...
            | INCLUDE QUOTEDSTRING TERM {
@@ -680,10 +683,15 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-		sprintf ( e, "cannot open included file: %s", fn );
+      sprintf ( e, "cannot open included file: %s", fn-1 );
 		yyerror ( e );
-		fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn );
+      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn-1 );
 	}
+   free ( fn-1 );
+}
+// Directive .fillvalue <value> changes the default filler value.
+           | FILLVALUE DIGITS {
+   fillValue = $2->number;
 }
 // Directive <label-name> = <expression> reduces <expression> and assigns the
 // expression's value to the global symbol <label-name>.  This is not a #define,
@@ -805,7 +813,7 @@ directive: INCBIN QUOTEDSTRING {
    else
    {
       add_symbol ( $2->ref.symbol, &symtab );
-      ptr = emit_label ( $3->number, DEFAULT_FILL );
+      ptr = emit_label ( $3->number, fillValue );
       update_symbol_ir ( symtab, ptr );
       //dump_symbol_table ();
    }
@@ -813,7 +821,7 @@ directive: INCBIN QUOTEDSTRING {
 // Directive .dsb <length> creates a space <length> bytes long at the
 // current position within the intermediate representation.
            | FILLSPACEB DIGITS TERM {
-   emit_label ( $2->number, DEFAULT_FILL );
+   emit_label ( $2->number, fillValue );
 }
 // Directive .dsb <length>, <value> creates a space <length> bytes long filled
 // with <value> at the current position within the intermediate representation.
@@ -823,7 +831,7 @@ directive: INCBIN QUOTEDSTRING {
 // Directive .dsb <value> creates a space <value> words long at the
 // current position within the intermediate representation.
            | FILLSPACEW DIGITS TERM {
-   emit_label ( $2->number<<1, DEFAULT_FILL );
+   emit_label ( $2->number<<1, fillValue );
 }
 // Directive .dsb <length>, <value> creates a space <length> words long filled
 // with <value> at the current position within the intermediate representation.
@@ -867,7 +875,7 @@ directive: INCBIN QUOTEDSTRING {
    if ( cur->addr <= $2->number )
    {
       j = ($2->number-cur->addr);
-      emit_bin_space ( j, DEFAULT_FILL );
+      emit_bin_space ( j, fillValue );
       emit_fix ();
    }
    else
@@ -948,7 +956,7 @@ directive: INCBIN QUOTEDSTRING {
       {
          // Create a dummy intermediate representation node
          // to cling to as the repeat begin point.
-         ptr = emit_label ( 0, DEFAULT_FILL );
+         ptr = emit_label ( 0, fillValue );
 
          // Store repeat begin point...
          ir_repeat_head [ repeat_level ] = ptr;
@@ -977,7 +985,7 @@ directive: INCBIN QUOTEDSTRING {
 
    // Create a dummy intermediate representation node
    // to cling to as the repeat end point.
-   ir_repeat_tail = emit_label ( 0, DEFAULT_FILL );
+   ir_repeat_tail = emit_label ( 0, fillValue );
 
    if ( repeat_level )
    {
