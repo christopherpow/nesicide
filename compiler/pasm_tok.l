@@ -1,12 +1,11 @@
-word    [_'.@a-zA-Z][_'.@a-zA-Z0-9]*
-hexdigits "$"([0-9a-fA-F]{1,5})"h"?
-decdigits ([0-9]{0,5})
-octdigits "0"([0-9]{0,6})
-bindigits "%"([01]{1,16})
+word    ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)
+hexdigits (("$"([0-9a-fA-F]{1,5}))|(([0-9a-fA-F]{1,5})"h"))
+decdigits ([1-9]([0-9]{0,5}))
+octdigits "0"([0-9]{1,6})
+bindigits (("%"([01]{1,16}))|(([01]{1,16})"b"))
 label    {word}?":"([+]*|[-]*)
-quotedstring [\"].*[\"]
+quotedstring ([\"][^\"]*[\"])|(['][^']*['])
 comment  ";".*$
-%s ENUMSTATE
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
@@ -52,7 +51,7 @@ keyword keywords [] =
    { "org", ".org", ORIGIN, NULL },
    { "space", ".space", VARSPACE, NULL },
    { "advance", ".advance", ADVANCE, NULL },
-   { "pad", ".pad", ADVANCE, NULL },
+   { "pad", ".pad", PADSPACE, NULL },
    { "align", ".align", ALIGN, NULL },
    { "text", ".text", SEGMENT, d_textsegment },
    { "segment", ".segment", SEGMENT, d_textsegment },
@@ -66,6 +65,8 @@ keyword keywords [] =
    { "endr", ".endr", ENDREPEAT, NULL },
    { "enum", ".enum", ENUMERATE, NULL },
    { "ende", ".ende", ENDENUMERATE, NULL },
+   { "macro", ".macro", MACRO, NULL },
+   { "endm", ".endm", ENDMACRO, NULL },
    { "fillvalue", ".fillvalue", FILLVALUE, NULL },
    { NULL, NULL, 0, NULL }
 };
@@ -77,7 +78,6 @@ unsigned int stab_max = 0;
 #ifndef __APPLE__ //strange mac os x related bug? :S
 int          yylineno = 0;
 #endif
-int parenlevel = 0;
 
 symbol_table* stab = NULL;
 
@@ -121,6 +121,14 @@ expr_type* get_next_exprtype ( void )
    return p;
 }
 
+text_type* get_next_texttype ( void )
+{
+   text_type* p = (text_type*) malloc ( sizeof(text_type) );
+   p->string = NULL;
+   p->length = 0;
+   return p;
+}
+
 unsigned char valid_instr ( char* instr );
 unsigned char addressing_mode ( unsigned char instr );
 %}
@@ -161,12 +169,13 @@ unsigned char addressing_mode ( unsigned char instr );
 	unsigned char f;
 	char* start = yytext;
 	ref_type* ref;
+   text_type* text;
    keyword* k = keywords;
 
    while ( k->directive != NULL )
    {
-      if ( (strnicmp(yytext,k->directive,strlen(yytext)) == 0) ||
-           (strnicmp(yytext,k->dotdirective,strlen(yytext)) == 0) )
+      if ( (strnicmp(yytext,k->directive,strlen(k->directive)) == 0) ||
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0) )
       {
          if ( k->handler )
          {
@@ -177,17 +186,22 @@ unsigned char addressing_mode ( unsigned char instr );
       k++;
    }
 
-   if ( (yytext[1] == 0) &&
-        ((yytext[0] == 'x') ||
-        (yytext[0] == 'X')) )
+   if ( yytext[1] == 0 )
    {
-      return tolower(yytext[0]);
-   }
-   else if ( (yytext[1] == 0) &&
-             ((yytext[0] == 'y') ||
-             (yytext[0] == 'Y')) )
-   {
-	   return tolower(yytext[0]);
+      if ( (yytext[0] == 'x') ||
+           (yytext[0] == 'X') )
+      {
+         return tolower(yytext[0]);
+      }
+      else if ( (yytext[0] == 'y') ||
+                (yytext[0] == 'Y') )
+      {
+         return tolower(yytext[0]);
+      }
+      else if ( yytext[0] == '$' )
+      {
+         return yytext[0];
+      }
    }
 
 	symbol_table* p = NULL;
@@ -208,8 +222,15 @@ unsigned char addressing_mode ( unsigned char instr );
 	else if ( yytext[0] == '\'' &&
 	          yytext[strlen(yytext)-1] == '\'' )
 	{
-		yylval.text = strdup ( yytext );
-		return QUOTEDSTRING;
+      text = get_next_texttype ();
+      text->string = strdup ( yytext+1 );
+      text->string[strlen(text->string)-1] = 0;
+      // need to pass length so string mods made by expressions don't lose track of it if a
+      // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
+      // first byte zero and strlen() then returns 0 which is invalid.
+      text->length = strlen(text->string);
+      yylval.text = text;
+      return QUOTEDSTRING;
 	}
 
 	/* pass through as a possible forward-reference label */
@@ -220,12 +241,21 @@ unsigned char addressing_mode ( unsigned char instr );
 	return LABELREF;
 }
 {quotedstring} {
-   yylval.text = yytext;
-	return QUOTEDSTRING;
+   text_type* text = get_next_texttype ();
+   text->string = strdup ( yytext+1 );
+   text->string[strlen(text->string)-1] = 0;
+   // need to pass length so string mods made by expressions don't lose track of it if a
+   // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
+   // first byte zero and strlen() then returns 0 which is invalid.
+   text->length = strlen(text->string);
+   yylval.text = text;
+   return QUOTEDSTRING;
 }
-{hexdigits} { 
+{hexdigits} {
+   char* ptr = yytext;
 	number_type* num = get_next_numtype ();
-	num->number = strtoul(yytext+1,NULL,16);
+   if ( ptr[0] == '$' ) ptr++;
+   num->number = strtoul(ptr,NULL,16);
 	if ( (num->number >= -128) &&
 	     (num->number < 256) )
 	{
@@ -247,7 +277,7 @@ unsigned char addressing_mode ( unsigned char instr );
 }
 {octdigits} { 
 	number_type* num = get_next_numtype ();
-	num->number = strtoul(yytext+1,NULL,8);
+   num->number = strtoul(yytext,NULL,8);
 	if ( (num->number >= -128) &&
 	     (num->number < 256) )
 	{
@@ -257,14 +287,17 @@ unsigned char addressing_mode ( unsigned char instr );
    return DIGITS;
 }
 {bindigits} { 
-	number_type* num = get_next_numtype ();
-	num->number = strtoul(yytext+1,NULL,2);
-	if ( (num->number >= -128) &&
-	     (num->number < 256) )
-	{
-		num->zp_ok = 1;
-	}
-	yylval.num = num;
+   char* ptr = yytext;
+   number_type* num = get_next_numtype ();
+   if ( ptr[0] == '%' ) ptr++;
+
+   num->number = strtoul(ptr,NULL,2);
+   if ( (num->number >= -128) &&
+        (num->number < 256) )
+   {
+      num->zp_ok = 1;
+   }
+   yylval.num = num;
    return DIGITS;
 }
 {comment} { 
@@ -286,11 +319,7 @@ unsigned char addressing_mode ( unsigned char instr );
    return TERM;
 }
 
-[!@#=+\-\*\/\|&\~\<\>\[\]] { return yytext[0]; }
-
-[\(] { parenlevel++; return yytext[0]; }
-[\)] { parenlevel--; return yytext[0]; }
-[,] { return yytext[0]; }
+[!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$] { return yytext[0]; }
 
 . { 
 	sprintf ( e, "parse error in input at: %s", yytext );

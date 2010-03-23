@@ -310,6 +310,10 @@ static C6502_opcode m_6502opcode [ 256 ] =
 // in the assembly code we're parsing.
 #define BTAB_ENT_INC 1
 
+// How many new macros to create when a new macro is specified
+// in the assembly code we're parsing.
+#define MTAB_ENT_INC 1
+
 // Default fill value to use for .space, .dsw, .dsb, etc.
 #define DEFAULT_FILL 0x0000
 int fillValue = DEFAULT_FILL;
@@ -379,6 +383,14 @@ unsigned char add_binary_bank ( segment_type type, char* symbol );
 unsigned char set_binary_bank ( segment_type type, char* bankname );
 void set_binary_addr ( unsigned int addr );
 
+// Macros.  These represent the array of macros currently defined
+// by the assembly code parsing.
+macro_table* mtab = NULL;
+int mtab_ent = 0;
+int mtab_max = 0;
+int start_macro ( char* symbol );
+void finish_macro ( int macro );
+
 // This function takes the completed intermediate representation
 // and outputs it as a flat binary stream ready to be sent to a file.
 void output_binary( char** buffer, int* size );
@@ -405,6 +417,7 @@ int allowUndocumented = 0;
 extern number_type* get_next_numtype ( void );
 extern ref_type* get_next_reftype ( void );
 extern expr_type* get_next_exprtype ( void );
+extern text_type* get_next_texttype ( void );
 
 unsigned char valid_instr_amode ( int instr, int amode );
 char* instr_mnemonic ( unsigned char op );
@@ -428,7 +441,7 @@ unsigned int distance ( ir_table* from, ir_table* to );
 // addressing mode], can change the address of label symbols.
 void reduce_expression ( expr_type* expr, symbol_table* hint );
 expr_type* copy_expression ( expr_type* expr );
-int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symbol );
+void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char fix_branches, char** symbol );
 void destroy_expression ( expr_type* expr );
 
 // Intermediate representation creation routines.
@@ -438,7 +451,7 @@ void destroy_expression ( expr_type* expr );
 // removal if the expression is a constant that is known
 // not to change.
 ir_table* emit_ir ( void );
-ir_table* emit_fix ( void );
+ir_table* emit_fix ( int addr );
 ir_table* emit_label ( int m, int fill );
 ir_table* emit_bin ( expr_type* expr );
 ir_table* emit_bin2 ( expr_type* expr );
@@ -477,6 +490,7 @@ void dump_binary_table ( void );
 void dump_ir_table ( void );
 void dump_ir_expressions ( void );
 void dump_expression ( expr_type* expr );
+void dump_macro_table ( void );
 %}
 // Representation of possible types passed to the grammar parser
 // from the lexical analyzer.
@@ -484,15 +498,15 @@ void dump_expression ( expr_type* expr );
    struct _ref_type* ref;
    struct _number_type* num;
    struct _expr_type* expr;
-	char* text;
+   struct _text_type* text;
 	int seg;
    int instr;
 	unsigned char flag;
 }
 // Terminal tokens passed to the grammar parser from
 // the lexical analyzer.
-%token TERM DATAB DATAW REPEAT ENDREPEAT
-%token ORIGIN FILLSPACEB FILLSPACEW VARSPACE ADVANCE ALIGN
+%token TERM DATAB DATAW REPEAT ENDREPEAT MACRO ENDMACRO
+%token ORIGIN FILLSPACEB FILLSPACEW VARSPACE PADSPACE ADVANCE ALIGN
 %token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE FILLVALUE
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
@@ -516,8 +530,8 @@ void dump_expression ( expr_type* expr );
 // expect ('s as part of the token stream for reducing,
 // while an expression expects a ( as a shifted token.
 %left '+' '-'
-%left '*' '/'
-%left '!' '~' '>' '<'
+%left '*' '/' '%'
+%left UMINUS UPLUS '!' '~' '>' '<'
 %left '(' ')'
 %left ','
 
@@ -563,11 +577,8 @@ instruction: no_params
 
 // Directive .incbin "<file>" includes a binary file into the intermediate representation stream...
 directive: INCBIN QUOTEDSTRING {
-	char* fn = strdup ( $2 );
 	int c;
-	fn += 1; // walk past "
-	fn[strlen(fn)-1] = 0; // chop off trailing "
-	FILE* fp = fopen ( fn, "rb" );
+   FILE* fp = fopen ( $2->string, "rb" );
 	if ( fp != NULL )
 	{
 		for ( c=fgetc(fp); c!=EOF; c=fgetc(fp) )
@@ -577,28 +588,24 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-      sprintf ( e, "cannot open included file: %s", fn-1 );
+      sprintf ( e, "cannot open included file: %s", $2->string );
 		yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn-1 );
+      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, $2->string );
 	}
-   free ( fn-1 );
 }
 // Directive .incobj "<file>" includes a NESICIDE object into the parser stream...
            | INCOBJ QUOTEDSTRING TERM {
 	char* data = NULL; 
-	char* fn = strdup ( $2 );
 	int c;
-	fn += 1; // walk past "
-	fn[strlen(fn)-1] = 0; // chop off trailing "
 	int size = 0;
 	int f;
 	int buf, orig;
 	if ( incobj_fn )
 	{
-		f = incobj_fn ( $2, &data, &size );
+      f = incobj_fn ( $2->string, &data, &size );
 		if ( f != 0 )
 		{
-	//		strcpy ( currentFile, $2 );
+   //		strcpy ( currentFile, $2->string );
 			
 			orig = get_current_buffer ();
 
@@ -621,36 +628,31 @@ directive: INCBIN QUOTEDSTRING {
 		}
 		else
 		{
-			sprintf ( e, "object not found for .incobj: %s", $2 );
+         sprintf ( e, "object not found for .incobj: %s", $2->string );
 			yyerror ( e );
-			fprintf ( stderr, "error: %d: object not found for .incobj: %s\n", yylineno, $2 );
+         fprintf ( stderr, "error: %d: object not found for .incobj: %s\n", yylineno, $2->string );
 		}
 	}
 	else
 	{
-      sprintf ( e, "use of .incobj directive not supported: %s", fn-1 );
+      sprintf ( e, "use of .incobj directive not supported: %s", $2->string );
 		yyerror ( e );
-      fprintf ( stderr, "error: %d: use of .incobj directive not supported: %s\n", yylineno, fn-1 );
+      fprintf ( stderr, "error: %d: use of .incobj directive not supported: %s\n", yylineno, $2->string );
 	}
-   free ( fn-1 );
 }
 // Directive .include "<file>" includes a source file into the parser stream...
            | INCLUDE QUOTEDSTRING TERM {
-	char* fn = strdup ( $2 );
 	char* buffer;
 	int c;
 	int bytes;
 	int buf, orig;
-	fn += 1; // walk past "
-	fn[strlen(fn)-1] = 0; // chop off trailing "
-	FILE* fp = fopen ( fn, "r" );
+   FILE* fp = fopen ( $2->string, "r" );
 	if ( fp != NULL )
 	{
-//		strcpy ( currentFile, $2 );
+//		strcpy ( currentFile, $2->string );
 
 		fseek ( fp, 0, SEEK_END );
 		bytes = ftell ( fp );
-		printf ( "bytes found: %d\n", bytes );
 		if ( bytes > 0 )
 		{
 			fseek ( fp, 0, SEEK_SET );
@@ -683,11 +685,10 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-      sprintf ( e, "cannot open included file: %s", fn-1 );
+      sprintf ( e, "cannot open included file: %s", $2->string );
 		yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, fn-1 );
+      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, $2->string );
 	}
-   free ( fn-1 );
 }
 // Directive .fillvalue <value> changes the default filler value.
            | FILLVALUE DIGITS {
@@ -733,14 +734,6 @@ directive: INCBIN QUOTEDSTRING {
    }
    //dump_symbol_table ();
 }
-// CPTODO: attempting to replicate ASM6 syntax for ENUM variable assignment.
-// Currently this causes shift/reduce conflicts on LABELREF.  Working with states
-// in the lexer to disambiguate the LABELREF as a different token to prevent
-// these conflicts.  Not resolved yet.
-//           | LABELREF DATAB blist TERM {
-//}
-//           | LABELREF DATAW wlist TERM {
-//}
 // Anything not recognized by the lexer that matches the lexer's {word} rule
 // is passed to the parser as a LABELREF.  If we get a stray LABELREF token
 // it therefore indicates some kind of parse error in the lexer.
@@ -759,9 +752,9 @@ directive: INCBIN QUOTEDSTRING {
 // equivalent to banks, which may be a bit of a misnomer that I need to work through.
 // CPTODO: address ASM6 BASE directive.
            | SEGMENT QUOTEDSTRING TERM {
-   if ( set_binary_bank($1,$2) == 0 )
+   if ( set_binary_bank($1,$2->string) == 0 )
    {
-      add_binary_bank ( $1, $2 );
+      add_binary_bank ( $1, $2->string );
    }
 }
 // Directive <.text|.data|.segment> <label> sets the current segment or creates a new one
@@ -788,7 +781,7 @@ directive: INCBIN QUOTEDSTRING {
    if ( $2->number >= 0 )
    {
       set_binary_addr ( $2->number );
-      emit_fix ();
+      emit_fix ( $2->number );
    }
    else
    {
@@ -817,6 +810,16 @@ directive: INCBIN QUOTEDSTRING {
       update_symbol_ir ( symtab, ptr );
       //dump_symbol_table ();
    }
+}
+// Directive .pad <expression> creates a space <expression> bytes long
+// at the current position within the intermediate representation.
+           | PADSPACE expr TERM {
+   ir_table* ptr;
+
+   // reduce expression...
+   reduce_expression ( $2, NULL );
+
+// CPTODO: implement
 }
 // Directive .dsb <length> creates a space <length> bytes long at the
 // current position within the intermediate representation.
@@ -876,7 +879,7 @@ directive: INCBIN QUOTEDSTRING {
    {
       j = ($2->number-cur->addr);
       emit_bin_space ( j, fillValue );
-      emit_fix ();
+      emit_fix ( $2->number );
    }
    else
    {
@@ -894,7 +897,7 @@ directive: INCBIN QUOTEDSTRING {
    {
       j = ($2->number-cur->addr);
       emit_bin_space ( j, $4->number );
-      emit_fix ();
+      emit_fix ( $2->number );
    }
    else
    {
@@ -916,7 +919,7 @@ directive: INCBIN QUOTEDSTRING {
 
       set_binary_bank ( data_segment, ANONYMOUS_BANK );
       set_binary_addr ( $2->number );
-      emit_fix ();
+      emit_fix ( $2->number );
    }
    else
    {
@@ -942,6 +945,21 @@ directive: INCBIN QUOTEDSTRING {
       yyerror ( e );
       fprintf ( stderr, "error: %d: .ende directive without corresponding .enum directive\n", yylineno );
    }
+}
+         | MACRO LABELREF labellist {
+   int macro;
+
+   if ( $2->type == reference_symbol )
+   {
+      macro = start_macro ( $2->ref.symbol );
+   }
+   else
+   {
+   }
+
+   dump_macro_table ();
+}
+         | ENDMACRO {
 }
 // Directive .rept <count> is equivalent to ASM6 REPT directive.  It
 // repeats a section of intermediate representation nodes found between
@@ -1320,6 +1338,13 @@ disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
 }
          ;
 
+labellist: /* empty */ {
+}
+         | labellist ',' LABELREF {
+}
+         | LABELREF {
+}
+
 blist: blist ',' expr {
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -1331,32 +1356,6 @@ blist: blist ',' expr {
    reduce_expression ( $1, NULL );
 
    emit_bin ( $1 );
-}
-    | blist ',' QUOTEDSTRING {
-   char* str = strdup ( $3 );
-   int c;
-   str += 1; // walk past "
-   str[strlen(str)-1] = 0; // chop off trailing "
-
-   for ( c = 0; c < strlen(str); c++ )
-   {
-      emit_bin_data ( str[c]&0xFF );
-   }
-
-   free ( str );
-}
-    | QUOTEDSTRING {
-   char* str = strdup ( $1 );
-   int c;
-   str += 1; // walk past "
-   str[strlen(str)-1] = 0; // chop off trailing "
-
-   for ( c = 0; c < strlen(str); c++ )
-   {
-      emit_bin_data ( str[c]&0xFF );
-   }
-
-   free ( str );
 }
     ;
 
@@ -1374,7 +1373,28 @@ wlist: wlist ',' expr {
 }
     ;
 
-expr : DIGITS {
+expr : '$' {
+   ir_table* ptr;
+
+   $$ = get_next_exprtype ();
+   $$->type = expression_reference;
+   $$->node.ref = get_next_reftype ();
+   $$->node.ref->type = reference_stake;
+
+   // Create a dummy intermediate representation node
+   // to cling to as the current address.
+   ptr = emit_label ( 0, fillValue );
+
+   $$->node.ref->ref.stake = ptr;
+}
+     | QUOTEDSTRING {
+   $$ = get_next_exprtype ();
+   $$->type = expression_reference;
+   $$->node.ref = get_next_reftype ();
+   $$->node.ref->type = reference_const_string;
+   $$->node.ref->ref.text = $1;
+}
+     | DIGITS {
    $$ = get_next_exprtype ();
    $$->type = expression_number;
    $$->node.num = $1;
@@ -1423,12 +1443,16 @@ expr : DIGITS {
    $$->right = $2;
    $$->right->parent = $$;
 }
-     | '-' expr %prec '*' {
+     | '-' expr %prec UMINUS {
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
    $$->node.op = '-';
    $$->right = $2;
    $$->right->parent = $$;
+}
+     | '+' expr %prec UPLUS {
+   // swallow useless unary-plus...
+   $$ = $2;
 }
      | '~' expr {
    $$ = get_next_exprtype ();
@@ -1473,7 +1497,16 @@ expr : DIGITS {
    $$->left->parent = $$;
    $$->right->parent = $$;
 }
-	;
+     | expr '%' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '%';
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+   ;
 %%
 
 int yyerror(char* s)
@@ -1654,7 +1687,8 @@ int promote_instructions ( unsigned char fix_branches )
       if ( expr )
       {
          // try a symbol reduction to see if we can promote this to zeropage...
-         value = evaluate_expression ( expr, &evaluated, NULL );
+         evaluate_expression ( expr, &evaluated, fix_branches, NULL );
+         value = expr->value.ival;
          value_zp_ok = 0;
          if ( (value >= -128) &&
               (value < 256) )
@@ -1666,7 +1700,7 @@ int promote_instructions ( unsigned char fix_branches )
       switch ( ptr->fixup )
       {
          case fixup_datab:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[0] = value&0xFF;
                ptr->fixup = fixup_fixed;
@@ -1675,7 +1709,7 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_dataw:
-            if ( evaluated )
+            if ( (evaluated) && (expr->vtype == value_is_int) )
             {
                ptr->data[1] = (value>>8)&0xFF;
                ptr->data[0] = value&0xFF;
@@ -1685,7 +1719,7 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_abs_idx_x:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                // promote to zeropage if possible...
                if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
@@ -1719,12 +1753,18 @@ int promote_instructions ( unsigned char fix_branches )
                   // done!
                }
             }
-            else if ( (evaluated) && (!value_zp_ok) )
+            else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
             else
             {
@@ -1734,7 +1774,7 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_abs_idx_y:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                // promote to zeropage if possible...
                if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
@@ -1768,12 +1808,18 @@ int promote_instructions ( unsigned char fix_branches )
                   // done!
                }
             }
-            else if ( (evaluated) && (!value_zp_ok) )
+            else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
             else
             {
@@ -1783,7 +1829,7 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_absolute:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                // promote to zeropage if possible...
                if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE)) != INVALID_INSTR )
@@ -1817,12 +1863,18 @@ int promote_instructions ( unsigned char fix_branches )
                   // done!
                }
             }
-            else if ( (evaluated) && (!value_zp_ok) )
+            else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
             else
             {
@@ -1832,40 +1884,58 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_zeropage:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
          case fixup_zp_idx:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
          case fixup_pre_idx_ind:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
          case fixup_post_idx_ind:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
             }
-            else
+            else if ( (evaluated) && (expr->vtype == value_is_int) )
             {
                // disambiguation: if we've decided this instruction is a post-indexed indirect
                // addressing mode but the expression evaluates outside of zeropage, check to see if
@@ -1898,20 +1968,32 @@ int promote_instructions ( unsigned char fix_branches )
                   fprintf ( stderr, "warning: %d: demotion of assumed post-indexed indirect instruction to absolute indexed instruction\n", ptr->source_linenum );
                }
             }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
+            }
          break;
 
          case fixup_indirect:
-            if ( evaluated )
+            if ( (evaluated) && (expr->vtype == value_is_int) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
             }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
+            }
          break;
 
          case fixup_relative:
-            if ( fix_branches && evaluated )
+            if ( (fix_branches) && (evaluated) && (expr->vtype == value_is_int) )
             {
                if ( (value > 255) ||
                     (value < -128) )
@@ -1937,14 +2019,26 @@ int promote_instructions ( unsigned char fix_branches )
                }
                // done!
             }
+            else if ( (fix_branches) && (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
+            }
          break;
 
          case fixup_immediate:
-            if ( (evaluated) && (value_zp_ok) )
+            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->fixup = fixup_fixed;
                // done!
+            }
+            else if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               sprintf ( e, "expressions with string constants not allowed here" );
+               yyerror ( e );
+               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
       }
@@ -1969,7 +2063,6 @@ void check_fixup ( void )
 {
    ir_table* ptr;
    expr_type* expr;
-   int value;
    unsigned char evaluated = 1;
    unsigned char value_zp_ok;
    char* symbol;
@@ -1982,7 +2075,7 @@ void check_fixup ( void )
       {
          // check expression evaluates...
          symbol = NULL;
-         value = evaluate_expression ( expr, &evaluated, &symbol );
+         evaluate_expression ( expr, &evaluated, 1, &symbol );
 
          // if not, emit an error...
          if ( (!evaluated) && symbol )
@@ -1999,6 +2092,78 @@ void check_fixup ( void )
          }
       }
    }
+}
+
+int start_macro ( char* symbol )
+{
+   unsigned int i;
+   int idx = -1;
+
+   if ( mtab == NULL )
+   {
+      mtab = (macro_table*)calloc ( MTAB_ENT_INC, sizeof(macro_table) );
+      if ( mtab != NULL )
+      {
+         mtab_max += MTAB_ENT_INC;
+         mtab[mtab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
+         if ( mtab[mtab_ent].symbol != NULL )
+         {
+            memset ( mtab[mtab_ent].symbol, 0, strlen(symbol)+1 );
+            strncpy ( mtab[mtab_ent].symbol, symbol, strlen(symbol) );
+            mtab[mtab_ent].idx = mtab_ent;
+         }
+      }
+      else
+      {
+         sprintf ( e, "unable to allocate memory for tables" );
+         yyerror ( e );
+         fprintf ( stderr, "error: unable to allocate memory for tables!\n" );
+      }
+   }
+   else
+   {
+      if ( mtab_ent < mtab_max )
+      {
+         mtab[mtab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
+         if ( mtab[mtab_ent].symbol != NULL )
+         {
+            memset ( mtab[mtab_ent].symbol, 0, strlen(symbol)+1 );
+            strncpy ( mtab[mtab_ent].symbol, symbol, strlen(symbol) );
+            mtab[mtab_ent].idx = mtab_ent;
+         }
+      }
+      else
+      {
+         mtab_max += MTAB_ENT_INC;
+         mtab = (macro_table*)realloc ( mtab, mtab_max*sizeof(macro_table) );
+         if ( mtab != NULL )
+         {
+            mtab[mtab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
+            if ( mtab[mtab_ent].symbol != NULL )
+            {
+               memset ( mtab[mtab_ent].symbol, 0, strlen(symbol)+1 );
+               strncpy ( mtab[mtab_ent].symbol, symbol, strlen(symbol) );
+               mtab[mtab_ent].idx = mtab_ent;
+            }
+         }
+         else
+         {
+            sprintf ( e, "unable to allocate memory for tables" );
+            yyerror ( e );
+            fprintf ( stderr, "error: unable to allocate memory for tables!\n" );
+         }
+      }
+   }
+
+   idx = mtab_ent;
+
+   mtab_ent++;
+
+   return idx;
+}
+
+void finish_macro ( int macro )
+{
 }
 
 unsigned char add_binary_bank ( segment_type type, char* symbol )
@@ -2101,7 +2266,7 @@ void output_binary ( char** buffer, int* size )
 	ir_table* ptr3;
 	ir_table* ptr4 = NULL;
 	ir_table* ptrl;
-	unsigned int addr;
+   unsigned int addr = 0;
 	int       i;
 	int       bank;
 	int       lowest_bank_addr = -1;
@@ -2276,6 +2441,15 @@ void dump_symbol_table ( void )
 	}
 }
 
+void dump_macro_table ( void )
+{
+   int i;
+   for ( i = 0; i < mtab_ent; i++ )
+   {
+      printf ( "%d: %s head-%08x tail-%08x\n", i, mtab[i].symbol, mtab[i].ir_head, mtab[i].ir_tail );
+   }
+}
+
 void dump_binary_table ( void )
 {
 	int i;
@@ -2317,7 +2491,15 @@ void dump_expression ( expr_type* expr )
       }
       else if ( expr->node.ref->type == reference_symtab )
       {
-//         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.symtab->symbol );
+         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, stab[expr->node.ref->ref.stab_ent].symbol );
+      }
+      else if ( expr->node.ref->type == reference_stake )
+      {
+         printf ( "m%08x l%08x r%08x: cur_pc: %04X\n", expr, expr->left, expr->right, expr->node.ref->ref.stake->addr );
+      }
+      else if ( expr->node.ref->type == reference_const_string )
+      {
+         printf ( "m%08x l%08x r%08x: %d string: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.text->length, expr->node.ref->ref.text->string );
       }
    }
 }
@@ -2342,6 +2524,11 @@ void destroy_expression ( expr_type* expr )
          if ( expr->node.ref->type == reference_symbol )
          {
             free ( expr->node.ref->ref.symbol );
+         }
+         if ( expr->node.ref->type == reference_const_string )
+         {
+            free ( expr->node.ref->ref.text->string );
+            free ( expr->node.ref->ref.text );
          }
          free ( expr->node.ref );
       break;
@@ -2381,6 +2568,12 @@ expr_type* copy_expression ( expr_type* expr )
          if ( temp->node.ref->type == reference_symbol )
          {
             temp->node.ref->ref.symbol = strdup ( expr->node.ref->ref.symbol );
+         }
+         if ( temp->node.ref->type == reference_const_string )
+         {
+            temp->node.ref->ref.text = get_next_texttype ();
+            temp->node.ref->ref.text->string = strdup ( expr->node.ref->ref.text->string );
+            temp->node.ref->ref.text->length = expr->node.ref->ref.text->length;
          }
       break;
    }
@@ -2429,74 +2622,206 @@ void reduce_expressions ( void )
    }
 }
 
-int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symbol )
+void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char fix_branches, char** symbol )
 {
-   int left = 0;
-   int right = 0;
-   int value = 0;
+   int b;
 
    if ( expr->left )
    {
-      left = evaluate_expression ( expr->left, evaluated, symbol );
+      evaluate_expression ( expr->left, evaluated, fix_branches, symbol );
    }
    if ( expr->right )
    {
-      right = evaluate_expression ( expr->right, evaluated, symbol );
+      evaluate_expression ( expr->right, evaluated, fix_branches, symbol );
    }
    if ( expr->type == expression_number )
    {
-      value = expr->node.num->number;
+      expr->vtype = value_is_int;
+      expr->value.ival = expr->node.num->number;
+   }
+   else if ( (fix_branches) &&
+             (expr->type == expression_reference) &&
+             (expr->node.ref->type == reference_stake) )
+   {
+      expr->vtype = value_is_int;
+      expr->value.ival = expr->node.ref->ref.stake->addr;
    }
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_symtab) )
    {
       if ( stab[expr->node.ref->ref.stab_ent].ir )
       {
-         value = stab[expr->node.ref->ref.stab_ent].ir->addr;
+         expr->vtype = value_is_int;
+         expr->value.ival = stab[expr->node.ref->ref.stab_ent].ir->addr;
       }
+   }
+   else if ( (expr->type == expression_reference) &&
+             (expr->node.ref->type == reference_const_string) )
+   {
+      expr->vtype = value_is_string;
+      expr->value.sval = expr->node.ref->ref.text;
    }
    else if ( expr->type == expression_operator )
    {
-      if ( expr->node.op == '>' )
+      if ( (!expr->left) &&
+           (expr->right->vtype == value_is_int) )
       {
-         right = (right>>8)&0xFF;
-         value = right;
+         expr->vtype = value_is_int;
+         if ( expr->node.op == '>' )
+         {
+            expr->value.ival = (expr->right->value.ival>>8)&0xFF;
+         }
+         else if ( expr->node.op == '<' )
+         {
+            expr->value.ival = expr->right->value.ival&0xFF;
+         }
+         else if ( expr->node.op == '!' )
+         {
+            expr->value.ival = !expr->right->value.ival;
+         }
+         else if ( expr->node.op == '-' )
+         {
+            expr->value.ival = -expr->right->value.ival;
+         }
+         // unary-plus is swallowed during expression parsing...
+         else if ( expr->node.op == '~' )
+         {
+            expr->value.ival = ~expr->right->value.ival;
+         }
       }
-      else if ( expr->node.op == '<' )
+      else if ( (!expr->left) &&
+                (expr->right->vtype == value_is_string) )
       {
-         right &= 0xFF;
-         value = right;
+         expr->vtype = value_is_string;
+         expr->value.sval = expr->right->value.sval;
+         if ( expr->node.op == '!' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] = !expr->value.sval->string[b];
+            }
+         }
+         else if ( expr->node.op == '~' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] = ~expr->value.sval->string[b];
+            }
+         }
       }
-      else if ( expr->node.op == '!' )
+      else if ( (!expr->left) &&
+                (expr->left->vtype == value_is_int) &&
+                (!expr->right) &&
+                (expr->right->vtype == value_is_int) )
       {
-         right = !right;
-         value = right;
+         expr->vtype = value_is_int;
+         if ( expr->node.op == '+' )
+         {
+            expr->value.ival = expr->left->value.ival+expr->right->value.ival;
+         }
+         else if ( expr->node.op == '-' )
+         {
+            expr->value.ival = expr->left->value.ival-expr->right->value.ival;
+         }
+         else if ( expr->node.op == '*' )
+         {
+            expr->value.ival = expr->left->value.ival*expr->right->value.ival;
+         }
+         else if ( expr->node.op == '/' )
+         {
+            expr->value.ival = expr->left->value.ival/expr->right->value.ival;
+         }
+         else if ( expr->node.op == '%' )
+         {
+            expr->value.ival = expr->left->value.ival%expr->right->value.ival;
+         }
       }
-      else if ( expr->node.op == '-' )
+      else if ( (!expr->left) &&
+                (expr->left->vtype == value_is_string) &&
+                (!expr->right) &&
+                (expr->right->vtype == value_is_int) )
       {
-         right = (-right);
-         value = right;
+         expr->vtype = value_is_string;
+         expr->value.sval = expr->left->value.sval;
+         if ( expr->node.op == '+' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] += expr->right->value.ival;
+            }
+         }
+         else if ( expr->node.op == '-' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] -= expr->right->value.ival;
+            }
+         }
+         else if ( expr->node.op == '*' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] *= expr->right->value.ival;
+            }
+         }
+         else if ( expr->node.op == '/' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] /= expr->right->value.ival;
+            }
+         }
+         else if ( expr->node.op == '%' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] %= expr->right->value.ival;
+            }
+         }
       }
-      else if ( expr->node.op == '~' )
+      else if ( (!expr->left) &&
+                (expr->left->vtype == value_is_string) &&
+                (!expr->right) &&
+                (expr->right->vtype == value_is_string) &&
+                (expr->right->value.sval->length == 1) ) // only allow "ABCD"+"A" for example...
       {
-         right = (~right);
-         value = right;
-      }
-      else if ( expr->node.op == '+' )
-      {
-         value = left + right;
-      }
-      else if ( expr->node.op == '-' )
-      {
-         value = left - right;
-      }
-      else if ( expr->node.op == '*' )
-      {
-         value = left * right;
-      }
-      else if ( expr->node.op == '/' )
-      {
-         value = left / right;
+         expr->vtype = value_is_string;
+         expr->value.sval = expr->left->value.sval;
+         if ( expr->node.op == '+' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] += expr->right->value.sval->string[0];
+            }
+         }
+         else if ( expr->node.op == '-' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] -= expr->right->value.sval->string[0];
+            }
+         }
+         else if ( expr->node.op == '*' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] *= expr->right->value.sval->string[0];
+            }
+         }
+         else if ( expr->node.op == '/' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] /= expr->right->value.sval->string[0];
+            }
+         }
+         else if ( expr->node.op == '%' )
+         {
+            for ( b = 0; b < expr->value.sval->length; b++ )
+            {
+               expr->value.sval->string[b] %= expr->right->value.sval->string[0];
+            }
+         }
       }
    }
    else
@@ -2509,7 +2834,7 @@ int evaluate_expression ( expr_type* expr, unsigned char* evaluated, char** symb
          (*symbol) = expr->node.ref->ref.symbol;
       }
    }
-   return value;
+   return;
 }
 
 void reduce_expression ( expr_type* expr, symbol_table* hint )
@@ -2517,6 +2842,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
    expr_type* temp;
    expr_type* temp2;
    expr_type** temp3;
+   int b;
 
    if ( expr->left )
    {
@@ -2607,6 +2933,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
                expr->node.num->zp_ok = 1;
             }
          }
+         // unary-plus is swallowed during expression parsing...
          else if ( expr->node.op == '~' )
          {
             expr->node.num = expr->right->node.num;
@@ -2623,7 +2950,39 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          expr->type = expression_number;
 
          // destroy reduced node...
-         // we adopted the left node so don't destroy its node content...
+         // we adopted the right node so don't destroy its node content...
+         free ( expr->right );
+         expr->right = NULL;
+      }
+      // check for unary...
+      else if ( (!expr->left) &&
+                (expr->right) && (expr->right->type == expression_reference) &&
+                (expr->right->node.ref->type == reference_const_string) )
+      {
+         // node and children are collapsible...adopt right node and morph it...
+         if ( expr->node.op == '!' )
+         {
+            expr->node.ref = expr->right->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] = !expr->node.ref->ref.text->string[b];
+            }
+         }
+         // unary-plus is swallowed during expression parsing...
+         else if ( expr->node.op == '~' )
+         {
+            expr->node.ref = expr->right->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] = ~expr->node.ref->ref.text->string[b];
+            }
+         }
+
+         // promote root node...
+         expr->type = expression_reference;
+
+         // destroy reduced node...
+         // we adopted the right node so don't destroy its node content...
          free ( expr->right );
          expr->right = NULL;
       }
@@ -2675,6 +3034,17 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
                expr->node.num->zp_ok = 1;
             }
          }
+         else if ( expr->node.op == '%' )
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number %= expr->right->node.num->number;
+            expr->node.num->zp_ok = 0;
+            if ( (expr->node.num->number >= -128) &&
+                 (expr->node.num->number < 256) )
+            {
+               expr->node.num->zp_ok = 1;
+            }
+         }
 
          // promote root node...
          expr->type = expression_number;
@@ -2682,6 +3052,123 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          // destroy reduced nodes...
          // we adopted the left node so don't destroy its node content...
          free ( expr->right->node.num );
+         free ( expr->right );
+         free ( expr->left );
+         expr->left = NULL;
+         expr->right = NULL;
+      }
+      else if ( (expr->left) && (expr->left->type == expression_reference) &&
+                (expr->left->node.ref->type == reference_const_string) &&
+                (expr->right) && (expr->right->type == expression_number) )
+      {
+         // node and children are collapsible...adopt one and morph it with the other...
+         if ( expr->node.op == '+' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] += expr->right->node.num->number;
+            }
+         }
+         else if ( expr->node.op == '-' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] -= expr->right->node.num->number;
+            }
+         }
+         else if ( expr->node.op == '*' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] *= expr->right->node.num->number;
+            }
+         }
+         else if ( expr->node.op == '/' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] /= expr->right->node.num->number;
+            }
+         }
+         else if ( expr->node.op == '%' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] %= expr->right->node.num->number;
+            }
+         }
+
+         // promote root node...
+         expr->type = expression_reference;
+
+         // destroy reduced nodes...
+         // we adopted the left node so don't destroy its node content...
+         free ( expr->right->node.num );
+         free ( expr->right );
+         free ( expr->left );
+         expr->left = NULL;
+         expr->right = NULL;
+      }
+      else if ( (expr->left) && (expr->left->type == expression_reference) &&
+                (expr->left->node.ref->type == reference_const_string) &&
+                (expr->right) && (expr->right->type == expression_reference) &&
+                (expr->right->node.ref->type == reference_const_string) &&
+                (expr->right->node.ref->ref.text->length == 1) ) // only allow for "AB"+"A" for example...
+      {
+         // node and children are collapsible...adopt one and morph it with the other...
+         if ( expr->node.op == '+' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] += expr->right->node.ref->ref.text->string[0];
+            }
+         }
+         else if ( expr->node.op == '-' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] -= expr->right->node.ref->ref.text->string[0];
+            }
+         }
+         else if ( expr->node.op == '*' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] *= expr->right->node.ref->ref.text->string[0];
+            }
+         }
+         else if ( expr->node.op == '/' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] /= expr->right->node.ref->ref.text->string[0];
+            }
+         }
+         else if ( expr->node.op == '%' )
+         {
+            expr->node.ref = expr->left->node.ref;
+            for ( b = 0; b < expr->node.ref->ref.text->length; b++ )
+            {
+               expr->node.ref->ref.text->string[b] %= expr->right->node.ref->ref.text->string[0];
+            }
+         }
+
+         // promote root node...
+         expr->type = expression_reference;
+
+         // destroy reduced nodes...
+         // we adopted the left node so don't destroy its node content...
+         free ( expr->right->node.ref->ref.text->string );
+         free ( expr->right->node.ref );
          free ( expr->right );
          free ( expr->left );
          expr->left = NULL;
@@ -2786,7 +3273,7 @@ ir_table* reemit_ir ( ir_table* head, ir_table* tail )
    }
 }
 
-ir_table* emit_fix ( void )
+ir_table* emit_fix ( int addr )
 {
 	ir_table* ptr = emit_ir ();
    ptr->fixup = fixup_fixed;
@@ -2827,17 +3314,6 @@ ir_table* emit_bin ( expr_type* expr )
    ir_table* ptr = emit_ir ();
    ptr->fixup = fixup_datab;
 
-   // see if we can reduce the expression completely and if so, do so...
-   if ( (expr->type == expression_number) &&
-        (expr->node.num->zp_ok) )
-   {
-      ptr->data[0] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
-
    ptr->expr = expr;
 
    ptr->len = 1;
@@ -2850,17 +3326,6 @@ ir_table* emit_bin2 ( expr_type* expr )
 {
    ir_table* ptr = emit_ir ();
    ptr->fixup = fixup_dataw;
-
-   // see if we can reduce the expression completely and if so, do so...
-   if ( expr->type == expression_number )
-   {
-      ptr->data[1] = (expr->node.num->number>>8)&0xFF;
-      ptr->data[0] = expr->node.num->number&0xFF;
-      ptr->fixup = fixup_fixed;
-      free ( expr->node.num );
-      free ( expr );
-      expr = NULL;
-   }
 
    ptr->expr = expr;
 

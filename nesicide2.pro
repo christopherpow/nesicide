@@ -233,7 +233,6 @@ HEADERS += mainwindow.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
     common/inspectorregistry.h \
     compiler/pasm_types.h \
-    compiler/pasm_shared_types.h \
     compiler/pasm_lib.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
