@@ -1,11 +1,10 @@
-word    ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)
-hexdigits (("$"([0-9a-fA-F]{1,5}))|(([0-9a-fA-F]{1,5})"h"))
-decdigits ([1-9]([0-9]{0,5}))
-octdigits "0"([0-9]{1,6})
-bindigits (("%"([01]{1,16}))|(([01]{1,16})"b"))
-label    {word}?":"([+]*|[-]*)
+identifier   ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)":"?
+hexdigits    (("$"([0-9a-fA-F]{1,6}))|(([0-9a-fA-F]{1,6})"h"))
+decdigits    ([1-9]([0-9]{0,6}))
+octdigits    "0"([0-9]{0,6})
+bindigits    (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring ([\"][^\"]*[\"])|(['][^']*['])
-comment  ";".*$
+comment      ";".*$
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
@@ -51,7 +50,7 @@ keyword keywords [] =
    { "org", ".org", ORIGIN, NULL },
    { "space", ".space", VARSPACE, NULL },
    { "advance", ".advance", ADVANCE, NULL },
-   { "pad", ".pad", PADSPACE, NULL },
+   { "pad", ".pad", ADVANCE, NULL },
    { "align", ".align", ALIGN, NULL },
    { "text", ".text", SEGMENT, d_textsegment },
    { "segment", ".segment", SEGMENT, d_textsegment },
@@ -84,15 +83,14 @@ symbol_table* stab = NULL;
 symbol_table* cltab [ 4096 ];
 int cltab_ent = 0;
 
-symbol_table* current_label = NULL;
+int current_label = -1;
 
 extern binary_table* btab;
 extern binary_table* cur;
 
 int autolabel = 0x1000;
 
-char* text [ 4096 ];
-int textidx = 0;
+int symbol_on_line = 0;
 
 unsigned char add_symbol ( char* symbol, symbol_table** ptr );
 symbol_table* find_symbol ( char* symbol, int btab_ent );
@@ -130,52 +128,25 @@ text_type* get_next_texttype ( void )
 }
 
 unsigned char valid_instr ( char* instr );
-unsigned char addressing_mode ( unsigned char instr );
 %}
 %%
-{label}	{
-	char* label = strdup(yytext);
-	unsigned char f;
-	symbol_table* p = NULL;
-	ref_type* ref;
-	label[strlen(label)-1] = 0;
-	if ( strlen(label) == 0 )
-	{
-		sprintf ( label, "L%05X", autolabel++ );
-	}
-	f=add_symbol(label,&p);
-	if ( !f )
-	{
-		sprintf ( e, "multiple declarations of symbol: %s", label ); 
-		add_error ( e );
-		fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, label );
-	}
-	if ( label[0] == '@' )
-	{
-		add_cheap_label ( p ); 
-	}
-	else
-	{
-		clear_cheap_labels ();
-	}
-	current_label = p;
-	ref = get_next_reftype ();
-	ref->type = reference_symtab;
-   ref->ref.stab_ent = p->idx;
-	yylval.ref = ref;
-	return LABEL;
-}
-{word} { 
+{identifier} {
 	unsigned char f;
 	char* start = yytext;
 	ref_type* ref;
    text_type* text;
    keyword* k = keywords;
 
+   // Don't need to check for labels if this isn't the first
+   // symbol found on a new line, because labels must be first.
+   symbol_on_line++;
+
    while ( k->directive != NULL )
    {
-      if ( (strnicmp(yytext,k->directive,strlen(k->directive)) == 0) ||
-           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0) )
+      if ( ((strlen(k->directive) == strlen(yytext)) &&
+           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == strlen(yytext)) &&
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
       {
          if ( k->handler )
          {
@@ -186,59 +157,108 @@ unsigned char addressing_mode ( unsigned char instr );
       k++;
    }
 
-   if ( yytext[1] == 0 )
+   // Check for label if this is the first symbol on a new line...
+   if ( symbol_on_line == 1 )
    {
-      if ( (yytext[0] == 'x') ||
-           (yytext[0] == 'X') )
+      // If it's a valid instruction it's not a label...
+      if ( (f=valid_instr(yytext)) != INVALID_INSTR )
       {
-         return tolower(yytext[0]);
+         yylval.instr = f;
+         return INSTR;
       }
-      else if ( (yytext[0] == 'y') ||
-                (yytext[0] == 'Y') )
+      else
       {
-         return tolower(yytext[0]);
-      }
-      else if ( yytext[0] == '$' )
-      {
-         return yytext[0];
+         char* label = strdup(yytext);
+         unsigned char f;
+         symbol_table* p = NULL;
+         ref_type* ref;
+         if ( label[strlen(label)-1] == ':' )
+         {
+            label[strlen(label)-1] = 0;
+         }
+         if ( strlen(label) == 0 )
+         {
+            sprintf ( label, "L%05X", autolabel++ );
+         }
+         f=add_symbol(label,&p);
+         if ( !f )
+         {
+            sprintf ( e, "multiple declarations of symbol: %s", label );
+            add_error ( e );
+            fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, label );
+         }
+         if ( label[0] == '@' )
+         {
+            add_cheap_label ( p );
+         }
+         else
+         {
+            clear_cheap_labels ();
+         }
+         current_label = p->idx;
+         ref = get_next_reftype ();
+         ref->type = reference_symtab;
+         ref->ref.stab_ent = p->idx;
+         yylval.ref = ref;
+         return LABEL;
       }
    }
+   else
+   {
+      if ( yytext[1] == 0 )
+      {
+         if ( (yytext[0] == 'x') ||
+              (yytext[0] == 'X') )
+         {
+            return tolower(yytext[0]);
+         }
+         else if ( (yytext[0] == 'y') ||
+                   (yytext[0] == 'Y') )
+         {
+            return tolower(yytext[0]);
+         }
+         else if ( yytext[0] == '$' )
+         {
+            return yytext[0];
+         }
+      }
 
-	symbol_table* p = NULL;
-	if ( (p=find_symbol(start,cur->idx)) != NULL )
-	{
-		ref = get_next_reftype ();
+      symbol_table* p = NULL;
+      if ( (p=find_symbol(start,cur->idx)) != NULL )
+      {
+         ref = get_next_reftype ();
 
-      ref->type = reference_symtab;
-      ref->ref.stab_ent = p->idx;
-		yylval.ref = ref;
-		return LABELREF;
-	}
-	else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
-	{
-      yylval.instr = f;
-		return INSTR;
-	}
-	else if ( yytext[0] == '\'' &&
-	          yytext[strlen(yytext)-1] == '\'' )
-	{
-      text = get_next_texttype ();
-      text->string = strdup ( yytext+1 );
-      text->string[strlen(text->string)-1] = 0;
-      // need to pass length so string mods made by expressions don't lose track of it if a
-      // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
-      // first byte zero and strlen() then returns 0 which is invalid.
-      text->length = strlen(text->string);
-      yylval.text = text;
-      return QUOTEDSTRING;
-	}
+         ref->type = reference_symtab;
+         ref->ref.stab_ent = p->idx;
+         yylval.ref = ref;
+         return LABELREF;
+      }
+      else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
+      {
+         yylval.instr = f;
+         return INSTR;
+      }
+      else if ( yytext[0] == '\'' &&
+                yytext[strlen(yytext)-1] == '\'' )
+      {
+         text = get_next_texttype ();
+         text->string = strdup ( yytext+1 );
+         text->string[strlen(text->string)-1] = 0;
+         // need to pass length so string mods made by expressions don't lose track of it if a
+         // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
+         // first byte zero and strlen() then returns 0 which is invalid.
+         text->length = strlen(text->string);
+         yylval.text = text;
+         return QUOTEDSTRING;
+      }
 
-	/* pass through as a possible forward-reference label */
-	ref = get_next_reftype ();
-	ref->type = reference_symbol;
-	ref->ref.symbol = strdup(start);
-	yylval.ref = ref;
-	return LABELREF;
+      /* pass through as a possible forward-reference label */
+      ref = get_next_reftype ();
+      ref->type = reference_symbol;
+      ref->ref.symbol = strdup(start);
+      yylval.ref = ref;
+      return LABELREF;
+   }
 }
 {quotedstring} {
    text_type* text = get_next_texttype ();
@@ -308,23 +328,36 @@ unsigned char addressing_mode ( unsigned char instr );
 }
 \r\n {
    yylineno++;
+   symbol_on_line = 0;
    return TERM;
 }
 \n\r {
    yylineno++;
+   symbol_on_line = 0;
    return TERM;
 }
 \n {
    yylineno++;
+   symbol_on_line = 0;
    return TERM;
 }
 
-[!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$] { return yytext[0]; }
+"<<" { return LSHIFT; }
+">>" { return RSHIFT; }
+"&&" { return LOGAND; }
+"||" { return LOGOR; }
+"<=" { return LTEQ; }
+">=" { return GTEQ; }
+"==" { return EQEQ; }
+"!=" |
+"<>" { return NOTEQ; }
 
-. { 
-	sprintf ( e, "parse error in input at: %s", yytext );
+[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$\^] { return yytext[0]; }
+
+. {
+   sprintf ( e, "parse error at: %s", yytext );
 	add_error ( e );
-	fprintf ( stderr, "error: %d: parse error in input\n", yylineno );
+   fprintf ( stderr, "error: %d: parse error at: %s\n", yylineno, yytext );
 }
 %%
 int get_current_buffer ( void )
@@ -348,6 +381,7 @@ symbol_table* find_symbol ( char* symbol, int bank )
 				  ((btab[bank].type == data_segment) && (btab[cltab[i]->btab_ent].type == text_segment)))) )
 			{
 				ptr = cltab[i];
+            break;
 			}
 		}
 	}
@@ -356,12 +390,14 @@ symbol_table* find_symbol ( char* symbol, int bank )
 		// otherwise, search symbol table entirely...
 		for ( i = 0; i < stab_ent; i++ )
 		{
-         if ( (strncmp(symbol,stab[i].symbol,strlen(symbol)) == 0) &&
+         if ( (strlen(symbol) == strlen(stab[i].symbol)) &&
+              (strcmp(symbol,stab[i].symbol) == 0) &&
               ((stab[i].btab_ent == bank) || (stab[i].expr) ||
 				  (((btab[bank].type == text_segment) && (btab[stab[i].btab_ent].type == data_segment)) || 
 				  ((btab[bank].type == data_segment) && (btab[stab[i].btab_ent].type == text_segment)))) )
 			{
 				ptr = &(stab[i]);
+            break;
 			}
 		}
 	}

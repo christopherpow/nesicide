@@ -369,7 +369,7 @@ extern symbol_table* find_symbol ( char* symbol, int bank );
 void update_symbol_ir ( symbol_table* stab, ir_table* ir );
 extern int stab_ent;
 extern int stab_max;
-extern symbol_table* current_label;
+extern int current_label;
 
 // Binary tables.  These represent the array of banks, and currently
 // referenced bank into which assembled code should go.  These
@@ -506,7 +506,7 @@ void dump_macro_table ( void );
 // Terminal tokens passed to the grammar parser from
 // the lexical analyzer.
 %token TERM DATAB DATAW REPEAT ENDREPEAT MACRO ENDMACRO
-%token ORIGIN FILLSPACEB FILLSPACEW VARSPACE PADSPACE ADVANCE ALIGN
+%token ORIGIN FILLSPACEB FILLSPACEW VARSPACE ADVANCE ALIGN
 %token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE FILLVALUE
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
@@ -529,9 +529,17 @@ void dump_macro_table ( void );
 // and a pre- or post-indexed indirect addressing mode
 // expect ('s as part of the token stream for reducing,
 // while an expression expects a ( as a shifted token.
+%left LOGOR
+%left LOGAND
+%left '|'
+%left '^'
+%left '&'
+%left EQEQ NOTEQ
+%left '<' '>' LTEQ GTEQ
+%left LSHIFT RSHIFT
 %left '+' '-'
 %left '*' '/' '%'
-%left UMINUS UPLUS '!' '~' '>' '<'
+%left UPLUS UMINUS '!' '~' ULEOF UBEOF
 %left '(' ')'
 %left ','
 
@@ -554,6 +562,12 @@ statement: identifier TERM
            | instruction
            | identifier instruction
            | TERM
+           | error {
+   sprintf ( e, "parse error at: %s", yytext );
+   yyerror ( e );
+   fprintf ( stderr, "error: %d: parse error at: %s\n", yylineno, yytext );
+   yyclearin;
+}
 			  ;
 
 identifier: LABEL {
@@ -698,49 +712,20 @@ directive: INCBIN QUOTEDSTRING {
 // expression's value to the global symbol <label-name>.  This is not a #define,
 // it is equivalent to ASM6 syntax.  Expression evaluation occurs, rather than
 // direct in-line replacement of <expression> wherever it occurs.
-           | LABELREF '=' expr TERM {
-   unsigned char f;
-   symbol_table* p = NULL;
-   if ( $1->type == reference_symbol )
+           | LABEL '=' expr TERM {
+   // allow redefinition of globals...
+   if ( stab[$1->ref.stab_ent].expr )
    {
-      f=add_symbol($1->ref.symbol,&p);
+      destroy_expression ( stab[$1->ref.stab_ent].expr );
    }
-   else
-   {
-      p = &(stab[$1->ref.stab_ent]);
-      f = 1;
-   }
-   if ( p )
-   {
-      // error re-declaration of label as global...
-      if ( p->ir )
-      {
-         sprintf ( e, "re-declaration of label as global: %s", p->symbol );
-         yyerror ( e );
-         fprintf ( stderr, "error: %d: re-declaration of label as global: %s\n", yylineno, p->symbol );
-      }
 
-      // allow redefinition of globals...
-      if ( p->expr )
-      {
-         destroy_expression ( p->expr );
-      }
+   // reduce expression
+   reduce_expression ( $3, NULL );
 
-      // reduce expression
-      reduce_expression ( $3, NULL );
+   stab[$1->ref.stab_ent].expr = $3;
+   stab[$1->ref.stab_ent].ir = NULL;
 
-      p->expr = $3;
-      p->ir = NULL;
-   }
-   //dump_symbol_table ();
-}
-// Anything not recognized by the lexer that matches the lexer's {word} rule
-// is passed to the parser as a LABELREF.  If we get a stray LABELREF token
-// it therefore indicates some kind of parse error in the lexer.
-           | LABELREF {
-   sprintf ( e, "parse error, unrecognized token: %s", $1->type==reference_symbol?$1->ref.symbol:stab[$1->ref.stab_ent].symbol );
-   yyerror ( e );
-   fprintf ( stderr, "error: %d: parse error, unrecognized token: %s\n", yylineno, $1->type==reference_symbol?$1->ref.symbol:stab[$1->ref.stab_ent].symbol );
+   dump_symbol_table ();
 }
 // Directive byte/word lists.  The blist/wlist rules take care of outputting
 // the intermediate representation of the list for us, so there's nothing more
@@ -810,16 +795,6 @@ directive: INCBIN QUOTEDSTRING {
       update_symbol_ir ( symtab, ptr );
       //dump_symbol_table ();
    }
-}
-// Directive .pad <expression> creates a space <expression> bytes long
-// at the current position within the intermediate representation.
-           | PADSPACE expr TERM {
-   ir_table* ptr;
-
-   // reduce expression...
-   reduce_expression ( $2, NULL );
-
-// CPTODO: implement
 }
 // Directive .dsb <length> creates a space <length> bytes long at the
 // current position within the intermediate representation.
@@ -1420,7 +1395,7 @@ expr : '$' {
    // swallow useless parenthesis...
    $$ = $2;
 }
-     | '>' expr {
+     | '>' expr %prec UBEOF {
    // "big-end-of" operator...
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
@@ -1428,7 +1403,7 @@ expr : '$' {
    $$->right = $2;
    $$->right->parent = $$;
 }
-     | '<' expr {
+     | '<' expr %prec ULEOF {
    // "little-end-of" operator...
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
@@ -1506,7 +1481,123 @@ expr : '$' {
    $$->left->parent = $$;
    $$->right->parent = $$;
 }
-   ;
+     | expr '<' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '<';
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr '>' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '>';
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr EQEQ expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = 'e'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr NOTEQ expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = 'n'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr LTEQ expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = 'l'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr GTEQ expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = 'g'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr LSHIFT expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = ','; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr RSHIFT expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '.'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr LOGAND expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '7'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr LOGOR expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '\\'; // i know...i know...
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr '&' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '&';
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr '^' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '^';
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}
+     | expr '|' expr {
+   $$ = get_next_exprtype ();
+   $$->type = expression_operator;
+   $$->node.op = '|';
+   $$->left = $1;
+   $$->right = $3;
+   $$->left->parent = $$;
+   $$->right->parent = $$;
+}   ;
 %%
 
 int yyerror(char* s)
@@ -1598,7 +1689,7 @@ void add_error(char *s)
 //			}
 //			else
 //			{
-				sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
+            sprintf ( error_buffer, "error: %d: after %s: ", yylineno, stab[current_label].symbol );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
 			strcpy ( errorStorage, error_buffer );
@@ -1608,7 +1699,7 @@ void add_error(char *s)
 	}
 	else
 	{
-      if ( 1 )//current_label == NULL )
+      if ( current_label == -1 )
 		{
 			sprintf ( error_buffer, "error: %d: ", yylineno );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
@@ -1618,7 +1709,7 @@ void add_error(char *s)
 		}
 		else
 		{
-         sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
+         sprintf ( error_buffer, "error: %d: after %s: ", yylineno, stab[current_label].symbol );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
 			strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
@@ -1630,11 +1721,6 @@ void add_error(char *s)
 int yywrap(void)
 {
   return -1;
-}
-
-unsigned char addressing_mode ( unsigned char instr )
-{
-   return m_6502opcode[instr].amode;
 }
 
 unsigned char valid_instr ( char* instr )
@@ -2709,9 +2795,9 @@ void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned c
             }
          }
       }
-      else if ( (!expr->left) &&
+      else if ( (expr->left) &&
                 (expr->left->vtype == value_is_int) &&
-                (!expr->right) &&
+                (expr->right) &&
                 (expr->right->vtype == value_is_int) )
       {
          expr->vtype = value_is_int;
@@ -2735,10 +2821,62 @@ void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned c
          {
             expr->value.ival = expr->left->value.ival%expr->right->value.ival;
          }
+         else if ( expr->node.op == '<' )
+         {
+            expr->value.ival = (expr->left->value.ival < expr->right->value.ival);
+         }
+         else if ( expr->node.op == '>' )
+         {
+            expr->value.ival = (expr->left->value.ival > expr->right->value.ival);
+         }
+         else if ( expr->node.op == 'e' ) // equivalent
+         {
+            expr->value.ival = (expr->left->value.ival == expr->right->value.ival);
+         }
+         else if ( expr->node.op == 'n' ) // not-equivalent
+         {
+            expr->value.ival = (expr->left->value.ival != expr->right->value.ival);
+         }
+         else if ( expr->node.op == 'l' ) // less-than-or-equal-to
+         {
+            expr->value.ival = (expr->left->value.ival <= expr->right->value.ival);
+         }
+         else if ( expr->node.op == 'g' ) // greater-than-or-equal-to
+         {
+            expr->value.ival = (expr->left->value.ival >= expr->right->value.ival);
+         }
+         else if ( expr->node.op == ',' ) // left-shift
+         {
+            expr->value.ival = (expr->left->value.ival << expr->right->value.ival);
+         }
+         else if ( expr->node.op == '.' ) // right-shift
+         {
+            expr->value.ival = (expr->left->value.ival >> expr->right->value.ival);
+         }
+         else if ( expr->node.op == '7' ) // logical AND
+         {
+            expr->value.ival = (expr->left->value.ival && expr->right->value.ival);
+         }
+         else if ( expr->node.op == '\\' ) // logical OR
+         {
+            expr->value.ival = (expr->left->value.ival || expr->right->value.ival);
+         }
+         else if ( expr->node.op == '&' )
+         {
+            expr->value.ival = (expr->left->value.ival & expr->right->value.ival);
+         }
+         else if ( expr->node.op == '^' )
+         {
+            expr->value.ival = (expr->left->value.ival ^ expr->right->value.ival);
+         }
+         else if ( expr->node.op == '|' )
+         {
+            expr->value.ival = (expr->left->value.ival | expr->right->value.ival);
+         }
       }
-      else if ( (!expr->left) &&
+      else if ( (expr->left) &&
                 (expr->left->vtype == value_is_string) &&
-                (!expr->right) &&
+                (expr->right) &&
                 (expr->right->vtype == value_is_int) )
       {
          expr->vtype = value_is_string;
@@ -2779,9 +2917,9 @@ void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned c
             }
          }
       }
-      else if ( (!expr->left) &&
+      else if ( (expr->left) &&
                 (expr->left->vtype == value_is_string) &&
-                (!expr->right) &&
+                (expr->right) &&
                 (expr->right->vtype == value_is_string) &&
                 (expr->right->value.sval->length == 1) ) // only allow "ABCD"+"A" for example...
       {
@@ -2986,8 +3124,10 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          free ( expr->right );
          expr->right = NULL;
       }
-      else if ( (expr->left) && (expr->left->type == expression_number) &&
-                (expr->right) && (expr->right->type == expression_number) )
+      else if ( (expr->left) &&
+                (expr->left->type == expression_number) &&
+                (expr->right) &&
+                (expr->right->type == expression_number) )
       {
          // node and children are collapsible...adopt one and morph it with the other...
          if ( expr->node.op == '+' )
@@ -3045,6 +3185,109 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
                expr->node.num->zp_ok = 1;
             }
          }
+         else if ( expr->node.op == '<' )
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number < expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == '>' )
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number > expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == 'e' ) // equivalent
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number == expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == 'n' ) // not equivalent
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number != expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == 'l' ) // less-than-or-equal-to
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number <= expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == 'g' ) // greater-than-or-equal-to
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number >= expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == ',' ) // left-shift
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number <<= expr->right->node.num->number;
+            expr->node.num->zp_ok = 0;
+            if ( (expr->node.num->number >= -128) &&
+                 (expr->node.num->number < 256) )
+            {
+               expr->node.num->zp_ok = 1;
+            }
+         }
+         else if ( expr->node.op == '.' ) // right-shift
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number >>= expr->right->node.num->number;
+            expr->node.num->zp_ok = 0;
+            if ( (expr->node.num->number >= -128) &&
+                 (expr->node.num->number < 256) )
+            {
+               expr->node.num->zp_ok = 1;
+            }
+         }
+         else if ( expr->node.op == '7' ) // logical AND
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number && expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == '\\' ) // logical OR
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number = (expr->left->node.num->number || expr->right->node.num->number);
+            expr->node.num->zp_ok = 1; // answer will be 0 or 1
+         }
+         else if ( expr->node.op == '&' )
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number &= expr->right->node.num->number;
+            expr->node.num->zp_ok = 0;
+            if ( (expr->node.num->number >= -128) &&
+                 (expr->node.num->number < 256) )
+            {
+               expr->node.num->zp_ok = 1;
+            }
+         }
+         else if ( expr->node.op == '^' )
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number ^= expr->right->node.num->number;
+            expr->node.num->zp_ok = 0;
+            if ( (expr->node.num->number >= -128) &&
+                 (expr->node.num->number < 256) )
+            {
+               expr->node.num->zp_ok = 1;
+            }
+         }
+         else if ( expr->node.op == '|' )
+         {
+            expr->node.num = expr->left->node.num;
+            expr->node.num->number |= expr->right->node.num->number;
+            expr->node.num->zp_ok = 0;
+            if ( (expr->node.num->number >= -128) &&
+                 (expr->node.num->number < 256) )
+            {
+               expr->node.num->zp_ok = 1;
+            }
+         }
 
          // promote root node...
          expr->type = expression_number;
@@ -3057,9 +3300,11 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          expr->left = NULL;
          expr->right = NULL;
       }
-      else if ( (expr->left) && (expr->left->type == expression_reference) &&
+      else if ( (expr->left) &&
+                (expr->left->type == expression_reference) &&
                 (expr->left->node.ref->type == reference_const_string) &&
-                (expr->right) && (expr->right->type == expression_number) )
+                (expr->right) &&
+                (expr->right->type == expression_number) )
       {
          // node and children are collapsible...adopt one and morph it with the other...
          if ( expr->node.op == '+' )
@@ -3114,9 +3359,11 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          expr->left = NULL;
          expr->right = NULL;
       }
-      else if ( (expr->left) && (expr->left->type == expression_reference) &&
+      else if ( (expr->left) &&
+                (expr->left->type == expression_reference) &&
                 (expr->left->node.ref->type == reference_const_string) &&
-                (expr->right) && (expr->right->type == expression_reference) &&
+                (expr->right) &&
+                (expr->right->type == expression_reference) &&
                 (expr->right->node.ref->type == reference_const_string) &&
                 (expr->right->node.ref->ref.text->length == 1) ) // only allow for "AB"+"A" for example...
       {
