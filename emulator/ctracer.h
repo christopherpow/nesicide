@@ -46,7 +46,8 @@ enum
    eTarget_PatternMemory,
    eTarget_NameTable,
    eTarget_AttributeTable,
-   eTarget_Palette
+   eTarget_Palette,
+   eTarget_ExtraCycle
 };
 
 enum

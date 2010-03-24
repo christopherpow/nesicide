@@ -248,6 +248,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTarget_Palette:
                   strcpy ( str, "Palette RAM" );
                break;
+               case eTarget_ExtraCycle:
+                  strcpy ( str, "Extra Cycle" );
+               break;
             }
          break;
          case eTracerCol_Addr:

@@ -632,7 +632,7 @@ void CPPU::GARBAGE ( char target )
 
 void CPPU::EXTRA ()
 {
-   CNES::TRACER()->AddGarbageFetch ( m_cycles, eTarget_Unknown );
+   CNES::TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle );
 
    // Idle cycle...
    INCCYCLE();
