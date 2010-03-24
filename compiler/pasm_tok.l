@@ -1,7 +1,7 @@
 identifier   ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)":"?
-hexdigits    (("$"([0-9a-fA-F]{1,6}))|(([0-9a-fA-F]{1,6})"h"))
-decdigits    ([1-9]([0-9]{0,6}))
-octdigits    "0"([0-9]{0,6})
+hexdigits    (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
+decdigits    ([1-9]([0-9]{0,8}))
+octdigits    "0"([0-9]{0,8})
 bindigits    (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring ([\"][^\"]*[\"])|(['][^']*['])
 comment      ";".*$
@@ -21,6 +21,12 @@ typedef struct _keyword
    void (*handler)();
 } keyword;
 
+int hex_on_line = 0;
+void d_hex ( void )
+{
+   hex_on_line = 1;
+}
+
 void d_textsegment ( void )
 {
    yylval.seg = text_segment;
@@ -38,6 +44,7 @@ keyword keywords [] =
    { "dcb", ".dcb", DATAB, NULL },
    { "dc.b", ".dc.b", DATAB, NULL },
    { "ascii", ".ascii", DATAB, NULL },
+   { "hex", ".hex", DATABHEX, d_hex },
    { "word", ".word", DATAW, NULL },
    { "dw", ".dw", DATAW, NULL },
    { "dcw", ".dcw", DATAW, NULL },
@@ -67,6 +74,12 @@ keyword keywords [] =
    { "macro", ".macro", MACRO, NULL },
    { "endm", ".endm", ENDMACRO, NULL },
    { "fillvalue", ".fillvalue", FILLVALUE, NULL },
+   { "ifdef", ".ifdef", IFDEF, NULL },
+   { "ifndef", ".ifndef", IFNDEF, NULL },
+   { "if", ".if", IF, NULL },
+   { "elseif", ".elseif", ELSEIF, NULL },
+   { "else", ".else", ELSE, NULL },
+   { "endif", ".endif", ENDIF, NULL },
    { NULL, NULL, 0, NULL }
 };
 
@@ -155,6 +168,16 @@ unsigned char valid_instr ( char* instr );
          return k->token;
       }
       k++;
+   }
+
+   // Check if we're in HEX mode and if so pass this through as a QUOTEDSTRING
+   if ( hex_on_line )
+   {
+      text_type* text = get_next_texttype ();
+      text->string = strdup ( yytext );
+      text->length = strlen(text->string);
+      yylval.text = text;
+      return QUOTEDSTRING;
    }
 
    // Check for label if this is the first symbol on a new line...
@@ -329,16 +352,19 @@ unsigned char valid_instr ( char* instr );
 \r\n {
    yylineno++;
    symbol_on_line = 0;
+   hex_on_line = 0;
    return TERM;
 }
 \n\r {
    yylineno++;
    symbol_on_line = 0;
+   hex_on_line = 0;
    return TERM;
 }
 \n {
    yylineno++;
    symbol_on_line = 0;
+   hex_on_line = 0;
    return TERM;
 }
 

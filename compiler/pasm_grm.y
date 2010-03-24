@@ -472,6 +472,20 @@ ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr );
 ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr );
 ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr );
 
+// Flags indicating whether or not we are emitting intermediate
+// representation.  These flags support directives such as:
+// IF 0
+// ... (this assembly code is not emitted)
+// ELSEIF 1
+// ... (this assembly code is emitted)
+// ELSE
+// ... (this assembly code is not emitted)
+// ENDIF
+#define MAX_IF_NEST 10
+unsigned char emitting[MAX_IF_NEST] = { 1, 0, };
+unsigned char emitted[MAX_IF_NEST] = { 0, };
+unsigned char preproc_nest_level = 0;
+
 // Function used to support ENUM and MACRO directives.
 ir_table* reemit_ir ( ir_table* head, ir_table* tail );
 
@@ -508,6 +522,8 @@ void dump_macro_table ( void );
 %token TERM DATAB DATAW REPEAT ENDREPEAT MACRO ENDMACRO
 %token ORIGIN FILLSPACEB FILLSPACEW VARSPACE ADVANCE ALIGN
 %token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE FILLVALUE
+%token DATABHEX
+%token IFDEF IFNDEF IF ELSEIF ELSE ENDIF
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
 %token <ref> LABEL LABELREF
@@ -732,6 +748,7 @@ directive: INCBIN QUOTEDSTRING {
 // to do when these rules are reduced.
            | DATAB blist TERM
            | DATAW wlist TERM
+           | DATABHEX hlist TERM
 // Directive <.text|.data|.segment> "<name>" sets the current segment or creates a new one
 // based on whether or not it has seen <name> segment declared yet.  Segments are
 // equivalent to banks, which may be a bit of a misnomer that I need to work through.
@@ -958,9 +975,9 @@ directive: INCBIN QUOTEDSTRING {
       }
       else
       {
-         sprintf ( e, "too many nested repeats, max is %d", MAX_REPEATS );
+         sprintf ( e, "too many nested .rept, max is %d", MAX_REPEATS );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: too many nested repeats, max is %d\n", yylineno, MAX_REPEATS );
+         fprintf ( stderr, "error: %d: too many nested .rept, max is %d\n", yylineno, MAX_REPEATS );
       }
    }
    else
@@ -1003,6 +1020,147 @@ directive: INCBIN QUOTEDSTRING {
       fprintf ( stderr, "error: %d: .ENDR directive with no corresponding .REPT directive\n", yylineno );
    }
 }
+// Directive .if <expression> emits the intermediate representation generated
+// between it and its terminating .else, .elseif, or .endif directives if the condition
+// evaluated from <expression> is true.
+// Note: <expression> must fully evaluate.
+         | IF expr TERM {
+   unsigned char evaluated;
+   if ( emitting[preproc_nest_level] )
+   {
+      preproc_nest_level++;
+      emitting[preproc_nest_level] = 0;
+      emitted[preproc_nest_level] = 0;
+      if ( preproc_nest_level < MAX_IF_NEST )
+      {
+         reduce_expression ( $2, NULL );
+
+         evaluated = 1;
+         evaluate_expression ( $2, &evaluated, 0, NULL );
+         if ( evaluated )
+         {
+            // Toggle intermediate representation emittance...
+            emitting[preproc_nest_level] = !!$2->value.ival;
+            emitted[preproc_nest_level] = !!$2->value.ival;
+         }
+         else
+         {
+            sprintf ( e, "cannot evaluate expression for .if" );
+            yyerror ( e );
+            fprintf ( stderr, "error: %d: cannot evaluate expression for .if\n", yylineno );
+         }
+      }
+      else
+      {
+         sprintf ( e, "too many nested .if, max is %d", MAX_IF_NEST );
+         yyerror ( e );
+         fprintf ( stderr, "error: %d: too many nested .if, max is %d\n", yylineno, MAX_IF_NEST );
+      }
+   }
+}
+         | ELSEIF expr TERM {
+   unsigned char evaluated;
+   if ( !(emitted[preproc_nest_level]) )
+   {
+      emitting[preproc_nest_level] = 0;
+
+      reduce_expression ( $2, NULL );
+
+      evaluated = 1;
+      evaluate_expression ( $2, &evaluated, 0, NULL );
+      if ( evaluated )
+      {
+         // Toggle intermediate representation emittance...
+         emitting[preproc_nest_level] = !!$2->value.ival;
+         emitted[preproc_nest_level] = !!$2->value.ival;
+      }
+      else
+      {
+         sprintf ( e, "cannot evaluate expression for .if" );
+         yyerror ( e );
+         fprintf ( stderr, "error: %d: cannot evaluate expression for .if\n", yylineno );
+      }
+   }
+   else
+   {
+      // Turn off intermediate representation emittance...
+      emitting[preproc_nest_level] = 0;
+   }
+}
+         | ELSE TERM {
+   // If we haven't emitted yet, emit now...
+   if ( !(emitted[preproc_nest_level]) )
+   {
+      // Turn on intermediate representation emittance...
+      emitting[preproc_nest_level] = 1;
+      emitted[preproc_nest_level] = 1;
+   }
+   else
+   {
+      // Turn off intermediate representation emittance...
+      emitting[preproc_nest_level] = 0;
+   }
+}
+         | ENDIF TERM {
+   if ( preproc_nest_level > 0 )
+   {
+      preproc_nest_level--;
+   }
+   else
+   {
+      sprintf ( e, ".endif without matching .if" );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: .endif without matching .if\n", yylineno );
+   }
+}
+         | IFDEF LABELREF TERM {
+   if ( emitting[preproc_nest_level] )
+   {
+      preproc_nest_level++;
+      emitting[preproc_nest_level] = 0;
+      emitted[preproc_nest_level] = 0;
+      if ( preproc_nest_level < MAX_IF_NEST )
+      {
+         // Declared symbols will be in the symbol table...
+         if ( $2->type == reference_symtab )
+         {
+            // Toggle intermediate representation emittance...
+            emitting[preproc_nest_level] = 1;
+            emitted[preproc_nest_level] = 1;
+         }
+      }
+      else
+      {
+         sprintf ( e, "too many nested .ifdef, max is %d", MAX_IF_NEST );
+         yyerror ( e );
+         fprintf ( stderr, "error: %d: too many nested .ifdef, max is %d\n", yylineno, MAX_IF_NEST );
+      }
+   }
+}
+         | IFNDEF LABELREF TERM {
+   if ( emitting[preproc_nest_level] )
+   {
+      preproc_nest_level++;
+      emitting[preproc_nest_level] = 0;
+      emitted[preproc_nest_level] = 0;
+      if ( preproc_nest_level < MAX_IF_NEST )
+      {
+         // Undeclared symbols will NOT be in the symbol table...
+         if ( $2->type == reference_symbol )
+         {
+            // Toggle intermediate representation emittance...
+            emitting[preproc_nest_level] = 1;
+            emitted[preproc_nest_level] = 1;
+         }
+      }
+      else
+      {
+         sprintf ( e, "too many nested .ifndef, max is %d", MAX_IF_NEST );
+         yyerror ( e );
+         fprintf ( stderr, "error: %d: too many nested .ifndef, max is %d\n", yylineno, MAX_IF_NEST );
+      }
+   }
+}
 ;
 
 // Parser for accumulator and implied addressing modes.
@@ -1032,7 +1190,6 @@ no_params: INSTR TERM {
 // '#' can only be of immediate form.
 expression_param: INSTR '#' expr TERM {
 	unsigned char f;
-   ir_table*     ptr;
 
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -1040,7 +1197,7 @@ expression_param: INSTR '#' expr TERM {
    if ( (f=valid_instr_amode($1,AM_IMMEDIATE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_immediate ( &(m_6502opcode[f]), $3 );
+      emit_bin_immediate ( &(m_6502opcode[f]), $3 );
    }
    else
    {
@@ -1063,7 +1220,6 @@ expression_param: INSTR '#' expr TERM {
 // addressing mode [again, if it exists].  Finally we check for branches.
            | INSTR expr TERM {
    unsigned char f;
-   ir_table*     ptr;
 
    // reduce expression...
    reduce_expression ( $2, NULL );
@@ -1071,17 +1227,17 @@ expression_param: INSTR '#' expr TERM {
    if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_absolute ( &(m_6502opcode[f]), $2 );
+      emit_bin_absolute ( &(m_6502opcode[f]), $2 );
    }
    else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_zeropage ( &(m_6502opcode[f]), $2 );
+      emit_bin_zeropage ( &(m_6502opcode[f]), $2 );
    }
    else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_relative ( &(m_6502opcode[f]), $2 );
+      emit_bin_relative ( &(m_6502opcode[f]), $2 );
    }
    else
    {
@@ -1104,7 +1260,6 @@ expression_param: INSTR '#' expr TERM {
 // addressing mode [again, if it exists].
 index_reg_param: INSTR expr ',' 'x' TERM {
    unsigned char f;
-   ir_table*     ptr;
 
    // reduce expression...
    reduce_expression ( $2, NULL );
@@ -1112,12 +1267,12 @@ index_reg_param: INSTR expr ',' 'x' TERM {
    if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_abs_idx_x ( &(m_6502opcode[f]), $2 );
+      emit_bin_abs_idx_x ( &(m_6502opcode[f]), $2 );
    }
    else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_zp_idx_x ( &(m_6502opcode[f]), $2 );
+      emit_bin_zp_idx_x ( &(m_6502opcode[f]), $2 );
    }
    else
    {
@@ -1138,7 +1293,6 @@ index_reg_param: INSTR expr ',' 'x' TERM {
 // addressing mode [again, if it exists].
            | INSTR expr ',' 'y' TERM {
 	unsigned char f;
-   ir_table*     ptr;
 
    // reduce expression...
    reduce_expression ( $2, NULL );
@@ -1146,12 +1300,12 @@ index_reg_param: INSTR expr ',' 'x' TERM {
    if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_abs_idx_y ( &(m_6502opcode[f]), $2 );
+      emit_bin_abs_idx_y ( &(m_6502opcode[f]), $2 );
    }
    else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_zp_idx_y ( &(m_6502opcode[f]), $2 );
+      emit_bin_zp_idx_y ( &(m_6502opcode[f]), $2 );
    }
    else
    {
@@ -1184,7 +1338,6 @@ index_reg_param: INSTR expr ',' 'x' TERM {
 // Depending on the programmer's style this could be a busy rule.
 indirect_param: INSTR '(' expr ')' TERM {
    unsigned char f;
-   ir_table*     ptr;
 
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -1197,22 +1350,22 @@ indirect_param: INSTR '(' expr ')' TERM {
    if ( (f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_indirect ( &(m_6502opcode[f]), $3 );
+      emit_bin_indirect ( &(m_6502opcode[f]), $3 );
    }
    else if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_absolute ( &(m_6502opcode[f]), $3 );
+      emit_bin_absolute ( &(m_6502opcode[f]), $3 );
    }
    else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_zeropage ( &(m_6502opcode[f]), $3 );
+      emit_bin_zeropage ( &(m_6502opcode[f]), $3 );
    }
    else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_relative ( &(m_6502opcode[f]), $3 );
+      emit_bin_relative ( &(m_6502opcode[f]), $3 );
    }
    else
    {
@@ -1228,7 +1381,6 @@ indirect_param: INSTR '(' expr ')' TERM {
 // this form can only be preindexed indirect addressing.
 preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
 	unsigned char f;
-   ir_table* ptr;
 
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -1236,7 +1388,7 @@ preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
    if ( (f=valid_instr_amode($1,AM_PREINDEXED_INDIRECT)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_pre_idx_ind ( &(m_6502opcode[f]), $3 );
+      emit_bin_pre_idx_ind ( &(m_6502opcode[f]), $3 );
    }
    else
    {
@@ -1252,7 +1404,6 @@ preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
 // this form can only be post-indexed indirect addressing.
 postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    unsigned char f;
-   ir_table* ptr;
 
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -1260,7 +1411,7 @@ postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    if ( (f=valid_instr_amode($1,AM_POSTINDEXED_INDIRECT)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_post_idx_ind ( &(m_6502opcode[f]), $3 );
+      emit_bin_post_idx_ind ( &(m_6502opcode[f]), $3 );
    }
    else
    {
@@ -1284,7 +1435,6 @@ postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
 // addressing mode intermediate representation.
 disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
    unsigned char f;
-   ir_table* ptr;
 
    // note:  this rule exists purely to disambiguate the situations where
    // a parenthesized expression is followed by a ,x which is NOT meant to be
@@ -1297,12 +1447,12 @@ disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
    if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_abs_idx_x ( &(m_6502opcode[f]), $3 );
+      emit_bin_abs_idx_x ( &(m_6502opcode[f]), $3 );
    }
    else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
    {
       // emit instruction with reference to expression for reduction when all symbols are known...
-      ptr = emit_bin_zp_idx_x ( &(m_6502opcode[f]), $3 );
+      emit_bin_zp_idx_x ( &(m_6502opcode[f]), $3 );
    }
    else
    {
@@ -1348,6 +1498,14 @@ wlist: wlist ',' expr {
 }
     ;
 
+hlist: hlist DIGITS {
+}
+     | DIGITS {
+}
+     | hlist QUOTEDSTRING {
+}
+     | QUOTEDSTRING {
+}
 expr : '$' {
    ir_table* ptr;
 
@@ -2161,6 +2319,7 @@ void check_fixup ( void )
       {
          // check expression evaluates...
          symbol = NULL;
+         evaluated = 1;
          evaluate_expression ( expr, &evaluated, 1, &symbol );
 
          // if not, emit an error...
@@ -3429,56 +3588,63 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
 ir_table* emit_ir ( void )
 {
 	ir_table* ptr;
-	if ( ir_tail == NULL )
-	{
-		ir_head = (ir_table*) malloc ( sizeof(ir_table) );
-		if ( ir_head != NULL )
-		{
-			ir_tail = ir_head;
-			ir_tail->btab_ent = cur->idx;
-			ir_tail->addr = 0;
-			ir_tail->emitted = 0;
-         ir_tail->multi = 0;
-         ir_tail->align = 0;
-         ir_tail->label = 0;
-			ir_tail->fixed = 0;
-         ir_tail->source_linenum = yylineno;
-			ir_tail->next = NULL;
-			ir_tail->prev = NULL;
-         ir_tail->expr = NULL;
-		}
-		else
-		{
-			yyerror ( "cannot allocate memory" );
-			fprintf ( stderr, "error: cannot allocate memory!\n" );
-		}
-	}
-	else
-	{
-		ptr = (ir_table*) malloc ( sizeof(ir_table) );
-		if ( ptr != NULL )
-		{
-			ir_tail->next = ptr;
-			ptr->prev = ir_tail;
-			ptr->next = NULL;
-			ir_tail = ptr;
-			ir_tail->btab_ent = cur->idx;
-			ir_tail->addr = 0;
-			ir_tail->emitted = 0;
-			ir_tail->multi = 0;
-         ir_tail->align = 0;
-         ir_tail->label = 0;
-			ir_tail->fixed = 0;
-         ir_tail->source_linenum = yylineno;
-         ir_tail->expr = NULL;
+
+   // If we're supposed to be emitting, do so...
+   if ( emitting[preproc_nest_level] )
+   {
+      if ( ir_tail == NULL )
+      {
+         ir_head = (ir_table*) malloc ( sizeof(ir_table) );
+         if ( ir_head != NULL )
+         {
+            ir_tail = ir_head;
+            ir_tail->btab_ent = cur->idx;
+            ir_tail->addr = 0;
+            ir_tail->emitted = 0;
+            ir_tail->multi = 0;
+            ir_tail->align = 0;
+            ir_tail->label = 0;
+            ir_tail->fixed = 0;
+            ir_tail->source_linenum = yylineno;
+            ir_tail->next = NULL;
+            ir_tail->prev = NULL;
+            ir_tail->expr = NULL;
+         }
+         else
+         {
+            yyerror ( "cannot allocate memory" );
+            fprintf ( stderr, "error: cannot allocate memory!\n" );
+         }
       }
-		else
-		{
-			yyerror ( "cannot allocate memory" );
-			fprintf ( stderr, "error: cannot allocate memory!\n" );
-		}
-	}
-	return ir_tail;
+      else
+      {
+         ptr = (ir_table*) malloc ( sizeof(ir_table) );
+         if ( ptr != NULL )
+         {
+            ir_tail->next = ptr;
+            ptr->prev = ir_tail;
+            ptr->next = NULL;
+            ir_tail = ptr;
+            ir_tail->btab_ent = cur->idx;
+            ir_tail->addr = 0;
+            ir_tail->emitted = 0;
+            ir_tail->multi = 0;
+            ir_tail->align = 0;
+            ir_tail->label = 0;
+            ir_tail->fixed = 0;
+            ir_tail->source_linenum = yylineno;
+            ir_tail->expr = NULL;
+         }
+         else
+         {
+            yyerror ( "cannot allocate memory" );
+            fprintf ( stderr, "error: cannot allocate memory!\n" );
+         }
+      }
+      return ir_tail;
+   }
+   // We're not supposed to be emitting, so don't...
+   return NULL;
 }
 
 ir_table* reemit_ir ( ir_table* head, ir_table* tail )
@@ -3493,29 +3659,31 @@ ir_table* reemit_ir ( ir_table* head, ir_table* tail )
    {
       // create a new node...
       ptr = emit_ir ();
-
-      // copy node contents...
-      ptr->data[0] = head->data[0];
-      ptr->data[1] = head->data[1];
-      ptr->data[2] = head->data[2];
-      ptr->btab_ent = head->btab_ent;
-      ptr->addr = cur->addr; // address not copied!
-      ptr->len = head->len;
-      cur->addr += ptr->len;
-      ptr->emitted = head->emitted;
-      ptr->multi = head->multi;
-      ptr->align = head->align;
-      ptr->fixed = head->fixed;
-      ptr->label = head->label;
-      ptr->fixup = head->fixup;
-      ptr->source_linenum = head->source_linenum;
-      if ( head->expr )
+      if ( ptr )
       {
-         ptr->expr = copy_expression ( head->expr );
-      }
-      else
-      {
-         ptr->expr = NULL;
+         // copy node contents...
+         ptr->data[0] = head->data[0];
+         ptr->data[1] = head->data[1];
+         ptr->data[2] = head->data[2];
+         ptr->btab_ent = head->btab_ent;
+         ptr->addr = cur->addr; // address not copied!
+         ptr->len = head->len;
+         cur->addr += ptr->len;
+         ptr->emitted = head->emitted;
+         ptr->multi = head->multi;
+         ptr->align = head->align;
+         ptr->fixed = head->fixed;
+         ptr->label = head->label;
+         ptr->fixup = head->fixup;
+         ptr->source_linenum = head->source_linenum;
+         if ( head->expr )
+         {
+            ptr->expr = copy_expression ( head->expr );
+         }
+         else
+         {
+            ptr->expr = NULL;
+         }
       }
    }
 }
@@ -3523,286 +3691,345 @@ ir_table* reemit_ir ( ir_table* head, ir_table* tail )
 ir_table* emit_fix ( int addr )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->len = 0;
-	ptr->fixed = 1;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_fixed;
+      ptr->len = 0;
+      ptr->fixed = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_label ( int m, int fill )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->len = m;
-   ptr->data[0] = fill;
-	ptr->label = 1;
-   ptr->addr = cur->addr;
-	cur->addr += ptr->len;
-
+   if ( ptr )
+   {
+      ptr->fixup = fixup_fixed;
+      ptr->len = m;
+      ptr->data[0] = fill;
+      ptr->label = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_space ( int m, int fill )
 {
    ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->len = m;
-   ptr->data[0] = fill;
-   ptr->multi = 1;
-   ptr->addr = cur->addr;
-   cur->addr += ptr->len;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_fixed;
+      ptr->len = m;
+      ptr->data[0] = fill;
+      ptr->multi = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin ( expr_type* expr )
 {
    ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_datab;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_datab;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 1;
-   ptr->addr = cur->addr;
-   cur->addr += ptr->len;
+      ptr->len = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin2 ( expr_type* expr )
 {
    ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_dataw;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_dataw;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-   ptr->addr = cur->addr;
-   cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_data ( unsigned char data )
 {
    ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->data[0] = data;
-   ptr->len = 1;
-   ptr->addr = cur->addr;
-   cur->addr += ptr->len;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_fixed;
+      ptr->data[0] = data;
+      ptr->len = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_align ( int m )
 {
    ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_align;
-   ptr->data[0] = m;
-   if ( m )
+   if ( ptr )
    {
-      if ( ((unsigned int)cur->addr%m) )
+      ptr->fixup = fixup_align;
+      ptr->data[0] = m;
+      if ( m )
       {
-         ptr->len = (m-((unsigned int)cur->addr%m));
+         if ( ((unsigned int)cur->addr%m) )
+         {
+            ptr->len = (m-((unsigned int)cur->addr%m));
+         }
+         else
+         {
+            m = 0;
+         }
       }
       else
       {
          m = 0;
       }
+      ptr->len = m;
+      ptr->multi = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
    }
-   else
-   {
-      m = 0;
-   }
-   ptr->len = m;
-   ptr->multi = 1;
-   ptr->addr = cur->addr;
-   cur->addr += ptr->len;
    return ptr;
 }
 
 ir_table* emit_bin_implied ( C6502_opcode* opcode )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->data[0] = opcode->op;
-	ptr->len = 1;
-   ptr->expr = NULL;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_fixed;
+      ptr->data[0] = opcode->op;
+      ptr->len = 1;
+      ptr->expr = NULL;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_accumulator ( C6502_opcode* opcode )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_fixed;
-   ptr->data[0] = opcode->op;
-   ptr->expr = NULL;
-   ptr->len = 1;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_fixed;
+      ptr->data[0] = opcode->op;
+      ptr->expr = NULL;
+      ptr->len = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_immediate ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_immediate;
-	ptr->data[0] = opcode->op;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_immediate;
+      ptr->data[0] = opcode->op;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_absolute ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_absolute;
-   ptr->data[0] = opcode->op;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_absolute;
+      ptr->data[0] = opcode->op;
 
-   // don't attempt expression reduction here, let the fixup
-   // engine have a whack at morphing this emitted thing into
-   // zeropage if possible...
-   ptr->expr = expr;
+      // don't attempt expression reduction here, let the fixup
+      // engine have a whack at morphing this emitted thing into
+      // zeropage if possible...
+      ptr->expr = expr;
 
-   ptr->len = 3;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 3;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_zeropage ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_zeropage;
-   ptr->data[0] = opcode->op;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_zeropage;
+      ptr->data[0] = opcode->op;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_relative ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-   ptr->fixup = fixup_relative;
-   ptr->data[0] = opcode->op;
+   if ( ptr )
+   {
+      ptr->fixup = fixup_relative;
+      ptr->data[0] = opcode->op;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-	ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_indirect ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_indirect;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_indirect;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 3;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 3;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_abs_idx_x ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_abs_idx_x;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_abs_idx_x;
 
-   // don't attempt expression reduction here, let the fixup
-   // engine have a whack at morphing this emitted thing into
-   // zeropage if possible...
-   ptr->expr = expr;
+      // don't attempt expression reduction here, let the fixup
+      // engine have a whack at morphing this emitted thing into
+      // zeropage if possible...
+      ptr->expr = expr;
 
-   ptr->len = 3;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 3;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_abs_idx_y ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_abs_idx_y;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_abs_idx_y;
 
-   // don't attempt expression reduction here, let the fixup
-   // engine have a whack at morphing this emitted thing into
-   // zeropage if possible...
-   ptr->expr = expr;
+      // don't attempt expression reduction here, let the fixup
+      // engine have a whack at morphing this emitted thing into
+      // zeropage if possible...
+      ptr->expr = expr;
 
-   ptr->len = 3;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 3;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_zp_idx_x ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_zp_idx;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_zp_idx;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_zp_idx;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_zp_idx;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_pre_idx_ind;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_pre_idx_ind;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
 
 ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 {
 	ir_table* ptr = emit_ir ();
-	ptr->data[0] = opcode->op;
-   ptr->fixup = fixup_post_idx_ind;
+   if ( ptr )
+   {
+      ptr->data[0] = opcode->op;
+      ptr->fixup = fixup_post_idx_ind;
 
-   ptr->expr = expr;
+      ptr->expr = expr;
 
-   ptr->len = 2;
-	ptr->addr = cur->addr;
-	cur->addr += ptr->len;
+      ptr->len = 2;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
    return ptr;
 }
