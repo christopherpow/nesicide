@@ -9,6 +9,10 @@ extern "C" {
 #define INVALID_INSTR 0xFF
 #define SYMBOL_NOT_FOUND 0xFFFFFFFF
 
+// Flags for instruction fixer
+#define PROMOTE 0
+#define FIX     1
+
 typedef struct _macro_table
 {
    int idx; // used for self-reference and also for scoping variables

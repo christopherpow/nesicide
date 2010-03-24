@@ -522,6 +522,12 @@ void add_cheap_label ( symbol_table* ptr )
 
 void clear_cheap_labels ( void )
 {
+   int label;
+   for ( label = 0; label < cltab_ent; label++ )
+   {
+      // cheap hack to wipe away a temporary symbol...
+      strcpy ( cltab[label]->symbol, "{;UNUSED;}" );
+   }
 	cltab_ent = 0;
 }
 

@@ -421,7 +421,7 @@ extern text_type* get_next_texttype ( void );
 
 unsigned char valid_instr_amode ( int instr, int amode );
 char* instr_mnemonic ( unsigned char op );
-int promote_instructions ( unsigned char fix_branches );
+int promote_instructions ( unsigned char flag );
 void reduce_expressions ( void );
 void check_fixup ( void );
 
@@ -441,7 +441,7 @@ unsigned int distance ( ir_table* from, ir_table* to );
 // addressing mode], can change the address of label symbols.
 void reduce_expression ( expr_type* expr, symbol_table* hint );
 expr_type* copy_expression ( expr_type* expr );
-void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char fix_branches, char** symbol );
+void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol );
 void destroy_expression ( expr_type* expr );
 
 // Intermediate representation creation routines.
@@ -1955,7 +1955,7 @@ unsigned char valid_instr ( char* instr )
    return a;
 }
 
-int promote_instructions ( unsigned char fix_branches )
+int promote_instructions ( unsigned char flag )
 {
 	ir_table* ptr;
    expr_type* expr;
@@ -1978,7 +1978,7 @@ int promote_instructions ( unsigned char fix_branches )
       if ( expr )
       {
          // try a symbol reduction to see if we can promote this to zeropage...
-         evaluate_expression ( expr, &evaluated, fix_branches, NULL );
+         evaluate_expression ( expr, &evaluated, flag, NULL );
          value = expr->value.ival;
          value_zp_ok = 0;
          if ( (value >= -128) &&
@@ -1994,8 +1994,11 @@ int promote_instructions ( unsigned char fix_branches )
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[0] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
          break;
 
@@ -2004,8 +2007,11 @@ int promote_instructions ( unsigned char fix_branches )
             {
                ptr->data[1] = (value>>8)&0xFF;
                ptr->data[0] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
          break;
 
@@ -2021,16 +2027,20 @@ int promote_instructions ( unsigned char fix_branches )
                   // indicate we're probably not done fixing yet...
                   promotions++;
 
+                  // fix this instruction...
                   ptr->data[0] = f&0xFF;
+                  ptr->data[1] = value&0xFF;
                   ptr->len = 2;
 
+                  // adjust addresses of downstream stuff up to the first fixed wall...
                   walk_ptr = ptr;
                   for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
                   {
                      walk_ptr->addr--;
                      if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
                   }
-                  ptr->data[1] = value&0xFF;
+
+                  // adjust current bank address if necessary...
                   if ( ptr->btab_ent == cur->idx )
                   {
                      cur->addr--;
@@ -2040,16 +2050,22 @@ int promote_instructions ( unsigned char fix_branches )
                {
                   ptr->data[1] = value&0xFF;
                   ptr->data[2] = (value>>8)&0xFF;
-                  ptr->fixup = fixup_fixed;
-                  // done!
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
                }
             }
             else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2076,16 +2092,20 @@ int promote_instructions ( unsigned char fix_branches )
                   // indicate we're probably not done fixing yet...
                   promotions++;
 
+                  // fix this instruction...
                   ptr->data[0] = f&0xFF;
+                  ptr->data[1] = value&0xFF;
                   ptr->len = 2;
 
+                  // adjust addresses of downstream stuff up to the first fixed wall...
                   walk_ptr = ptr;
                   for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
                   {
                      walk_ptr->addr--;
                      if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
                   }
-                  ptr->data[1] = value&0xFF;
+
+                  // adjust current bank address if necessary...
                   if ( ptr->btab_ent == cur->idx )
                   {
                      cur->addr--;
@@ -2095,16 +2115,22 @@ int promote_instructions ( unsigned char fix_branches )
                {
                   ptr->data[1] = value&0xFF;
                   ptr->data[2] = (value>>8)&0xFF;
-                  ptr->fixup = fixup_fixed;
-                  // done!
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
                }
             }
             else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2131,16 +2157,20 @@ int promote_instructions ( unsigned char fix_branches )
                   // indicate we're probably not done fixing yet...
                   promotions++;
 
+                  // fix this instruction...
                   ptr->data[0] = f&0xFF;
+                  ptr->data[1] = value&0xFF;
                   ptr->len = 2;
 
+                  // adjust addresses of downstream stuff up to the first fixed wall...
                   walk_ptr = ptr;
                   for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
                   {
                      walk_ptr->addr--;
                      if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
                   }
-                  ptr->data[1] = value&0xFF;
+
+                  // adjust current bank address if necessary...
                   if ( ptr->btab_ent == cur->idx )
                   {
                      cur->addr--;
@@ -2150,16 +2180,22 @@ int promote_instructions ( unsigned char fix_branches )
                {
                   ptr->data[1] = value&0xFF;
                   ptr->data[2] = (value>>8)&0xFF;
-                  ptr->fixup = fixup_fixed;
-                  // done!
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
                }
             }
             else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2178,8 +2214,11 @@ int promote_instructions ( unsigned char fix_branches )
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2193,8 +2232,11 @@ int promote_instructions ( unsigned char fix_branches )
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2208,8 +2250,11 @@ int promote_instructions ( unsigned char fix_branches )
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2223,8 +2268,11 @@ int promote_instructions ( unsigned char fix_branches )
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_int) )
             {
@@ -2240,15 +2288,19 @@ int promote_instructions ( unsigned char fix_branches )
                   // indicate we're probably not done fixing yet...
                   promotions++;
 
+                  // fix this instruction...
                   ptr->data[0] = f&0xFF;
                   ptr->len = 3; // DEMOTION
 
+                  // adjust addresses of downstream stuff up to the first fixed wall...
                   walk_ptr = ptr;
                   for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
                   {
                      walk_ptr->addr++; // DEMOTION
                      if ( walk_ptr->multi == 1 ) walk_ptr->len -= 1; // DEMOTION
                   }
+
+                  // adjust current bank address if necessary...
                   if ( ptr->btab_ent == cur->idx )
                   {
                      cur->addr++; // DEMOTION
@@ -2272,8 +2324,11 @@ int promote_instructions ( unsigned char fix_branches )
             {
                ptr->data[1] = value&0xFF;
                ptr->data[2] = (value>>8)&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2284,7 +2339,7 @@ int promote_instructions ( unsigned char fix_branches )
          break;
 
          case fixup_relative:
-            if ( (fix_branches) && (evaluated) && (expr->vtype == value_is_int) )
+            if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_int) )
             {
                if ( (value > 255) ||
                     (value < -128) )
@@ -2300,7 +2355,11 @@ int promote_instructions ( unsigned char fix_branches )
                if ( (di >= -128) && (di <= 127) )
                {
                   ptr->data[1] = di&0xFF;
-                  ptr->fixup = fixup_fixed;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
                }
                else
                {
@@ -2310,7 +2369,7 @@ int promote_instructions ( unsigned char fix_branches )
                }
                // done!
             }
-            else if ( (fix_branches) && (evaluated) && (expr->vtype == value_is_string) )
+            else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
             {
                sprintf ( e, "expressions with string constants not allowed here" );
                yyerror ( e );
@@ -2322,8 +2381,11 @@ int promote_instructions ( unsigned char fix_branches )
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
                ptr->data[1] = value&0xFF;
-               ptr->fixup = fixup_fixed;
-               // done!
+               if ( flag == FIX )
+               {
+                  // done!
+                  ptr->fixup = fixup_fixed;
+               }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
@@ -2367,7 +2429,7 @@ void check_fixup ( void )
          // check expression evaluates...
          symbol = NULL;
          evaluated = 1;
-         evaluate_expression ( expr, &evaluated, 1, &symbol );
+         evaluate_expression ( expr, &evaluated, 0, &symbol );
 
          // if not, emit an error...
          if ( (!evaluated) && symbol )
@@ -2897,8 +2959,8 @@ void reduce_expressions ( void )
       for ( j = 0; j < stab_ent; j++ )
       {
          if ( (i != j) &&
-              (stab[i].expr) &&
-              (stab[j].expr) )
+              (stab[i].expr)/* &&
+              (stab[j].expr)*/ )
          {
             reduce_expression ( stab[i].expr, &(stab[j]) );
          }
@@ -2914,24 +2976,24 @@ void reduce_expressions ( void )
    }
 }
 
-void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char fix_branches, char** symbol )
+void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol )
 {
    int b;
 
    if ( expr->left )
    {
-      evaluate_expression ( expr->left, evaluated, fix_branches, symbol );
+      evaluate_expression ( expr->left, evaluated, flag, symbol );
    }
    if ( expr->right )
    {
-      evaluate_expression ( expr->right, evaluated, fix_branches, symbol );
+      evaluate_expression ( expr->right, evaluated, flag, symbol );
    }
    if ( expr->type == expression_number )
    {
       expr->vtype = value_is_int;
       expr->value.ival = expr->node.num->number;
    }
-   else if ( (fix_branches) &&
+   else if ( (flag == FIX) &&
              (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_stake) )
    {
@@ -3196,7 +3258,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
    {
       reduce_expression ( expr->right, hint );
    }
-   // check for symbols that have become defined if one is passed in...
+   // check for global symbols that have become defined if one is passed in...
    if ( hint )
    {
       if ( (expr->type == expression_reference) &&

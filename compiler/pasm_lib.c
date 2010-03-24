@@ -118,11 +118,11 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
    {
       // Promote to zeropage if possible...
       // But don't bother fixing relatives yet...
-      promoted = promote_instructions ( 0 );
+      promoted = promote_instructions ( PROMOTE );
    } while ( (promoted > 0) && ((++tries) < MAX_FIXUP_TRIES) );
 
    // Now bother with the relatives...
-   promoted = promote_instructions ( 1 );
+   promoted = promote_instructions ( FIX );
 
    // There should not have been any promotions in the last
    // run...check for that?  Maybe just let fixup spit out the errors...
