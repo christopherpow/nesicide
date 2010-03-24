@@ -1498,14 +1498,61 @@ wlist: wlist ',' expr {
 }
     ;
 
-hlist: hlist DIGITS {
-}
-     | DIGITS {
-}
-     | hlist QUOTEDSTRING {
+hlist: hlist QUOTEDSTRING {
+   int c;
+   int l = $2->length;
+   char d;
+   char e;
+
+   if ( l&1 ) l++; // catch and use the null to our advantage...
+   for ( c = 0; c < l; c++ )
+   {
+      d = toupper($2->string[c]);
+      e <<= 4;
+      if ( (d >= '0') &&
+           (d <= '9') )
+      {
+         e |= (d-'0');
+      }
+      else if ( (d >= 'A') &&
+                (d <= 'F') )
+      {
+         e |= ((d-'A')+10);
+      }
+      if ( c&1 )
+      {
+         emit_bin_data ( e );
+      }
+   }
 }
      | QUOTEDSTRING {
+   int c;
+   int l = $1->length;
+   char d;
+   char e;
+
+   if ( l&1 ) l++; // catch and use the null to our advantage...
+   for ( c = 0; c < l; c++ )
+   {
+      d = toupper($1->string[c]);
+      e <<= 4;
+      if ( (d >= '0') &&
+           (d <= '9') )
+      {
+         e |= (d-'0');
+      }
+      else if ( (d >= 'A') &&
+                (d <= 'F') )
+      {
+         e |= ((d-'A')+10);
+      }
+      if ( c&1 )
+      {
+         emit_bin_data ( e );
+      }
+   }
 }
+   ;
 expr : '$' {
    ir_table* ptr;
 

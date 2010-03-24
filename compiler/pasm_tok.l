@@ -5,14 +5,27 @@ octdigits    "0"([0-9]{0,8})
 bindigits    (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring ([\"][^\"]*[\"])|(['][^']*['])
 comment      ";".*$
+%x HEX
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
 #include "string.h"
 
+// For line counting...
+#ifndef __APPLE__ //strange mac os x related bug? :S
+int          yylineno = 0;
+#endif
+
+// Interface to add assembler errors to output
 extern void add_error ( char* s );
 extern char e [ 256 ];
 
+// Keyword information.  Since keywords are parsed by the
+// 'identifier' rule along with labels, forward-use variables,
+// and even assembly mnemonics, we need a mechanism to search
+// for keywords and handle them.  This is similar to the mechanism
+// used to determine an assembler mnemonic in the 'identifier'
+// regular expression.
 typedef struct _keyword
 {
    const char* directive;
@@ -21,22 +34,37 @@ typedef struct _keyword
    void (*handler)();
 } keyword;
 
-int hex_on_line = 0;
+// The .hex directive has a special lexer sub-state associated
+// with it that changes how the lexer parses hex strings.  This
+// function is executed when the .hex directive is encountered
+// in the token stream.  It switches the lexer into the HEX
+// sub-state.
 void d_hex ( void )
 {
-   hex_on_line = 1;
+   BEGIN HEX;
 }
 
+// The .segment, .text, and .data directives send the same
+// SEGMENT token to the parser so they need to indicate which
+// one they are by sending data along with the token.  This
+// function is executed when the .segment or .text directive
+// is encountered in the token stream.
 void d_textsegment ( void )
 {
    yylval.seg = text_segment;
 }
 
+// The .segment, .text, and .data directives send the same
+// SEGMENT token to the parser so they need to indicate which
+// one they are by sending data along with the token.  This
+// function is executed when the .data directive
+// is encountered in the token stream.
 void d_datasegment ( void )
 {
    yylval.seg = data_segment;
 }
 
+// Table of assembler keywords.  These should look a bit like ASM6.
 keyword keywords [] =
 {
    { "byte", ".byte", DATAB, NULL },
@@ -83,46 +111,77 @@ keyword keywords [] =
    { NULL, NULL, 0, NULL }
 };
 
+// To reduce memory thrashing, don't allocate a new
+// page of symbols until 32 symbols have been declared.
 #define STAB_ENT_INC 32
 
+// Symbol table management.  The symbol table is available
+// to both the lexer and parser.
 unsigned int stab_ent = 0;
 unsigned int stab_max = 0;
-#ifndef __APPLE__ //strange mac os x related bug? :S
-int          yylineno = 0;
-#endif
-
 symbol_table* stab = NULL;
-
-symbol_table* cltab [ 4096 ];
-int cltab_ent = 0;
-
-int current_label = -1;
-
-extern binary_table* btab;
-extern binary_table* cur;
-
-int autolabel = 0x1000;
-
-int symbol_on_line = 0;
-
 unsigned char add_symbol ( char* symbol, symbol_table** ptr );
 symbol_table* find_symbol ( char* symbol, int btab_ent );
+
+// Cheap-label symbol table. Cheap labels exist only until
+// the next normal label is declared.  For example:
+// label1: sei
+//         cld
+// @1:     lda $2002
+//         bpl @1
+// @2:     lda $2002
+//         bpl @2
+// label2: <-- @1 and @2 are destroyed here.
+symbol_table* cltab [ 4096 ];
+int cltab_ent = 0;
 void add_cheap_label ( symbol_table* ptr );
 void clear_cheap_labels ( void );
 
+// Index of last declared label, for useful error messages like:
+// error: <line>: after <symbol>: blah...
+int current_label = -1;
+
+// Binary bank management.  Each time a .segment, or .text or
+// .data directive declares a uniquely named bank, a bank table
+// entry is created.  While in a particular bank the current
+// PC within that bank is tracked.  Switching between banks by
+// issuing repeat .text, .segment, or .data directives will pick
+// up in the assembly stream at the PC where it was last left.
+extern binary_table* btab;
+extern binary_table* cur;
+
+// For automatic labels like "-", "++", etc.  This isn't done
+// yet but I',m thinking it'd be easier to give them a name and
+// use that name.  If the name is numeric, then, hopefully,
+// the count of the number of +'s or -'s will be able to be
+// subtracted from the last-emitted autolabel number and thus
+// the address of the appropriate autolabel can be found by number.
+int autolabel = 0x1000;
+
+// This is a flag used to indicate whether or not we are looking
+// at the first token on a new line in the lexer.  If that is
+// the case, we use that knowledge to reduce the amount of
+// checking done on the input token.  If, as is most likely the case,
+// the input token matches the 'identifier' regular expression,
+// we ONLY want to consider whether this first token is a directive,
+// an assembler mnemonic, or a new label declaration.  This helps
+// the parser, too.
+int symbol_on_line = 0;
+
+// Routines to allocate new structures to pass to the parser.
+// The parser makes use of these also as it is reducing and
+// shifting things around.
 number_type* get_next_numtype ( void )
 {
    number_type* p = (number_type*) malloc ( sizeof(number_type) );
    p->zp_ok = 0;
    return p;
 }
-
 ref_type* get_next_reftype ( void )
 {
    ref_type* p = (ref_type*) malloc ( sizeof(ref_type) );
    return p;
 }
-
 expr_type* get_next_exprtype ( void )
 {
    expr_type* p = (expr_type*) malloc ( sizeof(expr_type) );
@@ -131,7 +190,6 @@ expr_type* get_next_exprtype ( void )
    p->right = NULL;
    return p;
 }
-
 text_type* get_next_texttype ( void )
 {
    text_type* p = (text_type*) malloc ( sizeof(text_type) );
@@ -140,6 +198,8 @@ text_type* get_next_texttype ( void )
    return p;
 }
 
+// This function checks for valid assembler mnemonics in
+// tokens.
 unsigned char valid_instr ( char* instr );
 %}
 %%
@@ -168,16 +228,6 @@ unsigned char valid_instr ( char* instr );
          return k->token;
       }
       k++;
-   }
-
-   // Check if we're in HEX mode and if so pass this through as a QUOTEDSTRING
-   if ( hex_on_line )
-   {
-      text_type* text = get_next_texttype ();
-      text->string = strdup ( yytext );
-      text->length = strlen(text->string);
-      yylval.text = text;
-      return QUOTEDSTRING;
    }
 
    // Check for label if this is the first symbol on a new line...
@@ -283,6 +333,7 @@ unsigned char valid_instr ( char* instr );
       return LABELREF;
    }
 }
+
 {quotedstring} {
    text_type* text = get_next_texttype ();
    text->string = strdup ( yytext+1 );
@@ -294,6 +345,15 @@ unsigned char valid_instr ( char* instr );
    yylval.text = text;
    return QUOTEDSTRING;
 }
+
+<HEX>[0-9a-fA-F]+ {
+   text_type* text = get_next_texttype ();
+   text->string = strdup ( yytext );
+   text->length = strlen(text->string);
+   yylval.text = text;
+   return QUOTEDSTRING;
+}
+
 {hexdigits} {
    char* ptr = yytext;
 	number_type* num = get_next_numtype ();
@@ -307,6 +367,7 @@ unsigned char valid_instr ( char* instr );
 	yylval.num = num;
    return DIGITS;
 }
+
 {decdigits} { 
 	number_type* num = get_next_numtype ();
 	num->number = strtoul(yytext,NULL,10);
@@ -318,6 +379,7 @@ unsigned char valid_instr ( char* instr );
 	yylval.num = num;
 	return DIGITS; 
 }
+
 {octdigits} { 
 	number_type* num = get_next_numtype ();
    num->number = strtoul(yytext,NULL,8);
@@ -329,6 +391,7 @@ unsigned char valid_instr ( char* instr );
 	yylval.num = num;
    return DIGITS;
 }
+
 {bindigits} { 
    char* ptr = yytext;
    number_type* num = get_next_numtype ();
@@ -343,44 +406,56 @@ unsigned char valid_instr ( char* instr );
    yylval.num = num;
    return DIGITS;
 }
-{comment} { 
+
+<INITIAL,HEX>{comment} {
    /* throw away */
 }
-[ \t]+ {
+
+<INITIAL,HEX>[ \t]+ {
    /* throw away */
 }
-\r\n {
+
+<INITIAL,HEX>\r\n {
    yylineno++;
    symbol_on_line = 0;
-   hex_on_line = 0;
+   BEGIN INITIAL;
    return TERM;
 }
-\n\r {
+
+<INITIAL,HEX>\n\r {
    yylineno++;
    symbol_on_line = 0;
-   hex_on_line = 0;
+   BEGIN INITIAL;
    return TERM;
 }
-\n {
+
+<INITIAL,HEX>\n {
    yylineno++;
    symbol_on_line = 0;
-   hex_on_line = 0;
+   BEGIN INITIAL;
    return TERM;
 }
 
 "<<" { return LSHIFT; }
+
 ">>" { return RSHIFT; }
+
 "&&" { return LOGAND; }
+
 "||" { return LOGOR; }
+
 "<=" { return LTEQ; }
+
 ">=" { return GTEQ; }
+
 "==" { return EQEQ; }
+
 "!=" |
 "<>" { return NOTEQ; }
 
 [&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$\^] { return yytext[0]; }
 
-. {
+<INITIAL,HEX>. {
    sprintf ( e, "parse error at: %s", yytext );
 	add_error ( e );
    fprintf ( stderr, "error: %d: parse error at: %s\n", yylineno, yytext );
