@@ -13,6 +13,12 @@ extern "C" {
 #define PROMOTE 0
 #define FIX     1
 
+// Ensure the symbol killer character is a character
+// that will NEVER show up in the token stream as valid...
+#define SYMBOL_KILLER '?'
+
+#define AUTOLABEL_FMT "L%08X"
+
 typedef struct _macro_table
 {
    int idx; // used for self-reference and also for scoping variables

@@ -1,11 +1,11 @@
-identifier   ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)":"?
-hexdigits    (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
-decdigits    ([1-9]([0-9]{0,8}))
-octdigits    "0"([0-9]{0,8})
-bindigits    (("%"([01]{1,16}))|(([01]{1,16})"b"))
-quotedstring ([\"][^\"]*[\"])|(['][^']*['])
-comment      ";".*$
-%x HEX
+identifier     ((([\-]+)|([\+]+))|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|(([\-]+)|([\+]+))?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
+hexdigits      (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
+decdigits      ([1-9]([0-9]{0,8}))
+octdigits      "0"([0-9]{0,8})
+bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
+quotedstring   ([\"][^\"]*[\"])|(['][^']*['])
+comment        ";".*$
+%x HEX SOURCE
 %{
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
@@ -150,24 +150,6 @@ int current_label = -1;
 extern binary_table* btab;
 extern binary_table* cur;
 
-// For automatic labels like "-", "++", etc.  This isn't done
-// yet but I',m thinking it'd be easier to give them a name and
-// use that name.  If the name is numeric, then, hopefully,
-// the count of the number of +'s or -'s will be able to be
-// subtracted from the last-emitted autolabel number and thus
-// the address of the appropriate autolabel can be found by number.
-int autolabel = 0x1000;
-
-// This is a flag used to indicate whether or not we are looking
-// at the first token on a new line in the lexer.  If that is
-// the case, we use that knowledge to reduce the amount of
-// checking done on the input token.  If, as is most likely the case,
-// the input token matches the 'identifier' regular expression,
-// we ONLY want to consider whether this first token is a directive,
-// an assembler mnemonic, or a new label declaration.  This helps
-// the parser, too.
-int symbol_on_line = 0;
-
 // Routines to allocate new structures to pass to the parser.
 // The parser makes use of these also as it is reducing and
 // shifting things around.
@@ -203,16 +185,15 @@ text_type* get_next_texttype ( void )
 unsigned char valid_instr ( char* instr );
 %}
 %%
-{identifier} {
+<INITIAL>{identifier} {
 	unsigned char f;
-	char* start = yytext;
 	ref_type* ref;
    text_type* text;
    keyword* k = keywords;
 
-   // Don't need to check for labels if this isn't the first
-   // symbol found on a new line, because labels must be first.
-   symbol_on_line++;
+   // Assume that when we're done with this token we'll be processing a line of
+   // assembly source code...
+   BEGIN SOURCE;
 
    while ( k->directive != NULL )
    {
@@ -230,111 +211,120 @@ unsigned char valid_instr ( char* instr );
       k++;
    }
 
-   // Check for label if this is the first symbol on a new line...
-   if ( symbol_on_line == 1 )
+   // If it's a valid instruction it's not a label...
+   if ( (f=valid_instr(yytext)) != INVALID_INSTR )
    {
-      // If it's a valid instruction it's not a label...
-      if ( (f=valid_instr(yytext)) != INVALID_INSTR )
+      yylval.instr = f;
+      return INSTR;
+   }
+   else
+   {
+      char* label = strdup(yytext);
+      unsigned char f;
+      symbol_table* p = NULL;
+      ref_type* ref;
+      if ( label[strlen(label)-1] == ':' )
       {
-         yylval.instr = f;
-         return INSTR;
+         label[strlen(label)-1] = 0;
       }
-      else
+      f=add_symbol(label,&p);
+      if ( !f )
       {
-         char* label = strdup(yytext);
-         unsigned char f;
-         symbol_table* p = NULL;
-         ref_type* ref;
-         if ( label[strlen(label)-1] == ':' )
+         if ( (label[0] == '-') ||
+              (label[0] == '+') )
          {
-            label[strlen(label)-1] = 0;
+            // re-declaration of autolabels is allowed...
+            // set this symbol as invalid...
+            p->symbol[0] = SYMBOL_KILLER;
+
+            // this time it should add...
+            f=add_symbol(label,&p);
          }
-         if ( strlen(label) == 0 )
-         {
-            sprintf ( label, "L%05X", autolabel++ );
-         }
-         f=add_symbol(label,&p);
-         if ( !f )
+         else
          {
             sprintf ( e, "multiple declarations of symbol: %s", label );
             add_error ( e );
             fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, label );
          }
-         if ( label[0] == '@' )
-         {
-            add_cheap_label ( p );
-         }
-         else
-         {
-            clear_cheap_labels ();
-         }
-         current_label = p->idx;
-         ref = get_next_reftype ();
-         ref->type = reference_symtab;
-         ref->ref.stab_ent = p->idx;
-         yylval.ref = ref;
-         return LABEL;
       }
-   }
-   else
-   {
-      if ( yytext[1] == 0 )
+      if ( label[0] == '@' )
       {
-         if ( (yytext[0] == 'x') ||
-              (yytext[0] == 'X') )
-         {
-            return tolower(yytext[0]);
-         }
-         else if ( (yytext[0] == 'y') ||
-                   (yytext[0] == 'Y') )
-         {
-            return tolower(yytext[0]);
-         }
-         else if ( yytext[0] == '$' )
-         {
-            return yytext[0];
-         }
+         add_cheap_label ( p );
       }
-
-      symbol_table* p = NULL;
-      if ( (p=find_symbol(start,cur->idx)) != NULL )
+      else
       {
-         ref = get_next_reftype ();
-
-         ref->type = reference_symtab;
-         ref->ref.stab_ent = p->idx;
-         yylval.ref = ref;
-         return LABELREF;
+         clear_cheap_labels ();
       }
-      else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
-      {
-         yylval.instr = f;
-         return INSTR;
-      }
-      else if ( yytext[0] == '\'' &&
-                yytext[strlen(yytext)-1] == '\'' )
-      {
-         text = get_next_texttype ();
-         text->string = strdup ( yytext+1 );
-         text->string[strlen(text->string)-1] = 0;
-         // need to pass length so string mods made by expressions don't lose track of it if a
-         // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
-         // first byte zero and strlen() then returns 0 which is invalid.
-         text->length = strlen(text->string);
-         yylval.text = text;
-         return QUOTEDSTRING;
-      }
-
-      /* pass through as a possible forward-reference label */
+      current_label = p->idx;
       ref = get_next_reftype ();
-      ref->type = reference_symbol;
-      ref->ref.symbol = strdup(start);
+      ref->type = reference_symtab;
+      ref->ref.stab_ent = p->idx;
       yylval.ref = ref;
-      return LABELREF;
+      return LABEL;
    }
 }
 
-{quotedstring} {
+<SOURCE>{identifier} {
+   unsigned char f;
+   ref_type* ref;
+   text_type* text;
+
+   if ( yytext[1] == 0 )
+   {
+      if ( (yytext[0] == 'x') ||
+           (yytext[0] == 'X') )
+      {
+         return tolower(yytext[0]);
+      }
+      else if ( (yytext[0] == 'y') ||
+                (yytext[0] == 'Y') )
+      {
+         return tolower(yytext[0]);
+      }
+      else if ( yytext[0] == '$' )
+      {
+         return yytext[0];
+      }
+   }
+
+   symbol_table* p = NULL;
+   if ( (p=find_symbol(yytext,cur->idx)) != NULL )
+   {
+      ref = get_next_reftype ();
+
+      ref->type = reference_symtab;
+      ref->ref.stab_ent = p->idx;
+      yylval.ref = ref;
+      return LABELREF;
+   }
+   else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
+   {
+      yylval.instr = f;
+      return INSTR;
+   }
+   else if ( yytext[0] == '\'' &&
+             yytext[strlen(yytext)-1] == '\'' )
+   {
+      text = get_next_texttype ();
+      text->string = strdup ( yytext+1 );
+      text->string[strlen(text->string)-1] = 0;
+      // need to pass length so string mods made by expressions don't lose track of it if a
+      // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
+      // first byte zero and strlen() then returns 0 which is invalid.
+      text->length = strlen(text->string);
+      yylval.text = text;
+      return QUOTEDSTRING;
+   }
+
+   /* pass through as a possible forward-reference label */
+   ref = get_next_reftype ();
+   ref->type = reference_symbol;
+   ref->ref.symbol = strdup(yytext);
+   yylval.ref = ref;
+   return LABELREF;
+}
+
+<SOURCE>{quotedstring} {
    text_type* text = get_next_texttype ();
    text->string = strdup ( yytext+1 );
    text->string[strlen(text->string)-1] = 0;
@@ -354,7 +344,7 @@ unsigned char valid_instr ( char* instr );
    return QUOTEDSTRING;
 }
 
-{hexdigits} {
+<SOURCE>{hexdigits} {
    char* ptr = yytext;
 	number_type* num = get_next_numtype ();
    if ( ptr[0] == '$' ) ptr++;
@@ -368,7 +358,7 @@ unsigned char valid_instr ( char* instr );
    return DIGITS;
 }
 
-{decdigits} { 
+<SOURCE>{decdigits} {
 	number_type* num = get_next_numtype ();
 	num->number = strtoul(yytext,NULL,10);
 	if ( (num->number >= -128) &&
@@ -380,7 +370,7 @@ unsigned char valid_instr ( char* instr );
 	return DIGITS; 
 }
 
-{octdigits} { 
+<SOURCE>{octdigits} {
 	number_type* num = get_next_numtype ();
    num->number = strtoul(yytext,NULL,8);
 	if ( (num->number >= -128) &&
@@ -392,7 +382,7 @@ unsigned char valid_instr ( char* instr );
    return DIGITS;
 }
 
-{bindigits} { 
+<SOURCE>{bindigits} {
    char* ptr = yytext;
    number_type* num = get_next_numtype ();
    if ( ptr[0] == '%' ) ptr++;
@@ -407,55 +397,52 @@ unsigned char valid_instr ( char* instr );
    return DIGITS;
 }
 
-<INITIAL,HEX>{comment} {
+<INITIAL,SOURCE,HEX>{comment} {
    /* throw away */
 }
 
-<INITIAL,HEX>[ \t]+ {
+<INITIAL,SOURCE,HEX>[ \t]+ {
    /* throw away */
 }
 
-<INITIAL,HEX>\r\n {
+<INITIAL,SOURCE,HEX>\r\n {
    yylineno++;
-   symbol_on_line = 0;
    BEGIN INITIAL;
    return TERM;
 }
 
-<INITIAL,HEX>\n\r {
+<INITIAL,SOURCE,HEX>\n\r {
    yylineno++;
-   symbol_on_line = 0;
    BEGIN INITIAL;
    return TERM;
 }
 
-<INITIAL,HEX>\n {
+<INITIAL,SOURCE,HEX>\n {
    yylineno++;
-   symbol_on_line = 0;
    BEGIN INITIAL;
    return TERM;
 }
 
-"<<" { return LSHIFT; }
+<SOURCE>"<<" { return LSHIFT; }
 
-">>" { return RSHIFT; }
+<SOURCE>">>" { return RSHIFT; }
 
-"&&" { return LOGAND; }
+<SOURCE>"&&" { return LOGAND; }
 
-"||" { return LOGOR; }
+<SOURCE>"||" { return LOGOR; }
 
-"<=" { return LTEQ; }
+<SOURCE>"<=" { return LTEQ; }
 
-">=" { return GTEQ; }
+<SOURCE>">=" { return GTEQ; }
 
-"==" { return EQEQ; }
+<SOURCE>"==" { return EQEQ; }
 
-"!=" |
-"<>" { return NOTEQ; }
+<SOURCE>"!=" |
+<SOURCE>"<>" { return NOTEQ; }
 
-[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$\^] { return yytext[0]; }
+<SOURCE>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$\^] { return yytext[0]; }
 
-<INITIAL,HEX>. {
+<INITIAL,SOURCE,HEX>. {
    sprintf ( e, "parse error at: %s", yytext );
 	add_error ( e );
    fprintf ( stderr, "error: %d: parse error at: %s\n", yylineno, yytext );
@@ -526,7 +513,7 @@ void clear_cheap_labels ( void )
    for ( label = 0; label < cltab_ent; label++ )
    {
       // cheap hack to wipe away a temporary symbol...
-      strcpy ( cltab[label]->symbol, "{;UNUSED;}" );
+      cltab[label]->symbol[0] = SYMBOL_KILLER;
    }
 	cltab_ent = 0;
 }

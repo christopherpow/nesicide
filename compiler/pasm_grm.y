@@ -590,6 +590,8 @@ identifier: LABEL {
    ir_table* ptr;
    ptr = emit_label ( 0, fillValue );
    update_symbol_ir ( &(stab[$1->ref.stab_ent]), ptr );
+
+   reduce_expressions ();
    //dump_symbol_table ();
 }
 			  ;
@@ -603,6 +605,7 @@ instruction: no_params
            | postindexed_indirect_param
            | disambiguation_1
            | directive
+           | disambiguation_2
            ;
 
 // Directive .incbin "<file>" includes a binary file into the intermediate representation stream...
@@ -1182,6 +1185,80 @@ no_params: INSTR TERM {
 		yyerror ( e );
 		fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, $1 );
 	}
+}
+;
+
+// DISAMBIGUATION: These rules exist purely to catch single-character
+// forward or backward autolabels coming from the lexer.  It is impossible
+// for the lexer to determine whether a + or a - in the source stream is
+// part of an expression or part (or, in this case whole) of an autolabel.
+disambiguation_2: INSTR '+' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   symbol_table* sym;
+   char* label = malloc ( 2 );
+
+   if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, it shouldn't exist yet...
+      ref->type = reference_symbol;
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_relative ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
+   }
+}
+               | INSTR '-' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   symbol_table* sym;
+
+   if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      ref->type = reference_symtab;
+      sym = find_symbol ( "-", cur->idx );
+      if ( sym )
+      {
+         ref->ref.stab_ent = sym->idx;
+         expr->node.ref = ref;
+      }
+      else
+      {
+         sprintf ( e, "reference to undeclared label: -" );
+         yyerror ( e );
+         fprintf ( stderr, "error: %d: reference to undeclared label: -\n", yylineno );
+      }
+
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_relative ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
+   }
 }
 ;
 
@@ -2959,8 +3036,7 @@ void reduce_expressions ( void )
       for ( j = 0; j < stab_ent; j++ )
       {
          if ( (i != j) &&
-              (stab[i].expr)/* &&
-              (stab[j].expr)*/ )
+              (stab[i].expr) )
          {
             reduce_expression ( stab[i].expr, &(stab[j]) );
          }
