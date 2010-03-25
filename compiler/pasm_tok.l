@@ -1,4 +1,7 @@
-identifier     ((([\-]+)|([\+]+))|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|(([\-]+)|([\+]+))?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
+autolabel      (([\-]+)|([\+]+))
+multiauto      (([\-]([\-]+))|([\+]([\+]+)))
+identifier1     ("$"|{autolabel}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
+identifier2     ("$"|{multiauto}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
 hexdigits      (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
 decdigits      ([1-9]([0-9]{0,8}))
 octdigits      "0"([0-9]{0,8})
@@ -185,7 +188,7 @@ text_type* get_next_texttype ( void )
 unsigned char valid_instr ( char* instr );
 %}
 %%
-<INITIAL>{identifier} {
+<INITIAL>{identifier1} {
 	unsigned char f;
 	ref_type* ref;
    text_type* text;
@@ -264,7 +267,7 @@ unsigned char valid_instr ( char* instr );
    }
 }
 
-<SOURCE>{identifier} {
+<SOURCE>{identifier2} {
    unsigned char f;
    ref_type* ref;
    text_type* text;
@@ -280,10 +283,6 @@ unsigned char valid_instr ( char* instr );
                 (yytext[0] == 'Y') )
       {
          return tolower(yytext[0]);
-      }
-      else if ( yytext[0] == '$' )
-      {
-         return yytext[0];
       }
    }
 
@@ -440,7 +439,7 @@ unsigned char valid_instr ( char* instr );
 <SOURCE>"!=" |
 <SOURCE>"<>" { return NOTEQ; }
 
-<SOURCE>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\$\^] { return yytext[0]; }
+<SOURCE>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\^] { return yytext[0]; }
 
 <INITIAL,SOURCE,HEX>. {
    sprintf ( e, "parse error at: %s", yytext );

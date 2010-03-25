@@ -441,7 +441,7 @@ unsigned int distance ( ir_table* from, ir_table* to );
 // addressing mode], can change the address of label symbols.
 void reduce_expression ( expr_type* expr, symbol_table* hint );
 expr_type* copy_expression ( expr_type* expr );
-void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol );
+void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol );
 void destroy_expression ( expr_type* expr );
 
 // Intermediate representation creation routines.
@@ -744,7 +744,7 @@ directive: INCBIN QUOTEDSTRING {
    stab[$1->ref.stab_ent].expr = $3;
    stab[$1->ref.stab_ent].ir = NULL;
 
-   dump_symbol_table ();
+   //dump_symbol_table ();
 }
 // Directive byte/word lists.  The blist/wlist rules take care of outputting
 // the intermediate representation of the list for us, so there's nothing more
@@ -818,23 +818,179 @@ directive: INCBIN QUOTEDSTRING {
 }
 // Directive .dsb <length> creates a space <length> bytes long at the
 // current position within the intermediate representation.
-           | FILLSPACEB DIGITS TERM {
-   emit_label ( $2->number, fillValue );
+           | FILLSPACEB expr TERM {
+   unsigned char evaluated;
+
+   reduce_expression ( $2, NULL );
+
+   // emit pure placeholder label...
+   emit_label ( 0, 0 );
+
+   // Check if this is a fixed-size block or a
+   // variable-sized block.  If the expression contains
+   // the special '$' symbol it is variable-sized since the
+   // intent of the programmer is most likely equivalent to
+   // a .pad directive [it may not be but this is the best
+   // we can do given that our instruction stream might
+   // shift due to promotions later on.
+   evaluated = 1;
+   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   if ( evaluated )
+   {
+      // Fixed-size block, emit a size label...
+      emit_label ( $2->value.ival, fillValue );
+   }
+   else
+   {
+      // Try to evaluate and fix the '$' label reference...
+      evaluated = 1;
+      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+
+      if ( evaluated )
+      {
+         // Variable-size block, do a .pad...
+         emit_bin_space ( $2->value.ival, fillValue );
+         emit_fix ( 0/* not used, anyway */ );
+      }
+   }
+   if ( !evaluated )
+   {
+      sprintf ( e, "cannot evaluate expression for .dsb" );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
+   }
 }
 // Directive .dsb <length>, <value> creates a space <length> bytes long filled
 // with <value> at the current position within the intermediate representation.
-           | FILLSPACEB DIGITS ',' DIGITS TERM {
-   emit_label ( $2->number, $4->number );
+           | FILLSPACEB expr ',' DIGITS TERM {
+   unsigned char evaluated;
+
+   reduce_expression ( $2, NULL );
+
+   // emit pure placeholder label...
+   emit_label ( 0, 0 );
+
+   // Check if this is a fixed-size block or a
+   // variable-sized block.  If the expression contains
+   // the special '$' symbol it is variable-sized since the
+   // intent of the programmer is most likely equivalent to
+   // a .pad directive [it may not be but this is the best
+   // we can do given that our instruction stream might
+   // shift due to promotions later on.
+   evaluated = 1;
+   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   if ( evaluated )
+   {
+      // Fixed-size block, emit a size label...
+      emit_label ( $2->value.ival, $4->number );
+   }
+   else
+   {
+      // Try to evaluate and fix the '$' label reference...
+      evaluated = 1;
+      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+
+      if ( evaluated )
+      {
+         // Variable-size block, do a .pad...
+         emit_bin_space ( $2->value.ival, $4->number );
+         emit_fix ( 0/* not used, anyway */ );
+      }
+   }
+   if ( !evaluated )
+   {
+      sprintf ( e, "cannot evaluate expression for .dsb" );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
+   }
 }
-// Directive .dsb <value> creates a space <value> words long at the
+// Directive .dsw <value> creates a space <value> words long at the
 // current position within the intermediate representation.
-           | FILLSPACEW DIGITS TERM {
-   emit_label ( $2->number<<1, fillValue );
+           | FILLSPACEW expr TERM {
+   unsigned char evaluated;
+
+   reduce_expression ( $2, NULL );
+
+   // emit pure placeholder label...
+   emit_label ( 0, 0 );
+
+   // Check if this is a fixed-size block or a
+   // variable-sized block.  If the expression contains
+   // the special '$' symbol it is variable-sized since the
+   // intent of the programmer is most likely equivalent to
+   // a .pad directive [it may not be but this is the best
+   // we can do given that our instruction stream might
+   // shift due to promotions later on.
+   evaluated = 1;
+   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   if ( evaluated )
+   {
+      // Fixed-size block, emit a size label...
+      emit_label ( $2->value.ival<<1, fillValue );
+   }
+   else
+   {
+      // Try to evaluate and fix the '$' label reference...
+      evaluated = 1;
+      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+
+      if ( evaluated )
+      {
+         // Variable-size block, do a .pad...
+         emit_bin_space ( $2->value.ival<<1, fillValue );
+         emit_fix ( 0/* not used, anyway */ );
+      }
+   }
+   if ( !evaluated )
+   {
+      sprintf ( e, "cannot evaluate expression for .dsb" );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
+   }
 }
-// Directive .dsb <length>, <value> creates a space <length> words long filled
+// Directive .dsw <length>, <value> creates a space <length> words long filled
 // with <value> at the current position within the intermediate representation.
-           | FILLSPACEW DIGITS ',' DIGITS TERM {
-   emit_label ( $2->number<<1, $4->number );
+           | FILLSPACEW expr ',' DIGITS TERM {
+   unsigned char evaluated;
+
+   reduce_expression ( $2, NULL );
+
+   // emit pure placeholder label...
+   emit_label ( 0, 0 );
+
+   // Check if this is a fixed-size block or a
+   // variable-sized block.  If the expression contains
+   // the special '$' symbol it is variable-sized since the
+   // intent of the programmer is most likely equivalent to
+   // a .pad directive [it may not be but this is the best
+   // we can do given that our instruction stream might
+   // shift due to promotions later on.
+   evaluated = 1;
+   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   if ( evaluated )
+   {
+      // Fixed-size block, emit a size label...
+      emit_label ( $2->value.ival<<1, $4->number );
+   }
+   else
+   {
+      // Try to evaluate and fix the '$' label reference...
+      evaluated = 1;
+      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+
+      if ( evaluated )
+      {
+         // Variable-size block, do a .pad...
+         emit_bin_space ( $2->value.ival<<1, $4->number );
+         emit_fix ( 0/* not used, anyway */ );
+      }
+   }
+   if ( !evaluated )
+   {
+      sprintf ( e, "cannot evaluate expression for .dsb" );
+      yyerror ( e );
+      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
+   }
 }
 // Directive .align <alignment> aligns the address of the next emitted
 // intermediate representation to <alignment>.  For example, .align 8 encountered
@@ -1039,7 +1195,7 @@ directive: INCBIN QUOTEDSTRING {
          reduce_expression ( $2, NULL );
 
          evaluated = 1;
-         evaluate_expression ( $2, &evaluated, 0, NULL );
+         evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
          if ( evaluated )
          {
             // Toggle intermediate representation emittance...
@@ -1070,7 +1226,7 @@ directive: INCBIN QUOTEDSTRING {
       reduce_expression ( $2, NULL );
 
       evaluated = 1;
-      evaluate_expression ( $2, &evaluated, 0, NULL );
+      evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
       if ( evaluated )
       {
          // Toggle intermediate representation emittance...
@@ -1630,21 +1786,7 @@ hlist: hlist QUOTEDSTRING {
    }
 }
    ;
-expr : '$' {
-   ir_table* ptr;
-
-   $$ = get_next_exprtype ();
-   $$->type = expression_reference;
-   $$->node.ref = get_next_reftype ();
-   $$->node.ref->type = reference_stake;
-
-   // Create a dummy intermediate representation node
-   // to cling to as the current address.
-   ptr = emit_label ( 0, fillValue );
-
-   $$->node.ref->ref.stake = ptr;
-}
-     | QUOTEDSTRING {
+expr : QUOTEDSTRING {
    $$ = get_next_exprtype ();
    $$->type = expression_reference;
    $$->node.ref = get_next_reftype ();
@@ -2055,7 +2197,7 @@ int promote_instructions ( unsigned char flag )
       if ( expr )
       {
          // try a symbol reduction to see if we can promote this to zeropage...
-         evaluate_expression ( expr, &evaluated, flag, NULL );
+         evaluate_expression ( ptr, expr, &evaluated, flag, NULL );
          value = expr->value.ival;
          value_zp_ok = 0;
          if ( (value >= -128) &&
@@ -2506,7 +2648,7 @@ void check_fixup ( void )
          // check expression evaluates...
          symbol = NULL;
          evaluated = 1;
-         evaluate_expression ( expr, &evaluated, 0, &symbol );
+         evaluate_expression ( ptr, expr, &evaluated, FIX, &symbol );
 
          // if not, emit an error...
          if ( (!evaluated) && symbol )
@@ -2924,10 +3066,6 @@ void dump_expression ( expr_type* expr )
       {
          printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, stab[expr->node.ref->ref.stab_ent].symbol );
       }
-      else if ( expr->node.ref->type == reference_stake )
-      {
-         printf ( "m%08x l%08x r%08x: cur_pc: %04X\n", expr, expr->left, expr->right, expr->node.ref->ref.stake->addr );
-      }
       else if ( expr->node.ref->type == reference_const_string )
       {
          printf ( "m%08x l%08x r%08x: %d string: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.text->length, expr->node.ref->ref.text->string );
@@ -3052,17 +3190,17 @@ void reduce_expressions ( void )
    }
 }
 
-void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol )
+void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol )
 {
    int b;
 
    if ( expr->left )
    {
-      evaluate_expression ( expr->left, evaluated, flag, symbol );
+      evaluate_expression ( ir, expr->left, evaluated, flag, symbol );
    }
    if ( expr->right )
    {
-      evaluate_expression ( expr->right, evaluated, flag, symbol );
+      evaluate_expression ( ir, expr->right, evaluated, flag, symbol );
    }
    if ( expr->type == expression_number )
    {
@@ -3071,10 +3209,12 @@ void evaluate_expression ( expr_type* expr, unsigned char* evaluated, unsigned c
    }
    else if ( (flag == FIX) &&
              (expr->type == expression_reference) &&
-             (expr->node.ref->type == reference_stake) )
+             (expr->node.ref->type == reference_symbol) &&
+             (expr->node.ref->ref.symbol[0] == '$') )
    {
+      // symbol is special 'PC' tracker
       expr->vtype = value_is_int;
-      expr->value.ival = expr->node.ref->ref.stake->addr;
+      expr->value.ival = ir->addr;
    }
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_symtab) )

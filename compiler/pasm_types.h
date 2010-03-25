@@ -53,7 +53,6 @@ typedef union _ref_union
 {
    char* symbol;
    int stab_ent;
-   struct _ir_table* stake;
    struct _text_type* text;
 } ref_union;
 
@@ -61,7 +60,6 @@ typedef enum
 {
    reference_symbol,
    reference_symtab,
-   reference_stake,
    reference_const_string
 } reference_type;
 

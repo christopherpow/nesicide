@@ -74,9 +74,10 @@ symbol_type pasm_get_symbol_type ( int symbol )
 int pasm_get_symbol_value ( int symbol )
 {
    int value;
+   int evaluated = 1;
    if ( stab[symbol].expr )
    {
-      value = evaluate_expression ( stab[symbol].expr );
+      value = evaluate_expression ( stab[symbol].ir, stab[symbol].expr, &evaluated, 0, NULL );
    }
    else
    {
