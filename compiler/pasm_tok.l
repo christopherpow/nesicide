@@ -23,16 +23,18 @@
 
 %}
 
-autolabel      (([\-]+)|([\+]+))
-multiauto      (([\-]([\-]+))|([\+]([\+]+)))
-identifier1     ("$"|{autolabel}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
-identifier2     ("$"|{multiauto}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
+autolabel1     (([\-]+)|([\+]+))
+autolabel2_    (([\-]([\-]+))|([\+]([\+]+)))
+identifier1    ("$"|{autolabel1}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel1}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
+identifier2    ("$"|{autolabel2_}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel1}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
 hexdigits      (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
 decdigits      ([1-9]([0-9]{0,8}))
 octdigits      "0"([0-9]{0,8})
 bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring   ([\"][^\"]*[\"])|(['][^']*['])
 comment        ";".*$
+rawhex         ([0-9a-fA-F]+)
+whitespace     ([ \t]+)
 
 %x HEX SOURCE NOLABELREF
 
@@ -308,6 +310,24 @@ unsigned char valid_instr ( char* instr );
    unsigned char f;
    ref_type* ref;
    text_type* text;
+   keyword* k = keywords;
+
+   while ( k->directive != NULL )
+   {
+      if ( ((strlen(k->directive) == strlen(yytext)) &&
+           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == strlen(yytext)) &&
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      {
+         if ( k->handler )
+         {
+            k->handler ();
+         }
+         yylval.directive = strdup ( k->directive );
+         return k->token;
+      }
+      k++;
+   }
 
    if ( yytext[1] == 0 )
    {
@@ -377,7 +397,7 @@ unsigned char valid_instr ( char* instr );
    return QUOTEDSTRING;
 }
 
-<HEX>[0-9a-fA-F]+ {
+<HEX>{rawhex} {
    text_type* text = get_next_texttype ();
    text->string = strdup ( yytext );
    text->length = strlen(text->string);
@@ -443,11 +463,11 @@ unsigned char valid_instr ( char* instr );
    /* throw away */
 }
 
-<INITIAL,SOURCE,HEX>[ \t]+ {
+<INITIAL,SOURCE,HEX>{whitespace} {
    /* throw away */
 }
 
-<NOLABELREF>[ \t]+ {
+<NOLABELREF>{whitespace} {
    BEGIN previous_state;
    /* throw away */
 }
