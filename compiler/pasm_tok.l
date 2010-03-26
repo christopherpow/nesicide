@@ -1,3 +1,28 @@
+%{
+
+// This is the lexical analyzer for the 6502 assembler built
+// into NESICIDE, an Integrated Development Environment for
+// the 8-bit Nintendo Entertainment System.
+
+// This section declares the complex regular expressions used
+// in token matching rules below.
+
+// Lexer states (%x below) are exclusive, meaning when the lexer is in
+// a state it will not attempt to match a token against
+// a rule not explicitly identified as being a member of that state's
+// token matching ruleset.
+// For example:
+// The HEX state is used to indicate to the lexer that it should
+// switch its interpretation of a hexadecimal number between the
+// normal $xxxx (where x is 0-9a-f) to the more compact xxxxxxxx
+// where the hex string can be any number of hex digits long.
+// Lexer states are very useful in delineating how the lexer
+// represents a token stream to the parser.  They, in effect, impose
+// some of the grammar rules that the parser would otherwise have
+// a hard time disambiguating on the lexer.
+
+%}
+
 autolabel      (([\-]+)|([\+]+))
 multiauto      (([\-]([\-]+))|([\+]([\+]+)))
 identifier1     ("$"|{autolabel}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
@@ -8,8 +33,16 @@ octdigits      "0"([0-9]{0,8})
 bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring   ([\"][^\"]*[\"])|(['][^']*['])
 comment        ";".*$
-%x HEX SOURCE
+
+%x HEX SOURCE NOLABELREF
+
 %{
+
+// Information encased in %{ ... }% is copied directly into the
+// lexical output C source file, so anything inside here is
+// valid C syntax.  Outside of the C fence, only lex syntax is
+// expected.
+
 #include "pasm_grm.tab.h"
 #include "pasm_types.h"
 #include "string.h"
@@ -18,6 +51,9 @@ comment        ";".*$
 #ifndef __APPLE__ //strange mac os x related bug? :S
 int          yylineno = 0;
 #endif
+
+// Previous lexer state for returning
+int previous_state = INITIAL;
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
@@ -86,6 +122,7 @@ keyword keywords [] =
    { "dsw", ".dsw", FILLSPACEW, NULL },
    { "ds.w", ".ds.w", FILLSPACEW, NULL },
    { "org", ".org", ORIGIN, NULL },
+   { "base", ".base", BASE, NULL },
    { "space", ".space", VARSPACE, NULL },
    { "advance", ".advance", ADVANCE, NULL },
    { "pad", ".pad", ADVANCE, NULL },
@@ -209,6 +246,7 @@ unsigned char valid_instr ( char* instr );
          {
             k->handler ();
          }
+         yylval.directive = strdup ( k->directive );
          return k->token;
       }
       k++;
@@ -247,7 +285,6 @@ unsigned char valid_instr ( char* instr );
          {
             sprintf ( e, "multiple declarations of symbol: %s", label );
             add_error ( e );
-            fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, label );
          }
       }
       if ( label[0] == '@' )
@@ -294,6 +331,8 @@ unsigned char valid_instr ( char* instr );
       ref->type = reference_symtab;
       ref->ref.stab_ent = p->idx;
       yylval.ref = ref;
+      previous_state = SOURCE;
+      BEGIN NOLABELREF;
       return LABELREF;
    }
    else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
@@ -320,10 +359,12 @@ unsigned char valid_instr ( char* instr );
    ref->type = reference_symbol;
    ref->ref.symbol = strdup(yytext);
    yylval.ref = ref;
+   previous_state = SOURCE;
+   BEGIN NOLABELREF;
    return LABELREF;
 }
 
-<SOURCE>{quotedstring} {
+<SOURCE,NOLABELREF>{quotedstring} {
    text_type* text = get_next_texttype ();
    text->string = strdup ( yytext+1 );
    text->string[strlen(text->string)-1] = 0;
@@ -332,6 +373,7 @@ unsigned char valid_instr ( char* instr );
    // first byte zero and strlen() then returns 0 which is invalid.
    text->length = strlen(text->string);
    yylval.text = text;
+   previous_state = yy_current_state;
    return QUOTEDSTRING;
 }
 
@@ -396,7 +438,8 @@ unsigned char valid_instr ( char* instr );
    return DIGITS;
 }
 
-<INITIAL,SOURCE,HEX>{comment} {
+<INITIAL,SOURCE,HEX,NOLABELREF>{comment} {
+   BEGIN INITIAL;
    /* throw away */
 }
 
@@ -404,47 +447,114 @@ unsigned char valid_instr ( char* instr );
    /* throw away */
 }
 
-<INITIAL,SOURCE,HEX>\r\n {
+<NOLABELREF>[ \t]+ {
+   BEGIN previous_state;
+   /* throw away */
+}
+
+<INITIAL,SOURCE,HEX,NOLABELREF>\r\n {
    yylineno++;
    BEGIN INITIAL;
    return TERM;
 }
 
-<INITIAL,SOURCE,HEX>\n\r {
+<INITIAL,SOURCE,HEX,NOLABELREF>\n\r {
    yylineno++;
    BEGIN INITIAL;
    return TERM;
 }
 
-<INITIAL,SOURCE,HEX>\n {
+<INITIAL,SOURCE,HEX,NOLABELREF>\n {
    yylineno++;
    BEGIN INITIAL;
    return TERM;
 }
 
-<SOURCE>"<<" { return LSHIFT; }
+<SOURCE>"<<" {
+   return LSHIFT;
+}
 
-<SOURCE>">>" { return RSHIFT; }
+<NOLABELREF>"<<" {
+   BEGIN previous_state;
+   return LSHIFT;
+}
 
-<SOURCE>"&&" { return LOGAND; }
+<SOURCE>">>" {
+   return RSHIFT;
+}
 
-<SOURCE>"||" { return LOGOR; }
+<NOLABELREF>">>" {
+   BEGIN previous_state;
+   return RSHIFT;
+}
 
-<SOURCE>"<=" { return LTEQ; }
+<SOURCE>"&&" {
+   return LOGAND;
+}
 
-<SOURCE>">=" { return GTEQ; }
+<NOLABELREF>"&&" {
+   BEGIN previous_state;
+   return LOGAND;
+}
 
-<SOURCE>"==" { return EQEQ; }
+<SOURCE>"||" {
+   return LOGOR;
+}
+
+<NOLABELREF>"||" {
+   BEGIN previous_state;
+   return LOGOR;
+}
+
+<SOURCE>"<=" {
+   return LTEQ;
+}
+
+<NOLABELREF>"<=" {
+   BEGIN previous_state;
+   return LTEQ;
+}
+
+<SOURCE>">=" {
+   return GTEQ;
+}
+
+<NOLABELREF>">=" {
+   BEGIN previous_state;
+   return GTEQ;
+}
+
+<SOURCE>"==" {
+   return EQEQ;
+}
+
+<NOLABELREF>"==" {
+   BEGIN previous_state;
+   return EQEQ;
+}
 
 <SOURCE>"!=" |
-<SOURCE>"<>" { return NOTEQ; }
+<SOURCE>"<>" {
+   return NOTEQ;
+}
 
-<SOURCE>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\^] { return yytext[0]; }
+<NOLABELREF>"!=" |
+<NOLABELREF>"<>" {
+   BEGIN previous_state;
+   return NOTEQ;
+}
 
-<INITIAL,SOURCE,HEX>. {
-   sprintf ( e, "parse error at: %s", yytext );
-	add_error ( e );
-   fprintf ( stderr, "error: %d: parse error at: %s\n", yylineno, yytext );
+<SOURCE>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\^] {
+   return yytext[0];
+}
+
+<NOLABELREF>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\^] {
+   BEGIN previous_state;
+   return yytext[0];
+}
+
+<INITIAL,SOURCE,HEX,NOLABELREF>. {
+   // ignore, error should already be given
 }
 %%
 int get_current_buffer ( void )
@@ -502,7 +612,6 @@ void add_cheap_label ( symbol_table* ptr )
 	{
 		sprintf ( e, "too many cheap labels (@label:)" );
 		add_error ( e );
-		fprintf ( stderr, "error: too many cheap labels (@label:)\n" );
 	}
 }
 
@@ -560,7 +669,6 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 		{
 			sprintf ( e, "unable to allocate memory for symbols" );
 			add_error ( e );
-			fprintf ( stderr, "error: unable to allocate memory for symbols!\n" );
 		}
 	}
 	else
@@ -600,7 +708,6 @@ unsigned char add_symbol ( char* symbol, symbol_table** ptr )
 			{
 				sprintf ( e, "unable to allocate memory for symbols" );
 				add_error ( e );
-				fprintf ( stderr, "error: unable to allocate memory for symbols!\n" );
 			}
 		}
 	}

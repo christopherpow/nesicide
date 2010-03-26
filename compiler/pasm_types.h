@@ -123,7 +123,8 @@ typedef enum
    fixup_relative,
    fixup_datab,
    fixup_dataw,
-   fixup_align
+   fixup_align,
+   fixup_string
 } fixup_type;
 
 typedef struct _ir_table
@@ -137,6 +138,7 @@ typedef struct _ir_table
    unsigned char align;
    unsigned char fixed;
    unsigned char label;
+   unsigned char string;
    fixup_type    fixup;
    int           source_linenum;
    struct _ir_table* next;

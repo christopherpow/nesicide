@@ -1,11 +1,16 @@
 %{
+
+// This is the grammar generator for the 6502 assembler built
+// into NESICIDE, an Integrated Development Environment for
+// the 8-bit Nintendo Entertainment System.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
 #include "pasm_types.h"
 
 // Make yacc errors more meaningful
-#define YYERROR_VERBOSE
+//#define YYERROR_VERBOSE
 
 // **** 6502 information ****
 // These are addressing modes for instructions
@@ -455,6 +460,7 @@ ir_table* emit_fix ( int addr );
 ir_table* emit_label ( int m, int fill );
 ir_table* emit_bin ( expr_type* expr );
 ir_table* emit_bin2 ( expr_type* expr );
+ir_table* emit_bin_string ( expr_type* expr );
 ir_table* emit_bin_space ( int m, int fill );
 ir_table* emit_bin_align ( int m );
 ir_table* emit_bin_data ( unsigned char data );
@@ -505,7 +511,9 @@ void dump_ir_table ( void );
 void dump_ir_expressions ( void );
 void dump_expression ( expr_type* expr );
 void dump_macro_table ( void );
+
 %}
+
 // Representation of possible types passed to the grammar parser
 // from the lexical analyzer.
 %union{
@@ -516,14 +524,21 @@ void dump_macro_table ( void );
 	int seg;
    int instr;
 	unsigned char flag;
+   char* directive;
 }
 // Terminal tokens passed to the grammar parser from
 // the lexical analyzer.
-%token TERM DATAB DATAW REPEAT ENDREPEAT MACRO ENDMACRO
-%token ORIGIN FILLSPACEB FILLSPACEW VARSPACE ADVANCE ALIGN
-%token INCBIN INCOBJ INCLUDE ENUMERATE ENDENUMERATE FILLVALUE
-%token DATABHEX
-%token IFDEF IFNDEF IF ELSEIF ELSE ENDIF
+%token <directive> DATAB DATAW DATABHEX
+%token <directive> FILLSPACEB FILLSPACEW
+%token <directive> VARSPACE
+%token <directive> REPEAT ENDREPEAT
+%token <directive> MACRO ENDMACRO
+%token <directive> ENUMERATE ENDENUMERATE
+%token <directive> ORIGIN BASE ADVANCE ALIGN
+%token <directive> INCBIN INCOBJ INCLUDE
+%token <directive> FILLVALUE
+%token <directive> IFDEF IFNDEF
+%token <directive> IF ELSEIF ELSE ENDIF
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
 %token <ref> LABEL LABELREF
@@ -579,9 +594,6 @@ statement: identifier TERM
            | identifier instruction
            | TERM
            | error {
-   sprintf ( e, "parse error at: %s", yytext );
-   yyerror ( e );
-   fprintf ( stderr, "error: %d: parse error at: %s\n", yylineno, yytext );
    yyclearin;
 }
 			  ;
@@ -621,9 +633,8 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-      sprintf ( e, "cannot open included file: %s", $2->string );
+      sprintf ( e, "%s: cannot open included file: %s", $1, $2->string );
 		yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, $2->string );
 	}
 }
 // Directive .incobj "<file>" includes a NESICIDE object into the parser stream...
@@ -661,16 +672,14 @@ directive: INCBIN QUOTEDSTRING {
 		}
 		else
 		{
-         sprintf ( e, "object not found for .incobj: %s", $2->string );
+         sprintf ( e, "%s: object not found for .incobj: %s", $1, $2->string );
 			yyerror ( e );
-         fprintf ( stderr, "error: %d: object not found for .incobj: %s\n", yylineno, $2->string );
 		}
 	}
 	else
 	{
-      sprintf ( e, "use of .incobj directive not supported: %s", $2->string );
+      sprintf ( e, "%s: directive not supported", $1 );
 		yyerror ( e );
-      fprintf ( stderr, "error: %d: use of .incobj directive not supported: %s\n", yylineno, $2->string );
 	}
 }
 // Directive .include "<file>" includes a source file into the parser stream...
@@ -718,9 +727,8 @@ directive: INCBIN QUOTEDSTRING {
 	}
 	else
 	{
-      sprintf ( e, "cannot open included file: %s", $2->string );
+      sprintf ( e, "%s: cannot open included file: %s", $1, $2->string );
 		yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot open included file: %s\n", yylineno, $2->string );
 	}
 }
 // Directive .fillvalue <value> changes the default filler value.
@@ -790,9 +798,42 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, "negative value in .org directive" );
+      sprintf ( e, "%s: illegal negative value", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: negative origin not allowed\n", yylineno );
+   }
+}
+// Directive .org <addr>, <value> sets the current segment's address to <addr> and
+// pads the space with <value> if this is not the first .org.  The
+// next emitted intermediate representation node will have <addr> as its address.
+           | ORIGIN DIGITS ',' DIGITS TERM {
+// CPTODO: implement
+}
+// Directive .base <expression> sets the current segment's address to <expression>.
+// The next emitted intermediate representation node will have <addr> as its address.
+           | BASE expr TERM {
+   unsigned char evaluated;
+
+   reduce_expression ( $2, NULL );
+
+   evaluated = 1;
+   evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+   if ( evaluated )
+   {
+      if ( $2->vtype == value_is_int )
+      {
+         set_binary_addr ( $2->value.ival );
+         emit_fix ( $2->value.ival );
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal string literal in expression", $1 );
+         yyerror ( e );
+      }
+   }
+   else
+   {
+      sprintf ( e, "%s: cannot fully evaluate expression", $1 );
+      yyerror ( e );
    }
 }
 // Directive .space <label> <value> creates a space <value> bytes long for
@@ -804,9 +845,8 @@ directive: INCBIN QUOTEDSTRING {
 
    if ( $2->type == reference_symtab )
    {
-      sprintf ( e, "multiple declarations of symbol: %s", stab[$2->ref.stab_ent].symbol );
+      sprintf ( e, "%s: multiple declarations of symbol: %s", $1, stab[$2->ref.stab_ent].symbol );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: multiple declarations of symbol: %s\n", yylineno, stab[$2->ref.stab_ent].symbol );
    }
    else
    {
@@ -837,8 +877,16 @@ directive: INCBIN QUOTEDSTRING {
    evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
-      // Fixed-size block, emit a size label...
-      emit_label ( $2->value.ival, fillValue );
+      if ( $2->vtype == value_is_int )
+      {
+         // Fixed-size block, emit a size label...
+         emit_label ( $2->value.ival, fillValue );
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal string literal in expression", $1 );
+         yyerror ( e );
+      }
    }
    else
    {
@@ -848,16 +896,23 @@ directive: INCBIN QUOTEDSTRING {
 
       if ( evaluated )
       {
-         // Variable-size block, do a .pad...
-         emit_bin_space ( $2->value.ival, fillValue );
-         emit_fix ( 0/* not used, anyway */ );
+         if ( $2->vtype == value_is_int )
+         {
+            // Variable-size block, do a .pad...
+            emit_bin_space ( $2->value.ival, fillValue );
+            emit_fix ( 0/* not used, anyway */ );
+         }
+         else
+         {
+            sprintf ( e, "%s: illegal string literal in expression", $1 );
+            yyerror ( e );
+         }
       }
    }
    if ( !evaluated )
    {
-      sprintf ( e, "cannot evaluate expression for .dsb" );
+      sprintf ( e, "%s: cannot fully evaluate expression", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
    }
 }
 // Directive .dsb <length>, <value> creates a space <length> bytes long filled
@@ -881,8 +936,16 @@ directive: INCBIN QUOTEDSTRING {
    evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
-      // Fixed-size block, emit a size label...
-      emit_label ( $2->value.ival, $4->number );
+      if ( $2->vtype = value_is_int )
+      {
+         // Fixed-size block, emit a size label...
+         emit_label ( $2->value.ival, $4->number );
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal string literal in expression", $1 );
+         yyerror ( e );
+      }
    }
    else
    {
@@ -892,16 +955,23 @@ directive: INCBIN QUOTEDSTRING {
 
       if ( evaluated )
       {
-         // Variable-size block, do a .pad...
-         emit_bin_space ( $2->value.ival, $4->number );
-         emit_fix ( 0/* not used, anyway */ );
+         if ( $2->vtype = value_is_int )
+         {
+            // Variable-size block, do a .pad...
+            emit_bin_space ( $2->value.ival, $4->number );
+            emit_fix ( 0/* not used, anyway */ );
+         }
+         else
+         {
+            sprintf ( e, "%s: illegal string literal in expression", $1 );
+            yyerror ( e );
+         }
       }
    }
    if ( !evaluated )
    {
-      sprintf ( e, "cannot evaluate expression for .dsb" );
+      sprintf ( e, "%s: cannot fully evaluate expression", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
    }
 }
 // Directive .dsw <value> creates a space <value> words long at the
@@ -925,8 +995,16 @@ directive: INCBIN QUOTEDSTRING {
    evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
-      // Fixed-size block, emit a size label...
-      emit_label ( $2->value.ival<<1, fillValue );
+      if ( $2->vtype == value_is_int )
+      {
+         // Fixed-size block, emit a size label...
+         emit_label ( $2->value.ival<<1, fillValue );
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal string literal in expression", $1 );
+         yyerror ( e );
+      }
    }
    else
    {
@@ -936,16 +1014,23 @@ directive: INCBIN QUOTEDSTRING {
 
       if ( evaluated )
       {
-         // Variable-size block, do a .pad...
-         emit_bin_space ( $2->value.ival<<1, fillValue );
-         emit_fix ( 0/* not used, anyway */ );
+         if ( $2->vtype == value_is_int )
+         {
+            // Variable-size block, do a .pad...
+            emit_bin_space ( $2->value.ival<<1, fillValue );
+            emit_fix ( 0/* not used, anyway */ );
+         }
+         else
+         {
+            sprintf ( e, "%s: illegal string literal in expression", $1 );
+            yyerror ( e );
+         }
       }
    }
    if ( !evaluated )
    {
-      sprintf ( e, "cannot evaluate expression for .dsb" );
+      sprintf ( e, "%s: cannot fully evaluate expression", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
    }
 }
 // Directive .dsw <length>, <value> creates a space <length> words long filled
@@ -969,8 +1054,16 @@ directive: INCBIN QUOTEDSTRING {
    evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
-      // Fixed-size block, emit a size label...
-      emit_label ( $2->value.ival<<1, $4->number );
+      if ( $2->vtype == value_is_int )
+      {
+         // Fixed-size block, emit a size label...
+         emit_label ( $2->value.ival<<1, $4->number );
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal string literal in expression", $1 );
+         yyerror ( e );
+      }
    }
    else
    {
@@ -980,16 +1073,23 @@ directive: INCBIN QUOTEDSTRING {
 
       if ( evaluated )
       {
-         // Variable-size block, do a .pad...
-         emit_bin_space ( $2->value.ival<<1, $4->number );
-         emit_fix ( 0/* not used, anyway */ );
+         if ( $2->vtype == value_is_int )
+         {
+            // Variable-size block, do a .pad...
+            emit_bin_space ( $2->value.ival<<1, $4->number );
+            emit_fix ( 0/* not used, anyway */ );
+         }
+         else
+         {
+            sprintf ( e, "%s: illegal string literal in expression", $1 );
+            yyerror ( e );
+         }
       }
    }
    if ( !evaluated )
    {
-      sprintf ( e, "cannot evaluate expression for .dsb" );
+      sprintf ( e, "%s: cannot fully evaluate expression", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: cannot evaluate expression for .dsb\n", yylineno );
    }
 }
 // Directive .align <alignment> aligns the address of the next emitted
@@ -1034,9 +1134,8 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, "negative offset in .advance directive based on current address" );
+      sprintf ( e, "%s: illegal negative offset based on current address", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: negative offset in .advance directive based on current address\n", yylineno );
    }
 }
 // Directive .advance <addr>, <value> is equivalent to .advance <addr>
@@ -1052,9 +1151,8 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, "negative offset in .advance directive based on current address" );
+      sprintf ( e, "%s: illegal negative offset based on current address", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: negative offset in .advance directive based on current address\n", yylineno );
    }
 }
 // Directive .enum <addr> is equivalent to ASM6 ENUM directive.  I find this
@@ -1074,9 +1172,8 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, "negative value in .enum directive" );
+      sprintf ( e, "%s: illegal negative address", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: negative .enum not allowed\n", yylineno );
    }
 }
 // Directive .ende is equivalent to ASM6 ENDE directive.  I find this
@@ -1092,9 +1189,8 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, ".ende directive without corresponding .enum directive" );
+      sprintf ( e, "%s: missing enum directive", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: .ende directive without corresponding .enum directive\n", yylineno );
    }
 }
          | MACRO LABELREF labellist {
@@ -1134,16 +1230,14 @@ directive: INCBIN QUOTEDSTRING {
       }
       else
       {
-         sprintf ( e, "too many nested .rept, max is %d", MAX_REPEATS );
+         sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_REPEATS );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: too many nested .rept, max is %d\n", yylineno, MAX_REPEATS );
       }
    }
    else
    {
-      sprintf ( e, "meaningless REPT (0 or 1) encountered" );
+      sprintf ( e, "%s: ignored, nothing to repeat", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: meaningless REPT 0 encountered\n", yylineno );
    }
 }
 // Directive .endr is equivalent to ASM6 ENDR directive.  It
@@ -1174,9 +1268,8 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, ".ENDR directive with no corresponding .REPT directive" );
+      sprintf ( e, "%s: missing rept directive", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: .ENDR directive with no corresponding .REPT directive\n", yylineno );
    }
 }
 // Directive .if <expression> emits the intermediate representation generated
@@ -1198,22 +1291,28 @@ directive: INCBIN QUOTEDSTRING {
          evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
          if ( evaluated )
          {
-            // Toggle intermediate representation emittance...
-            emitting[preproc_nest_level] = !!$2->value.ival;
-            emitted[preproc_nest_level] = !!$2->value.ival;
+            if ( $2->vtype == value_is_int )
+            {
+               // Toggle intermediate representation emittance...
+               emitting[preproc_nest_level] = !!$2->value.ival;
+               emitted[preproc_nest_level] = !!$2->value.ival;
+            }
+            else
+            {
+               sprintf ( e, "%s: illegal string literal in expression", $1 );
+               yyerror ( e );
+            }
          }
          else
          {
-            sprintf ( e, "cannot evaluate expression for .if" );
+            sprintf ( e, "%s: cannot fully evaluate expression", $1 );
             yyerror ( e );
-            fprintf ( stderr, "error: %d: cannot evaluate expression for .if\n", yylineno );
          }
       }
       else
       {
-         sprintf ( e, "too many nested .if, max is %d", MAX_IF_NEST );
+         sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_IF_NEST );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: too many nested .if, max is %d\n", yylineno, MAX_IF_NEST );
       }
    }
 }
@@ -1229,15 +1328,22 @@ directive: INCBIN QUOTEDSTRING {
       evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
       if ( evaluated )
       {
-         // Toggle intermediate representation emittance...
-         emitting[preproc_nest_level] = !!$2->value.ival;
-         emitted[preproc_nest_level] = !!$2->value.ival;
+         if ( $2->vtype == value_is_int )
+         {
+            // Toggle intermediate representation emittance...
+            emitting[preproc_nest_level] = !!$2->value.ival;
+            emitted[preproc_nest_level] = !!$2->value.ival;
+         }
+         else
+         {
+            sprintf ( e, "%s: illegal string literal in expression", $1 );
+            yyerror ( e );
+         }
       }
       else
       {
-         sprintf ( e, "cannot evaluate expression for .if" );
+         sprintf ( e, "%s: cannot fully evaluate expression", $1 );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: cannot evaluate expression for .if\n", yylineno );
       }
    }
    else
@@ -1267,9 +1373,8 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      sprintf ( e, ".endif without matching .if" );
+      sprintf ( e, "%s: missing if, ifdef, or ifndef directive", $1 );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: .endif without matching .if\n", yylineno );
    }
 }
          | IFDEF LABELREF TERM {
@@ -1290,9 +1395,8 @@ directive: INCBIN QUOTEDSTRING {
       }
       else
       {
-         sprintf ( e, "too many nested .ifdef, max is %d", MAX_IF_NEST );
+         sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_IF_NEST );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: too many nested .ifdef, max is %d\n", yylineno, MAX_IF_NEST );
       }
    }
 }
@@ -1314,9 +1418,8 @@ directive: INCBIN QUOTEDSTRING {
       }
       else
       {
-         sprintf ( e, "too many nested .ifndef, max is %d", MAX_IF_NEST );
+         sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_IF_NEST );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: too many nested .ifndef, max is %d\n", yylineno, MAX_IF_NEST );
       }
    }
 }
@@ -1337,9 +1440,8 @@ no_params: INSTR TERM {
 	}
 	else
 	{
-		sprintf ( e, "invalid addressing mode for instruction: %s", $1 );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
 		yyerror ( e );
-		fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, $1 );
 	}
 }
 ;
@@ -1374,9 +1476,8 @@ disambiguation_2: INSTR '+' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
                | INSTR '-' TERM {
@@ -1401,9 +1502,8 @@ disambiguation_2: INSTR '+' TERM {
       }
       else
       {
-         sprintf ( e, "reference to undeclared label: -" );
+         sprintf ( e, "%s: reference to undeclared label: -", instr_mnemonic($1) );
          yyerror ( e );
-         fprintf ( stderr, "error: %d: reference to undeclared label: -\n", yylineno );
       }
 
       // emit instruction with reference to expression for reduction when all symbols are known...
@@ -1411,9 +1511,8 @@ disambiguation_2: INSTR '+' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 ;
@@ -1434,9 +1533,8 @@ expression_param: INSTR '#' expr TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 // Parser for absolute, zeropage, and relative addressing modes.
@@ -1474,9 +1572,8 @@ expression_param: INSTR '#' expr TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 ;
@@ -1509,9 +1606,8 @@ index_reg_param: INSTR expr ',' 'x' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 // Parser for absolute indexed-by-y, and zeropage indexed-by-y addressing modes.
@@ -1542,9 +1638,8 @@ index_reg_param: INSTR expr ',' 'x' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 ;
@@ -1602,9 +1697,8 @@ indirect_param: INSTR '(' expr ')' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 ;
@@ -1625,9 +1719,8 @@ preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 ;
@@ -1648,9 +1741,8 @@ postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
 
@@ -1689,9 +1781,8 @@ disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
    }
    else
    {
-      sprintf ( e, "invalid addressing mode for instruction: %s", instr_mnemonic($1) );
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       yyerror ( e );
-      fprintf ( stderr, "error: %d: invalid addressing mode for instruction: %s\n", yylineno, instr_mnemonic($1) );
    }
 }
          ;
@@ -1704,16 +1795,58 @@ labellist: /* empty */ {
 }
 
 blist: blist ',' expr {
+   unsigned char evaluated;
+
    // reduce expression...
    reduce_expression ( $3, NULL );
 
-   emit_bin ( $3 );
+   // Attempt to evaluate expression to see what type we'll get...
+   evaluate_expression ( ir_tail, $3, &evaluated, FIX, NULL );
+
+   // We can't care about whether or not the expression completely
+   // evaluates here due to possible forward symbol references.  All
+   // we're interested in is the *type* of expression which should
+   // percolate up to the root node by evaluation...
+
+   // Emit different stuff depending on whether expression
+   // is string literal-based or numeric...
+   if ( $3->vtype == value_is_int )
+   {
+      emit_bin ( $3 );
+   }
+   else
+   {
+      // String and length should have percolated to the
+      // root node, just pass the expression...
+      emit_bin_string ( $3 );
+   }
 }
      | expr {
+   unsigned char evaluated;
+
    // reduce expression...
    reduce_expression ( $1, NULL );
 
-   emit_bin ( $1 );
+   // Attempt to evaluate expression to see what type we'll get...
+   evaluate_expression ( ir_tail, $1, &evaluated, FIX, NULL );
+
+   // We can't care about whether or not the expression completely
+   // evaluates here due to possible forward symbol references.  All
+   // we're interested in is the *type* of expression which should
+   // percolate up to the root node by evaluation...
+
+   // Emit different stuff depending on whether expression
+   // is string literal-based or numeric...
+   if ( $1->vtype == value_is_int )
+   {
+      emit_bin ( $1 );
+   }
+   else
+   {
+      // String and length should have percolated to the
+      // root node, just pass the expression...
+      emit_bin_string ( $1 );
+   }
 }
     ;
 
@@ -1798,7 +1931,7 @@ expr : QUOTEDSTRING {
    $$->type = expression_number;
    $$->node.num = $1;
 }
-      | LABELREF {
+     | LABELREF {
    // copy a declared global's expression directly into this
    // expression tree, to reduce expression parsing later on...
    // otherwise store a reference to the as-yet-unknown symbol
@@ -2086,11 +2219,12 @@ void initialize ( void )
 void add_error(char *s)
 {
    static char error_buffer [ 2048 ] = { 0, };
+   static char* ptr;
 
 	errorCount++;
 	if ( errorStorage == NULL )
 	{
-      if ( 1 )//current_label == NULL )
+      if ( current_label == -1 )
 		{
 //			if ( strlen(currentFile) )
 //			{
@@ -2101,6 +2235,7 @@ void add_error(char *s)
 				sprintf ( error_buffer, "error: %d: ", yylineno );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
+         ptr = errorStorage;
 			strcpy ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
 			strcat ( errorStorage, "\r\n" );
@@ -2116,10 +2251,11 @@ void add_error(char *s)
             sprintf ( error_buffer, "error: %d: after %s: ", yylineno, stab[current_label].symbol );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
-			strcpy ( errorStorage, error_buffer );
+         ptr = errorStorage;
+         strcpy ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
 			strcat ( errorStorage, "\r\n" );
-		}
+      }
 	}
 	else
 	{
@@ -2127,19 +2263,22 @@ void add_error(char *s)
 		{
 			sprintf ( error_buffer, "error: %d: ", yylineno );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
-			strcat ( errorStorage, error_buffer );
+         ptr = errorStorage+strlen(errorStorage);
+         strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
 			strcat ( errorStorage, "\r\n" );
-		}
+      }
 		else
 		{
          sprintf ( error_buffer, "error: %d: after %s: ", yylineno, stab[current_label].symbol );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
-			strcat ( errorStorage, error_buffer );
+         ptr = errorStorage+strlen(errorStorage);
+         strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
 			strcat ( errorStorage, "\r\n" );
-		}
+      }
 	}
+   fprintf ( stderr, ptr );
 }
 
 int yywrap(void)
@@ -2197,6 +2336,7 @@ int promote_instructions ( unsigned char flag )
       if ( expr )
       {
          // try a symbol reduction to see if we can promote this to zeropage...
+         evaluated = 1;
          evaluate_expression ( ptr, expr, &evaluated, flag, NULL );
          value = expr->value.ival;
          value_zp_ok = 0;
@@ -2209,6 +2349,15 @@ int promote_instructions ( unsigned char flag )
 
       switch ( ptr->fixup )
       {
+         case fixup_string:
+            if ( (evaluated) && (expr->vtype == value_is_string) )
+            {
+               // Emitting of the actual string is done at final binary generation...
+               // done!
+               ptr->fixup = fixup_fixed;
+            }
+         break;
+
          case fixup_datab:
             if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
             {
@@ -2288,9 +2437,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
             else
             {
@@ -2353,9 +2501,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
             else
             {
@@ -2418,9 +2565,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
             else
             {
@@ -2441,9 +2587,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
@@ -2459,9 +2604,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
@@ -2477,9 +2621,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
@@ -2527,14 +2670,12 @@ int promote_instructions ( unsigned char flag )
 
                   sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
                   yyerror ( e );
-                  fprintf ( stderr, "warning: %d: demotion of assumed post-indexed indirect instruction to absolute indexed instruction\n", ptr->source_linenum );
                }
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
@@ -2551,9 +2692,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
@@ -2582,17 +2722,15 @@ int promote_instructions ( unsigned char flag )
                }
                else
                {
-                  sprintf ( e, "branch to expression out of range" );
+                  sprintf ( e, "branch to address out of range" );
                   yyerror ( e );
-                  fprintf ( stderr, "error: %d: branch to expression out of range\n", ptr->source_linenum );
                }
                // done!
             }
             else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
 
@@ -2608,9 +2746,8 @@ int promote_instructions ( unsigned char flag )
             }
             else if ( (evaluated) && (expr->vtype == value_is_string) )
             {
-               sprintf ( e, "expressions with string constants not allowed here" );
+               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                yyerror ( e );
-               fprintf ( stderr, "error: %d: expressions with string constants not allowed here\n", ptr->source_linenum );
             }
          break;
       }
@@ -2655,13 +2792,11 @@ void check_fixup ( void )
          {
             sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
             yyerror ( e );
-            fprintf ( stderr, "error: %d: reference to undefined or unreachable symbol: %s\n", ptr->source_linenum, symbol );
          }
          else if ( !evaluated )
          {
             sprintf ( e, "unable to determine value of expression" );
             yyerror ( e );
-            fprintf ( stderr, "unable to determine value of expression\n", ptr->source_linenum );
          }
       }
    }
@@ -2690,7 +2825,6 @@ int start_macro ( char* symbol )
       {
          sprintf ( e, "unable to allocate memory for tables" );
          yyerror ( e );
-         fprintf ( stderr, "error: unable to allocate memory for tables!\n" );
       }
    }
    else
@@ -2723,7 +2857,6 @@ int start_macro ( char* symbol )
          {
             sprintf ( e, "unable to allocate memory for tables" );
             yyerror ( e );
-            fprintf ( stderr, "error: unable to allocate memory for tables!\n" );
          }
       }
    }
@@ -2764,7 +2897,6 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 		{
 			sprintf ( e, "unable to allocate memory for tables" );
 			yyerror ( e );
-			fprintf ( stderr, "error: unable to allocate memory for tables!\n" );
 		}
 	}
 	else
@@ -2801,7 +2933,6 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 			{
 				sprintf ( e, "unable to allocate memory for tables" );
 				yyerror ( e );
-				fprintf ( stderr, "error: unable to allocate memory for tables!\n" );
 			}
 		}
 	}
@@ -2858,7 +2989,10 @@ void output_binary ( char** buffer, int* size )
             lowest_bank_addr = ptr1->addr;
 				if ( (ptr1->btab_ent == lowest_bank) && (btab[ptr1->btab_ent].type == text_segment) )
 				{
-					addr = 0xFFFFFFFF;
+// CPTODO: don't need to reorder IR!!
+               ptr3 = ptr1;
+#if 0
+               addr = 0xFFFFFFFF;
 				
 					// find lowest addr
 					ptr3 = NULL;
@@ -2877,11 +3011,12 @@ void output_binary ( char** buffer, int* size )
 							ptr2->emitted = 1;
 						}
 					}
-					if ( ptr3 != NULL )
+#endif
+               if ( (ptr3 != NULL) && (ptr3->emitted == 0) )
 					{
 						ptr3->emitted = 1;
 						ptr4 = ptr3;
-                  if ( (ptr3->multi == 0) && (ptr3->label == 0) )
+                  if ( (ptr3->multi == 0) && (ptr3->label == 0) && (ptr3->string == 0) )
 						{
 							for ( i = 0; i < ptr3->len; i++ )
 							{
@@ -2893,7 +3028,19 @@ void output_binary ( char** buffer, int* size )
 								}
 							}
 						}
-						else
+                  else if ( ptr3->string == 1 )
+                  {
+                     for ( i = 0; i < ptr3->len; i++ )
+                     {
+                        (*buffer)[pos++] = (ptr3->expr->value.sval->string[i])&0xFF;
+                        if ( pos == (*size) )
+                        {
+                           (*size) += DEFAULT_BANK_SIZE;
+                           (*buffer) = (char*) realloc ( (*buffer), (*size) );
+                        }
+                     }
+                  }
+                  else
 						{
 							for ( i = 0; i < ptr3->len; i++ )
 							{
@@ -2967,10 +3114,10 @@ void dump_ir_table ( void )
 
 	for ( ; ptr != NULL; ptr = ptr->next )
 	{
-      if ( (ptr->multi == 0) && (ptr->label == 0) )
-		{
-			printf ( "%08x %d %04X: ", ptr, ptr->btab_ent, ptr->addr );
+      printf ( "%08x %d %04X: ", ptr, ptr->btab_ent, ptr->addr );
 
+      if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
+		{
          // only dump out three bytes!
          for ( i = 0; i < ptr->len&3; i++ )
 			{
@@ -2982,9 +3129,13 @@ void dump_ir_table ( void )
 			}
 			printf ( "\n" );
 		}
+      else if ( ptr->string == 1 )
+      {
+         printf ( "'%s' (string, length %d)\n", ptr->expr->value.sval->string, ptr->expr->value.sval->length );
+      }
 		else
 		{
-			printf ( "%08x %d %04X: %05X (%d) %02X\n", ptr, ptr->btab_ent, ptr->addr, ptr->len, ptr->len, ptr->data[0] );
+         printf ( "%05X (%d) %02X\n", ptr->len, ptr->len, ptr->data[0] );
 		}
 	}
 }
@@ -3193,6 +3344,7 @@ void reduce_expressions ( void )
 void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol )
 {
    int b;
+   unsigned char ok = 1;
 
    if ( expr->left )
    {
@@ -3212,7 +3364,7 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
              (expr->node.ref->type == reference_symbol) &&
              (expr->node.ref->ref.symbol[0] == '$') )
    {
-      // symbol is special 'PC' tracker
+      // '$' symbol is special 'PC' tracker
       expr->vtype = value_is_int;
       expr->value.ival = ir->addr;
    }
@@ -3258,6 +3410,11 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
          {
             expr->value.ival = ~expr->right->value.ival;
          }
+         else
+         {
+            // shouldn't get here but just incase...
+            ok = 0;
+         }
       }
       else if ( (!expr->left) &&
                 (expr->right->vtype == value_is_string) )
@@ -3277,6 +3434,11 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
             {
                expr->value.sval->string[b] = ~expr->value.sval->string[b];
             }
+         }
+         else
+         {
+            // shouldn't get here but just incase...
+            ok = 0;
          }
       }
       else if ( (expr->left) &&
@@ -3357,6 +3519,11 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
          {
             expr->value.ival = (expr->left->value.ival | expr->right->value.ival);
          }
+         else
+         {
+            // shouldn't get here but just incase...
+            ok = 0;
+         }
       }
       else if ( (expr->left) &&
                 (expr->left->vtype == value_is_string) &&
@@ -3399,6 +3566,11 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
             {
                expr->value.sval->string[b] %= expr->right->value.ival;
             }
+         }
+         else
+         {
+            // shouldn't get here but just incase...
+            ok = 0;
          }
       }
       else if ( (expr->left) &&
@@ -3444,9 +3616,25 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
                expr->value.sval->string[b] %= expr->right->value.sval->string[0];
             }
          }
+         else
+         {
+            // shouldn't get here but just incase...
+            ok = 0;
+         }
+      }
+      else
+      {
+         // shouldn't get here but just incase...
+         ok = 0;
       }
    }
    else
+   {
+      // shouldn't get here but just incase...
+      ok = 0;
+   }
+
+   if ( !ok )
    {
       (*evaluated) = 0;
       if ( (symbol) &&
@@ -3930,6 +4118,7 @@ ir_table* emit_ir ( void )
             ir_tail->align = 0;
             ir_tail->label = 0;
             ir_tail->fixed = 0;
+            ir_tail->string = 0;
             ir_tail->source_linenum = yylineno;
             ir_tail->next = NULL;
             ir_tail->prev = NULL;
@@ -3938,7 +4127,6 @@ ir_table* emit_ir ( void )
          else
          {
             yyerror ( "cannot allocate memory" );
-            fprintf ( stderr, "error: cannot allocate memory!\n" );
          }
       }
       else
@@ -3957,13 +4145,13 @@ ir_table* emit_ir ( void )
             ir_tail->align = 0;
             ir_tail->label = 0;
             ir_tail->fixed = 0;
+            ir_tail->string = 0;
             ir_tail->source_linenum = yylineno;
             ir_tail->expr = NULL;
          }
          else
          {
             yyerror ( "cannot allocate memory" );
-            fprintf ( stderr, "error: cannot allocate memory!\n" );
          }
       }
       return ir_tail;
@@ -3999,6 +4187,7 @@ ir_table* reemit_ir ( ir_table* head, ir_table* tail )
          ptr->align = head->align;
          ptr->fixed = head->fixed;
          ptr->label = head->label;
+         ptr->string = head->string;
          ptr->fixup = head->fixup;
          ptr->source_linenum = head->source_linenum;
          if ( head->expr )
@@ -4103,6 +4292,23 @@ ir_table* emit_bin_data ( unsigned char data )
    return ptr;
 }
 
+ir_table* emit_bin_string ( expr_type* expr )
+{
+   ir_table* ptr = emit_ir ();
+   if ( ptr )
+   {
+      ptr->fixup = fixup_string;
+      ptr->len = expr->value.sval->length;
+      ptr->string = 1;
+
+      ptr->expr = expr;
+
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
+   return ptr;
+}
+
 ir_table* emit_bin_align ( int m )
 {
    ir_table* ptr = emit_ir ();
@@ -4141,7 +4347,6 @@ ir_table* emit_bin_implied ( C6502_opcode* opcode )
       ptr->fixup = fixup_fixed;
       ptr->data[0] = opcode->op;
       ptr->len = 1;
-      ptr->expr = NULL;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
    }
@@ -4155,7 +4360,6 @@ ir_table* emit_bin_accumulator ( C6502_opcode* opcode )
    {
       ptr->fixup = fixup_fixed;
       ptr->data[0] = opcode->op;
-      ptr->expr = NULL;
       ptr->len = 1;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
