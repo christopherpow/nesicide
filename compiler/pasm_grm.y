@@ -2989,9 +2989,6 @@ void output_binary ( char** buffer, int* size )
             lowest_bank_addr = ptr1->addr;
 				if ( (ptr1->btab_ent == lowest_bank) && (btab[ptr1->btab_ent].type == text_segment) )
 				{
-// CPTODO: don't need to reorder IR!!
-               ptr3 = ptr1;
-#if 0
                addr = 0xFFFFFFFF;
 				
 					// find lowest addr
@@ -3011,7 +3008,7 @@ void output_binary ( char** buffer, int* size )
 							ptr2->emitted = 1;
 						}
 					}
-#endif
+
                if ( (ptr3 != NULL) && (ptr3->emitted == 0) )
 					{
 						ptr3->emitted = 1;
