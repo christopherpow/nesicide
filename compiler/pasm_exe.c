@@ -26,8 +26,8 @@ int main(int argc, char **argv)
    
 //   strcpy ( currentFile, "" );
 
-   add_binary_bank ( data_segment, ANONYMOUS_BANK );
-   add_binary_bank ( text_segment, ANONYMOUS_BANK );
+   add_binary_bank ( data_segment, NULL );
+   add_binary_bank ( text_segment, NULL );
 
    // Parse language to intermediate representation...
    yyparse();

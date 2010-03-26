@@ -384,8 +384,10 @@ binary_table* btab = NULL;
 binary_table* cur = NULL;
 int btab_ent = 0;
 int btab_max = 0;
+int btab_text = -1;
+int btab_data = -1;
 unsigned char add_binary_bank ( segment_type type, char* symbol );
-unsigned char set_binary_bank ( segment_type type, char* bankname );
+unsigned char set_binary_bank ( segment_type type, char* symbol );
 void set_binary_addr ( unsigned int addr );
 
 // Macros.  These represent the array of macros currently defined
@@ -763,38 +765,50 @@ directive: INCBIN QUOTEDSTRING {
 // Directive <.text|.data|.segment> "<name>" sets the current segment or creates a new one
 // based on whether or not it has seen <name> segment declared yet.  Segments are
 // equivalent to banks, which may be a bit of a misnomer that I need to work through.
-// CPTODO: address ASM6 BASE directive.
            | SEGMENT QUOTEDSTRING TERM {
+#if 0 // CPTODO: don't need segment management
    if ( set_binary_bank($1,$2->string) == 0 )
    {
       add_binary_bank ( $1, $2->string );
    }
+#endif
 }
 // Directive <.text|.data|.segment> <label> sets the current segment or creates a new one
 // based on whether or not it has seen <label> segment declared yet.  Segments are
 // equivalent to banks, which may be a bit of a misnomer that I need to work through.
 // Note this is equivalent to the above rule but means the segment name does not need
 // to be quoted.
-// CPTODO: address ASM6 BASE directive.
            | SEGMENT LABELREF TERM {
+#if 0 // CPTODO: don't need segment management
    if ( set_binary_bank($1,$2->ref.symbol) == 0 )
    {
       add_binary_bank ( $1, $2->ref.symbol );
    }
+#endif
 }
-// Directive <.text|.data> sets the current segment to the default segment.  One
+// Directive <.text|.data> sets the current segment to the last declared segment.  One
 // text and one data segment are created by default when parsing starts, so in some
 // situations no segmenting is necessary to achieve a working program.
            | SEGMENT TERM {
-   set_binary_bank ( $1, ANONYMOUS_BANK );
+#if 0 // CPTODO: don't need segment management
+   set_binary_bank ( $1, NULL );
+#endif
 }
 // Directive .org <addr> sets the current segment's address to <addr>.  The
 // next emitted intermediate representation node will have <addr> as its address.
            | ORIGIN DIGITS TERM {
    if ( $2->number >= 0 )
    {
-      set_binary_addr ( $2->number );
-      emit_fix ( $2->number );
+      if ( $2->number >= cur->addr )
+      {
+         set_binary_addr ( $2->number );
+         emit_fix ( $2->number );
+      }
+      else
+      {
+         sprintf ( e, "%s: new address is behind current address", $1 );
+         yyerror ( e );
+      }
    }
    else
    {
@@ -808,8 +822,8 @@ directive: INCBIN QUOTEDSTRING {
            | ORIGIN DIGITS ',' DIGITS TERM {
 // CPTODO: implement
 }
-// Directive .base <expression> sets the current segment's address to <expression>.
-// The next emitted intermediate representation node will have <addr> as its address.
+// Directive .base <expression> creates a new segment and sets its address to <expression>.
+// The next emitted intermediate representation node will have <expression> as its address.
            | BASE expr TERM {
    unsigned char evaluated;
 
@@ -1163,12 +1177,20 @@ directive: INCBIN QUOTEDSTRING {
    // directive followed by an .org directive...
    if ( $2->number >= 0 )
    {
-      // Save segment we came from...
-      btab_ent_prior_to_enum = cur->idx;
+      if ( btab_ent_prior_to_enum == -1 )
+      {
+         // Save segment we came from...
+         btab_ent_prior_to_enum = cur->idx;
 
-      set_binary_bank ( data_segment, ANONYMOUS_BANK );
-      set_binary_addr ( $2->number );
-      emit_fix ( $2->number );
+         add_binary_bank ( data_segment, NULL );
+         set_binary_addr ( $2->number );
+         emit_fix ( $2->number );
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal nesting of directive", $1 );
+         yyerror ( e );
+      }
    }
    else
    {
@@ -1180,8 +1202,7 @@ directive: INCBIN QUOTEDSTRING {
 // directive a bit hokey but am including it in an effort to be compatible
 // with ASM6.  Note that I try to emulate it using my segment model.
          | ENDENUMERATE TERM {
-   // Emulate ASM6 by pretending we just saw a .text segment
-   // directive...
+   // Return to bank we were in before the enumerate directive...
    if ( btab_ent_prior_to_enum >= 0 )
    {
       set_binary_bank ( btab[btab_ent_prior_to_enum].type, btab[btab_ent_prior_to_enum].symbol );
@@ -2876,6 +2897,35 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 {
 	unsigned char a = 1;
 	unsigned int i;
+   char     name [ 32 ];
+
+   if ( symbol == NULL )
+   {
+      switch ( type )
+      {
+         case text_segment:
+            sprintf ( name, TEXT_BANK_NAME_STRING, btab_ent );
+
+            // save last created bank for empty .text or .data or .segment directives
+            // and also to be able to return to the last created text bank on end of
+            // enumeration directive.
+            btab_text = btab_ent;
+         break;
+
+         case data_segment:
+            sprintf ( name, DATA_BANK_NAME_STRING, btab_ent );
+
+            // save last created bank for empty .text or .data or .segment directives
+            // and also to be able to return to the last created text bank on end of
+            // enumeration directive.
+            btab_data = btab_ent;
+         break;
+      }
+   }
+   else
+   {
+      strncpy ( name, symbol, 31 );
+   }
 
 	if ( btab == NULL )
 	{
@@ -2883,11 +2933,11 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 		if ( btab != NULL )
 		{
 			btab_max += BTAB_ENT_INC;
-			btab[btab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
+         btab[btab_ent].symbol = (char*)malloc ( strlen(name)+1 );
 			if ( btab[btab_ent].symbol != NULL )
 			{
-				memset ( btab[btab_ent].symbol, 0, strlen(symbol)+1 );
-				strncpy ( btab[btab_ent].symbol, symbol, strlen(symbol) );
+            memset ( btab[btab_ent].symbol, 0, strlen(name)+1 );
+            strncpy ( btab[btab_ent].symbol, name, strlen(name) );
 				btab[btab_ent].idx = btab_ent;
 				btab[btab_ent].type = type;
 				btab[btab_ent].addr = 0;
@@ -2903,11 +2953,11 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 	{
 		if ( btab_ent < btab_max )
 		{
-			btab[btab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
+         btab[btab_ent].symbol = (char*)malloc ( strlen(name)+1 );
 			if ( btab[btab_ent].symbol != NULL )
 			{
-				memset ( btab[btab_ent].symbol, 0, strlen(symbol)+1 );
-				strncpy ( btab[btab_ent].symbol, symbol, strlen(symbol) );
+            memset ( btab[btab_ent].symbol, 0, strlen(name)+1 );
+            strncpy ( btab[btab_ent].symbol, name, strlen(name) );
 				btab[btab_ent].idx = btab_ent;
 				btab[btab_ent].type = type;
 				btab[btab_ent].addr = 0;
@@ -2919,11 +2969,11 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 			btab = (binary_table*)realloc ( btab, btab_max*sizeof(binary_table) );
 			if ( btab != NULL )
 			{
-				btab[btab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
+            btab[btab_ent].symbol = (char*)malloc ( strlen(name)+1 );
 				if ( btab[btab_ent].symbol != NULL )
 				{
-					memset ( btab[btab_ent].symbol, 0, strlen(symbol)+1 );
-					strncpy ( btab[btab_ent].symbol, symbol, strlen(symbol) );
+               memset ( btab[btab_ent].symbol, 0, strlen(name)+1 );
+               strncpy ( btab[btab_ent].symbol, name, strlen(name) );
 					btab[btab_ent].idx = btab_ent;
 					btab[btab_ent].type = type;
 					btab[btab_ent].addr = 0;
@@ -2940,19 +2990,38 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 	cur = &(btab[btab_ent]);
 	btab_ent++;
 
-	//dump_binary_table ();
+   dump_binary_table ();
 
 	return a;
 }
 
-unsigned char set_binary_bank ( segment_type type, char* bankname )
+unsigned char set_binary_bank ( segment_type type, char* symbol )
 {
 	unsigned char a = 0;
 	unsigned int i;
+
+   if ( symbol == NULL )
+   {
+      switch ( type )
+      {
+         case text_segment:
+            a = 1;
+            cur = &(btab[btab_text]);
+            return a;
+         break;
+
+         case data_segment:
+            a = 1;
+            cur = &(btab[btab_data]);
+            return a;
+         break;
+      }
+   }
+
 	for ( i = 0; i < btab_ent; i++ )
 	{
 		if ( (type == btab[i].type) &&
-		     (strcmp(bankname,btab[i].symbol) == 0) )
+           (strcmp(symbol,btab[i].symbol) == 0) )
 		{
 			a = 1;
 			cur = &(btab[i]);

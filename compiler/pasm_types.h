@@ -17,12 +17,11 @@ extern "C" {
 // that will NEVER show up in the token stream as valid...
 #define SYMBOL_KILLER '?'
 
-#define AUTOLABEL_FMT "L%08X"
-
 typedef struct _macro_table
 {
    int idx; // used for self-reference and also for scoping variables
    char* symbol;
+   struct _symbol_table* stab;
    struct _ir_table* ir_head;
    struct _ir_table* ir_tail;
 } macro_table;
@@ -147,6 +146,8 @@ typedef struct _ir_table
 } ir_table;
 
 #define ANONYMOUS_BANK "_anonymous_"
+#define TEXT_BANK_NAME_STRING "_text%03d_"
+#define DATA_BANK_NAME_STRING "_data%03d_"
 
 typedef int (*incobj_callback_fn) ( char* objname, char** objdata, int* size );
 
@@ -162,6 +163,9 @@ typedef struct _binary_table
    segment_type   type;
    char*          symbol;
    unsigned int   addr;
+   struct _symbol_table* stab;
+   struct _ir_table* ir_head;
+   struct _ir_table* ir_tail;
 } binary_table;
 
 #if defined ( __cplusplus )
