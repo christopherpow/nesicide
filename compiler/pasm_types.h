@@ -40,12 +40,12 @@ typedef enum
 
 typedef struct _symbol_table
 {
-   int            idx;
-   char*          symbol;
-   struct _ir_table* ir;
-   struct _expr_type* expr;
-   unsigned int  btab_ent;
-   int           scope;
+   int                   idx;
+   char*                 symbol;
+   struct _ir_table*     ir;
+   struct _expr_type*    expr;
+   unsigned int          btab_ent;
+   struct _symbol_table* next;
 } symbol_table;
 
 typedef union _ref_union
@@ -145,7 +145,6 @@ typedef struct _ir_table
    struct _expr_type* expr;
 } ir_table;
 
-#define ANONYMOUS_BANK "_anonymous_"
 #define TEXT_BANK_NAME_STRING "_text%03d_"
 #define DATA_BANK_NAME_STRING "_data%03d_"
 
@@ -164,6 +163,14 @@ typedef struct _binary_table
    char*          symbol;
    unsigned int   addr;
    struct _symbol_table* stab;
+
+   // Intermediate representation queue pointers.  The assembly
+   // code we're parsing is first built as a linked list of
+   // intermediate representation structures.  Once the assembly
+   // code has been fully and completely parsed we run some
+   // reduction/optimization algorithms to complete the
+   // intermediate representation and make it ready for binary
+   // output.
    struct _ir_table* ir_head;
    struct _ir_table* ir_tail;
 } binary_table;

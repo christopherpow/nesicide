@@ -100,7 +100,6 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
 
    initialize ();
 
-   add_binary_bank ( data_segment, NULL );
    add_binary_bank ( text_segment, NULL );
 
    yy_delete_buffer ();

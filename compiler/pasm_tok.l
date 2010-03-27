@@ -162,7 +162,7 @@ keyword keywords [] =
 unsigned int stab_ent = 0;
 unsigned int stab_max = 0;
 symbol_table* stab = NULL;
-unsigned char add_symbol ( char* symbol, symbol_table** ptr );
+unsigned char add_symbol ( symbol_table* stab, char* symbol, symbol_table** ptr );
 symbol_table* find_symbol ( char* symbol, int btab_ent );
 
 // Cheap-label symbol table. Cheap labels exist only until
@@ -270,7 +270,7 @@ unsigned char valid_instr ( char* instr );
       {
          label[strlen(label)-1] = 0;
       }
-      f=add_symbol(label,&p);
+      f=add_symbol(stab,label,&p);
       if ( !f )
       {
          if ( (label[0] == '-') ||
@@ -281,7 +281,7 @@ unsigned char valid_instr ( char* instr );
             p->symbol[0] = SYMBOL_KILLER;
 
             // this time it should add...
-            f=add_symbol(label,&p);
+            f=add_symbol(stab,label,&p);
          }
          else
          {
@@ -646,7 +646,7 @@ void clear_cheap_labels ( void )
 	cltab_ent = 0;
 }
 
-unsigned char add_symbol ( char* symbol, symbol_table** ptr )
+unsigned char add_symbol ( symbol_table* stab, char* symbol, symbol_table** ptr )
 {
 	unsigned char a = 1;
 	unsigned int i;

@@ -334,16 +334,6 @@ int yywrap(void);
 // Current file being parsed for more meaningful error/warnings.
 //char currentFile [ 256 ];
 
-// Intermediate representation queue pointers.  The assembly
-// code we're parsing is first built as a linked list of
-// intermediate representation structures.  Once the assembly
-// code has been fully and completely parsed we run some
-// reduction/optimization algorithms to complete the
-// intermediate representation and make it ready for binary
-// output.
-ir_table* ir_head = NULL;
-ir_table* ir_tail = NULL;
-
 // Repeat macro intermediate representation pointer stack.
 // Allow for MAX_REPEATS nested REPT/ENDR macros, keeping
 // track of the starting intermediate representation node
@@ -397,6 +387,12 @@ int mtab_ent = 0;
 int mtab_max = 0;
 int start_macro ( char* symbol );
 void finish_macro ( int macro );
+// Temporary symbol table for macro definitions...we need this
+// because at the time of macro declaration we have not yet reduced
+// the macro directive to know what macro the defined symbols belong
+// to.  Once we reduce the macro directive the symbols declared will
+// be given to the macro to keep locally.
+symbol_table* macro_stab;
 
 // This function takes the completed intermediate representation
 // and outputs it as a flat binary stream ready to be sent to a file.
@@ -509,7 +505,7 @@ extern char* yytext;
 // representation table, and an expression.
 void dump_symbol_table ( void );
 void dump_binary_table ( void );
-void dump_ir_table ( void );
+void dump_ir_tables ( void );
 void dump_ir_expressions ( void );
 void dump_expression ( expr_type* expr );
 void dump_macro_table ( void );
@@ -830,7 +826,7 @@ directive: INCBIN QUOTEDSTRING {
    reduce_expression ( $2, NULL );
 
    evaluated = 1;
-   evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+   evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -864,7 +860,7 @@ directive: INCBIN QUOTEDSTRING {
    }
    else
    {
-      add_symbol ( $2->ref.symbol, &symtab );
+      add_symbol ( stab, $2->ref.symbol, &symtab );
       ptr = emit_label ( $3->number, fillValue );
       update_symbol_ir ( symtab, ptr );
       //dump_symbol_table ();
@@ -888,7 +884,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -906,7 +902,7 @@ directive: INCBIN QUOTEDSTRING {
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -947,7 +943,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype = value_is_int )
@@ -965,7 +961,7 @@ directive: INCBIN QUOTEDSTRING {
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -1006,7 +1002,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -1024,7 +1020,7 @@ directive: INCBIN QUOTEDSTRING {
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -1065,7 +1061,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -1083,7 +1079,7 @@ directive: INCBIN QUOTEDSTRING {
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -1309,7 +1305,7 @@ directive: INCBIN QUOTEDSTRING {
          reduce_expression ( $2, NULL );
 
          evaluated = 1;
-         evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+         evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
          if ( evaluated )
          {
             if ( $2->vtype == value_is_int )
@@ -1346,7 +1342,7 @@ directive: INCBIN QUOTEDSTRING {
       reduce_expression ( $2, NULL );
 
       evaluated = 1;
-      evaluate_expression ( ir_tail, $2, &evaluated, 0, NULL );
+      evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
       if ( evaluated )
       {
          if ( $2->vtype == value_is_int )
@@ -1475,23 +1471,38 @@ disambiguation_2: INSTR '+' TERM {
    unsigned char f;
    expr_type* expr;
    ref_type* ref;
-   symbol_table* sym;
-   char* label = malloc ( 2 );
+   char* label;
 
-   if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
    {
       // Create an expression that simply points to the relevant autolabel if it exists.
       expr = get_next_exprtype ();
       expr->type = expression_reference;
       ref = get_next_reftype ();
 
-      // Forward reference symbol, it shouldn't exist yet...
+      // Forward reference symbol, figure it out later...
       ref->type = reference_symbol;
+      label = malloc ( 2 );
       label[0] = '+';
       label[1] = 0;
       ref->ref.symbol = label;
       expr->node.ref = ref;
+   }
 
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_absolute ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
       // emit instruction with reference to expression for reduction when all symbols are known...
       emit_bin_relative ( &(m_6502opcode[f]), expr );
    }
@@ -1505,30 +1516,506 @@ disambiguation_2: INSTR '+' TERM {
    unsigned char f;
    expr_type* expr;
    ref_type* ref;
-   symbol_table* sym;
+   char* label;
 
-   if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
    {
       // Create an expression that simply points to the relevant autolabel if it exists.
       expr = get_next_exprtype ();
       expr->type = expression_reference;
       ref = get_next_reftype ();
 
-      ref->type = reference_symtab;
-      sym = find_symbol ( "-", cur->idx );
-      if ( sym )
-      {
-         ref->ref.stab_ent = sym->idx;
-         expr->node.ref = ref;
-      }
-      else
-      {
-         sprintf ( e, "%s: reference to undeclared label: -", instr_mnemonic($1) );
-         yyerror ( e );
-      }
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
 
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_absolute ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
       // emit instruction with reference to expression for reduction when all symbols are known...
       emit_bin_relative ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+               | INSTR '+' ',' 'x' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+               | INSTR '-' ',' 'x' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+           | INSTR '+' ',' 'y' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_abs_idx_y ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zp_idx_y ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+           | INSTR '-' ',' 'y' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_abs_idx_y ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zp_idx_y ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '+' ')' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   // special handling here...the ()'s could have been ripped off of a
+   // parenthesized expression, so we need to check to see if this is really
+   // an absolute or zero-page instruction format in disguise (due to the
+   // stolen parenthesis...
+
+   if ( ((f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_indirect ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_absolute ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_relative ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '-' ')' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   // special handling here...the ()'s could have been ripped off of a
+   // parenthesized expression, so we need to check to see if this is really
+   // an absolute or zero-page instruction format in disguise (due to the
+   // stolen parenthesis...
+
+   if ( ((f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_indirect ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_absolute ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_relative ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '+' ',' 'x' ')' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( (f=valid_instr_amode($1,AM_PREINDEXED_INDIRECT)) != INVALID_INSTR )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_pre_idx_ind ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '-' ',' 'x' ')' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( (f=valid_instr_amode($1,AM_PREINDEXED_INDIRECT)) != INVALID_INSTR )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_pre_idx_ind ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '+' ')' ',' 'y' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( (f=valid_instr_amode($1,AM_POSTINDEXED_INDIRECT)) != INVALID_INSTR )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_post_idx_ind ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '-' ')' ',' 'y' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( (f=valid_instr_amode($1,AM_POSTINDEXED_INDIRECT)) != INVALID_INSTR )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_post_idx_ind ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '+' ')' ',' 'x' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '+';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
+      yyerror ( e );
+   }
+}
+         | INSTR '(' '-' ')' ',' 'x' TERM {
+   unsigned char f;
+   expr_type* expr;
+   ref_type* ref;
+   char* label;
+
+   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
+        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
+   {
+      // Create an expression that simply points to the relevant autolabel if it exists.
+      expr = get_next_exprtype ();
+      expr->type = expression_reference;
+      ref = get_next_reftype ();
+
+      // Forward reference symbol, figure it out later...
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label[0] = '-';
+      label[1] = 0;
+      ref->ref.symbol = label;
+      expr->node.ref = ref;
+   }
+
+   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+   {
+      // emit instruction with reference to expression for reduction when all symbols are known...
+      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
    }
    else
    {
@@ -1558,6 +2045,7 @@ expression_param: INSTR '#' expr TERM {
       yyerror ( e );
    }
 }
+
 // Parser for absolute, zeropage, and relative addressing modes.
 // Ambiguity creeps in here a bit.  First, we have the possibility that
 // the instruction's expression may evaluate to an absolute (2-byte)
@@ -1822,7 +2310,7 @@ blist: blist ',' expr {
    reduce_expression ( $3, NULL );
 
    // Attempt to evaluate expression to see what type we'll get...
-   evaluate_expression ( ir_tail, $3, &evaluated, FIX, NULL );
+   evaluate_expression ( cur->ir_tail, $3, &evaluated, FIX, NULL );
 
    // We can't care about whether or not the expression completely
    // evaluates here due to possible forward symbol references.  All
@@ -1849,7 +2337,7 @@ blist: blist ',' expr {
    reduce_expression ( $1, NULL );
 
    // Attempt to evaluate expression to see what type we'll get...
-   evaluate_expression ( ir_tail, $1, &evaluated, FIX, NULL );
+   evaluate_expression ( cur->ir_tail, $1, &evaluated, FIX, NULL );
 
    // We can't care about whether or not the expression completely
    // evaluates here due to possible forward symbol references.  All
@@ -2180,16 +2668,7 @@ expr : QUOTEDSTRING {
 
 int yyerror(char* s)
 {
-   char er [ 256 ];
-   if ( yytext[0] != 0 )
-   {
-      sprintf ( er, "%s at '%s'", s, yytext );
-   }
-   else
-   {
-      sprintf ( er, "%s", s );
-   }
-   add_error ( er );
+   add_error ( s );
 }
 
 void initialize ( void )
@@ -2203,16 +2682,6 @@ void initialize ( void )
 	free ( errorStorage );
 	errorStorage = NULL;
 	errorCount = 0;
-
-	for ( ptr = ir_head; ptr != NULL; ptr = ptr->next )
-	{
-      if ( ptd->expr != NULL ) destroy_expression ( ptd->expr );
-		if ( ptd != NULL ) free ( ptd );
-		ptd = ptr;
-	}
-	free ( ptd );
-	ir_head = NULL;
-	ir_tail = NULL;
 
 	for ( idx = 0; idx < stab_ent; idx++ )
 	{
@@ -2230,14 +2699,21 @@ void initialize ( void )
 	for ( idx = 0; idx < btab_ent; idx++ )
 	{
 		free ( btab[idx].symbol );
-	}
+      for ( ptr = btab[idx].ir_head; ptr != NULL; ptr = ptr->next )
+      {
+         if ( ptd->expr != NULL ) destroy_expression ( ptd->expr );
+         if ( ptd != NULL ) free ( ptd );
+         ptd = ptr;
+      }
+      free ( ptd );
+   }
 	free ( btab );
 	btab = NULL;
 	btab_ent = 0;
 	btab_max = 0;
 }
 
-void add_error(char *s)
+void add_error ( char *s )
 {
    static char error_buffer [ 2048 ] = { 0, };
    static char* ptr;
@@ -2349,93 +2825,107 @@ int promote_instructions ( unsigned char flag )
    unsigned char evaluated = 1;
    unsigned char value_zp_ok;
    int promotions = 0;
+   int bank;
 
-   for ( ptr = ir_head; ptr != NULL; ptr = ptr->next )
+   for ( bank = 0; bank < btab_ent; bank++ )
    {
-      expr = ptr->expr;
-
-      if ( expr )
+      for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
       {
-         // try a symbol reduction to see if we can promote this to zeropage...
-         evaluated = 1;
-         evaluate_expression ( ptr, expr, &evaluated, flag, NULL );
-         value = expr->value.ival;
-         value_zp_ok = 0;
-         if ( (value >= -128) &&
-              (value < 256) )
+         expr = ptr->expr;
+
+         if ( expr )
          {
-            value_zp_ok = 1;
+            // try a symbol reduction to see if we can promote this to zeropage...
+            evaluated = 1;
+            evaluate_expression ( ptr, expr, &evaluated, flag, NULL );
+            value = expr->value.ival;
+            value_zp_ok = 0;
+            if ( (value >= -128) &&
+                 (value < 256) )
+            {
+               value_zp_ok = 1;
+            }
          }
-      }
 
-      switch ( ptr->fixup )
-      {
-         case fixup_string:
-            if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               // Emitting of the actual string is done at final binary generation...
-               // done!
-               ptr->fixup = fixup_fixed;
-            }
-         break;
-
-         case fixup_datab:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               ptr->data[0] = value&0xFF;
-               if ( flag == FIX )
+         switch ( ptr->fixup )
+         {
+            case fixup_string:
+               if ( (evaluated) && (expr->vtype == value_is_string) )
                {
+                  // Emitting of the actual string is done at final binary generation...
                   // done!
                   ptr->fixup = fixup_fixed;
                }
-            }
-         break;
+            break;
 
-         case fixup_dataw:
-            if ( (evaluated) && (expr->vtype == value_is_int) )
-            {
-               ptr->data[1] = (value>>8)&0xFF;
-               ptr->data[0] = value&0xFF;
-               if ( flag == FIX )
+            case fixup_datab:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
                {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-         break;
-
-         case fixup_abs_idx_x:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               // promote to zeropage if possible...
-               if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
-               {
-                  // promote to zeropage fixup so we keep track of it!
-                  ptr->fixup = fixup_zp_idx;
-
-                  // indicate we're probably not done fixing yet...
-                  promotions++;
-
-                  // fix this instruction...
-                  ptr->data[0] = f&0xFF;
-                  ptr->data[1] = value&0xFF;
-                  ptr->len = 2;
-
-                  // adjust addresses of downstream stuff up to the first fixed wall...
-                  walk_ptr = ptr;
-                  for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
+                  ptr->data[0] = value&0xFF;
+                  if ( flag == FIX )
                   {
-                     walk_ptr->addr--;
-                     if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
-                  }
-
-                  // adjust current bank address if necessary...
-                  if ( ptr->btab_ent == cur->idx )
-                  {
-                     cur->addr--;
+                     // done!
+                     ptr->fixup = fixup_fixed;
                   }
                }
-               else
+            break;
+
+            case fixup_dataw:
+               if ( (evaluated) && (expr->vtype == value_is_int) )
+               {
+                  ptr->data[1] = (value>>8)&0xFF;
+                  ptr->data[0] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+            break;
+
+            case fixup_abs_idx_x:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  // promote to zeropage if possible...
+                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+                  {
+                     // promote to zeropage fixup so we keep track of it!
+                     ptr->fixup = fixup_zp_idx;
+
+                     // indicate we're probably not done fixing yet...
+                     promotions++;
+
+                     // fix this instruction...
+                     ptr->data[0] = f&0xFF;
+                     ptr->data[1] = value&0xFF;
+                     ptr->len = 2;
+
+                     // adjust addresses of downstream stuff up to the first fixed wall...
+                     walk_ptr = ptr;
+                     for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
+                     {
+                        walk_ptr->addr--;
+                        if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
+                     }
+
+                     // adjust current bank address if necessary...
+                     if ( ptr->btab_ent == cur->idx )
+                     {
+                        cur->addr--;
+                     }
+                  }
+                  else
+                  {
+                     ptr->data[1] = value&0xFF;
+                     ptr->data[2] = (value>>8)&0xFF;
+                     if ( flag == FIX )
+                     {
+                        // done!
+                        ptr->fixup = fixup_fixed;
+                     }
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
                {
                   ptr->data[1] = value&0xFF;
                   ptr->data[2] = (value>>8)&0xFF;
@@ -2445,332 +2935,322 @@ int promote_instructions ( unsigned char flag )
                      ptr->fixup = fixup_fixed;
                   }
                }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               ptr->data[2] = (value>>8)&0xFF;
-               if ( flag == FIX )
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-            else
-            {
-               // indicate we're probably not done fixing yet...
-               promotions++;
-            }
-         break;
-
-         case fixup_abs_idx_y:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               // promote to zeropage if possible...
-               if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
-               {
-                  // promote to zeropage fixup so we keep track of it!
-                  ptr->fixup = fixup_zp_idx;
-
-                  // indicate we're probably not done fixing yet...
-                  promotions++;
-
-                  // fix this instruction...
-                  ptr->data[0] = f&0xFF;
-                  ptr->data[1] = value&0xFF;
-                  ptr->len = 2;
-
-                  // adjust addresses of downstream stuff up to the first fixed wall...
-                  walk_ptr = ptr;
-                  for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
-                  {
-                     walk_ptr->addr--;
-                     if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
-                  }
-
-                  // adjust current bank address if necessary...
-                  if ( ptr->btab_ent == cur->idx )
-                  {
-                     cur->addr--;
-                  }
-               }
-               else
-               {
-                  ptr->data[1] = value&0xFF;
-                  ptr->data[2] = (value>>8)&0xFF;
-                  if ( flag == FIX )
-                  {
-                     // done!
-                     ptr->fixup = fixup_fixed;
-                  }
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               ptr->data[2] = (value>>8)&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-            else
-            {
-               // indicate we're probably not done fixing yet...
-               promotions++;
-            }
-         break;
-
-         case fixup_absolute:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               // promote to zeropage if possible...
-               if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE)) != INVALID_INSTR )
-               {
-                  // promote to zeropage fixup so we keep track of it!
-                  ptr->fixup = fixup_zeropage;
-
-                  // indicate we're probably not done fixing yet...
-                  promotions++;
-
-                  // fix this instruction...
-                  ptr->data[0] = f&0xFF;
-                  ptr->data[1] = value&0xFF;
-                  ptr->len = 2;
-
-                  // adjust addresses of downstream stuff up to the first fixed wall...
-                  walk_ptr = ptr;
-                  for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
-                  {
-                     walk_ptr->addr--;
-                     if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
-                  }
-
-                  // adjust current bank address if necessary...
-                  if ( ptr->btab_ent == cur->idx )
-                  {
-                     cur->addr--;
-                  }
-               }
-               else
-               {
-                  ptr->data[1] = value&0xFF;
-                  ptr->data[2] = (value>>8)&0xFF;
-                  if ( flag == FIX )
-                  {
-                     // done!
-                     ptr->fixup = fixup_fixed;
-                  }
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               ptr->data[2] = (value>>8)&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-            else
-            {
-               // indicate we're probably not done fixing yet...
-               promotions++;
-            }
-         break;
-
-         case fixup_zeropage:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
-
-         case fixup_zp_idx:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
-
-         case fixup_pre_idx_ind:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
-
-         case fixup_post_idx_ind:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_int) )
-            {
-               // disambiguation: if we've decided this instruction is a post-indexed indirect
-               // addressing mode but the expression evaluates outside of zeropage, check to see if
-               // the instruction is absolute indexed by y addressing mode capable and if so WARN
-               // and demote...
-               unsigned char f;
-               if ( (f=valid_instr_amode(ptr->data[0],AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
-               {
-                  ptr->fixup = fixup_abs_idx_y;
-
-                  // indicate we're probably not done fixing yet...
-                  promotions++;
-
-                  // fix this instruction...
-                  ptr->data[0] = f&0xFF;
-                  ptr->len = 3; // DEMOTION
-
-                  // adjust addresses of downstream stuff up to the first fixed wall...
-                  walk_ptr = ptr;
-                  for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
-                  {
-                     walk_ptr->addr++; // DEMOTION
-                     if ( walk_ptr->multi == 1 ) walk_ptr->len -= 1; // DEMOTION
-                  }
-
-                  // adjust current bank address if necessary...
-                  if ( ptr->btab_ent == cur->idx )
-                  {
-                     cur->addr++; // DEMOTION
-                  }
-
-                  sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                   yyerror ( e );
                }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
-
-         case fixup_indirect:
-            if ( (evaluated) && (expr->vtype == value_is_int) )
-            {
-               ptr->data[1] = value&0xFF;
-               ptr->data[2] = (value>>8)&0xFF;
-               if ( flag == FIX )
-               {
-                  // done!
-                  ptr->fixup = fixup_fixed;
-               }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
-
-         case fixup_relative:
-            if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_int) )
-            {
-               if ( (value > 255) ||
-                    (value < -128) )
-               {
-                  // must be a branch to a label (calculate distance)...
-                  di = -((ptr->addr+ptr->len) - value);
-               }
                else
                {
-                  // must be a direct branch to a numeric offset, directly use distance...
-                  di = value;
+                  // indicate we're probably not done fixing yet...
+                  promotions++;
                }
-               if ( (di >= -128) && (di <= 127) )
+            break;
+
+            case fixup_abs_idx_y:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
                {
-                  ptr->data[1] = di&0xFF;
+                  // promote to zeropage if possible...
+                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
+                  {
+                     // promote to zeropage fixup so we keep track of it!
+                     ptr->fixup = fixup_zp_idx;
+
+                     // indicate we're probably not done fixing yet...
+                     promotions++;
+
+                     // fix this instruction...
+                     ptr->data[0] = f&0xFF;
+                     ptr->data[1] = value&0xFF;
+                     ptr->len = 2;
+
+                     // adjust addresses of downstream stuff up to the first fixed wall...
+                     walk_ptr = ptr;
+                     for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
+                     {
+                        walk_ptr->addr--;
+                        if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
+                     }
+
+                     // adjust current bank address if necessary...
+                     if ( ptr->btab_ent == cur->idx )
+                     {
+                        cur->addr--;
+                     }
+                  }
+                  else
+                  {
+                     ptr->data[1] = value&0xFF;
+                     ptr->data[2] = (value>>8)&0xFF;
+                     if ( flag == FIX )
+                     {
+                        // done!
+                        ptr->fixup = fixup_fixed;
+                     }
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  ptr->data[2] = (value>>8)&0xFF;
                   if ( flag == FIX )
                   {
                      // done!
                      ptr->fixup = fixup_fixed;
                   }
                }
-               else
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
-                  sprintf ( e, "branch to address out of range" );
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
                   yyerror ( e );
                }
-               // done!
-            }
-            else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
-
-         case fixup_immediate:
-            if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
-            {
-               ptr->data[1] = value&0xFF;
-               if ( flag == FIX )
+               else
                {
-                  // done!
-                  ptr->fixup = fixup_fixed;
+                  // indicate we're probably not done fixing yet...
+                  promotions++;
                }
-            }
-            else if ( (evaluated) && (expr->vtype == value_is_string) )
-            {
-               sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-               yyerror ( e );
-            }
-         break;
+            break;
+
+            case fixup_absolute:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  // promote to zeropage if possible...
+                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE)) != INVALID_INSTR )
+                  {
+                     // promote to zeropage fixup so we keep track of it!
+                     ptr->fixup = fixup_zeropage;
+
+                     // indicate we're probably not done fixing yet...
+                     promotions++;
+
+                     // fix this instruction...
+                     ptr->data[0] = f&0xFF;
+                     ptr->data[1] = value&0xFF;
+                     ptr->len = 2;
+
+                     // adjust addresses of downstream stuff up to the first fixed wall...
+                     walk_ptr = ptr;
+                     for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
+                     {
+                        walk_ptr->addr--;
+                        if ( walk_ptr->multi == 1 ) walk_ptr->len += 1;
+                     }
+
+                     // adjust current bank address if necessary...
+                     if ( ptr->btab_ent == cur->idx )
+                     {
+                        cur->addr--;
+                     }
+                  }
+                  else
+                  {
+                     ptr->data[1] = value&0xFF;
+                     ptr->data[2] = (value>>8)&0xFF;
+                     if ( flag == FIX )
+                     {
+                        // done!
+                        ptr->fixup = fixup_fixed;
+                     }
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_int) && (!value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  ptr->data[2] = (value>>8)&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+               else
+               {
+                  // indicate we're probably not done fixing yet...
+                  promotions++;
+               }
+            break;
+
+            case fixup_zeropage:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+
+            case fixup_zp_idx:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+
+            case fixup_pre_idx_ind:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+
+            case fixup_post_idx_ind:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_int) )
+               {
+                  // disambiguation: if we've decided this instruction is a post-indexed indirect
+                  // addressing mode but the expression evaluates outside of zeropage, check to see if
+                  // the instruction is absolute indexed by y addressing mode capable and if so WARN
+                  // and demote...
+                  unsigned char f;
+                  if ( (f=valid_instr_amode(ptr->data[0],AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
+                  {
+                     ptr->fixup = fixup_abs_idx_y;
+
+                     // indicate we're probably not done fixing yet...
+                     promotions++;
+
+                     // fix this instruction...
+                     ptr->data[0] = f&0xFF;
+                     ptr->len = 3; // DEMOTION
+
+                     // adjust addresses of downstream stuff up to the first fixed wall...
+                     walk_ptr = ptr;
+                     for ( walk_ptr = walk_ptr->next; (walk_ptr != NULL) && (walk_ptr->fixed == 0); walk_ptr = walk_ptr->next )
+                     {
+                        walk_ptr->addr++; // DEMOTION
+                        if ( walk_ptr->multi == 1 ) walk_ptr->len -= 1; // DEMOTION
+                     }
+
+                     // adjust current bank address if necessary...
+                     if ( ptr->btab_ent == cur->idx )
+                     {
+                        cur->addr++; // DEMOTION
+                     }
+
+                     sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
+                     yyerror ( e );
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+
+            case fixup_indirect:
+               if ( (evaluated) && (expr->vtype == value_is_int) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  ptr->data[2] = (value>>8)&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+
+            case fixup_relative:
+               if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_int) )
+               {
+                  if ( (value > 255) ||
+                       (value < -128) )
+                  {
+                     // must be a branch to a label (calculate distance)...
+                     di = -((ptr->addr+ptr->len) - value);
+                  }
+                  else
+                  {
+                     // must be a direct branch to a numeric offset, directly use distance...
+                     di = value;
+                  }
+                  if ( (di >= -128) && (di <= 127) )
+                  {
+                     ptr->data[1] = di&0xFF;
+                     if ( flag == FIX )
+                     {
+                        // done!
+                        ptr->fixup = fixup_fixed;
+                     }
+                  }
+                  else
+                  {
+                     sprintf ( e, "branch to address out of range" );
+                     yyerror ( e );
+                  }
+                  // done!
+               }
+               else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+
+            case fixup_immediate:
+               if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
+               {
+                  ptr->data[1] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+               else if ( (evaluated) && (expr->vtype == value_is_string) )
+               {
+                  sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
+                  yyerror ( e );
+               }
+            break;
+         }
       }
    }
 
@@ -2796,28 +3276,32 @@ void check_fixup ( void )
    unsigned char evaluated = 1;
    unsigned char value_zp_ok;
    char* symbol;
+   int bank;
 
-   for ( ptr = ir_head; ptr != NULL; ptr = ptr->next )
+   for ( bank = 0; bank < btab_ent; bank++ )
    {
-      expr = ptr->expr;
-
-      if ( expr )
+      for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
       {
-         // check expression evaluates...
-         symbol = NULL;
-         evaluated = 1;
-         evaluate_expression ( ptr, expr, &evaluated, FIX, &symbol );
+         expr = ptr->expr;
 
-         // if not, emit an error...
-         if ( (!evaluated) && symbol )
+         if ( expr )
          {
-            sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
-            yyerror ( e );
-         }
-         else if ( !evaluated )
-         {
-            sprintf ( e, "unable to determine value of expression" );
-            yyerror ( e );
+            // check expression evaluates...
+            symbol = NULL;
+            evaluated = 1;
+            evaluate_expression ( ptr, expr, &evaluated, FIX, &symbol );
+
+            // if not, emit an error...
+            if ( (!evaluated) && symbol )
+            {
+               sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
+               yyerror ( e );
+            }
+            else if ( !evaluated )
+            {
+               sprintf ( e, "unable to determine value of expression" );
+               yyerror ( e );
+            }
          }
       }
    }
@@ -2941,7 +3425,10 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 				btab[btab_ent].idx = btab_ent;
 				btab[btab_ent].type = type;
 				btab[btab_ent].addr = 0;
-			}
+            btab[btab_ent].ir_head = NULL;
+            btab[btab_ent].ir_tail = NULL;
+            btab[btab_ent].stab = NULL;
+         }
 		}
 		else
 		{
@@ -2961,7 +3448,10 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 				btab[btab_ent].idx = btab_ent;
 				btab[btab_ent].type = type;
 				btab[btab_ent].addr = 0;
-			}
+            btab[btab_ent].ir_head = NULL;
+            btab[btab_ent].ir_tail = NULL;
+            btab[btab_ent].stab = NULL;
+         }
 		}
 		else
 		{
@@ -2977,7 +3467,10 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 					btab[btab_ent].idx = btab_ent;
 					btab[btab_ent].type = type;
 					btab[btab_ent].addr = 0;
-				}
+               btab[btab_ent].ir_head = NULL;
+               btab[btab_ent].ir_tail = NULL;
+               btab[btab_ent].stab = NULL;
+            }
 			}
 			else
 			{
@@ -2988,9 +3481,10 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 	}
 
 	cur = &(btab[btab_ent]);
+
 	btab_ent++;
 
-   dump_binary_table ();
+   //dump_binary_table ();
 
 	return a;
 }
@@ -3007,43 +3501,38 @@ unsigned char set_binary_bank ( segment_type type, char* symbol )
          case text_segment:
             a = 1;
             cur = &(btab[btab_text]);
-            return a;
          break;
 
          case data_segment:
             a = 1;
             cur = &(btab[btab_data]);
-            return a;
          break;
       }
    }
+   else
+   {
+      for ( i = 0; i < btab_ent; i++ )
+      {
+         if ( (type == btab[i].type) &&
+              (strcmp(symbol,btab[i].symbol) == 0) )
+         {
+            a = 1;
+            cur = &(btab[i]);
+         }
+      }
+   }
 
-	for ( i = 0; i < btab_ent; i++ )
-	{
-		if ( (type == btab[i].type) &&
-           (strcmp(symbol,btab[i].symbol) == 0) )
-		{
-			a = 1;
-			cur = &(btab[i]);
-			return a;
-		}
-	}
-	return a;
+   //dump_binary_table ();
+
+   return a;
 }
 
 void output_binary ( char** buffer, int* size )
 {
 	int pos = 0;
-	ir_table* ptr1;
-	ir_table* ptr2;
-	ir_table* ptr3;
-	ir_table* ptr4 = NULL;
-	ir_table* ptrl;
-   unsigned int addr = 0;
+   ir_table* ptr;
 	int       i;
 	int       bank;
-	int       lowest_bank_addr = -1;
-	int       lowest_bank;
 
    (*buffer) = (char*) malloc ( DEFAULT_BANK_SIZE );
    (*size) = DEFAULT_BANK_SIZE;
@@ -3051,42 +3540,18 @@ void output_binary ( char** buffer, int* size )
 	{
 		for ( bank = 0; bank < btab_ent; bank++ )
 		{
-			ptr4 = NULL;
-			for ( ptr1 = ir_head; ptr1 != NULL; ptr1 = ptr1->next )
-			{
-            lowest_bank = ptr1->btab_ent;
-            lowest_bank_addr = ptr1->addr;
-				if ( (ptr1->btab_ent == lowest_bank) && (btab[ptr1->btab_ent].type == text_segment) )
-				{
-               addr = 0xFFFFFFFF;
-				
-					// find lowest addr
-					ptr3 = NULL;
-					for ( ptr2 = ir_head; ptr2 != NULL; ptr2 = ptr2->next )
+         if ( btab[bank].type == text_segment )
+         {
+            for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
+            {
+               if ( ptr->emitted == 0 )
 					{
-						if ( (ptr2->btab_ent == lowest_bank) && (btab[ptr2->btab_ent].type == text_segment) )
+                  ptr->emitted = 1;
+                  if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
 						{
-							if ( (ptr2->addr < addr) && (ptr2->emitted == 0) )
+                     for ( i = 0; i < ptr->len; i++ )
 							{
-								ptr3 = ptr2;
-								addr = ptr3->addr;
-							}
-						}
-						else if ( (ptr2->btab_ent == lowest_bank) && (btab[ptr2->btab_ent].type == data_segment) )
-						{
-							ptr2->emitted = 1;
-						}
-					}
-
-               if ( (ptr3 != NULL) && (ptr3->emitted == 0) )
-					{
-						ptr3->emitted = 1;
-						ptr4 = ptr3;
-                  if ( (ptr3->multi == 0) && (ptr3->label == 0) && (ptr3->string == 0) )
-						{
-							for ( i = 0; i < ptr3->len; i++ )
-							{
-								(*buffer)[pos++] = (ptr3->data[i])&0xFF;
+                        (*buffer)[pos++] = (ptr->data[i])&0xFF;
 								if ( pos == (*size) )
 								{
                            (*size) += DEFAULT_BANK_SIZE;
@@ -3094,11 +3559,11 @@ void output_binary ( char** buffer, int* size )
 								}
 							}
 						}
-                  else if ( ptr3->string == 1 )
+                  else if ( ptr->string == 1 )
                   {
-                     for ( i = 0; i < ptr3->len; i++ )
+                     for ( i = 0; i < ptr->len; i++ )
                      {
-                        (*buffer)[pos++] = (ptr3->expr->value.sval->string[i])&0xFF;
+                        (*buffer)[pos++] = (ptr->expr->value.sval->string[i])&0xFF;
                         if ( pos == (*size) )
                         {
                            (*size) += DEFAULT_BANK_SIZE;
@@ -3108,9 +3573,9 @@ void output_binary ( char** buffer, int* size )
                   }
                   else
 						{
-							for ( i = 0; i < ptr3->len; i++ )
+                     for ( i = 0; i < ptr->len; i++ )
 							{
-								(*buffer)[pos++] = (ptr3->data[0])&0xFF;
+                        (*buffer)[pos++] = (ptr->data[0])&0xFF;
 								if ( pos == (*size) )
 								{
                            (*size) += DEFAULT_BANK_SIZE;
@@ -3125,7 +3590,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   dump_ir_table ();
+   dump_ir_tables ();
 }
 
 char* instr_mnemonic ( unsigned char op )
@@ -3160,49 +3625,59 @@ void update_symbol_ir ( symbol_table* stab, ir_table* ir )
 
 void dump_ir_expressions ( void )
 {
-   ir_table* ptr = ir_head;
+   ir_table* ptr;
    int       i;
+   int       bank;
 
-   for ( ; ptr != NULL; ptr = ptr->next )
+   for ( bank = 0; bank < btab_ent; bank++ )
    {
-      if ( ptr->expr )
+      printf ( "IR expressions for bank %d (%s):\n", bank, btab[bank].symbol );
+      for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
       {
-         printf ( "%08x %08x %04X: \n", ptr, ptr->expr, ptr->addr );
-         dump_expression ( ptr->expr );
+         if ( ptr->expr )
+         {
+            printf ( "%08x %08x %04X: \n", ptr, ptr->expr, ptr->addr );
+            dump_expression ( ptr->expr );
+         }
       }
    }
 }
 
-void dump_ir_table ( void )
+void dump_ir_tables ( void )
 {
-	ir_table* ptr = ir_head;
+   ir_table* ptr;
 	int       i;
+   int       bank;
 
-	for ( ; ptr != NULL; ptr = ptr->next )
-	{
-      printf ( "%08x %d %04X: ", ptr, ptr->btab_ent, ptr->addr );
-
-      if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
-		{
-         // only dump out three bytes!
-         for ( i = 0; i < ptr->len&3; i++ )
-			{
-				printf ( "%02X ", ptr->data[i] );
-			}
-			if ( ptr->fixed == 1 )
-			{
-				printf ( "(fixed)" );
-			}
-			printf ( "\n" );
-		}
-      else if ( ptr->string == 1 )
+   for ( bank = 0; bank < btab_ent; bank++ )
+   {
+      printf ( "IR stream for bank %d (%s):\n", bank, btab[bank].symbol );
+      for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
       {
-         printf ( "'%s' (string, length %d)\n", ptr->expr->value.sval->string, ptr->expr->value.sval->length );
+         printf ( "%08x %04X: ", ptr, ptr->addr );
+
+         if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
+         {
+            // only dump out three bytes!
+            for ( i = 0; i < ptr->len&3; i++ )
+            {
+               printf ( "%02X ", ptr->data[i] );
+            }
+            if ( ptr->fixed == 1 )
+            {
+               printf ( "(fixed)" );
+            }
+            printf ( "\n" );
+         }
+         else if ( ptr->string == 1 )
+         {
+            printf ( "'%s' (string, length %d)\n", ptr->expr->value.sval->string, ptr->expr->value.sval->length );
+         }
+         else
+         {
+            printf ( "%05X (%d) %02X\n", ptr->len, ptr->len, ptr->data[0] );
+         }
       }
-		else
-		{
-         printf ( "%05X (%d) %02X\n", ptr->len, ptr->len, ptr->data[0] );
-		}
 	}
 }
 
@@ -3381,6 +3856,7 @@ void reduce_expressions ( void )
 {
    ir_table* ptr;
    int i, j;
+   int bank;
 
    // go through each symbol, reducing its expression [if it has one]
    // with the expressions of other symbols, then go through the
@@ -3397,11 +3873,14 @@ void reduce_expressions ( void )
          }
       }
 
-      for ( ptr = ir_head; ptr != NULL; ptr = ptr->next )
+      for ( bank = 0; bank < btab_ent; bank++ )
       {
-         if ( ptr->expr )
+         for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
          {
-            reduce_expression ( ptr->expr, &(stab[i]) );
+            if ( ptr->expr )
+            {
+               reduce_expression ( ptr->expr, &(stab[i]) );
+            }
          }
       }
    }
@@ -4171,24 +4650,24 @@ ir_table* emit_ir ( void )
    // If we're supposed to be emitting, do so...
    if ( emitting[preproc_nest_level] )
    {
-      if ( ir_tail == NULL )
+      if ( cur->ir_tail == NULL )
       {
-         ir_head = (ir_table*) malloc ( sizeof(ir_table) );
-         if ( ir_head != NULL )
+         cur->ir_head = (ir_table*) malloc ( sizeof(ir_table) );
+         if ( cur->ir_head != NULL )
          {
-            ir_tail = ir_head;
-            ir_tail->btab_ent = cur->idx;
-            ir_tail->addr = 0;
-            ir_tail->emitted = 0;
-            ir_tail->multi = 0;
-            ir_tail->align = 0;
-            ir_tail->label = 0;
-            ir_tail->fixed = 0;
-            ir_tail->string = 0;
-            ir_tail->source_linenum = yylineno;
-            ir_tail->next = NULL;
-            ir_tail->prev = NULL;
-            ir_tail->expr = NULL;
+            cur->ir_tail = cur->ir_head;
+            cur->ir_tail->btab_ent = cur->idx;
+            cur->ir_tail->addr = 0;
+            cur->ir_tail->emitted = 0;
+            cur->ir_tail->multi = 0;
+            cur->ir_tail->align = 0;
+            cur->ir_tail->label = 0;
+            cur->ir_tail->fixed = 0;
+            cur->ir_tail->string = 0;
+            cur->ir_tail->source_linenum = yylineno;
+            cur->ir_tail->next = NULL;
+            cur->ir_tail->prev = NULL;
+            cur->ir_tail->expr = NULL;
          }
          else
          {
@@ -4200,28 +4679,29 @@ ir_table* emit_ir ( void )
          ptr = (ir_table*) malloc ( sizeof(ir_table) );
          if ( ptr != NULL )
          {
-            ir_tail->next = ptr;
-            ptr->prev = ir_tail;
+            cur->ir_tail->next = ptr;
+            ptr->prev = cur->ir_tail;
             ptr->next = NULL;
-            ir_tail = ptr;
-            ir_tail->btab_ent = cur->idx;
-            ir_tail->addr = 0;
-            ir_tail->emitted = 0;
-            ir_tail->multi = 0;
-            ir_tail->align = 0;
-            ir_tail->label = 0;
-            ir_tail->fixed = 0;
-            ir_tail->string = 0;
-            ir_tail->source_linenum = yylineno;
-            ir_tail->expr = NULL;
+            cur->ir_tail = ptr;
+            ptr->btab_ent = cur->idx;
+            ptr->addr = 0;
+            ptr->emitted = 0;
+            ptr->multi = 0;
+            ptr->align = 0;
+            ptr->label = 0;
+            ptr->fixed = 0;
+            ptr->string = 0;
+            ptr->source_linenum = yylineno;
+            ptr->expr = NULL;
          }
          else
          {
             yyerror ( "cannot allocate memory" );
          }
       }
-      return ir_tail;
+      return cur->ir_tail;
    }
+
    // We're not supposed to be emitting, so don't...
    return NULL;
 }
@@ -4230,7 +4710,7 @@ ir_table* reemit_ir ( ir_table* head, ir_table* tail )
 {
    ir_table* ptr;
 
-   // skip past first node, it is a dummy label node
+   // skip past first node, it is a dummy label node (a telomere?! =)
    // to keep us from re-emitting the instruction that
    // is immediately prior to the REPT directive.
    // [Directives typically don't emit their own nodes.]
