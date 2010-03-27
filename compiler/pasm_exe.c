@@ -23,7 +23,9 @@ int main(int argc, char **argv)
       fprintf ( stderr, "error: cannot open input file: %s\n", argv[1] );
       exit( 1 );
    }
-   
+
+   initialize ();
+
 //   strcpy ( currentFile, "" );
 
    add_binary_bank ( text_segment, NULL );

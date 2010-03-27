@@ -5,8 +5,7 @@
 
 extern FILE* yyin;
 extern incobj_callback_fn incobj_fn;
-extern symbol_table* stab;
-extern int stab_ent;
+extern symbol_list* stab;
 
 extern char* errorStorage;
 extern int errorCount;
@@ -29,18 +28,38 @@ int pasm_get_num_errors ( void )
 
 char* pasm_get_symbol ( int symbol )
 {
-   return stab[symbol].symbol;
+   symbol_table* ptr = stab->head;
+   int i = 0;
+
+   while ( i < symbol )
+   {
+      i++;
+      ptr = ptr->next;
+   }
+
+   return ptr->symbol;
 }
 
 int pasm_get_symbol_linenum ( int symbol )
 {
-   return stab[symbol].ir->source_linenum;
+   symbol_table* ptr = stab->head;
+   int i = 0;
+
+   while ( i < symbol )
+   {
+      i++;
+      ptr = ptr->next;
+   }
+
+   return ptr->ir->source_linenum;
 }
 
 int pasm_get_symbol_data ( int symbol, char* data, int size )
 {
-   ir_table* ptr = stab[symbol].ir;
    int bytes = 0;
+#if 0
+// CPTODO: implement when needed
+   ir_table* ptr = stab[symbol].ir;
 
    if ( ptr != NULL )
    {
@@ -54,13 +73,23 @@ int pasm_get_symbol_data ( int symbol, char* data, int size )
       } while ( (ptr != NULL) && (size > 0) );
    }
 
+#endif
    return bytes;
 }
 
 symbol_type pasm_get_symbol_type ( int symbol )
 {
+   symbol_table* ptr = stab->head;
+   int i = 0;
+
+   while ( i < symbol )
+   {
+      i++;
+      ptr = ptr->next;
+   }
+
    symbol_type value;
-   if ( stab[symbol].expr )
+   if ( ptr->expr )
    {
       value = symbol_global;
    }
@@ -73,22 +102,44 @@ symbol_type pasm_get_symbol_type ( int symbol )
 
 int pasm_get_symbol_value ( int symbol )
 {
+   symbol_table* ptr = stab->head;
+   int i = 0;
+
+   while ( i < symbol )
+   {
+      i++;
+      ptr = ptr->next;
+   }
+
    int value;
    int evaluated = 1;
-   if ( stab[symbol].expr )
+   if ( ptr->expr )
    {
-      value = evaluate_expression ( stab[symbol].ir, stab[symbol].expr, &evaluated, 0, NULL );
+      value = evaluate_expression ( ptr->ir, ptr->expr, &evaluated, 0, NULL );
    }
    else
    {
-      value = stab[symbol].ir->addr;
+      value = ptr->ir->addr;
    }
    return value;
 }
 
 int pasm_get_num_symbols ( void )
 {
-   return stab_ent;
+   symbol_table* ptr;
+   int i = 0;
+
+   if ( stab )
+   {
+      ptr = stab->head;
+      while ( ptr != NULL )
+      {
+         i++;
+         ptr = ptr->next;
+      }
+   }
+
+   return i;
 }
 
 int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj )

@@ -359,12 +359,10 @@ int btab_ent_prior_to_enum = -1;
 // declared the intermediate representation link to where
 // it was declared is stored in the symbol structure so
 // the address of the symbol can be computed.
-extern symbol_table* stab;
+extern symbol_list* stab;
 extern symbol_table* find_symbol ( char* symbol, int bank );
 void update_symbol_ir ( symbol_table* stab, ir_table* ir );
-extern int stab_ent;
-extern int stab_max;
-extern int current_label;
+extern symbol_table* current_label;
 
 // Binary tables.  These represent the array of banks, and currently
 // referenced bank into which assembled code should go.  These
@@ -392,7 +390,7 @@ void finish_macro ( int macro );
 // the macro directive to know what macro the defined symbols belong
 // to.  Once we reduce the macro directive the symbols declared will
 // be given to the macro to keep locally.
-symbol_table* macro_stab;
+symbol_list* macro_stab = NULL;
 
 // This function takes the completed intermediate representation
 // and outputs it as a flat binary stream ready to be sent to a file.
@@ -599,7 +597,7 @@ statement: identifier TERM
 identifier: LABEL {
    ir_table* ptr;
    ptr = emit_label ( 0, fillValue );
-   update_symbol_ir ( &(stab[$1->ref.stab_ent]), ptr );
+   update_symbol_ir ( $1->ref.stab, ptr );
 
    reduce_expressions ();
    //dump_symbol_table ();
@@ -739,16 +737,16 @@ directive: INCBIN QUOTEDSTRING {
 // direct in-line replacement of <expression> wherever it occurs.
            | LABEL '=' expr TERM {
    // allow redefinition of globals...
-   if ( stab[$1->ref.stab_ent].expr )
+   if ( $1->ref.stab->expr )
    {
-      destroy_expression ( stab[$1->ref.stab_ent].expr );
+      destroy_expression ( $1->ref.stab->expr );
    }
 
    // reduce expression
    reduce_expression ( $3, NULL );
 
-   stab[$1->ref.stab_ent].expr = $3;
-   stab[$1->ref.stab_ent].ir = NULL;
+   $1->ref.stab->expr = $3;
+   $1->ref.stab->ir = NULL;
 
    //dump_symbol_table ();
 }
@@ -855,7 +853,7 @@ directive: INCBIN QUOTEDSTRING {
 
    if ( $2->type == reference_symtab )
    {
-      sprintf ( e, "%s: multiple declarations of symbol: %s", $1, stab[$2->ref.stab_ent].symbol );
+      sprintf ( e, "%s: multiple declarations of symbol: %s", $1, $2->ref.stab->symbol );
       yyerror ( e );
    }
    else
@@ -2446,9 +2444,9 @@ expr : QUOTEDSTRING {
    // otherwise store a reference to the as-yet-unknown symbol
    // for later evaluation.
    if ( ($1->type == reference_symtab) &&
-        (stab[$1->ref.stab_ent].expr) )
+        ($1->ref.stab->expr) )
    {
-      $$ = copy_expression ( stab[$1->ref.stab_ent].expr );
+      $$ = copy_expression ( $1->ref.stab->expr );
    }
    else
    {
@@ -2676,6 +2674,7 @@ void initialize ( void )
 	ir_table* ptr;
 	ir_table* ptd = NULL;
 	int idx;
+   symbol_table* sym;
 
    yylineno = 1;
 
@@ -2683,20 +2682,47 @@ void initialize ( void )
 	errorStorage = NULL;
 	errorCount = 0;
 
-	for ( idx = 0; idx < stab_ent; idx++ )
-	{
-      if ( stab[idx].expr != NULL )
+   if ( stab )
+   {
+      for ( sym = stab->head; sym != NULL; sym = sym->next )
       {
-         destroy_expression ( stab[idx].expr );
+         if ( sym->expr != NULL )
+         {
+            destroy_expression ( sym->expr );
+         }
+         free ( sym->symbol );
       }
-		free ( stab[idx].symbol );
-	}
-	free ( stab );
-	stab = NULL;
-	stab_ent = 0;
-	stab_max = 0;
+      stab->head = NULL;
+      stab->tail = NULL;
+   }
+   else
+   {
+      stab = (symbol_list*) malloc ( sizeof(symbol_list) );
+      stab->head = NULL;
+      stab->tail = NULL;
+   }
 
-	for ( idx = 0; idx < btab_ent; idx++ )
+   if ( macro_stab )
+   {
+      for ( sym = macro_stab->head; sym != NULL; sym = sym->next )
+      {
+         if ( sym->expr != NULL )
+         {
+            destroy_expression ( sym->expr );
+         }
+         free ( sym->symbol );
+      }
+      macro_stab->head = NULL;
+      macro_stab->tail = NULL;
+   }
+   else
+   {
+      macro_stab = (symbol_list*) malloc ( sizeof(symbol_list) );
+      macro_stab->head = NULL;
+      macro_stab->tail = NULL;
+   }
+
+   for ( idx = 0; idx < btab_ent; idx++ )
 	{
 		free ( btab[idx].symbol );
       for ( ptr = btab[idx].ir_head; ptr != NULL; ptr = ptr->next )
@@ -2721,7 +2747,7 @@ void add_error ( char *s )
 	errorCount++;
 	if ( errorStorage == NULL )
 	{
-      if ( current_label == -1 )
+      if ( current_label == NULL )
 		{
 //			if ( strlen(currentFile) )
 //			{
@@ -2745,7 +2771,7 @@ void add_error ( char *s )
 //			}
 //			else
 //			{
-            sprintf ( error_buffer, "error: %d: after %s: ", yylineno, stab[current_label].symbol );
+            sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
@@ -2756,7 +2782,7 @@ void add_error ( char *s )
 	}
 	else
 	{
-      if ( current_label == -1 )
+      if ( current_label == NULL )
 		{
 			sprintf ( error_buffer, "error: %d: ", yylineno );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
@@ -2767,7 +2793,7 @@ void add_error ( char *s )
       }
 		else
 		{
-         sprintf ( error_buffer, "error: %d: after %s: ", yylineno, stab[current_label].symbol );
+         sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
@@ -3590,7 +3616,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   dump_ir_tables ();
+   //dump_ir_tables ();
 }
 
 char* instr_mnemonic ( unsigned char op )
@@ -3684,26 +3710,31 @@ void dump_ir_tables ( void )
 void dump_symbol_table ( void )
 {
 	int i;
-	for ( i = 0; i < stab_ent; i++ )
-	{
-      // globals have expressions
-      if ( stab[i].expr )
+   symbol_table* ptr;
+
+   if ( stab )
+   {
+      for ( ptr = stab->head; ptr != NULL; ptr = ptr->next )
       {
-         printf ( "%d: %s global: expression:\n", i, stab[i].symbol );
-         dump_expression ( stab[i].expr );
-      }
-      else
-      {
-         if ( stab[i].ir )
+         // globals have expressions
+         if ( ptr->expr )
          {
-            printf ( "%d: %s value %04X (%08x)\n", i, stab[i].symbol, stab[i].ir->addr, stab[i].ir );
+            printf ( "%d: %s global: expression:\n", i, ptr->symbol );
+            dump_expression ( ptr->expr );
          }
          else
          {
-            printf ( "%d: %s value UNKNOWN (%08x)\n", i, stab[i].symbol, stab[i].ir );
+            if ( ptr->ir )
+            {
+               printf ( "%d: %s value %04X (%08x)\n", i, ptr->symbol, ptr->ir->addr, ptr->ir );
+            }
+            else
+            {
+               printf ( "%d: %s value UNKNOWN (%08x)\n", i, ptr->symbol, ptr->ir );
+            }
          }
       }
-	}
+   }
 }
 
 void dump_macro_table ( void )
@@ -3756,7 +3787,7 @@ void dump_expression ( expr_type* expr )
       }
       else if ( expr->node.ref->type == reference_symtab )
       {
-         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, stab[expr->node.ref->ref.stab_ent].symbol );
+         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.stab->symbol );
       }
       else if ( expr->node.ref->type == reference_const_string )
       {
@@ -3857,29 +3888,33 @@ void reduce_expressions ( void )
    ir_table* ptr;
    int i, j;
    int bank;
+   symbol_table* ptr1;
+   symbol_table* ptr2;
 
    // go through each symbol, reducing its expression [if it has one]
    // with the expressions of other symbols, then go through the
    // intermediate assembly representation reducing expressions
    // found there with the newly-reduced symbol
-   for ( i = 0; i < stab_ent; i++ )
+   if ( stab )
    {
-      for ( j = 0; j < stab_ent; j++ )
+      for ( ptr1 = stab->head; ptr1 != NULL; ptr1 = ptr1->next )
       {
-         if ( (i != j) &&
-              (stab[i].expr) )
+         for ( ptr2 = stab->head; ptr2 != NULL; ptr2 = ptr2->next )
          {
-            reduce_expression ( stab[i].expr, &(stab[j]) );
-         }
-      }
-
-      for ( bank = 0; bank < btab_ent; bank++ )
-      {
-         for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
-         {
-            if ( ptr->expr )
+            if ( ptr1->expr )
             {
-               reduce_expression ( ptr->expr, &(stab[i]) );
+               reduce_expression ( ptr1->expr, ptr2 );
+            }
+         }
+
+         for ( bank = 0; bank < btab_ent; bank++ )
+         {
+            for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
+            {
+               if ( ptr->expr )
+               {
+                  reduce_expression ( ptr->expr, ptr1 );
+               }
             }
          }
       }
@@ -3916,10 +3951,10 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_symtab) )
    {
-      if ( stab[expr->node.ref->ref.stab_ent].ir )
+      if ( expr->node.ref->ref.stab->ir )
       {
          expr->vtype = value_is_int;
-         expr->value.ival = stab[expr->node.ref->ref.stab_ent].ir->addr;
+         expr->value.ival = expr->node.ref->ref.stab->ir->addr;
       }
    }
    else if ( (expr->type == expression_reference) &&
@@ -4246,7 +4281,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          // glue global's reference node to this tree...
          free ( expr->node.ref->ref.symbol );
          expr->node.ref->type = reference_symtab;
-         expr->node.ref->ref.stab_ent = hint->idx;
+         expr->node.ref->ref.stab = hint;
       }
    }
 

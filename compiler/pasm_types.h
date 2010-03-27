@@ -46,12 +46,19 @@ typedef struct _symbol_table
    struct _expr_type*    expr;
    unsigned int          btab_ent;
    struct _symbol_table* next;
+   struct _symbol_table* prev;
 } symbol_table;
+
+typedef struct _symbol_list
+{
+   struct _symbol_table* head;
+   struct _symbol_table* tail;
+} symbol_list;
 
 typedef union _ref_union
 {
    char* symbol;
-   int stab_ent;
+   struct _symbol_table* stab;
    struct _text_type* text;
 } ref_union;
 

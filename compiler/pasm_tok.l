@@ -159,10 +159,8 @@ keyword keywords [] =
 
 // Symbol table management.  The symbol table is available
 // to both the lexer and parser.
-unsigned int stab_ent = 0;
-unsigned int stab_max = 0;
-symbol_table* stab = NULL;
-unsigned char add_symbol ( symbol_table* stab, char* symbol, symbol_table** ptr );
+symbol_list* stab = NULL;
+unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr );
 symbol_table* find_symbol ( char* symbol, int btab_ent );
 
 // Cheap-label symbol table. Cheap labels exist only until
@@ -181,7 +179,7 @@ void clear_cheap_labels ( void );
 
 // Index of last declared label, for useful error messages like:
 // error: <line>: after <symbol>: blah...
-int current_label = -1;
+symbol_table* current_label = NULL;
 
 // Binary bank management.  Each time a .segment, or .text or
 // .data directive declares a uniquely named bank, a bank table
@@ -297,10 +295,10 @@ unsigned char valid_instr ( char* instr );
       {
          clear_cheap_labels ();
       }
-      current_label = p->idx;
+      current_label = p;
       ref = get_next_reftype ();
       ref->type = reference_symtab;
-      ref->ref.stab_ent = p->idx;
+      ref->ref.stab = p;
       yylval.ref = ref;
       return LABEL;
    }
@@ -349,7 +347,7 @@ unsigned char valid_instr ( char* instr );
       ref = get_next_reftype ();
 
       ref->type = reference_symtab;
-      ref->ref.stab_ent = p->idx;
+      ref->ref.stab = p;
       yylval.ref = ref;
       previous_state = SOURCE;
       BEGIN NOLABELREF;
@@ -602,23 +600,28 @@ symbol_table* find_symbol ( char* symbol, int bank )
 			}
 		}
 	}
-	else
+   else
 	{
-		// otherwise, search symbol table entirely...
-		for ( i = 0; i < stab_ent; i++ )
-		{
-         if ( (strlen(symbol) == strlen(stab[i].symbol)) &&
-              (strcmp(symbol,stab[i].symbol) == 0) &&
-              ((stab[i].btab_ent == bank) || (stab[i].expr) ||
-				  (((btab[bank].type == text_segment) && (btab[stab[i].btab_ent].type == data_segment)) || 
-				  ((btab[bank].type == data_segment) && (btab[stab[i].btab_ent].type == text_segment)))) )
-			{
-				ptr = &(stab[i]);
-            break;
-			}
-		}
+      if ( stab )
+      {
+         // otherwise, search symbol table entirely...
+         // for now just search global symbol table but eventually
+         // we'll make this routine search scoped tables...
+         for ( ptr = stab->head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( (strlen(symbol) == strlen(ptr->symbol)) &&
+                 (strcmp(symbol,ptr->symbol) == 0) &&
+                 ((ptr->btab_ent == bank) || (ptr->expr) ||
+                 (((btab[bank].type == text_segment) && (btab[ptr->btab_ent].type == data_segment)) ||
+                 ((btab[bank].type == data_segment) && (btab[ptr->btab_ent].type == text_segment)))) )
+            {
+               break;
+            }
+         }
+      }
 	}
-			
+
+   // ptr gets set to NULL if not found in loops above...
 	return ptr;
 }
 
@@ -646,94 +649,83 @@ void clear_cheap_labels ( void )
 	cltab_ent = 0;
 }
 
-unsigned char add_symbol ( symbol_table* stab, char* symbol, symbol_table** ptr )
+unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
 {
 	unsigned char a = 1;
 	unsigned int i;
 
-	*ptr = NULL;
+   if ( list == NULL )
+   {
+      list = (symbol_list*) malloc ( sizeof(symbol_list) );
+      list->head = NULL;
+      list->tail = NULL;
+   }
+
+   (*ptr) = NULL;
 
 	if ( symbol[0] != '@' )
    {
-		for ( i = 0; i < stab_ent; i++ )
+      for ( (*ptr) = list->head; (*ptr) != NULL; (*ptr) = (*ptr)->next )
 		{
-			if ( (strcmp(stab[i].symbol,symbol) == 0) && 
-				  ((stab[i].btab_ent == cur->idx) ||
-				  (btab[stab[i].btab_ent].type == data_segment)) )
+         if ( (strcmp((*ptr)->symbol,symbol) == 0) &&
+              (((*ptr)->btab_ent == cur->idx) ||
+              (btab[(*ptr)->btab_ent].type == data_segment)) )
 			{
 				a = 0;
-				*ptr = &(stab[i]);
 				return a;
 			}
 		}
 	}
 		
-	if ( stab == NULL )
-	{
-		stab = (symbol_table*)calloc ( STAB_ENT_INC, sizeof(symbol_table) );
-		if ( stab != NULL )
-		{
-			stab_max += STAB_ENT_INC;
-			stab[stab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
-			if ( stab[stab_ent].symbol != NULL )
-			{
-            stab[stab_ent].idx = stab_ent;
-				memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
-				strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
-				stab[stab_ent].ir = NULL;
-				stab[stab_ent].btab_ent = cur->idx;
-            stab[stab_ent].expr = NULL;
-			}
-		}
-		else
-		{
-			sprintf ( e, "unable to allocate memory for symbols" );
-			add_error ( e );
-		}
-	}
-	else
-	{
-		if ( stab_ent < stab_max )
-		{
-			stab[stab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
-			if ( stab[stab_ent].symbol != NULL )
-			{
-            stab[stab_ent].idx = stab_ent;
-            memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
-				strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
-				stab[stab_ent].ir = NULL;
-				stab[stab_ent].btab_ent = cur->idx;
-            stab[stab_ent].expr = NULL;
-			}
-		}
-		else
-		{
-			stab_max += STAB_ENT_INC;
+   if ( list->tail == NULL )
+   {
+      list->head = (symbol_table*) malloc ( sizeof(symbol_table) );
+      if ( list->head != NULL )
+      {
+         list->tail = list->head;
+         list->tail->symbol = (char*)malloc ( strlen(symbol)+1 );
+         if ( list->tail->symbol != NULL )
+         {
+            memset ( list->tail->symbol, 0, strlen(symbol)+1 );
+            strncpy ( list->tail->symbol, symbol, strlen(symbol) );
+            list->tail->ir = NULL;
+            list->tail->btab_ent = cur->idx;
+            list->tail->expr = NULL;
+         }
+         list->tail->next = NULL;
+         list->tail->prev = NULL;
+      }
+      else
+      {
+         yyerror ( "cannot allocate memory" );
+      }
+   }
+   else
+   {
+      (*ptr) = (symbol_table*) malloc ( sizeof(symbol_table) );
+      if ( (*ptr) != NULL )
+      {
+         list->tail->next = (*ptr);
+         (*ptr)->prev = list->tail;
+         (*ptr)->next = NULL;
+         list->tail = (*ptr);
+         list->tail->symbol = (char*)malloc ( strlen(symbol)+1 );
+         if ( list->tail->symbol != NULL )
+         {
+            memset ( list->tail->symbol, 0, strlen(symbol)+1 );
+            strncpy ( list->tail->symbol, symbol, strlen(symbol) );
+            list->tail->ir = NULL;
+            list->tail->btab_ent = cur->idx;
+            list->tail->expr = NULL;
+         }
+      }
+      else
+      {
+         yyerror ( "cannot allocate memory" );
+      }
+   }
 
-			stab = (symbol_table*) realloc ( stab, stab_max*sizeof(symbol_table) );
-         if ( stab != NULL )
-			{
-				stab[stab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
-				if ( stab[stab_ent].symbol != NULL )
-				{
-               stab[stab_ent].idx = stab_ent;
-               memset ( stab[stab_ent].symbol, 0, strlen(symbol)+1 );
-					strncpy ( stab[stab_ent].symbol, symbol, strlen(symbol) );
-					stab[stab_ent].ir = NULL;
-					stab[stab_ent].btab_ent = cur->idx;
-               stab[stab_ent].expr = NULL;
-            }
-			}
-			else
-			{
-				sprintf ( e, "unable to allocate memory for symbols" );
-				add_error ( e );
-			}
-		}
-	}
-
-	*ptr = &(stab[stab_ent]);
-	stab_ent++;
+   (*ptr) = list->tail;
 
 	return a;
 }
