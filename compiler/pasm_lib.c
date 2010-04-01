@@ -5,7 +5,8 @@
 
 extern FILE* asmin;
 extern incobj_callback_fn incobj_fn;
-extern symbol_list* stab;
+extern int btab_ent;
+extern binary_table* btab;
 
 extern char* errorStorage;
 extern int errorCount;
@@ -26,30 +27,37 @@ int pasm_get_num_errors ( void )
    return errorCount;
 }
 
-char* pasm_get_symbol ( int symbol )
+symbol_table* pasm_get_symbol_entry ( int symbol )
 {
-   symbol_table* ptr = stab->head;
+   symbol_list* list;
+   symbol_table* ptr;
+   int bank;
    int i = 0;
 
-   while ( i < symbol )
+   for ( bank = 0; bank < btab_ent; bank++ )
    {
-      i++;
-      ptr = ptr->next;
+      list = btab[bank].stab;
+      ptr = list->head;
+      while ( i < symbol )
+      {
+         i++;
+         ptr = ptr->next;
+      }
    }
+
+   return ptr;
+}
+
+char* pasm_get_symbol ( int symbol )
+{
+   symbol_table* ptr = pasm_get_symbol_entry ( symbol );
 
    return ptr->symbol;
 }
 
 int pasm_get_symbol_linenum ( int symbol )
 {
-   symbol_table* ptr = stab->head;
-   int i = 0;
-
-   while ( i < symbol )
-   {
-      i++;
-      ptr = ptr->next;
-   }
+   symbol_table* ptr = pasm_get_symbol_entry ( symbol );
 
    return ptr->ir->source_linenum;
 }
@@ -57,6 +65,8 @@ int pasm_get_symbol_linenum ( int symbol )
 int pasm_get_symbol_data ( int symbol, char* data, int size )
 {
    int bytes = 0;
+   symbol_table* ptr = pasm_get_symbol_entry ( symbol );
+
 #if 0
 // CPTODO: implement when needed
    ir_table* ptr = stab[symbol].ir;
@@ -79,14 +89,7 @@ int pasm_get_symbol_data ( int symbol, char* data, int size )
 
 symbol_type pasm_get_symbol_type ( int symbol )
 {
-   symbol_table* ptr = stab->head;
-   int i = 0;
-
-   while ( i < symbol )
-   {
-      i++;
-      ptr = ptr->next;
-   }
+   symbol_table* ptr = pasm_get_symbol_entry ( symbol );
 
    symbol_type value;
    if ( ptr->expr )
@@ -102,14 +105,7 @@ symbol_type pasm_get_symbol_type ( int symbol )
 
 int pasm_get_symbol_value ( int symbol )
 {
-   symbol_table* ptr = stab->head;
-   int i = 0;
-
-   while ( i < symbol )
-   {
-      i++;
-      ptr = ptr->next;
-   }
+   symbol_table* ptr = pasm_get_symbol_entry ( symbol );
 
    int value;
    int evaluated = 1;
@@ -126,12 +122,15 @@ int pasm_get_symbol_value ( int symbol )
 
 int pasm_get_num_symbols ( void )
 {
+   symbol_list* list;
    symbol_table* ptr;
+   int bank;
    int i = 0;
 
-   if ( stab )
+   for ( bank = 0; bank < btab_ent; bank++ )
    {
-      ptr = stab->head;
+      list = btab[bank].stab;
+      ptr = list->head;
       while ( ptr != NULL )
       {
          i++;
@@ -146,6 +145,8 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
 {
    int tries = 0;
    int promoted;
+   char* buffer = NULL;
+   int length = 0;
 
    incobj_fn = incobj;
 
@@ -155,7 +156,9 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
 
    asm_delete_buffer ();
 
-   asm_scan_string ( buffer_in );
+   preprocess ( buffer_in, &buffer, &length );
+
+   asm_scan_string ( buffer );
    asmin = NULL;
 
    // Parse language to intermediate representation...

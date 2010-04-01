@@ -2068,9 +2068,10 @@ int asmerror(char* s)
 void initialize ( void )
 {
 	ir_table* ptr;
-	ir_table* ptd = NULL;
+   ir_table* ptd;
 	int idx;
    symbol_table* sym;
+   symbol_table* syd;
 
    asmlineno = 1;
 
@@ -2080,14 +2081,18 @@ void initialize ( void )
 
    if ( global_stab )
    {
+      syd = NULL;
       for ( sym = global_stab->head; sym != NULL; sym = sym->next )
       {
+         if ( syd ) free ( syd );
          if ( sym->expr != NULL )
          {
             destroy_expression ( sym->expr );
          }
          free ( sym->symbol );
+         syd = sym;
       }
+      if ( syd ) free ( syd );
       global_stab->up = NULL;
       global_stab->head = NULL;
       global_stab->tail = NULL;
@@ -2102,29 +2107,34 @@ void initialize ( void )
 
    for ( idx = 0; idx < btab_ent; idx++ )
 	{
-		free ( btab[idx].symbol );
+      ptd = NULL;
+      free ( btab[idx].symbol );
       for ( ptr = btab[idx].ir_head; ptr != NULL; ptr = ptr->next )
       {
-         if ( ptd->expr != NULL ) destroy_expression ( ptd->expr );
-         if ( ptd != NULL ) free ( ptd );
+         if ( ptd ) free ( ptd );
+         if ( ptr->expr ) destroy_expression ( ptr->expr );
          ptd = ptr;
       }
-      free ( ptd );
+      if ( ptd ) free ( ptd );
+      syd = NULL;
       for ( sym = btab[idx].stab->head; sym != NULL; sym = sym->next )
       {
+         if ( syd ) free ( syd );
          if ( sym->expr != NULL )
          {
             destroy_expression ( sym->expr );
          }
          free ( sym->symbol );
+         syd = sym;
       }
+      if ( syd ) free ( syd );
       // bank symbol table scoping is set up in bank creation...
       btab[idx].stab->head = NULL;
       btab[idx].stab->tail = NULL;
    }
 	free ( btab );
 	btab = NULL;
-	btab_ent = 0;
+   btab_ent = 0;
 	btab_max = 0;
 }
 
@@ -2955,7 +2965,6 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   dump_symbol_table ( current_stab );
    dump_ir_tables ();
 }
 

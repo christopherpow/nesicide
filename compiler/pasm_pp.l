@@ -100,6 +100,7 @@ extern char e [ 256 ];
 void output_text ( char* text, int length );
 char* output_buffer;
 int   output_length;
+int   output_blocks;
 
 int pperror(char* s)
 {
@@ -417,28 +418,38 @@ int ppwrap(void)
    return 1;
 }
 
-int preprocess ( char** buffer, int* length )
+int preprocess ( char* buffer_in, char** buffer_out, int* length )
 {
    output_buffer = NULL;
    output_length = 0;
+   output_blocks = 0;
+
+   if ( buffer_in )
+   {
+      pp_scan_string ( buffer_in );
+      ppin = NULL;
+   }
 
    // Preprocessor lexer only returns when done...
    pplex ();
 
-printf ( "tt\n%s\ntt\n", output_buffer );
-
-   (*buffer) = output_buffer;
+   (*buffer_out) = output_buffer;
    (*length) = output_length;
+
    return output_length;
 }
 
 void output_text ( char* text, int length )
 {
+   int blocks = (output_length+length)/OUTPUT_DEFAULT_ALLOC;
+
    if ( output_buffer )
    {
-      if ( ((output_length+length)/OUTPUT_DEFAULT_ALLOC) > 0 )
+      if ( blocks > output_blocks )
       {
-         output_buffer = realloc ( output_buffer, (output_length/OUTPUT_DEFAULT_ALLOC)+OUTPUT_DEFAULT_ALLOC );
+         output_buffer = realloc ( output_buffer, (blocks+1)*OUTPUT_DEFAULT_ALLOC );
+         output_buffer [ blocks*OUTPUT_DEFAULT_ALLOC ] = 0;
+         output_blocks = blocks;
       }
    }
    else

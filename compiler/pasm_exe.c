@@ -27,9 +27,7 @@ int main(int argc, char **argv)
 
    add_binary_bank ( text_segment, NULL );
 
-   preprocess ( &buffer, &length );
-
-//   asm_delete_buffer ();
+   preprocess ( NULL, &buffer, &length );
 
    asm_scan_string ( buffer );
    asmin = NULL;
@@ -70,6 +68,7 @@ int main(int argc, char **argv)
       }
    }
 
+   initialize ();
    return 0;
 }
 
