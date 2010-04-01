@@ -12,6 +12,9 @@ else
 	LIB_CREATE  := ar crvs
 endif
 
+ASM=asm
+PP=pp
+
  # TODO: make a better test for os x
 ifdef Apple_PubSub_Socket_Render
 	CFLAGS     := $(CFLAGS) -arch i386 -arch x86_64 -arch ppc -arch ppc64
@@ -21,21 +24,24 @@ endif
 
 all: $(LIB_PREFIX)pasm$(LIB_POSTFIX) pasm$(EXEC_POSTFIX)
 
-$(LIB_PREFIX)pasm$(LIB_POSTFIX): pasm_tok.l pasm_grm.y pasm_lib.c lex.yy.c pasm_grm.tab.c
-	gcc $(CFLAGS) $(CFLAGS_LIB) -c lex.yy.c pasm_grm.tab.c pasm_lib.c
-	$(LIB_CREATE) $(LIB_PREFIX)pasm$(LIB_POSTFIX) lex.yy.o pasm_grm.tab.o pasm_lib.o /usr/lib/libfl.a
+$(LIB_PREFIX)pasm$(LIB_POSTFIX): pasm_$(ASM).l pasm_$(ASM).y pasm_lib.c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c
+	gcc $(CFLAGS) $(CFLAGS_LIB) -c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_lib.c
+	$(LIB_CREATE) $(LIB_PREFIX)pasm$(LIB_POSTFIX) lex.$(ASM).o lex.$(PP).o pasm_$(ASM).tab.o pasm_lib.o /usr/lib/libfl.a
 
-pasm$(EXEC_POSTFIX): pasm_tok.l pasm_grm.y pasm_exe.c lex.yy.c pasm_grm.tab.c
-	gcc $(CFLAGS) -gstabs -o pasm$(EXEC_POSTFIX) lex.yy.c pasm_grm.tab.c pasm_exe.c -lfl
+pasm$(EXEC_POSTFIX): pasm_$(ASM).l pasm_$(PP).l pasm_$(ASM).y pasm_exe.c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c
+	gcc $(CFLAGS) -gstabs -o pasm$(EXEC_POSTFIX) lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_exe.c -lfl
 
 clean:
-	rm -f lex.yy.c *.tab.* $(LIB_PREFIX)pasm$(LIB_POSTFIX) pasm$(EXEC_POSTFIX) *.o
+	rm -f lex.*.c *.tab.* $(LIB_PREFIX)pasm$(LIB_POSTFIX) pasm$(EXEC_POSTFIX) *.o
 	
-lex.yy.c : pasm_tok.l
-	flex -si pasm_tok.l
+lex.$(ASM).c : pasm_$(ASM).l
+	flex -si -P$(ASM) pasm_$(ASM).l
 
-pasm_grm.tab.c : pasm_grm.y
-	bison -dv -r all pasm_grm.y
+lex.$(PP).c : pasm_$(PP).l
+	flex -si -P$(PP) pasm_$(PP).l
+
+pasm_$(ASM).tab.c : pasm_$(ASM).y
+	bison -dv -p$(ASM) -r all pasm_$(ASM).y
 
 # for debug use:
 # flex -sid

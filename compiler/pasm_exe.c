@@ -3,11 +3,8 @@
 
 #include "pasm_types.h"
 
-extern unsigned char check_fixup ( void );
-
 //extern char currentFile[];
-
-int yyparse();
+extern FILE* asmin;
 
 int main(int argc, char **argv)
 {
@@ -30,8 +27,15 @@ int main(int argc, char **argv)
 
    add_binary_bank ( text_segment, NULL );
 
+   preprocess ( &buffer, &length );
+
+//   asm_delete_buffer ();
+
+   asm_scan_string ( buffer );
+   asmin = NULL;
+
    // Parse language to intermediate representation...
-   yyparse();
+   asmparse();
 
    // Reduce all expressions that had symbol references that weren't reducible...
    reduce_expressions ();

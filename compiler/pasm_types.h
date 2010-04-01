@@ -13,15 +13,19 @@ extern "C" {
 #define PROMOTE 0
 #define FIX     1
 
-// Ensure the symbol killer character is a character
-// that will NEVER show up in the token stream as valid...
-#define SYMBOL_KILLER '?'
+typedef struct _keyword
+{
+   const char* directive;
+   const char* dotdirective;
+   int         token;
+   void (*handler)();
+} keyword;
 
 typedef struct _macro_table
 {
    int idx; // used for self-reference and also for scoping variables
    char* symbol;
-   struct _symbol_table* stab;
+   struct _symbol_list* stab;
    struct _ir_table* ir_head;
    struct _ir_table* ir_tail;
 } macro_table;
@@ -51,6 +55,7 @@ typedef struct _symbol_table
 
 typedef struct _symbol_list
 {
+   struct _symbol_list* up;
    struct _symbol_table* head;
    struct _symbol_table* tail;
 } symbol_list;
@@ -58,7 +63,7 @@ typedef struct _symbol_list
 typedef union _ref_union
 {
    char* symbol;
-   struct _symbol_table* stab;
+   struct _symbol_table* symtab;
    struct _text_type* text;
 } ref_union;
 
@@ -149,6 +154,7 @@ typedef struct _ir_table
    int           source_linenum;
    struct _ir_table* next;
    struct _ir_table* prev;
+   struct _symbol_table* symtab;
    struct _expr_type* expr;
 } ir_table;
 
@@ -169,7 +175,7 @@ typedef struct _binary_table
    segment_type   type;
    char*          symbol;
    unsigned int   addr;
-   struct _symbol_table* stab;
+   struct _symbol_list* stab;
 
    // Intermediate representation queue pointers.  The assembly
    // code we're parsing is first built as a linked list of

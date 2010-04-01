@@ -45,13 +45,13 @@ whitespace     ([ \t]+)
 // valid C syntax.  Outside of the C fence, only lex syntax is
 // expected.
 
-#include "pasm_grm.tab.h"
+#include "pasm_asm.tab.h"
 #include "pasm_types.h"
 #include "string.h"
 
 // For line counting...
 #ifndef __APPLE__ //strange mac os x related bug? :S
-int          yylineno = 0;
+int          asmlineno = 0;
 #endif
 
 // Previous lexer state for returning
@@ -60,20 +60,6 @@ int previous_state = INITIAL;
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
 extern char e [ 256 ];
-
-// Keyword information.  Since keywords are parsed by the
-// 'identifier' rule along with labels, forward-use variables,
-// and even assembly mnemonics, we need a mechanism to search
-// for keywords and handle them.  This is similar to the mechanism
-// used to determine an assembler mnemonic in the 'identifier'
-// regular expression.
-typedef struct _keyword
-{
-   const char* directive;
-   const char* dotdirective;
-   int         token;
-   void (*handler)();
-} keyword;
 
 // The .hex directive has a special lexer sub-state associated
 // with it that changes how the lexer parses hex strings.  This
@@ -92,7 +78,7 @@ void d_hex ( void )
 // is encountered in the token stream.
 void d_textsegment ( void )
 {
-   yylval.seg = text_segment;
+   asmlval.seg = text_segment;
 }
 
 // The .segment, .text, and .data directives send the same
@@ -102,11 +88,16 @@ void d_textsegment ( void )
 // is encountered in the token stream.
 void d_datasegment ( void )
 {
-   yylval.seg = data_segment;
+   asmlval.seg = data_segment;
 }
 
-// Table of assembler keywords.  These should look a bit like ASM6.
-keyword keywords [] =
+// Keyword information.  Since keywords are parsed by the
+// 'identifier' rule along with labels, forward-use variables,
+// and even assembly mnemonics, we need a mechanism to search
+// for keywords and handle them.  This is similar to the mechanism
+// used to determine an assembler mnemonic in the 'identifier'
+// regular expression.
+keyword asmkeywords [] =
 {
    { "byte", ".byte", DATAB, NULL },
    { "db", ".db", DATAB, NULL },
@@ -137,12 +128,8 @@ keyword keywords [] =
    { "incobj", ".incobj", INCOBJ, NULL },
    { "include", ".include", INCLUDE, NULL },
    { "incsrc", ".incsrc", INCLUDE, NULL },
-   { "rept", ".rept", REPEAT, NULL },
-   { "endr", ".endr", ENDREPEAT, NULL },
    { "enum", ".enum", ENUMERATE, NULL },
    { "ende", ".ende", ENDENUMERATE, NULL },
-   { "macro", ".macro", MACRO, NULL },
-   { "endm", ".endm", ENDMACRO, NULL },
    { "fillvalue", ".fillvalue", FILLVALUE, NULL },
    { "ifdef", ".ifdef", IFDEF, NULL },
    { "ifndef", ".ifndef", IFNDEF, NULL },
@@ -153,29 +140,12 @@ keyword keywords [] =
    { NULL, NULL, 0, NULL }
 };
 
-// To reduce memory thrashing, don't allocate a new
-// page of symbols until 32 symbols have been declared.
-#define STAB_ENT_INC 32
-
 // Symbol table management.  The symbol table is available
 // to both the lexer and parser.
-symbol_list* stab = NULL;
+symbol_list* current_stab = NULL;
+symbol_list* global_stab = NULL;
 unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr );
-symbol_table* find_symbol ( char* symbol, int btab_ent );
-
-// Cheap-label symbol table. Cheap labels exist only until
-// the next normal label is declared.  For example:
-// label1: sei
-//         cld
-// @1:     lda $2002
-//         bpl @1
-// @2:     lda $2002
-//         bpl @2
-// label2: <-- @1 and @2 are destroyed here.
-symbol_table* cltab [ 4096 ];
-int cltab_ent = 0;
-void add_cheap_label ( symbol_table* ptr );
-void clear_cheap_labels ( void );
+symbol_table* find_symbol ( char* symbol );
 
 // Index of last declared label, for useful error messages like:
 // error: <line>: after <symbol>: blah...
@@ -229,38 +199,40 @@ unsigned char valid_instr ( char* instr );
 	unsigned char f;
 	ref_type* ref;
    text_type* text;
-   keyword* k = keywords;
+   keyword* k = asmkeywords;
+   int m;
 
    // Assume that when we're done with this token we'll be processing a line of
    // assembly source code...
    BEGIN SOURCE;
 
+   // Check for directives...
    while ( k->directive != NULL )
    {
-      if ( ((strlen(k->directive) == strlen(yytext)) &&
-           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
-           ((strlen(k->dotdirective) == strlen(yytext)) &&
-           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      if ( ((strlen(k->directive) == asmleng) &&
+           (strnicmp(asmtext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == asmleng) &&
+           (strnicmp(asmtext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
       {
          if ( k->handler )
          {
             k->handler ();
          }
-         yylval.directive = strdup ( k->directive );
+         asmlval.directive = strdup ( k->directive );
          return k->token;
       }
       k++;
    }
 
    // If it's a valid instruction it's not a label...
-   if ( (f=valid_instr(yytext)) != INVALID_INSTR )
+   if ( (f=valid_instr(asmtext)) != INVALID_INSTR )
    {
-      yylval.instr = f;
+      asmlval.instr = f;
       return INSTR;
    }
    else
    {
-      char* label = strdup(yytext);
+      char* label = strdup(asmtext);
       unsigned char f;
       symbol_table* p = NULL;
       ref_type* ref;
@@ -268,38 +240,17 @@ unsigned char valid_instr ( char* instr );
       {
          label[strlen(label)-1] = 0;
       }
-      f=add_symbol(stab,label,&p);
+      f=add_symbol(current_stab,label,&p);
       if ( !f )
       {
-         if ( (label[0] == '-') ||
-              (label[0] == '+') )
-         {
-            // re-declaration of autolabels is allowed...
-            // set this symbol as invalid...
-            p->symbol[0] = SYMBOL_KILLER;
-
-            // this time it should add...
-            f=add_symbol(stab,label,&p);
-         }
-         else
-         {
-            sprintf ( e, "multiple declarations of symbol: %s", label );
-            add_error ( e );
-         }
-      }
-      if ( label[0] == '@' )
-      {
-         add_cheap_label ( p );
-      }
-      else
-      {
-         clear_cheap_labels ();
+         sprintf ( e, "multiple declarations of symbol: %s", label );
+         add_error ( e );
       }
       current_label = p;
       ref = get_next_reftype ();
       ref->type = reference_symtab;
-      ref->ref.stab = p;
-      yylval.ref = ref;
+      ref->ref.symtab = p;
+      asmlval.ref = ref;
       return LABEL;
    }
 }
@@ -308,75 +259,76 @@ unsigned char valid_instr ( char* instr );
    unsigned char f;
    ref_type* ref;
    text_type* text;
-   keyword* k = keywords;
+   keyword* k = asmkeywords;
 
+   // Check for directives...
    while ( k->directive != NULL )
    {
-      if ( ((strlen(k->directive) == strlen(yytext)) &&
-           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
-           ((strlen(k->dotdirective) == strlen(yytext)) &&
-           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      if ( ((strlen(k->directive) == asmleng) &&
+           (strnicmp(asmtext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == asmleng) &&
+           (strnicmp(asmtext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
       {
          if ( k->handler )
          {
             k->handler ();
          }
-         yylval.directive = strdup ( k->directive );
+         asmlval.directive = strdup ( k->directive );
          return k->token;
       }
       k++;
    }
 
-   if ( yytext[1] == 0 )
+   if ( asmtext[1] == 0 )
    {
-      if ( (yytext[0] == 'x') ||
-           (yytext[0] == 'X') )
+      if ( (asmtext[0] == 'x') ||
+           (asmtext[0] == 'X') )
       {
-         return tolower(yytext[0]);
+         return tolower(asmtext[0]);
       }
-      else if ( (yytext[0] == 'y') ||
-                (yytext[0] == 'Y') )
+      else if ( (asmtext[0] == 'y') ||
+                (asmtext[0] == 'Y') )
       {
-         return tolower(yytext[0]);
+         return tolower(asmtext[0]);
       }
    }
 
    symbol_table* p = NULL;
-   if ( (p=find_symbol(yytext,cur->idx)) != NULL )
+   if ( (p=find_symbol(asmtext)) != NULL )
    {
       ref = get_next_reftype ();
 
       ref->type = reference_symtab;
-      ref->ref.stab = p;
-      yylval.ref = ref;
+      ref->ref.symtab = p;
+      asmlval.ref = ref;
       previous_state = SOURCE;
       BEGIN NOLABELREF;
       return LABELREF;
    }
-   else if ( (f=valid_instr(yytext)) != INVALID_INSTR )
+   else if ( (f=valid_instr(asmtext)) != INVALID_INSTR )
    {
-      yylval.instr = f;
+      asmlval.instr = f;
       return INSTR;
    }
-   else if ( yytext[0] == '\'' &&
-             yytext[strlen(yytext)-1] == '\'' )
+   else if ( asmtext[0] == '\'' &&
+             asmtext[asmleng-1] == '\'' )
    {
       text = get_next_texttype ();
-      text->string = strdup ( yytext+1 );
+      text->string = strdup ( asmtext+1 );
       text->string[strlen(text->string)-1] = 0;
       // need to pass length so string mods made by expressions don't lose track of it if a
       // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
       // first byte zero and strlen() then returns 0 which is invalid.
       text->length = strlen(text->string);
-      yylval.text = text;
+      asmlval.text = text;
       return QUOTEDSTRING;
    }
 
    /* pass through as a possible forward-reference label */
    ref = get_next_reftype ();
    ref->type = reference_symbol;
-   ref->ref.symbol = strdup(yytext);
-   yylval.ref = ref;
+   ref->ref.symbol = strdup(asmtext);
+   asmlval.ref = ref;
    previous_state = SOURCE;
    BEGIN NOLABELREF;
    return LABELREF;
@@ -384,27 +336,27 @@ unsigned char valid_instr ( char* instr );
 
 <SOURCE,NOLABELREF>{quotedstring} {
    text_type* text = get_next_texttype ();
-   text->string = strdup ( yytext+1 );
+   text->string = strdup ( asmtext+1 );
    text->string[strlen(text->string)-1] = 0;
    // need to pass length so string mods made by expressions don't lose track of it if a
    // byte before the end of the string becomes 0.  for example, "AB"-"A" makes the
    // first byte zero and strlen() then returns 0 which is invalid.
    text->length = strlen(text->string);
-   yylval.text = text;
+   asmlval.text = text;
    previous_state = yy_current_state;
    return QUOTEDSTRING;
 }
 
 <HEX>{rawhex} {
    text_type* text = get_next_texttype ();
-   text->string = strdup ( yytext );
+   text->string = strdup ( asmtext );
    text->length = strlen(text->string);
-   yylval.text = text;
+   asmlval.text = text;
    return QUOTEDSTRING;
 }
 
 <SOURCE>{hexdigits} {
-   char* ptr = yytext;
+   char* ptr = asmtext;
 	number_type* num = get_next_numtype ();
    if ( ptr[0] == '$' ) ptr++;
    num->number = strtoul(ptr,NULL,16);
@@ -413,36 +365,42 @@ unsigned char valid_instr ( char* instr );
 	{
 		num->zp_ok = 1;
 	}
-	yylval.num = num;
+   asmlval.num = num;
+   previous_state = SOURCE;
+   BEGIN NOLABELREF;
    return DIGITS;
 }
 
 <SOURCE>{decdigits} {
 	number_type* num = get_next_numtype ();
-	num->number = strtoul(yytext,NULL,10);
+   num->number = strtoul(asmtext,NULL,10);
 	if ( (num->number >= -128) &&
 		  (num->number < 256) )
 	{
 		num->zp_ok = 1;
 	}
-	yylval.num = num;
-	return DIGITS; 
+   asmlval.num = num;
+   previous_state = SOURCE;
+   BEGIN NOLABELREF;
+   return DIGITS;
 }
 
 <SOURCE>{octdigits} {
 	number_type* num = get_next_numtype ();
-   num->number = strtoul(yytext,NULL,8);
+   num->number = strtoul(asmtext,NULL,8);
 	if ( (num->number >= -128) &&
 	     (num->number < 256) )
 	{
 		num->zp_ok = 1;
 	}
-	yylval.num = num;
+   asmlval.num = num;
+   previous_state = SOURCE;
+   BEGIN NOLABELREF;
    return DIGITS;
 }
 
 <SOURCE>{bindigits} {
-   char* ptr = yytext;
+   char* ptr = asmtext;
    number_type* num = get_next_numtype ();
    if ( ptr[0] == '%' ) ptr++;
 
@@ -452,7 +410,9 @@ unsigned char valid_instr ( char* instr );
    {
       num->zp_ok = 1;
    }
-   yylval.num = num;
+   asmlval.num = num;
+   previous_state = SOURCE;
+   BEGIN NOLABELREF;
    return DIGITS;
 }
 
@@ -471,24 +431,25 @@ unsigned char valid_instr ( char* instr );
 }
 
 <INITIAL,SOURCE,HEX,NOLABELREF>\r\n {
-   yylineno++;
+   asmlineno++;
    BEGIN INITIAL;
    return TERM;
 }
 
 <INITIAL,SOURCE,HEX,NOLABELREF>\n\r {
-   yylineno++;
+   asmlineno++;
    BEGIN INITIAL;
    return TERM;
 }
 
 <INITIAL,SOURCE,HEX,NOLABELREF>\n {
-   yylineno++;
+   asmlineno++;
    BEGIN INITIAL;
    return TERM;
 }
 
 <SOURCE>"<<" {
+   previous_state = SOURCE;
    return LSHIFT;
 }
 
@@ -498,6 +459,7 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>">>" {
+   previous_state = SOURCE;
    return RSHIFT;
 }
 
@@ -507,6 +469,7 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>"&&" {
+   previous_state = SOURCE;
    return LOGAND;
 }
 
@@ -516,6 +479,7 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>"||" {
+   previous_state = SOURCE;
    return LOGOR;
 }
 
@@ -525,6 +489,7 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>"<=" {
+   previous_state = SOURCE;
    return LTEQ;
 }
 
@@ -534,6 +499,7 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>">=" {
+   previous_state = SOURCE;
    return GTEQ;
 }
 
@@ -543,6 +509,7 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>"==" {
+   previous_state = SOURCE;
    return EQEQ;
 }
 
@@ -553,6 +520,7 @@ unsigned char valid_instr ( char* instr );
 
 <SOURCE>"!=" |
 <SOURCE>"<>" {
+   previous_state = SOURCE;
    return NOTEQ;
 }
 
@@ -563,12 +531,13 @@ unsigned char valid_instr ( char* instr );
 }
 
 <SOURCE>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\^] {
-   return yytext[0];
+   previous_state = SOURCE;
+   return asmtext[0];
 }
 
 <NOLABELREF>[&|!@#=%\+\-\*\/\|&\~\<\>\[\],\(\)\^] {
    BEGIN previous_state;
-   return yytext[0];
+   return asmtext[0];
 }
 
 <INITIAL,SOURCE,HEX,NOLABELREF>. {
@@ -577,76 +546,39 @@ unsigned char valid_instr ( char* instr );
 %%
 int get_current_buffer ( void )
 {
-	return (int)YY_CURRENT_BUFFER;
+   return (int)YY_CURRENT_BUFFER;
 }
 
-symbol_table* find_symbol ( char* symbol, int bank )
+symbol_table* find_symbol ( char* symbol )
 {
 	unsigned int i;
 	symbol_table* ptr = NULL;
+   symbol_list* stab = current_stab;
+   unsigned char found  = 0;
 
-	// check cheap labels if it is a cheap label!
-	if ( symbol[0] == '@' )
-	{
-		for ( i = 0; i < cltab_ent; i++ )
-		{
-			if ( (strcmp(cltab[i]->symbol,symbol) == 0) &&
-              ((cltab[i]->btab_ent == bank) || (cltab[i]->expr) ||
-				  (((btab[bank].type == text_segment) && (btab[cltab[i]->btab_ent].type == data_segment)) || 
-				  ((btab[bank].type == data_segment) && (btab[cltab[i]->btab_ent].type == text_segment)))) )
-			{
-				ptr = cltab[i];
-            break;
-			}
-		}
-	}
-   else
-	{
-      if ( stab )
+   do
+   {
+      // If not found in a previous search, continue...
+      if ( !found )
       {
          // otherwise, search symbol table entirely...
          // for now just search global symbol table but eventually
          // we'll make this routine search scoped tables...
-         for ( ptr = stab->head; ptr != NULL; ptr = ptr->next )
+         for ( ptr = stab->tail; ptr != NULL; ptr = ptr->prev )
          {
             if ( (strlen(symbol) == strlen(ptr->symbol)) &&
-                 (strcmp(symbol,ptr->symbol) == 0) &&
-                 ((ptr->btab_ent == bank) || (ptr->expr) ||
-                 (((btab[bank].type == text_segment) && (btab[ptr->btab_ent].type == data_segment)) ||
-                 ((btab[bank].type == data_segment) && (btab[ptr->btab_ent].type == text_segment)))) )
+                 (strcmp(symbol,ptr->symbol) == 0) )
             {
+               found = 1;
                break;
             }
          }
       }
-	}
+      stab = stab->up;
+   } while ( stab != NULL );
 
    // ptr gets set to NULL if not found in loops above...
 	return ptr;
-}
-
-void add_cheap_label ( symbol_table* ptr )
-{
-	int idx;
-
-	cltab [ cltab_ent ] = ptr;
-	cltab_ent++;
-	if ( cltab_ent == 4096 )
-	{
-		sprintf ( e, "too many cheap labels (@label:)" );
-		add_error ( e );
-	}
-}
-
-void clear_cheap_labels ( void )
-{
-   int label;
-   for ( label = 0; label < cltab_ent; label++ )
-   {
-      // cheap hack to wipe away a temporary symbol...
-      cltab[label]->symbol[0] = SYMBOL_KILLER;
-   }
-	cltab_ent = 0;
 }
 
 unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
@@ -654,28 +586,26 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
 	unsigned char a = 1;
 	unsigned int i;
 
-   if ( list == NULL )
-   {
-      list = (symbol_list*) malloc ( sizeof(symbol_list) );
-      list->head = NULL;
-      list->tail = NULL;
-   }
-
    (*ptr) = NULL;
 
-	if ( symbol[0] != '@' )
+   for ( (*ptr) = list->head; (*ptr) != NULL; (*ptr) = (*ptr)->next )
    {
-      for ( (*ptr) = list->head; (*ptr) != NULL; (*ptr) = (*ptr)->next )
-		{
-         if ( (strcmp((*ptr)->symbol,symbol) == 0) &&
-              (((*ptr)->btab_ent == cur->idx) ||
-              (btab[(*ptr)->btab_ent].type == data_segment)) )
-			{
-				a = 0;
-				return a;
-			}
-		}
-	}
+      if ( (strlen(symbol) == strlen((*ptr)->symbol)) &&
+           (strcmp((*ptr)->symbol,symbol) == 0) )
+      {
+         if ( ((*ptr)->symbol[0] == '+') ||
+              ((*ptr)->symbol[0] == '-') )
+         {
+            // Allow re-declaration of temporary symbols...
+//            (*ptr)->symbol[0] = SYMBOL_KILLER;
+         }
+         else
+         {
+            a = 0;
+            return a;
+         }
+      }
+   }
 		
    if ( list->tail == NULL )
    {
@@ -697,7 +627,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
       }
       else
       {
-         yyerror ( "cannot allocate memory" );
+         asmerror ( "cannot allocate memory" );
       }
    }
    else
@@ -721,7 +651,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
       }
       else
       {
-         yyerror ( "cannot allocate memory" );
+         asmerror ( "cannot allocate memory" );
       }
    }
 

@@ -40,7 +40,7 @@ bool CSourceAssembler::assemble()
       builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with " + strBuffer + " errors...");
       pasm_get_errors ( &errors );
       strBuffer.sprintf ( "%s", errors );
-      builderTextLogger.write("<font color='red'>" + strBuffer + "</font>");
+      builderTextLogger.write("<font color='red'><pre>" + strBuffer + "</pre></font>");
    }
    else
    {

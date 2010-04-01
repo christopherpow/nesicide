@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <strings.h>
 
-#include "pasm_types.h"
+#include "pasm_lib.h"
 
-extern FILE* yyin;
+extern FILE* asmin;
 extern incobj_callback_fn incobj_fn;
 extern symbol_list* stab;
 
@@ -14,7 +14,7 @@ extern int errorCount;
 
 extern void initialize ( void );
 
-int yyparse();
+int asmparse();
 
 void pasm_get_errors ( char** errors )
 {
@@ -153,13 +153,13 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
 
    add_binary_bank ( text_segment, NULL );
 
-   yy_delete_buffer ();
+   asm_delete_buffer ();
 
-   yy_scan_string ( buffer_in );
-   yyin = NULL;
+   asm_scan_string ( buffer_in );
+   asmin = NULL;
 
    // Parse language to intermediate representation...
-   yyparse();
+   asmparse();
 
    // Reduce all expressions that had symbol references that weren't reducible...
    reduce_expressions ();

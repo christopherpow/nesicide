@@ -10,7 +10,7 @@
 #include "pasm_types.h"
 
 // Make yacc errors more meaningful
-//#define YYERROR_VERBOSE
+//#define asmerror_VERBOSE
 
 // **** 6502 information ****
 // These are addressing modes for instructions
@@ -315,10 +315,6 @@ static C6502_opcode m_6502opcode [ 256 ] =
 // in the assembly code we're parsing.
 #define BTAB_ENT_INC 1
 
-// How many new macros to create when a new macro is specified
-// in the assembly code we're parsing.
-#define MTAB_ENT_INC 1
-
 // Default fill value to use for .space, .dsw, .dsb, etc.
 #define DEFAULT_FILL 0x0000
 int fillValue = DEFAULT_FILL;
@@ -327,21 +323,17 @@ int fillValue = DEFAULT_FILL;
 incobj_callback_fn incobj_fn = NULL;
 
 // Standard YACC functions.
-int yyerror(char *s);
-int yylex(void);
-int yywrap(void);
+int asmerror(char *s);
+int asmwrap(void);
 
 // Current file being parsed for more meaningful error/warnings.
 //char currentFile [ 256 ];
 
-// Repeat macro intermediate representation pointer stack.
-// Allow for MAX_REPEATS nested REPT/ENDR macros, keeping
-// track of the starting intermediate representation node
-// for each nesting level.
-#define MAX_REPEATS 10
-ir_table* ir_repeat_head [ MAX_REPEATS ];
-int       ir_repeat_count [ MAX_REPEATS ];
-int repeat_level = 0;
+// Intermediate representation pointer-pointers.  These are global so that
+// we can switch from emitting to a bank or emitting to a macro
+// without too much hassle.
+ir_table** ir_head = NULL;
+ir_table** ir_tail = NULL;
 
 // For enumeration mode, we're pretending we're in a
 // .data segment to align ASM6 with our internals.  Thus,
@@ -359,8 +351,10 @@ int btab_ent_prior_to_enum = -1;
 // declared the intermediate representation link to where
 // it was declared is stored in the symbol structure so
 // the address of the symbol can be computed.
-extern symbol_list* stab;
-extern symbol_table* find_symbol ( char* symbol, int bank );
+extern symbol_list* current_stab;
+symbol_list* previous_stab;
+extern symbol_list* global_stab;
+extern symbol_table* find_symbol ( char* symbol );
 void update_symbol_ir ( symbol_table* stab, ir_table* ir );
 extern symbol_table* current_label;
 
@@ -378,25 +372,11 @@ unsigned char add_binary_bank ( segment_type type, char* symbol );
 unsigned char set_binary_bank ( segment_type type, char* symbol );
 void set_binary_addr ( unsigned int addr );
 
-// Macros.  These represent the array of macros currently defined
-// by the assembly code parsing.
-macro_table* mtab = NULL;
-int mtab_ent = 0;
-int mtab_max = 0;
-int start_macro ( char* symbol );
-void finish_macro ( int macro );
-// Temporary symbol table for macro definitions...we need this
-// because at the time of macro declaration we have not yet reduced
-// the macro directive to know what macro the defined symbols belong
-// to.  Once we reduce the macro directive the symbols declared will
-// be given to the macro to keep locally.
-symbol_list* macro_stab = NULL;
-
 // This function takes the completed intermediate representation
 // and outputs it as a flat binary stream ready to be sent to a file.
 void output_binary( char** buffer, int* size );
 
-extern int yylineno;
+extern int asmlineno;
 
 // Storage space for error strings spit out by the assembler.
 int errorCount = 0;
@@ -488,20 +468,17 @@ unsigned char emitting[MAX_IF_NEST] = { 1, 0, };
 unsigned char emitted[MAX_IF_NEST] = { 0, };
 unsigned char preproc_nest_level = 0;
 
-// Function used to support ENUM and MACRO directives.
-ir_table* reemit_ir ( ir_table* head, ir_table* tail );
-
 // Error generation.  All parsing errors are constructed into
 // the global buffer and then added to the list of errors.
 char e [ 256 ];
 void add_error ( char* s );
 extern int errorCount;
 extern char* errorStorage;
-extern char* yytext;
+extern char* asmtext;
 
 // Diagnostic routines for dumping symbol table, binary table, immediate
 // representation table, and an expression.
-void dump_symbol_table ( void );
+void dump_symbol_table ( symbol_list* list );
 void dump_binary_table ( void );
 void dump_ir_tables ( void );
 void dump_ir_expressions ( void );
@@ -527,8 +504,6 @@ void dump_macro_table ( void );
 %token <directive> DATAB DATAW DATABHEX
 %token <directive> FILLSPACEB FILLSPACEW
 %token <directive> VARSPACE
-%token <directive> REPEAT ENDREPEAT
-%token <directive> MACRO ENDMACRO
 %token <directive> ENUMERATE ENDENUMERATE
 %token <directive> ORIGIN BASE ADVANCE ALIGN
 %token <directive> INCBIN INCOBJ INCLUDE
@@ -597,10 +572,13 @@ statement: identifier TERM
 identifier: LABEL {
    ir_table* ptr;
    ptr = emit_label ( 0, fillValue );
-   update_symbol_ir ( $1->ref.stab, ptr );
+   update_symbol_ir ( $1->ref.symtab, ptr );
+
+   // Update IR->symbol pointer, too...
+   ptr->symtab = $1->ref.symtab;
 
    reduce_expressions ();
-   //dump_symbol_table ();
+   //dump_symbol_table ( current_stab );
 }
 			  ;
 
@@ -613,7 +591,7 @@ instruction: no_params
            | postindexed_indirect_param
            | disambiguation_1
            | directive
-           | disambiguation_2
+//           | disambiguation_2
            ;
 
 // Directive .incbin "<file>" includes a binary file into the intermediate representation stream...
@@ -630,7 +608,7 @@ directive: INCBIN QUOTEDSTRING {
 	else
 	{
       sprintf ( e, "%s: cannot open included file: %s", $1, $2->string );
-		yyerror ( e );
+      asmerror ( e );
 	}
 }
 // Directive .incobj "<file>" includes a NESICIDE object into the parser stream...
@@ -649,33 +627,33 @@ directive: INCBIN QUOTEDSTRING {
 			
 			orig = get_current_buffer ();
 
-			buf = yy_scan_string ( data );
+         buf = asm_scan_string ( data );
 
-			yyparse();
+         asmparse();
 
-			yy_flush_buffer ( buf );
+         asm_flush_buffer ( buf );
 
-			yy_switch_to_buffer ( orig );
+         asm_switch_to_buffer ( orig );
 
-			yy_delete_buffer ( buf );
+         asm_delete_buffer ( buf );
 			free ( data );
 
-			yyparse();
+         asmparse();
 
-			yy_flush_buffer ( orig );
+         asm_flush_buffer ( orig );
 
 	//		strcpy ( currentFile, "" );
 		}
 		else
 		{
          sprintf ( e, "%s: object not found for .incobj: %s", $1, $2->string );
-			yyerror ( e );
+         asmerror ( e );
 		}
 	}
 	else
 	{
       sprintf ( e, "%s: directive not supported", $1 );
-		yyerror ( e );
+      asmerror ( e );
 	}
 }
 // Directive .include "<file>" includes a source file into the parser stream...
@@ -702,20 +680,20 @@ directive: INCBIN QUOTEDSTRING {
 
 				orig = get_current_buffer ();
 
-				buf = yy_scan_string ( buffer );
+            buf = asm_scan_string ( buffer );
 
-				yyparse();
+            asmparse();
 
-				yy_flush_buffer ( buf );
+            asm_flush_buffer ( buf );
 
-				yy_switch_to_buffer ( orig );
+            asm_switch_to_buffer ( orig );
 
-				yy_delete_buffer ( buf );
+            asm_delete_buffer ( buf );
 				free ( buffer );
 
-				yyparse();
+            asmparse();
 
-				yy_flush_buffer ( orig );
+            asm_flush_buffer ( orig );
 			}
 		}
 
@@ -724,7 +702,7 @@ directive: INCBIN QUOTEDSTRING {
 	else
 	{
       sprintf ( e, "%s: cannot open included file: %s", $1, $2->string );
-		yyerror ( e );
+      asmerror ( e );
 	}
 }
 // Directive .fillvalue <value> changes the default filler value.
@@ -737,18 +715,18 @@ directive: INCBIN QUOTEDSTRING {
 // direct in-line replacement of <expression> wherever it occurs.
            | LABEL '=' expr TERM {
    // allow redefinition of globals...
-   if ( $1->ref.stab->expr )
+   if ( $1->ref.symtab->expr )
    {
-      destroy_expression ( $1->ref.stab->expr );
+      destroy_expression ( $1->ref.symtab->expr );
    }
 
    // reduce expression
    reduce_expression ( $3, NULL );
 
-   $1->ref.stab->expr = $3;
-   $1->ref.stab->ir = NULL;
+   $1->ref.symtab->expr = $3;
+   $1->ref.symtab->ir = NULL;
 
-   //dump_symbol_table ();
+   //dump_symbol_table ( current_stab );
 }
 // Directive byte/word lists.  The blist/wlist rules take care of outputting
 // the intermediate representation of the list for us, so there's nothing more
@@ -801,13 +779,13 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: new address is behind current address", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       sprintf ( e, "%s: illegal negative value", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .org <addr>, <value> sets the current segment's address to <addr> and
@@ -824,7 +802,7 @@ directive: INCBIN QUOTEDSTRING {
    reduce_expression ( $2, NULL );
 
    evaluated = 1;
-   evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
+   evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -835,13 +813,13 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: illegal string literal in expression", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .space <label> <value> creates a space <value> bytes long for
@@ -853,15 +831,15 @@ directive: INCBIN QUOTEDSTRING {
 
    if ( $2->type == reference_symtab )
    {
-      sprintf ( e, "%s: multiple declarations of symbol: %s", $1, $2->ref.stab->symbol );
-      yyerror ( e );
+      sprintf ( e, "%s: multiple declarations of symbol: %s", $1, $2->ref.symtab->symbol );
+      asmerror ( e );
    }
    else
    {
-      add_symbol ( stab, $2->ref.symbol, &symtab );
+      add_symbol ( current_stab, $2->ref.symbol, &symtab );
       ptr = emit_label ( $3->number, fillValue );
       update_symbol_ir ( symtab, ptr );
-      //dump_symbol_table ();
+      //dump_symbol_table ( current_stab );
    }
 }
 // Directive .dsb <length> creates a space <length> bytes long at the
@@ -882,7 +860,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -893,14 +871,14 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: illegal string literal in expression", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -913,14 +891,14 @@ directive: INCBIN QUOTEDSTRING {
          else
          {
             sprintf ( e, "%s: illegal string literal in expression", $1 );
-            yyerror ( e );
+            asmerror ( e );
          }
       }
    }
    if ( !evaluated )
    {
       sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .dsb <length>, <value> creates a space <length> bytes long filled
@@ -941,7 +919,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype = value_is_int )
@@ -952,14 +930,14 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: illegal string literal in expression", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -972,14 +950,14 @@ directive: INCBIN QUOTEDSTRING {
          else
          {
             sprintf ( e, "%s: illegal string literal in expression", $1 );
-            yyerror ( e );
+            asmerror ( e );
          }
       }
    }
    if ( !evaluated )
    {
       sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .dsw <value> creates a space <value> words long at the
@@ -1000,7 +978,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -1011,14 +989,14 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: illegal string literal in expression", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -1031,14 +1009,14 @@ directive: INCBIN QUOTEDSTRING {
          else
          {
             sprintf ( e, "%s: illegal string literal in expression", $1 );
-            yyerror ( e );
+            asmerror ( e );
          }
       }
    }
    if ( !evaluated )
    {
       sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .dsw <length>, <value> creates a space <length> words long filled
@@ -1059,7 +1037,7 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
+   evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
    if ( evaluated )
    {
       if ( $2->vtype == value_is_int )
@@ -1070,14 +1048,14 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: illegal string literal in expression", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( cur->ir_tail, $2, &evaluated, FIX, NULL );
+      evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
@@ -1090,14 +1068,14 @@ directive: INCBIN QUOTEDSTRING {
          else
          {
             sprintf ( e, "%s: illegal string literal in expression", $1 );
-            yyerror ( e );
+            asmerror ( e );
          }
       }
    }
    if ( !evaluated )
    {
       sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .align <alignment> aligns the address of the next emitted
@@ -1143,7 +1121,7 @@ directive: INCBIN QUOTEDSTRING {
    else
    {
       sprintf ( e, "%s: illegal negative offset based on current address", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .advance <addr>, <value> is equivalent to .advance <addr>
@@ -1160,7 +1138,7 @@ directive: INCBIN QUOTEDSTRING {
    else
    {
       sprintf ( e, "%s: illegal negative offset based on current address", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .enum <addr> is equivalent to ASM6 ENUM directive.  I find this
@@ -1183,13 +1161,13 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: illegal nesting of directive", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
    {
       sprintf ( e, "%s: illegal negative address", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .ende is equivalent to ASM6 ENDE directive.  I find this
@@ -1205,86 +1183,7 @@ directive: INCBIN QUOTEDSTRING {
    else
    {
       sprintf ( e, "%s: missing enum directive", $1 );
-      yyerror ( e );
-   }
-}
-         | MACRO LABELREF labellist {
-   int macro;
-
-   if ( $2->type == reference_symbol )
-   {
-      macro = start_macro ( $2->ref.symbol );
-   }
-   else
-   {
-   }
-
-   dump_macro_table ();
-}
-         | ENDMACRO {
-}
-// Directive .rept <count> is equivalent to ASM6 REPT directive.  It
-// repeats a section of intermediate representation nodes found between
-// .rept and .endr directives.  Repeats can be nested up to MAX_REPEATS
-// deep.  Currently this is fixed but certainly could be dynamic.  I just
-// don't see much value in nesting repeated sections of stuff more than 10 deep.
-         | REPEAT DIGITS TERM {
-   ir_table* ptr;
-   if ( $2->number > 1 )
-   {
-      if ( repeat_level < MAX_REPEATS )
-      {
-         // Create a dummy intermediate representation node
-         // to cling to as the repeat begin point.
-         ptr = emit_label ( 0, fillValue );
-
-         // Store repeat begin point...
-         ir_repeat_head [ repeat_level ] = ptr;
-         ir_repeat_count [ repeat_level ] = $2->number;
-         repeat_level++;
-      }
-      else
-      {
-         sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_REPEATS );
-         yyerror ( e );
-      }
-   }
-   else
-   {
-      sprintf ( e, "%s: ignored, nothing to repeat", $1 );
-      yyerror ( e );
-   }
-}
-// Directive .endr is equivalent to ASM6 ENDR directive.  It
-// causes the repeated emittance of instructions found between it
-// and the .rept <count> directive that this .endr is tied to.
-         | ENDREPEAT TERM {
-   ir_table* ir_repeat_tail;
-
-   // Create a dummy intermediate representation node
-   // to cling to as the repeat end point.
-   ir_repeat_tail = emit_label ( 0, fillValue );
-
-   if ( repeat_level )
-   {
-      repeat_level--;
-      while ( ir_repeat_count[repeat_level] > 1 )
-      {
-         // only repeat n-1 times because the code in the repeat
-         // has been emitted once already by virtue of parsing
-         // for the end marker.
-         // Use pre-captured ir_tail here otherwise we'd be re-emitting
-         // re-emitted stuff ad nauseum.
-         reemit_ir ( ir_repeat_head[repeat_level], ir_repeat_tail );
-
-         // decrement!
-         ir_repeat_count[repeat_level]--;
-      }
-   }
-   else
-   {
-      sprintf ( e, "%s: missing rept directive", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Directive .if <expression> emits the intermediate representation generated
@@ -1303,7 +1202,7 @@ directive: INCBIN QUOTEDSTRING {
          reduce_expression ( $2, NULL );
 
          evaluated = 1;
-         evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
+         evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
          if ( evaluated )
          {
             if ( $2->vtype == value_is_int )
@@ -1315,19 +1214,19 @@ directive: INCBIN QUOTEDSTRING {
             else
             {
                sprintf ( e, "%s: illegal string literal in expression", $1 );
-               yyerror ( e );
+               asmerror ( e );
             }
          }
          else
          {
             sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-            yyerror ( e );
+            asmerror ( e );
          }
       }
       else
       {
          sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_IF_NEST );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
 }
@@ -1340,7 +1239,7 @@ directive: INCBIN QUOTEDSTRING {
       reduce_expression ( $2, NULL );
 
       evaluated = 1;
-      evaluate_expression ( cur->ir_tail, $2, &evaluated, 0, NULL );
+      evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
       if ( evaluated )
       {
          if ( $2->vtype == value_is_int )
@@ -1352,13 +1251,13 @@ directive: INCBIN QUOTEDSTRING {
          else
          {
             sprintf ( e, "%s: illegal string literal in expression", $1 );
-            yyerror ( e );
+            asmerror ( e );
          }
       }
       else
       {
          sprintf ( e, "%s: cannot fully evaluate expression", $1 );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
    else
@@ -1389,7 +1288,7 @@ directive: INCBIN QUOTEDSTRING {
    else
    {
       sprintf ( e, "%s: missing if, ifdef, or ifndef directive", $1 );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
          | IFDEF LABELREF TERM {
@@ -1411,7 +1310,7 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_IF_NEST );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
 }
@@ -1434,7 +1333,7 @@ directive: INCBIN QUOTEDSTRING {
       else
       {
          sprintf ( e, "%s: nesting exception, max is %d levels", $1, MAX_IF_NEST );
-         yyerror ( e );
+         asmerror ( e );
       }
    }
 }
@@ -1456,570 +1355,8 @@ no_params: INSTR TERM {
 	else
 	{
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-		yyerror ( e );
+      asmerror ( e );
 	}
-}
-;
-
-// DISAMBIGUATION: These rules exist purely to catch single-character
-// forward or backward autolabels coming from the lexer.  It is impossible
-// for the lexer to determine whether a + or a - in the source stream is
-// part of an expression or part (or, in this case whole) of an autolabel.
-disambiguation_2: INSTR '+' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_absolute ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_relative ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-               | INSTR '-' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_absolute ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_relative ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-               | INSTR '+' ',' 'x' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-               | INSTR '-' ',' 'x' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-           | INSTR '+' ',' 'y' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_abs_idx_y ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zp_idx_y ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-           | INSTR '-' ',' 'y' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_Y)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_abs_idx_y ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zp_idx_y ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '+' ')' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   // special handling here...the ()'s could have been ripped off of a
-   // parenthesized expression, so we need to check to see if this is really
-   // an absolute or zero-page instruction format in disguise (due to the
-   // stolen parenthesis...
-
-   if ( ((f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_indirect ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_absolute ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_relative ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '-' ')' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   // special handling here...the ()'s could have been ripped off of a
-   // parenthesized expression, so we need to check to see if this is really
-   // an absolute or zero-page instruction format in disguise (due to the
-   // stolen parenthesis...
-
-   if ( ((f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_INDIRECT)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_indirect ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ABSOLUTE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_absolute ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zeropage ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_RELATIVE)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_relative ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '+' ',' 'x' ')' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( (f=valid_instr_amode($1,AM_PREINDEXED_INDIRECT)) != INVALID_INSTR )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_pre_idx_ind ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '-' ',' 'x' ')' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( (f=valid_instr_amode($1,AM_PREINDEXED_INDIRECT)) != INVALID_INSTR )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_pre_idx_ind ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '+' ')' ',' 'y' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( (f=valid_instr_amode($1,AM_POSTINDEXED_INDIRECT)) != INVALID_INSTR )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_post_idx_ind ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '-' ')' ',' 'y' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( (f=valid_instr_amode($1,AM_POSTINDEXED_INDIRECT)) != INVALID_INSTR )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_post_idx_ind ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '+' ')' ',' 'x' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '+';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
-}
-         | INSTR '(' '-' ')' ',' 'x' TERM {
-   unsigned char f;
-   expr_type* expr;
-   ref_type* ref;
-   char* label;
-
-   if ( ((f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR) ||
-        ((f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR) )
-   {
-      // Create an expression that simply points to the relevant autolabel if it exists.
-      expr = get_next_exprtype ();
-      expr->type = expression_reference;
-      ref = get_next_reftype ();
-
-      // Forward reference symbol, figure it out later...
-      ref->type = reference_symbol;
-      label = malloc ( 2 );
-      label[0] = '-';
-      label[1] = 0;
-      ref->ref.symbol = label;
-      expr->node.ref = ref;
-   }
-
-   if ( (f=valid_instr_amode($1,AM_ABSOLUTE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_abs_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else if ( (f=valid_instr_amode($1,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
-   {
-      // emit instruction with reference to expression for reduction when all symbols are known...
-      emit_bin_zp_idx_x ( &(m_6502opcode[f]), expr );
-   }
-   else
-   {
-      sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
-   }
 }
 ;
 
@@ -2040,7 +1377,7 @@ expression_param: INSTR '#' expr TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 
@@ -2080,7 +1417,7 @@ expression_param: INSTR '#' expr TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 ;
@@ -2114,7 +1451,7 @@ index_reg_param: INSTR expr ',' 'x' TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 // Parser for absolute indexed-by-y, and zeropage indexed-by-y addressing modes.
@@ -2146,7 +1483,7 @@ index_reg_param: INSTR expr ',' 'x' TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 ;
@@ -2205,7 +1542,7 @@ indirect_param: INSTR '(' expr ')' TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 ;
@@ -2227,7 +1564,7 @@ preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 ;
@@ -2249,7 +1586,7 @@ postindexed_indirect_param: INSTR '(' expr ')' ',' 'y' TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
 
@@ -2289,17 +1626,10 @@ disambiguation_1: INSTR '(' expr ')' ',' 'x' TERM {
    else
    {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
-      yyerror ( e );
+      asmerror ( e );
    }
 }
-         ;
-
-labellist: /* empty */ {
-}
-         | labellist ',' LABELREF {
-}
-         | LABELREF {
-}
+;
 
 blist: blist ',' expr {
    unsigned char evaluated;
@@ -2308,7 +1638,7 @@ blist: blist ',' expr {
    reduce_expression ( $3, NULL );
 
    // Attempt to evaluate expression to see what type we'll get...
-   evaluate_expression ( cur->ir_tail, $3, &evaluated, FIX, NULL );
+   evaluate_expression ( (*ir_tail), $3, &evaluated, FIX, NULL );
 
    // We can't care about whether or not the expression completely
    // evaluates here due to possible forward symbol references.  All
@@ -2335,7 +1665,7 @@ blist: blist ',' expr {
    reduce_expression ( $1, NULL );
 
    // Attempt to evaluate expression to see what type we'll get...
-   evaluate_expression ( cur->ir_tail, $1, &evaluated, FIX, NULL );
+   evaluate_expression ( (*ir_tail), $1, &evaluated, FIX, NULL );
 
    // We can't care about whether or not the expression completely
    // evaluates here due to possible forward symbol references.  All
@@ -2444,15 +1774,81 @@ expr : QUOTEDSTRING {
    // otherwise store a reference to the as-yet-unknown symbol
    // for later evaluation.
    if ( ($1->type == reference_symtab) &&
-        ($1->ref.stab->expr) )
+        ($1->ref.symtab->expr) )
    {
-      $$ = copy_expression ( $1->ref.stab->expr );
+      $$ = copy_expression ( $1->ref.symtab->expr );
    }
    else
    {
       $$ = get_next_exprtype ();
       $$->type = expression_reference;
       $$->node.ref = $1;
+   }
+}
+// DISAMBIGUATION: This rule exists purely to catch single-character
+// forward or backward autolabels coming from the lexer.  It is impossible
+// for the lexer to determine whether a + or a - in the source stream is
+// part of an expression or part (or, in this case whole) of an autolabel.
+     | '-' {
+   symbol_table* ptr = find_symbol ( "-" );
+   char* label;
+   ref_type* ref;
+
+   if ( ptr )
+   {
+      // symbol defined, pass symbol table reference...
+      $$ = get_next_exprtype ();
+      $$->type = expression_reference;
+      ref = get_next_reftype ();
+      ref->type = reference_symtab;
+      ref->ref.symtab = ptr;
+      $$->node.ref = ref;
+   }
+   else
+   {
+      // symbol not defined, pass symbol reference...
+      $$ = get_next_exprtype ();
+      $$->type = expression_reference;
+      ref = get_next_reftype ();
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label [ 0 ] = '-';
+      label [ 1 ] = 0;
+      ref->ref.symbol = label;
+      $$->node.ref = ref;
+   }
+}
+// DISAMBIGUATION: This rule exists purely to catch single-character
+// forward or backward autolabels coming from the lexer.  It is impossible
+// for the lexer to determine whether a + or a - in the source stream is
+// part of an expression or part (or, in this case whole) of an autolabel.
+     | '+' {
+   symbol_table* ptr = find_symbol ( "+" );
+   char* label;
+   ref_type* ref;
+
+   if ( ptr )
+   {
+      // symbol defined, pass symbol table reference...
+      $$ = get_next_exprtype ();
+      $$->type = expression_reference;
+      ref = get_next_reftype ();
+      ref->type = reference_symtab;
+      ref->ref.symtab = ptr;
+      $$->node.ref = ref;
+   }
+   else
+   {
+      // symbol not defined, pass symbol reference...
+      $$ = get_next_exprtype ();
+      $$->type = expression_reference;
+      ref = get_next_reftype ();
+      ref->type = reference_symbol;
+      label = malloc ( 2 );
+      label [ 0 ] = '+';
+      label [ 1 ] = 0;
+      ref->ref.symbol = label;
+      $$->node.ref = ref;
    }
 }
      | '(' expr ')' {
@@ -2664,7 +2060,7 @@ expr : QUOTEDSTRING {
 }   ;
 %%
 
-int yyerror(char* s)
+int asmerror(char* s)
 {
    add_error ( s );
 }
@@ -2676,15 +2072,15 @@ void initialize ( void )
 	int idx;
    symbol_table* sym;
 
-   yylineno = 1;
+   asmlineno = 1;
 
 	free ( errorStorage );
 	errorStorage = NULL;
 	errorCount = 0;
 
-   if ( stab )
+   if ( global_stab )
    {
-      for ( sym = stab->head; sym != NULL; sym = sym->next )
+      for ( sym = global_stab->head; sym != NULL; sym = sym->next )
       {
          if ( sym->expr != NULL )
          {
@@ -2692,34 +2088,16 @@ void initialize ( void )
          }
          free ( sym->symbol );
       }
-      stab->head = NULL;
-      stab->tail = NULL;
+      global_stab->up = NULL;
+      global_stab->head = NULL;
+      global_stab->tail = NULL;
    }
    else
    {
-      stab = (symbol_list*) malloc ( sizeof(symbol_list) );
-      stab->head = NULL;
-      stab->tail = NULL;
-   }
-
-   if ( macro_stab )
-   {
-      for ( sym = macro_stab->head; sym != NULL; sym = sym->next )
-      {
-         if ( sym->expr != NULL )
-         {
-            destroy_expression ( sym->expr );
-         }
-         free ( sym->symbol );
-      }
-      macro_stab->head = NULL;
-      macro_stab->tail = NULL;
-   }
-   else
-   {
-      macro_stab = (symbol_list*) malloc ( sizeof(symbol_list) );
-      macro_stab->head = NULL;
-      macro_stab->tail = NULL;
+      global_stab = (symbol_list*) malloc ( sizeof(symbol_list) );
+      global_stab->up = NULL;
+      global_stab->head = NULL;
+      global_stab->tail = NULL;
    }
 
    for ( idx = 0; idx < btab_ent; idx++ )
@@ -2732,6 +2110,17 @@ void initialize ( void )
          ptd = ptr;
       }
       free ( ptd );
+      for ( sym = btab[idx].stab->head; sym != NULL; sym = sym->next )
+      {
+         if ( sym->expr != NULL )
+         {
+            destroy_expression ( sym->expr );
+         }
+         free ( sym->symbol );
+      }
+      // bank symbol table scoping is set up in bank creation...
+      btab[idx].stab->head = NULL;
+      btab[idx].stab->tail = NULL;
    }
 	free ( btab );
 	btab = NULL;
@@ -2751,62 +2140,62 @@ void add_error ( char *s )
 		{
 //			if ( strlen(currentFile) )
 //			{
-//				sprintf ( error_buffer, "error: %d: in included file %s: ", yylineno, currentFile );
+//				sprintf ( error_buffer, "error: %d: in included file %s: ", asmlineno, currentFile );
 //			}
 //			else
 //			{
-				sprintf ( error_buffer, "error: %d: ", yylineno );
+            sprintf ( error_buffer, "error: %d: ", asmlineno );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
 			strcpy ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
-			strcat ( errorStorage, "\r\n" );
+         strcat ( errorStorage, "\n" );
 		}
 		else
 		{
 //			if ( strlen(currentFile) )
 //			{
-//				sprintf ( error_buffer, "error: %d: in included file %s: ", yylineno, currentFile );
+//				sprintf ( error_buffer, "error: %d: in included file %s: ", asmlineno, currentFile );
 //			}
 //			else
 //			{
-            sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
+            sprintf ( error_buffer, "error: %d: after %s: ", asmlineno, current_label->symbol );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
          strcpy ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
-			strcat ( errorStorage, "\r\n" );
+         strcat ( errorStorage, "\n" );
       }
 	}
 	else
 	{
       if ( current_label == NULL )
 		{
-			sprintf ( error_buffer, "error: %d: ", yylineno );
+         sprintf ( error_buffer, "error: %d: ", asmlineno );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
-			strcat ( errorStorage, "\r\n" );
+         strcat ( errorStorage, "\n" );
       }
 		else
 		{
-         sprintf ( error_buffer, "error: %d: after %s: ", yylineno, current_label->symbol );
+         sprintf ( error_buffer, "error: %d: after %s: ", asmlineno, current_label->symbol );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
-			strcat ( errorStorage, "\r\n" );
+         strcat ( errorStorage, "\n" );
       }
 	}
    fprintf ( stderr, ptr );
 }
 
-int yywrap(void)
+int asmwrap(void)
 {
-  return -1;
+  return 1;
 }
 
 unsigned char valid_instr ( char* instr )
@@ -2964,7 +2353,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
                else
                {
@@ -3028,7 +2417,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
                else
                {
@@ -3092,7 +2481,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
                else
                {
@@ -3114,7 +2503,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
 
@@ -3131,7 +2520,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
 
@@ -3148,7 +2537,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
 
@@ -3195,13 +2584,13 @@ int promote_instructions ( unsigned char flag )
                      }
 
                      sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
-                     yyerror ( e );
+                     asmerror ( e );
                   }
                }
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
 
@@ -3219,7 +2608,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
 
@@ -3249,14 +2638,14 @@ int promote_instructions ( unsigned char flag )
                   else
                   {
                      sprintf ( e, "branch to address out of range" );
-                     yyerror ( e );
+                     asmerror ( e );
                   }
                   // done!
                }
                else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
 
@@ -3273,7 +2662,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  yyerror ( e );
+                  asmerror ( e );
                }
             break;
          }
@@ -3321,86 +2710,16 @@ void check_fixup ( void )
             if ( (!evaluated) && symbol )
             {
                sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
-               yyerror ( e );
+               asmerror ( e );
             }
             else if ( !evaluated )
             {
                sprintf ( e, "unable to determine value of expression" );
-               yyerror ( e );
+               asmerror ( e );
             }
          }
       }
    }
-}
-
-int start_macro ( char* symbol )
-{
-   unsigned int i;
-   int idx = -1;
-
-   if ( mtab == NULL )
-   {
-      mtab = (macro_table*)calloc ( MTAB_ENT_INC, sizeof(macro_table) );
-      if ( mtab != NULL )
-      {
-         mtab_max += MTAB_ENT_INC;
-         mtab[mtab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
-         if ( mtab[mtab_ent].symbol != NULL )
-         {
-            memset ( mtab[mtab_ent].symbol, 0, strlen(symbol)+1 );
-            strncpy ( mtab[mtab_ent].symbol, symbol, strlen(symbol) );
-            mtab[mtab_ent].idx = mtab_ent;
-         }
-      }
-      else
-      {
-         sprintf ( e, "unable to allocate memory for tables" );
-         yyerror ( e );
-      }
-   }
-   else
-   {
-      if ( mtab_ent < mtab_max )
-      {
-         mtab[mtab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
-         if ( mtab[mtab_ent].symbol != NULL )
-         {
-            memset ( mtab[mtab_ent].symbol, 0, strlen(symbol)+1 );
-            strncpy ( mtab[mtab_ent].symbol, symbol, strlen(symbol) );
-            mtab[mtab_ent].idx = mtab_ent;
-         }
-      }
-      else
-      {
-         mtab_max += MTAB_ENT_INC;
-         mtab = (macro_table*)realloc ( mtab, mtab_max*sizeof(macro_table) );
-         if ( mtab != NULL )
-         {
-            mtab[mtab_ent].symbol = (char*)malloc ( strlen(symbol)+1 );
-            if ( mtab[mtab_ent].symbol != NULL )
-            {
-               memset ( mtab[mtab_ent].symbol, 0, strlen(symbol)+1 );
-               strncpy ( mtab[mtab_ent].symbol, symbol, strlen(symbol) );
-               mtab[mtab_ent].idx = mtab_ent;
-            }
-         }
-         else
-         {
-            sprintf ( e, "unable to allocate memory for tables" );
-            yyerror ( e );
-         }
-      }
-   }
-
-   idx = mtab_ent;
-
-   mtab_ent++;
-
-   return idx;
-}
-
-void finish_macro ( int macro )
-{
 }
 
 unsigned char add_binary_bank ( segment_type type, char* symbol )
@@ -3453,13 +2772,16 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 				btab[btab_ent].addr = 0;
             btab[btab_ent].ir_head = NULL;
             btab[btab_ent].ir_tail = NULL;
-            btab[btab_ent].stab = NULL;
+            btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
+            btab[btab_ent].stab->up = global_stab; // up-scope leads to globals...
+            btab[btab_ent].stab->head = NULL;
+            btab[btab_ent].stab->tail = NULL;
          }
 		}
 		else
 		{
 			sprintf ( e, "unable to allocate memory for tables" );
-			yyerror ( e );
+         asmerror ( e );
 		}
 	}
 	else
@@ -3476,7 +2798,10 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 				btab[btab_ent].addr = 0;
             btab[btab_ent].ir_head = NULL;
             btab[btab_ent].ir_tail = NULL;
-            btab[btab_ent].stab = NULL;
+            btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
+            btab[btab_ent].stab->up = global_stab; // up-scope leads to globals...
+            btab[btab_ent].stab->head = NULL;
+            btab[btab_ent].stab->tail = NULL;
          }
 		}
 		else
@@ -3495,18 +2820,28 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
 					btab[btab_ent].addr = 0;
                btab[btab_ent].ir_head = NULL;
                btab[btab_ent].ir_tail = NULL;
-               btab[btab_ent].stab = NULL;
+               btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
+               btab[btab_ent].stab->up = global_stab; // up-scope leads to globals...
+               btab[btab_ent].stab->head = NULL;
+               btab[btab_ent].stab->tail = NULL;
             }
 			}
 			else
 			{
 				sprintf ( e, "unable to allocate memory for tables" );
-				yyerror ( e );
+            asmerror ( e );
 			}
 		}
 	}
 
 	cur = &(btab[btab_ent]);
+
+   // Set up global IR pointers...
+   ir_head = &(cur->ir_head);
+   ir_tail = &(cur->ir_tail);
+
+   // Set up current symbol table pointer...
+   current_stab = cur->stab;
 
 	btab_ent++;
 
@@ -3547,6 +2882,10 @@ unsigned char set_binary_bank ( segment_type type, char* symbol )
          }
       }
    }
+
+   // Set up global IR pointers...
+   ir_head = &(cur->ir_head);
+   ir_tail = &(cur->ir_tail);
 
    //dump_binary_table ();
 
@@ -3616,7 +2955,8 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   //dump_ir_tables ();
+   dump_symbol_table ( current_stab );
+   dump_ir_tables ();
 }
 
 char* instr_mnemonic ( unsigned char op )
@@ -3669,80 +3009,82 @@ void dump_ir_expressions ( void )
    }
 }
 
-void dump_ir_tables ( void )
+void dump_ir_table ( ir_table* head )
 {
    ir_table* ptr;
 	int       i;
+
+   for ( ptr = head; ptr != NULL; ptr = ptr->next )
+   {
+      printf ( "%08x %04X: ", ptr, ptr->addr );
+
+      if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
+      {
+         // only dump out three bytes!
+         for ( i = 0; i < ptr->len&3; i++ )
+         {
+            printf ( "%02X ", ptr->data[i] );
+         }
+         if ( ptr->fixed == 1 )
+         {
+            printf ( "(fixed)" );
+         }
+         printf ( "\n" );
+      }
+      else if ( ptr->string == 1 )
+      {
+         printf ( "'%s' (string, length %d)\n", ptr->expr->value.sval->string, ptr->expr->value.sval->length );
+      }
+      else if ( (ptr->label == 1) &&
+                (ptr->symtab) )
+      {
+         printf ( "%05X (%d) label: %08x (%s)\n", ptr->len, ptr->len, ptr->symtab, ptr->symtab->symbol );
+      }
+      else
+      {
+         printf ( "%05X (%d) %02X\n", ptr->len, ptr->len, ptr->data[0] );
+      }
+   }
+}
+
+void dump_ir_tables ( void )
+{
    int       bank;
 
    for ( bank = 0; bank < btab_ent; bank++ )
    {
       printf ( "IR stream for bank %d (%s):\n", bank, btab[bank].symbol );
-      for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
-      {
-         printf ( "%08x %04X: ", ptr, ptr->addr );
-
-         if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
-         {
-            // only dump out three bytes!
-            for ( i = 0; i < ptr->len&3; i++ )
-            {
-               printf ( "%02X ", ptr->data[i] );
-            }
-            if ( ptr->fixed == 1 )
-            {
-               printf ( "(fixed)" );
-            }
-            printf ( "\n" );
-         }
-         else if ( ptr->string == 1 )
-         {
-            printf ( "'%s' (string, length %d)\n", ptr->expr->value.sval->string, ptr->expr->value.sval->length );
-         }
-         else
-         {
-            printf ( "%05X (%d) %02X\n", ptr->len, ptr->len, ptr->data[0] );
-         }
-      }
-	}
+      dump_ir_table ( btab[bank].ir_head );
+   }
 }
 
-void dump_symbol_table ( void )
+void dump_symbol_table ( symbol_list* list )
 {
-	int i;
+   int i = 0;
    symbol_table* ptr;
 
-   if ( stab )
+   if ( list )
    {
-      for ( ptr = stab->head; ptr != NULL; ptr = ptr->next )
+      for ( ptr = list->head; ptr != NULL; ptr = ptr->next, i++ )
       {
          // globals have expressions
          if ( ptr->expr )
          {
-            printf ( "%d: %s global: expression:\n", i, ptr->symbol );
+            printf ( "%08x %d: %s global: expression:\n", ptr, i, ptr->symbol );
             dump_expression ( ptr->expr );
          }
          else
          {
             if ( ptr->ir )
             {
-               printf ( "%d: %s value %04X (%08x)\n", i, ptr->symbol, ptr->ir->addr, ptr->ir );
+               printf ( "%08x %d: %s value %04X (%08x)\n", ptr, i, ptr->symbol, ptr->ir->addr, ptr->ir );
             }
             else
             {
-               printf ( "%d: %s value UNKNOWN (%08x)\n", i, ptr->symbol, ptr->ir );
+               printf ( "%08x %d: %s value UNKNOWN (%08x)\n", ptr, i, ptr->symbol, ptr->ir );
             }
          }
       }
-   }
-}
-
-void dump_macro_table ( void )
-{
-   int i;
-   for ( i = 0; i < mtab_ent; i++ )
-   {
-      printf ( "%d: %s head-%08x tail-%08x\n", i, mtab[i].symbol, mtab[i].ir_head, mtab[i].ir_tail );
    }
 }
 
@@ -3787,7 +3129,7 @@ void dump_expression ( expr_type* expr )
       }
       else if ( expr->node.ref->type == reference_symtab )
       {
-         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.stab->symbol );
+         printf ( "m%08x l%08x r%08x: symtab: %s\n", expr, expr->left, expr->right, expr->node.ref->ref.symtab->symbol );
       }
       else if ( expr->node.ref->type == reference_const_string )
       {
@@ -3890,13 +3232,14 @@ void reduce_expressions ( void )
    int bank;
    symbol_table* ptr1;
    symbol_table* ptr2;
+   symbol_list* stab = current_stab;
 
-   // go through each symbol, reducing its expression [if it has one]
-   // with the expressions of other symbols, then go through the
-   // intermediate assembly representation reducing expressions
-   // found there with the newly-reduced symbol
-   if ( stab )
+   do
    {
+      // go through each symbol, reducing its expression [if it has one]
+      // with the expressions of other symbols, then go through the
+      // intermediate assembly representation reducing expressions
+      // found there with the newly-reduced symbol
       for ( ptr1 = stab->head; ptr1 != NULL; ptr1 = ptr1->next )
       {
          for ( ptr2 = stab->head; ptr2 != NULL; ptr2 = ptr2->next )
@@ -3918,7 +3261,10 @@ void reduce_expressions ( void )
             }
          }
       }
-   }
+
+      stab = stab->up;
+
+   } while ( stab != NULL );
 }
 
 void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluated, unsigned char flag, char** symbol )
@@ -3951,10 +3297,10 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_symtab) )
    {
-      if ( expr->node.ref->ref.stab->ir )
+      if ( expr->node.ref->ref.symtab->ir )
       {
          expr->vtype = value_is_int;
-         expr->value.ival = expr->node.ref->ref.stab->ir->addr;
+         expr->value.ival = expr->node.ref->ref.symtab->ir->addr;
       }
    }
    else if ( (expr->type == expression_reference) &&
@@ -4281,7 +3627,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
          // glue global's reference node to this tree...
          free ( expr->node.ref->ref.symbol );
          expr->node.ref->type = reference_symtab;
-         expr->node.ref->ref.stab = hint;
+         expr->node.ref->ref.symtab = hint;
       }
    }
 
@@ -4685,28 +4031,29 @@ ir_table* emit_ir ( void )
    // If we're supposed to be emitting, do so...
    if ( emitting[preproc_nest_level] )
    {
-      if ( cur->ir_tail == NULL )
+      if ( (*ir_tail) == NULL )
       {
-         cur->ir_head = (ir_table*) malloc ( sizeof(ir_table) );
-         if ( cur->ir_head != NULL )
+         (*ir_head) = (ir_table*) malloc ( sizeof(ir_table) );
+         if ( (*ir_head) != NULL )
          {
-            cur->ir_tail = cur->ir_head;
-            cur->ir_tail->btab_ent = cur->idx;
-            cur->ir_tail->addr = 0;
-            cur->ir_tail->emitted = 0;
-            cur->ir_tail->multi = 0;
-            cur->ir_tail->align = 0;
-            cur->ir_tail->label = 0;
-            cur->ir_tail->fixed = 0;
-            cur->ir_tail->string = 0;
-            cur->ir_tail->source_linenum = yylineno;
-            cur->ir_tail->next = NULL;
-            cur->ir_tail->prev = NULL;
-            cur->ir_tail->expr = NULL;
+            (*ir_tail) = (*ir_head);
+            (*ir_tail)->btab_ent = cur->idx;
+            (*ir_tail)->addr = 0;
+            (*ir_tail)->emitted = 0;
+            (*ir_tail)->multi = 0;
+            (*ir_tail)->align = 0;
+            (*ir_tail)->label = 0;
+            (*ir_tail)->fixed = 0;
+            (*ir_tail)->string = 0;
+            (*ir_tail)->source_linenum = asmlineno;
+            (*ir_tail)->next = NULL;
+            (*ir_tail)->prev = NULL;
+            (*ir_tail)->expr = NULL;
+            (*ir_tail)->symtab = NULL;
          }
          else
          {
-            yyerror ( "cannot allocate memory" );
+            asmerror ( "cannot allocate memory" );
          }
       }
       else
@@ -4714,10 +4061,10 @@ ir_table* emit_ir ( void )
          ptr = (ir_table*) malloc ( sizeof(ir_table) );
          if ( ptr != NULL )
          {
-            cur->ir_tail->next = ptr;
-            ptr->prev = cur->ir_tail;
+            (*ir_tail)->next = ptr;
+            ptr->prev = (*ir_tail);
             ptr->next = NULL;
-            cur->ir_tail = ptr;
+            (*ir_tail) = ptr;
             ptr->btab_ent = cur->idx;
             ptr->addr = 0;
             ptr->emitted = 0;
@@ -4726,61 +4073,20 @@ ir_table* emit_ir ( void )
             ptr->label = 0;
             ptr->fixed = 0;
             ptr->string = 0;
-            ptr->source_linenum = yylineno;
+            ptr->source_linenum = asmlineno;
             ptr->expr = NULL;
+            ptr->symtab = NULL;
          }
          else
          {
-            yyerror ( "cannot allocate memory" );
+            asmerror ( "cannot allocate memory" );
          }
       }
-      return cur->ir_tail;
+      return (*ir_tail);
    }
 
    // We're not supposed to be emitting, so don't...
    return NULL;
-}
-
-ir_table* reemit_ir ( ir_table* head, ir_table* tail )
-{
-   ir_table* ptr;
-
-   // skip past first node, it is a dummy label node (a telomere?! =)
-   // to keep us from re-emitting the instruction that
-   // is immediately prior to the REPT directive.
-   // [Directives typically don't emit their own nodes.]
-   for ( head = head->next; head != tail; head = head->next )
-   {
-      // create a new node...
-      ptr = emit_ir ();
-      if ( ptr )
-      {
-         // copy node contents...
-         ptr->data[0] = head->data[0];
-         ptr->data[1] = head->data[1];
-         ptr->data[2] = head->data[2];
-         ptr->btab_ent = head->btab_ent;
-         ptr->addr = cur->addr; // address not copied!
-         ptr->len = head->len;
-         cur->addr += ptr->len;
-         ptr->emitted = head->emitted;
-         ptr->multi = head->multi;
-         ptr->align = head->align;
-         ptr->fixed = head->fixed;
-         ptr->label = head->label;
-         ptr->string = head->string;
-         ptr->fixup = head->fixup;
-         ptr->source_linenum = head->source_linenum;
-         if ( head->expr )
-         {
-            ptr->expr = copy_expression ( head->expr );
-         }
-         else
-         {
-            ptr->expr = NULL;
-         }
-      }
-   }
 }
 
 ir_table* emit_fix ( int addr )
