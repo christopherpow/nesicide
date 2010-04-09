@@ -528,3 +528,16 @@ void BreakpointDialog::on_modifyButton_clicked()
 
    model->layoutChangedEvent();
 }
+
+void BreakpointDialog::on_endisButton_clicked()
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   QModelIndex sel = ui->tableView->currentIndex();
+
+   if ( sel.row() >= 0 )
+   {
+      pBreakpoints->ToggleEnabled ( sel.row() );
+
+      model->layoutChangedEvent();
+   }
+}

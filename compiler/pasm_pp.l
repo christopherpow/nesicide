@@ -16,8 +16,12 @@ decdigits      ([1-9]([0-9]{0,8}))
 octdigits      "0"([0-9]{0,8})
 bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 
-%x MACRO_NAME MACRO_ARGS MACRO_BODY INVOKE_ARGVALS
-%x REPEAT_COUNT
+comment        ";".*$
+
+%x PARSE_EQUATES CAPTURE_EQUATE
+%x PARSE_MACROS MACRO_NAME MACRO_ARGS MACRO_BODY INVOKE_ARGVALS
+%x PARSE_VARIABLES CAPTURE_VARIABLE
+%x PARSE_REPEATS REPEAT_COUNT
 
 %{
 
@@ -29,6 +33,12 @@ bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 #include "string.h"
 #include "pasm_types.h"
 
+// Track how many directives were processed in each go-around
+// and when the number processed hits 0, we're done.  If we
+// go around several times, quit.
+#define MAX_PASSES 5
+int directives_processed = 0;
+
 typedef struct _ppkeyword
 {
    const char* directive;
@@ -36,6 +46,7 @@ typedef struct _ppkeyword
    void (*handler)();
 } ppkeyword;
 
+// Symbol table stuff.
 typedef struct _ppsymbol_table
 {
    char*                 symbol;
@@ -49,13 +60,30 @@ typedef struct _ppsymbol_list
    struct _ppsymbol_table* tail;
 } ppsymbol_list;
 
+unsigned char add_ppsymbol ( ppsymbol_list* list, char* symbol );
+ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol );
+
 // For line counting...
 #ifndef __APPLE__ //strange mac os x related bug? :S
 int          pplineno = 0;
 #endif
 
-// Previous lexer state for returning
-int ppprevious_state = INITIAL;
+// Previous lexer state for returning.
+// State movement within lexer is:
+// Start -> PARSE_EQUATES: parse any equ directives and perform
+//          equivalency replacements in input text.
+// ... -> PARSE_MACROS: parse any macro/endm directives, form
+//        macro structures including macro text, perform macro
+//        invocation expansions.
+// ... -> PARSE_VARIABLES: parse any variable = expression statements
+//        and form values for each variable to be used in a similar fashion
+//        to equ directive, but variables are reduced to numeric value first.
+//        (variable values are needed for repeat loop counting)
+// ... -> PARSE_REPEATS: parse any rept/endr directives and
+//        perform repeated replacements in input text.
+// ... -> Finish: Pass preprocessed input text as output text to
+//        the assembler stage.
+int ppprevious_state = PARSE_EQUATES;
 
 #define OUTPUT_DEFAULT_ALLOC 1024
 #define MAX_NESTS            10
@@ -69,20 +97,19 @@ typedef struct _ppmacro_table
    int idx; // used for self-reference and also for scoping variables
    char* symbol;
    char* text;
-   int   text_size;
+   int   text_blocks;
+   int   text_length;
    struct _ppsymbol_list* stab; // macro symbols
    struct _ppsymbol_list* vtab; // macro symbol values
 } ppmacro_table;
 
-int nestlevel = 0;
-
 ppmacro_table* ppmtab;
 int ppmtab_ent = 0;
 int ppmtab_max = 0;
+int macronestlevel = 0;
 int current_macro [ MAX_NESTS ] = { -1, };
 int create_macro ( char* symbol );
-void copy_to_macro ( int macro, char* s );
-unsigned char add_macro_symbol ( ppsymbol_list* list, char* symbol );
+void copy_to_macro ( int macro, char* string, int length );
 void check_macro_invocation ( int macro );
 void dump_macro ( int macro );
 char* create_macro_invocation ( int macro );
@@ -91,16 +118,41 @@ void destroy_macro_values ( int macro );
 // Repeat stuff.
 int repeat_start [ MAX_NESTS ];
 int repeat_count [ MAX_NESTS ];
+int reptnestlevel = 0;
+
+// Equate stuff.
+typedef struct _ppequate_table
+{
+   struct _ppsymbol_list stab; // symbols
+   struct _ppsymbol_list vtab; // symbol values
+} ppvariable_table;
+
+ppvariable_table ppequtab;
+char* equsym = NULL;
+void dump_equates ( void );
+
+// Variable stuff.
+ppvariable_table ppvartab;
+void dump_variables ( void );
+
+void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist );
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
 extern char e [ 256 ];
 
+// Preprocessor redo pass input buffer.
+char* input_buffer;
+
 // Preprocessor output.
 void output_text ( char* text, int length );
+void backup_output_text ( void );
 char* output_buffer;
 int   output_length;
 int   output_blocks;
+
+// Assembler pass counter.
+int pass;
 
 int pperror(char* s)
 {
@@ -109,9 +161,9 @@ int pperror(char* s)
 
 void k_macro ( void )
 {
-   if ( nestlevel < (MAX_NESTS-1) )
+   if ( macronestlevel < (MAX_NESTS-1) )
    {
-      nestlevel++;
+      macronestlevel++;
       BEGIN MACRO_NAME;
    }
    else
@@ -122,25 +174,27 @@ void k_macro ( void )
 
 void k_endm ( void )
 {
-   if ( nestlevel )
+   if ( macronestlevel )
    {
-//      dump_macro ( current_macro[nestlevel] );
-      current_macro [ nestlevel ] = -1;
-      nestlevel--;
+//      dump_macro ( current_macro[macronestlevel] );
+      current_macro [ macronestlevel ] = -1;
+      macronestlevel--;
    }
    else
    {
       pperror ( "endm without corresponding macro" );
    }
-   BEGIN INITIAL;
+   BEGIN PARSE_MACROS;
 }
 
 void k_rept ( void )
 {
-   if ( nestlevel < (MAX_NESTS-1) )
+   if ( reptnestlevel < (MAX_NESTS-1) )
    {
-      nestlevel++;
-      repeat_start [ nestlevel ] = output_length;
+      reptnestlevel++;
+
+      repeat_start [ reptnestlevel ] = output_length;
+      ppprevious_state = PARSE_REPEATS;
       BEGIN REPEAT_COUNT;
    }
    else
@@ -154,27 +208,32 @@ void k_endr ( void )
 {
    int length;
 
-   if ( nestlevel )
+   if ( reptnestlevel )
    {
       // store current length because it's going to grow...
-      length = strlen ( output_buffer+repeat_start[nestlevel] );
+      length = strlen ( output_buffer+repeat_start[reptnestlevel] );
 
       // repeat stuff...but take off one for the original that
       // defined the stuff to repeat first.
-      repeat_count [ nestlevel ]--;
-      while ( repeat_count[nestlevel] > 0)
+      repeat_count [ reptnestlevel ]--;
+      while ( repeat_count[reptnestlevel] > 0)
       {
-         output_text ( output_buffer+repeat_start[nestlevel], length );
-         repeat_count [ nestlevel ]--;
+         output_text ( output_buffer+repeat_start[reptnestlevel], length );
+         repeat_count [ reptnestlevel ]--;
       }
 
-      nestlevel--;
+      reptnestlevel--;
    }
    else
    {
       pperror ( "endr without corresponding rept" );
    }
-   BEGIN INITIAL;
+   BEGIN PARSE_REPEATS;
+}
+
+void k_equ ( void )
+{
+   BEGIN CAPTURE_EQUATE;
 }
 
 // Keyword information.  Since keywords are parsed by the
@@ -183,21 +242,36 @@ void k_endr ( void )
 // for keywords and handle them.  This is similar to the mechanism
 // used to determine an assembler mnemonic in the 'identifier'
 // regular expression.
+ppkeyword ppkeywords_equ [] =
+{
+   { "equ", ".equ", k_equ },
+   { NULL, NULL, NULL }
+};
+
+ppkeyword ppkeywords_macro [] =
+{
+   { "macro", ".macro", k_macro },
+   { "endm", ".endm", k_endm},
+   { NULL, NULL, NULL }
+};
+
+ppkeyword ppkeywords_repeat [] =
+{
+   { "rept", ".rept", k_rept },
+   { "endr", ".endr", k_endr },
+   { NULL, NULL, NULL }
+};
+
 ppkeyword ppkeywords [] =
 {
    { "include", ".include", NULL },
    { "incsrc", ".incsrc", NULL },
-   { "rept", ".rept", k_rept },
-   { "endr", ".endr", k_endr },
-   { "macro", ".macro", k_macro },
-   { "endm", ".endm", k_endm},
    { "ifdef", ".ifdef", NULL },
    { "ifndef", ".ifndef", NULL },
    { "if", ".if", NULL },
    { "elseif", ".elseif", NULL },
    { "else", ".else", NULL },
    { "endif", ".endif", NULL },
-   { "equ", ".equ", NULL },
    { NULL, NULL, NULL }
 };
 
@@ -205,8 +279,12 @@ ppkeyword ppkeywords [] =
 
 %%
 
-<INITIAL>{identifier} {
-   ppkeyword* k = ppkeywords;
+<*>{comment} {
+   // throw away!
+}
+
+<PARSE_EQUATES>{identifier} {
+   ppkeyword* k = ppkeywords_equ;
    int m;
    int echo = 1;
 
@@ -220,6 +298,121 @@ ppkeyword ppkeywords [] =
       {
          if ( k->handler )
          {
+            directives_processed++;
+            k->handler ();
+         }
+
+         echo = 0;
+      }
+      k++;
+   }
+
+   if ( echo )
+   {
+      // Copy this identifier just incase it is an equate symbol
+      free ( equsym );
+      equsym = strdup ( pptext );
+
+      // Output token
+      output_text ( pptext, ppleng );
+   }
+}
+
+<PARSE_EQUATES>[ \t\r\n] {
+   output_text ( pptext, ppleng );
+}
+
+<PARSE_EQUATES>. {
+   output_text ( pptext, ppleng );
+}
+
+<CAPTURE_EQUATE>([^ ;\t\r\n])+ {
+   // add equate structure
+   // add to {identifier} functions to replace identifiers with
+   // their equated values
+   add_ppsymbol ( &(ppequtab.stab), equsym );
+   add_ppsymbol ( &(ppequtab.vtab), pptext );
+   dump_equates ();
+
+   free ( equsym );
+   equsym = NULL;
+}
+
+<CAPTURE_EQUATE>[ \t] {
+   // throw away!
+}
+
+<CAPTURE_EQUATE>[\r\n] {
+   // remove the line we just parsed...
+   backup_output_text ();
+
+   output_text ( pptext, ppleng );
+
+   BEGIN PARSE_EQUATES;
+}
+
+<PARSE_VARIABLES>{identifier} {
+   // Copy this identifier just incase it is an equate symbol
+   free ( equsym );
+   equsym = strdup ( pptext );
+
+   // Output token
+   output_text ( pptext, ppleng );
+}
+
+<PARSE_VARIABLES>[ \t\r\n] {
+   output_text ( pptext, ppleng );
+}
+
+<PARSE_VARIABLES>[=] {
+   output_text ( pptext, ppleng );
+   printf ( "symbol: %s\n", equsym );
+   BEGIN CAPTURE_VARIABLE;
+}
+
+<CAPTURE_VARIABLE>[^;\r\n]+ {
+   // Kill any previous declarations, use this one...
+   printf ( "value: %s\n", pptext );
+   ppsymbol_table* ptr = find_ppsymbol ( &(ppvartab.stab), equsym );
+   if ( ptr )
+   {
+      ptr->symbol [ 0 ] = SYMBOL_KILLER;
+   }
+   add_ppsymbol ( &(ppvartab.stab), equsym );
+   add_ppsymbol ( &(ppvartab.vtab), pptext );
+   dump_variables ();
+
+   free ( equsym );
+   equsym = NULL;
+}
+
+<CAPTURE_VARIABLE>[\r\n] {
+   // remove the line we just parsed...
+   backup_output_text ();
+
+   output_text ( pptext, ppleng );
+
+   directives_processed++;
+
+   BEGIN PARSE_VARIABLES;
+}
+
+<PARSE_MACROS>{identifier} {
+   ppkeyword* k = ppkeywords_macro;
+   int m;
+   int echo = 1;
+
+   // Check for directives...
+   while ( k->directive != NULL )
+   {
+      if ( ((strlen(k->directive) == ppleng) &&
+           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == ppleng) &&
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      {
+         if ( k->handler )
+         {
+            directives_processed++;
             k->handler ();
          }
 
@@ -234,11 +427,12 @@ ppkeyword ppkeywords [] =
       if ( (strlen(ppmtab[m].symbol) == ppleng) &&
            (strnicmp(yytext,ppmtab[m].symbol,strlen(ppmtab[m].symbol)) == 0) )
       {
-         if ( nestlevel < (MAX_NESTS-1) )
+         if ( macronestlevel < (MAX_NESTS-1) )
          {
-            nestlevel++;
-            current_macro [ nestlevel ] = m;
-            ppprevious_state = INITIAL;
+            directives_processed++;
+            macronestlevel++;
+            current_macro [ macronestlevel ] = m;
+            ppprevious_state = PARSE_MACROS;
             BEGIN INVOKE_ARGVALS;
          }
          else
@@ -257,21 +451,17 @@ ppkeyword ppkeywords [] =
    }
 }
 
-<INITIAL>[\r\n] {
-   output_text ( pptext, ppleng );
-}
-
-<INITIAL>[ \t] {
+<PARSE_MACROS>[ \t\r\n] {
    output_text ( pptext, ppleng );
 }
 
 <MACRO_NAME>{identifier} {
-   current_macro [ nestlevel ] = create_macro ( yytext );
+   current_macro [ macronestlevel ] = create_macro ( yytext );
    BEGIN MACRO_ARGS;
 }
 
-<MACRO_ARGS>[^(, \t\r\n)] {
-   add_macro_symbol ( ppmtab[current_macro[nestlevel]].stab, yytext );
+<MACRO_ARGS>[^, ;\t\r\n]+ {
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].stab, yytext );
 }
 
 <MACRO_NAME,MACRO_ARGS>[\r\n] {
@@ -283,12 +473,94 @@ ppkeyword ppkeywords [] =
    // throw away!
 }
 
-<MACRO_NAME,REPEAT_COUNT>[ \t] {
+<MACRO_NAME>[ \t] {
    // throw away!
 }
 
 <MACRO_BODY>{identifier} {
-   ppkeyword* k = ppkeywords;
+   ppkeyword* k = ppkeywords_macro;
+   int m;
+   int echo = 1;
+
+   // Check for directives...
+   while ( k->directive != NULL )
+   {
+      // Only look for endm directives in a macro...
+      // This could be easier done...
+      if ( k->handler == k_endm )
+      {
+         if ( ((strlen(k->directive) == ppleng) &&
+              (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+              ((strlen(k->dotdirective) == ppleng) &&
+              (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+         {
+            if ( k->handler )
+            {
+               directives_processed++;
+               k->handler ();
+            }
+
+            echo = 0;
+         }
+      }
+      k++;
+   }
+
+   if ( echo )
+   {
+      // Copy this identifier just incase it is an equate symbol
+      free ( equsym );
+      equsym = strdup ( pptext );
+
+      // Output text anyway...
+      copy_to_macro ( current_macro[macronestlevel], pptext, ppleng );
+   }
+}
+
+<MACRO_BODY>[^;\r\n] {
+   copy_to_macro ( current_macro[macronestlevel], pptext, ppleng );
+}
+
+<MACRO_BODY>[\r\n] {
+   output_text ( pptext, ppleng );
+   copy_to_macro ( current_macro[macronestlevel], pptext, ppleng );
+}
+
+<INVOKE_ARGVALS>[^, ;\t\r\n]+ {
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].vtab, yytext );
+}
+
+<INVOKE_ARGVALS>[\r\n] {
+   char* invoketext;
+
+   BEGIN ppprevious_state;
+
+   check_macro_invocation ( current_macro[macronestlevel] );
+   invoketext = create_macro_invocation ( current_macro[macronestlevel] );
+
+   switch ( ppprevious_state )
+   {
+      case PARSE_MACROS:
+         output_text ( pptext, ppleng );
+         output_text ( invoketext, strlen(invoketext) );
+      break;
+
+      case MACRO_BODY:
+         // copy this macro's invocation text to the macro we came from...
+         copy_to_macro ( current_macro[macronestlevel-1], pptext, ppleng );
+         copy_to_macro ( current_macro[macronestlevel-1], invoketext, strlen(invoketext) );
+      break;
+   }
+
+//         dump_macro ( current_macro[macronestlevel] );
+   free ( invoketext );
+   destroy_macro_values ( current_macro[macronestlevel] );
+   current_macro [ macronestlevel ] = -1;
+   macronestlevel--;
+}
+
+<PARSE_REPEATS>{identifier} {
+   ppkeyword* k = ppkeywords_repeat;
    int m;
    int echo = 1;
 
@@ -302,6 +574,7 @@ ppkeyword ppkeywords [] =
       {
          if ( k->handler )
          {
+            directives_processed++;
             k->handler ();
          }
 
@@ -310,103 +583,50 @@ ppkeyword ppkeywords [] =
       k++;
    }
 
-   // Check for macro invocations...
-   for ( m = 0; m < ppmtab_ent; m++ )
-   {
-      if ( (strlen(ppmtab[m].symbol) == ppleng) &&
-           (strnicmp(yytext,ppmtab[m].symbol,strlen(ppmtab[m].symbol)) == 0) )
-      {
-         if ( nestlevel < (MAX_NESTS-1) )
-         {
-            nestlevel++;
-            current_macro [ nestlevel ] = m;
-            ppprevious_state = MACRO_BODY;
-            BEGIN INVOKE_ARGVALS;
-         }
-         else
-         {
-            sprintf ( e, "too many nested repeats, max is %d", MAX_NESTS );
-            pperror ( e );
-         }
-
-         echo = 0;
-      }
-   }
-
    if ( echo )
    {
-      copy_to_macro ( current_macro[nestlevel], yytext );
+      output_text ( pptext, ppleng );
    }
 }
 
-<MACRO_BODY>. {
-   copy_to_macro ( current_macro[nestlevel], yytext );
-}
-
-<MACRO_BODY>[\r\n] {
+<PARSE_REPEATS>[\r\n] {
    output_text ( pptext, ppleng );
-   copy_to_macro ( current_macro[nestlevel], yytext );
-}
-
-<INVOKE_ARGVALS>[^(, \t\r\n)]+ {
-   add_macro_symbol ( ppmtab[current_macro[nestlevel]].vtab, yytext );
-}
-
-<INVOKE_ARGVALS>[\r\n] {
-   char* invoketext;
-
-   output_text ( pptext, ppleng );
-
-   BEGIN ppprevious_state;
-
-   check_macro_invocation ( current_macro[nestlevel] );
-   invoketext = create_macro_invocation ( current_macro[nestlevel] );
-
-   switch ( ppprevious_state )
-   {
-      case INITIAL:
-         output_text ( invoketext, strlen(invoketext) );
-      break;
-
-      case MACRO_BODY:
-         // copy this macro's invocation text to the macro we came from...
-         copy_to_macro ( current_macro[nestlevel-1], invoketext );
-      break;
-   }
-
-//         dump_macro ( current_macro[nestlevel] );
-   free ( invoketext );
-   destroy_macro_values ( current_macro[nestlevel] );
-   current_macro [ nestlevel ] = -1;
-   nestlevel--;
 }
 
 <REPEAT_COUNT>{hexdigits} {
    char* ptr = pptext;
    if ( ptr[0] == '$' ) ptr++;
-   repeat_count [ nestlevel ] = strtoul(ptr,NULL,16);
+   repeat_count [ reptnestlevel ] = strtoul(ptr,NULL,16);
 }
 
 <REPEAT_COUNT>{decdigits} {
-   repeat_count [ nestlevel ] = strtoul(pptext,NULL,10);
+   repeat_count [ reptnestlevel ] = strtoul(pptext,NULL,10);
 }
 
 <REPEAT_COUNT>{octdigits} {
-   repeat_count [ nestlevel ] = strtoul(pptext,NULL,8);
+   repeat_count [ reptnestlevel ] = strtoul(pptext,NULL,8);
 }
 
 <REPEAT_COUNT>{bindigits} {
    char* ptr = pptext;
    if ( ptr[0] == '%' ) ptr++;
-   repeat_count [ nestlevel ] = strtoul(ptr,NULL,2);
+   repeat_count [ reptnestlevel ] = strtoul(ptr,NULL,2);
+}
+
+<REPEAT_COUNT>[ \t] {
+   // throw away!
 }
 
 <REPEAT_COUNT>[\r\n] {
    output_text ( pptext, ppleng );
-   BEGIN INITIAL;
+   BEGIN PARSE_REPEATS;
 }
 
-<INITIAL,MACRO_NAME,MACRO_ARGS,INVOKE_ARGVALS,REPEAT_COUNT>. {
+<INITIAL>[\r\n] {
+   output_text ( pptext, ppleng );
+}
+
+<INITIAL,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,INVOKE_ARGVALS,PARSE_VARIABLES,PARSE_REPEATS,REPEAT_COUNT>. {
    output_text ( pptext, ppleng );
 }
 
@@ -415,24 +635,97 @@ ppkeyword ppkeywords [] =
 #undef ppwrap
 int ppwrap(void)
 {
+   int go_around = 0;
+
+   switch ( pass )
+   {
+      case PARSE_EQUATES:
+         // do any equate replacements necessary...
+         replace_symbols_with_values ( output_buffer, &(ppequtab.stab), &(ppequtab.vtab) );
+
+         pass = PARSE_MACROS;
+         go_around = 1;
+      break;
+
+      case PARSE_MACROS:
+         if ( directives_processed == 0 )
+         {
+            pass = PARSE_VARIABLES;
+         }
+         go_around = 1;
+      break;
+
+      case PARSE_VARIABLES:
+         if ( directives_processed == 0 )
+         {
+            pass = PARSE_REPEATS;
+         }
+         go_around = 1;
+      break;
+
+      case PARSE_REPEATS:
+         if ( directives_processed == 0 )
+         {
+            pass = INITIAL; // CPTODO: replace with ASSEMBLE or whatever
+         }
+         go_around = 0;
+      break;
+   }
+
+//      printf ( "\n%d %d INPUT: %s\n\n", pass, directives_processed, input_buffer );
+//      printf ( "\nOUTPUT: %s\n\n", output_buffer );
+
+   if ( go_around )
+   {
+      // go around again...
+      free ( input_buffer );
+      input_buffer = strdup ( output_buffer );
+      free ( output_buffer );
+      output_buffer = NULL;
+      output_length = 0;
+      output_blocks = 0;
+      directives_processed = 0;
+      pp_scan_string ( input_buffer );
+      BEGIN pass;
+      ppin = NULL;
+      return 0;
+   }
+
    return 1;
 }
 
 int preprocess ( char* buffer_in, char** buffer_out, int* length )
 {
+   // Initialize the preprocessor buffers...
+   input_buffer = NULL;
    output_buffer = NULL;
    output_length = 0;
    output_blocks = 0;
+   directives_processed = 0;
+   pass = PARSE_EQUATES;
 
+   // If buffer_in isn't null it means we're being called from
+   // the library code.  In that case the string to parse is
+   // passed to us.  In the executable case the parse material
+   // comes from a file (that could be stdin).
    if ( buffer_in )
    {
-      pp_scan_string ( buffer_in );
+      // Redirect lex to the string to parse...
+      input_buffer = strdup ( buffer_in );
+      pp_scan_string ( input_buffer );
       ppin = NULL;
    }
 
-   // Preprocessor lexer only returns when done...
+   // First things first, parse for equates...
+   BEGIN pass;
+
+   // Preprocessor lexer returns when done...
    pplex ();
 
+   // Clean up...
+   free ( input_buffer );
+
+   // Return preprocessed output...
    (*buffer_out) = output_buffer;
    (*length) = output_length;
 
@@ -461,6 +754,17 @@ void output_text ( char* text, int length )
    output_length += length;
 }
 
+void backup_output_text ( void )
+{
+   while ( (output_length > 0) &&
+           (output_buffer[output_length] != '\r') &&
+           (output_buffer[output_length] != '\n') )
+   {
+      output_buffer[output_length] = 0;
+      output_length--;
+   }
+}
+
 int create_macro ( char* symbol )
 {
    int idx = -1;
@@ -479,7 +783,8 @@ int create_macro ( char* symbol )
             ppmtab[ppmtab_ent].idx = ppmtab_ent;
             ppmtab[ppmtab_ent].text = malloc ( MACRO_DEFAULT_ALLOC );
             ppmtab[ppmtab_ent].text[0] = 0;
-            ppmtab[ppmtab_ent].text_size = MACRO_DEFAULT_ALLOC;
+            ppmtab[ppmtab_ent].text_blocks = 0;
+            ppmtab[ppmtab_ent].text_length = 0;
             ppmtab[ppmtab_ent].stab = (ppsymbol_list*) malloc ( sizeof(ppsymbol_list) );
             ppmtab[ppmtab_ent].stab->head = NULL;
             ppmtab[ppmtab_ent].stab->tail = NULL;
@@ -506,7 +811,8 @@ int create_macro ( char* symbol )
             ppmtab[ppmtab_ent].idx = ppmtab_ent;
             ppmtab[ppmtab_ent].text = malloc ( MACRO_DEFAULT_ALLOC );
             ppmtab[ppmtab_ent].text[0] = 0;
-            ppmtab[ppmtab_ent].text_size = MACRO_DEFAULT_ALLOC;
+            ppmtab[ppmtab_ent].text_blocks = 0;
+            ppmtab[ppmtab_ent].text_length = 0;
             ppmtab[ppmtab_ent].stab = (ppsymbol_list*) malloc ( sizeof(ppsymbol_list) );
             ppmtab[ppmtab_ent].stab->head = NULL;
             ppmtab[ppmtab_ent].stab->tail = NULL;
@@ -529,7 +835,8 @@ int create_macro ( char* symbol )
                ppmtab[ppmtab_ent].idx = ppmtab_ent;
                ppmtab[ppmtab_ent].text = malloc ( MACRO_DEFAULT_ALLOC );
                ppmtab[ppmtab_ent].text[0] = 0;
-               ppmtab[ppmtab_ent].text_size = MACRO_DEFAULT_ALLOC;
+               ppmtab[ppmtab_ent].text_blocks = 0;
+               ppmtab[ppmtab_ent].text_length = 0;
                ppmtab[ppmtab_ent].stab = (ppsymbol_list*) malloc ( sizeof(ppsymbol_list) );
                ppmtab[ppmtab_ent].stab->head = NULL;
                ppmtab[ppmtab_ent].stab->tail = NULL;
@@ -553,15 +860,42 @@ int create_macro ( char* symbol )
    return idx;
 }
 
-void copy_to_macro ( int macro, char* s )
+void copy_to_macro ( int macro, char* string, int length )
 {
+   int blocks = (ppmtab[macro].text_length+length)/MACRO_DEFAULT_ALLOC;
 
-   ppmtab[macro].text_size += strlen(s);
-// CPTODO: handle reallocing...
-   strcat ( ppmtab[macro].text, s );
+   // macro text block is already allocated on macro creation...
+   if ( blocks > ppmtab[macro].text_blocks )
+   {
+      ppmtab [ macro ].text = realloc ( ppmtab[macro].text, (blocks+1)*MACRO_DEFAULT_ALLOC );
+      ppmtab [ macro ].text [ blocks*MACRO_DEFAULT_ALLOC ] = 0;
+      ppmtab [ macro ].text_blocks = blocks;
+   }
+   strncat ( ppmtab[macro].text, string, length );
+   ppmtab [ macro ].text_length += length;
 }
 
-unsigned char add_macro_symbol ( ppsymbol_list* list, char* symbol )
+ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol )
+{
+   unsigned int i;
+   ppsymbol_table* ptr = NULL;
+   unsigned char found  = 0;
+
+   for ( ptr = list->tail; ptr != NULL; ptr = ptr->prev )
+   {
+      if ( (strlen(symbol) == strlen(ptr->symbol)) &&
+           (strcmp(symbol,ptr->symbol) == 0) )
+      {
+         found = 1;
+         break;
+      }
+   }
+
+   // ptr gets set to NULL if not found in loops above...
+   return ptr;
+}
+
+unsigned char add_ppsymbol ( ppsymbol_list* list, char* symbol )
 {
    ppsymbol_table* ptr;
    unsigned char a = 1;
@@ -627,7 +961,7 @@ void check_macro_invocation ( int macro )
       if ( !vptr )
       {
          // add empty value to prevent seg-fault...
-         add_macro_symbol ( ppmtab[macro].vtab, " " );
+         add_ppsymbol ( ppmtab[macro].vtab, " " );
 
          // but this macro invocation is not valid...
          sprintf ( e, "missing value for argument '%s' in macro invocation", sptr->symbol );
@@ -643,30 +977,39 @@ void check_macro_invocation ( int macro )
 
 char* create_macro_invocation ( int macro )
 {
-   static char scratch [ MACRO_DEFAULT_ALLOC ];
-   char* invokedtext = malloc ( MACRO_DEFAULT_ALLOC );
-   ppsymbol_list* slist = ppmtab[macro].stab;
-   ppsymbol_list* vlist = ppmtab[macro].vtab;
+   // assume the macro won't double in size during invocation...
+   char* invokedtext = malloc ( ppmtab[macro].text_length*2 );
+
+   // copy the macro text to the new invokedtext to start...
+   strcpy ( invokedtext, ppmtab[macro].text );
+
+   // replace symbols with values...
+   replace_symbols_with_values ( invokedtext,
+                                 ppmtab[macro].stab,
+                                 ppmtab[macro].vtab );
+
+   return invokedtext;
+}
+
+void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist )
+{
    ppsymbol_table* sptr = slist->head;
    ppsymbol_table* vptr = vlist->head;
    char* ptr;
    int i;
    int valid;
 
-   // copy the macro text to the new invokedtext to start...
-   strcpy ( invokedtext, ppmtab[macro].text );
-
-   // go through each macro symbol and replace the text with
+   // go through each symbol and replace the text with
    // the symbol value wherever the symbol value is found...
    while ( sptr != NULL )
    {
-      ptr = invokedtext;
+      ptr = text;
       while ( (ptr=strstr(ptr,sptr->symbol)) != NULL )
       {
          // check to make sure this is actually a valid replacement
          // and not somewhere in the middle of another word...
          valid = 1;
-         if ( ptr > invokedtext )
+         if ( ptr > text )
          {
             if ( isalnum(*(ptr-1)) )
             {
@@ -676,7 +1019,7 @@ char* create_macro_invocation ( int macro )
                ptr++;
             }
          }
-         if ( ptr < (invokedtext+strlen(invokedtext)-1) )
+         if ( ptr < (text+strlen(text)-1) )
          {
             if ( isalnum(*(ptr+strlen(sptr->symbol))) )
             {
@@ -702,15 +1045,20 @@ char* create_macro_invocation ( int macro )
                for ( i = 0; i < (strlen(sptr->symbol)-strlen(vptr->symbol)); i++ )
                {
                   (*ptr) = ' ';
+                  ptr++;
                }
             }
             else
             {
                // move the remainder of the text ahead and fill
                // in the symbol's invoke value...
-               strcpy ( scratch, ptr+strlen(sptr->symbol) );
+               // use memcpy so no NULL is added...
+               for ( i = 0; i < strlen(ptr); i++ )
+               {
+                  *(ptr+strlen(ptr)-i+(strlen(vptr->symbol)-strlen(sptr->symbol))) = *(ptr+strlen(ptr)-i);
+               }
+               *(ptr+strlen(ptr)+1) = 0;
                memcpy ( ptr, vptr->symbol, strlen(vptr->symbol) );
-               strcpy ( ptr+strlen(vptr->symbol), scratch );
             }
          }
       }
@@ -718,7 +1066,6 @@ char* create_macro_invocation ( int macro )
       sptr = sptr->next;
       vptr = vptr->next;
    }
-   return invokedtext;
 }
 
 void destroy_macro_values ( int macro )
@@ -768,4 +1115,62 @@ void dump_macro ( int macro )
    printf ( "text:\n" );
    printf ( "%s", ppmtab[macro].text );
    printf ( ":text\n" );
+}
+
+void dump_equates ( void )
+{
+   ppsymbol_list* slist = &(ppequtab.stab);
+   ppsymbol_list* vlist = &(ppequtab.vtab);
+   ppsymbol_table* sptr = slist->head;
+   ppsymbol_table* vptr = vlist->head;
+   int i =0;
+
+   printf ( "equates\n" );
+   printf ( "symbols [values]:\n" );
+   while ( sptr != NULL )
+   {
+      if ( vptr )
+      {
+         printf ( "%d: %s [%s]\n", i, sptr->symbol, vptr->symbol );
+      }
+      else
+      {
+         printf ( "%d: %s []\n", i, sptr->symbol );
+      }
+      i++;
+      sptr = sptr->next;
+      if ( vptr )
+      {
+         vptr = vptr->next;
+      }
+   }
+}
+
+void dump_variables ( void )
+{
+   ppsymbol_list* slist = &(ppvartab.stab);
+   ppsymbol_list* vlist = &(ppvartab.vtab);
+   ppsymbol_table* sptr = slist->head;
+   ppsymbol_table* vptr = vlist->head;
+   int i =0;
+
+   printf ( "variables\n" );
+   printf ( "symbols [values]:\n" );
+   while ( sptr != NULL )
+   {
+      if ( vptr )
+      {
+         printf ( "%d: %s [%s]\n", i, sptr->symbol, vptr->symbol );
+      }
+      else
+      {
+         printf ( "%d: %s []\n", i, sptr->symbol );
+      }
+      i++;
+      sptr = sptr->next;
+      if ( vptr )
+      {
+         vptr = vptr->next;
+      }
+   }
 }

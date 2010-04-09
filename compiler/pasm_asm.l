@@ -32,7 +32,6 @@ decdigits      ([1-9]([0-9]{0,8}))
 octdigits      "0"([0-9]{0,8})
 bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring   ([\"][^\"]*[\"])|(['][^']*['])
-comment        ";".*$
 rawhex         ([0-9a-fA-F]+)
 whitespace     ([ \t]+)
 
@@ -416,11 +415,6 @@ unsigned char valid_instr ( char* instr );
    return DIGITS;
 }
 
-<INITIAL,SOURCE,HEX,NOLABELREF>{comment} {
-   BEGIN INITIAL;
-   /* throw away */
-}
-
 <INITIAL,SOURCE,HEX>{whitespace} {
    /* throw away */
 }
@@ -544,7 +538,7 @@ unsigned char valid_instr ( char* instr );
    // ignore, error should already be given
 }
 %%
-int get_current_buffer ( void )
+int asm_get_current_buffer ( void )
 {
    return (int)YY_CURRENT_BUFFER;
 }
@@ -597,7 +591,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
               ((*ptr)->symbol[0] == '-') )
          {
             // Allow re-declaration of temporary symbols...
-//            (*ptr)->symbol[0] = SYMBOL_KILLER;
+            (*ptr)->symbol[0] = SYMBOL_KILLER;
          }
          else
          {

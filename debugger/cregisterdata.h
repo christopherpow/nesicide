@@ -2,6 +2,8 @@
 #define CREGISTERDATA_H
 
 #include "stdarg.h"
+#include "stdio.h"
+#include "string.h"
 
 #define NUM_CPU_REGISTERS 6
 #define NUM_PPU_REGISTERS 8
@@ -26,7 +28,10 @@ public:
          m_value = new char* [ values ];
          for ( idx = 0; idx < values; idx++ )
          {
-            m_value[idx] = (char*)va_arg(va,const char*);
+            char* temp = (char*)va_arg(va,const char*);
+            m_value[idx] = new char [ strlen(temp)+6 ]; // account for raw addition
+//            m_value[idx] = (char*)va_arg(va,const char*);
+            sprintf ( m_value[idx], "%X: %s", idx, temp );
          }
          va_end ( va );
       }

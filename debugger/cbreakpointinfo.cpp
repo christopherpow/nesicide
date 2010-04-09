@@ -10,11 +10,17 @@ CBreakpointInfo::CBreakpointInfo()
 {
 }
 
+void CBreakpointInfo::ToggleEnabled ( int bp )
+{
+   m_breakpoint [ bp ].enabled = !m_breakpoint [ bp ].enabled;
+}
+
 void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
 {
    if ( bp < NUM_BREAKPOINTS )
    {
       m_breakpoint [ bp ].hit = false;
+      m_breakpoint [ bp ].enabled = true;
       m_breakpoint [ bp ].itemActual = -1;
       m_breakpoint [ bp ].type = (eBreakpointType)type;
       m_breakpoint [ bp ].pEvent = NULL;
@@ -98,6 +104,7 @@ void CBreakpointInfo::RemoveBreakpoint ( int index )
    for ( idx = index; idx < NUM_BREAKPOINTS-1; idx++ )
    {
       m_breakpoint [ idx ].type = m_breakpoint [ idx+1 ].type;
+      m_breakpoint [ idx ].enabled = m_breakpoint [ idx+1 ].enabled;
       m_breakpoint [ idx ].target = m_breakpoint [ idx+1 ].target;
       m_breakpoint [ idx ].itemType = m_breakpoint [ idx+1 ].itemType;
       m_breakpoint [ idx ].event = m_breakpoint [ idx+1 ].event;
@@ -119,9 +126,17 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
    CRegisterData* pRegister;
    CBitfieldData* pBitfield;
 
-   if ( m_breakpoint[idx].hit )
+   if ( (m_breakpoint[idx].enabled) && (m_breakpoint[idx].hit) )
    {
       msg += sprintf ( msg, " * " );
+   }
+   else if ( m_breakpoint[idx].enabled )
+   {
+      msg += sprintf ( msg, "   " );
+   }
+   else if ( !(m_breakpoint[idx].enabled) )
+   {
+      msg += sprintf ( msg, " X " );
    }
    switch ( m_breakpoint[idx].type )
    {

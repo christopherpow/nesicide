@@ -19,7 +19,7 @@ QWidget *CDebuggerRegisterComboBoxDelegate::createEditor(QWidget *parent,
          QComboBox *editor = new QComboBox(parent);
          for ( idx = 0; idx < m_pBitfield->GetNumValues(); idx++ )
          {
-            sprintf ( data, "%X: %s", idx, m_pBitfield->GetValueByIndex(idx) );
+            sprintf ( data, "%s", m_pBitfield->GetValueByIndex(idx) );
             editor->addItem ( data, QVariant(idx) );
          }
          editor->setEditable(false);

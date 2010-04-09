@@ -8,6 +8,7 @@ CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget *parent, char *imgData)
    imageData = imgData;
    scrollX = 0;
    scrollY = 0;
+   zoom = 100;
 }
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
@@ -79,7 +80,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 {
    // Zoom the width and height based on our view zoom. If zoom is 200% and our width is 100
    // then the renderer's width will be 50.
-//   if ( (width >= 512) && (height >= 480) ) zoom = 200.0; else zoom = 100.0;
+   if ( (width >= 512) && (height >= 480) ) zoom = 200; else zoom = 100;
    int newWidth = (int)((float)width / ((float)zoom / 100.0f));
    int newHeight = (int)((float)height / ((float)zoom / 100.0f));
 
@@ -112,8 +113,9 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
-   float x = (width()/2.0)-(128.0*(zoom/100.0f));
-   float y = (height()/2.0)-(120.0*(zoom/100.0f));
+   if ( (width() >= 512) && (height() >= 480) ) zoom = 200; else zoom = 100;
+   float x = (width()/2.0)-(128.0*(((float)zoom)/100.0f));
+   float y = (height()/2.0)-(120.0*(((float)zoom)/100.0f));
 
    makeCurrent();
 

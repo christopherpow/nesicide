@@ -625,7 +625,7 @@ directive: INCBIN QUOTEDSTRING {
 		{
    //		strcpy ( currentFile, $2->string );
 			
-			orig = get_current_buffer ();
+         orig = asm_get_current_buffer ();
 
          buf = asm_scan_string ( data );
 
@@ -678,7 +678,7 @@ directive: INCBIN QUOTEDSTRING {
 			{
 				fread ( buffer, 1, bytes, fp );
 
-				orig = get_current_buffer ();
+            orig = asm_get_current_buffer ();
 
             buf = asm_scan_string ( buffer );
 

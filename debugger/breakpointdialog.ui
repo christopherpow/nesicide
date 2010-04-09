@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>404</width>
     <height>300</height>
    </rect>
   </property>
@@ -270,21 +270,7 @@
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="addButton">
-       <property name="text">
-        <string>Add</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="removeButton">
-       <property name="text">
-        <string>Remove</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="5">
+     <item row="2" column="0" colspan="6">
       <widget class="QTableView" name="tableView">
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
@@ -324,14 +310,7 @@
        </attribute>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="modifyButton">
-       <property name="text">
-        <string>Modify</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
+     <item row="0" column="0" colspan="6">
       <widget class="QStackedWidget" name="dataWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -383,6 +362,34 @@
          </item>
         </layout>
        </widget>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="addButton">
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="removeButton">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="modifyButton">
+       <property name="text">
+        <string>Modify</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4" colspan="2">
+      <widget class="QPushButton" name="endisButton">
+       <property name="text">
+        <string>Enable/Disable</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -458,8 +465,6 @@
   <tabstop>bitfield</tabstop>
   <tabstop>event</tabstop>
   <tabstop>condition</tabstop>
-  <tabstop>addButton</tabstop>
-  <tabstop>removeButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

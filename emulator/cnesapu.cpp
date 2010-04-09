@@ -1087,19 +1087,19 @@ CAPUNoise::CAPUNoise ()
    m_shift = 1;
    for ( idx = 0; idx < 93; idx++ )
    {
-      preShiftXor = ((m_shift&0x4000)>>14)^((m_shift&0x0100)>>8);
-      m_shift <<= 1;
-      m_shift |= preShiftXor;
-      m_shortTable [ idx ] = !(m_shift&0x4000);
+      preShiftXor = (m_shift&1)^((m_shift>>6)&1);
+      m_shift >>= 1;
+      m_shift |= preShiftXor<<14;
+      m_shortTable [ idx ] = m_shift;
    }
    // Calculate long table...
    m_shift = 1;
    for ( idx = 0; idx < 32767; idx++ )
    {
-      preShiftXor = ((m_shift&0x4000)>>14)^((m_shift&0x2000)>>13);
-      m_shift <<= 1;
-      m_shift |= preShiftXor;
-      m_longTable [ idx ] = !(m_shift&0x4000);
+      preShiftXor = (m_shift&1)^((m_shift>>1)&1);
+      m_shift >>= 1;
+      m_shift |= preShiftXor<<14;
+      m_shortTable [ idx ] = m_shift;
    }
    m_shift = 1;
 }
@@ -1107,24 +1107,24 @@ CAPUNoise::CAPUNoise ()
 void CAPUNoise::TIMERTICK ( UINT sampleTicks )
 {
    UINT ticks = CLKDIVIDER ( sampleTicks );
-   unsigned char set;
+   unsigned short shift;
 
    if ( m_mode )
    {
       m_shortTableIdx += ticks;
       m_shortTableIdx %= 93;
-      set = *(m_shortTable+m_shortTableIdx);
+      shift = *(m_shortTable+m_shortTableIdx);
    }
    else
    {
       m_longTableIdx += ticks;
       m_longTableIdx %= 32767;
-      set = *(m_longTable+m_longTableIdx);
+      shift = *(m_longTable+m_longTableIdx);
    }
-   if ( (m_enabled) &&
-        (m_lengthCounter) )
+   if ( !(shift&1) )
    {
-      if ( set )
+      if ( (m_enabled) &&
+           (m_lengthCounter) )
       {
          SETDAC ( m_volume );
       }

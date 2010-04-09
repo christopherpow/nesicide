@@ -52,7 +52,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
       {
          if ( pBitfield->GetNumValues() )
          {
-            sprintf ( data, "%X: %s", pBitfield->GetValueRaw(regData), pBitfield->GetValue(regData) );
+            sprintf ( data, "%s", pBitfield->GetValue(regData) );
          }
          else
          {
