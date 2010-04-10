@@ -613,7 +613,14 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
             memset ( list->tail->symbol, 0, strlen(symbol)+1 );
             strncpy ( list->tail->symbol, symbol, strlen(symbol) );
             list->tail->ir = NULL;
-            list->tail->btab_ent = cur->idx;
+            if ( cur )
+            {
+               list->tail->btab_ent = cur->idx;
+            }
+            else
+            {
+               list->tail->btab_ent = 0;
+            }
             list->tail->expr = NULL;
          }
          list->tail->next = NULL;
@@ -639,7 +646,14 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
             memset ( list->tail->symbol, 0, strlen(symbol)+1 );
             strncpy ( list->tail->symbol, symbol, strlen(symbol) );
             list->tail->ir = NULL;
-            list->tail->btab_ent = cur->idx;
+            if ( cur )
+            {
+               list->tail->btab_ent = cur->idx;
+            }
+            else
+            {
+               list->tail->btab_ent = 0;
+            }
             list->tail->expr = NULL;
          }
       }

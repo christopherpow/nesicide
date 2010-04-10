@@ -329,9 +329,7 @@ int asmwrap(void);
 // Current file being parsed for more meaningful error/warnings.
 //char currentFile [ 256 ];
 
-// Intermediate representation pointer-pointers.  These are global so that
-// we can switch from emitting to a bank or emitting to a macro
-// without too much hassle.
+// Intermediate representation pointer-pointers.
 ir_table** ir_head = NULL;
 ir_table** ir_tail = NULL;
 
@@ -405,6 +403,7 @@ char* instr_mnemonic ( unsigned char op );
 int promote_instructions ( unsigned char flag );
 void reduce_expressions ( void );
 void check_fixup ( void );
+void convert_expression_to_string ( expr_type* expr, char** string );
 
 unsigned int distance ( ir_table* from, ir_table* to );
 
@@ -478,12 +477,12 @@ extern char* asmtext;
 
 // Diagnostic routines for dumping symbol table, binary table, immediate
 // representation table, and an expression.
+void dump_symbol_tables ( void );
 void dump_symbol_table ( symbol_list* list );
 void dump_binary_table ( void );
 void dump_ir_tables ( void );
 void dump_ir_expressions ( void );
 void dump_expression ( expr_type* expr );
-void dump_macro_table ( void );
 
 %}
 
@@ -2105,6 +2104,9 @@ void initialize ( void )
       global_stab->tail = NULL;
    }
 
+   // start with global symbol table for preprocessor...
+   current_stab = global_stab;
+
    for ( idx = 0; idx < btab_ent; idx++ )
 	{
       ptd = NULL;
@@ -3067,6 +3069,16 @@ void dump_ir_tables ( void )
    }
 }
 
+void dump_symbol_tables ( void )
+{
+   int bank;
+
+   for ( bank = 0; bank < btab_ent; bank++ )
+   {
+      dump_symbol_table ( btab[bank].stab );
+   }
+}
+
 void dump_symbol_table ( symbol_list* list )
 {
    int i = 0;
@@ -3232,6 +3244,41 @@ expr_type* copy_expression ( expr_type* expr )
    }
 
    return temp;
+}
+
+void convert_expression_to_string ( expr_type* expr, char** string )
+{
+   expr_type* templ = NULL;
+   expr_type* tempr = NULL;
+   expr_type* temp;
+
+   if ( expr->left )
+   {
+      convert_expression_to_string ( expr->left, string );
+   }
+   if ( expr->right )
+   {
+      convert_expression_to_string ( expr->right, string );
+   }
+
+   if ( (*string) == NULL )
+   {
+      (*string) = (char*) malloc ( 64 );
+      (*string)[0] = 0;
+   }
+   else
+   {
+      (*string) = (char*) realloc ( (*string), strlen((*string))+64 );
+   }
+
+   if ( expr->type == expression_number )
+   {
+      sprintf ( (*string)+(strlen((*string))), "%d", expr->node.num->number );
+   }
+   else
+   {
+
+   }
 }
 
 void reduce_expressions ( void )

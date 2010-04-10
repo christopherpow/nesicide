@@ -190,6 +190,8 @@ typedef struct _binary_table
    struct _ir_table* ir_tail;
 } binary_table;
 
+symbol_table* find_symbol ( char* symbol );
+
 #if defined ( __cplusplus )
 }
 #endif

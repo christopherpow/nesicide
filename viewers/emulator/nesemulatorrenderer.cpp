@@ -114,8 +114,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 void CNESEmulatorRenderer::paintGL()
 {
    if ( (width() >= 512) && (height() >= 480) ) zoom = 200; else zoom = 100;
-   float x = (width()/2.0)-(128.0*(((float)zoom)/100.0f));
-   float y = (height()/2.0)-(120.0*(((float)zoom)/100.0f));
+   float x = (width()/2.0)-(128.0*(zoom/100));
+   float y = (height()/2.0)-(120.0*(zoom/100));
 
    makeCurrent();
 

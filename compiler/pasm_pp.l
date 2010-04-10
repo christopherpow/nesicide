@@ -133,9 +133,11 @@ void dump_equates ( void );
 
 // Variable stuff.
 ppvariable_table ppvartab;
+extern symbol_list* global_stab;
 void dump_variables ( void );
 
 void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist );
+void assign_variable_values ( void );
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
@@ -322,11 +324,7 @@ ppkeyword ppkeywords [] =
    output_text ( pptext, ppleng );
 }
 
-<PARSE_EQUATES>. {
-   output_text ( pptext, ppleng );
-}
-
-<CAPTURE_EQUATE>([^ ;\t\r\n])+ {
+<CAPTURE_EQUATE>[^; \t\r\n]+ {
    // add equate structure
    // add to {identifier} functions to replace identifiers with
    // their equated values
@@ -366,13 +364,12 @@ ppkeyword ppkeywords [] =
 
 <PARSE_VARIABLES>[=] {
    output_text ( pptext, ppleng );
-   printf ( "symbol: %s\n", equsym );
    BEGIN CAPTURE_VARIABLE;
 }
 
 <CAPTURE_VARIABLE>[^;\r\n]+ {
+   char line [ 2048 ];
    // Kill any previous declarations, use this one...
-   printf ( "value: %s\n", pptext );
    ppsymbol_table* ptr = find_ppsymbol ( &(ppvartab.stab), equsym );
    if ( ptr )
    {
@@ -381,6 +378,21 @@ ppkeyword ppkeywords [] =
    add_ppsymbol ( &(ppvartab.stab), equsym );
    add_ppsymbol ( &(ppvartab.vtab), pptext );
    dump_variables ();
+
+   sprintf ( line, "%s = %s\r\n", equsym, pptext );
+
+   int buf, orig;
+//            orig = asm_get_current_buffer ();
+
+            buf = asm_scan_string ( line );
+
+            asmparse();
+
+            asm_flush_buffer ( buf );
+
+//            asm_switch_to_buffer ( orig );
+
+            asm_delete_buffer ( buf );
 
    free ( equsym );
    equsym = NULL;
@@ -460,7 +472,11 @@ ppkeyword ppkeywords [] =
    BEGIN MACRO_ARGS;
 }
 
-<MACRO_ARGS>[^, ;\t\r\n]+ {
+<MACRO_NAME>[ \t] {
+   // throw away!
+}
+
+<MACRO_ARGS>[^;, \t\r\n]+ {
    add_ppsymbol ( ppmtab[current_macro[macronestlevel]].stab, yytext );
 }
 
@@ -470,10 +486,6 @@ ppkeyword ppkeywords [] =
 }
 
 <MACRO_ARGS,INVOKE_ARGVALS>[, \t] {
-   // throw away!
-}
-
-<MACRO_NAME>[ \t] {
    // throw away!
 }
 
@@ -526,7 +538,7 @@ ppkeyword ppkeywords [] =
    copy_to_macro ( current_macro[macronestlevel], pptext, ppleng );
 }
 
-<INVOKE_ARGVALS>[^, ;\t\r\n]+ {
+<INVOKE_ARGVALS>[^;, \t\r\n]+ {
    add_ppsymbol ( ppmtab[current_macro[macronestlevel]].vtab, yytext );
 }
 
@@ -626,7 +638,7 @@ ppkeyword ppkeywords [] =
    output_text ( pptext, ppleng );
 }
 
-<INITIAL,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,INVOKE_ARGVALS,PARSE_VARIABLES,PARSE_REPEATS,REPEAT_COUNT>. {
+<INITIAL,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,MACRO_BODY,INVOKE_ARGVALS,PARSE_EQUATES,CAPTURE_EQUATE,PARSE_VARIABLES,CAPTURE_VARIABLE,PARSE_REPEATS,REPEAT_COUNT>. {
    output_text ( pptext, ppleng );
 }
 
@@ -656,24 +668,36 @@ int ppwrap(void)
       break;
 
       case PARSE_VARIABLES:
-         if ( directives_processed == 0 )
-         {
-            pass = PARSE_REPEATS;
-         }
+         // reduce any expressions found...
+         reduce_expressions ();
+         dump_symbol_table ();
+
+         // assign variable values for repeats stage...
+         assign_variable_values ();
+
+         // do any equate replacements necessary...
+         replace_symbols_with_values ( output_buffer, &(ppvartab.stab), &(ppvartab.vtab) );
+
+         pass = PARSE_REPEATS;
          go_around = 1;
       break;
 
       case PARSE_REPEATS:
          if ( directives_processed == 0 )
          {
-            pass = INITIAL; // CPTODO: replace with ASSEMBLE or whatever
+            // we're done...INITIAL is a bit of a misnomer...
+            pass = INITIAL;
+            go_around = 0;
          }
-         go_around = 0;
+         else
+         {
+            go_around = 1;
+         }
       break;
    }
 
-//      printf ( "\n%d %d INPUT: %s\n\n", pass, directives_processed, input_buffer );
-//      printf ( "\nOUTPUT: %s\n\n", output_buffer );
+      printf ( "\n%d %d INPUT: %s\n\n", pass, directives_processed, input_buffer );
+      printf ( "\nOUTPUT: %s\n\n", output_buffer );
 
    if ( go_around )
    {
@@ -989,6 +1013,44 @@ char* create_macro_invocation ( int macro )
                                  ppmtab[macro].vtab );
 
    return invokedtext;
+}
+
+void assign_variable_values ( void )
+{
+   ppsymbol_list* slist = &(ppvartab.stab);
+   ppsymbol_list* vlist = &(ppvartab.vtab);
+   ppsymbol_table* sptr = slist->head;
+   ppsymbol_table* vptr = vlist->head;
+   symbol_table* ptr;
+   int i =0;
+
+   printf ( "variables\n" );
+   printf ( "symbols [values]:\n" );
+   while ( sptr != NULL )
+   {
+      // find symbol to grab it's expression...
+      ptr = find_symbol ( sptr->symbol );
+      if ( ptr && vptr )
+      {
+         free ( vptr->symbol );
+         vptr->symbol = NULL;
+         convert_expression_to_string ( ptr->expr, &(vptr->symbol) );
+      }
+      if ( vptr )
+      {
+         printf ( "%d: %s [%s]\n", i, sptr->symbol, vptr->symbol );
+      }
+      else
+      {
+         printf ( "%d: %s []\n", i, sptr->symbol );
+      }
+      i++;
+      sptr = sptr->next;
+      if ( vptr )
+      {
+         vptr = vptr->next;
+      }
+   }
 }
 
 void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist )

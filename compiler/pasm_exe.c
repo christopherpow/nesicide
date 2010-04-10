@@ -25,9 +25,9 @@ int main(int argc, char **argv)
 
 //   strcpy ( currentFile, "" );
 
-   add_binary_bank ( text_segment, NULL );
-
    preprocess ( NULL, &buffer, &length );
+
+   add_binary_bank ( text_segment, NULL );
 
    asm_scan_string ( buffer );
    asmin = NULL;
