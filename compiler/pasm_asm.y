@@ -2155,6 +2155,7 @@ void initialize ( void )
 	free ( btab );
 	btab = NULL;
    btab_ent = 0;
+   btab_ent_prior_to_enum = -1;
 	btab_max = 0;
 }
 

@@ -31,17 +31,21 @@ symbol_table* pasm_get_symbol_entry ( int symbol )
 {
    symbol_list* list;
    symbol_table* ptr;
-   int bank;
+   int bank = 0;
    int i = 0;
 
-   for ( bank = 0; bank < btab_ent; bank++ )
+   list = btab[bank].stab;
+   ptr = list->head;
+
+   while ( i < symbol )
    {
-      list = btab[bank].stab;
-      ptr = list->head;
-      while ( i < symbol )
+      i++;
+      ptr = ptr->next;
+      if ( ptr == NULL )
       {
-         i++;
-         ptr = ptr->next;
+         bank++;
+         list = btab[bank].stab;
+         ptr = list->head;
       }
    }
 
@@ -150,13 +154,13 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
 
    incobj_fn = incobj;
 
+//   asm_delete_buffer ();
+
    initialize ();
 
-   add_binary_bank ( text_segment, NULL );
-
-   asm_delete_buffer ();
-
    preprocess ( buffer_in, &buffer, &length );
+
+   add_binary_bank ( text_segment, NULL );
 
    asm_scan_string ( buffer );
    asmin = NULL;

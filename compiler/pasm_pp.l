@@ -143,7 +143,7 @@ void assign_variable_values ( void );
 char line [ 2048 ];
 
 // Temporary repeat label to pass to parser to invoke variable = expression rule...
-const char* reptsym = "____reptsym____";
+const char* reptsym = "----@@@@";
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
@@ -340,7 +340,7 @@ ppkeyword ppkeywords [] =
    {
       add_ppsymbol ( &(ppequtab.stab), equsym );
       add_ppsymbol ( &(ppequtab.vtab), pptext );
-      dump_equates ();
+//      dump_equates ();
    }
    else
    {
@@ -699,7 +699,6 @@ int ppwrap(void)
       case PARSE_VARIABLES:
          // reduce any expressions found...
          reduce_expressions ();
-         dump_symbol_table ();
 
          // assign variable values for repeats stage...
          assign_variable_values ();
@@ -718,8 +717,8 @@ int ppwrap(void)
       break;
    }
 
-//      printf ( "\n%d %d INPUT: %s\n\n", pass, directives_processed, input_buffer );
-//      printf ( "\nOUTPUT: %s\n\n", output_buffer );
+//      printf ( "\n%d %d INPUT: \n%s\n\n", pass, directives_processed, input_buffer );
+//      printf ( "\nOUTPUT: \n%s\n\n", output_buffer );
 
    if ( go_around )
    {
@@ -747,8 +746,22 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    output_buffer = NULL;
    output_length = 0;
    output_blocks = 0;
+   output_marker = -1;
    directives_processed = 0;
    pass = PARSE_EQUATES;
+   ppprevious_state = PARSE_EQUATES;
+
+   if ( ppmtab )
+   {
+
+   }
+   ppmtab_ent = 0;
+   ppmtab_max = 0;
+   macronestlevel = 0;
+
+   reptnestlevel = 0;
+
+   equsym = NULL;
 
    // If buffer_in isn't null it means we're being called from
    // the library code.  In that case the string to parse is
