@@ -393,7 +393,7 @@ ppkeyword ppkeywords [] =
    }
    add_ppsymbol ( &(ppvartab.stab), equsym );
    add_ppsymbol ( &(ppvartab.vtab), pptext );
-   dump_variables ();
+//   dump_variables ();
 
    sprintf ( line, "%s = %s\r\n", equsym, pptext );
 
@@ -626,7 +626,7 @@ ppkeyword ppkeywords [] =
    }
    add_ppsymbol ( &(ppvartab.stab), (char*)reptsym );
    add_ppsymbol ( &(ppvartab.vtab), pptext );
-   dump_variables ();
+//   dump_variables ();
 
    sprintf ( line, "%s = %s\r\n", reptsym, pptext );
 

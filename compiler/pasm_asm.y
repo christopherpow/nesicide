@@ -1895,24 +1895,6 @@ expr : QUOTEDSTRING {
    $$->right = $2;
    $$->right->parent = $$;
 }
-//     | expr '=' expr {
-//   if ( ($1->type == expression_reference) &&
-//        ($1->node.ref->type == reference_symtab) )
-//   {
-//      // reduce expression
-//      reduce_expression ( $3, NULL );
-//
-//      $1->node.ref->ref.symtab->expr = $3;
-//      $1->node.ref->ref.symtab->ir = NULL;
-//
-//      //dump_symbol_table ( current_stab );
-//   }
-//   else
-//   {
-//      sprintf ( e, "illegal l-value in expression" );
-//      asmerror ( e );
-//   }
-//}
      | expr '+' expr {
    $$ = get_next_exprtype ();
    $$->type = expression_operator;
@@ -2986,7 +2968,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   dump_ir_tables ();
+   //dump_ir_tables ();
 }
 
 char* instr_mnemonic ( unsigned char op )
