@@ -136,8 +136,14 @@ ppvariable_table ppvartab;
 extern symbol_list* global_stab;
 void dump_variables ( void );
 
-void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist );
+int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist );
 void assign_variable_values ( void );
+
+// Temporary storage for line reconstructions to pass to parser...
+char line [ 2048 ];
+
+// Temporary repeat label to pass to parser to invoke variable = expression rule...
+const char* reptsym = "____reptsym____";
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
@@ -152,6 +158,10 @@ void backup_output_text ( void );
 char* output_buffer;
 int   output_length;
 int   output_blocks;
+
+// Marker for where to back-up to in output stream when
+// erasing things that shouldn't go past the preprocessor.
+int   output_marker = -1;
 
 // Assembler pass counter.
 int pass;
@@ -315,7 +325,7 @@ ppkeyword ppkeywords [] =
       free ( equsym );
       equsym = strdup ( pptext );
 
-      // Output token
+      output_marker = output_length;
       output_text ( pptext, ppleng );
    }
 }
@@ -325,13 +335,18 @@ ppkeyword ppkeywords [] =
 }
 
 <CAPTURE_EQUATE>[^; \t\r\n]+ {
-   // add equate structure
-   // add to {identifier} functions to replace identifiers with
-   // their equated values
-   add_ppsymbol ( &(ppequtab.stab), equsym );
-   add_ppsymbol ( &(ppequtab.vtab), pptext );
-   dump_equates ();
-
+   ppsymbol_table* ptr = find_ppsymbol ( &(ppequtab.stab), equsym );
+   if ( !ptr )
+   {
+      add_ppsymbol ( &(ppequtab.stab), equsym );
+      add_ppsymbol ( &(ppequtab.vtab), pptext );
+      dump_equates ();
+   }
+   else
+   {
+      sprintf ( e, "%s: equate symbol redefined", equsym );
+      pperror ( e );
+   }
    free ( equsym );
    equsym = NULL;
 }
@@ -354,7 +369,7 @@ ppkeyword ppkeywords [] =
    free ( equsym );
    equsym = strdup ( pptext );
 
-   // Output token
+   output_marker = output_length;
    output_text ( pptext, ppleng );
 }
 
@@ -368,7 +383,8 @@ ppkeyword ppkeywords [] =
 }
 
 <CAPTURE_VARIABLE>[^;\r\n]+ {
-   char line [ 2048 ];
+   int buf;
+
    // Kill any previous declarations, use this one...
    ppsymbol_table* ptr = find_ppsymbol ( &(ppvartab.stab), equsym );
    if ( ptr )
@@ -381,18 +397,11 @@ ppkeyword ppkeywords [] =
 
    sprintf ( line, "%s = %s\r\n", equsym, pptext );
 
-   int buf, orig;
-//            orig = asm_get_current_buffer ();
-
-            buf = asm_scan_string ( line );
-
-            asmparse();
-
-            asm_flush_buffer ( buf );
-
-//            asm_switch_to_buffer ( orig );
-
-            asm_delete_buffer ( buf );
+   // Use parser to parse expression...
+   buf = asm_scan_string ( line );
+   asmparse();
+   asm_flush_buffer ( buf );
+   asm_delete_buffer ( buf );
 
    free ( equsym );
    equsym = NULL;
@@ -605,28 +614,45 @@ ppkeyword ppkeywords [] =
    output_text ( pptext, ppleng );
 }
 
-<REPEAT_COUNT>{hexdigits} {
-   char* ptr = pptext;
-   if ( ptr[0] == '$' ) ptr++;
-   repeat_count [ reptnestlevel ] = strtoul(ptr,NULL,16);
-}
+<REPEAT_COUNT>[^;\r\n]+ {
+   symbol_table* ptr;
+   int buf;
 
-<REPEAT_COUNT>{decdigits} {
-   repeat_count [ reptnestlevel ] = strtoul(pptext,NULL,10);
-}
+   // Kill any previous declarations, use this one...
+   ppsymbol_table* ppptr = find_ppsymbol ( &(ppvartab.stab), (char*)reptsym );
+   if ( ppptr )
+   {
+      ppptr->symbol [ 0 ] = SYMBOL_KILLER;
+   }
+   add_ppsymbol ( &(ppvartab.stab), (char*)reptsym );
+   add_ppsymbol ( &(ppvartab.vtab), pptext );
+   dump_variables ();
 
-<REPEAT_COUNT>{octdigits} {
-   repeat_count [ reptnestlevel ] = strtoul(pptext,NULL,8);
-}
+   sprintf ( line, "%s = %s\r\n", reptsym, pptext );
 
-<REPEAT_COUNT>{bindigits} {
-   char* ptr = pptext;
-   if ( ptr[0] == '%' ) ptr++;
-   repeat_count [ reptnestlevel ] = strtoul(ptr,NULL,2);
-}
+   // Use parser to parse expression...
+   buf = asm_scan_string ( line );
+   asmparse();
+   asm_flush_buffer ( buf );
+   asm_delete_buffer ( buf );
 
-<REPEAT_COUNT>[ \t] {
-   // throw away!
+   // Find symbol we should have just parsed...
+   ptr = find_symbol ( (char*)reptsym );
+   if ( ptr )
+   {
+      // Figure out if expression exists and is fully parsed...
+      if ( (ptr->expr) &&
+           (ptr->expr->type == expression_number) )
+      {
+         repeat_count [ reptnestlevel ] = ptr->expr->node.num->number;
+      }
+      else
+      {
+      }
+   }
+   else
+   {
+   }
 }
 
 <REPEAT_COUNT>[\r\n] {
@@ -653,9 +679,12 @@ int ppwrap(void)
    {
       case PARSE_EQUATES:
          // do any equate replacements necessary...
-         replace_symbols_with_values ( output_buffer, &(ppequtab.stab), &(ppequtab.vtab) );
+         directives_processed = replace_symbols_with_values ( output_buffer, &(ppequtab.stab), &(ppequtab.vtab) );
 
-         pass = PARSE_MACROS;
+         if ( directives_processed == 0 )
+         {
+            pass = PARSE_MACROS;
+         }
          go_around = 1;
       break;
 
@@ -683,21 +712,14 @@ int ppwrap(void)
       break;
 
       case PARSE_REPEATS:
-         if ( directives_processed == 0 )
-         {
-            // we're done...INITIAL is a bit of a misnomer...
-            pass = INITIAL;
-            go_around = 0;
-         }
-         else
-         {
-            go_around = 1;
-         }
+         // we're done...INITIAL is a bit of a misnomer...
+         pass = INITIAL;
+         go_around = 0;
       break;
    }
 
-      printf ( "\n%d %d INPUT: %s\n\n", pass, directives_processed, input_buffer );
-      printf ( "\nOUTPUT: %s\n\n", output_buffer );
+//      printf ( "\n%d %d INPUT: %s\n\n", pass, directives_processed, input_buffer );
+//      printf ( "\nOUTPUT: %s\n\n", output_buffer );
 
    if ( go_around )
    {
@@ -780,7 +802,7 @@ void output_text ( char* text, int length )
 
 void backup_output_text ( void )
 {
-   while ( (output_length > 0) &&
+   while ( (output_length >= output_marker) &&
            (output_buffer[output_length] != '\r') &&
            (output_buffer[output_length] != '\n') )
    {
@@ -1022,10 +1044,7 @@ void assign_variable_values ( void )
    ppsymbol_table* sptr = slist->head;
    ppsymbol_table* vptr = vlist->head;
    symbol_table* ptr;
-   int i =0;
 
-   printf ( "variables\n" );
-   printf ( "symbols [values]:\n" );
    while ( sptr != NULL )
    {
       // find symbol to grab it's expression...
@@ -1036,15 +1055,6 @@ void assign_variable_values ( void )
          vptr->symbol = NULL;
          convert_expression_to_string ( ptr->expr, &(vptr->symbol) );
       }
-      if ( vptr )
-      {
-         printf ( "%d: %s [%s]\n", i, sptr->symbol, vptr->symbol );
-      }
-      else
-      {
-         printf ( "%d: %s []\n", i, sptr->symbol );
-      }
-      i++;
       sptr = sptr->next;
       if ( vptr )
       {
@@ -1053,13 +1063,14 @@ void assign_variable_values ( void )
    }
 }
 
-void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist )
+int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist )
 {
    ppsymbol_table* sptr = slist->head;
    ppsymbol_table* vptr = vlist->head;
    char* ptr;
    int i;
    int valid;
+   int replacements = 0;
 
    // go through each symbol and replace the text with
    // the symbol value wherever the symbol value is found...
@@ -1122,12 +1133,17 @@ void replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_li
                *(ptr+strlen(ptr)+1) = 0;
                memcpy ( ptr, vptr->symbol, strlen(vptr->symbol) );
             }
+
+            // we did a replacement, keep track...
+            replacements++;
          }
       }
 
       sptr = sptr->next;
       vptr = vptr->next;
    }
+
+   return replacements;
 }
 
 void destroy_macro_values ( int macro )
