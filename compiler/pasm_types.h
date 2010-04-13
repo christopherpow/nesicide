@@ -53,6 +53,7 @@ typedef struct _symbol_table
    unsigned int          btab_ent;
    struct _symbol_table* next;
    struct _symbol_table* prev;
+   unsigned char         alive;
 } symbol_table;
 
 typedef struct _symbol_list

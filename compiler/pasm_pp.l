@@ -115,13 +115,8 @@ void dump_macro ( int macro );
 char* create_macro_invocation ( int macro );
 void destroy_macro_values ( int macro );
 
-// Repeat stuff.
-int repeat_start [ MAX_NESTS ];
-int repeat_count [ MAX_NESTS ];
-int reptnestlevel = 0;
-
 // Equate stuff.
-typedef struct _ppequate_table
+typedef struct _ppvariable_table
 {
    struct _ppsymbol_list stab; // symbols
    struct _ppsymbol_list vtab; // symbol values
@@ -133,10 +128,16 @@ void dump_equates ( void );
 
 // Variable stuff.
 ppvariable_table ppvartab;
-extern symbol_list* global_stab;
+extern symbol_table global_stab;
 void dump_variables ( void );
 
-int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist );
+// Repeat stuff.
+int repeat_start [ MAX_NESTS ];
+int repeat_count [ MAX_NESTS ];
+int reptnestlevel = 0;
+ppvariable_table pprepttab;
+
+int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_list* vlist );
 void assign_variable_values ( void );
 
 // Temporary storage for line reconstructions to pass to parser...
@@ -378,7 +379,6 @@ ppkeyword ppkeywords [] =
 }
 
 <PARSE_VARIABLES>[=] {
-   output_text ( pptext, ppleng );
    BEGIN CAPTURE_VARIABLE;
 }
 
@@ -619,13 +619,13 @@ ppkeyword ppkeywords [] =
    int buf;
 
    // Kill any previous declarations, use this one...
-   ppsymbol_table* ppptr = find_ppsymbol ( &(ppvartab.stab), (char*)reptsym );
+   ppsymbol_table* ppptr = find_ppsymbol ( &(pprepttab.stab), (char*)reptsym );
    if ( ppptr )
    {
       ppptr->symbol [ 0 ] = SYMBOL_KILLER;
    }
-   add_ppsymbol ( &(ppvartab.stab), (char*)reptsym );
-   add_ppsymbol ( &(ppvartab.vtab), pptext );
+   add_ppsymbol ( &(pprepttab.stab), (char*)reptsym );
+   add_ppsymbol ( &(pprepttab.vtab), pptext );
 //   dump_variables ();
 
    sprintf ( line, "%s = %s\r\n", reptsym, pptext );
@@ -649,6 +649,9 @@ ppkeyword ppkeywords [] =
       else
       {
       }
+
+      // Get rid of the annoying temporary symbol...
+      delete_symbol ( &global_stab, reptsym );
    }
    else
    {
@@ -679,7 +682,7 @@ int ppwrap(void)
    {
       case PARSE_EQUATES:
          // do any equate replacements necessary...
-         directives_processed = replace_symbols_with_values ( output_buffer, &(ppequtab.stab), &(ppequtab.vtab) );
+         directives_processed = replace_symbols_with_values ( &output_buffer, &(ppequtab.stab), &(ppequtab.vtab) );
 
          if ( directives_processed == 0 )
          {
@@ -704,7 +707,7 @@ int ppwrap(void)
          assign_variable_values ();
 
          // do any equate replacements necessary...
-         replace_symbols_with_values ( output_buffer, &(ppvartab.stab), &(ppvartab.vtab) );
+         replace_symbols_with_values ( &output_buffer, &(ppvartab.stab), &(ppvartab.vtab) );
 
          pass = PARSE_REPEATS;
          go_around = 1;
@@ -729,6 +732,7 @@ int ppwrap(void)
       output_buffer = NULL;
       output_length = 0;
       output_blocks = 0;
+      output_marker = -1;
       directives_processed = 0;
       pp_scan_string ( input_buffer );
       BEGIN pass;
@@ -741,6 +745,10 @@ int ppwrap(void)
 
 int preprocess ( char* buffer_in, char** buffer_out, int* length )
 {
+   int idx;
+   ppsymbol_table* ptr;
+   ppsymbol_table* ptd;
+
    // Initialize the preprocessor buffers...
    input_buffer = NULL;
    output_buffer = NULL;
@@ -753,15 +761,146 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
 
    if ( ppmtab )
    {
-
+      for ( idx = 0; idx < ppmtab_ent; idx++ )
+      {
+         free ( ppmtab[idx].symbol );
+         free ( ppmtab[idx].text );
+         ptd = NULL;
+         for ( ptr = ppmtab[idx].stab->head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( ptd )
+            {
+               free ( ptd );
+            }
+            free ( ptr->symbol );
+            ptd = ptr;
+         }
+         if ( ptd )
+         {
+            free ( ptd );
+         }
+         ptd = NULL;
+         for ( ptr = ppmtab[idx].vtab->head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( ptd )
+            {
+               free ( ptd );
+            }
+            free ( ptr->symbol );
+            ptd = ptr;
+         }
+         if ( ptd )
+         {
+            free ( ptd );
+         }
+      }
+      free ( ppmtab );
+      ppmtab = NULL;
    }
    ppmtab_ent = 0;
    ppmtab_max = 0;
    macronestlevel = 0;
 
+   ptd = NULL;
+   for ( ptr = pprepttab.stab.head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptd )
+      {
+         free ( ptd );
+      }
+      free ( ptr->symbol );
+      ptd = ptr;
+   }
+   if ( ptd )
+   {
+      free ( ptd );
+   }
+   pprepttab.stab.head = NULL;
+   pprepttab.stab.tail = NULL;
+   ptd = NULL;
+   for ( ptr = pprepttab.vtab.head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptd )
+      {
+         free ( ptd );
+      }
+      free ( ptr->symbol );
+      ptd = ptr;
+   }
+   if ( ptd )
+   {
+      free ( ptd );
+   }
+   pprepttab.vtab.head = NULL;
+   pprepttab.vtab.tail = NULL;
    reptnestlevel = 0;
 
+   ptd = NULL;
+   for ( ptr = ppequtab.stab.head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptd )
+      {
+         free ( ptd );
+      }
+      free ( ptr->symbol );
+      ptd = ptr;
+   }
+   if ( ptd )
+   {
+      free ( ptd );
+   }
+   ppequtab.stab.head = NULL;
+   ppequtab.stab.tail = NULL;
+   ptd = NULL;
+   for ( ptr = ppequtab.vtab.head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptd )
+      {
+         free ( ptd );
+      }
+      free ( ptr->symbol );
+      ptd = ptr;
+   }
+   if ( ptd )
+   {
+      free ( ptd );
+   }
+   ppequtab.vtab.head = NULL;
+   ppequtab.vtab.tail = NULL;
    equsym = NULL;
+
+   ptd = NULL;
+   for ( ptr = ppvartab.stab.head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptd )
+      {
+         free ( ptd );
+      }
+      free ( ptr->symbol );
+      ptd = ptr;
+   }
+   if ( ptd )
+   {
+      free ( ptd );
+   }
+   ppvartab.stab.head = NULL;
+   ppvartab.stab.tail = NULL;
+   ptd = NULL;
+   for ( ptr = ppvartab.vtab.head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( ptd )
+      {
+         free ( ptd );
+      }
+      free ( ptr->symbol );
+      ptd = ptr;
+   }
+   if ( ptd )
+   {
+      free ( ptd );
+   }
+   ppvartab.vtab.head = NULL;
+   ppvartab.vtab.tail = NULL;
 
    // If buffer_in isn't null it means we're being called from
    // the library code.  In that case the string to parse is
@@ -815,12 +954,12 @@ void output_text ( char* text, int length )
 
 void backup_output_text ( void )
 {
-   while ( (output_length >= output_marker) &&
+   while ( (output_length > 0) && (output_length >= output_marker) &&
            (output_buffer[output_length] != '\r') &&
            (output_buffer[output_length] != '\n') )
    {
-      output_buffer[output_length] = 0;
       output_length--;
+      output_buffer[output_length] = 0;
    }
 }
 
@@ -1043,7 +1182,7 @@ char* create_macro_invocation ( int macro )
    strcpy ( invokedtext, ppmtab[macro].text );
 
    // replace symbols with values...
-   replace_symbols_with_values ( invokedtext,
+   replace_symbols_with_values ( &invokedtext,
                                  ppmtab[macro].stab,
                                  ppmtab[macro].vtab );
 
@@ -1076,7 +1215,7 @@ void assign_variable_values ( void )
    }
 }
 
-int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_list* vlist )
+int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_list* vlist )
 {
    ppsymbol_table* sptr = slist->head;
    ppsymbol_table* vptr = vlist->head;
@@ -1084,18 +1223,19 @@ int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_lis
    int i;
    int valid;
    int replacements = 0;
+   int offset;
 
    // go through each symbol and replace the text with
    // the symbol value wherever the symbol value is found...
    while ( sptr != NULL )
    {
-      ptr = text;
+      ptr = (*text);
       while ( (ptr=strstr(ptr,sptr->symbol)) != NULL )
       {
          // check to make sure this is actually a valid replacement
          // and not somewhere in the middle of another word...
          valid = 1;
-         if ( ptr > text )
+         if ( ptr > (*text) )
          {
             if ( isalnum(*(ptr-1)) )
             {
@@ -1105,7 +1245,7 @@ int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_lis
                ptr++;
             }
          }
-         if ( ptr < (text+strlen(text)-1) )
+         if ( ptr < ((*text)+strlen((*text))-1) )
          {
             if ( isalnum(*(ptr+strlen(sptr->symbol))) )
             {
@@ -1139,6 +1279,9 @@ int replace_symbols_with_values ( char* text, ppsymbol_list* slist, ppsymbol_lis
                // move the remainder of the text ahead and fill
                // in the symbol's invoke value...
                // use memcpy so no NULL is added...
+               offset = (int)ptr-(int)(*text);
+               (*text) = (char*) realloc ( (*text), strlen((*text))+(strlen(vptr->symbol)-strlen(sptr->symbol)) );
+               ptr = (*text)+offset;
                for ( i = 0; i < strlen(ptr); i++ )
                {
                   *(ptr+strlen(ptr)-i+(strlen(vptr->symbol)-strlen(sptr->symbol))) = *(ptr+strlen(ptr)-i);

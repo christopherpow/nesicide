@@ -81,8 +81,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    // Zoom the width and height based on our view zoom. If zoom is 200% and our width is 100
    // then the renderer's width will be 50.
    if ( (width >= 512) && (height >= 480) ) zoom = 200; else zoom = 100;
-   int newWidth = (int)((float)width / ((float)zoom / 100.0f));
-   int newHeight = (int)((float)height / ((float)zoom / 100.0f));
+   int newWidth = (int)(width / (zoom / 100));
+   int newHeight = (int)(height / (zoom / 100));
 
    makeCurrent();
 
@@ -100,7 +100,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    glLoadIdentity();
 
    // Set orthogonal mode (since we are doing 2D rendering) with the proper aspect ratio.
-   glOrtho(0.0f, newWidth, newHeight, 0.0f, -1.0f, 1.0f);
+   glOrtho(0.0f, (float)newWidth, (float)newHeight, 0.0f, -1.0f, 1.0f);
 
    // Select and reset the ModelView matrix.
    glMatrixMode(GL_MODELVIEW);
@@ -114,8 +114,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 void CNESEmulatorRenderer::paintGL()
 {
    if ( (width() >= 512) && (height() >= 480) ) zoom = 200; else zoom = 100;
-   float x = (width()/2.0)-(128.0*(zoom/100));
-   float y = (height()/2.0)-(120.0*(zoom/100));
+   int x = (width()/2)-(128*(zoom/100));
+   int y = (height()/2)-(120*(zoom/100));
 
    makeCurrent();
 
@@ -123,13 +123,13 @@ void CNESEmulatorRenderer::paintGL()
    glBindTexture (GL_TEXTURE_2D, textureID);
    glBegin(GL_QUADS);
       glTexCoord2f (0.0, 0.0);
-      glVertex3f(x, y, 0.0f);
+      glVertex3f((float)x, (float)y, 0.0f);
       glTexCoord2f (1.0, 0.0);
-      glVertex3f(x+256.0f, y, 0.0f);
+      glVertex3f((float)(x+256.0f), (float)y, 0.0f);
       glTexCoord2f (1.0, 1.0);
-      glVertex3f(x+256.0f, y+256.0f, 0.0f);
+      glVertex3f((float)(x+256.0f), (float)(y+256.0f), 0.0f);
       glTexCoord2f (0.0, 1.0);
-      glVertex3f(x, y+256.0f, 0.0f);
+      glVertex3f((float)x, (float)(y+256.0f), 0.0f);
    glEnd();
 }
 

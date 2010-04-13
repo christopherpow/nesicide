@@ -7,6 +7,7 @@ extern FILE* asmin;
 extern incobj_callback_fn incobj_fn;
 extern int btab_ent;
 extern binary_table* btab;
+extern symbol_list global_stab;
 
 extern char* errorStorage;
 extern int errorCount;
@@ -34,18 +35,34 @@ symbol_table* pasm_get_symbol_entry ( int symbol )
    int bank = 0;
    int i = 0;
 
-   list = btab[bank].stab;
+   list = &global_stab;
    ptr = list->head;
 
-   while ( i < symbol )
+   while ( (ptr != NULL) && (i < symbol) )
    {
       i++;
       ptr = ptr->next;
       if ( ptr == NULL )
       {
-         bank++;
-         list = btab[bank].stab;
-         ptr = list->head;
+         break;
+      }
+   }
+
+   if ( (ptr == NULL) || (i < symbol) )
+   {
+      list = btab[bank].stab;
+      ptr = list->head;
+
+      while ( (ptr != NULL) && (i < symbol) )
+      {
+         i++;
+         ptr = ptr->next;
+         if ( ptr == NULL )
+         {
+            bank++;
+            list = btab[bank].stab;
+            ptr = list->head;
+         }
       }
    }
 
@@ -63,7 +80,14 @@ int pasm_get_symbol_linenum ( int symbol )
 {
    symbol_table* ptr = pasm_get_symbol_entry ( symbol );
 
-   return ptr->ir->source_linenum;
+   if ( ptr->ir )
+   {
+      return ptr->ir->source_linenum;
+   }
+   else
+   {
+      return 0;
+   }
 }
 
 int pasm_get_symbol_data ( int symbol, char* data, int size )
@@ -119,7 +143,14 @@ int pasm_get_symbol_value ( int symbol )
    }
    else
    {
-      value = ptr->ir->addr;
+      if ( ptr->ir )
+      {
+         value = ptr->ir->addr;
+      }
+      else
+      {
+         value = 0;
+      }
    }
    return value;
 }
@@ -130,6 +161,14 @@ int pasm_get_num_symbols ( void )
    symbol_table* ptr;
    int bank;
    int i = 0;
+
+   list = &global_stab;
+   ptr = list->head;
+   while ( ptr != NULL )
+   {
+      i++;
+      ptr = ptr->next;
+   }
 
    for ( bank = 0; bank < btab_ent; bank++ )
    {

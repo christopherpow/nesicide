@@ -351,7 +351,7 @@ int btab_ent_prior_to_enum = -1;
 // the address of the symbol can be computed.
 extern symbol_list* current_stab;
 symbol_list* previous_stab;
-extern symbol_list* global_stab;
+extern symbol_list global_stab;
 extern symbol_table* find_symbol ( char* symbol );
 void update_symbol_ir ( symbol_table* stab, ir_table* ir );
 extern symbol_table* current_label;
@@ -2072,40 +2072,30 @@ void initialize ( void )
    symbol_table* sym;
    symbol_table* syd;
 
-   asmlineno = 1;
+   asmlineno = 0;
 
 	free ( errorStorage );
 	errorStorage = NULL;
 	errorCount = 0;
 
-   if ( global_stab )
+   syd = NULL;
+   for ( sym = global_stab.head; sym != NULL; sym = sym->next )
    {
-      syd = NULL;
-      for ( sym = global_stab->head; sym != NULL; sym = sym->next )
-      {
-         if ( syd ) free ( syd );
-         if ( sym->expr != NULL )
-         {
-            destroy_expression ( sym->expr );
-         }
-         free ( sym->symbol );
-         syd = sym;
-      }
       if ( syd ) free ( syd );
-      global_stab->up = NULL;
-      global_stab->head = NULL;
-      global_stab->tail = NULL;
+      if ( sym->expr != NULL )
+      {
+         destroy_expression ( sym->expr );
+      }
+      free ( sym->symbol );
+      syd = sym;
    }
-   else
-   {
-      global_stab = (symbol_list*) malloc ( sizeof(symbol_list) );
-      global_stab->up = NULL;
-      global_stab->head = NULL;
-      global_stab->tail = NULL;
-   }
+   if ( syd ) free ( syd );
+   global_stab.up = NULL;
+   global_stab.head = NULL;
+   global_stab.tail = NULL;
 
    // start with global symbol table for preprocessor...
-   current_stab = global_stab;
+   current_stab = &global_stab;
 
    for ( idx = 0; idx < btab_ent; idx++ )
 	{
@@ -2786,7 +2776,7 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
             btab[btab_ent].ir_head = NULL;
             btab[btab_ent].ir_tail = NULL;
             btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
-            btab[btab_ent].stab->up = global_stab; // up-scope leads to globals...
+            btab[btab_ent].stab->up = &global_stab; // up-scope leads to globals...
             btab[btab_ent].stab->head = NULL;
             btab[btab_ent].stab->tail = NULL;
          }
@@ -2812,7 +2802,7 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
             btab[btab_ent].ir_head = NULL;
             btab[btab_ent].ir_tail = NULL;
             btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
-            btab[btab_ent].stab->up = global_stab; // up-scope leads to globals...
+            btab[btab_ent].stab->up = &global_stab; // up-scope leads to globals...
             btab[btab_ent].stab->head = NULL;
             btab[btab_ent].stab->tail = NULL;
          }
@@ -2834,7 +2824,7 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
                btab[btab_ent].ir_head = NULL;
                btab[btab_ent].ir_tail = NULL;
                btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
-               btab[btab_ent].stab->up = global_stab; // up-scope leads to globals...
+               btab[btab_ent].stab->up = &global_stab; // up-scope leads to globals...
                btab[btab_ent].stab->head = NULL;
                btab[btab_ent].stab->tail = NULL;
             }

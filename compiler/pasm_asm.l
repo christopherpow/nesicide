@@ -142,8 +142,9 @@ keyword asmkeywords [] =
 // Symbol table management.  The symbol table is available
 // to both the lexer and parser.
 symbol_list* current_stab = NULL;
-symbol_list* global_stab = NULL;
+symbol_list global_stab;
 unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr );
+void delete_symbol ( symbol_list* list, char* symbol );
 symbol_table* find_symbol ( char* symbol );
 
 // Index of last declared label, for useful error messages like:
@@ -561,7 +562,8 @@ symbol_table* find_symbol ( char* symbol )
          for ( ptr = stab->tail; ptr != NULL; ptr = ptr->prev )
          {
             if ( (strlen(symbol) == strlen(ptr->symbol)) &&
-                 (strcmp(symbol,ptr->symbol) == 0) )
+                 (strcmp(symbol,ptr->symbol) == 0) &&
+                 (ptr->alive) )
             {
                found = 1;
                break;
@@ -591,7 +593,8 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
               ((*ptr)->symbol[0] == '-') )
          {
             // Allow re-declaration of temporary symbols...
-            (*ptr)->symbol[0] = SYMBOL_KILLER;
+//            (*ptr)->symbol[0] = SYMBOL_KILLER;
+            (*ptr)->alive = 0;
          }
          else
          {
@@ -612,6 +615,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
          {
             memset ( list->tail->symbol, 0, strlen(symbol)+1 );
             strncpy ( list->tail->symbol, symbol, strlen(symbol) );
+            list->tail->alive = 1;
             list->tail->ir = NULL;
             if ( cur )
             {
@@ -645,6 +649,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
          {
             memset ( list->tail->symbol, 0, strlen(symbol)+1 );
             strncpy ( list->tail->symbol, symbol, strlen(symbol) );
+            list->tail->alive = 1;
             list->tail->ir = NULL;
             if ( cur )
             {
@@ -666,4 +671,39 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
    (*ptr) = list->tail;
 
 	return a;
+}
+
+void delete_symbol ( symbol_list* list, char* symbol )
+{
+   symbol_table* ptr;
+
+   for ( ptr = list->head; ptr != NULL; ptr = ptr->next )
+   {
+      if ( (strlen(symbol) == strlen(ptr->symbol)) &&
+           (strcmp(ptr->symbol,symbol) == 0) )
+      {
+         if ( ptr->prev )
+         {
+            ptr->prev->next = ptr->next;
+         }
+         else
+         {
+            list->head = ptr->next;
+         }
+         if ( ptr->next )
+         {
+            ptr->next->prev = ptr->prev;
+         }
+         else
+         {
+            list->tail = ptr->next;
+         }
+         free ( ptr->symbol );
+         if ( ptr->expr )
+         {
+            destroy_expression ( ptr->expr );
+         }
+         free ( ptr );
+      }
+   }
 }
