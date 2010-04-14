@@ -16,8 +16,9 @@ decdigits      ([1-9]([0-9]{0,8}))
 octdigits      "0"([0-9]{0,8})
 bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 
-comment        ";".*$
+comment        ";"[^\r\n]*
 
+%x COUNT_LINES
 %x PARSE_EQUATES CAPTURE_EQUATE
 %x PARSE_MACROS MACRO_NAME MACRO_ARGS MACRO_BODY INVOKE_ARGVALS
 %x PARSE_VARIABLES CAPTURE_VARIABLE
@@ -50,6 +51,7 @@ typedef struct _ppkeyword
 typedef struct _ppsymbol_table
 {
    char*                 symbol;
+   unsigned char         alive;
    struct _ppsymbol_table* next;
    struct _ppsymbol_table* prev;
 } ppsymbol_table;
@@ -62,11 +64,6 @@ typedef struct _ppsymbol_list
 
 unsigned char add_ppsymbol ( ppsymbol_list* list, char* symbol );
 ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol );
-
-// For line counting...
-#ifndef __APPLE__ //strange mac os x related bug? :S
-int          pplineno = 0;
-#endif
 
 // Previous lexer state for returning.
 // State movement within lexer is:
@@ -84,6 +81,10 @@ int          pplineno = 0;
 // ... -> Finish: Pass preprocessed input text as output text to
 //        the assembler stage.
 int ppprevious_state = PARSE_EQUATES;
+
+// Line number emitting
+const char* linenum_fmt = "!line %d\r\n";
+char linenum_str [ 32 ];
 
 #define OUTPUT_DEFAULT_ALLOC 1024
 #define MAX_NESTS            10
@@ -166,6 +167,10 @@ int   output_marker = -1;
 
 // Assembler pass counter.
 int pass;
+
+#define LINECOUNT_INTERVAL 1
+void emit_linenum ( void );
+int force_linenum_emit = 0;
 
 int pperror(char* s)
 {
@@ -275,6 +280,15 @@ ppkeyword ppkeywords_repeat [] =
    { NULL, NULL, NULL }
 };
 
+ppkeyword ppkeywords_linecount [] =
+{
+   { "macro", ".macro", k_macro },
+   { "endm", ".endm", k_endm},
+   { "rept", ".rept", k_rept },
+   { "endr", ".endr", k_endr },
+   { NULL, NULL, NULL }
+};
+
 ppkeyword ppkeywords [] =
 {
    { "include", ".include", NULL },
@@ -294,6 +308,35 @@ ppkeyword ppkeywords [] =
 
 <*>{comment} {
    // throw away!
+}
+
+<COUNT_LINES>{identifier} {
+   ppkeyword* k = ppkeywords_linecount;
+
+   // Check for directives...
+   while ( k->directive != NULL )
+   {
+      if ( ((strlen(k->directive) == ppleng) &&
+           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == ppleng) &&
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      {
+         force_linenum_emit = 1;
+      }
+      k++;
+   }
+
+   output_text ( pptext, ppleng );
+}
+
+<COUNT_LINES>\r\n |
+<COUNT_LINES>\n\r |
+<COUNT_LINES>\n {
+   output_text ( pptext, ppleng );
+   if ( (force_linenum_emit) || !(pplineno%LINECOUNT_INTERVAL) )
+   {
+      emit_linenum ();
+   }
 }
 
 <PARSE_EQUATES>{identifier} {
@@ -389,7 +432,7 @@ ppkeyword ppkeywords [] =
    ppsymbol_table* ptr = find_ppsymbol ( &(ppvartab.stab), equsym );
    if ( ptr )
    {
-      ptr->symbol [ 0 ] = SYMBOL_KILLER;
+      ptr->alive = 0;
    }
    add_ppsymbol ( &(ppvartab.stab), equsym );
    add_ppsymbol ( &(ppvartab.vtab), pptext );
@@ -454,6 +497,7 @@ ppkeyword ppkeywords [] =
             macronestlevel++;
             current_macro [ macronestlevel ] = m;
             ppprevious_state = PARSE_MACROS;
+
             BEGIN INVOKE_ARGVALS;
          }
          else
@@ -622,7 +666,7 @@ ppkeyword ppkeywords [] =
    ppsymbol_table* ppptr = find_ppsymbol ( &(pprepttab.stab), (char*)reptsym );
    if ( ppptr )
    {
-      ppptr->symbol [ 0 ] = SYMBOL_KILLER;
+      ppptr->alive = 0;
    }
    add_ppsymbol ( &(pprepttab.stab), (char*)reptsym );
    add_ppsymbol ( &(pprepttab.vtab), pptext );
@@ -667,7 +711,7 @@ ppkeyword ppkeywords [] =
    output_text ( pptext, ppleng );
 }
 
-<INITIAL,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,MACRO_BODY,INVOKE_ARGVALS,PARSE_EQUATES,CAPTURE_EQUATE,PARSE_VARIABLES,CAPTURE_VARIABLE,PARSE_REPEATS,REPEAT_COUNT>. {
+<INITIAL,COUNT_LINES,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,MACRO_BODY,INVOKE_ARGVALS,PARSE_EQUATES,CAPTURE_EQUATE,PARSE_VARIABLES,CAPTURE_VARIABLE,PARSE_REPEATS,REPEAT_COUNT>. {
    output_text ( pptext, ppleng );
 }
 
@@ -680,6 +724,11 @@ int ppwrap(void)
 
    switch ( pass )
    {
+      case COUNT_LINES:
+         pass = PARSE_EQUATES;
+         go_around = 1;
+      break;
+
       case PARSE_EQUATES:
          // do any equate replacements necessary...
          directives_processed = replace_symbols_with_values ( &output_buffer, &(ppequtab.stab), &(ppequtab.vtab) );
@@ -720,8 +769,8 @@ int ppwrap(void)
       break;
    }
 
-//      printf ( "\n%d %d INPUT: \n%s\n\n", pass, directives_processed, input_buffer );
-//      printf ( "\nOUTPUT: \n%s\n\n", output_buffer );
+//   printf ( "\n%d %d INPUT: \n%s\n\n", pass, directives_processed, input_buffer );
+//   printf ( "\nOUTPUT: \n%s\n\n", output_buffer );
 
    if ( go_around )
    {
@@ -756,8 +805,9 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    output_blocks = 0;
    output_marker = -1;
    directives_processed = 0;
-   pass = PARSE_EQUATES;
-   ppprevious_state = PARSE_EQUATES;
+   pass = COUNT_LINES;
+   ppprevious_state = COUNT_LINES;
+   force_linenum_emit = 0;
 
    if ( ppmtab )
    {
@@ -914,7 +964,9 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
       ppin = NULL;
    }
 
-   // First things first, parse for equates...
+   // First things first, emit line number breadcrumbs...
+   emit_linenum ();
+
    BEGIN pass;
 
    // Preprocessor lexer returns when done...
@@ -928,6 +980,13 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    (*length) = output_length;
 
    return output_length;
+}
+
+void emit_linenum ( void )
+{
+   sprintf ( linenum_str, linenum_fmt, pplineno );
+   output_text ( linenum_str, strlen(linenum_str) );
+   force_linenum_emit = 0;
 }
 
 void output_text ( char* text, int length )
@@ -1082,7 +1141,8 @@ ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol )
    for ( ptr = list->tail; ptr != NULL; ptr = ptr->prev )
    {
       if ( (strlen(symbol) == strlen(ptr->symbol)) &&
-           (strcmp(symbol,ptr->symbol) == 0) )
+           (strcmp(symbol,ptr->symbol) == 0) &&
+           (ptr->alive) )
       {
          found = 1;
          break;
@@ -1109,6 +1169,7 @@ unsigned char add_ppsymbol ( ppsymbol_list* list, char* symbol )
          {
             memset ( list->tail->symbol, 0, strlen(symbol)+1 );
             strncpy ( list->tail->symbol, symbol, strlen(symbol) );
+            list->tail->alive = 1;
          }
          list->tail->next = NULL;
          list->tail->prev = NULL;
@@ -1132,6 +1193,7 @@ unsigned char add_ppsymbol ( ppsymbol_list* list, char* symbol )
          {
             memset ( list->tail->symbol, 0, strlen(symbol)+1 );
             strncpy ( list->tail->symbol, symbol, strlen(symbol) );
+            list->tail->alive = 1;
          }
       }
       else

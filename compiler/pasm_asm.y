@@ -374,7 +374,7 @@ void set_binary_addr ( unsigned int addr );
 // and outputs it as a flat binary stream ready to be sent to a file.
 void output_binary( char** buffer, int* size );
 
-extern int asmlineno;
+extern int recovered_linenum;
 
 // Storage space for error strings spit out by the assembler.
 int errorCount = 0;
@@ -551,8 +551,12 @@ void dump_expression ( expr_type* expr );
 %start program
 %%
 // A program is a list of statements...
-program: program statement
-         | statement
+program: program statement {
+   recovered_linenum++;
+}
+         | statement {
+   recovered_linenum++;
+}
 
 // A statement is either:
 // a) A lable on a line by itself,
@@ -2072,11 +2076,11 @@ void initialize ( void )
    symbol_table* sym;
    symbol_table* syd;
 
-   asmlineno = 0;
-
 	free ( errorStorage );
 	errorStorage = NULL;
 	errorCount = 0;
+
+   recovered_linenum = 0;
 
    syd = NULL;
    for ( sym = global_stab.head; sym != NULL; sym = sym->next )
@@ -2143,11 +2147,11 @@ void add_error ( char *s )
 		{
 //			if ( strlen(currentFile) )
 //			{
-//				sprintf ( error_buffer, "error: %d: in included file %s: ", asmlineno, currentFile );
+//				sprintf ( error_buffer, "error: %d: in included file %s: ", recovered_linenum, currentFile );
 //			}
 //			else
 //			{
-            sprintf ( error_buffer, "error: %d: ", asmlineno );
+            sprintf ( error_buffer, "error: %d: ", recovered_linenum );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
@@ -2159,11 +2163,11 @@ void add_error ( char *s )
 		{
 //			if ( strlen(currentFile) )
 //			{
-//				sprintf ( error_buffer, "error: %d: in included file %s: ", asmlineno, currentFile );
+//				sprintf ( error_buffer, "error: %d: in included file %s: ", recovered_linenum, currentFile );
 //			}
 //			else
 //			{
-            sprintf ( error_buffer, "error: %d: after %s: ", asmlineno, current_label->symbol );
+            sprintf ( error_buffer, "error: %d: after %s: ", recovered_linenum, current_label->symbol );
 //			}
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
@@ -2176,7 +2180,7 @@ void add_error ( char *s )
 	{
       if ( current_label == NULL )
 		{
-         sprintf ( error_buffer, "error: %d: ", asmlineno );
+         sprintf ( error_buffer, "error: %d: ", recovered_linenum );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
@@ -2185,7 +2189,7 @@ void add_error ( char *s )
       }
 		else
 		{
-         sprintf ( error_buffer, "error: %d: after %s: ", asmlineno, current_label->symbol );
+         sprintf ( error_buffer, "error: %d: after %s: ", recovered_linenum, current_label->symbol );
 			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
@@ -3018,7 +3022,7 @@ void dump_ir_table ( ir_table* head )
 
    for ( ptr = head; ptr != NULL; ptr = ptr->next )
    {
-      printf ( "%08x %04X: ", ptr, ptr->addr );
+      printf ( "%08x %04X [%d]: ", ptr, ptr->addr, ptr->source_linenum );
 
       if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
       {
@@ -4092,7 +4096,7 @@ ir_table* emit_ir ( void )
             (*ir_tail)->label = 0;
             (*ir_tail)->fixed = 0;
             (*ir_tail)->string = 0;
-            (*ir_tail)->source_linenum = asmlineno;
+            (*ir_tail)->source_linenum = recovered_linenum;
             (*ir_tail)->next = NULL;
             (*ir_tail)->prev = NULL;
             (*ir_tail)->expr = NULL;
@@ -4120,7 +4124,7 @@ ir_table* emit_ir ( void )
             ptr->label = 0;
             ptr->fixed = 0;
             ptr->string = 0;
-            ptr->source_linenum = asmlineno;
+            ptr->source_linenum = recovered_linenum;
             ptr->expr = NULL;
             ptr->symtab = NULL;
          }

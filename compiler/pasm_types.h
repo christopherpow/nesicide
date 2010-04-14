@@ -9,8 +9,6 @@ extern "C" {
 #define INVALID_INSTR 0xFF
 #define SYMBOL_NOT_FOUND 0xFFFFFFFF
 
-#define SYMBOL_KILLER '?'
-
 // Flags for instruction fixer
 #define PROMOTE 0
 #define FIX     1

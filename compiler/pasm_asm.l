@@ -34,8 +34,9 @@ bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 quotedstring   ([\"][^\"]*[\"])|(['][^']*['])
 rawhex         ([0-9a-fA-F]+)
 whitespace     ([ \t]+)
+linenum        ^"!line"
 
-%x HEX SOURCE NOLABELREF
+%x LINENUM HEX SOURCE NOLABELREF
 
 %{
 
@@ -49,9 +50,7 @@ whitespace     ([ \t]+)
 #include "string.h"
 
 // For line counting...
-#ifndef __APPLE__ //strange mac os x related bug? :S
-int          asmlineno = 0;
-#endif
+int recovered_linenum;
 
 // Previous lexer state for returning
 int previous_state = INITIAL;
@@ -190,11 +189,27 @@ text_type* get_next_texttype ( void )
    return p;
 }
 
-// This function checks for valid assembler mnemonics in
-// tokens.
+// This function checks for valid assembler mnemonics in tokens.
 unsigned char valid_instr ( char* instr );
+
 %}
+
 %%
+
+<*>{linenum} {
+   BEGIN LINENUM;
+}
+
+<LINENUM>[^\r\n]+ {
+   recovered_linenum = strtoul ( asmtext, NULL, 10 );
+}
+
+<LINENUM>\r\n |
+<LINENUM>\n\r |
+<LINENUM>\n {
+   BEGIN INITIAL;
+}
+
 <INITIAL>{identifier1} {
 	unsigned char f;
 	ref_type* ref;
@@ -425,24 +440,12 @@ unsigned char valid_instr ( char* instr );
    /* throw away */
 }
 
-<INITIAL,SOURCE,HEX,NOLABELREF>\r\n {
-   asmlineno++;
-   BEGIN INITIAL;
-   return TERM;
-}
-
-<INITIAL,SOURCE,HEX,NOLABELREF>\n\r {
-   asmlineno++;
-   BEGIN INITIAL;
-   return TERM;
-}
-
+<INITIAL,SOURCE,HEX,NOLABELREF>\r\n |
+<INITIAL,SOURCE,HEX,NOLABELREF>\n\r |
 <INITIAL,SOURCE,HEX,NOLABELREF>\n {
-   asmlineno++;
    BEGIN INITIAL;
    return TERM;
 }
-
 <SOURCE>"<<" {
    previous_state = SOURCE;
    return LSHIFT;
@@ -593,7 +596,6 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
               ((*ptr)->symbol[0] == '-') )
          {
             // Allow re-declaration of temporary symbols...
-//            (*ptr)->symbol[0] = SYMBOL_KILLER;
             (*ptr)->alive = 0;
          }
          else

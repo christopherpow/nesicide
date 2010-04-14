@@ -35,10 +35,10 @@ clean:
 	rm -f lex.*.c *.tab.* $(LIB_PREFIX)pasm$(LIB_POSTFIX) pasm$(EXEC_POSTFIX) *.o
 	
 lex.$(ASM).c : pasm_$(ASM).l
-	flex -si -P$(ASM) pasm_$(ASM).l
+	flex -sil -P$(ASM) pasm_$(ASM).l
 
 lex.$(PP).c : pasm_$(PP).l
-	flex -si -P$(PP) pasm_$(PP).l
+	flex -sil -P$(PP) pasm_$(PP).l
 
 pasm_$(ASM).tab.c : pasm_$(ASM).y
 	bison -dv -p$(ASM) -r all pasm_$(ASM).y
