@@ -146,6 +146,7 @@ typedef struct _ir_table
    unsigned int  addr;
    unsigned int  len;
    unsigned char emitted;
+   unsigned char instr;
    unsigned char multi;
    unsigned char align;
    unsigned char fixed;

@@ -676,6 +676,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
 void delete_symbol ( symbol_list* list, char* symbol )
 {
    symbol_table* ptr;
+   symbol_table* ptd = NULL;
 
    for ( ptr = list->head; ptr != NULL; ptr = ptr->next )
    {
@@ -698,12 +699,16 @@ void delete_symbol ( symbol_list* list, char* symbol )
          {
             list->tail = ptr->next;
          }
-         free ( ptr->symbol );
-         if ( ptr->expr )
-         {
-            destroy_expression ( ptr->expr );
-         }
-         free ( ptr );
+         ptd = ptr;
       }
+   }
+   if ( ptd )
+   {
+      free ( ptd->symbol );
+      if ( ptd->expr )
+      {
+         destroy_expression ( ptd->expr );
+      }
+      free ( ptd );
    }
 }

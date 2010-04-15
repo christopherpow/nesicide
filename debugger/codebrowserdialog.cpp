@@ -25,6 +25,7 @@ CodeBrowserDialog::~CodeBrowserDialog()
     delete tableViewModel;
 }
 
+#include "pasm_lib.h"
 void CodeBrowserDialog::showEvent(QShowEvent* e)
 {
    // Update display...
@@ -35,6 +36,10 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
    ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
 
    ui->tableView->resizeColumnsToContents();
+
+   int pc = C6502::__PC();
+   int line = pasm_get_source_linenum ( pc<0xC000?0:1, pc );
+   line = 0;
 }
 
 void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)

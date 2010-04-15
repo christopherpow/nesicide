@@ -169,9 +169,7 @@ int   output_marker = -1;
 // Assembler pass counter.
 int pass;
 
-#define LINECOUNT_INTERVAL 1
 void emit_linenum ( void );
-int force_linenum_emit = 0;
 
 int pperror(char* s)
 {
@@ -316,10 +314,7 @@ ppkeyword ppkeywords [] =
 <COUNT_LINES>\n\r |
 <COUNT_LINES>\n {
    output_text ( pptext, ppleng );
-   if ( (force_linenum_emit) || !(pplineno%LINECOUNT_INTERVAL) )
-   {
-      emit_linenum ();
-   }
+   emit_linenum ();
 }
 
 <PARSE_INCLUDES>{identifier} {
@@ -756,6 +751,7 @@ ppkeyword ppkeywords [] =
       {
       }
 
+// CPTODO: don't do this here it will break symbol reduction after this pass...
       // Get rid of the annoying temporary symbol...
       delete_symbol ( &global_stab, reptsym );
    }
@@ -877,7 +873,6 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    directives_processed = 0;
    pass = COUNT_LINES;
    ppprevious_state = COUNT_LINES;
-   force_linenum_emit = 0;
    pplineno = 1;
 
    if ( ppmtab )
@@ -1057,7 +1052,6 @@ void emit_linenum ( void )
 {
    sprintf ( linenum_str, linenum_fmt, pplineno );
    output_text ( linenum_str, strlen(linenum_str) );
-   force_linenum_emit = 0;
 }
 
 void output_text ( char* text, int length )

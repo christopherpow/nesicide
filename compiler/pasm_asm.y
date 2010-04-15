@@ -3031,6 +3031,10 @@ void dump_ir_table ( ir_table* head )
          {
             printf ( "%02X ", ptr->data[i] );
          }
+         if ( ptr->instr == 1 )
+         {
+            printf ( "(instr)" );
+         }
          if ( ptr->fixed == 1 )
          {
             printf ( "(fixed)" );
@@ -4091,6 +4095,7 @@ ir_table* emit_ir ( void )
             (*ir_tail)->btab_ent = cur->idx;
             (*ir_tail)->addr = 0;
             (*ir_tail)->emitted = 0;
+            (*ir_tail)->instr = 0;
             (*ir_tail)->multi = 0;
             (*ir_tail)->align = 0;
             (*ir_tail)->label = 0;
@@ -4119,6 +4124,7 @@ ir_table* emit_ir ( void )
             ptr->btab_ent = cur->idx;
             ptr->addr = 0;
             ptr->emitted = 0;
+            ptr->instr = 0;
             ptr->multi = 0;
             ptr->align = 0;
             ptr->label = 0;
@@ -4284,6 +4290,7 @@ ir_table* emit_bin_implied ( C6502_opcode* opcode )
    {
       ptr->fixup = fixup_fixed;
       ptr->data[0] = opcode->op;
+      ptr->instr = 1;
       ptr->len = 1;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4298,6 +4305,7 @@ ir_table* emit_bin_accumulator ( C6502_opcode* opcode )
    {
       ptr->fixup = fixup_fixed;
       ptr->data[0] = opcode->op;
+      ptr->instr = 1;
       ptr->len = 1;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4315,6 +4323,7 @@ ir_table* emit_bin_immediate ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4335,6 +4344,7 @@ ir_table* emit_bin_absolute ( C6502_opcode* opcode, expr_type* expr )
       // zeropage if possible...
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 3;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4352,6 +4362,7 @@ ir_table* emit_bin_zeropage ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4369,6 +4380,7 @@ ir_table* emit_bin_relative ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4386,6 +4398,7 @@ ir_table* emit_bin_indirect ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 3;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4406,6 +4419,7 @@ ir_table* emit_bin_abs_idx_x ( C6502_opcode* opcode, expr_type* expr )
       // zeropage if possible...
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 3;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4426,6 +4440,7 @@ ir_table* emit_bin_abs_idx_y ( C6502_opcode* opcode, expr_type* expr )
       // zeropage if possible...
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 3;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4443,6 +4458,7 @@ ir_table* emit_bin_zp_idx_x ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4460,6 +4476,7 @@ ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4477,6 +4494,7 @@ ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;
@@ -4494,6 +4512,7 @@ ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 
       ptr->expr = expr;
 
+      ptr->instr = 1;
       ptr->len = 2;
       ptr->addr = cur->addr;
       cur->addr += ptr->len;

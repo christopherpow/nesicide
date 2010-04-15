@@ -28,6 +28,63 @@ int pasm_get_num_errors ( void )
    return errorCount;
 }
 
+int pasm_get_source_linenum ( unsigned int bank, unsigned int addr )
+{
+   int b, foundbank = -1;
+   int linenum = -1;
+   ir_table* ptr;
+
+   // Start by assuming code is banked as if it were going to be in
+   // a mapper-enabled cartridge.  This will allow us to be able to
+   // trace code in the appropriate bank.
+   for ( b = 0; b < btab_ent; b++ )
+   {
+      if ( btab[b].type == text_segment )
+      {
+         if ( foundbank == bank )
+         {
+            break;
+         }
+         foundbank++;
+      }
+   }
+   // If we found a bank try to find the address within it...
+   if ( foundbank >= 0 )
+   {
+      for ( ptr = btab[foundbank].ir_head; ptr != NULL; ptr = ptr->next )
+      {
+         if ( (ptr->instr) && (ptr->addr == addr) )
+         {
+            linenum = ptr->source_linenum;
+            break;
+         }
+      }
+   }
+   // If we couldn't find the address within what we thought
+   // was the appropriate bank to be looking in the code is not
+   // banked as we thought.  It could be a no-mapper cartridge.
+   // Search through each bank for the address...
+   if ( linenum < 0 )
+   {
+      for ( b = 0; b < btab_ent; b++ )
+      {
+         if ( btab[b].type == text_segment )
+         {
+            for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
+            {
+               if ( (ptr->instr) && (ptr->addr == addr) )
+               {
+                  linenum = ptr->source_linenum;
+                  break;
+               }
+            }
+         }
+      }
+   }
+
+   return linenum;
+}
+
 symbol_table* pasm_get_symbol_entry ( int symbol )
 {
    symbol_list* list;
