@@ -124,8 +124,6 @@ keyword asmkeywords [] =
    { "incbin", ".incbin", INCBIN, NULL },
    { "bin", ".bin", INCBIN, NULL },
    { "incobj", ".incobj", INCOBJ, NULL },
-   { "include", ".include", INCLUDE, NULL },
-   { "incsrc", ".incsrc", INCLUDE, NULL },
    { "enum", ".enum", ENUMERATE, NULL },
    { "ende", ".ende", ENDENUMERATE, NULL },
    { "fillvalue", ".fillvalue", FILLVALUE, NULL },

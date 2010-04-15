@@ -2962,7 +2962,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   //dump_ir_tables ();
+   dump_ir_tables ();
 }
 
 char* instr_mnemonic ( unsigned char op )

@@ -19,6 +19,7 @@ bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
 comment        ";"[^\r\n]*
 
 %x COUNT_LINES
+%x PARSE_INCLUDES CAPTURE_INCLUDE
 %x PARSE_EQUATES CAPTURE_EQUATE
 %x PARSE_MACROS MACRO_NAME MACRO_ARGS MACRO_BODY INVOKE_ARGVALS
 %x PARSE_VARIABLES CAPTURE_VARIABLE
@@ -87,7 +88,7 @@ const char* linenum_fmt = "!line %d\r\n";
 char linenum_str [ 32 ];
 
 #define OUTPUT_DEFAULT_ALLOC 1024
-#define MAX_NESTS            10
+#define MAX_NESTS            256
 
 // Macro stuff.
 #define MACRO_DEFAULT_ALLOC 1024
@@ -254,12 +255,24 @@ void k_equ ( void )
    BEGIN CAPTURE_EQUATE;
 }
 
+void k_include ( void )
+{
+   BEGIN CAPTURE_INCLUDE;
+}
+
 // Keyword information.  Since keywords are parsed by the
-// 'identifier' rule along with labels, forward-use variables,
-// and even assembly mnemonics, we need a mechanism to search
+// 'identifier' rule, we need a mechanism to search
 // for keywords and handle them.  This is similar to the mechanism
 // used to determine an assembler mnemonic in the 'identifier'
 // regular expression.
+
+ppkeyword ppkeywords_include [] =
+{
+   { "include", ".include", k_include },
+   { "incsrc", ".incsrc", k_include },
+   { NULL, NULL, NULL }
+};
+
 ppkeyword ppkeywords_equ [] =
 {
    { "equ", ".equ", k_equ },
@@ -280,19 +293,8 @@ ppkeyword ppkeywords_repeat [] =
    { NULL, NULL, NULL }
 };
 
-ppkeyword ppkeywords_linecount [] =
-{
-   { "macro", ".macro", k_macro },
-   { "endm", ".endm", k_endm},
-   { "rept", ".rept", k_rept },
-   { "endr", ".endr", k_endr },
-   { NULL, NULL, NULL }
-};
-
 ppkeyword ppkeywords [] =
 {
-   { "include", ".include", NULL },
-   { "incsrc", ".incsrc", NULL },
    { "ifdef", ".ifdef", NULL },
    { "ifndef", ".ifndef", NULL },
    { "if", ".if", NULL },
@@ -310,25 +312,6 @@ ppkeyword ppkeywords [] =
    // throw away!
 }
 
-<COUNT_LINES>{identifier} {
-   ppkeyword* k = ppkeywords_linecount;
-
-   // Check for directives...
-   while ( k->directive != NULL )
-   {
-      if ( ((strlen(k->directive) == ppleng) &&
-           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
-           ((strlen(k->dotdirective) == ppleng) &&
-           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
-      {
-         force_linenum_emit = 1;
-      }
-      k++;
-   }
-
-   output_text ( pptext, ppleng );
-}
-
 <COUNT_LINES>\r\n |
 <COUNT_LINES>\n\r |
 <COUNT_LINES>\n {
@@ -339,9 +322,89 @@ ppkeyword ppkeywords [] =
    }
 }
 
+<PARSE_INCLUDES>{identifier} {
+   ppkeyword* k = ppkeywords_include;
+   int echo = 1;
+
+   // Check for directives...
+   while ( k->directive != NULL )
+   {
+      if ( ((strlen(k->directive) == ppleng) &&
+           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == ppleng) &&
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      {
+         if ( k->handler )
+         {
+            directives_processed++;
+            k->handler ();
+         }
+
+         echo = 0;
+      }
+      k++;
+   }
+
+   if ( echo )
+   {
+      output_text ( pptext, ppleng );
+   }
+}
+
+<PARSE_INCLUDES>[ \t\r\n] {
+   output_text ( pptext, ppleng );
+}
+
+<CAPTURE_INCLUDE>[\" \t] {
+   // throw away!
+}
+
+<CAPTURE_INCLUDE>[^\" \t\r\n]+ {
+   char* buffer;
+   int c, d;
+   int bytes;
+
+   FILE* fp = fopen ( pptext, "r" );
+   if ( fp != NULL )
+   {
+//		strcpy ( currentFile, $2->string );
+
+      fseek ( fp, 0, SEEK_END );
+      bytes = ftell ( fp );
+      if ( bytes > 0 )
+      {
+         fseek ( fp, 0, SEEK_SET );
+         buffer = (char*) malloc ( bytes+1 );
+         memset ( buffer, 0, bytes+1 );
+         if ( buffer != NULL )
+         {
+            fread ( buffer, 1, bytes, fp );
+
+            output_text ( buffer, strlen(buffer) );
+            output_text ( "\r\n", 2 );
+
+            free ( buffer );
+         }
+      }
+
+//		strcpy ( currentFile, "" );
+   }
+   else
+   {
+      sprintf ( e, "cannot open included file: %s", pptext );
+      pperror ( e );
+   }
+}
+
+<CAPTURE_INCLUDE>\r\n |
+<CAPTURE_INCLUDE>\n\r |
+<CAPTURE_INCLUDE>\n {
+   output_text ( pptext, ppleng );
+   BEGIN PARSE_INCLUDES;
+}
+
 <PARSE_EQUATES>{identifier} {
    ppkeyword* k = ppkeywords_equ;
-   int m;
    int echo = 1;
 
    // Check for directives...
@@ -626,7 +689,6 @@ ppkeyword ppkeywords [] =
 
 <PARSE_REPEATS>{identifier} {
    ppkeyword* k = ppkeywords_repeat;
-   int m;
    int echo = 1;
 
    // Check for directives...
@@ -711,7 +773,7 @@ ppkeyword ppkeywords [] =
    output_text ( pptext, ppleng );
 }
 
-<INITIAL,COUNT_LINES,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,MACRO_BODY,INVOKE_ARGVALS,PARSE_EQUATES,CAPTURE_EQUATE,PARSE_VARIABLES,CAPTURE_VARIABLE,PARSE_REPEATS,REPEAT_COUNT>. {
+<INITIAL,COUNT_LINES,PARSE_INCLUDES,PARSE_MACROS,MACRO_NAME,MACRO_ARGS,MACRO_BODY,INVOKE_ARGVALS,PARSE_EQUATES,CAPTURE_EQUATE,PARSE_VARIABLES,CAPTURE_VARIABLE,PARSE_REPEATS,REPEAT_COUNT>. {
    output_text ( pptext, ppleng );
 }
 
@@ -725,7 +787,15 @@ int ppwrap(void)
    switch ( pass )
    {
       case COUNT_LINES:
-         pass = PARSE_EQUATES;
+         pass = PARSE_INCLUDES;
+         go_around = 1;
+      break;
+
+      case PARSE_INCLUDES:
+         if ( directives_processed == 0 )
+         {
+            pass = PARSE_EQUATES;
+         }
          go_around = 1;
       break;
 
@@ -808,6 +878,7 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    pass = COUNT_LINES;
    ppprevious_state = COUNT_LINES;
    force_linenum_emit = 0;
+   pplineno = 1;
 
    if ( ppmtab )
    {
