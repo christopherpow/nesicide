@@ -38,7 +38,6 @@ comment        ";"[^\r\n]*
 // Track how many directives were processed in each go-around
 // and when the number processed hits 0, we're done.  If we
 // go around several times, quit.
-#define MAX_PASSES 5
 int directives_processed = 0;
 
 typedef struct _ppkeyword
@@ -81,11 +80,16 @@ ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol );
 //        perform repeated replacements in input text.
 // ... -> Finish: Pass preprocessed input text as output text to
 //        the assembler stage.
-int ppprevious_state = PARSE_EQUATES;
+int ppprevious_state;
 
 // Line number emitting
 const char* linenum_fmt = "!line %d\r\n";
-char linenum_str [ 32 ];
+char linenum_str [ 256 ];
+void emit_linenum ( void );
+
+const char* filename_fmt = "!file %s\r\n";
+char filename_str [ 1024 ];
+void emit_filename ( char* filename );
 
 #define OUTPUT_DEFAULT_ALLOC 1024
 #define MAX_NESTS            256
@@ -152,6 +156,8 @@ const char* reptsym = "----@@@@";
 extern void add_error ( char* s );
 extern char e [ 256 ];
 
+extern char currentFile [];
+
 // Preprocessor redo pass input buffer.
 char* input_buffer;
 
@@ -169,138 +175,24 @@ int   output_marker = -1;
 // Assembler pass counter.
 int pass;
 
-void emit_linenum ( void );
-
 int pperror(char* s)
 {
    add_error ( s );
 }
 
-void k_macro ( void )
-{
-   if ( macronestlevel < (MAX_NESTS-1) )
-   {
-      macronestlevel++;
-      BEGIN MACRO_NAME;
-   }
-   else
-   {
-      pperror ( "illegal nested macro" );
-   }
-}
+// Keyword processing.
+void k_include ( void );
+void k_equ ( void );
+void k_macro ( void );
+void k_endm ( void );
+void k_rept ( void );
+void k_endr ( void );
 
-void k_endm ( void )
-{
-   if ( macronestlevel )
-   {
-//      dump_macro ( current_macro[macronestlevel] );
-      current_macro [ macronestlevel ] = -1;
-      macronestlevel--;
-   }
-   else
-   {
-      pperror ( "endm without corresponding macro" );
-   }
-   BEGIN PARSE_MACROS;
-}
-
-void k_rept ( void )
-{
-   if ( reptnestlevel < (MAX_NESTS-1) )
-   {
-      reptnestlevel++;
-
-      repeat_start [ reptnestlevel ] = output_length;
-      ppprevious_state = PARSE_REPEATS;
-      BEGIN REPEAT_COUNT;
-   }
-   else
-   {
-      sprintf ( e, "too many nested repeats, max is %d", MAX_NESTS );
-      pperror ( e );
-   }
-}
-
-void k_endr ( void )
-{
-   int length;
-
-   if ( reptnestlevel )
-   {
-      // store current length because it's going to grow...
-      length = strlen ( output_buffer+repeat_start[reptnestlevel] );
-
-      // repeat stuff...but take off one for the original that
-      // defined the stuff to repeat first.
-      repeat_count [ reptnestlevel ]--;
-      while ( repeat_count[reptnestlevel] > 0)
-      {
-         output_text ( output_buffer+repeat_start[reptnestlevel], length );
-         repeat_count [ reptnestlevel ]--;
-      }
-
-      reptnestlevel--;
-   }
-   else
-   {
-      pperror ( "endr without corresponding rept" );
-   }
-   BEGIN PARSE_REPEATS;
-}
-
-void k_equ ( void )
-{
-   BEGIN CAPTURE_EQUATE;
-}
-
-void k_include ( void )
-{
-   BEGIN CAPTURE_INCLUDE;
-}
-
-// Keyword information.  Since keywords are parsed by the
-// 'identifier' rule, we need a mechanism to search
-// for keywords and handle them.  This is similar to the mechanism
-// used to determine an assembler mnemonic in the 'identifier'
-// regular expression.
-
-ppkeyword ppkeywords_include [] =
-{
-   { "include", ".include", k_include },
-   { "incsrc", ".incsrc", k_include },
-   { NULL, NULL, NULL }
-};
-
-ppkeyword ppkeywords_equ [] =
-{
-   { "equ", ".equ", k_equ },
-   { NULL, NULL, NULL }
-};
-
-ppkeyword ppkeywords_macro [] =
-{
-   { "macro", ".macro", k_macro },
-   { "endm", ".endm", k_endm},
-   { NULL, NULL, NULL }
-};
-
-ppkeyword ppkeywords_repeat [] =
-{
-   { "rept", ".rept", k_rept },
-   { "endr", ".endr", k_endr },
-   { NULL, NULL, NULL }
-};
-
-ppkeyword ppkeywords [] =
-{
-   { "ifdef", ".ifdef", NULL },
-   { "ifndef", ".ifndef", NULL },
-   { "if", ".if", NULL },
-   { "elseif", ".elseif", NULL },
-   { "else", ".else", NULL },
-   { "endif", ".endif", NULL },
-   { NULL, NULL, NULL }
-};
+ppkeyword ppkeywords_include [];
+ppkeyword ppkeywords_equ [];
+ppkeyword ppkeywords_macro [];
+ppkeyword ppkeywords_repeat [];
+ppkeyword ppkeywords [];
 
 %}
 
@@ -362,8 +254,6 @@ ppkeyword ppkeywords [] =
    FILE* fp = fopen ( pptext, "r" );
    if ( fp != NULL )
    {
-//		strcpy ( currentFile, $2->string );
-
       fseek ( fp, 0, SEEK_END );
       bytes = ftell ( fp );
       if ( bytes > 0 )
@@ -381,8 +271,6 @@ ppkeyword ppkeywords [] =
             free ( buffer );
          }
       }
-
-//		strcpy ( currentFile, "" );
    }
    else
    {
@@ -751,7 +639,6 @@ ppkeyword ppkeywords [] =
       {
       }
 
-// CPTODO: don't do this here it will break symbol reduction after this pass...
       // Get rid of the annoying temporary symbol...
       delete_symbol ( &global_stab, reptsym );
    }
@@ -774,6 +661,132 @@ ppkeyword ppkeywords [] =
 }
 
 %%
+
+void k_macro ( void )
+{
+   if ( macronestlevel < (MAX_NESTS-1) )
+   {
+      macronestlevel++;
+      BEGIN MACRO_NAME;
+   }
+   else
+   {
+      pperror ( "illegal nested macro" );
+   }
+}
+
+void k_endm ( void )
+{
+   if ( macronestlevel )
+   {
+//      dump_macro ( current_macro[macronestlevel] );
+      current_macro [ macronestlevel ] = -1;
+      macronestlevel--;
+   }
+   else
+   {
+      pperror ( "endm without corresponding macro" );
+   }
+   BEGIN PARSE_MACROS;
+}
+
+void k_rept ( void )
+{
+   if ( reptnestlevel < (MAX_NESTS-1) )
+   {
+      reptnestlevel++;
+
+      repeat_start [ reptnestlevel ] = output_length;
+      ppprevious_state = PARSE_REPEATS;
+      BEGIN REPEAT_COUNT;
+   }
+   else
+   {
+      sprintf ( e, "too many nested repeats, max is %d", MAX_NESTS );
+      pperror ( e );
+   }
+}
+
+void k_endr ( void )
+{
+   int length;
+
+   if ( reptnestlevel )
+   {
+      // store current length because it's going to grow...
+      length = strlen ( output_buffer+repeat_start[reptnestlevel] );
+
+      // repeat stuff...but take off one for the original that
+      // defined the stuff to repeat first.
+      repeat_count [ reptnestlevel ]--;
+      while ( repeat_count[reptnestlevel] > 0)
+      {
+         output_text ( output_buffer+repeat_start[reptnestlevel], length );
+         repeat_count [ reptnestlevel ]--;
+      }
+
+      reptnestlevel--;
+   }
+   else
+   {
+      pperror ( "endr without corresponding rept" );
+   }
+   BEGIN PARSE_REPEATS;
+}
+
+void k_equ ( void )
+{
+   BEGIN CAPTURE_EQUATE;
+}
+
+void k_include ( void )
+{
+   BEGIN CAPTURE_INCLUDE;
+}
+
+// Keyword information.  Since keywords are parsed by the
+// 'identifier' rule, we need a mechanism to search
+// for keywords and handle them.  This is similar to the mechanism
+// used to determine an assembler mnemonic in the 'identifier'
+// regular expression.
+
+ppkeyword ppkeywords_include [] =
+{
+   { "include", ".include", k_include },
+   { "incsrc", ".incsrc", k_include },
+   { NULL, NULL, NULL }
+};
+
+ppkeyword ppkeywords_equ [] =
+{
+   { "equ", ".equ", k_equ },
+   { NULL, NULL, NULL }
+};
+
+ppkeyword ppkeywords_macro [] =
+{
+   { "macro", ".macro", k_macro },
+   { "endm", ".endm", k_endm},
+   { NULL, NULL, NULL }
+};
+
+ppkeyword ppkeywords_repeat [] =
+{
+   { "rept", ".rept", k_rept },
+   { "endr", ".endr", k_endr },
+   { NULL, NULL, NULL }
+};
+
+ppkeyword ppkeywords [] =
+{
+   { "ifdef", ".ifdef", NULL },
+   { "ifndef", ".ifndef", NULL },
+   { "if", ".if", NULL },
+   { "elseif", ".elseif", NULL },
+   { "else", ".else", NULL },
+   { "endif", ".endif", NULL },
+   { NULL, NULL, NULL }
+};
 
 #undef ppwrap
 int ppwrap(void)
@@ -1031,6 +1044,7 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    }
 
    // First things first, emit line number breadcrumbs...
+   emit_filename ( currentFile );
    emit_linenum ();
 
    BEGIN pass;
@@ -1052,6 +1066,12 @@ void emit_linenum ( void )
 {
    sprintf ( linenum_str, linenum_fmt, pplineno );
    output_text ( linenum_str, strlen(linenum_str) );
+}
+
+void emit_filename ( char* filename )
+{
+   sprintf ( filename_str, filename_fmt, filename );
+   output_text ( filename_str, strlen(filename_str) );
 }
 
 void output_text ( char* text, int length )

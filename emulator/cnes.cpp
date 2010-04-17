@@ -213,8 +213,14 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
    // If stepping, break...
    if ( m_bStepBreakpoint )
    {
-      m_bStepBreakpoint = false;
-      force = true;
+      // ...but only if this is a PPU step breakpoint...
+      if ( (target == eBreakInPPU) &&
+           (type == eBreakOnPPUEvent) &&
+           (data == PPU_EVENT_PIXEL_XY) )
+      {
+         m_bStepBreakpoint = false;
+         force = true;
+      }
    }
 
    // For all breakpoints...

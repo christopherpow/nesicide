@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj );
+int pasm_assemble( const char* name, const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj );
 void pasm_get_errors ( char** errors );
 int pasm_get_num_errors ( void );
 int pasm_get_num_symbols ( void );
@@ -17,6 +17,7 @@ int pasm_get_symbol_value ( int symbol );
 symbol_type pasm_get_symbol_type ( int symbol );
 int pasm_get_symbol_linenum ( int symbol );
 int pasm_get_source_linenum ( unsigned int bank, unsigned int addr );
+unsigned int pasm_get_source_addr_from_linenum ( int linenum );
 
 #if defined ( __cplusplus )
 }

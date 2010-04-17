@@ -35,8 +35,9 @@ quotedstring   ([\"][^\"]*[\"])|(['][^']*['])
 rawhex         ([0-9a-fA-F]+)
 whitespace     ([ \t]+)
 linenum        ^"!line"
+filename       ^"!file"
 
-%x LINENUM HEX SOURCE NOLABELREF
+%x FILENAME LINENUM HEX SOURCE NOLABELREF
 
 %{
 
@@ -53,88 +54,17 @@ linenum        ^"!line"
 int recovered_linenum;
 
 // Previous lexer state for returning
-int previous_state = INITIAL;
+int previous_state;
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s );
 extern char e [ 256 ];
 
-// The .hex directive has a special lexer sub-state associated
-// with it that changes how the lexer parses hex strings.  This
-// function is executed when the .hex directive is encountered
-// in the token stream.  It switches the lexer into the HEX
-// sub-state.
-void d_hex ( void )
-{
-   BEGIN HEX;
-}
-
-// The .segment, .text, and .data directives send the same
-// SEGMENT token to the parser so they need to indicate which
-// one they are by sending data along with the token.  This
-// function is executed when the .segment or .text directive
-// is encountered in the token stream.
-void d_textsegment ( void )
-{
-   asmlval.seg = text_segment;
-}
-
-// The .segment, .text, and .data directives send the same
-// SEGMENT token to the parser so they need to indicate which
-// one they are by sending data along with the token.  This
-// function is executed when the .data directive
-// is encountered in the token stream.
-void d_datasegment ( void )
-{
-   asmlval.seg = data_segment;
-}
-
-// Keyword information.  Since keywords are parsed by the
-// 'identifier' rule along with labels, forward-use variables,
-// and even assembly mnemonics, we need a mechanism to search
-// for keywords and handle them.  This is similar to the mechanism
-// used to determine an assembler mnemonic in the 'identifier'
-// regular expression.
-keyword asmkeywords [] =
-{
-   { "byte", ".byte", DATAB, NULL },
-   { "db", ".db", DATAB, NULL },
-   { "dcb", ".dcb", DATAB, NULL },
-   { "dc.b", ".dc.b", DATAB, NULL },
-   { "ascii", ".ascii", DATAB, NULL },
-   { "hex", ".hex", DATABHEX, d_hex },
-   { "word", ".word", DATAW, NULL },
-   { "dw", ".dw", DATAW, NULL },
-   { "dcw", ".dcw", DATAW, NULL },
-   { "dc.w", ".dc.w", DATAW, NULL },
-   { "address", ".address", DATAW, NULL },
-   { "dsb", ".dsb", FILLSPACEB, NULL },
-   { "ds.b", ".ds.b", FILLSPACEB, NULL },
-   { "dsw", ".dsw", FILLSPACEW, NULL },
-   { "ds.w", ".ds.w", FILLSPACEW, NULL },
-   { "org", ".org", ORIGIN, NULL },
-   { "base", ".base", BASE, NULL },
-   { "space", ".space", VARSPACE, NULL },
-   { "advance", ".advance", ADVANCE, NULL },
-   { "pad", ".pad", ADVANCE, NULL },
-   { "align", ".align", ALIGN, NULL },
-   { "text", ".text", SEGMENT, d_textsegment },
-   { "segment", ".segment", SEGMENT, d_textsegment },
-   { "data", ".data", SEGMENT, d_datasegment },
-   { "incbin", ".incbin", INCBIN, NULL },
-   { "bin", ".bin", INCBIN, NULL },
-   { "incobj", ".incobj", INCOBJ, NULL },
-   { "enum", ".enum", ENUMERATE, NULL },
-   { "ende", ".ende", ENDENUMERATE, NULL },
-   { "fillvalue", ".fillvalue", FILLVALUE, NULL },
-   { "ifdef", ".ifdef", IFDEF, NULL },
-   { "ifndef", ".ifndef", IFNDEF, NULL },
-   { "if", ".if", IF, NULL },
-   { "elseif", ".elseif", ELSEIF, NULL },
-   { "else", ".else", ELSE, NULL },
-   { "endif", ".endif", ENDIF, NULL },
-   { NULL, NULL, 0, NULL }
-};
+// Keyword processing.
+void d_hex ( void );
+void d_textsegment ( void );
+void d_datasegment ( void );
+keyword asmkeywords [];
 
 // Symbol table management.  The symbol table is available
 // to both the lexer and parser.
@@ -190,9 +120,28 @@ text_type* get_next_texttype ( void )
 // This function checks for valid assembler mnemonics in tokens.
 unsigned char valid_instr ( char* instr );
 
+extern char currentFile [];
+extern file_table* ftab;
+extern file_table* cur_file;
+
 %}
 
 %%
+
+<*>{filename} {
+   BEGIN FILENAME;
+}
+
+<FILENAME>[ \t] {
+   // throw away!
+}
+
+<FILENAME>[^ \t\r\n]+ {
+   add_file ( asmtext );
+   // current file is always at the head...
+   cur_file = ftab;
+   strcpy ( currentFile, ftab->name );
+}
 
 <*>{linenum} {
    BEGIN LINENUM;
@@ -202,9 +151,9 @@ unsigned char valid_instr ( char* instr );
    recovered_linenum = strtoul ( asmtext, NULL, 10 );
 }
 
-<LINENUM>\r\n |
-<LINENUM>\n\r |
-<LINENUM>\n {
+<FILENAME,LINENUM>\r\n |
+<FILENAME,LINENUM>\n\r |
+<FILENAME,LINENUM>\n {
    BEGIN INITIAL;
 }
 
@@ -539,7 +488,86 @@ unsigned char valid_instr ( char* instr );
 <INITIAL,SOURCE,HEX,NOLABELREF>. {
    // ignore, error should already be given
 }
+
 %%
+
+// The .hex directive has a special lexer sub-state associated
+// with it that changes how the lexer parses hex strings.  This
+// function is executed when the .hex directive is encountered
+// in the token stream.  It switches the lexer into the HEX
+// sub-state.
+void d_hex ( void )
+{
+   BEGIN HEX;
+}
+
+// The .segment, .text, and .data directives send the same
+// SEGMENT token to the parser so they need to indicate which
+// one they are by sending data along with the token.  This
+// function is executed when the .segment or .text directive
+// is encountered in the token stream.
+void d_textsegment ( void )
+{
+   asmlval.seg = text_segment;
+}
+
+// The .segment, .text, and .data directives send the same
+// SEGMENT token to the parser so they need to indicate which
+// one they are by sending data along with the token.  This
+// function is executed when the .data directive
+// is encountered in the token stream.
+void d_datasegment ( void )
+{
+   asmlval.seg = data_segment;
+}
+
+// Keyword information.  Since keywords are parsed by the
+// 'identifier' rule along with labels, forward-use variables,
+// and even assembly mnemonics, we need a mechanism to search
+// for keywords and handle them.  This is similar to the mechanism
+// used to determine an assembler mnemonic in the 'identifier'
+// regular expression.
+keyword asmkeywords [] =
+{
+   { "byte", ".byte", DATAB, NULL },
+   { "db", ".db", DATAB, NULL },
+   { "dcb", ".dcb", DATAB, NULL },
+   { "dc.b", ".dc.b", DATAB, NULL },
+   { "ascii", ".ascii", DATAB, NULL },
+   { "hex", ".hex", DATABHEX, d_hex },
+   { "word", ".word", DATAW, NULL },
+   { "dw", ".dw", DATAW, NULL },
+   { "dcw", ".dcw", DATAW, NULL },
+   { "dc.w", ".dc.w", DATAW, NULL },
+   { "address", ".address", DATAW, NULL },
+   { "dsb", ".dsb", FILLSPACEB, NULL },
+   { "ds.b", ".ds.b", FILLSPACEB, NULL },
+   { "dsw", ".dsw", FILLSPACEW, NULL },
+   { "ds.w", ".ds.w", FILLSPACEW, NULL },
+   { "org", ".org", ORIGIN, NULL },
+   { "base", ".base", BASE, NULL },
+   { "space", ".space", VARSPACE, NULL },
+   { "advance", ".advance", ADVANCE, NULL },
+   { "pad", ".pad", ADVANCE, NULL },
+   { "align", ".align", ALIGN, NULL },
+   { "text", ".text", SEGMENT, d_textsegment },
+   { "segment", ".segment", SEGMENT, d_textsegment },
+   { "data", ".data", SEGMENT, d_datasegment },
+   { "incbin", ".incbin", INCBIN, NULL },
+   { "bin", ".bin", INCBIN, NULL },
+   { "incobj", ".incobj", INCOBJ, NULL },
+   { "enum", ".enum", ENUMERATE, NULL },
+   { "ende", ".ende", ENDENUMERATE, NULL },
+   { "fillvalue", ".fillvalue", FILLVALUE, NULL },
+   { "ifdef", ".ifdef", IFDEF, NULL },
+   { "ifndef", ".ifndef", IFNDEF, NULL },
+   { "if", ".if", IF, NULL },
+   { "elseif", ".elseif", ELSEIF, NULL },
+   { "else", ".else", ELSE, NULL },
+   { "endif", ".endif", ENDIF, NULL },
+   { NULL, NULL, 0, NULL }
+};
+
 int asm_get_current_buffer ( void )
 {
    return (int)YY_CURRENT_BUFFER;

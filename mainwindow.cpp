@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pCodeInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pCodeInspector->setWindowTitle("Code Inspector");
     m_pCodeInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
-    addDockWidget(Qt::BottomDockWidgetArea, m_pCodeInspector );
+    addDockWidget(Qt::RightDockWidgetArea, m_pCodeInspector );
     m_pCodeInspector->hide();
     QObject::connect(m_pCodeInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeInspector_close(bool)));
     InspectorRegistry::addInspector ( "Code Inspector", m_pCodeInspector );

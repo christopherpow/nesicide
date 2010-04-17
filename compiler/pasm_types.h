@@ -120,6 +120,12 @@ typedef struct _expr_type
    } value;
 } expr_type;
 
+typedef struct _file_table
+{
+   char* name;
+   struct _file_table* next;
+} file_table;
+
 typedef enum
 {
    fixup_fixed,
@@ -154,6 +160,7 @@ typedef struct _ir_table
    unsigned char string;
    fixup_type    fixup;
    int           source_linenum;
+   file_table*   file;
    struct _ir_table* next;
    struct _ir_table* prev;
    struct _symbol_table* symtab;

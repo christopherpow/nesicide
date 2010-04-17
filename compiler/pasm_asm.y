@@ -327,7 +327,12 @@ int asmerror(char *s);
 int asmwrap(void);
 
 // Current file being parsed for more meaningful error/warnings.
-//char currentFile [ 256 ];
+char currentFile [ 1024 ];
+
+// Table of processed files...
+file_table* ftab;
+file_table* cur_file = NULL;
+void add_file ( char* filename );
 
 // Intermediate representation pointer-pointers.
 ir_table** ir_head = NULL;
@@ -505,7 +510,7 @@ void dump_expression ( expr_type* expr );
 %token <directive> VARSPACE
 %token <directive> ENUMERATE ENDENUMERATE
 %token <directive> ORIGIN BASE ADVANCE ALIGN
-%token <directive> INCBIN INCOBJ INCLUDE
+%token <directive> INCBIN INCOBJ
 %token <directive> FILLVALUE
 %token <directive> IFDEF IFNDEF
 %token <directive> IF ELSEIF ELSE ENDIF
@@ -626,8 +631,6 @@ directive: INCBIN QUOTEDSTRING {
       f = incobj_fn ( $2->string, &data, &size );
 		if ( f != 0 )
 		{
-   //		strcpy ( currentFile, $2->string );
-			
          orig = asm_get_current_buffer ();
 
          buf = asm_scan_string ( data );
@@ -644,8 +647,6 @@ directive: INCBIN QUOTEDSTRING {
          asmparse();
 
          asm_flush_buffer ( orig );
-
-	//		strcpy ( currentFile, "" );
 		}
 		else
 		{
@@ -656,55 +657,6 @@ directive: INCBIN QUOTEDSTRING {
 	else
 	{
       sprintf ( e, "%s: directive not supported", $1 );
-      asmerror ( e );
-	}
-}
-// Directive .include "<file>" includes a source file into the parser stream...
-           | INCLUDE QUOTEDSTRING TERM {
-	char* buffer;
-	int c;
-	int bytes;
-	int buf, orig;
-   FILE* fp = fopen ( $2->string, "r" );
-	if ( fp != NULL )
-	{
-//		strcpy ( currentFile, $2->string );
-
-		fseek ( fp, 0, SEEK_END );
-		bytes = ftell ( fp );
-		if ( bytes > 0 )
-		{
-			fseek ( fp, 0, SEEK_SET );
-			buffer = (char*) malloc ( bytes+1 );
-			memset ( buffer, 0, bytes+1 );
-			if ( buffer != NULL )
-			{
-				fread ( buffer, 1, bytes, fp );
-
-            orig = asm_get_current_buffer ();
-
-            buf = asm_scan_string ( buffer );
-
-            asmparse();
-
-            asm_flush_buffer ( buf );
-
-            asm_switch_to_buffer ( orig );
-
-            asm_delete_buffer ( buf );
-				free ( buffer );
-
-            asmparse();
-
-            asm_flush_buffer ( orig );
-			}
-		}
-
-//		strcpy ( currentFile, "" );
-	}
-	else
-	{
-      sprintf ( e, "%s: cannot open included file: %s", $1, $2->string );
       asmerror ( e );
 	}
 }
@@ -2075,12 +2027,32 @@ void initialize ( void )
 	int idx;
    symbol_table* sym;
    symbol_table* syd;
+   file_table* fptr;
+   file_table* fptd = NULL;
 
 	free ( errorStorage );
 	errorStorage = NULL;
 	errorCount = 0;
 
    recovered_linenum = 0;
+
+   if ( ftab )
+   {
+      for ( fptr = ftab; fptr != NULL; fptr = fptr->next )
+      {
+         if ( fptd )
+         {
+            free ( fptd->name );
+            free ( fptd );
+         }
+         fptd = fptr;
+      }
+      if ( fptd )
+      {
+         free ( fptd->name );
+         free ( fptd );
+      }
+   }
 
    syd = NULL;
    for ( sym = global_stab.head; sym != NULL; sym = sym->next )
@@ -2135,6 +2107,18 @@ void initialize ( void )
 	btab_max = 0;
 }
 
+void add_file ( char* filename )
+{
+   file_table* ptr = (file_table*) malloc ( sizeof(file_table) );
+
+   // Add to head to make life easy...
+   ptr->next = ftab;
+   ftab = ptr;
+
+   // Save name...
+   ptr->name = strdup ( filename );
+}
+
 void add_error ( char *s )
 {
    static char error_buffer [ 2048 ] = { 0, };
@@ -2145,14 +2129,7 @@ void add_error ( char *s )
 	{
       if ( current_label == NULL )
 		{
-//			if ( strlen(currentFile) )
-//			{
-//				sprintf ( error_buffer, "error: %d: in included file %s: ", recovered_linenum, currentFile );
-//			}
-//			else
-//			{
-            sprintf ( error_buffer, "error: %d: ", recovered_linenum );
-//			}
+         sprintf ( error_buffer, "%s:%d: error: ", currentFile, recovered_linenum );
 			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
 			strcpy ( errorStorage, error_buffer );
@@ -2161,15 +2138,8 @@ void add_error ( char *s )
 		}
 		else
 		{
-//			if ( strlen(currentFile) )
-//			{
-//				sprintf ( error_buffer, "error: %d: in included file %s: ", recovered_linenum, currentFile );
-//			}
-//			else
-//			{
-            sprintf ( error_buffer, "error: %d: after %s: ", recovered_linenum, current_label->symbol );
-//			}
-			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
+         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, recovered_linenum, current_label->symbol );
+         errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
          strcpy ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
@@ -2180,8 +2150,8 @@ void add_error ( char *s )
 	{
       if ( current_label == NULL )
 		{
-         sprintf ( error_buffer, "error: %d: ", recovered_linenum );
-			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
+         sprintf ( error_buffer, "%s:%d: error: ", currentFile, recovered_linenum );
+         errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
@@ -2189,8 +2159,8 @@ void add_error ( char *s )
       }
 		else
 		{
-         sprintf ( error_buffer, "error: %d: after %s: ", recovered_linenum, current_label->symbol );
-			errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
+         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, recovered_linenum, current_label->symbol );
+         errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
 			strcat ( errorStorage, s );
@@ -2962,7 +2932,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   dump_ir_tables ();
+   //dump_ir_tables ();
 }
 
 char* instr_mnemonic ( unsigned char op )
@@ -4106,6 +4076,7 @@ ir_table* emit_ir ( void )
             (*ir_tail)->prev = NULL;
             (*ir_tail)->expr = NULL;
             (*ir_tail)->symtab = NULL;
+            (*ir_tail)->file = cur_file;
          }
          else
          {
@@ -4133,6 +4104,7 @@ ir_table* emit_ir ( void )
             ptr->source_linenum = recovered_linenum;
             ptr->expr = NULL;
             ptr->symtab = NULL;
+            ptr->file = cur_file;
          }
          else
          {

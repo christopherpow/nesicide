@@ -12,11 +12,18 @@ extern symbol_list global_stab;
 extern char* errorStorage;
 extern int errorCount;
 
-//extern char currentFile[];
+extern char currentFile [];
 
 extern void initialize ( void );
 
 int asmparse();
+
+int usage_count = 0;
+
+void pasm_restart ( void )
+{
+   usage_count = 0;
+}
 
 void pasm_get_errors ( char** errors )
 {
@@ -83,6 +90,32 @@ int pasm_get_source_linenum ( unsigned int bank, unsigned int addr )
    }
 
    return linenum;
+}
+
+unsigned int pasm_get_source_addr_from_linenum ( int linenum )
+{
+   int b;
+   unsigned int addr = -1;
+   ir_table* ptr;
+
+   // Search through all banks looking for the appropriate source line number...
+   // CPTODO: translate this to be smarter about source files also!
+   for ( b = 0; b < btab_ent; b++ )
+   {
+      if ( btab[b].type == text_segment )
+      {
+         for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( (ptr->instr) && (ptr->source_linenum == linenum) )
+            {
+               addr = ptr->addr;
+               break;
+            }
+         }
+      }
+   }
+
+   return addr;
 }
 
 symbol_table* pasm_get_symbol_entry ( int symbol )
@@ -241,7 +274,7 @@ int pasm_get_num_symbols ( void )
    return i;
 }
 
-int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj )
+int pasm_assemble( const char* name, const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj )
 {
    int tries = 0;
    int promoted;
@@ -250,7 +283,7 @@ int pasm_assemble( const char* buffer_in, char** buffer_out, int* size, incobj_c
 
    incobj_fn = incobj;
 
-//   asm_delete_buffer ();
+   strcpy ( currentFile, name );
 
    initialize ();
 

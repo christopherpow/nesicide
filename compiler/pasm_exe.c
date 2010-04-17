@@ -3,8 +3,9 @@
 
 #include "pasm_types.h"
 
-//extern char currentFile[];
 extern FILE* asmin;
+
+extern char currentFile [];
 
 int main(int argc, char **argv)
 {
@@ -21,9 +22,9 @@ int main(int argc, char **argv)
       exit( 1 );
    }
 
-   initialize ();
+   strcpy ( currentFile, "main_source" );
 
-//   strcpy ( currentFile, "" );
+   initialize ();
 
    preprocess ( NULL, &buffer, &length );
 

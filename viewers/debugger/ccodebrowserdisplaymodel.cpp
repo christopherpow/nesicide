@@ -26,22 +26,22 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    switch ( index.column() )
    {
       case 0:
-         sprintf ( buffer, "%02X", CROM::PRGROM(addr+index.column()) );
+         sprintf ( buffer, "%02X", CROM::PRGROM(addr) );
          return buffer;
       break;
       case 1:
          opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
-         if ( index.column() < opSize )
+         if ( 1 < opSize )
          {
-            sprintf ( buffer, "%02X", CROM::PRGROM(addr+index.column()) );
+            sprintf ( buffer, "%02X", CROM::PRGROM(addr+1) );
             return buffer;
          }
       break;
       case 2:
          opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
-         if ( index.column() < opSize )
+         if ( 2 < opSize )
          {
-            sprintf ( buffer, "%02X", CROM::PRGROM(addr+index.column()) );
+            sprintf ( buffer, "%02X", CROM::PRGROM(addr+2) );
             return buffer;
          }
       break;

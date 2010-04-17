@@ -15,6 +15,9 @@
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
 
+// Breakpoint event identifiers
+#define PPU_EVENT_PIXEL_XY 0
+
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
 #define PPUMASK    0x2001

@@ -3,6 +3,7 @@
 
 #include "cnes6502.h"
 #include "cnesrom.h"
+#include "pasm_lib.h"
 
 #include "inspectorregistry.h"
 #include "main.h"
@@ -12,8 +13,10 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     ui(new Ui::CodeBrowserDialog)
 {
     ui->setupUi(this);
-    tableViewModel = new CCodeBrowserDisplayModel(this);
-    ui->tableView->setModel(tableViewModel);
+    assemblyViewModel = new CCodeBrowserDisplayModel(this);
+    sourceViewModel = new CSourceBrowserDisplayModel(this);
+    ui->tableView->setModel(assemblyViewModel);
+    ui->displayMode->setCurrentIndex ( 0 );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateDisassembly()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateBrowser()) );
@@ -22,24 +25,30 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
 CodeBrowserDialog::~CodeBrowserDialog()
 {
     delete ui;
-    delete tableViewModel;
+    delete assemblyViewModel;
+    delete sourceViewModel;
 }
 
-#include "pasm_lib.h"
 void CodeBrowserDialog::showEvent(QShowEvent* e)
 {
    // Update display...
    CROM::DISASSEMBLE();
 
-   tableViewModel->layoutChangedEvent();
-
-   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+   switch ( ui->displayMode->currentIndex() )
+   {
+      case 0:
+         assemblyViewModel->layoutChangedEvent();
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+      break;
+      case 1:
+         sourceViewModel->layoutChangedEvent();
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+      break;
+      case 2:
+      break;
+   }
 
    ui->tableView->resizeColumnsToContents();
-
-   int pc = C6502::__PC();
-   int line = pasm_get_source_linenum ( pc<0xC000?0:1, pc );
-   line = 0;
 }
 
 void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
@@ -70,9 +79,19 @@ void CodeBrowserDialog::updateDisassembly()
 
    emit showMe();
 
-   tableViewModel->layoutChangedEvent();
-
-   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+   switch ( ui->displayMode->currentIndex() )
+   {
+      case 0:
+         assemblyViewModel->layoutChangedEvent();
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+      break;
+      case 1:
+         sourceViewModel->layoutChangedEvent();
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+      break;
+      case 2:
+      break;
+   }
 }
 
 void CodeBrowserDialog::updateBrowser()
@@ -94,16 +113,38 @@ void CodeBrowserDialog::updateBrowser()
       }
    }
 
-   tableViewModel->layoutChangedEvent();
-
-   ui->tableView->setCurrentIndex(tableViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+   switch ( ui->displayMode->currentIndex() )
+   {
+      case 0:
+         assemblyViewModel->layoutChangedEvent();
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+      break;
+      case 1:
+         sourceViewModel->layoutChangedEvent();
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+      break;
+      case 2:
+      break;
+   }
 }
 
 void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
-   int addr = CROM::SLOC2ADDR(index.row());
+   int addr;
+
+   switch ( ui->displayMode->currentIndex() )
+   {
+      case 0:
+         addr = CROM::SLOC2ADDR(index.row());
+      break;
+      case 1:
+         addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+      break;
+      case 2:
+      break;
+   }
 
    pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
                                  eBreakpointItemAddress,
@@ -122,6 +163,40 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 void CodeBrowserDialog::on_actionRun_to_here_triggered()
 {
    QModelIndex index = ui->tableView->currentIndex();
-   int addr = CROM::SLOC2ADDR(index.row());
+   int addr;
+
+   switch ( ui->displayMode->currentIndex() )
+   {
+      case 0:
+         addr = CROM::SLOC2ADDR(index.row());
+      break;
+      case 1:
+         addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+      break;
+      case 2:
+      break;
+   }
+
    C6502::GOTO(addr);
+}
+
+void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
+{
+   switch ( index )
+   {
+      case 0:
+         ui->tableView->setModel(assemblyViewModel);
+         assemblyViewModel->layoutChangedEvent();
+      break;
+      case 1:
+         ui->tableView->setModel(sourceViewModel);
+         sourceViewModel->layoutChangedEvent();
+      break;
+      case 2:
+      break;
+   }
+
+   updateDisassembly();
+
+   ui->tableView->resizeColumnsToContents();
 }

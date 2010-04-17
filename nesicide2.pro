@@ -132,7 +132,8 @@ SOURCES += mainwindow.cpp \
     debugger/codebrowserdialog.cpp \
     debugger/codeinspector.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
-    common/inspectorregistry.cpp
+    common/inspectorregistry.cpp \
+    viewers/debugger/csourcebrowserdisplaymodel.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -233,7 +234,8 @@ HEADERS += mainwindow.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
     common/inspectorregistry.h \
     compiler/pasm_types.h \
-    compiler/pasm_lib.h
+    compiler/pasm_lib.h \
+    viewers/debugger/csourcebrowserdisplaymodel.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

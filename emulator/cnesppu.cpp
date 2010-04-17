@@ -1049,7 +1049,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
             m_y = scanline;
 
             // Check for PPU event breakpoint...
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0);
+            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PIXEL_XY);
 
             PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
             colorIdx = (a|b1|(b2<<1));

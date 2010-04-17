@@ -30,7 +30,7 @@ bool CSourceAssembler::assemble()
 
    builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
 
-   pasm_assemble ( rootSource->get_sourceCode().toLatin1().data(), &romData, &romLength, NULL );
+   pasm_assemble ( rootSource->get_sourceName().toLatin1().data(), rootSource->get_sourceCode().toLatin1().data(), &romData, &romLength, NULL );
 
    strBuffer.sprintf ( "%d (0x%x)", romLength, romLength );
    numErrors = pasm_get_num_errors ();

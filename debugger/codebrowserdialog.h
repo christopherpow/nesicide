@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "ccodebrowserdisplaymodel.h"
+#include "csourcebrowserdisplaymodel.h"
 
 namespace Ui {
     class CodeBrowserDialog;
@@ -28,9 +29,11 @@ signals:
 
 private:
     Ui::CodeBrowserDialog *ui;
-    CCodeBrowserDisplayModel *tableViewModel;
+    CCodeBrowserDisplayModel *assemblyViewModel;
+    CSourceBrowserDisplayModel *sourceViewModel;
 
 private slots:
+    void on_displayMode_currentIndexChanged(int index);
     void on_actionRun_to_here_triggered();
     void on_actionBreak_on_CPU_execution_here_triggered();
 };
