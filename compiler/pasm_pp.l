@@ -83,6 +83,8 @@ ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol );
 int ppprevious_state;
 
 // Line number emitting
+#define LINENUM_SPACING 1
+unsigned char force_linenum_emit = 1;
 const char* linenum_fmt = "!line %d\r\n";
 char linenum_str [ 256 ];
 void emit_linenum ( void );
@@ -188,6 +190,7 @@ void k_endm ( void );
 void k_rept ( void );
 void k_endr ( void );
 
+ppkeyword ppkeywords_linecount [];
 ppkeyword ppkeywords_include [];
 ppkeyword ppkeywords_equ [];
 ppkeyword ppkeywords_macro [];
@@ -200,6 +203,37 @@ ppkeyword ppkeywords [];
 
 <*>{comment} {
    // throw away!
+}
+
+<COUNT_LINES>{identifier} {
+   ppkeyword* k = ppkeywords_linecount;
+   int found = 0;
+
+   // Check for directives...
+   while ( k->directive != NULL )
+   {
+      if ( ((strlen(k->directive) == ppleng) &&
+           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
+           ((strlen(k->dotdirective) == ppleng) &&
+           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
+      {
+         found = 1;
+         break;
+      }
+      k++;
+   }
+
+   if ( found )
+   {
+      force_linenum_emit = 1;
+      emit_linenum ();
+      output_text ( pptext, ppleng );
+      force_linenum_emit = 1;
+   }
+   else
+   {
+      output_text ( pptext, ppleng );
+   }
 }
 
 <COUNT_LINES>\r\n |
@@ -250,6 +284,7 @@ ppkeyword ppkeywords [];
    char* buffer;
    int c, d;
    int bytes;
+   file_table* orig_file;
 
    FILE* fp = fopen ( pptext, "r" );
    if ( fp != NULL )
@@ -264,6 +299,8 @@ ppkeyword ppkeywords [];
          if ( buffer != NULL )
          {
             fread ( buffer, 1, bytes, fp );
+
+            emit_filename ( pptext );
 
             output_text ( buffer, strlen(buffer) );
             output_text ( "\r\n", 2 );
@@ -750,6 +787,17 @@ void k_include ( void )
 // used to determine an assembler mnemonic in the 'identifier'
 // regular expression.
 
+ppkeyword ppkeywords_linecount [] =
+{
+   { "include", ".include", k_include },
+   { "incsrc", ".incsrc", k_include },
+   { "macro", ".macro", k_macro },
+   { "endm", ".endm", k_endm},
+   { "rept", ".rept", k_rept },
+   { "endr", ".endr", k_endr },
+   { NULL, NULL, NULL }
+};
+
 ppkeyword ppkeywords_include [] =
 {
    { "include", ".include", k_include },
@@ -887,6 +935,7 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    pass = COUNT_LINES;
    ppprevious_state = COUNT_LINES;
    pplineno = 1;
+   force_linenum_emit = 1;
 
    if ( ppmtab )
    {
@@ -1043,7 +1092,7 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
       ppin = NULL;
    }
 
-   // First things first, emit line number breadcrumbs...
+   // First things first, emit file and line number breadcrumbs...
    emit_filename ( currentFile );
    emit_linenum ();
 
@@ -1064,8 +1113,13 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
 
 void emit_linenum ( void )
 {
-   sprintf ( linenum_str, linenum_fmt, pplineno );
-   output_text ( linenum_str, strlen(linenum_str) );
+   if ( (!(pplineno%LINENUM_SPACING)) ||
+        (force_linenum_emit) )
+   {
+      sprintf ( linenum_str, linenum_fmt, pplineno );
+      output_text ( linenum_str, strlen(linenum_str) );
+      force_linenum_emit = 0;
+   }
 }
 
 void emit_filename ( char* filename )
