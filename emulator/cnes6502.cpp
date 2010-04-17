@@ -2643,7 +2643,10 @@ unsigned char C6502::FETCH ( UINT addr )
    }
 
    // Check for breakpoint...
-   CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
+   if ( m_sync )
+   {
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
+   }
 
    return data;
 }

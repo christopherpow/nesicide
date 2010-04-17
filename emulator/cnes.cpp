@@ -35,7 +35,8 @@ bool         CNES::m_bReplay = false;
 unsigned int CNES::m_frame = 0;
 CBreakpointInfo CNES::m_breakpoints;
 bool            CNES::m_bAtBreakpoint = false;
-bool            CNES::m_bStepBreakpoint = false;
+bool            CNES::m_bStepCPUBreakpoint = false;
+bool            CNES::m_bStepPPUBreakpoint = false;
 
 CTracer         CNES::m_tracer;
 
@@ -211,16 +212,20 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
    bool force = false;
 
    // If stepping, break...
-   if ( m_bStepBreakpoint )
+   if ( (m_bStepCPUBreakpoint) &&
+        (target == eBreakInCPU) &&
+        (type == eBreakOnCPUExecution) )
    {
-      // ...but only if this is a PPU step breakpoint...
-      if ( (target == eBreakInPPU) &&
-           (type == eBreakOnPPUEvent) &&
-           (data == PPU_EVENT_PIXEL_XY) )
-      {
-         m_bStepBreakpoint = false;
-         force = true;
-      }
+      m_bStepCPUBreakpoint = false;
+      force = true;
+   }
+   else if ( (m_bStepPPUBreakpoint) &&
+             (target == eBreakInPPU) &&
+             (type == eBreakOnPPUEvent) &&
+             (data == PPU_EVENT_PIXEL_XY) )
+   {
+      m_bStepPPUBreakpoint = false;
+      force = true;
    }
 
    // For all breakpoints...

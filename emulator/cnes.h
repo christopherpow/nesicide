@@ -27,14 +27,16 @@ public:
    static void FORCEBREAKPOINT ( void );
    static bool ATBREAKPOINT ( void ) { return m_bAtBreakpoint; }
    static void CLEARBREAKPOINT ( void ) { m_bAtBreakpoint = false; }
-   static void STEPBREAKPOINT ( void ) { m_bStepBreakpoint = true; }
+   static void STEPCPUBREAKPOINT ( void ) { m_bStepCPUBreakpoint = true; }
+   static void STEPPPUBREAKPOINT ( void ) { m_bStepPPUBreakpoint = true; }
 
 protected:
    static bool         m_bReplay;
    static unsigned int m_frame;
    static CBreakpointInfo m_breakpoints;
    static bool            m_bAtBreakpoint;
-   static bool            m_bStepBreakpoint;
+   static bool            m_bStepCPUBreakpoint;
+   static bool            m_bStepPPUBreakpoint;
 
    static CTracer         m_tracer;
 };

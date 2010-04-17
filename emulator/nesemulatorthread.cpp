@@ -157,11 +157,28 @@ void NESEmulatorThread::startEmulation ()
    m_isPaused = false;
 }
 
-void NESEmulatorThread::stepEmulation ()
+void NESEmulatorThread::stepCPUEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
-   CNES::STEPBREAKPOINT();
+   CNES::STEPCPUBREAKPOINT();
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
+   // Trigger Breakpoint dialog redraw...
+   emit breakpointClear();
+
+   m_isRunning = true;
+   m_isPaused = false;
+}
+
+void NESEmulatorThread::stepPPUEmulation ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   // But ensure we come right back...
+   CNES::STEPPPUBREAKPOINT();
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();

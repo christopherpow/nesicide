@@ -21,7 +21,8 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 
    QObject::connect(this, SIGNAL(startEmulation()), emulator, SLOT(startEmulation()));
    QObject::connect(this, SIGNAL(pauseEmulation()), emulator, SLOT(pauseEmulation()));
-   QObject::connect(this, SIGNAL(stepEmulation()), emulator, SLOT(stepEmulation()));
+   QObject::connect(this, SIGNAL(stepCPUEmulation()), emulator, SLOT(stepCPUEmulation()));
+   QObject::connect(this, SIGNAL(stepPPUEmulation()), emulator, SLOT(stepPPUEmulation()));
    QObject::connect(this, SIGNAL(resetEmulator()), emulator, SLOT(resetEmulator()));
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
@@ -215,7 +216,8 @@ void NESEmulatorDialog::on_playButton_clicked()
 {
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
-   ui->stepButton->setEnabled(false);
+   ui->stepCPUButton->setEnabled(false);
+   ui->stepPPUButton->setEnabled(false);
 
    emit startEmulation();
 }
@@ -224,7 +226,8 @@ void NESEmulatorDialog::on_pauseButton_clicked()
 {
    ui->playButton->setEnabled(true);
    ui->pauseButton->setEnabled(false);
-   ui->stepButton->setEnabled(true);
+   ui->stepCPUButton->setEnabled(true);
+   ui->stepPPUButton->setEnabled(true);
 
    emit pauseEmulation();
 }
@@ -234,15 +237,17 @@ void NESEmulatorDialog::on_resetButton_clicked()
    emit resetEmulator();
 }
 
-void NESEmulatorDialog::on_stepButton_clicked()
-{
-   // TODO: Run one PPU cycle's worth of clocks on the PPU.
-   //       Since PPU executes faster it makes sense to align the steps
-   //       on PPU cycles but you can do it on CPU cycles if you really want to.
-   emit stepEmulation();
-}
-
 void NESEmulatorDialog::renderData()
 {
    renderer->updateGL();
+}
+
+void NESEmulatorDialog::on_stepCPUButton_clicked()
+{
+   emit stepCPUEmulation();
+}
+
+void NESEmulatorDialog::on_stepPPUButton_clicked()
+{
+   emit stepPPUEmulation();
 }

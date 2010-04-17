@@ -30,7 +30,8 @@ private:
     unsigned char m_joy [ NUM_JOY ];
 
 private slots:
-    void on_stepButton_clicked();
+    void on_stepCPUButton_clicked();
+    void on_stepPPUButton_clicked();
     void on_pauseButton_clicked();
     void on_playButton_clicked();
     void on_resetButton_clicked();
@@ -42,7 +43,8 @@ signals:
     void killEmulator();
     void startEmulation();
     void pauseEmulation();
-    void stepEmulation();
+    void stepCPUEmulation();
+    void stepPPUEmulation();
     void resetEmulator();
 };
 

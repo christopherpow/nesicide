@@ -69,7 +69,27 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="stepButton">
+      <widget class="QToolButton" name="stepCPUButton">
+       <property name="text">
+        <string>Step CPU</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/stock_right.svg</normaloff>:/resources/stock_right.svg</iconset>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="stepPPUButton">
        <property name="enabled">
         <bool>true</bool>
        </property>
