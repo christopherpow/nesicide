@@ -98,7 +98,7 @@ static CRegisterData* tblPPURegisters [] =
 };
 
 // PPU Event breakpoints
-#define NUM_PPU_EVENTS 1
+#define NUM_PPU_EVENTS 3
 
 bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint)
 {
@@ -110,9 +110,29 @@ bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint)
    return false;
 }
 
+bool ppuScanlineStartEvent(BreakpointInfo* pBreakpoint)
+{
+   if ( CPPU::_X() == 0 )
+   {
+      return true;
+   }
+   return false;
+}
+
+bool ppuScanlineEndEvent(BreakpointInfo* pBreakpoint)
+{
+   if ( CPPU::_X() == 255 )
+   {
+      return true;
+   }
+   return false;
+}
+
 static CBreakpointEventInfo* tblPPUEvents [] =
 {
-   new CBreakpointEventInfo("Raster Position (Data1=X,Data2=Y)", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10)
+   new CBreakpointEventInfo("Raster Position (Data1=X,Data2=Y)", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10),
+   new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
+   new CBreakpointEventInfo("Scanline End (X=255,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10)
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
@@ -1048,8 +1068,10 @@ void CPPU::RENDERSCANLINE ( int scanline )
             m_x = idxx+patternMask;
             m_y = scanline;
 
-            // Check for PPU event breakpoint...
+            // Check for PPU event breakpoints...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PIXEL_XY);
+            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_START);
+            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
 
             PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
             colorIdx = (a|b1|(b2<<1));

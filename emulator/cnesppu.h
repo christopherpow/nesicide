@@ -16,7 +16,9 @@
 #include "cbreakpointinfo.h"
 
 // Breakpoint event identifiers
-#define PPU_EVENT_PIXEL_XY 0
+#define PPU_EVENT_PIXEL_XY       0
+#define PPU_EVENT_SCANLINE_START 1
+#define PPU_EVENT_SCANLINE_END   2
 
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
