@@ -98,8 +98,6 @@ static CRegisterData* tblPPURegisters [] =
 };
 
 // PPU Event breakpoints
-#define NUM_PPU_EVENTS 3
-
 bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint)
 {
    if ( (pBreakpoint->item1 == CPPU::_X()) &&
@@ -121,18 +119,32 @@ bool ppuScanlineStartEvent(BreakpointInfo* pBreakpoint)
 
 bool ppuScanlineEndEvent(BreakpointInfo* pBreakpoint)
 {
-   if ( CPPU::_X() == 255 )
-   {
-      return true;
-   }
-   return false;
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool ppuPrerenderScanlineStartEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool ppuPrerenderScanlineEndEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
 }
 
 static CBreakpointEventInfo* tblPPUEvents [] =
 {
    new CBreakpointEventInfo("Raster Position (Data1=X,Data2=Y)", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10),
+   new CBreakpointEventInfo("Pre-render Scanline Start (X=0,Y=-1)", ppuPrerenderScanlineStartEvent, 0, "Break at start of pre-render scanline", 10),
+   new CBreakpointEventInfo("Pre-render Scanline End (X=256,Y=-1)", ppuPrerenderScanlineEndEvent, 0, "Break at end of pre-render scanline", 10),
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
-   new CBreakpointEventInfo("Scanline End (X=255,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10)
+   new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10)
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
@@ -1050,6 +1062,12 @@ void CPPU::RENDERSCANLINE ( int scanline )
    // even-odd framing for extra-cycle on pre-render scanline...
    m_frame = !m_frame;
 
+   // Check for start-of-prerender-scanline breakpoint...
+   if ( scanline < 0 )
+   {
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_START);
+   }
+
    for ( idxx = 0; idxx < 256; idxx += 8 )
    {
       // Check for pre-render scanline...
@@ -1068,10 +1086,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
             m_x = idxx+patternMask;
             m_y = scanline;
 
-            // Check for PPU event breakpoints...
+            // Check for PPU pixel-at breakpoint, and for start-of-scanline breakpoint...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PIXEL_XY);
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_START);
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
 
             PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
             colorIdx = (a|b1|(b2<<1));
@@ -1164,6 +1181,15 @@ void CPPU::RENDERSCANLINE ( int scanline )
       }
 
       GATHERBKGND ();
+   }
+
+   // We're at the end of this scanline, check the end-of-scanline breakpoint here...
+   CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
+
+   // Check for end-of-prerender-scanline breakpoint...
+   if ( scanline < 0 )
+   {
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_END);
    }
 
    // Re-latch PPU address...
