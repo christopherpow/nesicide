@@ -39,7 +39,7 @@ INCLUDEPATH += ./common \
     ./viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
-unix:INCLUDEPATH += += \
+unix:INCLUDEPATH += \
     /usr/include/SDL
 mac:INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
 TARGET = nesicide2
