@@ -148,14 +148,8 @@
      <addaction name="actionBreakpoint_Inspector"/>
      <addaction name="actionExecution_Inspector"/>
     </widget>
-    <widget class="QMenu" name="menuType_Here_2">
-     <property name="title">
-      <string>Type Here</string>
-     </property>
-    </widget>
     <addaction name="menu_Windows"/>
     <addaction name="menuType_Here"/>
-    <addaction name="menuType_Here_2"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -225,6 +219,9 @@
        <property name="headerHidden">
         <bool>true</bool>
        </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
        <attribute name="headerVisible">
         <bool>false</bool>
        </attribute>
@@ -340,7 +337,7 @@
   <action name="actionNew_Project">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/window_new.svg</normaloff>:/resources/window_new.svg</iconset>
+     <normaloff>:/resources/22_document-new.png</normaloff>:/resources/22_document-new.png</iconset>
    </property>
    <property name="text">
     <string>New &amp;Project...</string>
