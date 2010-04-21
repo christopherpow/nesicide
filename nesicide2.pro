@@ -6,6 +6,9 @@ QT += network \
     webkit \
     xml \
     multimedia
+win32 {
+    QMAKE_LFLAGS += -static-libgcc
+}
 win32:LIBS += compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
 win32:LIBS += -L./libraries/SDL/ \
