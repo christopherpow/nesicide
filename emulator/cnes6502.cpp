@@ -478,11 +478,6 @@ unsigned char C6502::STEP ( void )
       )
    {
       // Get second opcode byte
-      // Check for dummy-read needed for single-byte instructions...
-      if ( opcodeSize == 1 )
-      {
-         (*(pOpcode+1)) = FETCH ( m_pc );
-      }
       if ( opcodeSize > 1 )
       {
          (*(pOpcode+1)) = FETCH ( m_pc );
@@ -498,6 +493,12 @@ unsigned char C6502::STEP ( void )
       // Update Tracer
       TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( pOpcode );
       CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
+
+      // Check for dummy-read needed for single-byte instructions...
+      if ( opcodeSize == 1 )
+      {
+         (*(pOpcode+1)) = FETCH ( m_pc );
+      }
 
       // Execute
       pOpcodeStruct->pFn ();
