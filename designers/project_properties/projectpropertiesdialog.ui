@@ -23,13 +23,16 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>Project</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
@@ -50,38 +53,32 @@
        <item row="1" column="1">
         <widget class="QComboBox" name="mainSourceComboBox"/>
        </item>
-       <item row="2" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Cartridge</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
           <string>Mapper:</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="comboBox"/>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="mapperComboBox"/>
        </item>
-       <item row="4" column="0">
+       <item row="1" column="0">
         <widget class="QLabel" name="label_8">
          <property name="text">
           <string>Type:</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QComboBox" name="comboBox_2">
+       <item row="1" column="1">
+        <widget class="QComboBox" name="romTypeComboBox">
          <item>
           <property name="text">
            <string>NES</string>
@@ -99,15 +96,15 @@
          </item>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>Mirroring:</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
-        <widget class="QComboBox" name="comboBox_3">
+       <item row="2" column="1">
+        <widget class="QComboBox" name="mirroringComboBox">
          <item>
           <property name="text">
            <string>Horizontal</string>
@@ -118,6 +115,27 @@
            <string>Vertical</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QCheckBox" name="trainerPresent">
+         <property name="text">
+          <string>512-byte Trainer Present</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QCheckBox" name="saveRAMPresent">
+         <property name="text">
+          <string>Save RAM Present</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QCheckBox" name="extraVRAMPresent">
+         <property name="text">
+          <string>Extra VRAM Present</string>
+         </property>
         </widget>
        </item>
       </layout>
