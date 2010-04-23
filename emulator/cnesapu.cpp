@@ -454,13 +454,6 @@ extern QSemaphore emulatorSemaphore;
 
 extern "C" void SDL_GetMoreData(void *userdata, Uint8 *stream, int len)
 {   
-   if ( len != 1470 )
-   {
-      while ( 1 )
-      {
-         len--;
-      }
-   }
    CAPU::PLAY ( stream, len );
 
    emulatorSemaphore.release();

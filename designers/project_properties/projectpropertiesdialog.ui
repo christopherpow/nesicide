@@ -23,13 +23,13 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>Project</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
+      <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
@@ -40,7 +40,17 @@
        <item row="0" column="1">
         <widget class="QLineEdit" name="projectNameLineEdit"/>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Main Source:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="mainSourceComboBox"/>
+       </item>
+       <item row="2" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -53,15 +63,62 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_6">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>Main Source:</string>
+          <string>Mapper:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="mainSourceComboBox"/>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="comboBox"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Type:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QComboBox" name="comboBox_2">
+         <item>
+          <property name="text">
+           <string>NES</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>VS Unisystem</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Playchoice</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Mirroring:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QComboBox" name="comboBox_3">
+         <item>
+          <property name="text">
+           <string>Horizontal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Vertical</string>
+          </property>
+         </item>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -102,6 +159,12 @@
          <property name="cornerButtonEnabled">
           <bool>false</bool>
          </property>
+         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderMinimumSectionSize">
+          <number>15</number>
+         </attribute>
          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
           <bool>false</bool>
          </attribute>

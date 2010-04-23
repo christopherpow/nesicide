@@ -23,6 +23,7 @@ private:
     Ui::CodeEditorForm *ui;
 
 private slots:
+    void on_textEdit_selectionChanged();
     void on_textEdit_textChanged();
 };
 
