@@ -73,7 +73,9 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex &index, int role) c
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   sprintf ( data, "%02X", (int)index.internalPointer() );
+   // FIXME: 64-bit support
+   sprintf ( data, "%02X", (long)index.internalPointer() );
+   //sprintf ( data, "%02X", (int)index.internalPointer() );
    return data;
 }
 

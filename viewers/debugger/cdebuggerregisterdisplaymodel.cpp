@@ -43,7 +43,9 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
    if (!index.isValid())
       return QVariant();
 
-   int regData = (int)index.internalPointer();
+   // FIXME: 64-bit support
+   int regData = (long)index.internalPointer();
+   //int regData = (int)index.internalPointer();
 
    if ( m_tblRegisters )
    {

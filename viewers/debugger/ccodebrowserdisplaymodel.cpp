@@ -13,7 +13,9 @@ CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
 
 QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) const
 {
-   UINT addr = (UINT)index.internalPointer();
+   // FIXME: 64-bit support
+    UINT addr = (long)index.internalPointer();
+   //UINT addr = (UINT)index.internalPointer();
    char buffer [ 3 ];
    unsigned char opSize;
 
