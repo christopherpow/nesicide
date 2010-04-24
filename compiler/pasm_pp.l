@@ -33,6 +33,9 @@ comment        ";"[^\r\n]*
 // expected.
 
 #include "string.h"
+#if !defined ( WINDOWS )
+#define strnicmp strncasecmp
+#endif
 #include "pasm_types.h"
 
 // Track how many directives were processed in each go-around

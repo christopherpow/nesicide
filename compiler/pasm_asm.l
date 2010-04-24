@@ -49,6 +49,9 @@ filename       ^"!file"
 #include "pasm_asm.tab.h"
 #include "pasm_types.h"
 #include "string.h"
+#if !defined ( WINDOWS )
+#define strnicmp strncasecmp
+#endif
 
 // For line counting...
 int recovered_linenum;

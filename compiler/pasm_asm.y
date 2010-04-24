@@ -6,7 +6,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
+#if !defined ( WINDOWS )
+#define strnicmp strncasecmp
+#endif
+
 #include "pasm_types.h"
 
 // Make yacc errors more meaningful

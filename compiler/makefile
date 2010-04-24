@@ -6,7 +6,7 @@ ifeq ("$(WINDOWS)", "YES")
 	EXEC_POSTFIX := .exe
 	LIB_CREATE   := ar crv
 else
-	CFLAGS_LIB       := -mno-cygwin
+	CFLAGS_LIB  :=
 	LIB_PREFIX  := lib
 	LIB_POSTFIX := .a
 	LIB_CREATE  := ar crvs
