@@ -266,7 +266,7 @@ void MainWindow::on_actionSave_Project_triggered()
     if (projectFileName.isEmpty())
     {
         QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
-                                                        QString("NESECIDE2 Project (*.nesproject)"));
+                                                        QString("NESICIDE2 Project (*.nesproject)"));
         if (!fileName.isEmpty())
             saveProject(fileName);
     }
@@ -313,21 +313,14 @@ void MainWindow::on_actionSave_Project_As_triggered()
     // Allow the user to select a file name. Note that using the static function produces a native
     // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
     QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
-                                                    QString("NESECIDE2 Project (*.nesproject)"));
+                                                    QString("NESICIDE2 Project (*.nesproject)"));
     if (!fileName.isEmpty())
         saveProject(fileName);
 }
 
 void MainWindow::on_actionProject_Properties_triggered()
 {
-    ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(
-            this, nesicideProject->get_pointerToListOfProjectPaletteEntries());
-    dlg->setProjectName(nesicideProject->get_projectTitle());
-    dlg->initSourcesList();
-    if (nesicideProject->getProject()->getMainSource())
-        dlg->setMainSource(nesicideProject->getProject()->getMainSource()->get_sourceName());
-    else
-        dlg->setMainSource("");
+    ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(this);
     if (dlg->exec() == QDialog::Accepted)
     {
         nesicideProject->set_projectTitle(dlg->getProjectName());
@@ -458,7 +451,7 @@ void MainWindow::closeEvent ( QCloseEvent * event )
 
 void MainWindow::on_actionOpen_Project_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESECIDE2 Project (*.nesproject)");
+    QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESICIDE2 Project (*.nesproject)");
     if (QFile::exists(fileName))
     {
         QDomDocument doc;

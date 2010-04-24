@@ -20,9 +20,12 @@ bool CCHRROMBank::serialize(QDomDocument &doc, QDomNode &node)
     return true;
 }
 
-bool CCHRROMBank::deserialize(QDomDocument &, QDomNode &)
+bool CCHRROMBank::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+   // Read in the DOM element
+   QDomElement chrromElement = doc.documentElement();
+
+    return true;
 }
 
 QString CCHRROMBank::caption() const

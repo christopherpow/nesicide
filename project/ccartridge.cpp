@@ -67,28 +67,44 @@ void CCartridge::setBatteryBackedRam(bool hasBatteryBackedRam)
 
 bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
 {
-    // Create the root element for the cartridge
-    QDomElement cartridgeElement = addElement( doc, node, "cartridge" );
+   // Create the root element for the cartridge
+   QDomElement cartridgeElement = addElement( doc, node, "cartridge" );
 
-    // Export the iNES header
-    cartridgeElement.setAttribute("mapperNumber", m_mapperNumber);
-    cartridgeElement.setAttribute("mirrorMode", m_enumMirrorMode);
-    cartridgeElement.setAttribute("hasBatteryBackedRam", m_hasBatteryBackedRam);
+   // Export the iNES header
+   cartridgeElement.setAttribute("mapperNumber", m_mapperNumber);
+   cartridgeElement.setAttribute("mirrorMode", m_enumMirrorMode);
+   cartridgeElement.setAttribute("hasBatteryBackedRam", m_hasBatteryBackedRam);
 
-    // Export the PRG-ROM banks
-    if (!m_pointerToPrgRomBanks->serialize(doc, cartridgeElement))
-        return false;
+   // Export the PRG-ROM banks
+   if (!m_pointerToPrgRomBanks->serialize(doc, cartridgeElement))
+      return false;
 
-    // Export the CHR-ROM banks
-    if (!m_pointerToChrRomBanks->serialize(doc, cartridgeElement))
-        return false;
+   // Export the CHR-ROM banks
+   if (!m_pointerToChrRomBanks->serialize(doc, cartridgeElement))
+      return false;
 
-    return true;
+   return true;
 }
 
-bool CCartridge::deserialize(QDomDocument &, QDomNode &)
+bool CCartridge::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+   // Read in the DOM element
+   QDomElement cartridgeElement = doc.documentElement();
+
+   setMapperNumber(cartridgeElement.attribute("mapperNumber").toInt());
+   setMirrorMode((GameMirrorMode::eGameMirrorMode)
+   cartridgeElement.attribute("mirrorMode").toInt());
+   setBatteryBackedRam(cartridgeElement.attribute("hasBatteryBackedRam").toInt() == 1);
+
+   // Export the PRG-ROM banks
+   if (!m_pointerToPrgRomBanks->deserialize(doc, cartridgeElement))
+      return false;
+
+   // Export the CHR-ROM banks
+   if (!m_pointerToChrRomBanks->deserialize(doc, cartridgeElement))
+      return false;
+
+   return true;
 }
 
 

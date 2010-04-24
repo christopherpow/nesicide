@@ -67,9 +67,12 @@ bool CPRGROMBank::serialize(QDomDocument &doc, QDomNode &node)
     return true;
 }
 
-bool CPRGROMBank::deserialize(QDomDocument &, QDomNode &)
+bool CPRGROMBank::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    return false;
+   // Read in the DOM element
+   QDomElement prgromElement = doc.documentElement();
+
+   return true;
 }
 
 QString CPRGROMBank::caption() const

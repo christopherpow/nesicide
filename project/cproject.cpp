@@ -2,10 +2,14 @@
 
 CProject::CProject()
 {
+    m_pProjectPrimitives = new CProjectPrimitives();
+    m_pProjectPrimitives->InitTreeItem(this);
+    this->appendChild(m_pProjectPrimitives);
+
     m_mainSource = (CSourceItem *)NULL;
-    m_pointerToSources = new CSources();
-    m_pointerToSources->InitTreeItem(this);
-    this->appendChild(m_pointerToSources);
+    m_pSources = new CSources();
+    m_pSources->InitTreeItem(this);
+    this->appendChild(m_pSources);
 
     m_pBinaryFiles = new CBinaryFiles();
     m_pBinaryFiles->InitTreeItem(this);
@@ -18,14 +22,27 @@ CProject::CProject()
 
 CProject::~CProject()
 {
-    if (m_pointerToSources)
-        delete m_pointerToSources;
+    if (m_pProjectPrimitives)
+        delete m_pProjectPrimitives;
+
+    if (m_pSources)
+        delete m_pSources;
 
     if (m_pBinaryFiles)
         delete m_pBinaryFiles;
 
     if (m_pGraphics)
         delete m_pGraphics;
+}
+
+CProjectPrimitives *CProject::getProjectPrimitives()
+{
+    return m_pProjectPrimitives;
+}
+
+void CProject::setProjectPrimitives(CProjectPrimitives *newProjectPrimitives)
+{
+    m_pProjectPrimitives = newProjectPrimitives;
 }
 
 CGraphics *CProject::getGraphics()
@@ -50,12 +67,12 @@ void CProject::setMainSource(CSourceItem *newSource)
 
 CSources *CProject::getSources()
 {
-    return m_pointerToSources;
+    return m_pSources;
 }
 
 void CProject::setSources(CSources *newSources)
 {
-    m_pointerToSources = newSources;
+    m_pSources = newSources;
 }
 
 CBinaryFiles *CProject::getBinaryFiles()
@@ -73,9 +90,16 @@ bool CProject::serialize(QDomDocument &doc, QDomNode &node)
     // Create the root element for the CHR-ROM banks
     QDomElement projectElement = addElement( doc, node, "project" );
 
-    if (m_pointerToSources)
+    if (m_pProjectPrimitives)
     {
-        if (!m_pointerToSources->serialize(doc, projectElement))
+        if (!m_pProjectPrimitives->serialize(doc, projectElement))
+            return false;
+    } else
+        return false;
+
+    if (m_pSources)
+    {
+        if (!m_pSources->serialize(doc, projectElement))
             return false;
     } else
         return false;
@@ -95,17 +119,20 @@ bool CProject::serialize(QDomDocument &doc, QDomNode &node)
 
 bool CProject::deserialize(QDomDocument &doc, QDomNode &node)
 {
-    if (m_pointerToSources)
-        delete m_pointerToSources;
+    if (m_pSources)
+        delete m_pSources;
 
-    m_pointerToSources = new CSources();
-    m_pointerToSources->InitTreeItem(this);
+    m_pSources = new CSources();
+    m_pSources->InitTreeItem(this);
 
     QDomNode childNode = node.firstChild();
     do
     {
-        if (childNode.nodeName() == "sources") {
-            if (!m_pointerToSources->deserialize(doc, childNode))
+        if (childNode.nodeName() == "primitives") {
+            if (!m_pProjectPrimitives->deserialize(doc, childNode))
+                return false;
+        } else if (childNode.nodeName() == "sources") {
+            if (!m_pSources->deserialize(doc, childNode))
                 return false;
         } else if (childNode.nodeName() == "binaryfiles") {
             if (!m_pBinaryFiles->deserialize(doc, childNode))
@@ -116,11 +143,11 @@ bool CProject::deserialize(QDomDocument &doc, QDomNode &node)
 
     QString mainSource = node.toElement().attribute("mainSource");
     m_mainSource = (CSourceItem *)NULL;
-    for (int sourceIdx = 0; sourceIdx < m_pointerToSources->childCount(); sourceIdx++)
+    for (int sourceIdx = 0; sourceIdx < m_pSources->childCount(); sourceIdx++)
     {
-        if (mainSource == (((CSourceItem *)m_pointerToSources->child(sourceIdx))->get_sourceName()))
+        if (mainSource == (((CSourceItem *)m_pSources->child(sourceIdx))->get_sourceName()))
         {
-            m_mainSource = ((CSourceItem *)m_pointerToSources->child(sourceIdx));
+            m_mainSource = ((CSourceItem *)m_pSources->child(sourceIdx));
             break;
         }
     }

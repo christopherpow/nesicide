@@ -1,31 +1,65 @@
 #include "projectpropertiesdialog.h"
 #include "ui_projectpropertiesdialog.h"
 
+#include "cnesmappers.h"
+
 const char hexStr[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 
-ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent, QList<QColor> *pal) :
+ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ProjectPropertiesDialog)
 {
-    // Link up the project palette to this dialog
-    for (int paletteItemIndex=0; paletteItemIndex<pal->count(); paletteItemIndex++)
-        currentPalette.append(pal->at(paletteItemIndex));
+   QList<QColor> *pal = nesicideProject->get_pointerToListOfProjectPaletteEntries();
+   int i;
+   char mapperTag [ 64 ];
 
-    ui->setupUi(this);
-    ui->tableWidget->setItemDelegate(new CPaletteItemDelegate(this));
-    for (int row=0; row <= 0x3; row++) {
-        for (int col=0; col <= 0xF; col++){
-            if (row == 0)
-                ui->tableWidget->setColumnWidth(col, 25);
+   // Initialize UI elements...
+   ui->setupUi(this);
+   ui->projectNameLineEdit->setText(nesicideProject->get_projectTitle());
+   ui->mainSourceComboBox->clear();
+   for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
+   {
+     CSourceItem *sourceItem = (CSourceItem *)nesicideProject->getProject()->getSources()->child(sourceIndex);
+     ui->mainSourceComboBox->addItem(sourceItem->get_sourceName());
+   }
+   if (nesicideProject->getProject()->getMainSource())
+   {
+      setMainSource(nesicideProject->getProject()->getMainSource()->get_sourceName());
+   }
+   else
+   {
+      setMainSource("");
+   }
 
-            ui->tableWidget->setItem(row, col, new QTableWidgetItem(QString(hexStr[row] + QString(hexStr[col]))));
-            ui->tableWidget->item(row, col)->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->item(row, col)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        }
-    }
-    updateUI();
+   // Link up the project palette to this dialog
+   for (int paletteItemIndex=0; paletteItemIndex<pal->count(); paletteItemIndex++)
+      currentPalette.append(pal->at(paletteItemIndex));
 
+   ui->tableWidget->setItemDelegate(new CPaletteItemDelegate(this));
+   for (int row=0; row <= 0x3; row++)
+   {
+      for (int col=0; col <= 0xF; col++)
+      {
+         if (row == 0)
+            ui->tableWidget->setColumnWidth(col, 25);
+
+         ui->tableWidget->setItem(row, col, new QTableWidgetItem(QString(hexStr[row] + QString(hexStr[col]))));
+         ui->tableWidget->item(row, col)->setTextAlignment(Qt::AlignCenter);
+         ui->tableWidget->item(row, col)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+      }
+   }
+
+   // Create mapper entries in mapper combo box
+   i = 0;
+   while ( mapper[i].name )
+   {
+      sprintf ( mapperTag, "%3d:%s", mapper[i].id, mapper[i].name );
+      ui->mapperComboBox->insertItem ( i , mapperTag );
+      i++;
+   }
+
+   updateUI();
 }
 
 ProjectPropertiesDialog::~ProjectPropertiesDialog()
@@ -113,7 +147,7 @@ void ProjectPropertiesDialog::on_exportPalettePushButton_clicked()
     // Allow the user to select a file name. Note that using the static function produces a native
     // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
     QString fileName = QFileDialog::getSaveFileName(this, QString("Export Palette"), QString(""),
-                                                    QString("NESECIDE2 Palette (*.npf)"));
+                                                    QString("NESICIDE2 Palette (*.npf)"));
     if (!fileName.isEmpty())
     {
         // Create the XML document to save our palette into
@@ -160,7 +194,7 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
     // Allow the user to select a file name. Note that using the static function produces a native
     // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
     QString fileName = QFileDialog::getOpenFileName(this, QString("Import Palette"), QString(""),
-                                                    QString("NESECIDE2 Palette (*.npf)"));
+                                                    QString("NESICIDE2 Palette (*.npf)"));
     if (!fileName.isEmpty())
     {
         QDomDocument doc( "nesicidepalette" );
@@ -221,11 +255,6 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
 QString ProjectPropertiesDialog::getProjectName()
 {
     return ui->projectNameLineEdit->text();
-}
-
-void ProjectPropertiesDialog::setProjectName(QString newName)
-{
-    ui->projectNameLineEdit->setText(newName);
 }
 
 void ProjectPropertiesDialog::setMainSource(QString mainSource)
@@ -312,14 +341,4 @@ void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action
 
     // Refresh the user interface
     updateUI(3);
-}
-
-void ProjectPropertiesDialog::initSourcesList()
-{
-    ui->mainSourceComboBox->clear();
-    for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
-    {
-        CSourceItem *sourceItem = (CSourceItem *)nesicideProject->getProject()->getSources()->child(sourceIndex);
-        ui->mainSourceComboBox->addItem(sourceItem->get_sourceName());
-    }
 }

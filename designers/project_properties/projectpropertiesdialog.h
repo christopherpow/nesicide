@@ -18,14 +18,12 @@ namespace Ui {
 class ProjectPropertiesDialog : public QDialog {
     Q_OBJECT
 public:
-    ProjectPropertiesDialog(QWidget *parent, QList<QColor> *pal);
+    ProjectPropertiesDialog(QWidget *parent);
     ~ProjectPropertiesDialog();
-    void setProjectName(QString newName);
     QString getProjectName();
     void setMainSource(QString mainSource);
     QString getMainSource();
     QList<QColor> currentPalette;
-    void initSourcesList();
 
 protected:
     void changeEvent(QEvent *e);

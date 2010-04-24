@@ -111,10 +111,8 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     QDomElement projectElement = addElement( doc, node, "nesicideproject" );
 
     // Set some variables as tags to this node.
-    projectElement.setAttribute("version", 0.2);
+    projectElement.setAttribute("version", 0.3);
     projectElement.setAttribute("title", m_projectTitle);
-    projectElement.setAttribute("mirrorMode", m_pointerToCartridge->getMirrorMode());
-    projectElement.setAttribute("hasBatteryBackedRam", m_pointerToCartridge->isBatteryBackedRam());
 
     // Create the root palette element, and give it a version attribute
     QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
@@ -164,15 +162,12 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
 
     // For now, error out if the file version is not what we expect it to be. Eventually
     // we need to split up the loader into versions for backwards compatibility.
-    if (projectElement.attribute("version", "") != "0.2")
+    if (projectElement.attribute("version", "") != "0.3")
         return false;
 
     // Load our properties. Note that the default value is returned if an attribute is missing.
     // This is the expected behavior.
     m_projectTitle = projectElement.attribute("title", "Untitled Project");
-    m_pointerToCartridge->setMirrorMode((GameMirrorMode::eGameMirrorMode)
-                                             projectElement.attribute("mirrorMode").toInt());
-    m_pointerToCartridge->setBatteryBackedRam(projectElement.attribute("hasBatteryBackedRam").toInt() == 1);
 
     // Initialize the palette.
     for (int row=0; row <= 0x3; row++) {

@@ -3,6 +3,7 @@
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
+#include "cprojectprimitives.h"
 #include "csources.h"
 #include "csourceitem.h"
 #include "cbinaryfiles.h"
@@ -14,6 +15,8 @@ public:
     CProject();
     virtual ~CProject();
 
+    CProjectPrimitives* getProjectPrimitives();
+    void setProjectPrimitives(CProjectPrimitives *newProjectPrimitives);
     CSourceItem *getMainSource();
     void setMainSource(CSourceItem *newSource);
     CSources *getSources();
@@ -40,7 +43,8 @@ public:
     virtual bool onNameChanged(QString) { return true; }
 
 private:
-    CSources *m_pointerToSources;
+    CSources *m_pSources;
+    CProjectPrimitives *m_pProjectPrimitives;
     CSourceItem *m_mainSource;
     CBinaryFiles *m_pBinaryFiles;
     CGraphics *m_pGraphics;
