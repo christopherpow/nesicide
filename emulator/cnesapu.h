@@ -8,8 +8,9 @@
 #include "cnesicidecommon.h"
 #include "cregisterdata.h"
 
+#define _SDL_main_h
 #include "SDL.h"
-#undef main
+//#undef main
 
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40
