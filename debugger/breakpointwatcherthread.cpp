@@ -29,19 +29,21 @@ void BreakpointWatcherThread::run ()
 {
    for ( ; ; )
    {
-      printf("X");
-      if ( m_isTerminating ) {
+      if ( m_isTerminating )
+      {
          if (breakpointWatcherSemaphore.available())
             breakpointWatcherSemaphore.release();
          return;
       }
+
       // Acquire the semaphore...which will block us until a breakpoint is hit...
       bool acquired = false;
-      while (!acquired) {
+      while (!acquired)
+      {
          acquired = breakpointWatcherSemaphore.tryAcquire(1, 1);
          if (!acquired)
             msleep(250);
-            printf("x");
+
          // Terminate if necessary...
          if ( m_isTerminating )
          {
@@ -50,9 +52,9 @@ void BreakpointWatcherThread::run ()
             return;
          }
       }
+
       // A breakpoint has occurred...
       emit breakpointHit();
-
    }
 
    return;

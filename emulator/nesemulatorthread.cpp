@@ -237,15 +237,15 @@ void NESEmulatorThread::run ()
          CNES::RUN ( m_joy );
 
          emit emulatedFrame();
-      } else {
-
+      }
+      else
+      {
          // Trigger inspectors to update on a pause also...
          if ( m_isPaused )
          {
             emit emulatorPaused();
             m_isPaused = false;
          }
-
 
          msleep(1000);
       }
@@ -262,10 +262,6 @@ void NESEmulatorThread::run ()
             return;
          }
       }
-
-
-
-
    }
 
    return;
