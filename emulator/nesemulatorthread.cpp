@@ -26,8 +26,19 @@ NESEmulatorThread::NESEmulatorThread(QObject *parent)
     m_joy [ JOY2 ] = 0x00;
     m_isRunning = false;
     m_isPaused = false;
+    m_isTerminating = false;
 
     m_pCartridge = NULL;
+}
+
+NESEmulatorThread::~NESEmulatorThread()
+{
+   m_isRunning = false;
+   m_isPaused = false;
+   m_isTerminating = true;
+   breakpointSemaphore.release();
+   emulatorSemaphore.release();
+   this->wait(ULONG_MAX);
 }
 
 void NESEmulatorThread::setDialog(QDialog* dialog)
@@ -223,6 +234,11 @@ void NESEmulatorThread::run ()
       }
 
       emulatorSemaphore.acquire ();
+
+      if ( m_isTerminating )
+      {
+         break;
+      }
    }
 
    return;

@@ -9,7 +9,7 @@ class BreakpointWatcherThread : public QThread
    Q_OBJECT
 public:
    BreakpointWatcherThread ( QObject* parent = 0 );
-   virtual ~BreakpointWatcherThread () {}
+   virtual ~BreakpointWatcherThread ();
 
    void setDialog(QDialog* dialog);
 
@@ -18,6 +18,7 @@ signals:
 
 protected:
    virtual void run ();
+   bool m_isTerminating;
 };
 
 #endif // BREAKPOINTWATCHERTHREAD_H

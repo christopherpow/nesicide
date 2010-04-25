@@ -20,8 +20,5 @@ QString CProjectPrimitives::caption() const
 
 void CProjectPrimitives::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
 {
-    QMenu menu(parent);
-    menu.addAction("Primitives");
-    menu.exec(event->globalPos());
 }
 

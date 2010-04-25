@@ -13,7 +13,7 @@ class NESEmulatorThread : public QThread
    Q_OBJECT
 public:
    NESEmulatorThread ( QObject* parent = 0 );
-   virtual ~NESEmulatorThread () {}
+   virtual ~NESEmulatorThread ();
 
    void setDialog(QDialog* dialog);
 
@@ -48,6 +48,7 @@ protected:
    CCartridge*   m_pCartridge;
    bool          m_isRunning;
    bool          m_isPaused;
+   bool          m_isTerminating;
    qint32         m_lastVblankTime;
    qint32         m_currVblankTime;
    float         m_periodVblank;
