@@ -256,6 +256,8 @@ void NESEmulatorThread::run ()
             return;
          }
       }
+
+      emulatorSemaphore.release();
    }
 
    return;

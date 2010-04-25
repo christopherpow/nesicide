@@ -1,6 +1,4 @@
-#undef main
-#include <SDL.h>
-#undef main
+
 #include <QtGui/QApplication>
 #include "main.h"
 #include "mainwindow.h"
