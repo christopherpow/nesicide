@@ -12,7 +12,6 @@ QT += network \
 win32:QMAKE_LFLAGS += -static-libgcc
 win32:LIBS += compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
-QMAKE_CXXFLAGS += -pg
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:LIBS += `sdl-config \
