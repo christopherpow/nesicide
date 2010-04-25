@@ -516,7 +516,7 @@ ppkeyword ppkeywords [];
 }
 
 <MACRO_ARGS>[^;, \t\r\n]+ {
-   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].stab, yytext );
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel] ].stab, yytext );
 }
 
 <MACRO_NAME,MACRO_ARGS>[\r\n] {
@@ -578,7 +578,7 @@ ppkeyword ppkeywords [];
 }
 
 <INVOKE_ARGVALS>[^;, \t\r\n]+ {
-   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].vtab, yytext );
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel] ].vtab, yytext );
 }
 
 <INVOKE_ARGVALS>[\r\n] {
