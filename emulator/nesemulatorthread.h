@@ -23,7 +23,7 @@ public:
    float getFrequency ( void ) { return m_fFreq; }
    void setFactorIndex ( int factorIdx ) { m_factorIdx = factorIdx; setFrequency(m_fFreq); }
    int getFactorIndex ( void ) { return m_factorIdx; }
-
+   void kill();
    void setCartridge ( CCartridge* cartridge );
 
 public slots:

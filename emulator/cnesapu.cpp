@@ -453,7 +453,7 @@ static unsigned short m_tndTable [ 203 ] =
 extern QSemaphore emulatorSemaphore;
 
 extern "C" void SDL_GetMoreData(void *userdata, Uint8 *stream, int len)
-{   
+{
    CAPU::PLAY ( stream, len );
 
    emulatorSemaphore.release();
@@ -484,7 +484,8 @@ CAPU::CAPU()
 
 CAPU::~CAPU()
 {
-   SDL_Quit ();
+   // FIXME: Hangs for some reason, related to the main thread and such.
+   //SDL_Quit ();
 }
 
 void CAPU::OPEN ( void )

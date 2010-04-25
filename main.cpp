@@ -19,5 +19,15 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     w.show();
-    return a.exec();
+    int result = a.exec();
+
+    breakpointWatcher->kill();
+    breakpointWatcher->wait();
+    emulator->kill();
+    emulator->wait();
+
+    delete breakpointWatcher;
+    delete emulator;
+
+    return result;
 }
