@@ -34,6 +34,9 @@ comment        ";"[^\r\n]*
 
 #include "string.h"
 #include "pasm_types.h"
+#if !defined ( WINDOWS )
+#define strnicmp strncasecmp
+#endif
 
 // Track how many directives were processed in each go-around
 // and when the number processed hits 0, we're done.  If we
