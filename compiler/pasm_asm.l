@@ -571,9 +571,9 @@ keyword asmkeywords [] =
    { NULL, NULL, 0, NULL }
 };
 
-int asm_get_current_buffer ( void )
+long asm_get_current_buffer ( void )
 {
-   return (int)YY_CURRENT_BUFFER;
+   return (long)YY_CURRENT_BUFFER;
 }
 
 symbol_table* find_symbol ( char* symbol )

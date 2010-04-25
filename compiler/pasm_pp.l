@@ -33,9 +33,6 @@ comment        ";"[^\r\n]*
 // expected.
 
 #include "string.h"
-#if !defined ( WINDOWS )
-#define strnicmp strncasecmp
-#endif
 #include "pasm_types.h"
 
 // Track how many directives were processed in each go-around
@@ -516,7 +513,7 @@ ppkeyword ppkeywords [];
 }
 
 <MACRO_ARGS>[^;, \t\r\n]+ {
-   add_ppsymbol ( ppmtab[current_macro[macronestlevel] ].stab, yytext );
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].stab, yytext );
 }
 
 <MACRO_NAME,MACRO_ARGS>[\r\n] {
@@ -578,7 +575,7 @@ ppkeyword ppkeywords [];
 }
 
 <INVOKE_ARGVALS>[^;, \t\r\n]+ {
-   add_ppsymbol ( ppmtab[current_macro[macronestlevel] ].vtab, yytext );
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].vtab, yytext );
 }
 
 <INVOKE_ARGVALS>[\r\n] {
@@ -1424,7 +1421,7 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
    ppsymbol_table* sptr = slist->head;
    ppsymbol_table* vptr = vlist->head;
    char* ptr;
-   int i;
+   long i;
    int valid;
    int replacements = 0;
    int offset;
@@ -1483,7 +1480,7 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
                // move the remainder of the text ahead and fill
                // in the symbol's invoke value...
                // use memcpy so no NULL is added...
-               offset = (int)ptr-(int)(*text);
+               offset = (long)ptr-(long)(*text);
                (*text) = (char*) realloc ( (*text), strlen((*text))+(strlen(vptr->symbol)-strlen(sptr->symbol)) );
                ptr = (*text)+offset;
                for ( i = 0; i < strlen(ptr); i++ )
