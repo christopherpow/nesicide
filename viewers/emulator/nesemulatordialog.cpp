@@ -233,7 +233,7 @@ void NESEmulatorDialog::on_pauseButton_clicked()
 }
 
 void NESEmulatorDialog::on_resetButton_clicked()
-{   
+{
    emit resetEmulator();
 }
 

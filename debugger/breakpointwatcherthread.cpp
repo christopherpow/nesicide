@@ -1,7 +1,7 @@
 #include "breakpointwatcherthread.h"
 
 #include <QSemaphore>
-
+#include <stdio.h>
 QSemaphore breakpointWatcherSemaphore(0);
 
 BreakpointWatcherThread::BreakpointWatcherThread(QObject *parent)
@@ -29,6 +29,7 @@ void BreakpointWatcherThread::run ()
 {
    for ( ; ; )
    {
+      printf("X");
       if ( m_isTerminating ) {
          if (breakpointWatcherSemaphore.available())
             breakpointWatcherSemaphore.release();
@@ -37,7 +38,10 @@ void BreakpointWatcherThread::run ()
       // Acquire the semaphore...which will block us until a breakpoint is hit...
       bool acquired = false;
       while (!acquired) {
-         acquired = breakpointWatcherSemaphore.tryAcquire(1, 250);
+         acquired = breakpointWatcherSemaphore.tryAcquire(1, 1);
+         if (!acquired)
+            msleep(250);
+            printf("x");
          // Terminate if necessary...
          if ( m_isTerminating )
          {

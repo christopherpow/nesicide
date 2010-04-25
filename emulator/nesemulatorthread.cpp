@@ -237,18 +237,24 @@ void NESEmulatorThread::run ()
          CNES::RUN ( m_joy );
 
          emit emulatedFrame();
-      }
+      } else {
 
-      // Trigger inspectors to update on a pause also...
-      if ( m_isPaused )
-      {
-         emit emulatorPaused();
-         m_isPaused = false;
-      }
+         // Trigger inspectors to update on a pause also...
+         if ( m_isPaused )
+         {
+            emit emulatorPaused();
+            m_isPaused = false;
+         }
 
+
+         msleep(1000);
+      }
       bool acquired = false;
-      while (!acquired) {
-         acquired = emulatorSemaphore.tryAcquire(1, 250);
+      while (!acquired)
+      {
+         acquired = emulatorSemaphore.tryAcquire(1, 1);
+         if (!acquired)
+            msleep(250);
          if (m_isTerminating)
          {
             if (emulatorSemaphore.available())
@@ -257,7 +263,9 @@ void NESEmulatorThread::run ()
          }
       }
 
-      emulatorSemaphore.release();
+
+
+
    }
 
    return;
