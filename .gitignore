@@ -14,3 +14,10 @@ nesicide2
 nesicide2.exe
 */.directory
 libraries/
+compiler/lex.asm.c
+compiler/lex.pp.c
+compiler/libpasm.a
+compiler/pasm
+compiler/pasm_asm.output
+compiler/pasm_asm.tab.c
+compiler/pasm_asm.tab.h
