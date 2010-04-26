@@ -154,8 +154,15 @@
     <addaction name="menu_Windows"/>
     <addaction name="menuType_Here"/>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About_Nesicide"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="projectToolBar">
@@ -730,6 +737,11 @@
    </property>
    <property name="toolTip">
     <string>Code Browser</string>
+   </property>
+  </action>
+  <action name="action_About_Nesicide">
+   <property name="text">
+    <string>&amp;About Nesicide</string>
    </property>
   </action>
  </widget>
