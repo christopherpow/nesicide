@@ -6,7 +6,7 @@ CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget *)
     this->setFont(QFont("Monaco", 11));
 #endif
 #ifdef Q_WS_X11
-    this->setFont(QFont("Monospace", 11));
+    this->setFont(QFont("Monospace", 10));
 #endif
 #ifdef Q_WS_WIN
     this->setFont(QFont("Consolas", 11));
@@ -37,7 +37,7 @@ int CSyntaxHighlightedTextEdit::lineNumberAreaWidth()
 
     int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
 
-    return space;
+    return space + 16;
 }
 
 void CSyntaxHighlightedTextEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -77,7 +77,7 @@ void CSyntaxHighlightedTextEdit::highlightCurrentLine()
     {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::green).lighter(190);
+        QColor lineColor = QColor(Qt::gray).lighter(150);
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -104,7 +104,7 @@ void CSyntaxHighlightedTextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
         {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::black);
-            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
+            painter.drawText(0, top, lineNumberArea->width() - 16, fontMetrics().height(),
                              Qt::AlignRight, number);
         }
 
