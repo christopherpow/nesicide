@@ -32,5 +32,14 @@
         <file>resources/22_run-build.png</file>
         <file>resources/22_preferences-desktop-display-color.png</file>
         <file>resources/22_utilities-terminal.png</file>
+        <file>resources/22_code_inspector.png</file>
+        <file>resources/22_breakpoint.png</file>
+        <file>resources/22_chr_mem.png</file>
+        <file>resources/22_nametable.png</file>
+        <file>resources/22_execution.png</file>
+        <file>resources/22_cpu_ram.png</file>
+        <file>resources/22_cpu_registers.png</file>
+        <file>resources/22_mapper_memory.png</file>
+        <file>resources/22_bin_rom.png</file>
     </qresource>
 </RCC>

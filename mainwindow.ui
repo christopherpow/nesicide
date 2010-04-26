@@ -79,7 +79,7 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>18</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -180,6 +180,7 @@
    <addaction name="actionSave_Project"/>
    <addaction name="separator"/>
    <addaction name="actionProject_Properties"/>
+   <addaction name="actionEmulation_Window"/>
   </widget>
   <widget class="QDockWidget" name="projectBrowserDockWidget">
    <property name="floating">
@@ -232,39 +233,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QToolBar" name="emulatorToolbar">
-   <property name="windowTitle">
-    <string>Emulator/Debugger Tools</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionEmulation_Window"/>
-   <addaction name="actionBreakpoint_Inspector"/>
-   <addaction name="actionCode_Inspector"/>
-   <addaction name="actionExecution_Inspector"/>
-   <addaction name="actionBinCPURegister_Inspector"/>
-   <addaction name="actionBinROM_Inspector"/>
-   <addaction name="separator"/>
-   <addaction name="actionGfxCHRMemory_Inspector"/>
-   <addaction name="actionGfxOAMMemory_Inspector"/>
-   <addaction name="actionGfxNameTableMemory_Inspector"/>
-   <addaction name="separator"/>
-   <addaction name="actionBinCPURAM_Inspector"/>
-   <addaction name="actionBinNameTableMemory_Inspector"/>
-   <addaction name="actionBinCHRMemory_Inspector"/>
-   <addaction name="actionBinOAMMemory_Inspector"/>
-   <addaction name="actionBinPaletteMemory_Inspector"/>
-   <addaction name="actionBinSRAMMemory_Inspector"/>
-   <addaction name="actionBinEXRAMMemory_Inspector"/>
-   <addaction name="actionBinMapperMemory_Inspector"/>
-   <addaction name="separator"/>
-   <addaction name="actionBinPPURegister_Inspector"/>
-   <addaction name="actionBinAPURegister_Inspector"/>
   </widget>
   <widget class="QDockWidget" name="compilerOutputDockWidget">
    <property name="sizePolicy">
@@ -500,7 +468,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_chr_mem.png</normaloff>:/resources/22_chr_mem.png</iconset>
    </property>
    <property name="text">
     <string>CHR Memory Inspector</string>
@@ -530,7 +498,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_nametable.png</normaloff>:/resources/22_nametable.png</iconset>
    </property>
    <property name="text">
     <string>NameTable Inspector</string>
@@ -545,7 +513,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
    </property>
    <property name="text">
     <string>Execution Inspector</string>
@@ -560,7 +528,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_cpu_ram.png</normaloff>:/resources/22_cpu_ram.png</iconset>
    </property>
    <property name="text">
     <string>CPU RAM Inspector</string>
@@ -695,7 +663,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_cpu_registers.png</normaloff>:/resources/22_cpu_registers.png</iconset>
    </property>
    <property name="text">
     <string>CPU Register Inspector</string>
@@ -710,7 +678,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_mapper_memory.png</normaloff>:/resources/22_mapper_memory.png</iconset>
    </property>
    <property name="text">
     <string>Cartridge Mapper Inspector</string>
@@ -725,7 +693,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_bin_rom.png</normaloff>:/resources/22_bin_rom.png</iconset>
    </property>
    <property name="text">
     <string>Cartridge PRG-ROM Inspector</string>
@@ -740,7 +708,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_breakpoint.png</normaloff>:/resources/22_breakpoint.png</iconset>
    </property>
    <property name="text">
     <string>Breakpoints</string>
@@ -755,7 +723,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+     <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
    </property>
    <property name="text">
     <string>Code Browser</string>
