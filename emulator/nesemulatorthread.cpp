@@ -246,15 +246,14 @@ void NESEmulatorThread::run ()
             emit emulatorPaused();
             m_isPaused = false;
          }
-
-         msleep(1000);
       }
-      bool acquired = false;
-      while (!acquired)
+#if 0
+      bool acquired = true;
+      while (acquired)
       {
-         acquired = emulatorSemaphore.tryAcquire(1, 1);
-         if (!acquired)
-            msleep(250);
+         acquired = emulatorSemaphore.tryAcquire();
+
+         // Terminate if necessary...
          if (m_isTerminating)
          {
             if (emulatorSemaphore.available())
@@ -262,6 +261,9 @@ void NESEmulatorThread::run ()
             return;
          }
       }
+#endif
+
+      emulatorSemaphore.acquire();
    }
 
    return;

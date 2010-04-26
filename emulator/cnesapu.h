@@ -10,7 +10,6 @@
 
 #define _SDL_main_h
 #include "SDL.h"
-//#undef main
 
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40

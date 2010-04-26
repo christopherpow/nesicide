@@ -37,12 +37,11 @@ void BreakpointWatcherThread::run ()
       }
 
       // Acquire the semaphore...which will block us until a breakpoint is hit...
-      bool acquired = false;
-      while (!acquired)
+#if 0
+      bool acquired = true;
+      while (acquired)
       {
-         acquired = breakpointWatcherSemaphore.tryAcquire(1, 1);
-         if (!acquired)
-            msleep(250);
+         acquired = breakpointWatcherSemaphore.tryAcquire();
 
          // Terminate if necessary...
          if ( m_isTerminating )
@@ -52,6 +51,9 @@ void BreakpointWatcherThread::run ()
             return;
          }
       }
+#endif
+
+      breakpointWatcherSemaphore.acquire();
 
       // A breakpoint has occurred...
       emit breakpointHit();
