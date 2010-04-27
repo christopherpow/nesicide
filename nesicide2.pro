@@ -6,8 +6,6 @@ QT += network \
     webkit \
     xml
 
-
-
 # multimedia
 win32:QMAKE_LFLAGS += -static-libgcc
 win32:LIBS += compiler/libpasm.a
@@ -136,7 +134,8 @@ SOURCES += mainwindow.cpp \
     debugger/codeinspector.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
     common/inspectorregistry.cpp \
-    viewers/debugger/csourcebrowserdisplaymodel.cpp
+    viewers/debugger/csourcebrowserdisplaymodel.cpp \
+    aboutdialog.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -238,7 +237,8 @@ HEADERS += mainwindow.h \
     common/inspectorregistry.h \
     compiler/pasm_types.h \
     compiler/pasm_lib.h \
-    viewers/debugger/csourcebrowserdisplaymodel.h
+    viewers/debugger/csourcebrowserdisplaymodel.h \
+    aboutdialog.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -254,5 +254,6 @@ FORMS += mainwindow.ui \
     debugger/memorydisplaydialog.ui \
     debugger/registerdisplaydialog.ui \
     debugger/breakpointdialog.ui \
-    debugger/codebrowserdialog.ui
+    debugger/codebrowserdialog.ui \
+    aboutdialog.ui
 RESOURCES += resource.qrc

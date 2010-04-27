@@ -705,3 +705,10 @@ void MainWindow::reflectedCodeInspector_close ( bool toplevel )
 {
    ui->actionCode_Inspector->setChecked(toplevel);
 }
+
+void MainWindow::on_action_About_Nesicide_triggered()
+{
+    aboutdialog *dlg = new aboutdialog(this);
+    dlg->exec();
+    delete dlg;
+}

@@ -18,6 +18,7 @@
 #include "registerinspector.h"
 #include "breakpointinspector.h"
 #include "codeinspector.h"
+#include "aboutdialog.h"
 
 namespace Ui {
     class MainWindow;
@@ -65,6 +66,7 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_action_About_Nesicide_triggered();
     void on_actionCode_Inspector_toggled(bool );
     void on_actionExecution_Inspector_toggled(bool );
     void on_actionBreakpoint_Inspector_toggled(bool );
