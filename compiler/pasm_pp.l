@@ -11,11 +11,6 @@
 
 identifier ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)
 
-hexdigits      (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
-decdigits      ([1-9]([0-9]{0,8}))
-octdigits      "0"([0-9]{0,8})
-bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
-
 comment        ";"[^\r\n]*
 
 %x COUNT_LINES

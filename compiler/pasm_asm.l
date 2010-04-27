@@ -27,7 +27,7 @@ autolabel1     (([\-]+)|([\+]+))
 autolabel2_    (([\-]([\-]+))|([\+]([\+]+)))
 identifier1    ("$"|{autolabel1}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel1}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
 identifier2    ("$"|{autolabel2_}|([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)|{autolabel1}?([_'.@a-zA-Z][_'.@a-zA-Z0-9]*))":"?
-hexdigits      (("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
+hexdigits      ((0[xX]([0-9a-fA-F]{1,8}))|("$"([0-9a-fA-F]{1,8}))|(([0-9a-fA-F]{1,8})"h"))
 decdigits      ([1-9]([0-9]{0,8}))
 octdigits      "0"([0-9]{0,8})
 bindigits      (("%"([01]{1,16}))|(([01]{1,16})"b"))
