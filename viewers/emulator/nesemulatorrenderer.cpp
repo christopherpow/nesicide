@@ -78,15 +78,47 @@ void CNESEmulatorRenderer::setBGColor(QColor clr)
 
 void CNESEmulatorRenderer::resizeGL(int width, int height)
 {
-   // Zoom the width and height based on our view zoom. If zoom is 200% and our width is 100
-   // then the renderer's width will be 50.
-   if ( (width >= 512) && (height >= 480) ) zoom = 200; else zoom = 100;
-   int newWidth = (int)(width / (zoom / 100));
-   int newHeight = (int)(height / (zoom / 100));
+   // First determine the scale factor (ratio), and the zoom factor (reverseRatio)
+   float ratio, zoomFactor;
+   int padding;
+   QRect actualSize;
+   if (width >= height)
+   {
+      // The screen size is determined by the max height
+      ratio = ((float)height / 240.0f);
+      zoomFactor = (240.0f / (float)height);
 
+      // The top and bottom are known since it fills the screen
+      actualSize.setTop(0);
+      actualSize.setBottom(240); // We clip the last 16 pixels as they don't matter
+
+      // Determine the left offset
+      actualSize.setLeft(-(((240.0f * ((float)width / (float)height)) - 256.0f) / 2.0f));
+
+      // Scale up 256 by the ratio to get the correct aspect ratio
+      actualSize.setWidth(240.0f * ((float)width / (float)height));
+
+   } else {
+      // The screen size is determined by the max width
+      ratio = ((float)width / 256.0f);
+      zoomFactor = (256.0f / (float)height);
+
+      // The left and right are known since it fills the screen
+      actualSize.setLeft(0);
+      actualSize.setRight(256);
+
+      // Determine the top offset
+      actualSize.setTop(-(((240.0f * ((float)width / (float)height)) - 256.0f) / 2.0f));
+
+      // Scale up 240 by the ratio to get the correct aspect ratio
+      actualSize.setHeight(256.0f * ((float)width / (float)height));
+   }
+
+   
+   // Let opengl know which surface we are working with
    makeCurrent();
 
-   // Width cannot be 0
+   // Width cannot be 0 or the system will freak out
    if (width == 0)
      width = 1;
 
@@ -100,7 +132,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    glLoadIdentity();
 
    // Set orthogonal mode (since we are doing 2D rendering) with the proper aspect ratio.
-   glOrtho(0.0f, (float)newWidth, (float)newHeight, 0.0f, -1.0f, 1.0f);
+   glOrtho(actualSize.left(), actualSize.right(), actualSize.bottom(), actualSize.top(), -1.0f, 1.0f);
 
    // Select and reset the ModelView matrix.
    glMatrixMode(GL_MODELVIEW);
@@ -113,24 +145,25 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
-   if ( (width() >= 512) && (height() >= 480) ) zoom = 200; else zoom = 100;
-   int x = (width()/2)-(128*(zoom/100));
-   int y = (height()/2)-(120*(zoom/100));
-
+   // Select this renderer as the current so opengl paints to the right surface
    makeCurrent();
+
+   float x = 0;
+   float y = 0;
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
    glBegin(GL_QUADS);
       glTexCoord2f (0.0, 0.0);
-      glVertex3f((float)x, (float)y, 0.0f);
+      glVertex3f(x, y, 0.0f);
       glTexCoord2f (1.0, 0.0);
-      glVertex3f((float)(x+256.0f), (float)y, 0.0f);
+      glVertex3f(x+256.0f, y, 0.0f);
       glTexCoord2f (1.0, 1.0);
-      glVertex3f((float)(x+256.0f), (float)(y+256.0f), 0.0f);
+      glVertex3f(x+256.0f, y+256.0f, 0.0f);
       glTexCoord2f (0.0, 1.0);
-      glVertex3f((float)x, (float)(y+256.0f), 0.0f);
+      glVertex3f(x, y+256.0f, 0.0f);
    glEnd();
+
 }
 
 void CNESEmulatorRenderer::changeZoom(int newZoom)
