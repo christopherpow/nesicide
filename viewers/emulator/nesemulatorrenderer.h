@@ -21,6 +21,7 @@ public:
     int scrollY;
     char* imageData;
     int textureID;
+    QRect renderRect;
 };
 
 #endif // CNESEMULATORRENDERER_H
