@@ -13,6 +13,10 @@
 
 #include "cnes.h"
 
+// Breakpoint event identifiers
+#define CPU_UNDOCUMENTED_EVENT 0
+#define NUM_CPU_EVENTS 1
+
 #define VECTOR_NMI   0xFFFA
 #define VECTOR_RESET 0xFFFC
 #define VECTOR_IRQ   0xFFFE
@@ -280,6 +284,9 @@ public:
    static CRegisterData** REGISTERS() { return m_tblRegisters; }
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
 
+   static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
+   static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
+
 protected:
    static bool            m_killed;
    static unsigned char   m_6502memory [ MEM_2KB ];
@@ -303,6 +310,9 @@ protected:
 
    static CRegisterData** m_tblRegisters;
    static int             m_numRegisters;
+
+   static CBreakpointEventInfo** m_tblBreakpointEvents;
+   static int                    m_numBreakpointEvents;
 };
 
 typedef struct _C6502_opcode

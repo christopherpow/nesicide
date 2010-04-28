@@ -63,6 +63,7 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
          switch ( m_breakpoint [ bp ].target )
          {
             case eBreakInCPU:
+               m_breakpoint [ bp ].pEvent = C6502::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInPPU:
                m_breakpoint [ bp ].pEvent = CPPU::BREAKPOINTEVENTS()[event];
@@ -929,6 +930,9 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
          }
       break;
       case eBreakOnCPUEvent:
+         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
+                      m_breakpoint[idx].item1,
+                      m_breakpoint[idx].item2 );
       break;
       case eBreakOnPPUFetch:
          switch ( m_breakpoint[idx].condition )

@@ -374,8 +374,6 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         }
                      }
                   break;
-                  case eBreakOnCPUEvent:
-                  break;
                   case eBreakOnOAMPortalAccess:
                   case eBreakOnOAMPortalRead:
                   case eBreakOnOAMPortalWrite:
@@ -496,17 +494,6 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         }
                      }
                   break;
-                  case eBreakOnPPUEvent:
-                     // If this is the right event to check, check it...
-                     if ( pBreakpoint->event == data )
-                     {
-                        pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint);
-                        if ( pBreakpoint->hit )
-                        {
-                           force = true;
-                        }
-                     }
-                  break;
                   case eBreakOnAPUState:
                      // Is the breakpoint on this register?
                      if ( pBreakpoint->item1 == data )
@@ -547,8 +534,6 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            force = true;
                         }
                      }
-                  break;
-                  case eBreakOnAPUEvent:
                   break;
                   case eBreakOnMapperState:
                      // Is the breakpoint on this register?
@@ -598,7 +583,19 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         }
                      }
                   break;
+                  case eBreakOnCPUEvent:
+                  case eBreakOnPPUEvent:
+                  case eBreakOnAPUEvent:
                   case eBreakOnMapperEvent:
+                     // If this is the right event to check, check it...
+                     if ( pBreakpoint->event == data )
+                     {
+                        pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint);
+                        if ( pBreakpoint->hit )
+                        {
+                           force = true;
+                        }
+                     }
                   break;
                }
             }

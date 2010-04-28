@@ -108,9 +108,11 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
-
-         // No CPU events yet...
-         ui->addButton->setEnabled(false);
+         ui->event->clear();
+         for ( idx = 0; idx < C6502::NUMBREAKPOINTEVENTS(); idx++ )
+         {
+            ui->event->addItem ( C6502::BREAKPOINTEVENTS()[idx]->GetName() );
+         }
       break;
       case eBreakOnPPUFetch:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
@@ -132,6 +134,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->event->clear();
          for ( idx = 0; idx < CPPU::NUMBREAKPOINTEVENTS(); idx++ )
          {
             ui->event->addItem ( CPPU::BREAKPOINTEVENTS()[idx]->GetName() );
@@ -398,8 +401,7 @@ void BreakpointDialog::on_event_currentIndexChanged(int index)
    switch ( ui->type->currentIndex() )
    {
       case eBreakOnCPUEvent:
-         // No events yet...
-         m_pEvent = NULL;
+         m_pEvent = C6502::BREAKPOINTEVENTS()[ui->event->currentIndex()];
       break;
       case eBreakOnPPUEvent:
          m_pEvent = CPPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];

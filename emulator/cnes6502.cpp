@@ -79,6 +79,19 @@ static CRegisterData* tblCPURegisters [] =
    new CRegisterData(5, "CPUF", 7, tblCPUFBitfields)
 };
 
+// PPU Event breakpoints
+bool cpuUndocumentedEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+static CBreakpointEventInfo* tblCPUEvents [] =
+{
+   new CBreakpointEventInfo("Undocumented Instruction Execution (Data1=opcode)", cpuUndocumentedEvent, 1, "Break if undocumented opcode %d executed", 16)
+};
+
 bool            C6502::m_killed = false;              // KIL opcode not executed
 unsigned char   C6502::m_6502memory [] = { 0, };
 char            C6502::m_szBinaryText [] = { 0, };
@@ -101,6 +114,9 @@ bool            C6502::m_sync = false;
 
 CRegisterData** C6502::m_tblRegisters = tblCPURegisters;
 int             C6502::m_numRegisters = NUM_CPU_REGISTERS;
+
+CBreakpointEventInfo** C6502::m_tblBreakpointEvents = tblCPUEvents;
+int                    C6502::m_numBreakpointEvents = NUM_CPU_EVENTS;
 
 static int opcode_size [ NUM_ADDRESSING_MODES ] =
 {
@@ -439,9 +455,9 @@ unsigned char C6502::STEP ( void )
    // Fetch
    (*pOpcode) = FETCH ( m_pc );
    (*(pOpcode+3)) = 0; // no extra cycle yet
-// CPTODO: configuration (registry) object removed for now...
-   if ( /*(CONFIG.IsIllegalsEnabled()) && */
-        (((*pOpcode) == 0x02) ||
+
+   // Check for KIL opcodes...
+   if ( (((*pOpcode) == 0x02) ||
         ((*pOpcode) == 0x12) ||
         ((*pOpcode) == 0x22) ||
         ((*pOpcode) == 0x32) ||
@@ -466,6 +482,12 @@ unsigned char C6502::STEP ( void )
    // Get information about current opcode...
    pOpcodeStruct = m_6502opcode+(*pOpcode);
    opcodeSize = (*(opcode_size+(pOpcodeStruct->amode)));
+
+   // Check for undocumented breakpoint...
+   if ( !pOpcodeStruct->documented )
+   {
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, CPU_UNDOCUMENTED_EVENT );
+   }
 
    // Set up class data so we don't need to pass it down to each func...
    amode = pOpcodeStruct->amode;
