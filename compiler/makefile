@@ -1,8 +1,8 @@
 
 ifeq ("$(OSTYPE)", "cygwin")
 	CFLAGS_LIB       := -mno-cygwin
-	LIB_PREFIX   := 
-	LIB_POSTFIX  := .lib
+   LIB_PREFIX   := lib
+   LIB_POSTFIX  := .a
 	EXEC_POSTFIX := .exe
 	LIB_CREATE   := ar crv
 else

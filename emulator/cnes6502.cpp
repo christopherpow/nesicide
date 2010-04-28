@@ -471,41 +471,34 @@ unsigned char C6502::STEP ( void )
    amode = pOpcodeStruct->amode;
    data = pOpcode+1;
 
-   if ( 1 //pOpcodeStruct->documented
-// ||
-// CPTODO: configuration object removed for now...
-//        CONFIG.IsIllegalsEnabled()
-      )
+   // Get second opcode byte
+   if ( opcodeSize > 1 )
    {
-      // Get second opcode byte
-      if ( opcodeSize > 1 )
-      {
-         (*(pOpcode+1)) = FETCH ( m_pc );
-         INCPC ();
-      }
-      // Get third opcode byte
-      if ( opcodeSize > 2 )
-      {
-         (*(pOpcode+2)) = FETCH ( m_pc );
-         INCPC ();
-      }
-
-      // Update Tracer
-      TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( pOpcode );
-      CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
-
-      // Check for dummy-read needed for single-byte instructions...
-      if ( opcodeSize == 1 )
-      {
-         (*(pOpcode+1)) = FETCH ( m_pc );
-      }
-
-      // Execute
-      pOpcodeStruct->pFn ();
-
-      // Update Tracer
-      CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
+      (*(pOpcode+1)) = FETCH ( m_pc );
+      INCPC ();
    }
+   // Get third opcode byte
+   if ( opcodeSize > 2 )
+   {
+      (*(pOpcode+2)) = FETCH ( m_pc );
+      INCPC ();
+   }
+
+   // Update Tracer
+   TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( pOpcode );
+   CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
+
+   // Check for dummy-read needed for single-byte instructions...
+   if ( opcodeSize == 1 )
+   {
+      (*(pOpcode+1)) = FETCH ( m_pc );
+   }
+
+   // Execute
+   pOpcodeStruct->pFn ();
+
+   // Update Tracer
+   CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
 
    cycles = pOpcodeStruct->cycles;
    cycles += (*(pOpcode+3)); // use extra cycle indication from opcode execution
