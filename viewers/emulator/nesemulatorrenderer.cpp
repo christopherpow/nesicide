@@ -82,7 +82,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    float ratio, zoomFactor;
    int padding;
    QRect actualSize;
-   if (width >= height)
+   if (width >= ((float)height * (256.0f / 240.0f)))
    {
       // The screen size is determined by the max height
       ratio = ((float)height / 240.0f);
@@ -100,7 +100,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
    } else {
       // The screen size is determined by the max width
-      ratio = ((float)width / 256.0f);
+      ratio = 1;
       zoomFactor = (256.0f / (float)height);
 
       // The left and right are known since it fills the screen
@@ -108,13 +108,13 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
       actualSize.setRight(256);
 
       // Determine the top offset
-      actualSize.setTop(-(((240.0f * ((float)width / (float)height)) - 256.0f) / 2.0f));
+      actualSize.setTop(-(((256.0f * ((float)height / (float)width)) - 240.0f) / 2.0f));
 
       // Scale up 240 by the ratio to get the correct aspect ratio
-      actualSize.setHeight(256.0f * ((float)width / (float)height));
+      actualSize.setHeight(256.0f * ((float)height / (float)width));
    }
 
-   
+
    // Let opengl know which surface we are working with
    makeCurrent();
 
