@@ -89,3 +89,18 @@ void CBinaryFile::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
         }
     }
 }
+
+int CBinaryFile::getChrRomBankItemSize()
+{
+   return this->getBinaryData()->size();
+}
+
+QByteArray* CBinaryFile::getChrRomBankItemData()
+{
+   return this->getBinaryData();
+}
+
+QIcon CBinaryFile::getChrRomBankItemIcon()
+{
+   return QIcon(":resources/22_binary_file.png");
+}

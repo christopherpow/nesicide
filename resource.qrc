@@ -41,5 +41,8 @@
         <file>resources/22_cpu_registers.png</file>
         <file>resources/22_mapper_memory.png</file>
         <file>resources/22_bin_rom.png</file>
+        <file>resources/22_binary_file.png</file>
+        <file>resources/22_item_add.png</file>
+        <file>resources/22_item_remove.png</file>
     </qresource>
 </RCC>

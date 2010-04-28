@@ -24,3 +24,18 @@ void GraphicsBankEditorForm::changeEvent(QEvent *e)
         break;
     }
 }
+
+void GraphicsBankEditorForm::on_removeItemPushButton_clicked()
+{
+
+}
+
+void GraphicsBankEditorForm::on_AddItemPushButton_clicked()
+{
+   GraphicsBankAddItemsDialog *dlg = new GraphicsBankAddItemsDialog(this);
+   if (dlg->exec() == QDialog::Accepted)
+   {
+
+   }
+   delete dlg;
+}

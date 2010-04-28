@@ -2,6 +2,7 @@
 #define GRAPHICSBANKEDITORFORM_H
 
 #include <QWidget>
+#include "graphicsbankadditemsdialog.h"
 
 namespace Ui {
     class GraphicsBankEditorForm;
@@ -18,6 +19,10 @@ protected:
 
 private:
     Ui::GraphicsBankEditorForm *ui;
+
+private slots:
+    void on_AddItemPushButton_clicked();
+    void on_removeItemPushButton_clicked();
 };
 
 #endif // GRAPHICSBANKEDITORFORM_H

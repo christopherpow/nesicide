@@ -5,9 +5,11 @@
 
 #include "iprojecttreeviewitem.h"
 #include "ixmlserializable.h"
+#include "ichrrombankitem.h"
 #include "cprojecttreeviewmodel.h"
 
-class CBinaryFile : public IXMLSerializable, public IProjectTreeViewItem
+class CBinaryFile : public IXMLSerializable, public IProjectTreeViewItem,
+   public IChrRomBankItem
 {
 public:
     CBinaryFile();
@@ -32,6 +34,12 @@ public:
     virtual void onSaveDocument() {}
     virtual bool canChangeName() { return true; }
     virtual bool onNameChanged(QString newName);
+
+    // IChrRomBankItem Interface Implementation
+    virtual int getChrRomBankItemSize();
+    virtual QByteArray* getChrRomBankItemData();
+    virtual QIcon getChrRomBankItemIcon();
+    virtual QString getItemType() { return "Binary File"; };
 
 private:
     QByteArray *m_binaryData;
