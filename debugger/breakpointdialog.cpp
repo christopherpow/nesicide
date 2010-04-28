@@ -175,19 +175,12 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          }
       break;
       case eBreakOnMapperEvent:
-         if ( CROM::REGISTERS() )
-         {
-            ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
-            ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
-            ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
+         ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
+         ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
 
-            // No Mapper events yet...
-            ui->addButton->setEnabled(false);
-         }
-         else
-         {
-            ui->addButton->setEnabled(false);
-         }
+         // No Mapper events yet...
+         ui->addButton->setEnabled(false);
       break;
    }
 }

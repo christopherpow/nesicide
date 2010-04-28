@@ -135,12 +135,12 @@ MapperInfo mapper[] =
    { "SLROM", 1 },
    { "SNROM", 1 },
    { "SOROM", 1 },
-   { "NES-U*ROM", 2 },
-   { "NES-UNROM", 2 },
-   { "NES-UOROM", 2 },
    { "U*ROM", 2 },
    { "UNROM", 2 },
    { "UOROM", 2 },
+   { "NES-U*ROM", 2 },
+   { "NES-UNROM", 2 },
+   { "NES-UOROM", 2 },
    { "CNROM", 3 },
    { "NES-CNROM", 3 },
    { "MMC3", 4 },
@@ -180,11 +180,11 @@ MapperInfo mapper[] =
    { "NES-EWROM", 5 },
    { "NES-MMC5", 5 },
    { "FFE F4", 6 },
-   { "NES-A*ROM", 7 },
    { "A*ROM", 7 },
    { "AMROM", 7 },
    { "ANROM", 7 },
    { "AOROM", 7 },
+   { "NES-A*ROM", 7 },
    { "NES-AMROM", 7 },
    { "NES-ANROM", 7 },
    { "NES-AOROM", 7 },
@@ -216,8 +216,8 @@ MapperInfo mapper[] =
    { "VRC2 B", 23 },
    { "Konami VRC6 A1/A0", 24 },
    { "VRC6 A1/A0", 24 },
-   { "Konami VRC4 Type Y", 25 },
    { "Konami VRC4 Y", 25 },
+   { "Konami VRC4 Type Y", 25 },
    { "VRC4 Y", 25 },
    { "Irem G-101", 32 },
    { "Taito TC0190", 33 },
@@ -241,12 +241,11 @@ MapperInfo mapper[] =
    { "SMB3 Pirate", 56 },
    { "Study & Game 32 in 1", 58 },
    { "T3H53", 59 },
-   { "T3H53", 59 },
    { "20-in-1", 61 },
    { "700-in-1", 62 },
    { "Hello Kitty 255 in 1", 63 },
-   { "RAMBO-1", 64 },
    { "Tengen RAMBO-1", 64 },
+   { "RAMBO-1", 64 },
    { "Irem H-3001", 65 },
    { "GNROM", 66 },
    { "NES-GNROM", 66 },
@@ -254,8 +253,8 @@ MapperInfo mapper[] =
    { "Sunsoft Mapper #3", 67 },
    { "Sunsoft 4", 68 },
    { "Sunsoft Mapper #4", 68 },
-   { "FME-07", 69 },
    { "Sunsoft FME-07", 69 },
+   { "FME-07", 69 },
    { "Camerica (partial)", 71 },
    { "Konami VRC3", 73 },
    { "VRC3", 73 },
@@ -267,30 +266,27 @@ MapperInfo mapper[] =
    { "Cony", 83 },
    { "Konami VRC7", 85 },
    { "VRC7", 85 },
-   { "Copyright", 90 },
    { "Mapper 90", 90 },
    { "Super Mario World", 90 },
    { "PC-HK-SF3", 91 },
-   { "Dragon Buster", 95 },
    { "Dragon Buster (MMC3 variant)", 95 },
+   { "Dragon Buster", 95 },
    { "Kid Niki (J)", 97 },
    { "Nintendo VS Unisystem", 99 },
    { "VS Unisystem", 99 },
    { "Debugging Mapper", 100 },
    { "Nintendo World Championship", 105 },
    { "HES-Mapper #113", 113 },
-   { "NES-TKSROM", 118 },
-   { "NES-TLSROM", 118 },
    { "TKSROM", 118 },
    { "TLSROM", 118 },
-   { "NES-TQROM", 119 },
+   { "NES-TKSROM", 118 },
+   { "NES-TLSROM", 118 },
    { "TQROM", 119 },
+   { "NES-TQROM", 119 },
    { "Sachen Mapper 141", 141 },
-   { "KS 202", 142 },
    { "SMB2j Pirate (KS 202)", 142 },
    { "Sachen Copy Protection", 143 },
    { "AGCI", 144 },
-   { "Extended VS Unisystem", 151 },
    { "Nintendo VS Unisystem (Extended)", 151 },
    { "Super Donkey Kong", 182 },
    { "72-in-1", 225 },
@@ -302,5 +298,29 @@ MapperInfo mapper[] =
    { "Maxi 15", 234 },
    { "Golden Game 150-in-1", 235 },
    { "Sachen 74LS374N", 243 },
-   { NULL, 256 }
+   { NULL, 256 },
+   { "?", 256 } // Unknown index, not parsed typically when going through the list...
 };
+
+const char* mapperNameFromID ( int id )
+{
+   int i = 0;
+
+   // Return the name associated with the first
+   // match of mapper ID in the list above.
+   while ( mapper[i].name )
+   {
+      if ( mapper[i].id == id )
+      {
+         break;
+      }
+      i++;
+   }
+   if ( !mapper[i].name )
+   {
+      // Move index to the unknown...
+      i++;
+   }
+
+   return mapper[i].name;
+}

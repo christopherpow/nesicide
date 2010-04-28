@@ -121,23 +121,27 @@ void CBreakpointInfo::RemoveBreakpoint ( int index )
    m_numBreakpoints--;
 }
 
+void CBreakpointInfo::GetStatus ( int idx, char* msg )
+{
+   if ( (m_breakpoint[idx].enabled) && (m_breakpoint[idx].hit) )
+   {
+      sprintf ( msg, "*" );
+   }
+   else if ( m_breakpoint[idx].enabled )
+   {
+      sprintf ( msg, " " );
+   }
+   else if ( !(m_breakpoint[idx].enabled) )
+   {
+      sprintf ( msg, "X" );
+   }
+}
+
 void CBreakpointInfo::GetPrintable ( int idx, char *msg )
 {
    CRegisterData* pRegister;
    CBitfieldData* pBitfield;
 
-   if ( (m_breakpoint[idx].enabled) && (m_breakpoint[idx].hit) )
-   {
-      msg += sprintf ( msg, " * " );
-   }
-   else if ( m_breakpoint[idx].enabled )
-   {
-      msg += sprintf ( msg, "   " );
-   }
-   else if ( !(m_breakpoint[idx].enabled) )
-   {
-      msg += sprintf ( msg, " X " );
-   }
    switch ( m_breakpoint[idx].type )
    {
       case eBreakOnCPUExecution:

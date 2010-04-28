@@ -96,7 +96,7 @@ void RegisterDisplayDialog::cartridgeLoaded ()
    if ( m_display == eMemory_cartMapper )
    {
       m_tblRegisters = CROM::REGISTERS();
-      sprintf ( buffer, "Mapper %d: ", CROM::MAPPER() );
+      sprintf ( buffer, "Mapper %d: %s", CROM::MAPPER(), mapperNameFromID(CROM::MAPPER()) );
       ui->info->setText ( buffer );
    }
    if ( m_tblRegisters )
@@ -164,10 +164,14 @@ void RegisterDisplayDialog::updateMemory ()
                  ((pBreakpoint->target == eBreakInMapper) &&
                  (memoryType == eMemory_cartMapper)) )
             {
+               // Change register into row/column of display...
+               row = pBreakpoint->item1/binaryModel->columnCount();
+               col = pBreakpoint->item1%binaryModel->columnCount();
+
                // Update display...
                emit showMe(memoryType);
-               ui->binaryView->setCurrentIndex(binaryModel->index(0,pBreakpoint->item1));
-               on_binaryView_clicked(binaryModel->index(0,pBreakpoint->item1));
+               ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
+               on_binaryView_clicked(binaryModel->index(row,col));
                ui->bitfieldView->setCurrentIndex(bitfieldModel->index(pBreakpoint->item2,0));
             }
          }

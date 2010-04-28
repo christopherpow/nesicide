@@ -8,6 +8,9 @@
 #include "inspectorregistry.h"
 #include "main.h"
 
+#define BROWSE_ASSEMBLY 0
+#define BROWSE_SOURCE   1
+
 CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CodeBrowserDialog)
@@ -19,7 +22,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     ui->displayMode->setCurrentIndex ( 0 );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateDisassembly()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateBrowser()) );
+    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateDisassembly()) );
 }
 
 CodeBrowserDialog::~CodeBrowserDialog()
@@ -36,15 +39,13 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
 
    switch ( ui->displayMode->currentIndex() )
    {
-      case 0:
+      case BROWSE_ASSEMBLY:
          assemblyViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
       break;
-      case 1:
+      case BROWSE_SOURCE:
          sourceViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
-      break;
-      case 2:
       break;
    }
 
@@ -81,15 +82,13 @@ void CodeBrowserDialog::updateDisassembly()
 
    switch ( ui->displayMode->currentIndex() )
    {
-      case 0:
+      case BROWSE_ASSEMBLY:
          assemblyViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
       break;
-      case 1:
+      case BROWSE_SOURCE:
          sourceViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
-      break;
-      case 2:
       break;
    }
 }
@@ -115,15 +114,13 @@ void CodeBrowserDialog::updateBrowser()
 
    switch ( ui->displayMode->currentIndex() )
    {
-      case 0:
+      case BROWSE_ASSEMBLY:
          assemblyViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
       break;
-      case 1:
+      case BROWSE_SOURCE:
          sourceViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
-      break;
-      case 2:
       break;
    }
 }
@@ -136,13 +133,11 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 
    switch ( ui->displayMode->currentIndex() )
    {
-      case 0:
+      case BROWSE_ASSEMBLY:
          addr = CROM::SLOC2ADDR(index.row());
       break;
-      case 1:
+      case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-      break;
-      case 2:
       break;
    }
 
@@ -167,13 +162,11 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
 
    switch ( ui->displayMode->currentIndex() )
    {
-      case 0:
+      case BROWSE_ASSEMBLY:
          addr = CROM::SLOC2ADDR(index.row());
       break;
-      case 1:
+      case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-      break;
-      case 2:
       break;
    }
 
@@ -184,15 +177,13 @@ void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
 {
    switch ( index )
    {
-      case 0:
+      case BROWSE_ASSEMBLY:
          ui->tableView->setModel(assemblyViewModel);
          assemblyViewModel->layoutChangedEvent();
       break;
-      case 1:
+      case BROWSE_SOURCE:
          ui->tableView->setModel(sourceViewModel);
          sourceViewModel->layoutChangedEvent();
-      break;
-      case 2:
       break;
    }
 

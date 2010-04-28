@@ -1223,7 +1223,11 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    // Finish off scanline render clock cycles...
    GARBAGE ( eTarget_NameTable );
+   C6502::EMULATE ( m_curCycles/3 );
+   m_curCycles %= 3;
    GARBAGE ( eTarget_NameTable );
+   C6502::EMULATE ( m_curCycles/3 );
+   m_curCycles %= 3;
 
    // If this is the non-render scanline on an odd frame and the PPU is on
    if ( (scanline >= 0) ||
@@ -1231,9 +1235,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
    {
       // account for extra clock (341)
       EXTRA ();
+      C6502::EMULATE ( m_curCycles/3 );
+      m_curCycles %= 3;
    }
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
 }
 
 void CPPU::GATHERBKGND ( void )
@@ -1250,10 +1254,18 @@ void CPPU::GATHERBKGND ( void )
    m_bkgndBuffer.data[0].attribData = m_bkgndBuffer.data[1].attribData;
 
    patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
+   C6502::EMULATE ( m_curCycles/3 );
+   m_curCycles %= 3;
    mapperfunc[CROM::MAPPER()].latch ( patternIdx );
    pBkgnd->attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
+   C6502::EMULATE ( m_curCycles/3 );
+   m_curCycles %= 3;
    pBkgnd->patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
+   C6502::EMULATE ( m_curCycles/3 );
+   m_curCycles %= 3;
    pBkgnd->patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
+   C6502::EMULATE ( m_curCycles/3 );
+   m_curCycles %= 3;
 
    if ( (tileY&0x0002) == 0 )
    {
@@ -1277,9 +1289,6 @@ void CPPU::GATHERBKGND ( void )
          pBkgnd->attribData = (pBkgnd->attribData&0xC0)>>4;
       }
    }
-
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
 
    if ( rPPU(PPUMASK)&PPUMASK_RENDER_BKGND )
    {
@@ -1366,11 +1375,16 @@ void CPPU::GATHERSPRITES ( int scanline )
 
          // Garbage nametable fetches according to Samus Aran...
          GARBAGE ( eTarget_NameTable );
+         C6502::EMULATE ( m_curCycles/3 );
+         m_curCycles %= 3;
          GARBAGE ( eTarget_NameTable );
+         C6502::EMULATE ( m_curCycles/3 );
+         m_curCycles %= 3;
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
+         C6502::EMULATE ( m_curCycles/3 );
+         m_curCycles %= 3;
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
-
          C6502::EMULATE ( m_curCycles/3 );
          m_curCycles %= 3;
 
@@ -1383,10 +1397,15 @@ void CPPU::GATHERSPRITES ( int scanline )
    {
       // Garbage nametable fetches according to Samus Aran...
       GARBAGE ( eTarget_NameTable );
+      C6502::EMULATE ( m_curCycles/3 );
+      m_curCycles %= 3;
       GARBAGE ( eTarget_NameTable );
+      C6502::EMULATE ( m_curCycles/3 );
+      m_curCycles %= 3;
       GARBAGE ( eTarget_PatternMemory );
+      C6502::EMULATE ( m_curCycles/3 );
+      m_curCycles %= 3;
       GARBAGE ( eTarget_PatternMemory );
-
       C6502::EMULATE ( m_curCycles/3 );
       m_curCycles %= 3;
    }

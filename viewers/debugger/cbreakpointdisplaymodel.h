@@ -10,7 +10,7 @@ public:
    CBreakpointDisplayModel(QObject* parent = 0);
    virtual ~CBreakpointDisplayModel();
    QVariant data(const QModelIndex &index, int role) const;
-   int columnCount(const QModelIndex &parent = QModelIndex()) const { return 1; /* more later */ }
+   int columnCount(const QModelIndex &parent = QModelIndex()) const;
    int rowCount(const QModelIndex &parent = QModelIndex()) const;
    void layoutChangedEvent();
 };

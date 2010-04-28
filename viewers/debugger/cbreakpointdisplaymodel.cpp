@@ -18,7 +18,15 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   pBreakpoints->GetPrintable(index.row(),data);
+   switch ( index.column() )
+   {
+      case 0:
+         pBreakpoints->GetStatus(index.row(),data);
+      break;
+      case 1:
+         pBreakpoints->GetPrintable(index.row(),data);
+      break;
+   }
 
    return data;
 }
@@ -28,6 +36,11 @@ int CBreakpointDisplayModel::rowCount(const QModelIndex &parent) const
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
 
    return pBreakpoints->GetNumBreakpoints();
+}
+
+int CBreakpointDisplayModel::columnCount(const QModelIndex &parent) const
+{
+   return 2;
 }
 
 void CBreakpointDisplayModel::layoutChangedEvent()

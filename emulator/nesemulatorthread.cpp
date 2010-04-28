@@ -38,13 +38,13 @@ NESEmulatorThread::~NESEmulatorThread()
 
 void NESEmulatorThread::kill()
 {
+   m_isRunning = false;
+   m_isPaused = false;
+   m_isTerminating = true;
    if (!breakpointSemaphore.available())
       breakpointSemaphore.release();
    if (!emulatorSemaphore.available())
       emulatorSemaphore.release();
-   m_isRunning = false;
-   m_isPaused = false;
-   m_isTerminating = true;
 }
 
 void NESEmulatorThread::setDialog(QDialog* dialog)
@@ -223,9 +223,7 @@ void NESEmulatorThread::run ()
    {
       if (m_isTerminating)
       {
-         if (emulatorSemaphore.available())
-            emulatorSemaphore.release();
-         return;
+         break;
       }
 
       if ( m_isRunning )
@@ -247,22 +245,8 @@ void NESEmulatorThread::run ()
             m_isPaused = false;
          }
       }
-#if 0
-      bool acquired = true;
-      while (acquired)
-      {
-         acquired = emulatorSemaphore.tryAcquire();
 
-         // Terminate if necessary...
-         if (m_isTerminating)
-         {
-            if (emulatorSemaphore.available())
-               emulatorSemaphore.release();
-            return;
-         }
-      }
-#endif
-
+      // Acquire the semaphore...
       emulatorSemaphore.acquire();
    }
 

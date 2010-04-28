@@ -114,6 +114,7 @@ public:
     void ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void RemoveBreakpoint ( int index );
     void ToggleEnabled ( int bp );
+    void GetStatus ( int idx, char* msg );
     void GetPrintable ( int idx, char* msg );
     int GetNumBreakpoints ( void ) const { return m_numBreakpoints; }
     BreakpointInfo* GetBreakpoint ( int idx ) { return &(m_breakpoint[idx]); }
