@@ -13,22 +13,31 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex &index, int role) c
    if (!index.isValid())
       return QVariant();
 
-   if (role != Qt::DisplayRole)
-      return QVariant();
-
-   return QVariant("x");
-   IChrRomBankItem* item = static_cast<IChrRomBankItem*>(index.internalPointer());
+   IChrRomBankItem* item = chrRomBankItems.at(index.row());
    if (!item)
       return QVariant();
 
+   if ((role == Qt::DecorationRole) && (index.column() == 0))
+   {
+      return item->getChrRomBankItemIcon();
+   }
+
+   if (role != Qt::DisplayRole)
+      return QVariant();
+
+
    switch (index.column())
    {
-   case 0:
-      return QVariant(item->getChrRomBankItemIcon());
    case 1:
       return QVariant(item->getItemType());
    case 2:
-      return QVariant(((IProjectTreeViewItem*)item)->caption());
+      {
+         IProjectTreeViewItem *ptvi = dynamic_cast<IProjectTreeViewItem*>(item);
+         if (ptvi)
+            return QVariant(ptvi->caption());
+         else
+            return QVariant();
+      }
    case 3:
       return QVariant(item->getChrRomBankItemSize());
    default:
@@ -66,7 +75,7 @@ QVariant CChrRomItemListDisplayModel::headerData(int section, Qt::Orientation or
 
 QModelIndex CChrRomItemListDisplayModel::index(int row, int column, const QModelIndex &parent) const
 {
-   if ((row > 0) & (row < chrRomBankItems.count()))
+   if ((row >= 0) && (row < chrRomBankItems.count()))
       return createIndex(row, column, chrRomBankItems.at(row));
 
    return QModelIndex();

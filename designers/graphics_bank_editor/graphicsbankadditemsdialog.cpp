@@ -60,3 +60,10 @@ void GraphicsBankAddItemsDialog::on_buttonBox_rejected()
    this->setResult(QDialog::Rejected);
    this->close();
 }
+
+IChrRomBankItem* GraphicsBankAddItemsDialog::getSelectedBankItem()
+{
+   if (ui->tableView->selectionModel()->selectedIndexes().count() == 0)
+      return (IChrRomBankItem*)NULL;
+   return model->chrRomBankItems.at(ui->tableView->selectionModel()->selectedIndexes().at(0).row());
+}
