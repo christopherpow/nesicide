@@ -246,6 +246,7 @@ extern file_table* cur_file;
 
    if ( asmtext[1] == 0 )
    {
+      // Return individual X or Y to parser...
       if ( (asmtext[0] == 'x') ||
            (asmtext[0] == 'X') )
       {

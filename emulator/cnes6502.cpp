@@ -471,7 +471,7 @@ unsigned char C6502::STEP ( void )
    amode = pOpcodeStruct->amode;
    data = pOpcode+1;
 
-   if ( pOpcodeStruct->documented
+   if ( 1 //pOpcodeStruct->documented
 // ||
 // CPTODO: configuration object removed for now...
 //        CONFIG.IsIllegalsEnabled()

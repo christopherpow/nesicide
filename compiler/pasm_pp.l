@@ -511,7 +511,7 @@ ppkeyword ppkeywords [];
 }
 
 <MACRO_ARGS>[^;, \t\r\n]+ {
-   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].stab, yytext );
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel] ].stab, yytext );
 }
 
 <MACRO_NAME,MACRO_ARGS>[\r\n] {
@@ -573,7 +573,7 @@ ppkeyword ppkeywords [];
 }
 
 <INVOKE_ARGVALS>[^;, \t\r\n]+ {
-   add_ppsymbol ( ppmtab[current_macro[macronestlevel]].vtab, yytext );
+   add_ppsymbol ( ppmtab[current_macro[macronestlevel] ].vtab, yytext );
 }
 
 <INVOKE_ARGVALS>[\r\n] {
@@ -894,8 +894,8 @@ int ppwrap(void)
       break;
    }
 
-//   printf ( "\n%d %d INPUT: \n%s\n\n", pass, directives_processed, input_buffer );
-//   printf ( "\nOUTPUT: \n%s\n\n", output_buffer );
+   //printf ( "\n%d %d INPUT: \n%s\n\n", pass, directives_processed, input_buffer );
+   //printf ( "\nOUTPUT: \n%s\n\n", output_buffer );
 
    if ( go_around )
    {

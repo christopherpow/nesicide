@@ -1,5 +1,5 @@
 
-ifeq ("$(WINDOWS)", "YES")
+ifeq ("$(OSTYPE)", "cygwin")
 	CFLAGS_LIB       := -mno-cygwin
 	LIB_PREFIX   := 
 	LIB_POSTFIX  := .lib

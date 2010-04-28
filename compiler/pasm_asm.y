@@ -603,7 +603,6 @@ instruction: no_params
            | postindexed_indirect_param
            | disambiguation_1
            | directive
-//           | disambiguation_2
            ;
 
 // Directive .incbin "<file>" includes a binary file into the intermediate representation stream...
@@ -2283,7 +2282,7 @@ int promote_instructions ( unsigned char flag )
                if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
                {
                   // promote to zeropage if possible...
-                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
+                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0] ].op,AM_ZEROPAGE_INDEXED_X)) != INVALID_INSTR )
                   {
                      // promote to zeropage fixup so we keep track of it!
                      ptr->fixup = fixup_zp_idx;
@@ -2347,7 +2346,7 @@ int promote_instructions ( unsigned char flag )
                if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
                {
                   // promote to zeropage if possible...
-                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
+                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0] ].op,AM_ZEROPAGE_INDEXED_Y)) != INVALID_INSTR )
                   {
                      // promote to zeropage fixup so we keep track of it!
                      ptr->fixup = fixup_zp_idx;
@@ -2411,7 +2410,7 @@ int promote_instructions ( unsigned char flag )
                if ( (evaluated) && (expr->vtype == value_is_int) && (value_zp_ok) )
                {
                   // promote to zeropage if possible...
-                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0]].op,AM_ZEROPAGE)) != INVALID_INSTR )
+                  if ( (f=valid_instr_amode(m_6502opcode[ptr->data[0] ].op,AM_ZEROPAGE)) != INVALID_INSTR )
                   {
                      // promote to zeropage fixup so we keep track of it!
                      ptr->fixup = fixup_zeropage;
@@ -2937,6 +2936,7 @@ void output_binary ( char** buffer, int* size )
 	(*size) = pos;
 
    //dump_ir_tables ();
+   //dump_ir_expressions ();
 }
 
 char* instr_mnemonic ( unsigned char op )
@@ -2982,7 +2982,7 @@ void dump_ir_expressions ( void )
       {
          if ( ptr->expr )
          {
-            printf ( "%08x %08x %04X: \n", ptr, ptr->expr, ptr->addr );
+            printf ( "%08x %08x %04X: \n", ptr, ptr->expr, ptr->source_linenum );
             dump_expression ( ptr->expr );
          }
       }
@@ -3589,7 +3589,7 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
       ok = 0;
    }
 
-   if ( !ok )
+   if ( (!ok) && (evaluated) )
    {
       (*evaluated) = 0;
       if ( (symbol) &&
