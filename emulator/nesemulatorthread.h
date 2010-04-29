@@ -14,16 +14,12 @@ class NESEmulatorThread : public QThread
 public:
    NESEmulatorThread ( QObject* parent = 0 );
    virtual ~NESEmulatorThread ();
+   void kill();
 
    void setDialog(QDialog* dialog);
 
    void setRunning ( bool run ) { m_isRunning = run; }
    bool isRunning ( void ) { return m_isRunning; }
-   void setFrequency ( float iFreq );
-   float getFrequency ( void ) { return m_fFreq; }
-   void setFactorIndex ( int factorIdx ) { m_factorIdx = factorIdx; setFrequency(m_fFreq); }
-   int getFactorIndex ( void ) { return m_factorIdx; }
-   void kill();
    void setCartridge ( CCartridge* cartridge );
 
 public slots:
@@ -34,7 +30,6 @@ public slots:
    void resetEmulator ();
    void controllerInput ( unsigned char* joy ) { m_joy[JOY1] = joy[JOY1]; m_joy[JOY2] = joy[JOY2]; }
    void primeEmulator ();
-   void killEmulator ();
 
 signals:
    void emulatedFrame ();
@@ -49,12 +44,7 @@ protected:
    bool          m_isRunning;
    bool          m_isPaused;
    bool          m_isTerminating;
-   qint32         m_lastVblankTime;
-   qint32         m_currVblankTime;
-   float         m_periodVblank;
-   float         m_fFreq;
-   float         m_fFreqReal;
-   int m_factorIdx;
+   bool          m_isResetting;
    unsigned char m_joy [ NUM_JOY ];
 };
 

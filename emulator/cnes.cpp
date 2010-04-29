@@ -52,8 +52,27 @@ CNES::~CNES()
 
 }
 
-void CNES::RESET ( void )
+void CNES::RESET ( UINT mapper )
 {
+   // Reset mapper...this sets up the CROM object with the
+   // correct mapper information so the appropriate mapper
+   // functions are called.
+   mapperfunc [ mapper ].reset ();
+
+   // Reset emulated PPU...
+   CPPU::RESET ();
+
+   // Reset emulated 6502 and APU [APU reset internal to 6502]...
+   // The APU reset will trigger the SDL callback by initializing SDL;
+   // The SDL callback triggers emulation...
+   C6502::RESET ();
+
+   // Clear emulated machine memory and registers...
+   C6502::MEMCLR ();
+   CPPU::MEMCLR ();
+   CPPU::OAMCLR ();
+   CROM::CHRRAMCLR ();
+
    m_frame = 0;
    m_bReplay = false;
 }
@@ -160,15 +179,7 @@ void CNES::RUN ( unsigned char* joy )
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
    for ( idx = 0; idx < SCANLINES_VISIBLE; idx++ )
    {
-      if ( (idx >= 8) && (idx <= 231) )
-      {
-         CPPU::RENDERSCANLINE ( idx );
-      }
-      else
-      {
-         CPPU::RENDERSCANLINE ( idx );
-         CPPU::RENDERRESET ( idx );
-      }
+      CPPU::RENDERSCANLINE ( idx );
 
       if ( mapperfunc[CROM::MAPPER()].synch(idx) )
       {

@@ -15,7 +15,10 @@
 
 // Breakpoint event identifiers
 #define CPU_UNDOCUMENTED_EVENT 0
-#define NUM_CPU_EVENTS 1
+#define CPU_RESET_EVENT        1
+#define CPU_IRQ_EVENT          2
+#define CPU_NMI_EVENT          3
+#define NUM_CPU_EVENTS 4
 
 #define VECTOR_NMI   0xFFFA
 #define VECTOR_RESET 0xFFFC

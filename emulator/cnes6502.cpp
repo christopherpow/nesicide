@@ -87,9 +87,33 @@ bool cpuUndocumentedEvent(BreakpointInfo* pBreakpoint)
    return true;
 }
 
+bool cpuResetEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool cpuIRQEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool cpuNMIEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
 static CBreakpointEventInfo* tblCPUEvents [] =
 {
-   new CBreakpointEventInfo("Undocumented Instruction Execution (Data1=opcode)", cpuUndocumentedEvent, 1, "Break if undocumented opcode %d executed", 16)
+   new CBreakpointEventInfo("Undocumented Instruction Execution", cpuUndocumentedEvent, 0, "Break if undocumented opcode executed", 10),
+   new CBreakpointEventInfo("Reset", cpuResetEvent, 0, "Break if CPU is reset", 10),
+   new CBreakpointEventInfo("IRQ", cpuIRQEvent, 0, "Break if CPU IRQ fires", 10),
+   new CBreakpointEventInfo("NMI", cpuNMIEvent, 0, "Break if CPU NMI fires", 10)
 };
 
 bool            C6502::m_killed = false;              // KIL opcode not executed
@@ -2517,6 +2541,9 @@ void C6502::IRQ ( char source )
       PUSH ( rF()|FLAG_MISC );
       wPC ( MAKE16(MEM(VECTOR_IRQ),MEM(VECTOR_IRQ+1)) );
       sI ();
+
+      // Check for IRQ breakpoint...
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_IRQ_EVENT);
    }
 }
 
@@ -2531,6 +2558,9 @@ void C6502::NMI ( char source )
       cB ();
       PUSH ( rF()|FLAG_MISC );
       wPC ( MAKE16(MEM(VECTOR_NMI),MEM(VECTOR_NMI+1)) );
+
+      // Check for NMI breakpoint...
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_NMI_EVENT);
    }
 }
 
@@ -2552,6 +2582,9 @@ void C6502::RESET ( void )
    sI ();
    wF ( rF()|FLAG_MISC );
    wPC ( MAKE16(MEM(VECTOR_RESET),MEM(VECTOR_RESET+1)) );
+
+   // Check for RESET breakpoint...
+   CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_RESET_EVENT);
 }
 
 unsigned char C6502::LOAD ( UINT addr, char* pTarget )

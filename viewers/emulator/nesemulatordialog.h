@@ -40,7 +40,6 @@ private slots:
 signals:
     void controllerInput(unsigned char* input);
     void primeEmulator();
-    void killEmulator();
     void startEmulation();
     void pauseEmulation();
     void stepCPUEmulation();

@@ -8,12 +8,15 @@
 #include "cbreakpointinfo.h"
 #include "ctracer.h"
 
+#include "cnesicidecommon.h"
+
 class CNES
 {
 public:
 	CNES();
 	virtual ~CNES();
 
+   static void RESET ( UINT mapper );
    static void RUN ( unsigned char* joy );
    static void REPLAY ( bool enable ) { m_bReplay = enable; }
    static bool REPLAY () { return m_bReplay; }
@@ -21,7 +24,6 @@ public:
 
    static inline CTracer* TRACER ( void ) { return &m_tracer; }
 
-   static void RESET ( void );
    static CBreakpointInfo* BREAKPOINTS ( void ) { return &m_breakpoints; }
    static void CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type = (eBreakpointType)-1, int data = 0 );
    static void FORCEBREAKPOINT ( void );

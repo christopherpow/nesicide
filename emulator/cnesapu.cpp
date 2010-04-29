@@ -448,8 +448,6 @@ static unsigned short m_tndTable [ 203 ] =
    0x8E8D
 };
 
-//static int m_samples [ 6 ] = { 11025, 22050, 44100, 88200, 176400, 0 };
-
 extern QSemaphore emulatorSemaphore;
 
 extern "C" void SDL_GetMoreData(void *userdata, Uint8 *stream, int len)

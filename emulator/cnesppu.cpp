@@ -399,17 +399,17 @@ void CPPU::RENDEROAM ( void )
       color[2] = CBasePalette::GetPalette ( 0x20 );
       color[3] = CBasePalette::GetPalette ( 0x30 );
 
-      spriteSize = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE)) + 1;
-      if ( spriteSize == 1 )
+      spriteSize = ((!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
+      if ( spriteSize == 8 )
       {
          spritePatBase = (!!(CPPU::_PPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
       }
 
-      for ( y = 0; y < spriteSize<<4; y++ )
+      for ( y = 0; y < spriteSize<<1; y++ )
       {
          for ( x = 0; x < 256; x += PATTERN_SIZE ) // pattern-slice rendering...
          {
-            sprite = (spriteSize==1)?((y>>3)<<5)+(x>>3):
+            sprite = (spriteSize==8)?((y>>3)<<5)+(x>>3):
                                      ((y>>4)<<5)+(x>>3);
             spriteY = CPPU::OAM ( SPRITEY, sprite );
    // CPTODO: find replacement way to do OnScreen check
@@ -429,7 +429,7 @@ void CPPU::RENDEROAM ( void )
                attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
 
                // For 8x16 sprites...
-               if ( (spriteSize == 2) &&
+               if ( (spriteSize == 16) &&
                     (((!spriteFlipVert) && (((y>>3)&1))) ||
                     ((spriteFlipVert) && (!((y>>3)&1)))) )
                {
@@ -698,11 +698,6 @@ void CPPU::RESET ( void )
    m_ppuReadLatch = 0x00;
    m_ppuReadLatch2007 = 0x00;
    m_ppuRegByte = 0;
-
-   for ( idx = 0; idx < 240; idx++ )
-   {
-      RENDERRESET ( idx );
-   }
 }
 
 UINT CPPU::PPU ( UINT addr )
@@ -994,27 +989,6 @@ void CPPU::SCANLINEEND ( void )
    }
 }
 
-void CPPU::RENDERRESET ( int scanline )
-{
-#if 0
-   int idxx;
-   int idxy = (scanline<<8)*3;
-   int offsetx = 0;
-
-   if ( m_pTV )
-   {
-       for ( idxx = 0; idxx < 256; idxx++ )
-       {
-          // black!
-          *(m_pTV+idxy+offsetx) = 0;
-          *(m_pTV+idxy+offsetx+1) = 0;
-          *(m_pTV+idxy+offsetx+2) = 0;
-          offsetx += 3;
-       }
-   }
-#endif
-}
-
 void CPPU::NONRENDERSCANLINE ( int scanlines )
 {
    int idxx, idxy;
@@ -1149,10 +1123,12 @@ void CPPU::RENDERSCANLINE ( int scanline )
                            *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                            *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                         }
+                        tvSet |= 0x2;
                         if ( (pSprite->spriteIdx == 0) &&
                              (!sprite0HitSet) &&
                              (pSprite->spriteX+idx2 < 255) &&
-                             ((tvSet&0x1) == 0x1) )
+                             ((tvSet == 0x03)) )
+//                             ((tvSet&0x1) == 0x1) )
                         {
                            if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
                                 ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
@@ -1168,7 +1144,6 @@ void CPPU::RENDERSCANLINE ( int scanline )
                               CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, 0, 0, 0, 0 );
                            }
                         }
-                        tvSet |= 0x2;
                      }
                   }
                }
@@ -1187,7 +1162,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
    CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
 
    // Check for end-of-prerender-scanline breakpoint...
-   if ( scanline < 0 )
+   if ( scanline == -1 )
    {
       CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_END);
    }
@@ -1306,7 +1281,7 @@ void CPPU::GATHERSPRITES ( int scanline )
    int idx1, idx2;
    int sprite;
    unsigned short spritePatBase = 0x0000;
-   short         spriteY;
+   int           spriteY;
    unsigned char patternIdx;
    unsigned char spriteAttr;
    int           spriteSize;
@@ -1323,8 +1298,8 @@ void CPPU::GATHERSPRITES ( int scanline )
    m_spriteBuffer.order [ 7 ] = 7;
    pSprite = m_spriteBuffer.data;
 
-   spriteSize = (!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE)) + 1;
-   if ( spriteSize == 1 )
+   spriteSize = ((!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
+   if ( spriteSize == 8 )
    {
       spritePatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
    }
@@ -1333,21 +1308,12 @@ void CPPU::GATHERSPRITES ( int scanline )
    {
       spriteY = OAM ( SPRITEY, sprite );
       idx1 = scanline-spriteY;
-      if ( (spriteY < SPRITE_YMAX) && (idx1 >= 0) && (idx1 < (spriteSize<<3)) )
+      if ( (idx1 >= 0) && (idx1 < spriteSize) )
       {
-         if ( m_spriteBuffer.count == 8 )
-         {
-            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
-            {
-               wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
-            }
-            break;
-         }
-
          pSprite->spriteIdx = sprite;
 
          patternIdx = OAM ( SPRITEPAT, sprite );
-         if ( spriteSize == 2 )
+         if ( spriteSize == 16 )
          {
             spritePatBase = (patternIdx&0x01)<<12;
             patternIdx &= 0xFE;
@@ -1362,7 +1328,7 @@ void CPPU::GATHERSPRITES ( int scanline )
          pSprite->attribData = spriteAttr&SPRITE_PALETTE_IDX_MSK;
 
          // For 8x16 sprites...
-         if ( (spriteSize == 2) &&
+         if ( (spriteSize == 16) &&
               (((!pSprite->spriteFlipVert) && (idx1 >= PATTERN_SIZE)) ||
               ((pSprite->spriteFlipVert) && (idx1 < PATTERN_SIZE))) )
          {
@@ -1370,7 +1336,7 @@ void CPPU::GATHERSPRITES ( int scanline )
          }
          if ( pSprite->spriteFlipVert )
          {
-            idx1 = (spriteSize<<3)-1-idx1;
+            idx1 = spriteSize-1-idx1;
          }
 
          // Garbage nametable fetches according to Samus Aran...
@@ -1390,6 +1356,15 @@ void CPPU::GATHERSPRITES ( int scanline )
 
          m_spriteBuffer.count++;
          pSprite++;
+
+         if ( m_spriteBuffer.count == 8 )
+         {
+            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+            {
+               wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
+            }
+            break;
+         }
       }
    }
 

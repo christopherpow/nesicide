@@ -94,7 +94,6 @@ typedef struct _SpriteBufferData
    bool          spriteFlipVert;
    bool          spriteFlipHoriz;
    unsigned char spriteIdx;
-   unsigned int  spriteCount;
 } SpriteBufferData;
 
 typedef struct _SpriteBuffer
@@ -181,7 +180,6 @@ public:
    static inline void FRAMESTART ( void );
    static inline void SCANLINESTART ( void );
    static inline void SCANLINEEND ( void );
-   static void RENDERRESET ( int scanline );
    static void RENDERSCANLINE ( int scanline );
    static void NONRENDERSCANLINE ( int scanline );
    static void GATHERBKGND ( void );
