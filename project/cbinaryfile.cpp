@@ -102,5 +102,5 @@ QByteArray* CBinaryFile::getChrRomBankItemData()
 
 QIcon CBinaryFile::getChrRomBankItemIcon()
 {
-   return QIcon(":resources/22_binary_file.png");
+   return QIcon(":/resources/22_binary_file.png");
 }

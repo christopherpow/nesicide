@@ -15,6 +15,7 @@ class GraphicsBankAddItemsDialog : public QDialog {
 public:
     GraphicsBankAddItemsDialog(QWidget *parent = 0);
     ~GraphicsBankAddItemsDialog();
+    IChrRomBankItem* getSelectedBankItem();
 
 protected:
     void changeEvent(QEvent *e);
