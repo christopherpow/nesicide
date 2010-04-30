@@ -51,14 +51,12 @@ void GraphicsBankAddItemsDialog::changeEvent(QEvent *e)
 
 void GraphicsBankAddItemsDialog::on_buttonBox_accepted()
 {
-   this->setResult(QDialog::Accepted);
-   this->close();
+   this->accept();
 }
 
 void GraphicsBankAddItemsDialog::on_buttonBox_rejected()
 {
-   this->setResult(QDialog::Rejected);
-   this->close();
+   this->reject();
 }
 
 IChrRomBankItem* GraphicsBankAddItemsDialog::getSelectedBankItem()
