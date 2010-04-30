@@ -110,11 +110,9 @@ bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint)
 
 bool ppuScanlineStartEvent(BreakpointInfo* pBreakpoint)
 {
-   if ( CPPU::_X() == 0 )
-   {
-      return true;
-   }
-   return false;
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
 }
 
 bool ppuScanlineEndEvent(BreakpointInfo* pBreakpoint)
@@ -138,13 +136,32 @@ bool ppuPrerenderScanlineEndEvent(BreakpointInfo* pBreakpoint)
    return true;
 }
 
+bool ppuSprite0HitEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint)
+{
+   unsigned char spriteX = CPPU::OAM(SPRITEX,pBreakpoint->item1);
+   if ( CPPU::_X() == spriteX )
+   {
+      return true;
+   }
+   return false;
+}
+
 static CBreakpointEventInfo* tblPPUEvents [] =
 {
    new CBreakpointEventInfo("Raster Position (Data1=X,Data2=Y)", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10),
    new CBreakpointEventInfo("Pre-render Scanline Start (X=0,Y=-1)", ppuPrerenderScanlineStartEvent, 0, "Break at start of pre-render scanline", 10),
    new CBreakpointEventInfo("Pre-render Scanline End (X=256,Y=-1)", ppuPrerenderScanlineEndEvent, 0, "Break at end of pre-render scanline", 10),
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
-   new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10)
+   new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10),
+   new CBreakpointEventInfo("Sprite 0 Hit", ppuSprite0HitEvent, 0, "Break on sprite 0 hit", 10),
+   new CBreakpointEventInfo("Sprite slice rendering", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10)
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
@@ -1036,10 +1053,17 @@ void CPPU::RENDERSCANLINE ( int scanline )
    // even-odd framing for extra-cycle on pre-render scanline...
    m_frame = !m_frame;
 
-   // Check for start-of-prerender-scanline breakpoint...
-   if ( scanline < 0 )
+   m_x = 0;
+   m_y = scanline;
+
+   // Check for start-of-scanline breakpoints...
+   if ( scanline == -1 )
    {
       CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_START);
+   }
+   else
+   {
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_START);
    }
 
    for ( idxx = 0; idxx < 256; idxx += 8 )
@@ -1060,9 +1084,8 @@ void CPPU::RENDERSCANLINE ( int scanline )
             m_x = idxx+patternMask;
             m_y = scanline;
 
-            // Check for PPU pixel-at breakpoint, and for start-of-scanline breakpoint...
+            // Check for PPU pixel-at breakpoint...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PIXEL_XY);
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_START);
 
             PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
             colorIdx = (a|b1|(b2<<1));
@@ -1074,7 +1097,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
             if ( (idxx>=startBkgnd) && (rPPU(PPUMASK)&PPUMASK_RENDER_BKGND) )
             {
                if ( !(colorIdx&0x3) ) colorIdx = 0;
-               if ( colorIdx&0x3 ) tvSet |= 1;
+               if ( colorIdx&0x3 ) tvSet |= 0x1;
 
                *pTV = CBasePalette::GetPaletteR(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
@@ -1104,6 +1127,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
                {
                   if ( pSprite->spriteX+idx2 >= startSprite )
                   {
+                     // Check for start-of-sprite-slice rendering event breakpoint...
+                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SPRITE_SLICE_RENDERING);
+
                      if ( pSprite->spriteFlipHoriz )
                      {
                         colorIdx = ((pSprite->patternData1>>idx2)&0x01)|((((pSprite->patternData2>>idx2)&0x01)<<1) );
@@ -1113,36 +1139,42 @@ void CPPU::RENDERSCANLINE ( int scanline )
                         colorIdx = ((pSprite->patternData1>>(7-idx2))&0x01)|((((pSprite->patternData2>>(7-idx2))&0x01)<<1) );
                      }
                      colorIdx |= (pSprite->attribData<<2);
-                     if ( colorIdx&0x3 )
+                     if ( (colorIdx&0x3) &&
+                          (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) &&
+                          (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
+                          ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
                      {
-                        if ( (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) &&
-                             (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
-                             ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
-                        {
-                           *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                           *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                           *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                        }
+                        *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                        *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                        *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                         tvSet |= 0x2;
-                        if ( (pSprite->spriteIdx == 0) &&
-                             (!sprite0HitSet) &&
-                             (pSprite->spriteX+idx2 < 255) &&
-                             ((tvSet == 0x03)) )
-//                             ((tvSet&0x1) == 0x1) )
+                     }
+                     else if ( (colorIdx&0x3) &&
+                               (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) &&
+                               (pSprite->spriteBehind) )
+                     {
+                        tvSet |= 0x2;
+                     }
+                     if ( (pSprite->spriteIdx == 0) &&
+                          (!sprite0HitSet) &&
+                          (pSprite->spriteX+idx2 < 255) &&
+                          ((tvSet&0x01) == 0x01) )
+                     {
+                        if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
+                             ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
                         {
-                           if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
-                                ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
-                           {
-                              wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
-                              sprite0HitSet = true;
+                           wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
+                           sprite0HitSet = true;
 
-                              // Save last sprite 0 hit coords for OAM viewer...
-                              m_lastSprite0HitX = p;
-                              m_lastSprite0HitY = scanline;
+                           // Check for Sprite 0 Hit breakpoint...
+                           CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SPRITE0_HIT);
 
-                              // TODO: update tracer info
-                              CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, 0, 0, 0, 0 );
-                           }
+                           // Save last sprite 0 hit coords for OAM viewer...
+                           m_lastSprite0HitX = p;
+                           m_lastSprite0HitY = scanline;
+
+                           // TODO: update tracer info
+                           CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, 0, 0, 0, 0 );
                         }
                      }
                   }
@@ -1158,13 +1190,14 @@ void CPPU::RENDERSCANLINE ( int scanline )
       GATHERBKGND ();
    }
 
-   // We're at the end of this scanline, check the end-of-scanline breakpoint here...
-   CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
-
-   // Check for end-of-prerender-scanline breakpoint...
+   // Check for end-of-scanline breakpoints...
    if ( scanline == -1 )
    {
       CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_END);
+   }
+   else
+   {
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
    }
 
    // Re-latch PPU address...

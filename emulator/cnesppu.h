@@ -16,12 +16,17 @@
 #include "cbreakpointinfo.h"
 
 // Breakpoint event identifiers
-#define PPU_EVENT_PIXEL_XY                  0
-#define PPU_EVENT_PRE_RENDER_SCANLINE_START 1
-#define PPU_EVENT_PRE_RENDER_SCANLINE_END   2
-#define PPU_EVENT_SCANLINE_START            3
-#define PPU_EVENT_SCANLINE_END              4
-#define NUM_PPU_EVENTS 5
+enum
+{
+   PPU_EVENT_PIXEL_XY = 0,
+   PPU_EVENT_PRE_RENDER_SCANLINE_START,
+   PPU_EVENT_PRE_RENDER_SCANLINE_END,
+   PPU_EVENT_SCANLINE_START,
+   PPU_EVENT_SCANLINE_END,
+   PPU_EVENT_SPRITE0_HIT,
+   PPU_EVENT_SPRITE_SLICE_RENDERING,
+   NUM_PPU_EVENTS
+};
 
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
@@ -126,9 +131,6 @@ class CPPU
 public:
     CPPU();
     virtual ~CPPU();
-
-   // Mode routines
-   static void SETMODE ( int mode ) { m_mode = mode; }
 
    // Emulation routines
    static inline void Move1KBank ( int bank, unsigned char* point ) { if ( bank >= 8 ) m_pPPUmemory[bank-8] = point; }

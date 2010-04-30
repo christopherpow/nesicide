@@ -121,6 +121,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_pBinPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPURegisterInspector_close(bool)));
     InspectorRegistry::addInspector ( "PPU Register Inspector", m_pBinPPURegisterInspector );
 
+    m_pPPUInformationInspector = new PPUInformationInspector();
+    m_pPPUInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pPPUInformationInspector->setWindowTitle("PPU Inspector");
+    m_pPPUInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
+    m_pPPUInformationInspector->hide();
+    QObject::connect(m_pPPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedPPUInformationInspector_close(bool)));
+    InspectorRegistry::addInspector ( "PPU Inspector", m_pPPUInformationInspector );
+
     m_pBinAPURegisterInspector = new RegisterInspector(eMemory_IOregs);
     m_pBinAPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
@@ -245,6 +254,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -704,6 +714,16 @@ void MainWindow::on_actionCode_Inspector_toggled(bool value)
 void MainWindow::reflectedCodeInspector_close ( bool toplevel )
 {
    ui->actionCode_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionPPUInformation_Inspector_toggled(bool value)
+{
+   m_pPPUInformationInspector->setVisible(value);
+}
+
+void MainWindow::reflectedPPUInformationInspector_close ( bool toplevel )
+{
+   ui->actionPPUInformation_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

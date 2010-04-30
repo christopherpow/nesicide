@@ -18,6 +18,7 @@
 #include "registerinspector.h"
 #include "breakpointinspector.h"
 #include "codeinspector.h"
+#include "ppuinformationinspector.h"
 #include "aboutdialog.h"
 
 namespace Ui {
@@ -61,6 +62,7 @@ private:
     RegisterInspector* m_pBinMapperMemoryInspector;
     BreakpointInspector* m_pBreakpointInspector;
     CodeInspector* m_pCodeInspector;
+    PPUInformationInspector* m_pPPUInformationInspector;
 
 protected:
     virtual void closeEvent ( QCloseEvent * event );
@@ -85,6 +87,7 @@ private slots:
     void on_actionBinAPURegister_Inspector_toggled(bool );
     void on_actionBinPPURegister_Inspector_toggled(bool );
     void on_actionBinMapperMemory_Inspector_toggled(bool );
+    void on_actionPPUInformation_Inspector_toggled(bool );
     void reflectedCodeInspector_close(bool toplevel);
     void reflectedExecutionInspector_close(bool toplevel);
     void reflectedBreakpointInspector_close(bool toplevel);
@@ -103,6 +106,7 @@ private slots:
     void reflectedBinPPURegisterInspector_close(bool toplevel);
     void reflectedBinAPURegisterInspector_close(bool toplevel);
     void reflectedBinMapperMemoryInspector_close(bool toplevel);
+    void reflectedPPUInformationInspector_close(bool toplevel);
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
     void on_compilerOutputDockWidget_visibilityChanged(bool visible);
