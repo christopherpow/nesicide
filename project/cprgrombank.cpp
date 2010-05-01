@@ -9,8 +9,10 @@ CPRGROMBank::CPRGROMBank()
 
 CPRGROMBank::~CPRGROMBank()
 {
-    if (m_indexOfPrgRomBank)
-        delete[] m_pointerToBankData ;
+    // FIXME: This needs to be freed but for some reason causes a crash if the program
+    //        is closed while the emulator is running.
+    //if (m_pointerToBankData)
+    //    delete[] m_pointerToBankData ;
 
     if (m_pointerToEditorDialog)
         delete m_pointerToEditorDialog;

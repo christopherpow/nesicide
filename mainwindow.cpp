@@ -767,3 +767,9 @@ void MainWindow::on_actionEmulation_Window_triggered()
 {
 
 }
+
+void MainWindow::on_MainWindow_destroyed()
+{
+    if (nesicideProject->get_isInitialized())
+        on_action_Close_Project_triggered();
+}

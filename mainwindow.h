@@ -68,6 +68,7 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_MainWindow_destroyed();
     void on_actionEmulation_Window_triggered();
     void on_action_Close_Project_triggered();
     void on_action_About_Nesicide_triggered();
