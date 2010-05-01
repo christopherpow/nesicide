@@ -664,6 +664,13 @@ void C6502::TAS ( void )
 // Absolute,X  |SYA arg,X  |$9C| 3 | 5
 void C6502::SAY ( void )
 {
+   unsigned short addr;
+   unsigned char  val;
+
+   addr = MAKEADDR ( amode, data );
+   val = rY()&((addr>>8)+1);
+   MEM ( addr, val );
+
    return;
 }
 

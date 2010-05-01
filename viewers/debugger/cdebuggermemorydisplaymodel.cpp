@@ -1,6 +1,10 @@
 #include "cdebuggermemorydisplaymodel.h"
 
 #include "cnesmappers.h"
+#include "cnessystempalette.h"
+
+#include <QColor>
+#include <QBrush>
 
 CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display)
 {
@@ -69,6 +73,21 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex &index, int role) c
 
    if (!index.isValid())
       return QVariant();
+
+   if (m_display==eMemory_PPUpalette && role == Qt::BackgroundRole)
+   {
+      return QBrush(CBasePalette::GetPalette((long)index.internalPointer()));
+   }
+   if (m_display==eMemory_PPUpalette && role == Qt::ForegroundRole)
+   {
+      QColor col = CBasePalette::GetPalette((long)index.internalPointer());
+      if ((((double)col.red() +
+          (double)col.green() +
+          (double)col.blue()) / (double)3) < 200)
+        return QBrush(QColor(255, 255, 255));
+      else
+        return QBrush(QColor(0, 0, 0));
+   }
 
    if (role != Qt::DisplayRole)
       return QVariant();
