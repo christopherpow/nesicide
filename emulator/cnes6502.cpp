@@ -2520,7 +2520,7 @@ void C6502::SED ( void )
 void C6502::BRK ( void )
 {
    PUSH ( GETHI8(rPC()) );
-   PUSH ( GETLO8(rPC()) );
+   PUSH ( GETLO8((rPC()+1)) );
    sB ();
    PUSH ( rF() );
    wPC ( MAKE16(MEM(VECTOR_IRQ),MEM(VECTOR_IRQ+1)) );

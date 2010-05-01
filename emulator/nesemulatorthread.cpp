@@ -27,13 +27,11 @@ NESEmulatorThread::~NESEmulatorThread()
 
 void NESEmulatorThread::kill()
 {
-   m_isRunning = false;
+   breakpointSemaphore.release();
+   m_isRunning = true;
    m_isPaused = false;
    m_isTerminating = true;
-   if (!breakpointSemaphore.available())
-      breakpointSemaphore.release();
-   if (!emulatorSemaphore.available())
-      emulatorSemaphore.release();
+   emulatorSemaphore.release();
 }
 
 void NESEmulatorThread::setDialog(QDialog* dialog)

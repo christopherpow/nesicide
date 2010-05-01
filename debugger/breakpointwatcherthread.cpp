@@ -17,8 +17,7 @@ BreakpointWatcherThread::~BreakpointWatcherThread()
 void BreakpointWatcherThread::kill()
 {
    m_isTerminating = true;
-   if (!breakpointWatcherSemaphore.available())
-      breakpointWatcherSemaphore.release();
+   breakpointWatcherSemaphore.release();
 }
 
 void BreakpointWatcherThread::setDialog(QDialog* dialog)
