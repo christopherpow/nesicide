@@ -1520,7 +1520,7 @@ void C6502::RLA ( void )
 {
    UINT addr;
    unsigned short val;
-
+//CPTODO: not sure this is cycle-accurate yet wrt mem...
    addr = MAKEADDR ( amode, data );
    val = MEM ( addr );
 
@@ -1530,8 +1530,8 @@ void C6502::RLA ( void )
    val &= 0xFF;
    wA ( rA()&val );
    MEM ( addr, (unsigned char)val );
-   wN ( val&0x80 );
-   wZ ( !val );
+   wN ( rA()&0x80 );
+   wZ ( !rA() );
 
    return;
 }
