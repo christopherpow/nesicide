@@ -20,7 +20,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    ui->frame->layout()->update();
 
    QObject::connect(this, SIGNAL(startEmulation()), emulator, SLOT(startEmulation()));
-   QObject::connect(this, SIGNAL(pauseEmulation()), emulator, SLOT(pauseEmulation()));
+   QObject::connect(this, SIGNAL(pauseEmulation(bool)), emulator, SLOT(pauseEmulation(bool)));
    QObject::connect(this, SIGNAL(stepCPUEmulation()), emulator, SLOT(stepCPUEmulation()));
    QObject::connect(this, SIGNAL(stepPPUEmulation()), emulator, SLOT(stepPPUEmulation()));
    QObject::connect(this, SIGNAL(resetEmulator()), emulator, SLOT(resetEmulator()));
@@ -41,7 +41,7 @@ NESEmulatorDialog::~NESEmulatorDialog()
 
 void NESEmulatorDialog::stopEmulation()
 {
-    emit pauseEmulation();
+    emit pauseEmulation(false);
     ui->playButton->setEnabled(true);
     ui->pauseButton->setEnabled(false);
     ui->stepCPUButton->setEnabled(false);
@@ -233,7 +233,7 @@ void NESEmulatorDialog::on_pauseButton_clicked()
    ui->stepCPUButton->setEnabled(true);
    ui->stepPPUButton->setEnabled(true);
 
-   emit pauseEmulation();
+   emit pauseEmulation(true);
 }
 
 void NESEmulatorDialog::on_resetButton_clicked()

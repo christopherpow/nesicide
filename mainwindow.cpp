@@ -756,6 +756,9 @@ void MainWindow::on_action_Close_Project_triggered()
     // Remove any tabs
     ui->tabWidget->clear();
 
+    // Close all inspectors
+    InspectorRegistry::hideAll();
+
     // Let the UI know what's up
     projectDataChangesEvent();
 }

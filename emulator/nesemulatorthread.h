@@ -24,7 +24,7 @@ public:
 
 public slots:
    void startEmulation ();
-   void pauseEmulation ();
+   void pauseEmulation (bool show);
    void stepCPUEmulation ();
    void stepPPUEmulation ();
    void resetEmulator ();

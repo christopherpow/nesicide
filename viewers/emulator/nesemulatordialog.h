@@ -41,7 +41,7 @@ signals:
     void controllerInput(unsigned char* input);
     void primeEmulator();
     void startEmulation();
-    void pauseEmulation();
+    void pauseEmulation(bool show);
     void stepCPUEmulation();
     void stepPPUEmulation();
     void resetEmulator();

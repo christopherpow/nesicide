@@ -11,6 +11,7 @@ public:
    InspectorRegistry() {};
    static QDockWidget* getInspector(const QString& name);
    static void         addInspector(const QString& name, QDockWidget* inspector);
+   static void         hideAll();
 
 private:
    static QHash<QString,QDockWidget*> inspectors;

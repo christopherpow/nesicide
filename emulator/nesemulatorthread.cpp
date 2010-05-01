@@ -160,10 +160,10 @@ void NESEmulatorThread::stepPPUEmulation ()
    m_isPaused = false;
 }
 
-void NESEmulatorThread::pauseEmulation ()
+void NESEmulatorThread::pauseEmulation (bool show)
 {
    m_isRunning = false;
-   m_isPaused = true;
+   m_isPaused = show;
 }
 
 void NESEmulatorThread::run ()

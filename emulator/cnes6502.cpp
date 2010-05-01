@@ -1518,7 +1518,7 @@ void C6502::ROR ( void )
 // (Indirect),Y|RLA (arg),Y|$33| 2 | 8
 void C6502::RLA ( void )
 {
-   unsigned short addr;
+   UINT addr;
    unsigned short val;
 
    addr = MAKEADDR ( amode, data );
@@ -1528,8 +1528,8 @@ void C6502::RLA ( void )
    val |= rC();
    wC ( val&0x100 );
    val &= 0xFF;
-   MEM ( addr, (unsigned char)val );
    wA ( rA()&val );
+   MEM ( addr, (unsigned char)val );
    wN ( val&0x80 );
    wZ ( !val );
 
@@ -1569,7 +1569,7 @@ void C6502::RRA ( void )
 
    result = rA () + val + rC ();
 
-    wV ( !((rA()^val)&0x80) && ((rA()^result)&0x80) );
+   wV ( !((rA()^val)&0x80) && ((rA()^result)&0x80) );
    wA ( (unsigned char)result );
    wN ( rA()&0x80 );
    wZ ( !rA() );
