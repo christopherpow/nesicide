@@ -73,6 +73,28 @@ void CNesicideProject::initializeProject()
     m_isInitialized = true;
 }
 
+void CNesicideProject::terminateProject()
+{
+    // Destroying the project node destroys everything else
+    if (m_pointerToCartridge)
+    {
+        this->removeChild(m_pointerToCartridge);
+        delete m_pointerToCartridge;
+        m_pointerToCartridge = NULL;
+    }
+
+    if (m_pointerToProject)
+    {
+        this->removeChild(m_pointerToProject);
+        delete m_pointerToProject;
+        m_pointerToProject = NULL;
+    }
+
+    // Notify the fact that the project data is no longer valid
+    m_isInitialized = false;
+}
+
+
 void CNesicideProject::initializeNodes()
 {
     if (m_pointerToCartridge)
@@ -329,8 +351,8 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         m_pointerToCartridge->setMapperNumber((romCB1>>4)&0x0F);
 
         // ROM Control Byte 2:
-        // • Bits 0-3 - Reserved for future usage and should all be 0.
-        // • Bits 4-7 - Four upper bits of the mapper number.
+        // Â• Bits 0-3 - Reserved for future usage and should all be 0.
+        // Â• Bits 4-7 - Four upper bits of the mapper number.
         qint8 romCB2;
         fs >> romCB2;
 

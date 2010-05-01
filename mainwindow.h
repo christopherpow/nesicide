@@ -68,6 +68,8 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionEmulation_Window_triggered();
+    void on_action_Close_Project_triggered();
     void on_action_About_Nesicide_triggered();
     void on_actionCode_Inspector_toggled(bool );
     void on_actionExecution_Inspector_toggled(bool );

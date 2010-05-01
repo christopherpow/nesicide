@@ -42,6 +42,10 @@ NESEmulatorDialog::~NESEmulatorDialog()
 void NESEmulatorDialog::stopEmulation()
 {
     emit pauseEmulation();
+    ui->playButton->setEnabled(true);
+    ui->pauseButton->setEnabled(false);
+    ui->stepCPUButton->setEnabled(false);
+    ui->stepPPUButton->setEnabled(false);
 }
 
 void NESEmulatorDialog::changeEvent(QEvent *e)

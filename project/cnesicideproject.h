@@ -24,7 +24,8 @@ public:
     // Helper functions
     void initializeProject();
     bool createProjectFromRom(QString fileName);
-
+    void terminateProject();
+    
     // Member Getters
     QString get_projectTitle();
     QList<CPaletteEntry> *get_pointerToListOfProjectPaletteEntries();

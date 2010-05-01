@@ -232,6 +232,11 @@ void MainWindow::projectDataChangesEvent()
     projectTreeviewModel->layoutChangedEvent();
 
     // Enabled/Disable actions based on if we have a project loaded or not
+    ui->actionNew_Project->setEnabled(!nesicideProject->get_isInitialized());
+    ui->actionCreate_Project_from_ROM->setEnabled(!nesicideProject->get_isInitialized());
+    ui->actionOpen_Project->setEnabled(!nesicideProject->get_isInitialized());
+    ui->action_Close_Project->setEnabled(nesicideProject->get_isInitialized());
+    ui->actionCompile_Project->setEnabled(nesicideProject->get_isInitialized());
     ui->actionProject_Properties->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project->setEnabled(nesicideProject->get_isInitialized());
     ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
@@ -449,7 +454,10 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
         ui->tabWidget->setCurrentIndex(emulatorDlgTabIdx);
     }
     else
+    {
         ui->tabWidget->removeTab(emulatorDlgTabIdx);
+        emulatorDlgTabIdx = -1;
+    }
 }
 
 void MainWindow::closeEvent ( QCloseEvent * event )
@@ -731,4 +739,28 @@ void MainWindow::on_action_About_Nesicide_triggered()
     aboutdialog *dlg = new aboutdialog(this);
     dlg->exec();
     delete dlg;
+}
+
+void MainWindow::on_action_Close_Project_triggered()
+{
+    // Stop the emulator if it is running
+    emulatorDlg->stopEmulation();
+    if (emulatorDlgTabIdx > -1) {
+        ui->actionEmulation_Window->toggle();
+        emulatorDlgTabIdx = -1;
+    }
+
+    // Terminate the project and let the IDE know
+    nesicideProject->terminateProject();
+
+    // Remove any tabs
+    ui->tabWidget->clear();
+
+    // Let the UI know what's up
+    projectDataChangesEvent();
+}
+
+void MainWindow::on_actionEmulation_Window_triggered()
+{
+
 }

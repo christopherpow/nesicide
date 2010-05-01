@@ -79,7 +79,7 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>18</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -97,6 +97,8 @@
     <addaction name="actionSave_Project_As"/>
     <addaction name="separator"/>
     <addaction name="actionProject_Properties"/>
+    <addaction name="separator"/>
+    <addaction name="action_Close_Project"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -759,6 +761,11 @@
    </property>
    <property name="toolTip">
     <string>PPU Information</string>
+   </property>
+  </action>
+  <action name="action_Close_Project">
+   <property name="text">
+    <string>&amp;Close Project</string>
    </property>
   </action>
  </widget>
