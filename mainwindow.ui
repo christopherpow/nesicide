@@ -79,7 +79,7 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>24</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -119,41 +119,51 @@
      <property name="title">
       <string>Debugger</string>
      </property>
-     <widget class="QMenu" name="menuGraphical">
+     <widget class="QMenu" name="menuCPU">
       <property name="title">
-       <string>Graphical Inspectors</string>
-      </property>
-      <addaction name="actionGfxCHRMemory_Inspector"/>
-      <addaction name="actionGfxOAMMemory_Inspector"/>
-      <addaction name="actionGfxNameTableMemory_Inspector"/>
-     </widget>
-     <widget class="QMenu" name="menuBinary_Inspectors">
-      <property name="title">
-       <string>Binary Inspectors</string>
+       <string>CPU</string>
       </property>
       <addaction name="actionBinCPURegister_Inspector"/>
-      <addaction name="actionBinAPURegister_Inspector"/>
-      <addaction name="actionBinPPURegister_Inspector"/>
-      <addaction name="separator"/>
       <addaction name="actionBinCPURAM_Inspector"/>
-      <addaction name="actionBinNameTableMemory_Inspector"/>
+     </widget>
+     <widget class="QMenu" name="menuAPU">
+      <property name="title">
+       <string>APU</string>
+      </property>
+      <addaction name="actionBinAPURegister_Inspector"/>
+     </widget>
+     <widget class="QMenu" name="menuPPU">
+      <property name="title">
+       <string>PPU</string>
+      </property>
+      <addaction name="actionPPUInformation_Inspector"/>
+      <addaction name="actionBinPPURegister_Inspector"/>
       <addaction name="actionBinOAMMemory_Inspector"/>
+      <addaction name="actionGfxOAMMemory_Inspector"/>
+      <addaction name="actionBinNameTableMemory_Inspector"/>
+      <addaction name="actionGfxNameTableMemory_Inspector"/>
       <addaction name="actionBinPaletteMemory_Inspector"/>
-      <addaction name="separator"/>
+     </widget>
+     <widget class="QMenu" name="menuCartridge">
+      <property name="title">
+       <string>Cartridge</string>
+      </property>
+      <addaction name="actionBinMapperMemory_Inspector"/>
       <addaction name="actionBinROM_Inspector"/>
       <addaction name="actionBinCHRMemory_Inspector"/>
+      <addaction name="actionGfxCHRMemory_Inspector"/>
       <addaction name="actionBinSRAMMemory_Inspector"/>
       <addaction name="actionBinEXRAMMemory_Inspector"/>
-      <addaction name="actionBinMapperMemory_Inspector"/>
      </widget>
-     <addaction name="menuGraphical"/>
-     <addaction name="menuBinary_Inspectors"/>
-     <addaction name="separator"/>
      <addaction name="actionCode_Inspector"/>
      <addaction name="actionBreakpoint_Inspector"/>
      <addaction name="actionExecution_Inspector"/>
      <addaction name="separator"/>
-     <addaction name="actionPPUInformation_Inspector"/>
+     <addaction name="menuCPU"/>
+     <addaction name="menuPPU"/>
+     <addaction name="menuAPU"/>
+     <addaction name="actionI_O"/>
+     <addaction name="menuCartridge"/>
     </widget>
     <addaction name="menu_Windows"/>
     <addaction name="menuType_Here"/>
@@ -476,7 +486,7 @@
      <normaloff>:/resources/22_chr_mem.png</normaloff>:/resources/22_chr_mem.png</iconset>
    </property>
    <property name="text">
-    <string>CHR Memory Inspector</string>
+    <string>Graphical CHR Memory Inspector</string>
    </property>
    <property name="toolTip">
     <string>Graphical CHR Memory Inspector</string>
@@ -491,7 +501,7 @@
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
-    <string>OAM Inspector</string>
+    <string>Graphical OAM Inspector</string>
    </property>
    <property name="toolTip">
     <string>Graphical OAM Inspector</string>
@@ -506,7 +516,7 @@
      <normaloff>:/resources/22_nametable.png</normaloff>:/resources/22_nametable.png</iconset>
    </property>
    <property name="text">
-    <string>NameTable Inspector</string>
+    <string>Graphical NameTable Inspector</string>
    </property>
    <property name="toolTip">
     <string>Graphical NameTable Inspector</string>
@@ -760,6 +770,11 @@
   <action name="action_Close_Project">
    <property name="text">
     <string>&amp;Close Project</string>
+   </property>
+  </action>
+  <action name="actionI_O">
+   <property name="text">
+    <string>I/O</string>
    </property>
   </action>
  </widget>
