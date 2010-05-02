@@ -48,6 +48,15 @@ void BreakpointDialog::changeEvent(QEvent *e)
 
 void BreakpointDialog::showEvent(QShowEvent *e)
 {
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
+   {
+      ui->addButton->setEnabled(false);
+   }
+   else
+   {
+      ui->addButton->setEnabled(true);
+   }
    model->layoutChangedEvent();
 }
 
@@ -322,6 +331,11 @@ void BreakpointDialog::on_addButton_clicked()
                                  (eBreakpointDataType)ui->dataWidget->currentIndex(),
                                  data );
 
+   if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
+   {
+      ui->addButton->setEnabled(false);
+   }
+
    model->layoutChangedEvent();
 }
 
@@ -446,6 +460,8 @@ void BreakpointDialog::on_removeButton_clicked()
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
+
+      ui->addButton->setEnabled(true);
    }
 
    model->layoutChangedEvent();

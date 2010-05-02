@@ -6,6 +6,8 @@
 #include "inspectorregistry.h"
 #include "main.h"
 
+#include <QMessageBox>
+
 MemoryDisplayDialog::MemoryDisplayDialog(QWidget *parent, eMemoryType display) :
     QDialog(parent),
     ui(new Ui::MemoryDisplayDialog),
@@ -131,16 +133,22 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
    int row = index.row();
    int col = index.column();
    int addr = model->memoryBottom()+(row*model->columnCount())+col;
+   bool added;
 
-   pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
-                                 eBreakpointItemAddress,
-                                 0,
-                                 addr,
-                                 addr,
-                                 eBreakpointConditionTest,
-                                 0,
-                                 eBreakpointDataPure,
-                                 0 );
+   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+                                         eBreakpointItemAddress,
+                                         0,
+                                         addr,
+                                         addr,
+                                         eBreakpointConditionTest,
+                                         0,
+                                         eBreakpointDataPure,
+                                         0 );
+
+   if ( !added )
+   {
+      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+   }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
@@ -153,16 +161,22 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
    int row = index.row();
    int col = index.column();
    int addr = model->memoryBottom()+(row*model->columnCount())+col;
+   bool added;
 
-   pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
-                                 eBreakpointItemAddress,
-                                 0,
-                                 addr,
-                                 addr,
-                                 eBreakpointConditionTest,
-                                 0,
-                                 eBreakpointDataPure,
-                                 0 );
+   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
+                                         eBreakpointItemAddress,
+                                         0,
+                                         addr,
+                                         addr,
+                                         eBreakpointConditionTest,
+                                         0,
+                                         eBreakpointDataPure,
+                                         0 );
+
+   if ( !added )
+   {
+      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+   }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
@@ -175,16 +189,22 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
    int row = index.row();
    int col = index.column();
    int addr = model->memoryBottom()+(row*model->columnCount())+col;
+   bool added;
 
-   pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
-                                 eBreakpointItemAddress,
-                                 0,
-                                 addr,
-                                 addr,
-                                 eBreakpointConditionTest,
-                                 0,
-                                 eBreakpointDataPure,
-                                 0 );
+   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
+                                         eBreakpointItemAddress,
+                                         0,
+                                         addr,
+                                         addr,
+                                         eBreakpointConditionTest,
+                                         0,
+                                         eBreakpointDataPure,
+                                         0 );
+
+   if ( !added )
+   {
+      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+   }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();

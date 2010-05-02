@@ -359,7 +359,6 @@ int btab_ent_prior_to_enum = -1;
 // it was declared is stored in the symbol structure so
 // the address of the symbol can be computed.
 extern symbol_list* current_stab;
-symbol_list* previous_stab;
 extern symbol_list global_stab;
 extern symbol_table* find_symbol ( char* symbol );
 void update_symbol_ir ( symbol_table* stab, ir_table* ir );
@@ -384,6 +383,11 @@ void set_binary_addr ( unsigned int addr );
 void output_binary( char** buffer, int* size );
 
 extern int recovered_linenum;
+
+// Error generation.  All parsing errors are constructed into
+// the global buffer and then added to the list of errors.
+char e [ 256 ];
+void add_error ( char* s );
 
 // Storage space for error strings spit out by the assembler.
 int errorCount = 0;
@@ -471,17 +475,11 @@ ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr );
 // ELSE
 // ... (this assembly code is not emitted)
 // ENDIF
-#define MAX_IF_NEST 10
+#define MAX_IF_NEST 256
 unsigned char emitting[MAX_IF_NEST] = { 1, 0, };
 unsigned char emitted[MAX_IF_NEST] = { 0, };
-unsigned char preproc_nest_level = 0;
+unsigned int preproc_nest_level = 0;
 
-// Error generation.  All parsing errors are constructed into
-// the global buffer and then added to the list of errors.
-char e [ 256 ];
-void add_error ( char* s );
-extern int errorCount;
-extern char* errorStorage;
 extern char* asmtext;
 
 // Diagnostic routines for dumping symbol table, binary table, immediate
@@ -2031,16 +2029,22 @@ void initialize ( void )
    symbol_table* sym;
    symbol_table* syd;
    file_table* fptr;
-   file_table* fptd = NULL;
+   file_table* fptd;
 
-	free ( errorStorage );
+   if ( errorStorage )
+   {
+      free ( errorStorage );
+   }
 	errorStorage = NULL;
 	errorCount = 0;
+
+   current_label = NULL;
 
    recovered_linenum = 0;
 
    if ( ftab )
    {
+      fptd = NULL;
       for ( fptr = ftab; fptr != NULL; fptr = fptr->next )
       {
          if ( fptd )
@@ -2056,19 +2060,32 @@ void initialize ( void )
          free ( fptd );
       }
    }
+   ftab = NULL;
+   cur_file = NULL;
 
    syd = NULL;
    for ( sym = global_stab.head; sym != NULL; sym = sym->next )
    {
-      if ( syd ) free ( syd );
-      if ( sym->expr != NULL )
+      if ( syd )
       {
-         destroy_expression ( sym->expr );
+         if ( syd->expr != NULL )
+         {
+            destroy_expression ( syd->expr );
+         }
+         free ( syd->symbol );
+         free ( syd );
       }
-      free ( sym->symbol );
       syd = sym;
    }
-   if ( syd ) free ( syd );
+   if ( syd )
+   {
+      if ( syd->expr != NULL )
+      {
+         destroy_expression ( syd->expr );
+      }
+      free ( syd->symbol );
+      free ( syd );
+   }
    global_stab.up = NULL;
    global_stab.head = NULL;
    global_stab.tail = NULL;
@@ -2078,30 +2095,45 @@ void initialize ( void )
 
    for ( idx = 0; idx < btab_ent; idx++ )
 	{
-      ptd = NULL;
       free ( btab[idx].symbol );
+      ptd = NULL;
       for ( ptr = btab[idx].ir_head; ptr != NULL; ptr = ptr->next )
       {
-         if ( ptd ) free ( ptd );
-         if ( ptr->expr ) destroy_expression ( ptr->expr );
+         if ( ptd )
+         {
+            if ( ptd->expr ) destroy_expression ( ptd->expr );
+            free ( ptd );
+         }
          ptd = ptr;
       }
-      if ( ptd ) free ( ptd );
+      if ( ptd )
+      {
+         if ( ptd->expr ) destroy_expression ( ptd->expr );
+         free ( ptd );
+      }
       syd = NULL;
       for ( sym = btab[idx].stab->head; sym != NULL; sym = sym->next )
       {
-         if ( syd ) free ( syd );
-         if ( sym->expr != NULL )
+         if ( syd )
          {
-            destroy_expression ( sym->expr );
+            if ( syd->expr != NULL )
+            {
+               destroy_expression ( syd->expr );
+            }
+            free ( syd->symbol );
+            free ( syd );
          }
-         free ( sym->symbol );
          syd = sym;
       }
-      if ( syd ) free ( syd );
-      // bank symbol table scoping is set up in bank creation...
-      btab[idx].stab->head = NULL;
-      btab[idx].stab->tail = NULL;
+      if ( syd )
+      {
+         if ( syd->expr != NULL )
+         {
+            destroy_expression ( syd->expr );
+         }
+         free ( syd->symbol );
+         free ( syd );
+      }
    }
 	free ( btab );
 	btab = NULL;

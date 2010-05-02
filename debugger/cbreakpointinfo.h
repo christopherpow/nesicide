@@ -1,7 +1,7 @@
 #ifndef CBREAKPOINTINFO_H
 #define CBREAKPOINTINFO_H
 
-#define NUM_BREAKPOINTS 4
+#define NUM_BREAKPOINTS 8
 
 typedef enum
 {
@@ -110,7 +110,7 @@ class CBreakpointInfo
 {
 public:
     CBreakpointInfo();
-    void AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
+    bool AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void RemoveBreakpoint ( int index );
     void ToggleEnabled ( int bp );

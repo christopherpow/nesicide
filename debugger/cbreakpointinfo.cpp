@@ -81,8 +81,9 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
    }
 }
 
-void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
+bool CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
 {
+   bool added = false;
    if ( m_numBreakpoints < NUM_BREAKPOINTS )
    {
       ModifyBreakpoint ( m_numBreakpoints,
@@ -96,7 +97,9 @@ void CBreakpointInfo::AddBreakpoint ( eBreakpointType type, eBreakpointItemType 
                          dataType,
                          data );
       m_numBreakpoints++;
+      added = true;
    }
+   return added;
 }
 
 void CBreakpointInfo::RemoveBreakpoint ( int index )

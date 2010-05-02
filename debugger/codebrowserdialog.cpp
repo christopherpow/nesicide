@@ -8,6 +8,8 @@
 #include "inspectorregistry.h"
 #include "main.h"
 
+#include <QMessageBox>
+
 #define BROWSE_ASSEMBLY 0
 #define BROWSE_SOURCE   1
 
@@ -129,6 +131,7 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
+   bool added;
    int addr;
 
    switch ( ui->displayMode->currentIndex() )
@@ -141,15 +144,20 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
       break;
    }
 
-   pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
-                                 eBreakpointItemAddress,
-                                 0,
-                                 addr,
-                                 addr,
-                                 eBreakpointConditionNone,
-                                 0,
-                                 eBreakpointDataNone,
-                                 0 );
+   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
+                                         eBreakpointItemAddress,
+                                         0,
+                                         addr,
+                                         addr,
+                                         eBreakpointConditionNone,
+                                         0,
+                                         eBreakpointDataNone,
+                                         0 );
+
+   if ( !added )
+   {
+      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+   }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();

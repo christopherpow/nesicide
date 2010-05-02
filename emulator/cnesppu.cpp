@@ -161,7 +161,7 @@ static CBreakpointEventInfo* tblPPUEvents [] =
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
    new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10),
    new CBreakpointEventInfo("Sprite 0 Hit", ppuSprite0HitEvent, 0, "Break on sprite 0 hit", 10),
-   new CBreakpointEventInfo("Sprite slice rendering", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10)
+   new CBreakpointEventInfo("Sprite slice rendering (Data1=sprite)", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10)
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
