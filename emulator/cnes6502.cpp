@@ -668,7 +668,7 @@ void C6502::SAY ( void )
    unsigned char  val;
 
    addr = MAKEADDR ( amode, data );
-   val = rY()&((addr>>8)+1);
+   val = (rY()&((addr>>8)))+1;
    MEM ( addr, val );
 
    return;
