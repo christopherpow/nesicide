@@ -73,6 +73,7 @@ void BreakpointDialog::updateData()
       if ( pBreakpoint->hit )
       {
          emit showMe();
+         ui->tableView->setCurrentIndex(model->index(idx,0));
       }
    }
 }

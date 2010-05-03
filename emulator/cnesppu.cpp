@@ -1158,7 +1158,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
                      if ( (pSprite->spriteIdx == 0) &&
                           (!sprite0HitSet) &&
                           (pSprite->spriteX+idx2 < 255) &&
-                          ((tvSet&0x01) == 0x01) )
+                          ((tvSet&0x03) == 0x03) )
                      {
                         if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
                              ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )

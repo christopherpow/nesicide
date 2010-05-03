@@ -80,7 +80,6 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 {
    // First determine the scale factor (ratio), and the zoom factor (reverseRatio)
    float ratio, zoomFactor;
-   int padding;
    QRect actualSize;
    if (width >= ((float)height * (256.0f / 240.0f)))
    {
