@@ -139,7 +139,10 @@ SOURCES += mainwindow.cpp \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
     debugger/ppuinformationdialog.cpp \
-    debugger/ppuinformationinspector.cpp
+    debugger/ppuinformationinspector.cpp \
+    debugger/codedataloggerdialog.cpp \
+    debugger/codedataloggerinspector.cpp \
+    debugger/ccodedataloggerrenderer.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -247,7 +250,10 @@ HEADERS += mainwindow.h \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.h \
     viewers/chr-rom/cchrromitemlistdisplaymodel.h \
     debugger/ppuinformationdialog.h \
-    debugger/ppuinformationinspector.h
+    debugger/ppuinformationinspector.h \
+    debugger/codedataloggerdialog.h \
+    debugger/codedataloggerinspector.h \
+    debugger/ccodedataloggerrenderer.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -266,5 +272,6 @@ FORMS += mainwindow.ui \
     debugger/codebrowserdialog.ui \
     aboutdialog.ui \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.ui \
-    debugger/ppuinformationdialog.ui
+    debugger/ppuinformationdialog.ui \
+    debugger/codedataloggerdialog.ui
 RESOURCES += resource.qrc

@@ -134,6 +134,7 @@ public:
 
    // Emulation routines
    static inline void Move1KBank ( int bank, unsigned char* point ) { if ( bank >= 8 ) m_pPPUmemory[bank-8] = point; }
+   static void EMULATE ( void );
 
    static void RESET ( void );
    static void PPU ( UINT addr, unsigned char data );
@@ -216,6 +217,9 @@ public:
    static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
    static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
 
+   static inline void CodeDataLoggerInspectorTV ( char* pTV ) { m_pCodeDataLoggerInspectorTV = pTV; }
+   static void RENDERCODEDATALOGGER ( void );
+
 protected:
    static unsigned char  m_PALETTEmemory [ MEM_32B ];
    static unsigned char  m_PPUmemory [ MEM_4KB ];
@@ -236,6 +240,7 @@ protected:
    static bool           m_extraVRAM;
 
    static CCodeDataLogger m_logger;
+   static char*          m_pCodeDataLoggerInspectorTV;
    static unsigned int   m_cycles;
    static unsigned char  m_frame;
    static int            m_curCycles;

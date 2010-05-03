@@ -28,6 +28,8 @@
 
 #include "cnesicidecommon.h"
 
+#include <QColor>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -141,6 +143,8 @@ int             C6502::m_numRegisters = NUM_CPU_REGISTERS;
 
 CBreakpointEventInfo** C6502::m_tblBreakpointEvents = tblCPUEvents;
 int                    C6502::m_numBreakpointEvents = NUM_CPU_EVENTS;
+
+char*          C6502::m_pCodeDataLoggerInspectorTV = NULL;
 
 static int opcode_size [ NUM_ADDRESSING_MODES ] =
 {
@@ -436,8 +440,128 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false }  // INS - Absolute,X (undocumented)
 };
 
+static QColor color [ 5 ] =
+{
+   QColor(0,0,0),
+   QColor(255,0,0),
+   QColor(0,255,0),
+   QColor(0,0,255),
+   QColor(255,255,0)
+};
+
+static QColor dmaColor [] =
+{
+   QColor(0,0,0),
+   QColor(0,0,0),
+   QColor(0,255,255),
+   QColor(255,0,255),
+   QColor(0,0,0)
+};
+
+static unsigned char shade [ 20 ] =
+{
+   0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
+   100, 110, 120, 130, 140, 150, 160, 170, 180, 190
+};
+
 C6502::C6502()
 {
+}
+
+void C6502::RENDERCODEDATALOGGER ( void )
+{
+   unsigned int idxx, idxy;
+   UINT cycleDiff;
+   UINT curCycle = CCodeDataLogger::GetCurCycle ();
+   QColor lcolor;
+   CCodeDataLogger* pLogger;
+
+   // Show CPU RAM...
+   pLogger = &m_logger;
+   for ( idxx = 0; idxx < 0x800; idxx++ )
+   {
+      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      if ( cycleDiff > 19 ) cycleDiff = 19;
+
+      if ( pLogger->GetCount(idxx) )
+      {
+         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         {
+            lcolor = dmaColor[pLogger->GetSource(idxx)];
+         }
+         else
+         {
+            lcolor = color[pLogger->GetType(idxx)];
+         }
+         if ( !lcolor.red() )
+         {
+            lcolor.setRed(lcolor.red()+shade[cycleDiff]);
+         }
+         if ( !lcolor.green() )
+         {
+            lcolor.setGreen(lcolor.green()+shade[cycleDiff]);
+         }
+         if ( !lcolor.blue() )
+         {
+            lcolor.setBlue(lcolor.blue()+shade[cycleDiff]);
+         }
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
+      }
+      else
+      {
+         // White
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = 255;
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = 255;
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = 255;
+      }
+   }
+   // Show cartrige memory...
+   for ( idxy = 0; idxy < 4; idxy++ )
+   {
+      for ( idxx = 0; idxx < 0x2000; idxx++ )
+      {
+         pLogger = CROM::LOGGER(0x8000+(idxy*0x2000)+idxx);
+
+         cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+         if ( cycleDiff > 19 ) cycleDiff = 19;
+
+         if ( pLogger->GetCount(idxx) )
+         {
+            if ( pLogger->GetType(idxx) == eLogger_DMA )
+            {
+               lcolor = dmaColor[pLogger->GetSource(idxx)];
+            }
+            else
+            {
+               lcolor = color[pLogger->GetType(idxx)];
+            }
+            if ( !lcolor.red() )
+            {
+               lcolor.setRed(lcolor.red()+shade[cycleDiff]);
+            }
+            if ( !lcolor.green() )
+            {
+               lcolor.setGreen(lcolor.green()+shade[cycleDiff]);
+            }
+            if ( !lcolor.blue() )
+            {
+               lcolor.setBlue(lcolor.blue()+shade[cycleDiff]);
+            }
+            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 0] = lcolor.red();
+            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 1] = lcolor.green();
+            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 2] = lcolor.blue();
+         }
+         else
+         {
+            // White
+            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 0] = 255;
+            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 1] = 255;
+            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 2] = 255;
+         }
+      }
+   }
 }
 
 void C6502::EMULATE ( int cycles )

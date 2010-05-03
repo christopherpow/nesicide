@@ -293,6 +293,10 @@ public:
    static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
    static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
 
+   static inline void CodeDataLoggerInspectorTV ( char* pTV ) { m_pCodeDataLoggerInspectorTV = pTV; }
+   static void RENDERCODEDATALOGGER ( void );
+
+
 protected:
    static bool            m_killed;
    static unsigned char   m_6502memory [ MEM_2KB ];
@@ -319,6 +323,8 @@ protected:
 
    static CBreakpointEventInfo** m_tblBreakpointEvents;
    static int                    m_numBreakpointEvents;
+
+   static char*          m_pCodeDataLoggerInspectorTV;
 };
 
 typedef struct _C6502_opcode

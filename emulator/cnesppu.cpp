@@ -25,6 +25,8 @@
 #include "cnesrom.h"
 #include "cnesapu.h"
 
+#include <QColor>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -190,6 +192,9 @@ int            CPPU::m_oneScreen = -1;
 bool           CPPU::m_extraVRAM = false;
 
 CCodeDataLogger CPPU::m_logger;
+
+char*          CPPU::m_pCodeDataLoggerInspectorTV = NULL;
+
 unsigned int   CPPU::m_cycles = 0;
 int            CPPU::m_mode = MODE_NTSC;
 char           CPPU::m_szBinaryText [] = { 0, };
@@ -234,10 +239,94 @@ CPPU::~CPPU()
 {
 }
 
-void CPPU::INCCYCLE()
+static QColor color [ 5 ] =
+{
+   QColor(0,0,0),
+   QColor(255,0,0),
+   QColor(0,255,0),
+   QColor(0,0,255),
+   QColor(255,255,0)
+};
+
+static QColor dmaColor [] =
+{
+   QColor(0,0,0),
+   QColor(0,0,0),
+   QColor(0,255,255),
+   QColor(255,0,255),
+   QColor(0,0,0)
+};
+
+static unsigned char shade [ 20 ] =
+{
+   0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
+   100, 110, 120, 130, 140, 150, 160, 170, 180, 190
+};
+
+void CPPU::RENDERCODEDATALOGGER ( void )
+{
+   unsigned int idxx;
+   UINT cycleDiff;
+   UINT curCycle = CCodeDataLogger::GetCurCycle ();
+   QColor lcolor;
+   CCodeDataLogger* pLogger;
+
+   // Show PPU memory...
+   pLogger = &m_logger;
+   for ( idxx = 0; idxx < 0x4000; idxx++ )
+   {
+      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      if ( cycleDiff > 19 ) cycleDiff = 19;
+
+      if ( pLogger->GetCount(idxx) )
+      {
+         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         {
+            lcolor = dmaColor[pLogger->GetSource(idxx)];
+         }
+         else
+         {
+            lcolor = color[pLogger->GetType(idxx)];
+         }
+         if ( !lcolor.red() )
+         {
+            lcolor.setRed(lcolor.red()+shade[cycleDiff]);
+         }
+         if ( !lcolor.green() )
+         {
+            lcolor.setGreen(lcolor.green()+shade[cycleDiff]);
+         }
+         if ( !lcolor.blue() )
+         {
+            lcolor.setBlue(lcolor.blue()+shade[cycleDiff]);
+         }
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
+      }
+      else
+      {
+         // White
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = 255;
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = 255;
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = 255;
+      }
+   }
+}
+
+void CPPU::INCCYCLE(void)
 {
    m_curCycles++;
    m_cycles++;
+}
+
+void CPPU::EMULATE(void)
+{
+   if ( m_curCycles > 0 )
+   {
+      C6502::EMULATE ( m_curCycles/3 );
+      m_curCycles %= 3;
+   }
 }
 
 UINT CPPU::LOAD ( UINT addr, char source, char type )
@@ -908,6 +997,9 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          {
             *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|((dma+start)&0xFF), eLoggerSource_PPU );
          }
+
+         // Steal CPU cycles...
+         m_curCycles -= 1536; // 512 PPU cycles * 3 cycles per CPU
       }
    }
 }
@@ -1015,8 +1107,9 @@ void CPPU::NONRENDERSCANLINE ( int scanlines )
       for ( idxx = 0; idxx < 341; idxx++ )
       {
          INCCYCLE();
-         C6502::EMULATE ( m_curCycles/3 );
-         m_curCycles %= 3;
+         EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
 
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU );
@@ -1231,11 +1324,13 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    // Finish off scanline render clock cycles...
    GARBAGE ( eTarget_NameTable );
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
    GARBAGE ( eTarget_NameTable );
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
 
    // If this is the non-render scanline on an odd frame and the PPU is on
    if ( (scanline >= 0) ||
@@ -1243,8 +1338,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
    {
       // account for extra clock (341)
       EXTRA ();
-      C6502::EMULATE ( m_curCycles/3 );
-      m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
    }
 }
 
@@ -1262,18 +1358,22 @@ void CPPU::GATHERBKGND ( void )
    m_bkgndBuffer.data[0].attribData = m_bkgndBuffer.data[1].attribData;
 
    patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
    mapperfunc[CROM::MAPPER()].latch ( patternIdx );
    pBkgnd->attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
    pBkgnd->patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
    pBkgnd->patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
-   C6502::EMULATE ( m_curCycles/3 );
-   m_curCycles %= 3;
+   EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
 
    if ( (tileY&0x0002) == 0 )
    {
@@ -1374,18 +1474,22 @@ void CPPU::GATHERSPRITES ( int scanline )
 
          // Garbage nametable fetches according to Samus Aran...
          GARBAGE ( eTarget_NameTable );
-         C6502::EMULATE ( m_curCycles/3 );
-         m_curCycles %= 3;
+         EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
          GARBAGE ( eTarget_NameTable );
-         C6502::EMULATE ( m_curCycles/3 );
-         m_curCycles %= 3;
+         EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
-         C6502::EMULATE ( m_curCycles/3 );
-         m_curCycles %= 3;
+         EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
-         C6502::EMULATE ( m_curCycles/3 );
-         m_curCycles %= 3;
+         EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
 
          m_spriteBuffer.count++;
          pSprite++;
@@ -1405,17 +1509,21 @@ void CPPU::GATHERSPRITES ( int scanline )
    {
       // Garbage nametable fetches according to Samus Aran...
       GARBAGE ( eTarget_NameTable );
-      C6502::EMULATE ( m_curCycles/3 );
-      m_curCycles %= 3;
+      EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
       GARBAGE ( eTarget_NameTable );
-      C6502::EMULATE ( m_curCycles/3 );
-      m_curCycles %= 3;
+      EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
       GARBAGE ( eTarget_PatternMemory );
-      C6502::EMULATE ( m_curCycles/3 );
-      m_curCycles %= 3;
+      EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
       GARBAGE ( eTarget_PatternMemory );
-      C6502::EMULATE ( m_curCycles/3 );
-      m_curCycles %= 3;
+      EMULATE();
+//         C6502::EMULATE ( m_curCycles/3 );
+//         m_curCycles %= 3;
    }
 
    // order sprites by priority for rendering...

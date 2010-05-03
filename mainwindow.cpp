@@ -76,6 +76,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_pCodeInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeInspector_close(bool)));
     InspectorRegistry::addInspector ( "Code Inspector", m_pCodeInspector );
 
+    m_pCodeDataLoggerInspector = new CodeDataLoggerInspector();
+    m_pCodeDataLoggerInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pCodeDataLoggerInspector->setWindowTitle("Code/Data Logger Inspector");
+    m_pCodeDataLoggerInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
+    m_pCodeDataLoggerInspector->hide();
+    QObject::connect(m_pCodeDataLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeDataLoggerInspector_close(bool)));
+    InspectorRegistry::addInspector ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
+
     m_pBinCPURegisterInspector = new RegisterInspector(eMemory_CPUregs);
     m_pBinCPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
@@ -244,6 +253,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCode_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
@@ -722,6 +732,16 @@ void MainWindow::on_actionCode_Inspector_toggled(bool value)
 void MainWindow::reflectedCodeInspector_close ( bool toplevel )
 {
    ui->actionCode_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionCodeDataLogger_Inspector_toggled(bool value)
+{
+   m_pCodeDataLoggerInspector->setVisible(value);
+}
+
+void MainWindow::reflectedCodeDataLoggerInspector_close ( bool toplevel )
+{
+   ui->actionCodeDataLogger_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionPPUInformation_Inspector_toggled(bool value)

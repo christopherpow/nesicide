@@ -158,6 +158,7 @@
      <addaction name="actionCode_Inspector"/>
      <addaction name="actionBreakpoint_Inspector"/>
      <addaction name="actionExecution_Inspector"/>
+     <addaction name="actionCodeDataLogger_Inspector"/>
      <addaction name="separator"/>
      <addaction name="menuCPU"/>
      <addaction name="menuPPU"/>
@@ -775,6 +776,14 @@
   <action name="actionI_O">
    <property name="text">
     <string>I/O</string>
+   </property>
+  </action>
+  <action name="actionCodeDataLogger_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Code/Data Logger Inspector</string>
    </property>
   </action>
  </widget>

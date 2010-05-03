@@ -18,6 +18,7 @@
 #include "registerinspector.h"
 #include "breakpointinspector.h"
 #include "codeinspector.h"
+#include "codedataloggerinspector.h"
 #include "ppuinformationinspector.h"
 #include "aboutdialog.h"
 
@@ -62,6 +63,7 @@ private:
     RegisterInspector* m_pBinMapperMemoryInspector;
     BreakpointInspector* m_pBreakpointInspector;
     CodeInspector* m_pCodeInspector;
+    CodeDataLoggerInspector* m_pCodeDataLoggerInspector;
     PPUInformationInspector* m_pPPUInformationInspector;
 
 protected:
@@ -73,6 +75,7 @@ private slots:
     void on_action_Close_Project_triggered();
     void on_action_About_Nesicide_triggered();
     void on_actionCode_Inspector_toggled(bool );
+    void on_actionCodeDataLogger_Inspector_toggled(bool );
     void on_actionExecution_Inspector_toggled(bool );
     void on_actionBreakpoint_Inspector_toggled(bool );
     void on_actionGfxCHRMemory_Inspector_toggled(bool );
@@ -92,6 +95,7 @@ private slots:
     void on_actionBinMapperMemory_Inspector_toggled(bool );
     void on_actionPPUInformation_Inspector_toggled(bool );
     void reflectedCodeInspector_close(bool toplevel);
+    void reflectedCodeDataLoggerInspector_close(bool toplevel);
     void reflectedExecutionInspector_close(bool toplevel);
     void reflectedBreakpointInspector_close(bool toplevel);
     void reflectedGfxCHRMemoryInspector_close(bool toplevel);
