@@ -2,7 +2,6 @@
 #define CPROJECTPRIMITIVES_H
 
 #include "iprojecttreeviewitem.h"
-#include "cprojectpalettes.h"
 #include "ixmlserializable.h"
 #include <QString>
 
@@ -11,8 +10,6 @@ class CProjectPrimitives : public IProjectTreeViewItem
 public:
     CProjectPrimitives();
     virtual ~CProjectPrimitives();
-
-    CProjectPalettes *projectPalettes;
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node) { return true; }
