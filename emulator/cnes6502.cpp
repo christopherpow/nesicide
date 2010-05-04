@@ -440,7 +440,7 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false }  // INS - Absolute,X (undocumented)
 };
 
-static QColor color [ 5 ] =
+static QColor color [] =
 {
    QColor(0,0,0),
    QColor(255,0,0),

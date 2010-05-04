@@ -239,7 +239,7 @@ CPPU::~CPPU()
 {
 }
 
-static QColor color [ 5 ] =
+static QColor color [] =
 {
    QColor(0,0,0),
    QColor(255,0,0),

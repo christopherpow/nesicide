@@ -56,7 +56,7 @@ typedef struct _LoggerInfo
 class CCodeDataLogger  
 {
 public:
-   CCodeDataLogger(UINT size = MEM_8KB, UINT mask = MASK_8KB);
+   CCodeDataLogger(UINT size = MEM_16KB, UINT mask = MASK_16KB);
 	virtual ~CCodeDataLogger();
 
    void ClearData ( void );
