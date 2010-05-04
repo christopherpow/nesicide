@@ -138,7 +138,8 @@ SOURCES += mainwindow.cpp \
     debugger/ppuinformationinspector.cpp \
     debugger/codedataloggerdialog.cpp \
     debugger/codedataloggerinspector.cpp \
-    debugger/ccodedataloggerrenderer.cpp
+    debugger/ccodedataloggerrenderer.cpp \
+    project/cattributetables.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -246,7 +247,8 @@ HEADERS += mainwindow.h \
     debugger/ppuinformationinspector.h \
     debugger/codedataloggerdialog.h \
     debugger/codedataloggerinspector.h \
-    debugger/ccodedataloggerrenderer.h
+    debugger/ccodedataloggerrenderer.h \
+    project/cattributetables.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
