@@ -28,7 +28,6 @@ INCLUDEPATH += ./common \
     ./designers/cartridge_editor \
     ./designers/code_editor \
     ./designers/new_project \
-    ./designers/palette_editor \
     ./designers/project_properties \
     ./designers/graphics_bank_editor \
     ./emulator \
@@ -57,7 +56,6 @@ SOURCES += mainwindow.cpp \
     designers/code_editor/csyntaxhighlightedtextedit.cpp \
     designers/code_editor/codeeditorform.cpp \
     designers/new_project/newprojectdialog.cpp \
-    designers/palette_editor/paletteeditorwindow.cpp \
     designers/project_properties/projectpropertiesdialog.cpp \
     emulator/ctracer.cpp \
     emulator/cnesrommapper068.cpp \
@@ -83,8 +81,6 @@ SOURCES += mainwindow.cpp \
     project/csources.cpp \
     project/csourceitem.cpp \
     project/cprojectprimitives.cpp \
-    project/cprojectpalettes.cpp \
-    project/cprojectpaletteitem.cpp \
     project/cproject.cpp \
     project/cprgrombanks.cpp \
     project/cprgrombank.cpp \
@@ -142,7 +138,8 @@ SOURCES += mainwindow.cpp \
     debugger/ppuinformationinspector.cpp \
     debugger/codedataloggerdialog.cpp \
     debugger/codedataloggerinspector.cpp \
-    debugger/ccodedataloggerrenderer.cpp
+    debugger/ccodedataloggerrenderer.cpp \
+    project/cattributetables.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -163,7 +160,6 @@ HEADERS += mainwindow.h \
     designers/code_editor/csyntaxhighlightedtextedit.h \
     designers/code_editor/codeeditorform.h \
     designers/new_project/newprojectdialog.h \
-    designers/palette_editor/paletteeditorwindow.h \
     designers/project_properties/projectpropertiesdialog.h \
     emulator/ctracer.h \
     emulator/cnesrommapper068.h \
@@ -191,8 +187,6 @@ HEADERS += mainwindow.h \
     project/csources.h \
     project/csourceitem.h \
     project/cprojectprimitives.h \
-    project/cprojectpalettes.h \
-    project/cprojectpaletteitem.h \
     project/cproject.h \
     project/cprgrombanks.h \
     project/cprgrombank.h \
@@ -253,11 +247,11 @@ HEADERS += mainwindow.h \
     debugger/ppuinformationinspector.h \
     debugger/codedataloggerdialog.h \
     debugger/codedataloggerinspector.h \
-    debugger/ccodedataloggerrenderer.h
+    debugger/ccodedataloggerrenderer.h \
+    project/cattributetables.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
-    designers/palette_editor/paletteeditorwindow.ui \
     designers/project_properties/projectpropertiesdialog.ui \
     viewers/chr-rom/chrromdisplaydialog.ui \
     viewers/emulator/nesemulatordialog.ui \

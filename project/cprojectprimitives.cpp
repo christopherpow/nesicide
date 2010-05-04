@@ -2,15 +2,15 @@
 
 CProjectPrimitives::CProjectPrimitives()
 {
-    projectPalettes = new CProjectPalettes();
-    projectPalettes->InitTreeItem(this);
-    this->appendChild(projectPalettes);
+   m_attributeTables = new CAttributeTables();
+   m_attributeTables->InitTreeItem(this);
+   this->appendChild(m_attributeTables);
 }
 
 CProjectPrimitives::~CProjectPrimitives()
 {
-    if (projectPalettes)
-        delete projectPalettes;
+   if (m_attributeTables)
+      delete m_attributeTables;
 }
 
 QString CProjectPrimitives::caption() const
