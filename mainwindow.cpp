@@ -227,6 +227,25 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+   event->acceptProposedAction();
+}
+
+void MainWindow::dragMoveEvent(QDragMoveEvent *event)
+{
+   event->acceptProposedAction();
+}
+
+#include <QMessageBox>
+void MainWindow::dropEvent(QDropEvent *event)
+{
+   QStringList sl = event->mimeData()->formats();
+   QByteArray ba = event->mimeData()->data(sl.at(7));
+
+   event->acceptProposedAction();
+}
+
 void MainWindow::projectDataChangesEvent()
 {
     QString str;

@@ -1,7 +1,13 @@
 #include "csourcebrowserdisplaymodel.h"
 
+#include "cnes.h"
 #include "cnesrom.h"
+#include "cnes6502.h"
 #include "cnesicideproject.h"
+
+#include "cbreakpointinfo.h"
+
+#include <QIcon>
 
 CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject* parent)
 {
@@ -13,8 +19,16 @@ CSourceBrowserDisplayModel::~CSourceBrowserDisplayModel()
 
 QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) const
 {
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   int idx;
+
    if (!index.isValid())
       return QVariant();
+
+   if ((role == Qt::DecorationRole) && (index.column() == 0))
+   {
+      return QIcon(":/resources/22_execution_pointer.png");
+   }
 
    if (role != Qt::DisplayRole)
       return QVariant();
@@ -22,6 +36,9 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    switch ( index.column() )
    {
       case 0:
+         return "";
+      break;
+      case 1:
          return m_source.at ( index.row() );
       break;
    }
@@ -47,6 +64,9 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
       switch ( section )
       {
          case 0:
+            return "!";
+         break;
+         case 1:
             return "Source Code";
          break;
       }
@@ -76,7 +96,7 @@ int CSourceBrowserDisplayModel::columnCount(const QModelIndex &parent) const
    {
       return 0;
    }
-   return 1;
+   return 2;
 }
 
 void CSourceBrowserDisplayModel::layoutChangedEvent()

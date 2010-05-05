@@ -35,6 +35,9 @@ public:
     int emulatorDlgTabIdx;
 protected:
     void changeEvent(QEvent *e);
+    void dragEnterEvent ( QDragEnterEvent * event );
+    void dragMoveEvent ( QDragMoveEvent * event );
+    void dropEvent ( QDropEvent * event );
 
 private:
     Ui::MainWindow *ui;

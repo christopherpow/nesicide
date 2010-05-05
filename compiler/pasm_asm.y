@@ -2967,7 +2967,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   //dump_ir_tables ();
+   dump_ir_tables ();
    //dump_ir_expressions ();
 }
 

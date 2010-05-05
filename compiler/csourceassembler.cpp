@@ -4,6 +4,8 @@
 
 #include "pasm_lib.h"
 
+#include "inspectorregistry.h"
+
 CSourceAssembler::CSourceAssembler()
 {
 }
@@ -72,6 +74,16 @@ bool CSourceAssembler::assemble()
       prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
 
       curBank->set_pointerToBankData ( (quint8*)romData );
+   }
+
+   if ( !numErrors )
+   {
+      QDockWidget* pCodeBrowser = InspectorRegistry::getInspector ( "Code Inspector" );
+      if ( pCodeBrowser->isVisible() )
+      {
+         pCodeBrowser->hide();
+         pCodeBrowser->show();
+      }
    }
 
    return numErrors?false:true;

@@ -44,5 +44,9 @@
         <file>resources/22_binary_file.png</file>
         <file>resources/22_item_add.png</file>
         <file>resources/22_item_remove.png</file>
+        <file>resources/22_execution_pointer.png</file>
+        <file>resources/22_breakpoint_disabled.png</file>
+        <file>resources/22_execution_break_disabled.png</file>
+        <file>resources/22_execution_break.png</file>
     </qresource>
 </RCC>

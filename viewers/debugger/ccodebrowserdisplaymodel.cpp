@@ -1,7 +1,13 @@
 #include "ccodebrowserdisplaymodel.h"
 
-#include "cnes6502.h"
+#include "cnes.h"
 #include "cnesrom.h"
+#include "cnes6502.h"
+#include "cnesicideproject.h"
+
+#include "cbreakpointinfo.h"
+
+#include <QIcon>
 
 CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject* parent)
 {
@@ -18,6 +24,48 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    //UINT addr = (UINT)index.internalPointer();
    char buffer [ 3 ];
    unsigned char opSize;
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   int idx;
+
+   if ((role == Qt::DecorationRole) && (index.column() == 0))
+   {
+      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+      {
+         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+         if ( (pBreakpoint->enabled) &&
+              (pBreakpoint->type == eBreakOnCPUExecution) &&
+              (pBreakpoint->item1 <= addr) &&
+              (pBreakpoint->item2 >= addr) )
+         {
+            if ( addr == C6502::__PC() )
+            {
+               return QIcon(":/resources/22_execution_break.png");
+            }
+            else
+            {
+               return QIcon(":/resources/22_breakpoint.png");
+            }
+         }
+         else if ( (!pBreakpoint->enabled) &&
+                   (pBreakpoint->type == eBreakOnCPUExecution) &&
+                   (pBreakpoint->item1 <= addr) &&
+                   (pBreakpoint->item2 >= addr) )
+         {
+            if ( addr == C6502::__PC() )
+            {
+               return QIcon(":/resources/22_execution_break_disabled.png");
+            }
+            else
+            {
+               return QIcon(":/resources/22_breakpoint_disabled.png");
+            }
+         }
+      }
+      if ( addr == C6502::__PC() )
+      {
+         return QIcon(":/resources/22_execution_pointer.png");
+      }
+   }
 
    if (!index.isValid())
       return QVariant();
@@ -28,10 +76,13 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    switch ( index.column() )
    {
       case 0:
+         return "";
+      break;
+      case 1:
          sprintf ( buffer, "%02X", CROM::PRGROM(addr) );
          return buffer;
       break;
-      case 1:
+      case 2:
          opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
          if ( 1 < opSize )
          {
@@ -39,7 +90,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
             return buffer;
          }
       break;
-      case 2:
+      case 3:
          opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
          if ( 2 < opSize )
          {
@@ -47,7 +98,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
             return buffer;
          }
       break;
-      case 3:
+      case 4:
          return CROM::DISASSEMBLY(addr);
       break;
    }
@@ -74,15 +125,18 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
       switch ( section )
       {
          case 0:
-            return "Op";
+            return "!";
          break;
          case 1:
-            return "Lo";
+            return "Op";
          break;
          case 2:
-            return "Hi";
+            return "Lo";
          break;
          case 3:
+            return "Hi";
+         break;
+         case 4:
             return "Disassembly";
          break;
       }
@@ -122,7 +176,7 @@ int CCodeBrowserDisplayModel::columnCount(const QModelIndex &parent) const
    {
       return 0;
    }
-   return 4;
+   return 5;
 }
 
 void CCodeBrowserDisplayModel::layoutChangedEvent()
