@@ -71,6 +71,7 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
             case eBreakInAPU:
             break;
             case eBreakInMapper:
+               m_breakpoint [ bp ].pEvent = CROM::BREAKPOINTEVENTS()[event];
             break;
          }
       }
@@ -1251,6 +1252,9 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
          }
       break;
       case eBreakOnMapperEvent:
+         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
+                      m_breakpoint[idx].item1,
+                      m_breakpoint[idx].item2 );
       break;
    }
 }

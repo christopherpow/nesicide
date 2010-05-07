@@ -13,6 +13,15 @@
 
 #include "ccodedatalogger.h"
 
+#include "cbreakpointinfo.h"
+
+// Breakpoint event identifiers
+enum
+{
+   MAPPER_EVENT_IRQ = 0,
+   NUM_MAPPER_EVENTS
+};
+
 #define NUM_ROM_BANKS 32
 
 // Resolve a 6502-address to one of 4 8KB PRG ROM banks [0:$8000-$9FFF, 1:$A000-$BFFF, 2:$C000-$DFFF, or 3:$E000-$FFFF]
@@ -70,6 +79,9 @@ public:
    static inline unsigned short SLOC ( UINT addr ) { return *(m_PRGROMsloc+PRGBANK_PHYS(addr)); }
    static void DISASSEMBLE ();
 
+   static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
+   static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
+
    // Mapper interfaces [not usually called directly, rather through mapperfunc array]
    static void RESET ();
    static UINT MAPPER ( void ) { return m_mapper; }
@@ -111,6 +123,9 @@ protected:
    static CCodeDataLogger* m_pLogger [ NUM_ROM_BANKS ];
    static CRegisterData** m_tblRegisters;
    static int             m_numRegisters;
+
+   static CBreakpointEventInfo** m_tblBreakpointEvents;
+   static int                    m_numBreakpointEvents;
 };
 
 #endif

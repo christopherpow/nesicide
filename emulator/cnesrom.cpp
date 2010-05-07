@@ -26,6 +26,19 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+// Mapper Event breakpoints
+bool mapperIRQEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+static CBreakpointEventInfo* tblMapperEvents [] =
+{
+   new CBreakpointEventInfo("IRQ", mapperIRQEvent, 0, "Break if mapper asserts IRQ", 10),
+};
+
 unsigned char  CROM::m_PRGROMmemory [][ MEM_8KB ] = { { 0, }, };
 unsigned char  CROM::m_PRGROMopcodeMask [][ MEM_8KB ] = { { 0, }, };
 char*          CROM::m_PRGROMdisassembly [][ MEM_8KB ] = { { 0, }, };
@@ -48,6 +61,9 @@ UINT           CROM::m_numChrBanks = 0;
 CCodeDataLogger* CROM::m_pLogger [] = { NULL, };
 CRegisterData**  CROM::m_tblRegisters = NULL;
 int              CROM::m_numRegisters = 0;
+
+CBreakpointEventInfo** CROM::m_tblBreakpointEvents = tblMapperEvents;
+int                    CROM::m_numBreakpointEvents = NUM_MAPPER_EVENTS;
 
 static CROM __init __attribute((unused));
 
