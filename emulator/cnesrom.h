@@ -74,10 +74,10 @@ public:
    static void RESET ();
    static UINT MAPPER ( void ) { return m_mapper; }
    static UINT MAPPER ( UINT addr ) { return PRGROM(addr); }
-   static void MAPPER ( UINT addr, unsigned char data ) {};
+   static void MAPPER ( UINT addr, unsigned char data ) {}
    static UINT LMAPPER ( UINT addr ) { return 0x40; } // open bus?
-   static void LMAPPER ( UINT addr, unsigned char data ) {};
-   static bool SYNCH ( int scanline ) { return false; }
+   static void LMAPPER ( UINT addr, unsigned char data ) {}
+   static void SYNCH ( int scanline ) {}
    static bool SYNCV ( void ) { return false; }
    static void LATCH ( UINT addr ) {}
    static void LOAD ( MapperState* data );

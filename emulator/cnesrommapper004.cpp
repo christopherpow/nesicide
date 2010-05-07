@@ -20,6 +20,7 @@
 
 #include "cnesrommapper004.h"
 
+#include "cnes6502.h"
 #include "cnesppu.h"
 
 #include "cregisterdata.h"
@@ -135,37 +136,36 @@ void CROMMapper004::RESET ()
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-bool CROMMapper004::SYNCH ( int scanline )
+void CROMMapper004::SYNCH ( int scanline )
 {
-   bool fire = false;
    bool zero = false;
 
-   if ( (scanline == -1) || ((scanline >= 0) && (scanline < 240)) )
+   if ( m_irqReload )
    {
-      if ( m_irqReload )
+      m_irqCounter = m_irqLatch;
+      m_irqReload = false;
+      if ( !m_irqCounter )
+      {
+         zero = true;
+      }
+      else
+      {
+         C6502::RELEASEIRQ ( eSource_Mapper );
+      }
+   }
+   else
+   {
+      m_irqCounter--;
+      if ( m_irqCounter == 0 )
       {
          m_irqCounter = m_irqLatch;
-         m_irqReload = false;
-      }
-      if ( (scanline == -1) || (CPPU::_PPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
-      {
-         if ( m_irqCounter )
-         {
-            m_irqCounter--;
-         }
-         if ( !m_irqCounter )
-         {
-            m_irqCounter = m_irqLatch;
-            zero = true;
-         }
+         zero = true;
       }
    }
    if ( m_irqEnable && zero )
    {
-      fire = true;
+      C6502::ASSERTIRQ ( eSource_Mapper );
    }
-
-   return fire;
 }
 
 void CROMMapper004::SETCPU ( void )
@@ -364,6 +364,7 @@ void CROMMapper004::MAPPER ( UINT addr, unsigned char data )
       break;
       case 0xE000:
          m_irqEnable = false;
+         C6502::RELEASEIRQ ( eSource_Mapper );
       break;
       case 0xE001:
          m_irqEnable = true;

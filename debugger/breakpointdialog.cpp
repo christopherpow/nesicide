@@ -58,6 +58,7 @@ void BreakpointDialog::showEvent(QShowEvent *e)
       ui->addButton->setEnabled(true);
    }
    model->layoutChangedEvent();
+   ui->tableView->resizeColumnToContents(0);
 }
 
 void BreakpointDialog::updateData()
@@ -338,6 +339,8 @@ void BreakpointDialog::on_addButton_clicked()
    }
 
    model->layoutChangedEvent();
+
+   emit breakpointsChanged();
 }
 
 void BreakpointDialog::DisplayBreakpoint ( int idx )
@@ -466,6 +469,8 @@ void BreakpointDialog::on_removeButton_clicked()
    }
 
    model->layoutChangedEvent();
+
+   emit breakpointsChanged();
 }
 
 void BreakpointDialog::on_addr1_textChanged(QString )
@@ -539,6 +544,8 @@ void BreakpointDialog::on_modifyButton_clicked()
                                     data );
 
    model->layoutChangedEvent();
+
+   emit breakpointsChanged();
 }
 
 void BreakpointDialog::on_endisButton_clicked()
@@ -551,5 +558,7 @@ void BreakpointDialog::on_endisButton_clicked()
       pBreakpoints->ToggleEnabled ( sel.row() );
 
       model->layoutChangedEvent();
+
+      emit breakpointsChanged();
    }
 }

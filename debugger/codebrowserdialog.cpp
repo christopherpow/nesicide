@@ -17,6 +17,8 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CodeBrowserDialog)
 {
+    QDockWidget* breakpointInspector = InspectorRegistry::getInspector("Breakpoints");
+
     ui->setupUi(this);
     assemblyViewModel = new CCodeBrowserDisplayModel(this);
     sourceViewModel = new CSourceBrowserDisplayModel(this);
@@ -25,6 +27,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateDisassembly()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateDisassembly()) );
+    QObject::connect ( breakpointInspector->widget(), SIGNAL(breakpointsChanged()), this, SLOT(updateBrowser()) );
 }
 
 CodeBrowserDialog::~CodeBrowserDialog()

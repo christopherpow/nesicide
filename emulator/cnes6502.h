@@ -152,7 +152,9 @@ public:
    static unsigned char OpcodeSize ( unsigned char op );
 
    static void RESET ( void );
-   static void IRQ ( char source );
+   static void IRQ ();
+   static void ASSERTIRQ ( char source );
+   static void RELEASEIRQ ( char source );
    static void NMI ( char source );
 
    static void ADC ( void );
@@ -299,6 +301,7 @@ public:
 
 protected:
    static bool            m_killed;
+   static bool            m_irqAsserted;
    static unsigned char   m_6502memory [ MEM_2KB ];
    static char            m_szBinaryText [ 6913 ]; // 54-bytes per line for 128 lines + 1 null
    static unsigned char   m_a;

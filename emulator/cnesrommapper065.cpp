@@ -20,6 +20,7 @@
 
 #include "cnesrommapper065.h"
 
+#include "cnes6502.h"
 #include "cnesppu.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -61,24 +62,20 @@ void CROMMapper065::RESET ()
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-bool CROMMapper065::SYNCH ( int scanline )
+void CROMMapper065::SYNCH ( int scanline )
 {
-   bool fire = false;
-
    if ( m_irqEnable )
    {
       if ( m_irqCounter == 0 )
       {
          m_irqEnable = false;
-         fire = true;
+         C6502::ASSERTIRQ ( eSource_Mapper );
       }
       else
       {
          m_irqCounter--;
       }
    }
-
-   return fire;
 }
 
 void CROMMapper065::LOAD ( MapperState* data )

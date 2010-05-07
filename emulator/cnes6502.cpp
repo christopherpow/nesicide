@@ -119,6 +119,7 @@ static CBreakpointEventInfo* tblCPUEvents [] =
 };
 
 bool            C6502::m_killed = false;              // KIL opcode not executed
+bool            C6502::m_irqAsserted = false;
 unsigned char   C6502::m_6502memory [] = { 0, };
 char            C6502::m_szBinaryText [] = { 0, };
 unsigned char   C6502::m_a = 0x00;
@@ -458,12 +459,6 @@ static QColor dmaColor [] =
    QColor(0,0,0)
 };
 
-static unsigned char shade [ 20 ] =
-{
-   0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
-   100, 110, 120, 130, 140, 150, 160, 170, 180, 190
-};
-
 C6502::C6502()
 {
 }
@@ -481,7 +476,7 @@ void C6502::RENDERCODEDATALOGGER ( void )
    for ( idxx = 0; idxx < 0x800; idxx++ )
    {
       cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
-      if ( cycleDiff > 19 ) cycleDiff = 19;
+      if ( cycleDiff > 199 ) cycleDiff = 199;
 
       if ( pLogger->GetCount(idxx) )
       {
@@ -495,15 +490,15 @@ void C6502::RENDERCODEDATALOGGER ( void )
          }
          if ( !lcolor.red() )
          {
-            lcolor.setRed(lcolor.red()+shade[cycleDiff]);
+            lcolor.setRed(lcolor.red()+cycleDiff);
          }
          if ( !lcolor.green() )
          {
-            lcolor.setGreen(lcolor.green()+shade[cycleDiff]);
+            lcolor.setGreen(lcolor.green()+cycleDiff);
          }
          if ( !lcolor.blue() )
          {
-            lcolor.setBlue(lcolor.blue()+shade[cycleDiff]);
+            lcolor.setBlue(lcolor.blue()+cycleDiff);
          }
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
@@ -525,7 +520,7 @@ void C6502::RENDERCODEDATALOGGER ( void )
          pLogger = CROM::LOGGER(0x8000+(idxy*0x2000)+idxx);
 
          cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
-         if ( cycleDiff > 19 ) cycleDiff = 19;
+         if ( cycleDiff > 199 ) cycleDiff = 199;
 
          if ( pLogger->GetCount(idxx) )
          {
@@ -539,15 +534,15 @@ void C6502::RENDERCODEDATALOGGER ( void )
             }
             if ( !lcolor.red() )
             {
-               lcolor.setRed(lcolor.red()+shade[cycleDiff]);
+               lcolor.setRed(lcolor.red()+cycleDiff);
             }
             if ( !lcolor.green() )
             {
-               lcolor.setGreen(lcolor.green()+shade[cycleDiff]);
+               lcolor.setGreen(lcolor.green()+cycleDiff);
             }
             if ( !lcolor.blue() )
             {
-               lcolor.setBlue(lcolor.blue()+shade[cycleDiff]);
+               lcolor.setBlue(lcolor.blue()+cycleDiff);
             }
             m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 0] = lcolor.red();
             m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 1] = lcolor.green();
@@ -666,6 +661,13 @@ unsigned char C6502::STEP ( void )
 
    // Execute
    pOpcodeStruct->pFn ();
+
+   // Check for IRQ assertion...
+   if ( m_irqAsserted )
+   {
+      // Execute IRQ handler...
+      C6502::IRQ();
+   }
 
    // Update Tracer
    CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
@@ -2660,12 +2662,21 @@ void C6502::BRK ( void )
    return;
 }
 
-void C6502::IRQ ( char source )
+void C6502::ASSERTIRQ ( char source )
+{
+   m_irqAsserted = true;
+   CNES::TRACER()->AddIRQ ( source );
+}
+
+void C6502::RELEASEIRQ ( char source )
+{
+   m_irqAsserted = false;
+}
+
+void C6502::IRQ ()
 {
    if ( (!m_killed) && (!rI()) )
    {
-      CNES::TRACER()->AddIRQ ( source );
-
       PUSH ( GETHI8(rPC()) );
       PUSH ( GETLO8(rPC()) );
       cB ();
@@ -2705,6 +2716,8 @@ void C6502::RESET ( void )
 
    m_cycles = 0;
    m_curCycles = 0;
+
+   m_irqAsserted = false;
 
    m_ea = 0xFFFFFFFF;
 

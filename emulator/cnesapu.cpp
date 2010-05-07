@@ -680,7 +680,7 @@ void CAPU::SEQTICK ( void )
          if ( m_irqEnabled )
          {
             m_irqAsserted = true;
-            C6502::IRQ ( eSource_APU );
+            C6502::ASSERTIRQ ( eSource_APU );
          }
       }
    }
@@ -712,6 +712,7 @@ void CAPU::RESET ( void )
 
    m_irqEnabled = true;
    m_irqAsserted = false;
+   C6502::RELEASEIRQ ( eSource_APU );
    m_sequence = 0;
    m_sequencerMode = 0;
 
@@ -1161,6 +1162,7 @@ void CAPUDMC::APU ( UINT addr, unsigned char data )
       if ( !m_irqEnabled )
       {
          m_irqAsserted = false;
+         C6502::RELEASEIRQ ( eSource_APU );
       }
       m_loop = data&0x40;
       m_period = *(m_dmcPeriod+(data&0xF));
@@ -1200,6 +1202,7 @@ void CAPUDMC::ENABLE ( bool enabled )
       }
    }
    m_irqAsserted = false;
+   C6502::RELEASEIRQ ( eSource_APU );
 }
 
 UINT CAPUDMC::DMAREADER ( void )
@@ -1323,6 +1326,7 @@ UINT CAPU::APU ( UINT addr )
    data |= (m_dmc.IRQASSERTED()?0x80:0x00);
 
    m_irqAsserted = false;
+   C6502::RELEASEIRQ ( eSource_APU );
 
    CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState, addr&0x1F);
 

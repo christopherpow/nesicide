@@ -16,7 +16,7 @@ public:
    static void RESET ();
    static UINT MAPPER ( UINT addr );
    static void MAPPER ( UINT addr, unsigned char data );
-   static bool SYNCH ( int scanline );
+   static void SYNCH ( int scanline );
    static void SETCPU ( void );
    static void SETPPU ( void );
    static void LOAD ( MapperState* data );

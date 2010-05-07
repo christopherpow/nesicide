@@ -257,12 +257,6 @@ static QColor dmaColor [] =
    QColor(0,0,0)
 };
 
-static unsigned char shade [ 20 ] =
-{
-   0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
-   100, 110, 120, 130, 140, 150, 160, 170, 180, 190
-};
-
 void CPPU::RENDERCODEDATALOGGER ( void )
 {
    unsigned int idxx;
@@ -276,7 +270,7 @@ void CPPU::RENDERCODEDATALOGGER ( void )
    for ( idxx = 0; idxx < 0x4000; idxx++ )
    {
       cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
-      if ( cycleDiff > 19 ) cycleDiff = 19;
+      if ( cycleDiff > 199 ) cycleDiff = 199;
 
       if ( pLogger->GetCount(idxx) )
       {
@@ -290,15 +284,15 @@ void CPPU::RENDERCODEDATALOGGER ( void )
          }
          if ( !lcolor.red() )
          {
-            lcolor.setRed(lcolor.red()+shade[cycleDiff]);
+            lcolor.setRed(lcolor.red()+cycleDiff);
          }
          if ( !lcolor.green() )
          {
-            lcolor.setGreen(lcolor.green()+shade[cycleDiff]);
+            lcolor.setGreen(lcolor.green()+cycleDiff);
          }
          if ( !lcolor.blue() )
          {
-            lcolor.setBlue(lcolor.blue()+shade[cycleDiff]);
+            lcolor.setBlue(lcolor.blue()+cycleDiff);
          }
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
@@ -856,10 +850,7 @@ UINT CPPU::PPU ( UINT addr )
          // Toggling A12 causes IRQ count in some mappers...
          if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
          {
-            if ( mapperfunc[CROM::MAPPER()].synch(-1) )
-            {
-               C6502::IRQ( eSource_Mapper );
-            }
+            mapperfunc[CROM::MAPPER()].synch(-2);
          }
       }
       else
@@ -954,10 +945,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          // Toggling A12 causes IRQ count in some mappers...
          if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
          {
-            if ( mapperfunc[CROM::MAPPER()].synch(-1) )
-            {
-               C6502::IRQ( eSource_Mapper );
-            }
+            mapperfunc[CROM::MAPPER()].synch(-2);
          }
       }
       else if ( fixAddr == PPUDATA_REG )
@@ -977,10 +965,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          // Toggling A12 causes IRQ count in some mappers...
          if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
          {
-            if ( mapperfunc[CROM::MAPPER()].synch(-1) )
-            {
-               C6502::IRQ( eSource_Mapper );
-            }
+            mapperfunc[CROM::MAPPER()].synch(-2);
          }
       }
 
@@ -1281,6 +1266,13 @@ void CPPU::RENDERSCANLINE ( int scanline )
       }
 
       GATHERBKGND ();
+   }
+
+   // Trigger mapper IRQ if needed...on rising edge of A12...
+   if ( (rPPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR) && (!(rPPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR)) )
+   {
+      // ...which happens here!
+      mapperfunc[CROM::MAPPER()].synch(scanline);
    }
 
    // Check for end-of-scanline breakpoints...

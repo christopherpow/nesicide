@@ -175,20 +175,11 @@ void CNES::RUN ( unsigned char* joy )
    // Clear Sprite 0 Hit flag and sprite overflow...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
 
-   if ( mapperfunc[CROM::MAPPER()].synch(0) )
-   {
-      C6502::IRQ( eSource_Mapper );
-   }
-
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
    for ( idx = 0; idx < SCANLINES_VISIBLE; idx++ )
    {
+      // Draw pretty pictures...
       CPPU::RENDERSCANLINE ( idx );
-
-      if ( mapperfunc[CROM::MAPPER()].synch(idx) )
-      {
-         C6502::IRQ( eSource_Mapper );
-      }
 
       // Update CHR memory inspector at appropriate scanline...
       if ( idx == CPPU::GetPPUViewerScanline() )

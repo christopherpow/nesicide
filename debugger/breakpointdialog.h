@@ -32,6 +32,7 @@ private:
 
 signals:
    void showMe();
+   void breakpointsChanged();
 
 private slots:
     void on_endisButton_clicked();
