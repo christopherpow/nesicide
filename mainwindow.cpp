@@ -242,10 +242,15 @@ void MainWindow::dropEvent(QDropEvent *event)
    QStringList sl = event->mimeData()->formats();
    QByteArray ba = event->mimeData()->data(sl.at(6));
 
+   emulatorDlg->stopEmulation();
+
     nesicideProject->createProjectFromRom(QString(ba));
     ui->actionEmulation_Window->setChecked(true);
     on_actionEmulation_Window_toggled(true);
     projectDataChangesEvent();
+
+   emulatorDlg->resetEmulation();
+   emulatorDlg->runEmulation();
 
    event->acceptProposedAction();
 }

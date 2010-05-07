@@ -17,6 +17,8 @@ public:
     NESEmulatorDialog(QWidget *parent = 0);
     ~NESEmulatorDialog();
     void stopEmulation();
+    void runEmulation();
+    void resetEmulation();
     CNESEmulatorRenderer *renderer;
 
 protected:

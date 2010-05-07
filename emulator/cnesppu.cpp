@@ -1435,6 +1435,15 @@ void CPPU::GATHERSPRITES ( int scanline )
       idx1 = scanline-spriteY;
       if ( (idx1 >= 0) && (idx1 < spriteSize) )
       {
+         if ( m_spriteBuffer.count == 8 )
+         {
+            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+            {
+               wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
+            }
+            break;
+         }
+
          pSprite->spriteIdx = sprite;
 
          patternIdx = OAM ( SPRITEPAT, sprite );
@@ -1467,33 +1476,16 @@ void CPPU::GATHERSPRITES ( int scanline )
          // Garbage nametable fetches according to Samus Aran...
          GARBAGE ( eTarget_NameTable );
          EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
          GARBAGE ( eTarget_NameTable );
          EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
          EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
          EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
 
          m_spriteBuffer.count++;
          pSprite++;
-
-         if ( m_spriteBuffer.count == 8 )
-         {
-            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
-            {
-               wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
-            }
-            break;
-         }
       }
    }
 
