@@ -11,6 +11,15 @@
 #define _SDL_main_h
 #include "SDL.h"
 
+#include "cbreakpointinfo.h"
+
+// Breakpoint event identifiers
+enum
+{
+   APU_EVENT_IRQ = 0,
+   NUM_APU_EVENTS
+};
+
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40
 
@@ -282,6 +291,9 @@ public:
    static CRegisterData** REGISTERS() { return m_tblRegisters; }
    static int NUMREGISTERS() { return m_numRegisters; }
 
+   static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
+   static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
+
 protected:
    static unsigned char m_APUreg [ 32 ];
    static unsigned char m_APUregDirty [ 32 ];
@@ -307,6 +319,9 @@ protected:
 
    static CRegisterData** m_tblRegisters;
    static int             m_numRegisters;
+
+   static CBreakpointEventInfo** m_tblBreakpointEvents;
+   static int                    m_numBreakpointEvents;
 };
 
 #endif

@@ -166,9 +166,11 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
-
-         // No APU events yet...
-         ui->addButton->setEnabled(false);
+         ui->event->clear();
+         for ( idx = 0; idx < CAPU::NUMBREAKPOINTEVENTS(); idx++ )
+         {
+            ui->event->addItem ( CAPU::BREAKPOINTEVENTS()[idx]->GetName() );
+         }
       break;
       case eBreakOnMapperState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
@@ -427,8 +429,7 @@ void BreakpointDialog::on_event_currentIndexChanged(int index)
          m_pEvent = CPPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
       break;
       case eBreakOnAPUEvent:
-         // No events yet...
-         m_pEvent = NULL;
+         m_pEvent = CAPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
       break;
       case eBreakOnMapperEvent:
          m_pEvent = CROM::BREAKPOINTEVENTS()[ui->event->currentIndex()];

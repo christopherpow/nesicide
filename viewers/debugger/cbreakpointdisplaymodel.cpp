@@ -2,6 +2,8 @@
 
 #include "cnes.h"
 
+#include <QIcon>
+
 CBreakpointDisplayModel::CBreakpointDisplayModel(QObject* parent)
 {
 }
@@ -14,19 +16,30 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
 {
    char data [ 256 ];
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   BreakpointStatus brkptStatus;
+
+   if ((role == Qt::DecorationRole) && (index.column() == 0))
+   {
+      brkptStatus = pBreakpoints->GetStatus(index.row());
+      if ( brkptStatus == Breakpoint_Idle )
+      {
+         return QIcon(":/resources/22_breakpoint.png");
+      }
+      else if ( brkptStatus == Breakpoint_Hit )
+      {
+         return QIcon(":/resources/22_execution_break.png");
+      }
+      else if ( brkptStatus == Breakpoint_Disabled )
+      {
+         return QIcon(":/resources/22_breakpoint_disabled.png");
+      }
+   }
 
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   switch ( index.column() )
-   {
-      case 0:
-         pBreakpoints->GetStatus(index.row(),data);
-      break;
-      case 1:
-         pBreakpoints->GetPrintable(index.row(),data);
-      break;
-   }
+   // Get data for column 1...
+   pBreakpoints->GetPrintable(index.row(),data);
 
    return data;
 }

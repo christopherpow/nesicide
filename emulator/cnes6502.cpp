@@ -629,7 +629,7 @@ unsigned char C6502::STEP ( void )
    // Check for undocumented breakpoint...
    if ( !pOpcodeStruct->documented )
    {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, CPU_UNDOCUMENTED_EVENT );
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, CPU_EVENT_UNDOCUMENTED );
    }
 
    // Set up class data so we don't need to pass it down to each func...
@@ -2685,7 +2685,7 @@ void C6502::IRQ ()
       sI ();
 
       // Check for IRQ breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_IRQ_EVENT);
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_EVENT_IRQ);
    }
 }
 
@@ -2702,7 +2702,7 @@ void C6502::NMI ( char source )
       wPC ( MAKE16(MEM(VECTOR_NMI),MEM(VECTOR_NMI+1)) );
 
       // Check for NMI breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_NMI_EVENT);
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_EVENT_NMI);
    }
 }
 
@@ -2728,7 +2728,7 @@ void C6502::RESET ( void )
    wPC ( MAKE16(MEM(VECTOR_RESET),MEM(VECTOR_RESET+1)) );
 
    // Check for RESET breakpoint...
-   CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_RESET_EVENT);
+   CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_EVENT_RESET);
 }
 
 unsigned char C6502::LOAD ( UINT addr, char* pTarget )
@@ -2818,6 +2818,12 @@ unsigned char C6502::FETCH ( UINT addr )
    char target;
    unsigned char data = LOAD ( addr, &target );
 
+   // Check for breakpoint...
+   if ( m_sync )
+   {
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
+   }
+
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
 
@@ -2833,12 +2839,6 @@ unsigned char C6502::FETCH ( UINT addr )
    else if ( target == eTarget_RAM )
    {
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
-   }
-
-   // Check for breakpoint...
-   if ( m_sync )
-   {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
    }
 
    return data;

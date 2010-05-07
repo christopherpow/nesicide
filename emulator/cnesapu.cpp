@@ -28,6 +28,19 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+// APU Event breakpoints
+bool apuIRQEvent(BreakpointInfo* pBreakpoint)
+{
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+static CBreakpointEventInfo* tblAPUEvents [] =
+{
+   new CBreakpointEventInfo("IRQ", apuIRQEvent, 0, "Break if APU asserts IRQ", 10),
+};
+
 // APU Registers
 static CBitfieldData* tblAPUSQCTRLBitfields [] =
 {
@@ -174,6 +187,9 @@ int            CAPU::m_iFactorIdx = 2;
 
 CRegisterData** CAPU::m_tblRegisters = tblAPURegisters;
 int             CAPU::m_numRegisters = NUM_APU_REGISTERS;
+
+CBreakpointEventInfo** CAPU::m_tblBreakpointEvents = tblAPUEvents;
+int                    CAPU::m_numBreakpointEvents = NUM_APU_EVENTS;
 
 // Events that can occur during the APU sequence stepping
 enum
@@ -681,6 +697,9 @@ void CAPU::SEQTICK ( void )
          {
             m_irqAsserted = true;
             C6502::ASSERTIRQ ( eSource_APU );
+
+            // Check for IRQ breakpoint...
+            CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,APU_EVENT_IRQ);
          }
       }
    }

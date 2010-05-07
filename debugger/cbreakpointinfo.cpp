@@ -69,6 +69,7 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
                m_breakpoint [ bp ].pEvent = CPPU::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInAPU:
+               m_breakpoint [ bp ].pEvent = CAPU::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInMapper:
                m_breakpoint [ bp ].pEvent = CROM::BREAKPOINTEVENTS()[event];
@@ -126,19 +127,19 @@ void CBreakpointInfo::RemoveBreakpoint ( int index )
    m_numBreakpoints--;
 }
 
-void CBreakpointInfo::GetStatus ( int idx, char* msg )
+BreakpointStatus CBreakpointInfo::GetStatus ( int idx )
 {
    if ( (m_breakpoint[idx].enabled) && (m_breakpoint[idx].hit) )
    {
-      sprintf ( msg, "*" );
+      return Breakpoint_Hit;
    }
    else if ( m_breakpoint[idx].enabled )
    {
-      sprintf ( msg, " " );
+      return Breakpoint_Idle;
    }
    else if ( !(m_breakpoint[idx].enabled) )
    {
-      sprintf ( msg, "X" );
+      return Breakpoint_Disabled;
    }
 }
 
@@ -1172,6 +1173,9 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
          }
       break;
       case eBreakOnAPUEvent:
+         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
+                      m_breakpoint[idx].item1,
+                      m_breakpoint[idx].item2 );
       break;
       case eBreakOnMapperState:
          if ( CROM::REGISTERS() )

@@ -16,10 +16,10 @@
 // Breakpoint event identifiers
 enum
 {
-   CPU_UNDOCUMENTED_EVENT = 0,
-   CPU_RESET_EVENT,
-   CPU_IRQ_EVENT,
-   CPU_NMI_EVENT,
+   CPU_EVENT_UNDOCUMENTED = 0,
+   CPU_EVENT_RESET,
+   CPU_EVENT_IRQ,
+   CPU_EVENT_NMI,
    NUM_CPU_EVENTS
 };
 
