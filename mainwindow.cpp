@@ -237,11 +237,15 @@ void MainWindow::dragMoveEvent(QDragMoveEvent *event)
    event->acceptProposedAction();
 }
 
-#include <QMessageBox>
 void MainWindow::dropEvent(QDropEvent *event)
 {
    QStringList sl = event->mimeData()->formats();
-   QByteArray ba = event->mimeData()->data(sl.at(7));
+   QByteArray ba = event->mimeData()->data(sl.at(6));
+
+    nesicideProject->createProjectFromRom(QString(ba));
+    ui->actionEmulation_Window->setChecked(true);
+    on_actionEmulation_Window_toggled(true);
+    projectDataChangesEvent();
 
    event->acceptProposedAction();
 }

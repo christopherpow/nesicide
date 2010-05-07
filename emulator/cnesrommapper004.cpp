@@ -148,15 +148,12 @@ void CROMMapper004::SYNCH ( int scanline )
       {
          zero = true;
       }
-      else
-      {
-         C6502::RELEASEIRQ ( eSource_Mapper );
-      }
+      C6502::RELEASEIRQ ( eSource_Mapper );
    }
    else
    {
       m_irqCounter--;
-      if ( m_irqCounter == 0 )
+      if ( m_irqCounter <= 0 )
       {
          m_irqCounter = m_irqLatch;
          zero = true;

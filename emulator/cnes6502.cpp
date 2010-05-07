@@ -697,6 +697,11 @@ void C6502::KIL ( void )
 // Immediate   |AAC #arg   |$2B| 2 | 2
 void C6502::ANC ( void )
 {
+   wA ( rA()&(*data) );
+   wN ( rA()&0x80 );
+   wC ( rA()&0x80 );
+   wZ ( !rA() );
+
    return;
 }
 
@@ -710,6 +715,12 @@ void C6502::ANC ( void )
 // Immediate   |ASR #arg   |$4B| 2 | 2
 void C6502::ALR ( void )
 {
+   wA ( (rA()&(*data)) );
+   wC ( rA()&0x01 );
+   wA ( rA()>>1 );
+   wN ( rA()&0x80 );
+   wZ ( !rA() );
+
    return;
 }
 
@@ -728,6 +739,31 @@ void C6502::ALR ( void )
 // Immediate   |ARR #arg   |$6B| 2 | 2
 void C6502::ARR ( void )
 {
+   wA ( (rA()&(*data))>>1 );
+   wN ( rA()&0x80 );
+   wZ ( !rA() );
+
+   if ( rA()&0x60 == 0x60 )
+   {
+      sC();
+      cV();
+   }
+   else if ( rA()&0x60 == 0x00 )
+   {
+      cC();
+      cV();
+   }
+   else if ( rA()&0x60 == 0x20 )
+   {
+      cC();
+      sV();
+   }
+   else if ( rA()&0x60 == 0x40 )
+   {
+      sC();
+      sV();
+   }
+
    return;
 }
 
@@ -794,7 +830,7 @@ void C6502::SAY ( void )
    unsigned char  val;
 
    addr = MAKEADDR ( amode, data );
-   val = (rY()&((addr>>8)))+1;
+   val = (rY()&((addr>>8)+1));
    MEM ( addr, val );
 
    return;
@@ -814,6 +850,13 @@ void C6502::SAY ( void )
 // Absolute,Y  |SXA arg,Y  |$9E| 3 | 5
 void C6502::XAS ( void )
 {
+   unsigned short addr;
+   unsigned char  val;
+
+   addr = MAKEADDR ( amode, data );
+   val = (rX()&((addr>>8)+1));
+   MEM ( addr, val );
+
    return;
 }
 
@@ -849,7 +892,7 @@ void C6502::LAS ( void )
    unsigned short addr;
 
    addr = MAKEADDR ( amode, data );
-   wA ( rA()&MEM(addr) );
+   wA ( rSP()&MEM(addr) );
    wX ( rA() );
    wF ( rA() );
    wN ( rA()&0x80 );
@@ -869,6 +912,15 @@ void C6502::LAS ( void )
 // Immediate   |AXS #arg   |$CB| 2 | 2
 void C6502::SAX ( void )
 {
+   short val;
+
+   wX ( rA()&rX() );
+   val = rX()-(*data);
+   wX ( val&0xFF );
+   wN ( rA()&0x80 );
+   wZ ( !rA() );
+   wC ( val<0 );
+
    return;
 }
 

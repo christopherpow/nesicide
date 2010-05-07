@@ -33,7 +33,6 @@
         <file>resources/22_preferences-desktop-display-color.png</file>
         <file>resources/22_utilities-terminal.png</file>
         <file>resources/22_code_inspector.png</file>
-        <file>resources/22_breakpoint.png</file>
         <file>resources/22_chr_mem.png</file>
         <file>resources/22_nametable.png</file>
         <file>resources/22_execution.png</file>
@@ -45,8 +44,9 @@
         <file>resources/22_item_add.png</file>
         <file>resources/22_item_remove.png</file>
         <file>resources/22_execution_pointer.png</file>
-        <file>resources/22_breakpoint_disabled.png</file>
-        <file>resources/22_execution_break_disabled.png</file>
         <file>resources/22_execution_break.png</file>
+        <file>resources/22_execution_break_disabled.png</file>
+        <file>resources/22_breakpoint_disabled.png</file>
+        <file>resources/22_breakpoint.png</file>
     </qresource>
 </RCC>
