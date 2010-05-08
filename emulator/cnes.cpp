@@ -169,11 +169,11 @@ void CNES::RUN ( unsigned char* joy )
    // Clear VBLANK flag...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK)) );
 
-   // Pre-render scanline...
-   CPPU::RENDERSCANLINE ( -1 );
-
    // Clear Sprite 0 Hit flag and sprite overflow...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
+
+   // Pre-render scanline...
+   CPPU::RENDERSCANLINE ( -1 );
 
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
    for ( idx = 0; idx < SCANLINES_VISIBLE; idx++ )
@@ -207,7 +207,7 @@ void CNES::RUN ( unsigned char* joy )
    m_frame++;
 }
 
-void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int data )
+void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int data, int event )
 {
    int idx;
    BreakpointInfo* pBreakpoint;
@@ -228,7 +228,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
    else if ( (m_bStepPPUBreakpoint) &&
              (target == eBreakInPPU) &&
              (type == eBreakOnPPUEvent) &&
-             (data == PPU_EVENT_PIXEL_XY) )
+             (event == PPU_EVENT_PIXEL_XY) )
    {
       m_bStepPPUBreakpoint = false;
       force = true;
@@ -594,9 +594,9 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                   case eBreakOnAPUEvent:
                   case eBreakOnMapperEvent:
                      // If this is the right event to check, check it...
-                     if ( pBreakpoint->event == data )
+                     if ( pBreakpoint->event == event )
                      {
-                        pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint);
+                        pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint,data);
                         if ( pBreakpoint->hit )
                         {
                            force = true;

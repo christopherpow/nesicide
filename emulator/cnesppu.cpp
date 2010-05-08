@@ -100,7 +100,7 @@ static CRegisterData* tblPPURegisters [] =
 };
 
 // PPU Event breakpoints
-bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint)
+bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint,int data)
 {
    if ( (pBreakpoint->item1 == CPPU::_X()) &&
         (pBreakpoint->item2 == CPPU::_Y()) )
@@ -110,42 +110,42 @@ bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint)
    return false;
 }
 
-bool ppuScanlineStartEvent(BreakpointInfo* pBreakpoint)
+bool ppuScanlineStartEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool ppuScanlineEndEvent(BreakpointInfo* pBreakpoint)
+bool ppuScanlineEndEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool ppuPrerenderScanlineStartEvent(BreakpointInfo* pBreakpoint)
+bool ppuPrerenderScanlineStartEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool ppuPrerenderScanlineEndEvent(BreakpointInfo* pBreakpoint)
+bool ppuPrerenderScanlineEndEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool ppuSprite0HitEvent(BreakpointInfo* pBreakpoint)
+bool ppuSprite0HitEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint)
+bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint,int data)
 {
    unsigned char spriteX = CPPU::OAM(SPRITEX,pBreakpoint->item1);
    if ( CPPU::_X() == spriteX )
@@ -1137,11 +1137,11 @@ void CPPU::RENDERSCANLINE ( int scanline )
    // Check for start-of-scanline breakpoints...
    if ( scanline == -1 )
    {
-      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_START);
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PRE_RENDER_SCANLINE_START);
    }
    else
    {
-      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_START);
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SCANLINE_START);
    }
 
    for ( idxx = 0; idxx < 256; idxx += 8 )
@@ -1163,7 +1163,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
             m_y = scanline;
 
             // Check for PPU pixel-at breakpoint...
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PIXEL_XY);
+            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
 
             PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
             colorIdx = (a|b1|(b2<<1));
@@ -1206,7 +1206,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
                   if ( pSprite->spriteX+idx2 >= startSprite )
                   {
                      // Check for start-of-sprite-slice rendering event breakpoint...
-                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SPRITE_SLICE_RENDERING);
+                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE_SLICE_RENDERING);
 
                      if ( pSprite->spriteFlipHoriz )
                      {
@@ -1245,7 +1245,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
                            sprite0HitSet = true;
 
                            // Check for Sprite 0 Hit breakpoint...
-                           CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SPRITE0_HIT);
+                           CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
 
                            // Save last sprite 0 hit coords for OAM viewer...
                            m_lastSprite0HitX = p;
@@ -1278,11 +1278,11 @@ void CPPU::RENDERSCANLINE ( int scanline )
    // Check for end-of-scanline breakpoints...
    if ( scanline == -1 )
    {
-      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_PRE_RENDER_SCANLINE_END);
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PRE_RENDER_SCANLINE_END);
    }
    else
    {
-      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,PPU_EVENT_SCANLINE_END);
+      CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SCANLINE_END);
    }
 
    // Re-latch PPU address...

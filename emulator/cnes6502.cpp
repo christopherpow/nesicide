@@ -82,28 +82,38 @@ static CRegisterData* tblCPURegisters [] =
 };
 
 // PPU Event breakpoints
-bool cpuUndocumentedEvent(BreakpointInfo* pBreakpoint)
+bool cpuUndocumentedEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool cpuResetEvent(BreakpointInfo* pBreakpoint)
+bool cpuUndocumentedExactEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   // If opcode executing is one specified, break...
+   if ( pBreakpoint->item1 == data )
+   {
+      return true;
+   }
+   return false;
+}
+
+bool cpuResetEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool cpuIRQEvent(BreakpointInfo* pBreakpoint)
+bool cpuIRQEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
 
-bool cpuNMIEvent(BreakpointInfo* pBreakpoint)
+bool cpuNMIEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place
    // so if this breakpoint is enabled it should always fire when called.
@@ -112,7 +122,8 @@ bool cpuNMIEvent(BreakpointInfo* pBreakpoint)
 
 static CBreakpointEventInfo* tblCPUEvents [] =
 {
-   new CBreakpointEventInfo("Undocumented Instruction Execution", cpuUndocumentedEvent, 0, "Break if undocumented opcode executed", 10),
+   new CBreakpointEventInfo("Undocumented Instruction Execution", cpuUndocumentedEvent, 0, "Break if any undocumented opcode is executed", 10),
+   new CBreakpointEventInfo("Undocumented Instruction (Data1=opcode) Execution", cpuUndocumentedExactEvent, 1, "Break if any undocumented opcode $%02X is executed", 16),
    new CBreakpointEventInfo("Reset", cpuResetEvent, 0, "Break if CPU is reset", 10),
    new CBreakpointEventInfo("IRQ", cpuIRQEvent, 0, "Break if CPU IRQ fires", 10),
    new CBreakpointEventInfo("NMI", cpuNMIEvent, 0, "Break if CPU NMI fires", 10)
@@ -629,7 +640,8 @@ unsigned char C6502::STEP ( void )
    // Check for undocumented breakpoint...
    if ( !pOpcodeStruct->documented )
    {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, CPU_EVENT_UNDOCUMENTED );
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*pOpcode), CPU_EVENT_UNDOCUMENTED_EXACT );
    }
 
    // Set up class data so we don't need to pass it down to each func...
@@ -743,22 +755,22 @@ void C6502::ARR ( void )
    wN ( rA()&0x80 );
    wZ ( !rA() );
 
-   if ( rA()&0x60 == 0x60 )
+   if ( (rA()&0x60) == 0x60 )
    {
       sC();
       cV();
    }
-   else if ( rA()&0x60 == 0x00 )
+   else if ( (rA()&0x60) == 0x00 )
    {
       cC();
       cV();
    }
-   else if ( rA()&0x60 == 0x20 )
+   else if ( (rA()&0x60) == 0x20 )
    {
       cC();
       sV();
    }
-   else if ( rA()&0x60 == 0x40 )
+   else if ( (rA()&0x60) == 0x40 )
    {
       sC();
       sV();
@@ -2737,7 +2749,7 @@ void C6502::IRQ ()
       sI ();
 
       // Check for IRQ breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_EVENT_IRQ);
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ);
    }
 }
 
@@ -2754,7 +2766,7 @@ void C6502::NMI ( char source )
       wPC ( MAKE16(MEM(VECTOR_NMI),MEM(VECTOR_NMI+1)) );
 
       // Check for NMI breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_EVENT_NMI);
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI);
    }
 }
 
@@ -2780,7 +2792,7 @@ void C6502::RESET ( void )
    wPC ( MAKE16(MEM(VECTOR_RESET),MEM(VECTOR_RESET+1)) );
 
    // Check for RESET breakpoint...
-   CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,CPU_EVENT_RESET);
+   CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
 }
 
 unsigned char C6502::LOAD ( UINT addr, char* pTarget )

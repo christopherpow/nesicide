@@ -141,6 +141,10 @@ BreakpointStatus CBreakpointInfo::GetStatus ( int idx )
    {
       return Breakpoint_Disabled;
    }
+   else
+   {
+      return Breakpoint_Disabled;
+   }
 }
 
 void CBreakpointInfo::GetPrintable ( int idx, char *msg )
@@ -932,6 +936,8 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                   break;
                }
             break;
+            default:
+            break;
          }
       break;
       case eBreakOnCPUEvent:
@@ -1014,6 +1020,8 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                             m_breakpoint[idx].item1,
                             m_breakpoint[idx].item2 );
                }
+            break;
+            default:
             break;
          }
       break;
@@ -1170,6 +1178,8 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                   break;
                }
             break;
+            default:
+            break;
          }
       break;
       case eBreakOnAPUEvent:
@@ -1251,6 +1261,8 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                                   m_breakpoint[idx].data );
                      break;
                   }
+               break;
+               default:
                break;
             }
          }

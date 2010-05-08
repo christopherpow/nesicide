@@ -29,7 +29,7 @@
 //////////////////////////////////////////////////////////////////////
 
 // APU Event breakpoints
-bool apuIRQEvent(BreakpointInfo* pBreakpoint)
+bool apuIRQEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.
@@ -699,7 +699,7 @@ void CAPU::SEQTICK ( void )
             C6502::ASSERTIRQ ( eSource_APU );
 
             // Check for IRQ breakpoint...
-            CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,APU_EVENT_IRQ);
+            CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
          }
       }
    }

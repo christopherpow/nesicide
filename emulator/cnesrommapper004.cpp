@@ -164,7 +164,7 @@ void CROMMapper004::SYNCH ( int scanline )
       C6502::ASSERTIRQ ( eSource_Mapper );
 
       // Check for IRQ breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,MAPPER_EVENT_IRQ);
+      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
    }
 }
 

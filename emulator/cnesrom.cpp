@@ -27,7 +27,7 @@
 //////////////////////////////////////////////////////////////////////
 
 // Mapper Event breakpoints
-bool mapperIRQEvent(BreakpointInfo* pBreakpoint)
+bool mapperIRQEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
    // so if this breakpoint is enabled it should always fire when called.

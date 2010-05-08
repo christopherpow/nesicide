@@ -49,6 +49,8 @@ void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
          menu.addAction(ui->actionBreak_on_CPU_read_here);
          menu.addAction(ui->actionBreak_on_CPU_write_here);
       break;
+      default:
+      break;
    }
    menu.exec(e->globalPos());
 }
