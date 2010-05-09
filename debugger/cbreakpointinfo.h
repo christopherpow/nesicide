@@ -3,6 +3,8 @@
 
 #define NUM_BREAKPOINTS 8
 
+#include <stdlib.h>
+
 typedef enum
 {
    eBreakOnCPUExecution = 0,
@@ -67,15 +69,18 @@ typedef enum
 class CBreakpointEventInfo
 {
 public:
-   CBreakpointEventInfo(const char* name, bool (*evalFunc)(struct _BreakpointInfo* pBreakpoint,int data), int elements, const char* displayFormat, int elementRadix )
+   CBreakpointEventInfo(const char* name, bool (*evalFunc)(struct _BreakpointInfo* pBreakpoint,int data), int elements, const char* displayFormat, int elementRadix, const char* item1Name = NULL, const char* item2Name = NULL )
    {
       m_name = name;
       m_evalFunc = evalFunc;
       m_elements = elements;
       m_displayFormat = displayFormat;
       m_elementRadix = elementRadix;
+      m_item1Name = item1Name;
+      m_item2Name = item2Name;
    }
    const char* GetName ( void ) const { return m_name; }
+   const char* GetItemName ( int item ) const { if ( item == 0 ) return m_item1Name; else return m_item2Name; }
    int         GetNumElements ( void ) const { return m_elements; }
    const char* GetDisplayFormat ( void ) const { return m_displayFormat; }
    int         GetElementRadix ( void ) const { return m_elementRadix; }
@@ -86,6 +91,8 @@ private:
    int         m_elements;
    const char* m_displayFormat;
    int         m_elementRadix;
+   const char* m_item1Name;
+   const char* m_item2Name;
 };
 
 typedef struct _BreakpointInfo

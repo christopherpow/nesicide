@@ -81,9 +81,13 @@ void BreakpointDialog::updateData()
 
 void BreakpointDialog::on_type_currentIndexChanged(int index)
 {
+   CBreakpointEventInfo** pBreakpointEventInfo = NULL;
    int idx;
 
    ui->addButton->setEnabled(true);
+   ui->item1label->setText("Data1:");
+   ui->item2label->setText("Data2:");
+   ui->event->setCurrentIndex(0);
    switch ( index )
    {
       case eBreakOnCPUExecution:
@@ -120,10 +124,12 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
+         pBreakpointEventInfo = C6502::BREAKPOINTEVENTS();
          for ( idx = 0; idx < C6502::NUMBREAKPOINTEVENTS(); idx++ )
          {
-            ui->event->addItem ( C6502::BREAKPOINTEVENTS()[idx]->GetName() );
+            ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+         ui->event->setCurrentIndex ( 0 );
       break;
       case eBreakOnPPUFetch:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
@@ -146,10 +152,12 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
+         pBreakpointEventInfo = CPPU::BREAKPOINTEVENTS();
          for ( idx = 0; idx < CPPU::NUMBREAKPOINTEVENTS(); idx++ )
          {
-            ui->event->addItem ( CPPU::BREAKPOINTEVENTS()[idx]->GetName() );
+            ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+         ui->event->setCurrentIndex ( 0 );
       break;
       case eBreakOnAPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
@@ -167,10 +175,12 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
+         pBreakpointEventInfo = CAPU::BREAKPOINTEVENTS();
          for ( idx = 0; idx < CAPU::NUMBREAKPOINTEVENTS(); idx++ )
          {
-            ui->event->addItem ( CAPU::BREAKPOINTEVENTS()[idx]->GetName() );
+            ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+         ui->event->setCurrentIndex ( 0 );
       break;
       case eBreakOnMapperState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
@@ -195,10 +205,12 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
+         pBreakpointEventInfo = CROM::BREAKPOINTEVENTS();
          for ( idx = 0; idx < CROM::NUMBREAKPOINTEVENTS(); idx++ )
          {
-            ui->event->addItem ( CROM::BREAKPOINTEVENTS()[idx]->GetName() );
+            ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+         ui->event->setCurrentIndex ( 0 );
       break;
    }
 }
@@ -206,40 +218,50 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
 void BreakpointDialog::on_reg_currentIndexChanged(int index)
 {
    int idx;
-   switch ( ui->type->currentIndex() )
+   if ( index >= 0 )
    {
-      case eBreakOnCPUState:
-         m_pRegister = C6502::REGISTERS() [ ui->reg->currentIndex() ];
-      break;
-      case eBreakOnPPUState:
-         m_pRegister = CPPU::REGISTERS() [ ui->reg->currentIndex() ];
-      break;
-      case eBreakOnAPUState:
-         m_pRegister = CAPU::REGISTERS() [ ui->reg->currentIndex() ];
-      break;
-      case eBreakOnMapperState:
-         m_pRegister = CROM::REGISTERS() [ ui->reg->currentIndex() ];
-      break;
-      default:
-         m_pRegister = NULL;
-      break;
-   }
-   ui->bitfield->clear();
-   if ( m_pRegister )
-   {
-      for ( idx = 0; idx < m_pRegister->GetNumBitfields(); idx++ )
+      switch ( ui->type->currentIndex() )
       {
-         CBitfieldData* pBitfield = m_pRegister->GetBitfield(idx);
-         ui->bitfield->addItem ( pBitfield->GetName() );
+         case eBreakOnCPUState:
+            m_pRegister = C6502::REGISTERS() [ ui->reg->currentIndex() ];
+         break;
+         case eBreakOnPPUState:
+            m_pRegister = CPPU::REGISTERS() [ ui->reg->currentIndex() ];
+         break;
+         case eBreakOnAPUState:
+            m_pRegister = CAPU::REGISTERS() [ ui->reg->currentIndex() ];
+         break;
+         case eBreakOnMapperState:
+            if ( CROM::NUMREGISTERS() > 0 )
+            {
+               m_pRegister = CROM::REGISTERS() [ ui->reg->currentIndex() ];
+            }
+            else
+            {
+               m_pRegister = NULL;
+            }
+         break;
+         default:
+            m_pRegister = NULL;
+         break;
       }
-      if ( m_pRegister->GetNumBitfields() > 1 )
+      ui->bitfield->clear();
+      if ( m_pRegister )
       {
-         ui->bitfield->setEnabled ( true );
-      }
-      else
-      {
-         ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
-         ui->bitfield->setEnabled ( false );
+         for ( idx = 0; idx < m_pRegister->GetNumBitfields(); idx++ )
+         {
+            CBitfieldData* pBitfield = m_pRegister->GetBitfield(idx);
+            ui->bitfield->addItem ( pBitfield->GetName() );
+         }
+         if ( m_pRegister->GetNumBitfields() > 1 )
+         {
+            ui->bitfield->setEnabled ( true );
+         }
+         else
+         {
+            ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
+            ui->bitfield->setEnabled ( false );
+         }
       }
    }
 }
@@ -355,6 +377,8 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
 
    ui->type->setCurrentIndex ( pBreakpoint->type );
    ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
+   ui->item1label->setText("Data1:");
+   ui->item2label->setText("Data2:");
    switch ( pBreakpoint->itemType )
    {
       case eBreakpointItemAddress:
@@ -372,6 +396,22 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          ui->eventData1->setText ( buffer );
          sprintf ( buffer, "%X", pBreakpoint->item2 );
          ui->eventData2->setText ( buffer );
+         ui->item1label->setVisible ( false );
+         ui->eventData1->setVisible ( false );
+         ui->item2label->setVisible ( false );
+         ui->eventData2->setVisible ( false );
+         if ( pBreakpoint->pEvent->GetItemName(0) )
+         {
+            ui->item1label->setText(pBreakpoint->pEvent->GetItemName(0));
+            ui->eventData1->setVisible ( true );
+            ui->item1label->setVisible ( true );
+         }
+         if ( pBreakpoint->pEvent->GetItemName(1) )
+         {
+            ui->item2label->setText(pBreakpoint->pEvent->GetItemName(1));
+            ui->eventData2->setVisible ( true );
+            ui->item2label->setVisible ( true );
+         }
       break;
       case eBreakpointItemNone:
       break;
@@ -420,41 +460,58 @@ void BreakpointDialog::on_tableView_pressed(QModelIndex index)
 
 void BreakpointDialog::on_event_currentIndexChanged(int index)
 {
-   switch ( ui->type->currentIndex() )
+   if ( ui->event->currentIndex() >= 0 )
    {
-      case eBreakOnCPUEvent:
-         m_pEvent = C6502::BREAKPOINTEVENTS()[ui->event->currentIndex()];
-      break;
-      case eBreakOnPPUEvent:
-         m_pEvent = CPPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
-      break;
-      case eBreakOnAPUEvent:
-         m_pEvent = CAPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
-      break;
-      case eBreakOnMapperEvent:
-         m_pEvent = CROM::BREAKPOINTEVENTS()[ui->event->currentIndex()];
-      break;
-      default:
-         // No events...
-         m_pEvent = NULL;
-      break;
-   }
-   if ( m_pEvent )
-   {
-      if ( m_pEvent->GetNumElements() == 2 )
+      switch ( ui->type->currentIndex() )
       {
-         ui->eventData1->setEnabled ( true );
-         ui->eventData2->setEnabled ( true );
+         case eBreakOnCPUEvent:
+            m_pEvent = C6502::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+         break;
+         case eBreakOnPPUEvent:
+            m_pEvent = CPPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+         break;
+         case eBreakOnAPUEvent:
+            m_pEvent = CAPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+         break;
+         case eBreakOnMapperEvent:
+            m_pEvent = CROM::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+         break;
+         default:
+            // No events...
+            m_pEvent = NULL;
+         break;
       }
-      else if ( m_pEvent->GetNumElements() == 1 )
+      if ( m_pEvent )
       {
-         ui->eventData1->setEnabled ( true );
-         ui->eventData2->setEnabled ( false );
-      }
-      else
-      {
-         ui->eventData1->setEnabled ( false );
-         ui->eventData2->setEnabled ( false );
+         if ( m_pEvent->GetNumElements() == 2 )
+         {
+            ui->eventData1->setVisible ( true );
+            ui->eventData2->setVisible ( true );
+            ui->item1label->setVisible ( true );
+            ui->item2label->setVisible ( true );
+         }
+         else if ( m_pEvent->GetNumElements() == 1 )
+         {
+            ui->eventData1->setVisible ( true );
+            ui->eventData2->setVisible ( false );
+            ui->item1label->setVisible ( true );
+            ui->item2label->setVisible ( false );
+         }
+         else
+         {
+            ui->eventData1->setVisible ( false );
+            ui->eventData2->setVisible ( false );
+            ui->item1label->setVisible ( false );
+            ui->item2label->setVisible ( false );
+         }
+         if ( m_pEvent->GetItemName(0) )
+         {
+            ui->item1label->setText(m_pEvent->GetItemName(0));
+         }
+         if ( m_pEvent->GetItemName(1) )
+         {
+            ui->item2label->setText(m_pEvent->GetItemName(1));
+         }
       }
    }
 }

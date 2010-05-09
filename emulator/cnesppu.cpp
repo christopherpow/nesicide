@@ -157,13 +157,13 @@ bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint,int data)
 
 static CBreakpointEventInfo* tblPPUEvents [] =
 {
-   new CBreakpointEventInfo("Raster Position (Data1=X,Data2=Y)", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10),
+   new CBreakpointEventInfo("Raster Position", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10, "X:", "Y:"),
    new CBreakpointEventInfo("Pre-render Scanline Start (X=0,Y=-1)", ppuPrerenderScanlineStartEvent, 0, "Break at start of pre-render scanline", 10),
    new CBreakpointEventInfo("Pre-render Scanline End (X=256,Y=-1)", ppuPrerenderScanlineEndEvent, 0, "Break at end of pre-render scanline", 10),
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
    new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10),
    new CBreakpointEventInfo("Sprite 0 Hit", ppuSprite0HitEvent, 0, "Break on sprite 0 hit", 10),
-   new CBreakpointEventInfo("Sprite slice rendering (Data1=sprite)", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10)
+   new CBreakpointEventInfo("Sprite slice rendering", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10, "Sprite:")
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };

@@ -122,8 +122,8 @@ bool cpuNMIEvent(BreakpointInfo* pBreakpoint,int data)
 
 static CBreakpointEventInfo* tblCPUEvents [] =
 {
-   new CBreakpointEventInfo("Undocumented Instruction Execution", cpuUndocumentedEvent, 0, "Break if any undocumented opcode is executed", 10),
-   new CBreakpointEventInfo("Undocumented Instruction (Data1=opcode) Execution", cpuUndocumentedExactEvent, 1, "Break if any undocumented opcode $%02X is executed", 16),
+   new CBreakpointEventInfo("Any Undocumented Instruction Execution", cpuUndocumentedEvent, 0, "Break if any undocumented opcode is executed", 10),
+   new CBreakpointEventInfo("Specific Undocumented Instruction Execution", cpuUndocumentedExactEvent, 1, "Break if undocumented opcode $%02X is executed", 16, "Opcode:"),
    new CBreakpointEventInfo("Reset", cpuResetEvent, 0, "Break if CPU is reset", 10),
    new CBreakpointEventInfo("IRQ", cpuIRQEvent, 0, "Break if CPU IRQ fires", 10),
    new CBreakpointEventInfo("NMI", cpuNMIEvent, 0, "Break if CPU NMI fires", 10)

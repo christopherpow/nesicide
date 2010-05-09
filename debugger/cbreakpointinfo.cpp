@@ -1098,6 +1098,8 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                   break;
                }
             break;
+            default:
+            break;
          }
       break;
       case eBreakOnPPUEvent:
