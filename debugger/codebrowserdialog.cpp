@@ -37,7 +37,7 @@ CodeBrowserDialog::~CodeBrowserDialog()
     delete sourceViewModel;
 }
 
-void CodeBrowserDialog::showEvent(QShowEvent* e)
+void CodeBrowserDialog::showEvent(QShowEvent*)
 {
    if ( C6502::__PC() < MEM_2KB )
    {

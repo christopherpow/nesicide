@@ -9,7 +9,7 @@
 QSemaphore emulatorSemaphore;
 extern QSemaphore breakpointSemaphore;
 
-NESEmulatorThread::NESEmulatorThread(QObject *parent)
+NESEmulatorThread::NESEmulatorThread(QObject *)
 {
    m_joy [ JOY1 ] = 0x00;
    m_joy [ JOY2 ] = 0x00;

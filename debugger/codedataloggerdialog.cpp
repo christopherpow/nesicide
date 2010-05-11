@@ -64,14 +64,6 @@ void CodeDataLoggerDialog::resizeEvent(QResizeEvent *event)
     updateScrollbars();
 }
 
-void CodeDataLoggerDialog::on_zoomSlider_sliderMoved(int position)
-{
-}
-
-void CodeDataLoggerDialog::on_zoomSlider_actionTriggered(int action)
-{
-}
-
 void CodeDataLoggerDialog::on_zoomSlider_valueChanged(int value)
 {
     renderer->changeZoom(value);
@@ -88,14 +80,6 @@ void CodeDataLoggerDialog::updateScrollbars()
     ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
     renderer->scrollX = ui->horizontalScrollBar->value();
     renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void CodeDataLoggerDialog::on_verticalScrollBar_actionTriggered(int action)
-{
-}
-
-void CodeDataLoggerDialog::on_horizontalScrollBar_actionTriggered(int action)
-{
 }
 
 void CodeDataLoggerDialog::on_horizontalScrollBar_valueChanged(int value)

@@ -66,14 +66,14 @@ RegisterDisplayDialog::~RegisterDisplayDialog()
    delete bitfieldDelegate;
 }
 
-void RegisterDisplayDialog::showEvent(QShowEvent *e)
+void RegisterDisplayDialog::showEvent(QShowEvent *)
 {
    binaryModel->layoutChangedEvent();
    bitfieldModel->layoutChangedEvent();
    ui->binaryView->resizeColumnsToContents();
 }
 
-void RegisterDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
+void RegisterDisplayDialog::contextMenuEvent(QContextMenuEvent *)
 {
 }
 

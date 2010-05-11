@@ -33,7 +33,7 @@ void PPUInformationDialog::changeEvent(QEvent *e)
     }
 }
 
-void PPUInformationDialog::showEvent(QShowEvent* e)
+void PPUInformationDialog::showEvent(QShowEvent*)
 {
 }
 

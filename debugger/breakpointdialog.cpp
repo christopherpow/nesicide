@@ -46,7 +46,7 @@ void BreakpointDialog::changeEvent(QEvent *e)
     }
 }
 
-void BreakpointDialog::showEvent(QShowEvent *e)
+void BreakpointDialog::showEvent(QShowEvent *)
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
@@ -458,7 +458,7 @@ void BreakpointDialog::on_tableView_pressed(QModelIndex index)
    DisplayBreakpoint ( index.row() );
 }
 
-void BreakpointDialog::on_event_currentIndexChanged(int index)
+void BreakpointDialog::on_event_currentIndexChanged(int)
 {
    if ( ui->event->currentIndex() >= 0 )
    {

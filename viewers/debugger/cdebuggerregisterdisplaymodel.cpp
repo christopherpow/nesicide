@@ -5,7 +5,7 @@
 #include "cnesppu.h"
 #include "cnesapu.h"
 
-CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject* parent, eMemoryType display)
+CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject*, eMemoryType display)
 {
    m_display = display;
    m_register = 0;
@@ -71,7 +71,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
    return QVariant();
 }
 
-Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex &index) const
+Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex &) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
    return flags;
@@ -91,7 +91,7 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
       if ( m_tblRegisters )
       {
          CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( section );
-         sprintf ( buffer, pBitfield->GetName() );
+         sprintf ( buffer, "%s", pBitfield->GetName() );
       }
    }
 
@@ -164,7 +164,7 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
    return ok;
 }
 
-QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QModelIndex &) const
 {
    int addr;
 
@@ -231,7 +231,7 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
    return QModelIndex();
 }
 
-int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &parent) const
+int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &) const
 {
    if ( m_tblRegisters )
    {
@@ -240,7 +240,7 @@ int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &parent) const
    return 0;
 }
 
-int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex &parent) const
+int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex &) const
 {
    if ( m_tblRegisters )
    {
