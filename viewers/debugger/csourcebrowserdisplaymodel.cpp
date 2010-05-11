@@ -9,7 +9,7 @@
 
 #include <QIcon>
 
-CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject* parent)
+CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject*)
 {
 }
 
@@ -46,7 +46,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    return QVariant();
 }
 
-Qt::ItemFlags CSourceBrowserDisplayModel::flags(const QModelIndex &index) const
+Qt::ItemFlags CSourceBrowserDisplayModel::flags(const QModelIndex &) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     return flags;
@@ -80,12 +80,12 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
    return  QVariant();
 }
 
-QModelIndex CSourceBrowserDisplayModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CSourceBrowserDisplayModel::index(int row, int column, const QModelIndex &) const
 {
    return createIndex(row, column, row);
 }
 
-int CSourceBrowserDisplayModel::rowCount(const QModelIndex &parent) const
+int CSourceBrowserDisplayModel::rowCount(const QModelIndex &) const
 {
    return m_source.count();
 }

@@ -34,11 +34,7 @@ public slots:
 private slots:
     void on_verticalScrollBar_valueChanged(int value);
     void on_horizontalScrollBar_valueChanged(int value);
-    void on_horizontalScrollBar_actionTriggered(int action);
-    void on_verticalScrollBar_actionTriggered(int action);
     void on_zoomSlider_valueChanged(int value);
-    void on_zoomSlider_actionTriggered(int action);
-    void on_zoomSlider_sliderMoved(int position);
 };
 
 #endif // NAMETABLEDISPLAYDIALOG_H

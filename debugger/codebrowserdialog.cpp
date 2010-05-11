@@ -37,7 +37,7 @@ CodeBrowserDialog::~CodeBrowserDialog()
     delete sourceViewModel;
 }
 
-void CodeBrowserDialog::showEvent(QShowEvent* e)
+void CodeBrowserDialog::showEvent(QShowEvent*)
 {
    // Update display...
    CROM::DISASSEMBLE();

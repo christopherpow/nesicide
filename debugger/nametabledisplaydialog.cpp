@@ -63,14 +63,6 @@ void NameTableDisplayDialog::resizeEvent(QResizeEvent *event)
     updateScrollbars();
 }
 
-void NameTableDisplayDialog::on_zoomSlider_sliderMoved(int position)
-{
-}
-
-void NameTableDisplayDialog::on_zoomSlider_actionTriggered(int action)
-{
-}
-
 void NameTableDisplayDialog::on_zoomSlider_valueChanged(int value)
 {
     renderer->changeZoom(value);
@@ -87,14 +79,6 @@ void NameTableDisplayDialog::updateScrollbars()
     ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
     renderer->scrollX = ui->horizontalScrollBar->value();
     renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void NameTableDisplayDialog::on_verticalScrollBar_actionTriggered(int action)
-{
-}
-
-void NameTableDisplayDialog::on_horizontalScrollBar_actionTriggered(int action)
-{
 }
 
 void NameTableDisplayDialog::on_horizontalScrollBar_valueChanged(int value)

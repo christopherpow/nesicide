@@ -28,7 +28,7 @@ MemoryDisplayDialog::~MemoryDisplayDialog()
     delete model;
 }
 
-void MemoryDisplayDialog::showEvent(QShowEvent *e)
+void MemoryDisplayDialog::showEvent(QShowEvent *)
 {
    model->layoutChangedEvent();
    ui->tableView->resizeColumnsToContents();

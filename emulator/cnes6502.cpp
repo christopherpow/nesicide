@@ -3118,7 +3118,7 @@ void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryL
       // attempt to provide disassembly for it...
       if ( (mask) && (pOp->documented) && ((binaryLength-i) >= opSize) )
       {
-         ptr += sprintf ( ptr, pOp->name );
+         ptr += sprintf ( ptr, "%s", pOp->name );
 
          switch ( pOp->amode )
          {

@@ -4,7 +4,7 @@
 #include <stdio.h>
 QSemaphore breakpointWatcherSemaphore(0);
 
-BreakpointWatcherThread::BreakpointWatcherThread(QObject *parent)
+BreakpointWatcherThread::BreakpointWatcherThread(QObject *)
 {
    m_isTerminating = false;
 }
@@ -20,7 +20,7 @@ void BreakpointWatcherThread::kill()
    breakpointWatcherSemaphore.release();
 }
 
-void BreakpointWatcherThread::setDialog(QDialog* dialog)
+void BreakpointWatcherThread::setDialog(QDialog*)
 {
 }
 

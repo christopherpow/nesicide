@@ -28,7 +28,7 @@ ExecutionTracerDialog::~ExecutionTracerDialog()
     delete tableViewModel;
 }
 
-void ExecutionTracerDialog::showEvent(QShowEvent* e)
+void ExecutionTracerDialog::showEvent(QShowEvent*)
 {
    ui->tableView->resizeColumnsToContents();
 }

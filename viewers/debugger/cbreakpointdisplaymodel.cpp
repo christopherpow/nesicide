@@ -4,7 +4,7 @@
 
 #include <QIcon>
 
-CBreakpointDisplayModel::CBreakpointDisplayModel(QObject* parent)
+CBreakpointDisplayModel::CBreakpointDisplayModel(QObject*)
 {
 }
 
@@ -44,14 +44,14 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
    return data;
 }
 
-int CBreakpointDisplayModel::rowCount(const QModelIndex &parent) const
+int CBreakpointDisplayModel::rowCount(const QModelIndex &) const
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
 
    return pBreakpoints->GetNumBreakpoints();
 }
 
-int CBreakpointDisplayModel::columnCount(const QModelIndex &parent) const
+int CBreakpointDisplayModel::columnCount(const QModelIndex &) const
 {
    return 2;
 }

@@ -6,7 +6,7 @@
 #include <QColor>
 #include <QBrush>
 
-CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display)
+CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType display)
 {
    m_display = display;
    m_tblRegisters = NULL;
@@ -260,7 +260,7 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
    return ok;
 }
 
-QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModelIndex &) const
 {
    switch ( m_display )
    {
@@ -338,7 +338,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
    return QModelIndex();
 }
 
-int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &parent) const
+int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &) const
 {
    switch ( m_display )
    {

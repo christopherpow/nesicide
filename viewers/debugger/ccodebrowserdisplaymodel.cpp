@@ -9,7 +9,7 @@
 
 #include <QIcon>
 
-CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject* parent)
+CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject*)
 {
 }
 
@@ -34,8 +34,8 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
          if ( (pBreakpoint->enabled) &&
               (pBreakpoint->type == eBreakOnCPUExecution) &&
-              (pBreakpoint->item1 <= addr) &&
-              (pBreakpoint->item2 >= addr) )
+              ((UINT)pBreakpoint->item1 <= addr) &&
+              ((UINT)pBreakpoint->item2 >= addr) )
          {
             if ( addr == C6502::__PC() )
             {
@@ -48,8 +48,8 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
-                   (pBreakpoint->item1 <= addr) &&
-                   (pBreakpoint->item2 >= addr) )
+                   ((UINT)pBreakpoint->item1 <= addr) &&
+                   ((UINT)pBreakpoint->item2 >= addr) )
          {
             if ( addr == C6502::__PC() )
             {
@@ -106,7 +106,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    return QVariant();
 }
 
-Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex &index) const
+Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex &) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     return flags;
@@ -152,7 +152,7 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    return  QVariant();
 }
 
-QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex &) const
 {
    int addr;
 
@@ -161,7 +161,7 @@ QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelInd
    return createIndex(row, column, addr);
 }
 
-int CCodeBrowserDisplayModel::rowCount(const QModelIndex &parent) const
+int CCodeBrowserDisplayModel::rowCount(const QModelIndex &) const
 {
    // Get the source-lines-of-code count from each disassembled ROM
    // bank that is currently visible to the CPU...

@@ -49,7 +49,7 @@ public:
    static void Set8KBank ( int bank, unsigned char* data );
    static void Set16KBank ( int bank, unsigned char* data );
    static void DoneLoadingBanks ( void );
-   static void CHRRAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_CHRRAMmemory,data,length); }
+   static void CHRRAMSET ( UINT, unsigned char* data, UINT length ) { memcpy(m_CHRRAMmemory,data,length); }
    static void CHRRAMCLR ( void ) { memset(m_CHRRAMmemory,0x00,MEM_8KB); }
    static void SRAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_SRAMmemory+addr,data,length); }
    static void SRAMCLR ( void ) { memset(m_SRAMmemory,0x00,MEM_64KB); }
@@ -62,7 +62,7 @@ public:
 //   static UINT CHRMEMBANK ( UINT addr ) { return m_CHRbank[CHRBANK_NUM(addr)]; }
    static inline unsigned char* CHRRAMPTR ( UINT addr ) { return &(m_CHRRAMmemory[addr]); }
    static inline UINT PRGROM ( UINT addr ) { return *(*(m_pPRGROMmemory+PRGBANK_VIRT(addr))+(PRGBANK_OFF(addr))); }
-   static inline void PRGROM ( UINT addr, unsigned char data ) {}
+   static inline void PRGROM ( UINT, unsigned char ) {}
    static inline void CHRMEM ( UINT addr, unsigned char data ) { *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))) = data; }
    static inline UINT CHRMEM ( UINT addr ) { return *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))); }
    static inline UINT SRAM ( UINT addr ) { return *(m_pSRAMmemory+SRAMBANK_OFF(addr)); }
@@ -86,12 +86,12 @@ public:
    static void RESET ();
    static UINT MAPPER ( void ) { return m_mapper; }
    static UINT MAPPER ( UINT addr ) { return PRGROM(addr); }
-   static void MAPPER ( UINT addr, unsigned char data ) {}
-   static UINT LMAPPER ( UINT addr ) { return 0x40; } // open bus?
-   static void LMAPPER ( UINT addr, unsigned char data ) {}
-   static void SYNCH ( int scanline ) {}
+   static void MAPPER ( UINT, unsigned char ) {}
+   static UINT LMAPPER ( UINT ) { return 0x40; } // open bus?
+   static void LMAPPER ( UINT, unsigned char ) {}
+   static void SYNCH ( int ) {}
    static bool SYNCV ( void ) { return false; }
-   static void LATCH ( UINT addr ) {}
+   static void LATCH ( UINT ) {}
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
 

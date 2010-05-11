@@ -2,7 +2,7 @@
 
 void GetPrintable ( TracerInfo* pSample, int subItem, char* str );
 
-CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject* parent)
+CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject*)
 {
    m_pTracer = CNES::TRACER();
    m_bShowCPU = true;
@@ -28,7 +28,7 @@ QVariant CDebuggerExecutionTracerModel::data(const QModelIndex &index, int role)
    return data;
 }
 
-Qt::ItemFlags CDebuggerExecutionTracerModel::flags(const QModelIndex &index) const
+Qt::ItemFlags CDebuggerExecutionTracerModel::flags(const QModelIndex &) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     return flags;
@@ -92,7 +92,7 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
    return  QVariant();
 }
 
-QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &) const
 {
    if ( (m_bShowCPU) && (m_bShowPPU) )
    {
@@ -109,7 +109,7 @@ QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QMod
    return QModelIndex();
 }
 
-int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &parent) const
+int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &) const
 {
    int rows = 0;
 
