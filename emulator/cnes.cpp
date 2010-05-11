@@ -40,7 +40,7 @@ bool            CNES::m_bStepPPUBreakpoint = false;
 
 CTracer         CNES::m_tracer;
 
-QSemaphore breakpointSemaphore(1);
+QSemaphore breakpointSemaphore(0);
 extern QSemaphore breakpointWatcherSemaphore;
 
 CNES::CNES()

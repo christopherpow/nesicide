@@ -79,14 +79,28 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          return "";
       break;
       case 1:
-         sprintf ( buffer, "%02X", CROM::PRGROM(addr) );
+         if ( addr < MEM_2KB )
+         {
+            sprintf ( buffer, "%02X", C6502::_MEM(addr) );
+         }
+         else
+         {
+            sprintf ( buffer, "%02X", CROM::PRGROM(addr) );
+         }
          return buffer;
       break;
       case 2:
          opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
          if ( 1 < opSize )
          {
-            sprintf ( buffer, "%02X", CROM::PRGROM(addr+1) );
+            if ( addr < MEM_2KB )
+            {
+               sprintf ( buffer, "%02X", C6502::_MEM(addr+1) );
+            }
+            else
+            {
+               sprintf ( buffer, "%02X", CROM::PRGROM(addr+1) );
+            }
             return buffer;
          }
       break;
@@ -94,12 +108,26 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          opSize = C6502::OpcodeSize ( CROM::PRGROM(addr) );
          if ( 2 < opSize )
          {
-            sprintf ( buffer, "%02X", CROM::PRGROM(addr+2) );
+            if ( addr < MEM_2KB )
+            {
+               sprintf ( buffer, "%02X", C6502::_MEM(addr+2) );
+            }
+            else
+            {
+               sprintf ( buffer, "%02X", CROM::PRGROM(addr+2) );
+            }
             return buffer;
          }
       break;
       case 4:
-         return CROM::DISASSEMBLY(addr);
+         if ( addr < MEM_2KB )
+         {
+            return C6502::DISASSEMBLY(addr);
+         }
+         else
+         {
+            return CROM::DISASSEMBLY(addr);
+         }
       break;
    }
 
@@ -143,8 +171,14 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    }
    else
    {
-      addr = CROM::SLOC2ADDR(section);
-
+      if ( C6502::__PC() < MEM_2KB )
+      {
+         addr = C6502::SLOC2ADDR(section);
+      }
+      else
+      {
+         addr = CROM::SLOC2ADDR(section);
+      }
       sprintf ( buffer, "$%04X", addr );
       return buffer;
    }
@@ -156,16 +190,33 @@ QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelInd
 {
    int addr;
 
-   addr = CROM::SLOC2ADDR(row);
+   if ( C6502::__PC() < MEM_2KB )
+   {
+      addr = C6502::SLOC2ADDR(row);
+   }
+   else
+   {
+      addr = CROM::SLOC2ADDR(row);
+   }
 
    return createIndex(row, column, addr);
 }
 
 int CCodeBrowserDisplayModel::rowCount(const QModelIndex &parent) const
 {
-   // Get the source-lines-of-code count from each disassembled ROM
-   // bank that is currently visible to the CPU...
-   int rows = CROM::SLOC(0x8000)+CROM::SLOC(0xA000)+CROM::SLOC(0xC000)+CROM::SLOC(0xE000);
+   int rows;
+
+   if ( C6502::__PC() < MEM_2KB )
+   {
+      // Get the source-lines-of-code count from RAM that is currently visible to the CPU...
+      rows = C6502::SLOC();
+   }
+   else
+   {
+      // Get the source-lines-of-code count from each disassembled ROM
+      // bank that is currently visible to the CPU...
+      rows = CROM::SLOC(0x8000)+CROM::SLOC(0xA000)+CROM::SLOC(0xC000)+CROM::SLOC(0xE000);
+   }
 
    return rows;
 }

@@ -169,7 +169,7 @@ void NESEmulatorThread::pauseEmulation (bool show)
 void NESEmulatorThread::run ()
 {
    // Seed mechanism for breaking...
-   breakpointSemaphore.acquire ();
+//   breakpointSemaphore.acquire ();
 
    for ( ; ; )
    {

@@ -39,19 +39,39 @@ CodeBrowserDialog::~CodeBrowserDialog()
 
 void CodeBrowserDialog::showEvent(QShowEvent* e)
 {
-   // Update display...
-   CROM::DISASSEMBLE();
-
-   switch ( ui->displayMode->currentIndex() )
+   if ( C6502::__PC() < MEM_2KB )
    {
-      case BROWSE_ASSEMBLY:
-         assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
-      break;
-      case BROWSE_SOURCE:
-         sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
-      break;
+      // Update display...
+      C6502::DISASSEMBLE();
+
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+         break;
+      }
+   }
+   else
+   {
+      // Update display...
+      CROM::DISASSEMBLE();
+
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+         break;
+      }
    }
 
    ui->tableView->resizeColumnsToContents();
@@ -80,21 +100,43 @@ void CodeBrowserDialog::changeEvent(QEvent *e)
 
 void CodeBrowserDialog::updateDisassembly()
 {
-   // Update display...
-   CROM::DISASSEMBLE();
-
-   emit showMe();
-
-   switch ( ui->displayMode->currentIndex() )
+   if ( C6502::__PC() < MEM_2KB )
    {
-      case BROWSE_ASSEMBLY:
-         assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
-      break;
-      case BROWSE_SOURCE:
-         sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
-      break;
+      // Update display...
+      C6502::DISASSEMBLE();
+
+      emit showMe();
+
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+         break;
+      }
+   }
+   else
+   {
+      // Update display...
+      CROM::DISASSEMBLE();
+
+      emit showMe();
+
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+         break;
+      }
    }
 }
 
@@ -110,23 +152,47 @@ void CodeBrowserDialog::updateBrowser()
       if ( pBreakpoint->hit )
       {
          // Update display...
-         CROM::DISASSEMBLE();
+         if ( C6502::__PC() < MEM_2KB )
+         {
+            C6502::DISASSEMBLE();
+         }
+         else
+         {
+            CROM::DISASSEMBLE();
+         }
 
          emit showMe();
          break;
       }
    }
 
-   switch ( ui->displayMode->currentIndex() )
+   if ( C6502::__PC() < MEM_2KB )
    {
-      case BROWSE_ASSEMBLY:
-         assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
-      break;
-      case BROWSE_SOURCE:
-         sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
-      break;
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+         break;
+      }
+   }
+   else
+   {
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(C6502::__PC()<0xC000?0:1,C6502::__PC())-1,0));
+         break;
+      }
    }
 }
 

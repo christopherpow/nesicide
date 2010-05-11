@@ -197,7 +197,6 @@ char*          CPPU::m_pCodeDataLoggerInspectorTV = NULL;
 
 unsigned int   CPPU::m_cycles = 0;
 int            CPPU::m_mode = MODE_NTSC;
-char           CPPU::m_szBinaryText [] = { 0, };
 
 char*          CPPU::m_pTV = NULL;
 
@@ -323,7 +322,7 @@ void CPPU::EMULATE(void)
    }
 }
 
-UINT CPPU::LOAD ( UINT addr, char source, char type )
+UINT CPPU::LOAD ( UINT addr, char source, char type, bool trace )
 {
    unsigned char data = 0xFF;
 
@@ -334,7 +333,10 @@ UINT CPPU::LOAD ( UINT addr, char source, char type )
       data = CROM::CHRMEM ( addr );
 
       // Add Tracer sample...
-      CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+      if ( trace )
+      {
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+      }
 
       return data;
    }
@@ -351,8 +353,10 @@ UINT CPPU::LOAD ( UINT addr, char source, char type )
          data = *(m_PALETTEmemory+(addr&0x1F));
 
          // Add Tracer sample...
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
-
+         if ( trace )
+         {
+            CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
+         }
          return data;
       }
 
@@ -362,26 +366,32 @@ UINT CPPU::LOAD ( UINT addr, char source, char type )
    data = *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF));
 
    // Add Tracer sample...
-   if ( (addr&0x3FF) < 0x3C0 )
+   if ( trace )
    {
-      CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
-   }
-   else
-   {
-      CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+      if ( (addr&0x3FF) < 0x3C0 )
+      {
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
+      }
+      else
+      {
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+      }
    }
 
    return data;
 }
 
-void CPPU::STORE ( UINT addr, unsigned char data, char source, char type )
+void CPPU::STORE ( UINT addr, unsigned char data, char source, char type, bool trace )
 {
    addr &= 0x3FFF;
 
    if ( addr < 0x2000 )
    {
       // Add Tracer sample...
-      CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+      if ( trace )
+      {
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+      }
 
       if ( CROM::IsWriteProtected() == false )
       {
@@ -396,7 +406,10 @@ void CPPU::STORE ( UINT addr, unsigned char data, char source, char type )
       if ( addr >= 0x3F00 )
       {
          // Add Tracer sample...
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
+         if ( trace )
+         {
+            CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
+         }
 
          if ( !(addr&0xF) )
          {
@@ -415,13 +428,16 @@ void CPPU::STORE ( UINT addr, unsigned char data, char source, char type )
    }
 
    // Add Tracer sample...
-   if ( (addr&0x3FF) < 0x3C0 )
+   if ( trace )
    {
-      CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
-   }
-   else
-   {
-      CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+      if ( (addr&0x3FF) < 0x3C0 )
+      {
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
+      }
+      else
+      {
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+      }
    }
 
    *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;
@@ -790,8 +806,6 @@ void CPPU::RESET ( void )
    m_curCycles = 0;
    m_frame = 0;
 
-   CNES::TRACER()->AddRESET ();
-
    m_ppuAddr = 0x0000;
    m_ppuAddrLatch = 0x0000;
    m_ppuAddrIncrement = 1;
@@ -1093,8 +1107,6 @@ void CPPU::NONRENDERSCANLINE ( int scanlines )
       {
          INCCYCLE();
          EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
 
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU );
@@ -1252,7 +1264,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
                            m_lastSprite0HitY = scanline;
 
                            // TODO: update tracer info
-                           CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, 0, 0, 0, 0 );
+                           CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eSource_PPU, 0, 0, 0 );
                         }
                      }
                   }
@@ -1317,12 +1329,8 @@ void CPPU::RENDERSCANLINE ( int scanline )
    // Finish off scanline render clock cycles...
    GARBAGE ( eTarget_NameTable );
    EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
    GARBAGE ( eTarget_NameTable );
    EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
 
    // If this is the non-render scanline on an odd frame and the PPU is on
    if ( (scanline >= 0) ||
@@ -1330,9 +1338,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
    {
       // account for extra clock (341)
       EXTRA ();
-   EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
+      EMULATE();
    }
 }
 
@@ -1351,21 +1357,13 @@ void CPPU::GATHERBKGND ( void )
 
    patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
    EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
    mapperfunc[CROM::MAPPER()].latch ( patternIdx );
    pBkgnd->attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
    EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
    pBkgnd->patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
    EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
    pBkgnd->patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
    EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
 
    if ( (tileY&0x0002) == 0 )
    {
@@ -1494,20 +1492,12 @@ void CPPU::GATHERSPRITES ( int scanline )
       // Garbage nametable fetches according to Samus Aran...
       GARBAGE ( eTarget_NameTable );
       EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
       GARBAGE ( eTarget_NameTable );
       EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
       GARBAGE ( eTarget_PatternMemory );
       EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
       GARBAGE ( eTarget_PatternMemory );
       EMULATE();
-//         C6502::EMULATE ( m_curCycles/3 );
-//         m_curCycles %= 3;
    }
 
    // order sprites by priority for rendering...

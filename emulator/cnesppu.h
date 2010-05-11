@@ -139,13 +139,13 @@ public:
    static void RESET ( void );
    static void PPU ( UINT addr, unsigned char data );
    static UINT PPU ( UINT addr );
-   static void STORE ( UINT addr, unsigned char data, char source = eSource_PPU, char type = eTracer_Unknown );
-   static UINT LOAD ( UINT addr, char source = eSource_PPU, char type = eTracer_Unknown );
+   static void STORE ( UINT addr, unsigned char data, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
+   static UINT LOAD ( UINT addr, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
    static UINT RENDER ( UINT addr, char source );
    static void GARBAGE ( char target );
    static void EXTRA ();
-   static inline void _MEM ( UINT addr, unsigned char data ) { STORE(addr,data,false,false); }
-   static inline UINT _MEM ( UINT addr ) { return LOAD(addr,false,false); }
+   static inline void _MEM ( UINT addr, unsigned char data ) { STORE(addr,data,0,0,false); }
+   static inline UINT _MEM ( UINT addr ) { return LOAD(addr,0,0,false); }
    static inline unsigned char _NAMETABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
    static inline unsigned char _ATTRTABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
    static inline unsigned char _PATTERNDATA ( unsigned short addr ) { return CROM::CHRMEM ( addr ); }
@@ -256,8 +256,6 @@ protected:
 
    static unsigned char  m_x;
    static unsigned char  m_y;
-
-   static char           m_szBinaryText [ 70000 ];
 
    static SpriteBuffer     m_spriteBuffer;
    static BackgroundBuffer m_bkgndBuffer;

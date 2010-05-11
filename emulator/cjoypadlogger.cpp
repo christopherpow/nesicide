@@ -14,7 +14,7 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// Tracer.cpp: implementation of the CTracer class.
+// JoypadLogger.cpp: implementation of the CJoypadLogger class.
 //
 //////////////////////////////////////////////////////////////////////
 

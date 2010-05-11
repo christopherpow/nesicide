@@ -72,6 +72,7 @@ public:
    static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGBANK_PHYS(addr)); }
    static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
+
    static inline void OPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
    static inline char* DISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
    static UINT SLOC2ADDR ( unsigned short sloc );

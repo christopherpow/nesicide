@@ -113,15 +113,18 @@ int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &parent) const
 {
    int rows = 0;
 
-   if ( m_bShowCPU )
+   if ( (m_bShowCPU) && (m_bShowPPU) )
    {
-      rows += m_pTracer->GetNumCPUSamples();
+      rows = m_pTracer->GetNumSamples();
    }
-   if ( m_bShowPPU )
+   else if ( m_bShowCPU )
    {
-      rows += m_pTracer->GetNumPPUSamples();
+      rows = m_pTracer->GetNumCPUSamples();
    }
-   rows--; // otherwise a repeat of the first row shows up...
+   else if ( m_bShowPPU )
+   {
+      rows = m_pTracer->GetNumPPUSamples();
+   }
    return rows;
 }
 
@@ -162,9 +165,6 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                break;
                case eSource_Mapper:
                   strcpy ( str, "Mapper" );
-               break;
-               case eSource_User:
-                  strcpy ( str, "User" );
                break;
             }
          break;

@@ -141,7 +141,8 @@ public:
 	C6502();
 
    // Disassembly routines for display
-   static void Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength );
+   static void DISASSEMBLE ();
+   static void DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength );
    static char* Disassemble ( unsigned char* pOpcode, char* buffer );
 
    // Emulation routines
@@ -276,6 +277,7 @@ public:
    static unsigned char DMA ( UINT addr, char source );
    static unsigned char _DMA ( UINT addr );
    static unsigned char FETCH ( UINT addr );
+   static unsigned char EXTRAFETCH ( UINT addr );
    static unsigned char LOAD ( UINT addr, char* pTarget );
    static void STORE ( UINT addr, unsigned char data, char* pTarget );
    static unsigned char _MEM ( UINT addr );
@@ -286,6 +288,12 @@ public:
 
    static inline UINT MAKEADDR ( int amode, unsigned char* data );
    static bool SYNC ( void ) { return m_sync; }
+
+   static inline void OPCODEMASK ( UINT addr, unsigned char mask ) { *(m_RAMopcodeMask+addr) = mask; }
+   static inline char* DISASSEMBLY ( UINT addr ) { return *(m_RAMdisassembly+addr); }
+   static UINT SLOC2ADDR ( unsigned short sloc ) { return *(m_RAMsloc2addr+sloc); }
+   static unsigned short ADDR2SLOC ( UINT addr ) { return *(m_RAMaddr2sloc+addr); }
+   static inline unsigned short SLOC () { return m_RAMsloc; }
 
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
@@ -304,7 +312,11 @@ protected:
    static bool            m_killed;
    static bool            m_irqAsserted;
    static unsigned char   m_6502memory [ MEM_2KB ];
-   static char            m_szBinaryText [ 6913 ]; // 54-bytes per line for 128 lines + 1 null
+   static unsigned char   m_RAMopcodeMask [ MEM_2KB ];
+   static char*           m_RAMdisassembly [ MEM_2KB ];
+   static unsigned short  m_RAMsloc2addr [ MEM_2KB ];
+   static unsigned short  m_RAMaddr2sloc [ MEM_2KB ];
+   static int             m_RAMsloc;
    static unsigned char   m_a;
    static unsigned char   m_x;
    static unsigned char   m_y;

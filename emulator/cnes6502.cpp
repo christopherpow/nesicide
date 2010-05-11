@@ -132,7 +132,11 @@ static CBreakpointEventInfo* tblCPUEvents [] =
 bool            C6502::m_killed = false;              // KIL opcode not executed
 bool            C6502::m_irqAsserted = false;
 unsigned char   C6502::m_6502memory [] = { 0, };
-char            C6502::m_szBinaryText [] = { 0, };
+unsigned char   C6502::m_RAMopcodeMask [ MEM_2KB ] = { 0, };
+char*           C6502::m_RAMdisassembly [ MEM_2KB ] = { 0, };
+unsigned short  C6502::m_RAMsloc2addr [ MEM_2KB ] = { 0, };
+unsigned short  C6502::m_RAMaddr2sloc [ MEM_2KB ] = { 0, };
+int             C6502::m_RAMsloc = 0;
 unsigned char   C6502::m_a = 0x00;
 unsigned char   C6502::m_x = 0x00;
 unsigned char   C6502::m_y = 0x00;
@@ -470,8 +474,15 @@ static QColor dmaColor [] =
    QColor(0,0,0)
 };
 
+static C6502 __init __attribute((unused));
+
 C6502::C6502()
 {
+   int addr;
+   for ( addr = 0; addr < MEM_2KB; addr++ )
+   {
+      m_RAMdisassembly[addr] = new char [ 16 ];
+   }
 }
 
 void C6502::RENDERCODEDATALOGGER ( void )
@@ -668,7 +679,7 @@ unsigned char C6502::STEP ( void )
    // Check for dummy-read needed for single-byte instructions...
    if ( opcodeSize == 1 )
    {
-      (*(pOpcode+1)) = FETCH ( m_pc );
+      (*(pOpcode+1)) = EXTRAFETCH ( m_pc );
    }
 
    // Execute
@@ -2903,6 +2914,31 @@ unsigned char C6502::FETCH ( UINT addr )
    else if ( target == eTarget_RAM )
    {
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+
+      // ... and update opcode masking for disassembler...
+      OPCODEMASK ( addr, (unsigned char)m_sync );
+   }
+
+   return data;
+}
+
+unsigned char C6502::EXTRAFETCH ( UINT addr )
+{
+   char target;
+   unsigned char data = LOAD ( addr, &target );
+
+   // Add Tracer sample...
+   CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
+
+   // If ROM is being accessed, log code/data logger...
+   if ( target == eTarget_ROM )
+   {
+      CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_RAM )
+   {
+      m_logger.LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
    }
 
    return data;
@@ -3088,7 +3124,18 @@ unsigned char C6502::OpcodeSize ( unsigned char op )
    return *(opcode_size+pOp->amode);
 }
 
-void C6502::Disassemble ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength )
+void C6502::DISASSEMBLE ()
+{
+   DISASSEMBLE ( m_RAMdisassembly,
+                 m_6502memory,
+                 MEM_2KB,
+                 m_RAMopcodeMask,
+                 m_RAMsloc2addr,
+                 m_RAMaddr2sloc,
+                 &(m_RAMsloc) );
+}
+
+void C6502::DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength )
 {
    C6502_opcode* pOp;
    int opSize;

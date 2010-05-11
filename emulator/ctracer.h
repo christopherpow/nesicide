@@ -6,7 +6,6 @@
 #define TRACER_H
 
 #define TRACER_DEFAULT_DEPTH 262144
-
 enum
 {
    eTracer_Unknown = 0,
@@ -25,12 +24,10 @@ enum
 
 enum
 {
-   eSource_Unknown = 0,
    eSource_CPU,
    eSource_PPU,
    eSource_APU,
-   eSource_Mapper,
-   eSource_User
+   eSource_Mapper
 };
 
 enum
@@ -106,10 +103,8 @@ public:
    TracerInfo* SetDisassembly ( unsigned char* szD );
    TracerInfo* SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f );
    void SetEffectiveAddress ( TracerInfo* pS, unsigned int ea ) { if ( pS ) pS->ea = ea; }
-//   int Find ( CString str, int start );
 
 	CTracer();
-   CTracer(int depth);
 	virtual ~CTracer();
 
    unsigned int GetNumCPUSamples() const { return m_cpuSamples; }

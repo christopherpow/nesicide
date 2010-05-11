@@ -143,7 +143,7 @@ void CROM::DISASSEMBLE ()
 
    for ( bank = 0; bank < m_numPrgBanks; bank++ )
    {
-      C6502::Disassemble ( m_PRGROMdisassembly[bank],
+      C6502::DISASSEMBLE ( m_PRGROMdisassembly[bank],
                            m_PRGROMmemory[bank],
                            MEM_8KB,
                            m_PRGROMopcodeMask[bank],
