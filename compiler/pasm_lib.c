@@ -35,12 +35,13 @@ int pasm_get_num_errors ( void )
    return errorCount;
 }
 
-int pasm_get_source_linenum ( unsigned int bank, unsigned int addr )
+int pasm_get_source_linenum ( unsigned int absAddr )
 {
    int b, foundbank = -1;
    int linenum = -1;
    ir_table* ptr;
 
+#if 0
    // Start by assuming code is banked as if it were going to be in
    // a mapper-enabled cartridge.  This will allow us to be able to
    // trace code in the appropriate bank.
@@ -67,6 +68,7 @@ int pasm_get_source_linenum ( unsigned int bank, unsigned int addr )
          }
       }
    }
+#endif
    // If we couldn't find the address within what we thought
    // was the appropriate bank to be looking in the code is not
    // banked as we thought.  It could be a no-mapper cartridge.
@@ -79,7 +81,8 @@ int pasm_get_source_linenum ( unsigned int bank, unsigned int addr )
          {
             for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
             {
-               if ( (ptr->instr) && (ptr->addr == addr) )
+//               if ( (ptr->instr) && (ptr->addr == addr) )
+               if ( (ptr->instr) && (ptr->absAddr == absAddr) )
                {
                   linenum = ptr->source_linenum;
                   break;

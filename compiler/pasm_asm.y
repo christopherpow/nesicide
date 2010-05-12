@@ -2910,6 +2910,7 @@ void output_binary ( char** buffer, int* size )
    ir_table* ptr;
 	int       i;
 	int       bank;
+   ir_table* plast = NULL;
 
    (*buffer) = (char*) malloc ( DEFAULT_BANK_SIZE );
    (*size) = DEFAULT_BANK_SIZE;
@@ -2924,6 +2925,16 @@ void output_binary ( char** buffer, int* size )
                if ( ptr->emitted == 0 )
 					{
                   ptr->emitted = 1;
+                  // Calculate absolute ROM address...
+                  if ( plast )
+                  {
+                     ptr->absAddr = plast->absAddr + plast->len;
+                  }
+                  else
+                  {
+                     ptr->absAddr = 0;
+                  }
+                  plast = ptr;
                   if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
 						{
                      for ( i = 0; i < ptr->len; i++ )
@@ -3028,7 +3039,7 @@ void dump_ir_table ( ir_table* head )
 
    for ( ptr = head; ptr != NULL; ptr = ptr->next )
    {
-      printf ( "%08x %04X [%d]: ", ptr, ptr->addr, ptr->source_linenum );
+      printf ( "%08x %04X %08x [%d]: ", ptr, ptr->addr, ptr->absAddr, ptr->source_linenum );
 
       if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
       {
@@ -4092,62 +4103,43 @@ ir_table* emit_ir ( void )
    // If we're supposed to be emitting, do so...
    if ( emitting[preproc_nest_level] )
    {
-      if ( (*ir_tail) == NULL )
+      ptr = (ir_table*) malloc ( sizeof(ir_table) );
+      if ( ptr != NULL )
       {
-         (*ir_head) = (ir_table*) malloc ( sizeof(ir_table) );
-         if ( (*ir_head) != NULL )
-         {
-            (*ir_tail) = (*ir_head);
-            (*ir_tail)->btab_ent = cur->idx;
-            (*ir_tail)->addr = 0;
-            (*ir_tail)->emitted = 0;
-            (*ir_tail)->instr = 0;
-            (*ir_tail)->multi = 0;
-            (*ir_tail)->align = 0;
-            (*ir_tail)->label = 0;
-            (*ir_tail)->fixed = 0;
-            (*ir_tail)->string = 0;
-            (*ir_tail)->source_linenum = recovered_linenum;
-            (*ir_tail)->next = NULL;
-            (*ir_tail)->prev = NULL;
-            (*ir_tail)->expr = NULL;
-            (*ir_tail)->symtab = NULL;
-            (*ir_tail)->file = cur_file;
-         }
-         else
-         {
-            asmerror ( "cannot allocate memory" );
-         }
+         ptr->btab_ent = cur->idx;
+         ptr->addr = 0;
+         ptr->absAddr = 0;
+         ptr->emitted = 0;
+         ptr->instr = 0;
+         ptr->multi = 0;
+         ptr->align = 0;
+         ptr->label = 0;
+         ptr->fixed = 0;
+         ptr->string = 0;
+         ptr->source_linenum = recovered_linenum;
+         ptr->expr = NULL;
+         ptr->symtab = NULL;
+         ptr->file = cur_file;
       }
       else
       {
-         ptr = (ir_table*) malloc ( sizeof(ir_table) );
-         if ( ptr != NULL )
-         {
-            (*ir_tail)->next = ptr;
-            ptr->prev = (*ir_tail);
-            ptr->next = NULL;
-            (*ir_tail) = ptr;
-            ptr->btab_ent = cur->idx;
-            ptr->addr = 0;
-            ptr->emitted = 0;
-            ptr->instr = 0;
-            ptr->multi = 0;
-            ptr->align = 0;
-            ptr->label = 0;
-            ptr->fixed = 0;
-            ptr->string = 0;
-            ptr->source_linenum = recovered_linenum;
-            ptr->expr = NULL;
-            ptr->symtab = NULL;
-            ptr->file = cur_file;
-         }
-         else
-         {
-            asmerror ( "cannot allocate memory" );
-         }
+         asmerror ( "cannot allocate memory" );
       }
-      return (*ir_tail);
+      if ( (*ir_tail) == NULL )
+      {
+         (*ir_head) = ptr;
+         (*ir_tail) = ptr;
+         (*ir_tail)->next = NULL;
+         (*ir_tail)->prev = NULL;
+      }
+      else
+      {
+         (*ir_tail)->next = ptr;
+         ptr->prev = (*ir_tail);
+         ptr->next = NULL;
+         (*ir_tail) = ptr;
+      }
+      return ptr;
    }
 
    // We're not supposed to be emitting, so don't...

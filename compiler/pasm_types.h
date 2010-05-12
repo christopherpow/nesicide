@@ -150,6 +150,7 @@ typedef struct _ir_table
    unsigned char data[3];
    unsigned int  btab_ent;
    unsigned int  addr;
+   unsigned int  absAddr;
    unsigned int  len;
    unsigned char emitted;
    unsigned char instr;

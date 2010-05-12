@@ -38,8 +38,16 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   // Get data for column 1...
-   pBreakpoints->GetPrintable(index.row(),data);
+   // Get data for columns...
+   switch ( index.column() )
+   {
+      case 0:
+         return "";
+      break;
+      case 1:
+         pBreakpoints->GetPrintable(index.row(),data);
+      break;
+   }
 
    return data;
 }

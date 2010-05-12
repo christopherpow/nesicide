@@ -16,7 +16,7 @@ int pasm_get_symbol_data ( int symbol, char* data, int size );
 int pasm_get_symbol_value ( int symbol );
 symbol_type pasm_get_symbol_type ( int symbol );
 int pasm_get_symbol_linenum ( int symbol );
-int pasm_get_source_linenum ( unsigned int bank, unsigned int addr );
+int pasm_get_source_linenum ( unsigned int absAddr );
 unsigned int pasm_get_source_addr_from_linenum ( int linenum );
 
 #if defined ( __cplusplus )
