@@ -24,6 +24,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     sourceViewModel = new CSourceBrowserDisplayModel(this);
     ui->tableView->setModel(assemblyViewModel);
     ui->displayMode->setCurrentIndex ( 0 );
+    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateDisassembly()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateDisassembly()) );
@@ -48,7 +49,7 @@ void CodeBrowserDialog::showEvent(QShowEvent*)
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC())-1,0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
@@ -65,7 +66,7 @@ void CodeBrowserDialog::showEvent(QShowEvent*)
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC())-1,0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
@@ -111,7 +112,7 @@ void CodeBrowserDialog::updateDisassembly()
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC())-1,0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
@@ -130,7 +131,7 @@ void CodeBrowserDialog::updateDisassembly()
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC())-1,0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
@@ -172,7 +173,7 @@ void CodeBrowserDialog::updateBrowser()
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC())-1,0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(C6502::ADDR2SLOC(C6502::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
@@ -186,7 +187,7 @@ void CodeBrowserDialog::updateBrowser()
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC())-1,0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CROM::ADDR2SLOC(C6502::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();

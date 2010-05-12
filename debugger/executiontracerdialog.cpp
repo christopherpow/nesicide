@@ -12,12 +12,13 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
     ui(new Ui::ExecutionTracerDialog)
 {
     ui->setupUi(this);
-    tableViewModel = new CDebuggerExecutionTracerModel(this);
-    tableViewModel->showCPU ( true );
-    tableViewModel->showPPU ( false );
+    model = new CDebuggerExecutionTracerModel(this);
+    model->showCPU ( true );
+    model->showPPU ( false );
     ui->showCPU->setChecked(true);
     ui->showPPU->setChecked(false);
-    ui->tableView->setModel(tableViewModel);
+    ui->tableView->setModel(model);
+    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
 }
@@ -25,11 +26,12 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
 ExecutionTracerDialog::~ExecutionTracerDialog()
 {
     delete ui;
-    delete tableViewModel;
+    delete model;
 }
 
 void ExecutionTracerDialog::showEvent(QShowEvent*)
 {
+   updateTracer();
    ui->tableView->resizeColumnsToContents();
 }
 
@@ -67,30 +69,36 @@ void ExecutionTracerDialog::updateTracer ()
       {
          // Update display...
          emit showMe();
-         ui->tableView->setCurrentIndex(tableViewModel->index(0,0));
+         ui->tableView->setCurrentIndex(model->index(0,0));
       }
       else if ( (pBreakpoint->type == eBreakOnPPUFetch) &&
                 (pBreakpoint->hit) )
       {
          // Update display...
          emit showMe();
-         ui->tableView->setCurrentIndex(tableViewModel->index(0,0));
+         ui->tableView->setCurrentIndex(model->index(0,0));
       }
    }
 
-   tableViewModel->layoutChangedEvent();
+   model->layoutChangedEvent();
+}
+
+void ExecutionTracerDialog::cartridgeLoaded ()
+{
+   updateTracer();
+   model->layoutChangedEvent();
 }
 
 void ExecutionTracerDialog::on_showCPU_toggled(bool checked)
 {
-   tableViewModel->showCPU ( checked );
-   tableViewModel->layoutChangedEvent();
+   model->showCPU ( checked );
+   model->layoutChangedEvent();
 }
 
 void ExecutionTracerDialog::on_showPPU_toggled(bool checked)
 {
-   tableViewModel->showPPU ( checked );   
-   tableViewModel->layoutChangedEvent();
+   model->showPPU ( checked );
+   model->layoutChangedEvent();
 }
 
 void ExecutionTracerDialog::on_actionBreak_on_CPU_execution_here_triggered()

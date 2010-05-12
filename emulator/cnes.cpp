@@ -73,6 +73,10 @@ void CNES::RESET ( UINT mapper )
    CPPU::OAMCLR ();
    CROM::CHRRAMCLR ();
 
+   // Clear code/data logger info...
+   C6502::OPCODEMASKCLR ();
+   CROM::OPCODEMASKCLR ();
+
    m_frame = 0;
    m_bReplay = false;
 }

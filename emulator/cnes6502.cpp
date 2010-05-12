@@ -2893,14 +2893,14 @@ unsigned char C6502::FETCH ( UINT addr )
    char target;
    unsigned char data = LOAD ( addr, &target );
 
+   // Add Tracer sample...
+   CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
+
    // Check for breakpoint...
    if ( m_sync )
    {
       CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, data );
    }
-
-   // Add Tracer sample...
-   CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
 
    // If ROM is being accessed, log code/data logger...
    if ( target == eTarget_ROM )

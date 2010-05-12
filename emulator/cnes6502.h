@@ -290,6 +290,7 @@ public:
    static bool SYNC ( void ) { return m_sync; }
 
    static inline void OPCODEMASK ( UINT addr, unsigned char mask ) { *(m_RAMopcodeMask+addr) = mask; }
+   static inline void OPCODEMASKCLR ( void ) { memset(m_RAMopcodeMask,0,sizeof(m_RAMopcodeMask)); }
    static inline char* DISASSEMBLY ( UINT addr ) { return *(m_RAMdisassembly+addr); }
    static UINT SLOC2ADDR ( unsigned short sloc ) { return *(m_RAMsloc2addr+sloc); }
    static unsigned short ADDR2SLOC ( UINT addr ) { return *(m_RAMaddr2sloc+addr); }
