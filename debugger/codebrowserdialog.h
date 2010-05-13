@@ -22,7 +22,8 @@ protected:
 
 public slots:
     void updateBrowser();
-    void updateDisassembly();
+    void updateDisassembly(bool show);
+    void breakpointHit();
 
 signals:
     void showMe();

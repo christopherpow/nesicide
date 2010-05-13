@@ -76,7 +76,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    switch ( index.column() )
    {
       case 0:
-         return "";
+         return QVariant();
       break;
       case 1:
          if ( addr < MEM_2KB )

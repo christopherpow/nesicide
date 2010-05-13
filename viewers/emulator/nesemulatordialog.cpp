@@ -19,15 +19,11 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   QObject::connect(this, SIGNAL(startEmulation()), emulator, SLOT(startEmulation()));
-   QObject::connect(this, SIGNAL(pauseEmulation(bool)), emulator, SLOT(pauseEmulation(bool)));
-   QObject::connect(this, SIGNAL(stepCPUEmulation()), emulator, SLOT(stepCPUEmulation()));
-   QObject::connect(this, SIGNAL(stepPPUEmulation()), emulator, SLOT(stepPPUEmulation()));
-   QObject::connect(this, SIGNAL(resetEmulator()), emulator, SLOT(resetEmulator()));
-
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
-   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(on_pauseButton_clicked()));
+   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPauseWithoutShow()));
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
+   QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause(bool)));
+   QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
 
    m_joy [ JOY1 ] = 0x00;
    m_joy [ JOY2 ] = 0x00;
@@ -37,29 +33,6 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 NESEmulatorDialog::~NESEmulatorDialog()
 {
     delete ui;
-}
-
-void NESEmulatorDialog::stopEmulation()
-{
-    emit pauseEmulation(false);
-    ui->playButton->setEnabled(true);
-    ui->pauseButton->setEnabled(false);
-    ui->stepCPUButton->setEnabled(true);
-    ui->stepPPUButton->setEnabled(true);
-}
-
-void NESEmulatorDialog::runEmulation()
-{
-    emit startEmulation();
-    ui->playButton->setEnabled(false);
-    ui->pauseButton->setEnabled(true);
-    ui->stepCPUButton->setEnabled(false);
-    ui->stepPPUButton->setEnabled(false);
-}
-
-void NESEmulatorDialog::resetEmulation()
-{
-   emit resetEmulator();
 }
 
 void NESEmulatorDialog::changeEvent(QEvent *e)
@@ -149,7 +122,7 @@ void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
    }
 #endif
 
-   emit controllerInput ( m_joy );
+   emulator->controllerInput ( m_joy );
 }
 
 void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
@@ -227,7 +200,15 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
    }
 #endif
 
-   emit controllerInput ( m_joy );
+   emulator->controllerInput ( m_joy );
+}
+
+void NESEmulatorDialog::internalPlay()
+{
+   ui->playButton->setEnabled(false);
+   ui->pauseButton->setEnabled(true);
+   ui->stepCPUButton->setEnabled(false);
+   ui->stepPPUButton->setEnabled(false);
 }
 
 void NESEmulatorDialog::on_playButton_clicked()
@@ -237,7 +218,23 @@ void NESEmulatorDialog::on_playButton_clicked()
    ui->stepCPUButton->setEnabled(false);
    ui->stepPPUButton->setEnabled(false);
 
-   emit startEmulation();
+   emulator->startEmulation();
+}
+
+void NESEmulatorDialog::internalPause(bool)
+{
+   ui->playButton->setEnabled(true);
+   ui->pauseButton->setEnabled(false);
+   ui->stepCPUButton->setEnabled(true);
+   ui->stepPPUButton->setEnabled(true);
+}
+
+void NESEmulatorDialog::internalPauseWithoutShow()
+{
+   ui->playButton->setEnabled(true);
+   ui->pauseButton->setEnabled(false);
+   ui->stepCPUButton->setEnabled(true);
+   ui->stepPPUButton->setEnabled(true);
 }
 
 void NESEmulatorDialog::on_pauseButton_clicked()
@@ -247,25 +244,25 @@ void NESEmulatorDialog::on_pauseButton_clicked()
    ui->stepCPUButton->setEnabled(true);
    ui->stepPPUButton->setEnabled(true);
 
-   emit pauseEmulation(true);
+   emulator->pauseEmulation(true);
+}
+
+void NESEmulatorDialog::on_stepCPUButton_clicked()
+{
+   emulator->stepCPUEmulation();
+}
+
+void NESEmulatorDialog::on_stepPPUButton_clicked()
+{
+   emulator->stepPPUEmulation();
 }
 
 void NESEmulatorDialog::on_resetButton_clicked()
 {
-   emit resetEmulator();
+   emulator->resetEmulator();
 }
 
 void NESEmulatorDialog::renderData()
 {
    renderer->updateGL();
-}
-
-void NESEmulatorDialog::on_stepCPUButton_clicked()
-{
-   emit stepCPUEmulation();
-}
-
-void NESEmulatorDialog::on_stepPPUButton_clicked()
-{
-   emit stepPPUEmulation();
 }

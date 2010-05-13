@@ -7,6 +7,8 @@
 
 #include "cbreakpointinfo.h"
 
+#include "pasm_lib.h"
+
 #include <QIcon>
 
 CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject*)
@@ -21,13 +23,50 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int idx;
+   unsigned int addr;
 
    if (!index.isValid())
       return QVariant();
 
+   addr = pasm_get_source_addr_from_linenum(index.row()+1);
    if ((role == Qt::DecorationRole) && (index.column() == 0))
    {
-      return QIcon(":/resources/22_execution_pointer.png");
+      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+      {
+         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+         if ( (pBreakpoint->enabled) &&
+              (pBreakpoint->type == eBreakOnCPUExecution) &&
+              ((UINT)pBreakpoint->item1 <= addr) &&
+              ((UINT)pBreakpoint->item2 >= addr) )
+         {
+            if ( addr == C6502::__PC() )
+            {
+               return QIcon(":/resources/22_execution_break.png");
+            }
+            else
+            {
+               return QIcon(":/resources/22_breakpoint.png");
+            }
+         }
+         else if ( (!pBreakpoint->enabled) &&
+                   (pBreakpoint->type == eBreakOnCPUExecution) &&
+                   ((UINT)pBreakpoint->item1 <= addr) &&
+                   ((UINT)pBreakpoint->item2 >= addr) )
+         {
+            if ( addr == C6502::__PC() )
+            {
+               return QIcon(":/resources/22_execution_break_disabled.png");
+            }
+            else
+            {
+               return QIcon(":/resources/22_breakpoint_disabled.png");
+            }
+         }
+      }
+      if ( addr == C6502::__PC() )
+      {
+         return QIcon(":/resources/22_execution_pointer.png");
+      }
    }
 
    if (role != Qt::DisplayRole)
@@ -36,7 +75,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    switch ( index.column() )
    {
       case 0:
-         return "";
+         return QVariant();
       break;
       case 1:
          return m_source.at ( index.row() );

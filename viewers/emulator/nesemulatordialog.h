@@ -16,9 +16,6 @@ class NESEmulatorDialog : public QDialog {
 public:
     NESEmulatorDialog(QWidget *parent = 0);
     ~NESEmulatorDialog();
-    void stopEmulation();
-    void runEmulation();
-    void resetEmulation();
     CNESEmulatorRenderer *renderer;
 
 protected:
@@ -37,16 +34,10 @@ private slots:
     void on_pauseButton_clicked();
     void on_playButton_clicked();
     void on_resetButton_clicked();
+    void internalPause(bool);
+    void internalPauseWithoutShow();
+    void internalPlay();
     void renderData();
-
-signals:
-    void controllerInput(unsigned char* input);
-    void primeEmulator();
-    void startEmulation();
-    void pauseEmulation(bool show);
-    void stepCPUEmulation();
-    void stepPPUEmulation();
-    void resetEmulator();
 };
 
 #endif // NESEMULATORDIALOG_H

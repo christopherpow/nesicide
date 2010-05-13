@@ -21,13 +21,14 @@ protected:
 
 public slots:
     void updateTracer();
+    void cartridgeLoaded();
 
 signals:
     void showMe();
 
 private:
     Ui::ExecutionTracerDialog *ui;
-    CDebuggerExecutionTracerModel *tableViewModel;
+    CDebuggerExecutionTracerModel *model;
 
 private slots:
     void on_actionBreak_on_CPU_execution_here_triggered();

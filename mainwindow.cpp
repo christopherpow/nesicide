@@ -242,15 +242,15 @@ void MainWindow::dropEvent(QDropEvent *event)
    QStringList sl = event->mimeData()->formats();
    QByteArray ba = event->mimeData()->data(sl.at(6));
 
-   emulatorDlg->stopEmulation();
+   emulator->pauseEmulation(false);
 
-    nesicideProject->createProjectFromRom(QString(ba));
-    ui->actionEmulation_Window->setChecked(true);
-    on_actionEmulation_Window_toggled(true);
-    projectDataChangesEvent();
+   nesicideProject->createProjectFromRom(QString(ba));
+   ui->actionEmulation_Window->setChecked(true);
+   on_actionEmulation_Window_toggled(true);
+   projectDataChangesEvent();
 
-   emulatorDlg->resetEmulation();
-   emulatorDlg->runEmulation();
+   emulator->resetEmulator();
+   emulator->startEmulation();
 
    event->acceptProposedAction();
 }
@@ -413,14 +413,19 @@ void MainWindow::on_actionNew_Project_triggered()
 
 void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NES Rom (*.nes)");
-    if (fileName.isEmpty())
-        return;
+   QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "iNES ROM (*.nes)");
+   if (fileName.isEmpty())
+      return;
 
-    nesicideProject->createProjectFromRom(fileName);
-    ui->actionEmulation_Window->setChecked(true);
-    on_actionEmulation_Window_toggled(true);
-    projectDataChangesEvent();
+   emulator->pauseEmulation(false);
+
+   nesicideProject->createProjectFromRom(fileName);
+   ui->actionEmulation_Window->setChecked(true);
+   on_actionEmulation_Window_toggled(true);
+   projectDataChangesEvent();
+
+   emulator->resetEmulator();
+   emulator->startEmulation();
 }
 
 IProjectTreeViewItem *MainWindow::matchTab(IProjectTreeViewItem *root, int tabIndex)
@@ -460,7 +465,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
         ui->tabWidget->removeTab(index);
         if (index == emulatorDlgTabIdx)
         {
-            emulatorDlg->stopEmulation();
+            emulator->pauseEmulation(false);
             ui->actionEmulation_Window->setChecked(false);
             emulatorDlgTabIdx = -1;
         }
@@ -500,7 +505,7 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 
 void MainWindow::closeEvent ( QCloseEvent * event )
 {
-   emulatorDlg->stopEmulation();
+   emulator->pauseEmulation(false);
 
    QWidget::closeEvent(event);
 }
@@ -792,7 +797,7 @@ void MainWindow::on_action_About_Nesicide_triggered()
 void MainWindow::on_action_Close_Project_triggered()
 {
     // Stop the emulator if it is running
-    emulatorDlg->stopEmulation();
+    emulator->pauseEmulation(false);
     if (emulatorDlgTabIdx > -1) {
         ui->actionEmulation_Window->toggle();
         emulatorDlgTabIdx = -1;

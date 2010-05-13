@@ -15,8 +15,10 @@ NESEmulatorThread::NESEmulatorThread(QObject *)
    m_joy [ JOY2 ] = 0x00;
    m_isRunning = false;
    m_isPaused = false;
+   m_showOnPause = false;
+   m_isStarting = false;
    m_isTerminating = false;
-   m_isResetting = false;
+   m_isResetting = true;
    m_pCartridge = NULL;
 }
 
@@ -30,14 +32,13 @@ void NESEmulatorThread::kill()
    breakpointSemaphore.release();
    m_isRunning = true;
    m_isPaused = false;
+   m_showOnPause = false;
    m_isTerminating = true;
    emulatorSemaphore.release();
 }
 
 void NESEmulatorThread::setDialog(QDialog* dialog)
 {
-   QObject::connect(dialog, SIGNAL(controllerInput(unsigned char*)), this, SLOT(controllerInput(unsigned char*)));
-   QObject::connect(dialog, SIGNAL(primeEmulator()), this, SLOT(primeEmulator()));
 }
 
 void NESEmulatorThread::primeEmulator()
@@ -119,11 +120,7 @@ void NESEmulatorThread::startEmulation ()
       breakpointSemaphore.release();
    }
 
-   // Trigger Breakpoint dialog redraw...
-   emit breakpointClear();
-
-   m_isRunning = true;
-   m_isPaused = false;
+   m_isStarting = true;
 }
 
 void NESEmulatorThread::stepCPUEmulation ()
@@ -136,11 +133,7 @@ void NESEmulatorThread::stepCPUEmulation ()
       breakpointSemaphore.release();
    }
 
-   // Trigger Breakpoint dialog redraw...
-   emit breakpointClear();
-
-   m_isRunning = true;
-   m_isPaused = false;
+   m_isStarting = true;
 }
 
 void NESEmulatorThread::stepPPUEmulation ()
@@ -153,30 +146,39 @@ void NESEmulatorThread::stepPPUEmulation ()
       breakpointSemaphore.release();
    }
 
-   // Trigger Breakpoint dialog redraw...
-   emit breakpointClear();
-
-   m_isRunning = true;
-   m_isPaused = false;
+   m_isStarting = true;
 }
 
 void NESEmulatorThread::pauseEmulation (bool show)
 {
+   m_isStarting = false;
    m_isRunning = false;
-   m_isPaused = show;
+   m_isPaused = true;
+   m_showOnPause = show;
 }
 
 void NESEmulatorThread::run ()
 {
-   // Seed mechanism for breaking...
-//   breakpointSemaphore.acquire ();
-
    for ( ; ; )
    {
       // Allow thread exit...
       if ( m_isTerminating )
       {
          break;
+      }
+
+      // Allow thread to keep going...
+      if ( m_isStarting )
+      {
+         m_isStarting = false;
+         m_isRunning = true;
+         m_isPaused = false;
+
+         // Trigger Breakpoint dialog redraw...
+         emit breakpointClear();
+
+         // Trigger emulator UI button update...
+         emit emulatorStarted();
       }
 
       // Properly coordinate NES reset with emulator...
@@ -204,14 +206,13 @@ void NESEmulatorThread::run ()
 
          emit emulatedFrame();
       }
-      else
+
+      // Pause?
+      if ( m_isPaused )
       {
          // Trigger inspectors to update on a pause also...
-         if ( m_isPaused )
-         {
-            emit emulatorPaused();
-            m_isPaused = false;
-         }
+         emit emulatorPaused(m_showOnPause);
+         m_isPaused = false;
       }
 
       // Acquire the semaphore...

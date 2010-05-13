@@ -42,7 +42,7 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
    switch ( index.column() )
    {
       case 0:
-         return "";
+         return QVariant();
       break;
       case 1:
          pBreakpoints->GetPrintable(index.row(),data);

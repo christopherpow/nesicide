@@ -26,8 +26,8 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     ui->displayMode->setCurrentIndex ( 0 );
     QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
-    QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateDisassembly()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateDisassembly()) );
+    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
+    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
     QObject::connect ( breakpointInspector->widget(), SIGNAL(breakpointsChanged()), this, SLOT(updateBrowser()) );
 }
 
@@ -99,14 +99,22 @@ void CodeBrowserDialog::changeEvent(QEvent *e)
     }
 }
 
-void CodeBrowserDialog::updateDisassembly()
+void CodeBrowserDialog::breakpointHit()
+{
+   updateDisassembly(true);
+}
+
+void CodeBrowserDialog::updateDisassembly(bool show)
 {
    if ( C6502::__PC() < MEM_2KB )
    {
       // Update display...
       C6502::DISASSEMBLE();
 
-      emit showMe();
+      if ( show )
+      {
+         emit showMe();
+      }
 
       switch ( ui->displayMode->currentIndex() )
       {
@@ -125,7 +133,10 @@ void CodeBrowserDialog::updateDisassembly()
       // Update display...
       CROM::DISASSEMBLE();
 
-      emit showMe();
+      if ( show )
+      {
+         emit showMe();
+      }
 
       switch ( ui->displayMode->currentIndex() )
       {
@@ -202,7 +213,7 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
    bool added;
-   int addr;
+   int addr = 0;
 
    switch ( ui->displayMode->currentIndex() )
    {
@@ -236,7 +247,7 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 void CodeBrowserDialog::on_actionRun_to_here_triggered()
 {
    QModelIndex index = ui->tableView->currentIndex();
-   int addr;
+   int addr = 0;
 
    switch ( ui->displayMode->currentIndex() )
    {
@@ -265,7 +276,7 @@ void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
       break;
    }
 
-   updateDisassembly();
+   updateDisassembly(false);
 
    ui->tableView->resizeColumnsToContents();
 }

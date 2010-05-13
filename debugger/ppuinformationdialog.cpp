@@ -12,7 +12,6 @@ PPUInformationDialog::PPUInformationDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
-    QObject::connect ( emulator, SIGNAL(emulatorPaused()), this, SLOT(updateInformation()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
