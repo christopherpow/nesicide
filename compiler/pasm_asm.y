@@ -2978,7 +2978,7 @@ void output_binary ( char** buffer, int* size )
 	}
 	(*size) = pos;
 
-   dump_ir_tables ();
+   //dump_ir_tables ();
    //dump_ir_expressions ();
 }
 
@@ -4129,13 +4129,13 @@ ir_table* emit_ir ( void )
       {
          (*ir_head) = ptr;
          (*ir_tail) = ptr;
-         (*ir_tail)->next = NULL;
-         (*ir_tail)->prev = NULL;
+         ptr->next = NULL;
+         ptr->prev = NULL;
       }
       else
       {
-         (*ir_tail)->next = ptr;
          ptr->prev = (*ir_tail);
+         (*ir_tail)->next = ptr;
          ptr->next = NULL;
          (*ir_tail) = ptr;
       }

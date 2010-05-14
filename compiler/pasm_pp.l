@@ -109,7 +109,7 @@ typedef struct _ppmacro_table
    struct _ppsymbol_list* vtab; // macro symbol values
 } ppmacro_table;
 
-ppmacro_table* ppmtab;
+ppmacro_table* ppmtab = NULL;
 int ppmtab_ent = 0;
 int ppmtab_max = 0;
 int macronestlevel = 0;

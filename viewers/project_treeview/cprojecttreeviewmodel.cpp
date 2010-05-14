@@ -22,6 +22,8 @@ QVariant CProjectTreeViewModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags CProjectTreeViewModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    if ( !index.isValid() )
+      return flags;
     IProjectTreeViewItem *item = static_cast<IProjectTreeViewItem*>(index.internalPointer());
     if (!item)
         return flags;
