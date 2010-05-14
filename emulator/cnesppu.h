@@ -136,6 +136,8 @@ public:
    static inline void Move1KBank ( int bank, unsigned char* point ) { if ( bank >= 8 ) m_pPPUmemory[bank-8] = point; }
    static void EMULATE ( void );
 
+   static inline int MODE ( void ) { return m_mode; }
+
    static void RESET ( void );
    static void PPU ( UINT addr, unsigned char data );
    static UINT PPU ( UINT addr );
@@ -184,7 +186,7 @@ public:
    static inline void SCANLINESTART ( void );
    static inline void SCANLINEEND ( void );
    static void RENDERSCANLINE ( int scanline );
-   static void NONRENDERSCANLINE ( int scanline );
+   static void NONRENDERSCANLINES ( int scanlines );
    static void GATHERBKGND ( void );
    static inline void PIXELPIPELINES ( int x, int off, unsigned char* a, unsigned char* b1, unsigned char* b2 );
    static void GATHERSPRITES ( int scanline );

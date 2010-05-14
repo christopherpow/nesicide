@@ -64,14 +64,6 @@ enum
 #define SCANLINES_VISIBLE (240)
 #define SCANLINES_VBLANK_NTSC (20)
 #define SCANLINES_VBLANK_PAL (70)
-#define SCANLINES_MISC (2)
-#define SCANLINES_NTSC (SCANLINES_VISIBLE+SCANLINES_VBLANK_NTSC+SCANLINES_MISC)
-#define SCANLINES_PAL (SCANLINES_VISIBLE+SCANLINES_VBLANK_PAL+SCANLINES_MISC)
-#define PPU_CYCLES_PER_SCANLINE (341)
-#define PPU_CYCLES_PER_FRAME_NTSC (PPU_CYCLES_PER_SCANLINE*SCANLINES_NTSC)
-#define PPU_CYCLES_PER_FRAME_PAL (PPU_CYCLES_PER_SCANLINE*SCANLINES_PAL)
-#define NTSC_PPU_CPU_REL (3)
-#define PAL_PPU_CPU_REL  (3.2)
 
 #define MAKE16(lo,hi) (((lo&0xFF)|((hi&0xFF)<<8)))
 #define GETSIGNED8(data,op) ((char)((*(data+op))&0xFF))
@@ -157,7 +149,8 @@ public:
    static void IRQ ();
    static void ASSERTIRQ ( char source );
    static void RELEASEIRQ ( char source );
-   static void NMI ( char source );
+   static void ASSERTNMI ();
+   static void NMI ();
 
    static void ADC ( void );
    static void AND ( void );
@@ -312,6 +305,7 @@ public:
 protected:
    static bool            m_killed;
    static bool            m_irqAsserted;
+   static bool            m_nmiAsserted;
    static unsigned char   m_6502memory [ MEM_2KB ];
    static unsigned char   m_RAMopcodeMask [ MEM_2KB ];
    static char*           m_RAMdisassembly [ MEM_2KB ];

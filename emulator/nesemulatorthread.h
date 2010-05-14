@@ -36,9 +36,10 @@ signals:
 
 protected:
    virtual void run ();
-   void setCartridge ( CCartridge* cartridge );
+   void loadCartridge ();
 
    CCartridge*   m_pCartridge;
+
    bool          m_isRunning;
    bool          m_isPaused;
    bool          m_showOnPause;

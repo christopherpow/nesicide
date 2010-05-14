@@ -131,6 +131,7 @@ static CBreakpointEventInfo* tblCPUEvents [] =
 
 bool            C6502::m_killed = false;              // KIL opcode not executed
 bool            C6502::m_irqAsserted = false;
+bool            C6502::m_nmiAsserted = false;
 unsigned char   C6502::m_6502memory [] = { 0, };
 unsigned char   C6502::m_RAMopcodeMask [ MEM_2KB ] = { 0, };
 char*           C6502::m_RAMdisassembly [ MEM_2KB ] = { 0, };
@@ -690,6 +691,14 @@ unsigned char C6502::STEP ( void )
    {
       // Execute IRQ handler...
       C6502::IRQ();
+   }
+
+   // Check for NMI assertion...
+   if ( m_nmiAsserted )
+   {
+      // Execute NMI handler...
+      C6502::NMI();
+      m_nmiAsserted = false;
    }
 
    // Update Tracer
@@ -2764,11 +2773,16 @@ void C6502::IRQ ()
    }
 }
 
-void C6502::NMI ( char source )
+void C6502::ASSERTNMI ()
+{
+   m_nmiAsserted = true;
+}
+
+void C6502::NMI ()
 {
    if ( !m_killed )
    {
-      CNES::TRACER()->AddNMI ( source );
+      CNES::TRACER()->AddNMI ( eSource_PPU );
 
       PUSH ( GETHI8(rPC()) );
       PUSH ( GETLO8(rPC()) );
@@ -2793,6 +2807,7 @@ void C6502::RESET ( void )
    m_curCycles = 0;
 
    m_irqAsserted = false;
+   m_nmiAsserted = false;
 
    m_ea = 0xFFFFFFFF;
 

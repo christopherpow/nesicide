@@ -53,7 +53,7 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
     QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
 
-    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
+    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateMemory()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 }
@@ -89,8 +89,14 @@ void RegisterDisplayDialog::changeEvent(QEvent *e)
     }
 }
 
-void RegisterDisplayDialog::cartridgeLoaded ()
+void RegisterDisplayDialog::updateMemory ()
 {
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   eMemoryType memoryType = binaryModel->memoryType();
+   int idx;
+   int row = 0, col = 0;
+   int low = 0, high = 0;
+   int itemActual;
    char buffer [ 128 ];
 
    if ( m_display == eMemory_cartMapper )
@@ -104,18 +110,6 @@ void RegisterDisplayDialog::cartridgeLoaded ()
       sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
-   binaryModel->layoutChangedEvent();
-   bitfieldModel->layoutChangedEvent();
-}
-
-void RegisterDisplayDialog::updateMemory ()
-{
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
-   eMemoryType memoryType = binaryModel->memoryType();
-   int idx;
-   int row = 0, col = 0;
-   int low = 0, high = 0;
-   int itemActual;
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )

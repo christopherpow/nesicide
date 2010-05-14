@@ -46,16 +46,13 @@ void NESEmulatorThread::primeEmulator()
    if ( (nesicideProject) &&
         (nesicideProject->get_pointerToCartridge()) )
    {
-      setCartridge ( nesicideProject->get_pointerToCartridge() );
+      m_pCartridge = nesicideProject->get_pointerToCartridge();
    }
 }
 
-void NESEmulatorThread::setCartridge(CCartridge *cartridge)
+void NESEmulatorThread::loadCartridge()
 {
    int b;
-
-   // Store pointer to cartridge for later use [resets]...
-   m_pCartridge = cartridge;
 
    // Clear emulator's cartridge ROMs...
    CROM::Clear16KBanks ();
@@ -165,6 +162,14 @@ void NESEmulatorThread::run ()
       if ( m_isTerminating )
       {
          break;
+      }
+
+      // Allow cartridge to be loaded...
+      if ( m_pCartridge )
+      {
+         loadCartridge();
+         m_pCartridge = NULL;
+         m_isResetting = true;
       }
 
       // Allow thread to keep going...

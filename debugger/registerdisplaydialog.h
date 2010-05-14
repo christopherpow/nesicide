@@ -26,7 +26,6 @@ protected:
 
 public slots:
    void updateMemory();
-   void cartridgeLoaded();
 
 signals:
     void showMe(eMemoryType display);

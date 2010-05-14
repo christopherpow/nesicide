@@ -309,16 +309,24 @@ void CPPU::RENDERCODEDATALOGGER ( void )
 
 void CPPU::INCCYCLE(void)
 {
-   m_curCycles++;
-   m_cycles++;
+   m_curCycles += 5;
+   m_cycles += 1;
 }
 
 void CPPU::EMULATE(void)
 {
    if ( m_curCycles > 0 )
    {
-      C6502::EMULATE ( m_curCycles/3 );
-      m_curCycles %= 3;
+      if ( m_mode == MODE_NTSC )
+      {
+         C6502::EMULATE ( m_curCycles/15 );
+         m_curCycles %= 15;
+      }
+      else
+      {
+         C6502::EMULATE ( m_curCycles/16 );
+         m_curCycles %= 16;
+      }
    }
 }
 
@@ -1097,7 +1105,7 @@ void CPPU::SCANLINEEND ( void )
    }
 }
 
-void CPPU::NONRENDERSCANLINE ( int scanlines )
+void CPPU::NONRENDERSCANLINES ( int scanlines )
 {
    int idxx, idxy;
 
@@ -1333,8 +1341,8 @@ void CPPU::RENDERSCANLINE ( int scanline )
    EMULATE();
 
    // If this is the non-render scanline on an odd frame and the PPU is on
-   if ( (scanline >= 0) ||
-        ((m_frame) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND)))) )
+   if ( (m_mode == MODE_NTSC) && ((scanline >= 0) ||
+        ((m_frame) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
    {
       // account for extra clock (341)
       EXTRA ();

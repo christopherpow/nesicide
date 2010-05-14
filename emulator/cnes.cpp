@@ -164,17 +164,24 @@ void CNES::RUN ( unsigned char* joy )
 
    if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
    {
-      C6502::NMI ( eSource_PPU );
+      C6502::ASSERTNMI ();
    }
 
-   // Emulate 20 VBLANK non-render scanlines...
-   CPPU::NONRENDERSCANLINE ( 20 );
-
-   // Clear VBLANK flag...
-   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK)) );
+   // Emulate VBLANK non-render scanlines...
+   if ( CPPU::MODE() == MODE_NTSC )
+   {
+      CPPU::NONRENDERSCANLINES ( SCANLINES_VBLANK_NTSC );
+   }
+   else
+   {
+      CPPU::NONRENDERSCANLINES ( SCANLINES_VBLANK_PAL );
+   }
 
    // Clear Sprite 0 Hit flag and sprite overflow...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
+
+   // Clear VBLANK flag...
+   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK)) );
 
    // Pre-render scanline...
    CPPU::RENDERSCANLINE ( -1 );
@@ -199,7 +206,7 @@ void CNES::RUN ( unsigned char* joy )
    }
 
    // Emulate PPU resting scanline...
-   CPPU::NONRENDERSCANLINE ( 1 );
+   CPPU::NONRENDERSCANLINES ( 1 );
 
    // Run APU for 1 frame...
    // The RUN method fills a buffer.  The SDL library's callback method
