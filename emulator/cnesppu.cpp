@@ -155,6 +155,13 @@ bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint,int data)
    return false;
 }
 
+bool ppuSpriteOverflowEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   // This breakpoint is checked in the right place for each scanline
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
 static CBreakpointEventInfo* tblPPUEvents [] =
 {
    new CBreakpointEventInfo("Raster Position", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10, "X:", "Y:"),
@@ -163,7 +170,8 @@ static CBreakpointEventInfo* tblPPUEvents [] =
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
    new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10),
    new CBreakpointEventInfo("Sprite 0 Hit", ppuSprite0HitEvent, 0, "Break on sprite 0 hit", 10),
-   new CBreakpointEventInfo("Sprite slice rendering", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10, "Sprite:")
+   new CBreakpointEventInfo("Sprite slice rendering", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10, "Sprite:"),
+   new CBreakpointEventInfo("Sprite overflow", ppuSpriteOverflowEvent, 0, "Break on sprite-per-scanline overflow", 10)
 };
 
 unsigned char  CPPU::m_PPUmemory [] = { 0, };
@@ -840,7 +848,15 @@ UINT CPPU::PPU ( UINT addr )
       }
       else if ( fixAddr == OAMDATA_REG )
       {
-         data = *(m_PPUoam+m_oamAddr);
+         if ( (m_oamAddr&3) == SPRITEATT )
+         {
+            // Third sprite byte should be masked with E3 on read.
+            data = (*(m_PPUoam+m_oamAddr))&0xE3;
+         }
+         else
+         {
+            data = *(m_PPUoam+m_oamAddr);
+         }
 
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
@@ -909,7 +925,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
       {
          *(m_PPUreg+fixAddr) = data;
       }
-
       if ( fixAddr == PPUCTRL_REG )
       {
          m_ppuAddrLatch &= 0x73FF;
@@ -1002,7 +1017,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          int start = m_oamAddr;
          for ( dma = 0; dma < NUM_OAM_REGS; dma++ )
          {
-            *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|((dma+start)&0xFF), eLoggerSource_PPU );
+            *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|(dma&0xFF), eLoggerSource_PPU );
          }
 
          // Steal CPU cycles...
@@ -1411,13 +1426,18 @@ void CPPU::GATHERSPRITES ( int scanline )
 {
    int idx1, idx2;
    int sprite;
+   int spritesFound = 0;
    unsigned short spritePatBase = 0x0000;
    int           spriteY;
    unsigned char patternIdx;
    unsigned char spriteAttr;
    int           spriteSize;
    SpriteBufferData* pSprite;
+   int           yByte = SPRITEY;
+   int           roll = 0;
+   SpriteBufferData devNull;
 
+   // Clear sprite buffer....
    m_spriteBuffer.count = 0;
    m_spriteBuffer.order [ 0 ] = 0;
    m_spriteBuffer.order [ 1 ] = 1;
@@ -1429,27 +1449,36 @@ void CPPU::GATHERSPRITES ( int scanline )
    m_spriteBuffer.order [ 7 ] = 7;
    pSprite = m_spriteBuffer.data;
 
+   // Loop invariants...
    spriteSize = ((!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
    if ( spriteSize == 8 )
    {
       spritePatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
    }
 
+   // Populate sprite buffer...
    for ( sprite = 0; sprite < 64; sprite++ )
    {
-      spriteY = OAM ( SPRITEY, sprite );
+      // Retrieve OAM byte for scanline check...
+      // Note: obscure PPU 'bug' in that 9th sprite on scanline
+      // causes other sprite data to be used as the Y-coordinate.
+      spriteY = OAM ( yByte, sprite );
+
+      // idx1 is sprite slice (it will be in range 0-15 if the sprite
+      // is on this scanline.
       idx1 = scanline-spriteY;
+
+      // If we've found 8 sprites on this scanline, enable the
+      // obscure PPU 'bug'.
+      if ( (spritesFound == 8) && (!(idx1 >= 0) && (idx1 < spriteSize)) )
+      {
+         roll = 1;
+      }
+
+      // Is the sprite on this scanline?
       if ( (idx1 >= 0) && (idx1 < spriteSize) )
       {
-         if ( m_spriteBuffer.count == 8 )
-         {
-            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
-            {
-               wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
-            }
-            break;
-         }
-
+         // Put sprite in sprite buffer...
          pSprite->spriteIdx = sprite;
 
          patternIdx = OAM ( SPRITEPAT, sprite );
@@ -1484,17 +1513,55 @@ void CPPU::GATHERSPRITES ( int scanline )
          EMULATE();
          GARBAGE ( eTarget_NameTable );
          EMULATE();
+
+         // Get sprite's pattern data...
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
          EMULATE();
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
          EMULATE();
 
-         m_spriteBuffer.count++;
-         pSprite++;
+         // Calculate sprite-per-scanline limit...
+         spritesFound++;
+         if ( spritesFound < 8 )
+         {
+            // Not at limit yet, keep storing sprites in the buffer...
+            pSprite++;
+         }
+         else
+         {
+            // Found 8 sprites, point to /dev/null for future sprites on this scanline...
+            pSprite = &devNull;
+
+            // Should we assert sprite overflow?
+            if ( spritesFound == 9 )
+            {
+               if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+               {
+                  wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
+
+                  // Check for breakpoint...
+                  CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );
+               }
+            }
+         }
+      }
+
+      // The obscure PPU 'bug' behavior rolls through different
+      // sprite data bytes as the Y-coordinate...
+      if ( roll )
+      {
+         yByte++;
+         yByte %= OAM_SIZE;
       }
    }
 
+   // Fix up the sprite buffer data if necessary...
+   if ( spritesFound > 8 ) spritesFound = 8;
+   m_spriteBuffer.count = spritesFound;
+
+   // Perform remaining garbage fetches to finish out the scanline's
+   // PPU cycles...
    for ( sprite = m_spriteBuffer.count; sprite < 8; sprite++ )
    {
       // Garbage nametable fetches according to Samus Aran...
@@ -1508,7 +1575,7 @@ void CPPU::GATHERSPRITES ( int scanline )
       EMULATE();
    }
 
-   // order sprites by priority for rendering...
+   // Order sprites by priority for rendering...
    unsigned char temp;
    for ( idx1 = 0; idx1 < m_spriteBuffer.count; idx1++ )
    {

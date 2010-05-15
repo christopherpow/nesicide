@@ -164,7 +164,7 @@ void CNES::RUN ( unsigned char* joy )
 
    if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
    {
-      C6502::ASSERTNMI ();
+      C6502::NMI ();
    }
 
    // Emulate VBLANK non-render scanlines...
@@ -177,11 +177,8 @@ void CNES::RUN ( unsigned char* joy )
       CPPU::NONRENDERSCANLINES ( SCANLINES_VBLANK_PAL );
    }
 
-   // Clear Sprite 0 Hit flag and sprite overflow...
-   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
-
-   // Clear VBLANK flag...
-   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK)) );
+   // Clear VBLANK, Sprite 0 Hit flag and sprite overflow...
+   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK|PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
 
    // Pre-render scanline...
    CPPU::RENDERSCANLINE ( -1 );

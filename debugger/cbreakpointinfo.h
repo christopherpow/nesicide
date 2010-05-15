@@ -127,6 +127,7 @@ public:
     bool AddBreakpoint ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void RemoveBreakpoint ( int index );
+    int FindExactMatch ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void ToggleEnabled ( int bp );
     BreakpointStatus GetStatus ( int idx );
     void GetPrintable ( int idx, char* msg );

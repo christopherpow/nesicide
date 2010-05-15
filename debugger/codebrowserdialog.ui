@@ -159,6 +159,30 @@
     <string>Run to here</string>
    </property>
   </action>
+  <action name="actionDisable_breakpoint">
+   <property name="text">
+    <string>Disable this breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable this breakpoint</string>
+   </property>
+  </action>
+  <action name="actionRemove_breakpoint">
+   <property name="text">
+    <string>Remove this breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove this breakpoint</string>
+   </property>
+  </action>
+  <action name="actionEnable_breakpoint">
+   <property name="text">
+    <string>Enable this breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable this breakpoint</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
