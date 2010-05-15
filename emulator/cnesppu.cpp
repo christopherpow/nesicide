@@ -148,7 +148,8 @@ bool ppuSprite0HitEvent(BreakpointInfo* pBreakpoint,int data)
 bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint,int data)
 {
    unsigned char spriteX = CPPU::OAM(SPRITEX,pBreakpoint->item1);
-   if ( CPPU::_X() == spriteX )
+   if ( (data == pBreakpoint->item1) &&
+        (CPPU::_X() == spriteX) )
    {
       return true;
    }
@@ -1241,7 +1242,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
                   if ( pSprite->spriteX+idx2 >= startSprite )
                   {
                      // Check for start-of-sprite-slice rendering event breakpoint...
-                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE_SLICE_RENDERING);
+                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSprite->spriteIdx,PPU_EVENT_SPRITE_SLICE_RENDERING);
 
                      if ( pSprite->spriteFlipHoriz )
                      {
@@ -1273,8 +1274,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
                           (pSprite->spriteX+idx2 < 255) &&
                           ((tvSet&0x03) == 0x03) )
                      {
-                        if ( (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
-                             ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
+                        if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
                         {
                            wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
                            sprite0HitSet = true;

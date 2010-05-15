@@ -143,7 +143,7 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
                CAPU::_APU(addr, data);
             break;
             case eMemory_PPUoam:
-               CPPU::OAM(addr%NUM_OAM_REGS,addr/NUM_OAM_REGS, data);
+               CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE, data);
             break;
             case eMemory_cartMapper:
                if ( addr < MEM_32KB )
@@ -204,7 +204,7 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
             return createIndex(row, column, (int)CAPU::_APU(addr));
          break;
          case eMemory_PPUoam:
-            return createIndex(row, column, (int)CPPU::OAM(addr%NUM_OAM_REGS,addr/NUM_OAM_REGS));
+            return createIndex(row, column, (int)CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE));
          break;
          case eMemory_cartMapper:
             if ( m_tblRegisters )
