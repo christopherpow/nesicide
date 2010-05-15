@@ -1021,7 +1021,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
 
          // Steal CPU cycles...
-         m_curCycles -= 1536; // 512 PPU cycles * 3 cycles per CPU
+         m_curCycles -= 1536*5; // 512 PPU cycles * 3 cycles per CPU
       }
    }
 }
@@ -1476,7 +1476,7 @@ void CPPU::GATHERSPRITES ( int scanline )
       }
 
       // Is the sprite on this scanline?
-      if ( (idx1 >= 0) && (idx1 < spriteSize) )
+      if ( (pSprite != &devNull) && (idx1 >= 0) && (idx1 < spriteSize) )
       {
          // Put sprite in sprite buffer...
          pSprite->spriteIdx = sprite;
