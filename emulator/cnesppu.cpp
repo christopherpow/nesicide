@@ -1165,7 +1165,10 @@ void CPPU::RENDERSCANLINE ( int scanline )
    char* pTV = (char*)(m_pTV+rasttv);
 
    // even-odd framing for extra-cycle on pre-render scanline...
-   m_frame = !m_frame;
+   if ( scanline == -1 )
+   {
+      m_frame = !m_frame;
+   }
 
    m_x = 0;
    m_y = scanline;
@@ -1356,12 +1359,20 @@ void CPPU::RENDERSCANLINE ( int scanline )
    EMULATE();
 
    // If this is the non-render scanline on an odd frame and the PPU is on
-   if ( (m_mode == MODE_NTSC) && ((scanline >= 0) ||
-        ((m_frame) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
+   if ( scanline >= 0 )
    {
       // account for extra clock (341)
       EXTRA ();
       EMULATE();
+   }
+   else
+   {
+      if ( (m_mode == MODE_NTSC) && ((m_frame) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND)))) )
+      {
+         // account for extra clock (341)
+         EXTRA ();
+         EMULATE();
+      }
    }
 }
 

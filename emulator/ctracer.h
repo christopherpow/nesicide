@@ -19,7 +19,9 @@ enum
    eTracer_GarbageRead,
    eTracer_RenderBkgnd,
    eTracer_RenderSprite,
-   eTracer_Sprite0Hit
+   eTracer_StartPPUFrame,
+   eTracer_Sprite0Hit,
+   eTracer_EndPPUFrame
 };
 
 enum

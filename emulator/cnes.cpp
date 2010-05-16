@@ -165,13 +165,14 @@ void CNES::RUN ( unsigned char* joy )
    C6502::RENDERCODEDATALOGGER();
    CPPU::RENDERCODEDATALOGGER();
 
-   // Do VBLANK processing (scanlines 0-19)...
-   // Set VBLANK flag...
+   // PPU cycles repeat...
    CPPU::RESETCYCLECOUNTER ();
-   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)|PPUSTATUS_VBLANK );
 
-   // One-cycle VBLANK delay...
-//   CPPU::INCCYCLE ();
+   // Do VBLANK processing (scanlines 0-19)...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_StartPPUFrame, eSource_PPU, 0, 0, 0 );
+
+   // Set VBLANK flag...
+   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)|PPUSTATUS_VBLANK );
 
    if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
    {
@@ -215,6 +216,9 @@ void CNES::RUN ( unsigned char* joy )
 
    // Emulate PPU resting scanline...
    CPPU::NONRENDERSCANLINES ( 1 );
+
+   // Do VBLANK processing (scanlines 0-19)...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
 
    // Run APU for 1 frame...
    // The RUN method fills a buffer.  The SDL library's callback method

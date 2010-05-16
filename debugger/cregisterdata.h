@@ -20,6 +20,8 @@ public:
       m_start = start;
       m_width = width;
       m_displayFormat = displayFormat;
+      m_lsb = start;
+      m_msb = start+width-1;
       if ( values )
       {
          va_list va;
@@ -30,7 +32,6 @@ public:
          {
             char* temp = (char*)va_arg(va,const char*);
             m_value[idx] = new char [ strlen(temp)+6 ]; // account for raw addition
-//            m_value[idx] = (char*)va_arg(va,const char*);
             sprintf ( m_value[idx], "%X: %s", idx, temp );
          }
          va_end ( va );
@@ -41,6 +42,9 @@ public:
       delete m_name;
       delete [] m_value;
    }
+   char GetWidth ( void ) const { return m_width; }
+   char GetLsb ( void ) const { return m_lsb; }
+   char GetMsb ( void ) const { return m_msb; }
    int GetNumValues ( void ) const { return m_values; }
    const char* GetName ( void ) const { return m_name; }
    const char* GetDisplayFormat ( void ) const { return m_displayFormat; }
@@ -75,6 +79,8 @@ protected:
    const char* m_displayFormat;
    char  m_start;
    char  m_width;
+   char  m_lsb;
+   char  m_msb;
    char** m_value;
    int   m_values;
 };

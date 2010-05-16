@@ -22,7 +22,7 @@ enum
    NUM_MAPPER_EVENTS
 };
 
-#define NUM_ROM_BANKS 32
+#define NUM_ROM_BANKS 64
 
 // Resolve a 6502-address to one of 4 8KB PRG ROM banks [0:$8000-$9FFF, 1:$A000-$BFFF, 2:$C000-$DFFF, or 3:$E000-$FFFF]
 #define PRGBANK_VIRT(addr) ( (addr&MASK_32KB)>>SHIFT_32KB_8KB )

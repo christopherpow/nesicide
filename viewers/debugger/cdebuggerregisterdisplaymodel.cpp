@@ -91,7 +91,14 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
       if ( m_tblRegisters )
       {
          CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( section );
-         sprintf ( buffer, "%s", pBitfield->GetName() );
+         if ( pBitfield->GetWidth() == 1 )
+         {
+            sprintf ( buffer, "[%d] %s", pBitfield->GetLsb(), pBitfield->GetName() );
+         }
+         else
+         {
+            sprintf ( buffer, "[%d:%d] %s", pBitfield->GetMsb(), pBitfield->GetLsb(), pBitfield->GetName() );
+         }
       }
    }
 

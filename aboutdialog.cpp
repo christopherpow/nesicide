@@ -10,7 +10,7 @@ aboutdialog::aboutdialog(QWidget *parent) :
                          "<img src=\"http://www.nesicide.com/images/nesicide.jpg\" /><br />"
                          "NESICIDE - The NES Development GUI.<br /><br />"
                          "<b>Programmers</b><br />"
-                         "Christopher Pow - <i>Emulation and Debugger Subsystems</i><br />"
+                         "Christopher Pow - <i>Emulation, Assembler and Debugger Subsystems</i><br />"
                          "Tim Sarbin - <i>User Interface and Designers</i><br />"
                          "<br /><b>Support</b><br />"
                          "Benjamin Eriksson - <i>Mac Platform Testing, Graphics, End User Testing"

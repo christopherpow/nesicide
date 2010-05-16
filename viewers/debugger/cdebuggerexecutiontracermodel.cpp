@@ -207,6 +207,12 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTracer_Sprite0Hit:
                   strcpy ( str, "Sprite 0 Hit" );
                break;
+               case eTracer_StartPPUFrame:
+                  strcpy ( str, "PPU Frame Start" );
+               break;
+               case eTracer_EndPPUFrame:
+                  strcpy ( str, "PPU Frame End" );
+               break;
             }
          break;
          case eTracerCol_Target:
@@ -260,13 +266,35 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             }
             else if ( (pSample->type == eTracer_RESET) ||
                       (pSample->type == eTracer_NMI) ||
-                      (pSample->type == eTracer_IRQ) )
+                      (pSample->type == eTracer_IRQ) ||
+                      (pSample->type == eTracer_Sprite0Hit) ||
+                      (pSample->type == eTracer_StartPPUFrame) ||
+                      (pSample->type == eTracer_EndPPUFrame) )
             {
                str[0] = 0;
             }
             else
             {
                sprintf ( str, "$%04X", pSample->addr );
+            }
+         break;
+         case eTracerCol_Data:
+            if ( pSample->type == eTracer_GarbageRead )
+            {
+               strcpy ( str, "$XX" );
+            }
+            else if ( (pSample->type == eTracer_RESET) ||
+                      (pSample->type == eTracer_NMI) ||
+                      (pSample->type == eTracer_IRQ) ||
+                      (pSample->type == eTracer_Sprite0Hit) ||
+                      (pSample->type == eTracer_StartPPUFrame) ||
+                      (pSample->type == eTracer_EndPPUFrame) )
+            {
+               str[0] = 0;
+            }
+            else
+            {
+               sprintf ( str, "$%02X", pSample->data );
             }
          break;
          case eTracerCol_CPU_EA:
@@ -277,22 +305,6 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             else
             {
                sprintf ( str, "$%04X", pSample->ea );
-            }
-         break;
-         case eTracerCol_Data:
-            if ( pSample->type == eTracer_GarbageRead )
-            {
-               strcpy ( str, "$XX" );
-            }
-            else if ( (pSample->type == eTracer_RESET) ||
-                      (pSample->type == eTracer_NMI) ||
-                      (pSample->type == eTracer_IRQ) )
-            {
-               str[0] = 0;
-            }
-            else
-            {
-               sprintf ( str, "$%02X", pSample->data );
             }
          break;
          case eTracerCol_CPU_A:
