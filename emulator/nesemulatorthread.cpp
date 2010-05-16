@@ -47,6 +47,19 @@ void NESEmulatorThread::primeEmulator()
         (nesicideProject->get_pointerToCartridge()) )
    {
       m_pCartridge = nesicideProject->get_pointerToCartridge();
+      m_isPaused = true;
+      m_showOnPause = false;
+      m_isRunning = false;
+
+      // Force hard-reset of the machine...
+      CNES::HARDRESET();
+
+      // If we were stopped at a breakpoint, release...
+      // Breakpoints have been deleted.
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
    }
 }
 

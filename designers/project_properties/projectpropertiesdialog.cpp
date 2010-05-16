@@ -59,6 +59,10 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
       i++;
    }
 
+   CCartridge* pCartridge = nesicideProject->get_pointerToCartridge();
+   ui->mapperComboBox->setCurrentIndex(mapperIndexFromID(pCartridge->getMapperNumber()));
+   ui->romTypeComboBox->setCurrentIndex(0);
+
    updateUI();
 }
 

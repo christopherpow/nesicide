@@ -293,6 +293,8 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
    InspectorRegistry::getInspector("Breakpoints")->show();
+
+   emit breakpointsChanged();
 }
 
 void CodeBrowserDialog::on_actionRun_to_here_triggered()
@@ -368,6 +370,17 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
       {
          pBreakpoints->RemoveBreakpoint(bp);
       }
+
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+         break;
+      }
+      emit breakpointsChanged();
    }
 }
 

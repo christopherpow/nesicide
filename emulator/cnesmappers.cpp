@@ -302,6 +302,29 @@ MapperInfo mapper[] =
    { "?", 256 } // Unknown index, not parsed typically when going through the list...
 };
 
+int mapperIndexFromID ( int id )
+{
+   int i = 0;
+
+   // Return the name associated with the first
+   // match of mapper ID in the list above.
+   while ( mapper[i].name )
+   {
+      if ( mapper[i].id == id )
+      {
+         break;
+      }
+      i++;
+   }
+   if ( !mapper[i].name )
+   {
+      // Move index to the unknown...
+      i++;
+   }
+
+   return i;
+}
+
 const char* mapperNameFromID ( int id )
 {
    int i = 0;

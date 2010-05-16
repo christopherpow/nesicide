@@ -16,6 +16,7 @@ public:
 	CNES();
 	virtual ~CNES();
 
+   static void HARDRESET ( void );
    static void RESET ( UINT mapper );
    static void RUN ( unsigned char* joy );
    static void REPLAY ( bool enable ) { m_bReplay = enable; }

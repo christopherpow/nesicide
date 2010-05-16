@@ -52,6 +52,17 @@ CNES::~CNES()
 
 }
 
+void CNES::HARDRESET ( void )
+{
+   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   int bp;
+   int bps = pBreakpoints->GetNumBreakpoints();
+   for ( bp = 0; bp < bps; bp++ )
+   {
+      pBreakpoints->RemoveBreakpoint(0);
+   }
+}
+
 void CNES::RESET ( UINT mapper )
 {
    // Reset mapper...this sets up the CROM object with the

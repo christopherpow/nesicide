@@ -78,5 +78,6 @@ typedef struct _MapperFuncs
 extern MapperInfo  mapper[];
 extern MapperFuncs mapperfunc[];
 const char* mapperNameFromID ( int id );
+int mapperIndexFromID ( int id );
 
 #endif

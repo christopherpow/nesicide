@@ -318,7 +318,7 @@ void CPPU::RENDERCODEDATALOGGER ( void )
 
 void CPPU::INCCYCLE(void)
 {
-   m_curCycles += 5;
+   m_curCycles += CPU_CYCLE_ADJUST;
    m_cycles += 1;
 }
 
@@ -328,13 +328,13 @@ void CPPU::EMULATE(void)
    {
       if ( m_mode == MODE_NTSC )
       {
-         C6502::EMULATE ( m_curCycles/15 );
-         m_curCycles %= 15;
+         C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );
+         m_curCycles %= PPU_CPU_RATIO_NTSC;
       }
       else
       {
-         C6502::EMULATE ( m_curCycles/16 );
-         m_curCycles %= 16;
+         C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_PAL );
+         m_curCycles %= PPU_CPU_RATIO_PAL;
       }
    }
 }
@@ -1022,7 +1022,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
 
          // Steal CPU cycles...
-         m_curCycles -= 1536*5; // 512 PPU cycles * 3 cycles per CPU
+         m_curCycles -= 1536*CPU_CYCLE_ADJUST; // 512 PPU cycles * 3 cycles per CPU
       }
    }
 }
@@ -1127,7 +1127,7 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
 
    for ( idxy = 0; idxy < scanlines; idxy++ )
    {
-      for ( idxx = 0; idxx < 341; idxx++ )
+      for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE_VBLANK; idxx++ )
       {
          INCCYCLE();
          EMULATE();
