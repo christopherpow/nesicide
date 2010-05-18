@@ -24,7 +24,9 @@ enum
    PPU_EVENT_SCANLINE_START,
    PPU_EVENT_SCANLINE_END,
    PPU_EVENT_SPRITE0_HIT,
-   PPU_EVENT_SPRITE_SLICE_RENDERING,
+   PPU_EVENT_SPRITE_IN_MULTIPLEXER,
+   PPU_EVENT_SPRITE_SELECTED,
+   PPU_EVENT_SPRITE_RENDERING,
    PPU_EVENT_SPRITE_OVERFLOW,
    NUM_PPU_EVENTS
 };
@@ -187,6 +189,7 @@ public:
 
    static inline unsigned char _X ( void ) { return m_x; }
    static inline unsigned char _Y ( void ) { return m_y; }
+   static inline unsigned int _FRAME ( void ) { return m_frame; }
 
    static inline void FRAMESTART ( void );
    static inline void SCANLINESTART ( void );
@@ -212,7 +215,7 @@ public:
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
    static inline void INCCYCLE ( void );
-   static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; }
+   static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame = !m_frame; }
 
    static void SetPPUViewerScanline ( UINT scanline ) { m_iPPUViewerScanline = scanline; }
    static UINT GetPPUViewerScanline ( void ) { return m_iPPUViewerScanline; }

@@ -145,11 +145,27 @@ bool ppuSprite0HitEvent(BreakpointInfo* pBreakpoint,int data)
    return true;
 }
 
-bool ppuSpriteSliceRenderingEvent(BreakpointInfo* pBreakpoint,int data)
+bool ppuSpriteInMultiplexerEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   unsigned char spriteX = CPPU::OAM(SPRITEX,pBreakpoint->item1);
-   if ( (data == pBreakpoint->item1) &&
-        (CPPU::_X() == spriteX) )
+   if ( data == pBreakpoint->item1 )
+   {
+      return true;
+   }
+   return false;
+}
+
+bool ppuSpriteSelectedEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   if ( data == pBreakpoint->item1 )
+   {
+      return true;
+   }
+   return false;
+}
+
+bool ppuSpriteRenderingEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   if ( data == pBreakpoint->item1 )
    {
       return true;
    }
@@ -171,7 +187,9 @@ static CBreakpointEventInfo* tblPPUEvents [] =
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
    new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10),
    new CBreakpointEventInfo("Sprite 0 Hit", ppuSprite0HitEvent, 0, "Break on sprite 0 hit", 10),
-   new CBreakpointEventInfo("Sprite slice rendering", ppuSpriteSliceRenderingEvent, 1, "Break at start of rendering of sprite %d on scanline", 10, "Sprite:"),
+   new CBreakpointEventInfo("Sprite enters multiplexer", ppuSpriteInMultiplexerEvent, 1, "Break if sprite %d enters multiplexer", 10, "Sprite:"),
+   new CBreakpointEventInfo("Sprite selected by multiplexer", ppuSpriteSelectedEvent, 1, "Break if sprite %d is selected by multiplexer", 10, "Sprite:"),
+   new CBreakpointEventInfo("Sprite rendering", ppuSpriteRenderingEvent, 1, "Break if rendering sprite %d on scanline", 10, "Sprite:"),
    new CBreakpointEventInfo("Sprite overflow", ppuSpriteOverflowEvent, 0, "Break on sprite-per-scanline overflow", 10)
 };
 
@@ -1022,7 +1040,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
 
          // Steal CPU cycles...
-         m_curCycles -= 1536*CPU_CYCLE_ADJUST; // 512 PPU cycles * 3 cycles per CPU
+         m_curCycles -= 512*3*CPU_CYCLE_ADJUST; // 512 CPU cycles * 3 PPU cycles per CPU
       }
    }
 }
@@ -1161,14 +1179,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
    int p = 0;
    bool sprite0HitSet = false;
    SpriteBufferData* pSprite;
+   SpriteBufferData* pSelectedSprite;
    int idx2;
    char* pTV = (char*)(m_pTV+rasttv);
-
-   // even-odd framing for extra-cycle on pre-render scanline...
-   if ( scanline == -1 )
-   {
-      m_frame = !m_frame;
-   }
 
    m_x = 0;
    m_y = scanline;
@@ -1188,112 +1201,133 @@ void CPPU::RENDERSCANLINE ( int scanline )
       // Check for pre-render scanline...
       if ( scanline >= 0 )
       {
-         int colorIdx;
+         int spriteColorIdx = 0;
+         int bkgndColorIdx = 0;
          int startBkgnd = (!(rPPU(PPUMASK)&PPUMASK_BKGND_CLIPPING))<<3;
          int startSprite = (!(rPPU(PPUMASK)&PPUMASK_SPRITE_CLIPPING))<<3;
          int patternMask;
 
          for ( patternMask = 0; patternMask < 8; patternMask++ )
          {
-            char tvSet = 0x00;
             unsigned char a, b1, b2;
 
             m_x = idxx+patternMask;
             m_y = scanline;
 
+            // Update variables for PPU viewer
+            *(*(m_2005x+m_x)+m_y) = m_last2005x+((rPPU(PPUCTRL)&0x1)<<8);
+            *(*(m_2005y+m_x)+m_y) = m_last2005y+(((rPPU(PPUCTRL)&0x2)>>1)*240);
+
             // Check for PPU pixel-at breakpoint...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
 
-            PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
-            colorIdx = (a|b1|(b2<<1));
-
-            // Update variables for PPU viewer
-            *(*(m_2005x+(idxx+patternMask))+scanline) = m_last2005x+((rPPU(PPUCTRL)&0x1)<<8);
-            *(*(m_2005y+(idxx+patternMask))+scanline) = m_last2005y+(((rPPU(PPUCTRL)&0x2)>>1)*240);
-
-            if ( (idxx>=startBkgnd) && (rPPU(PPUMASK)&PPUMASK_RENDER_BKGND) )
-            {
-               if ( !(colorIdx&0x3) ) colorIdx = 0;
-               if ( colorIdx&0x3 ) tvSet |= 0x1;
-
-               *pTV = CBasePalette::GetPaletteR(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-            }
-            else
-            {
-               if ( (m_ppuAddr&0x3F00) == 0x3F00 )
-               {
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               }
-               else
-               {
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               }
-            }
+            // Run sprite multiplexer to figure out what, if any,
+            // sprite pixel to draw here...
+            pSelectedSprite = NULL;
 
             for ( sprite = 0; sprite < m_spriteBuffer.count; sprite++ )
             {
                pSprite = m_spriteBuffer.data + (*(m_spriteBuffer.order+sprite));
                idx2 = p - pSprite->spriteX;
-               if ( (idx2 >= 0) && (idx2 < PATTERN_SIZE) )
+               if ( (idx2 >= 0) && (idx2 < PATTERN_SIZE) &&
+                    (pSprite->spriteX+idx2 >= startSprite) &&
+                    (pSprite->spriteX+idx2 >= startBkgnd) )
                {
-                  if ( pSprite->spriteX+idx2 >= startSprite )
+                  // Check for sprite-in-multiplexer event breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSprite->spriteIdx,PPU_EVENT_SPRITE_IN_MULTIPLEXER);
+
+                  if ( pSprite->spriteFlipHoriz )
                   {
-                     // Check for start-of-sprite-slice rendering event breakpoint...
-                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSprite->spriteIdx,PPU_EVENT_SPRITE_SLICE_RENDERING);
-
-                     if ( pSprite->spriteFlipHoriz )
-                     {
-                        colorIdx = ((pSprite->patternData1>>idx2)&0x01)|((((pSprite->patternData2>>idx2)&0x01)<<1) );
-                     }
-                     else
-                     {
-                        colorIdx = ((pSprite->patternData1>>(7-idx2))&0x01)|((((pSprite->patternData2>>(7-idx2))&0x01)<<1) );
-                     }
-                     colorIdx |= (pSprite->attribData<<2);
-                     if ( (colorIdx&0x3) &&
-                          (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) &&
-                          (((!pSprite->spriteBehind) && (!(tvSet&0x2))) ||
-                          ((pSprite->spriteBehind) && (!(tvSet&0x1)))) )
-                     {
-                        *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                        *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                        *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+colorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                        tvSet |= 0x2;
-                     }
-                     else if ( (colorIdx&0x3) &&
-                               (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) &&
-                               (pSprite->spriteBehind) )
-                     {
-                        tvSet |= 0x2;
-                     }
-                     if ( (pSprite->spriteIdx == 0) &&
-                          (!sprite0HitSet) &&
-                          (pSprite->spriteX+idx2 < 255) &&
-                          ((tvSet&0x03) == 0x03) )
-                     {
-                        if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
-                        {
-                           wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
-                           sprite0HitSet = true;
-
-                           // Check for Sprite 0 Hit breakpoint...
-                           CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
-
-                           // Save last sprite 0 hit coords for OAM viewer...
-                           m_lastSprite0HitX = p;
-                           m_lastSprite0HitY = scanline;
-
-                           // TODO: update tracer info
-                           CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eSource_PPU, 0, 0, 0 );
-                        }
-                     }
+                     spriteColorIdx = ((pSprite->patternData1>>idx2)&0x01)|((((pSprite->patternData2>>idx2)&0x01)<<1) );
                   }
+                  else
+                  {
+                     spriteColorIdx = ((pSprite->patternData1>>(7-idx2))&0x01)|((((pSprite->patternData2>>(7-idx2))&0x01)<<1) );
+                  }
+                  spriteColorIdx |= (pSprite->attribData<<2);
+                  if ( spriteColorIdx&0x3 )
+                  {
+                     // Check for sprite selected event breakpoint...
+                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSprite->spriteIdx,PPU_EVENT_SPRITE_SELECTED);
+
+                     // Save rendered sprite for multiplexing with background...
+                     pSelectedSprite = pSprite;
+                     break;
+                  }
+               }
+            }
+
+            // Background pixel determination...
+            PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
+            bkgndColorIdx = (a|b1|(b2<<1));
+
+            // Sprite/background pixel rendering determination...
+            if ( (pSelectedSprite) &&
+                 ((!(pSelectedSprite->spriteBehind)) ||
+                 ((bkgndColorIdx == 0) &&
+                 (spriteColorIdx != 0))) &&
+                 (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) )
+            {
+               // Check for sprite rendering event breakpoint...
+               CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSprite->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
+
+               if ( !(spriteColorIdx&0x3) ) spriteColorIdx = 0;
+
+               // Draw sprite...
+               *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+            }
+            else
+            {
+               if ( (idxx>=startBkgnd) && (rPPU(PPUMASK)&PPUMASK_RENDER_BKGND) )
+               {
+                  if ( !(bkgndColorIdx&0x3) ) bkgndColorIdx = 0;
+
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               }
+               else
+               {
+                  if ( (m_ppuAddr&0x3F00) == 0x3F00 )
+                  {
+                     *pTV = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                     *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                     *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  }
+                  else
+                  {
+                     *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                     *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                     *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  }
+               }
+            }
+
+            // Sprite 0 hit checks...
+            if ( (pSelectedSprite) &&
+                 (pSelectedSprite->spriteIdx == 0) &&
+                 (!sprite0HitSet) &&
+                 (bkgndColorIdx != 0) &&
+                 (p < 255) )
+//                 (pSelectedSprite->spriteX+idx2 < 255) &&
+//                 ((tvSet&0x03) == 0x03) )
+            {
+               if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
+               {
+                  wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
+                  sprite0HitSet = true;
+
+                  // Check for Sprite 0 Hit breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
+
+                  // Save last sprite 0 hit coords for OAM viewer...
+                  m_lastSprite0HitX = p;
+                  m_lastSprite0HitY = scanline;
+
+                  // TODO: update tracer info
+                  CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eSource_PPU, 0, 0, 0 );
                }
             }
 
@@ -1467,16 +1501,18 @@ void CPPU::GATHERSPRITES ( int scanline )
       spritePatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
    }
 
+   scanline++;
+
    // Populate sprite buffer...
    for ( sprite = 0; sprite < 64; sprite++ )
    {
       // Retrieve OAM byte for scanline check...
       // Note: obscure PPU 'bug' in that 9th sprite on scanline
       // causes other sprite data to be used as the Y-coordinate.
-      spriteY = OAM ( yByte, sprite );
+      spriteY = OAM ( yByte, sprite ) + 1;
 
-      // idx1 is sprite slice (it will be in range 0-15 if the sprite
-      // is on this scanline.
+      // idx1 is sprite slice (it will be in range 0-7 or 0-15 if the sprite
+      // is on the next scanline.
       idx1 = scanline-spriteY;
 
       // If we've found 8 sprites on this scanline, enable the
@@ -1531,7 +1567,11 @@ void CPPU::GATHERSPRITES ( int scanline )
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
          EMULATE();
+      }
 
+      // Is the sprite on this scanline?
+      if ( (idx1 >= 0) && (idx1 < spriteSize) )
+      {
          // Calculate sprite-per-scanline limit...
          spritesFound++;
          if ( spritesFound < 8 )
@@ -1568,7 +1608,10 @@ void CPPU::GATHERSPRITES ( int scanline )
    }
 
    // Fix up the sprite buffer data if necessary...
-   if ( spritesFound > 8 ) spritesFound = 8;
+   if ( spritesFound > 8 )
+   {
+      spritesFound = 8;
+   }
    m_spriteBuffer.count = spritesFound;
 
    // Perform remaining garbage fetches to finish out the scanline's

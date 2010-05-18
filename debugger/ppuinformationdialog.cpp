@@ -58,6 +58,9 @@ void PPUInformationDialog::updateInformation()
    }
    ui->pixelY->setText(buffer);
 
+   sprintf ( buffer, "%d", CPPU::_FRAME() );
+   ui->frameNumber->setText(buffer);
+
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {

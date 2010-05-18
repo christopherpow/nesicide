@@ -26,6 +26,7 @@
 #include "cnesapu.h"
 
 #include <QSemaphore>
+#include <QMessageBox>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -56,10 +57,20 @@ void CNES::HARDRESET ( void )
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int bp;
+   int bpr = 0;
    int bps = pBreakpoints->GetNumBreakpoints();
-   for ( bp = 0; bp < bps; bp++ )
+   for ( bp = bps-1; bp >= 0; bp-- )
    {
-      pBreakpoints->RemoveBreakpoint(0);
+      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
+      if ( pBreakpoint->type == eBreakOnCPUExecution )
+      {
+         pBreakpoints->RemoveBreakpoint(bp);
+         bpr++;
+      }
+   }
+   if ( bpr )
+   {
+      QMessageBox::information ( 0, "Breakpoints removed", "One or more CPU execution breakpoints have been removed because a new ROM has been loaded." );
    }
 }
 
