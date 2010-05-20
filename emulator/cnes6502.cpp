@@ -146,6 +146,8 @@ unsigned int    C6502::m_ea = 0xFFFFFFFF;
 UINT            C6502::m_pcGoto = 0xFFFFFFFF;
 unsigned char   C6502::m_sp = 0xFF;
 
+CMarker         C6502::m_marker;
+
 CCodeDataLogger C6502::m_logger ( MEM_2KB, MASK_2KB );
 unsigned int    C6502::m_cycles = 0;
 int             C6502::m_curCycles = 0;
@@ -161,6 +163,8 @@ CBreakpointEventInfo** C6502::m_tblBreakpointEvents = tblCPUEvents;
 int                    C6502::m_numBreakpointEvents = NUM_CPU_EVENTS;
 
 char*          C6502::m_pCodeDataLoggerInspectorTV = NULL;
+
+char*          C6502::m_pExecutionVisualizerInspectorTV = NULL;
 
 static int opcode_size [ NUM_ADDRESSING_MODES ] =
 {
@@ -579,6 +583,103 @@ void C6502::RENDERCODEDATALOGGER ( void )
          }
       }
    }
+}
+
+void C6502::RENDEREXECUTIONVISUALIZER ( void )
+{
+   unsigned int idxx, idxy;
+   MarkerSetInfo* pMarker;
+   int marker;
+
+   for ( idxy = 0; idxy < 512; idxy++ )
+   {
+      for ( idxx = 0; idxx < 512; idxx++ )
+      {
+         if ( (idxx < 256) && (idxy > 22) && (idxy < 262) )
+         {
+            // Gray screen outline...
+//            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 165;
+//            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 165;
+//            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 165;
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = CPPU::TV()[((idxy-23) * 256 * 3) + (idxx * 3) + 0];
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = CPPU::TV()[((idxy-23) * 256 * 3) + (idxx * 3) + 1];
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = CPPU::TV()[((idxy-23) * 256 * 3) + (idxx * 3) + 2];
+         }
+         else if ( (idxx < 341) && (idxy < 262) )
+         {
+            // Darker gray backdrop PPU-off time outline...
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 105;
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 105;
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 105;
+         }
+         else
+         {
+            // Black otherwise...
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 0;
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 0;
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 0;
+         }
+
+         // CPTODO: account for odd-frame cycle skip...
+
+         if ( (idxx < 341) && (idxy < 262) )
+         {
+            for ( marker = 0; marker < m_marker.GetNumMarkers(); marker++ )
+            {
+               pMarker = m_marker.GetMarker(marker);
+               if ( ((pMarker->state == eMarkerSet_Started) ||
+                    (pMarker->state == eMarkerSet_Complete)) &&
+                    (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) &&
+                    (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle) )
+               {
+                  // Marker color!
+                  m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = pMarker->red;
+                  m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = pMarker->green;
+                  m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = pMarker->blue;
+               }
+            }
+         }
+      }
+   }
+#if 0
+      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( pLogger->GetCount(idxx) )
+      {
+         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         {
+            lcolor = dmaColor[pLogger->GetSource(idxx)];
+         }
+         else
+         {
+            lcolor = color[pLogger->GetType(idxx)];
+         }
+         if ( !lcolor.red() )
+         {
+            lcolor.setRed(lcolor.red()+cycleDiff);
+         }
+         if ( !lcolor.green() )
+         {
+            lcolor.setGreen(lcolor.green()+cycleDiff);
+         }
+         if ( !lcolor.blue() )
+         {
+            lcolor.setBlue(lcolor.blue()+cycleDiff);
+         }
+         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 0] = lcolor.red();
+         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 1] = lcolor.green();
+         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
+      }
+      else
+      {
+         // White
+         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 0] = 255;
+         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 1] = 255;
+         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 2] = 255;
+      }
+   }
+#endif
 }
 
 void C6502::EMULATE ( int cycles )
@@ -2905,8 +3006,12 @@ unsigned char C6502::FETCH ( UINT addr )
    // If ROM is being accessed, log code/data logger...
    if ( target == eTarget_ROM )
    {
+      // Log to Code/Data Logger...
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
       pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+
+      // Update Markers...
+      m_marker.UpdateMarkers ( CROM::ABSADDR(addr), CPPU::CYCLES() );
 
       // ... and update opcode masking for disassembler...
       CROM::OPCODEMASK ( addr, (unsigned char)m_sync );

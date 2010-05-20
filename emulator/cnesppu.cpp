@@ -1040,7 +1040,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
 
          // Steal CPU cycles...
-         m_curCycles -= 512*3*CPU_CYCLE_ADJUST; // 512 CPU cycles * 3 PPU cycles per CPU
+         m_curCycles -= (512*3*CPU_CYCLE_ADJUST); // 512 CPU cycles * 3 PPU cycles per CPU
       }
    }
 }
@@ -1145,7 +1145,7 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
 
    for ( idxy = 0; idxy < scanlines; idxy++ )
    {
-      for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE_VBLANK; idxx++ )
+      for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
       {
          INCCYCLE();
          EMULATE();

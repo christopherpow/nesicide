@@ -67,6 +67,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
     InspectorRegistry::addInspector ( "Execution Inspector", m_pExecutionInspector );
 
+    m_pExecutionVisualizer = new ExecutionVisualizer();
+    m_pExecutionVisualizer->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pExecutionVisualizer->setWindowTitle("Execution Visualizer");
+    m_pExecutionVisualizer->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
+    m_pExecutionVisualizer->hide();
+    QObject::connect(m_pExecutionVisualizer, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionVisualizer_Inspector_close(bool)));
+    InspectorRegistry::addInspector ( "Execution Visualizer", m_pExecutionVisualizer );
+
     m_pCodeInspector = new CodeInspector();
     m_pCodeInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pCodeInspector->setWindowTitle("Code Inspector");
@@ -279,6 +288,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
     ui->actionEmulation_Window->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCode_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
@@ -595,6 +605,16 @@ void MainWindow::on_actionExecution_Inspector_toggled(bool value)
 void MainWindow::reflectedExecutionInspector_close (bool toplevel)
 {
    ui->actionExecution_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionExecution_Visualizer_Inspector_toggled(bool value)
+{
+   m_pExecutionVisualizer->setVisible(value);
+}
+
+void MainWindow::reflectedExecutionVisualizer_Inspector_close (bool toplevel)
+{
+   ui->actionExecution_Visualizer_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionBreakpoint_Inspector_toggled(bool value)

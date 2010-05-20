@@ -183,6 +183,30 @@
     <string>Enable this breakpoint</string>
    </property>
   </action>
+  <action name="actionStart_marker_here">
+   <property name="text">
+    <string>Set Visualization START Marker here</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Visualization START Marker here</string>
+   </property>
+  </action>
+  <action name="actionEnd_marker_here">
+   <property name="text">
+    <string>Set Visualization END Marker here</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Visualization END Marker here</string>
+   </property>
+  </action>
+  <action name="actionClear_marker">
+   <property name="text">
+    <string>Clear Visualization Markers</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear Visualization Markers</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

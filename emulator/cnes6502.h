@@ -8,6 +8,9 @@
 #include "cnesicidecommon.h"
 
 #include "ctracer.h"
+
+#include "cmarker.h"
+
 #include "ccodedatalogger.h"
 #include "cregisterdata.h"
 
@@ -300,6 +303,10 @@ public:
    static inline void CodeDataLoggerInspectorTV ( char* pTV ) { m_pCodeDataLoggerInspectorTV = pTV; }
    static void RENDERCODEDATALOGGER ( void );
 
+   static inline void ExecutionVisualizerInspectorTV ( char* pTV ) { m_pExecutionVisualizerInspectorTV = pTV; }
+   static void RENDEREXECUTIONVISUALIZER ( void );
+
+   static CMarker& MARKERS() { return m_marker; }
 
 protected:
    static bool            m_killed;
@@ -319,6 +326,8 @@ protected:
    static unsigned int    m_ea;
    static UINT            m_pcGoto;
 
+   static CMarker         m_marker;
+
    static CCodeDataLogger m_logger;
    static unsigned int    m_cycles;
    static int             m_curCycles; // must be allowed to go negative!
@@ -334,6 +343,8 @@ protected:
    static int                    m_numBreakpointEvents;
 
    static char*          m_pCodeDataLoggerInspectorTV;
+
+   static char*          m_pExecutionVisualizerInspectorTV;
 };
 
 typedef struct _C6502_opcode

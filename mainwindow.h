@@ -14,6 +14,7 @@
 #include "oaminspector.h"
 #include "nametableinspector.h"
 #include "executioninspector.h"
+#include "executionvisualizer.h"
 #include "memoryinspector.h"
 #include "registerinspector.h"
 #include "breakpointinspector.h"
@@ -49,6 +50,7 @@ private:
 
     // Debugger inspector dockables
     ExecutionInspector* m_pExecutionInspector;
+    ExecutionVisualizer* m_pExecutionVisualizer;
     RegisterInspector* m_pBinCPURegisterInspector;
     CHRMEMInspector* m_pGfxCHRMemoryInspector;
     OAMInspector* m_pGfxOAMMemoryInspector;
@@ -80,6 +82,7 @@ private slots:
     void on_actionCode_Inspector_toggled(bool );
     void on_actionCodeDataLogger_Inspector_toggled(bool );
     void on_actionExecution_Inspector_toggled(bool );
+    void on_actionExecution_Visualizer_Inspector_toggled(bool );
     void on_actionBreakpoint_Inspector_toggled(bool );
     void on_actionGfxCHRMemory_Inspector_toggled(bool );
     void on_actionGfxOAMMemory_Inspector_toggled(bool );
@@ -100,6 +103,7 @@ private slots:
     void reflectedCodeInspector_close(bool toplevel);
     void reflectedCodeDataLoggerInspector_close(bool toplevel);
     void reflectedExecutionInspector_close(bool toplevel);
+    void reflectedExecutionVisualizer_Inspector_close(bool toplevel);
     void reflectedBreakpointInspector_close(bool toplevel);
     void reflectedGfxCHRMemoryInspector_close(bool toplevel);
     void reflectedGfxNameTableMemoryInspector_close(bool toplevel);

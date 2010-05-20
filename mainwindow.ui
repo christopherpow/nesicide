@@ -161,6 +161,7 @@
      <addaction name="actionCode_Inspector"/>
      <addaction name="actionBreakpoint_Inspector"/>
      <addaction name="actionExecution_Inspector"/>
+     <addaction name="actionExecution_Visualizer_Inspector"/>
      <addaction name="actionCodeDataLogger_Inspector"/>
      <addaction name="separator"/>
      <addaction name="menuCPU"/>
@@ -787,6 +788,17 @@
    </property>
    <property name="text">
     <string>Code/Data Logger Inspector</string>
+   </property>
+  </action>
+  <action name="actionExecution_Visualizer_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Execution Visualizer</string>
+   </property>
+   <property name="toolTip">
+    <string>Execution Visualizer Inspector</string>
    </property>
   </action>
  </widget>

@@ -169,13 +169,6 @@ void CNES::RUN ( unsigned char* joy )
 //      CIO::JOY ( JOY2, 0x02 );
 //   }
 
-   // Update NameTable inspector...
-   CPPU::RENDERNAMETABLE ();
-
-   // Update Code/Data Logger inspectors...
-   C6502::RENDERCODEDATALOGGER();
-   CPPU::RENDERCODEDATALOGGER();
-
    // PPU cycles repeat...
    CPPU::RESETCYCLECOUNTER ();
 
@@ -236,6 +229,16 @@ void CNES::RUN ( unsigned char* joy )
    // is passed this buffer, and that callback method is used to trigger
    // emulation of the next frame.
    CAPU::RUN ();
+
+   // Update NameTable inspector...
+   CPPU::RENDERNAMETABLE ();
+
+   // Update Code/Data Logger inspectors...
+   C6502::RENDERCODEDATALOGGER();
+   CPPU::RENDERCODEDATALOGGER();
+
+   // Update Execution Visualizer inspector...
+   C6502::RENDEREXECUTIONVISUALIZER();
 
    // Increment PPU frame counter...
    m_frame++;

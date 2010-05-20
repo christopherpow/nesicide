@@ -130,6 +130,12 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
       }
    }
 
+   menu.addSeparator();
+   menu.addAction(ui->actionClear_marker);
+   menu.addSeparator();
+   menu.addAction(ui->actionStart_marker_here);
+   menu.addAction(ui->actionEnd_marker_here);
+
    // Run the context menu...
    // CPTODO: Hokey trick to provide the breakpoint-of-interest to action handlers...
    m_breakpointIndex = bp;
@@ -410,3 +416,57 @@ void CodeBrowserDialog::on_actionEnable_breakpoint_triggered()
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
    }
 }
+
+void CodeBrowserDialog::on_actionStart_marker_here_triggered()
+{
+   CMarker& markers = C6502::MARKERS();
+   int marker;
+   int addr = 0;
+   QModelIndex index = ui->tableView->currentIndex();
+
+   if ( index.isValid() )
+   {
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            addr = CROM::SLOC2ADDR(index.row());
+         break;
+         case BROWSE_SOURCE:
+            addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+         break;
+      }
+
+      // Find unused Marker entry...
+      marker = markers.AddMarker(CROM::ABSADDR(addr));
+   }
+}
+
+void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
+{
+   CMarker& markers = C6502::MARKERS();
+   int marker = markers.FindInProgressMarker();
+   int addr = 0;
+   QModelIndex index = ui->tableView->currentIndex();
+
+   if ( marker >= 0 )
+   {
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            addr = CROM::SLOC2ADDR(index.row());
+         break;
+         case BROWSE_SOURCE:
+            addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+         break;
+      }
+
+      markers.CompleteMarker(marker,CROM::ABSADDR(addr));
+   }
+}
+
+void CodeBrowserDialog::on_actionClear_marker_triggered()
+{
+   CMarker& markers = C6502::MARKERS();
+   markers.ClearAllMarkers();
+}
+

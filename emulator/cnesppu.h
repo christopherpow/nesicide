@@ -31,7 +31,7 @@ enum
    NUM_PPU_EVENTS
 };
 
-#define PPU_CYCLES_PER_SCANLINE_VBLANK 341
+#define PPU_CYCLES_PER_SCANLINE 341
 #define CPU_CYCLE_ADJUST   5
 #define PPU_CPU_RATIO_NTSC 15
 #define PPU_CPU_RATIO_PAL  16
@@ -134,6 +134,10 @@ typedef struct _BackgroundBuffer
 #define rPPUADDR() ( m_ppuAddr )
 #define rSCROLLX() ( m_ppuScrollX )
 
+#define CYCLE_TO_VISX(c) (c%PPU_CYCLES_PER_SCANLINE)
+#define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
+#define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
+
 class CPPU
 {
 public:
@@ -201,6 +205,7 @@ public:
    static void GATHERSPRITES ( int scanline );
 
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
+   static inline char* TV ( void ) { return m_pTV; }
 
    static inline void EnableCHRMEMInspector ( bool enable ) { m_bCHRMEMInspector = enable; }
    static inline void CHRMEMInspectorTV ( char* pTV ) { m_pCHRMEMInspectorTV = pTV; }
