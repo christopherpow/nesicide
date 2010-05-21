@@ -210,7 +210,7 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
          break;
          case 0x5113:
             data &= 0x7;
-            m_pSRAMmemory = m_SRAMmemory + (data<<UPSHIFT_8KB);
+            CROM::REMAPSRAM ( 0x6000, data );
          break;
          case 0x5114:
             m_prgRAM [ 0 ] = !(data&0x80);
@@ -220,8 +220,9 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
             {
                if ( m_prgRAM[0] )
                {
-                  m_pPRGROMmemory [ 0 ] = m_SRAMmemory + (data<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 0 ] = data;
+// CPTODO: fix!
+//                  m_pPRGROMmemory [ 0 ] = m_SRAMmemory + (data<<UPSHIFT_8KB);
+//                  m_PRGROMbank [ 0 ] = data;
                }
                else
                {
@@ -238,10 +239,11 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
             {
                if ( m_prgRAM[1] )
                {
-                  m_pPRGROMmemory [ 0 ] = m_SRAMmemory + (data<<UPSHIFT_8KB) + (0<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 0 ] = data;
-                  m_pPRGROMmemory [ 1 ] = m_SRAMmemory + (data<<UPSHIFT_8KB) + (1<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 1 ] = data+1;
+// CPTODO: fix!
+//                  m_pPRGROMmemory [ 0 ] = m_SRAMmemory + (data<<UPSHIFT_8KB) + (0<<UPSHIFT_8KB);
+//                  m_PRGROMbank [ 0 ] = data;
+//                  m_pPRGROMmemory [ 1 ] = m_SRAMmemory + (data<<UPSHIFT_8KB) + (1<<UPSHIFT_8KB);
+//                  m_PRGROMbank [ 1 ] = data+1;
                }
                else
                {
@@ -255,8 +257,9 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
             {
                if ( m_prgRAM[0] )
                {
-                  m_pPRGROMmemory [ 1 ] = m_SRAMmemory + (data<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 1 ] = data;
+// CPTODO: fix!
+//                  m_pPRGROMmemory [ 1 ] = m_SRAMmemory + (data<<UPSHIFT_8KB);
+//                  m_PRGROMbank [ 1 ] = data;
                }
                else
                {
@@ -273,8 +276,9 @@ void CROMMapper005::LMAPPER ( UINT addr, unsigned char data )
             {
                if ( m_prgRAM[0] )
                {
-                  m_pPRGROMmemory [ 2 ] = m_SRAMmemory + (data<<UPSHIFT_8KB);
-                  m_PRGROMbank [ 2 ] = data;
+// CPTODO: fix!
+//                  m_pPRGROMmemory [ 2 ] = m_SRAMmemory + (data<<UPSHIFT_8KB);
+//                  m_PRGROMbank [ 2 ] = data;
                }
                else
                {

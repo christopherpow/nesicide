@@ -236,6 +236,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTarget_SRAM:
                   strcpy ( str, "SRAM" );
                break;
+               case eTarget_EXRAM:
+                  strcpy ( str, "EXRAM" );
+               break;
                case eTarget_ROM:
                   strcpy ( str, "ROM" );
                break;

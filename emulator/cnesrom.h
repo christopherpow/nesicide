@@ -24,6 +24,8 @@ enum
 
 #define NUM_ROM_BANKS 64
 
+#define NUM_SRAM_BANKS 8
+
 // Resolve a 6502-address to one of 4 8KB PRG ROM banks [0:$8000-$9FFF, 1:$A000-$BFFF, 2:$C000-$DFFF, or 3:$E000-$FFFF]
 #define PRGBANK_VIRT(addr) ( (addr&MASK_32KB)>>SHIFT_32KB_8KB )
 // Retrieve the bank-offset address portion of a 6502-address for use within PRG ROM banks
@@ -65,20 +67,36 @@ public:
    static inline void PRGROM ( UINT, unsigned char ) {}
    static inline void CHRMEM ( UINT addr, unsigned char data ) { *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))) = data; }
    static inline UINT CHRMEM ( UINT addr ) { return *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))); }
-   static inline UINT SRAM ( UINT addr ) { return *(m_pSRAMmemory+SRAMBANK_OFF(addr)); }
-   static inline void SRAM ( UINT addr, unsigned char data ) { *(m_pSRAMmemory+SRAMBANK_OFF(addr)) = data; }
+   static inline UINT SRAM ( UINT addr ) { return *(*(m_pSRAMmemory+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)); }
+   static inline void SRAM ( UINT addr, unsigned char data ) { *(*(m_pSRAMmemory+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)) = data; }
+   static inline void REMAPSRAM ( UINT addr, unsigned char bank ) { *(m_pSRAMmemory+SRAMBANK_NUM(addr)) = *(m_SRAMmemory+bank); }
    static inline UINT EXRAM ( UINT addr ) { return *(m_EXRAMmemory+(addr-EXRAM_START)); }
    static inline void EXRAM ( UINT addr, unsigned char data ) { *(m_EXRAMmemory+(addr-EXRAM_START)) = data; }
    static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGBANK_PHYS(addr)); }
    static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
 
-   static inline void OPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
-   static inline void OPCODEMASKCLR ( void ) { memset(m_PRGROMopcodeMask,0,sizeof(m_PRGROMopcodeMask)); }
-   static inline char* DISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
-   static UINT SLOC2ADDR ( unsigned short sloc );
-   static unsigned short ADDR2SLOC ( UINT addr );
-   static inline unsigned short SLOC ( UINT addr ) { return *(m_PRGROMsloc+PRGBANK_PHYS(addr)); }
+   static inline UINT OPENBUS ( UINT  ) { return 0xA1; } // CPTODO: implement real open bus
+   static inline void OPENBUS ( UINT, unsigned char ) {}
+
+   static inline void PRGROMOPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
+   static inline void PRGROMOPCODEMASKCLR ( void ) { memset(m_PRGROMopcodeMask,0,sizeof(m_PRGROMopcodeMask)); }
+   static inline char* PRGROMDISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
+   static UINT PRGROMSLOC2ADDR ( unsigned short sloc );
+   static unsigned short PRGROMADDR2SLOC ( UINT addr );
+   static inline unsigned int PRGROMSLOC ( UINT addr ) { return *(m_PRGROMsloc+PRGBANK_PHYS(addr)); }
+   static inline void SRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_SRAMopcodeMask+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)) = mask; }
+   static inline void SRAMOPCODEMASKCLR ( void ) { memset(m_SRAMopcodeMask,0,sizeof(m_SRAMopcodeMask)); }
+   static inline char* SRAMDISASSEMBLY ( UINT addr ) { return *(*(m_SRAMdisassembly+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)); }
+   static UINT SRAMSLOC2ADDR ( unsigned short sloc );
+   static unsigned short SRAMADDR2SLOC ( UINT addr );
+   static inline unsigned int SRAMSLOC ( UINT addr) { return *(m_SRAMsloc+SRAMBANK_NUM(addr)); }
+   static inline void EXRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(m_EXRAMopcodeMask+(addr-0x5C00)) = mask; }
+   static inline void EXRAMOPCODEMASKCLR ( void ) { memset(m_EXRAMopcodeMask,0,sizeof(m_EXRAMopcodeMask)); }
+   static inline char* EXRAMDISASSEMBLY ( UINT addr ) { return *(m_EXRAMdisassembly+(addr-0x5C00)); }
+   static UINT EXRAMSLOC2ADDR ( unsigned short sloc );
+   static unsigned short EXRAMADDR2SLOC ( UINT addr );
+   static inline unsigned int EXRAMSLOC () { return m_EXRAMsloc; }
    static void DISASSEMBLE ();
 
    static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
@@ -103,14 +121,24 @@ protected:
    static char*          m_PRGROMdisassembly [ NUM_ROM_BANKS ][ MEM_8KB ];
    static unsigned short m_PRGROMsloc2addr [ NUM_ROM_BANKS ][ MEM_8KB ];
    static unsigned short m_PRGROMaddr2sloc [ NUM_ROM_BANKS ][ MEM_8KB ];
-   static int            m_PRGROMsloc [ NUM_ROM_BANKS ];
+   static unsigned int   m_PRGROMsloc [ NUM_ROM_BANKS ];
 
    static unsigned char  m_CHRROMmemory [ NUM_ROM_BANKS ][ MEM_8KB ];
    static unsigned char  m_CHRRAMmemory [ MEM_8KB ];
 
-   static unsigned char  m_SRAMmemory [ MEM_64KB ];
+   static unsigned char  m_SRAMmemory [ NUM_SRAM_BANKS ][ MEM_8KB ];
+   static unsigned char  m_SRAMopcodeMask [ NUM_SRAM_BANKS ][ MEM_8KB ];
+   static char*          m_SRAMdisassembly [ NUM_SRAM_BANKS ][ MEM_8KB ];
+   static unsigned short m_SRAMsloc2addr [ NUM_SRAM_BANKS ][ MEM_8KB ];
+   static unsigned short m_SRAMaddr2sloc [ NUM_SRAM_BANKS ][ MEM_8KB ];
+   static unsigned int   m_SRAMsloc [ NUM_SRAM_BANKS ];
 
    static unsigned char  m_EXRAMmemory [ MEM_1KB ];
+   static unsigned char  m_EXRAMopcodeMask [ MEM_1KB ];
+   static char*          m_EXRAMdisassembly [ MEM_1KB ];
+   static unsigned short m_EXRAMsloc2addr [ MEM_1KB ];
+   static unsigned short m_EXRAMaddr2sloc [ MEM_1KB ];
+   static unsigned int   m_EXRAMsloc;
 
    // Mapper stuff...
    static UINT           m_mapper;
@@ -119,7 +147,7 @@ protected:
    static UINT           m_PRGROMbank [ 4 ];
    static unsigned char* m_pPRGROMmemory [ 4 ];
    static unsigned char* m_pCHRmemory [ 8 ];
-   static unsigned char* m_pSRAMmemory;
+   static unsigned char* m_pSRAMmemory [ 5 ];
 
    // Other UI stuff...
    static CCodeDataLogger* m_pLogger [ NUM_ROM_BANKS ];

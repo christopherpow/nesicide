@@ -136,7 +136,7 @@ unsigned char   C6502::m_RAMopcodeMask [ MEM_2KB ] = { 0, };
 char*           C6502::m_RAMdisassembly [ MEM_2KB ] = { 0, };
 unsigned short  C6502::m_RAMsloc2addr [ MEM_2KB ] = { 0, };
 unsigned short  C6502::m_RAMaddr2sloc [ MEM_2KB ] = { 0, };
-int             C6502::m_RAMsloc = 0;
+unsigned int    C6502::m_RAMsloc = 0;
 unsigned char   C6502::m_a = 0x00;
 unsigned char   C6502::m_x = 0x00;
 unsigned char   C6502::m_y = 0x00;
@@ -790,7 +790,7 @@ unsigned char C6502::STEP ( void )
    if ( m_irqAsserted )
    {
       // Execute IRQ handler...
-      C6502::IRQ();
+      IRQ();
    }
 
    // Update Tracer
@@ -2921,6 +2921,11 @@ unsigned char C6502::LOAD ( UINT addr, char* pTarget )
       (*pTarget) = eTarget_SRAM;
       data = CROM::SRAM ( addr );
    }
+   else if ( addr >= 0x5C00 )
+   {
+      (*pTarget) = eTarget_EXRAM;
+      data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
+   }
    else if ( addr >= 0x5000 )
    {
       (*pTarget) = eTarget_Mapper;
@@ -2972,9 +2977,14 @@ void C6502::STORE ( UINT addr, unsigned char data, char* pTarget )
       }
       CIO::IO ( addr, data );
    }
-   else if ( addr < 0x6000 )
+   else if ( addr < 0x5C00 )
    {
       (*pTarget) = eTarget_Mapper;
+      mapperfunc [ CROM::MAPPER() ].lowwrite ( addr, data );
+   }
+   else if ( addr < 0x6000 )
+   {
+      (*pTarget) = eTarget_EXRAM;
       mapperfunc [ CROM::MAPPER() ].lowwrite ( addr, data );
    }
    else if ( addr < 0x8000 )
@@ -3014,7 +3024,17 @@ unsigned char C6502::FETCH ( UINT addr )
       m_marker.UpdateMarkers ( CROM::ABSADDR(addr), CPPU::CYCLES() );
 
       // ... and update opcode masking for disassembler...
-      CROM::OPCODEMASK ( addr, (unsigned char)m_sync );
+      CROM::PRGROMOPCODEMASK ( addr, (unsigned char)m_sync );
+   }
+   else if ( target == eTarget_SRAM )
+   {
+      // Update opcode masking for disassembler...
+      CROM::SRAMOPCODEMASK ( addr, (unsigned char)m_sync );
+   }
+   else if ( target == eTarget_EXRAM )
+   {
+      // Update opcode masking for disassembler...
+      CROM::EXRAMOPCODEMASK ( addr, (unsigned char)m_sync );
    }
    else if ( target == eTarget_RAM )
    {
@@ -3231,16 +3251,19 @@ unsigned char C6502::OpcodeSize ( unsigned char op )
 
 void C6502::DISASSEMBLE ()
 {
-   DISASSEMBLE ( m_RAMdisassembly,
-                 m_6502memory,
-                 MEM_2KB,
-                 m_RAMopcodeMask,
-                 m_RAMsloc2addr,
-                 m_RAMaddr2sloc,
-                 &(m_RAMsloc) );
+   if ( __PC() < 0x800 )
+   {
+      DISASSEMBLE ( m_RAMdisassembly,
+                    m_6502memory,
+                    MEM_2KB,
+                    m_RAMopcodeMask,
+                    m_RAMsloc2addr,
+                    m_RAMaddr2sloc,
+                    &(m_RAMsloc) );
+   }
 }
 
-void C6502::DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength )
+void C6502::DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, unsigned int* sourceLength )
 {
    C6502_opcode* pOp;
    int opSize;
@@ -3268,7 +3291,7 @@ void C6502::DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryL
 
       // If we've discovered this address has been executed by the 6502 we'll
       // attempt to provide disassembly for it...
-      if ( (mask) && (pOp->documented) && ((binaryLength-i) >= opSize) )
+      if ( (mask) && ((binaryLength-i) >= opSize) )
       {
          ptr += sprintf ( ptr, "%s", pOp->name );
 
@@ -3327,46 +3350,38 @@ char* C6502::Disassemble ( unsigned char* pOpcode, char* buffer )
    char* lbuffer = buffer;
    C6502_opcode* pOp = m_6502opcode+(*pOpcode);
 
-   // CPTODO: rework illegals?
-   if ( (pOp->documented) /*|| (CONFIG.IsIllegalsEnabled())*/ )
+   if ( pOp->documented )
    {
-      if ( pOp->documented )
-      {
-         buffer += sprintf ( buffer, "%s", pOp->name );
-      }
-      else
-      {
-         buffer += sprintf ( buffer, "*%s", pOp->name );
-      }
-
-      switch ( pOp->amode )
-      {
-         // Single byte operands
-         case AM_IMMEDIATE:
-         case AM_ZEROPAGE_INDEXED_X:
-         case AM_ZEROPAGE_INDEXED_Y:
-         case AM_ZEROPAGE:
-         case AM_PREINDEXED_INDIRECT:
-         case AM_POSTINDEXED_INDIRECT:
-         case AM_RELATIVE:
-            buffer += sprintf ( buffer, operandFmt[pOp->amode],
-                                (*(pOpcode+1)) );
-         break;
-
-         // Two byte operands
-         case AM_ABSOLUTE:
-         case AM_ABSOLUTE_INDEXED_X:
-         case AM_ABSOLUTE_INDEXED_Y:
-         case AM_INDIRECT:
-            buffer += sprintf ( buffer, operandFmt[pOp->amode],
-                                (*(pOpcode+2)),
-                                (*(pOpcode+1)) );
-         break;
-      }
+      buffer += sprintf ( buffer, "%s", pOp->name );
    }
    else
    {
-      buffer += sprintf ( buffer, ".DB $%02X", *pOpcode );
+      buffer += sprintf ( buffer, "*%s", pOp->name );
+   }
+
+   switch ( pOp->amode )
+   {
+      // Single byte operands
+      case AM_IMMEDIATE:
+      case AM_ZEROPAGE_INDEXED_X:
+      case AM_ZEROPAGE_INDEXED_Y:
+      case AM_ZEROPAGE:
+      case AM_PREINDEXED_INDIRECT:
+      case AM_POSTINDEXED_INDIRECT:
+      case AM_RELATIVE:
+         buffer += sprintf ( buffer, operandFmt[pOp->amode],
+                             (*(pOpcode+1)) );
+      break;
+
+      // Two byte operands
+      case AM_ABSOLUTE:
+      case AM_ABSOLUTE_INDEXED_X:
+      case AM_ABSOLUTE_INDEXED_Y:
+      case AM_INDIRECT:
+         buffer += sprintf ( buffer, operandFmt[pOp->amode],
+                             (*(pOpcode+2)),
+                             (*(pOpcode+1)) );
+      break;
    }
    (*buffer) = 0;
 

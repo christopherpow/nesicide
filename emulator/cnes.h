@@ -33,6 +33,13 @@ public:
    static void STEPCPUBREAKPOINT ( void ) { m_bStepCPUBreakpoint = true; }
    static void STEPPPUBREAKPOINT ( void ) { m_bStepPPUBreakpoint = true; }
 
+   static char* DISASSEMBLY ( UINT addr );
+   static UINT SLOC2ADDR ( unsigned short sloc );
+   static unsigned short ADDR2SLOC ( UINT addr );
+   static unsigned int SLOC ( UINT addr );
+   static unsigned char _MEM ( UINT addr );
+   static void DISASSEMBLE ( void );
+
 protected:
    static bool         m_bReplay;
    static unsigned int m_frame;

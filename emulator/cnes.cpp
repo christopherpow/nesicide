@@ -97,7 +97,9 @@ void CNES::RESET ( UINT mapper )
 
    // Clear code/data logger info...
    C6502::OPCODEMASKCLR ();
-   CROM::OPCODEMASKCLR ();
+   CROM::PRGROMOPCODEMASKCLR ();
+   CROM::SRAMOPCODEMASKCLR ();
+   CROM::EXRAMOPCODEMASKCLR ();
 
    m_frame = 0;
    m_bReplay = false;
@@ -657,4 +659,110 @@ void CNES::FORCEBREAKPOINT ( void )
    m_bAtBreakpoint = true;
    breakpointWatcherSemaphore.release();
    breakpointSemaphore.acquire();
+}
+
+char* CNES::DISASSEMBLY ( UINT addr )
+{
+   if ( addr < 0x800 )
+   {
+      return C6502::DISASSEMBLY ( addr );
+   }
+   else if ( addr < 0x6000 )
+   {
+      return CROM::EXRAMDISASSEMBLY ( addr );
+   }
+   else if ( addr < 0x8000 )
+   {
+      return CROM::SRAMDISASSEMBLY ( addr );
+   }
+   else
+   {
+      return CROM::PRGROMDISASSEMBLY ( addr );
+   }
+}
+
+void CNES::DISASSEMBLE ( void )
+{
+   C6502::DISASSEMBLE();
+   CROM::DISASSEMBLE();
+}
+
+UINT CNES::SLOC2ADDR ( unsigned short sloc )
+{
+   if ( C6502::__PC() < 0x800 )
+   {
+      return C6502::SLOC2ADDR ( sloc );
+   }
+   else if ( C6502::__PC() < 0x6000 )
+   {
+      return CROM::EXRAMSLOC2ADDR ( sloc );
+   }
+   else if ( C6502::__PC() < 0x8000 )
+   {
+      return CROM::SRAMSLOC2ADDR ( sloc );
+   }
+   else
+   {
+      return CROM::PRGROMSLOC2ADDR ( sloc );
+   }
+}
+
+unsigned short CNES::ADDR2SLOC ( UINT addr )
+{
+   if ( addr < 0x800 )
+   {
+      return C6502::ADDR2SLOC ( addr );
+   }
+   else if ( addr < 0x6000 )
+   {
+      return CROM::EXRAMADDR2SLOC ( addr );
+   }
+   else if ( addr < 0x8000 )
+   {
+      return CROM::SRAMADDR2SLOC ( addr );
+   }
+   else
+   {
+      return CROM::PRGROMADDR2SLOC ( addr );
+   }
+}
+
+unsigned int CNES::SLOC ( UINT addr )
+{
+   if ( addr < 0x800 )
+   {
+      return C6502::SLOC ();
+   }
+   else if ( addr < 0x6000 )
+   {
+      return CROM::EXRAMSLOC ();
+   }
+   else if ( addr < 0x8000 )
+   {
+      return CROM::SRAMSLOC ( addr );
+   }
+   else
+   {
+      return CROM::PRGROMSLOC(0x8000)+CROM::PRGROMSLOC(0xA000)+CROM::PRGROMSLOC(0xC000)+CROM::PRGROMSLOC(0xE000);
+   }
+}
+
+unsigned char CNES::_MEM ( UINT addr )
+{
+   if ( addr < 0x800 )
+   {
+      return C6502::_MEM ( addr );
+   }
+   else if ( addr < 0x6000 )
+   {
+      return CROM::EXRAM ( addr );
+   }
+   else if ( addr < 0x8000 )
+   {
+      return CROM::SRAM ( addr );
+   }
+   else
+   {
+      return CROM::PRGROM ( addr );
+   }
 }

@@ -137,7 +137,7 @@ public:
 
    // Disassembly routines for display
    static void DISASSEMBLE ();
-   static void DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, int* sourceLength );
+   static void DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryLength, unsigned char* opcodeMask, unsigned short* sloc2addr, unsigned short* addr2sloc, unsigned int* sourceLength );
    static char* Disassemble ( unsigned char* pOpcode, char* buffer );
 
    // Emulation routines
@@ -316,7 +316,7 @@ protected:
    static char*           m_RAMdisassembly [ MEM_2KB ];
    static unsigned short  m_RAMsloc2addr [ MEM_2KB ];
    static unsigned short  m_RAMaddr2sloc [ MEM_2KB ];
-   static int             m_RAMsloc;
+   static unsigned int    m_RAMsloc;
    static unsigned char   m_a;
    static unsigned char   m_x;
    static unsigned char   m_y;

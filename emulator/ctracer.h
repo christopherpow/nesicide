@@ -40,6 +40,7 @@ enum
    eTarget_APURegister,
    eTarget_IORegister,
    eTarget_SRAM,
+   eTarget_EXRAM,
    eTarget_ROM,
    eTarget_Mapper,
    eTarget_PatternMemory,

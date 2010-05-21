@@ -44,15 +44,25 @@ unsigned char  CROM::m_PRGROMopcodeMask [][ MEM_8KB ] = { { 0, }, };
 char*          CROM::m_PRGROMdisassembly [][ MEM_8KB ] = { { 0, }, };
 unsigned short CROM::m_PRGROMsloc2addr [][ MEM_8KB ] = { { 0, }, };
 unsigned short CROM::m_PRGROMaddr2sloc [][ MEM_8KB ] = { { 0, }, };
-int            CROM::m_PRGROMsloc [] = { 0, };
+unsigned int   CROM::m_PRGROMsloc [] = { 0, };
 unsigned char  CROM::m_CHRROMmemory [][ MEM_8KB ] = { { 0, }, };
 unsigned char  CROM::m_CHRRAMmemory [ MEM_8KB ] = { 0, };
 UINT           CROM::m_PRGROMbank [] = { 0, 0, 0, 0 };
 unsigned char* CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
 unsigned char* CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-unsigned char  CROM::m_SRAMmemory [] = { 0, };
+unsigned char  CROM::m_SRAMmemory [][ MEM_8KB ] = { { 0, }, };
+unsigned char  CROM::m_SRAMopcodeMask [][ MEM_8KB ] = { { 0, }, };
+char*          CROM::m_SRAMdisassembly [][ MEM_8KB ] = { { 0, }, };
+unsigned short CROM::m_SRAMsloc2addr [][ MEM_8KB ] = { { 0, }, };
+unsigned short CROM::m_SRAMaddr2sloc [][ MEM_8KB ] = { { 0, }, };
+unsigned int   CROM::m_SRAMsloc [] = { 0, };
+unsigned char* CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
 unsigned char  CROM::m_EXRAMmemory [] = { 0, };
-unsigned char* CROM::m_pSRAMmemory = m_SRAMmemory;
+unsigned char  CROM::m_EXRAMopcodeMask [ MEM_1KB ] = { 0, };
+char*          CROM::m_EXRAMdisassembly [ MEM_1KB ] = { 0, };
+unsigned short CROM::m_EXRAMsloc2addr [ MEM_1KB ] = { 0, };
+unsigned short CROM::m_EXRAMaddr2sloc [ MEM_1KB ] = { 0, };
+unsigned int   CROM::m_EXRAMsloc = 0;
 
 UINT           CROM::m_mapper = 0; 
 UINT           CROM::m_numPrgBanks = 0;
@@ -82,6 +92,28 @@ CROM::CROM()
       }
    }
 
+   for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
+   {
+      for ( addr = 0; addr < MEM_8KB; addr++ )
+      {
+         m_SRAMdisassembly[bank][addr] = new char [ 16 ];
+      }
+   }
+
+   // Assume identity-mapped SRAM...
+   // There are five possible concurrently-visible 8KB
+   // SRAM banks in MMC5: (0x6000 - 0xFFFF).  Other
+   // cartridges with 8KB of SRAM will leave this mapping alone.
+   for ( bank = 0; bank < 5; bank++ )
+   {
+      m_pSRAMmemory [ bank ] = *(m_SRAMmemory+bank);
+   }
+
+   for ( addr = 0; addr < MEM_1KB; addr++ )
+   {
+      m_EXRAMdisassembly[addr] = new char [ 16 ];
+   }
+
    CROM::RESET ();
 }
 
@@ -98,6 +130,19 @@ CROM::~CROM()
       {
          delete [] m_PRGROMdisassembly[bank][addr];
       }
+   }
+
+   for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
+   {
+      for ( addr = 0; addr < MEM_8KB; addr++ )
+      {
+         delete [] m_SRAMdisassembly[bank][addr];
+      }
+   }
+
+   for ( addr = 0; addr < MEM_1KB; addr++ )
+   {
+      delete [] m_EXRAMdisassembly[addr];
    }
 }
 
@@ -141,6 +186,7 @@ void CROM::DISASSEMBLE ()
 {
    unsigned int bank;
 
+   // Disassemble PRG-ROM banks...
    for ( bank = 0; bank < m_numPrgBanks; bank++ )
    {
       C6502::DISASSEMBLE ( m_PRGROMdisassembly[bank],
@@ -151,14 +197,33 @@ void CROM::DISASSEMBLE ()
                            m_PRGROMaddr2sloc[bank],
                            &(m_PRGROMsloc[bank]) );
    }
+   // Disassemble SRAM...
+   for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
+   {
+      C6502::DISASSEMBLE ( m_SRAMdisassembly[bank],
+                           m_SRAMmemory[bank],
+                           MEM_8KB,
+                           m_SRAMopcodeMask[bank],
+                           m_SRAMsloc2addr[bank],
+                           m_SRAMaddr2sloc[bank],
+                           &(m_SRAMsloc[bank]) );
+   }
+   // Disassemble EXRAM...
+   C6502::DISASSEMBLE ( m_EXRAMdisassembly,
+                        m_EXRAMmemory,
+                        MEM_1KB,
+                        m_EXRAMopcodeMask,
+                        m_EXRAMsloc2addr,
+                        m_EXRAMaddr2sloc,
+                        &(m_EXRAMsloc) );
 }
 
-UINT CROM::SLOC2ADDR ( unsigned short sloc )
+UINT CROM::PRGROMSLOC2ADDR ( unsigned short sloc )
 {
-   int sloc8000 = CROM::SLOC(0x8000);
-   int slocA000 = sloc8000+CROM::SLOC(0xA000);
-   int slocC000 = slocA000+CROM::SLOC(0xC000);
-   int slocE000 = slocC000+CROM::SLOC(0xE000);
+   int sloc8000 = CROM::PRGROMSLOC(0x8000);
+   int slocA000 = sloc8000+CROM::PRGROMSLOC(0xA000);
+   int slocC000 = slocA000+CROM::PRGROMSLOC(0xC000);
+   int slocE000 = slocC000+CROM::PRGROMSLOC(0xE000);
    int addr = 0;
 
    if ( sloc < sloc8000 )
@@ -184,11 +249,23 @@ UINT CROM::SLOC2ADDR ( unsigned short sloc )
    return addr+(*(*(m_PRGROMsloc2addr+PRGBANK_PHYS(addr))+sloc));
 }
 
-unsigned short CROM::ADDR2SLOC ( UINT addr )
+UINT CROM::SRAMSLOC2ADDR ( unsigned short sloc )
 {
-   int sloc8000 = CROM::SLOC(0x8000);
-   int slocA000 = sloc8000+CROM::SLOC(0xA000);
-   int slocC000 = slocA000+CROM::SLOC(0xC000);
+   int addr = 0x6000;
+
+   return addr+(*(*(m_SRAMsloc2addr+SRAMBANK_NUM(addr))+sloc));
+}
+
+UINT CROM::EXRAMSLOC2ADDR ( unsigned short sloc )
+{
+   return 0x5C00+(*(m_EXRAMsloc2addr+sloc));
+}
+
+unsigned short CROM::PRGROMADDR2SLOC ( UINT addr )
+{
+   int sloc8000 = CROM::PRGROMSLOC(0x8000);
+   int slocA000 = sloc8000+CROM::PRGROMSLOC(0xA000);
+   int slocC000 = slocA000+CROM::PRGROMSLOC(0xC000);
    int sloc;
 
    if ( addr < 0xA000 )
@@ -209,6 +286,18 @@ unsigned short CROM::ADDR2SLOC ( UINT addr )
    }
 
    return sloc+(*(*(m_PRGROMaddr2sloc+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)));
+}
+
+unsigned short CROM::SRAMADDR2SLOC ( UINT addr )
+{
+   int sloc = 0;
+
+   return sloc+(*(*(m_SRAMaddr2sloc+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)));
+}
+
+unsigned short CROM::EXRAMADDR2SLOC ( UINT addr )
+{
+   return *(m_EXRAMaddr2sloc+(addr-0x5C00));
 }
 
 void CROM::RESET ()
@@ -239,6 +328,15 @@ void CROM::RESET ()
       {
          m_pCHRmemory [ bank ] = m_CHRROMmemory [ 0 ] + (bank<<UPSHIFT_1KB);
       }
+   }
+
+   // Assume identity-mapped SRAM...
+   // There are five possible concurrently-visible 8KB
+   // SRAM banks in MMC5: (0x6000 - 0xFFFF).  Other
+   // cartridges with 8KB of SRAM will leave this mapping alone.
+   for ( bank = 0; bank < 5; bank++ )
+   {
+      m_pSRAMmemory [ bank ] = *(m_SRAMmemory+bank);
    }
 
    // Clear Code/Data Logger info...
