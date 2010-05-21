@@ -1,7 +1,7 @@
 #ifndef CMARKER_H
 #define CMARKER_H
 
-#define MAX_MARKER_SETS 5
+#define MAX_MARKER_SETS 8
 
 typedef enum
 {
@@ -26,7 +26,7 @@ class CMarker
 {
 public:
    CMarker();
-   int GetNumMarkers(void) const { return m_numMarkers; }
+   int GetNumMarkers(void) const { return MAX_MARKER_SETS; }
    MarkerSetInfo* GetMarker(int marker) { return m_marker+marker; }
    int AddMarker(unsigned int absAddr);
    int FindInProgressMarker(void);
@@ -36,7 +36,6 @@ public:
 
 protected:
    MarkerSetInfo m_marker [ MAX_MARKER_SETS ];
-   int           m_numMarkers;
 };
 
 #endif // CMARKER_H

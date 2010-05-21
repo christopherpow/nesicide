@@ -48,6 +48,7 @@ void NameTableDisplayDialog::changeEvent(QEvent *e)
 
 void NameTableDisplayDialog::renderData()
 {
+   CPPU::RENDERNAMETABLE();
    renderer->updateGL ();
 }
 

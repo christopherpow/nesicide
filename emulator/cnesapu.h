@@ -210,7 +210,7 @@ public:
    inline void APU ( UINT addr, unsigned char data );
    inline void TIMERTICK ( UINT sampleTicks );
    inline void ENABLE ( bool enabled );
-   UINT DMAREADER ( void );
+   void DMAREADER ( void );
    void DMASOURCE ( unsigned char* source ) { m_dmaSource = source; m_dmaSourcePtr = source; }
    bool IRQASSERTED ( void ) const { return m_irqAsserted; }
    inline void RESET ( void )

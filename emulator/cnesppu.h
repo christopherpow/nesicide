@@ -220,6 +220,7 @@ public:
    static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
    static inline void INCCYCLE ( void );
+   static inline void STEALCYCLES ( int cycles ) { m_curCycles -= cycles; }
    static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame = !m_frame; }
 
    static void SetPPUViewerScanline ( UINT scanline ) { m_iPPUViewerScanline = scanline; }

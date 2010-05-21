@@ -48,6 +48,16 @@ void CodeDataLoggerDialog::hideEvent(QHideEvent *event)
 
 void CodeDataLoggerDialog::renderData()
 {
+   switch ( ui->displaySelect->currentIndex() )
+   {
+      case 0:
+         C6502::RENDERCODEDATALOGGER();
+      break;
+      case 1:
+         CPPU::RENDERCODEDATALOGGER();
+      break;
+   }
+
    renderer->updateGL ();
 }
 

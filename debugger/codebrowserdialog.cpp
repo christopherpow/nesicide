@@ -139,6 +139,7 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    // Run the context menu...
    // CPTODO: Hokey trick to provide the breakpoint-of-interest to action handlers...
    m_breakpointIndex = bp;
+
    menu.exec(e->globalPos());
 
    emit breakpointsChanged();

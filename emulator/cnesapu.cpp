@@ -1224,15 +1224,12 @@ void CAPUDMC::ENABLE ( bool enabled )
    C6502::RELEASEIRQ ( eSource_APU );
 }
 
-UINT CAPUDMC::DMAREADER ( void )
+void CAPUDMC::DMAREADER ( void )
 {
-   UINT cycles = 0;
-
    if ( !m_sampleBufferFull )
    {
       if ( m_lengthCounter )
       {
-         cycles = 4;
          if ( m_dmaSource != NULL )
          {
             m_sampleBuffer = (*m_dmaSourcePtr);
@@ -1240,6 +1237,7 @@ UINT CAPUDMC::DMAREADER ( void )
          else
          {
             m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr, eLoggerSource_APU );
+            CPPU::STEALCYCLES(4);
          }
          m_sampleBufferFull = true;
          if ( m_dmaSource != NULL )
@@ -1276,8 +1274,6 @@ UINT CAPUDMC::DMAREADER ( void )
          m_irqAsserted = true;
       }
    }
-
-   return cycles;
 }
 
 void CAPUDMC::TIMERTICK ( UINT sampleTicks )

@@ -8,11 +8,11 @@ static unsigned char markerColors [][3] =
    { 255, 255, 0 },
    { 255, 0, 255 },
    { 0, 255, 255 },
-   { 255, 255, 255 }
+   { 255, 255, 255 },
+   { 0, 0, 0 }
 };
 
 CMarker::CMarker()
-: m_numMarkers(0)
 {
    int marker;
    for ( marker = 0; marker < MAX_MARKER_SETS; marker++ )
@@ -31,26 +31,21 @@ void CMarker::ClearAllMarkers(void)
    {
       m_marker [ marker ].state = eMarkerSet_Invalid;
    }
-   m_numMarkers = 0;
 }
 
 int CMarker::AddMarker(unsigned int absAddr)
 {
    int marker = -1;
-   if ( m_numMarkers < MAX_MARKER_SETS )
+   for ( marker = 0; marker < MAX_MARKER_SETS; marker++ )
    {
-      for ( marker = 0; marker < MAX_MARKER_SETS; marker++ )
+      if ( m_marker[marker].state == eMarkerSet_Invalid )
       {
-         if ( m_marker[marker].state == eMarkerSet_Invalid )
-         {
-            m_marker [ marker ].state = eMarkerSet_Started;
-            m_marker [ marker ].startAbsAddr = absAddr;
-            m_marker [ marker ].startCycle = -1;
-            m_marker [ marker ].endAbsAddr = absAddr;
-            m_marker [ marker ].endCycle = -1;
-            m_numMarkers++;
-            break;
-         }
+         m_marker [ marker ].state = eMarkerSet_Started;
+         m_marker [ marker ].startAbsAddr = absAddr;
+         m_marker [ marker ].startCycle = -1;
+         m_marker [ marker ].endAbsAddr = absAddr;
+         m_marker [ marker ].endCycle = -1;
+         break;
       }
    }
    return marker;
@@ -67,7 +62,7 @@ int CMarker::FindInProgressMarker(void)
 {
    int marker = -1;
 
-   for ( marker = 0; marker < m_numMarkers; marker++ )
+   for ( marker = 0; marker < MAX_MARKER_SETS; marker++ )
    {
       if ( m_marker[marker].state == eMarkerSet_Started )
       {
@@ -82,7 +77,7 @@ void CMarker::UpdateMarkers(unsigned int absAddr, unsigned int cycle)
 {
    int marker;
 
-   for ( marker = 0; marker < m_numMarkers; marker++ )
+   for ( marker = 0; marker < MAX_MARKER_SETS; marker++ )
    {
       if ( (m_marker[marker].state == eMarkerSet_Complete) ||
            (m_marker[marker].state == eMarkerSet_Complete) )

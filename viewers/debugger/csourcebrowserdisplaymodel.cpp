@@ -24,11 +24,34 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int idx;
    unsigned int addr;
+   unsigned int absAddr;
+   CMarker& markers = C6502::MARKERS();
+   MarkerSetInfo* pMarker;
 
    if (!index.isValid())
       return QVariant();
 
    addr = pasm_get_source_addr_from_linenum(index.row()+1);
+
+   if ( (role == Qt::BackgroundRole) && (index.column() == 0) )
+   {
+      absAddr = CROM::ABSADDR(addr);
+      for ( idx = 0; idx < markers.GetNumMarkers(); idx++ )
+      {
+         pMarker = markers.GetMarker(idx);
+         if ( (pMarker->state == eMarkerSet_Started) ||
+              (pMarker->state == eMarkerSet_Complete) )
+         {
+            if ( (absAddr >= pMarker->startAbsAddr) &&
+                 (absAddr <= pMarker->endAbsAddr) )
+            {
+               return QColor(pMarker->red,pMarker->green,pMarker->blue);
+            }
+         }
+      }
+      return QVariant();
+   }
+
    if ((role == Qt::DecorationRole) && (index.column() == 0))
    {
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )

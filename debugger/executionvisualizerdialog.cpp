@@ -48,6 +48,7 @@ void ExecutionVisualizerDialog::hideEvent(QHideEvent *event)
 
 void ExecutionVisualizerDialog::renderData()
 {
+   C6502::RENDEREXECUTIONVISUALIZER();
    renderer->updateGL ();
 }
 

@@ -88,6 +88,7 @@ void CHRROMDisplayDialog::renderData()
 
     if ( m_usePPU )
     {
+       CPPU::RENDERCHRMEM();
        renderer->updateGL ();
     }
     else

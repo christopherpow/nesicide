@@ -342,17 +342,30 @@ void CPPU::INCCYCLE(void)
 
 void CPPU::EMULATE(void)
 {
+   // Only do 6502 stuff if the cycle-stealing DMA is not happening...
    if ( m_curCycles > 0 )
    {
       if ( m_mode == MODE_NTSC )
       {
          C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );
-         m_curCycles %= PPU_CPU_RATIO_NTSC;
+
+         // Check cycles available again just incase the emulated
+         // 6502 instruction caused a cycle-stealing DMA operation...
+         if ( m_curCycles > 0 )
+         {
+            m_curCycles %= PPU_CPU_RATIO_NTSC;
+         }
       }
       else
-      {
+      {         
+         // Check cycles available again just incase the emulated
+         // 6502 instruction caused a cycle-stealing DMA operation...
          C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_PAL );
-         m_curCycles %= PPU_CPU_RATIO_PAL;
+
+         if ( m_curCycles > 0 )
+         {
+            m_curCycles %= PPU_CPU_RATIO_PAL;
+         }
       }
    }
 }
@@ -1040,7 +1053,8 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          }
 
          // Steal CPU cycles...
-         m_curCycles -= (512*3*CPU_CYCLE_ADJUST); // 512 CPU cycles * 3 PPU cycles per CPU
+         // 512 CPU cycles * 3 PPU cycles per CPU
+         STEALCYCLES(512*3*CPU_CYCLE_ADJUST);
       }
    }
 }
@@ -1245,6 +1259,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
                      spriteColorIdx = ((pSprite->patternData1>>(7-idx2))&0x01)|((((pSprite->patternData2>>(7-idx2))&0x01)<<1) );
                   }
                   spriteColorIdx |= (pSprite->attribData<<2);
+
+                  if ( !(spriteColorIdx&0x3) ) spriteColorIdx = 0;
+
                   if ( spriteColorIdx&0x3 )
                   {
                      // Check for sprite selected event breakpoint...
@@ -1261,6 +1278,8 @@ void CPPU::RENDERSCANLINE ( int scanline )
             PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
             bkgndColorIdx = (a|b1|(b2<<1));
 
+            if ( !(bkgndColorIdx&0x3) ) bkgndColorIdx = 0;
+
             // Sprite/background pixel rendering determination...
             if ( (pSelectedSprite) &&
                  ((!(pSelectedSprite->spriteBehind)) ||
@@ -1271,8 +1290,6 @@ void CPPU::RENDERSCANLINE ( int scanline )
                // Check for sprite rendering event breakpoint...
                CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSprite->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
 
-               if ( !(spriteColorIdx&0x3) ) spriteColorIdx = 0;
-
                // Draw sprite...
                *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
@@ -1282,8 +1299,6 @@ void CPPU::RENDERSCANLINE ( int scanline )
             {
                if ( (idxx>=startBkgnd) && (rPPU(PPUMASK)&PPUMASK_RENDER_BKGND) )
                {
-                  if ( !(bkgndColorIdx&0x3) ) bkgndColorIdx = 0;
-
                   *pTV = CBasePalette::GetPaletteR(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                   *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                   *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
@@ -1311,8 +1326,6 @@ void CPPU::RENDERSCANLINE ( int scanline )
                  (!sprite0HitSet) &&
                  (bkgndColorIdx != 0) &&
                  (p < 255) )
-//                 (pSelectedSprite->spriteX+idx2 < 255) &&
-//                 ((tvSet&0x03) == 0x03) )
             {
                if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
                {

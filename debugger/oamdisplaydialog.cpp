@@ -48,6 +48,7 @@ void OAMDisplayDialog::hideEvent(QHideEvent *event)
 
 void OAMDisplayDialog::renderData()
 {
+   CPPU::RENDEROAM();
    renderer->updateGL ();
 }
 
