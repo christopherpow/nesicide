@@ -101,6 +101,9 @@ void CNES::RESET ( UINT mapper )
    CROM::SRAMOPCODEMASKCLR ();
    CROM::EXRAMOPCODEMASKCLR ();
 
+   // Zero visualizer markers...
+   C6502::MARKERS().ZeroAllMarkers();
+
    m_frame = 0;
    m_bReplay = false;
 }
@@ -177,6 +180,28 @@ void CNES::RUN ( unsigned char* joy )
    // Do VBLANK processing (scanlines 0-19)...
    m_tracer.AddSample ( CPPU::CYCLES(), eTracer_StartPPUFrame, eSource_PPU, 0, 0, 0 );
 
+   // Do scanline processing for scanlines 0 - 239 (the screen!)...
+   for ( idx = 0; idx < SCANLINES_VISIBLE; idx++ )
+   {
+      // Draw pretty pictures...
+      CPPU::RENDERSCANLINE ( idx );
+
+      // Update CHR memory inspector at appropriate scanline...
+      if ( idx == CPPU::GetPPUViewerScanline() )
+      {
+         CPPU::RENDERCHRMEM ();
+      }
+
+      // Update OAM inspector at appropriate scanline...
+      if ( idx == CPPU::GetOAMViewerScanline() )
+      {
+         CPPU::RENDEROAM ();
+      }
+   }
+
+   // Emulate PPU resting scanline...
+   CPPU::NONRENDERSCANLINES ( 1 );
+
    // Set VBLANK flag...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)|PPUSTATUS_VBLANK );
 
@@ -200,28 +225,6 @@ void CNES::RUN ( unsigned char* joy )
 
    // Pre-render scanline...
    CPPU::RENDERSCANLINE ( -1 );
-
-   // Do scanline processing for scanlines 0 - 239 (the screen!)...
-   for ( idx = 0; idx < SCANLINES_VISIBLE; idx++ )
-   {
-      // Draw pretty pictures...
-      CPPU::RENDERSCANLINE ( idx );
-
-      // Update CHR memory inspector at appropriate scanline...
-      if ( idx == CPPU::GetPPUViewerScanline() )
-      {
-         CPPU::RENDERCHRMEM ();
-      }
-
-      // Update OAM inspector at appropriate scanline...
-      if ( idx == CPPU::GetOAMViewerScanline() )
-      {
-         CPPU::RENDEROAM ();
-      }
-   }
-
-   // Emulate PPU resting scanline...
-   CPPU::NONRENDERSCANLINES ( 1 );
 
    // Do VBLANK processing (scanlines 0-19)...
    m_tracer.AddSample ( CPPU::CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
@@ -265,9 +268,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
       force = true;
    }
    else if ( (m_bStepPPUBreakpoint) &&
-             (target == eBreakInPPU) &&
-             (type == eBreakOnPPUEvent) &&
-             (event == PPU_EVENT_PIXEL_XY) )
+             (target == eBreakInPPU) )
    {
       m_bStepPPUBreakpoint = false;
       force = true;

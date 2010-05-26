@@ -49,8 +49,7 @@ void PPUInformationDialog::updateInformation()
    // Fix for scanline -1...
    if ( y > 239 )
    {
-      y = -1;
-      sprintf ( buffer, "%d", (char)y );
+      sprintf ( buffer, "PRE-RENDER" );
    }
    else
    {
@@ -60,6 +59,9 @@ void PPUInformationDialog::updateInformation()
 
    sprintf ( buffer, "%d", CPPU::_FRAME() );
    ui->frameNumber->setText(buffer);
+
+   sprintf ( buffer, "%d", CPPU::CYCLES() );
+   ui->cycleNumber->setText(buffer);
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )

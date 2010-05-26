@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
+    <width>333</width>
     <height>300</height>
    </rect>
   </property>
@@ -151,7 +151,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -327,12 +327,21 @@
        <property name="text">
         <string>Add</string>
        </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QPushButton" name="removeButton">
        <property name="text">
         <string>Remove</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -341,12 +350,18 @@
        <property name="text">
         <string>Modify</string>
        </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item row="1" column="5">
       <widget class="QPushButton" name="endisButton">
        <property name="text">
         <string>Enable/Disable</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -472,11 +487,19 @@
   <tabstop>type</tabstop>
   <tabstop>addr1</tabstop>
   <tabstop>addr2</tabstop>
-  <tabstop>data2</tabstop>
   <tabstop>reg</tabstop>
   <tabstop>bitfield</tabstop>
   <tabstop>event</tabstop>
+  <tabstop>eventData1</tabstop>
+  <tabstop>eventData2</tabstop>
   <tabstop>condition</tabstop>
+  <tabstop>data1</tabstop>
+  <tabstop>data2</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>removeButton</tabstop>
+  <tabstop>modifyButton</tabstop>
+  <tabstop>endisButton</tabstop>
+  <tabstop>tableView</tabstop>
  </tabstops>
  <resources/>
  <connections/>

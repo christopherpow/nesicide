@@ -69,6 +69,7 @@ void CHRROMDisplayDialog::showEvent(QShowEvent *event)
 {
    QDialog::showEvent(event);
    CPPU::EnableCHRMEMInspector(true);
+   renderData();
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent *event)
@@ -86,6 +87,8 @@ void CHRROMDisplayDialog::renderData()
     unsigned char colorIdx;
     QColor color[4];
 
+   if ( this->isVisible() )
+   {
     if ( m_usePPU )
     {
        CPPU::RENDERCHRMEM();
@@ -121,6 +124,7 @@ void CHRROMDisplayDialog::renderData()
            }
        }
     }
+   }
 }
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()

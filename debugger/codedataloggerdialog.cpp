@@ -39,6 +39,7 @@ void CodeDataLoggerDialog::changeEvent(QEvent *e)
 void CodeDataLoggerDialog::showEvent(QShowEvent *event)
 {
    QDialog::showEvent(event);
+   renderData();
 }
 
 void CodeDataLoggerDialog::hideEvent(QHideEvent *event)
@@ -48,17 +49,19 @@ void CodeDataLoggerDialog::hideEvent(QHideEvent *event)
 
 void CodeDataLoggerDialog::renderData()
 {
-   switch ( ui->displaySelect->currentIndex() )
+   if ( this->isVisible() )
    {
-      case 0:
-         C6502::RENDERCODEDATALOGGER();
-      break;
-      case 1:
-         CPPU::RENDERCODEDATALOGGER();
-      break;
+      switch ( ui->displaySelect->currentIndex() )
+      {
+         case 0:
+            C6502::RENDERCODEDATALOGGER();
+         break;
+         case 1:
+            CPPU::RENDERCODEDATALOGGER();
+         break;
+      }
+      renderer->updateGL ();
    }
-
-   renderer->updateGL ();
 }
 
 CodeDataLoggerDialog::~CodeDataLoggerDialog()

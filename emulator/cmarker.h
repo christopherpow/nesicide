@@ -3,6 +3,8 @@
 
 #define MAX_MARKER_SETS 8
 
+#define MARKER_NOT_MARKED 0xFFFFFFFF
+
 typedef enum
 {
    eMarkerSet_Invalid = 0,
@@ -31,6 +33,7 @@ public:
    int AddMarker(unsigned int absAddr);
    int FindInProgressMarker(void);
    void ClearAllMarkers(void);
+   void ZeroAllMarkers(void);
    void CompleteMarker(int marker, unsigned int absAddr);
    void UpdateMarkers(unsigned int absAddr, unsigned int cycle);
 

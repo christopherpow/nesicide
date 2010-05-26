@@ -78,18 +78,12 @@ void CNESEmulatorRenderer::setBGColor(QColor clr)
 
 void CNESEmulatorRenderer::resizeGL(int width, int height)
 {
-   // First determine the scale factor (ratio), and the zoom factor (reverseRatio)
-   float ratio, zoomFactor;
    QRect actualSize;
    if (width >= ((float)height * (256.0f / 240.0f)))
    {
-      // The screen size is determined by the max height
-      ratio = ((float)height / 240.0f);
-      zoomFactor = (240.0f / (float)height);
-
       // The top and bottom are known since it fills the screen
       actualSize.setTop(0);
-      actualSize.setBottom(240); // We clip the last 16 pixels as they don't matter
+      actualSize.setHeight(240); // We clip the last 16 pixels as they don't matter
 
       // Determine the left offset
       actualSize.setLeft(-(((240.0f * ((float)width / (float)height)) - 256.0f) / 2.0f));
@@ -98,13 +92,9 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
       actualSize.setWidth(240.0f * ((float)width / (float)height));
 
    } else {
-      // The screen size is determined by the max width
-      ratio = 1;
-      zoomFactor = (256.0f / (float)height);
-
       // The left and right are known since it fills the screen
       actualSize.setLeft(0);
-      actualSize.setRight(256);
+      actualSize.setWidth(256);
 
       // Determine the top offset
       actualSize.setTop(-(((256.0f * ((float)height / (float)width)) - 240.0f) / 2.0f));

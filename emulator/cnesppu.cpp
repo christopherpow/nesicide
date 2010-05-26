@@ -31,6 +31,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+#define GARBAGE_SPRITE_FETCH 0xFF
+
 // PPU Registers
 static CBitfieldData* tblPPUCTRLBitfields [] =
 {
@@ -213,8 +215,6 @@ unsigned char  CPPU::m_ppuReadLatch2007 = 0x00;
 unsigned char  CPPU::m_PPUreg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 unsigned char  CPPU::m_PPUoam [] = { 0x00, };
 unsigned char  CPPU::m_ppuScrollX = 0x00;
-bool           CPPU::m_mirrorVert = false;
-bool           CPPU::m_mirrorHoriz = false;
 int            CPPU::m_oneScreen = -1;
 bool           CPPU::m_extraVRAM = false;
 
@@ -234,7 +234,7 @@ bool           CPPU::m_bOAMInspector = false;
 char*          CPPU::m_pNameTableInspectorTV = NULL;
 bool           CPPU::m_bNameTableInspector = false;
 
-unsigned char  CPPU::m_frame = 0;
+unsigned int   CPPU::m_frame = 0;
 int            CPPU::m_curCycles = 0;
 SpriteBuffer     CPPU::m_spriteBuffer;
 BackgroundBuffer CPPU::m_bkgndBuffer;
@@ -811,10 +811,13 @@ UINT CPPU::RENDER ( UINT addr, char target )
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, data );
 
+   // Run machine...
+   EMULATE();
+
    return data;
 }
 
-void CPPU::GARBAGE ( char target )
+void CPPU::GARBAGE ( char target, UINT addr )
 {
    CNES::TRACER()->AddGarbageFetch ( m_cycles, target );
 
@@ -824,6 +827,9 @@ void CPPU::GARBAGE ( char target )
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
+
+   // Run machine...
+   EMULATE();
 }
 
 void CPPU::EXTRA ()
@@ -835,6 +841,9 @@ void CPPU::EXTRA ()
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
+
+   // Run machine...
+   EMULATE();
 }
 
 void CPPU::RESET ( void )
@@ -1074,8 +1083,6 @@ void CPPU::SCANLINESTART ( void )
 
 void CPPU::MIRROR ( int oneScreen, bool vert, bool extraVRAM )
 {
-   m_mirrorVert = vert;
-   m_mirrorHoriz = !vert;
    m_oneScreen = oneScreen;
    m_extraVRAM = extraVRAM;
 
@@ -1087,11 +1094,11 @@ void CPPU::MIRROR ( int oneScreen, bool vert, bool extraVRAM )
    {
       MIRROR ( 0, 1, 2, 3 );
    }
-   else if ( m_mirrorVert )
+   else if ( vert )
    {
       MIRRORVERT ();
    }
-   else if ( m_mirrorHoriz )
+   else
    {
       MIRRORHORIZ ();
    }
@@ -1099,15 +1106,11 @@ void CPPU::MIRROR ( int oneScreen, bool vert, bool extraVRAM )
 
 void CPPU::MIRRORVERT ( void )
 {
-   m_mirrorVert = true;
-   m_mirrorHoriz = false;
    MIRROR ( 0, 1, 0, 1 );
 }
 
 void CPPU::MIRRORHORIZ ( void )
 {
-   m_mirrorVert = false;
-   m_mirrorHoriz = true;
    MIRROR ( 0, 0, 1, 1 );
 }
 
@@ -1117,8 +1120,6 @@ void CPPU::MIRROR ( int nt1, int nt2, int nt3, int nt4 )
    nt2 &= 0x3;
    nt3 &= 0x3;
    nt4 &= 0x3;
-   m_mirrorVert = false;
-   m_mirrorHoriz = false;
    Move1KBank ( 0x8, &(m_PPUmemory[(nt1<<UPSHIFT_1KB)]) );
    Move1KBank ( 0x9, &(m_PPUmemory[(nt2<<UPSHIFT_1KB)]) );
    Move1KBank ( 0xA, &(m_PPUmemory[(nt3<<UPSHIFT_1KB)]) );
@@ -1164,7 +1165,7 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
          INCCYCLE();
          EMULATE();
 
-         // Check for breakpoint...
+         // Check for breakpoints...
          CNES::CHECKBREAKPOINT ( eBreakInPPU );
       }
    }
@@ -1400,25 +1401,21 @@ void CPPU::RENDERSCANLINE ( int scanline )
    GATHERBKGND ();
 
    // Finish off scanline render clock cycles...
-   GARBAGE ( eTarget_NameTable );
-   EMULATE();
-   GARBAGE ( eTarget_NameTable );
-   EMULATE();
+   GARBAGE ( eTarget_NameTable, 0 );
+   GARBAGE ( eTarget_NameTable, 0 );
 
    // If this is the non-render scanline on an odd frame and the PPU is on
    if ( scanline >= 0 )
    {
       // account for extra clock (341)
       EXTRA ();
-      EMULATE();
    }
    else
    {
-      if ( (m_mode == MODE_NTSC) && ((m_frame) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND)))) )
+      if ( (m_mode == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND)))) )
       {
          // account for extra clock (341)
          EXTRA ();
-         EMULATE();
       }
    }
 }
@@ -1437,14 +1434,10 @@ void CPPU::GATHERBKGND ( void )
    m_bkgndBuffer.data[0].attribData = m_bkgndBuffer.data[1].attribData;
 
    patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
-   EMULATE();
    mapperfunc[CROM::MAPPER()].latch ( patternIdx );
    pBkgnd->attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
-   EMULATE();
    pBkgnd->patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
-   EMULATE();
    pBkgnd->patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
-   EMULATE();
 
    if ( (tileY&0x0002) == 0 )
    {
@@ -1569,17 +1562,13 @@ void CPPU::GATHERSPRITES ( int scanline )
          }
 
          // Garbage nametable fetches according to Samus Aran...
-         GARBAGE ( eTarget_NameTable );
-         EMULATE();
-         GARBAGE ( eTarget_NameTable );
-         EMULATE();
+         GARBAGE ( eTarget_NameTable, 0 );
+         GARBAGE ( eTarget_NameTable, 0 );
 
          // Get sprite's pattern data...
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
-         EMULATE();
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
-         EMULATE();
       }
 
       // Is the sprite on this scanline?
@@ -1632,14 +1621,10 @@ void CPPU::GATHERSPRITES ( int scanline )
    for ( sprite = m_spriteBuffer.count; sprite < 8; sprite++ )
    {
       // Garbage nametable fetches according to Samus Aran...
-      GARBAGE ( eTarget_NameTable );
-      EMULATE();
-      GARBAGE ( eTarget_NameTable );
-      EMULATE();
-      GARBAGE ( eTarget_PatternMemory );
-      EMULATE();
-      GARBAGE ( eTarget_PatternMemory );
-      EMULATE();
+      GARBAGE ( eTarget_NameTable, 0 );
+      GARBAGE ( eTarget_NameTable, 0 );
+      GARBAGE ( eTarget_PatternMemory, spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+(idx1&0x7) );
+      GARBAGE ( eTarget_PatternMemory, spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+(idx1&0x7)+PATTERN_SIZE );
    }
 
    // Order sprites by priority for rendering...

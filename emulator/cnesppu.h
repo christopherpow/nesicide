@@ -156,7 +156,7 @@ public:
    static void STORE ( UINT addr, unsigned char data, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
    static UINT LOAD ( UINT addr, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
    static UINT RENDER ( UINT addr, char source );
-   static void GARBAGE ( char target );
+   static void GARBAGE ( char target, UINT addr );
    static void EXTRA ();
    static inline void _MEM ( UINT addr, unsigned char data ) { STORE(addr,data,0,0,false); }
    static inline UINT _MEM ( UINT addr ) { return LOAD(addr,0,0,false); }
@@ -181,8 +181,6 @@ public:
    static void MIRRORVERT ( void );
    static void MIRRORHORIZ ( void );
    static void MIRROR ( int nt1, int nt2, int nt3, int nt4 );
-   static inline bool VERTMIRROR ( void ) { return m_mirrorVert; }
-   static inline bool HORIZMIRROR ( void ) { return m_mirrorHoriz; }
    static inline bool FOURSCREEN ( void ) { return m_extraVRAM; }
 
    static inline unsigned short _SCROLLX ( int x, int y ) { return *(*(m_2005x+x)+y); }
@@ -221,7 +219,7 @@ public:
    static inline unsigned int CYCLES ( void ) { return m_cycles; }
    static inline void INCCYCLE ( void );
    static inline void STEALCYCLES ( int cycles ) { m_curCycles -= cycles; }
-   static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame = !m_frame; }
+   static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame++; }
 
    static void SetPPUViewerScanline ( UINT scanline ) { m_iPPUViewerScanline = scanline; }
    static UINT GetPPUViewerScanline ( void ) { return m_iPPUViewerScanline; }
@@ -251,15 +249,13 @@ protected:
    static unsigned char  m_PPUreg [ NUM_PPU_REGS ];
    static unsigned char  m_PPUoam [ NUM_OAM_REGS ];
    static unsigned char  m_ppuScrollX;
-   static bool           m_mirrorVert;
-   static bool           m_mirrorHoriz;
    static int            m_oneScreen;
    static bool           m_extraVRAM;
 
    static CCodeDataLogger m_logger;
    static char*          m_pCodeDataLoggerInspectorTV;
    static unsigned int   m_cycles;
-   static unsigned char  m_frame;
+   static unsigned int   m_frame;
    static int            m_curCycles;
    static int            m_mode;
 

@@ -208,6 +208,10 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>tableView</tabstop>
+  <tabstop>displayMode</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

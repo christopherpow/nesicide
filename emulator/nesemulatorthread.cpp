@@ -91,11 +91,11 @@ void NESEmulatorThread::loadCartridge()
    if ( (m_pCartridge->getMirrorMode() == GameMirrorMode::NoMirroring) ||
         (m_pCartridge->getMirrorMode() == GameMirrorMode::HorizontalMirroring) )
    {
-     CPPU::MIRRORHORIZ ();
+      CPPU::MIRRORHORIZ ();
    }
    else if ( m_pCartridge->getMirrorMode() == GameMirrorMode::VerticalMirroring )
    {
-     CPPU::MIRRORVERT ();
+      CPPU::MIRRORVERT ();
    }
 
    // CPTODO: implement mapper reloading...project reload should load ROM in saved state.

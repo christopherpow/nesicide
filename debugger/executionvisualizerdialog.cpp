@@ -39,6 +39,7 @@ void ExecutionVisualizerDialog::changeEvent(QEvent *e)
 void ExecutionVisualizerDialog::showEvent(QShowEvent *event)
 {
    QDialog::showEvent(event);
+   renderData();
 }
 
 void ExecutionVisualizerDialog::hideEvent(QHideEvent *event)
@@ -48,8 +49,11 @@ void ExecutionVisualizerDialog::hideEvent(QHideEvent *event)
 
 void ExecutionVisualizerDialog::renderData()
 {
-   C6502::RENDEREXECUTIONVISUALIZER();
-   renderer->updateGL ();
+   if ( this->isVisible() )
+   {
+      C6502::RENDEREXECUTIONVISUALIZER();
+      renderer->updateGL ();
+   }
 }
 
 ExecutionVisualizerDialog::~ExecutionVisualizerDialog()

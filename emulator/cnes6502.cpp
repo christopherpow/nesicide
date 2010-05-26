@@ -595,15 +595,15 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
    {
       for ( idxx = 0; idxx < 512; idxx++ )
       {
-         if ( (idxx < 256) && (idxy > 22) && (idxy < 262) )
+         if ( (idxx < 256) && (idxy < 240) )
          {
             // Gray screen outline...
 //            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 165;
 //            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 165;
 //            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 165;
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = CPPU::TV()[((idxy-23) * 256 * 3) + (idxx * 3) + 0];
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = CPPU::TV()[((idxy-23) * 256 * 3) + (idxx * 3) + 1];
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = CPPU::TV()[((idxy-23) * 256 * 3) + (idxx * 3) + 2];
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = CPPU::TV()[(idxy * 256 * 3) + (idxx * 3) + 0];
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = CPPU::TV()[(idxy * 256 * 3) + (idxx * 3) + 1];
+            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = CPPU::TV()[(idxy * 256 * 3) + (idxx * 3) + 2];
          }
          else if ( (idxx < 341) && (idxy < 262) )
          {
@@ -629,8 +629,13 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
                pMarker = m_marker.GetMarker(marker);
                if ( ((pMarker->state == eMarkerSet_Started) ||
                     (pMarker->state == eMarkerSet_Complete)) &&
+                    (pMarker->endCycle != MARKER_NOT_MARKED) &&
+                    (((pMarker->startCycle <= pMarker->endCycle) &&
                     (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) &&
-                    (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle) )
+                    (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)) ||
+                    ((pMarker->startCycle > pMarker->endCycle) &&
+                    ((VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->startCycle) ||
+                    (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->endCycle)))) )
                {
                   // Marker color!
                   m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = pMarker->red;
