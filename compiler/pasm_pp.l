@@ -1150,7 +1150,7 @@ void output_text ( char* text, int length )
 
 void backup_output_text ( void )
 {
-   while ( (output_length > 0) && (output_length >= output_marker) &&
+   while ( (output_length > 0) && (output_length > output_marker) &&
            (output_buffer[output_length] != '\r') &&
            (output_buffer[output_length] != '\n') )
    {

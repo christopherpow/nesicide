@@ -384,6 +384,11 @@ void output_binary( char** buffer, int* size );
 
 extern int recovered_linenum;
 
+// Flag to indicate whether or not ORG directive should
+// behave like PAD.  The first ORG directive sets the PC.
+// Subsequent ORG directives pad to the new PC.
+int org_found = 0;
+
 // Error generation.  All parsing errors are constructed into
 // the global buffer and then added to the list of errors.
 char e [ 256 ];
@@ -725,35 +730,67 @@ directive: INCBIN QUOTEDSTRING {
 // Directive .org <addr> sets the current segment's address to <addr>.  The
 // next emitted intermediate representation node will have <addr> as its address.
            | ORIGIN DIGITS TERM {
-   if ( $2->number >= 0 )
+   int j;
+
+   // If we've already found an ORG, treat this one like a PAD.
+   if ( org_found > 0 )
    {
-      if ( $2->number >= cur->addr )
+      // NOTE: This code was copied verbatim from ADVANCE handling.
+      if ( cur->addr <= $2->number )
       {
-         set_binary_addr ( $2->number );
+         j = ($2->number-cur->addr);
+         emit_bin_space ( j, fillValue );
          emit_fix ( $2->number );
       }
       else
       {
-         sprintf ( e, "%s: new address is behind current address", $1 );
+         sprintf ( e, "%s: illegal negative offset based on current address", $1 );
          asmerror ( e );
       }
    }
    else
    {
-      sprintf ( e, "%s: illegal negative value", $1 );
-      asmerror ( e );
+      // We've found at least one ORG, future ORGs
+      // should behave like PADs.
+      org_found = 1;
+
+      if ( $2->number >= 0 )
+      {
+         if ( $2->number >= cur->addr )
+         {
+            set_binary_addr ( $2->number );
+            emit_fix ( $2->number );
+         }
+         else
+         {
+            sprintf ( e, "%s: new address is behind current address", $1 );
+            asmerror ( e );
+         }
+      }
+      else
+      {
+         sprintf ( e, "%s: illegal negative value", $1 );
+         asmerror ( e );
+      }
    }
 }
 // Directive .org <addr>, <value> sets the current segment's address to <addr> and
 // pads the space with <value> if this is not the first .org.  The
 // next emitted intermediate representation node will have <addr> as its address.
            | ORIGIN DIGITS ',' DIGITS TERM {
+   // We've found at least one ORG, future ORGs
+   // should behave like PADs.
+   org_found = 1;
+
 // CPTODO: implement
 }
 // Directive .base <expression> creates a new segment and sets its address to <expression>.
 // The next emitted intermediate representation node will have <expression> as its address.
            | BASE expr TERM {
    unsigned char evaluated;
+
+   // This is just like an ORG in most respects.
+   org_found = 1;
 
    reduce_expression ( $2, NULL );
 
@@ -859,10 +896,10 @@ directive: INCBIN QUOTEDSTRING {
 }
 // Directive .dsb <length>, <value> creates a space <length> bytes long filled
 // with <value> at the current position within the intermediate representation.
-           | FILLSPACEB expr ',' DIGITS TERM {
+           | FILLSPACEB DIGITS ',' expr TERM {
    unsigned char evaluated;
 
-   reduce_expression ( $2, NULL );
+   reduce_expression ( $4, NULL );
 
    // emit pure placeholder label...
    emit_label ( 0, 0 );
@@ -875,13 +912,13 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
+   evaluate_expression ( (*ir_tail), $4, &evaluated, 0, NULL );
    if ( evaluated )
    {
-      if ( $2->vtype = value_is_int )
+      if ( $4->vtype == value_is_int )
       {
          // Fixed-size block, emit a size label...
-         emit_label ( $2->value.ival, $4->number );
+         emit_label ( $2->number, $4->value.ival );
       }
       else
       {
@@ -893,14 +930,14 @@ directive: INCBIN QUOTEDSTRING {
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
+      evaluate_expression ( (*ir_tail), $4, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
-         if ( $2->vtype = value_is_int )
+         if ( $4->vtype == value_is_int )
          {
             // Variable-size block, do a .pad...
-            emit_bin_space ( $2->value.ival, $4->number );
+            emit_bin_space ( $2->number, $4->value.ival );
             emit_fix ( 0/* not used, anyway */ );
          }
          else
@@ -977,10 +1014,10 @@ directive: INCBIN QUOTEDSTRING {
 }
 // Directive .dsw <length>, <value> creates a space <length> words long filled
 // with <value> at the current position within the intermediate representation.
-           | FILLSPACEW expr ',' DIGITS TERM {
+           | FILLSPACEW DIGITS ',' expr TERM {
    unsigned char evaluated;
 
-   reduce_expression ( $2, NULL );
+   reduce_expression ( $4, NULL );
 
    // emit pure placeholder label...
    emit_label ( 0, 0 );
@@ -993,13 +1030,13 @@ directive: INCBIN QUOTEDSTRING {
    // we can do given that our instruction stream might
    // shift due to promotions later on.
    evaluated = 1;
-   evaluate_expression ( (*ir_tail), $2, &evaluated, 0, NULL );
+   evaluate_expression ( (*ir_tail), $4, &evaluated, 0, NULL );
    if ( evaluated )
    {
-      if ( $2->vtype == value_is_int )
+      if ( $4->vtype == value_is_int )
       {
          // Fixed-size block, emit a size label...
-         emit_label ( $2->value.ival<<1, $4->number );
+         emit_label ( $2->number, $4->value.ival<<1 );
       }
       else
       {
@@ -1011,14 +1048,14 @@ directive: INCBIN QUOTEDSTRING {
    {
       // Try to evaluate and fix the '$' label reference...
       evaluated = 1;
-      evaluate_expression ( (*ir_tail), $2, &evaluated, FIX, NULL );
+      evaluate_expression ( (*ir_tail), $4, &evaluated, FIX, NULL );
 
       if ( evaluated )
       {
-         if ( $2->vtype == value_is_int )
+         if ( $4->vtype == value_is_int )
          {
             // Variable-size block, do a .pad...
-            emit_bin_space ( $2->value.ival<<1, $4->number );
+            emit_bin_space ( $2->number, $4->value.ival<<1 );
             emit_fix ( 0/* not used, anyway */ );
          }
          else
@@ -2041,6 +2078,8 @@ void initialize ( void )
    current_label = NULL;
 
    recovered_linenum = 0;
+
+   org_found = 0;
 
    if ( ftab )
    {
