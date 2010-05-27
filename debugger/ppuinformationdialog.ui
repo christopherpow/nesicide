@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>200</width>
-    <height>186</height>
+    <width>217</width>
+    <height>238</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -96,6 +96,26 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>PPU Address:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="ppuAddr"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>PPU Read Latch: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="ppuLatch"/>
    </item>
   </layout>
  </widget>

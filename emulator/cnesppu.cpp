@@ -211,7 +211,6 @@ unsigned short CPPU::m_ppuAddr = 0x0000;
 unsigned char  CPPU::m_ppuAddrIncrement = 1;
 unsigned short CPPU::m_ppuAddrLatch = 0x0000;
 unsigned char  CPPU::m_ppuReadLatch = 0x00;
-unsigned char  CPPU::m_ppuReadLatch2007 = 0x00;
 unsigned char  CPPU::m_PPUreg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 unsigned char  CPPU::m_PPUoam [] = { 0x00, };
 unsigned char  CPPU::m_ppuScrollX = 0x00;
@@ -867,7 +866,6 @@ void CPPU::RESET ( void )
    m_ppuAddrLatch = 0x0000;
    m_ppuAddrIncrement = 1;
    m_ppuReadLatch = 0x00;
-   m_ppuReadLatch2007 = 0x00;
    m_ppuRegByte = 0;
 }
 
@@ -904,20 +902,22 @@ UINT CPPU::PPU ( UINT addr )
       }
       else if ( fixAddr == PPUDATA_REG )
       {
-         m_ppuReadLatch = m_ppuReadLatch2007;
          oldPpuAddr = m_ppuAddr;
 
          m_ppuAddr += m_ppuAddrIncrement;
 
          if ( oldPpuAddr < 0x3F00 )
          {
-            m_ppuReadLatch2007 = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
-
             data = m_ppuReadLatch;
+
+            m_ppuReadLatch = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
          }
          else
          {
             data = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
+
+            // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
+            m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
          }
 
          // Check for breakpoint...
@@ -956,8 +956,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
    unsigned short fixAddr;
    unsigned short oldPpuAddr;
    int dma;
-
-   m_ppuReadLatch = data;
 
    if ( addr < 0x4000 )
    {

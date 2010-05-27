@@ -175,6 +175,7 @@ public:
    static inline UINT OAM ( UINT oam, UINT sprite ) { return *(m_PPUoam+(sprite*OAM_SIZE)+oam); }
    static inline void OAM ( UINT oam, UINT sprite, unsigned char data ) { *(m_PPUoam+(sprite*OAM_SIZE)+oam) = data; }
    static inline unsigned short _PPUADDR ( void ) { return m_ppuAddr; }
+   static inline unsigned char _PPULATCH ( void ) { return m_ppuReadLatch; }
    static inline void _PPU ( UINT addr, unsigned char data ) { *(m_PPUreg+(addr&0x0007)) = data; }
    static inline UINT _PPU ( UINT addr ) { return *(m_PPUreg+(addr&0x0007)); }
    static void MIRROR ( int oneScreen = -1, bool vert = true, bool extraVRAM = false );
@@ -245,7 +246,6 @@ protected:
    static unsigned short m_ppuAddrLatch;
    static unsigned char  m_ppuAddrIncrement;
    static unsigned char  m_ppuReadLatch;
-   static unsigned char  m_ppuReadLatch2007;
    static unsigned char  m_PPUreg [ NUM_PPU_REGS ];
    static unsigned char  m_PPUoam [ NUM_OAM_REGS ];
    static unsigned char  m_ppuScrollX;

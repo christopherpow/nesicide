@@ -63,6 +63,12 @@ void PPUInformationDialog::updateInformation()
    sprintf ( buffer, "%d", CPPU::CYCLES() );
    ui->cycleNumber->setText(buffer);
 
+   sprintf ( buffer, "$%04X", CPPU::_PPUADDR() );
+   ui->ppuAddr->setText(buffer);
+
+   sprintf ( buffer, "$%02X", CPPU::_PPULATCH() );
+   ui->ppuLatch->setText(buffer);
+
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
