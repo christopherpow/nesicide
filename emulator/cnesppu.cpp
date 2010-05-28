@@ -341,6 +341,9 @@ void CPPU::INCCYCLE(void)
 
 void CPPU::EMULATE(void)
 {
+   // Keep track of remaining cycle count before manipulations...
+   int storedCyclesNotExecuted = m_curCycles;
+
    // Only do 6502 stuff if the cycle-stealing DMA is not happening...
    if ( m_curCycles > 0 )
    {
@@ -354,6 +357,11 @@ void CPPU::EMULATE(void)
          {
             m_curCycles %= PPU_CPU_RATIO_NTSC;
          }
+         else
+         {
+            // Give back the unused cycles...
+            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_NTSC);
+         }
       }
       else
       {         
@@ -364,6 +372,11 @@ void CPPU::EMULATE(void)
          if ( m_curCycles > 0 )
          {
             m_curCycles %= PPU_CPU_RATIO_PAL;
+         }
+         else
+         {
+            // Give back the unused cycles...
+            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_PAL);
          }
       }
    }
@@ -1164,7 +1177,7 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
          EMULATE();
 
          // Check for breakpoints...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU );
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
       }
    }
 }
@@ -1233,6 +1246,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
             // Check for PPU pixel-at breakpoint...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
+
+            // Check for PPU cycle breakpoint...
+            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
 
             // Run sprite multiplexer to figure out what, if any,
             // sprite pixel to draw here...

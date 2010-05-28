@@ -238,13 +238,6 @@ void CNES::RUN ( unsigned char* joy )
    // Update NameTable inspector...
    CPPU::RENDERNAMETABLE ();
 
-   // Update Code/Data Logger inspectors...
-   C6502::RENDERCODEDATALOGGER();
-   CPPU::RENDERCODEDATALOGGER();
-
-   // Update Execution Visualizer inspector...
-   C6502::RENDEREXECUTIONVISUALIZER();
-
    // Increment PPU frame counter...
    m_frame++;
 }
@@ -268,7 +261,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
       force = true;
    }
    else if ( (m_bStepPPUBreakpoint) &&
-             (target == eBreakInPPU) )
+             (target == eBreakInPPU) &&
+             (type == eBreakOnPPUCycle) )
    {
       m_bStepPPUBreakpoint = false;
       force = true;

@@ -97,7 +97,7 @@ void CMarker::UpdateMarkers(unsigned int absAddr, unsigned int cycle)
             m_marker [ marker ].startCycle = cycle;
             m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
          }
-         else if ( m_marker[marker].endAbsAddr == absAddr )
+         if ( m_marker[marker].endAbsAddr == absAddr )
          {
             m_marker [ marker ].endCycle = cycle;
          }

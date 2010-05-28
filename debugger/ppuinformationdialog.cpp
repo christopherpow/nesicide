@@ -47,14 +47,7 @@ void PPUInformationDialog::updateInformation()
    ui->pixelX->setText(buffer);
 
    // Fix for scanline -1...
-   if ( y > 239 )
-   {
-      sprintf ( buffer, "PRE-RENDER" );
-   }
-   else
-   {
-      sprintf ( buffer, "%d", y );
-   }
+   sprintf ( buffer, "%d", y );
    ui->pixelY->setText(buffer);
 
    sprintf ( buffer, "%d", CPPU::_FRAME() );

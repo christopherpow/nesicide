@@ -31,10 +31,18 @@ enum
    NUM_PPU_EVENTS
 };
 
+#define SCANLINES_VISIBLE (240)
+#define SCANLINES_VBLANK_NTSC (20)
+#define SCANLINES_VBLANK_PAL (70)
+
 #define PPU_CYCLES_PER_SCANLINE 341
 #define CPU_CYCLE_ADJUST   5
 #define PPU_CPU_RATIO_NTSC 15
 #define PPU_CPU_RATIO_PAL  16
+
+#define CYCLE_TO_VISX(c) (c%PPU_CYCLES_PER_SCANLINE)
+#define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
+#define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
 
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
@@ -133,10 +141,6 @@ typedef struct _BackgroundBuffer
 #define wPPU(addr,data) { *(m_PPUreg+((addr)&0x0007)) = (data); }
 #define rPPUADDR() ( m_ppuAddr )
 #define rSCROLLX() ( m_ppuScrollX )
-
-#define CYCLE_TO_VISX(c) (c%PPU_CYCLES_PER_SCANLINE)
-#define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
-#define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
 
 class CPPU
 {

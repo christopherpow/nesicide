@@ -25,7 +25,9 @@ typedef enum
    eBreakOnAPUState,
    eBreakOnAPUEvent,
    eBreakOnMapperState,
-   eBreakOnMapperEvent
+   eBreakOnMapperEvent,
+   // The following breakpoint is not settable, it is internal only.
+   eBreakOnPPUCycle
 } eBreakpointType;
 
 typedef enum

@@ -392,9 +392,23 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          ui->bitfield->setCurrentIndex ( pBreakpoint->item2 );
       break;
       case eBreakpointItemEvent:
-         sprintf ( buffer, "%X", pBreakpoint->item1 );
+         if ( pBreakpoint->pEvent->GetElementRadix() == 16 )
+         {
+            sprintf ( buffer, "%X", pBreakpoint->item1 );
+         }
+         else
+         {
+            sprintf ( buffer, "%d", pBreakpoint->item1 );
+         }
          ui->eventData1->setText ( buffer );
-         sprintf ( buffer, "%X", pBreakpoint->item2 );
+         if ( pBreakpoint->pEvent->GetElementRadix() == 16 )
+         {
+            sprintf ( buffer, "%X", pBreakpoint->item2 );
+         }
+         else
+         {
+            sprintf ( buffer, "%d", pBreakpoint->item2 );
+         }
          ui->eventData2->setText ( buffer );
          ui->item1label->setVisible ( false );
          ui->eventData1->setVisible ( false );

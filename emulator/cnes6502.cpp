@@ -601,23 +601,23 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
 //            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 165;
 //            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 165;
 //            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 165;
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = CPPU::TV()[(idxy * 256 * 3) + (idxx * 3) + 0];
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = CPPU::TV()[(idxy * 256 * 3) + (idxx * 3) + 1];
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = CPPU::TV()[(idxy * 256 * 3) + (idxx * 3) + 2];
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 0];
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 1];
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 2];
          }
          else if ( (idxx < 341) && (idxy < 262) )
          {
             // Darker gray backdrop PPU-off time outline...
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 105;
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 105;
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 105;
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = 105;
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = 105;
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = 105;
          }
          else
          {
             // Black otherwise...
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 0;
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 0;
-            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 0;
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = 0;
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = 0;
+            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = 0;
          }
 
          // CPTODO: account for odd-frame cycle skip...
@@ -638,53 +638,14 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
                     (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->endCycle)))) )
                {
                   // Marker color!
-                  m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = pMarker->red;
-                  m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = pMarker->green;
-                  m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = pMarker->blue;
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = pMarker->red;
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = pMarker->green;
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = pMarker->blue;
                }
             }
          }
       }
    }
-#if 0
-      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
-      if ( cycleDiff > 199 ) cycleDiff = 199;
-
-      if ( pLogger->GetCount(idxx) )
-      {
-         if ( pLogger->GetType(idxx) == eLogger_DMA )
-         {
-            lcolor = dmaColor[pLogger->GetSource(idxx)];
-         }
-         else
-         {
-            lcolor = color[pLogger->GetType(idxx)];
-         }
-         if ( !lcolor.red() )
-         {
-            lcolor.setRed(lcolor.red()+cycleDiff);
-         }
-         if ( !lcolor.green() )
-         {
-            lcolor.setGreen(lcolor.green()+cycleDiff);
-         }
-         if ( !lcolor.blue() )
-         {
-            lcolor.setBlue(lcolor.blue()+cycleDiff);
-         }
-         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 0] = lcolor.red();
-         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 1] = lcolor.green();
-         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
-      }
-      else
-      {
-         // White
-         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 0] = 255;
-         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 1] = 255;
-         m_pExecutionVisualizerInspectorTV[(idxx * 3) + 2] = 255;
-      }
-   }
-#endif
 }
 
 void C6502::EMULATE ( int cycles )
@@ -791,13 +752,6 @@ unsigned char C6502::STEP ( void )
    // Execute
    pOpcodeStruct->pFn ();
 
-   // Check for IRQ assertion...
-   if ( m_irqAsserted )
-   {
-      // Execute IRQ handler...
-      IRQ();
-   }
-
    // Update Tracer
    CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
 
@@ -805,6 +759,13 @@ unsigned char C6502::STEP ( void )
    cycles += (*(pOpcode+3)); // use extra cycle indication from opcode execution
 
    m_cycles += cycles;
+
+   // Check for IRQ assertion...
+   if ( m_irqAsserted )
+   {
+      // Execute IRQ handler...
+      IRQ();
+   }
 
    return cycles;
 }
@@ -2865,6 +2826,9 @@ void C6502::IRQ ()
       wPC ( MAKE16(MEM(VECTOR_IRQ),MEM(VECTOR_IRQ+1)) );
       sI ();
 
+      m_curCycles -= IRQ_CYCLES;
+      m_cycles += IRQ_CYCLES;
+
       // Check for IRQ breakpoint...
       CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ);
    }
@@ -2881,6 +2845,9 @@ void C6502::NMI ()
       cB ();
       PUSH ( rF()|FLAG_MISC );
       wPC ( MAKE16(MEM(VECTOR_NMI),MEM(VECTOR_NMI+1)) );
+
+      m_curCycles -= NMI_CYCLES;
+      m_cycles += NMI_CYCLES;
 
       // Check for NMI breakpoint...
       CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI);

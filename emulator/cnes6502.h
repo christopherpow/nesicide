@@ -31,6 +31,9 @@ enum
 #define VECTOR_RESET 0xFFFC
 #define VECTOR_IRQ   0xFFFE
 
+#define NMI_CYCLES 7
+#define IRQ_CYCLES 7
+
 #define FLAG_C 0x01
 #define FLAG_Z 0x02
 #define FLAG_I 0x04
@@ -63,10 +66,6 @@ enum
 #define AM_POSTINDEXED_INDIRECT 11
 #define AM_RELATIVE             12
 #define NUM_ADDRESSING_MODES    13
-
-#define SCANLINES_VISIBLE (240)
-#define SCANLINES_VBLANK_NTSC (20)
-#define SCANLINES_VBLANK_PAL (70)
 
 #define MAKE16(lo,hi) (((lo&0xFF)|((hi&0xFF)<<8)))
 #define GETSIGNED8(data,op) ((char)((*(data+op))&0xFF))
