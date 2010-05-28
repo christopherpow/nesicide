@@ -298,11 +298,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         QDataStream fs(&fileIn);
 
         // Check the NES header
-        char nesHeader[5] = {'N', 'E', 'S', 0x1A, 0x00};
-        char nesTest[5] = {0, 0, 0, 0, 0};
-        for (int i=0; i<4; i++)
-            fs >> (qint8&)nesTest[i];
-        if (strcmp(nesHeader, nesTest))
+        char nesHeader[4] = {'N', 'E', 'S', 0x1A};
+        char nesTest[4] = {0, 0, 0, 0};
+        fs.readRawData(nesTest,4);
+        if (memcmp(nesHeader, nesTest,4))
         {
             // Header check failed, quit
             fileIn.close();
@@ -356,6 +355,12 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         qint8 romCB2;
         fs >> romCB2;
 
+        if ( romCB2&0xF0 )
+        {
+            romCB2 &= 0x0F;
+            QMessageBox::information(0, "Warning", "Invalid iNES header format.\nSave the project to fix.");
+        }
+
         // Extract the upper four bits of the mapper number
         m_pointerToCartridge->setMapperNumber(m_pointerToCartridge->getMapperNumber() | (romCB2 & 0xF0));
 
@@ -380,15 +385,14 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
                 fs >> skip;
         }
 
-        // Load the PRG-ROM banks (16kb at 0x4000 bytes)
+        // Load the PRG-ROM banks (16KB each)
         for (int bank=0; bank<numPrgRomBanks; bank++)
         {
             // Create the ROM bank and load in the binary data
             CPRGROMBank *romBank = new CPRGROMBank();
             romBank->set_indexOfPrgRomBank(
                     m_pointerToCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count());
-            for (int i=0; i<0x4000; i++)
-                fs >> romBank->get_pointerToBankData()[i];
+            fs.readRawData((char*)romBank->get_pointerToBankData(),0x4000);
 
             // Attach the rom bank to the rom banks object
             romBank->InitTreeItem(m_pointerToCartridge->getPointerToPrgRomBanks());
@@ -397,14 +401,13 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         }
 
-        // Load the CHR-ROM banks (8kb at 0x2000 bytes)
+        // Load the CHR-ROM banks (8KB each)
         for (int bank=0; bank<numChrRomBanks; bank++)
         {
             // Create the ROM bank and load in the binary data
             CCHRROMBank *romBank = new CCHRROMBank();
             romBank->bankID = m_pointerToCartridge->getPointerToChrRomBanks()->banks.count();
-            for (int i=0; i<0x2000; i++)
-                fs >> romBank->data[i];
+            fs.readRawData((char*)romBank->data,0x2000);
 
             // Attach the rom bank to the rom banks object
             romBank->InitTreeItem(m_pointerToCartridge->getPointerToChrRomBanks());

@@ -151,6 +151,8 @@ public:
    static void IRQ ();
    static void ASSERTIRQ ( char source );
    static void RELEASEIRQ ( char source );
+   static void ASSERTNMI ();
+   static void CHOKENMI () { m_nmiAsserted = false; }
    static void NMI ();
 
    static void ADC ( void );
@@ -310,6 +312,7 @@ public:
 protected:
    static bool            m_killed;
    static bool            m_irqAsserted;
+   static bool            m_nmiAsserted;
    static unsigned char   m_6502memory [ MEM_2KB ];
    static unsigned char   m_RAMopcodeMask [ MEM_2KB ];
    static char*           m_RAMdisassembly [ MEM_2KB ];

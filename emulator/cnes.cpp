@@ -207,7 +207,7 @@ void CNES::RUN ( unsigned char* joy )
 
    if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
    {
-      C6502::NMI ();
+      C6502::ASSERTNMI ();
    }
 
    // Emulate VBLANK non-render scanlines...

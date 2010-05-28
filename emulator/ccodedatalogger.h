@@ -7,8 +7,6 @@
 
 #include "cnesicidecommon.h"
 
-#define LOGGER_DEPTH MEM_8KB
-
 #define LAST_VALUE_LIST_LEN 10
 
 enum
@@ -56,7 +54,7 @@ typedef struct _LoggerInfo
 class CCodeDataLogger  
 {
 public:
-   CCodeDataLogger(UINT size = MEM_16KB, UINT mask = MASK_16KB);
+   CCodeDataLogger(UINT size, UINT mask);
 	virtual ~CCodeDataLogger();
 
    void ClearData ( void );

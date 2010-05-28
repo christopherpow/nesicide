@@ -217,12 +217,14 @@ unsigned char  CPPU::m_ppuScrollX = 0x00;
 int            CPPU::m_oneScreen = -1;
 bool           CPPU::m_extraVRAM = false;
 
-CCodeDataLogger CPPU::m_logger;
+CCodeDataLogger CPPU::m_logger ( MEM_16KB, MASK_16KB );
 
 char*          CPPU::m_pCodeDataLoggerInspectorTV = NULL;
 
 unsigned int   CPPU::m_cycles = 0;
 int            CPPU::m_mode = MODE_NTSC;
+
+bool           CPPU::m_vblankChoked = false;
 
 char*          CPPU::m_pTV = NULL;
 
@@ -290,6 +292,9 @@ void CPPU::RENDERCODEDATALOGGER ( void )
    QColor lcolor;
    CCodeDataLogger* pLogger;
 
+   // Clearly...
+   memset ( m_pCodeDataLoggerInspectorTV, 255, 49152 );
+
    // Show PPU memory...
    pLogger = &m_logger;
    for ( idxx = 0; idxx < 0x4000; idxx++ )
@@ -309,26 +314,19 @@ void CPPU::RENDERCODEDATALOGGER ( void )
          }
          if ( !lcolor.red() )
          {
-            lcolor.setRed(lcolor.red()+cycleDiff);
+            lcolor.setRed(cycleDiff);
          }
          if ( !lcolor.green() )
          {
-            lcolor.setGreen(lcolor.green()+cycleDiff);
+            lcolor.setGreen(cycleDiff);
          }
          if ( !lcolor.blue() )
          {
-            lcolor.setBlue(lcolor.blue()+cycleDiff);
+            lcolor.setBlue(cycleDiff);
          }
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
-      }
-      else
-      {
-         // White
-         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = 255;
-         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = 255;
-         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = 255;
       }
    }
 }
@@ -897,6 +895,12 @@ UINT CPPU::PPU ( UINT addr )
          *(m_PPUreg+fixAddr) &= (~PPUSTATUS_VBLANK); // VBLANK clear-on-read
          m_ppuRegByte = 0; // Clear PPUADDR address latch
          data = (data&0xE0)|(m_ppuReadLatch&0x1F);
+
+         // Kill NMI if flag is read at 'wrong' time...
+         if ( CYCLES() == PPU_CYCLE_START_VBLANK-1 )
+         {
+            CHOKEVBLANK();
+         }
       }
       else if ( fixAddr == OAMDATA_REG )
       {

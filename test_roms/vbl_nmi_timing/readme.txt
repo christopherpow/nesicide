@@ -85,6 +85,9 @@ and that this doesn't occur when reading one clock before or after.
 9) Reading flag 1 PPU clock before set should suppress NMI
 10)Reading flag 2 PPU clocks after set shouldn't suppress NMI
 
+432101234
+---+?+---
+
 
 6.nmi_disable
 -------------

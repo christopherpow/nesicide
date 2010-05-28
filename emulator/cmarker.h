@@ -17,7 +17,9 @@ typedef struct _MarkerSetInfo
    eMarkerSet_State state;
    unsigned int     startAbsAddr;
    unsigned int     endAbsAddr;
+   unsigned int     startFrame;
    unsigned int     startCycle;
+   unsigned int     endFrame;
    unsigned int     endCycle;
    unsigned char    red;
    unsigned char    green;
@@ -35,7 +37,7 @@ public:
    void ClearAllMarkers(void);
    void ZeroAllMarkers(void);
    void CompleteMarker(int marker, unsigned int absAddr);
-   void UpdateMarkers(unsigned int absAddr, unsigned int cycle);
+   void UpdateMarkers(unsigned int absAddr, unsigned int frame, unsigned int cycle);
 
 protected:
    MarkerSetInfo m_marker [ MAX_MARKER_SETS ];

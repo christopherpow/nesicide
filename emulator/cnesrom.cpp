@@ -57,12 +57,14 @@ unsigned short CROM::m_SRAMsloc2addr [][ MEM_8KB ] = { { 0, }, };
 unsigned short CROM::m_SRAMaddr2sloc [][ MEM_8KB ] = { { 0, }, };
 unsigned int   CROM::m_SRAMsloc [] = { 0, };
 unsigned char* CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
+CCodeDataLogger* CROM::m_pSRAMLogger [] = { NULL, };
 unsigned char  CROM::m_EXRAMmemory [] = { 0, };
 unsigned char  CROM::m_EXRAMopcodeMask [ MEM_1KB ] = { 0, };
 char*          CROM::m_EXRAMdisassembly [ MEM_1KB ] = { 0, };
 unsigned short CROM::m_EXRAMsloc2addr [ MEM_1KB ] = { 0, };
 unsigned short CROM::m_EXRAMaddr2sloc [ MEM_1KB ] = { 0, };
 unsigned int   CROM::m_EXRAMsloc = 0;
+CCodeDataLogger* CROM::m_pEXRAMLogger = NULL;
 
 UINT           CROM::m_mapper = 0; 
 UINT           CROM::m_numPrgBanks = 0;
@@ -84,7 +86,7 @@ CROM::CROM()
 
    for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
    {
-      m_pLogger [ bank ] = new CCodeDataLogger ();
+      m_pLogger [ bank ] = new CCodeDataLogger ( MEM_8KB, MASK_8KB );
 
       for ( addr = 0; addr < MEM_8KB; addr++ )
       {
@@ -94,6 +96,8 @@ CROM::CROM()
 
    for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
    {
+      m_pSRAMLogger [ bank ] = new CCodeDataLogger ( MEM_8KB, MASK_8KB );
+
       for ( addr = 0; addr < MEM_8KB; addr++ )
       {
          m_SRAMdisassembly[bank][addr] = new char [ 16 ];
@@ -108,6 +112,8 @@ CROM::CROM()
    {
       m_pSRAMmemory [ bank ] = *(m_SRAMmemory+bank);
    }
+
+   m_pEXRAMLogger = new CCodeDataLogger ( MEM_1KB, MASK_1KB );
 
    for ( addr = 0; addr < MEM_1KB; addr++ )
    {

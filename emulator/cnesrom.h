@@ -91,12 +91,15 @@ public:
    static UINT SRAMSLOC2ADDR ( unsigned short sloc );
    static unsigned short SRAMADDR2SLOC ( UINT addr );
    static inline unsigned int SRAMSLOC ( UINT addr) { return *(m_SRAMsloc+SRAMBANK_NUM(addr)); }
+   static inline CCodeDataLogger* SRAMLOGGER ( UINT addr ) { return *(m_pSRAMLogger+SRAMBANK_NUM(addr)); }
    static inline void EXRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(m_EXRAMopcodeMask+(addr-0x5C00)) = mask; }
    static inline void EXRAMOPCODEMASKCLR ( void ) { memset(m_EXRAMopcodeMask,0,sizeof(m_EXRAMopcodeMask)); }
    static inline char* EXRAMDISASSEMBLY ( UINT addr ) { return *(m_EXRAMdisassembly+(addr-0x5C00)); }
    static UINT EXRAMSLOC2ADDR ( unsigned short sloc );
    static unsigned short EXRAMADDR2SLOC ( UINT addr );
    static inline unsigned int EXRAMSLOC () { return m_EXRAMsloc; }
+   static inline CCodeDataLogger* EXRAMLOGGER () { return m_pEXRAMLogger; }
+
    static void DISASSEMBLE ();
 
    static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
@@ -132,6 +135,7 @@ protected:
    static unsigned short m_SRAMsloc2addr [ NUM_SRAM_BANKS ][ MEM_8KB ];
    static unsigned short m_SRAMaddr2sloc [ NUM_SRAM_BANKS ][ MEM_8KB ];
    static unsigned int   m_SRAMsloc [ NUM_SRAM_BANKS ];
+   static CCodeDataLogger* m_pSRAMLogger [ NUM_SRAM_BANKS ];
 
    static unsigned char  m_EXRAMmemory [ MEM_1KB ];
    static unsigned char  m_EXRAMopcodeMask [ MEM_1KB ];
@@ -139,6 +143,7 @@ protected:
    static unsigned short m_EXRAMsloc2addr [ MEM_1KB ];
    static unsigned short m_EXRAMaddr2sloc [ MEM_1KB ];
    static unsigned int   m_EXRAMsloc;
+   static CCodeDataLogger* m_pEXRAMLogger;
 
    // Mapper stuff...
    static UINT           m_mapper;

@@ -32,6 +32,7 @@ enum
 };
 
 #define SCANLINES_VISIBLE (240)
+#define SCANLINES_QUIET (1)
 #define SCANLINES_VBLANK_NTSC (20)
 #define SCANLINES_VBLANK_PAL (70)
 
@@ -43,6 +44,8 @@ enum
 #define CYCLE_TO_VISX(c) (c%PPU_CYCLES_PER_SCANLINE)
 #define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
 #define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
+
+#define PPU_CYCLE_START_VBLANK (PPU_CYCLES_PER_SCANLINE*(SCANLINES_VISIBLE+SCANLINES_QUIET))
 
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
@@ -206,6 +209,8 @@ public:
    static void GATHERBKGND ( void );
    static inline void PIXELPIPELINES ( int x, int off, unsigned char* a, unsigned char* b1, unsigned char* b2 );
    static void GATHERSPRITES ( int scanline );
+   
+   static void CHOKEVBLANK () { m_vblankChoked = true; }
 
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
    static inline char* TV ( void ) { return m_pTV; }
@@ -262,6 +267,8 @@ protected:
    static unsigned int   m_frame;
    static int            m_curCycles;
    static int            m_mode;
+
+   static bool           m_vblankChoked;
 
    static unsigned char  m_last2005x;
    static unsigned char  m_last2005y;

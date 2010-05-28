@@ -131,6 +131,7 @@ static CBreakpointEventInfo* tblCPUEvents [] =
 
 bool            C6502::m_killed = false;              // KIL opcode not executed
 bool            C6502::m_irqAsserted = false;
+bool            C6502::m_nmiAsserted = false;
 unsigned char   C6502::m_6502memory [] = { 0, };
 unsigned char   C6502::m_RAMopcodeMask [ MEM_2KB ] = { 0, };
 char*           C6502::m_RAMdisassembly [ MEM_2KB ] = { 0, };
@@ -148,7 +149,7 @@ unsigned char   C6502::m_sp = 0xFF;
 
 CMarker         C6502::m_marker;
 
-CCodeDataLogger C6502::m_logger ( MEM_2KB, MASK_2KB );
+CCodeDataLogger C6502::m_logger ( MEM_32KB, MASK_32KB );
 unsigned int    C6502::m_cycles = 0;
 int             C6502::m_curCycles = 0;
 
@@ -491,15 +492,63 @@ C6502::C6502()
 
 void C6502::RENDERCODEDATALOGGER ( void )
 {
-   unsigned int idxx, idxy;
+   unsigned int idxx, idxxm, idxy;
    UINT cycleDiff;
    UINT curCycle = CCodeDataLogger::GetCurCycle ();
    QColor lcolor;
    CCodeDataLogger* pLogger;
 
+   // Clearly...
+   memset ( m_pCodeDataLoggerInspectorTV, 255, 196608 );
+
    // Show CPU RAM...
    pLogger = &m_logger;
-   for ( idxx = 0; idxx < 0x800; idxx++ )
+   for ( idxx = 0; idxx < MEM_2KB; idxx++ )
+   {
+      idxxm = idxx%MEM_2KB;
+      cycleDiff = (curCycle-pLogger->GetCycle(idxxm))/17800;
+      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( pLogger->GetCount(idxxm) )
+      {
+         if ( pLogger->GetType(idxxm) == eLogger_DMA )
+         {
+            lcolor = dmaColor[pLogger->GetSource(idxxm)];
+         }
+         else
+         {
+            lcolor = color[pLogger->GetType(idxxm)];
+         }
+         if ( !lcolor.red() )
+         {
+            lcolor.setRed(cycleDiff);
+         }
+         if ( !lcolor.green() )
+         {
+            lcolor.setGreen(cycleDiff);
+         }
+         if ( !lcolor.blue() )
+         {
+            lcolor.setBlue(cycleDiff);
+         }
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x800) * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x800) * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x800) * 3) + 2] = lcolor.blue();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x1000) * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x1000) * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x1000) * 3) + 2] = lcolor.blue();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x1800) * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x1800) * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[((idxx+0x1800) * 3) + 2] = lcolor.blue();
+      }
+   }
+
+   // Show I/O region...
+   pLogger = &m_logger;
+   for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
    {
       cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
@@ -516,34 +565,100 @@ void C6502::RENDERCODEDATALOGGER ( void )
          }
          if ( !lcolor.red() )
          {
-            lcolor.setRed(lcolor.red()+cycleDiff);
+            lcolor.setRed(cycleDiff);
          }
          if ( !lcolor.green() )
          {
-            lcolor.setGreen(lcolor.green()+cycleDiff);
+            lcolor.setGreen(cycleDiff);
          }
          if ( !lcolor.blue() )
          {
-            lcolor.setBlue(lcolor.blue()+cycleDiff);
+            lcolor.setBlue(cycleDiff);
          }
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
       }
-      else
+   }
+
+   // Show cartrige EXRAM memory...
+   for ( idxx = 0; idxx < MEM_1KB; idxx++ )
+   {
+      pLogger = CROM::EXRAMLOGGER();
+
+      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( pLogger->GetCount(idxx) )
       {
-         // White
-         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = 255;
-         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = 255;
-         m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = 255;
+         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         {
+            lcolor = dmaColor[pLogger->GetSource(idxx)];
+         }
+         else
+         {
+            lcolor = color[pLogger->GetType(idxx)];
+         }
+         if ( !lcolor.red() )
+         {
+            lcolor.setRed(cycleDiff);
+         }
+         if ( !lcolor.green() )
+         {
+            lcolor.setGreen(cycleDiff);
+         }
+         if ( !lcolor.blue() )
+         {
+            lcolor.setBlue(cycleDiff);
+         }
+         m_pCodeDataLoggerInspectorTV[((0x5C00+idxx) * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[((0x5C00+idxx) * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[((0x5C00+idxx) * 3) + 2] = lcolor.blue();
       }
    }
-   // Show cartrige memory...
+
+   // Show cartrige SRAM memory...
+   for ( idxx = 0; idxx < MEM_8KB; idxx++ )
+   {
+      pLogger = CROM::SRAMLOGGER(0x6000);
+
+      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( pLogger->GetCount(idxx) )
+      {
+         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         {
+            lcolor = dmaColor[pLogger->GetSource(idxx)];
+         }
+         else
+         {
+            lcolor = color[pLogger->GetType(idxx)];
+         }
+         if ( !lcolor.red() )
+         {
+            lcolor.setRed(cycleDiff);
+         }
+         if ( !lcolor.green() )
+         {
+            lcolor.setGreen(cycleDiff);
+         }
+         if ( !lcolor.blue() )
+         {
+            lcolor.setBlue(cycleDiff);
+         }
+         m_pCodeDataLoggerInspectorTV[((0x6000+idxx) * 3) + 0] = lcolor.red();
+         m_pCodeDataLoggerInspectorTV[((0x6000+idxx) * 3) + 1] = lcolor.green();
+         m_pCodeDataLoggerInspectorTV[((0x6000+idxx) * 3) + 2] = lcolor.blue();
+      }
+   }
+
+   // Show cartrige PRG-ROM memory...
    for ( idxy = 0; idxy < 4; idxy++ )
    {
-      for ( idxx = 0; idxx < 0x2000; idxx++ )
+      for ( idxx = 0; idxx < MEM_8KB; idxx++ )
       {
-         pLogger = CROM::LOGGER(0x8000+(idxy*0x2000)+idxx);
+         pLogger = CROM::LOGGER(MEM_32KB+(idxy*MEM_8KB)+idxx);
 
          cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
          if ( cycleDiff > 199 ) cycleDiff = 199;
@@ -560,26 +675,19 @@ void C6502::RENDERCODEDATALOGGER ( void )
             }
             if ( !lcolor.red() )
             {
-               lcolor.setRed(lcolor.red()+cycleDiff);
+               lcolor.setRed(cycleDiff);
             }
             if ( !lcolor.green() )
             {
-               lcolor.setGreen(lcolor.green()+cycleDiff);
+               lcolor.setGreen(cycleDiff);
             }
             if ( !lcolor.blue() )
             {
-               lcolor.setBlue(lcolor.blue()+cycleDiff);
+               lcolor.setBlue(cycleDiff);
             }
-            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 0] = lcolor.red();
-            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 1] = lcolor.green();
-            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 2] = lcolor.blue();
-         }
-         else
-         {
-            // White
-            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 0] = 255;
-            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 1] = 255;
-            m_pCodeDataLoggerInspectorTV[((0x8000+(idxy*0x2000)+idxx) * 3) + 2] = 255;
+            m_pCodeDataLoggerInspectorTV[((MEM_32KB+(idxy*MEM_8KB)+idxx) * 3) + 0] = lcolor.red();
+            m_pCodeDataLoggerInspectorTV[((MEM_32KB+(idxy*MEM_8KB)+idxx) * 3) + 1] = lcolor.green();
+            m_pCodeDataLoggerInspectorTV[((MEM_32KB+(idxy*MEM_8KB)+idxx) * 3) + 2] = lcolor.blue();
          }
       }
    }
@@ -590,29 +698,14 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
    unsigned int idxx, idxy;
    MarkerSetInfo* pMarker;
    int marker;
+   int frameDiff;
+   char marked;
 
    for ( idxy = 0; idxy < 512; idxy++ )
    {
       for ( idxx = 0; idxx < 512; idxx++ )
       {
-         if ( (idxx < 256) && (idxy < 240) )
-         {
-            // Gray screen outline...
-//            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 0] = 165;
-//            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 1] = 165;
-//            m_pExecutionVisualizerInspectorTV[(idxy * 512 * 3) + (idxx * 3) + 2] = 165;
-            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 0];
-            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 1];
-            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 2];
-         }
-         else if ( (idxx < 341) && (idxy < 262) )
-         {
-            // Darker gray backdrop PPU-off time outline...
-            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = 105;
-            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = 105;
-            m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = 105;
-         }
-         else
+         if ( (idxx >= 341) || (idxy >= 262) )
          {
             // Black otherwise...
             m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = 0;
@@ -624,23 +717,45 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
 
          if ( (idxx < 341) && (idxy < 262) )
          {
+            marked = 0;
             for ( marker = 0; marker < m_marker.GetNumMarkers(); marker++ )
             {
                pMarker = m_marker.GetMarker(marker);
+               frameDiff = pMarker->endFrame-pMarker->startFrame;
                if ( ((pMarker->state == eMarkerSet_Started) ||
                     (pMarker->state == eMarkerSet_Complete)) &&
                     (pMarker->endCycle != MARKER_NOT_MARKED) &&
-                    (((pMarker->startCycle <= pMarker->endCycle) &&
+                    (((frameDiff == 0) &&
                     (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) &&
                     (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)) ||
+                    ((frameDiff == 1) &&
                     ((pMarker->startCycle > pMarker->endCycle) &&
-                    ((VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->startCycle) ||
-                    (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->endCycle)))) )
+                    ((VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) ||
+                    (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)))) ||
+                    (frameDiff > 1)) )
                {
                   // Marker color!
                   m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = pMarker->red;
                   m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = pMarker->green;
                   m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = pMarker->blue;
+                  marked++;
+               }
+            }
+            if ( !marked  )
+            {
+               if ( (idxx < 256) && (idxy < 240) )
+               {
+                  // Screen...
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 0];
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 1];
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = CPPU::TV()[((idxy<<8) * 3) + (idxx * 3) + 2];
+               }
+               else
+               {
+                  // Darker gray backdrop PPU-off time outline...
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = 105;
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 1] = 105;
+                  m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = 105;
                }
             }
          }
@@ -759,6 +874,14 @@ unsigned char C6502::STEP ( void )
    cycles += (*(pOpcode+3)); // use extra cycle indication from opcode execution
 
    m_cycles += cycles;
+
+   // Check for NMI assertion...
+   if ( m_nmiAsserted )
+   {
+      // Execute NMI handler...
+      m_nmiAsserted = false;
+      NMI();
+   }
 
    // Check for IRQ assertion...
    if ( m_irqAsserted )
@@ -2834,6 +2957,12 @@ void C6502::IRQ ()
    }
 }
 
+void C6502::ASSERTNMI ()
+{
+   m_nmiAsserted = true;
+   CNES::TRACER()->AddNMI ( eSource_PPU );
+}
+
 void C6502::NMI ()
 {
    if ( !m_killed )
@@ -2866,6 +2995,7 @@ void C6502::RESET ( void )
    m_curCycles = 0;
 
    m_irqAsserted = false;
+   m_nmiAsserted = false;
 
    m_ea = 0xFFFFFFFF;
 
@@ -2993,18 +3123,26 @@ unsigned char C6502::FETCH ( UINT addr )
       pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
 
       // Update Markers...
-      m_marker.UpdateMarkers ( CROM::ABSADDR(addr), CPPU::CYCLES() );
+      m_marker.UpdateMarkers ( CROM::ABSADDR(addr), CPPU::_FRAME(), CPPU::CYCLES() );
 
       // ... and update opcode masking for disassembler...
       CROM::PRGROMOPCODEMASK ( addr, (unsigned char)m_sync );
    }
    else if ( target == eTarget_SRAM )
    {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::SRAMLOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+
       // Update opcode masking for disassembler...
       CROM::SRAMOPCODEMASK ( addr, (unsigned char)m_sync );
    }
    else if ( target == eTarget_EXRAM )
    {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+
       // Update opcode masking for disassembler...
       CROM::EXRAMOPCODEMASK ( addr, (unsigned char)m_sync );
    }
@@ -3031,6 +3169,18 @@ unsigned char C6502::EXTRAFETCH ( UINT addr )
    if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_SRAM )
+   {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::SRAMLOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_EXRAM )
+   {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
       pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eLoggerSource_CPU );
    }
    else if ( target == eTarget_RAM )
@@ -3079,8 +3229,27 @@ unsigned char C6502::MEM ( UINT addr )
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
       pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
    }
+   else if ( target == eTarget_SRAM )
+   {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::SRAMLOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_EXRAM )
+   {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
+   }
    else if ( target == eTarget_RAM )
    {
+      // Log to Code/Data Logger...
+      m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
+   }
+   else
+   {
+      // Registers...
+      // Log to Code/Data Logger...
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataRead, eLoggerSource_CPU );
    }
 
@@ -3119,9 +3288,32 @@ void C6502::MEM ( UINT addr, unsigned char data )
 
    STORE ( addr, data, &target );
 
-   // Code/Data Logger accesses of internal CPU RAM...
-   if ( target == eTarget_RAM )
+   // If ROM or RAM is being accessed, log code/data logger...
+   if ( target == eTarget_ROM )
    {
+      CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_SRAM )
+   {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::SRAMLOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_EXRAM )
+   {
+      // Log to Code/Data Logger...
+      CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eLoggerSource_CPU );
+   }
+   else if ( target == eTarget_RAM )
+   {
+      m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eLoggerSource_CPU );
+   }
+   else
+   {
+      // Registers...
+      // Log to Code/Data Logger...
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eLoggerSource_CPU );
    }
 

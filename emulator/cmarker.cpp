@@ -38,7 +38,9 @@ void CMarker::ZeroAllMarkers(void)
    int marker;
    for ( marker = 0; marker < MAX_MARKER_SETS; marker++ )
    {
+      m_marker [ marker ].startFrame = MARKER_NOT_MARKED;
       m_marker [ marker ].startCycle = MARKER_NOT_MARKED;
+      m_marker [ marker ].endFrame = MARKER_NOT_MARKED;
       m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
    }
 }
@@ -52,8 +54,10 @@ int CMarker::AddMarker(unsigned int absAddr)
       {
          m_marker [ marker ].state = eMarkerSet_Started;
          m_marker [ marker ].startAbsAddr = absAddr;
+         m_marker [ marker ].startFrame = MARKER_NOT_MARKED;
          m_marker [ marker ].startCycle = MARKER_NOT_MARKED;
          m_marker [ marker ].endAbsAddr = absAddr;
+         m_marker [ marker ].endFrame = MARKER_NOT_MARKED;
          m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
          break;
       }
@@ -65,6 +69,7 @@ void CMarker::CompleteMarker(int marker, unsigned int absAddr)
 {
    m_marker [ marker ].state = eMarkerSet_Complete;
    m_marker [ marker ].endAbsAddr = absAddr;
+   m_marker [ marker ].endFrame = MARKER_NOT_MARKED;
    m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
 }
 
@@ -83,7 +88,7 @@ int CMarker::FindInProgressMarker(void)
    return marker;
 }
 
-void CMarker::UpdateMarkers(unsigned int absAddr, unsigned int cycle)
+void CMarker::UpdateMarkers(unsigned int absAddr, unsigned int frame, unsigned int cycle)
 {
    int marker;
 
@@ -94,11 +99,13 @@ void CMarker::UpdateMarkers(unsigned int absAddr, unsigned int cycle)
       {
          if ( m_marker[marker].startAbsAddr == absAddr )
          {
+            m_marker [ marker ].startFrame = frame;
             m_marker [ marker ].startCycle = cycle;
             m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
          }
          if ( m_marker[marker].endAbsAddr == absAddr )
          {
+            m_marker [ marker ].endFrame = frame;
             m_marker [ marker ].endCycle = cycle;
          }
       }
