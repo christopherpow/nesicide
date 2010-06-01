@@ -202,6 +202,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinEXRAMMemoryInspector_close(bool)));
     InspectorRegistry::addInspector ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
 
+    m_pMapperInformationInspector = new MapperInformationInspector();
+    m_pMapperInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pMapperInformationInspector->setWindowTitle("Mapper Inspector");
+    m_pMapperInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
+    m_pMapperInformationInspector->hide();
+    QObject::connect(m_pMapperInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedMapperInformationInspector_close(bool)));
+    InspectorRegistry::addInspector ( "Mapper Inspector", m_pMapperInformationInspector );
+
     m_pBinMapperMemoryInspector = new RegisterInspector(eMemory_cartMapper);
     m_pBinMapperMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Inspector");
@@ -308,6 +317,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -805,6 +815,16 @@ void MainWindow::on_actionPPUInformation_Inspector_toggled(bool value)
 void MainWindow::reflectedPPUInformationInspector_close ( bool toplevel )
 {
    ui->actionPPUInformation_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionMapperInformation_Inspector_toggled(bool value)
+{
+   m_pMapperInformationInspector->setVisible(value);
+}
+
+void MainWindow::reflectedMapperInformationInspector_close ( bool toplevel )
+{
+   ui->actionMapperInformation_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

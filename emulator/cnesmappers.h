@@ -73,6 +73,8 @@ typedef struct _MapperFuncs
    LATCHFUNC latch;
    LOADFUNC load;
    SAVEFUNC save;
+   bool     remapPrg;
+   bool     remapChr;
 } MapperFuncs;
 
 extern MapperInfo  mapper[];

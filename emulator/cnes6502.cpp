@@ -461,40 +461,106 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false }  // INS - Absolute,X (undocumented)
 };
 
+#define FLAG_EFFECT(__n,__z,__c,__i,__d,__v) \
+   "Flag effect:" \
+   "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"#FFFFFF\">" \
+   "<tr bgcolor=\"#B0B0B0\"><th>N</th><th>Z</th><th>C</th><th>I</th><th>D</th><th>V</th></tr>" \
+   "<tr><td>" __n \
+   "</td><td>" __z \
+   "</td><td>" __c \
+   "</td><td>" __i \
+   "</td><td>" __d \
+   "</td><td>" __v \
+   "</td></tr>" \
+   "</table><br>"
+
+#define VARIANT_HEADER \
+   "Variants:" \
+   "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"#FFFFFF\">" \
+   "<tr bgcolor=\"#B0B0B0\"><th></th><th>Addressing Mode</th><th>Assembly Language Form</th><th>Opcode</th><th># Bytes</th><th># Cycles</th></tr>"
+
+#define VARIANT_SELECTED \
+   "<tr bgcolor=\"#E8E8E8\"><td>&gt;</td>"
+
+#define VARIANT \
+   "<tr><td></td>"
+
+#define VARIANT_INFO(__amode,__mnemonic,__langform,__opcode,__bytes,__cycles) \
+   "<td>" __amode \
+   "</td><td>" __mnemonic " " __langform \
+   "</td><td>" __opcode \
+   "</td><td>" __bytes \
+   "</td><td>" __cycles \
+   "</td></tr>"
+
+#define VARIANT_IMPLIED(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Implied",__mnemonic,"",__opcode,__bytes,__cycles)
+
+#define VARIANT_IMMEDIATE(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Immediate",__mnemonic,"#Operand",__opcode,__bytes,__cycles)
+
+#define VARIANT_ACCUMULATOR(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Accumulator",__mnemonic,"A",__opcode,__bytes,__cycles)
+
+#define VARIANT_ZEROPAGE(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Zero Page",__mnemonic,"Operand",__opcode,__bytes,__cycles)
+
+#define VARIANT_ZEROPAGE_X(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Zero Page, indexed by X",__mnemonic,"Operand,X",__opcode,__bytes,__cycles)
+
+#define VARIANT_ZEROPAGE_Y(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Zero Page, indexed by Y",__mnemonic,"Operand,Y",__opcode,__bytes,__cycles)
+
+#define VARIANT_ABSOLUTE(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Absolute",__mnemonic,"Operand",__opcode,__bytes,__cycles)
+
+#define VARIANT_ABSOLUTE_X(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Absolute, indexed by X",__mnemonic,"Operand,X",__opcode,__bytes,__cycles)
+
+#define VARIANT_ABSOLUTE_Y(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Absolute, indexed by Y",__mnemonic,"Operand,Y",__opcode,__bytes,__cycles)
+
+#define VARIANT_INDIRECT(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Indirect",__mnemonic,"(Operand)",__opcode,__bytes,__cycles)
+
+#define VARIANT_INDIRECT_X(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Pre-indexed Indirect",__mnemonic,"(Operand,X)",__opcode,__bytes,__cycles)
+
+#define VARIANT_INDIRECT_Y(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("Post-indexed Indirect",__mnemonic,"(Operand),Y",__opcode,__bytes,__cycles)
+
+#define VARIANT_RELATIVE(__mnemonic,__opcode,__bytes,__cycles) \
+   VARIANT_INFO("PC relative",__mnemonic,"Operand",__opcode,__bytes,__cycles)
+
+#define VARIANT_FOOTER \
+   "</table><br>"
+
 static const char* m_6502opcodeInfo [ 256 ] =
 {
    // BRK
-   "BRK                          BRK Force Break                          BRK\n"
-   "\n"
-   "Operation:  Forced Interrupt PC + 2 toS P toS         N Z C I D V\n"
-   "                                                      _ _ _ 1 _ _\n"
-   "                               (Ref: 9.11)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   BRK                 |    00   |    1    |    7     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
+   "BRK: Force Break<br>"
+   "Operation:  Forced Interrupt, PC + 2 to S, P to S<br>"
+   FLAG_EFFECT("","","","1","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("BRK","00","1","7")
+   VARIANT_FOOTER
    "1. A BRK command cannot be masked by setting I.",
 
    // ORA - (Indirect,X)
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -503,169 +569,136 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // ORA - Zero Page
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    // ASL - Zero Page
-   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
-   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                               (Ref: 10.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
-   "<b>|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |</b>\n"
-   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
-   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
-   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ASL: Shift Left One Bit (Memory or Accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  C &lt;- |7|6|5|4|3|2|1|0| &lt;- 0<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ASL","0A","1","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("ASL","06","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ASL","16","2","6")
+   VARIANT VARIANT_ABSOLUTE("ASL","0E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ASL","1E","3","7")
+   VARIANT_FOOTER,
 
    "", // ASO - Zero Page (undocumented)
 
    // PHP
-   "PHP                 PHP Push processor status on stack                PHP\n"
-   "\n"
-   "Operation:  P toS                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 8.11)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   PHP                 |    08   |    1    |    3     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "PHP: Push processor status on stack<br>"
+   "Operation:  P to S<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("PHP","08","1","3")
+   VARIANT_FOOTER,
 
    // ORA - Immediate
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    // ASL - Accumulator
-   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
-   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                               (Ref: 10.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Accumulator   |   ASL A               |    0A   |    1    |    2     |</b>\n"
-   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
-   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
-   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ASL: Shift Left One Bit (Memory or Accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  C &lt;- |7|6|5|4|3|2|1|0| &lt;- 0<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ACCUMULATOR("ASL","0A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ASL","06","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ASL","16","2","6")
+   VARIANT VARIANT_ABSOLUTE("ASL","0E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ASL","1E","3","7")
+   VARIANT_FOOTER,
 
    "", // ANC - Immediate (undocumented)
 
    "", // TOP (undocumented)
 
    // ORA - Absolute
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "<b>|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    // ASL - Absolute
-   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
-   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                               (Ref: 10.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
-   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
-   "<b>|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |</b>\n"
-   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ASL: Shift Left One Bit (Memory or Accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  C &lt;- |7|6|5|4|3|2|1|0| &lt;- 0<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ASL","0A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ASL","06","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ASL","16","2","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("ASL","0E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ASL","1E","3","7")
+   VARIANT_FOOTER,
 
    "", // ASO - Absolute (undocumented)
 
    // BPL
-   "BPL                     BPL Branch on result plus                     BPL\n"
-   "\n"
-   "Operation:  Branch on N = 0                           N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BPL Oper            |    10   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to different page.\n",
+   "BPL: Branch on result plus<br>"
+   "Operation:  Branch on N = 0<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BPL","10","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // ORA - (Indirect),Y
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -674,75 +707,60 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // ORA - Zero Page,X
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |</b>\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    // ASL - Zero Page,X
-   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
-   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                               (Ref: 10.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
-   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
-   "<b>|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |</b>\n"
-   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
-   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ASL: Shift Left One Bit (Memory or Accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  C &lt;- |7|6|5|4|3|2|1|0| &lt;- 0<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ASL","0A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ASL","06","2","5")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("ASL","16","2","6")
+   VARIANT VARIANT_ABSOLUTE("ASL","0E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ASL","1E","3","7")
+   VARIANT_FOOTER,
 
    "", // ASO - Zero Page,X (undocumented)
 
    // CLC
-   "CLC                       CLC Clear carry flag                        CLC\n"
-   "\n"
-   "Operation:  0 -> C                                    N Z C I D V\n"
-   "                                                      _ _ 0 _ _ _\n"
-   "                              (Ref: 3.0.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   CLC                 |    18   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CLC: Clear carry flag<br>"
+   "Operation:  0 -&gt; C<br>"
+   FLAG_EFFECT("","","0","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("CLC","18","1","2")
+   VARIANT_FOOTER,
 
    // ORA - Absolute,Y
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    "", // NOP (undocumented)
 
@@ -751,280 +769,225 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // TOP (undocumented)
 
    // ORA - Absolute,X
-   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
-   "\n"
-   "Operation: A V M -> A                                 N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
-   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
-   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 on page crossing\n",
+   "ORA: \"OR\" memory with accumulator<br>"
+   "Operation: A \\/ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ORA","09","2","2")
+   VARIANT VARIANT_ZEROPAGE("ORA","05","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ORA","15","2","4")
+   VARIANT VARIANT_ABSOLUTE("ORA","0D","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("ORA","1D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ORA","19","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ORA","01","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ORA","11","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 on page crossing",
 
    // ASL - Absolute,X
-   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
-   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                               (Ref: 10.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
-   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
-   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
-   "<b>|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ASL: Shift Left One Bit (Memory or Accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  C &lt;- |7|6|5|4|3|2|1|0| &lt;- 0<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ASL","0A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ASL","06","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ASL","16","2","6")
+   VARIANT VARIANT_ABSOLUTE("ASL","0E","3","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("ASL","1E","3","7")
+   VARIANT_FOOTER,
 
    "", // ASO - Absolute,X (undocumented)
 
    // JSR
-   "JSR          JSR Jump to new location saving return address           JSR\n"
-   "\n"
-   "Operation:  PC + 2 toS, (PC + 1) -> PCL               N Z C I D V\n"
-   "                        (PC + 2) -> PCH               _ _ _ _ _ _\n"
-   "                               (Ref: 8.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Absolute      |   JSR Oper            |    20   |    3    |    6     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "JSR: Jump to new location saving return address<br>"
+   "Operation:  PC + 2 toS, (PC + 1) -&gt; PCL<br>"
+   "                        (PC + 2) -&gt; PCH<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ABSOLUTE("JSR","20","3","6")
+   VARIANT_FOOTER,
 
    // AND - (Indirect,X)
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |</b>\n"
-   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
    "", // RLA - (Indirect,X) (undocumented)
 
    // BIT - Zero Page
-   "BIT             BIT Test bits in memory with accumulator              BIT\n"
-   "\n"
-   "Operation:  A /\\ M, M7 -> N, M6 -> V\n"
-   "\n"
-   "Bit 6 and 7 are transferred to the status register.   N Z C I D V\n"
-   "If the result of A /\\ M is zero then Z = 1, otherwise M7/ _ _ _ M6\n"
-   "Z = 0\n"
-   "                             (Ref: 4.2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Zero Page     |   BIT Oper            |    24   |    2    |    3     |</b>\n"
-   "|  Absolute      |   BIT Oper            |    2C   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "BIT: Test bits in memory with accumulator<br>"
+   "Operation:  A /\\ M, M7 -&gt; N, M6 -&gt; V<br>"
+   "Bit 6 and 7 are transferred to the status register.<br>"
+   "If the result of A /\\ M is zero then Z = 1, otherwise<br>"
+   "Z = 0<br>"
+   FLAG_EFFECT("M7","/","","","","M6")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ZEROPAGE("BIT","24","2","3")
+   VARIANT VARIANT_ABSOLUTE("BIT","24","3","4")
+   VARIANT_FOOTER,
 
    // AND - Zero Page
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   AND Oper            |    25   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROL - Zero Page
-   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |         M or A               |\n"
-   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
-   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
-   "                               (Ref: 10.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
-   "<b>|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |</b>\n"
-   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
-   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
-   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROL: Rotate one bit left (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |         M or A               |<br>"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |<br>"
+   "Operation:   +-&lt; |7|6|5|4|3|2|1|0| &lt;- |C| &lt;-+<br>"
+   "                 +-+-+-+-+-+-+-+-+    +-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROL","2A","1","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("ROL","26","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROL","36","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROL","2E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROL","3E","3","7")
+   VARIANT_FOOTER,
 
    "", // RLA - Zero Page (undocumented)
 
    // PLP
-   "PLP               PLP Pull processor status from stack                PLA\n"
-   "\n"
-   "Operation:  P fromS                                   N Z C I D V\n"
-   "                                                       From Stack\n"
-   "                               (Ref: 8.12)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   PLP                 |    28   |    1    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "PLP: Pull processor status from stack<br>"
+   "Operation:  P from S<br>"
+   FLAG_EFFECT("from S","from S","from S","from S","from S","from S")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("PLP","28","1","4")
+   VARIANT_FOOTER,
 
    // AND - Immediate
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   AND #Oper           |    29   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROL - Accumulator
-   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |         M or A               |\n"
-   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
-   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
-   "                               (Ref: 10.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Accumulator   |   ROL A               |    2A   |    1    |    2     |</b>\n"
-   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
-   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
-   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROL: Rotate one bit left (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |         M or A               |<br>"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |<br>"
+   "Operation:   +-&lt; |7|6|5|4|3|2|1|0| &lt;- |C| &lt;-+<br>"
+   "                 +-+-+-+-+-+-+-+-+    +-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ACCUMULATOR("ROL","2A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROL","26","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROL","36","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROL","2E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROL","3E","3","7")
+   VARIANT_FOOTER,
 
    "", // ANC - Immediate (undocumented)
 
    // BIT - Absolute
-   "BIT             BIT Test bits in memory with accumulator              BIT\n"
-   "\n"
-   "Operation:  A /\\ M, M7 -> N, M6 -> V\n"
-   "\n"
-   "Bit 6 and 7 are transferred to the status register.   N Z C I D V\n"
-   "If the result of A /\\ M is zero then Z = 1, otherwise M7/ _ _ _ M6\n"
-   "Z = 0\n"
-   "                             (Ref: 4.2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   BIT Oper            |    24   |    2    |    3     |\n"
-   "<b>|  Absolute      |   BIT Oper            |    2C   |    3    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "BIT: Test bits in memory with accumulator<br>"
+   "Operation:  A /\\ M, M7 -&gt; N, M6 -&gt; V<br>"
+   "Bit 6 and 7 are transferred to the status register.<br>"
+   "If the result of A /\\ M is zero then Z = 1, otherwise<br>"
+   "Z = 0<br>"
+   FLAG_EFFECT("M7","/","","","","M6")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("BIT","24","2","3")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("BIT","24","3","4")
+   VARIANT_FOOTER,
 
    // AND - Absolute
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "<b>|  Absolute      |   AND Oper            |    2D   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROL - Absolute
-   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |         M or A               |\n"
-   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
-   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
-   "                               (Ref: 10.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
-   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
-   "<b>|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |</b>\n"
-   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROL: Rotate one bit left (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |         M or A               |<br>"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |<br>"
+   "Operation:   +-&lt; |7|6|5|4|3|2|1|0| &lt;- |C| &lt;-+<br>"
+   "                 +-+-+-+-+-+-+-+-+    +-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROL","2A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROL","26","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROL","36","2","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("ROL","2E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROL","3E","3","7")
+   VARIANT_FOOTER,
 
    "", // RLA - Absolute (undocumented)
 
    // BMI
-   "BMI                    BMI Branch on result minus                     BMI\n"
-   "\n"
-   "Operation:  Branch on N = 1                           N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BMI Oper            |    30   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 1 if branch occurs to different page.\n",
+   "BMI: Branch on result minus<br>"
+   "Operation:  Branch on N = 1<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BMI","30","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // AND - (Indirect),Y
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -1033,77 +996,62 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // AND - Zero Page,X
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |</b>\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROL - Zero Page,X
-   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |         M or A               |\n"
-   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
-   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
-   "                               (Ref: 10.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
-   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
-   "<b>|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |</b>\n"
-   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
-   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROL: Rotate one bit left (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |         M or A               |<br>"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |<br>"
+   "Operation:   +-&lt; |7|6|5|4|3|2|1|0| &lt;- |C| &lt;-+<br>"
+   "                 +-+-+-+-+-+-+-+-+    +-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROL","2A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROL","26","2","5")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("ROL","36","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROL","2E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROL","3E","3","7")
+   VARIANT_FOOTER,
 
    "", // RLA - Zero Page,X (undocumented)
 
    // SEC
-   "SEC                        SEC Set carry flag                         SEC\n"
-   "\n"
-   "Operation:  1 -> C                                    N Z C I D V\n"
-   "                                                      _ _ 1 _ _ _\n"
-   "                              (Ref: 3.0.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   SEC                 |    38   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "SEC: Set carry flag<br>"
+   "Operation:  1 -&gt; C<br>"
+   FLAG_EFFECT("","","1","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("SEC","38","1","2")
+   VARIANT_FOOTER,
 
    // AND - Absolute,Y
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // NOP (undocumented)
 
@@ -1112,77 +1060,62 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // TOP (undocumented)
 
    // AND - Absolute,X
-   "AND                  \"AND\" memory with accumulator                    AND\n"
-   "\n"
-   "Operation:  A /\\ M -> A                               N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
-   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
-   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
-   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "AND: \"AND\" memory with accumulator<br>"
+   "Operation:  A /\\ M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("AND","29","2","2")
+   VARIANT VARIANT_ZEROPAGE("AND","25","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("AND","35","2","4")
+   VARIANT VARIANT_ABSOLUTE("AND","2D","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("AND","3D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("AND","39","3","4*")
+   VARIANT VARIANT_INDIRECT_X("AND","21","2","6")
+   VARIANT VARIANT_INDIRECT_Y("AND","31","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROL - Absolute,X
-   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |         M or A               |\n"
-   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
-   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
-   "                               (Ref: 10.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
-   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
-   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
-   "<b>|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROL: Rotate one bit left (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |         M or A               |<br>"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |<br>"
+   "Operation:   +-&lt; |7|6|5|4|3|2|1|0| &lt;- |C| &lt;-+<br>"
+   "                 +-+-+-+-+-+-+-+-+    +-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROL","2A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROL","26","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROL","36","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROL","2E","3","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("ROL","3E","3","7")
+   VARIANT_FOOTER,
 
    "", // RLA - Absolute,X (undocumented)
 
    // RTI
-   "RTI                    RTI Return from interrupt                      RTI\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  P fromS PC fromS                           From Stack\n"
-   "                               (Ref: 9.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   RTI                 |    4D   |    1    |    6     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "RTI: Return from interrupt<br>"
+   "Operation:  P from S, PC from S<br>"
+   FLAG_EFFECT("from S","from S","from S","from S","from S","from S")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("RTI","4D","1","6")
+   VARIANT_FOOTER,
 
    // EOR - (Indirect,X)
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -1191,180 +1124,144 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // EOR - Zero Page
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LSR - Zero Page
-   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
-   "\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
-   "                               (Ref: 10.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
-   "<b>|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |</b>\n"
-   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
-   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
-   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "LSR: Shift right one bit (memory or accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  0 -&gt; |7|6|5|4|3|2|1|0| -&gt; C<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("0","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("LSR","4A","1","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("LSR","46","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("LSR","56","2","6")
+   VARIANT VARIANT_ABSOLUTE("LSR","4E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("LSR","5E","3","7")
+   VARIANT_FOOTER,
 
    "", // LSE - Zero Page (undocumented)
 
    // PHA
-   "PHA                   PHA Push accumulator on stack                   PHA\n"
-   "\n"
-   "Operation:  A toS                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 8.5)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   PHA                 |    48   |    1    |    3     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "PHA: Push accumulator on stack<br>"
+   "Operation:  A to S<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("PHA","48","1","3")
+   VARIANT_FOOTER,
 
    // EOR - Immediate
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LSR - Accumulator
-   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
-   "\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
-   "                               (Ref: 10.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Accumulator   |   LSR A               |    4A   |    1    |    2     |</b>\n"
-   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
-   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
-   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
-   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "LSR: Shift right one bit (memory or accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  0 -&gt; |7|6|5|4|3|2|1|0| -&gt; C<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("0","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ACCUMULATOR("LSR","4A","1","2")
+   VARIANT VARIANT_ZEROPAGE("LSR","46","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("LSR","56","2","6")
+   VARIANT VARIANT_ABSOLUTE("LSR","4E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("LSR","5E","3","7")
+   VARIANT_FOOTER,
 
    "", // ALR - Immediate (undocumented)
 
    // JMP - Absolute
-   "JMP                     JMP Jump to new location                      JMP\n"
-   "\n"
-   "Operation:  (PC + 1) -> PCL                           N Z C I D V\n"
-   "            (PC + 2) -> PCH   (Ref: 4.0.2)            _ _ _ _ _ _\n"
-   "                              (Ref: 9.8.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Absolute      |   JMP Oper            |    4C   |    3    |    3     |</b>\n"
-   "|  Indirect      |   JMP (Oper)          |    6C   |    3    |    5     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "JMP: Jump to new location<br>"
+   "Operation:  (PC + 1) -&gt; PCL<br>"
+   "            (PC + 2) -&gt; PCH<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ABSOLUTE("JMP","4C","3","3")
+   VARIANT VARIANT_INDIRECT("JMP","6C","3","5")
+   VARIANT_FOOTER,
 
    // EOR - Absolute
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "<b>|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LSR - Absolute
-   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
-   "\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
-   "                               (Ref: 10.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
-   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
-   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
-   "<b>|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |</b>\n"
-   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "LSR: Shift right one bit (memory or accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  0 -&gt; |7|6|5|4|3|2|1|0| -&gt; C<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("0","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("LSR","4A","1","2")
+   VARIANT VARIANT_ZEROPAGE("LSR","46","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("LSR","56","2","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("LSR","4E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("LSR","5E","3","7")
+   VARIANT_FOOTER,
 
    "", // LSE - Absolute (undocumented)
 
    // BVC
-   "BVC                   BVC Branch on overflow clear                    BVC\n"
-   "\n"
-   "Operation:  Branch on V = 0                           N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.8)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BVC Oper            |    50   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to different page.\n",
+   "BVC: Branch on overflow clear<br>"
+   "Operation:  Branch on V = 0<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BVC","50","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // EOR - (Indirect),Y
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -1373,75 +1270,60 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // EOR - Zero Page,X
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |</b>\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LSR - Zero Page,X
-   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
-   "\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
-   "                               (Ref: 10.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
-   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
-   "<b>|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |</b>\n"
-   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
-   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "LSR: Shift right one bit (memory or accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  0 -&gt; |7|6|5|4|3|2|1|0| -&gt; C<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("0","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("LSR","4A","1","2")
+   VARIANT VARIANT_ZEROPAGE("LSR","46","2","5")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("LSR","56","2","6")
+   VARIANT VARIANT_ABSOLUTE("LSR","4E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("LSR","5E","3","7")
+   VARIANT_FOOTER,
 
    "", // LSE - Zero Page,X (undocumented)
 
    // CLI
-   "CLI                  CLI Clear interrupt disable bit                  CLI\n"
-   "\n"
-   "Operation: 0 -> I                                     N Z C I D V\n"
-   "                                                      _ _ _ 0 _ _\n"
-   "                              (Ref: 3.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   CLI                 |    58   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CLI: Clear interrupt disable bit<br>"
+   "Operation:  0 -&gt; I<br>"
+   FLAG_EFFECT("","","","0","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("CLI","58","1","2")
+   VARIANT_FOOTER,
 
    // EOR - Absolute,Y
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // NOP (undocumented)
 
@@ -1450,75 +1332,60 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // TOP (undocumented)
 
    // EOR - Absolute,X
-   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
-   "\n"
-   "Operation:  A EOR M -> A                              N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                             (Ref: 2.2.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
-   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
-   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
-   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "EOR: \"Exclusive-Or\" memory with accumulator<br>"
+   "Operation:  A EOR M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("EOR","49","2","2")
+   VARIANT VARIANT_ZEROPAGE("EOR","45","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("EOR","55","2","4")
+   VARIANT VARIANT_ABSOLUTE("EOR","4D","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("EOR","5D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("EOR","59","3","4*")
+   VARIANT VARIANT_INDIRECT_X("EOR","41","2","6")
+   VARIANT VARIANT_INDIRECT_Y("EOR","51","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LSR - Absolute,X
-   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
-   "\n"
-   "                 +-+-+-+-+-+-+-+-+\n"
-   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
-   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
-   "                               (Ref: 10.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
-   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
-   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
-   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
-   "<b>|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "LSR: Shift right one bit (memory or accumulator)<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   "Operation:  0 -&gt; |7|6|5|4|3|2|1|0| -&gt; C<br>"
+   "                 +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("0","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("LSR","4A","1","2")
+   VARIANT VARIANT_ZEROPAGE("LSR","46","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("LSR","56","2","6")
+   VARIANT VARIANT_ABSOLUTE("LSR","4E","3","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("LSR","5E","3","7")
+   VARIANT_FOOTER,
 
    "", // LSE - Absolute,X (undocumented)
 
    // RTS
-   "RTS                    RTS Return from subroutine                     RTS\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  PC fromS, PC + 1 -> PC                    _ _ _ _ _ _\n"
-   "                               (Ref: 8.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   RTS                 |    60   |    1    |    6     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "RTS: Return from subroutine<br>"
+   "Operation:  PC from S, PC + 1 -&gt; PC<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("RTS","60","1","6")
+   VARIANT_FOOTER,
 
    // ADC - (Indirect,X)
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -1527,186 +1394,150 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // ADC - Zero Page
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROR - Zero Page
-   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |                              |\n"
-   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
-   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
-   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
-   "                               (Ref: 10.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
-   "<b>|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |</b>\n"
-   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
-   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
-   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROR: Rotate one bit right (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |                              |<br>"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |<br>"
+   "Operation:   +-&gt; |C| -&gt; |7|6|5|4|3|2|1|0| &gt;-+<br>"
+   "                 +-+    +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROR","6A","1","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("ROR","66","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROR","76","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROR","6E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROR","7E","3","7")
+   VARIANT_FOOTER,
 
    "", // RRA - Zero Page (undocumented)
 
    // PLA
-   "PLA                 PLA Pull accumulator from stack                   PLA\n"
-   "\n"
-   "Operation:  A fromS                                   N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 8.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   PLA                 |    68   |    1    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "PLA: Pull accumulator from stack<br>"
+   "Operation:  A from S<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("PLA","68","1","4")
+   VARIANT_FOOTER,
 
    // ADC - Immediate
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROR - Accumulator
-   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |                              |\n"
-   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
-   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
-   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
-   "                               (Ref: 10.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Accumulator   |   ROR A               |    6A   |    1    |    2     |</b>\n"
-   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
-   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
-   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROR: Rotate one bit right (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |                              |<br>"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |<br>"
+   "Operation:   +-&gt; |C| -&gt; |7|6|5|4|3|2|1|0| &gt;-+<br>"
+   "                 +-+    +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ACCUMULATOR("ROR","6A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROR","66","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROR","76","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROR","6E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROR","7E","3","7")
+   VARIANT_FOOTER,
 
    "", // ARR - Immediate (undocumented)
 
    // JMP - Indirect
-   "JMP                     JMP Jump to new location                      JMP\n"
-   "\n"
-   "Operation:  (PC + 1) -> PCL                           N Z C I D V\n"
-   "            (PC + 2) -> PCH   (Ref: 4.0.2)            _ _ _ _ _ _\n"
-   "                              (Ref: 9.8.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Absolute      |   JMP Oper            |    4C   |    3    |    3     |\n"
-   "<b>|  Indirect      |   JMP (Oper)          |    6C   |    3    |    5     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "JMP: Jump to new location<br>"
+   "Operation:  (PC + 1) -&gt; PCL<br>"
+   "            (PC + 2) -&gt; PCH<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ABSOLUTE("JMP","4C","3","3")
+   VARIANT_SELECTED VARIANT_INDIRECT("JMP","6C","3","5")
+   VARIANT_FOOTER,
 
    // ADC - Absolute
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "<b>|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROR - Absolute
-   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |                              |\n"
-   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
-   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
-   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
-   "                               (Ref: 10.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
-   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
-   "<b>|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |</b>\n"
-   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROR: Rotate one bit right (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |                              |<br>"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |<br>"
+   "Operation:   +-&gt; |C| -&gt; |7|6|5|4|3|2|1|0| &gt;-+<br>"
+   "                 +-+    +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROR","6A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROR","66","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROR","76","2","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("ROR","6E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROR","7E","3","7")
+   VARIANT_FOOTER,
 
    "", // RRA - Absolute (undocumented)
 
    // BVS
-   "BVS                    BVS Branch on overflow set                     BVS\n"
-   "\n"
-   "Operation:  Branch on V = 1                           N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.7)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BVS Oper            |    70   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to different page.\n",
+   "BVS: Branch on overflow set<br>"
+   "Operation:  Branch on V = 1<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BVS","70","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // ADC - (Indirect),Y
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -1715,77 +1546,62 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // ADC - Zero Page,X
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |</b>\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROR - Zero Page,X
-   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |                              |\n"
-   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
-   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
-   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
-   "                               (Ref: 10.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
-   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
-   "<b>|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |</b>\n"
-   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
-   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROR: Rotate one bit right (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |                              |<br>"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |<br>"
+   "Operation:   +-&gt; |C| -&gt; |7|6|5|4|3|2|1|0| &gt;-+<br>"
+   "                 +-+    +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROR","6A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROR","66","2","5")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("ROR","76","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROR","6E","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("ROR","7E","3","7")
+   VARIANT_FOOTER,
 
    "", // RRA - Zero Page,X (undocumented)
 
    // SEI
-   "SEI                 SEI Set interrupt disable status                  SEI\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  1 -> I                                    _ _ _ 1 _ _\n"
-   "                              (Ref: 3.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   SEI                 |    78   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "SEI: Set interrupt disable status<br>"
+   "Operation:  1 -&gt; I<br>"
+   FLAG_EFFECT("","","","1","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("SEI","78","1","2")
+   VARIANT_FOOTER,
 
    // ADC - Absolute,Y
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // NOP (undocumented)
 
@@ -1794,975 +1610,752 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // TOP (undocumented)
 
    // ADC - Absolute,X
-   "ADC               Add memory to accumulator with carry                ADC\n"
-   "\n"
-   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
-   "                                                      / / / _ _ /\n"
-   "                              (Ref: 2.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
-   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
-   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
-   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "ADC: Add memory to accumulator with carry<br>"
+   "Operation:  A + M + C -&gt; A, C<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("ADC","69","2","2")
+   VARIANT VARIANT_ZEROPAGE("ADC","65","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("ADC","75","2","4")
+   VARIANT VARIANT_ABSOLUTE("ADC","6D","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("ADC","7D","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("ADC","79","3","4*")
+   VARIANT VARIANT_INDIRECT_X("ADC","61","2","6")
+   VARIANT VARIANT_INDIRECT_Y("ADC","71","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // ROR - Absolute,X
-   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
-   "\n"
-   "             +------------------------------+\n"
-   "             |                              |\n"
-   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
-   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
-   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
-   "                               (Ref: 10.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
-   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
-   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
-   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
-   "<b>|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "ROR: Rotate one bit right (memory or accumulator)<br>"
+   "             +------------------------------+<br>"
+   "             |                              |<br>"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |<br>"
+   "Operation:   +-&gt; |C| -&gt; |7|6|5|4|3|2|1|0| &gt;-+<br>"
+   "                 +-+    +-+-+-+-+-+-+-+-+<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ACCUMULATOR("ROR","6A","1","2")
+   VARIANT VARIANT_ZEROPAGE("ROR","66","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("ROR","76","2","6")
+   VARIANT VARIANT_ABSOLUTE("ROR","6E","3","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("ROR","7E","3","7")
+   VARIANT_FOOTER,
 
    "", // RRA - Absolute,X (undocumented)
 
    "", // DOP (undocumented)
 
    // STA - (Indirect,X)
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
-   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
-   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
-   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
-   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
-   "<b>|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    "", // DOP (undocumented)
 
    "", // AXS - (Indirect,X) (undocumented)
 
    // STY - Zero Page
-   "STY                    STY Store index Y in memory                    STY\n"
-   "\n"
-   "Operation: Y -> M                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 7.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Zero Page     |   STY Oper            |    84   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   STY Oper,X          |    94   |    2    |    4     |\n"
-   "|  Absolute      |   STY Oper            |    8C   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STY: Store index Y in memory<br>"
+   "Operation: Y -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ZEROPAGE("STY","84","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STY","94","2","4")
+   VARIANT VARIANT_ABSOLUTE("STY","8C","3","4")
+   VARIANT_FOOTER,
 
    // STA - Zero Page
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Zero Page     |   STA Oper            |    85   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
-   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
-   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
-   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
-   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    // STX - Zero Page
-   "STX                    STX Store index X in memory                    STX\n"
-   "\n"
-   "Operation: X -> M                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 7.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Zero Page     |   STX Oper            |    86   |    2    |    3     |</b>\n"
-   "|  Zero Page,Y   |   STX Oper,Y          |    96   |    2    |    4     |\n"
-   "|  Absolute      |   STX Oper            |    8E   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STX: Store index X in memory<br>"
+   "Operation: X -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ZEROPAGE("STX","86","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STX","96","2","4")
+   VARIANT VARIANT_ABSOLUTE("STX","8E","3","4")
+   VARIANT_FOOTER,
 
    "", // AXS - Zero Page (undocumented)
 
    // DEY
-   "DEY                   DEY Decrement index Y by one                    DEY\n"
-   "\n"
-   "Operation:  Y - 1 -> Y                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.7)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   DEY                 |    88   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "DEY: Decrement index Y by one<br>"
+   "Operation:  Y - 1 -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("DEY","88","1","2")
+   VARIANT_FOOTER,
 
    "", // DOP (undocumented)
 
    // TXA
-   "TXA                TXA Transfer index X to accumulator                TXA\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  X -> A                                    / / _ _ _ _\n"
-   "                               (Ref: 7.12)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   TXA                 |    8A   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "TXA: Transfer index X to accumulator<br>"
+   "Operation:  X -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("TXA","8A","1","2")
+   VARIANT_FOOTER,
 
    "", // XAA - Immediate (undocumented)
 
    // STY - Absolute
-   "STY                    STY Store index Y in memory                    STY\n"
-   "\n"
-   "Operation: Y -> M                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 7.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STY Oper            |    84   |    2    |    3     |\n"
-   "|  Zero Page,X   |   STY Oper,X          |    94   |    2    |    4     |\n"
-   "<b>|  Absolute      |   STY Oper            |    8C   |    3    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STY: Store index Y in memory<br>"
+   "Operation: Y -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STY","84","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STY","94","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("STY","8C","3","4")
+   VARIANT_FOOTER,
 
    // STA - Absolute
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
-   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
-   "<b>|  Absolute      |   STA Oper            |    8D   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
-   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
-   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    // STX - Absolute
-   "STX                    STX Store index X in memory                    STX\n"
-   "\n"
-   "Operation: X -> M                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 7.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STX Oper            |    86   |    2    |    3     |\n"
-   "|  Zero Page,Y   |   STX Oper,Y          |    96   |    2    |    4     |\n"
-   "<b>|  Absolute      |   STX Oper            |    8E   |    3    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STX: Store index X in memory<br>"
+   "Operation: X -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STX","86","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STX","96","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("STX","8E","3","4")
+   VARIANT_FOOTER,
 
    "", // AXS - Absolulte (undocumented)
 
    // BCC
-   "BCC                     BCC Branch on Carry Clear                     BCC\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  Branch on C = 0                           _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BCC Oper            |    90   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to different page.\n",
+   "BCC: Branch on carry clear<br>"
+   "Operation:  Branch on C = 0<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BCC","90","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // STA - (Indirect),Y
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
-   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
-   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
-   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
-   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
-   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    "", // KIL - Implied (processor lock up!)
 
    "", // AXA - (Indirect),Y
 
    // STY - Zero Page,X
-   "STY                    STY Store index Y in memory                    STY\n"
-   "\n"
-   "Operation: Y -> M                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 7.3)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STY Oper            |    84   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   STY Oper,X          |    94   |    2    |    4     |</b>\n"
-   "|  Absolute      |   STY Oper            |    8C   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STY: Store index Y in memory<br>"
+   "Operation: Y -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STY","84","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("STY","94","2","4")
+   VARIANT VARIANT_ABSOLUTE("STY","8C","3","4")
+   VARIANT_FOOTER,
 
    // STA - Zero Page,X
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |</b>\n"
-   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
-   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
-   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
-   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    // STX - Zero Page,Y
-   "STX                    STX Store index X in memory                    STX\n"
-   "\n"
-   "Operation: X -> M                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                               (Ref: 7.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STX Oper            |    86   |    2    |    3     |\n"
-   "<b>|  Zero Page,Y   |   STX Oper,Y          |    96   |    2    |    4     |</b>\n"
-   "|  Absolute      |   STX Oper            |    8E   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STX: Store index X in memory<br>"
+   "Operation: X -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STX","86","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("STX","96","2","4")
+   VARIANT VARIANT_ABSOLUTE("STX","8E","3","4")
+   VARIANT_FOOTER,
 
    "", // AXS - Zero Page,Y
 
    // TYA
-   "TYA                TYA Transfer index Y to accumulator                TYA\n"
-   "\n"
-   "Operation:  Y -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.14)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   TYA                 |    98   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "TYA: Transfer index Y to accumulator<br>"
+   "Operation:  Y -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("TYA","98","1","2")
+   VARIANT_FOOTER,
 
    // STA - Absolute,Y
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
-   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
-   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
-   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
-   "<b>|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |</b>\n"
-   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    // TXS
-   "TXS              TXS Transfer index X to stack pointer                TXS\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  X -> S                                    _ _ _ _ _ _\n"
-   "                               (Ref: 8.8)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   TXS                 |    9A   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "TXS: Transfer index X to stack pointer<br>"
+   "Operation:  X -&gt; S<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("TXS","9A","1","2")
+   VARIANT_FOOTER,
 
    "", // TAS - Absolute,Y (undocumented)
 
    "", // SAY - Absolute,X (undocumented)
 
    // STA - Absolute,X
-   "STA                  STA Store accumulator in memory                  STA\n"
-   "\n"
-   "Operation:  A -> M                                    N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                              (Ref: 2.1.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
-   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
-   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |</b>\n"
-   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
-   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "STA: Store accumulator in memory<br>"
+   "Operation:  A -&gt; M<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("STA","85","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("STA","95","2","4")
+   VARIANT VARIANT_ABSOLUTE("STA","8D","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("STA","9D","3","5")
+   VARIANT VARIANT_ABSOLUTE_Y("STA","99","3","5")
+   VARIANT VARIANT_INDIRECT_X("STA","81","2","6")
+   VARIANT VARIANT_INDIRECT_Y("STA","91","2","6")
+   VARIANT_FOOTER,
 
    "", // XAS - Absolute,Y (undocumented)
 
    "", // AXA - Absolute,Y (undocumented)
 
    // LDY - Immediate
-   "LDY                   LDY Load index Y with memory                    LDY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M -> Y                                    / / _ _ _ _\n"
-   "                               (Ref: 7.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
-   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDY: Load index Y with memory<br>"
+   "Operation:  M -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("LDY","A0","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDY","A4","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDY","B4","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDY","AC","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDY","BC","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDA - (Indirect,X)
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDX - Immediate
-   "LDX                   LDX Load index X with memory                    LDX\n"
-   "\n"
-   "Operation:  M -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
-   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
-   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
-   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDX: Load index X with memory<br>"
+   "Operation:  M -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("LDX","A2","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDX","A6","2","3")
+   VARIANT VARIANT_ZEROPAGE_Y("LDX","B6","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDX","AE","3","4")
+   VARIANT VARIANT_ABSOLUTE_Y("LDX","BE","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // LAX - (Indirect,X) (undocumented)
 
    // LDY - Zero Page
-   "LDY                   LDY Load index Y with memory                    LDY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M -> Y                                    / / _ _ _ _\n"
-   "                               (Ref: 7.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
-   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDY: Load index Y with memory<br>"
+   "Operation:  M -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDY","A0","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("LDY","A4","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDY","B4","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDY","AC","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDY","BC","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDA - Zero Page
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDX - Zero Page
-   "LDX                   LDX Load index X with memory                    LDX\n"
-   "\n"
-   "Operation:  M -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |</b>\n"
-   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
-   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
-   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDX: Load index X with memory<br>"
+   "Operation:  M -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDX","A2","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("LDX","A6","2","3")
+   VARIANT VARIANT_ZEROPAGE_Y("LDX","B6","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDX","AE","3","4")
+   VARIANT VARIANT_ABSOLUTE_Y("LDX","BE","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // LAX - Zero Page (undocumented)
 
    // TAY
-   "TAY                TAY Transfer accumulator to index Y                TAY\n"
-   "\n"
-   "Operation:  A -> Y                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.13)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   TAY                 |    A8   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "TAY: Transfer accumulator to index Y<br>"
+   "Operation:  A -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("TAY","A8","1","2")
+   VARIANT_FOOTER,
 
    // LDA - Immediate
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // TAX
-   "TAX                TAX Transfer accumulator to index X                TAX\n"
-   "\n"
-   "Operation:  A -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.11)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   TAX                 |    AA   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "TAX: Transfer accumulator to index X<br>"
+   "Operation:  A -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("TAX","AA","1","2")
+   VARIANT_FOOTER,
 
    "", // OAL - Immediate (undocumented)
 
    // LDY - Absolute
-   "LDY                   LDY Load index Y with memory                    LDY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M -> Y                                    / / _ _ _ _\n"
-   "                               (Ref: 7.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
-   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
-   "<b>|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDY: Load index Y with memory<br>"
+   "Operation:  M -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDY","A0","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDY","A4","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDY","B4","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("LDY","AC","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDY","BC","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDA - Absolute
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "<b>|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDX - Absolute
-   "LDX                   LDX Load index X with memory                    LDX\n"
-   "\n"
-   "Operation:  M -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
-   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
-   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
-   "<b>|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |</b>\n"
-   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDX: Load index X with memory<br>"
+   "Operation:  M -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDX","A2","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDX","A6","2","3")
+   VARIANT VARIANT_ZEROPAGE_Y("LDX","B6","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("LDX","AE","3","4")
+   VARIANT VARIANT_ABSOLUTE_Y("LDX","BE","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // LAX - Absolute (undocumented)
 
    // BCS
-   "BCS                      BCS Branch on carry set                      BCS\n"
-   "\n"
-   "Operation:  Branch on C = 1                           N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BCS Oper            |    B0   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to next page.\n",
+   "BCS: Branch on carry set<br>"
+   "Operation:  Branch on C = 1<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BCS","B0","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // LDA - (Indirect),Y
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
    "", // LAX - (Indirect),Y (undocumented)
 
    // LDY - Zero Page,X
-   "LDY                   LDY Load index Y with memory                    LDY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M -> Y                                    / / _ _ _ _\n"
-   "                               (Ref: 7.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
-   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |</b>\n"
-   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDY: Load index Y with memory<br>"
+   "Operation:  M -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDY","A0","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDY","A4","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("LDY","B4","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDY","AC","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDY","BC","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDA - Zero Page,X
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |</b>\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDX - Zero Page,Y
-   "LDX                   LDX Load index X with memory                    LDX\n"
-   "\n"
-   "Operation:  M -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
-   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
-   "<b>|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |</b>\n"
-   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
-   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDX: Load index X with memory<br>"
+   "Operation:  M -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDX","A2","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDX","A6","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_Y("LDX","B6","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDX","AE","3","4")
+   VARIANT VARIANT_ABSOLUTE_Y("LDX","BE","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // LAX - Zero Page,X (undocumented)
 
    // CLV
-   "CLV                      CLV Clear overflow flag                      CLV\n"
-   "\n"
-   "Operation: 0 -> V                                     N Z C I D V\n"
-   "                                                      _ _ _ _ _ 0\n"
-   "                              (Ref: 3.6.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   CLV                 |    B8   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CLV: Clear overflow flag<br>"
+   "Operation:  0 -&gt; V<br>"
+   FLAG_EFFECT("","","","","","0")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("CLV","B8","1","2")
+   VARIANT_FOOTER,
 
    // LDA - Absolute,Y
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // TSX
-   "TSX              TSX Transfer stack pointer to index X                TSX\n"
-   "\n"
-   "Operation:  S -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 8.9)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   TSX                 |    BA   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "TSX: Transfer stack pointer to index X<br>"
+   "Operation:  S -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("TSX","BA","1","2")
+   VARIANT_FOOTER,
 
    "", // LAS - Absolute,Y (undocumented)
 
    // LDY - Absolute,X
-   "LDY                   LDY Load index Y with memory                    LDY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M -> Y                                    / / _ _ _ _\n"
-   "                               (Ref: 7.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
-   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
-   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDY: Load index Y with memory<br>"
+   "Operation:  M -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDY","A0","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDY","A4","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDY","B4","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDY","AC","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("LDY","BC","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDA - Absolute,X
-   "LDA                  LDA Load accumulator with memory                 LDA\n"
-   "\n"
-   "Operation:  M -> A                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                              (Ref: 2.1.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
-   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
-   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "LDA: Load accumulator with memory<br>"
+   "Operation:  M -&gt; A<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDA","A9","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDA","A5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("LDA","B5","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDA","AD","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("LDA","BD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("LDA","B9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("LDA","A1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("LDA","B1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // LDX - Absolute,Y
-   "LDX                   LDX Load index X with memory                    LDX\n"
-   "\n"
-   "Operation:  M -> X                                    N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.0)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
-   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
-   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
-   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
-   "<b>|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "LDX: Load index X with memory<br>"
+   "Operation:  M -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("LDX","A2","2","2")
+   VARIANT VARIANT_ZEROPAGE("LDX","A6","2","3")
+   VARIANT VARIANT_ZEROPAGE_Y("LDX","B6","2","4")
+   VARIANT VARIANT_ABSOLUTE("LDX","AE","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("LDX","BE","3","4*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // LAX - Absolute,Y (undocumented)
 
    // CPY - Immediate
-   "CPY                  CPY Compare memory and index Y                   CPY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  Y - M                                     / / / _ _ _\n"
-   "                               (Ref: 7.9)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   CPY *Oper           |    C0   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   CPY Oper            |    C4   |    2    |    3     |\n"
-   "|  Absolute      |   CPY Oper            |    CC   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CPY: Compare memory and index Y<br>"
+   "Operation:  Y - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("CPY","C0","2","2")
+   VARIANT VARIANT_ZEROPAGE("CPY","C4","2","3")
+   VARIANT VARIANT_ABSOLUTE("CPY","CC","3","4")
+   VARIANT_FOOTER,
 
    // CMP - (Indirect,X)
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // DOP (undocumented)
 
    "", // DCM - (Indirect,X) (undocumented)
 
    // CPY - Zero Page
-   "CPY                  CPY Compare memory and index Y                   CPY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  Y - M                                     / / / _ _ _\n"
-   "                               (Ref: 7.9)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CPY *Oper           |    C0   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   CPY Oper            |    C4   |    2    |    3     |</b>\n"
-   "|  Absolute      |   CPY Oper            |    CC   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CPY: Compare memory and index Y<br>"
+   "Operation:  Y - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CPY","C0","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("CPY","C4","2","3")
+   VARIANT VARIANT_ABSOLUTE("CPY","CC","3","4")
+   VARIANT_FOOTER,
 
    // CMP - Zero Page
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // DEC - Zero Page
-   "DEC                   DEC Decrement memory by one                     DEC\n"
-   "\n"
-   "Operation:  M - 1 -> M                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 10.7)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |</b>\n"
-   "|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |\n"
-   "|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |\n"
-   "|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "DEC: Decrement memory by one<br>"
+   "Operation:  M - 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ZEROPAGE("DEC","C6","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("DEC","D6","2","6")
+   VARIANT VARIANT_ABSOLUTE("DEC","CE","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("DEC","DE","3","7")
+   VARIANT_FOOTER,
 
    "", // DCM - Zero Page (undocumented)
 
    // INY
-   "INY                    INY Increment Index Y by one                   INY\n"
-   "\n"
-   "Operation:  Y + 1 -> Y                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.5)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   INY                 |    C8   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "INY: Increment Index Y by one<br>"
+   "Operation:  Y + 1 -&gt; Y<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("INY","C8","1","2")
+   VARIANT_FOOTER,
 
    // CMP - Immediate
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // DEX
-   "DEX                   DEX Decrement index X by one                    DEX\n"
-   "\n"
-   "Operation:  X - 1 -> X                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 7.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   DEX                 |    CA   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "DEX: DEX Decrement index X by one<br>"
+   "Operation:  X - 1 -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("DEX","CA","1","2")
+   VARIANT_FOOTER,
 
    "", // SAX - Immediate (undocumented)
 
    // CPY - Absolute
-   "CPY                  CPY Compare memory and index Y                   CPY\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  Y - M                                     / / / _ _ _\n"
-   "                               (Ref: 7.9)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CPY *Oper           |    C0   |    2    |    2     |\n"
-   "|  Zero Page     |   CPY Oper            |    C4   |    2    |    3     |\n"
-   "<b>|  Absolute      |   CPY Oper            |    CC   |    3    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CPY: Compare memory and index Y<br>"
+   "Operation:  Y - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CPY","C0","2","2")
+   VARIANT VARIANT_ZEROPAGE("CPY","C4","2","3")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("CPY","CC","3","4")
+   VARIANT_FOOTER,
 
    // CMP - Absolute
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "<b>|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // DEC - Absolute
-   "DEC                   DEC Decrement memory by one                     DEC\n"
-   "\n"
-   "Operation:  M - 1 -> M                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 10.7)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |\n"
-   "|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |\n"
-   "<b>|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |</b>\n"
-   "|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "DEC: Decrement memory by one<br>"
+   "Operation:  M - 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("DEC","C6","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("DEC","D6","2","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("DEC","CE","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("DEC","DE","3","7")
+   VARIANT_FOOTER,
 
    "", // DCM - Absolute (undocumented)
 
    // BNE
-   "BNE                   BNE Branch on result not zero                   BNE\n"
-   "\n"
-   "Operation:  Branch on Z = 0                           N Z C I D V\n"
-   "                                                      _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BNE Oper            |    D0   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to different page.\n",
+   "BNE: Branch on result not zero<br>"
+   "Operation:  Branch on Z = 0<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BNE","D0","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // CMP   (Indirect),Y
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -2771,73 +2364,57 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // CMP - Zero Page,X
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |</b>\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // DEC - Zero Page,X
-   "DEC                   DEC Decrement memory by one                     DEC\n"
-   "\n"
-   "Operation:  M - 1 -> M                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 10.7)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |\n"
-   "<b>|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |</b>\n"
-   "|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |\n"
-   "|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "DEC: Decrement memory by one<br>"
+   "Operation:  M - 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("DEC","C6","2","5")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("DEC","D6","2","6")
+   VARIANT VARIANT_ABSOLUTE("DEC","CE","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("DEC","DE","3","7")
+   VARIANT_FOOTER,
 
    "", // DCM - Zero Page,X (undocumented)
 
    // CLD
-   "CLD                      CLD Clear decimal mode                       CLD\n"
-   "\n"
-   "Operation:  0 -> D                                    N A C I D V\n"
-   "                                                      _ _ _ _ 0 _\n"
-   "                              (Ref: 3.3.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   CLD                 |    D8   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CLD: Clear decimal mode<br>"
+   "Operation:  0 -&gt; D<br>"
+   FLAG_EFFECT("","","","","0","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("CLD","D8","1","2")
+   VARIANT_FOOTER,
 
    // CMP - Absolute,Y
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // NOP (undocumented)
 
@@ -2846,269 +2423,209 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // TOP (undocumented)
 
    // CMP - Absolute,X
-   "CMP                CMP Compare memory and accumulator                 CMP\n"
-   "\n"
-   "Operation:  A - M                                     N Z C I D V\n"
-   "                                                      / / / _ _ _\n"
-   "                              (Ref: 4.2.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
-   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
-   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if page boundary is crossed.\n",
+   "CMP: Compare memory and accumulator<br>"
+   "Operation:  A - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CMP","C9","2","2")
+   VARIANT VARIANT_ZEROPAGE("CMP","C5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("CMP","D5","2","4")
+   VARIANT VARIANT_ABSOLUTE("CMP","CD","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("CMP","DD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("CMP","D9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("CMP","C1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("CMP","D1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // DEC - Absolute,X
-   "DEC                   DEC Decrement memory by one                     DEC\n"
-   "\n"
-   "Operation:  M - 1 -> M                                N Z C I D V\n"
-   "                                                      / / _ _ _ _\n"
-   "                               (Ref: 10.7)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |\n"
-   "|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |\n"
-   "|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |\n"
-   "<b>|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "DEC: Decrement memory by one<br>"
+   "Operation:  M - 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("DEC","C6","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("DEC","D6","2","6")
+   VARIANT VARIANT_ABSOLUTE("DEC","CE","3","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("DEC","DE","3","7")
+   VARIANT_FOOTER,
 
    "", // DCM - Absolute,X (undocumented)
 
    // CPX - Immediate
-   "CPX                  CPX Compare Memory and Index X                   CPX\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  X - M                                     / / / _ _ _\n"
-   "                               (Ref: 7.8)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   CPX *Oper           |    E0   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   CPX Oper            |    E4   |    2    |    3     |\n"
-   "|  Absolute      |   CPX Oper            |    EC   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CPX: Compare memory and index X<br>"
+   "Operation:  X - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("CPX","E0","2","2")
+   VARIANT VARIANT_ZEROPAGE("CPX","E4","2","3")
+   VARIANT VARIANT_ABSOLUTE("CPX","EC","3","4")
+   VARIANT_FOOTER,
 
    // SBC - (Indirect,X)
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "<b>|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |</b>\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT_SELECTED VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // DOP (undocumented)
 
    "", // INS - (Indirect,X) (undocumented)
 
    // CPX - Zero Page
-   "CPX                  CPX Compare Memory and Index X                   CPX\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  X - M                                     / / / _ _ _\n"
-   "                               (Ref: 7.8)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CPX *Oper           |    E0   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   CPX Oper            |    E4   |    2    |    3     |</b>\n"
-   "|  Absolute      |   CPX Oper            |    EC   |    3    |    4     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CPX: Compare memory and index X<br>"
+   "Operation:  X - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CPX","E0","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("CPX","E4","2","3")
+   VARIANT VARIANT_ABSOLUTE("CPX","EC","3","4")
+   VARIANT_FOOTER,
 
    // SBC - Zero Page
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "<b>|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |</b>\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT_SELECTED VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // INC - Zero Page
-   "INC                    INC Increment memory by one                    INC\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
-   "                               (Ref: 10.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |</b>\n"
-   "|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |\n"
-   "|  Absolute      |   INC Oper            |    EE   |    3    |    6     |\n"
-   "|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "INC: Increment memory by one<br>"
+   "Operation:  M + 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_ZEROPAGE("INC","E6","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("INC","F6","2","6")
+   VARIANT VARIANT_ABSOLUTE("INC","EE","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("INC","FE","3","7")
+   VARIANT_FOOTER,
 
    "", // INS - Zero Page (undocumented)
 
    // INX
-   "INX                    INX Increment Index X by one                   INX\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  X + 1 -> X                                / / _ _ _ _\n"
-   "                               (Ref: 7.4)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   INX                 |    E8   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "INX: Increment Index X by one<br>"
+   "Operation:  X + 1 -&gt; X<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("INX","E8","1","2")
+   VARIANT_FOOTER,
 
    // SBC - Immediate
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // NOP
 
    // SBC - Immediate (undocumented)
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |</b>\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // CPX - Absolute
-   "CPX                  CPX Compare Memory and Index X                   CPX\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  X - M                                     / / / _ _ _\n"
-   "                               (Ref: 7.8)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   CPX *Oper           |    E0   |    2    |    2     |\n"
-   "|  Zero Page     |   CPX Oper            |    E4   |    2    |    3     |\n"
-   "<b>|  Absolute      |   CPX Oper            |    EC   |    3    |    4     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "CPX: Compare memory and index X<br>"
+   "Operation:  X - M<br>"
+   FLAG_EFFECT("/","/","/","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("CPX","E0","2","2")
+   VARIANT VARIANT_ZEROPAGE("CPX","E4","2","3")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("CPX","EC","3","4")
+   VARIANT_FOOTER,
 
    // SBC - Absolute
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "<b>|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |</b>\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // INC - Absolute
-   "INC                    INC Increment memory by one                    INC\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
-   "                               (Ref: 10.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |\n"
-   "|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |\n"
-   "<b>|  Absolute      |   INC Oper            |    EE   |    3    |    6     |</b>\n"
-   "|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "INC: Increment memory by one<br>"
+   "Operation:  M + 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("INC","E6","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("INC","F6","2","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE("INC","EE","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("INC","FE","3","7")
+   VARIANT_FOOTER,
 
    "", // INS - Absolute (undocumented)
 
    // BEQ
-   "BEQ                    BEQ Branch on result zero                      BEQ\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  Branch on Z = 1                           _ _ _ _ _ _\n"
-   "                             (Ref: 4.1.1.5)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Relative      |   BEQ Oper            |    F0   |    2    |    2*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 if branch occurs to same page.\n"
-   "* Add 2 if branch occurs to next page.\n",
+   "BEQ: Branch on result zero<br>"
+   "Operation:  Branch on Z = 1<br>"
+   FLAG_EFFECT("","","","","","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_RELATIVE("BEQ","F0","2","2*")
+   VARIANT_FOOTER
+   "* Add 1 if branch occurs to same page.<br>"
+   "* Add 2 if branch occurs to different page.",
 
    // SBC - (Indirect),Y
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "<b>|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT_SELECTED VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // KIL - Implied (processor lock up!)
 
@@ -3117,73 +2634,57 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // DOP (undocumented)
 
    // SBC - Zero Page,X
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "<b>|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |</b>\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // INC - Zero Page,X
-   "INC                    INC Increment memory by one                    INC\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
-   "                               (Ref: 10.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |\n"
-   "<b>|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |</b>\n"
-   "|  Absolute      |   INC Oper            |    EE   |    3    |    6     |\n"
-   "|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "INC: Increment memory by one<br>"
+   "Operation:  M + 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("INC","E6","2","5")
+   VARIANT_SELECTED VARIANT_ZEROPAGE_X("INC","F6","2","6")
+   VARIANT VARIANT_ABSOLUTE("INC","EE","3","6")
+   VARIANT VARIANT_ABSOLUTE_X("INC","FE","3","7")
+   VARIANT_FOOTER,
 
    "", // INS - Zero Page,X (undocumented)
 
    // SED
-   "SED                       SED Set decimal mode                        SED\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  1 -> D                                    _ _ _ _ 1 _\n"
-   "                              (Ref: 3.3.1)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "<b>|  Implied       |   SED                 |    F8   |    1    |    2     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "SED: Set decimal mode<br>"
+   "Operation:  1 -&gt; D<br>"
+   FLAG_EFFECT("","","","","1","")
+   VARIANT_HEADER
+   VARIANT_SELECTED VARIANT_IMPLIED("SED","F8","1","2")
+   VARIANT_FOOTER,
 
    // SBC - Absolute,Y
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
-   "<b>|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |</b>\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    "", // NOP (undocumented)
 
@@ -3192,39 +2693,31 @@ static const char* m_6502opcodeInfo [ 256 ] =
    "", // TOP (undocumented)
 
    // SBC - Absolute,X
-   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
-   "\n"
-   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
-   "       -                                              / / / _ _ /\n"
-   "  Note:C = Borrow             (Ref: 2.2.2)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
-   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
-   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
-   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
-   "<b>|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |</b>\n"
-   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
-   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
-   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "* Add 1 when page boundary is crossed.\n",
+   "SBC: Subtract memory from accumulator with borrow<br>"
+   "Operation:  A - M - (1-C) -&gt; A<br>"
+   FLAG_EFFECT("/","/","/","","","/")
+   VARIANT_HEADER
+   VARIANT VARIANT_IMMEDIATE("SBC","E9","2","2")
+   VARIANT VARIANT_ZEROPAGE("SBC","E5","2","3")
+   VARIANT VARIANT_ZEROPAGE_X("SBC","F5","2","4")
+   VARIANT VARIANT_ABSOLUTE("SBC","ED","3","4")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("SBC","FD","3","4*")
+   VARIANT VARIANT_ABSOLUTE_Y("SBC","F9","3","4*")
+   VARIANT VARIANT_INDIRECT_X("SBC","E1","2","6")
+   VARIANT VARIANT_INDIRECT_Y("SBC","F1","2","5*")
+   VARIANT_FOOTER
+   "* Add 1 if page boundary is crossed.",
 
    // INC - Absolute,X
-   "INC                    INC Increment memory by one                    INC\n"
-   "\n"
-   "                                                      N Z C I D V\n"
-   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
-   "                               (Ref: 10.6)\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
-   "+----------------+-----------------------+---------+---------+----------+\n"
-   "|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |\n"
-   "|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |\n"
-   "|  Absolute      |   INC Oper            |    EE   |    3    |    6     |\n"
-   "<b>|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |</b>\n"
-   "+----------------+-----------------------+---------+---------+----------+\n",
+   "INC: Increment memory by one<br>"
+   "Operation:  M + 1 -&gt; M<br>"
+   FLAG_EFFECT("/","/","","","","")
+   VARIANT_HEADER
+   VARIANT VARIANT_ZEROPAGE("INC","E6","2","5")
+   VARIANT VARIANT_ZEROPAGE_X("INC","F6","2","6")
+   VARIANT VARIANT_ABSOLUTE("INC","EE","3","6")
+   VARIANT_SELECTED VARIANT_ABSOLUTE_X("INC","FE","3","7")
+   VARIANT_FOOTER,
 
    ""  // INS - Absolute,X (undocumented)
 };

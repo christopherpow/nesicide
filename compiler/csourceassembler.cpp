@@ -20,7 +20,6 @@ bool CSourceAssembler::assemble()
    char* errors;
    int numErrors;
    int numSymbols;
-   int bank;
    int s;
 
    if (!rootSource)
