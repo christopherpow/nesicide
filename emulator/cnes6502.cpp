@@ -461,6 +461,2776 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false }  // INS - Absolute,X (undocumented)
 };
 
+static const char* m_6502opcodeInfo [ 256 ] =
+{
+   // BRK
+   "BRK                          BRK Force Break                          BRK\n"
+   "\n"
+   "Operation:  Forced Interrupt PC + 2 toS P toS         N Z C I D V\n"
+   "                                                      _ _ _ 1 _ _\n"
+   "                               (Ref: 9.11)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   BRK                 |    00   |    1    |    7     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "1. A BRK command cannot be masked by setting I.",
+
+   // ORA - (Indirect,X)
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // ASO - (Indirect,X) (undocumented)
+
+   "", // DOP (undocumented)
+
+   // ORA - Zero Page
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   // ASL - Zero Page
+   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
+   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                               (Ref: 10.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
+   "<b>|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |</b>\n"
+   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
+   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
+   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ASO - Zero Page (undocumented)
+
+   // PHP
+   "PHP                 PHP Push processor status on stack                PHP\n"
+   "\n"
+   "Operation:  P toS                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 8.11)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   PHP                 |    08   |    1    |    3     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // ORA - Immediate
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   // ASL - Accumulator
+   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
+   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                               (Ref: 10.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Accumulator   |   ASL A               |    0A   |    1    |    2     |</b>\n"
+   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
+   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
+   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ANC - Immediate (undocumented)
+
+   "", // TOP (undocumented)
+
+   // ORA - Absolute
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "<b>|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   // ASL - Absolute
+   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
+   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                               (Ref: 10.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
+   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
+   "<b>|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |</b>\n"
+   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ASO - Absolute (undocumented)
+
+   // BPL
+   "BPL                     BPL Branch on result plus                     BPL\n"
+   "\n"
+   "Operation:  Branch on N = 0                           N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BPL Oper            |    10   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to different page.\n",
+
+   // ORA - (Indirect),Y
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // ASO - (Indirect),Y (undocumented)
+
+   "", // DOP (undocumented)
+
+   // ORA - Zero Page,X
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |</b>\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   // ASL - Zero Page,X
+   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
+   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                               (Ref: 10.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
+   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
+   "<b>|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |</b>\n"
+   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
+   "|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ASO - Zero Page,X (undocumented)
+
+   // CLC
+   "CLC                       CLC Clear carry flag                        CLC\n"
+   "\n"
+   "Operation:  0 -> C                                    N Z C I D V\n"
+   "                                                      _ _ 0 _ _ _\n"
+   "                              (Ref: 3.0.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   CLC                 |    18   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // ORA - Absolute,Y
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   "", // NOP (undocumented)
+
+   "", // ASO - Absolute,Y (undocumented)
+
+   "", // TOP (undocumented)
+
+   // ORA - Absolute,X
+   "ORA                 ORA \"OR\" memory with accumulator                  ORA\n"
+   "\n"
+   "Operation: A V M -> A                                 N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ORA #Oper           |    09   |    2    |    2     |\n"
+   "|  Zero Page     |   ORA Oper            |    05   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ORA Oper,X          |    15   |    2    |    4     |\n"
+   "|  Absolute      |   ORA Oper            |    0D   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   ORA Oper,X          |    1D   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   ORA Oper,Y          |    19   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ORA (Oper,X)        |    01   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ORA (Oper),Y        |    11   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 on page crossing\n",
+
+   // ASL - Absolute,X
+   "ASL          ASL Shift Left One Bit (Memory or Accumulator)           ASL\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  C <- |7|6|5|4|3|2|1|0| <- 0\n"
+   "                 +-+-+-+-+-+-+-+-+                    N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                               (Ref: 10.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ASL A               |    0A   |    1    |    2     |\n"
+   "|  Zero Page     |   ASL Oper            |    06   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ASL Oper,X          |    16   |    2    |    6     |\n"
+   "|  Absolute      |   ASL Oper            |    0E   |    3    |    6     |\n"
+   "<b>|  Absolute, X   |   ASL Oper,X          |    1E   |    3    |    7     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ASO - Absolute,X (undocumented)
+
+   // JSR
+   "JSR          JSR Jump to new location saving return address           JSR\n"
+   "\n"
+   "Operation:  PC + 2 toS, (PC + 1) -> PCL               N Z C I D V\n"
+   "                        (PC + 2) -> PCH               _ _ _ _ _ _\n"
+   "                               (Ref: 8.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Absolute      |   JSR Oper            |    20   |    3    |    6     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // AND - (Indirect,X)
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |</b>\n"
+   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // RLA - (Indirect,X) (undocumented)
+
+   // BIT - Zero Page
+   "BIT             BIT Test bits in memory with accumulator              BIT\n"
+   "\n"
+   "Operation:  A /\\ M, M7 -> N, M6 -> V\n"
+   "\n"
+   "Bit 6 and 7 are transferred to the status register.   N Z C I D V\n"
+   "If the result of A /\\ M is zero then Z = 1, otherwise M7/ _ _ _ M6\n"
+   "Z = 0\n"
+   "                             (Ref: 4.2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Zero Page     |   BIT Oper            |    24   |    2    |    3     |</b>\n"
+   "|  Absolute      |   BIT Oper            |    2C   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // AND - Zero Page
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   AND Oper            |    25   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROL - Zero Page
+   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |         M or A               |\n"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
+   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
+   "                               (Ref: 10.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
+   "<b>|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |</b>\n"
+   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
+   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
+   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RLA - Zero Page (undocumented)
+
+   // PLP
+   "PLP               PLP Pull processor status from stack                PLA\n"
+   "\n"
+   "Operation:  P fromS                                   N Z C I D V\n"
+   "                                                       From Stack\n"
+   "                               (Ref: 8.12)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   PLP                 |    28   |    1    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // AND - Immediate
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   AND #Oper           |    29   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROL - Accumulator
+   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |         M or A               |\n"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
+   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
+   "                               (Ref: 10.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Accumulator   |   ROL A               |    2A   |    1    |    2     |</b>\n"
+   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
+   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
+   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ANC - Immediate (undocumented)
+
+   // BIT - Absolute
+   "BIT             BIT Test bits in memory with accumulator              BIT\n"
+   "\n"
+   "Operation:  A /\\ M, M7 -> N, M6 -> V\n"
+   "\n"
+   "Bit 6 and 7 are transferred to the status register.   N Z C I D V\n"
+   "If the result of A /\\ M is zero then Z = 1, otherwise M7/ _ _ _ M6\n"
+   "Z = 0\n"
+   "                             (Ref: 4.2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   BIT Oper            |    24   |    2    |    3     |\n"
+   "<b>|  Absolute      |   BIT Oper            |    2C   |    3    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // AND - Absolute
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "<b>|  Absolute      |   AND Oper            |    2D   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "|  (Indirect,Y)  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROL - Absolute
+   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |         M or A               |\n"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
+   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
+   "                               (Ref: 10.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
+   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
+   "<b>|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |</b>\n"
+   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RLA - Absolute (undocumented)
+
+   // BMI
+   "BMI                    BMI Branch on result minus                     BMI\n"
+   "\n"
+   "Operation:  Branch on N = 1                           N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BMI Oper            |    30   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 1 if branch occurs to different page.\n",
+
+   // AND - (Indirect),Y
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // RLA - (Indirect),Y (undocumented)
+
+   "", // DOP (undocumented)
+
+   // AND - Zero Page,X
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |</b>\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROL - Zero Page,X
+   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |         M or A               |\n"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
+   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
+   "                               (Ref: 10.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
+   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
+   "<b>|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |</b>\n"
+   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
+   "|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RLA - Zero Page,X (undocumented)
+
+   // SEC
+   "SEC                        SEC Set carry flag                         SEC\n"
+   "\n"
+   "Operation:  1 -> C                                    N Z C I D V\n"
+   "                                                      _ _ 1 _ _ _\n"
+   "                              (Ref: 3.0.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   SEC                 |    38   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // AND - Absolute,Y
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // NOP (undocumented)
+
+   "", // RLA - Absolute,Y (undocumented)
+
+   "", // TOP (undocumented)
+
+   // AND - Absolute,X
+   "AND                  \"AND\" memory with accumulator                    AND\n"
+   "\n"
+   "Operation:  A /\\ M -> A                               N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   AND #Oper           |    29   |    2    |    2     |\n"
+   "|  Zero Page     |   AND Oper            |    25   |    2    |    3     |\n"
+   "|  Zero Page,X   |   AND Oper,X          |    35   |    2    |    4     |\n"
+   "|  Absolute      |   AND Oper            |    2D   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   AND Oper,X          |    3D   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   AND Oper,Y          |    39   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   AND (Oper,X)        |    21   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   AND (Oper),Y        |    31   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROL - Absolute,X
+   "ROL          ROL Rotate one bit left (memory or accumulator)          ROL\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |         M or A               |\n"
+   "             |   +-+-+-+-+-+-+-+-+    +-+   |\n"
+   "Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _\n"
+   "                               (Ref: 10.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROL A               |    2A   |    1    |    2     |\n"
+   "|  Zero Page     |   ROL Oper            |    26   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ROL Oper,X          |    36   |    2    |    6     |\n"
+   "|  Absolute      |   ROL Oper            |    2E   |    3    |    6     |\n"
+   "<b>|  Absolute,X    |   ROL Oper,X          |    3E   |    3    |    7     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RLA - Absolute,X (undocumented)
+
+   // RTI
+   "RTI                    RTI Return from interrupt                      RTI\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  P fromS PC fromS                           From Stack\n"
+   "                               (Ref: 9.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   RTI                 |    4D   |    1    |    6     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // EOR - (Indirect,X)
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // LSE - (Indirect,X) (undocumented)
+
+   "", // DOP (undocumented)
+
+   // EOR - Zero Page
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LSR - Zero Page
+   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
+   "\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
+   "                               (Ref: 10.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
+   "<b>|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |</b>\n"
+   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
+   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
+   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // LSE - Zero Page (undocumented)
+
+   // PHA
+   "PHA                   PHA Push accumulator on stack                   PHA\n"
+   "\n"
+   "Operation:  A toS                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 8.5)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   PHA                 |    48   |    1    |    3     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // EOR - Immediate
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LSR - Accumulator
+   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
+   "\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
+   "                               (Ref: 10.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Accumulator   |   LSR A               |    4A   |    1    |    2     |</b>\n"
+   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
+   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
+   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
+   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ALR - Immediate (undocumented)
+
+   // JMP - Absolute
+   "JMP                     JMP Jump to new location                      JMP\n"
+   "\n"
+   "Operation:  (PC + 1) -> PCL                           N Z C I D V\n"
+   "            (PC + 2) -> PCH   (Ref: 4.0.2)            _ _ _ _ _ _\n"
+   "                              (Ref: 9.8.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Absolute      |   JMP Oper            |    4C   |    3    |    3     |</b>\n"
+   "|  Indirect      |   JMP (Oper)          |    6C   |    3    |    5     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // EOR - Absolute
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "<b>|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LSR - Absolute
+   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
+   "\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
+   "                               (Ref: 10.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
+   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
+   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
+   "<b>|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |</b>\n"
+   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // LSE - Absolute (undocumented)
+
+   // BVC
+   "BVC                   BVC Branch on overflow clear                    BVC\n"
+   "\n"
+   "Operation:  Branch on V = 0                           N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.8)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BVC Oper            |    50   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to different page.\n",
+
+   // EOR - (Indirect),Y
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // LSE - (Indirect),Y
+
+   "", // DOP (undocumented)
+
+   // EOR - Zero Page,X
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |</b>\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LSR - Zero Page,X
+   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
+   "\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
+   "                               (Ref: 10.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
+   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
+   "<b>|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |</b>\n"
+   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
+   "|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // LSE - Zero Page,X (undocumented)
+
+   // CLI
+   "CLI                  CLI Clear interrupt disable bit                  CLI\n"
+   "\n"
+   "Operation: 0 -> I                                     N Z C I D V\n"
+   "                                                      _ _ _ 0 _ _\n"
+   "                              (Ref: 3.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   CLI                 |    58   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // EOR - Absolute,Y
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // NOP (undocumented)
+
+   "", // LSE - Absolute,Y (undocumented)
+
+   "", // TOP (undocumented)
+
+   // EOR - Absolute,X
+   "EOR            EOR \"Exclusive-Or\" memory with accumulator             EOR\n"
+   "\n"
+   "Operation:  A EOR M -> A                              N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                             (Ref: 2.2.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   EOR #Oper           |    49   |    2    |    2     |\n"
+   "|  Zero Page     |   EOR Oper            |    45   |    2    |    3     |\n"
+   "|  Zero Page,X   |   EOR Oper,X          |    55   |    2    |    4     |\n"
+   "|  Absolute      |   EOR Oper            |    4D   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   EOR Oper,X          |    5D   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   EOR Oper,Y          |    59   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   EOR (Oper,X)        |    41   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   EOR (Oper),Y        |    51   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LSR - Absolute,X
+   "LSR          LSR Shift right one bit (memory or accumulator)          LSR\n"
+   "\n"
+   "                 +-+-+-+-+-+-+-+-+\n"
+   "Operation:  0 -> |7|6|5|4|3|2|1|0| -> C               N Z C I D V\n"
+   "                 +-+-+-+-+-+-+-+-+                    0 / / _ _ _\n"
+   "                               (Ref: 10.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   LSR A               |    4A   |    1    |    2     |\n"
+   "|  Zero Page     |   LSR Oper            |    46   |    2    |    5     |\n"
+   "|  Zero Page,X   |   LSR Oper,X          |    56   |    2    |    6     |\n"
+   "|  Absolute      |   LSR Oper            |    4E   |    3    |    6     |\n"
+   "<b>|  Absolute,X    |   LSR Oper,X          |    5E   |    3    |    7     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // LSE - Absolute,X (undocumented)
+
+   // RTS
+   "RTS                    RTS Return from subroutine                     RTS\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  PC fromS, PC + 1 -> PC                    _ _ _ _ _ _\n"
+   "                               (Ref: 8.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   RTS                 |    60   |    1    |    6     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // ADC - (Indirect,X)
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // RRA - (Indirect,X) (undocumented)
+
+   "", // DOP (undocumented)
+
+   // ADC - Zero Page
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROR - Zero Page
+   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |                              |\n"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
+   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
+   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
+   "                               (Ref: 10.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
+   "<b>|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |</b>\n"
+   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
+   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
+   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RRA - Zero Page (undocumented)
+
+   // PLA
+   "PLA                 PLA Pull accumulator from stack                   PLA\n"
+   "\n"
+   "Operation:  A fromS                                   N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 8.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   PLA                 |    68   |    1    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // ADC - Immediate
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROR - Accumulator
+   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |                              |\n"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
+   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
+   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
+   "                               (Ref: 10.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Accumulator   |   ROR A               |    6A   |    1    |    2     |</b>\n"
+   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
+   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
+   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // ARR - Immediate (undocumented)
+
+   // JMP - Indirect
+   "JMP                     JMP Jump to new location                      JMP\n"
+   "\n"
+   "Operation:  (PC + 1) -> PCL                           N Z C I D V\n"
+   "            (PC + 2) -> PCH   (Ref: 4.0.2)            _ _ _ _ _ _\n"
+   "                              (Ref: 9.8.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Absolute      |   JMP Oper            |    4C   |    3    |    3     |\n"
+   "<b>|  Indirect      |   JMP (Oper)          |    6C   |    3    |    5     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // ADC - Absolute
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "<b>|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROR - Absolute
+   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |                              |\n"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
+   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
+   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
+   "                               (Ref: 10.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
+   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
+   "<b>|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |</b>\n"
+   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RRA - Absolute (undocumented)
+
+   // BVS
+   "BVS                    BVS Branch on overflow set                     BVS\n"
+   "\n"
+   "Operation:  Branch on V = 1                           N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.7)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BVS Oper            |    70   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to different page.\n",
+
+   // ADC - (Indirect),Y
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // RRA - (Indirect),Y (undocumented)
+
+   "", // DOP (undocumented)
+
+   // ADC - Zero Page,X
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |</b>\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROR - Zero Page,X
+   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |                              |\n"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
+   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
+   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
+   "                               (Ref: 10.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
+   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
+   "<b>|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |</b>\n"
+   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
+   "|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RRA - Zero Page,X (undocumented)
+
+   // SEI
+   "SEI                 SEI Set interrupt disable status                  SEI\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  1 -> I                                    _ _ _ 1 _ _\n"
+   "                              (Ref: 3.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   SEI                 |    78   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // ADC - Absolute,Y
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // NOP (undocumented)
+
+   "", // RRA - Absolute,Y (undocumented)
+
+   "", // TOP (undocumented)
+
+   // ADC - Absolute,X
+   "ADC               Add memory to accumulator with carry                ADC\n"
+   "\n"
+   "Operation:  A + M + C -> A, C                         N Z C I D V\n"
+   "                                                      / / / _ _ /\n"
+   "                              (Ref: 2.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   ADC #Oper           |    69   |    2    |    2     |\n"
+   "|  Zero Page     |   ADC Oper            |    65   |    2    |    3     |\n"
+   "|  Zero Page,X   |   ADC Oper,X          |    75   |    2    |    4     |\n"
+   "|  Absolute      |   ADC Oper            |    6D   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   ADC Oper,X          |    7D   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   ADC Oper,Y          |    79   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   ADC (Oper,X)        |    61   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   ADC (Oper),Y        |    71   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // ROR - Absolute,X
+   "ROR          ROR Rotate one bit right (memory or accumulator)         ROR\n"
+   "\n"
+   "             +------------------------------+\n"
+   "             |                              |\n"
+   "             |   +-+    +-+-+-+-+-+-+-+-+   |\n"
+   "Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V\n"
+   "                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _\n"
+   "                               (Ref: 10.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Accumulator   |   ROR A               |    6A   |    1    |    2     |\n"
+   "|  Zero Page     |   ROR Oper            |    66   |    2    |    5     |\n"
+   "|  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |\n"
+   "|  Absolute      |   ROR Oper            |    6E   |    3    |    6     |\n"
+   "<b>|  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // RRA - Absolute,X (undocumented)
+
+   "", // DOP (undocumented)
+
+   // STA - (Indirect,X)
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
+   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
+   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
+   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
+   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
+   "<b>|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // DOP (undocumented)
+
+   "", // AXS - (Indirect,X) (undocumented)
+
+   // STY - Zero Page
+   "STY                    STY Store index Y in memory                    STY\n"
+   "\n"
+   "Operation: Y -> M                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 7.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Zero Page     |   STY Oper            |    84   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   STY Oper,X          |    94   |    2    |    4     |\n"
+   "|  Absolute      |   STY Oper            |    8C   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STA - Zero Page
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Zero Page     |   STA Oper            |    85   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
+   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
+   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
+   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
+   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STX - Zero Page
+   "STX                    STX Store index X in memory                    STX\n"
+   "\n"
+   "Operation: X -> M                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 7.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Zero Page     |   STX Oper            |    86   |    2    |    3     |</b>\n"
+   "|  Zero Page,Y   |   STX Oper,Y          |    96   |    2    |    4     |\n"
+   "|  Absolute      |   STX Oper            |    8E   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // AXS - Zero Page (undocumented)
+
+   // DEY
+   "DEY                   DEY Decrement index Y by one                    DEY\n"
+   "\n"
+   "Operation:  Y - 1 -> Y                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.7)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   DEY                 |    88   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // DOP (undocumented)
+
+   // TXA
+   "TXA                TXA Transfer index X to accumulator                TXA\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  X -> A                                    / / _ _ _ _\n"
+   "                               (Ref: 7.12)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   TXA                 |    8A   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // XAA - Immediate (undocumented)
+
+   // STY - Absolute
+   "STY                    STY Store index Y in memory                    STY\n"
+   "\n"
+   "Operation: Y -> M                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 7.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STY Oper            |    84   |    2    |    3     |\n"
+   "|  Zero Page,X   |   STY Oper,X          |    94   |    2    |    4     |\n"
+   "<b>|  Absolute      |   STY Oper            |    8C   |    3    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STA - Absolute
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
+   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
+   "<b>|  Absolute      |   STA Oper            |    8D   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
+   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
+   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STX - Absolute
+   "STX                    STX Store index X in memory                    STX\n"
+   "\n"
+   "Operation: X -> M                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 7.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STX Oper            |    86   |    2    |    3     |\n"
+   "|  Zero Page,Y   |   STX Oper,Y          |    96   |    2    |    4     |\n"
+   "<b>|  Absolute      |   STX Oper            |    8E   |    3    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // AXS - Absolulte (undocumented)
+
+   // BCC
+   "BCC                     BCC Branch on Carry Clear                     BCC\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  Branch on C = 0                           _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BCC Oper            |    90   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to different page.\n",
+
+   // STA - (Indirect),Y
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
+   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
+   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
+   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
+   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
+   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // AXA - (Indirect),Y
+
+   // STY - Zero Page,X
+   "STY                    STY Store index Y in memory                    STY\n"
+   "\n"
+   "Operation: Y -> M                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 7.3)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STY Oper            |    84   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   STY Oper,X          |    94   |    2    |    4     |</b>\n"
+   "|  Absolute      |   STY Oper            |    8C   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STA - Zero Page,X
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |</b>\n"
+   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
+   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
+   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
+   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STX - Zero Page,Y
+   "STX                    STX Store index X in memory                    STX\n"
+   "\n"
+   "Operation: X -> M                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                               (Ref: 7.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STX Oper            |    86   |    2    |    3     |\n"
+   "<b>|  Zero Page,Y   |   STX Oper,Y          |    96   |    2    |    4     |</b>\n"
+   "|  Absolute      |   STX Oper            |    8E   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // AXS - Zero Page,Y
+
+   // TYA
+   "TYA                TYA Transfer index Y to accumulator                TYA\n"
+   "\n"
+   "Operation:  Y -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.14)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   TYA                 |    98   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // STA - Absolute,Y
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
+   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
+   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
+   "|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |\n"
+   "<b>|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |</b>\n"
+   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // TXS
+   "TXS              TXS Transfer index X to stack pointer                TXS\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  X -> S                                    _ _ _ _ _ _\n"
+   "                               (Ref: 8.8)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   TXS                 |    9A   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // TAS - Absolute,Y (undocumented)
+
+   "", // SAY - Absolute,X (undocumented)
+
+   // STA - Absolute,X
+   "STA                  STA Store accumulator in memory                  STA\n"
+   "\n"
+   "Operation:  A -> M                                    N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                              (Ref: 2.1.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   STA Oper            |    85   |    2    |    3     |\n"
+   "|  Zero Page,X   |   STA Oper,X          |    95   |    2    |    4     |\n"
+   "|  Absolute      |   STA Oper            |    8D   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   STA Oper,X          |    9D   |    3    |    5     |</b>\n"
+   "|  Absolute,Y    |   STA Oper, Y         |    99   |    3    |    5     |\n"
+   "|  (Indirect,X)  |   STA (Oper,X)        |    81   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   STA (Oper),Y        |    91   |    2    |    6     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // XAS - Absolute,Y (undocumented)
+
+   "", // AXA - Absolute,Y (undocumented)
+
+   // LDY - Immediate
+   "LDY                   LDY Load index Y with memory                    LDY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M -> Y                                    / / _ _ _ _\n"
+   "                               (Ref: 7.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
+   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // LDA - (Indirect,X)
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LDX - Immediate
+   "LDX                   LDX Load index X with memory                    LDX\n"
+   "\n"
+   "Operation:  M -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
+   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
+   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
+   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // LAX - (Indirect,X) (undocumented)
+
+   // LDY - Zero Page
+   "LDY                   LDY Load index Y with memory                    LDY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M -> Y                                    / / _ _ _ _\n"
+   "                               (Ref: 7.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
+   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // LDA - Zero Page
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LDX - Zero Page
+   "LDX                   LDX Load index X with memory                    LDX\n"
+   "\n"
+   "Operation:  M -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |</b>\n"
+   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
+   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
+   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // LAX - Zero Page (undocumented)
+
+   // TAY
+   "TAY                TAY Transfer accumulator to index Y                TAY\n"
+   "\n"
+   "Operation:  A -> Y                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.13)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   TAY                 |    A8   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // LDA - Immediate
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // TAX
+   "TAX                TAX Transfer accumulator to index X                TAX\n"
+   "\n"
+   "Operation:  A -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.11)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   TAX                 |    AA   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // OAL - Immediate (undocumented)
+
+   // LDY - Absolute
+   "LDY                   LDY Load index Y with memory                    LDY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M -> Y                                    / / _ _ _ _\n"
+   "                               (Ref: 7.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
+   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
+   "<b>|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // LDA - Absolute
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "<b>|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LDX - Absolute
+   "LDX                   LDX Load index X with memory                    LDX\n"
+   "\n"
+   "Operation:  M -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
+   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
+   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
+   "<b>|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |</b>\n"
+   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // LAX - Absolute (undocumented)
+
+   // BCS
+   "BCS                      BCS Branch on carry set                      BCS\n"
+   "\n"
+   "Operation:  Branch on C = 1                           N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BCS Oper            |    B0   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to next page.\n",
+
+   // LDA - (Indirect),Y
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // LAX - (Indirect),Y (undocumented)
+
+   // LDY - Zero Page,X
+   "LDY                   LDY Load index Y with memory                    LDY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M -> Y                                    / / _ _ _ _\n"
+   "                               (Ref: 7.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
+   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |</b>\n"
+   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // LDA - Zero Page,X
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |</b>\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LDX - Zero Page,Y
+   "LDX                   LDX Load index X with memory                    LDX\n"
+   "\n"
+   "Operation:  M -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
+   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
+   "<b>|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |</b>\n"
+   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
+   "|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // LAX - Zero Page,X (undocumented)
+
+   // CLV
+   "CLV                      CLV Clear overflow flag                      CLV\n"
+   "\n"
+   "Operation: 0 -> V                                     N Z C I D V\n"
+   "                                                      _ _ _ _ _ 0\n"
+   "                              (Ref: 3.6.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   CLV                 |    B8   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // LDA - Absolute,Y
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // TSX
+   "TSX              TSX Transfer stack pointer to index X                TSX\n"
+   "\n"
+   "Operation:  S -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 8.9)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   TSX                 |    BA   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // LAS - Absolute,Y (undocumented)
+
+   // LDY - Absolute,X
+   "LDY                   LDY Load index Y with memory                    LDY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M -> Y                                    / / _ _ _ _\n"
+   "                               (Ref: 7.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDY #Oper           |    A0   |    2    |    2     |\n"
+   "|  Zero Page     |   LDY Oper            |    A4   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDY Oper,X          |    B4   |    2    |    4     |\n"
+   "|  Absolute      |   LDY Oper            |    AC   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   LDY Oper,X          |    BC   |    3    |    4*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // LDA - Absolute,X
+   "LDA                  LDA Load accumulator with memory                 LDA\n"
+   "\n"
+   "Operation:  M -> A                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                              (Ref: 2.1.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDA #Oper           |    A9   |    2    |    2     |\n"
+   "|  Zero Page     |   LDA Oper            |    A5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   LDA Oper,X          |    B5   |    2    |    4     |\n"
+   "|  Absolute      |   LDA Oper            |    AD   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   LDA Oper,X          |    BD   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   LDA Oper,Y          |    B9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   LDA (Oper,X)        |    A1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   LDA (Oper),Y        |    B1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // LDX - Absolute,Y
+   "LDX                   LDX Load index X with memory                    LDX\n"
+   "\n"
+   "Operation:  M -> X                                    N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.0)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   LDX #Oper           |    A2   |    2    |    2     |\n"
+   "|  Zero Page     |   LDX Oper            |    A6   |    2    |    3     |\n"
+   "|  Zero Page,Y   |   LDX Oper,Y          |    B6   |    2    |    4     |\n"
+   "|  Absolute      |   LDX Oper            |    AE   |    3    |    4     |\n"
+   "<b>|  Absolute,Y    |   LDX Oper,Y          |    BE   |    3    |    4*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // LAX - Absolute,Y (undocumented)
+
+   // CPY - Immediate
+   "CPY                  CPY Compare memory and index Y                   CPY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  Y - M                                     / / / _ _ _\n"
+   "                               (Ref: 7.9)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   CPY *Oper           |    C0   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   CPY Oper            |    C4   |    2    |    3     |\n"
+   "|  Absolute      |   CPY Oper            |    CC   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // CMP - (Indirect,X)
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // DOP (undocumented)
+
+   "", // DCM - (Indirect,X) (undocumented)
+
+   // CPY - Zero Page
+   "CPY                  CPY Compare memory and index Y                   CPY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  Y - M                                     / / / _ _ _\n"
+   "                               (Ref: 7.9)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CPY *Oper           |    C0   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   CPY Oper            |    C4   |    2    |    3     |</b>\n"
+   "|  Absolute      |   CPY Oper            |    CC   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // CMP - Zero Page
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // DEC - Zero Page
+   "DEC                   DEC Decrement memory by one                     DEC\n"
+   "\n"
+   "Operation:  M - 1 -> M                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 10.7)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |</b>\n"
+   "|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |\n"
+   "|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |\n"
+   "|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // DCM - Zero Page (undocumented)
+
+   // INY
+   "INY                    INY Increment Index Y by one                   INY\n"
+   "\n"
+   "Operation:  Y + 1 -> Y                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.5)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   INY                 |    C8   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // CMP - Immediate
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // DEX
+   "DEX                   DEX Decrement index X by one                    DEX\n"
+   "\n"
+   "Operation:  X - 1 -> X                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 7.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   DEX                 |    CA   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // SAX - Immediate (undocumented)
+
+   // CPY - Absolute
+   "CPY                  CPY Compare memory and index Y                   CPY\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  Y - M                                     / / / _ _ _\n"
+   "                               (Ref: 7.9)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CPY *Oper           |    C0   |    2    |    2     |\n"
+   "|  Zero Page     |   CPY Oper            |    C4   |    2    |    3     |\n"
+   "<b>|  Absolute      |   CPY Oper            |    CC   |    3    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // CMP - Absolute
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "<b>|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // DEC - Absolute
+   "DEC                   DEC Decrement memory by one                     DEC\n"
+   "\n"
+   "Operation:  M - 1 -> M                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 10.7)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |\n"
+   "|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |\n"
+   "<b>|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |</b>\n"
+   "|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // DCM - Absolute (undocumented)
+
+   // BNE
+   "BNE                   BNE Branch on result not zero                   BNE\n"
+   "\n"
+   "Operation:  Branch on Z = 0                           N Z C I D V\n"
+   "                                                      _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BNE Oper            |    D0   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to different page.\n",
+
+   // CMP   (Indirect),Y
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // DCM - (Indirect),Y (undocumented)
+
+   "", // DOP (undocumented)
+
+   // CMP - Zero Page,X
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |</b>\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // DEC - Zero Page,X
+   "DEC                   DEC Decrement memory by one                     DEC\n"
+   "\n"
+   "Operation:  M - 1 -> M                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 10.7)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |\n"
+   "<b>|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |</b>\n"
+   "|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |\n"
+   "|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // DCM - Zero Page,X (undocumented)
+
+   // CLD
+   "CLD                      CLD Clear decimal mode                       CLD\n"
+   "\n"
+   "Operation:  0 -> D                                    N A C I D V\n"
+   "                                                      _ _ _ _ 0 _\n"
+   "                              (Ref: 3.3.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   CLD                 |    D8   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // CMP - Absolute,Y
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   "", // NOP (undocumented)
+
+   "", // DCM - Absolute,Y (undocumented)
+
+   "", // TOP (undocumented)
+
+   // CMP - Absolute,X
+   "CMP                CMP Compare memory and accumulator                 CMP\n"
+   "\n"
+   "Operation:  A - M                                     N Z C I D V\n"
+   "                                                      / / / _ _ _\n"
+   "                              (Ref: 4.2.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CMP #Oper           |    C9   |    2    |    2     |\n"
+   "|  Zero Page     |   CMP Oper            |    C5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   CMP Oper,X          |    D5   |    2    |    4     |\n"
+   "|  Absolute      |   CMP Oper            |    CD   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   CMP Oper,X          |    DD   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   CMP Oper,Y          |    D9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   CMP (Oper,X)        |    C1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   CMP (Oper),Y        |    D1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if page boundary is crossed.\n",
+
+   // DEC - Absolute,X
+   "DEC                   DEC Decrement memory by one                     DEC\n"
+   "\n"
+   "Operation:  M - 1 -> M                                N Z C I D V\n"
+   "                                                      / / _ _ _ _\n"
+   "                               (Ref: 10.7)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   DEC Oper            |    C6   |    2    |    5     |\n"
+   "|  Zero Page,X   |   DEC Oper,X          |    D6   |    2    |    6     |\n"
+   "|  Absolute      |   DEC Oper            |    CE   |    3    |    6     |\n"
+   "<b>|  Absolute,X    |   DEC Oper,X          |    DE   |    3    |    7     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // DCM - Absolute,X (undocumented)
+
+   // CPX - Immediate
+   "CPX                  CPX Compare Memory and Index X                   CPX\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  X - M                                     / / / _ _ _\n"
+   "                               (Ref: 7.8)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   CPX *Oper           |    E0   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   CPX Oper            |    E4   |    2    |    3     |\n"
+   "|  Absolute      |   CPX Oper            |    EC   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // SBC - (Indirect,X)
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "<b>|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |</b>\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // DOP (undocumented)
+
+   "", // INS - (Indirect,X) (undocumented)
+
+   // CPX - Zero Page
+   "CPX                  CPX Compare Memory and Index X                   CPX\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  X - M                                     / / / _ _ _\n"
+   "                               (Ref: 7.8)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CPX *Oper           |    E0   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   CPX Oper            |    E4   |    2    |    3     |</b>\n"
+   "|  Absolute      |   CPX Oper            |    EC   |    3    |    4     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // SBC - Zero Page
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "<b>|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |</b>\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // INC - Zero Page
+   "INC                    INC Increment memory by one                    INC\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
+   "                               (Ref: 10.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |</b>\n"
+   "|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |\n"
+   "|  Absolute      |   INC Oper            |    EE   |    3    |    6     |\n"
+   "|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // INS - Zero Page (undocumented)
+
+   // INX
+   "INX                    INX Increment Index X by one                   INX\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  X + 1 -> X                                / / _ _ _ _\n"
+   "                               (Ref: 7.4)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   INX                 |    E8   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // SBC - Immediate
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // NOP
+
+   // SBC - Immediate (undocumented)
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |</b>\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // CPX - Absolute
+   "CPX                  CPX Compare Memory and Index X                   CPX\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  X - M                                     / / / _ _ _\n"
+   "                               (Ref: 7.8)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   CPX *Oper           |    E0   |    2    |    2     |\n"
+   "|  Zero Page     |   CPX Oper            |    E4   |    2    |    3     |\n"
+   "<b>|  Absolute      |   CPX Oper            |    EC   |    3    |    4     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // SBC - Absolute
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "<b>|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |</b>\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // INC - Absolute
+   "INC                    INC Increment memory by one                    INC\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
+   "                               (Ref: 10.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |\n"
+   "|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |\n"
+   "<b>|  Absolute      |   INC Oper            |    EE   |    3    |    6     |</b>\n"
+   "|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // INS - Absolute (undocumented)
+
+   // BEQ
+   "BEQ                    BEQ Branch on result zero                      BEQ\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  Branch on Z = 1                           _ _ _ _ _ _\n"
+   "                             (Ref: 4.1.1.5)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Relative      |   BEQ Oper            |    F0   |    2    |    2*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 if branch occurs to same page.\n"
+   "* Add 2 if branch occurs to next page.\n",
+
+   // SBC - (Indirect),Y
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "<b>|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // KIL - Implied (processor lock up!)
+
+   "", // INS - (Indirect),Y (undocumented)
+
+   "", // DOP (undocumented)
+
+   // SBC - Zero Page,X
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "<b>|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |</b>\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // INC - Zero Page,X
+   "INC                    INC Increment memory by one                    INC\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
+   "                               (Ref: 10.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |\n"
+   "<b>|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |</b>\n"
+   "|  Absolute      |   INC Oper            |    EE   |    3    |    6     |\n"
+   "|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   "", // INS - Zero Page,X (undocumented)
+
+   // SED
+   "SED                       SED Set decimal mode                        SED\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  1 -> D                                    _ _ _ _ 1 _\n"
+   "                              (Ref: 3.3.1)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "<b>|  Implied       |   SED                 |    F8   |    1    |    2     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   // SBC - Absolute,Y
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |\n"
+   "<b>|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |</b>\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   "", // NOP (undocumented)
+
+   "", // INS - Absolute,Y (undocumented)
+
+   "", // TOP (undocumented)
+
+   // SBC - Absolute,X
+   "SBC          SBC Subtract memory from accumulator with borrow         SBC\n"
+   "\n"
+   "Operation:  A - M - (1-C) -> A                        N Z C I D V\n"
+   "       -                                              / / / _ _ /\n"
+   "  Note:C = Borrow             (Ref: 2.2.2)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Immediate     |   SBC #Oper           |    E9   |    2    |    2     |\n"
+   "|  Zero Page     |   SBC Oper            |    E5   |    2    |    3     |\n"
+   "|  Zero Page,X   |   SBC Oper,X          |    F5   |    2    |    4     |\n"
+   "|  Absolute      |   SBC Oper            |    ED   |    3    |    4     |\n"
+   "<b>|  Absolute,X    |   SBC Oper,X          |    FD   |    3    |    4*    |</b>\n"
+   "|  Absolute,Y    |   SBC Oper,Y          |    F9   |    3    |    4*    |\n"
+   "|  (Indirect,X)  |   SBC (Oper,X)        |    E1   |    2    |    6     |\n"
+   "|  (Indirect),Y  |   SBC (Oper),Y        |    F1   |    2    |    5*    |\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "* Add 1 when page boundary is crossed.\n",
+
+   // INC - Absolute,X
+   "INC                    INC Increment memory by one                    INC\n"
+   "\n"
+   "                                                      N Z C I D V\n"
+   "Operation:  M + 1 -> M                                / / _ _ _ _\n"
+   "                               (Ref: 10.6)\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "| Addressing Mode| Assembly Language Form| OP CODE |No. Bytes|No. Cycles|\n"
+   "+----------------+-----------------------+---------+---------+----------+\n"
+   "|  Zero Page     |   INC Oper            |    E6   |    2    |    5     |\n"
+   "|  Zero Page,X   |   INC Oper,X          |    F6   |    2    |    6     |\n"
+   "|  Absolute      |   INC Oper            |    EE   |    3    |    6     |\n"
+   "<b>|  Absolute,X    |   INC Oper,X          |    FE   |    3    |    7     |</b>\n"
+   "+----------------+-----------------------+---------+---------+----------+\n",
+
+   ""  // INS - Absolute,X (undocumented)
+};
+
+const char* OPCODEINFO(unsigned char op) { return *(m_6502opcodeInfo+op); }
+
 static QColor color [] =
 {
    QColor(0,0,0),
@@ -1860,7 +4630,7 @@ void C6502::ADC ( void )
 //  |  Zero Page     |   ROR Oper            |    66   |    2    |    5     |
 //  |  Zero Page,X   |   ROR Oper,X          |    76   |    2    |    6     |
 //  |  Absolute      |   ROR Oper            |    6E   |    3    |    6     |
-//  |  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    | ???
+//  |  Absolute,X    |   ROR Oper,X          |    7E   |    3    |    7*    |
 //  +----------------+-----------------------+---------+---------+----------+
 //
 //    Note: ROR instruction is available on MCS650X microprocessors after
@@ -3455,7 +6225,7 @@ void C6502::DISASSEMBLE ( char** disassembly, unsigned char* binary, int binaryL
 
       // If we've discovered this address has been executed by the 6502 we'll
       // attempt to provide disassembly for it...
-      if ( (mask) && ((binaryLength-i) >= opSize) )
+      if ( (mask) && ((i+opSize) < binaryLength) )
       {
          ptr += sprintf ( ptr, "%s", pOp->name );
 

@@ -29,10 +29,33 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    CMarker& markers = C6502::MARKERS();
    MarkerSetInfo* pMarker;
    int idx;
+   char tooltipBuffer [ 2048 ];
+
+   absAddr = CROM::ABSADDR(addr);
+
+   if ( role == Qt::ToolTipRole )
+   {
+      if ( addr != 0xFFFFFFFF )
+      {
+         if ( index.column() == 4 )
+         {
+            CNES::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,tooltipBuffer);
+            return tooltipBuffer;
+         }
+         else if ( index.column() > 0 )
+         {
+            opSize = C6502::OpcodeSize ( CNES::_MEM(addr) );
+            if ( opSize > (index.column()-1) )
+            {
+               CNES::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
+               return tooltipBuffer;
+            }
+         }
+      }
+   }
 
    if ( (role == Qt::BackgroundRole) && (index.column() == 0) )
    {
-      absAddr = CROM::ABSADDR(addr);
       for ( idx = 0; idx < markers.GetNumMarkers(); idx++ )
       {
          pMarker = markers.GetMarker(idx);

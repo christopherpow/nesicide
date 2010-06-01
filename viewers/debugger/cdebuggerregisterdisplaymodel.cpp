@@ -39,6 +39,9 @@ CDebuggerRegisterDisplayModel::~CDebuggerRegisterDisplayModel()
 QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role) const
 {
    char data [ 64 ];
+   char tooltipBuffer [ 512 ];
+   char* pValues = tooltipBuffer;
+   int value;
 
    if (!index.isValid())
       return QVariant();
@@ -50,6 +53,32 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
    if ( m_tblRegisters )
    {
       CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( index.row() );
+
+      if ( role == Qt::ToolTipRole )
+      {
+         if ( pBitfield->GetNumValues() )
+         {
+            pValues += sprintf ( pValues, "<pre>" );
+            for ( value = 0; value < pBitfield->GetNumValues(); value++ )
+            {
+               if ( value == pBitfield->GetValueRaw(regData) )
+               {
+                  pValues += sprintf ( pValues, "<b>%s</b>", pBitfield->GetValueByIndex(value) );
+               }
+               else
+               {
+                  pValues += sprintf ( pValues, "%s", pBitfield->GetValueByIndex(value) );
+               }
+               if ( value < pBitfield->GetNumValues()-1 )
+               {
+                  pValues += sprintf ( pValues, "\n" );
+               }
+            }
+            pValues += sprintf ( pValues, "</pre>" );
+            return tooltipBuffer;
+         }
+      }
+
       if ( role == Qt::DisplayRole )
       {
          if ( pBitfield->GetNumValues() )

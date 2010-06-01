@@ -10,6 +10,9 @@
 
 #include "cnesicidecommon.h"
 
+#define TOOLTIP_BYTES 0
+#define TOOLTIP_INFO  1
+
 class CNES
 {
 public:
@@ -39,6 +42,7 @@ public:
    static unsigned int SLOC ( UINT addr );
    static unsigned char _MEM ( UINT addr );
    static void DISASSEMBLE ( void );
+   static void CODEBROWSERTOOLTIP ( int tipType, UINT addr, char* tooltipBuffer );
 
 protected:
    static bool         m_bReplay;

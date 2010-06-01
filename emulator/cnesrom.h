@@ -36,8 +36,12 @@ enum
 #define CHRBANK_NUM(addr) ( addr>>SHIFT_8KB_1KB )
 #define CHRBANK_OFF(addr) ( addr&MASK_1KB )
 
-#define SRAMBANK_NUM(addr) ( ((addr-SRAM_START)&MASK_64KB)>>SHIFT_64KB_8KB )
+#define SRAMBANK_VIRT(addr) ( ((addr-SRAM_START)&MASK_64KB)>>SHIFT_64KB_8KB )
 #define SRAMBANK_OFF(addr) ( addr&MASK_8KB )
+// Resolve a 6502-address to one of the 8KB SRAM banks within a cartridge [the absolute physical address]
+// NOTE: Mappers with SRAM typically have one 8KB bank at $6000-$7FFF but MMC5
+// allows mapping of up to 64KB of SRAM anywhere in the upper 32KB ROM space.
+#define SRAMBANK_PHYS(addr) ( *(m_SRAMbank+SRAMBANK_VIRT(addr)) )
 
 class CROM  
 {
@@ -67,9 +71,11 @@ public:
    static inline void PRGROM ( UINT, unsigned char ) {}
    static inline void CHRMEM ( UINT addr, unsigned char data ) { *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))) = data; }
    static inline UINT CHRMEM ( UINT addr ) { return *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))); }
-   static inline UINT SRAM ( UINT addr ) { return *(*(m_pSRAMmemory+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)); }
-   static inline void SRAM ( UINT addr, unsigned char data ) { *(*(m_pSRAMmemory+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)) = data; }
-   static inline void REMAPSRAM ( UINT addr, unsigned char bank ) { *(m_pSRAMmemory+SRAMBANK_NUM(addr)) = *(m_SRAMmemory+bank); }
+   static inline UINT SRAMABSADDR ( UINT addr ) { return (SRAMBANK_PHYS(addr)*MEM_8KB)+SRAMBANK_OFF(addr); }
+   static inline UINT SRAM ( UINT addr ) { return *(*(m_pSRAMmemory+SRAMBANK_VIRT(addr))+SRAMBANK_OFF(addr)); }
+   static inline void SRAM ( UINT addr, unsigned char data ) { *(*(m_pSRAMmemory+SRAMBANK_VIRT(addr))+SRAMBANK_OFF(addr)) = data; }
+   static inline void REMAPSRAM ( UINT addr, unsigned char bank ) { *(m_pSRAMmemory+SRAMBANK_VIRT(addr)) = *(m_SRAMmemory+bank); }
+   static inline UINT EXRAMABSADDR ( UINT addr ) { return (addr%MEM_1KB); }
    static inline UINT EXRAM ( UINT addr ) { return *(m_EXRAMmemory+(addr-EXRAM_START)); }
    static inline void EXRAM ( UINT addr, unsigned char data ) { *(m_EXRAMmemory+(addr-EXRAM_START)) = data; }
    static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGBANK_PHYS(addr)); }
@@ -85,13 +91,13 @@ public:
    static UINT PRGROMSLOC2ADDR ( unsigned short sloc );
    static unsigned short PRGROMADDR2SLOC ( UINT addr );
    static inline unsigned int PRGROMSLOC ( UINT addr ) { return *(m_PRGROMsloc+PRGBANK_PHYS(addr)); }
-   static inline void SRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_SRAMopcodeMask+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)) = mask; }
+   static inline void SRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_SRAMopcodeMask+SRAMBANK_PHYS(addr))+SRAMBANK_OFF(addr)) = mask; }
    static inline void SRAMOPCODEMASKCLR ( void ) { memset(m_SRAMopcodeMask,0,sizeof(m_SRAMopcodeMask)); }
-   static inline char* SRAMDISASSEMBLY ( UINT addr ) { return *(*(m_SRAMdisassembly+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)); }
+   static inline char* SRAMDISASSEMBLY ( UINT addr ) { return *(*(m_SRAMdisassembly+SRAMBANK_PHYS(addr))+SRAMBANK_OFF(addr)); }
    static UINT SRAMSLOC2ADDR ( unsigned short sloc );
    static unsigned short SRAMADDR2SLOC ( UINT addr );
-   static inline unsigned int SRAMSLOC ( UINT addr) { return *(m_SRAMsloc+SRAMBANK_NUM(addr)); }
-   static inline CCodeDataLogger* SRAMLOGGER ( UINT addr ) { return *(m_pSRAMLogger+SRAMBANK_NUM(addr)); }
+   static inline unsigned int SRAMSLOC ( UINT addr) { return *(m_SRAMsloc+SRAMBANK_PHYS(addr)); }
+   static inline CCodeDataLogger* SRAMLOGGER ( UINT addr ) { return *(m_pSRAMLogger+SRAMBANK_PHYS(addr)); }
    static inline void EXRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(m_EXRAMopcodeMask+(addr-0x5C00)) = mask; }
    static inline void EXRAMOPCODEMASKCLR ( void ) { memset(m_EXRAMopcodeMask,0,sizeof(m_EXRAMopcodeMask)); }
    static inline char* EXRAMDISASSEMBLY ( UINT addr ) { return *(m_EXRAMdisassembly+(addr-0x5C00)); }
@@ -152,6 +158,7 @@ protected:
    static UINT           m_PRGROMbank [ 4 ];
    static unsigned char* m_pPRGROMmemory [ 4 ];
    static unsigned char* m_pCHRmemory [ 8 ];
+   static UINT           m_SRAMbank [ 5 ];
    static unsigned char* m_pSRAMmemory [ 5 ];
 
    // Other UI stuff...

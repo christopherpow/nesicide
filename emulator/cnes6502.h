@@ -129,6 +129,8 @@ enum
 #define cC() { m_f&=~(FLAG_C); }
 #define wC(set) { m_f&=(~(FLAG_C)); m_f|=((!!(set))<<FLAG_C_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 
+const char* OPCODEINFO ( unsigned char op );
+
 class C6502  
 {
 public:

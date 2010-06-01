@@ -48,5 +48,6 @@
         <file>resources/22_execution_break_disabled.png</file>
         <file>resources/22_breakpoint_disabled.png</file>
         <file>resources/22_breakpoint.png</file>
+        <file>resources/bomb.png</file>
     </qresource>
 </RCC>

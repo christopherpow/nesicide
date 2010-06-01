@@ -57,6 +57,7 @@ unsigned short CROM::m_SRAMsloc2addr [][ MEM_8KB ] = { { 0, }, };
 unsigned short CROM::m_SRAMaddr2sloc [][ MEM_8KB ] = { { 0, }, };
 unsigned int   CROM::m_SRAMsloc [] = { 0, };
 unsigned char* CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
+UINT           CROM::m_SRAMbank [] = { 0, 1, 2, 3, 4 };
 CCodeDataLogger* CROM::m_pSRAMLogger [] = { NULL, };
 unsigned char  CROM::m_EXRAMmemory [] = { 0, };
 unsigned char  CROM::m_EXRAMopcodeMask [ MEM_1KB ] = { 0, };
@@ -259,7 +260,7 @@ UINT CROM::SRAMSLOC2ADDR ( unsigned short sloc )
 {
    int addr = 0x6000;
 
-   return addr+(*(*(m_SRAMsloc2addr+SRAMBANK_NUM(addr))+sloc));
+   return addr+(*(*(m_SRAMsloc2addr+SRAMBANK_PHYS(addr))+sloc));
 }
 
 UINT CROM::EXRAMSLOC2ADDR ( unsigned short sloc )
@@ -298,7 +299,7 @@ unsigned short CROM::SRAMADDR2SLOC ( UINT addr )
 {
    int sloc = 0;
 
-   return sloc+(*(*(m_SRAMaddr2sloc+SRAMBANK_NUM(addr))+SRAMBANK_OFF(addr)));
+   return sloc+(*(*(m_SRAMaddr2sloc+SRAMBANK_PHYS(addr))+SRAMBANK_OFF(addr)));
 }
 
 unsigned short CROM::EXRAMADDR2SLOC ( UINT addr )

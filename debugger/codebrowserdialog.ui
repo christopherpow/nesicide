@@ -73,6 +73,9 @@
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>50</number>
      </attribute>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>26</number>
+     </attribute>
      <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
       <bool>false</bool>
      </attribute>
@@ -105,6 +108,9 @@
      </attribute>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>26</number>
      </attribute>
      <attribute name="verticalHeaderMinimumSectionSize">
       <number>23</number>

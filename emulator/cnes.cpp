@@ -761,3 +761,33 @@ unsigned char CNES::_MEM ( UINT addr )
       return CROM::PRGROM ( addr );
    }
 }
+
+void CNES::CODEBROWSERTOOLTIP ( int tipType, UINT addr, char* tooltipBuffer )
+{
+   char* ptr = tooltipBuffer;
+   ptr += sprintf ( ptr, "<pre>" );
+   if ( tipType == TOOLTIP_BYTES )
+   {
+      if ( addr < 0x800 )
+      {
+         ptr += sprintf ( ptr, "6502 @ $%X<br>RAM  @ $%X", addr, addr );
+      }
+      else if ( addr < 0x6000 )
+      {
+         ptr += sprintf ( ptr, "6502  @ $%X<br>EXRAM @ $%X", addr, CROM::EXRAMABSADDR(addr) );
+      }
+      else if ( addr < 0x8000 )
+      {
+         ptr += sprintf ( ptr, "6502 @ $%X<br>SRAM @ $%X", addr, CROM::SRAMABSADDR(addr) );
+      }
+      else
+      {
+         ptr += sprintf ( ptr, "6502    @ $%X<br>PRG-ROM @ $%X", addr, CROM::ABSADDR(addr) );
+      }
+   }
+   else if ( tipType == TOOLTIP_INFO )
+   {
+      ptr += sprintf ( ptr, OPCODEINFO(C6502::_MEM(addr)) );
+   }
+   ptr += sprintf ( ptr, "</pre>" );
+}

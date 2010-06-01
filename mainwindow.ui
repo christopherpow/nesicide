@@ -107,7 +107,7 @@
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
-     <string>&amp;View</string>
+     <string>Project</string>
     </property>
     <addaction name="action_Project_Browser"/>
     <addaction name="separator"/>
