@@ -29,6 +29,9 @@ NESEmulatorThread::~NESEmulatorThread()
 
 void NESEmulatorThread::kill()
 {
+   // Force hard-reset of the machine...
+   CNES::HARDRESET();
+
    breakpointSemaphore.release();
    m_isRunning = true;
    m_isPaused = false;
@@ -47,9 +50,6 @@ void NESEmulatorThread::primeEmulator()
         (nesicideProject->get_pointerToCartridge()) )
    {
       m_pCartridge = nesicideProject->get_pointerToCartridge();
-      m_isPaused = true;
-      m_showOnPause = false;
-      m_isRunning = false;
 
       // Force hard-reset of the machine...
       CNES::HARDRESET();
@@ -111,7 +111,7 @@ void NESEmulatorThread::loadCartridge()
    }
 #endif
 
-   // Reset NES...
+   // Initialize NES...
    CNES::RESET ( m_pCartridge->getMapperNumber() );
 
    emit cartridgeLoaded();
@@ -119,6 +119,12 @@ void NESEmulatorThread::loadCartridge()
 
 void NESEmulatorThread::resetEmulator()
 {
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
    m_isResetting = true;
 }
 
@@ -177,14 +183,6 @@ void NESEmulatorThread::run ()
          break;
       }
 
-      // Allow cartridge to be loaded...
-      if ( m_pCartridge )
-      {
-         loadCartridge();
-         m_pCartridge = NULL;
-         m_isResetting = true;
-      }
-
       // Allow thread to keep going...
       if ( m_isStarting )
       {
@@ -208,6 +206,15 @@ void NESEmulatorThread::run ()
 
          // Reset NES...
          CNES::RESET ( CROM::MAPPER() );
+
+         // Allow cartridge to be loaded...
+         if ( m_pCartridge )
+         {
+            // Reload the cartridge image...
+            // This internally causes a NES reset.
+            loadCartridge();
+            m_pCartridge = NULL;
+         }
 
          // Don't *keep* resetting...
          m_isResetting = false;

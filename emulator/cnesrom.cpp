@@ -49,6 +49,7 @@ unsigned char  CROM::m_CHRROMmemory [][ MEM_8KB ] = { { 0, }, };
 unsigned char  CROM::m_CHRRAMmemory [ MEM_8KB ] = { 0, };
 UINT           CROM::m_PRGROMbank [] = { 0, 0, 0, 0 };
 unsigned char* CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
+UINT           CROM::m_CHRbank [] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 unsigned char* CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 unsigned char  CROM::m_SRAMmemory [][ MEM_8KB ] = { { 0, }, };
 unsigned char  CROM::m_SRAMopcodeMask [][ MEM_8KB ] = { { 0, }, };
@@ -307,11 +308,18 @@ unsigned short CROM::EXRAMADDR2SLOC ( UINT addr )
    return *(m_EXRAMaddr2sloc+(addr-0x5C00));
 }
 
-void CROM::RESET ()
+void CROM::RESET ( void )
+{
+   RESET ( 0 );
+}
+
+void CROM::RESET ( UINT mapper )
 {
    int bank;
 
-   m_mapper = 0;
+   m_mapper = mapper;
+   m_tblRegisters = NULL;
+   m_numRegisters = 0;
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
@@ -326,6 +334,7 @@ void CROM::RESET ()
    for ( bank = 0; bank < 8; bank++ )
    {
       m_pCHRmemory [ bank ] = m_CHRRAMmemory + (bank<<UPSHIFT_1KB);
+      m_CHRbank [ bank ] = bank;
    }
 
    // If the cartridge has VROM, map it instead...
@@ -334,6 +343,7 @@ void CROM::RESET ()
       for ( bank = 0; bank < 8; bank++ )
       {
          m_pCHRmemory [ bank ] = m_CHRROMmemory [ 0 ] + (bank<<UPSHIFT_1KB);
+         m_CHRbank [ bank ] = bank;
       }
    }
 

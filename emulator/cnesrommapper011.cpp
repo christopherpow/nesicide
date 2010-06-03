@@ -55,9 +55,10 @@ CROMMapper011::~CROMMapper011()
 
 void CROMMapper011::RESET ()
 {
-   CROM::RESET ();
-
    m_mapper = 11;
+
+   CROM::RESET ( m_mapper );
+
    m_tblRegisters = tblRegisters;
    m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
 

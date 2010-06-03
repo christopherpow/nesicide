@@ -273,6 +273,7 @@ int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &) const
    {
       return m_tblRegisters[m_register]->GetNumBitfields();
    }
+   // Nothing to display here...
    return 0;
 }
 

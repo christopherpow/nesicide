@@ -77,7 +77,7 @@ bool CSourceAssembler::assemble()
 
    if ( !numErrors )
    {
-      QDockWidget* pCodeBrowser = InspectorRegistry::getInspector ( "Code Inspector" );
+      QDockWidget* pCodeBrowser = InspectorRegistry::getInspector ( "Code Browser" );
       if ( pCodeBrowser->isVisible() )
       {
          pCodeBrowser->hide();

@@ -57,20 +57,10 @@ void CNES::HARDRESET ( void )
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int bp;
-   int bpr = 0;
-   int bps = pBreakpoints->GetNumBreakpoints();
-   for ( bp = bps-1; bp >= 0; bp-- )
+   for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
-      if ( pBreakpoint->type == eBreakOnCPUExecution )
-      {
-         pBreakpoints->RemoveBreakpoint(bp);
-         bpr++;
-      }
-   }
-   if ( bpr )
-   {
-      QMessageBox::information ( 0, "Breakpoints removed", "One or more CPU execution breakpoints have been removed because a new ROM has been loaded." );
+      pBreakpoint->enabled = false;
    }
 }
 
@@ -268,379 +258,381 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
       m_bStepPPUBreakpoint = false;
       force = true;
    }
-
-   // For all breakpoints...
-   for ( idx = 0; idx < m_breakpoints.GetNumBreakpoints(); idx++ )
+   // For all breakpoints...if we're not stepping...
+   else
    {
-      // Get breakpoint data...
-      pBreakpoint = m_breakpoints.GetBreakpoint(idx);
-
-      // Not hit yet...
-      pBreakpoint->hit = false;
-
-      // Is this breakpoint enabled?
-      if ( pBreakpoint->enabled )
+      for ( idx = 0; idx < m_breakpoints.GetNumBreakpoints(); idx++ )
       {
-         // Are there any for the specified target?
-         if ( pBreakpoint->target == target )
+         // Get breakpoint data...
+         pBreakpoint = m_breakpoints.GetBreakpoint(idx);
+
+         // Not hit yet...
+         pBreakpoint->hit = false;
+
+         // Is this breakpoint enabled?
+         if ( pBreakpoint->enabled )
          {
-            // Promote "Access" types...
-            if ( (pBreakpoint->type == eBreakOnCPUMemoryAccess) &&
-                 ((type == eBreakOnCPUMemoryRead) || (type == eBreakOnCPUMemoryWrite)) )
+            // Are there any for the specified target?
+            if ( pBreakpoint->target == target )
             {
-               type = eBreakOnCPUMemoryAccess;
-            }
-            if ( (pBreakpoint->type == eBreakOnOAMPortalAccess) &&
-                 ((type == eBreakOnOAMPortalRead) || (type == eBreakOnOAMPortalWrite)) )
-            {
-               type = eBreakOnOAMPortalAccess;
-            }
-            if ( (pBreakpoint->type == eBreakOnPPUPortalAccess) &&
-                 ((type == eBreakOnPPUPortalRead) || (type == eBreakOnPPUPortalWrite)) )
-            {
-               type = eBreakOnPPUPortalAccess;
-            }
-            if ( pBreakpoint->type == type )
-            {
-               switch ( pBreakpoint->type )
+               // Promote "Access" types...
+               if ( (pBreakpoint->type == eBreakOnCPUMemoryAccess) &&
+                    ((type == eBreakOnCPUMemoryRead) || (type == eBreakOnCPUMemoryWrite)) )
                {
-                  case eBreakOnPPUCycle:
-                     // Nothing to do here; make the warning go away...
-                  break;
-                  case eBreakOnCPUExecution:
-                     addr = C6502::__PC();
-                     if ( (C6502::SYNC()) &&
-                          (addr >= pBreakpoint->item1) &&
-                          (addr <= pBreakpoint->item2) )
-                     {
-                        pBreakpoint->itemActual = addr;
-                        pBreakpoint->hit = true;
-                        force = true;
-                     }
-                  break;
-                  case eBreakOnCPUMemoryAccess:
-                  case eBreakOnCPUMemoryRead:
-                  case eBreakOnCPUMemoryWrite:
-                     addr = C6502::_EA();
-                     if ( (addr >= pBreakpoint->item1) &&
-                          (addr <= pBreakpoint->item2) )
-                     {
-                        pBreakpoint->itemActual = addr;
-                        if ( pBreakpoint->condition == eBreakIfAnything )
+                  type = eBreakOnCPUMemoryAccess;
+               }
+               if ( (pBreakpoint->type == eBreakOnOAMPortalAccess) &&
+                    ((type == eBreakOnOAMPortalRead) || (type == eBreakOnOAMPortalWrite)) )
+               {
+                  type = eBreakOnOAMPortalAccess;
+               }
+               if ( (pBreakpoint->type == eBreakOnPPUPortalAccess) &&
+                    ((type == eBreakOnPPUPortalRead) || (type == eBreakOnPPUPortalWrite)) )
+               {
+                  type = eBreakOnPPUPortalAccess;
+               }
+               if ( pBreakpoint->type == type )
+               {
+                  switch ( pBreakpoint->type )
+                  {
+                     case eBreakOnPPUCycle:
+                        // Nothing to do here; make the warning go away...
+                     break;
+                     case eBreakOnCPUExecution:
+                        addr = C6502::__PC();
+                        if ( (C6502::SYNC()) &&
+                             (addr >= pBreakpoint->item1) &&
+                             (addr <= pBreakpoint->item2) )
                         {
+                           pBreakpoint->itemActual = addr;
                            pBreakpoint->hit = true;
                            force = true;
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (data == pBreakpoint->data) )
+                     break;
+                     case eBreakOnCPUMemoryAccess:
+                     case eBreakOnCPUMemoryRead:
+                     case eBreakOnCPUMemoryWrite:
+                        addr = C6502::_EA();
+                        if ( (addr >= pBreakpoint->item1) &&
+                             (addr <= pBreakpoint->item2) )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           pBreakpoint->itemActual = addr;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (data == pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (data != pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (data < pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (data > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (data != pBreakpoint->data) )
+                     break;
+                     case eBreakOnCPUState:
+                        // Is the breakpoint on this register?
+                        if ( pBreakpoint->item1 == data )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (data < pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (data > pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnCPUState:
-                     // Is the breakpoint on this register?
-                     if ( pBreakpoint->item1 == data )
-                     {
-                        pRegister = C6502::REGISTERS()[pBreakpoint->item1];
-                        pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+                           pRegister = C6502::REGISTERS()[pBreakpoint->item1];
+                           pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
-                        // Get actual register data...
-                        switch ( pBreakpoint->item1 )
-                        {
-                           case 0:
-                              value = C6502::__PC();
-                           break;
-                           case 1:
-                              value = C6502::_A();
-                           break;
-                           case 2:
-                              value = C6502::_X();
-                           break;
-                           case 3:
-                              value = C6502::_Y();
-                           break;
-                           case 4:
-                              value = C6502::_SP();
-                           break;
-                           case 5:
-                              value = C6502::_F();
-                           break;
-                        }
+                           // Get actual register data...
+                           switch ( pBreakpoint->item1 )
+                           {
+                              case 0:
+                                 value = C6502::__PC();
+                              break;
+                              case 1:
+                                 value = C6502::_A();
+                              break;
+                              case 2:
+                                 value = C6502::_X();
+                              break;
+                              case 3:
+                                 value = C6502::_Y();
+                              break;
+                              case 4:
+                                 value = C6502::_SP();
+                              break;
+                              case 5:
+                                 value = C6502::_F();
+                              break;
+                           }
 
-                        if ( pBreakpoint->condition == eBreakIfAnything )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                     break;
+                     case eBreakOnOAMPortalAccess:
+                     case eBreakOnOAMPortalRead:
+                     case eBreakOnOAMPortalWrite:
+                        addr = CPPU::_OAMADDR();
+                        if ( (addr >= pBreakpoint->item1) &&
+                             (addr <= pBreakpoint->item2) )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           pBreakpoint->itemActual = addr;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (data == pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (data != pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (data < pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (data > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                     break;
+                     case eBreakOnPPUFetch:
+                     case eBreakOnPPUPortalAccess:
+                     case eBreakOnPPUPortalRead:
+                     case eBreakOnPPUPortalWrite:
+                        addr = CPPU::_PPUADDR();
+                        if ( (addr >= pBreakpoint->item1) &&
+                             (addr <= pBreakpoint->item2) )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           pBreakpoint->itemActual = addr;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (data == pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (data != pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (data < pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (data > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                     break;
+                     case eBreakOnPPUState:
+                        // Is the breakpoint on this register?
+                        if ( pBreakpoint->item1 == data )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnOAMPortalAccess:
-                  case eBreakOnOAMPortalRead:
-                  case eBreakOnOAMPortalWrite:
-                     addr = CPPU::_OAMADDR();
-                     if ( (addr >= pBreakpoint->item1) &&
-                          (addr <= pBreakpoint->item2) )
-                     {
-                        pBreakpoint->itemActual = addr;
-                        if ( pBreakpoint->condition == eBreakIfAnything )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (data == pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (data != pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (data < pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (data > pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnPPUFetch:
-                  case eBreakOnPPUPortalAccess:
-                  case eBreakOnPPUPortalRead:
-                  case eBreakOnPPUPortalWrite:
-                     addr = CPPU::_PPUADDR();
-                     if ( (addr >= pBreakpoint->item1) &&
-                          (addr <= pBreakpoint->item2) )
-                     {
-                        pBreakpoint->itemActual = addr;
-                        if ( pBreakpoint->condition == eBreakIfAnything )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (data == pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (data != pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (data < pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (data > pBreakpoint->data) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnPPUState:
-                     // Is the breakpoint on this register?
-                     if ( pBreakpoint->item1 == data )
-                     {
-                        pRegister = CPPU::REGISTERS()[pBreakpoint->item1];
-                        pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+                           pRegister = CPPU::REGISTERS()[pBreakpoint->item1];
+                           pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
-                        // Get actual register data...
-                        value = CPPU::_PPU(pRegister->GetAddr());
+                           // Get actual register data...
+                           value = CPPU::_PPU(pRegister->GetAddr());
 
-                        if ( pBreakpoint->condition == eBreakIfAnything )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                     break;
+                     case eBreakOnAPUState:
+                        // Is the breakpoint on this register?
+                        if ( pBreakpoint->item1 == data )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnAPUState:
-                     // Is the breakpoint on this register?
-                     if ( pBreakpoint->item1 == data )
-                     {
-                        pRegister = CAPU::REGISTERS()[pBreakpoint->item1];
-                        pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+                           pRegister = CAPU::REGISTERS()[pBreakpoint->item1];
+                           pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
-                        // Get actual register data...
-                        value = CAPU::_APU(pRegister->GetAddr());
+                           // Get actual register data...
+                           value = CAPU::_APU(pRegister->GetAddr());
 
-                        if ( pBreakpoint->condition == eBreakIfAnything )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                     break;
+                     case eBreakOnMapperState:
+                        // Is the breakpoint on this register?
+                        if ( pBreakpoint->item1 == data )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnMapperState:
-                     // Is the breakpoint on this register?
-                     if ( pBreakpoint->item1 == data )
-                     {
-                        pRegister = CROM::REGISTERS()[pBreakpoint->item1];
-                        pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
+                           pRegister = CROM::REGISTERS()[pBreakpoint->item1];
+                           pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
-                        // Get actual register data...
-                        if ( pRegister->GetAddr() >= MEM_32KB )
-                        {
-                           value = mapperfunc[CROM::MAPPER()].highread(pRegister->GetAddr());
-                        }
-                        else
-                        {
-                           value = mapperfunc[CROM::MAPPER()].lowread(pRegister->GetAddr());
-                        }
+                           // Get actual register data...
+                           if ( pRegister->GetAddr() >= MEM_32KB )
+                           {
+                              value = mapperfunc[CROM::MAPPER()].highread(pRegister->GetAddr());
+                           }
+                           else
+                           {
+                              value = mapperfunc[CROM::MAPPER()].lowread(pRegister->GetAddr());
+                           }
 
-                        if ( pBreakpoint->condition == eBreakIfAnything )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           if ( pBreakpoint->condition == eBreakIfAnything )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfEqual) &&
+                                     (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
+                                     (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
+                                     (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
+                                     (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfEqual) &&
-                                  (pBreakpoint->data == pBitfield->GetValueRaw(value)) )
+                     break;
+                     case eBreakOnCPUEvent:
+                     case eBreakOnPPUEvent:
+                     case eBreakOnAPUEvent:
+                     case eBreakOnMapperEvent:
+                        // If this is the right event to check, check it...
+                        if ( pBreakpoint->event == event )
                         {
-                           pBreakpoint->hit = true;
-                           force = true;
+                           pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint,data);
+                           if ( pBreakpoint->hit )
+                           {
+                              force = true;
+                           }
                         }
-                        else if ( (pBreakpoint->condition == eBreakIfNotEqual) &&
-                                  (pBreakpoint->data != pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfLessThan) &&
-                                  (pBreakpoint->data < pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                        else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
-                                  (pBreakpoint->data > pBitfield->GetValueRaw(value)) )
-                        {
-                           pBreakpoint->hit = true;
-                           force = true;
-                        }
-                     }
-                  break;
-                  case eBreakOnCPUEvent:
-                  case eBreakOnPPUEvent:
-                  case eBreakOnAPUEvent:
-                  case eBreakOnMapperEvent:
-                     // If this is the right event to check, check it...
-                     if ( pBreakpoint->event == event )
-                     {
-                        pBreakpoint->hit = pBreakpoint->pEvent->Evaluate(pBreakpoint,data);
-                        if ( pBreakpoint->hit )
-                        {
-                           force = true;
-                        }
-                     }
-                  break;
+                     break;
+                  }
                }
             }
          }

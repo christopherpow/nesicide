@@ -54,9 +54,9 @@ CROMMapper005::~CROMMapper005()
 
 void CROMMapper005::RESET ()
 {
-   CROM::RESET ();
-
    m_mapper = 5;
+
+   CROM::RESET ( m_mapper );
 
    m_prgMode = 0;
    m_chrMode = 0;

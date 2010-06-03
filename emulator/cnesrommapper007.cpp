@@ -40,9 +40,9 @@ CROMMapper007::~CROMMapper007()
 
 void CROMMapper007::RESET ()
 {
-   CROM::RESET ();
-
    m_mapper = 7;
+
+   CROM::RESET ( m_mapper );
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ] + (0<<UPSHIFT_8KB);
    m_PRGROMbank [ 0 ] = 0;

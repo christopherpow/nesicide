@@ -83,9 +83,10 @@ void CROMMapper001::RESET ()
 {
    int idx;
 
-   CROM::RESET ();
-
    m_mapper = 1;
+
+   CROM::RESET ( m_mapper );
+
    m_tblRegisters = tblRegisters;
    m_numRegisters = sizeof(tblRegisters)/sizeof(tblRegisters[0]);
 
@@ -180,13 +181,13 @@ void CROMMapper001::MAPPER ( UINT addr, unsigned char data )
    }
    else
    {
-      m_sr |= ((data&0x01)<<m_srCount);
+      m_sr>>=1;
+      m_sr|=((data&0x01)<<4);
       m_srCount++;
       if ( m_srCount == 5 )
       {
          m_sel = (addr-0x8000)/0x2000;
          m_reg [ m_sel ] = m_sr;
-         m_sr = 0x00;
          m_srCount = 0;
 
          // Act on new register content...

@@ -33,30 +33,30 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
     m_pGfxCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pGfxCHRMemoryInspector->setWindowTitle("Graphical CHR Memory Inspector");
+    m_pGfxCHRMemoryInspector->setWindowTitle("CHR Memory Visualizer");
     m_pGfxCHRMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pGfxCHRMemoryInspector );
     m_pGfxCHRMemoryInspector->hide();
     QObject::connect(m_pGfxCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxCHRMemoryInspector_close(bool)));
-    InspectorRegistry::addInspector ( "Graphical CHR Memory Inspector", m_pGfxCHRMemoryInspector );
+    InspectorRegistry::addInspector ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
 
     m_pGfxOAMMemoryInspector = new OAMInspector ();
     m_pGfxOAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pGfxOAMMemoryInspector->setWindowTitle("Graphical OAM Inspector");
+    m_pGfxOAMMemoryInspector->setWindowTitle("OAM Memory Visualizer");
     m_pGfxOAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
     m_pGfxOAMMemoryInspector->hide();
     QObject::connect(m_pGfxOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxOAMMemoryInspector_close(bool)));
-    InspectorRegistry::addInspector ( "Graphical OAM Inspector", m_pGfxOAMMemoryInspector );
+    InspectorRegistry::addInspector ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
 
     m_pGfxNameTableMemoryInspector = new NameTableInspector ();
     m_pGfxNameTableMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pGfxNameTableMemoryInspector->setWindowTitle("Graphical Name Table Inspector");
+    m_pGfxNameTableMemoryInspector->setWindowTitle("Name Table Visualizer");
     m_pGfxNameTableMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
     m_pGfxNameTableMemoryInspector->hide();
     QObject::connect(m_pGfxNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxNameTableMemoryInspector_close(bool)));
-    InspectorRegistry::addInspector ( "Graphical Name Table Inspector", m_pGfxNameTableMemoryInspector );
+    InspectorRegistry::addInspector ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
 
     m_pExecutionInspector = new ExecutionInspector();
     m_pExecutionInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -78,12 +78,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pCodeInspector = new CodeInspector();
     m_pCodeInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pCodeInspector->setWindowTitle("Code Inspector");
+    m_pCodeInspector->setWindowTitle("Code Browser");
     m_pCodeInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::RightDockWidgetArea, m_pCodeInspector );
     m_pCodeInspector->hide();
     QObject::connect(m_pCodeInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeInspector_close(bool)));
-    InspectorRegistry::addInspector ( "Code Inspector", m_pCodeInspector );
+    InspectorRegistry::addInspector ( "Code Browser", m_pCodeInspector );
 
     m_pCodeDataLoggerInspector = new CodeDataLoggerInspector();
     m_pCodeDataLoggerInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -105,30 +105,30 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pBinCPURAMInspector = new MemoryInspector(eMemory_CPU);
     m_pBinCPURAMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pBinCPURAMInspector->setWindowTitle("CPU Memory Inspector");
+    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
     m_pBinCPURAMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
     m_pBinCPURAMInspector->hide();
     QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
-    InspectorRegistry::addInspector ( "CPU Memory Inspector", m_pBinCPURAMInspector );
+    InspectorRegistry::addInspector ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
     m_pBinROMInspector = new MemoryInspector(eMemory_cartROM);
     m_pBinROMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pBinROMInspector->setWindowTitle("ROM Inspector");
+    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
     m_pBinROMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
     m_pBinROMInspector->hide();
     QObject::connect(m_pBinROMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinROMInspector_close(bool)));
-    InspectorRegistry::addInspector ( "ROM Inspector", m_pBinROMInspector );
+    InspectorRegistry::addInspector ( "PRG-ROM Inspector", m_pBinROMInspector );
 
     m_pBinNameTableMemoryInspector = new MemoryInspector(eMemory_PPU);
     m_pBinNameTableMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pBinNameTableMemoryInspector->setWindowTitle("PPU Memory Inspector");
+    m_pBinNameTableMemoryInspector->setWindowTitle("Name Table Inspector");
     m_pBinNameTableMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
     m_pBinNameTableMemoryInspector->hide();
     QObject::connect(m_pBinNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinNameTableMemoryInspector_close(bool)));
-    InspectorRegistry::addInspector ( "PPU Memory Inspector", m_pBinNameTableMemoryInspector );
+    InspectorRegistry::addInspector ( "Name Table Inspector", m_pBinNameTableMemoryInspector );
 
     m_pBinPPURegisterInspector = new RegisterInspector(eMemory_PPUregs);
     m_pBinPPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -141,12 +141,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pPPUInformationInspector = new PPUInformationInspector();
     m_pPPUInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pPPUInformationInspector->setWindowTitle("PPU Inspector");
+    m_pPPUInformationInspector->setWindowTitle("PPU Information");
     m_pPPUInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
     m_pPPUInformationInspector->hide();
     QObject::connect(m_pPPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedPPUInformationInspector_close(bool)));
-    InspectorRegistry::addInspector ( "PPU Inspector", m_pPPUInformationInspector );
+    InspectorRegistry::addInspector ( "PPU Information", m_pPPUInformationInspector );
 
     m_pBinAPURegisterInspector = new RegisterInspector(eMemory_IOregs);
     m_pBinAPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -204,21 +204,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pMapperInformationInspector = new MapperInformationInspector();
     m_pMapperInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pMapperInformationInspector->setWindowTitle("Mapper Inspector");
+    m_pMapperInformationInspector->setWindowTitle("Cartridge Mapper Information");
     m_pMapperInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
     m_pMapperInformationInspector->hide();
     QObject::connect(m_pMapperInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedMapperInformationInspector_close(bool)));
-    InspectorRegistry::addInspector ( "Mapper Inspector", m_pMapperInformationInspector );
+    InspectorRegistry::addInspector ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
     m_pBinMapperMemoryInspector = new RegisterInspector(eMemory_cartMapper);
     m_pBinMapperMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Inspector");
+    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
     m_pBinMapperMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
     addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
     m_pBinMapperMemoryInspector->hide();
     QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
-    InspectorRegistry::addInspector ( "Cartridge Mapper Inspector", m_pBinMapperMemoryInspector );
+    InspectorRegistry::addInspector ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");

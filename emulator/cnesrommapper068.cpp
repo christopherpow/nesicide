@@ -43,9 +43,9 @@ void CROMMapper068::RESET ()
 {
    int idx;
 
-   CROM::RESET ();
-
    m_mapper = 68;
+
+   CROM::RESET ( m_mapper );
 
    for ( idx = 0; idx < 4; idx++ )
    {

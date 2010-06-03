@@ -65,7 +65,7 @@ public:
    // Operations
    static bool IsWriteProtected ( void ) { return (m_numChrBanks>0); }
    static inline UINT ABSADDR ( UINT addr ) { return (PRGBANK_PHYS(addr)*MEM_8KB)+PRGBANK_OFF(addr); }
-//   static UINT CHRMEMBANK ( UINT addr ) { return m_CHRbank[CHRBANK_NUM(addr)]; }
+   static UINT CHRMEMABSADDR ( UINT addr ) { return ((*(m_CHRbank+CHRBANK_NUM(addr)))*MEM_1KB)+CHRBANK_OFF(addr); }
    static inline unsigned char* CHRRAMPTR ( UINT addr ) { return &(m_CHRRAMmemory[addr]); }
    static inline UINT PRGROM ( UINT addr ) { return *(*(m_pPRGROMmemory+PRGBANK_VIRT(addr))+(PRGBANK_OFF(addr))); }
    static inline void PRGROM ( UINT, unsigned char ) {}
@@ -78,13 +78,10 @@ public:
    static inline UINT EXRAMABSADDR ( UINT addr ) { return (addr%MEM_1KB); }
    static inline UINT EXRAM ( UINT addr ) { return *(m_EXRAMmemory+(addr-EXRAM_START)); }
    static inline void EXRAM ( UINT addr, unsigned char data ) { *(m_EXRAMmemory+(addr-EXRAM_START)) = data; }
-   static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGBANK_PHYS(addr)); }
    static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
    static inline int NUMREGISTERS ( void ) { return m_numRegisters; }
 
-   static inline UINT OPENBUS ( UINT  ) { return 0xA1; } // CPTODO: implement real open bus
-   static inline void OPENBUS ( UINT, unsigned char ) {}
-
+   // Support functions for inline disassembly in PRG-ROM, SRAM, and EXRAM
    static inline void PRGROMOPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
    static inline void PRGROMOPCODEMASKCLR ( void ) { memset(m_PRGROMopcodeMask,0x01,sizeof(m_PRGROMopcodeMask)); }
    static inline char* PRGROMDISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
@@ -97,22 +94,26 @@ public:
    static UINT SRAMSLOC2ADDR ( unsigned short sloc );
    static unsigned short SRAMADDR2SLOC ( UINT addr );
    static inline unsigned int SRAMSLOC ( UINT addr) { return *(m_SRAMsloc+SRAMBANK_PHYS(addr)); }
-   static inline CCodeDataLogger* SRAMLOGGER ( UINT addr ) { return *(m_pSRAMLogger+SRAMBANK_PHYS(addr)); }
    static inline void EXRAMOPCODEMASK ( UINT addr, unsigned char mask ) { *(m_EXRAMopcodeMask+(addr-0x5C00)) = mask; }
    static inline void EXRAMOPCODEMASKCLR ( void ) { memset(m_EXRAMopcodeMask,0,sizeof(m_EXRAMopcodeMask)); }
    static inline char* EXRAMDISASSEMBLY ( UINT addr ) { return *(m_EXRAMdisassembly+(addr-0x5C00)); }
    static UINT EXRAMSLOC2ADDR ( unsigned short sloc );
    static unsigned short EXRAMADDR2SLOC ( UINT addr );
    static inline unsigned int EXRAMSLOC () { return m_EXRAMsloc; }
-   static inline CCodeDataLogger* EXRAMLOGGER () { return m_pEXRAMLogger; }
-
    static void DISASSEMBLE ();
 
+   // Code/Data logger support functions
+   static inline CCodeDataLogger* LOGGER ( UINT addr ) { return *(m_pLogger+PRGBANK_PHYS(addr)); }
+   static inline CCodeDataLogger* SRAMLOGGER ( UINT addr ) { return *(m_pSRAMLogger+SRAMBANK_PHYS(addr)); }
+   static inline CCodeDataLogger* EXRAMLOGGER () { return m_pEXRAMLogger; }
+
+   // Breakpoint support functions
    static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
    static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
 
-   // Mapper interfaces [not usually called directly, rather through mapperfunc array]
-   static void RESET ();
+   // Mapper interfaces [called by emulator through mapperfunc array]
+   static void RESET ( void );
+   static void RESET ( UINT mapper );
    static UINT MAPPER ( void ) { return m_mapper; }
    static UINT MAPPER ( UINT addr ) { return PRGROM(addr); }
    static void MAPPER ( UINT, unsigned char ) {}
@@ -157,6 +158,7 @@ protected:
    static UINT           m_numChrBanks;
    static UINT           m_PRGROMbank [ 4 ];
    static unsigned char* m_pPRGROMmemory [ 4 ];
+   static UINT           m_CHRbank [ 8 ];
    static unsigned char* m_pCHRmemory [ 8 ];
    static UINT           m_SRAMbank [ 5 ];
    static unsigned char* m_pSRAMmemory [ 5 ];

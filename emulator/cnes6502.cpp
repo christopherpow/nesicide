@@ -533,7 +533,7 @@ static C6502_opcode m_6502opcode [ 256 ] =
    VARIANT_INFO("PC relative",__mnemonic,"Operand",__opcode,__bytes,__cycles)
 
 #define VARIANT_FOOTER \
-   "</table><br>"
+   "</table>"
 
 static const char* m_6502opcodeInfo [ 256 ] =
 {

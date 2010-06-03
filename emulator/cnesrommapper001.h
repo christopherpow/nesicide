@@ -19,6 +19,11 @@ public:
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
 
+   // Internal accessors for mapper information inspector...
+   // Note: called directly!
+   static UINT SHIFTREGISTER ( void ) { return m_sr; }
+   static UINT SHIFTREGISTERBIT ( void ) { return m_srCount; }
+
 protected:
    // MMC1
    static unsigned char  m_reg [ 4 ];

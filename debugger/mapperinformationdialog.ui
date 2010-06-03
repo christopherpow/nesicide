@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>305</width>
-    <height>275</height>
+    <height>304</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,26 +20,15 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QStackedWidget" name="prgBanking">
-     <property name="currentIndex">
-      <number>0</number>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <widget class="QWidget" name="noPrgBank">
-      <widget class="QLabel" name="label_18">
-       <property name="geometry">
-        <rect>
-         <x>90</x>
-         <y>50</y>
-         <width>46</width>
-         <height>13</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </widget>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="noPrgBank"/>
      <widget class="QWidget" name="prgBanked">
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="bottomMargin">
@@ -121,26 +110,15 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QStackedWidget" name="chrBanking">
-     <property name="currentIndex">
-      <number>0</number>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <widget class="QWidget" name="noChrBank">
-      <widget class="QLabel" name="label_19">
-       <property name="geometry">
-        <rect>
-         <x>130</x>
-         <y>80</y>
-         <width>46</width>
-         <height>13</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </widget>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="noChrBank"/>
      <widget class="QWidget" name="chrBanked">
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="1" column="0">
@@ -275,26 +253,15 @@
      </widget>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QStackedWidget" name="internalInfo">
-     <property name="currentIndex">
-      <number>0</number>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <widget class="QWidget" name="noInternals">
-      <widget class="QLabel" name="label_20">
-       <property name="geometry">
-        <rect>
-         <x>120</x>
-         <y>40</y>
-         <width>46</width>
-         <height>13</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </widget>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="noInternals"/>
      <widget class="QWidget" name="mapper1">
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="1" column="0">
@@ -305,7 +272,7 @@
         </widget>
        </item>
        <item row="1" column="1" colspan="2">
-        <widget class="QLineEdit" name="lineEdit">
+        <widget class="QLineEdit" name="shiftRegister">
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -319,7 +286,7 @@
         </widget>
        </item>
        <item row="1" column="4">
-        <widget class="QLineEdit" name="lineEdit_2">
+        <widget class="QLineEdit" name="shiftRegisterBit">
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -337,6 +304,32 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="mapper2"/>
+     <widget class="QWidget" name="mapper3"/>
+     <widget class="QWidget" name="mapper4"/>
+     <widget class="QWidget" name="mapper5"/>
+     <widget class="QWidget" name="mapper6"/>
+     <widget class="QWidget" name="mapper7"/>
+     <widget class="QWidget" name="mapper8"/>
+     <widget class="QWidget" name="mapper9"/>
+     <widget class="QWidget" name="mapper10"/>
+     <widget class="QWidget" name="mapper11"/>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="info">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
     </widget>
    </item>
   </layout>
