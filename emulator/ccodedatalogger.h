@@ -69,6 +69,7 @@ public:
    unsigned char GetLastValueCount ( UINT addr ) { return (*(m_pLogger+addr)).lastValueCount; }
    unsigned char GetLastValue ( UINT addr, unsigned char count );
    unsigned int GetLastLoadAddr ( UINT addr );
+   LoggerInfo* GetLogEntry ( UINT addr ) { return (m_pLogger+addr); }
 
    static inline UINT GetCurCycle ( void ) { return m_curCycle; }
    static inline UINT GetMaxCount ( void ) { return m_maxCount; }

@@ -27,6 +27,7 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateData()));
    QObject::connect(emulator, SIGNAL(breakpointClear()), this, SLOT(updateData()));
+   QObject::connect(emulator, SIGNAL(emulatorReset()), this, SLOT(updateData()));
 }
 
 BreakpointDialog::~BreakpointDialog()

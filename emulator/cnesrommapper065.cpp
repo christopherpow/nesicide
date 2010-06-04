@@ -62,8 +62,10 @@ void CROMMapper065::RESET ()
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper065::SYNCH ( int scanline )
+void CROMMapper065::SYNCH ( UINT ppuCycle, UINT ppuAddr )
 {
+#if 0
+// CPTODO: reimplement...
    if ( m_irqEnable )
    {
       if ( m_irqCounter == 0 )
@@ -76,6 +78,7 @@ void CROMMapper065::SYNCH ( int scanline )
          m_irqCounter--;
       }
    }
+#endif
 }
 
 void CROMMapper065::LOAD ( MapperState* data )

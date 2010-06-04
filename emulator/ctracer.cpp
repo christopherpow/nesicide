@@ -180,10 +180,10 @@ TracerInfo* CTracer::AddIRQ(char source)
    return AddSample ( 0, eTracer_IRQ, source, 0, 0, 0 );
 }
 
-TracerInfo* CTracer::AddGarbageFetch( unsigned int cycle, char target )
+TracerInfo* CTracer::AddGarbageFetch( unsigned int cycle, char target, unsigned short addr )
 {
    // Special trace tag from PPU
-   return AddSample ( cycle, eTracer_GarbageRead, eSource_PPU, target, 0, 0 );
+   return AddSample ( cycle, eTracer_GarbageRead, eSource_PPU, target, addr, 0 );
 }
 
 void CTracer::ClearSampleBuffer(void)

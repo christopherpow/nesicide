@@ -162,8 +162,8 @@ public:
    static UINT PPU ( UINT addr );
    static void STORE ( UINT addr, unsigned char data, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
    static UINT LOAD ( UINT addr, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
-   static UINT RENDER ( UINT addr, char source );
-   static void GARBAGE ( char target, UINT addr );
+   static UINT RENDER ( UINT addr, char target );
+   static void GARBAGE ( UINT addr, char target );
    static void EXTRA ();
    static inline void _MEM ( UINT addr, unsigned char data ) { STORE(addr,data,0,0,false); }
    static inline UINT _MEM ( UINT addr ) { return LOAD(addr,0,0,false); }

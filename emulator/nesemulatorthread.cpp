@@ -30,7 +30,7 @@ NESEmulatorThread::~NESEmulatorThread()
 void NESEmulatorThread::kill()
 {
    // Force hard-reset of the machine...
-   CNES::HARDRESET();
+   CNES::BREAKPOINTS(false);
 
    breakpointSemaphore.release();
    m_isRunning = true;
@@ -52,7 +52,8 @@ void NESEmulatorThread::primeEmulator()
       m_pCartridge = nesicideProject->get_pointerToCartridge();
 
       // Force hard-reset of the machine...
-      CNES::HARDRESET();
+      CNES::BREAKPOINTS(false);
+      CNES::CLEAROPCODEMASKS();
 
       // If we were stopped at a breakpoint, release...
       // Breakpoints have been deleted.
@@ -119,6 +120,9 @@ void NESEmulatorThread::loadCartridge()
 
 void NESEmulatorThread::resetEmulator()
 {
+   // Force hard-reset of the machine...
+   CNES::BREAKPOINTS(false);
+
    // If during the last run we were stopped at a breakpoint, clear it...
    if ( !(breakpointSemaphore.available()) )
    {
@@ -204,6 +208,9 @@ void NESEmulatorThread::run ()
          m_joy [ JOY1 ] = 0x00;
          m_joy [ JOY2 ] = 0x00;
 
+         // Re-enable breakpoints that were previously enabled...
+         CNES::BREAKPOINTS(true);
+
          // Reset NES...
          CNES::RESET ( CROM::MAPPER() );
 
@@ -215,6 +222,8 @@ void NESEmulatorThread::run ()
             loadCartridge();
             m_pCartridge = NULL;
          }
+
+         emit emulatorReset();
 
          // Don't *keep* resetting...
          m_isResetting = false;

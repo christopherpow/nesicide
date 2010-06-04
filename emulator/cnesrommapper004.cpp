@@ -94,6 +94,9 @@ bool           CROMMapper004::m_irqReload = false;
 unsigned char  CROMMapper004::m_prg [ 2 ] = { 0, 0 };
 unsigned char  CROMMapper004::m_chr [ 8 ] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
+unsigned int   CROMMapper004::m_lastPPUAddrA12 = 0;
+unsigned int   CROMMapper004::m_lastPPUCycle = 0;
+
 CROMMapper004::CROMMapper004()
 {
 
@@ -125,6 +128,10 @@ void CROMMapper004::RESET ()
    m_irqCounter = 0x00;
    m_irqLatch = 0x00;
    m_irqEnable = false;
+
+   m_lastPPUCycle = 0;
+   m_lastPPUAddrA12 = 0;
+
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
@@ -137,34 +144,61 @@ void CROMMapper004::RESET ()
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper004::SYNCH ( int scanline )
+void CROMMapper004::SYNCH ( UINT ppuCycle, UINT ppuAddr )
 {
    bool zero = false;
+   unsigned short ppuAddrA12 = ppuAddr&0x1000;
+   bool clockIt = false;
 
-   if ( m_irqReload )
+   // Determine if clocked...rising edge more than 11 cycles
+   // after the last one.
+   if ( (m_lastPPUAddrA12 == 0x0000) &&
+        (ppuAddrA12 == 0x1000) )
    {
-      m_irqCounter = m_irqLatch;
-      m_irqReload = false;
-      if ( m_irqCounter == 0 )
-      {
-         zero = true;
-      }
+      clockIt = true;
    }
-   else
-   {
-      m_irqCounter--;
-      if ( m_irqCounter == 0 )
-      {
-         m_irqReload = true;
-         zero = true;
-      }
-   }
-   if ( m_irqEnable && zero )
-   {
-      C6502::ASSERTIRQ ( eSource_Mapper );
 
-      // Check for IRQ breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+   // Update PPU watching variables on rising edge...
+   m_lastPPUAddrA12 = ppuAddrA12;
+
+   if ( clockIt )
+   {
+      if ( (ppuCycle-m_lastPPUCycle) < 9 )
+      {
+         clockIt = false;
+      }
+
+      m_lastPPUCycle = ppuCycle;
+   }
+
+   // Clock the IRQ counter if needed...
+   if ( clockIt )
+   {
+      if ( m_irqReload )
+      {
+         m_irqCounter = m_irqLatch;
+         m_irqReload = false;
+         if ( m_irqCounter == 0 )
+         {
+            zero = true;
+         }
+      }
+      else
+      {
+         m_irqCounter--;
+         if ( m_irqCounter == 0 )
+         {
+            m_irqReload = true;
+            zero = true;
+         }
+      }
+      if ( m_irqEnable && zero )
+      {
+         C6502::ASSERTIRQ ( eSource_Mapper );
+
+         // Check for IRQ breakpoint...
+         CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+      }
    }
 }
 

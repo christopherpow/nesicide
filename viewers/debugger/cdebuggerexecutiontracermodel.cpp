@@ -263,11 +263,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             }
          break;
          case eTracerCol_Addr:
-            if ( pSample->type == eTracer_GarbageRead )
-            {
-               strcpy ( str, "$XXXX" );
-            }
-            else if ( (pSample->type == eTracer_RESET) ||
+            if ( (pSample->type == eTracer_RESET) ||
                       (pSample->type == eTracer_NMI) ||
                       (pSample->type == eTracer_IRQ) ||
                       (pSample->type == eTracer_Sprite0Hit) ||
@@ -282,11 +278,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             }
          break;
          case eTracerCol_Data:
-            if ( pSample->type == eTracer_GarbageRead )
-            {
-               strcpy ( str, "$XX" );
-            }
-            else if ( (pSample->type == eTracer_RESET) ||
+            if ( (pSample->type == eTracer_RESET) ||
                       (pSample->type == eTracer_NMI) ||
                       (pSample->type == eTracer_IRQ) ||
                       (pSample->type == eTracer_Sprite0Hit) ||

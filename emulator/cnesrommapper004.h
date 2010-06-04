@@ -16,11 +16,19 @@ public:
    static void RESET ();
    static UINT MAPPER ( UINT addr );
    static void MAPPER ( UINT addr, unsigned char data );
-   static void SYNCH ( int scanline );
+   static void SYNCH ( UINT ppuCycle, UINT ppuAddr );
    static void SETCPU ( void );
    static void SETPPU ( void );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
+
+   // Internal accessors for mapper information inspector...
+   // Note: called directly!
+   static UINT IRQENABLED ( void ) { return m_irqEnable; }
+   static UINT IRQRELOAD ( void ) { return m_irqReload; }
+   static UINT IRQCOUNTER ( void ) { return m_irqCounter; }
+   static UINT PPUADDRA12 ( void ) { return m_lastPPUAddrA12; }
+   static UINT PPUCYCLE ( void ) { return m_lastPPUCycle; }
 
 protected:
    // MMC3
@@ -31,6 +39,9 @@ protected:
    static bool           m_irqReload;
    static unsigned char  m_prg [ 2 ];
    static unsigned char  m_chr [ 8 ];
+
+   static unsigned int   m_lastPPUAddrA12;
+   static unsigned int   m_lastPPUCycle;
 };
 
 #endif

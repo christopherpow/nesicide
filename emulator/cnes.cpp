@@ -53,15 +53,30 @@ CNES::~CNES()
 
 }
 
-void CNES::HARDRESET ( void )
+void CNES::BREAKPOINTS ( bool enable )
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int bp;
    for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
    {
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
-      pBreakpoint->enabled = false;
+      if ( enable )
+      {
+         pBreakpoints->WasEnabled(bp);
+      }
+      else
+      {
+         pBreakpoints->SetEnabled(bp,enable);
+      }
    }
+}
+
+void CNES::CLEAROPCODEMASKS ( void )
+{
+   // Clear code/data logger info...
+   C6502::OPCODEMASKCLR ();
+   CROM::PRGROMOPCODEMASKCLR ();
+   CROM::SRAMOPCODEMASKCLR ();
+   CROM::EXRAMOPCODEMASKCLR ();
 }
 
 void CNES::RESET ( UINT mapper )
@@ -84,12 +99,6 @@ void CNES::RESET ( UINT mapper )
    CPPU::MEMCLR ();
    CPPU::OAMCLR ();
    CROM::CHRRAMCLR ();
-
-   // Clear code/data logger info...
-   C6502::OPCODEMASKCLR ();
-   CROM::PRGROMOPCODEMASKCLR ();
-   CROM::SRAMOPCODEMASKCLR ();
-   CROM::EXRAMOPCODEMASKCLR ();
 
    // Zero visualizer markers...
    C6502::MARKERS().ZeroAllMarkers();

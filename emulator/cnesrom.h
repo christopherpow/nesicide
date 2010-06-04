@@ -83,7 +83,7 @@ public:
 
    // Support functions for inline disassembly in PRG-ROM, SRAM, and EXRAM
    static inline void PRGROMOPCODEMASK ( UINT addr, unsigned char mask ) { *(*(m_PRGROMopcodeMask+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)) = mask; }
-   static inline void PRGROMOPCODEMASKCLR ( void ) { memset(m_PRGROMopcodeMask,0x01,sizeof(m_PRGROMopcodeMask)); }
+   static inline void PRGROMOPCODEMASKCLR ( void ) { memset(m_PRGROMopcodeMask,0,sizeof(m_PRGROMopcodeMask)); }
    static inline char* PRGROMDISASSEMBLY ( UINT addr ) { return *(*(m_PRGROMdisassembly+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)); }
    static UINT PRGROMSLOC2ADDR ( unsigned short sloc );
    static unsigned short PRGROMADDR2SLOC ( UINT addr );
@@ -119,7 +119,7 @@ public:
    static void MAPPER ( UINT, unsigned char ) {}
    static UINT LMAPPER ( UINT ) { return 0x40; } // open bus?
    static void LMAPPER ( UINT, unsigned char ) {}
-   static void SYNCH ( int ) {}
+   static void SYNCH ( UINT, UINT ) {}
    static bool SYNCV ( void ) { return false; }
    static void LATCH ( UINT ) {}
    static void LOAD ( MapperState* data );

@@ -95,7 +95,7 @@ public:
 	TracerInfo* AddRESET ( void );
 	TracerInfo* AddNMI ( char source );
 	TracerInfo* AddIRQ ( char source );
-   TracerInfo* AddGarbageFetch( unsigned int cycle, char target );
+   TracerInfo* AddGarbageFetch( unsigned int cycle, char target, unsigned short addr );
 	TracerInfo* AddSample ( unsigned int cycle, char type, char source, char target, unsigned short addr, unsigned char data );
 	bool ReallocateTracerMemory ( int newDepth );
    unsigned int GetNumSamples ( void ) const { return m_samples; }

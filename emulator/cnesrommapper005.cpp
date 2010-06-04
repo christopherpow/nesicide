@@ -79,8 +79,9 @@ void CROMMapper005::RESET ()
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper005::SYNCH ( int scanline )
+void CROMMapper005::SYNCH ( UINT ppuCycle, UINT ppuAddr )
 {
+   int scanline = CYCLE_TO_VISY(ppuCycle);
    if ( scanline == 0 )
    {
       m_irqStatus = 0x40;

@@ -2760,6 +2760,7 @@ void C6502::RENDERCODEDATALOGGER ( void )
    UINT curCycle = CCodeDataLogger::GetCurCycle ();
    QColor lcolor;
    CCodeDataLogger* pLogger;
+   LoggerInfo* pLogEntry;
 
    // Clearly...
    memset ( m_pCodeDataLoggerInspectorTV, 255, 196608 );
@@ -2769,18 +2770,19 @@ void C6502::RENDERCODEDATALOGGER ( void )
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
       idxxm = idxx%MEM_2KB;
-      cycleDiff = (curCycle-pLogger->GetCycle(idxxm))/17800;
+      pLogEntry = pLogger->GetLogEntry(idxxm);
+      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
 
-      if ( pLogger->GetCount(idxxm) )
+      if ( pLogEntry->count )
       {
-         if ( pLogger->GetType(idxxm) == eLogger_DMA )
+         if ( pLogEntry->type == eLogger_DMA )
          {
-            lcolor = dmaColor[pLogger->GetSource(idxxm)];
+            lcolor = dmaColor[pLogEntry->source];
          }
          else
          {
-            lcolor = color[pLogger->GetType(idxxm)];
+            lcolor = color[pLogEntry->type];
          }
          if ( !lcolor.red() )
          {
@@ -2813,18 +2815,19 @@ void C6502::RENDERCODEDATALOGGER ( void )
    pLogger = &m_logger;
    for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
    {
-      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      pLogEntry = pLogger->GetLogEntry(idxx);
+      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
 
-      if ( pLogger->GetCount(idxx) )
+      if ( pLogEntry->count )
       {
-         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         if ( pLogEntry->type == eLogger_DMA )
          {
-            lcolor = dmaColor[pLogger->GetSource(idxx)];
+            lcolor = dmaColor[pLogEntry->source];
          }
          else
          {
-            lcolor = color[pLogger->GetType(idxx)];
+            lcolor = color[pLogEntry->type];
          }
          if ( !lcolor.red() )
          {
@@ -2845,22 +2848,22 @@ void C6502::RENDERCODEDATALOGGER ( void )
    }
 
    // Show cartrige EXRAM memory...
+   pLogger = CROM::EXRAMLOGGER();
    for ( idxx = 0; idxx < MEM_1KB; idxx++ )
    {
-      pLogger = CROM::EXRAMLOGGER();
-
-      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      pLogEntry = pLogger->GetLogEntry(idxx);
+      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
 
-      if ( pLogger->GetCount(idxx) )
+      if ( pLogEntry->count )
       {
-         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         if ( pLogEntry->type == eLogger_DMA )
          {
-            lcolor = dmaColor[pLogger->GetSource(idxx)];
+            lcolor = dmaColor[pLogEntry->source];
          }
          else
          {
-            lcolor = color[pLogger->GetType(idxx)];
+            lcolor = color[pLogEntry->type];
          }
          if ( !lcolor.red() )
          {
@@ -2885,18 +2888,19 @@ void C6502::RENDERCODEDATALOGGER ( void )
    {
       pLogger = CROM::SRAMLOGGER(0x6000);
 
-      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      pLogEntry = pLogger->GetLogEntry(idxx);
+      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
 
-      if ( pLogger->GetCount(idxx) )
+      if ( pLogEntry->count )
       {
-         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         if ( pLogEntry->type == eLogger_DMA )
          {
-            lcolor = dmaColor[pLogger->GetSource(idxx)];
+            lcolor = dmaColor[pLogEntry->source];
          }
          else
          {
-            lcolor = color[pLogger->GetType(idxx)];
+            lcolor = color[pLogEntry->type];
          }
          if ( !lcolor.red() )
          {
@@ -2923,18 +2927,19 @@ void C6502::RENDERCODEDATALOGGER ( void )
       {
          pLogger = CROM::LOGGER(MEM_32KB+(idxy*MEM_8KB)+idxx);
 
-         cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+         pLogEntry = pLogger->GetLogEntry(idxx);
+         cycleDiff = (curCycle-pLogEntry->cycle)/17800;
          if ( cycleDiff > 199 ) cycleDiff = 199;
 
-         if ( pLogger->GetCount(idxx) )
+         if ( pLogEntry->count )
          {
-            if ( pLogger->GetType(idxx) == eLogger_DMA )
+            if ( pLogEntry->type == eLogger_DMA )
             {
-               lcolor = dmaColor[pLogger->GetSource(idxx)];
+               lcolor = dmaColor[pLogEntry->source];
             }
             else
             {
-               lcolor = color[pLogger->GetType(idxx)];
+               lcolor = color[pLogEntry->type];
             }
             if ( !lcolor.red() )
             {

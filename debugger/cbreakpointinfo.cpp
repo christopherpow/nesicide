@@ -15,6 +15,21 @@ void CBreakpointInfo::ToggleEnabled ( int bp )
    m_breakpoint [ bp ].enabled = !m_breakpoint [ bp ].enabled;
 }
 
+void CBreakpointInfo::SetEnabled ( int bp, bool enabled )
+{
+   m_breakpoint [ bp ].wasEnabled = m_breakpoint [ bp ].enabled;
+   m_breakpoint [ bp ].enabled = enabled;
+}
+
+void CBreakpointInfo::WasEnabled ( int bp )
+{
+   if ( m_breakpoint[bp].wasEnabled )
+   {
+      m_breakpoint [ bp ].enabled = true;
+      m_breakpoint [ bp ].wasEnabled = false;
+   }
+}
+
 int CBreakpointInfo::FindExactMatch ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
 {
    int bpfound = -1;
@@ -45,6 +60,7 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
    {
       m_breakpoint [ bp ].hit = false;
       m_breakpoint [ bp ].enabled = true;
+      m_breakpoint [ bp ].wasEnabled = false;
       m_breakpoint [ bp ].itemActual = -1;
       m_breakpoint [ bp ].type = (eBreakpointType)type;
       m_breakpoint [ bp ].pEvent = NULL;

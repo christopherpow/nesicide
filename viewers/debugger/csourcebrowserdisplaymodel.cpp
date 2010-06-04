@@ -41,18 +41,10 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    {
       if ( addr != 0xFFFFFFFF )
       {
-         if ( index.column() == 4 )
+         if ( index.column() > 0 )
          {
-            return CNES::DISASSEMBLY(addr);
-         }
-         else if ( index.column() > 0 )
-         {
-            opSize = C6502::OpcodeSize ( CNES::_MEM(addr) );
-            if ( opSize > (index.column()-1) )
-            {
-               CNES::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
-               return tooltipBuffer;
-            }
+            CNES::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
+            return tooltipBuffer;
          }
       }
    }

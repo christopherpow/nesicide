@@ -268,20 +268,11 @@ CPPU::~CPPU()
 
 static QColor color [] =
 {
-   QColor(0,0,0),
+   QColor(0,0,255),
    QColor(255,0,0),
    QColor(0,255,0),
    QColor(0,0,255),
    QColor(255,255,0)
-};
-
-static QColor dmaColor [] =
-{
-   QColor(0,0,0),
-   QColor(0,0,0),
-   QColor(0,255,255),
-   QColor(255,0,255),
-   QColor(0,0,0)
 };
 
 void CPPU::RENDERCODEDATALOGGER ( void )
@@ -291,6 +282,7 @@ void CPPU::RENDERCODEDATALOGGER ( void )
    UINT curCycle = CCodeDataLogger::GetCurCycle ();
    QColor lcolor;
    CCodeDataLogger* pLogger;
+   LoggerInfo* pLogEntry;
 
    // Clearly...
    memset ( m_pCodeDataLoggerInspectorTV, 255, 49152 );
@@ -299,18 +291,20 @@ void CPPU::RENDERCODEDATALOGGER ( void )
    pLogger = &m_logger;
    for ( idxx = 0; idxx < 0x4000; idxx++ )
    {
-      cycleDiff = (curCycle-pLogger->GetCycle(idxx))/17800;
+      pLogEntry = pLogger->GetLogEntry(idxx);
+      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
 
-      if ( pLogger->GetCount(idxx) )
+      if ( pLogEntry->count )
       {
-         if ( pLogger->GetType(idxx) == eLogger_DMA )
+         // PPU fetches are one color, CPU fetches are others...
+         if ( pLogEntry->source == eLoggerSource_PPU )
          {
-            lcolor = dmaColor[pLogger->GetSource(idxx)];
+            lcolor = color[0];
          }
          else
          {
-            lcolor = color[pLogger->GetType(idxx)];
+            lcolor = color[pLogEntry->type];
          }
          if ( !lcolor.red() )
          {
@@ -814,46 +808,57 @@ UINT CPPU::RENDER ( UINT addr, char target )
 
    m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eLoggerSource_PPU );
 
+   // Provide PPU cycle and address to mappers that watch such things!
+   mapperfunc[CROM::MAPPER()].synch(m_cycles,addr);
+
    // Address/Data bus multiplexed thus 2 cycles required per access...
    INCCYCLE();
+   EMULATE();
    INCCYCLE();
+   EMULATE();
+
+   // Check for PPU cycle breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, data );
 
-   // Run machine...
-   EMULATE();
-
    return data;
 }
 
-void CPPU::GARBAGE ( char target, UINT addr )
+void CPPU::GARBAGE ( UINT addr, char target )
 {
-   CNES::TRACER()->AddGarbageFetch ( m_cycles, target );
+   CNES::TRACER()->AddGarbageFetch ( m_cycles, target, addr );
+
+   // Provide PPU cycle and address to mappers that watch such things!
+   mapperfunc[CROM::MAPPER()].synch(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    INCCYCLE();
+   EMULATE();
    INCCYCLE();
+   EMULATE();
+
+   // Check for PPU cycle breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
-
-   // Run machine...
-   EMULATE();
 }
 
 void CPPU::EXTRA ()
 {
-   CNES::TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle );
+   CNES::TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle, 0 );
 
    // Idle cycle...
    INCCYCLE();
+   EMULATE();
+
+   // Check for PPU cycle breakpoint...
+   CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
-
-   // Run machine...
-   EMULATE();
 }
 
 void CPPU::RESET ( void )
@@ -944,10 +949,7 @@ UINT CPPU::PPU ( UINT addr )
          m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eLoggerSource_CPU );
 
          // Toggling A12 causes IRQ count in some mappers...
-         if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
-         {
-            mapperfunc[CROM::MAPPER()].synch(-2);
-         }
+         mapperfunc[CROM::MAPPER()].synch(m_cycles,m_ppuAddr);
       }
       else
       {
@@ -1027,6 +1029,9 @@ void CPPU::PPU ( UINT addr, unsigned char data )
             m_ppuAddrLatch |= data;
 
             m_ppuAddr = m_ppuAddrLatch;
+
+            // Toggling A12 causes IRQ count in some mappers...
+            mapperfunc[CROM::MAPPER()].synch(m_cycles,m_ppuAddr);
          }
          else
          {
@@ -1034,12 +1039,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
             m_ppuAddrLatch |= ((((unsigned short)data&0x3F))<<8);
          }
          m_ppuRegByte = !m_ppuRegByte;
-
-         // Toggling A12 causes IRQ count in some mappers...
-         if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
-         {
-            mapperfunc[CROM::MAPPER()].synch(-2);
-         }
       }
       else if ( fixAddr == PPUDATA_REG )
       {
@@ -1056,10 +1055,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          m_ppuAddr += m_ppuAddrIncrement;
 
          // Toggling A12 causes IRQ count in some mappers...
-         if ( (!(oldPpuAddr&0x1000)) && ((oldPpuAddr^m_ppuAddr)&0x1000) )
-         {
-            mapperfunc[CROM::MAPPER()].synch(-2);
-         }
+         mapperfunc[CROM::MAPPER()].synch(m_cycles,m_ppuAddr);
       }
 
       // Check for breakpoint...
@@ -1086,6 +1082,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 void CPPU::FRAMESTART ( void )
 {
    m_ppuAddr = m_ppuAddrLatch;
+
    m_lastSprite0HitX = 0xFF;
    m_lastSprite0HitY = 0xFF;
 }
@@ -1228,21 +1225,19 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    for ( idxx = 0; idxx < 256; idxx += 8 )
    {
-      // Check for pre-render scanline...
-      if ( scanline >= 0 )
+      int spriteColorIdx = 0;
+      int bkgndColorIdx = 0;
+      int startBkgnd = (!(rPPU(PPUMASK)&PPUMASK_BKGND_CLIPPING))<<3;
+      int startSprite = (!(rPPU(PPUMASK)&PPUMASK_SPRITE_CLIPPING))<<3;
+      int patternMask;
+
+      for ( patternMask = 0; patternMask < 8; patternMask++ )
       {
-         int spriteColorIdx = 0;
-         int bkgndColorIdx = 0;
-         int startBkgnd = (!(rPPU(PPUMASK)&PPUMASK_BKGND_CLIPPING))<<3;
-         int startSprite = (!(rPPU(PPUMASK)&PPUMASK_SPRITE_CLIPPING))<<3;
-         int patternMask;
+         unsigned char a, b1, b2;
 
-         for ( patternMask = 0; patternMask < 8; patternMask++ )
+         if ( scanline >= 0 )
          {
-            unsigned char a, b1, b2;
-
             m_x = idxx+patternMask;
-            m_y = scanline;
 
             // Update variables for PPU viewer
             *(*(m_2005x+m_x)+m_y) = m_last2005x+((rPPU(PPUCTRL)&0x1)<<8);
@@ -1250,10 +1245,11 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
             // Check for PPU pixel-at breakpoint...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
+         }
 
-            // Check for PPU cycle breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
-
+         // Only render to the screen on the visible scanlines...
+         if ( scanline >= 0 )
+         {
             // Run sprite multiplexer to figure out what, if any,
             // sprite pixel to draw here...
             pSelectedSprite = NULL;
@@ -1372,13 +1368,6 @@ void CPPU::RENDERSCANLINE ( int scanline )
       GATHERBKGND ();
    }
 
-   // Trigger mapper IRQ if needed...on rising edge of A12...
-   if ( (rPPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR) && (!(rPPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR)) )
-   {
-      // ...which happens here!
-      mapperfunc[CROM::MAPPER()].synch(scanline);
-   }
-
    // Check for end-of-scanline breakpoints...
    if ( scanline == -1 )
    {
@@ -1419,17 +1408,20 @@ void CPPU::RENDERSCANLINE ( int scanline )
    GATHERBKGND ();
 
    // Finish off scanline render clock cycles...
-   GARBAGE ( eTarget_NameTable, 0 );
-   GARBAGE ( eTarget_NameTable, 0 );
+   GARBAGE ( 0x2000, eTarget_NameTable );
+   GARBAGE ( 0x2000, eTarget_NameTable );
 
-   // If this is the non-render scanline on an odd frame and the PPU is on
+   // If this is a visible scanline it is 341 clocks long...
    if ( scanline >= 0 )
    {
-      // account for extra clock (341)
+      // ...account for extra clock (341)
       EXTRA ();
    }
    else
    {
+      // Otherwise, if this is the pre-render scanline it is:
+      // 341 dots for PAL
+      // 340 dots for NTSC odd frames and 341 dots for NTSC even frames if rendering is on
       if ( (m_mode == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND)))) )
       {
          // account for extra clock (341)
@@ -1580,8 +1572,8 @@ void CPPU::GATHERSPRITES ( int scanline )
          }
 
          // Garbage nametable fetches according to Samus Aran...
-         GARBAGE ( eTarget_NameTable, 0 );
-         GARBAGE ( eTarget_NameTable, 0 );
+         GARBAGE ( 0x2000, eTarget_NameTable );
+         GARBAGE ( 0x2000, eTarget_NameTable );
 
          // Get sprite's pattern data...
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
@@ -1639,10 +1631,15 @@ void CPPU::GATHERSPRITES ( int scanline )
    for ( sprite = m_spriteBuffer.count; sprite < 8; sprite++ )
    {
       // Garbage nametable fetches according to Samus Aran...
-      GARBAGE ( eTarget_NameTable, 0 );
-      GARBAGE ( eTarget_NameTable, 0 );
-      GARBAGE ( eTarget_PatternMemory, spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+(idx1&0x7) );
-      GARBAGE ( eTarget_PatternMemory, spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+(idx1&0x7)+PATTERN_SIZE );
+      GARBAGE ( 0x2000, eTarget_NameTable );
+      GARBAGE ( 0x2000, eTarget_NameTable );
+      if ( spriteSize == 16 )
+      {
+         spritePatBase = (GARBAGE_SPRITE_FETCH&0x01)<<12;
+         patternIdx &= 0xFE;
+      }
+      GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
+      GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
    }
 
    // Order sprites by priority for rendering...

@@ -101,6 +101,7 @@ typedef struct _BreakpointInfo
 {
    eBreakpointType type;
    bool enabled;
+   bool wasEnabled;
    eBreakpointTarget target;
    eBreakpointItemType itemType;
    int event;
@@ -131,6 +132,8 @@ public:
     void RemoveBreakpoint ( int index );
     int FindExactMatch ( eBreakpointType type, eBreakpointItemType itemType, int event, int item1, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
     void ToggleEnabled ( int bp );
+    void SetEnabled ( int bp, bool enabled );
+    void WasEnabled ( int bp );
     BreakpointStatus GetStatus ( int idx );
     void GetPrintable ( int idx, char* msg );
     int GetNumBreakpoints ( void ) const { return m_numBreakpoints; }

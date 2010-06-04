@@ -49,7 +49,7 @@ typedef struct _MapperState
 typedef void (*RESETFUNC)();
 typedef UINT (*MAPPERRFUNC)(UINT addr);
 typedef void (*MAPPERWFUNC)(UINT addr, unsigned char data);
-typedef void (*SYNCHFUNC)(int scanline);
+typedef void (*SYNCHFUNC)(UINT ppuCycle, UINT ppuAddr);
 typedef bool (*SYNCVFUNC)(void);
 typedef void (*LOADFUNC)(MapperState* data);
 typedef void (*SAVEFUNC)(MapperState* data);

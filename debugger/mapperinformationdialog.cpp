@@ -6,6 +6,7 @@
 #include "cnes.h"
 #include "cnesrom.h"
 #include "cnesrommapper001.h"
+#include "cnesrommapper004.h"
 
 MapperInformationDialog::MapperInformationDialog(QWidget *parent) :
     QDialog(parent),
@@ -122,6 +123,15 @@ void MapperInformationDialog::updateInformation()
          ui->shiftRegister->setText ( buffer );
          sprintf ( buffer, "%d", CROMMapper001::SHIFTREGISTERBIT() );
          ui->shiftRegisterBit->setText ( buffer );
+      break;
+
+      case 4:
+         ui->irqEnabled->setChecked ( CROMMapper004::IRQENABLED() );
+         ui->ppuAddrA12->setChecked ( CROMMapper004::PPUADDRA12() );
+         sprintf ( buffer, "$%02X", CROMMapper004::IRQCOUNTER() );
+         ui->irqCounter->setText ( buffer );
+         sprintf ( buffer, "%d", CROMMapper004::PPUCYCLE() );
+         ui->lastA12Cycle->setText ( buffer );
       break;
    }
 }

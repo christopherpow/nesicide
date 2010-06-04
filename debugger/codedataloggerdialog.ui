@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
-    <height>483</height>
+    <width>342</width>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -137,6 +137,9 @@
    </item>
    <item row="5" column="0">
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
      <property name="margin">
       <number>0</number>
      </property>

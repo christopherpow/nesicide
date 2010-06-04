@@ -169,6 +169,7 @@
     <addaction name="actionExecution_Inspector"/>
     <addaction name="actionBreakpoint_Inspector"/>
     <addaction name="actionCode_Inspector"/>
+    <addaction name="separator"/>
     <addaction name="actionCodeDataLogger_Inspector"/>
     <addaction name="actionExecution_Visualizer_Inspector"/>
     <addaction name="separator"/>
