@@ -19,7 +19,8 @@
 // Breakpoint event identifiers
 enum
 {
-   CPU_EVENT_UNDOCUMENTED = 0,
+   CPU_EVENT_EXECUTE_EXACT = 0,
+   CPU_EVENT_UNDOCUMENTED,
    CPU_EVENT_UNDOCUMENTED_EXACT,
    CPU_EVENT_RESET,
    CPU_EVENT_IRQ,
@@ -50,8 +51,6 @@ enum
 #define FLAG_N_SHIFT 7
 #define FLAG_MISC 0x20
 
-#define FLAG_CLEAR 0x20
-
 #define AM_IMPLIED              0
 #define AM_IMMEDIATE            1
 #define AM_ABSOLUTE             2
@@ -67,46 +66,46 @@ enum
 #define AM_RELATIVE             12
 #define NUM_ADDRESSING_MODES    13
 
-#define MAKE16(lo,hi) (((lo&0xFF)|((hi&0xFF)<<8)))
-#define GETSIGNED8(data,op) ((char)((*(data+op))&0xFF))
-#define GETUNSIGNED8(data,op) ((unsigned char)((*(data+op))&0xFF))
+#define MAKE16(lo,hi) ((((lo)&0xFF)|(((hi)&0xFF)<<8)))
+#define GETSIGNED8(data,op) ((char)((*((data)+(op)))&0xFF))
+#define GETUNSIGNED8(data,op) ((unsigned char)((*((data)+(op)))&0xFF))
 #define GETSTACKADDR() (MAKE16(rSP(),0x01))
 #define GETSTACKDATA() (MEM(GETSTACKADDR()))
-#define GETHI8(wd) ((wd>>8)&0xFF)
-#define GETLO8(wd) (wd&0xFF)
+#define GETHI8(wd) (((wd)>>8)&0xFF)
+#define GETLO8(wd) ((wd)&0xFF)
 
-#define rPC() (UINT)m_pc
+#define rPC() (UINT)(m_pc)
 #define wPC(pc) { m_pc = (pc); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,0); }
 #define INCPC() { m_pc++; }
 #define DECPC() { m_pc--; }
 
-#define rSP() m_sp
+#define rSP() (m_sp)
 #define wSP(sp) { m_sp = (sp); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,4); }
 #define DECSP() m_sp--
 #define INCSP() m_sp++
-#define PUSH(data) { MEM(GETSTACKADDR(),data); DECSP(); }
+#define PUSH(data) { MEM(GETSTACKADDR(),(data)); DECSP(); }
 
-#define rEA() m_ea
+#define rEA() (m_ea)
 
-#define rA() m_a
-#define wA(a) { m_a = a; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,1); }
+#define rA() (m_a)
+#define wA(a) { m_a = (a); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,1); }
 
-#define rX() m_x
-#define wX(x) { m_x = x; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,2); }
+#define rX() (m_x)
+#define wX(x) { m_x = (x); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,2); }
 
-#define rY() m_y
-#define wY(y) { m_y = y; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,3); }
+#define rY() (m_y)
+#define wY(y) { m_y = (y); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,3); }
 
-#define rF() m_f
-#define wF(f) { m_f = f; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
+#define rF() (m_f|FLAG_MISC)
+#define wF(f) { m_f = ((f)|FLAG_MISC); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
 
-#define rN() (m_f&FLAG_N)
-#define rV() (m_f&FLAG_V)
-#define rB() (m_f&FLAG_B)
-#define rD() (m_f&FLAG_D)
-#define rI() (m_f&FLAG_I)
-#define rZ() (m_f&FLAG_Z)
-#define rC() (m_f&FLAG_C)
+#define rN() (!!(m_f&FLAG_N))
+#define rV() (!!(m_f&FLAG_V))
+#define rB() (!!(m_f&FLAG_B))
+#define rD() (!!(m_f&FLAG_D))
+#define rI() (!!(m_f&FLAG_I))
+#define rZ() (!!(m_f&FLAG_Z))
+#define rC() (!!(m_f&FLAG_C))
 #define sN() { m_f|=FLAG_N; }
 #define cN() { m_f&=~(FLAG_N); }
 #define wN(set) { m_f&=(~(FLAG_N)); m_f|=((!!(set))<<FLAG_N_SHIFT); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,5); }
@@ -197,6 +196,8 @@ public:
    static void LSE ( void );
    static void LSR ( void );
    static void NOP ( void );
+   static void DOP ( void );
+   static void TOP ( void );
    static void ORA ( void );
    static void PHA ( void );
    static void PHP ( void );
@@ -336,8 +337,12 @@ protected:
    static unsigned int    m_cycles;
    static int             m_curCycles; // must be allowed to go negative!
 
+   // INTERNALS FOR INSTRUCTION EXECUTION
    static int             amode; // TODO: rename!
    static unsigned char*  data; // TODO: rename!
+   static unsigned char   opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
+   static struct _C6502_opcode* pOpcodeStruct;
+   static int             opcodeSize;
    static bool            m_sync;
 
    static CRegisterData** m_tblRegisters;
@@ -359,6 +364,7 @@ typedef struct _C6502_opcode
    int amode;
    int cycles;
    bool documented;
+   bool pageCrossCounts;
 } C6502_opcode;
 
 #endif

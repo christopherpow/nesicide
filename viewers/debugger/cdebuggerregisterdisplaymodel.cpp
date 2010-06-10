@@ -173,10 +173,10 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
                }
             break;
             case eMemory_PPUregs:
-               CPPU::_PPU(addr, data);
+               CPPU::PPU(addr, data);
             break;
             case eMemory_IOregs:
-               CAPU::_APU(addr, data);
+               CAPU::APU(addr, data);
             break;
             case eMemory_PPUoam:
                CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE, data);

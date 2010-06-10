@@ -31,7 +31,21 @@
 // APU Event breakpoints
 bool apuIRQEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   // This breakpoint is checked in the right place for each scanline
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool apuLengthCounterClockedEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
+bool apuDMAEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   // This breakpoint is checked in the right place
    // so if this breakpoint is enabled it should always fire when called.
    return true;
 }
@@ -39,6 +53,8 @@ bool apuIRQEvent(BreakpointInfo* pBreakpoint,int data)
 static CBreakpointEventInfo* tblAPUEvents [] =
 {
    new CBreakpointEventInfo("IRQ", apuIRQEvent, 0, "Break if APU asserts IRQ", 10),
+   new CBreakpointEventInfo("DMC channel DMA", apuDMAEvent, 0, "Break if APU DMC channel DMA occurs", 10),
+   new CBreakpointEventInfo("Length Counter Clocked", apuLengthCounterClockedEvent, 0, "Break if APU sequencer clocks Length Counter", 10),
 };
 
 // APU Registers
@@ -133,8 +149,8 @@ static CBitfieldData* tblAPUCTRLBitfields [] =
 
 static CBitfieldData* tblAPUMASKBitfields [] =
 {
-   new CBitfieldData("IRQ", 7, 1, "%X", 2, "Disabled", "Enabled"),
-   new CBitfieldData("Sequencer Mode", 6, 1, "%X", 2, "4-step", "5-step")
+   new CBitfieldData("Sequencer Mode", 7, 1, "%X", 2, "4-step", "5-step"),
+   new CBitfieldData("IRQ", 6, 1, "%X", 2, "Disabled", "Enabled")
 };
 
 static CRegisterData* tblAPURegisters [] =
@@ -168,8 +184,6 @@ static CRegisterData* tblAPURegisters [] =
 unsigned char CAPU::m_APUreg [] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 unsigned char CAPU::m_APUregDirty [] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 unsigned char CAPU::m_APUreg4015mask = 0x1F;
-int           CAPU::m_sequencerMode = 0;
-int           CAPU::m_sequence = 0;
 bool          CAPU::m_irqEnabled = false;
 bool          CAPU::m_irqAsserted = false;
 CAPUSquare    CAPU::m_square[2];
@@ -178,7 +192,7 @@ CAPUNoise     CAPU::m_noise;
 CAPUDMC       CAPU::m_dmc;
 
 SDL_AudioSpec  CAPU::m_sdlAudioSpec;
-unsigned short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 2000 ] = { { 0, }, };
+unsigned short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 1000 ] = { { 0, }, };
 int            CAPU::m_waveBufDepth [ NUM_APU_BUFS ] = { 0, };
 int            CAPU::m_waveBufProduce = 0;
 int            CAPU::m_waveBufConsume = 0;
@@ -190,6 +204,14 @@ int             CAPU::m_numRegisters = NUM_APU_REGISTERS;
 
 CBreakpointEventInfo** CAPU::m_tblBreakpointEvents = tblAPUEvents;
 int                    CAPU::m_numBreakpointEvents = NUM_APU_EVENTS;
+
+unsigned int CAPU::m_cycles = 0;
+
+int CAPU::m_sequencerMode = 0;
+int CAPU::m_newSequencerMode = 0;
+// Cycles to wait before changing sequencer modes...0 or 1 are valid values
+// on a mode-change.
+int CAPU::m_changeModes = -1;
 
 // Events that can occur during the APU sequence stepping
 enum
@@ -209,17 +231,53 @@ static int m_seq4 [ 4 ] =
 
 static int m_seq5 [ 5 ] =
 {
-   APU_SEQ_CLK_ENVELOPE_CTR,
    APU_SEQ_CLK_ENVELOPE_CTR|APU_SEQ_CLK_LENGTH_CTR,
    APU_SEQ_CLK_ENVELOPE_CTR,
    APU_SEQ_CLK_ENVELOPE_CTR|APU_SEQ_CLK_LENGTH_CTR,
-   APU_SEQ_CLK_ENVELOPE_CTR
+   APU_SEQ_CLK_ENVELOPE_CTR,
+   0
 };
 
 static int m_samplesPerSeqTick [ 2 ] [ 4 ] =
 {
    { 184, 184, 184, 183 },
    { 221, 220, 221, 220 }
+};
+
+static unsigned char m_lengthLUT [ 32 ] =
+{
+   0x0A,
+   0xFE,
+   0x14,
+   0x02,
+   0x28,
+   0x04,
+   0x50,
+   0x06,
+   0xA0,
+   0x08,
+   0x3C,
+   0x0A,
+   0x0E,
+   0x0C,
+   0x1A,
+   0x0E,
+   0x0C,
+   0x10,
+   0x18,
+   0x12,
+   0x30,
+   0x14,
+   0x60,
+   0x16,
+   0xC0,
+   0x18,
+   0x48,
+   0x1A,
+   0x10,
+   0x1C,
+   0x20,
+   0x1E
 };
 
 static unsigned short m_squareTable [ 31 ] =
@@ -523,31 +581,24 @@ void CAPU::PLAY ( Uint8 *stream, int len )
    waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
    waveBuf = *(m_waveBuf + m_waveBufConsume);
 
-   if ( (waveBufDepth<<1) >= len )
-   {
-      SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
-      m_waveBufConsume++;
-      m_waveBufConsume %= NUM_APU_BUFS;
-   }
+   SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
+
+   m_waveBufConsume++;
+   m_waveBufConsume %= NUM_APU_BUFS;
 }
 
-void CAPU::RUN ( void )
+void CAPU::RUN ( int sequence )
 {
    int timerTicks = 41;
    int sampleTick;
-   int samplesPerSeqTick1 = *(*(m_samplesPerSeqTick+m_iFreq));
-   int samplesPerSeqTick2 = *(*(m_samplesPerSeqTick+m_iFreq)+1);
-   int samplesPerSeqTick3 = *(*(m_samplesPerSeqTick+m_iFreq)+2);
-   int samplesPerSeqTick4 = *(*(m_samplesPerSeqTick+m_iFreq)+3);
+   int samplesPerSeqTick = *(*(m_samplesPerSeqTick+m_iFreq)+0);
 
    SDL_LockAudio ();
 
    unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
    int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
 
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick1; sampleTick++ )
+   for ( sampleTick = 0; sampleTick < samplesPerSeqTick; sampleTick++ )
    {
       m_square[0].TIMERTICK ( timerTicks );
       m_square[1].TIMERTICK ( timerTicks );
@@ -555,63 +606,17 @@ void CAPU::RUN ( void )
       m_noise.TIMERTICK ( timerTicks );
       m_dmc.TIMERTICK ( timerTicks );
 
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
       (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
       (*pWaveBufDepth)++;
    }
 
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick2; sampleTick++ )
+   // CPTODO: PAL/NTSC check.
+   if ( (*pWaveBufDepth) >= 735 )
    {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
+      m_waveBufProduce++;
+      m_waveBufProduce %= NUM_APU_BUFS;
+      m_waveBufDepth [ m_waveBufProduce ] = 0;
    }
-
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick3; sampleTick++ )
-   {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
-   }
-
-   SEQTICK ();
-
-   for ( sampleTick = 0; sampleTick < samplesPerSeqTick4; sampleTick++ )
-   {
-      m_square[0].TIMERTICK ( timerTicks );
-      m_square[1].TIMERTICK ( timerTicks );
-      m_triangle.TIMERTICK ( timerTicks );
-      m_noise.TIMERTICK ( timerTicks );
-      m_dmc.TIMERTICK ( timerTicks );
-
-      if ( timerTicks == 41 ) { timerTicks = 40; } else { timerTicks = 41; }
-
-      (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-      (*pWaveBufDepth)++;
-   }
-
-   m_waveBufProduce++;
-   m_waveBufProduce %= NUM_APU_BUFS;
-   m_waveBufDepth [ m_waveBufProduce ] = 0;
 
    SDL_UnlockAudio ();
 }
@@ -652,46 +657,49 @@ unsigned short CAPU::AMPLITUDE ( void )
    return realamp;
 }
 
-void CAPU::SEQTICK ( void )
+void CAPU::SEQTICK ( int sequence )
 {
+   bool clockedLengthCounter = false;
+   bool clockedLinearCounter = false;
+
    if ( m_sequencerMode )
    {
-      if ( m_seq5[m_sequence]&APU_SEQ_CLK_ENVELOPE_CTR )
+      if ( m_seq5[sequence]&APU_SEQ_CLK_ENVELOPE_CTR )
       {
          m_square[0].CLKENVELOPE ();
          m_square[1].CLKENVELOPE ();
-         m_triangle.CLKLINEARCOUNTER ();
+         clockedLinearCounter |= m_triangle.CLKLINEARCOUNTER ();
          m_noise.CLKENVELOPE ();
       }
-      if ( m_seq5[m_sequence]&APU_SEQ_CLK_LENGTH_CTR )
+      if ( m_seq5[sequence]&APU_SEQ_CLK_LENGTH_CTR )
       {
-         m_square[0].CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_square[0].CLKLENGTHCOUNTER ();
          m_square[0].CLKSWEEPUNIT ();
-         m_square[1].CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_square[1].CLKLENGTHCOUNTER ();
          m_square[1].CLKSWEEPUNIT ();
-         m_triangle.CLKLENGTHCOUNTER ();
-         m_noise.CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_triangle.CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_noise.CLKLENGTHCOUNTER ();
       }
    }
    else
    {
-      if ( m_seq4[m_sequence]&APU_SEQ_CLK_ENVELOPE_CTR )
+      if ( m_seq4[sequence]&APU_SEQ_CLK_ENVELOPE_CTR )
       {
          m_square[0].CLKENVELOPE ();
          m_square[1].CLKENVELOPE ();
-         m_triangle.CLKLINEARCOUNTER ();
+         clockedLinearCounter |= m_triangle.CLKLINEARCOUNTER ();
          m_noise.CLKENVELOPE ();
       }
-      if ( m_seq4[m_sequence]&APU_SEQ_CLK_LENGTH_CTR )
+      if ( m_seq4[sequence]&APU_SEQ_CLK_LENGTH_CTR )
       {
-         m_square[0].CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_square[0].CLKLENGTHCOUNTER ();
          m_square[0].CLKSWEEPUNIT ();
-         m_square[1].CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_square[1].CLKLENGTHCOUNTER ();
          m_square[1].CLKSWEEPUNIT ();
-         m_triangle.CLKLENGTHCOUNTER ();
-         m_noise.CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_triangle.CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_noise.CLKLENGTHCOUNTER ();
       }
-      if ( m_seq4[m_sequence]&APU_SEQ_INT_FLAG )
+      if ( m_seq4[sequence]&APU_SEQ_INT_FLAG )
       {
          if ( m_irqEnabled )
          {
@@ -703,11 +711,11 @@ void CAPU::SEQTICK ( void )
          }
       }
    }
-   m_sequence++;
-   if ( ((m_sequencerMode == 0) && (m_sequence == 4)) ||
-        ((m_sequencerMode) && (m_sequence == 5)) )
+
+   // Check for Length Counter clocking breakpoint...
+   if ( clockedLengthCounter )
    {
-      m_sequence = 0;
+      CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_LENGTH_COUNTER_CLOCKED);
    }
 }
 
@@ -732,8 +740,10 @@ void CAPU::RESET ( void )
    m_irqEnabled = true;
    m_irqAsserted = false;
    C6502::RELEASEIRQ ( eSource_APU );
-   m_sequence = 0;
    m_sequencerMode = 0;
+
+   // At power-on reset APU is slightly ahead of CPU.
+   m_cycles = 12;
 
    CAPU::OPEN ();
 }
@@ -758,6 +768,7 @@ CAPUOscillator::CAPUOscillator ()
    m_sweep = 0;
    m_enabled = false;
    m_halted = false;
+   m_newHalted = false;
    m_envelopeEnabled = false;
    m_sweepEnabled = false;
    m_linearCounterHalted = false;
@@ -825,20 +836,44 @@ void CAPUOscillator::CLKSWEEPUNIT ( void )
    }
 }
 
-void CAPUOscillator::CLKLENGTHCOUNTER ( void )
+bool CAPUOscillator::CLKLENGTHCOUNTER ( void )
 {
-   if ( !m_halted )
+   bool skipIt = false;
+   bool clockedIt = false;
+
+   if ( m_halted != m_newHalted )
    {
-      // length counter...
-      if ( m_lengthCounter )
+      if ( ((m_newHalted == true) &&
+           (m_haltCycle == 14914)) ||
+           ((m_newHalted == false) &&
+           (m_haltCycle == 14915)) )
       {
-         m_lengthCounter--;
+         skipIt = true;
       }
    }
+
+   if ( !skipIt )
+   {
+      if ( !m_halted )
+      {
+         // length counter...
+         if ( m_lengthCounter )
+         {
+            m_lengthCounter--;
+            clockedIt = true;
+         }
+      }
+   }
+
+   m_halted = m_newHalted;
+
+   return clockedIt;
 }
 
-void CAPUOscillator::CLKLINEARCOUNTER ( void )
+bool CAPUOscillator::CLKLINEARCOUNTER ( void )
 {
+   bool clockedIt = false;
+
    // linear counter...
    if ( m_linearCounterHalted )
    {
@@ -847,11 +882,14 @@ void CAPUOscillator::CLKLINEARCOUNTER ( void )
    else if ( m_linearCounter )
    {
       m_linearCounter--;
+      clockedIt = true;
    }
    if ( !(m_reg[0]&0x80) )
    {
       m_linearCounterHalted = false;
    }
+
+   return clockedIt;
 }
 
 void CAPUOscillator::CLKENVELOPE ( void )
@@ -924,7 +962,11 @@ void CAPUSquare::APU ( UINT addr, unsigned char data )
    if ( addr == 0 )
    {
       m_duty = ((data&0xC0)>>6);
-      m_halted = data&0x20;
+      m_newHalted = data&0x20;
+      if ( m_newHalted != m_halted )
+      {
+         m_haltCycle = CAPU::CYCLES();
+      }
       m_envelopeEnabled = !(data&0x10);
       m_envelopeDivider = (data&0x0F)+1;
       m_volume = (data&0x0F);
@@ -1001,7 +1043,11 @@ void CAPUTriangle::APU ( UINT addr, unsigned char data )
 
    if ( addr == 0 )
    {
-      m_halted = data&0x80;
+      m_newHalted = data&0x80;
+      if ( m_newHalted != m_halted )
+      {
+         m_haltCycle = CAPU::CYCLES();
+      }
       m_linearCounterReload = (data&0x7F);
    }
    else if ( addr == 2 )
@@ -1068,7 +1114,11 @@ void CAPUNoise::APU ( UINT addr, unsigned char data )
 
    if ( addr == 0 )
    {
-      m_halted = data&0x20;
+      m_newHalted = data&0x20;
+      if ( m_newHalted != m_halted )
+      {
+         m_haltCycle = CAPU::CYCLES();
+      }
       m_envelopeEnabled = !(data&0x10);
       m_envelopeDivider = (data&0x0F)+1;
       m_volume = (data&0x0F);
@@ -1177,11 +1227,11 @@ void CAPUDMC::APU ( UINT addr, unsigned char data )
 
    if ( addr == 0 )
    {
-      m_irqEnabled = data&0x80;
-      if ( !m_irqEnabled )
+      m_dmcIrqEnabled = data&0x80;
+      if ( !m_dmcIrqEnabled )
       {
-         m_irqAsserted = false;
-         C6502::RELEASEIRQ ( eSource_APU );
+         m_dmcIrqAsserted = false;
+         CAPU::RELEASEIRQ ();
       }
       m_loop = data&0x40;
       m_period = *(m_dmcPeriod+(data&0xF));
@@ -1220,8 +1270,8 @@ void CAPUDMC::ENABLE ( bool enabled )
          m_lengthCounter = m_sampleLength;
       }
    }
-   m_irqAsserted = false;
-   C6502::RELEASEIRQ ( eSource_APU );
+   m_dmcIrqAsserted = false;
+   CAPU::RELEASEIRQ ();
 }
 
 void CAPUDMC::DMAREADER ( void )
@@ -1236,8 +1286,11 @@ void CAPUDMC::DMAREADER ( void )
          }
          else
          {
-            m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr, eLoggerSource_APU );
+            m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr, eSource_APU );
             CPPU::STEALCYCLES(4);
+
+            // Check for APU DMC channel DMA breakpoint event...
+            CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
          }
          m_sampleBufferFull = true;
          if ( m_dmaSource != NULL )
@@ -1269,9 +1322,10 @@ void CAPUDMC::DMAREADER ( void )
          }
          m_lengthCounter = m_sampleLength;
       }
-      if ( (!m_lengthCounter) && m_irqEnabled )
+      if ( (!m_lengthCounter) && m_dmcIrqEnabled )
       {
-         m_irqAsserted = true;
+         m_dmcIrqAsserted = true;
+         C6502::ASSERTIRQ ( eSource_APU );
       }
    }
 }
@@ -1328,6 +1382,117 @@ void CAPUDMC::TIMERTICK ( UINT sampleTicks )
    }
 }
 
+void CAPU::EMULATE ( int cycles )
+{
+   int cycle;
+
+   for ( cycle = 0; cycle < cycles; cycle++ )
+   {
+      // Handle APU clock jitter.  Mode changes occur
+      // only on even APU clocks.  On a mode change write
+      // to $4017, m_changeModes is set to either 0 or
+      // 1 indicating that the mode change should happen
+      // in 0 or 1 clocks from now.  Do the mode change
+      // when m_changeModes is 0; decrement it if it isn't 0.
+      if ( m_changeModes == 0 )
+      {
+         // Do mode-change now...
+         m_changeModes--;
+         m_sequencerMode = m_newSequencerMode;
+         RESETCYCLECOUNTER(0);
+      }
+      if ( m_changeModes > 0 )
+      {
+         m_changeModes--;
+      }
+
+      // APU sequencer mode 1
+      if ( m_sequencerMode )
+      {
+         if ( m_cycles == 1 )
+         {
+            SEQTICK ( 0 );
+            RUN ( 0 );
+         }
+         if ( m_cycles == 7459 )
+         {
+            SEQTICK ( 1 );
+            RUN ( 1 );
+         }
+         else if ( m_cycles == 14915 )
+         {
+            SEQTICK ( 2 );
+            RUN ( 2 );
+         }
+         else if ( m_cycles == 22373 )
+         {
+            SEQTICK ( 3 );
+            RUN ( 3 );
+         }
+         else if ( m_cycles == 29829 )
+         {
+            SEQTICK ( 4 );
+            RUN ( 4 );
+         }
+      }
+      // APU sequencer mode 0
+      else
+      {
+         if ( m_cycles == 7459 )
+         {
+            SEQTICK ( 0 );
+            RUN ( 0 );
+         }
+         else if ( m_cycles == 14915 )
+         {
+            SEQTICK ( 1 );
+            RUN ( 1 );
+         }
+         else if ( m_cycles == 22373 )
+         {
+            SEQTICK ( 2 );
+            RUN ( 2 );
+         }
+         else if ( (m_cycles == 29830) ||
+                   (m_cycles == 29832) )
+         {
+            if ( m_irqEnabled )
+            {
+               m_irqAsserted = true;
+               C6502::ASSERTIRQ(eSource_APU);
+
+               // Check for IRQ breakpoint...
+               CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+            }
+         }
+         else if ( m_cycles == 29831 )
+         {
+            // IRQ asserted inside RUN...
+            SEQTICK ( 3 );
+            RUN ( 3 );
+         }
+      }
+
+      m_cycles++;
+      if ( (m_sequencerMode) && (m_cycles == 37282) )
+      {
+         RESETCYCLECOUNTER(0);
+      }
+      else if ( (!m_sequencerMode) && (m_cycles == 37289) )
+      {
+         RESETCYCLECOUNTER(7459);
+      }
+   }
+}
+
+void CAPU::RELEASEIRQ ( void )
+{
+   if ( (!m_irqAsserted) && (!m_dmc.IRQASSERTED()) )
+   {
+      C6502::RELEASEIRQ ( eSource_APU );
+   }
+}
+
 UINT CAPU::APU ( UINT addr )
 {
    UINT data = 0x00;
@@ -1341,7 +1506,7 @@ UINT CAPU::APU ( UINT addr )
    data |= (m_dmc.IRQASSERTED()?0x80:0x00);
 
    m_irqAsserted = false;
-   C6502::RELEASEIRQ ( eSource_APU );
+   CAPU::RELEASEIRQ ();
 
    CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState, addr&0x1F);
 
@@ -1387,17 +1552,23 @@ void CAPU::APU ( UINT addr, unsigned char data )
       m_triangle.ENABLE ( !!(data&0x04) );
       m_noise.ENABLE ( !!(data&0x08) );
       m_dmc.ENABLE ( !!(data&0x10) );
+      m_dmc.IRQASSERTED(false);
+      CAPU::RELEASEIRQ ();
    }
    else if ( addr == 0x4017 )
    {
-      m_sequencerMode = data&0x80;
-      m_sequence = 0;
+      m_newSequencerMode = data&0x80;
       m_irqEnabled = !(data&0x40);
 
-      if ( m_sequencerMode )
+      if ( !m_irqEnabled )
       {
-         SEQTICK ();
+         m_irqAsserted = false;
+         m_dmc.IRQASSERTED(false);
+         CAPU::RELEASEIRQ ();
       }
+
+      // Change modes on even cycle...
+      m_changeModes = m_cycles&1;
    }
 
    CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState,addr&0x1F);

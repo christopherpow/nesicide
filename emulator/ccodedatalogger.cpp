@@ -83,47 +83,43 @@ unsigned int CCodeDataLogger::GetLastLoadAddr ( UINT addr )
 
 void CCodeDataLogger::LogAccess ( unsigned int cycle, UINT addr, unsigned char data, char type, char source )
 {
-// CPTODO: configuration (registry) object removed for now...
-//   if ( CONFIG.IsLoggerEnabled() )
+   LoggerInfo* pLogger = m_pLogger+(addr&m_mask);
+
+   pLogger->cpuAddr = addr;
+   pLogger->cycle = cycle;
+   pLogger->type = type;
+   pLogger->source = source;
+   if ( pLogger->count < 0xFFFFFFFF )
    {
-      LoggerInfo* pLogger = m_pLogger+(addr&m_mask);
-
-      pLogger->cpuAddr = addr;
-      pLogger->cycle = cycle;
-      pLogger->type = type;
-      pLogger->source = source;
-      if ( pLogger->count < 0xFFFFFFFF )
-      {
-         pLogger->count++;
-      }
-      if ( pLogger->count > m_maxCount )
-      {
-         m_maxCount = pLogger->count;
-      }
-      *(pLogger->lastValue+pLogger->lastValuePos) = data;
-      pLogger->lastValuePos++;
-      pLogger->lastValueCount++;
-      if ( pLogger->lastValueCount >= LAST_VALUE_LIST_LEN )
-      {
-         pLogger->lastValueCount = LAST_VALUE_LIST_LEN;
-      }
-      if ( pLogger->lastValuePos >= LAST_VALUE_LIST_LEN )
-      {
-         pLogger->lastValuePos = 0;
-      }
-      pLogger->pLastLoad = NULL;
-      if ( (m_pLastLoad) &&
-           (type == eLogger_DataWrite) )
-      {
-         pLogger->pLastLoad = m_pLastLoad;
-      }
-      if ( type == eLogger_DataRead )
-      {
-         m_pLastLoad = pLogger;
-      }
-
-      m_curCycle = cycle;
+      pLogger->count++;
    }
+   if ( pLogger->count > m_maxCount )
+   {
+      m_maxCount = pLogger->count;
+   }
+   *(pLogger->lastValue+pLogger->lastValuePos) = data;
+   pLogger->lastValuePos++;
+   pLogger->lastValueCount++;
+   if ( pLogger->lastValueCount >= LAST_VALUE_LIST_LEN )
+   {
+      pLogger->lastValueCount = LAST_VALUE_LIST_LEN;
+   }
+   if ( pLogger->lastValuePos >= LAST_VALUE_LIST_LEN )
+   {
+      pLogger->lastValuePos = 0;
+   }
+   pLogger->pLastLoad = NULL;
+   if ( (m_pLastLoad) &&
+        (type == eLogger_DataWrite) )
+   {
+      pLogger->pLastLoad = m_pLastLoad;
+   }
+   if ( type == eLogger_DataRead )
+   {
+      m_pLastLoad = pLogger;
+   }
+
+   m_curCycle = cycle;
 }
 
 void CCodeDataLogger::GetPrintable ( UINT addr, int subItem, char* str )
@@ -149,26 +145,20 @@ void CCodeDataLogger::GetPrintable ( UINT addr, int subItem, char* str )
       case eLoggerCol_Source:
          switch ( pLogger->source )
          {
-            case eLoggerSource_CPU:
+            case eSource_CPU:
                strcpy ( str, "CPU" );
             break;
-            case eLoggerSource_PPU:
+            case eSource_PPU:
                strcpy ( str, "PPU" );
             break;
-            case eLoggerSource_APU:
+            case eSource_APU:
                strcpy ( str, "APU" );
-            break;
-            case eLoggerSource_Unknown:
-               strcpy ( str, "?" );
             break;
          }
       break;
       case eLoggerCol_Type:
          switch ( pLogger->type )
          {
-            case eLogger_Unknown:
-               strcpy ( str, "?" );
-            break;
             case eLogger_InstructionFetch:
                strcpy ( str, "Instruction Fetch" );
             break;

@@ -11,19 +11,10 @@
 
 enum
 {
-   eLogger_Unknown = 0,
    eLogger_InstructionFetch,
    eLogger_DataRead,
    eLogger_DMA,
    eLogger_DataWrite
-};
-
-enum
-{
-   eLoggerSource_Unknown = 0,
-   eLoggerSource_CPU,
-   eLoggerSource_PPU,
-   eLoggerSource_APU
 };
 
 enum

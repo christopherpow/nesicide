@@ -136,6 +136,7 @@
      <property name="title">
       <string>APU</string>
      </property>
+     <addaction name="actionAPUInformation_Inspector"/>
      <addaction name="actionBinAPURegister_Inspector"/>
     </widget>
     <widget class="QMenu" name="menuPPU_Inspectors">
@@ -167,11 +168,11 @@
      <addaction name="actionGfxCHRMemory_Inspector"/>
     </widget>
     <addaction name="actionExecution_Inspector"/>
-    <addaction name="actionBreakpoint_Inspector"/>
     <addaction name="actionCode_Inspector"/>
+    <addaction name="actionBreakpoint_Inspector"/>
     <addaction name="separator"/>
-    <addaction name="actionCodeDataLogger_Inspector"/>
     <addaction name="actionExecution_Visualizer_Inspector"/>
+    <addaction name="actionCodeDataLogger_Inspector"/>
     <addaction name="separator"/>
     <addaction name="menuCPU_Inspectors"/>
     <addaction name="menuPPU_Inspectors"/>
@@ -815,6 +816,21 @@
    </property>
    <property name="toolTip">
     <string>Cartridge Mapper Information</string>
+   </property>
+  </action>
+  <action name="actionAPUInformation_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+   </property>
+   <property name="text">
+    <string>APU Information</string>
+   </property>
+   <property name="toolTip">
+    <string>APU Information</string>
    </property>
   </action>
  </widget>

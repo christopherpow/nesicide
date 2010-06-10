@@ -145,7 +145,9 @@ SOURCES += mainwindow.cpp \
     debugger/cexecutionvisualizerrenderer.cpp \
     emulator/cmarker.cpp \
     debugger/mapperinformationdialog.cpp \
-    debugger/mapperinformationinspector.cpp
+    debugger/mapperinformationinspector.cpp \
+    debugger/apuinformationdialog.cpp \
+    debugger/apuinformationinspector.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -260,7 +262,9 @@ HEADERS += mainwindow.h \
     debugger/cexecutionvisualizerrenderer.h \
     emulator/cmarker.h \
     debugger/mapperinformationdialog.h \
-    debugger/mapperinformationinspector.h
+    debugger/mapperinformationinspector.h \
+    debugger/apuinformationdialog.h \
+    debugger/apuinformationinspector.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -281,5 +285,6 @@ FORMS += mainwindow.ui \
     debugger/ppuinformationdialog.ui \
     debugger/codedataloggerdialog.ui \
     debugger/executionvisualizerdialog.ui \
-    debugger/mapperinformationdialog.ui
+    debugger/mapperinformationdialog.ui \
+    debugger/apuinformationdialog.ui
 RESOURCES += resource.qrc

@@ -140,6 +140,13 @@ bool ppuPrerenderScanlineEndEvent(BreakpointInfo* pBreakpoint,int data)
    return true;
 }
 
+bool ppuSpriteDMAEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   // This breakpoint is checked in the right place
+   // so if this breakpoint is enabled it should always fire when called.
+   return true;
+}
+
 bool ppuSprite0HitEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // This breakpoint is checked in the right place for each scanline
@@ -188,6 +195,7 @@ static CBreakpointEventInfo* tblPPUEvents [] =
    new CBreakpointEventInfo("Pre-render Scanline End (X=256,Y=-1)", ppuPrerenderScanlineEndEvent, 0, "Break at end of pre-render scanline", 10),
    new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuScanlineStartEvent, 0, "Break at start of scanline", 10),
    new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuScanlineEndEvent, 0, "Break at end of scanline", 10),
+   new CBreakpointEventInfo("Sprite DMA", ppuSpriteDMAEvent, 0, "Break on sprite DMA", 10),
    new CBreakpointEventInfo("Sprite 0 Hit", ppuSprite0HitEvent, 0, "Break on sprite 0 hit", 10),
    new CBreakpointEventInfo("Sprite enters multiplexer", ppuSpriteInMultiplexerEvent, 1, "Break if sprite %d enters multiplexer", 10, "Sprite:"),
    new CBreakpointEventInfo("Sprite selected by multiplexer", ppuSpriteSelectedEvent, 1, "Break if sprite %d is selected by multiplexer", 10, "Sprite:"),
@@ -268,12 +276,13 @@ CPPU::~CPPU()
 
 static QColor color [] =
 {
-   QColor(0,0,255),
    QColor(255,0,0),
    QColor(0,255,0),
    QColor(0,0,255),
    QColor(255,255,0)
 };
+
+static QColor renderColor = QColor(0,0,255);
 
 void CPPU::RENDERCODEDATALOGGER ( void )
 {
@@ -298,9 +307,9 @@ void CPPU::RENDERCODEDATALOGGER ( void )
       if ( pLogEntry->count )
       {
          // PPU fetches are one color, CPU fetches are others...
-         if ( pLogEntry->source == eLoggerSource_PPU )
+         if ( pLogEntry->source == eSource_PPU )
          {
-            lcolor = color[0];
+            lcolor = renderColor;
          }
          else
          {
@@ -585,7 +594,7 @@ void CPPU::RENDEROAM ( void )
    //              (!m_bOnscreen) )
             {
                patternIdx = CPPU::OAM ( SPRITEPAT, sprite );
-               if ( spriteSize == 2 )
+               if ( spriteSize == 16 )
                {
                   spritePatBase = (patternIdx&0x01)<<12;
                   patternIdx &= 0xFE;
@@ -806,7 +815,7 @@ UINT CPPU::RENDER ( UINT addr, char target )
 
    data = LOAD ( addr, eSource_PPU, target );
 
-   m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eLoggerSource_PPU );
+   m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eSource_PPU );
 
    // Provide PPU cycle and address to mappers that watch such things!
    mapperfunc[CROM::MAPPER()].synch(m_cycles,addr);
@@ -946,7 +955,7 @@ UINT CPPU::PPU ( UINT addr )
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
 
          // Log Code/Data logger...
-         m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eLoggerSource_CPU );
+         m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eSource_CPU );
 
          // Toggling A12 causes IRQ count in some mappers...
          mapperfunc[CROM::MAPPER()].synch(m_cycles,m_ppuAddr);
@@ -1046,7 +1055,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 
          oldPpuAddr = m_ppuAddr;
 
-         m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eLoggerSource_CPU );
+         m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eSource_CPU );
 
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
@@ -1065,11 +1074,14 @@ void CPPU::PPU ( UINT addr, unsigned char data )
    {
       if ( addr == IOSPRITEDMA )
       {
+         // Check for PPU cycle breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_DMA );
+
          // DMA
          int start = m_oamAddr;
          for ( dma = 0; dma < NUM_OAM_REGS; dma++ )
          {
-            *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|(dma&0xFF), eLoggerSource_PPU );
+            *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|(dma&0xFF), eSource_PPU );
          }
 
          // Steal CPU cycles...

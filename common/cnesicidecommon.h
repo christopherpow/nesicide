@@ -5,6 +5,14 @@
 #include <string.h> // for memcpy...
 #include <stdio.h> // for sprintf...
 
+// Common enumeration for sources of things.
+enum
+{
+   eSource_CPU,
+   eSource_PPU,
+   eSource_APU,
+   eSource_Mapper
+};
 
 // CPTODO: removed everything from here (for now) that is not needed yet...
 

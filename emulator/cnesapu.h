@@ -17,6 +17,8 @@
 enum
 {
    APU_EVENT_IRQ = 0,
+   APU_EVENT_LENGTH_COUNTER_CLOCKED,
+   APU_EVENT_DMC_DMA,
    NUM_APU_EVENTS
 };
 
@@ -34,10 +36,10 @@ public:
    inline void APU ( UINT addr, unsigned char data );
    inline void ENABLE ( bool enabled ) { m_enabled = enabled; if ( !m_enabled ) m_lengthCounter = 0; }
    inline unsigned short LENGTH ( void ) const { return m_lengthCounter; }
-   inline void CLKLENGTHCOUNTER ( void );
+   inline bool CLKLENGTHCOUNTER ( void );
    inline void CLKSWEEPUNIT ( void );
    inline void CLKENVELOPE ( void );
-   inline void CLKLINEARCOUNTER ( void );
+   inline bool CLKLINEARCOUNTER ( void );
    inline UINT CLKDIVIDER ( UINT sampleTicks );
    inline void SETDAC ( unsigned char dac ) { m_dac = dac; }
    inline unsigned char GETDAC ( void ) { return m_dac; }
@@ -58,6 +60,8 @@ public:
       m_volume = 0;
       m_volumeSet = 0;
       m_enabled = false;
+      m_newHalted = false;
+      m_haltCycle = 0;
       m_halted = false;
       m_linearCounterHalted = false;
       m_envelopeEnabled = false;
@@ -67,6 +71,11 @@ public:
       m_reg1Wrote = false;
       m_reg3Wrote = false;
    }
+
+   // INTERNAL ACCESSORS
+   // These are called directly for use in debugger inspectors.
+   unsigned char LENGTHCOUNTER(void) const { return m_lengthCounter; }
+   unsigned char LINEARCOUNTER(void) const { return m_linearCounter; }
 
 protected:
    unsigned char  m_linearCounter;
@@ -83,6 +92,8 @@ protected:
    unsigned char  m_volume;
    unsigned char  m_volumeSet;
    bool           m_enabled;
+   bool           m_newHalted;
+   unsigned int   m_haltCycle;
    bool           m_halted;
    bool           m_linearCounterHalted;
    bool           m_envelopeEnabled;
@@ -150,50 +161,13 @@ protected:
    unsigned short m_shortTableIdx;
    unsigned short m_longTableIdx;
 };
-
-static unsigned char m_lengthLUT [ 32 ] =
-{
-   0x0A,
-   0xFE,
-   0x14,
-   0x02,
-   0x28,
-   0x04,
-   0x50,
-   0x06,
-   0xA0,
-   0x08,
-   0x3C,
-   0x0A,
-   0x0E,
-   0x0C,
-   0x1A,
-   0x0E,
-   0x0C,
-   0x10,
-   0x18,
-   0x12,
-   0x30,
-   0x14,
-   0x60,
-   0x16,
-   0xC0,
-   0x18,
-   0x48,
-   0x1A,
-   0x10,
-   0x1C,
-   0x20,
-   0x1E
-};
-
 class CAPUDMC : public CAPUOscillator
 {
 public:
     CAPUDMC() : CAPUOscillator(),
                m_dmaReaderAddrPtr(0x0000),
-               m_irqEnabled(false),
-               m_irqAsserted(false),
+               m_dmcIrqEnabled(false),
+               m_dmcIrqAsserted(false),
                m_sampleBuffer(0x00),
                m_sampleBufferFull(false),
                m_loop(false),
@@ -212,7 +186,9 @@ public:
    inline void ENABLE ( bool enabled );
    void DMAREADER ( void );
    void DMASOURCE ( unsigned char* source ) { m_dmaSource = source; m_dmaSourcePtr = source; }
-   bool IRQASSERTED ( void ) const { return m_irqAsserted; }
+   bool IRQASSERTED ( void ) const { return m_dmcIrqAsserted; }
+   void IRQASSERTED ( bool asserted ) { m_dmcIrqAsserted = asserted; }
+
    inline void RESET ( void )
    {
       CAPUOscillator::RESET();
@@ -220,8 +196,8 @@ public:
       m_sampleAddr = 0x0000;
       m_sampleLength = 0x0000;
       m_dmaReaderAddrPtr = 0x0000;
-      m_irqEnabled = false;
-      m_irqAsserted = false;
+      m_dmcIrqEnabled = false;
+      m_dmcIrqAsserted = false;
       m_sampleBuffer = 0x00;
       m_sampleBufferFull = false;
       m_outputShift = 0x00;
@@ -233,8 +209,8 @@ public:
 
 protected:
    unsigned short m_dmaReaderAddrPtr;
-   bool          m_irqEnabled;
-   bool          m_irqAsserted;
+   bool          m_dmcIrqEnabled;
+   bool          m_dmcIrqAsserted;
    unsigned char m_sampleBuffer;
    bool          m_sampleBufferFull;
    bool          m_loop;
@@ -264,6 +240,8 @@ public:
    static void SETFREQ ( int iFreq ) { m_iFreq = iFreq; }
    static void SETFACTORINDEX ( int factorIdx ) { CAPU::CLOSE(); m_iFactorIdx = factorIdx; CAPU::OPEN(); }
 
+   static void RELEASEIRQ ( void );
+
    static UINT _APU ( UINT addr ) { return *(m_APUreg+(addr&0x1F)); }
    static void _APU ( UINT addr, unsigned char data ) { *(m_APUreg+(addr&0x1F)) = data; }
    static inline unsigned char DIRTY ( UINT addr )
@@ -273,9 +251,7 @@ public:
       return updated;
    }
 
-   static inline unsigned char LENGTHLUT ( int idx ) { return *(m_lengthLUT+idx); }
-
-   static inline void SEQTICK ( void );
+   static inline void SEQTICK ( int sequence );
    static void GETDACS ( unsigned char* square1,
                          unsigned char* square2,
                          unsigned char* triangle,
@@ -283,8 +259,23 @@ public:
                          unsigned char* dmc );
    static inline unsigned short AMPLITUDE ( void );
 
+   // INTERNAL ACCESSOR FUNCTIONS
+   // These are called directly.
+   static void LENGTHCOUNTERS ( unsigned char* sq1, unsigned char* sq2, unsigned char* triangle, unsigned char* noise )
+   {
+      (*sq1) = m_square[0].LENGTHCOUNTER();
+      (*sq2) = m_square[1].LENGTHCOUNTER();
+      (*triangle) = m_triangle.LENGTHCOUNTER();
+      (*noise) = m_noise.LENGTHCOUNTER();
+   }
+   static void LINEARCOUNTER ( unsigned char* triangle )
+   {
+      (*triangle) = m_triangle.LINEARCOUNTER();
+   }
+
    static void OPEN ( void );
-   static void RUN ( void );
+   static void EMULATE ( int cycles );
+   static void RUN ( int sequence );
    static void PLAY ( Uint8 *stream, int len );
    static void CLOSE ( void );
 
@@ -294,14 +285,19 @@ public:
    static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
    static int NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
 
+   static inline void RESETCYCLECOUNTER ( unsigned int cycle ) { m_cycles = cycle; }
+   static inline unsigned int CYCLES ( void ) { return m_cycles; }
+
 protected:
    static unsigned char m_APUreg [ 32 ];
    static unsigned char m_APUregDirty [ 32 ];
    static unsigned char m_APUreg4015mask;
-   static int m_sequencerMode;
-   static int m_sequence;
    static bool m_irqEnabled;
    static bool m_irqAsserted;
+
+   static int m_sequencerMode;
+   static int m_newSequencerMode;
+   static int m_changeModes;
 
    static int m_iFreq;
    static int m_iFactorIdx;
@@ -312,7 +308,7 @@ protected:
    static CAPUDMC m_dmc;
 
    static SDL_AudioSpec m_sdlAudioSpec;
-   static unsigned short m_waveBuf [ NUM_APU_BUFS ][ 2000 ];
+   static unsigned short m_waveBuf [ NUM_APU_BUFS ][ 1000 ];
    static int m_waveBufDepth [ NUM_APU_BUFS ];
    static int m_waveBufProduce;
    static int m_waveBufConsume;
@@ -322,6 +318,8 @@ protected:
 
    static CBreakpointEventInfo** m_tblBreakpointEvents;
    static int                    m_numBreakpointEvents;
+
+   static unsigned int   m_cycles;
 };
 
 #endif

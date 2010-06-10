@@ -5,7 +5,10 @@
 #if !defined ( TRACER_H )
 #define TRACER_H
 
+#include "cnesicidecommon.h"
+
 #define TRACER_DEFAULT_DEPTH 262144
+
 enum
 {
    eTracer_Unknown = 0,
@@ -22,14 +25,6 @@ enum
    eTracer_StartPPUFrame,
    eTracer_Sprite0Hit,
    eTracer_EndPPUFrame
-};
-
-enum
-{
-   eSource_CPU,
-   eSource_PPU,
-   eSource_APU,
-   eSource_Mapper
 };
 
 enum

@@ -90,7 +90,6 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
       // Scale up 256 by the ratio to get the correct aspect ratio
       actualSize.setWidth(240.0f * ((float)width / (float)height));
-
    } else {
       // The left and right are known since it fills the screen
       actualSize.setLeft(0);

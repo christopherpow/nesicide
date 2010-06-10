@@ -44,27 +44,8 @@ void MapperInformationDialog::cartridgeLoaded()
    char buffer [ 128 ];
    sprintf ( buffer, "Mapper %d: %s", CROM::MAPPER(), mapperNameFromID(CROM::MAPPER()) );
    ui->info->setText ( buffer );
-
-   if ( mapperfunc[CROM::MAPPER()].remapPrg )
-   {
-      ui->prgBanking->setVisible(true);
-      ui->prgBanking->setCurrentIndex(1);
-   }
-   else
-   {
-      ui->prgBanking->setCurrentIndex(0);
-      ui->prgBanking->setVisible(false);
-   }
-   if ( mapperfunc[CROM::MAPPER()].remapChr )
-   {
-      ui->chrBanking->setVisible(true);
-      ui->chrBanking->setCurrentIndex(1);
-   }
-   else
-   {
-      ui->chrBanking->setCurrentIndex(0);
-      ui->chrBanking->setVisible(false);
-   }
+   ui->tabWidget->setTabEnabled(0, mapperfunc[CROM::MAPPER()].remapPrg);
+   ui->tabWidget->setTabEnabled(1, mapperfunc[CROM::MAPPER()].remapChr);
    ui->internalInfo->setCurrentIndex(CROM::MAPPER());
 }
 
@@ -127,7 +108,10 @@ void MapperInformationDialog::updateInformation()
 
       case 4:
          ui->irqEnabled->setChecked ( CROMMapper004::IRQENABLED() );
+         ui->irqAsserted->setChecked ( CROMMapper004::IRQASSERTED() );
          ui->ppuAddrA12->setChecked ( CROMMapper004::PPUADDRA12() );
+         sprintf ( buffer, "$%02X", CROMMapper004::IRQRELOAD() );
+         ui->irqReload->setText ( buffer );
          sprintf ( buffer, "$%02X", CROMMapper004::IRQCOUNTER() );
          ui->irqCounter->setText ( buffer );
          sprintf ( buffer, "%d", CROMMapper004::PPUCYCLE() );

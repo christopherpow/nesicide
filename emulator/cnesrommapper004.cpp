@@ -87,6 +87,7 @@ static CRegisterData* tblRegisters [] =
 
 // MMC3 stuff
 unsigned char  CROMMapper004::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+bool           CROMMapper004::m_irqAsserted = false;
 unsigned char  CROMMapper004::m_irqCounter = 0x00;
 unsigned char  CROMMapper004::m_irqLatch = 0x00;
 bool           CROMMapper004::m_irqEnable = false;
@@ -128,6 +129,7 @@ void CROMMapper004::RESET ()
    m_irqCounter = 0x00;
    m_irqLatch = 0x00;
    m_irqEnable = false;
+   m_irqAsserted = false;
 
    m_lastPPUCycle = 0;
    m_lastPPUAddrA12 = 0;
@@ -195,6 +197,7 @@ void CROMMapper004::SYNCH ( UINT ppuCycle, UINT ppuAddr )
       if ( m_irqEnable && zero )
       {
          C6502::ASSERTIRQ ( eSource_Mapper );
+         m_irqAsserted = true;
 
          // Check for IRQ breakpoint...
          CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
@@ -399,6 +402,7 @@ void CROMMapper004::MAPPER ( UINT addr, unsigned char data )
       case 0xE000:
          m_irqEnable = false;
          C6502::RELEASEIRQ ( eSource_Mapper );
+         m_irqAsserted = false;
       break;
       case 0xE001:
          m_irqEnable = true;

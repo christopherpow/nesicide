@@ -157,6 +157,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_pBinAPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinAPURegisterInspector_close(bool)));
     InspectorRegistry::addInspector ( "APU Register Inspector", m_pBinAPURegisterInspector );
 
+    m_pAPUInformationInspector = new APUInformationInspector();
+    m_pAPUInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pAPUInformationInspector->setWindowTitle("APU Information");
+    m_pAPUInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pAPUInformationInspector );
+    m_pAPUInformationInspector->hide();
+    QObject::connect(m_pAPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAPUInformationInspector_close(bool)));
+    InspectorRegistry::addInspector ( "APU Information", m_pAPUInformationInspector );
+
     m_pBinCHRMemoryInspector = new MemoryInspector(eMemory_cartCHRMEM);
     m_pBinCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
     m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
@@ -317,6 +326,7 @@ void MainWindow::projectDataChangesEvent()
     ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
     ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
@@ -815,6 +825,16 @@ void MainWindow::on_actionPPUInformation_Inspector_toggled(bool value)
 void MainWindow::reflectedPPUInformationInspector_close ( bool toplevel )
 {
    ui->actionPPUInformation_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionAPUInformation_Inspector_toggled(bool value)
+{
+   m_pAPUInformationInspector->setVisible(value);
+}
+
+void MainWindow::reflectedAPUInformationInspector_close ( bool toplevel )
+{
+   ui->actionAPUInformation_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionMapperInformation_Inspector_toggled(bool value)

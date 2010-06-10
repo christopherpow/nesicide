@@ -125,8 +125,8 @@ void CIO::_IO ( UINT addr, unsigned char data )
       case IOJOY1:
          if ( (data&1) == 0 ) // latch on negative edge
          {
-            m_ioJoyLatch [ JOY1 ] = m_ioJoy [ JOY1 ];
-            m_ioJoyLatch [ JOY2 ] = m_ioJoy [ JOY2 ];
+            *(m_ioJoyLatch+JOY1) = *(m_ioJoy+JOY1);
+            *(m_ioJoyLatch+JOY2) = *(m_ioJoy+JOY2);
          }
       break;
 

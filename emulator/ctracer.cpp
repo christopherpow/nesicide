@@ -172,12 +172,12 @@ TracerInfo* CTracer::AddRESET(void)
 
 TracerInfo* CTracer::AddNMI(char source)
 {
-   return AddSample ( 0, eTracer_NMI, source, 0, 0, 0 );
+   return AddSample ( C6502::CYCLES(), eTracer_NMI, source, 0, 0, 0 );
 }
 
 TracerInfo* CTracer::AddIRQ(char source)
 {
-   return AddSample ( 0, eTracer_IRQ, source, 0, 0, 0 );
+   return AddSample ( C6502::CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
 }
 
 TracerInfo* CTracer::AddGarbageFetch( unsigned int cycle, char target, unsigned short addr )

@@ -229,12 +229,6 @@ void CNES::RUN ( unsigned char* joy )
    // Emit end-of-frame indication to Tracer...
    m_tracer.AddSample ( CPPU::CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
 
-   // Run APU for 1 frame...
-   // The RUN method fills a buffer.  The SDL library's callback method
-   // is passed this buffer, and that callback method is used to trigger
-   // emulation of the next frame.
-   CAPU::RUN ();
-
    // Update NameTable inspector...
    CPPU::RENDERNAMETABLE ();
 

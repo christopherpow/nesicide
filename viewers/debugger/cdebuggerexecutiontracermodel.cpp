@@ -6,7 +6,7 @@ CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject*)
 {
    m_pTracer = CNES::TRACER();
    m_bShowCPU = true;
-   m_bShowPPU = false;
+   m_bShowPPU = true;
 }
 
 CDebuggerExecutionTracerModel::~CDebuggerExecutionTracerModel()

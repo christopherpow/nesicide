@@ -14,9 +14,9 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
     ui->setupUi(this);
     model = new CDebuggerExecutionTracerModel(this);
     model->showCPU ( true );
-    model->showPPU ( false );
+    model->showPPU ( true );
     ui->showCPU->setChecked(true);
-    ui->showPPU->setChecked(false);
+    ui->showPPU->setChecked(true);
     ui->tableView->setModel(model);
     QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );

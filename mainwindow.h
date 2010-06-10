@@ -21,6 +21,7 @@
 #include "codeinspector.h"
 #include "codedataloggerinspector.h"
 #include "ppuinformationinspector.h"
+#include "apuinformationinspector.h"
 #include "mapperinformationinspector.h"
 #include "aboutdialog.h"
 
@@ -71,6 +72,7 @@ private:
     CodeInspector* m_pCodeInspector;
     CodeDataLoggerInspector* m_pCodeDataLoggerInspector;
     PPUInformationInspector* m_pPPUInformationInspector;
+    APUInformationInspector* m_pAPUInformationInspector;
     MapperInformationInspector* m_pMapperInformationInspector;
 
 protected:
@@ -102,6 +104,7 @@ private slots:
     void on_actionBinPPURegister_Inspector_toggled(bool );
     void on_actionBinMapperMemory_Inspector_toggled(bool );
     void on_actionPPUInformation_Inspector_toggled(bool );
+    void on_actionAPUInformation_Inspector_toggled(bool );
     void on_actionMapperInformation_Inspector_toggled(bool );
     void reflectedCodeInspector_close(bool toplevel);
     void reflectedCodeDataLoggerInspector_close(bool toplevel);
@@ -124,6 +127,7 @@ private slots:
     void reflectedBinAPURegisterInspector_close(bool toplevel);
     void reflectedBinMapperMemoryInspector_close(bool toplevel);
     void reflectedPPUInformationInspector_close(bool toplevel);
+    void reflectedAPUInformationInspector_close(bool toplevel);
     void reflectedMapperInformationInspector_close(bool toplevel);
     void on_actionCompile_Project_triggered();
     void on_actionCompiler_Output_toggled(bool );
