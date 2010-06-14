@@ -177,6 +177,7 @@ void NESEmulatorThread::pauseEmulation (bool show)
    m_showOnPause = show;
 }
 
+int doFrame = 0;
 void NESEmulatorThread::run ()
 {
    for ( ; ; )
@@ -247,10 +248,16 @@ void NESEmulatorThread::run ()
          // Trigger inspectors to update on a pause also...
          emit emulatorPaused(m_showOnPause);
          m_isPaused = false;
+         m_isRunning = false;
       }
 
       // Acquire the semaphore...
-      emulatorSemaphore.acquire();
+//      emulatorSemaphore.acquire();
+      while ( doFrame == 0 )
+      {
+         Sleep ( 1 );
+      }
+      doFrame--;
    }
 
    return;

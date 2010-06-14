@@ -79,6 +79,8 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionPAL_triggered(bool checked);
+    void on_actionNTSC_triggered(bool checked);
     void on_MainWindow_destroyed();
     void on_actionEmulation_Window_triggered();
     void on_action_Close_Project_triggered();

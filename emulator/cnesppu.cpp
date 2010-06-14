@@ -230,7 +230,6 @@ CCodeDataLogger CPPU::m_logger ( MEM_16KB, MASK_16KB );
 char*          CPPU::m_pCodeDataLoggerInspectorTV = NULL;
 
 unsigned int   CPPU::m_cycles = 0;
-int            CPPU::m_mode = MODE_NTSC;
 
 bool           CPPU::m_vblankChoked = false;
 
@@ -245,6 +244,7 @@ bool           CPPU::m_bNameTableInspector = false;
 
 unsigned int   CPPU::m_frame = 0;
 int            CPPU::m_curCycles = 0;
+
 SpriteBuffer     CPPU::m_spriteBuffer;
 BackgroundBuffer CPPU::m_bkgndBuffer;
 
@@ -348,7 +348,7 @@ void CPPU::EMULATE(void)
    // Only do 6502 stuff if the cycle-stealing DMA is not happening...
    if ( m_curCycles > 0 )
    {
-      if ( m_mode == MODE_NTSC )
+      if ( CNES::VIDEOMODE() == MODE_NTSC )
       {
          C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );
 
@@ -361,7 +361,7 @@ void CPPU::EMULATE(void)
          else
          {
             // Give back the unused cycles...
-            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_NTSC);
+//            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_NTSC);
          }
       }
       else
@@ -377,7 +377,7 @@ void CPPU::EMULATE(void)
          else
          {
             // Give back the unused cycles...
-            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_PAL);
+//            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_PAL);
          }
       }
    }
@@ -821,10 +821,8 @@ UINT CPPU::RENDER ( UINT addr, char target )
    mapperfunc[CROM::MAPPER()].synch(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
-   INCCYCLE();
    EMULATE();
    INCCYCLE();
-   EMULATE();
 
    // Check for PPU cycle breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -843,10 +841,8 @@ void CPPU::GARBAGE ( UINT addr, char target )
    mapperfunc[CROM::MAPPER()].synch(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
-   INCCYCLE();
    EMULATE();
    INCCYCLE();
-   EMULATE();
 
    // Check for PPU cycle breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -860,8 +856,8 @@ void CPPU::EXTRA ()
    CNES::TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle, 0 );
 
    // Idle cycle...
-   INCCYCLE();
    EMULATE();
+   INCCYCLE();
 
    // Check for PPU cycle breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -913,7 +909,7 @@ UINT CPPU::PPU ( UINT addr )
          // Kill NMI if flag is read at 'wrong' time...
          if ( CYCLES() == PPU_CYCLE_START_VBLANK-1 )
          {
-            CHOKEVBLANK();
+            VBLANKCHOKED ( true );
          }
       }
       else if ( fixAddr == OAMDATA_REG )
@@ -1086,7 +1082,14 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 
          // Steal CPU cycles...
          // 512 CPU cycles * 3 PPU cycles per CPU
-         STEALCYCLES(512*3*CPU_CYCLE_ADJUST);
+         if ( CNES::VIDEOMODE() == MODE_NTSC )
+         {
+            STEALCYCLES(512*PPU_CPU_RATIO_NTSC);
+         }
+         else
+         {
+            STEALCYCLES(512*PPU_CPU_RATIO_PAL);
+         }
       }
    }
 }
@@ -1186,8 +1189,8 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
    {
       for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
       {
-         INCCYCLE();
          EMULATE();
+         INCCYCLE();
 
          // Check for breakpoints...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -1195,19 +1198,34 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
    }
 }
 
-void CPPU::PIXELPIPELINES ( int x, int off, unsigned char *a, unsigned char *b1, unsigned char *b2 )
+void CPPU::PIXELPIPELINES ( int pickoff, unsigned char *a, unsigned char *b1, unsigned char *b2 )
 {
    BackgroundBufferData* pBkgnd1 = m_bkgndBuffer.data;
    BackgroundBufferData* pBkgnd2 = m_bkgndBuffer.data+1;
-   (*b1) = (pBkgnd1->patternData1>>(7-x))&0x1;
-   (*b2) = (pBkgnd1->patternData2>>(7-x))&0x1;
-   (*a) = m_bkgndBuffer.data[(x+off)>>3].attribData;
+
+   // Adjust pickoff point to place within stored data...
+   pickoff = 7-pickoff;
+
+   // Retrieve tile color-bit values at pickoff point...
+   (*b1) = (pBkgnd1->patternData1>>pickoff)&0x1;
+   (*b2) = (pBkgnd1->patternData2>>pickoff)&0x1;
+
+   // Retrieve attribute table color-bit values at pickoff point...
+   (*a) = ((pBkgnd1->attribData1>>pickoff)&0x1)|(((pBkgnd1->attribData2>>pickoff)&0x1)<<1);
+
+   // Shift to the left to line up for next pickoff...
    pBkgnd1->patternData1 <<= 1;
    pBkgnd1->patternData2 <<= 1;
    pBkgnd1->patternData1 |= (!!(pBkgnd2->patternData1&0x80));
    pBkgnd1->patternData2 |= (!!(pBkgnd2->patternData2&0x80));
    pBkgnd2->patternData1 <<= 1;
    pBkgnd2->patternData2 <<= 1;
+   pBkgnd1->attribData1 <<= 1;
+   pBkgnd1->attribData2 <<= 1;
+   pBkgnd1->attribData1 |= (!!(pBkgnd2->attribData1&0x80));
+   pBkgnd1->attribData2 |= (!!(pBkgnd2->attribData2&0x80));
+   pBkgnd2->attribData1 <<= 1;
+   pBkgnd2->attribData2 <<= 1;
 }
 
 void CPPU::RENDERSCANLINE ( int scanline )
@@ -1216,7 +1234,6 @@ void CPPU::RENDERSCANLINE ( int scanline )
    int idxx;
    int sprite;
    int p = 0;
-   bool sprite0HitSet = false;
    SpriteBufferData* pSprite;
    SpriteBufferData* pSelectedSprite;
    int idx2;
@@ -1302,8 +1319,8 @@ void CPPU::RENDERSCANLINE ( int scanline )
             }
 
             // Background pixel determination...
-            PIXELPIPELINES ( rSCROLLX(), patternMask, &a, &b1, &b2 );
-            bkgndColorIdx = (a|b1|(b2<<1));
+            PIXELPIPELINES ( rSCROLLX(), &a, &b1, &b2 );
+            bkgndColorIdx = ((a<<2)|b1|(b2<<1));
 
             if ( !(bkgndColorIdx&0x3) ) bkgndColorIdx = 0;
 
@@ -1350,17 +1367,13 @@ void CPPU::RENDERSCANLINE ( int scanline )
             // Sprite 0 hit checks...
             if ( (pSelectedSprite) &&
                  (pSelectedSprite->spriteIdx == 0) &&
-                 (!sprite0HitSet) &&
+                 (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
                  (bkgndColorIdx != 0) &&
                  (p < 255) )
             {
                if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
                {
                   wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
-                  sprite0HitSet = true;
-
-                  // Check for Sprite 0 Hit breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
 
                   // Save last sprite 0 hit coords for OAM viewer...
                   m_lastSprite0HitX = p;
@@ -1368,6 +1381,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
                   // TODO: update tracer info
                   CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eSource_PPU, 0, 0, 0 );
+
+                  // Check for Sprite 0 Hit breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
                }
             }
 
@@ -1375,9 +1391,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
             pTV += 3;
             p++;
          }
-      }
 
-      GATHERBKGND ();
+         GATHERBKGND ( patternMask );
+      }
    }
 
    // Check for end-of-scanline breakpoints...
@@ -1415,26 +1431,44 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    // Fill pipeline for next scanline...
    memcpy ( m_bkgndBuffer.data, m_bkgndBuffer.data+1, sizeof(BackgroundBufferData) );
-   GATHERBKGND ();
+   GATHERBKGND ( 0 );
+   GATHERBKGND ( 1 );
+   GATHERBKGND ( 2 );
+   GATHERBKGND ( 3 );
+   GATHERBKGND ( 4 );
+   GATHERBKGND ( 5 );
+   GATHERBKGND ( 6 );
+   GATHERBKGND ( 7 );
    memcpy ( m_bkgndBuffer.data, m_bkgndBuffer.data+1, sizeof(BackgroundBufferData) );
-   GATHERBKGND ();
+   GATHERBKGND ( 0 );
+   GATHERBKGND ( 1 );
+   GATHERBKGND ( 2 );
+   GATHERBKGND ( 3 );
+   GATHERBKGND ( 4 );
+   GATHERBKGND ( 5 );
+   GATHERBKGND ( 6 );
+   GATHERBKGND ( 7 );
 
    // Finish off scanline render clock cycles...
+   EMULATE();
+   INCCYCLE();
    GARBAGE ( 0x2000, eTarget_NameTable );
+   EMULATE();
+   INCCYCLE();
    GARBAGE ( 0x2000, eTarget_NameTable );
 
-   // If this is a visible scanline it is 341 clocks long...
+   // If this is a visible scanline it is 341 clocks long both NTSC and PAL...
    if ( scanline >= 0 )
    {
       // ...account for extra clock (341)
       EXTRA ();
    }
+   // Otherwise, if this is the pre-render scanline it is:
+   // 341 dots for PAL, always
+   // 340 dots for NTSC odd frames and 341 dots for NTSC even frames if rendering is off, 341 dots for all frames otherwise
    else
    {
-      // Otherwise, if this is the pre-render scanline it is:
-      // 341 dots for PAL
-      // 340 dots for NTSC odd frames and 341 dots for NTSC even frames if rendering is on
-      if ( (m_mode == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND)))) )
+      if ( (CNES::VIDEOMODE() == MODE_PAL) || ((CNES::VIDEOMODE() == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
       {
          // account for extra clock (341)
          EXTRA ();
@@ -1442,55 +1476,136 @@ void CPPU::RENDERSCANLINE ( int scanline )
    }
 }
 
-void CPPU::GATHERBKGND ( void )
+void CPPU::GATHERBKGND ( char phase )
 {
+   static unsigned short patternIdx;
+   static BackgroundBufferData bkgndTemp;
+
    UINT ppuAddr = rPPUADDR();
-   unsigned short patternIdx;
    int tileX = ppuAddr&0x001F;
    int tileY = (ppuAddr&0x03E0)>>5;
    int nameAddr = 0x2000 + (ppuAddr&0x0FFF);
    int attribAddr = 0x2000 + (ppuAddr&0x0C00) + 0x03C0 + ((tileY&0xFFFC)<<1) + (tileX>>2);
+   unsigned char attribData;
    int bkgndPatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
    BackgroundBufferData* pBkgnd = m_bkgndBuffer.data + 1;
 
-   m_bkgndBuffer.data[0].attribData = m_bkgndBuffer.data[1].attribData;
-
-   patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
-   mapperfunc[CROM::MAPPER()].latch ( patternIdx );
-   pBkgnd->attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
-   pBkgnd->patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
-   pBkgnd->patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
-
-   if ( (tileY&0x0002) == 0 )
+   if ( !(phase&1) )
    {
-      if ( (tileX&0x0002) == 0 )
+      EMULATE();
+      INCCYCLE();
+   }
+
+   if ( phase == 1 )
+   {
+      patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
+      mapperfunc[CROM::MAPPER()].latch ( patternIdx );
+   }
+   else if ( phase == 3 )
+   {
+      attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
+
+      if ( (tileY&0x0002) == 0 )
       {
-         pBkgnd->attribData = (pBkgnd->attribData&0x03)<<2;
+         if ( (tileX&0x0002) == 0 )
+         {
+            if ( attribData&0x01 )
+            {
+               bkgndTemp.attribData1 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData1 = 0x00;
+            }
+            if ( attribData&0x02 )
+            {
+               bkgndTemp.attribData2 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData2 = 0x00;
+            }
+         }
+         else
+         {
+            if ( attribData&0x04 )
+            {
+               bkgndTemp.attribData1 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData1 = 0x00;
+            }
+            if ( attribData&0x08 )
+            {
+               bkgndTemp.attribData2 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData2 = 0x00;
+            }
+         }
       }
       else
       {
-         pBkgnd->attribData = (pBkgnd->attribData&0x0C);
+         if ( (tileX&0x0002) == 0 )
+         {
+            if ( attribData&0x10 )
+            {
+               bkgndTemp.attribData1 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData1 = 0x00;
+            }
+            if ( attribData&0x20 )
+            {
+               bkgndTemp.attribData2 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData2 = 0x00;
+            }
+         }
+         else
+         {
+            if ( attribData&0x40 )
+            {
+               bkgndTemp.attribData1 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData1 = 0x00;
+            }
+            if ( attribData&0x80 )
+            {
+               bkgndTemp.attribData2 = 0xFF;
+            }
+            else
+            {
+               bkgndTemp.attribData2 = 0x00;
+            }
+         }
       }
    }
-   else
+   else if ( phase == 5 )
    {
-      if ( (tileX&0x0002) == 0 )
-      {
-         pBkgnd->attribData = (pBkgnd->attribData&0x30)>>2;
-      }
-      else
-      {
-         pBkgnd->attribData = (pBkgnd->attribData&0xC0)>>4;
-      }
+      bkgndTemp.patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
    }
+   else if ( phase == 7 )
+   {
+      bkgndTemp.patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
 
-   if ( rPPU(PPUMASK)&PPUMASK_RENDER_BKGND )
-   {
-      m_ppuAddr++;
-      if ((m_ppuAddr&0x001F) == 0)
+      memcpy ( pBkgnd, &bkgndTemp, sizeof(BackgroundBufferData) );
+
+      if ( rPPU(PPUMASK)&PPUMASK_RENDER_BKGND )
       {
-         m_ppuAddr   ^= 0x0400;
-         m_ppuAddr   -= 0x0020;
+         m_ppuAddr++;
+         if ((m_ppuAddr&0x001F) == 0)
+         {
+            m_ppuAddr   ^= 0x0400;
+            m_ppuAddr   -= 0x0020;
+         }
       }
    }
 }
@@ -1584,12 +1699,20 @@ void CPPU::GATHERSPRITES ( int scanline )
          }
 
          // Garbage nametable fetches according to Samus Aran...
+         EMULATE();
+         INCCYCLE();
          GARBAGE ( 0x2000, eTarget_NameTable );
+         EMULATE();
+         INCCYCLE();
          GARBAGE ( 0x2000, eTarget_NameTable );
 
          // Get sprite's pattern data...
+         EMULATE();
+         INCCYCLE();
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
+         EMULATE();
+         INCCYCLE();
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
       }
 
@@ -1613,10 +1736,13 @@ void CPPU::GATHERSPRITES ( int scanline )
             {
                if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
                {
-                  wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
+                  if ( !(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_OVFLO) )
+                  {
+                     wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
 
-                  // Check for breakpoint...
-                  CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );
+                     // Check for breakpoint...
+                     CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );
+                  }
                }
             }
          }
@@ -1643,14 +1769,22 @@ void CPPU::GATHERSPRITES ( int scanline )
    for ( sprite = m_spriteBuffer.count; sprite < 8; sprite++ )
    {
       // Garbage nametable fetches according to Samus Aran...
+      EMULATE();
+      INCCYCLE();
       GARBAGE ( 0x2000, eTarget_NameTable );
+      EMULATE();
+      INCCYCLE();
       GARBAGE ( 0x2000, eTarget_NameTable );
       if ( spriteSize == 16 )
       {
          spritePatBase = (GARBAGE_SPRITE_FETCH&0x01)<<12;
          patternIdx &= 0xFE;
       }
+      EMULATE();
+      INCCYCLE();
       GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
+      EMULATE();
+      INCCYCLE();
       GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
    }
 

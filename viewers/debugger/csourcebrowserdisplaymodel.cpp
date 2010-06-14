@@ -27,7 +27,6 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    unsigned int absAddr;
    CMarker& markers = C6502::MARKERS();
    MarkerSetInfo* pMarker;
-   unsigned char opSize;
    char tooltipBuffer [ 128 ];
 
    if (!index.isValid())

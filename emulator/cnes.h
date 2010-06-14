@@ -10,14 +10,22 @@
 
 #include "cnesicidecommon.h"
 
+// Identifiers of tooltip info to provide.
 #define TOOLTIP_BYTES 0
 #define TOOLTIP_INFO  1
+
+// Video modes.
+#define MODE_NTSC 0
+#define MODE_PAL  1
 
 class CNES
 {
 public:
 	CNES();
 	virtual ~CNES();
+
+   static inline void VIDEOMODE ( int mode ) { m_videoMode = mode; }
+   static inline int VIDEOMODE ( void ) { return m_videoMode; }
 
    static void BREAKPOINTS ( bool enable );
    static void CLEAROPCODEMASKS ( void );
@@ -53,6 +61,8 @@ protected:
    static bool            m_bAtBreakpoint;
    static bool            m_bStepCPUBreakpoint;
    static bool            m_bStepPPUBreakpoint;
+
+   static int             m_videoMode;
 
    static CTracer         m_tracer;
 };

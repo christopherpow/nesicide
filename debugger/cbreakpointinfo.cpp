@@ -66,6 +66,10 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
       m_breakpoint [ bp ].pEvent = NULL;
       switch ( type )
       {
+         case eBreakOnPPUCycle:
+            // Do nothing, this is not a user settable breakpoint.
+            // Just preventing compilation warning.
+         break;
          case eBreakOnCPUExecution:
          case eBreakOnCPUMemoryAccess:
          case eBreakOnCPUMemoryRead:
@@ -194,6 +198,10 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
 
    switch ( m_breakpoint[idx].type )
    {
+      case eBreakOnPPUCycle:
+         // Do nothing, this is not a user settable breakpoint.
+         // Just preventing compilation warning.
+      break;
       case eBreakOnCPUExecution:
          if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
          {

@@ -231,6 +231,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
+
+   // Start in NTSC mode for now until we can have it configurable on app entry.
+   ui->actionNTSC->setChecked(true);
+   ui->actionPAL->setChecked(false);
+   CNES::VIDEOMODE(MODE_NTSC);
 }
 
 MainWindow::~MainWindow()
@@ -885,4 +890,18 @@ void MainWindow::on_MainWindow_destroyed()
 {
     if (nesicideProject->get_isInitialized())
         on_action_Close_Project_triggered();
+}
+
+void MainWindow::on_actionNTSC_triggered(bool checked)
+{
+   ui->actionNTSC->setChecked(true);
+   ui->actionPAL->setChecked(false);
+   CNES::VIDEOMODE(MODE_NTSC);
+}
+
+void MainWindow::on_actionPAL_triggered(bool checked)
+{
+   ui->actionNTSC->setChecked(false);
+   ui->actionPAL->setChecked(true);
+   CNES::VIDEOMODE(MODE_PAL);
 }

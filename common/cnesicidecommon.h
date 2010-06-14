@@ -60,11 +60,6 @@ extern qint8 hex_char[];
    (**b) = 0; \
 }
 
-// APU emulation stuff
-#define FREQ_50HZ  (50.0)
-#define FREQ_60HZ  (60.0)
-#define NUM_APU_BUFS 8
-
 #if 0
 // Project configuration IDs
 #define PCI_BUILD_TOOL     0x100000

@@ -32,6 +32,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+int          CNES::m_videoMode = MODE_NTSC;
+
 bool         CNES::m_bReplay = false;
 unsigned int CNES::m_frame = 0;
 CBreakpointInfo CNES::m_breakpoints;
@@ -198,20 +200,32 @@ void CNES::RUN ( unsigned char* joy )
       }
    }
 
+   // Emit quiet scanline indication to Tracer...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_QuietStart, eSource_PPU, 0, 0, 0 );
+
    // Emulate PPU resting scanline...
    CPPU::NONRENDERSCANLINES ( 1 );
 
-   // Do VBLANK processing (scanlines 0-19)...
+   // Emit quiet scanline indication to Tracer...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_QuietEnd, eSource_PPU, 0, 0, 0 );
+
+   // Do VBLANK processing (scanlines 0-19 NTSC or 0-69 PAL)...
    // Set VBLANK flag...
-   CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)|PPUSTATUS_VBLANK );
+   if ( !CPPU::VBLANKCHOKED() )
+   {
+      CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)|PPUSTATUS_VBLANK );
+   }
 
    if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
    {
       C6502::ASSERTNMI ();
    }
 
+   // Emit start-VBLANK indication to Tracer...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_VBLANKStart, eSource_PPU, 0, 0, 0 );
+
    // Emulate VBLANK non-render scanlines...
-   if ( CPPU::MODE() == MODE_NTSC )
+   if ( VIDEOMODE() == MODE_NTSC )
    {
       CPPU::NONRENDERSCANLINES ( SCANLINES_VBLANK_NTSC );
    }
@@ -223,8 +237,17 @@ void CNES::RUN ( unsigned char* joy )
    // Clear VBLANK, Sprite 0 Hit flag and sprite overflow...
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK|PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
 
+   // Emit end-VBLANK indication to Tracer...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_VBLANKEnd, eSource_PPU, 0, 0, 0 );
+
+   // Emit start-of-prerender scanline indication to Tracer...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_PreRenderStart, eSource_PPU, 0, 0, 0 );
+
    // Pre-render scanline...
    CPPU::RENDERSCANLINE ( -1 );
+
+   // Emit start-of-prerender scanline indication to Tracer...
+   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_PreRenderEnd, eSource_PPU, 0, 0, 0 );
 
    // Emit end-of-frame indication to Tracer...
    m_tracer.AddSample ( CPPU::CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
@@ -234,6 +257,7 @@ void CNES::RUN ( unsigned char* joy )
 
    // Increment PPU frame counter...
    m_frame++;
+   m_tracer.SetFrame ( m_frame );
 }
 
 void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int data, int event )

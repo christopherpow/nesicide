@@ -24,7 +24,16 @@ enum
    eTracer_RenderSprite,
    eTracer_StartPPUFrame,
    eTracer_Sprite0Hit,
-   eTracer_EndPPUFrame
+   eTracer_VBLANKStart,
+   eTracer_VBLANKEnd,
+   eTracer_PreRenderStart,
+   eTracer_PreRenderEnd,
+   eTracer_QuietStart,
+   eTracer_QuietEnd,
+   eTracer_EndPPUFrame,
+   eTracer_StartAPUFrame,
+   eTracer_SequencerStep,
+   eTracer_EndAPUFrame
 };
 
 enum
@@ -47,7 +56,8 @@ enum
 
 enum
 {
-   eTracerCol_Cycle = 0,
+   eTracerCol_Frame = 0,
+   eTracerCol_Cycle,
    eTracerCol_Source,
    eTracerCol_Type,
    eTracerCol_Target,
@@ -66,6 +76,7 @@ enum
 #pragma pack(1)
 typedef struct
 {
+   unsigned int frame;
    unsigned int cycle;
    unsigned short addr;
    unsigned char  data;
@@ -91,7 +102,7 @@ public:
 	TracerInfo* AddNMI ( char source );
 	TracerInfo* AddIRQ ( char source );
    TracerInfo* AddGarbageFetch( unsigned int cycle, char target, unsigned short addr );
-	TracerInfo* AddSample ( unsigned int cycle, char type, char source, char target, unsigned short addr, unsigned char data );
+   TracerInfo* AddSample ( unsigned int cycle, char type, char source, char target, unsigned short addr, unsigned char data );
 	bool ReallocateTracerMemory ( int newDepth );
    unsigned int GetNumSamples ( void ) const { return m_samples; }
    TracerInfo* GetSample ( unsigned int sample );
@@ -108,7 +119,12 @@ public:
    unsigned int GetNumCPUSamples() const { return m_cpuSamples; }
    unsigned int GetNumPPUSamples() const { return m_ppuSamples; }
 
+   void SetFrame(unsigned int frame) { m_frame = frame; }
+
 protected:
+   // Frame # is set by emulator so it doesn't have to be passed in all the time...
+   unsigned int m_frame;
+
    unsigned int m_cursor;
    unsigned int m_samples;
    unsigned int m_sampleBufferDepth;

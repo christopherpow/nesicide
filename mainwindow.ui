@@ -180,8 +180,22 @@
     <addaction name="actionI_O"/>
     <addaction name="menuCartridge_Inspectors"/>
    </widget>
+   <widget class="QMenu" name="menuEmulator">
+    <property name="title">
+     <string>Emulator</string>
+    </property>
+    <widget class="QMenu" name="menuVideo">
+     <property name="title">
+      <string>Video</string>
+     </property>
+     <addaction name="actionNTSC"/>
+     <addaction name="actionPAL"/>
+    </widget>
+    <addaction name="menuVideo"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menuEmulator"/>
    <addaction name="menuDebugger"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -831,6 +845,22 @@
    </property>
    <property name="toolTip">
     <string>APU Information</string>
+   </property>
+  </action>
+  <action name="actionNTSC">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>NTSC</string>
+   </property>
+  </action>
+  <action name="actionPAL">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>PAL</string>
    </property>
   </action>
  </widget>

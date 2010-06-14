@@ -13,17 +13,23 @@
 
 #include "cbreakpointinfo.h"
 
+#define NUM_APU_BUFS 16
+
 // Breakpoint event identifiers
 enum
 {
    APU_EVENT_IRQ = 0,
-   APU_EVENT_LENGTH_COUNTER_CLOCKED,
    APU_EVENT_DMC_DMA,
+   APU_EVENT_LENGTH_COUNTER_CLOCKED,
    NUM_APU_EVENTS
 };
 
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40
+
+// Samples per video frame for 44.1KHz audio output.
+#define APU_SAMPLES_NTSC 735
+#define APU_SAMPLES_PAL  882
 
 class CAPUOscillator
 {
@@ -40,7 +46,7 @@ public:
    inline void CLKSWEEPUNIT ( void );
    inline void CLKENVELOPE ( void );
    inline bool CLKLINEARCOUNTER ( void );
-   inline UINT CLKDIVIDER ( UINT sampleTicks );
+   inline UINT CLKDIVIDER ( void );
    inline void SETDAC ( unsigned char dac ) { m_dac = dac; }
    inline unsigned char GETDAC ( void ) { return m_dac; }
    inline bool IsEnabled ( void ) const { return m_enabled; }
@@ -61,7 +67,6 @@ public:
       m_volumeSet = 0;
       m_enabled = false;
       m_newHalted = false;
-      m_haltCycle = 0;
       m_halted = false;
       m_linearCounterHalted = false;
       m_envelopeEnabled = false;
@@ -93,7 +98,6 @@ protected:
    unsigned char  m_volumeSet;
    bool           m_enabled;
    bool           m_newHalted;
-   unsigned int   m_haltCycle;
    bool           m_halted;
    bool           m_linearCounterHalted;
    bool           m_envelopeEnabled;
@@ -117,7 +121,7 @@ public:
    virtual ~CAPUSquare() {};
 
    inline void APU ( UINT addr, unsigned char data );
-   inline void TIMERTICK ( UINT sampleTicks );
+   inline void TIMERTICK ( void );
    inline void RESET ( void ) { CAPUOscillator::RESET(); m_duty = 0; m_seqTick = 0; m_timerClk = 0; }
 
 protected:
@@ -135,7 +139,7 @@ public:
    virtual ~CAPUTriangle() {};
 
    inline void APU ( UINT addr, unsigned char data );
-   inline void TIMERTICK ( UINT sampleTicks );
+   inline void TIMERTICK ( void );
    inline void RESET ( void ) { CAPUOscillator::RESET(); m_seqTick = 0; }
 
 protected:
@@ -149,7 +153,7 @@ public:
    virtual ~CAPUNoise() {};
 
    inline void APU ( UINT addr, unsigned char data );
-   inline void TIMERTICK ( UINT sampleTicks );
+   inline void TIMERTICK ( void );
    inline void RESET ( void )
    { CAPUOscillator::RESET(); m_shift = 0x1; m_mode = 0; m_shortTableIdx = 0; m_longTableIdx = 0; }
 
@@ -182,7 +186,7 @@ public:
    virtual ~CAPUDMC() {};
 
    inline void APU ( UINT addr, unsigned char data );
-   inline void TIMERTICK ( UINT sampleTicks );
+   inline void TIMERTICK ( void );
    inline void ENABLE ( bool enabled );
    void DMAREADER ( void );
    void DMASOURCE ( unsigned char* source ) { m_dmaSource = source; m_dmaSourcePtr = source; }
@@ -237,10 +241,6 @@ public:
 
    static unsigned char GET4015MASK ( void ) { return m_APUreg4015mask; }
    static void SET4015MASK ( unsigned char mask ) { m_APUreg4015mask = mask; CAPU::APU(0x4015,mask); }
-   static void SETFREQ ( int iFreq ) { m_iFreq = iFreq; }
-   static void SETFACTORINDEX ( int factorIdx ) { CAPU::CLOSE(); m_iFactorIdx = factorIdx; CAPU::OPEN(); }
-
-   static void RELEASEIRQ ( void );
 
    static UINT _APU ( UINT addr ) { return *(m_APUreg+(addr&0x1F)); }
    static void _APU ( UINT addr, unsigned char data ) { *(m_APUreg+(addr&0x1F)) = data; }
@@ -251,31 +251,32 @@ public:
       return updated;
    }
 
+   static void RELEASEIRQ ( void );
    static inline void SEQTICK ( int sequence );
-   static void GETDACS ( unsigned char* square1,
-                         unsigned char* square2,
-                         unsigned char* triangle,
-                         unsigned char* noise,
-                         unsigned char* dmc );
    static inline unsigned short AMPLITUDE ( void );
 
    // INTERNAL ACCESSOR FUNCTIONS
    // These are called directly.
-   static void LENGTHCOUNTERS ( unsigned char* sq1, unsigned char* sq2, unsigned char* triangle, unsigned char* noise )
+   static void LENGTHCOUNTERS ( unsigned char* sq1, unsigned char* sq2, unsigned char* triangle, unsigned char* noise, unsigned char* dmc )
    {
       (*sq1) = m_square[0].LENGTHCOUNTER();
       (*sq2) = m_square[1].LENGTHCOUNTER();
       (*triangle) = m_triangle.LENGTHCOUNTER();
       (*noise) = m_noise.LENGTHCOUNTER();
+      (*dmc) = m_dmc.LENGTHCOUNTER();
    }
    static void LINEARCOUNTER ( unsigned char* triangle )
    {
       (*triangle) = m_triangle.LINEARCOUNTER();
    }
+   static void GETDACS ( unsigned char* square1,
+                         unsigned char* square2,
+                         unsigned char* triangle,
+                         unsigned char* noise,
+                         unsigned char* dmc );
 
    static void OPEN ( void );
    static void EMULATE ( int cycles );
-   static void RUN ( int sequence );
    static void PLAY ( Uint8 *stream, int len );
    static void CLOSE ( void );
 
@@ -299,9 +300,6 @@ protected:
    static int m_newSequencerMode;
    static int m_changeModes;
 
-   static int m_iFreq;
-   static int m_iFactorIdx;
-
    static CAPUSquare m_square[2];
    static CAPUTriangle m_triangle;
    static CAPUNoise m_noise;
@@ -318,6 +316,8 @@ protected:
 
    static CBreakpointEventInfo** m_tblBreakpointEvents;
    static int                    m_numBreakpointEvents;
+
+   static unsigned int m_sampleRate;
 
    static unsigned int   m_cycles;
 };

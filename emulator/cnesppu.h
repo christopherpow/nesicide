@@ -37,7 +37,13 @@ enum
 #define SCANLINES_VBLANK_NTSC (20)
 #define SCANLINES_VBLANK_PAL (70)
 
+#define SCANLINES_TOTAL_NTSC (SCANLINES_VISIBLE+SCANLINES_VBLANK_NTSC+SCANLINES_QUIET+1)
+#define SCANLINES_TOTAL_PAL (SCANLINES_VISIBLE+SCANLINES_VBLANK_PAL+SCANLINES_QUIET+1)
+
 #define PPU_CYCLES_PER_SCANLINE 341
+
+#define PPU_CYCLE_START_VBLANK ((SCANLINES_VISIBLE+SCANLINES_QUIET)*PPU_CYCLES_PER_SCANLINE)
+
 #define CPU_CYCLE_ADJUST   5
 #define PPU_CPU_RATIO_NTSC 15
 #define PPU_CPU_RATIO_PAL  16
@@ -45,8 +51,6 @@ enum
 #define CYCLE_TO_VISX(c) (c%PPU_CYCLES_PER_SCANLINE)
 #define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
 #define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
-
-#define PPU_CYCLE_START_VBLANK (PPU_CYCLES_PER_SCANLINE*(SCANLINES_VISIBLE+SCANLINES_QUIET))
 
 #define PPUREGBASE 0x2000
 #define PPUCTRL    0x2000
@@ -66,9 +70,6 @@ enum
 #define PPUADDR_REG   6
 #define PPUDATA_REG   7
 #define NUM_PPU_REGS 8
-
-#define MODE_NTSC 0
-#define MODE_PAL  1
 
 #define NUM_SPRITES  64
 #define SPRITEY      0
@@ -130,9 +131,10 @@ typedef struct _SpriteBuffer
 
 typedef struct _BackgroundBufferData
 {
-   unsigned char  patternData1;
-   unsigned char  patternData2;
-   unsigned char  attribData;
+   unsigned char patternData1;
+   unsigned char patternData2;
+   unsigned char attribData1;
+   unsigned char attribData2;
 } BackgroundBufferData;
 
 typedef struct _BackgroundBuffer
@@ -155,10 +157,12 @@ public:
    // Emulation routines
    static inline void Move1KBank ( int bank, unsigned char* point ) { if ( bank >= 8 ) m_pPPUmemory[bank-8] = point; }
    static void EMULATE ( void );
-
-   static inline int MODE ( void ) { return m_mode; }
-
    static void RESET ( void );
+
+   // NTSC/PAL interfaces.
+   static inline unsigned int SCANLINES ( void ) { return CNES::VIDEOMODE()==MODE_NTSC?SCANLINES_TOTAL_NTSC:SCANLINES_TOTAL_PAL; }
+
+   // State and internal data accessor interfaces.
    static void PPU ( UINT addr, unsigned char data );
    static UINT PPU ( UINT addr );
    static void STORE ( UINT addr, unsigned char data, char source = eSource_PPU, char type = eTracer_Unknown, bool trace = true );
@@ -166,12 +170,10 @@ public:
    static UINT RENDER ( UINT addr, char target );
    static void GARBAGE ( UINT addr, char target );
    static void EXTRA ();
-   static inline void _MEM ( UINT addr, unsigned char data ) { STORE(addr,data,0,0,false); }
-   static inline UINT _MEM ( UINT addr ) { return LOAD(addr,0,0,false); }
-   static inline unsigned char _NAMETABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
-   static inline unsigned char _ATTRTABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
-   static inline unsigned char _PATTERNDATA ( unsigned short addr ) { return CROM::CHRMEM ( addr ); }
-   static inline unsigned char _PALETTE ( unsigned char addr ) { if ( !(addr&0x3) ) addr = 0x00; return *(m_PALETTEmemory+addr); }
+   static inline unsigned int CYCLES ( void ) { return m_cycles; }
+   static inline void INCCYCLE ( void );
+   static inline void STEALCYCLES ( int cycles ) { m_curCycles -= cycles; }
+   static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame++; }
    static void MEMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_PPUmemory+addr,data,length); }
    static void MEMCLR ( void ) { memset(m_PPUmemory,0,MEM_4KB); }
    static unsigned char* MEMPTR ( void ) { return m_PPUmemory; }
@@ -179,18 +181,38 @@ public:
    static void OAMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_PPUoam+addr,data,length); }
    static void OAMCLR ( void ) { memset(m_PPUoam,0,MEM_256B); }
    static unsigned char* OAMPTR ( UINT addr ) { return &(m_PPUoam[addr]); }
-   static inline unsigned short _OAMADDR ( void ) { return m_oamAddr; }
    static inline UINT OAM ( UINT oam, UINT sprite ) { return *(m_PPUoam+(sprite*OAM_SIZE)+oam); }
    static inline void OAM ( UINT oam, UINT sprite, unsigned char data ) { *(m_PPUoam+(sprite*OAM_SIZE)+oam) = data; }
-   static inline unsigned short _PPUADDR ( void ) { return m_ppuAddr; }
-   static inline unsigned char _PPULATCH ( void ) { return m_ppuReadLatch; }
-   static inline void _PPU ( UINT addr, unsigned char data ) { *(m_PPUreg+(addr&0x0007)) = data; }
-   static inline UINT _PPU ( UINT addr ) { return *(m_PPUreg+(addr&0x0007)); }
    static void MIRROR ( int oneScreen = -1, bool vert = true, bool extraVRAM = false );
    static void MIRRORVERT ( void );
    static void MIRRORHORIZ ( void );
    static void MIRROR ( int nt1, int nt2, int nt3, int nt4 );
    static inline bool FOURSCREEN ( void ) { return m_extraVRAM; }
+
+   // Rendering interfaces.
+   static inline void FRAMESTART ( void );
+   static inline void SCANLINESTART ( void );
+   static inline void SCANLINEEND ( void );
+   static void RENDERSCANLINE ( int scanline );
+   static void NONRENDERSCANLINES ( int scanlines );
+   static void GATHERBKGND ( char phase );
+   static inline void PIXELPIPELINES ( int pickoff, unsigned char* a, unsigned char* b1, unsigned char* b2 );
+   static void GATHERSPRITES ( int scanline );
+
+   static void VBLANKCHOKED ( bool choked ) { m_vblankChoked = choked; }
+   static bool VBLANKCHOKED () { bool choked = m_vblankChoked; m_vblankChoked = false; return choked; }
+
+   static inline void _MEM ( UINT addr, unsigned char data ) { STORE(addr,data,0,0,false); }
+   static inline UINT _MEM ( UINT addr ) { return LOAD(addr,0,0,false); }
+   static inline unsigned char _NAMETABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
+   static inline unsigned char _ATTRTABLE ( unsigned short addr ) { return *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)); }
+   static inline unsigned char _PATTERNDATA ( unsigned short addr ) { return CROM::CHRMEM ( addr ); }
+   static inline unsigned char _PALETTE ( unsigned char addr ) { if ( !(addr&0x3) ) addr = 0x00; return *(m_PALETTEmemory+addr); }
+   static inline unsigned short _OAMADDR ( void ) { return m_oamAddr; }
+   static inline unsigned short _PPUADDR ( void ) { return m_ppuAddr; }
+   static inline unsigned char _PPULATCH ( void ) { return m_ppuReadLatch; }
+   static inline void _PPU ( UINT addr, unsigned char data ) { *(m_PPUreg+(addr&0x0007)) = data; }
+   static inline UINT _PPU ( UINT addr ) { return *(m_PPUreg+(addr&0x0007)); }
 
    static inline unsigned short _SCROLLX ( int x, int y ) { return *(*(m_2005x+x)+y); }
    static inline unsigned short _SCROLLY ( int x, int y ) { return *(*(m_2005y+x)+y); }
@@ -201,17 +223,6 @@ public:
    static inline unsigned char _X ( void ) { return m_x; }
    static inline unsigned char _Y ( void ) { return m_y; }
    static inline unsigned int _FRAME ( void ) { return m_frame; }
-
-   static inline void FRAMESTART ( void );
-   static inline void SCANLINESTART ( void );
-   static inline void SCANLINEEND ( void );
-   static void RENDERSCANLINE ( int scanline );
-   static void NONRENDERSCANLINES ( int scanlines );
-   static void GATHERBKGND ( void );
-   static inline void PIXELPIPELINES ( int x, int off, unsigned char* a, unsigned char* b1, unsigned char* b2 );
-   static void GATHERSPRITES ( int scanline );
-   
-   static void CHOKEVBLANK () { m_vblankChoked = true; }
 
    static inline void TV ( char* pTV ) { m_pTV = pTV; }
    static inline char* TV ( void ) { return m_pTV; }
@@ -226,16 +237,12 @@ public:
    static void RENDEROAM ( void );
    static void RENDERNAMETABLE ( void );
 
-   static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
-   static inline unsigned int CYCLES ( void ) { return m_cycles; }
-   static inline void INCCYCLE ( void );
-   static inline void STEALCYCLES ( int cycles ) { m_curCycles -= cycles; }
-   static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame++; }
-
    static void SetPPUViewerScanline ( UINT scanline ) { m_iPPUViewerScanline = scanline; }
    static UINT GetPPUViewerScanline ( void ) { return m_iPPUViewerScanline; }
    static void SetOAMViewerScanline ( UINT scanline ) { m_iOAMViewerScanline = scanline; }
    static UINT GetOAMViewerScanline ( void ) { return m_iOAMViewerScanline; }
+
+   static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
 
    static CRegisterData** REGISTERS() { return m_tblRegisters; }
    static int NUMREGISTERS() { return m_numRegisters; }
@@ -267,7 +274,6 @@ protected:
    static unsigned int   m_cycles;
    static unsigned int   m_frame;
    static int            m_curCycles;
-   static int            m_mode;
 
    static bool           m_vblankChoked;
 

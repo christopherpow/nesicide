@@ -43,6 +43,9 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
    {
       switch ( section )
       {
+         case eTracerCol_Frame:
+            return QString("Frame");
+         break;
          case eTracerCol_Cycle:
             return QString("Cycle");
          break;
@@ -134,7 +137,7 @@ int CDebuggerExecutionTracerModel::columnCount(const QModelIndex &parent) const
    {
       return 0;
    }
-   return 13;
+   return 14;
 }
 
 void CDebuggerExecutionTracerModel::layoutChangedEvent()
@@ -148,6 +151,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
    {
       switch ( subItem )
       {
+         case eTracerCol_Frame:
+            sprintf ( str, "%u", pSample->frame );
+         break;
          case eTracerCol_Cycle:
             sprintf ( str, "%u", pSample->cycle );
          break;
@@ -208,10 +214,37 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                   strcpy ( str, "Sprite 0 Hit" );
                break;
                case eTracer_StartPPUFrame:
-                  strcpy ( str, "PPU Frame Start" );
+                  strcpy ( str, "Frame Start" );
+               break;
+               case eTracer_VBLANKStart:
+                  strcpy ( str, "VBLANK Start" );
+               break;
+               case eTracer_VBLANKEnd:
+                  strcpy ( str, "VBLANK End" );
+               break;
+               case eTracer_PreRenderStart:
+                  strcpy ( str, "Pre-render Scanline Start" );
+               break;
+               case eTracer_PreRenderEnd:
+                  strcpy ( str, "Pre-render Scanline End" );
+               break;
+               case eTracer_QuietStart:
+                  strcpy ( str, "Post-render Scanline Start" );
+               break;
+               case eTracer_QuietEnd:
+                  strcpy ( str, "Post-render Scanline End" );
                break;
                case eTracer_EndPPUFrame:
-                  strcpy ( str, "PPU Frame End" );
+                  strcpy ( str, "Frame End" );
+               break;
+               case eTracer_StartAPUFrame:
+                  strcpy ( str, "Frame Start" );
+               break;
+               case eTracer_SequencerStep:
+                  strcpy ( str, "Sequencer Step" );
+               break;
+               case eTracer_EndAPUFrame:
+                  strcpy ( str, "Frame End" );
                break;
             }
          break;
@@ -268,7 +301,16 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                       (pSample->type == eTracer_IRQ) ||
                       (pSample->type == eTracer_Sprite0Hit) ||
                       (pSample->type == eTracer_StartPPUFrame) ||
-                      (pSample->type == eTracer_EndPPUFrame) )
+                      (pSample->type == eTracer_VBLANKStart) ||
+                      (pSample->type == eTracer_VBLANKEnd) ||
+                      (pSample->type == eTracer_PreRenderStart) ||
+                      (pSample->type == eTracer_PreRenderEnd) ||
+                      (pSample->type == eTracer_QuietStart) ||
+                      (pSample->type == eTracer_QuietEnd) ||
+                      (pSample->type == eTracer_EndPPUFrame) ||
+                      (pSample->type == eTracer_StartAPUFrame) ||
+                      (pSample->type == eTracer_SequencerStep) ||
+                      (pSample->type == eTracer_EndAPUFrame) )
             {
                str[0] = 0;
             }
@@ -283,7 +325,16 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                       (pSample->type == eTracer_IRQ) ||
                       (pSample->type == eTracer_Sprite0Hit) ||
                       (pSample->type == eTracer_StartPPUFrame) ||
-                      (pSample->type == eTracer_EndPPUFrame) )
+                      (pSample->type == eTracer_VBLANKStart) ||
+                      (pSample->type == eTracer_VBLANKEnd) ||
+                      (pSample->type == eTracer_PreRenderStart) ||
+                      (pSample->type == eTracer_PreRenderEnd) ||
+                      (pSample->type == eTracer_QuietStart) ||
+                      (pSample->type == eTracer_QuietEnd) ||
+                      (pSample->type == eTracer_EndPPUFrame) ||
+                      (pSample->type == eTracer_StartAPUFrame) ||
+                      (pSample->type == eTracer_SequencerStep) ||
+                      (pSample->type == eTracer_EndAPUFrame) )
             {
                str[0] = 0;
             }

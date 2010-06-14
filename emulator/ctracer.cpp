@@ -20,10 +20,8 @@
 
 #include "ctracer.h"
 
-// CPTODO: CONFIG static object contains registry config items...removed for now.
-//#include "Configurator.h"
-
 #include "cnes6502.h"
+#include "cnesapu.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -31,6 +29,8 @@
 
 CTracer::CTracer()
 {
+   m_frame = 0;
+
    m_cursor = 0;
    m_samples = 0;
 
@@ -82,6 +82,9 @@ TracerInfo* CTracer::AddSample(unsigned int cycle, char type, char source, char 
    // Save overwritten sample's type to adjust
    // sample counts later on...
    overwrittenSource = pSample->source;
+
+   // Set frame from emulator.
+   pSample->frame = m_frame;
 
    pSample->cycle = cycle;
    pSample->type = type;
@@ -177,7 +180,14 @@ TracerInfo* CTracer::AddNMI(char source)
 
 TracerInfo* CTracer::AddIRQ(char source)
 {
-   return AddSample ( C6502::CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
+   if ( source == eSource_Mapper )
+   {
+      return AddSample ( C6502::CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
+   }
+   else
+   {
+      return AddSample ( CAPU::CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
+   }
 }
 
 TracerInfo* CTracer::AddGarbageFetch( unsigned int cycle, char target, unsigned short addr )

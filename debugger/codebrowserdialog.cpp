@@ -27,6 +27,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
+    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateBrowser()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
     QObject::connect ( breakpointInspector->widget(), SIGNAL(breakpointsChanged()), this, SLOT(updateBrowser()) );
     QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpointInspector->widget(), SLOT(updateData()) );

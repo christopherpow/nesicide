@@ -2980,12 +2980,13 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
    int marker;
    int frameDiff;
    char marked;
+   unsigned int numScanlines = CPPU::SCANLINES();
 
    for ( idxy = 0; idxy < 512; idxy++ )
    {
       for ( idxx = 0; idxx < 512; idxx++ )
       {
-         if ( (idxx >= 341) || (idxy >= 262) )
+         if ( (idxx >= PPU_CYCLES_PER_SCANLINE) || (idxy >= numScanlines) )
          {
             // Black otherwise...
             m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 0] = 0;
@@ -2995,7 +2996,7 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
 
          // CPTODO: account for odd-frame cycle skip...
 
-         if ( (idxx < 341) && (idxy < 262) )
+         if ( (idxx < PPU_CYCLES_PER_SCANLINE) && (idxy < numScanlines) )
          {
             marked = 0;
             for ( marker = 0; marker < m_marker.GetNumMarkers(); marker++ )
@@ -3045,32 +3046,42 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
 
 void C6502::EMULATE ( int cycles )
 {
+   int apuCycles = cycles;
+
    m_curCycles += cycles;
 
-   // Do APU emulation.
-   CAPU::EMULATE ( cycles );
-
-   if ( (!m_killed) && (m_curCycles > 0) )
+   if ( !m_killed )
    {
       do
       {
-         cycles = STEP();
-         if ( m_pc == m_pcGoto )
+         if ( apuCycles > 0 )
+         {
+            // Do APU emulation.
+            CAPU::EMULATE ( cycles );
+            apuCycles--;
+         }
+         if ( m_curCycles > 0 )
+         {
+            cycles = STEP();
+            if ( m_pc == m_pcGoto )
+            {
+               CNES::FORCEBREAKPOINT();
+               m_pcGoto = 0xFFFFFFFF;
+            }
+            m_curCycles -= cycles;
+         }
+         if ( m_killed )
          {
             CNES::FORCEBREAKPOINT();
-            m_pcGoto = 0xFFFFFFFF;
          }
-         m_curCycles -= cycles;
-      } while ( (!m_killed) && (m_curCycles > 0) );
-      if ( m_killed )
-      {
-         CNES::FORCEBREAKPOINT();
-      }
+      } while ( (!m_killed) && (m_curCycles > 0) && (apuCycles > 0) );
    }
 }
 
 unsigned char C6502::STEP ( void )
 {
+   static char phase = 0;
+
    UINT cycles;
 
    // Reset effective address...
@@ -5518,6 +5529,10 @@ unsigned char C6502::DMA ( UINT addr, char source )
 {
    char target;
    unsigned char data = LOAD ( addr, &target );
+
+   // Run APU for a cycle because APU doesn't get held off...
+   // CPU can't change APU state during this time.
+   CAPU::EMULATE ( 1 );
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
