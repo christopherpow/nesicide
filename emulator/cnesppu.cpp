@@ -33,6 +33,12 @@
 
 #define GARBAGE_SPRITE_FETCH 0xFF
 
+static unsigned char tblDefaultPalette [] =
+{
+   0x09,0x01,0x00,0x01,0x00,0x02,0x02,0x0D,0x08,0x10,0x08,0x24,0x00,0x00,0x04,0x2C,
+   0x09,0x01,0x34,0x03,0x00,0x04,0x00,0x14,0x08,0x3A,0x00,0x02,0x00,0x20,0x2C,0x08
+};
+
 // PPU Registers
 static CBitfieldData* tblPPUCTRLBitfields [] =
 {
@@ -406,10 +412,10 @@ UINT CPPU::LOAD ( UINT addr, char source, char type, bool trace )
    {
       if ( addr >= 0x3F00 )
       {
-         if ( !(addr&0x3) )
-         {
-            addr = 0x3F00;
-         }
+//         if ( !(addr&0x3) )
+//         {
+//            addr = 0x3F00;
+//         }
 
          data = *(m_PALETTEmemory+(addr&0x1F));
 
@@ -888,6 +894,9 @@ void CPPU::RESET ( void )
    m_ppuAddrIncrement = 1;
    m_ppuReadLatch = 0x00;
    m_ppuRegByte = 0;
+
+   // Set up default palette in a way that passes the default palette test.
+   PALETTESET ( tblDefaultPalette );
 }
 
 UINT CPPU::PPU ( UINT addr )

@@ -134,6 +134,7 @@ class C6502
 {
 public:
 	C6502();
+   virtual ~C6502();
 
    // Disassembly routines for display
    static void DISASSEMBLE ();
@@ -344,6 +345,8 @@ protected:
    static struct _C6502_opcode* pOpcodeStruct;
    static int             opcodeSize;
    static bool            m_sync;
+   static char            m_phase;
+   static char            m_fetchCycles;
 
    static CRegisterData** m_tblRegisters;
    static int             m_numRegisters;

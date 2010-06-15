@@ -14,10 +14,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// 6502.cpp: implementation of the C6502 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnes6502.h"
 #include "cnesppu.h"
 #include "cnesrom.h"
@@ -30,9 +26,9 @@
 
 #include <QColor>
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+// Instructions with special handling needs.
+#define ROL_ABS_X   0x3E
+#define CLI_IMPLIED 0x58
 
 // CPU Registers
 static CBitfieldData* tblCPUPCBitfields [] =
@@ -170,6 +166,8 @@ unsigned char   C6502::opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operan
 struct _C6502_opcode* C6502::pOpcodeStruct = NULL;
 int             C6502::opcodeSize;
 bool            C6502::m_sync = false;
+char            C6502::m_phase = 0;
+char            C6502::m_fetchCycles = 0;
 
 CRegisterData** C6502::m_tblRegisters = tblCPURegisters;
 int             C6502::m_numRegisters = NUM_CPU_REGISTERS;
@@ -2765,6 +2763,16 @@ C6502::C6502()
    }
 }
 
+C6502::~C6502()
+{
+   int addr;
+
+   for ( addr = 0; addr < MEM_2KB; addr++ )
+   {
+      delete [] m_RAMdisassembly[addr];
+   }
+}
+
 void C6502::RENDERCODEDATALOGGER ( void )
 {
    unsigned int idxx, idxxm, idxy;
@@ -3080,109 +3088,161 @@ void C6502::EMULATE ( int cycles )
 
 unsigned char C6502::STEP ( void )
 {
-   static char phase = 0;
+   bool execute = false;
 
-   UINT cycles;
+   char cycles = 0;
 
-   // Reset effective address...
-   m_ea = 0xFFFFFFFF;
-
-   // Indicate opcode fetch...
-   m_sync = true;
-
-   // Fetch
-   (*opcodeData) = FETCH ( m_pc );
-   (*(opcodeData+3)) = 0; // no extra cycle yet
-
-   // Check for KIL opcodes...
-   if ( (((*opcodeData) == 0x02) ||
-        ((*opcodeData) == 0x12) ||
-        ((*opcodeData) == 0x22) ||
-        ((*opcodeData) == 0x32) ||
-        ((*opcodeData) == 0x42) ||
-        ((*opcodeData) == 0x52) ||
-        ((*opcodeData) == 0x62) ||
-        ((*opcodeData) == 0x72) ||
-        ((*opcodeData) == 0x92) ||
-        ((*opcodeData) == 0xB2) ||
-        ((*opcodeData) == 0xD2) ||
-        ((*opcodeData) == 0xF2)) )
+   if ( m_phase == 0 )
    {
-      // KIL opcodes halt PC dead!  Force break...
-      CNES::FORCEBREAKPOINT ();
-   }
+      // Reset effective address...
+      m_ea = 0xFFFFFFFF;
 
-   // Indicate NOT opcode fetch...
-   m_sync = false;
+      // Reset fetch-cycle counter...
+      // Count this fetch!
+      m_fetchCycles = 1;
 
-   INCPC ();
+      // Indicate opcode fetch...
+      m_sync = true;
 
-   // Get information about current opcode...
-   pOpcodeStruct = m_6502opcode+(*opcodeData);
-   opcodeSize = (*(opcode_size+(pOpcodeStruct->amode)));
+      // Fetch
+      (*opcodeData) = FETCH ( m_pc );
+      (*(opcodeData+3)) = 0; // no extra cycle yet
 
-   // Check for undocumented breakpoint...
-   if ( !pOpcodeStruct->documented )
-   {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
-   }
-   else
-   {
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
-   }
+      // Check for KIL opcodes...
+      if ( (((*opcodeData) == 0x02) ||
+           ((*opcodeData) == 0x12) ||
+           ((*opcodeData) == 0x22) ||
+           ((*opcodeData) == 0x32) ||
+           ((*opcodeData) == 0x42) ||
+           ((*opcodeData) == 0x52) ||
+           ((*opcodeData) == 0x62) ||
+           ((*opcodeData) == 0x72) ||
+           ((*opcodeData) == 0x92) ||
+           ((*opcodeData) == 0xB2) ||
+           ((*opcodeData) == 0xD2) ||
+           ((*opcodeData) == 0xF2)) )
+      {
+         // KIL opcodes halt PC dead!  Force break...
+         CNES::FORCEBREAKPOINT ();
+      }
 
-   // Set up class data so we don't need to pass it down to each func...
-   amode = pOpcodeStruct->amode;
-   data = opcodeData+1;
+      // Indicate NOT opcode fetch...
+      m_sync = false;
 
-   // Get second opcode byte
-   if ( opcodeSize > 1 )
-   {
-      (*(opcodeData+1)) = FETCH ( m_pc );
       INCPC ();
+
+      // Get information about current opcode...
+      pOpcodeStruct = m_6502opcode+(*opcodeData);
+      opcodeSize = (*(opcode_size+(pOpcodeStruct->amode)));
+
+      // Check for undocumented breakpoint...
+      if ( !pOpcodeStruct->documented )
+      {
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
+      }
+      else
+      {
+         CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
+      }
+
+      // Set up class data so we don't need to pass it down to each func...
+      amode = pOpcodeStruct->amode;
+      data = opcodeData+1;
+
+      // Go to next phase...
+      m_phase++;
    }
-   // Get third opcode byte
-   if ( opcodeSize > 2 )
+   else if ( m_phase == 1 )
+   {
+      // Check for dummy-read needed for single-byte instructions...
+      if ( opcodeSize == 1 )
+      {
+         // Perform additional fetch...
+         (*(opcodeData+1)) = EXTRAFETCH ( m_pc );
+
+         // Cause instruction execution...
+         execute = true;
+         m_phase = 0;
+      }
+      else
+      {
+         (*(opcodeData+1)) = FETCH ( m_pc );
+         INCPC ();
+
+         if ( opcodeSize == 2 )
+         {
+            // Cause instruction execution...
+            execute = true;
+            m_phase = 0;
+         }
+         else
+         {
+            // Go to next phase...
+            m_phase++;
+         }
+      }
+
+      // We did one more fetch cycle...
+      m_fetchCycles = 2;
+   }
+   else if ( m_phase == 2 )
    {
       (*(opcodeData+2)) = FETCH ( m_pc );
       INCPC ();
+
+      // We did one more fetch cycle...
+      m_fetchCycles = 3;
+
+      // Cause instruction execution...
+      execute = true;
+      m_phase = 0;
    }
 
-   // Update Tracer
-   TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( opcodeData );
-   CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
-
-   // Check for dummy-read needed for single-byte instructions...
-   if ( opcodeSize == 1 )
+   if ( execute )
    {
-      (*(opcodeData+1)) = EXTRAFETCH ( m_pc );
+      // Update Tracer
+      TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( opcodeData );
+      CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
+
+      // Execute
+      pOpcodeStruct->pFn ();
+
+      // Update Tracer
+      CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
+
+      cycles = pOpcodeStruct->cycles;
+      cycles += (*(opcodeData+3)); // use extra cycle indication from opcode execution
+
+      // Subtract off fetch cycles...
+//      cycles -= (m_fetchCycles-1);
+
+      // Accumulating cycle counter for debugger displays.
+      m_cycles += cycles;
+
+      // Check for NMI assertion...
+      if ( m_nmiAsserted )
+      {
+         // Execute NMI handler...
+         m_nmiAsserted = false;
+         NMI();
+      }
+
+      // Check for IRQ assertion...
+      // CLI requires one cycle latency on interrupt.
+      if ( ((*opcodeData) != CLI_IMPLIED) && (m_irqAsserted) )
+      {
+         // Execute IRQ handler...
+         IRQ();
+      }
    }
-
-   // Execute
-   pOpcodeStruct->pFn ();
-
-   // Update Tracer
-   CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
-
-   cycles = pOpcodeStruct->cycles;
-   cycles += (*(opcodeData+3)); // use extra cycle indication from opcode execution
-
-   m_cycles += cycles;
-
-   // Check for NMI assertion...
-   if ( m_nmiAsserted )
+   else
    {
-      // Execute NMI handler...
-      m_nmiAsserted = false;
-      NMI();
-   }
+      // Still fetching instruction to execute...
+//      cycles = 1;
 
-   // Check for IRQ assertion...
-   if ( m_irqAsserted )
-   {
-      // Execute IRQ handler...
-      IRQ();
+      // Accumulating cycle counter for debugger displays.
+//      m_cycles += cycles;
    }
 
    return cycles;
@@ -5321,6 +5381,8 @@ void C6502::RESET ( void )
 
    m_cycles = 0;
    m_curCycles = 0;
+   m_phase = 0;
+   m_fetchCycles = 0;
 
    m_irqAsserted = false;
    m_nmiAsserted = false;
@@ -5708,7 +5770,7 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
          (*(data+2)) = 1; // extra cycles stored here...
       }
       // Check for ROL special case...
-      if ( ((*opcodeData) == 0x3E) || (addrpre>>8) != (addr>>8) )
+      if ( ((*opcodeData) == ROL_ABS_X) || (addrpre>>8) != (addr>>8) )
       {
          // dummy read
          MEM((addrpre&0xFF00)+((addrpre+rX())&0xFF));
