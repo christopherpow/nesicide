@@ -214,6 +214,7 @@ int CAPU::m_newSequencerMode = 0;
 // Cycles to wait before changing sequencer modes...0 or 1 are valid values
 // on a mode-change.
 int CAPU::m_changeModes = -1;
+int CAPU::m_sequenceStep = 0;
 
 // Events that can occur during the APU sequence stepping
 enum
@@ -711,6 +712,7 @@ void CAPU::RESET ( void )
    m_irqAsserted = false;
    C6502::RELEASEIRQ ( eSource_APU );
    m_sequencerMode = 0;
+   m_sequenceStep = 0;
 
    // At power-on reset APU is slightly ahead of CPU.
    m_cycles = 11;
@@ -1349,6 +1351,7 @@ void CAPU::EMULATE ( int cycles )
          // Do mode-change now...
          m_changeModes--;
          m_sequencerMode = m_newSequencerMode;
+         m_sequenceStep = 0;
          RESETCYCLECOUNTER(0);
 
          // Emit frame-start indication to Tracer...
@@ -1361,87 +1364,176 @@ void CAPU::EMULATE ( int cycles )
 
       // Clock the 240Hz sequencer.
       // APU sequencer mode 1
-      if ( m_sequencerMode )
+      if ( CNES::VIDEOMODE() == MODE_NTSC )
       {
-         if ( m_cycles == 1 )
+         if ( m_sequencerMode )
          {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 0 );
-         }
-         else if ( m_cycles == 7459 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 1 );
-         }
-         else if ( m_cycles == 14915 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 2 );
-         }
-         else if ( m_cycles == 22373 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 3 );
-         }
-         else if ( m_cycles == 29829 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 4 );
-         }
-      }
-      // APU sequencer mode 0
-      else
-      {
-         if ( m_cycles == 7459 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 0 );
-         }
-         else if ( m_cycles == 14915 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 1 );
-         }
-         else if ( m_cycles == 22373 )
-         {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
-
-            SEQTICK ( 2 );
-         }
-         else if ( (m_cycles == 29830) ||
-                   (m_cycles == 29832) )
-         {
-            if ( m_irqEnabled )
+            if ( m_cycles == 1 )
             {
-               m_irqAsserted = true;
-               C6502::ASSERTIRQ(eSource_APU);
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
 
-               // Check for IRQ breakpoint...
-               CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+               SEQTICK ( 0 );
+            }
+            else if ( m_cycles == 7459 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 1 );
+            }
+            else if ( m_cycles == 14915 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 2 );
+            }
+            else if ( m_cycles == 22373 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 3 );
+            }
+            else if ( m_cycles == 29829 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 4 );
             }
          }
-         else if ( m_cycles == 29831 )
+         // APU sequencer mode 0
+         else
          {
-            // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+            if ( m_cycles == 7459 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
 
-            // IRQ asserted inside SEQTICK...
-            SEQTICK ( 3 );
+               SEQTICK ( 0 );
+            }
+            else if ( m_cycles == 14915 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 1 );
+            }
+            else if ( m_cycles == 22373 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 2 );
+            }
+            else if ( (m_cycles == 29830) ||
+                      (m_cycles == 29832) )
+            {
+               if ( m_irqEnabled )
+               {
+                  m_irqAsserted = true;
+                  C6502::ASSERTIRQ(eSource_APU);
+
+                  // Check for IRQ breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+               }
+            }
+            else if ( m_cycles == 29831 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               // IRQ asserted inside SEQTICK...
+               SEQTICK ( 3 );
+            }
+         }
+      }
+      else // MODE_PAL
+      {
+         if ( m_sequencerMode )
+         {
+            if ( m_cycles == 1 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 0 );
+            }
+            else if ( m_cycles == 8315 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 1 );
+            }
+            else if ( m_cycles == 16629 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 2 );
+            }
+            else if ( m_cycles == 24941 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 3 );
+            }
+            else if ( m_cycles == 33255 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 4 );
+            }
+         }
+         // APU sequencer mode 0
+         else
+         {
+            if ( m_cycles == 8315 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 0 );
+            }
+            else if ( m_cycles == 16629 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 1 );
+            }
+            else if ( m_cycles == 24941 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               SEQTICK ( 2 );
+            }
+            else if ( (m_cycles == 33254) ||
+                      (m_cycles == 33256) )
+            {
+               if ( m_irqEnabled )
+               {
+                  m_irqAsserted = true;
+                  C6502::ASSERTIRQ(eSource_APU);
+
+                  // Check for IRQ breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+               }
+            }
+            else if ( m_cycles == 33255 )
+            {
+               // Emit frame-end indication to Tracer...
+               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
+
+               // IRQ asserted inside SEQTICK...
+               SEQTICK ( 3 );
+            }
          }
       }
 
@@ -1470,25 +1562,51 @@ void CAPU::EMULATE ( int cycles )
 
       // Go to next cycle and restart if necessary...
       m_cycles++;
-      if ( (m_sequencerMode) && (m_cycles >= 37282) )
+      if ( CNES::VIDEOMODE() == MODE_NTSC )
       {
-         // Emit frame-end indication to Tracer...
-         CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
+         if ( (m_sequencerMode) && (m_cycles >= 37282) )
+         {
+            // Emit frame-end indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
 
-         RESETCYCLECOUNTER(0);
+            RESETCYCLECOUNTER(0);
 
-         // Emit frame-start indication to Tracer...
-         CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
+            // Emit frame-start indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
+         }
+         else if ( (!m_sequencerMode) && (m_cycles >= 37289) )
+         {
+            // Emit frame-end indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
+
+            RESETCYCLECOUNTER(7459);
+
+            // Emit frame-start indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
+         }
       }
-      else if ( (!m_sequencerMode) && (m_cycles >= 37289) )
+      else // MODE_PAL
       {
-         // Emit frame-end indication to Tracer...
-         CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
+         if ( (m_sequencerMode) && (m_cycles >= 41566) )
+         {
+            // Emit frame-end indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
 
-         RESETCYCLECOUNTER(7459);
+            RESETCYCLECOUNTER(0);
 
-         // Emit frame-start indication to Tracer...
-         CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
+            // Emit frame-start indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
+         }
+         else if ( (!m_sequencerMode) && (m_cycles >= 41569) )
+         {
+            // Emit frame-end indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
+
+            RESETCYCLECOUNTER(8315);
+
+            // Emit frame-start indication to Tracer...
+            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
+         }
       }
    }
 }

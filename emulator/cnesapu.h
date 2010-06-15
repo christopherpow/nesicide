@@ -299,6 +299,7 @@ protected:
    static int m_sequencerMode;
    static int m_newSequencerMode;
    static int m_changeModes;
+   static int m_sequenceStep;
 
    static CAPUSquare m_square[2];
    static CAPUTriangle m_triangle;
