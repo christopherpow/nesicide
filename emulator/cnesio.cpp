@@ -14,18 +14,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// IO.cpp: implementation of the CIO class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesio.h"
 #include "cnesapu.h"
 #include "cnesppu.h"
 #include "cnes6502.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 unsigned char  CIO::m_ioJoy [] = { 0x00, 0x00 };
 unsigned char  CIO::m_ioJoyLatch [] = { 0x00, 0x00 };

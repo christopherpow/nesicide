@@ -14,19 +14,11 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROMMapper011.cpp: implementation of the CROMMapper011 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrommapper011.h"
 
 #include "cnesppu.h"
 
 #include "cregisterdata.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 // Mapper 011 Registers
 static CBitfieldData* tbl8000_FFFFBitfields [] =

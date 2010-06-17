@@ -1,7 +1,3 @@
-// ccodedatalogger.h: interface for the CCodeDataLogger class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( CODE_DATA_LOGGER_H )
 #define CODE_DATA_LOGGER_H
 

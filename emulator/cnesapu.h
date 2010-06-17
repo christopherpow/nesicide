@@ -1,7 +1,3 @@
-// cnesapu.h: interface for the CAPU class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( APU_H )
 #define APU_H
 
@@ -15,7 +11,9 @@
 
 #define NUM_APU_BUFS 16
 
-// Breakpoint event identifiers
+// Breakpoint event identifiers.
+// These event identifiers must match the ordering
+// of breakpoint events defined in the source module.
 enum
 {
    APU_EVENT_IRQ = 0,
@@ -24,32 +22,96 @@ enum
    NUM_APU_EVENTS
 };
 
+// APU mask register ($4017) bit definitions.
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40
 
 // Samples per video frame for 44.1KHz audio output.
+// NTSC is 60Hz, PAL is 50Hz.  The number of samples
+// drives the rate at which the SDL library will invoke
+// the callback method to retrieve more audio samples to
+// play.
 #define APU_SAMPLES_NTSC 735
 #define APU_SAMPLES_PAL  882
 
+// The CAPUOscillator class is the base class of all of the
+// sound channels within the APU.  There are five sound channels.
+// Each sound channel has behavior that is identical to all
+// other channels and behavior that is specific to its channel
+// type.  The identical behavior is implemented in the CAPUOscillator
+// base class.
+//
+// CAPUOscillator contains logic to drive the following
+// sound channel components:
+//
+// Length Counter [Square, Triangle, Noise]
+// Linear Counter [Triangle]
+// Sweep Unit [Square]
+// Envelope [Square, Noise]
+// Enabled/disabled [Square, Triangle, Noise, DMC]
+// Timer Divider (period) [Square, Triangle, Noise, DMC]
+// DAC [Square, Triangle, Noise, DMC]
+//
+// While the Linear Counter should really be considered a specific
+// aspect of the Triangle channel only, it made sense to include it
+// in CAPUOscillator as it is possible that other channels on some
+// mapper hardware might be triangle-like and might need to use it.
+// (Still looking into this).
+//
+// The same could be said for the Sweep Unit which is specific to
+// the Square channel.  Oh well...
 class CAPUOscillator
 {
 public:
-    CAPUOscillator();
+   CAPUOscillator();
    virtual ~CAPUOscillator() {};
 
+   // An APU channel should know what channel ID it has.  This isn't
+   // useful in the APU itself but is needed by the debugger inspectors
+   // and designers that need to do specific things to specific APU channels.
    void SetChannel ( int channel ) { m_channel = channel; }
 
+   // This method sets data internal to the APU channel.  There is no
+   // get method because the APU channels' registers are write-only.
    inline void APU ( UINT addr, unsigned char data );
+
+   // This method turns the channel on or off.  The length counter
+   // disables the channel when it expires.  Writes to APU register
+   // $4015 change the enabled state of the channels.
    inline void ENABLE ( bool enabled ) { m_enabled = enabled; if ( !m_enabled ) m_lengthCounter = 0; }
+
+   // This method returns the length counter value.  Reads from APU
+   // register $4015 return whether or not any length counters have expired.
    inline unsigned short LENGTH ( void ) const { return m_lengthCounter; }
+
+   // The APU 240Hz sequencer clocks the length counter of each
+   // channel that has one at pre-determined times in the APU frame.
    inline bool CLKLENGTHCOUNTER ( void );
+
+   // The APU 240Hz sequencer clocks the sweep unit of each
+   // channel that has one at pre-determined times in the APU frame.
    inline void CLKSWEEPUNIT ( void );
+
+   // The APU 240Hz sequencer clocks the envelope of each
+   // channel that has one at pre-determined times in the APU frame.
    inline void CLKENVELOPE ( void );
+
+   // The APU 240Hz sequencer clocks the linear counter of each
+   // channel that has one at pre-determined times in the APU frame.
    inline bool CLKLINEARCOUNTER ( void );
+
+   // At each APU cycle (1,789,772Hz) the channels' divider is
+   // clocked.  This divider provides an overall frequency for
+   // updates to take place to the channels' DACs to generate the
+   // appropriate waveform.
    inline UINT CLKDIVIDER ( void );
+
+   // These routines set/get the channels' DAC value.
    inline void SETDAC ( unsigned char dac ) { m_dac = dac; }
    inline unsigned char GETDAC ( void ) { return m_dac; }
-   inline bool IsEnabled ( void ) const { return m_enabled; }
+
+   // This routine returns the channels' internal state to
+   // what it should be at NES reset.
    inline void RESET ( void )
    {
       m_linearCounter = 0;
@@ -77,36 +139,115 @@ public:
       m_reg3Wrote = false;
    }
 
-   // INTERNAL ACCESSORS
    // These are called directly for use in debugger inspectors.
+   // Returns the channels' current length counter value.
    unsigned char LENGTHCOUNTER(void) const { return m_lengthCounter; }
+
+   // Returns the channels' current linear counter value.
    unsigned char LINEARCOUNTER(void) const { return m_linearCounter; }
 
 protected:
+   // Current linear counter value.
    unsigned char  m_linearCounter;
+
+   // Value to be loaded into linear counter when it needs reloading.
    unsigned char  m_linearCounterReload;
+
+   // Current length counter value.
    unsigned short m_lengthCounter;
+
+   // The number of APU cycles before the channels' internal
+   // divider will emit a clock edge.
    unsigned short m_period;
+
+   // The current number of cycles into the counting of the
+   // current period.  Once this counter hits m_period the
+   // timer divider emits a clock edge that drives the rest of
+   // the channels' circuitry.
    unsigned short m_periodCounter;
+
+
+   // These values define the envelope configuration currently
+   // being used by the channel.  An envelope can either be a constant
+   // volume level or a sawtooth wave.  In the wave case, a divider
+   // deals out clock edges at a lower frequency than the period divider
+   // governing the channels' pitch.  The envelope divider is used to
+   // decrease the envelope's value down to zero and then immediately
+   // back to the maximum possible, thus creating a sawtooth waveform.
    unsigned char  m_envelope;
    unsigned char  m_envelopeCounter;
    unsigned char  m_envelopeDivider;
+
+   // These values define the sweep configuration currently being
+   // used by the channel.  A divider deals out clock edges at a lower
+   // frequency than the period divider governing the channels' pitch.
+   // The sweep divider is used to periodically cause shifts in a feedback
+   // loop to the channels' period divider, thus causing a change in the
+   // channels' pitch either up or down.
    unsigned char  m_sweepShift;
    unsigned char  m_sweepDivider;
    unsigned char  m_sweep;
+
+   // The channels' current volume that may eventually make
+   // its way into the DAC as the current DAC setting if the
+   // channel internals cause a write to the DAC.
    unsigned char  m_volume;
    unsigned char  m_volumeSet;
+
+   // Is the channel enabled (via write to $4015)?
    bool           m_enabled;
-   bool           m_newHalted;
+
+
+   // Has the channel been halted entirely?
    bool           m_halted;
+
+   // Halt flag changes take effect only on even APU
+   // cycles which means the new setting must be kept
+   // around until the next even APU cycle.
+   bool           m_newHalted;
+
+   // Has the channels' linear counter been halted?
    bool           m_linearCounterHalted;
+
+   // Is the channels' envelope enabled or not.  Envelopes
+   // can be either a set value or a sawtooth wave.
    bool           m_envelopeEnabled;
+
+   // Is the channels' sweep unit enabled or not?
    bool           m_sweepEnabled;
+
+   // Sweeping positively or negatively in pitch?
    bool           m_sweepNegate;
+
+   // The channels' current DAC value.  This ranges
+   // from 0-15 for Square, Triangle, and Noise channels
+   // and from 0-127 for DMC.
    unsigned char  m_dac;
+
+   // Flags indicating whether or not certain channel
+   // registers were written since the last channel activity.
    bool           m_reg1Wrote;
    bool           m_reg3Wrote;
+
+   // Channels' index:
+   // 0 - Square 1
+   // 1 - Square 2
+   // 2 - Triangle
+   // 3 - Noise
+   // 4 - DMC
    int            m_channel;
+
+   // Each APU channel has up to four registers visible to the CPU in the CPU's
+   // memory map at address $4000 through $4013.  These are further
+   // mirrored throughout the CPU's memory map up to address $5BFF (confirm?).
+   // The APU keeps track internally of values written to the register
+   // ports so that the debugger inspectors can return actual data
+   // written to the registers instead of "open bus".  If the debugger
+   // inspectors want to, they can implement a mode where the inspector
+   // does infact reflect the actual state of the APU as seen by the CPU.
+   // Typically, however, a user likes to see what has been written.
+   // I'll keep the "open bus" in mind though to provide accurate feedback
+   // as if the user were staring at an actual APU.
    unsigned char  m_reg [ 4 ];
 };
 

@@ -34,6 +34,7 @@ public slots:
     void renderData();
 
 private slots:
+    void on_updateScanline_editingFinished();
     void on_verticalScrollBar_valueChanged(int value);
     void on_horizontalScrollBar_valueChanged(int value);
     void on_horizontalScrollBar_actionTriggered(int action);

@@ -44,7 +44,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          }
          else if ( index.column() > 0 )
          {
-            opSize = C6502::OpcodeSize ( CNES::_MEM(addr) );
+            opSize = OPCODESIZE ( CNES::_MEM(addr) );
             if ( opSize > (index.column()-1) )
             {
                CNES::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
@@ -128,7 +128,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          return buffer;
       break;
       case 2:
-         opSize = C6502::OpcodeSize ( CNES::_MEM(addr) );
+         opSize = OPCODESIZE ( CNES::_MEM(addr) );
          if ( 1 < opSize )
          {
             sprintf ( buffer, "%02X", CNES::_MEM(addr+1) );
@@ -136,7 +136,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          }
       break;
       case 3:
-         opSize = C6502::OpcodeSize ( CNES::_MEM(addr) );
+         opSize = OPCODESIZE ( CNES::_MEM(addr) );
          if ( 2 < opSize )
          {
             sprintf ( buffer, "%02X", CNES::_MEM(addr+2) );

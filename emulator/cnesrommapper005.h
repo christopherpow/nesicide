@@ -1,7 +1,3 @@
-// crommapper005.h: interface for the CROMMapper005 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( ROM_MAPPER005_H )
 #define ROM_MAPPER005_H
 

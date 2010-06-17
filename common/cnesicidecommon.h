@@ -113,14 +113,6 @@ typedef struct _FileNewDataStruct
    FileNewDataUnion data;
 } FileNewDataStruct;
 
-// Where popup menu originated...
-typedef enum
-{
-   e_POPUP_ON_TREE,
-   e_POPUP_ON_LIST,
-   e_POPUP_ON_VIEW
-};
-
 // Item types...
 typedef enum
 {

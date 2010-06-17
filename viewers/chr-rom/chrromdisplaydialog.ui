@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>485</height>
+    <width>438</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,14 +20,14 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="2">
     <widget class="QScrollBar" name="horizontalScrollBar">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -51,7 +51,7 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="margin">
       <number>4</number>
@@ -211,10 +211,20 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="1">
+   <item row="1" column="2">
     <widget class="QScrollBar" name="verticalScrollBar">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="updateScanline"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Update on scanline:</string>
      </property>
     </widget>
    </item>

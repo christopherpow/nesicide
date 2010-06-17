@@ -2734,7 +2734,18 @@ static const char* m_6502opcodeInfo [ 256 ] =
    ""  // INS - Absolute,X (undocumented)
 };
 
-const char* OPCODEINFO(unsigned char op) { return *(m_6502opcodeInfo+op); }
+const char* OPCODEINFO(unsigned char op)
+{
+   return *(m_6502opcodeInfo+op);
+}
+
+unsigned char OPCODESIZE ( unsigned char op )
+{
+   C6502_opcode* pOp;
+
+   pOp = m_6502opcode+op;
+   return *(opcode_size+pOp->amode);
+}
 
 static QColor color [] =
 {
@@ -3065,13 +3076,13 @@ void C6502::EMULATE ( int cycles )
          if ( apuCycles > 0 )
          {
             // Do APU emulation.
-            CAPU::EMULATE ( cycles );
+            CAPU::EMULATE ( 1 );
             apuCycles--;
          }
          if ( m_curCycles > 0 )
          {
             cycles = STEP();
-            if ( m_pc == m_pcGoto )
+            if ( rPC() == m_pcGoto )
             {
                CNES::FORCEBREAKPOINT();
                m_pcGoto = 0xFFFFFFFF;
@@ -3082,7 +3093,7 @@ void C6502::EMULATE ( int cycles )
          {
             CNES::FORCEBREAKPOINT();
          }
-      } while ( (!m_killed) && (m_curCycles > 0) && (apuCycles > 0) );
+      } while ( (!m_killed) && ((m_curCycles > 0) && (apuCycles > 0)) );
    }
 }
 
@@ -3095,7 +3106,7 @@ unsigned char C6502::STEP ( void )
    if ( m_phase == 0 )
    {
       // Reset effective address...
-      m_ea = 0xFFFFFFFF;
+      wEA ( 0xFFFFFFFF );
 
       // Reset fetch-cycle counter...
       // Count this fetch!
@@ -3105,7 +3116,7 @@ unsigned char C6502::STEP ( void )
       m_sync = true;
 
       // Fetch
-      (*opcodeData) = FETCH ( m_pc );
+      (*opcodeData) = FETCH ( rPC() );
       (*(opcodeData+3)) = 0; // no extra cycle yet
 
       // Check for KIL opcodes...
@@ -3159,7 +3170,7 @@ unsigned char C6502::STEP ( void )
       if ( opcodeSize == 1 )
       {
          // Perform additional fetch...
-         (*(opcodeData+1)) = EXTRAFETCH ( m_pc );
+         (*(opcodeData+1)) = EXTRAFETCH ( rPC() );
 
          // Cause instruction execution...
          execute = true;
@@ -3167,7 +3178,7 @@ unsigned char C6502::STEP ( void )
       }
       else
       {
-         (*(opcodeData+1)) = FETCH ( m_pc );
+         (*(opcodeData+1)) = FETCH ( rPC() );
          INCPC ();
 
          if ( opcodeSize == 2 )
@@ -3188,7 +3199,7 @@ unsigned char C6502::STEP ( void )
    }
    else if ( m_phase == 2 )
    {
-      (*(opcodeData+2)) = FETCH ( m_pc );
+      (*(opcodeData+2)) = FETCH ( rPC() );
       INCPC ();
 
       // We did one more fetch cycle...
@@ -5387,7 +5398,7 @@ void C6502::RESET ( void )
    m_irqAsserted = false;
    m_nmiAsserted = false;
 
-   m_ea = 0xFFFFFFFF;
+   wEA ( 0xFFFFFFFF );
 
    m_pcGoto = 0xFFFFFFFF;
 
@@ -5400,6 +5411,9 @@ void C6502::RESET ( void )
    wX ( 0 );
    wY ( 0 );
    wSP ( 0xFD );
+
+   // Clear memory...
+   MEMCLR ();
 
    // Check for RESET breakpoint...
    CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
@@ -5519,7 +5533,7 @@ unsigned char C6502::FETCH ( UINT addr )
       pLogger->LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eSource_CPU );
 
       // Update Markers...
-      m_marker.UpdateMarkers ( CROM::ABSADDR(addr), CPPU::_FRAME(), CPPU::CYCLES() );
+      m_marker.UpdateMarkers ( CROM::ABSADDR(addr), CPPU::_FRAME(), CPPU::_CYCLES() );
 
       // ... and update opcode masking for disassembler...
       CROM::PRGROMOPCODEMASK ( addr, (unsigned char)m_sync );
@@ -5657,13 +5671,6 @@ unsigned char C6502::MEM ( UINT addr )
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
 
    return data;
-}
-
-unsigned char C6502::_DMA ( UINT addr )
-{
-   char target;
-
-   return LOAD ( addr, &target );
 }
 
 unsigned char C6502::_MEM ( UINT addr )
@@ -5816,22 +5823,14 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    }
 
    // Set "Effective Address" for use by Tracer, Breakpoints, etc...
-   m_ea = addr;
+   wEA ( addr );
 
    return addr;
 }
 
-unsigned char C6502::OpcodeSize ( unsigned char op )
-{
-   C6502_opcode* pOp;
-
-   pOp = m_6502opcode+op;
-   return *(opcode_size+pOp->amode);
-}
-
 void C6502::DISASSEMBLE ()
 {
-   if ( __PC() < 0x800 )
+   if ( rPC() < 0x800 )
    {
       DISASSEMBLE ( m_RAMdisassembly,
                     m_6502memory,

@@ -14,10 +14,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// NES.cpp: implementation of the CNES class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnes.h"
 
 #include "cnes6502.h"
@@ -27,10 +23,6 @@
 
 #include <QSemaphore>
 #include <QMessageBox>
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 int          CNES::m_videoMode = MODE_NTSC;
 
@@ -96,12 +88,6 @@ void CNES::RESET ( UINT mapper )
    // The SDL callback triggers emulation...
    C6502::RESET ();
 
-   // Clear emulated machine memory and registers...
-   C6502::MEMCLR ();
-   CPPU::MEMCLR ();
-   CPPU::OAMCLR ();
-   CROM::CHRRAMCLR ();
-
    // Zero visualizer markers...
    C6502::MARKERS().ZeroAllMarkers();
 
@@ -133,12 +119,12 @@ void CNES::RUN ( unsigned char* joy )
 // CPTODO: removed replay support for now...
 //   if ( !m_bReplay )
 //   {
-//      CIO::LOGGER(0)->AddSample ( C6502::CYCLES(), *(ljoy+JOY1) );
+//      CIO::LOGGER(0)->AddSample ( C6502::_CYCLES(), *(ljoy+JOY1) );
 //   }
 
 //   if ( !m_bReplay )
 //   {
-//      CIO::LOGGER(1)->AddSample ( C6502::CYCLES(), *(ljoy+JOY2) );
+//      CIO::LOGGER(1)->AddSample ( C6502::_CYCLES(), *(ljoy+JOY2) );
 //   }
 
 // CPTODO: part of joypad configuration is whether or not it is connected at all...
@@ -179,7 +165,7 @@ void CNES::RUN ( unsigned char* joy )
    CPPU::RESETCYCLECOUNTER ();
 
    // Emit start-of-frame indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_StartPPUFrame, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_StartPPUFrame, eSource_PPU, 0, 0, 0 );
 
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
    for ( idx = 0; idx < SCANLINES_VISIBLE; idx++ )
@@ -201,13 +187,13 @@ void CNES::RUN ( unsigned char* joy )
    }
 
    // Emit quiet scanline indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_QuietStart, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_QuietStart, eSource_PPU, 0, 0, 0 );
 
    // Emulate PPU resting scanline...
    CPPU::NONRENDERSCANLINES ( 1 );
 
    // Emit quiet scanline indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_QuietEnd, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_QuietEnd, eSource_PPU, 0, 0, 0 );
 
    // Do VBLANK processing (scanlines 0-19 NTSC or 0-69 PAL)...
    // Set VBLANK flag...
@@ -222,7 +208,7 @@ void CNES::RUN ( unsigned char* joy )
    }
 
    // Emit start-VBLANK indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_VBLANKStart, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_VBLANKStart, eSource_PPU, 0, 0, 0 );
 
    // Emulate VBLANK non-render scanlines...
    if ( VIDEOMODE() == MODE_NTSC )
@@ -238,19 +224,19 @@ void CNES::RUN ( unsigned char* joy )
    CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK|PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
 
    // Emit end-VBLANK indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_VBLANKEnd, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_VBLANKEnd, eSource_PPU, 0, 0, 0 );
 
    // Emit start-of-prerender scanline indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_PreRenderStart, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_PreRenderStart, eSource_PPU, 0, 0, 0 );
 
    // Pre-render scanline...
    CPPU::RENDERSCANLINE ( -1 );
 
    // Emit start-of-prerender scanline indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_PreRenderEnd, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_PreRenderEnd, eSource_PPU, 0, 0, 0 );
 
    // Emit end-of-frame indication to Tracer...
-   m_tracer.AddSample ( CPPU::CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
+   m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
 
    // Update NameTable inspector...
    CPPU::RENDERNAMETABLE ();
@@ -327,7 +313,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      break;
                      case eBreakOnCPUExecution:
                         addr = C6502::__PC();
-                        if ( (C6502::SYNC()) &&
+                        if ( (C6502::_SYNC()) &&
                              (addr >= pBreakpoint->item1) &&
                              (addr <= pBreakpoint->item2) )
                         {

@@ -51,6 +51,8 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *da
     renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
     ui->frame->layout()->addWidget(renderer);
     ui->frame->layout()->update();
+
+    ui->updateScanline->setText ( "0" );
 }
 
 void CHRROMDisplayDialog::colorChanged (const QColor &color)
@@ -196,4 +198,9 @@ void CHRROMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 {
     renderer->scrollY = ui->verticalScrollBar->value();
     renderer->repaint();
+}
+
+void CHRROMDisplayDialog::on_updateScanline_editingFinished()
+{
+    CPPU::SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
 }

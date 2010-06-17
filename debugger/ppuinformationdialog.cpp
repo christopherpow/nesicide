@@ -54,7 +54,7 @@ void PPUInformationDialog::updateInformation()
    sprintf ( buffer, "%d", CPPU::_FRAME() );
    ui->frameNumber->setText(buffer);
 
-   sprintf ( buffer, "%d", CPPU::CYCLES() );
+   sprintf ( buffer, "%d", CPPU::_CYCLES() );
    ui->cycleNumber->setText(buffer);
 
    sprintf ( buffer, "$%04X", CPPU::_PPUADDR() );

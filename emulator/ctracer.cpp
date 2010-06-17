@@ -14,18 +14,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// Tracer.cpp: implementation of the CTracer class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "ctracer.h"
 
 #include "cnes6502.h"
 #include "cnesapu.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CTracer::CTracer()
 {
@@ -175,14 +167,14 @@ TracerInfo* CTracer::AddRESET(void)
 
 TracerInfo* CTracer::AddNMI(char source)
 {
-   return AddSample ( C6502::CYCLES(), eTracer_NMI, source, 0, 0, 0 );
+   return AddSample ( C6502::_CYCLES(), eTracer_NMI, source, 0, 0, 0 );
 }
 
 TracerInfo* CTracer::AddIRQ(char source)
 {
    if ( source == eSource_Mapper )
    {
-      return AddSample ( C6502::CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
+      return AddSample ( C6502::_CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
    }
    else
    {

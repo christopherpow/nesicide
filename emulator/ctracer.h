@@ -1,7 +1,3 @@
-// ctracer.h: interface for the CTracer class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( TRACER_H )
 #define TRACER_H
 

@@ -14,18 +14,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROMMapper065.cpp: implementation of the CROMMapper065 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrommapper065.h"
 
 #include "cnes6502.h"
 #include "cnesppu.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 // Irem H-3001 stuff
 unsigned char  CROMMapper065::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

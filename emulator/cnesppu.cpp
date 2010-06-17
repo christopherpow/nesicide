@@ -14,10 +14,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// PPU.cpp: implementation of the CPPU class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnessystempalette.h"
 
 #include "cnesppu.h"
@@ -26,10 +22,6 @@
 #include "cnesapu.h"
 
 #include <QColor>
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 #define GARBAGE_SPRITE_FETCH 0xFF
 
@@ -340,16 +332,10 @@ void CPPU::RENDERCODEDATALOGGER ( void )
    }
 }
 
-void CPPU::INCCYCLE(void)
-{
-   m_curCycles += CPU_CYCLE_ADJUST;
-   m_cycles += 1;
-}
-
 void CPPU::EMULATE(void)
 {
-   // Keep track of remaining cycle count before manipulations...
-   int storedCyclesNotExecuted = m_curCycles;
+   // We're emulating one PPU cycle...
+   m_curCycles += CPU_CYCLE_ADJUST;
 
    // Only do 6502 stuff if the cycle-stealing DMA is not happening...
    if ( m_curCycles > 0 )
@@ -364,11 +350,6 @@ void CPPU::EMULATE(void)
          {
             m_curCycles %= PPU_CPU_RATIO_NTSC;
          }
-         else
-         {
-            // Give back the unused cycles...
-//            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_NTSC);
-         }
       }
       else
       {         
@@ -380,13 +361,12 @@ void CPPU::EMULATE(void)
          {
             m_curCycles %= PPU_CPU_RATIO_PAL;
          }
-         else
-         {
-            // Give back the unused cycles...
-//            m_curCycles += (storedCyclesNotExecuted%PPU_CPU_RATIO_PAL);
-         }
       }
    }
+
+   // Internal cycle counter keeps track of stuff needing to happen
+   // at particular PPU frame cycles.  It is reset at the end of a frame.
+   m_cycles += 1;
 }
 
 UINT CPPU::LOAD ( UINT addr, char source, char type, bool trace )
@@ -821,14 +801,13 @@ UINT CPPU::RENDER ( UINT addr, char target )
 
    data = LOAD ( addr, eSource_PPU, target );
 
-   m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eSource_PPU );
+   m_logger.LogAccess ( C6502::_CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eSource_PPU );
 
    // Provide PPU cycle and address to mappers that watch such things!
    mapperfunc[CROM::MAPPER()].synch(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE();
-   INCCYCLE();
 
    // Check for PPU cycle breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -848,7 +827,6 @@ void CPPU::GARBAGE ( UINT addr, char target )
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE();
-   INCCYCLE();
 
    // Check for PPU cycle breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -863,7 +841,6 @@ void CPPU::EXTRA ()
 
    // Idle cycle...
    EMULATE();
-   INCCYCLE();
 
    // Check for PPU cycle breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -897,6 +874,10 @@ void CPPU::RESET ( void )
 
    // Set up default palette in a way that passes the default palette test.
    PALETTESET ( tblDefaultPalette );
+
+   // Clear memory...
+   MEMCLR ();
+   OAMCLR ();
 }
 
 UINT CPPU::PPU ( UINT addr )
@@ -916,7 +897,7 @@ UINT CPPU::PPU ( UINT addr )
          data = (data&0xE0)|(m_ppuReadLatch&0x1F);
 
          // Kill NMI if flag is read at 'wrong' time...
-         if ( CYCLES() == PPU_CYCLE_START_VBLANK-1 )
+         if ( m_cycles == PPU_CYCLE_START_VBLANK-1 )
          {
             VBLANKCHOKED ( true );
          }
@@ -960,7 +941,7 @@ UINT CPPU::PPU ( UINT addr )
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
 
          // Log Code/Data logger...
-         m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eSource_CPU );
+         m_logger.LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eSource_CPU );
 
          // Toggling A12 causes IRQ count in some mappers...
          mapperfunc[CROM::MAPPER()].synch(m_cycles,m_ppuAddr);
@@ -1060,7 +1041,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 
          oldPpuAddr = m_ppuAddr;
 
-         m_logger.LogAccess ( C6502::CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eSource_CPU );
+         m_logger.LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eSource_CPU );
 
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
@@ -1199,7 +1180,6 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
       for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
       {
          EMULATE();
-         INCCYCLE();
 
          // Check for breakpoints...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -1460,10 +1440,8 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    // Finish off scanline render clock cycles...
    EMULATE();
-   INCCYCLE();
    GARBAGE ( 0x2000, eTarget_NameTable );
    EMULATE();
-   INCCYCLE();
    GARBAGE ( 0x2000, eTarget_NameTable );
 
    // If this is a visible scanline it is 341 clocks long both NTSC and PAL...
@@ -1502,7 +1480,6 @@ void CPPU::GATHERBKGND ( char phase )
    if ( !(phase&1) )
    {
       EMULATE();
-      INCCYCLE();
    }
 
    if ( phase == 1 )
@@ -1709,19 +1686,15 @@ void CPPU::GATHERSPRITES ( int scanline )
 
          // Garbage nametable fetches according to Samus Aran...
          EMULATE();
-         INCCYCLE();
          GARBAGE ( 0x2000, eTarget_NameTable );
          EMULATE();
-         INCCYCLE();
          GARBAGE ( 0x2000, eTarget_NameTable );
 
          // Get sprite's pattern data...
          EMULATE();
-         INCCYCLE();
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
          mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
          EMULATE();
-         INCCYCLE();
          pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
       }
 
@@ -1779,10 +1752,8 @@ void CPPU::GATHERSPRITES ( int scanline )
    {
       // Garbage nametable fetches according to Samus Aran...
       EMULATE();
-      INCCYCLE();
       GARBAGE ( 0x2000, eTarget_NameTable );
       EMULATE();
-      INCCYCLE();
       GARBAGE ( 0x2000, eTarget_NameTable );
       if ( spriteSize == 16 )
       {
@@ -1790,10 +1761,8 @@ void CPPU::GATHERSPRITES ( int scanline )
          patternIdx &= 0xFE;
       }
       EMULATE();
-      INCCYCLE();
       GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
       EMULATE();
-      INCCYCLE();
       GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
    }
 

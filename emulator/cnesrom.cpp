@@ -14,17 +14,9 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROM.cpp: implementation of the CROM class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrom.h"
 #include "cnesppu.h"
 #include "cnes6502.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 // Mapper Event breakpoints
 bool mapperIRQEvent(BreakpointInfo* pBreakpoint,int data)
@@ -361,6 +353,9 @@ void CROM::RESET ( UINT mapper )
    {
       m_pLogger [ bank ]->ClearData ();
    }
+
+   // Clear memory...
+   CHRRAMCLR ();
 }
 
 void CROM::LOAD ( MapperState* data )

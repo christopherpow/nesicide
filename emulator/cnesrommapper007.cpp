@@ -14,17 +14,9 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROMMapper007.cpp: implementation of the CROMMapper007 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrommapper007.h"
 
 #include "cnesppu.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 unsigned char  CROMMapper007::m_reg = 0x00;
 

@@ -14,10 +14,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// APU.cpp: implementation of the CAPU class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesapu.h"
 #include "cnes6502.h"
 #include "cnesppu.h"
@@ -25,10 +21,6 @@
 #include "ctracer.h"
 
 #include <QSemaphore>
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 // APU Event breakpoints
 bool apuIRQEvent(BreakpointInfo* pBreakpoint,int data)

@@ -1,7 +1,3 @@
-// cjoypadlogger.h: interface for the CJoypadLogger class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( JOYPAD_LOGGER_H )
 #define JOYPAD_LOGGER_H
 

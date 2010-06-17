@@ -1,7 +1,3 @@
-// cnesrommapper068.h: interface for the CROMMapper068 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( ROM_MAPPER068_H )
 #define ROM_MAPPER068_H
 

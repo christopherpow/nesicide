@@ -14,17 +14,9 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROMMapper068.cpp: implementation of the CROMMapper068 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrommapper068.h"
 
 #include "cnesppu.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 // Sunsoft Mapper #4 stuff
 unsigned char  CROMMapper068::m_reg [] = { 0x00, 0x00, 0x00, 0x00 };

@@ -1,7 +1,3 @@
-// cnesrommapper009.h: interface for the CROMMapper009 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined ( ROM_MAPPER009_H )
 #define ROM_MAPPER009_H
 

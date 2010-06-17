@@ -14,17 +14,9 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROMMapper009.cpp: implementation of the CROMMapper009 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrommapper009.h"
 
 #include "cnesppu.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 // MMC2 stuff
 unsigned char  CROMMapper009::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

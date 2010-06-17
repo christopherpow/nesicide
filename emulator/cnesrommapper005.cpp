@@ -14,18 +14,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-// ROMMapper005.cpp: implementation of the CROMMapper005 class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "cnesrommapper005.h"
 
 #include "cnes6502.h"
 #include "cnesppu.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 unsigned char  CROMMapper005::m_prgMode = 0;
 unsigned char  CROMMapper005::m_chrMode = 0;
