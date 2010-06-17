@@ -213,7 +213,7 @@ typedef struct _BackgroundBuffer
 } BackgroundBuffer;
 
 // Macros for internal access to PPU data for use within the PPU object.
-#define rPALETTE(addr) ( *(m_PALETTEmemory+(addr)) )
+#define rPALETTE(addr) ( (*(m_PALETTEmemory+(addr))&0x3F) )
 #define rPPU(addr) ( *(m_PPUreg+((addr)&0x0007)) )
 #define wPPU(addr,data) { *(m_PPUreg+((addr)&0x0007)) = (data); }
 #define rPPUADDR() ( m_ppuAddr )
