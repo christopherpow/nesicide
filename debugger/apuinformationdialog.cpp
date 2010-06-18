@@ -43,6 +43,8 @@ void APUInformationDialog::updateInformation()
    int idx;
    char buffer[16];
    unsigned char temp1, temp2, temp3, temp4, temp5;
+   bool tempb1, tempb2;
+   unsigned short tempus1, tempus2, tempus3;
 
    CAPU::LENGTHCOUNTERS ( &temp1, &temp2, &temp3, &temp4, &temp5 );
    ui->lengthCounter1->setValue ( temp1 );
@@ -60,6 +62,18 @@ void APUInformationDialog::updateInformation()
    ui->dac3->setValue ( temp3 );
    ui->dac4->setValue ( temp4 );
    ui->dac5->setValue ( temp5 );
+
+   CAPU::DMCIRQ ( &tempb1, &tempb2 );
+   ui->irqEnabled5->setChecked ( tempb1 );
+   ui->irqAsserted5->setChecked ( tempb2 );
+
+   CAPU::SAMPLEINFO ( &tempus1, &tempus2, &tempus3 );
+   sprintf ( buffer, "$%04X", tempus1 );
+   ui->sampleAddr5->setText ( buffer );
+   sprintf ( buffer, "$%04X", tempus2 );
+   ui->sampleLength5->setText ( buffer );
+   sprintf ( buffer, "$%04X", tempus3 );
+   ui->samplePos5->setText ( buffer );
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )

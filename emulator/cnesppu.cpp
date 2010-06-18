@@ -933,6 +933,9 @@ UINT CPPU::PPU ( UINT addr )
          {
             data = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
 
+            // Mask off unused palette RAM bits.
+            data &= 0x3F;
+
             // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
             m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
          }

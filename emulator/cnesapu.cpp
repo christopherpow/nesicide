@@ -133,7 +133,7 @@ static CBitfieldData* tblAPUDMCLENBitfields [] =
 static CBitfieldData* tblAPUCTRLBitfields [] =
 {
    new CBitfieldData("DMC IRQ", 7, 1, "%X", 2, "Not Asserted", "Asserted"),
-   new CBitfieldData("APU IRQ", 6, 1, "%X", 2, "Not Asserted", "Asserted"),
+   new CBitfieldData("Frame IRQ", 6, 1, "%X", 2, "Not Asserted", "Asserted"),
    new CBitfieldData("Delta Modulation Channel", 4, 1, "%X", 2, "Disabled", "Enabled"),
    new CBitfieldData("Noise Channel", 3, 1, "%X", 2, "Disabled", "Enabled"),
    new CBitfieldData("Triangle Channel", 2, 1, "%X", 2, "Disabled", "Enabled"),
@@ -1048,27 +1048,28 @@ CAPUNoise::CAPUNoise ()
  : CAPUOscillator(), m_mode(0)
 {
    unsigned char preShiftXor;
+   unsigned short shift;
    int idx;
 
    // Calculate short table...
-   m_shift = 1;
+   shift = 1;
    for ( idx = 0; idx < 93; idx++ )
    {
-      preShiftXor = (m_shift&1)^((m_shift>>6)&1);
-      m_shift >>= 1;
-      m_shift |= preShiftXor<<14;
-      m_shortTable [ idx ] = m_shift;
+      preShiftXor = (shift&1)^((shift>>6)&1);
+      shift >>= 1;
+      shift |= preShiftXor<<14;
+      m_shortTable [ idx ] = shift;
    }
    // Calculate long table...
-   m_shift = 1;
+   shift = 1;
    for ( idx = 0; idx < 32767; idx++ )
    {
-      preShiftXor = (m_shift&1)^((m_shift>>1)&1);
-      m_shift >>= 1;
-      m_shift |= preShiftXor<<14;
-      m_shortTable [ idx ] = m_shift;
+      preShiftXor = (shift&1)^((shift>>1)&1);
+      shift >>= 1;
+      shift |= preShiftXor<<14;
+      m_shortTable [ idx ] = shift;
    }
-   m_shift = 1;
+   shift = 1;
 }
 
 void CAPUNoise::APU ( UINT addr, unsigned char data )
@@ -1170,17 +1171,20 @@ void CAPUDMC::APU ( UINT addr, unsigned char data )
    }
    else if ( addr == 2 )
    {
-      m_sampleAddr = (data<<6)|0xC000;
+      m_sampleAddr = (((unsigned short)data)<<6)|0xC000;
    }
    else if ( addr == 3 )
    {
-      m_sampleLength = (data<<4)+1;
+      m_sampleLength = (((unsigned short)data)<<4)+1;
    }
 }
 
 void CAPUDMC::ENABLE ( bool enabled )
 {
    CAPUOscillator::ENABLE(enabled);
+
+   m_dmcIrqAsserted = false;
+   CAPU::RELEASEIRQ ();
 
    if ( enabled )
    {
@@ -1195,33 +1199,16 @@ void CAPUDMC::ENABLE ( bool enabled )
             m_dmaReaderAddrPtr = m_sampleAddr;
          }
          m_lengthCounter = m_sampleLength;
+
+         DMAREADER();
       }
    }
-   m_dmcIrqAsserted = false;
-   CAPU::RELEASEIRQ ();
 }
 
 void CAPUDMC::DMAREADER ( void )
 {
    if ( !m_sampleBufferFull )
    {
-      if ( (!m_lengthCounter) && m_loop )
-      {
-         if ( m_dmaSource != NULL )
-         {
-            m_dmaSourcePtr = m_dmaSource;
-         }
-         else
-         {
-            m_dmaReaderAddrPtr = m_sampleAddr;
-         }
-         m_lengthCounter = m_sampleLength;
-      }
-      if ( (!m_lengthCounter) && m_dmcIrqEnabled )
-      {
-         m_dmcIrqAsserted = true;
-         C6502::ASSERTIRQ ( eSource_APU );
-      }
       if ( m_lengthCounter )
       {
          if ( m_dmaSource != NULL )
@@ -1254,6 +1241,23 @@ void CAPUDMC::DMAREADER ( void )
          }
          m_lengthCounter--;
       }
+      if ( (!m_lengthCounter) && m_dmcIrqEnabled && (!m_loop) )
+      {
+         m_dmcIrqAsserted = true;
+         C6502::ASSERTIRQ ( eSource_APU );
+      }
+      if ( (!m_lengthCounter) && m_loop )
+      {
+         if ( m_dmaSource != NULL )
+         {
+            m_dmaSourcePtr = m_dmaSource;
+         }
+         else
+         {
+            m_dmaReaderAddrPtr = m_sampleAddr;
+         }
+         m_lengthCounter = m_sampleLength;
+      }
    }
 }
 
@@ -1268,6 +1272,7 @@ void CAPUDMC::TIMERTICK ( void )
       if ( m_outputShiftCounter == 0 )
       {
          m_outputShiftCounter = 8;
+
          if ( m_sampleBufferFull )
          {
             m_outputShift = m_sampleBuffer;
@@ -1670,8 +1675,6 @@ void CAPU::APU ( UINT addr, unsigned char data )
       m_triangle.ENABLE ( !!(data&0x04) );
       m_noise.ENABLE ( !!(data&0x08) );
       m_dmc.ENABLE ( !!(data&0x10) );
-      m_dmc.IRQASSERTED(false);
-      CAPU::RELEASEIRQ ();
    }
    else if ( addr == 0x4017 )
    {

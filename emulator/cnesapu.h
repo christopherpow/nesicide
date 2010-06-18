@@ -251,6 +251,16 @@ protected:
    unsigned char  m_reg [ 4 ];
 };
 
+// The CAPUSquare class extends the base CAPUOscillator class to provide
+// the mechanics of generating a square waveform sound channel.  It provides
+// a divide-by-two clock, settable duty-cycle for waveform transitions, and an
+// internal sequencer that drives the duty-cycling.  This class handles the
+// APU cycle ticks passed to it by the main APU object (see CAPU).
+// It also overloads the register-write method so that it can update its
+// internal state based on the register settings provided.  No register-read
+// method is provided; the channel is write-only registers.  Finally, it
+// overloads the reset method so that the channel's internal state may be
+// cleared upon a NES reset.
 class CAPUSquare : public CAPUOscillator
 {
 public:
@@ -261,16 +271,43 @@ public:
       m_duty(0){};
    virtual ~CAPUSquare() {};
 
+   // This method sets data internal to the APU channel.  There is no
+   // get method because the APU channel's registers are write-only.
    inline void APU ( UINT addr, unsigned char data );
+
+   // This method handles the channel mechanics of generating the
+   // appropriate square waveform given the register settings.  It
+   // is invoked by the main APU object at each APU cycle.  When necessary
+   // it updates the DAC value of the channel.
    inline void TIMERTICK ( void );
-   inline void RESET ( void ) { CAPUOscillator::RESET(); m_duty = 0; m_seqTick = 0; m_timerClk = 0; }
+
+   // This routine returns the channels' internal state to
+   // what it should be at NES reset.
+   inline void RESET ( void )
+   { CAPUOscillator::RESET(); m_duty = 0; m_seqTick = 0; m_timerClk = 0; }
 
 protected:
+   // The square waveform channel has an internal divide-by-two clock.
    int           m_timerClk;
+
+   // The square waveform channel has an internal 8-step sequencer for
+   // generating the appropriate duty-cycle.
    int           m_seqTick;
+
+   // The square waveform channel has four selectable duty-cycle modes.
    int           m_duty;
 };
 
+// The CAPUTriangle class extends the base CAPUOscillator class to provide
+// the mechanics of generating a triangle waveform sound channel.  It provides
+// a 32-step sequencer that steps through predefined DAC levels to generate
+// a triangle waveform.  This class handles the
+// APU cycle ticks passed to it by the main APU object (see CAPU).
+// It also overloads the register-write method so that it can update its
+// internal state based on the register settings provided.  No register-read
+// method is provided; the channel is write-only registers.  Finally, it
+// overloads the reset method so that the channel's internal state may be
+// cleared upon a NES reset.
 class CAPUTriangle : public CAPUOscillator
 {
 public:
@@ -279,33 +316,89 @@ public:
       m_seqTick(0) {};
    virtual ~CAPUTriangle() {};
 
+   // This method sets data internal to the APU channel.  There is no
+   // get method because the APU channel's registers are write-only.
    inline void APU ( UINT addr, unsigned char data );
+
+   // This method handles the channel mechanics of generating the
+   // appropriate triangle waveform given the register settings.  It
+   // is invoked by the main APU object at each APU cycle.  When necessary
+   // it updates the DAC value of the channel.
    inline void TIMERTICK ( void );
-   inline void RESET ( void ) { CAPUOscillator::RESET(); m_seqTick = 0; }
+
+   // This routine returns the channels' internal state to
+   // what it should be at NES reset.
+   inline void RESET ( void )
+   { CAPUOscillator::RESET(); m_seqTick = 0; }
 
 protected:
+   // The triangle waveform channel has an internal 32-step sequencer
+   // for generating the appropriate triangular waveform.
    int           m_seqTick;
 };
 
+// The CAPUNoise class extends the base CAPUOscillator class to provide
+// the mechanics of generating a pseudo-random waveform sound channel.  It provides
+// a 15-bit shift register, and a settable mode.  This class handles the
+// APU cycle ticks passed to it by the main APU object (see CAPU).
+// It also overloads the register-write method so that it can update its
+// internal state based on the register settings provided.  No register-read
+// method is provided; the channel is write-only registers.  Finally, it
+// overloads the reset method so that the channel's internal state may be
+// cleared upon a NES reset.
+//
+// Note:  The noise channel implementation generates a look-up table of
+// shift register values using the algorithm that the NES uses.  It is
+// arguable whether or not this is faster than just generating the shift
+// register content in real-time.
 class CAPUNoise : public CAPUOscillator
 {
 public:
     CAPUNoise();
    virtual ~CAPUNoise() {};
 
+   // This method sets data internal to the APU channel.  There is no
+   // get method because the APU channel's registers are write-only.
    inline void APU ( UINT addr, unsigned char data );
+
+   // This method handles the channel mechanics of generating the
+   // appropriate noise waveform given the register settings.  It
+   // is invoked by the main APU object at each APU cycle.  When necessary
+   // it updates the DAC value of the channel.
    inline void TIMERTICK ( void );
+
+   // This routine returns the channels' internal state to
+   // what it should be at NES reset.
    inline void RESET ( void )
-   { CAPUOscillator::RESET(); m_shift = 0x1; m_mode = 0; m_shortTableIdx = 0; m_longTableIdx = 0; }
+   { CAPUOscillator::RESET(); m_mode = 0; m_shortTableIdx = 0; m_longTableIdx = 0; }
 
 protected:
-   unsigned short m_shift;
+   // The noise channel has two different modes:
+   // 93-cycle pattern
+   // 32767-cycle pattern
    int            m_mode;
+
+   // The noise channel generates a look-up table of
+   // shift register values during program initialization.
    unsigned char  m_shortTable [ 93 ];
    unsigned char  m_longTable [ 32767 ];
+
+   // The noise channel keeps track of where it is in the
+   // table of shift register values.
    unsigned short m_shortTableIdx;
    unsigned short m_longTableIdx;
 };
+
+// The CAPUDMC class extends the base CAPUOscillator class to provide
+// the mechanics of generating a delta-modulation sound channel.  It provides
+// a sample buffer, an output shift register, a DMA unit, an interrupt generator,
+// a loop flag, and internal memory for sample memory location and size.  This
+// class handles the APU cycle ticks passed to it by the main APU object (see CAPU).
+// It also overloads the register-write method so that it can update its
+// internal state based on the register settings provided.  No register-read
+// method is provided; the channel is write-only registers.  Finally, it
+// overloads the reset method so that the channel's internal state may be
+// cleared upon a NES reset.
 class CAPUDMC : public CAPUOscillator
 {
 public:
@@ -326,14 +419,44 @@ public:
    {};
    virtual ~CAPUDMC() {};
 
+   // This method sets data internal to the APU channel.  There is no
+   // get method because the APU channel's registers are write-only.
    inline void APU ( UINT addr, unsigned char data );
+
+   // This method handles the channel mechanics of generating the
+   // appropriate delta-modulation waveform given the register settings.  It
+   // is invoked by the main APU object at each APU cycle.  When necessary
+   // it updates the DAC value of the channel.  It also drives the other
+   // channel elements to fetch sample data using DMA.
    inline void TIMERTICK ( void );
+
+   // The delta-modulation channel requires special handling of writes
+   // to $4015 because it has an internal interrupt generator that is
+   // acknowledged and it restarts sample playback if appropriate to do so.
    inline void ENABLE ( bool enabled );
+
+   // The delta-modulation channel contains a DMA unit that fetches
+   // sample data for playback when its internal sample buffer empties
+   // into the output shift register.
    void DMAREADER ( void );
+
+   // The source of DMA can be set to the emulation engine or to the
+   // music designer.  In the latter case the APU is used by the music
+   // designer to play music being created in the designer.
    void DMASOURCE ( unsigned char* source ) { m_dmaSource = source; m_dmaSourcePtr = source; }
+
+   // These methods deal with the delta-modulation channel's interrupt flag.
    bool IRQASSERTED ( void ) const { return m_dmcIrqAsserted; }
    void IRQASSERTED ( bool asserted ) { m_dmcIrqAsserted = asserted; }
+   bool IRQENABLED ( void ) const { return m_dmcIrqEnabled; }
 
+   // These methods provide internal channel detail to the debuggers.
+   unsigned short SAMPLEADDR ( void ) const { return m_sampleAddr; }
+   unsigned short SAMPLELENGTH ( void ) const { return m_sampleLength; }
+   unsigned short SAMPLEPOS ( void ) const { return m_dmaReaderAddrPtr; }
+
+   // This routine returns the channels' internal state to
+   // what it should be at NES reset.
    inline void RESET ( void )
    {
       CAPUOscillator::RESET();
@@ -353,17 +476,51 @@ public:
    }
 
 protected:
+   // Current address within NES system memory where
+   // sample data is being fetched from.
    unsigned short m_dmaReaderAddrPtr;
+
+   // Whether or not the channel should generate an interrupt.
    bool          m_dmcIrqEnabled;
+
+   // Whether or not the channel has generated an unacknowleged interrupt.
    bool          m_dmcIrqAsserted;
+
+   // The channel's internal sample buffer.  It is filled
+   // by the DMA reader component whenever it empties into
+   // the output shift register.
    unsigned char m_sampleBuffer;
+
+   // Internal flag indicating whether or not the DMA reader
+   // component needs to fetch more sample data.
    bool          m_sampleBufferFull;
+
+   // Flag indicating whether the sample should be looped or not.
    bool          m_loop;
+
+   // Internal storage for sample address and length.  These are
+   // calculated on writes to $4012 and $4013.
    unsigned short m_sampleAddr;
    unsigned short m_sampleLength;
+
+   // The channel's internal output shift register.  At each APU
+   // cycle where there is data in the output shift register it is
+   // shifted one bit and the dropped bit is used to drive the DAC
+   // either up or down (and thus generating a delta-modulation).
    unsigned char m_outputShift;
+
+   // How many bits are left in the output shift register before it
+   // needs to be filled from the sample buffer again in order to
+   // keep generating the delta-modulation?
    unsigned char m_outputShiftCounter;
+
+   // If no data is in the sample buffer the output shift register
+   // will generate 'silence'.
    bool          m_silence;
+
+   // Current memory location for fetching samples from the music
+   // designer.  If this address is being used the m_dmaReaderAddrPtr
+   // is ignored.
    unsigned char* m_dmaSource;
    unsigned char* m_dmaSourcePtr;
 };
@@ -415,6 +572,17 @@ public:
                          unsigned char* triangle,
                          unsigned char* noise,
                          unsigned char* dmc );
+   static void DMCIRQ ( bool* enabled, bool* asserted )
+   {
+      (*enabled) = m_dmc.IRQENABLED();
+      (*asserted) = m_dmc.IRQASSERTED();
+   }
+   static void SAMPLEINFO ( unsigned short* addr, unsigned short* length, unsigned short* pos )
+   {
+      (*addr) = m_dmc.SAMPLEADDR();
+      (*length) = m_dmc.SAMPLELENGTH();
+      (*pos) = m_dmc.SAMPLEPOS();
+   }
 
    static void OPEN ( void );
    static void EMULATE ( int cycles );
