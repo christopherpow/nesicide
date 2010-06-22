@@ -44,14 +44,17 @@ void APUInformationDialog::updateInformation()
    char buffer[16];
    unsigned char temp1, temp2, temp3, temp4, temp5;
    bool tempb1, tempb2;
-   unsigned short tempus1, tempus2, tempus3;
+   unsigned short tempus1, tempus2, tempus3, tempus4, tempus5;
 
-   CAPU::LENGTHCOUNTERS ( &temp1, &temp2, &temp3, &temp4, &temp5 );
-   ui->lengthCounter1->setValue ( temp1 );
-   ui->lengthCounter2->setValue ( temp2 );
-   ui->lengthCounter3->setValue ( temp3 );
-   ui->lengthCounter4->setValue ( temp4 );
-   ui->lengthCounter5->setValue ( temp5 );
+   sprintf ( buffer, "%d", CAPU::CYCLES() );
+   ui->apuCycle->setText ( buffer );
+
+   CAPU::LENGTHCOUNTERS ( &tempus1, &tempus2, &tempus3, &tempus4, &tempus5 );
+   ui->lengthCounter1->setValue ( tempus1 );
+   ui->lengthCounter2->setValue ( tempus2 );
+   ui->lengthCounter3->setValue ( tempus3 );
+   ui->lengthCounter4->setValue ( tempus4 );
+   ui->lengthCounter5->setValue ( tempus5 );
 
    CAPU::LINEARCOUNTER ( &temp3 );
    ui->linearCounter3->setValue ( temp3 );

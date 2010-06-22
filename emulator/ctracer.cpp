@@ -208,6 +208,20 @@ TracerInfo* CTracer::GetLastSample ( void )
    return m_pSamples+getsample;
 }
 
+TracerInfo* CTracer::GetLastCPUSample ( void )
+{
+   int getsample = m_cpuCursor;
+
+   getsample -= 1;
+
+   if ( getsample < 0 )
+   {
+      getsample = m_sampleBufferDepth-1;
+   }
+
+   return *(m_ppCPUSamples+getsample);
+}
+
 TracerInfo* CTracer::GetSample ( unsigned int sample )
 {
    int getsample = m_cursor;
@@ -253,20 +267,18 @@ TracerInfo* CTracer::GetPPUSample ( unsigned int sample )
    return *(m_ppPPUSamples+getsample);
 }
 
-TracerInfo* CTracer::SetDisassembly ( unsigned char* szD )
+void CTracer::SetDisassembly ( TracerInfo* pS, unsigned char* szD )
 { 
-   TracerInfo* pSample = GetLastSample ();
-   if ( pSample )
+   if ( pS )
    {
-      (*((pSample->disassemble)+0)) = (*szD); szD++;
-      (*((pSample->disassemble)+1)) = (*szD); szD++;
-      (*((pSample->disassemble)+2)) = (*szD);
-      (*((pSample->disassemble)+3)) = 0x00;
+      (*((pS->disassemble)+0)) = (*szD); szD++;
+      (*((pS->disassemble)+1)) = (*szD); szD++;
+      (*((pS->disassemble)+2)) = (*szD);
+      (*((pS->disassemble)+3)) = 0x00;
    }
-   return pSample;
 }
 
-TracerInfo* CTracer::SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f )
+void CTracer::SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f )
 {
    if ( pS )
    {
@@ -278,6 +290,5 @@ TracerInfo* CTracer::SetRegisters ( TracerInfo* pS, unsigned char a, unsigned ch
       pS->ea = 0xFFFFFFFF;
       pS->regsset = 1;
    }
-   return pS;
 }
 

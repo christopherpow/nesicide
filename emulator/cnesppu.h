@@ -313,16 +313,6 @@ public:
    // its presence or lack thereof.
    static inline unsigned int _CYCLES ( void ) { return m_cycles; }
 
-   // The PPU and APU can steal execution cycles from the CPU in
-   // order to perform DMA transfers on the CPU bus.  This method
-   // decrements the number of available PPU cycles for execution
-   // so that the PPU will effectively hold off execution of the CPU
-   // until the DMA is complete.  Each time the EMULATE method of the
-   // PPU is called the current number of cycles ready to be emulated
-   // is incremented, so eventually the PPU will kick the CPU core
-   // into action again.
-   static inline void STEALCYCLES ( int cycles ) { m_curCycles -= cycles; }
-
    // Every PPU frame starts at PPU cycle 0.
    static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame++; }
 
@@ -363,8 +353,14 @@ public:
    // VBLANK flag in the PPU registers is choked by the reading of the
    // PPU register containing the VBLANK flag at a precise point within
    // the PPU frame.
-   static void VBLANKCHOKED ( bool choked ) { m_vblankChoked = choked; }
+   static inline void VBLANKCHOKED ( bool choked ) { m_vblankChoked = choked; }
    static bool VBLANKCHOKED () { bool choked = m_vblankChoked; m_vblankChoked = false; return choked; }
+
+   // Interface to handle the special case where assertion of NMI can be
+   // choked by reading PPU register $2002 at precise points within the
+   // PPU frame.
+   static inline void NMICHOKED ( bool choked ) { m_nmiChoked = choked; }
+   static bool NMICHOKED () { bool choked = m_nmiChoked; m_nmiChoked = false; return choked; }
 
    // Read a PPU register without changing the PPU's internal state.
    // This routine is used by the debugger in order to retrieve information
@@ -641,6 +637,10 @@ protected:
    // If the CPU reads PPU address $2002 at a precise point within the
    // PPU frame it can choke the setting of the VBLANK flag in that register.
    static bool           m_vblankChoked;
+
+   // If the CPU reads PPU address $2002 at precise points within the
+   // PPU frame it can choke the assertion of NMI by the PPU.
+   static bool           m_nmiChoked;
 
    // These items are the database that keeps track of the status of the
    // x and y scroll values for each rendered pixel.  This information is

@@ -113,7 +113,7 @@ public:
    static void STEPPPUBREAKPOINT ( void ) { m_bStepPPUBreakpoint = true; }
 
    // These methods are wrapper methods around the similar methods
-   // declared in the CPU, PPU, APU, and ROM objects.  These wrapper
+   // declared in the CPU and ROM objects.  These wrapper
    // methods contain the logic to determine which of the sub-object
    // methods to invoke based on the passed parameters.
    static char* DISASSEMBLY ( UINT addr );
@@ -122,6 +122,7 @@ public:
    static unsigned int SLOC ( UINT addr );
    static unsigned char _MEM ( UINT addr );
    static void DISASSEMBLE ( void );
+   static UINT ABSADDR ( UINT addr );
 
    // This method retrieves information to be displayed in ToolTips
    // for the Code Browser window.

@@ -137,11 +137,12 @@ public:
       m_dac = 0;
       m_reg1Wrote = false;
       m_reg3Wrote = false;
+      m_clockLengthCounter = true;
    }
 
    // These are called directly for use in debugger inspectors.
    // Returns the channels' current length counter value.
-   unsigned char LENGTHCOUNTER(void) const { return m_lengthCounter; }
+   unsigned short LENGTHCOUNTER(void) const { return m_lengthCounter; }
 
    // Returns the channels' current linear counter value.
    unsigned char LINEARCOUNTER(void) const { return m_linearCounter; }
@@ -155,6 +156,12 @@ protected:
 
    // Current length counter value.
    unsigned short m_lengthCounter;
+
+   // Whether or not to clock the length counter at next sequencer step
+   // where the length counter should be clocked.  Length counter clocking
+   // is choked if a write to the length counter occurs at specific points
+   // within the APU frame.
+   bool m_clockLengthCounter;
 
    // The number of APU cycles before the channels' internal
    // divider will emit a clock edge.
@@ -555,7 +562,7 @@ public:
 
    // INTERNAL ACCESSOR FUNCTIONS
    // These are called directly.
-   static void LENGTHCOUNTERS ( unsigned char* sq1, unsigned char* sq2, unsigned char* triangle, unsigned char* noise, unsigned char* dmc )
+   static void LENGTHCOUNTERS ( unsigned short* sq1, unsigned short* sq2, unsigned short* triangle, unsigned short* noise, unsigned short* dmc )
    {
       (*sq1) = m_square[0].LENGTHCOUNTER();
       (*sq2) = m_square[1].LENGTHCOUNTER();

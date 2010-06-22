@@ -32,8 +32,8 @@ enum
 #define VECTOR_IRQ   0xFFFE
 
 // Cycles to claim as executed for NMI/IRQ execution.
-#define NMI_CYCLES 7
-#define IRQ_CYCLES 7
+#define NMI_CYCLES 2
+#define IRQ_CYCLES 2
 
 // CPU flags register bit definitions.
 #define FLAG_C    0x01
@@ -204,7 +204,7 @@ public:
    static void EMULATE ( int cycles );
    static void GOTO ( UINT pcGoto ) { m_pcGoto = pcGoto; }
    static void GOTO () { m_pcGoto = 0xFFFFFFFF; }
-   static unsigned char STEP ( void );
+   static void STEP ( void );
 
    // CPU reset vector routine.
    static void RESET ( void );
@@ -369,6 +369,11 @@ public:
    // PPU both use this method to transfer data from the CPU memory space.
    static unsigned char DMA ( UINT addr, char source );
 
+   // The PPU and APU can steal cycles from the CPU in addition to
+   // doing DMA transfers (actually, the DMA engine steals the cycles
+   // but the DMA engine is invoked by the PPU or APU).
+   static void STEALCYCLES ( int cycles ) { for ( int i = 0; i < cycles; i++ ) ADVANCE(); }
+
    // The following routines are support for the runtime
    // disassembly of RAM if it is executed by the CPU core.
    // An "opcode mask" is tracked for each byte of accessible
@@ -429,6 +434,9 @@ protected:
    // Routine to calculate the effective address of a particular
    // instruction addressing mode based on the internal state of the CPU.
    static inline UINT MAKEADDR ( int amode, unsigned char* data );
+
+   // Routine to drive APU and CPU synchronization by cycles.
+   static void ADVANCE ( void );
 
    // CPU interrupt vector routines.
    static void IRQ ();
@@ -510,6 +518,11 @@ protected:
    static unsigned char*  data;
    static unsigned char   opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
 
+   // This points to the last execution tracer tag that
+   // is where the disassembly of the instruction should
+   // be placed.
+   static TracerInfo* pDisassemblySample;
+
    // The current opcode's table entry (see struct _C6502_opcode below).
    static struct _C6502_opcode* pOpcodeStruct;
 
@@ -526,11 +539,6 @@ protected:
    // opcode is 1-byte (extra fetch cycle) or 2-bytes.  m_phase
    // will go up to 3 if the fetched opcode is 3-byte.
    static char            m_phase;
-
-   // The current count of fetch cycles.  Attempting to keep
-   // track of cycles to subtract from CPU core execution due
-   // to fetching, but that implementation is not completely working yet.
-   static char            m_fetchCycles;
 
    // The database for CPU core registers.  Declaration
    // is in source file.
@@ -575,8 +583,8 @@ typedef struct _C6502_opcode
    // Is the instruction part of the documented 6502 ISA?
    bool documented;
 
-   // Does the extra-cycle-on-page-crossing rule count for this particular entry?
-   bool pageCrossCounts;
+   // Do we force an extra cycle for this instruction variant?
+   bool forceExtraCycle;
 } C6502_opcode;
 
 #endif

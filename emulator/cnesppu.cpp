@@ -230,6 +230,7 @@ char*          CPPU::m_pCodeDataLoggerInspectorTV = NULL;
 unsigned int   CPPU::m_cycles = 0;
 
 bool           CPPU::m_vblankChoked = false;
+bool           CPPU::m_nmiChoked = false;
 
 char*          CPPU::m_pTV = NULL;
 
@@ -337,31 +338,15 @@ void CPPU::EMULATE(void)
    // We're emulating one PPU cycle...
    m_curCycles += CPU_CYCLE_ADJUST;
 
-   // Only do 6502 stuff if the cycle-stealing DMA is not happening...
-   if ( m_curCycles > 0 )
+   if ( CNES::VIDEOMODE() == MODE_NTSC )
    {
-      if ( CNES::VIDEOMODE() == MODE_NTSC )
-      {
-         C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );
-
-         // Check cycles available again just incase the emulated
-         // 6502 instruction caused a cycle-stealing DMA operation...
-         if ( m_curCycles > 0 )
-         {
-            m_curCycles %= PPU_CPU_RATIO_NTSC;
-         }
-      }
-      else
-      {         
-         // Check cycles available again just incase the emulated
-         // 6502 instruction caused a cycle-stealing DMA operation...
-         C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_PAL );
-
-         if ( m_curCycles > 0 )
-         {
-            m_curCycles %= PPU_CPU_RATIO_PAL;
-         }
-      }
+      C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );
+      m_curCycles %= PPU_CPU_RATIO_NTSC;
+   }
+   else
+   {
+      C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_PAL );
+      m_curCycles %= PPU_CPU_RATIO_PAL;
    }
 
    // Internal cycle counter keeps track of stuff needing to happen
@@ -866,6 +851,9 @@ void CPPU::RESET ( void )
    m_curCycles = 0;
    m_frame = 0;
 
+   m_vblankChoked = false;
+   m_nmiChoked = false;
+
    m_ppuAddr = 0x0000;
    m_ppuAddrLatch = 0x0000;
    m_ppuAddrIncrement = 1;
@@ -896,10 +884,21 @@ UINT CPPU::PPU ( UINT addr )
          m_ppuRegByte = 0; // Clear PPUADDR address latch
          data = (data&0xE0)|(m_ppuReadLatch&0x1F);
 
-         // Kill NMI if flag is read at 'wrong' time...
+         // Kill VBLANK flag if register is read at 'wrong' time...
          if ( m_cycles == PPU_CYCLE_START_VBLANK-1 )
          {
             VBLANKCHOKED ( true );
+         }
+
+         // Kill NMI assertion if register is read at 'wrong' time...
+         if ( (m_cycles >= PPU_CYCLE_START_VBLANK-1) &&
+              (m_cycles <= PPU_CYCLE_START_VBLANK+1) )
+         {
+            NMICHOKED ( true );
+         }
+         else
+         {
+            NMICHOKED ( false );
          }
       }
       else if ( fixAddr == OAMDATA_REG )
@@ -1071,17 +1070,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          for ( dma = 0; dma < NUM_OAM_REGS; dma++ )
          {
             *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|(dma&0xFF), eSource_PPU );
-         }
-
-         // Steal CPU cycles...
-         // 512 CPU cycles * 3 PPU cycles per CPU
-         if ( CNES::VIDEOMODE() == MODE_NTSC )
-         {
-            STEALCYCLES(512*PPU_CPU_RATIO_NTSC);
-         }
-         else
-         {
-            STEALCYCLES(512*PPU_CPU_RATIO_PAL);
          }
       }
    }

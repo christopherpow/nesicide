@@ -165,9 +165,9 @@ unsigned char*  C6502::data = NULL;
 unsigned char   C6502::opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
 struct _C6502_opcode* C6502::pOpcodeStruct = NULL;
 int             C6502::opcodeSize;
+TracerInfo*     C6502::pDisassemblySample = NULL;
 bool            C6502::m_sync = false;
 char            C6502::m_phase = 0;
-char            C6502::m_fetchCycles = 0;
 
 CRegisterData** C6502::m_tblRegisters = tblCPURegisters;
 int             C6502::m_numRegisters = NUM_CPU_REGISTERS;
@@ -232,21 +232,21 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0x0E, "ASL", C6502::ASL, AM_ABSOLUTE, 6, true, true }, // ASL - Absolute
    { 0x0F, "ASO", C6502::ASO, AM_ABSOLUTE, 6, false, true }, // ASO - Absolute (undocumented)
    { 0x10, "BPL", C6502::BPL, AM_RELATIVE, 2, true, true }, // BPL
-   { 0x11, "ORA", C6502::ORA, AM_POSTINDEXED_INDIRECT, 5, true, true }, // ORA - (Indirect),Y
+   { 0x11, "ORA", C6502::ORA, AM_POSTINDEXED_INDIRECT, 5, true, false }, // ORA - (Indirect),Y
    { 0x12, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0x13, "ASO", C6502::ASO, AM_POSTINDEXED_INDIRECT, 8, false, false }, // ASO - (Indirect),Y (undocumented)
+   { 0x13, "ASO", C6502::ASO, AM_POSTINDEXED_INDIRECT, 8, false, true }, // ASO - (Indirect),Y (undocumented)
    { 0x14, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, true }, // DOP (undocumented)
    { 0x15, "ORA", C6502::ORA, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // ORA - Zero Page,X
    { 0x16, "ASL", C6502::ASL, AM_ZEROPAGE_INDEXED_X, 6, true, true }, // ASL - Zero Page,X
    { 0x17, "ASO", C6502::ASO, AM_ZEROPAGE_INDEXED_X, 6, false, true }, // ASO - Zero Page,X (undocumented)
    { 0x18, "CLC", C6502::CLC, AM_IMPLIED, 2, true, true }, // CLC
-   { 0x19, "ORA", C6502::ORA, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // ORA - Absolute,Y
+   { 0x19, "ORA", C6502::ORA, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // ORA - Absolute,Y
    { 0x1A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, true }, // NOP (undocumented)
-   { 0x1B, "ASO", C6502::ASO, AM_ABSOLUTE_INDEXED_Y, 7, false, false }, // ASO - Absolute,Y (undocumented)
-   { 0x1C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, true }, // TOP (undocumented)
-   { 0x1D, "ORA", C6502::ORA, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // ORA - Absolute,X
-   { 0x1E, "ASL", C6502::ASL, AM_ABSOLUTE_INDEXED_X, 7, true, false }, // ASL - Absolute,X
-   { 0x1F, "ASO", C6502::ASO, AM_ABSOLUTE_INDEXED_X, 7, false, false }, // ASO - Absolute,X (undocumented)
+   { 0x1B, "ASO", C6502::ASO, AM_ABSOLUTE_INDEXED_Y, 7, false, true }, // ASO - Absolute,Y (undocumented)
+   { 0x1C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false }, // TOP (undocumented)
+   { 0x1D, "ORA", C6502::ORA, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // ORA - Absolute,X
+   { 0x1E, "ASL", C6502::ASL, AM_ABSOLUTE_INDEXED_X, 7, true, true }, // ASL - Absolute,X
+   { 0x1F, "ASO", C6502::ASO, AM_ABSOLUTE_INDEXED_X, 7, false, true }, // ASO - Absolute,X (undocumented)
    { 0x20, "JSR", C6502::JSR, AM_ABSOLUTE, 6, true, true }, // JSR
    { 0x21, "AND", C6502::AND, AM_PREINDEXED_INDIRECT, 6, true, true }, // AND - (Indirect,X)
    { 0x22, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
@@ -264,21 +264,21 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0x2E, "ROL", C6502::ROL, AM_ABSOLUTE, 6, true, true }, // ROL - Absolute
    { 0x2F, "RLA", C6502::RLA, AM_ABSOLUTE, 6, false, true }, // RLA - Absolute (undocumented)
    { 0x30, "BMI", C6502::BMI, AM_RELATIVE, 2, true, true }, // BMI
-   { 0x31, "AND", C6502::AND, AM_POSTINDEXED_INDIRECT, 5, true, true }, // AND - (Indirect),Y
+   { 0x31, "AND", C6502::AND, AM_POSTINDEXED_INDIRECT, 5, true, false }, // AND - (Indirect),Y
    { 0x32, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0x33, "RLA", C6502::RLA, AM_POSTINDEXED_INDIRECT, 8, false, false }, // RLA - (Indirect),Y (undocumented)
+   { 0x33, "RLA", C6502::RLA, AM_POSTINDEXED_INDIRECT, 8, false, true }, // RLA - (Indirect),Y (undocumented)
    { 0x34, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, true }, // DOP (undocumented)
    { 0x35, "AND", C6502::AND, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // AND - Zero Page,X
    { 0x36, "ROL", C6502::ROL, AM_ZEROPAGE_INDEXED_X, 6, true, true }, // ROL - Zero Page,X
    { 0x37, "RLA", C6502::RLA, AM_ZEROPAGE_INDEXED_X, 6, false, true }, // RLA - Zero Page,X (undocumented)
    { 0x38, "SEC", C6502::SEC, AM_IMPLIED, 2, true, true }, // SEC
-   { 0x39, "AND", C6502::AND, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // AND - Absolute,Y
+   { 0x39, "AND", C6502::AND, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // AND - Absolute,Y
    { 0x3A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, true }, // NOP (undocumented)
-   { 0x3B, "RLA", C6502::RLA, AM_ABSOLUTE_INDEXED_Y, 7, false, false }, // RLA - Absolute,Y (undocumented)
-   { 0x3C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, true }, // TOP (undocumented)
-   { 0x3D, "AND", C6502::AND, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // AND - Absolute,X
+   { 0x3B, "RLA", C6502::RLA, AM_ABSOLUTE_INDEXED_Y, 7, false, true }, // RLA - Absolute,Y (undocumented)
+   { 0x3C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false }, // TOP (undocumented)
+   { 0x3D, "AND", C6502::AND, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // AND - Absolute,X
    { 0x3E, "ROL", C6502::ROL, AM_ABSOLUTE_INDEXED_X, 7, true, false }, // ROL - Absolute,X
-   { 0x3F, "RLA", C6502::RLA, AM_ABSOLUTE_INDEXED_X, 7, false, false }, // RLA - Absolute,X (undocumented)
+   { 0x3F, "RLA", C6502::RLA, AM_ABSOLUTE_INDEXED_X, 7, false, true }, // RLA - Absolute,X (undocumented)
    { 0x40, "RTI", C6502::RTI, AM_IMPLIED, 6, true, true }, // RTI
    { 0x41, "EOR", C6502::EOR, AM_PREINDEXED_INDIRECT, 6, true, true }, // EOR - (Indirect,X)
    { 0x42, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
@@ -296,21 +296,21 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0x4E, "LSR", C6502::LSR, AM_ABSOLUTE, 6, true, true }, // LSR - Absolute
    { 0x4F, "LSE", C6502::LSE, AM_ABSOLUTE, 6, false, true }, // LSE - Absolute (undocumented)
    { 0x50, "BVC", C6502::BVC, AM_RELATIVE, 2, true, true }, // BVC
-   { 0x51, "EOR", C6502::EOR, AM_POSTINDEXED_INDIRECT, 5, true, true }, // EOR - (Indirect),Y
+   { 0x51, "EOR", C6502::EOR, AM_POSTINDEXED_INDIRECT, 5, true, false }, // EOR - (Indirect),Y
    { 0x52, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0x53, "LSE", C6502::LSE, AM_POSTINDEXED_INDIRECT, 8, false, false }, // LSE - (Indirect),Y
+   { 0x53, "LSE", C6502::LSE, AM_POSTINDEXED_INDIRECT, 8, false, true }, // LSE - (Indirect),Y
    { 0x54, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, true }, // DOP (undocumented)
    { 0x55, "EOR", C6502::EOR, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // EOR - Zero Page,X
    { 0x56, "LSR", C6502::LSR, AM_ZEROPAGE_INDEXED_X, 6, true, true }, // LSR - Zero Page,X
    { 0x57, "LSE", C6502::LSE, AM_ZEROPAGE_INDEXED_X, 6, false, true }, // LSE - Zero Page,X (undocumented)
    { 0x58, "CLI", C6502::CLI, AM_IMPLIED, 2, true, true }, // CLI
-   { 0x59, "EOR", C6502::EOR, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // EOR - Absolute,Y
+   { 0x59, "EOR", C6502::EOR, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // EOR - Absolute,Y
    { 0x5A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, true }, // NOP (undocumented)
-   { 0x5B, "LSE", C6502::LSE, AM_ABSOLUTE_INDEXED_Y, 7, false, false }, // LSE - Absolute,Y (undocumented)
-   { 0x5C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, true }, // TOP (undocumented)
-   { 0x5D, "EOR", C6502::EOR, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // EOR - Absolute,X
-   { 0x5E, "LSR", C6502::LSR, AM_ABSOLUTE_INDEXED_X, 7, true, false }, // LSR - Absolute,X
-   { 0x5F, "LSE", C6502::LSE, AM_ABSOLUTE_INDEXED_X, 7, false, false }, // LSE - Absolute,X (undocumented)
+   { 0x5B, "LSE", C6502::LSE, AM_ABSOLUTE_INDEXED_Y, 7, false, true }, // LSE - Absolute,Y (undocumented)
+   { 0x5C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false }, // TOP (undocumented)
+   { 0x5D, "EOR", C6502::EOR, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // EOR - Absolute,X
+   { 0x5E, "LSR", C6502::LSR, AM_ABSOLUTE_INDEXED_X, 7, true, true }, // LSR - Absolute,X
+   { 0x5F, "LSE", C6502::LSE, AM_ABSOLUTE_INDEXED_X, 7, false, true }, // LSE - Absolute,X (undocumented)
    { 0x60, "RTS", C6502::RTS, AM_IMPLIED, 6, true, true }, // RTS
    { 0x61, "ADC", C6502::ADC, AM_PREINDEXED_INDIRECT, 6, true, true }, // ADC - (Indirect,X)
    { 0x62, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
@@ -328,22 +328,22 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0x6E, "ROR", C6502::ROR, AM_ABSOLUTE, 6, true, true }, // ROR - Absolute
    { 0x6F, "RRA", C6502::RRA, AM_ABSOLUTE, 6, false, true }, // RRA - Absolute (undocumented)
    { 0x70, "BVS", C6502::BVS, AM_RELATIVE, 2, true, true }, // BVS
-   { 0x71, "ADC", C6502::ADC, AM_POSTINDEXED_INDIRECT, 5, true, true }, // ADC - (Indirect),Y
+   { 0x71, "ADC", C6502::ADC, AM_POSTINDEXED_INDIRECT, 5, true, false }, // ADC - (Indirect),Y
    { 0x72, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0x73, "RRA", C6502::RRA, AM_POSTINDEXED_INDIRECT, 8, false, false }, // RRA - (Indirect),Y (undocumented)
+   { 0x73, "RRA", C6502::RRA, AM_POSTINDEXED_INDIRECT, 8, false, true }, // RRA - (Indirect),Y (undocumented)
    { 0x74, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, true }, // DOP (undocumented)
    { 0x75, "ADC", C6502::ADC, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // ADC - Zero Page,X
    { 0x76, "ROR", C6502::ROR, AM_ZEROPAGE_INDEXED_X, 6, true, true }, // ROR - Zero Page,X
    { 0x77, "RRA", C6502::RRA, AM_ZEROPAGE_INDEXED_X, 6, false, true }, // RRA - Zero Page,X (undocumented)
    { 0x78, "SEI", C6502::SEI, AM_IMPLIED, 2, true, true }, // SEI
-   { 0x79, "ADC", C6502::ADC, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // ADC - Absolute,Y
+   { 0x79, "ADC", C6502::ADC, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // ADC - Absolute,Y
    { 0x7A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, true }, // NOP (undocumented)
-   { 0x7B, "RRA", C6502::RRA, AM_ABSOLUTE_INDEXED_Y, 7, false, false }, // RRA - Absolute,Y (undocumented)
-   { 0x7C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, true }, // TOP (undocumented)
-   { 0x7D, "ADC", C6502::ADC, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // ADC - Absolute,X
-   { 0x7E, "ROR", C6502::ROR, AM_ABSOLUTE_INDEXED_X, 7, true, false }, // ROR - Absolute,X
-   { 0x7F, "RRA", C6502::RRA, AM_ABSOLUTE_INDEXED_X, 7, false, false }, // RRA - Absolute,X (undocumented)
-   { 0x80, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, true }, // DOP (undocumented)
+   { 0x7B, "RRA", C6502::RRA, AM_ABSOLUTE_INDEXED_Y, 7, false, true }, // RRA - Absolute,Y (undocumented)
+   { 0x7C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false }, // TOP (undocumented)
+   { 0x7D, "ADC", C6502::ADC, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // ADC - Absolute,X
+   { 0x7E, "ROR", C6502::ROR, AM_ABSOLUTE_INDEXED_X, 7, true, true }, // ROR - Absolute,X
+   { 0x7F, "RRA", C6502::RRA, AM_ABSOLUTE_INDEXED_X, 7, false, true }, // RRA - Absolute,X (undocumented)
+   { 0x80, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, false }, // DOP (undocumented)
    { 0x81, "STA", C6502::STA, AM_PREINDEXED_INDIRECT, 6, true, true }, // STA - (Indirect,X)
    { 0x82, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, true }, // DOP (undocumented)
    { 0x83, "AXS", C6502::AXS, AM_PREINDEXED_INDIRECT, 6, false, true }, // AXS - (Indirect,X) (undocumented)
@@ -360,7 +360,7 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0x8E, "STX", C6502::STX, AM_ABSOLUTE, 4, true, true }, // STX - Absolute
    { 0x8F, "AXS", C6502::AXS, AM_ABSOLUTE, 4, false, true }, // AXS - Absolulte (undocumented)
    { 0x90, "BCC", C6502::BCC, AM_RELATIVE, 2, true, true }, // BCC
-   { 0x91, "STA", C6502::STA, AM_POSTINDEXED_INDIRECT, 6, true, false }, // STA - (Indirect),Y
+   { 0x91, "STA", C6502::STA, AM_POSTINDEXED_INDIRECT, 6, true, true }, // STA - (Indirect),Y
    { 0x92, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
    { 0x93, "AXA", C6502::AXA, AM_POSTINDEXED_INDIRECT, 6, false, false }, // AXA - (Indirect),Y
    { 0x94, "STY", C6502::STY, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // STY - Zero Page,X
@@ -368,13 +368,13 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0x96, "STX", C6502::STX, AM_ZEROPAGE_INDEXED_Y, 4, true, true }, // STX - Zero Page,Y
    { 0x97, "AXS", C6502::AXS, AM_ZEROPAGE_INDEXED_Y, 4, false, true }, // AXS - Zero Page,Y
    { 0x98, "TYA", C6502::TYA, AM_IMPLIED, 2, true, true }, // TYA
-   { 0x99, "STA", C6502::STA, AM_ABSOLUTE_INDEXED_Y, 5, true, false }, // STA - Absolute,Y
+   { 0x99, "STA", C6502::STA, AM_ABSOLUTE_INDEXED_Y, 5, true, true }, // STA - Absolute,Y
    { 0x9A, "TXS", C6502::TXS, AM_IMPLIED, 2, true, true }, // TXS
-   { 0x9B, "TAS", C6502::TAS, AM_ABSOLUTE_INDEXED_Y, 5, false, false }, // TAS - Absolute,Y (undocumented)
-   { 0x9C, "SAY", C6502::SAY, AM_ABSOLUTE_INDEXED_X, 5, false, false }, // SAY - Absolute,X (undocumented)
-   { 0x9D, "STA", C6502::STA, AM_ABSOLUTE_INDEXED_X, 5, true, false }, // STA - Absolute,X
-   { 0x9E, "XAS", C6502::XAS, AM_ABSOLUTE_INDEXED_Y, 5, false, false }, // XAS - Absolute,Y (undocumented)
-   { 0x9F, "AXA", C6502::AXA, AM_ABSOLUTE_INDEXED_Y, 5, false, false }, // AXA - Absolute,Y (undocumented)
+   { 0x9B, "TAS", C6502::TAS, AM_ABSOLUTE_INDEXED_Y, 5, false, true }, // TAS - Absolute,Y (undocumented)
+   { 0x9C, "SAY", C6502::SAY, AM_ABSOLUTE_INDEXED_X, 5, false, true }, // SAY - Absolute,X (undocumented)
+   { 0x9D, "STA", C6502::STA, AM_ABSOLUTE_INDEXED_X, 5, true, true }, // STA - Absolute,X
+   { 0x9E, "XAS", C6502::XAS, AM_ABSOLUTE_INDEXED_Y, 5, false, true }, // XAS - Absolute,Y (undocumented)
+   { 0x9F, "AXA", C6502::AXA, AM_ABSOLUTE_INDEXED_Y, 5, false, true }, // AXA - Absolute,Y (undocumented)
    { 0xA0, "LDY", C6502::LDY, AM_IMMEDIATE, 2, true, true }, // LDY - Immediate
    { 0xA1, "LDA", C6502::LDA, AM_PREINDEXED_INDIRECT, 6, true, true }, // LDA - (Indirect,X)
    { 0xA2, "LDX", C6502::LDX, AM_IMMEDIATE, 2, true, true }, // LDX - Immediate
@@ -392,21 +392,21 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xAE, "LDX", C6502::LDX, AM_ABSOLUTE, 4, true, true }, // LDX - Absolute
    { 0xAF, "LAX", C6502::LAX, AM_ABSOLUTE, 4, false, true }, // LAX - Absolute (undocumented)
    { 0xB0, "BCS", C6502::BCS, AM_RELATIVE, 2, true, true }, // BCS
-   { 0xB1, "LDA", C6502::LDA, AM_POSTINDEXED_INDIRECT, 5, true, true }, // LDA - (Indirect),Y
+   { 0xB1, "LDA", C6502::LDA, AM_POSTINDEXED_INDIRECT, 5, true, false }, // LDA - (Indirect),Y
    { 0xB2, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0xB3, "LAX", C6502::LAX, AM_POSTINDEXED_INDIRECT, 5, false, true }, // LAX - (Indirect),Y (undocumented)
+   { 0xB3, "LAX", C6502::LAX, AM_POSTINDEXED_INDIRECT, 5, false, false }, // LAX - (Indirect),Y (undocumented)
    { 0xB4, "LDY", C6502::LDY, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // LDY - Zero Page,X
    { 0xB5, "LDA", C6502::LDA, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // LDA - Zero Page,X
    { 0xB6, "LDX", C6502::LDX, AM_ZEROPAGE_INDEXED_Y, 4, true, true }, // LDX - Zero Page,Y
    { 0xB7, "LAX", C6502::LAX, AM_ZEROPAGE_INDEXED_Y, 4, false, true }, // LAX - Zero Page,X (undocumented)
    { 0xB8, "CLV", C6502::CLV, AM_IMPLIED, 2, true, true }, // CLV
-   { 0xB9, "LDA", C6502::LDA, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // LDA - Absolute,Y
+   { 0xB9, "LDA", C6502::LDA, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // LDA - Absolute,Y
    { 0xBA, "TSX", C6502::TSX, AM_IMPLIED, 2, true, true }, // TSX
-   { 0xBB, "LAS", C6502::LAS, AM_ABSOLUTE_INDEXED_Y, 4, false, true }, // LAS - Absolute,Y (undocumented)
-   { 0xBC, "LDY", C6502::LDY, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // LDY - Absolute,X
-   { 0xBD, "LDA", C6502::LDA, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // LDA - Absolute,X
-   { 0xBE, "LDX", C6502::LDX, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // LDX - Absolute,Y
-   { 0xBF, "LAX", C6502::LAX, AM_ABSOLUTE_INDEXED_Y, 4, false, true }, // LAX - Absolute,Y (undocumented)
+   { 0xBB, "LAS", C6502::LAS, AM_ABSOLUTE_INDEXED_Y, 4, false, false }, // LAS - Absolute,Y (undocumented)
+   { 0xBC, "LDY", C6502::LDY, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // LDY - Absolute,X
+   { 0xBD, "LDA", C6502::LDA, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // LDA - Absolute,X
+   { 0xBE, "LDX", C6502::LDX, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // LDX - Absolute,Y
+   { 0xBF, "LAX", C6502::LAX, AM_ABSOLUTE_INDEXED_Y, 4, false, false }, // LAX - Absolute,Y (undocumented)
    { 0xC0, "CPY", C6502::CPY, AM_IMMEDIATE, 2, true, true }, // CPY - Immediate
    { 0xC1, "CMP", C6502::CMP, AM_PREINDEXED_INDIRECT, 6, true, true }, // CMP - (Indirect,X)
    { 0xC2, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, true }, // DOP (undocumented)
@@ -424,21 +424,21 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xCE, "DEC", C6502::DEC, AM_ABSOLUTE, 6, true, true }, // DEC - Absolute
    { 0xCF, "DCM", C6502::DCM, AM_ABSOLUTE, 6, false, true }, // DCM - Absolute (undocumented)
    { 0xD0, "BNE", C6502::BNE, AM_RELATIVE, 2, true, true }, // BNE
-   { 0xD1, "CMP", C6502::CMP, AM_POSTINDEXED_INDIRECT, 5, true, true }, // CMP   (Indirect),Y
+   { 0xD1, "CMP", C6502::CMP, AM_POSTINDEXED_INDIRECT, 5, true, false }, // CMP   (Indirect),Y
    { 0xD2, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0xD3, "DCM", C6502::DCM, AM_POSTINDEXED_INDIRECT, 8, false, false }, // DCM - (Indirect),Y (undocumented)
+   { 0xD3, "DCM", C6502::DCM, AM_POSTINDEXED_INDIRECT, 8, false, true }, // DCM - (Indirect),Y (undocumented)
    { 0xD4, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, true }, // DOP (undocumented)
    { 0xD5, "CMP", C6502::CMP, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // CMP - Zero Page,X
    { 0xD6, "DEC", C6502::DEC, AM_ZEROPAGE_INDEXED_X, 6, true, true }, // DEC - Zero Page,X
    { 0xD7, "DCM", C6502::DCM, AM_ZEROPAGE_INDEXED_X, 6, false, true }, // DCM - Zero Page,X (undocumented)
    { 0xD8, "CLD", C6502::CLD, AM_IMPLIED, 2, true, true }, // CLD
-   { 0xD9, "CMP", C6502::CMP, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // CMP - Absolute,Y
+   { 0xD9, "CMP", C6502::CMP, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // CMP - Absolute,Y
    { 0xDA, "NOP", C6502::NOP, AM_IMPLIED, 2, false, true }, // NOP (undocumented)
-   { 0xDB, "DCM", C6502::DCM, AM_ABSOLUTE_INDEXED_Y, 7, false, false }, // DCM - Absolute,Y (undocumented)
-   { 0xDC, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, true }, // TOP (undocumented)
-   { 0xDD, "CMP", C6502::CMP, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // CMP - Absolute,X
-   { 0xDE, "DEC", C6502::DEC, AM_ABSOLUTE_INDEXED_X, 7, true, false }, // DEC - Absolute,X
-   { 0xDF, "DCM", C6502::DCM, AM_ABSOLUTE_INDEXED_X, 7, false, false }, // DCM - Absolute,X (undocumented)
+   { 0xDB, "DCM", C6502::DCM, AM_ABSOLUTE_INDEXED_Y, 7, false, true }, // DCM - Absolute,Y (undocumented)
+   { 0xDC, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false }, // TOP (undocumented)
+   { 0xDD, "CMP", C6502::CMP, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // CMP - Absolute,X
+   { 0xDE, "DEC", C6502::DEC, AM_ABSOLUTE_INDEXED_X, 7, true, true }, // DEC - Absolute,X
+   { 0xDF, "DCM", C6502::DCM, AM_ABSOLUTE_INDEXED_X, 7, false, true }, // DCM - Absolute,X (undocumented)
    { 0xE0, "CPX", C6502::CPX, AM_IMMEDIATE, 2, true, true }, // CPX - Immediate
    { 0xE1, "SBC", C6502::SBC, AM_PREINDEXED_INDIRECT, 6, true, true }, // SBC - (Indirect,X)
    { 0xE2, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, true }, // DOP (undocumented)
@@ -456,21 +456,21 @@ static C6502_opcode m_6502opcode [ 256 ] =
    { 0xEE, "INC", C6502::INC, AM_ABSOLUTE, 6, true, true }, // INC - Absolute
    { 0xEF, "INS", C6502::INS, AM_ABSOLUTE, 6, false, true }, // INS - Absolute (undocumented)
    { 0xF0, "BEQ", C6502::BEQ, AM_RELATIVE, 2, true, true }, // BEQ
-   { 0xF1, "SBC", C6502::SBC, AM_POSTINDEXED_INDIRECT, 5, true, true }, // SBC - (Indirect),Y
+   { 0xF1, "SBC", C6502::SBC, AM_POSTINDEXED_INDIRECT, 5, true, false }, // SBC - (Indirect),Y
    { 0xF2, "KIL", C6502::KIL, AM_IMPLIED, 0, false, true }, // KIL - Implied (processor lock up!)
-   { 0xF3, "INS", C6502::INS, AM_POSTINDEXED_INDIRECT, 8, false, false }, // INS - (Indirect),Y (undocumented)
+   { 0xF3, "INS", C6502::INS, AM_POSTINDEXED_INDIRECT, 8, false, true }, // INS - (Indirect),Y (undocumented)
    { 0xF4, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, true }, // DOP (undocumented)
    { 0xF5, "SBC", C6502::SBC, AM_ZEROPAGE_INDEXED_X, 4, true, true }, // SBC - Zero Page,X
    { 0xF6, "INC", C6502::INC, AM_ZEROPAGE_INDEXED_X, 6, true, true }, // INC - Zero Page,X
    { 0xF7, "INS", C6502::INS, AM_ZEROPAGE_INDEXED_X, 6, false, true }, // INS - Zero Page,X (undocumented)
    { 0xF8, "SED", C6502::SED, AM_IMPLIED, 2, true, true }, // SED
-   { 0xF9, "SBC", C6502::SBC, AM_ABSOLUTE_INDEXED_Y, 4, true, true }, // SBC - Absolute,Y
+   { 0xF9, "SBC", C6502::SBC, AM_ABSOLUTE_INDEXED_Y, 4, true, false }, // SBC - Absolute,Y
    { 0xFA, "NOP", C6502::NOP, AM_IMPLIED, 2, false, true }, // NOP (undocumented)
-   { 0xFB, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_Y, 7, false, false }, // INS - Absolute,Y (undocumented)
-   { 0xFC, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, true }, // TOP (undocumented)
-   { 0xFD, "SBC", C6502::SBC, AM_ABSOLUTE_INDEXED_X, 4, true, true }, // SBC - Absolute,X
-   { 0xFE, "INC", C6502::INC, AM_ABSOLUTE_INDEXED_X, 7, true, false }, // INC - Absolute,X
-   { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false, false }  // INS - Absolute,X (undocumented)
+   { 0xFB, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_Y, 7, false, true }, // INS - Absolute,Y (undocumented)
+   { 0xFC, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false }, // TOP (undocumented)
+   { 0xFD, "SBC", C6502::SBC, AM_ABSOLUTE_INDEXED_X, 4, true, false }, // SBC - Absolute,X
+   { 0xFE, "INC", C6502::INC, AM_ABSOLUTE_INDEXED_X, 7, true, true }, // INC - Absolute,X
+   { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false, true }  // INS - Absolute,X (undocumented)
 };
 
 #define FLAG_EFFECT(__n,__z,__c,__i,__d,__v) \
@@ -3065,52 +3065,47 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
 
 void C6502::EMULATE ( int cycles )
 {
-   int apuCycles = cycles;
-
    m_curCycles += cycles;
 
    if ( !m_killed )
    {
       do
       {
-         if ( apuCycles > 0 )
-         {
-            // Do APU emulation.
-            CAPU::EMULATE ( 1 );
-            apuCycles--;
-         }
          if ( m_curCycles > 0 )
          {
-            cycles = STEP();
+            STEP();
             if ( rPC() == m_pcGoto )
             {
                CNES::FORCEBREAKPOINT();
                m_pcGoto = 0xFFFFFFFF;
             }
-            m_curCycles -= cycles;
          }
          if ( m_killed )
          {
             CNES::FORCEBREAKPOINT();
          }
-      } while ( (!m_killed) && ((m_curCycles > 0) && (apuCycles > 0)) );
+      } while ( (!m_killed) && (m_curCycles > 0) );
    }
 }
 
-unsigned char C6502::STEP ( void )
+void C6502::ADVANCE ( void )
 {
-   bool execute = false;
+   // Run APU for one cycle...
+   CAPU::EMULATE ( 1 );
 
-   char cycles = 0;
+   // Increment running cycle counter...
+   m_cycles++;
 
+   // Decrement cycles available counter...
+   m_curCycles--;
+}
+
+void C6502::STEP ( void )
+{
    if ( m_phase == 0 )
    {
       // Reset effective address...
       wEA ( 0xFFFFFFFF );
-
-      // Reset fetch-cycle counter...
-      // Count this fetch!
-      m_fetchCycles = 1;
 
       // Indicate opcode fetch...
       m_sync = true;
@@ -3169,12 +3164,15 @@ unsigned char C6502::STEP ( void )
       // Check for dummy-read needed for single-byte instructions...
       if ( opcodeSize == 1 )
       {
+         // Save the pointer to where to put the disassembly of
+         // the current opcode now.
+         pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
+
          // Perform additional fetch...
          (*(opcodeData+1)) = EXTRAFETCH ( rPC() );
 
          // Cause instruction execution...
-         execute = true;
-         m_phase = 0;
+         m_phase = -1;
       }
       else
       {
@@ -3183,9 +3181,12 @@ unsigned char C6502::STEP ( void )
 
          if ( opcodeSize == 2 )
          {
+            // Save the pointer to where to put the disassembly of
+            // the current opcode now.
+            pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
+
             // Cause instruction execution...
-            execute = true;
-            m_phase = 0;
+            m_phase = -1;
          }
          else
          {
@@ -3193,43 +3194,36 @@ unsigned char C6502::STEP ( void )
             m_phase++;
          }
       }
-
-      // We did one more fetch cycle...
-      m_fetchCycles = 2;
    }
    else if ( m_phase == 2 )
    {
       (*(opcodeData+2)) = FETCH ( rPC() );
       INCPC ();
 
-      // We did one more fetch cycle...
-      m_fetchCycles = 3;
+      // Save the pointer to where to put the disassembly of
+      // the current opcode now.
+      pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
 
       // Cause instruction execution...
-      execute = true;
-      m_phase = 0;
+      m_phase = -1;
    }
-
-   if ( execute )
+   else if (  m_phase == -1 )
    {
       // Update Tracer
-      TracerInfo* pSample = CNES::TRACER()->SetDisassembly ( opcodeData );
-      CNES::TRACER()->SetRegisters ( pSample, rA(), rX(), rY(), rSP(), rF() );
+      CNES::TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
+      CNES::TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
 
       // Execute
       pOpcodeStruct->pFn ();
 
+      // Adjust cycles for extra...
+      for ( int i = 0; i < (*(opcodeData+3)); i++ )
+      {
+         ADVANCE ();
+      }
+
       // Update Tracer
-      CNES::TRACER()->SetEffectiveAddress ( pSample, rEA() );
-
-      cycles = pOpcodeStruct->cycles;
-      cycles += (*(opcodeData+3)); // use extra cycle indication from opcode execution
-
-      // Subtract off fetch cycles...
-//      cycles -= (m_fetchCycles-1);
-
-      // Accumulating cycle counter for debugger displays.
-      m_cycles += cycles;
+      CNES::TRACER()->SetEffectiveAddress ( pDisassemblySample, rEA() );
 
       // Check for NMI assertion...
       if ( m_nmiAsserted )
@@ -3246,17 +3240,10 @@ unsigned char C6502::STEP ( void )
          // Execute IRQ handler...
          IRQ();
       }
-   }
-   else
-   {
-      // Still fetching instruction to execute...
-//      cycles = 1;
 
-      // Accumulating cycle counter for debugger displays.
-//      m_cycles += cycles;
+      // Go back to fetch phases...
+      m_phase = 0;
    }
-
-   return cycles;
 }
 
 void C6502::KIL ( void )
@@ -3376,6 +3363,13 @@ void C6502::AXA ( void )
    addr = MAKEADDR ( amode, data );
    val = (rX()&rA())&7;
    MEM ( addr, val );
+
+   if ( amode != AM_ABSOLUTE_INDEXED_Y )
+   {
+      // A missing memory cycle here?
+      // Synchronize CPU and APU...
+      ADVANCE ();
+   }
 
    return;
 }
@@ -3635,6 +3629,10 @@ void C6502::ASO ( void )
    wN ( rA()&0x80 );
    wZ ( !rA() );
 
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return;
 }
 
@@ -3740,7 +3738,11 @@ void C6502::JSR ( void )
    UINT gopc = rPC()-1; // This was +2 but since PC is incremented in FETCH now it needs to be -1
    PUSH ( GETHI8(gopc) );
    PUSH ( GETLO8(gopc) );
-   wPC ( MAKE16(GETUNSIGNED8(data,0),GETUNSIGNED8(data,1)) );
+   wPC ( MAKE16(GETUNSIGNED8(data,0),GETUNSIGNED8(data,1)) )
+
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    return;
 }
@@ -3877,6 +3879,10 @@ void C6502::PLP ( void )
 {
    wF ( POP() );
 
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return;
 }
 
@@ -3942,6 +3948,10 @@ void C6502::RTI ( void )
    wF ( POP() );
    pclo = POP ();
    wPC ( MAKE16(pclo,POP()) );
+
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    return;
 }
@@ -4012,6 +4022,10 @@ void C6502::LSE ( void )
    wA ( rA()^val );
    wN ( rA()&0x80 );
    wZ ( !rA() );
+
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    return;
 }
@@ -4178,6 +4192,11 @@ void C6502::RTS ( void )
    gopc++;
    wPC ( gopc );
 
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
+   ADVANCE ();
+
    return;
 }
 
@@ -4299,7 +4318,7 @@ void C6502::RLA ( void )
 {
    UINT addr;
    unsigned short val;
-//CPTODO: not sure this is cycle-accurate yet wrt mem...
+
    addr = MAKEADDR ( amode, data );
    val = MEM ( addr );
 
@@ -4311,6 +4330,10 @@ void C6502::RLA ( void )
    MEM ( addr, (unsigned char)val );
    wN ( rA()&0x80 );
    wZ ( !rA() );
+
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    return;
 }
@@ -4354,6 +4377,10 @@ void C6502::RRA ( void )
    wZ ( !rA() );
    wC ( result&0x100 );
 
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return;
 }
 
@@ -4372,6 +4399,10 @@ void C6502::PLA ( void )
    wA ( POP() );
    wN ( rA()&0x80 );
    wZ ( !rA() );
+
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    return;
 }
@@ -4942,6 +4973,10 @@ void C6502::DCM ( void )
    wN ( val&0x80 );
    wZ ( !val );
 
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return;
 }
 
@@ -5205,6 +5240,10 @@ void C6502::INS ( void )
    wZ ( !rA() );
    wC ( !(result&0x100) );
 
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return;
 }
 
@@ -5246,6 +5285,13 @@ void C6502::DOP ( void )
 
    addr = MAKEADDR ( amode, data );
 
+   if ( amode != AM_IMMEDIATE )
+   {
+      // A missing memory cycle here?
+      // Synchronize CPU and APU...
+      ADVANCE ();
+   }
+
    return;
 }
 
@@ -5254,6 +5300,10 @@ void C6502::TOP ( void )
    unsigned short addr;
 
    addr = MAKEADDR ( amode, data );
+
+   // A missing memory cycle here?
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    return;
 }
@@ -5348,8 +5398,12 @@ void C6502::IRQ ()
       wPC ( MAKE16(MEM(VECTOR_IRQ),MEM(VECTOR_IRQ+1)) );
       sI ();
 
-      m_curCycles -= IRQ_CYCLES;
-      m_cycles += IRQ_CYCLES;
+      // Synchronize CPU and APU...
+      for ( int i = 0; i < IRQ_CYCLES; i++ )
+      {
+         // Synchronize CPU and APU...
+         ADVANCE ();
+      }
 
       // Check for IRQ breakpoint...
       CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ);
@@ -5374,8 +5428,12 @@ void C6502::NMI ()
       PUSH ( rF() );
       wPC ( MAKE16(MEM(VECTOR_NMI),MEM(VECTOR_NMI+1)) );
 
-      m_curCycles -= NMI_CYCLES;
-      m_cycles += NMI_CYCLES;
+      // Synchronize CPU and APU...
+      for ( int i = 0; i < NMI_CYCLES; i++ )
+      {
+         // Synchronize CPU and APU...
+         ADVANCE ();
+      }
 
       // Check for NMI breakpoint...
       CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI);
@@ -5393,7 +5451,9 @@ void C6502::RESET ( void )
    m_cycles = 0;
    m_curCycles = 0;
    m_phase = 0;
-   m_fetchCycles = 0;
+
+   // Clear the disassembly sample...
+   pDisassemblySample = NULL;
 
    m_irqAsserted = false;
    m_nmiAsserted = false;
@@ -5564,6 +5624,9 @@ unsigned char C6502::FETCH ( UINT addr )
       OPCODEMASK ( addr, (unsigned char)m_sync );
    }
 
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return data;
 }
 
@@ -5598,6 +5661,9 @@ unsigned char C6502::EXTRAFETCH ( UINT addr )
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eSource_CPU );
    }
 
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return data;
 }
 
@@ -5606,9 +5672,10 @@ unsigned char C6502::DMA ( UINT addr, char source )
    char target;
    unsigned char data = LOAD ( addr, &target );
 
-   // Run APU for a cycle because APU doesn't get held off...
-   // CPU can't change APU state during this time.
-   CAPU::EMULATE ( 1 );
+   // DMA steals two CPU cycles...
+   // Synchronize CPU and APU...
+   ADVANCE ();
+   ADVANCE ();
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
@@ -5670,14 +5737,10 @@ unsigned char C6502::MEM ( UINT addr )
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
 
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
    return data;
-}
-
-unsigned char C6502::_MEM ( UINT addr )
-{
-   char target;
-
-   return LOAD ( addr, &target );
 }
 
 void C6502::MEM ( UINT addr, unsigned char data )
@@ -5733,6 +5796,16 @@ void C6502::MEM ( UINT addr, unsigned char data )
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
+
+   // Synchronize CPU and APU...
+   ADVANCE ();
+}
+
+unsigned char C6502::_MEM ( UINT addr )
+{
+   char target;
+
+   return LOAD ( addr, &target );
 }
 
 void C6502::_MEM ( UINT addr, unsigned char data )
@@ -5770,14 +5843,8 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    {
       addrpre = MAKE16((*data),(*(data+1)));
       addr = addrpre+rX();
-      if ( (pOpcodeStruct->pageCrossCounts) &&
-           ((addrpre>>8) != (addr>>8)) )
-      {
-         // extra cycle
-         (*(data+2)) = 1; // extra cycles stored here...
-      }
       // Check for ROL special case...
-      if ( ((*opcodeData) == ROL_ABS_X) || (addrpre>>8) != (addr>>8) )
+      if ( ((*opcodeData) == ROL_ABS_X) || ((addrpre>>8) != (addr>>8)) || (pOpcodeStruct->forceExtraCycle) )
       {
          // dummy read
          MEM((addrpre&0xFF00)+((addrpre+rX())&0xFF));
@@ -5787,13 +5854,7 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    {
       addrpre = MAKE16((*data),(*(data+1)));
       addr = addrpre+rY();
-      if ( (pOpcodeStruct->pageCrossCounts) &&
-           ((addrpre>>8) != (addr>>8)) )
-      {
-         // extra cycle
-         (*(data+2)) = 1; // extra cycles stored here...
-      }
-      if ( (addrpre>>8) != (addr>>8) )
+      if ( ((addrpre>>8) != (addr>>8)) || (pOpcodeStruct->forceExtraCycle) )
       {
          // dummy read
          MEM((addrpre&0xFF00)+((addrpre+rY())&0xFF));
@@ -5809,13 +5870,7 @@ UINT C6502::MAKEADDR ( int amode, unsigned char* data )
    {
       addrpre = MAKE16(MEM((*data)),MEM(((*data)+1)&0xFF));
       addr = addrpre+rY();
-      if ( (pOpcodeStruct->pageCrossCounts) &&
-           ((addrpre>>8) != (addr>>8)) )
-      {
-         // extra cycle
-         (*(data+2)) = 1; // extra cycles stored here...
-      }
-      if ( (addrpre>>8) != (addr>>8) )
+      if ( ((addrpre>>8) != (addr>>8)) || (pOpcodeStruct->forceExtraCycle) )
       {
          // dummy read
          MEM((addrpre&0xFF00)+((addrpre+rY())&0xFF));

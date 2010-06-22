@@ -707,7 +707,7 @@ void CAPU::RESET ( void )
    m_sequenceStep = 0;
 
    // At power-on reset APU is slightly ahead of CPU.
-   m_cycles = 11;
+   m_cycles = 8;
 
    CAPU::OPEN ();
 }
@@ -804,7 +804,7 @@ bool CAPUOscillator::CLKLENGTHCOUNTER ( void )
 {
    bool clockedIt = false;
 
-   if ( !m_halted )
+   if ( (!m_halted) && m_clockLengthCounter )
    {
       // length counter...
       if ( m_lengthCounter )
@@ -813,6 +813,9 @@ bool CAPUOscillator::CLKLENGTHCOUNTER ( void )
          clockedIt = true;
       }
    }
+
+   // Reset clocking flag...
+   m_clockLengthCounter = true;
 
    return clockedIt;
 }
@@ -935,7 +938,14 @@ void CAPUSquare::APU ( UINT addr, unsigned char data )
    {
       if ( m_enabled )
       {
-         m_lengthCounter = *(m_lengthLUT+(data>>3));
+         if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+         {
+            m_clockLengthCounter = false;
+         }
+         if ( (CAPU::CYCLES() != 14915) || (m_lengthCounter == 0) )
+         {
+            m_lengthCounter = *(m_lengthLUT+(data>>3));
+         }
       }
       m_period &= 0x00FF;
       m_period |= ((data&0x07)<<8);
@@ -1003,7 +1013,14 @@ void CAPUTriangle::APU ( UINT addr, unsigned char data )
    {
       if ( m_enabled )
       {
-         m_lengthCounter = *(m_lengthLUT+(data>>3));
+         if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+         {
+            m_clockLengthCounter = false;
+         }
+         if ( (CAPU::CYCLES() != 14915) || (m_lengthCounter == 0) )
+         {
+            m_lengthCounter = *(m_lengthLUT+(data>>3));
+         }
       }
       m_period &= 0x00FF;
       m_period |= ((data&0x07)<<8);
@@ -1093,7 +1110,14 @@ void CAPUNoise::APU ( UINT addr, unsigned char data )
    {
       if ( m_enabled )
       {
-         m_lengthCounter = *(m_lengthLUT+(data>>3));
+         if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+         {
+            m_clockLengthCounter = false;
+         }
+         if ( (CAPU::CYCLES() != 14915) || (m_lengthCounter == 0) )
+         {
+            m_lengthCounter = *(m_lengthLUT+(data>>3));
+         }
       }
       m_reg3Wrote = true;
    }
@@ -1217,8 +1241,8 @@ void CAPUDMC::DMAREADER ( void )
          }
          else
          {
+            C6502::STEALCYCLES ( 2 );
             m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr, eSource_APU );
-            CPPU::STEALCYCLES(4);
 
             // Check for APU DMC channel DMA breakpoint event...
             CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
@@ -1267,8 +1291,6 @@ void CAPUDMC::TIMERTICK ( void )
 
    if ( clockIt )
    {
-      DMAREADER ();
-
       if ( m_outputShiftCounter == 0 )
       {
          m_outputShiftCounter = 8;
@@ -1306,14 +1328,7 @@ void CAPUDMC::TIMERTICK ( void )
       }
    }
 
-   if ( (m_enabled) && (!m_silence) )
-   {
-      SETDAC ( m_volume );
-   }
-   else
-   {
-      SETDAC ( 0 );
-   }
+   SETDAC ( m_volume );
 }
 
 void CAPU::EMULATE ( int cycles )

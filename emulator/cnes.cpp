@@ -51,6 +51,10 @@ void CNES::BREAKPOINTS ( bool enable )
 {
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int bp;
+
+   // Disable all breakpoints (Cartridge is being 'removed'), or
+   // re-enable all previously enabled breakpoints (Cartridge is
+   // being 'inserted').
    for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
    {
       if ( enable )
@@ -60,6 +64,18 @@ void CNES::BREAKPOINTS ( bool enable )
       else
       {
          pBreakpoints->SetEnabled(bp,enable);
+      }
+   }
+
+   // Remove any breakpoints that were set for a mapper that is
+   // not equivalent to the current loaded Cartridge's mapper.
+   if ( enable )
+   {
+      for ( bp = pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
+      {
+// CPTODO: HANDLE THIS CASE, otherwise mapper-state or mapper-event breakpoints
+// turn into garbled mush when a cartridge with a different mapper (or no mapper)
+// is loaded after the one that was running when the breakpoint was created.
       }
    }
 }
@@ -202,7 +218,8 @@ void CNES::RUN ( unsigned char* joy )
       CPPU::_PPU ( PPUSTATUS, CPPU::_PPU(PPUSTATUS)|PPUSTATUS_VBLANK );
    }
 
-   if ( CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI )
+   if ( (CPPU::_PPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
+        (!CPPU::NMICHOKED()) )
    {
       C6502::ASSERTNMI ();
    }
@@ -799,4 +816,24 @@ void CNES::CODEBROWSERTOOLTIP ( int tipType, UINT addr, char* tooltipBuffer )
       ptr += sprintf ( ptr, OPCODEINFO(C6502::_MEM(addr)) );
    }
    ptr += sprintf ( ptr, "</pre>" );
+}
+
+UINT CNES::ABSADDR ( UINT addr )
+{
+   if ( addr < 0x800 )
+   {
+      return addr;
+   }
+   else if ( addr < 0x6000 )
+   {
+      return CROM::EXRAMABSADDR ( addr );
+   }
+   else if ( addr < 0x8000 )
+   {
+      return CROM::SRAMABSADDR ( addr );
+   }
+   else
+   {
+      return CROM::ABSADDR ( addr );
+   }
 }

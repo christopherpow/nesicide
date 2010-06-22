@@ -105,8 +105,9 @@ public:
    TracerInfo* GetCPUSample ( unsigned int sample );
    TracerInfo* GetPPUSample ( unsigned int sample );
    TracerInfo* GetLastSample ( void );
-   TracerInfo* SetDisassembly ( unsigned char* szD );
-   TracerInfo* SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f );
+   TracerInfo* GetLastCPUSample ( void );
+   void SetDisassembly ( TracerInfo* pS, unsigned char* szD );
+   void SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f );
    void SetEffectiveAddress ( TracerInfo* pS, unsigned int ea ) { if ( pS ) pS->ea = ea; }
 
 	CTracer();
