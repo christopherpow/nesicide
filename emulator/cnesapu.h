@@ -461,6 +461,8 @@ public:
    unsigned short SAMPLEADDR ( void ) const { return m_sampleAddr; }
    unsigned short SAMPLELENGTH ( void ) const { return m_sampleLength; }
    unsigned short SAMPLEPOS ( void ) const { return m_dmaReaderAddrPtr; }
+   unsigned char SAMPLEBUFFER ( void ) const { return m_sampleBuffer; }
+   bool SAMPLEBUFFERFULL ( void ) const { return m_sampleBufferFull; }
 
    // This routine returns the channels' internal state to
    // what it should be at NES reset.
@@ -589,6 +591,11 @@ public:
       (*addr) = m_dmc.SAMPLEADDR();
       (*length) = m_dmc.SAMPLELENGTH();
       (*pos) = m_dmc.SAMPLEPOS();
+   }
+   static void DMAINFO ( unsigned char* buffer, bool* full )
+   {
+      (*buffer) = m_dmc.SAMPLEBUFFER();
+      (*full) = m_dmc.SAMPLEBUFFERFULL();
    }
 
    static void OPEN ( void );

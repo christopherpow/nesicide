@@ -78,6 +78,11 @@ void APUInformationDialog::updateInformation()
    sprintf ( buffer, "$%04X", tempus3 );
    ui->samplePos5->setText ( buffer );
 
+   CAPU::DMAINFO ( &temp1, &tempb1 );
+   sprintf ( buffer, "$%02X", temp1 );
+   ui->sampleBufferContents5->setText ( buffer );
+   ui->sampleBufferFull5->setChecked ( tempb1 );
+
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {

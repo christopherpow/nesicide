@@ -890,11 +890,11 @@ UINT CAPUOscillator::CLKDIVIDER ( void )
    if ( m_period > 0 )
    {
       m_periodCounter++;
-      if ( m_periodCounter == m_period )
+      if ( m_periodCounter >= m_period )
       {
+         m_periodCounter = 0;
          clockIt = 1;
       }
-      m_periodCounter %= m_period;
    }
 
    return clockIt;
@@ -1187,7 +1187,7 @@ void CAPUDMC::APU ( UINT addr, unsigned char data )
          CAPU::RELEASEIRQ ();
       }
       m_loop = data&0x40;
-      m_period = *(*(m_dmcPeriod+CNES::VIDEOMODE())+(data&0xF));
+      m_period = (*(*(m_dmcPeriod+CNES::VIDEOMODE())+(data&0xF)));
    }
    else if ( addr == 1 )
    {
@@ -1299,7 +1299,7 @@ void CAPUDMC::TIMERTICK ( void )
          {
             m_outputShift = m_sampleBuffer;
             m_sampleBufferFull = false;
-            DMAREADER ();
+            DMAREADER();
 
             m_silence = false;
          }

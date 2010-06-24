@@ -2786,7 +2786,7 @@ C6502::~C6502()
 
 void C6502::RENDERCODEDATALOGGER ( void )
 {
-   unsigned int idxx, idxxm, idxy;
+   unsigned int idxx, idxy;
    UINT cycleDiff;
    UINT curCycle = CCodeDataLogger::GetCurCycle ();
    QColor lcolor;
@@ -2800,8 +2800,7 @@ void C6502::RENDERCODEDATALOGGER ( void )
    pLogger = &m_logger;
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
-      idxxm = idxx%MEM_2KB;
-      pLogEntry = pLogger->GetLogEntry(idxxm);
+      pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
       if ( cycleDiff > 199 ) cycleDiff = 199;
 
@@ -2830,15 +2829,6 @@ void C6502::RENDERCODEDATALOGGER ( void )
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 0] = lcolor.red();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 1] = lcolor.green();
          m_pCodeDataLoggerInspectorTV[(idxx * 3) + 2] = lcolor.blue();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x800) * 3) + 0] = lcolor.red();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x800) * 3) + 1] = lcolor.green();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x800) * 3) + 2] = lcolor.blue();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x1000) * 3) + 0] = lcolor.red();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x1000) * 3) + 1] = lcolor.green();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x1000) * 3) + 2] = lcolor.blue();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x1800) * 3) + 0] = lcolor.red();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x1800) * 3) + 1] = lcolor.green();
-         m_pCodeDataLoggerInspectorTV[((idxx+0x1800) * 3) + 2] = lcolor.blue();
       }
    }
 
@@ -3164,10 +3154,6 @@ void C6502::STEP ( void )
       // Check for dummy-read needed for single-byte instructions...
       if ( opcodeSize == 1 )
       {
-         // Save the pointer to where to put the disassembly of
-         // the current opcode now.
-         pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
-
          // Perform additional fetch...
          (*(opcodeData+1)) = EXTRAFETCH ( rPC() );
 
@@ -3181,10 +3167,6 @@ void C6502::STEP ( void )
 
          if ( opcodeSize == 2 )
          {
-            // Save the pointer to where to put the disassembly of
-            // the current opcode now.
-            pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
-
             // Cause instruction execution...
             m_phase = -1;
          }
@@ -3199,10 +3181,6 @@ void C6502::STEP ( void )
    {
       (*(opcodeData+2)) = FETCH ( rPC() );
       INCPC ();
-
-      // Save the pointer to where to put the disassembly of
-      // the current opcode now.
-      pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
 
       // Cause instruction execution...
       m_phase = -1;
@@ -5578,6 +5556,11 @@ unsigned char C6502::FETCH ( UINT addr )
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
+
+   // Save the pointer to where to put the disassembly of
+   // the current opcode now.  This might be the last fetch
+   // for an instruction and the disassembly should be placed there.
+   pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
 
    // Check for breakpoint...
    if ( m_sync )

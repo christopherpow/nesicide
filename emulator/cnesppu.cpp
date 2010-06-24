@@ -23,8 +23,11 @@
 
 #include <QColor>
 
+// The sprite pattern garbage fetch cycles use sprite tile index $FF.
 #define GARBAGE_SPRITE_FETCH 0xFF
 
+// Default palette used in order to pass Blargg's default palette on reset test, even
+// though it may not be representative of all NES out there in the world.
 static unsigned char tblDefaultPalette [] =
 {
    0x09,0x01,0x00,0x01,0x00,0x02,0x02,0x0D,0x08,0x10,0x08,0x24,0x00,0x00,0x04,0x2C,
@@ -1066,6 +1069,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_DMA );
 
          // DMA
+         C6502::STEALCYCLES ( 1 );
          int start = m_oamAddr;
          for ( dma = 0; dma < NUM_OAM_REGS; dma++ )
          {
@@ -1162,12 +1166,50 @@ void CPPU::SCANLINEEND ( void )
    }
 }
 
-void CPPU::NONRENDERSCANLINES ( int scanlines )
+void CPPU::QUIETSCANLINE ( void )
 {
-   int idxx, idxy;
+   int idxx;
+
+   for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
+   {
+      EMULATE();
+
+      // Check for breakpoints...
+      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
+   }
+}
+
+void CPPU::VBLANKSCANLINES ( void )
+{
+   int idxx, idxy, scanlines;
+
+   if ( CNES::VIDEOMODE() == MODE_NTSC )
+   {
+      scanlines = SCANLINES_VBLANK_NTSC;
+   }
+   else
+   {
+      scanlines = SCANLINES_VBLANK_PAL;
+   }
 
    for ( idxy = 0; idxy < scanlines; idxy++ )
    {
+      // Logic for setting VBLANK flag and asserting NMI...
+      if ( idxy == 0 )
+      {
+         // Set VBLANK flag...
+         if ( !VBLANKCHOKED() )
+         {
+            wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_VBLANK );
+         }
+
+         if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
+              (!NMICHOKED()) )
+         {
+            C6502::ASSERTNMI ();
+         }
+      }
+
       for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
       {
          EMULATE();
@@ -1176,6 +1218,9 @@ void CPPU::NONRENDERSCANLINES ( int scanlines )
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
       }
    }
+
+   // Clear VBLANK, Sprite 0 Hit flag and sprite overflow...
+   wPPU ( PPUSTATUS, rPPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK|PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
 }
 
 void CPPU::PIXELPIPELINES ( int pickoff, unsigned char *a, unsigned char *b1, unsigned char *b2 )

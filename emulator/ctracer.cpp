@@ -190,8 +190,15 @@ TracerInfo* CTracer::AddGarbageFetch( unsigned int cycle, char target, unsigned 
 
 void CTracer::ClearSampleBuffer(void)
 {
-   m_samples = 0;
+   m_frame = 0;
+
    m_cursor = 0;
+   m_samples = 0;
+
+   m_cpuCursor = 0;
+   m_cpuSamples = 0;
+   m_ppuCursor = 0;
+   m_ppuSamples = 0;
 }
 
 TracerInfo* CTracer::GetLastSample ( void )

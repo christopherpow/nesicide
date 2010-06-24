@@ -347,7 +347,8 @@ public:
    // specific number of PPU cycles, usually a multiple of the number
    // of PPU cycles per scanline.
    static void RENDERSCANLINE ( int scanline );
-   static void NONRENDERSCANLINES ( int scanlines );
+   static void QUIETSCANLINE ( void );
+   static void VBLANKSCANLINES ( void );
 
    // Interface to handle the special case where the setting of the
    // VBLANK flag in the PPU registers is choked by the reading of the
