@@ -597,6 +597,7 @@ public:
       (*buffer) = m_dmc.SAMPLEBUFFER();
       (*full) = m_dmc.SAMPLEBUFFERFULL();
    }
+   static int SEQUENCERMODE ( void ) { return m_sequencerMode; }
 
    static void OPEN ( void );
    static void EMULATE ( int cycles );

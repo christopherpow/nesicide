@@ -235,6 +235,14 @@ MainWindow::MainWindow(QWidget *parent) :
    // Start in NTSC mode for now until we can have it configurable on app entry.
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
+
+   // Start with all sound channels enabled...
+   ui->actionSquare_1->setChecked(true);
+   ui->actionSquare_2->setChecked(true);
+   ui->actionTriangle->setChecked(true);
+   ui->actionNoise->setChecked(true);
+   ui->actionDelta_Modulation->setChecked(true);
+   ui->actionMute_All->setChecked(false);
    CNES::VIDEOMODE(MODE_NTSC);
 }
 
@@ -904,4 +912,81 @@ void MainWindow::on_actionPAL_triggered(bool checked)
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
    CNES::VIDEOMODE(MODE_PAL);
+}
+
+void MainWindow::on_actionDelta_Modulation_toggled(bool value)
+{
+   if ( value )
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x10 );
+   }
+   else
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()&(~0x10) );
+   }
+}
+
+void MainWindow::on_actionNoise_toggled(bool value)
+{
+   if ( value )
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x08 );
+   }
+   else
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()&(~0x08) );
+   }
+}
+
+void MainWindow::on_actionTriangle_toggled(bool value)
+{
+   if ( value )
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x04 );
+   }
+   else
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()&(~0x04) );
+   }
+}
+
+void MainWindow::on_actionSquare_2_toggled(bool value)
+{
+   if ( value )
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x02 );
+   }
+   else
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()&(~0x02) );
+   }
+}
+
+void MainWindow::on_actionSquare_1_toggled(bool value)
+{
+   if ( value )
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x01 );
+   }
+   else
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()&(~0x01) );
+   }
+}
+
+void MainWindow::on_actionMute_All_toggled(bool value)
+{
+   ui->actionSquare_1->setChecked(!value);
+   ui->actionSquare_2->setChecked(!value);
+   ui->actionTriangle->setChecked(!value);
+   ui->actionNoise->setChecked(!value);
+   ui->actionDelta_Modulation->setChecked(!value);
+   if ( value )
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()&(~0x1F) );
+   }
+   else
+   {
+      CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x1F );
+   }
 }

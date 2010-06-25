@@ -269,6 +269,7 @@ void NESEmulatorThread::run ()
 
       // Acquire the semaphore...
 //      emulatorSemaphore.acquire();
+
       while ( doFrame == 0 )
       {
          Sleep ( 1 );

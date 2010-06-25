@@ -693,7 +693,6 @@ void CAPU::RESET ( void )
       m_APUreg [ idx ] = 0x00;
       m_APUregDirty [ idx ] = 1;
    }
-   m_APUreg4015mask = 0x1F;
    m_square[0].RESET ();
    m_square[1].RESET ();
    m_triangle.RESET ();
@@ -938,13 +937,35 @@ void CAPUSquare::APU ( UINT addr, unsigned char data )
    {
       if ( m_enabled )
       {
-         if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+         if ( CAPU::SEQUENCERMODE() == 0 )
          {
-            m_clockLengthCounter = false;
+            if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( (CAPU::CYCLES() == 29831) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( ((CAPU::CYCLES() != 14915) && (CAPU::CYCLES() != 29831)) || (m_lengthCounter == 0) )
+            {
+               m_lengthCounter = *(m_lengthLUT+(data>>3));
+            }
          }
-         if ( (CAPU::CYCLES() != 14915) || (m_lengthCounter == 0) )
+         else
          {
-            m_lengthCounter = *(m_lengthLUT+(data>>3));
+            if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 14915)) || (m_lengthCounter == 0) )
+            {
+               m_lengthCounter = *(m_lengthLUT+(data>>3));
+            }
          }
       }
       m_period &= 0x00FF;
@@ -1013,13 +1034,35 @@ void CAPUTriangle::APU ( UINT addr, unsigned char data )
    {
       if ( m_enabled )
       {
-         if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+         if ( CAPU::SEQUENCERMODE() == 0 )
          {
-            m_clockLengthCounter = false;
+            if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( (CAPU::CYCLES() == 29831) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( ((CAPU::CYCLES() != 14915) && (CAPU::CYCLES() != 29831)) || (m_lengthCounter == 0) )
+            {
+               m_lengthCounter = *(m_lengthLUT+(data>>3));
+            }
          }
-         if ( (CAPU::CYCLES() != 14915) || (m_lengthCounter == 0) )
+         else
          {
-            m_lengthCounter = *(m_lengthLUT+(data>>3));
+            if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 14915)) || (m_lengthCounter == 0) )
+            {
+               m_lengthCounter = *(m_lengthLUT+(data>>3));
+            }
          }
       }
       m_period &= 0x00FF;
@@ -1110,13 +1153,35 @@ void CAPUNoise::APU ( UINT addr, unsigned char data )
    {
       if ( m_enabled )
       {
-         if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+         if ( CAPU::SEQUENCERMODE() == 0 )
          {
-            m_clockLengthCounter = false;
+            if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( (CAPU::CYCLES() == 29831) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( ((CAPU::CYCLES() != 14915) && (CAPU::CYCLES() != 29831)) || (m_lengthCounter == 0) )
+            {
+               m_lengthCounter = *(m_lengthLUT+(data>>3));
+            }
          }
-         if ( (CAPU::CYCLES() != 14915) || (m_lengthCounter == 0) )
+         else
          {
-            m_lengthCounter = *(m_lengthLUT+(data>>3));
+            if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+            {
+               m_clockLengthCounter = false;
+            }
+            if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 14915)) || (m_lengthCounter == 0) )
+            {
+               m_lengthCounter = *(m_lengthLUT+(data>>3));
+            }
          }
       }
       m_reg3Wrote = true;

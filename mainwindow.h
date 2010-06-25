@@ -79,6 +79,12 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionMute_All_toggled(bool );
+    void on_actionSquare_1_toggled(bool );
+    void on_actionSquare_2_toggled(bool );
+    void on_actionTriangle_toggled(bool );
+    void on_actionNoise_toggled(bool );
+    void on_actionDelta_Modulation_toggled(bool );
     void on_actionPAL_triggered(bool checked);
     void on_actionNTSC_triggered(bool checked);
     void on_MainWindow_destroyed();

@@ -191,7 +191,20 @@
      <addaction name="actionNTSC"/>
      <addaction name="actionPAL"/>
     </widget>
+    <widget class="QMenu" name="menuAudio">
+     <property name="title">
+      <string>Audio</string>
+     </property>
+     <addaction name="actionMute_All"/>
+     <addaction name="separator"/>
+     <addaction name="actionSquare_1"/>
+     <addaction name="actionSquare_2"/>
+     <addaction name="actionTriangle"/>
+     <addaction name="actionNoise"/>
+     <addaction name="actionDelta_Modulation"/>
+    </widget>
     <addaction name="menuVideo"/>
+    <addaction name="menuAudio"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -328,7 +341,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
    </property>
    <property name="text">
@@ -343,7 +356,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_document-new.png</normaloff>:/resources/22_document-new.png</iconset>
    </property>
    <property name="text">
@@ -358,7 +371,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_document-open.png</normaloff>:/resources/22_document-open.png</iconset>
    </property>
    <property name="text">
@@ -373,7 +386,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
    </property>
    <property name="text">
@@ -396,7 +409,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
    </property>
    <property name="text">
@@ -405,7 +418,7 @@
   </action>
   <action name="actionNew_Palette">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
    </property>
    <property name="text">
@@ -417,7 +430,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
@@ -443,7 +456,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
    </property>
    <property name="text">
@@ -458,7 +471,7 @@
   </action>
   <action name="actionSave_Active_Document">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
    </property>
    <property name="text">
@@ -476,7 +489,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
@@ -488,7 +501,7 @@
   </action>
   <action name="actionCompile_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_run-build.png</normaloff>:/resources/22_run-build.png</iconset>
    </property>
    <property name="text">
@@ -503,7 +516,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_chr_mem.png</normaloff>:/resources/22_chr_mem.png</iconset>
    </property>
    <property name="text">
@@ -518,7 +531,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -533,7 +546,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_nametable.png</normaloff>:/resources/22_nametable.png</iconset>
    </property>
    <property name="text">
@@ -548,7 +561,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
    </property>
    <property name="text">
@@ -563,7 +576,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_cpu_ram.png</normaloff>:/resources/22_cpu_ram.png</iconset>
    </property>
    <property name="text">
@@ -578,7 +591,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -593,7 +606,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -608,7 +621,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -623,7 +636,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -638,7 +651,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -653,7 +666,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -668,7 +681,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -683,7 +696,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -698,7 +711,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_cpu_registers.png</normaloff>:/resources/22_cpu_registers.png</iconset>
    </property>
    <property name="text">
@@ -713,7 +726,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_mapper_memory.png</normaloff>:/resources/22_mapper_memory.png</iconset>
    </property>
    <property name="text">
@@ -728,7 +741,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_bin_rom.png</normaloff>:/resources/22_bin_rom.png</iconset>
    </property>
    <property name="text">
@@ -743,7 +756,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_breakpoint.png</normaloff>:/resources/22_breakpoint.png</iconset>
    </property>
    <property name="text">
@@ -758,7 +771,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
    </property>
    <property name="text">
@@ -778,7 +791,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -822,7 +835,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -837,7 +850,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
    </property>
    <property name="text">
@@ -863,6 +876,54 @@
     <string>PAL</string>
    </property>
   </action>
+  <action name="actionMute_All">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mute All</string>
+   </property>
+  </action>
+  <action name="actionSquare_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Square 1</string>
+   </property>
+  </action>
+  <action name="actionSquare_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Square 2</string>
+   </property>
+  </action>
+  <action name="actionTriangle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Triangle</string>
+   </property>
+  </action>
+  <action name="actionNoise">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Noise</string>
+   </property>
+  </action>
+  <action name="actionDelta_Modulation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Delta Modulation</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -877,9 +938,7 @@
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resource.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>actionE_xit</sender>
