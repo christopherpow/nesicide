@@ -1,0 +1,141 @@
+^ Status ^ Notes ^ Path ^ Info ^
+| ???? | Not sure yet. | apu_mixer\dmc.nes | |
+| ???? | Not sure yet. | apu_mixer\noise.nes | |
+| ???? | Not sure yet. | apu_mixer\square.nes | |
+| ???? | Not sure yet. | apu_mixer\triangle.nes | |
+| PASS | | apu_reset\4015_cleared.nes | |
+| PASS | | apu_reset\4017_timing.nes | |
+| PASS | | apu_reset\4017_written.nes | |
+| PASS | | apu_reset\irq_flag_cleared.nes | |
+| PASS | | apu_reset\len_ctrs_enabled.nes | |
+| PASS | | apu_reset\works_immediately.nes | |
+| FAIL | Failing step 3 of test 8. | apu_test\apu_test.nes | |
+| PASS | | apu_test\rom_singles\1-len_ctr.nes | |
+| PASS | | apu_test\rom_singles\2-len_table.nes | |
+| PASS | | apu_test\rom_singles\3-irq_flag.nes | |
+| PASS | | apu_test\rom_singles\4-jitter.nes | |
+| PASS | | apu_test\rom_singles\5-len_timing.nes | |
+| PASS | | apu_test\rom_singles\6-irq_flag_timing.nes | |
+| PASS | | apu_test\rom_singles\7-dmc_basics.nes | |
+| FAIL | Code $03: | apu_test\rom_singles\8-dmc_rates.nes | |
+| PASS | | blargg_apu_2005.07.30\01.len_ctr.nes | |
+| PASS | | blargg_apu_2005.07.30\02.len_table.nes | |
+| PASS | | blargg_apu_2005.07.30\03.irq_flag.nes | |
+| PASS | | blargg_apu_2005.07.30\04.clock_jitter.nes | |
+| PASS | | blargg_apu_2005.07.30\05.len_timing_mode0.nes | |
+| PASS | | blargg_apu_2005.07.30\06.len_timing_mode1.nes | |
+| PASS | | blargg_apu_2005.07.30\07.irq_flag_timing.nes | |
+| FAIL | Code $02: Too soon | blargg_apu_2005.07.30\08.irq_timing.nes | |
+| PASS | | blargg_apu_2005.07.30\09.reset_timing.nes | |
+| PASS | | blargg_apu_2005.07.30\10.len_halt_timing.nes | |
+| PASS | | blargg_apu_2005.07.30\11.len_reload_timing.nes | |
+| FAIL | Errors: 2 | blargg_nes_cpu_test5\cpu.nes | |
+| PASS | | blargg_nes_cpu_test5\official.nes | |
+| PASS | | blargg_ppu_tests_2005.09.15b\palette_ram.nes | |
+| PASS | | blargg_ppu_tests_2005.09.15b\power_up_palette.nes | |
+| PASS | | blargg_ppu_tests_2005.09.15b\sprite_ram.nes | |
+| PASS | | blargg_ppu_tests_2005.09.15b\vbl_clear_time.nes | |
+| PASS | | blargg_ppu_tests_2005.09.15b\vram_access.nes | |
+| PASS | | branch_timing_tests\1.Branch_Basics.nes | | 
+| PASS | | branch_timing_tests\2.Backward_Branch.nes | |
+| PASS | | branch_timing_tests\3.Forward_Branch.nes | |
+| FAIL | Code $05: CLI SEI should allow only one IRQ just after SEI | cli_latency_tests\cli_latency.nes | |
+| PASS | | cpu_dummy_reads\cpu_dummy_reads.nes | |
+| FAIL | Fails test 1 | cpu_interrupts_v2\cpu_interrupts.nes | Runs cli_latency test first. |
+| FAIL | Code $05: CLI SEI should allow only one IRQ just after SEI | cpu_interrupts_v2\rom_singles\2-nmi_and_brk.nex | |
+| FAIL | Wrong clocking | cpu_interrupts_v2\rom_singles\2-nmi_and_brk.nes | |
+| FAIL | Wrong clocking | cpu_interrupts_v2\rom_singles\3-nmi_and_irq.nes | |
+| FAIL | Wrong clocking | cpu_interrupts_v2\rom_singles\4-nmi_and_dma.nes | |
+| FAIL | Wrong clocking | cpu_interrupts_v2\rom_singles\5-branch_delays_irq.nes | |
+| PASS | | cpu_reset\ram_after_reset.nes | |
+| PASS | | cpu_reset\registers.nes | |
+| PASS | | cpu_timing_test6\cpu_timing_test.nes | Passes official and NOP, fails undocumented (temporarily due to CPU restructuring) |
+| PASS | | exram\mmc5exram.nes | |
+| PASS | | full_palette\flowing_palette.nes | | 
+| PASS | | full_palette\full_palette.nes | | 
+| PASS | | full_palette\full_palette_smooth.nes | |
+| PASS | | instr_misc\instr_misc.nes | |
+| PASS | | instr_misc\rom_singles\01-abs_x_wrap.nes | |
+| PASS | | instr_misc\rom_singles\02-branch_wrap.nes | |
+| PASS | | instr_misc\rom_singles\03-dummy_reads.nes | |
+| PASS | | instr_misc\rom_singles\04-dummy_reads_apu.nes | |
+| PASS | | instr_timing\instr_timing.nes | Fails undocumented (temporarily, due to CPU restructuring) | 
+| PASS | | instr_timing\rom_singles\1-instr_timing.nes | Fails undocumented (temporarily, due to CPU restructuring) | 
+| PASS | | instr_timing\rom_singles\2-branch_timing.nes | | 
+| PASS | | mmc3_irq_tests\1.Clocking.nes | |
+| PASS | | mmc3_irq_tests\2.Details.nes | |
+| PASS | | mmc3_irq_tests\3.A12_clocking.nes | |
+| PASS | | mmc3_irq_tests\4.Scanline_timing.nes | Note: latest version of this test fails (see mmc3_test below). |
+| FAIL | Code $03: IRQ shouldn't occur when reloading after counter normally reaches 0 | mmc3_irq_tests\5.MMC3_rev_A.nes | |
+| FAIL | Code $02: Should reload and set IRQ every clock when reload is 0 | mmc3_irq_tests\6.MMC3_rev_B.nes | |
+| PASS | | mmc3_test\1.Clocking.nes | |
+| PASS | | mmc3_test\2.Details.nes | |
+| PASS | | mmc3_test\3.A12_clocking.nes | |
+| FAIL | Scanline 0 IRQ should occur later when $2000=$08 | mmc3_test\4.Scanline_timing.nes | |
+| FAIL | Code $03: IRQ shouldn't occur when reloading after counter normally reaches 0 | mmc3_irq_tests\5.MMC3_rev_A.nes | |
+| FAIL | Code $02: Should reload and set IRQ every clock when reload is 0 | mmc3_irq_tests\6.MMC3_rev_B.nes | |
+| PASS | | nes_instr_test\rom_singles\01-implied.nes | |
+| FAIL | ARR, ATX, AXS fail | nes_instr_test\rom_singles\02-immediate.nes | |
+| PASS | | nes_instr_test\rom_singles\03-zero_page.nes | |
+| PASS | | nes_instr_test\rom_singles\04-zp_xy.nes | |
+| PASS | | nes_instr_test\rom_singles\05-absolute.nes | |
+| FAIL | SYA, SXA fail | nes_instr_test\rom_singles\06-abs_xy.nes | |
+| PASS | | nes_instr_test\rom_singles\07-ind_x.nes | |
+| PASS | | nes_instr_test\rom_singles\08-ind_y.nes | |
+| PASS | | nes_instr_test\rom_singles\09-branches.nes | |
+| PASS | | nes_instr_test\rom_singles\10-stack.nes | |
+| PASS | | nes_instr_test\rom_singles\11-special.nes | |
+| PASS | | oam_read\oam_read.nes | |
+| PASS | | oam_stress\oam_stress.nes | |
+| FAIL | Strange characters where text should be. | other\midscanline.nes | | 
+| PASS | | other\nestest.nes | |
+| PASS | | other\PCM.demo.wgraphics.nes | | 
+| FAIL | Incorrect rastering. | other\RasterChromaLuma.NES | |
+| PASS | | other\RasterDemo.NES | |
+| PASS | | other\RasterTest1.NES | |
+| PASS | | other\RasterTest2.NES | |
+| FAIL | Incorrect rastering. | other\RasterTest3.NES | |
+| FAIL | Incorrect rastering. | other\RasterTest3a.NES | |
+| FAIL | Incorrect rastering. | other\RasterTest3b.NES | |
+| FAIL | Incorrect rastering. | other\RasterTest3c.NES | |
+| FAIL | Incorrect rastering. | other\RasterTest3d.NES | |
+| FAIL | Incorrect rastering. | other\RasterTest3e.NES | |
+| PASS | | other\S0.NES | Tests Sprite-0 hit visually. |
+| PASS | | pal_apu_tests\01.len_ctr.nes | |
+| PASS | | pal_apu_tests\02.len_table.nes | |
+| PASS | | pal_apu_tests\03.irq_flag.nes | |
+| PASS | | pal_apu_tests\04.clock_jitter.nes | |
+| PASS | | pal_apu_tests\05.len_timing_mode0.nes | |
+| PASS | | pal_apu_tests\06.len_timing_mode1.nes | |
+| PASS | | pal_apu_tests\07.irq_flag_timing.nes | |
+| FAIL | Code $02: Too soon | pal_apu_tests\08.irq_timing.nes | |
+| PASS | | pal_apu_tests\10.len_halt_timing.nes | |
+| PASS | | pal_apu_tests\11.len_reload_timing.nes | |
+| PASS | Code $02: Write to any PPU register should set decay value | ppu_open_bus\ppu_open_bus.nes | |
+| PASS | | scanline\scanline.nes | |
+| FAIL | Incorrect timing. | sprdma_and_dmc_dma\sprdma_and_dmc_dma.nes | |
+| FAIL | Incorrect timing. | sprdma_and_dmc_dma\sprdma_and_dmc_dma_512.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\01.basics.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\02.alignment.nes	| |
+| PASS | | sprite_hit_tests_2005.10.05\03.corners.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\04.flip.nes | | 
+| PASS | | sprite_hit_tests_2005.10.05\05.left_clip.nes	| |
+| PASS | | sprite_hit_tests_2005.10.05\06.right_edge.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\07.screen_bottom.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\08.double_height.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\09.timing_basics.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\10.timing_order.nes | |
+| PASS | | sprite_hit_tests_2005.10.05\11.edge_timing.nes | |
+| PASS | | sprite_overflow_tests\1.Basics.nes | |
+| PASS | | sprite_overflow_tests\2.Details.nes | |
+| FAIL | Code $05: Set too late for first scanline | sprite_overflow_tests\3.Timing.nes | |
+| PASS | | sprite_overflow_tests\4.Obscure.nes | |
+| PASS | | sprite_overflow_tests\5.Emulator.nes | |
+| FAIL | 12/14 PPU, 0/0 APU, 48/48 CPU, 0/0 I/O | stress\NEStress.nes | |
+| PASS | | vbl_nmi_timing\1.frame_basics.nes | |
+| PASS | | vbl_nmi_timing\2.vbl_timing.nes | |
+| PASS | | vbl_nmi_timing\3.even_odd_frames.nes | |
+| PASS | | vbl_nmi_timing\4.vbl_clear_timing.nes | |
+| FAIL | Code $04: Reading flag 3 PPU clocks after set shouldn't suppress NMI | vbl_nmi_timing\5.nmi_suppression.nes | |
+| FAIL | Code $03: NMI should occur when disabled 3 PPU clocks after VBL | vbl_nmi_timing\6.nmi_disable.nes | |
+| FAIL | Code $02: NMI occurred 3 or more PPU clocks too early | vbl_nmi_timing\7.nmi_timing.nes | |

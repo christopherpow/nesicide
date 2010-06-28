@@ -313,6 +313,10 @@ public:
    // its presence or lack thereof.
    static inline unsigned int _CYCLES ( void ) { return m_cycles; }
 
+   // Return the current cycle index of a DMA transfer between the
+   // CPU and PPU.  Used to determine cycle impact of APU DMA.
+   static inline unsigned int _DMACYCLES ( void ) { return m_dmaCounter; }
+
    // Every PPU frame starts at PPU cycle 0.
    static inline void RESETCYCLECOUNTER ( void ) { m_cycles = 0; m_frame++; }
 
@@ -585,6 +589,13 @@ protected:
    // internal palette memory).  That data is returned immediately
    // to the CPU on a read access of PPU address $2007 in that range.
    static unsigned char  m_ppuReadLatch;
+
+   // DMA address for DMA transfers.  The PPU sets this on a DMA
+   // request from the CPU and then begins its DMA transfer at the
+   // appropriate time.  When not DMAing the counter will be 0.
+   static unsigned short m_dmaAddr;
+   static unsigned char m_oamAddrForDma;
+   static int m_dmaCounter;
 
    // The PPU has eight registers visible to the CPU in the CPU's
    // memory map at address $2000 through $2007.  These are further

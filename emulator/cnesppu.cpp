@@ -226,6 +226,10 @@ unsigned char  CPPU::m_ppuScrollX = 0x00;
 int            CPPU::m_oneScreen = -1;
 bool           CPPU::m_extraVRAM = false;
 
+unsigned short CPPU::m_dmaAddr = 0x0000;
+unsigned char  CPPU::m_oamAddrForDma = 0;
+int            CPPU::m_dmaCounter = 0;
+
 CCodeDataLogger CPPU::m_logger ( MEM_16KB, MASK_16KB );
 
 char*          CPPU::m_pCodeDataLoggerInspectorTV = NULL;
@@ -338,8 +342,36 @@ void CPPU::RENDERCODEDATALOGGER ( void )
 
 void CPPU::EMULATE(void)
 {
+   bool doDma = true;
+   int cpuCycles;
+
    // We're emulating one PPU cycle...
    m_curCycles += CPU_CYCLE_ADJUST;
+
+   // How many CPU cycles might we do?  (0 or 1?)
+   if ( CNES::VIDEOMODE() == MODE_NTSC )
+   {
+      cpuCycles = m_curCycles/PPU_CPU_RATIO_NTSC;
+   }
+   else
+   {
+      cpuCycles = m_curCycles/PPU_CPU_RATIO_PAL;
+   }
+
+   if ( m_dmaCounter && cpuCycles )
+   {
+      if ( (m_dmaCounter > 512) || (!(m_dmaCounter&1)) )
+      {
+         C6502::STEALCYCLES ( 1 );
+         m_dmaCounter--;
+         doDma = false;
+      }
+      if ( doDma )
+      {
+         *(m_PPUoam+((((512-m_dmaCounter)>>1)+m_oamAddrForDma)&0xFF)) = C6502::DMA ( (m_dmaAddr)|(((512-m_dmaCounter)>>1)&0xFF), eSource_PPU );
+         m_dmaCounter--;
+      }
+   }
 
    if ( CNES::VIDEOMODE() == MODE_NTSC )
    {
@@ -854,6 +886,8 @@ void CPPU::RESET ( void )
    m_curCycles = 0;
    m_frame = 0;
 
+   m_dmaCounter = 0;
+
    m_vblankChoked = false;
    m_nmiChoked = false;
 
@@ -1069,11 +1103,13 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_DMA );
 
          // DMA
-         C6502::STEALCYCLES ( 1 );
-         int start = m_oamAddr;
-         for ( dma = 0; dma < NUM_OAM_REGS; dma++ )
+         m_dmaAddr = data<<8;
+         m_oamAddrForDma = m_oamAddr;
+         m_dmaCounter = 512;
+         m_dmaCounter++;
+         if ( C6502::_CYCLES()&1 )
          {
-            *(m_PPUoam+((dma+start)&0xFF)) = C6502::DMA ( (data<<8)|(dma&0xFF), eSource_PPU );
+            m_dmaCounter++;
          }
       }
    }
@@ -1203,8 +1239,8 @@ void CPPU::VBLANKSCANLINES ( void )
             wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_VBLANK );
          }
 
-         if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
-              (!NMICHOKED()) )
+         if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) /*&&
+              (!NMICHOKED())*/ )
          {
             C6502::ASSERTNMI ();
          }

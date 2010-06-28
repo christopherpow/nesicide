@@ -466,23 +466,7 @@ public:
 
    // This routine returns the channels' internal state to
    // what it should be at NES reset.
-   inline void RESET ( void )
-   {
-      CAPUOscillator::RESET();
-      m_loop = false;
-      m_sampleAddr = 0x0000;
-      m_sampleLength = 0x0000;
-      m_dmaReaderAddrPtr = 0x0000;
-      m_dmcIrqEnabled = false;
-      m_dmcIrqAsserted = false;
-      m_sampleBuffer = 0x00;
-      m_sampleBufferFull = false;
-      m_outputShift = 0x00;
-      m_outputShiftCounter = 0;
-      m_silence = false;
-      m_dmaSource = NULL;
-      m_dmaSourcePtr = NULL;
-   }
+   inline void RESET ( void );
 
 protected:
    // Current address within NES system memory where

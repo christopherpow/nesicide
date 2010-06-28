@@ -167,6 +167,7 @@ struct _C6502_opcode* C6502::pOpcodeStruct = NULL;
 int             C6502::opcodeSize;
 TracerInfo*     C6502::pDisassemblySample = NULL;
 bool            C6502::m_sync = false;
+bool            C6502::m_write = false;
 char            C6502::m_phase = 0;
 
 CRegisterData** C6502::m_tblRegisters = tblCPURegisters;
@@ -3099,6 +3100,7 @@ void C6502::STEP ( void )
 
       // Indicate opcode fetch...
       m_sync = true;
+      m_write = false;
 
       // Fetch
       (*opcodeData) = FETCH ( rPC() );
@@ -5430,6 +5432,9 @@ void C6502::RESET ( void )
    m_curCycles = 0;
    m_phase = 0;
 
+   m_sync = false;
+   m_write = false;
+
    // Clear the disassembly sample...
    pDisassemblySample = NULL;
 
@@ -5552,7 +5557,12 @@ void C6502::STORE ( UINT addr, unsigned char data, char* pTarget )
 unsigned char C6502::FETCH ( UINT addr )
 {
    char target;
-   unsigned char data = LOAD ( addr, &target );
+   unsigned char data;
+
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
+   data = LOAD ( addr, &target );
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
@@ -5607,16 +5617,18 @@ unsigned char C6502::FETCH ( UINT addr )
       OPCODEMASK ( addr, (unsigned char)m_sync );
    }
 
-   // Synchronize CPU and APU...
-   ADVANCE ();
-
    return data;
 }
 
 unsigned char C6502::EXTRAFETCH ( UINT addr )
 {
    char target;
-   unsigned char data = LOAD ( addr, &target );
+   unsigned char data;
+
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
+   data = LOAD ( addr, &target );
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eSource_CPU, target, addr, data );
@@ -5644,26 +5656,24 @@ unsigned char C6502::EXTRAFETCH ( UINT addr )
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_InstructionFetch, eSource_CPU );
    }
 
-   // Synchronize CPU and APU...
-   ADVANCE ();
-
    return data;
 }
 
 unsigned char C6502::DMA ( UINT addr, char source )
 {
    char target;
-   unsigned char data = LOAD ( addr, &target );
+   unsigned char data;
 
-   // DMA steals two CPU cycles...
    // Synchronize CPU and APU...
-   ADVANCE ();
-   ADVANCE ();
+   if ( source == eSource_APU )
+   {
+      ADVANCE ();
+   }
+
+   data = LOAD ( addr, &target );
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
-
-   // At some point might want to add a breakpoint here...
 
    // If ROM or RAM is being accessed, log code/data logger...
    if ( target == eTarget_ROM )
@@ -5676,13 +5686,27 @@ unsigned char C6502::DMA ( UINT addr, char source )
       m_logger.LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
    }
 
+   // Synchronize CPU and APU...
+   if ( source == eSource_PPU )
+   {
+      ADVANCE ();
+   }
+
    return data;
 }
 
 unsigned char C6502::MEM ( UINT addr )
 {
    char target;
-   unsigned char data = LOAD ( addr, &target );
+   unsigned char data;
+
+   // Not writing...
+   m_write = false;
+
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
+   data = LOAD ( addr, &target );
 
    // Add Tracer sample...
    CNES::TRACER()->AddSample ( m_cycles, eTracer_DataRead, eSource_CPU, target, addr, data );
@@ -5720,9 +5744,6 @@ unsigned char C6502::MEM ( UINT addr )
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
 
-   // Synchronize CPU and APU...
-   ADVANCE ();
-
    return data;
 }
 
@@ -5735,6 +5756,12 @@ void C6502::MEM ( UINT addr, unsigned char data )
    {
       return;
    }
+
+   // Writing...
+   m_write = true;
+
+   // Synchronize CPU and APU...
+   ADVANCE ();
 
    // Store unknown target because otherwise the trace will be out of order...
    pSample = CNES::TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eSource_CPU, 0, addr, data );
@@ -5774,14 +5801,10 @@ void C6502::MEM ( UINT addr, unsigned char data )
    if ( pSample )
    {
       pSample->target = target;
-
    }
 
    // Check for breakpoint...
    CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
-
-   // Synchronize CPU and APU...
-   ADVANCE ();
 }
 
 unsigned char C6502::_MEM ( UINT addr )

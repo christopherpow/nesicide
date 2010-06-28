@@ -189,10 +189,10 @@ unsigned char OPCODESIZE ( unsigned char op );
 // one actual CPU cycle.  This is a limitation that could be removed in
 // future updates to the CPU core, but currently adequate accuracy is obtained
 // with this method.
-class C6502  
+class C6502
 {
 public:
-	C6502();
+   C6502();
    virtual ~C6502();
 
    // Disassembly routines for display.
@@ -352,6 +352,10 @@ public:
    // Return whether or not the CPU is currently in the middle of
    // the first cycle of an instruction fetch (the opcode fetch).
    static bool _SYNC ( void ) { return m_sync; }
+
+   // Return whether or not the CPU is currently in the middle of
+   // a write memory cycle.
+   static bool _WRITING ( void ) { return m_write; }
 
    // Return the current cycle index of the CPU core.
    // The cycle index is a free-running counter of executed CPU cycles.
@@ -531,6 +535,9 @@ protected:
 
    // Whether or not the CPU core is in an opcode fetch cycle.
    static bool            m_sync;
+
+   // Whether or not the CPU is in a write memory cycle.
+   static bool            m_write;
 
    // Which phase of instruction fetching is the CPU core in?
    // Note, this is slightly different than m_sync.  m_sync is
