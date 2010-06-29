@@ -47,6 +47,8 @@ enum
 // of the visible screen and goes on through the post-render scanline
 // and VBLANK and the pre-render scanline.
 #define PPU_CYCLE_START_VBLANK ((SCANLINES_VISIBLE+SCANLINES_QUIET)*PPU_CYCLES_PER_SCANLINE)
+#define PPU_CYCLE_END_VBLANK_NTSC ((SCANLINES_VISIBLE+SCANLINES_QUIET+SCANLINES_VBLANK_NTSC)*PPU_CYCLES_PER_SCANLINE)
+#define PPU_CYCLE_END_VBLANK_PAL ((SCANLINES_VISIBLE+SCANLINES_QUIET+SCANLINES_VBLANK_PAL)*PPU_CYCLES_PER_SCANLINE)
 
 // PPU cycles are used as the master cycle of the emulation system.
 // To achieve an integer ratio of PPU/CPU/APU cycles the PPU cycle
@@ -242,8 +244,8 @@ typedef struct _BackgroundBuffer
 // CNES->CPPU->C6502->CAPU
 //
 // where the NES object (CNES) uses PPU object APIs to drive
-// sub-frame related information down to the PPU (CPPU).  The PPU object
-// then executes enough PPU cycles to perform the
+// sub-frame events (screen rendering, VBLANK, etc.) to the PPU (CPPU).
+// The PPU object then executes enough PPU cycles to perform the
 // requested action from the NES object (ie. render a scanline).
 // During execution of PPU cycles the PPU filters cycles down to
 // the CPU core (C6502) by using the current video-mode's filter
@@ -255,7 +257,8 @@ typedef struct _BackgroundBuffer
 // PPU or APU DMA events, but those do not perturb the general
 // flow described here too drastically.  The CPU/APU share the same
 // cycle frequency (1,789,772.72Hz).  The APU 'frame', however, is
-// not at all related to the PPU frame.
+// not at all related to the PPU frame.  The CPU itself has no concept
+// of 'frame'.
 class CPPU
 {
 public:
@@ -365,7 +368,13 @@ public:
    // choked by reading PPU register $2002 at precise points within the
    // PPU frame.
    static inline void NMICHOKED ( bool choked ) { m_nmiChoked = choked; }
-   static bool NMICHOKED () { bool choked = m_nmiChoked; m_nmiChoked = false; return choked; }
+   static bool NMICHOKED () { return m_nmiChoked; }
+
+   // Interface to handle the special case where assertion of NMI can be
+   // forced to occur more than once during VBLANK if the PPU's NMI enablement
+   // bit is cleared and re-set during the VBLANK period.
+   static inline void NMIREENABLED ( bool reenabled ) { m_nmiReenabled = reenabled; }
+   static bool NMIREENABLED () { bool reenabled = m_nmiReenabled; m_nmiReenabled = false; return reenabled; }
 
    // Read a PPU register without changing the PPU's internal state.
    // This routine is used by the debugger in order to retrieve information
@@ -524,6 +533,7 @@ protected:
    // Routines that mimic the PPU bus behavior down to the PPU cycle.
    // These are used internally by the PPU core during emulation.
    static void GATHERBKGND ( char phase );
+   static void FETCHSPRITES ( int cycle );
    static void GATHERSPRITES ( int scanline );
 
    // Routine that mimics the PPU's background barrel-shifters and
@@ -653,6 +663,10 @@ protected:
    // If the CPU reads PPU address $2002 at precise points within the
    // PPU frame it can choke the assertion of NMI by the PPU.
    static bool           m_nmiChoked;
+
+   // Re-enabling NMI flag in the PPU control register allows for re-assertion
+   // of NMI during VBLANK period.
+   static bool           m_nmiReenabled;
 
    // These items are the database that keeps track of the status of the
    // x and y scroll values for each rendered pixel.  This information is

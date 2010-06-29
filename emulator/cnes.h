@@ -19,6 +19,15 @@
 // to drive the other objects (CPPU, C6502, CAPU, CROM) through
 // the paces of emulating a NES as accurately as humanly possible.
 //
+// The CNES::RUN method drives each frame down through the PPU in
+// the following order:
+//
+// Render visible scanlines, one at a time.
+// Update scanline-dependent visual inspectors.
+// Run the 'quiet' or resting scanline.
+// Run the VBLANK scanlines.
+// Run the 'pre-render' scanline.
+//
 // The NES object also is a container for globally useful stuff
 // that is needed by the other objects.  Examples of this are:
 // the current video mode; the current list of active breakpoints
@@ -36,8 +45,8 @@
 class CNES
 {
 public:
-	CNES();
-	virtual ~CNES();
+   CNES();
+   virtual ~CNES();
 
    // Accessor methods to get/set the current video mode.
    static inline void VIDEOMODE ( int mode ) { m_videoMode = mode; }

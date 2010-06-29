@@ -238,6 +238,7 @@ unsigned int   CPPU::m_cycles = 0;
 
 bool           CPPU::m_vblankChoked = false;
 bool           CPPU::m_nmiChoked = false;
+bool           CPPU::m_nmiReenabled = false;
 
 char*          CPPU::m_pTV = NULL;
 
@@ -344,6 +345,7 @@ void CPPU::EMULATE(void)
 {
    bool doDma = true;
    int cpuCycles;
+   int vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
 
    // We're emulating one PPU cycle...
    m_curCycles += CPU_CYCLE_ADJUST;
@@ -384,6 +386,18 @@ void CPPU::EMULATE(void)
       m_curCycles %= PPU_CPU_RATIO_PAL;
    }
 
+   // Turn off NMI choking if it shouldn't be...
+   if ( m_cycles > PPU_CYCLE_START_VBLANK+1 )
+   {
+      NMICHOKED ( false );
+   }
+
+   // Turn off NMI re-enablement if it shouldn't be...
+   if ( m_cycles > vblankEndCycle )
+   {
+      NMIREENABLED ( false );
+   }
+
    // Internal cycle counter keeps track of stuff needing to happen
    // at particular PPU frame cycles.  It is reset at the end of a frame.
    m_cycles += 1;
@@ -412,11 +426,6 @@ UINT CPPU::LOAD ( UINT addr, char source, char type, bool trace )
    {
       if ( addr >= 0x3F00 )
       {
-//         if ( !(addr&0x3) )
-//         {
-//            addr = 0x3F00;
-//         }
-
          data = *(m_PALETTEmemory+(addr&0x1F));
 
          // Add Tracer sample...
@@ -890,6 +899,7 @@ void CPPU::RESET ( void )
 
    m_vblankChoked = false;
    m_nmiChoked = false;
+   m_nmiReenabled = false;
 
    m_ppuAddr = 0x0000;
    m_ppuAddrLatch = 0x0000;
@@ -932,10 +942,6 @@ UINT CPPU::PPU ( UINT addr )
               (m_cycles <= PPU_CYCLE_START_VBLANK+1) )
          {
             NMICHOKED ( true );
-         }
-         else
-         {
-            NMICHOKED ( false );
          }
       }
       else if ( fixAddr == OAMDATA_REG )
@@ -1008,14 +1014,29 @@ void CPPU::PPU ( UINT addr, unsigned char data )
 {
    unsigned short fixAddr;
    unsigned short oldPpuAddr;
-   int dma;
+   unsigned char  old2000;
+   int            vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
 
    if ( addr < 0x4000 )
    {
       fixAddr = addr&0x0007;
       if ( fixAddr != PPUSTATUS_REG )
       {
+         old2000 = *(m_PPUreg);
          *(m_PPUreg+fixAddr) = data;
+
+         // Check for need to re-assert NMI if NMI is enabled and we're in VBLANK...
+         if ( (fixAddr == PPUCTRL_REG) &&
+              (!(old2000&PPUCTRL_GENERATE_NMI)) &&
+              ((*m_PPUreg)&PPUCTRL_GENERATE_NMI) )
+         {
+            if ( (m_cycles >= PPU_CYCLE_START_VBLANK+1) &&
+                 (m_cycles < vblankEndCycle) )
+            {
+               NMIREENABLED ( true );
+               wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_VBLANK );
+            }
+         }
       }
       if ( fixAddr == PPUCTRL_REG )
       {
@@ -1238,17 +1259,28 @@ void CPPU::VBLANKSCANLINES ( void )
          {
             wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_VBLANK );
          }
-
-         if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) /*&&
-              (!NMICHOKED())*/ )
-         {
-            C6502::ASSERTNMI ();
-         }
       }
 
       for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
       {
          EMULATE();
+
+         if ( (idxy == 0) && (idxx == 1) )
+         {
+            if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
+                 (!NMICHOKED()) )
+            {
+               C6502::ASSERTNMI ();
+            }
+         }
+         // CPTODO: Figure out why this else causes vbl_clear_time.nes to fail error 2 (cleared too soon)?!
+         else if ( !((idxy == 0) && (idxx < 2)) )
+         {
+            if ( NMIREENABLED() )
+            {
+               C6502::ASSERTNMI ();
+            }
+         }
 
          // Check for breakpoints...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -1853,4 +1885,193 @@ void CPPU::GATHERSPRITES ( int scanline )
          }
       }
    }
+}
+
+void CPPU::FETCHSPRITES ( int cycle )
+{
+#if 0
+   int idx1, idx2;
+   int sprite;
+   int spritesFound = 0;
+   unsigned short spritePatBase = 0x0000;
+   int           spriteY;
+   unsigned char patternIdx;
+   unsigned char spriteAttr;
+   int           spriteSize;
+   SpriteBufferData* pSprite;
+   int           yByte = SPRITEY;
+   int           roll = 0;
+   SpriteBufferData devNull;
+
+   // Clear sprite buffer....
+   m_spriteBuffer.count = 0;
+   m_spriteBuffer.order [ 0 ] = 0;
+   m_spriteBuffer.order [ 1 ] = 1;
+   m_spriteBuffer.order [ 2 ] = 2;
+   m_spriteBuffer.order [ 3 ] = 3;
+   m_spriteBuffer.order [ 4 ] = 4;
+   m_spriteBuffer.order [ 5 ] = 5;
+   m_spriteBuffer.order [ 6 ] = 6;
+   m_spriteBuffer.order [ 7 ] = 7;
+   pSprite = m_spriteBuffer.data;
+
+   // Loop invariants...
+   spriteSize = ((!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
+   if ( spriteSize == 8 )
+   {
+      spritePatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
+   }
+
+   scanline++;
+
+   // Populate sprite buffer...
+   for ( sprite = 0; sprite < 64; sprite++ )
+   {
+      // Retrieve OAM byte for scanline check...
+      // Note: obscure PPU 'bug' in that 9th sprite on scanline
+      // causes other sprite data to be used as the Y-coordinate.
+      spriteY = OAM ( yByte, sprite ) + 1;
+
+      // idx1 is sprite slice (it will be in range 0-7 or 0-15 if the sprite
+      // is on the next scanline.
+      idx1 = scanline-spriteY;
+
+      // If we've found 8 sprites on this scanline, enable the
+      // obscure PPU 'bug'.
+      if ( (spritesFound == 8) && (!(idx1 >= 0) && (idx1 < spriteSize)) )
+      {
+         roll = 1;
+      }
+
+      // Is the sprite on this scanline?
+      if ( (pSprite != &devNull) && (idx1 >= 0) && (idx1 < spriteSize) )
+      {
+         // Put sprite in sprite buffer...
+         pSprite->spriteIdx = sprite;
+
+         patternIdx = OAM ( SPRITEPAT, sprite );
+         if ( spriteSize == 16 )
+         {
+            spritePatBase = (patternIdx&0x01)<<12;
+            patternIdx &= 0xFE;
+         }
+         spriteAttr = OAM ( SPRITEATT, sprite );
+         pSprite->spriteBehind = !!(spriteAttr&SPRITE_PRIORITY);
+         pSprite->spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
+         pSprite->spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
+
+         pSprite->spriteX = OAM ( SPRITEX, sprite );
+
+         pSprite->attribData = spriteAttr&SPRITE_PALETTE_IDX_MSK;
+
+         // For 8x16 sprites...
+         if ( (spriteSize == 16) &&
+              (((!pSprite->spriteFlipVert) && (idx1 >= PATTERN_SIZE)) ||
+              ((pSprite->spriteFlipVert) && (idx1 < PATTERN_SIZE))) )
+         {
+            patternIdx++;
+         }
+         if ( pSprite->spriteFlipVert )
+         {
+            idx1 = spriteSize-1-idx1;
+         }
+
+         // Garbage nametable fetches according to Samus Aran...
+         EMULATE();
+         GARBAGE ( 0x2000, eTarget_NameTable );
+         EMULATE();
+         GARBAGE ( 0x2000, eTarget_NameTable );
+
+         // Get sprite's pattern data...
+         EMULATE();
+         pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
+         mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
+         EMULATE();
+         pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
+      }
+
+      // Is the sprite on this scanline?
+      if ( (idx1 >= 0) && (idx1 < spriteSize) )
+      {
+         // Calculate sprite-per-scanline limit...
+         spritesFound++;
+         if ( spritesFound < 8 )
+         {
+            // Not at limit yet, keep storing sprites in the buffer...
+            pSprite++;
+         }
+         else
+         {
+            // Found 8 sprites, point to /dev/null for future sprites on this scanline...
+            pSprite = &devNull;
+
+            // Should we assert sprite overflow?
+            if ( spritesFound == 9 )
+            {
+               if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+               {
+                  if ( !(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_OVFLO) )
+                  {
+                     wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
+
+                     // Check for breakpoint...
+                     CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );
+                  }
+               }
+            }
+         }
+      }
+
+      // The obscure PPU 'bug' behavior rolls through different
+      // sprite data bytes as the Y-coordinate...
+      if ( roll )
+      {
+         yByte++;
+         yByte %= OAM_SIZE;
+      }
+   }
+
+   // Fix up the sprite buffer data if necessary...
+   if ( spritesFound > 8 )
+   {
+      spritesFound = 8;
+   }
+   m_spriteBuffer.count = spritesFound;
+
+   // Perform remaining garbage fetches to finish out the scanline's
+   // PPU cycles...
+   for ( sprite = m_spriteBuffer.count; sprite < 8; sprite++ )
+   {
+      // Garbage nametable fetches according to Samus Aran...
+      EMULATE();
+      GARBAGE ( 0x2000, eTarget_NameTable );
+      EMULATE();
+      GARBAGE ( 0x2000, eTarget_NameTable );
+      if ( spriteSize == 16 )
+      {
+         spritePatBase = (GARBAGE_SPRITE_FETCH&0x01)<<12;
+         patternIdx &= 0xFE;
+      }
+      EMULATE();
+      GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
+      EMULATE();
+      GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
+   }
+
+   // Order sprites by priority for rendering...
+   unsigned char temp;
+   for ( idx1 = 0; idx1 < m_spriteBuffer.count; idx1++ )
+   {
+      for ( idx2 = idx1; idx2 < m_spriteBuffer.count-idx1; idx2++ )
+      {
+         if ( m_spriteBuffer.data[idx1].spriteIdx > m_spriteBuffer.data[idx2].spriteIdx )
+         {
+            // swap...
+            temp = m_spriteBuffer.order [ idx1 ];
+            m_spriteBuffer.order [ idx1 ] = m_spriteBuffer.order [ idx2 ];
+            m_spriteBuffer.order [ idx2 ] = temp;
+         }
+      }
+   }
+#endif
 }

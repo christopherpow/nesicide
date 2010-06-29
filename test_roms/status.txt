@@ -4,12 +4,12 @@
 | ???? | Not sure yet. | apu_mixer\square.nes | |
 | ???? | Not sure yet. | apu_mixer\triangle.nes | |
 | PASS | | apu_reset\4015_cleared.nes | |
-| PASS | | apu_reset\4017_timing.nes | |
+| PASS | | apu_reset\4017_timing.nes | Delay: 11 clocks |
 | PASS | | apu_reset\4017_written.nes | |
 | PASS | | apu_reset\irq_flag_cleared.nes | |
 | PASS | | apu_reset\len_ctrs_enabled.nes | |
 | PASS | | apu_reset\works_immediately.nes | |
-| FAIL | Failing step 3 of test 8. | apu_test\apu_test.nes | |
+| PASS | | apu_test\apu_test.nes | |
 | PASS | | apu_test\rom_singles\1-len_ctr.nes | |
 | PASS | | apu_test\rom_singles\2-len_table.nes | |
 | PASS | | apu_test\rom_singles\3-irq_flag.nes | |
@@ -17,7 +17,7 @@
 | PASS | | apu_test\rom_singles\5-len_timing.nes | |
 | PASS | | apu_test\rom_singles\6-irq_flag_timing.nes | |
 | PASS | | apu_test\rom_singles\7-dmc_basics.nes | |
-| FAIL | Code $03: | apu_test\rom_singles\8-dmc_rates.nes | |
+| PASS | | apu_test\rom_singles\8-dmc_rates.nes | |
 | PASS | | blargg_apu_2005.07.30\01.len_ctr.nes | |
 | PASS | | blargg_apu_2005.07.30\02.len_table.nes | |
 | PASS | | blargg_apu_2005.07.30\03.irq_flag.nes | |
@@ -34,7 +34,7 @@
 | PASS | | blargg_ppu_tests_2005.09.15b\palette_ram.nes | |
 | PASS | | blargg_ppu_tests_2005.09.15b\power_up_palette.nes | |
 | PASS | | blargg_ppu_tests_2005.09.15b\sprite_ram.nes | |
-| PASS | | blargg_ppu_tests_2005.09.15b\vbl_clear_time.nes | |
+| FAIL | Code $02: VBL flag cleared too soon | blargg_ppu_tests_2005.09.15b\vbl_clear_time.nes | Code added to support multiple NMI generation per VBLANK causes this test to fail. Under investigation. |
 | PASS | | blargg_ppu_tests_2005.09.15b\vram_access.nes | |
 | PASS | | branch_timing_tests\1.Branch_Basics.nes | | 
 | PASS | | branch_timing_tests\2.Backward_Branch.nes | |
@@ -87,7 +87,7 @@
 | PASS | | nes_instr_test\rom_singles\11-special.nes | |
 | PASS | | oam_read\oam_read.nes | |
 | PASS | | oam_stress\oam_stress.nes | |
-| FAIL | Strange characters where text should be. | other\midscanline.nes | | 
+| FAIL | Strange characters where text should be. | other\midscanline.nes | Mapper issue.  Under investigation. | 
 | PASS | | other\nestest.nes | |
 | PASS | | other\PCM.demo.wgraphics.nes | | 
 | FAIL | Incorrect rastering. | other\RasterChromaLuma.NES | |
@@ -100,6 +100,7 @@
 | FAIL | Incorrect rastering. | other\RasterTest3c.NES | |
 | FAIL | Incorrect rastering. | other\RasterTest3d.NES | |
 | FAIL | Incorrect rastering. | other\RasterTest3e.NES | |
+| FAIL | Incorrect OAM readback. | other\read2004.nes | Tests OAM readback. |
 | PASS | | other\S0.NES | Tests Sprite-0 hit visually. |
 | PASS | | pal_apu_tests\01.len_ctr.nes | |
 | PASS | | pal_apu_tests\02.len_table.nes | |
@@ -111,9 +112,9 @@
 | FAIL | Code $02: Too soon | pal_apu_tests\08.irq_timing.nes | |
 | PASS | | pal_apu_tests\10.len_halt_timing.nes | |
 | PASS | | pal_apu_tests\11.len_reload_timing.nes | |
-| PASS | Code $02: Write to any PPU register should set decay value | ppu_open_bus\ppu_open_bus.nes | |
+| FAIL | Code $02: Write to any PPU register should set decay value | ppu_open_bus\ppu_open_bus.nes | |
 | PASS | | scanline\scanline.nes | |
-| FAIL | Incorrect timing. | sprdma_and_dmc_dma\sprdma_and_dmc_dma.nes | |
+| PASS | | sprdma_and_dmc_dma\sprdma_and_dmc_dma.nes | |
 | FAIL | Incorrect timing. | sprdma_and_dmc_dma\sprdma_and_dmc_dma_512.nes | |
 | PASS | | sprite_hit_tests_2005.10.05\01.basics.nes | |
 | PASS | | sprite_hit_tests_2005.10.05\02.alignment.nes	| |
@@ -136,6 +137,6 @@
 | PASS | | vbl_nmi_timing\2.vbl_timing.nes | |
 | PASS | | vbl_nmi_timing\3.even_odd_frames.nes | |
 | PASS | | vbl_nmi_timing\4.vbl_clear_timing.nes | |
-| FAIL | Code $04: Reading flag 3 PPU clocks after set shouldn't suppress NMI | vbl_nmi_timing\5.nmi_suppression.nes | |
-| FAIL | Code $03: NMI should occur when disabled 3 PPU clocks after VBL | vbl_nmi_timing\6.nmi_disable.nes | |
-| FAIL | Code $02: NMI occurred 3 or more PPU clocks too early | vbl_nmi_timing\7.nmi_timing.nes | |
+| PASS | | vbl_nmi_timing\5.nmi_suppression.nes | |
+| PASS | | vbl_nmi_timing\6.nmi_disable.nes | |
+| PASS | | vbl_nmi_timing\7.nmi_timing.nes | |
