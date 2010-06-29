@@ -272,7 +272,7 @@ void NESEmulatorThread::run ()
 
       while ( doFrame == 0 )
       {
-         Sleep ( 1 );
+         msleep ( 1 );
       }
       doFrame--;
    }
