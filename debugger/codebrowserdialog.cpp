@@ -114,6 +114,7 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    menu.addSeparator();
    menu.addAction(ui->actionClear_marker);
    menu.addSeparator();
+
    menu.addAction(ui->actionStart_marker_here);
    menu.addAction(ui->actionEnd_marker_here);
 

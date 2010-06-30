@@ -355,9 +355,9 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         qint8 romCB2;
         fs >> romCB2;
 
-        if ( romCB2&0xF0 )
+        if ( romCB2&0x0F )
         {
-            romCB2 &= 0x0F;
+            romCB2 &= 0xF0;
             QMessageBox::information(0, "Warning", "Invalid iNES header format.\nSave the project to fix.");
         }
 
