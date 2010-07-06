@@ -14,24 +14,30 @@ sync_vbl:
 	sta PPUCTRL
 	
 	; Coarse synchronize
-	bit PPUSTATUS
-:       bit PPUSTATUS
+	bit $2002
+:       bit $2002
 	bpl :-
 	
-	; Delay so that VBL is sure to occur slightly after
-	; critical window in loop below.
-	delay 29760     ; +1 works, +2 fails
-	jmp @first
+	delay 29771
 	
-	; VBL occurs every 29780.67 (rendering disabled)
-	; or 29780.5 (rendering enabled) CPU clocks. Loop
-	; takes 29781 CPU clocks. Thus, time of VBL will
-	; be effectively 1/3 or 1/2 CPU clock earlier in
-	; loop each time. At some point, it will fall just
-	; before second PPUSTATUS read below.
-:       delay 29781-4-4-3
-@first: bit PPUSTATUS   ; clear flag (not really necessary)
-	bit PPUSTATUS   ; see if just set
+	; Divide possible cases into two groups, and optimize
+	; for each, halving time this routine takes.
+	bit $2002
+	bmi :+
+	delay 4         ; max=4, lower=slower
+:       delay 24        ; max=24, lower=slower
+	
+	; Synchronize precisely to VBL. VBL occurs every 29780.67
+	; CPU clocks. Loop takes 27 clocks. Every 1103 iterations,
+	; the second LDA $2002 will read exactly 29781 clocks
+	; after a previous read. Thus, the loop will effectively
+	; read $2002 one PPU clock later each frame. It starts out
+	; with VBL beginning sometime after this read, so that
+	; eventually VBL will begin just before the $2002 read,
+	; and thus leave CPU exactly synchronized to VBL.
+:       delay 27 - 11
+	bit $2002
+	bit $2002
 	bpl :-
 	
 	pla

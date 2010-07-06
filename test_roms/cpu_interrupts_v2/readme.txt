@@ -49,7 +49,8 @@ continuing.
 
 2-nmi_and_brk
 -------------
-NMI behavior when it interrupts BRK
+NMI behavior when it interrupts BRK. Occasionally fails on
+NES due to PPU-CPU synchronization.
 
 Result when run:
 NMI BRK --
@@ -85,12 +86,32 @@ NMI IRQ
 25  20
 
 
-4-nmi_and_dma
+4-irq_and_dma
 -------------
 Has IRQ occur at various times around sprite DMA.
 First column refers to what instruction IRQ occurred
 after. Second column is time of IRQ, in CPU clocks relative
 to some arbitrary starting point.
+
+0 +0
+1 +1
+1 +2
+2 +3
+2 +4
+4 +5
+4 +6
+7 +7
+7 +8
+7 +9
+7 +10
+8 +11
+8 +12
+8 +13
+...
+8 +524
+8 +525
+8 +526
+9 +527
 
 
 5-branch_delays_irq
@@ -153,7 +174,6 @@ T+ CK PC
 07 02 0A 
 08 01 0A 
 09 03 0A JMP
-
 
 Multi-tests
 -----------

@@ -17,6 +17,7 @@
 enum
 {
    PPU_EVENT_PIXEL_XY = 0,
+   PPU_EVENT_ADDRESS_EQUALS,
    PPU_EVENT_PRE_RENDER_SCANLINE_START,
    PPU_EVENT_PRE_RENDER_SCANLINE_END,
    PPU_EVENT_SCANLINE_START,
@@ -37,6 +38,8 @@ enum
 #define SCANLINES_QUIET (1)
 #define SCANLINES_VBLANK_NTSC (20)
 #define SCANLINES_VBLANK_PAL (70)
+#define SCANLINE_PRERENDER_NTSC (SCANLINES_VISIBLE+SCANLINES_VBLANK_NTSC+SCANLINES_QUIET)
+#define SCANLINE_PRERENDER_PAL (SCANLINES_VISIBLE+SCANLINES_VBLANK_PAL+SCANLINES_QUIET)
 
 // NTSC and PAL have different total scanline counts.
 #define SCANLINES_TOTAL_NTSC (SCANLINES_VISIBLE+SCANLINES_VBLANK_NTSC+SCANLINES_QUIET+1)
@@ -350,6 +353,7 @@ public:
    static inline void FRAMESTART ( void );
    static inline void SCANLINESTART ( void );
    static inline void SCANLINEEND ( void );
+   static void UPDATEADDRESS ( void );
 
    // Rendering interfaces.  These are invoked by the NES object at
    // particular places within the PPU frame to run the PPU for a
@@ -414,7 +418,9 @@ public:
    // address latch, and the read-buffer.
    static inline unsigned short _OAMADDR ( void ) { return m_oamAddr; }
    static inline unsigned short _PPUADDR ( void ) { return m_ppuAddr; }
-   static inline unsigned char _PPULATCH ( void ) { return m_ppuReadLatch; }
+   static inline unsigned char _PPUREADLATCH ( void ) { return m_ppuReadLatch; }
+   static inline unsigned short _PPUADDRLATCH ( void ) { return m_ppuAddrLatch; }
+   static inline int _PPUFLIPFLOP ( void ) { return m_ppuRegByte; }
 
    // Accessor functions for the database of scroll values indexed by pixel
    // location.  At each PPU cycle that is rendering a visible pixel the scroll

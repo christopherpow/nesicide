@@ -1,0 +1,14 @@
+obj/nes/index.txt
+src/nes.h
+src/ram.h
+src/main.s
+src/pads.s
+src/random.s
+tilesets/gamegfx.png
+tilesets/titlegfx.png
+tools/pilbmp2nes.py
+makefile
+nes.ini
+roulette.nes
+zip.in
+

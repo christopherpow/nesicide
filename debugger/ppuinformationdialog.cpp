@@ -39,6 +39,7 @@ void PPUInformationDialog::showEvent(QShowEvent*)
 
 void PPUInformationDialog::updateInformation()
 {
+   char* ppuFlipFlopStr [] = { "Low", "High" };
    CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
    int idx;
    char buffer[16];
@@ -57,11 +58,22 @@ void PPUInformationDialog::updateInformation()
    sprintf ( buffer, "%d", CPPU::_CYCLES() );
    ui->cycleNumber->setText(buffer);
 
+   sprintf ( buffer, "%d", CPPU::_CYCLES()%PPU_CYCLES_PER_SCANLINE );
+   ui->ppuX->setText(buffer);
+
+   sprintf ( buffer, "%d", CPPU::_CYCLES()/PPU_CYCLES_PER_SCANLINE );
+   ui->ppuY->setText(buffer);
+
    sprintf ( buffer, "$%04X", CPPU::_PPUADDR() );
    ui->ppuAddr->setText(buffer);
 
-   sprintf ( buffer, "$%02X", CPPU::_PPULATCH() );
+   sprintf ( buffer, "$%02X", CPPU::_PPUREADLATCH() );
    ui->ppuLatch->setText(buffer);
+
+   sprintf ( buffer, "$%02X", CPPU::_PPUADDRLATCH() );
+   ui->ppuAddrLatch->setText(buffer);
+
+   ui->ppuFlipFlop->setText(ppuFlipFlopStr[CPPU::_PPUFLIPFLOP()]);
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )

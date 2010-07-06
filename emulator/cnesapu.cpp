@@ -1444,7 +1444,14 @@ void CAPUDMC::DMAREADER ( void )
             }
             else
             {
-               C6502::STEALCYCLES ( 1 );
+               if ( (CPPU::_DMACYCLES() > 3) || (CPPU::_DMACYCLES() == 2) )
+               {
+                  C6502::STEALCYCLES ( 1 );
+               }
+               else if ( CPPU::_DMACYCLES() == 1 )
+               {
+                  C6502::STEALCYCLES ( 2 );
+               }
             }
             m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr, eSource_APU );
 
@@ -1546,7 +1553,7 @@ void CAPU::EMULATE ( int cycles )
    }
    else
    {
-      takeSampleLimit = 33;
+      takeSampleLimit = 37;
    }
 
    unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
