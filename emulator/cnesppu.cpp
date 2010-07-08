@@ -190,6 +190,8 @@ unsigned short CPPU::m_ppuAddr = 0x0000;
 unsigned char  CPPU::m_ppuAddrIncrement = 1;
 unsigned short CPPU::m_ppuAddrLatch = 0x0000;
 unsigned char  CPPU::m_ppuReadLatch = 0x00;
+unsigned char  CPPU::m_ppuIOLatch = 0x00;
+unsigned char  CPPU::m_ppuIOLatchDecayFrames [] = { 0, };
 unsigned char  CPPU::m_PPUreg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 unsigned char  CPPU::m_PPUoam [] = { 0x00, };
 unsigned char  CPPU::m_ppuScrollX = 0x00;
@@ -880,6 +882,15 @@ void CPPU::RESET ( void )
    m_ppuAddrIncrement = 1;
    m_ppuReadLatch = 0x00;
    m_ppuRegByte = 0;
+   m_ppuIOLatch = 0x00;
+   m_ppuIOLatchDecayFrames [ 0 ] = 0;
+   m_ppuIOLatchDecayFrames [ 1 ] = 0;
+   m_ppuIOLatchDecayFrames [ 2 ] = 0;
+   m_ppuIOLatchDecayFrames [ 3 ] = 0;
+   m_ppuIOLatchDecayFrames [ 4 ] = 0;
+   m_ppuIOLatchDecayFrames [ 5 ] = 0;
+   m_ppuIOLatchDecayFrames [ 6 ] = 0;
+   m_ppuIOLatchDecayFrames [ 7 ] = 0;
 
    // Set up default palette in a way that passes the default palette test.
    PALETTESET ( tblDefaultPalette );
@@ -903,7 +914,11 @@ UINT CPPU::PPU ( UINT addr )
          data = *(m_PPUreg+fixAddr);
          *(m_PPUreg+fixAddr) &= (~PPUSTATUS_VBLANK); // VBLANK clear-on-read
          m_ppuRegByte = 0; // Clear PPUADDR address latch
-         data = (data&0xE0)|(m_ppuReadLatch&0x1F);
+         data = (data&0xE0)|(m_ppuIOLatch&0x1F);
+
+         // Refresh I/O latch...
+         m_ppuIOLatch &= (0x1F);
+         m_ppuIOLatch |= (data&0xE0);
 
          // Kill VBLANK flag if register is read at 'wrong' time...
          if ( m_cycles == PPU_CYCLE_START_VBLANK-1 )
@@ -930,6 +945,9 @@ UINT CPPU::PPU ( UINT addr )
             data = *(m_PPUoam+m_oamAddr);
          }
 
+         // Refresh I/O latch...
+         m_ppuIOLatch = data;
+
          // Check for breakpoint...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
       }
@@ -943,6 +961,9 @@ UINT CPPU::PPU ( UINT addr )
          {
             data = m_ppuReadLatch;
 
+            // Refresh I/O latch...
+            m_ppuIOLatch = data;
+
             m_ppuReadLatch = LOAD ( oldPpuAddr, eSource_CPU, eTracer_DataRead );
          }
          else
@@ -951,6 +972,13 @@ UINT CPPU::PPU ( UINT addr )
 
             // Mask off unused palette RAM bits.
             data &= 0x3F;
+
+            // Fill in read-latch bits...
+            data |= (m_ppuIOLatch&0xC0);
+
+            // Refresh I/O latch...
+         m_ppuIOLatch &= (0xC0);
+         m_ppuIOLatch |= (data&0x3F);
 
             // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
             m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
@@ -967,7 +995,7 @@ UINT CPPU::PPU ( UINT addr )
       }
       else
       {
-         data = m_ppuReadLatch;
+         data = m_ppuIOLatch;
       }
 
       // Check for breakpoint...
@@ -990,9 +1018,36 @@ void CPPU::PPU ( UINT addr, unsigned char data )
    unsigned short oldPpuAddr;
    unsigned char  old2000;
    int            vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
+   int            bit;
 
    if ( addr < 0x4000 )
    {
+      // Set I/O latch for bus hold-up emulation...
+      m_ppuIOLatch = data;
+
+      // Set crude 'frame counters' for each 1 bit to decay...
+      for ( bit = 0; bit < 8; bit++ )
+      {
+         if ( m_ppuIOLatch&(1<<bit) )
+         {
+            if ( CNES::VIDEOMODE() == MODE_NTSC )
+            {
+               // 600msec
+               m_ppuIOLatchDecayFrames [ bit ] = PPU_DECAY_FRAME_COUNT_NTSC;
+            }
+            else
+            {
+               // 600msec
+               m_ppuIOLatchDecayFrames [ bit ] = PPU_DECAY_FRAME_COUNT_PAL;
+            }
+         }
+         else
+         {
+            // No decay necessary.
+            m_ppuIOLatchDecayFrames [ bit ] = 0;
+         }
+      }
+
       fixAddr = addr&0x0007;
       if ( fixAddr != PPUSTATUS_REG )
       {
@@ -1206,6 +1261,7 @@ void CPPU::SCANLINEEND ( void )
 void CPPU::QUIETSCANLINE ( void )
 {
    int idxx;
+   int bit;
 
    for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
    {
@@ -1216,6 +1272,22 @@ void CPPU::QUIETSCANLINE ( void )
 
       // Check for PPU address breakpoint...
       CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
+   }
+
+   // Do I/O latch decay...
+   for ( bit = 0; bit < 8; bit++ )
+   {
+      if ( m_ppuIOLatch&(1<<bit) )
+      {
+         if ( m_ppuIOLatchDecayFrames[bit] )
+         {
+            m_ppuIOLatchDecayFrames[bit]--;
+         }
+         if ( !(m_ppuIOLatchDecayFrames[bit]) )
+         {
+            m_ppuIOLatch &= (~(1<<bit));
+         }
+      }
    }
 }
 

@@ -55,6 +55,11 @@ enum
 #define PPU_CYCLE_END_VBLANK_NTSC ((SCANLINES_VISIBLE+SCANLINES_QUIET+SCANLINES_VBLANK_NTSC)*PPU_CYCLES_PER_SCANLINE)
 #define PPU_CYCLE_END_VBLANK_PAL ((SCANLINES_VISIBLE+SCANLINES_QUIET+SCANLINES_VBLANK_PAL)*PPU_CYCLES_PER_SCANLINE)
 
+// Rudimentary PPU I/O bus decay algorithm simply counts PPU frames to get
+// "close" to 600 milliseconds of time elapsed for a single bit to decay.
+#define PPU_DECAY_FRAME_COUNT_NTSC 36
+#define PPU_DECAY_FRAME_COUNT_PAL  30
+
 // PPU cycles are used as the master cycle of the emulation system.
 // To achieve an integer ratio of PPU/CPU/APU cycles the PPU cycle
 // counter is incremented by 5 each time.  To arrive at the appropriate
@@ -607,6 +612,15 @@ protected:
    // internal palette memory).  That data is returned immediately
    // to the CPU on a read access of PPU address $2007 in that range.
    static unsigned char  m_ppuReadLatch;
+
+   // The PPU has an internal hold-up on the bus between it and
+   // the CPU that causes the last value written to be readable
+   // for about 600 milliseconds.
+   static unsigned char m_ppuIOLatch;
+
+   // Each bit of the IO latch decays at the same rate but some
+   // might have been set to 1 more recently than others.
+   static unsigned char m_ppuIOLatchDecayFrames [ 8 ];
 
    // DMA address for DMA transfers.  The PPU sets this on a DMA
    // request from the CPU and then begins its DMA transfer at the
