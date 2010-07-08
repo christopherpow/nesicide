@@ -3215,7 +3215,7 @@ void C6502::STEP ( void )
 
       // Check for IRQ assertion...
       // CLI requires one cycle latency on interrupt.
-      if ( ((*opcodeData) != CLI_IMPLIED) && (m_irqAsserted) )
+      else if ( ((*opcodeData) != CLI_IMPLIED) && (m_irqAsserted) )
       {
          // Execute IRQ handler...
          IRQ();

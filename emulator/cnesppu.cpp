@@ -1002,13 +1002,13 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          // Check for need to re-assert NMI if NMI is enabled and we're in VBLANK...
          if ( (fixAddr == PPUCTRL_REG) &&
               (!(old2000&PPUCTRL_GENERATE_NMI)) &&
+              (rPPU(PPUSTATUS)&PPUSTATUS_VBLANK) &&
               (data&PPUCTRL_GENERATE_NMI) )
          {
             if ( (m_cycles >= PPU_CYCLE_START_VBLANK+1) &&
                  (m_cycles < vblankEndCycle) )
             {
                NMIREENABLED ( true );
-               wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_VBLANK );
             }
          }
       }
@@ -1256,17 +1256,14 @@ void CPPU::VBLANKSCANLINES ( void )
                C6502::ASSERTNMI ();
             }
          }
-         // CPTODO: Figure out why this else causes vbl_clear_time.nes to fail error 2 (cleared too soon)?!
-         // CPTODO: AND this else also causes RTC demo to fail loading the second song. (No sprite 0 hit).
-#if 0
          else if ( !((idxy == 0) && (idxx < 2)) )
          {
-            if ( NMIREENABLED() )
+            if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
+                 (NMIREENABLED()) )
             {
                C6502::ASSERTNMI ();
             }
          }
-#endif
 
          // Check for breakpoints...
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -1579,7 +1576,7 @@ void CPPU::GATHERBKGND ( char phase )
             }
             else
             {
-               m_ppuAddr   ^= 0x041F;
+               m_ppuAddr ^= 0x041F;
             }
          }
       }
