@@ -115,7 +115,7 @@
 | FAIL | Code $02: Too soon | pal_apu_tests\08.irq_timing.nes | |
 | PASS | | pal_apu_tests\10.len_halt_timing.nes | |
 | PASS | | pal_apu_tests\11.len_reload_timing.nes | |
-| FAIL | Code $02: Write to any PPU register should set decay value | ppu_open_bus\ppu_open_bus.nes | |
+| PASS | | ppu_open_bus\ppu_open_bus.nes | |
 | PASS | | scanline\scanline.nes | |
 | PASS | | sprdma_and_dmc_dma\sprdma_and_dmc_dma.nes | |
 | PASS | | sprdma_and_dmc_dma\sprdma_and_dmc_dma_512.nes | |
