@@ -4,6 +4,10 @@
 #include "inspectorregistry.h"
 #include "main.h"
 
+#include <QApplication>
+#include <QStringList>
+#include <QMessageBox>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -244,6 +248,28 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->actionDelta_Modulation->setChecked(true);
    ui->actionMute_All->setChecked(false);
    CNES::VIDEOMODE(MODE_NTSC);
+
+   QStringList sl_raw = QApplication::arguments();
+   QStringList sl_nes = sl_raw.filter ( ".nes" );
+   if ( sl_nes.count() >= 1 )
+   {
+      emulator->pauseEmulation(false);
+
+      nesicideProject->createProjectFromRom(sl_nes.at(0));
+      ui->actionEmulation_Window->setChecked(true);
+      on_actionEmulation_Window_toggled(true);
+      projectDataChangesEvent();
+
+      emulator->resetEmulator();
+      emulator->startEmulation();
+
+      if ( sl_nes.count() > 1 )
+      {
+         QMessageBox::information ( 0, "Command Line Error", "Too many NES ROM files were specified on the command\n"
+                                                             "line.  Only the first NES ROM was opened, all others\n"
+                                                             "were ignored." );
+      }
+   }
 }
 
 MainWindow::~MainWindow()

@@ -376,7 +376,7 @@ public:
    // The PPU and APU can steal cycles from the CPU in addition to
    // doing DMA transfers (actually, the DMA engine steals the cycles
    // but the DMA engine is invoked by the PPU or APU).
-   static void STEALCYCLES ( int cycles ) { for ( int i = 0; i < cycles; i++ ) ADVANCE(); }
+   static void STEALCYCLES ( int cycles );
 
    // The following routines are support for the runtime
    // disassembly of RAM if it is executed by the CPU core.
@@ -463,8 +463,14 @@ protected:
    // Has an IRQ been asserted to the CPU core?
    static bool            m_irqAsserted;
 
+   // Was IRQ asserted when checked?
+   static bool            m_irqPending;
+
    // Has NMI been asserted to the CPU core?
    static bool            m_nmiAsserted;
+
+   // Was NMI asserted when checked?
+   static bool            m_nmiPending;
 
    // The CPU core maintains the 2KB of RAM visible to the CPU.
    static unsigned char   m_6502memory [ MEM_2KB ];

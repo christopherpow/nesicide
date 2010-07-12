@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
    // Create, show, and execute the main window (UI) thread.
    MainWindow nesicideWindow;
    nesicideWindow.show();
+
    int result = nesicideApplication.exec();
 
    // Properly kill and destroy the threads we created above.

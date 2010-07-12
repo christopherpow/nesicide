@@ -49,6 +49,11 @@
 | PASS | | cpu_reset\ram_after_reset.nes | |
 | PASS | | cpu_reset\registers.nes | |
 | PASS | | cpu_timing_test6\cpu_timing_test.nes | Passes official and NOP, fails undocumented (temporarily due to CPU restructuring) |
+| FAIL | | dmc_dma_during_read4\dma_2007_read.nes | |
+| PASS | | dmc_dma_during_read4\dma_2007_write.nes | |
+| FAIL | | dmc_dma_during_read4\dma_4016_read.nes | |
+| FAIL | | dmc_dma_during_read4\double_2007_read.nes | |
+| PASS | | dmc_dma_during_read4\read_write_2007.nes | |
 | ???? | Not sure yet. | dmc_tests\buffer_retained.nes | |
 | ???? | Not sure yet. | dmc_tests\latency.nes | |
 | ???? | Not sure yet. | dmc_tests\status.nes | |

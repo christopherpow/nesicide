@@ -29,6 +29,7 @@
 // Instructions with special handling needs.
 #define ROL_ABS_X   0x3E
 #define CLI_IMPLIED 0x58
+#define BRK_IMPLIED 0x00
 
 // CPU Registers
 static CBitfieldData* tblCPUPCBitfields [] =
@@ -138,7 +139,9 @@ static CBreakpointEventInfo* tblCPUEvents [] =
 
 bool            C6502::m_killed = false;              // KIL opcode not executed
 bool            C6502::m_irqAsserted = false;
+bool            C6502::m_irqPending = false;
 bool            C6502::m_nmiAsserted = false;
+bool            C6502::m_nmiPending = false;
 unsigned char   C6502::m_6502memory [] = { 0, };
 unsigned char   C6502::m_RAMopcodeMask [ MEM_2KB ] = { 0, };
 char*           C6502::m_RAMdisassembly [ MEM_2KB ] = { 0, };
@@ -3079,6 +3082,28 @@ void C6502::EMULATE ( int cycles )
    }
 }
 
+void C6502::STEALCYCLES ( int cycles )
+{
+#if 0
+// CPTODO: complete implementation of cycle stealing that affects $4016 reads
+   if ( (!m_sync) && m_write )
+   {
+      for ( int i = 0; i < cycles; i++ ) ADVANCE();
+   }
+   else if ( (!m_sync) && (!m_write) )
+   {
+      // Read from effective address...
+      for ( int i = 0; i < cycles; i++ ) MEM ( m_ea );
+   }
+   else
+   {
+      for ( int i = 0; i < cycles; i++ ) ADVANCE();
+   }
+#else
+   for ( int i = 0; i < cycles; i++ ) ADVANCE();
+#endif
+}
+
 void C6502::ADVANCE ( void )
 {
    // Run APU for one cycle...
@@ -3194,7 +3219,10 @@ void C6502::STEP ( void )
       CNES::TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
 
       // Execute
-      pOpcodeStruct->pFn ();
+      if ( !(m_nmiAsserted && ((*opcodeData) == BRK_IMPLIED)) )
+      {
+         pOpcodeStruct->pFn ();
+      }
 
       // Adjust cycles for extra...
       for ( int i = 0; i < (*(opcodeData+3)); i++ )
@@ -3205,20 +3233,32 @@ void C6502::STEP ( void )
       // Update Tracer
       CNES::TRACER()->SetEffectiveAddress ( pDisassemblySample, rEA() );
 
-      // Check for NMI assertion...
+      if ( m_irqAsserted )
+      {
+         m_irqPending = true;
+      }
       if ( m_nmiAsserted )
       {
-         // Execute NMI handler...
+         m_nmiPending = true;
          m_nmiAsserted = false;
+         m_irqPending = false;
+      }
+
+      // Check for NMI assertion...
+      if ( m_nmiPending )
+      {
+         // Execute NMI handler...
          NMI();
+         m_nmiPending = false;
       }
 
       // Check for IRQ assertion...
       // CLI requires one cycle latency on interrupt.
-      else if ( ((*opcodeData) != CLI_IMPLIED) && (m_irqAsserted) )
+      else if ( ((*opcodeData) != CLI_IMPLIED) && (m_irqPending) )
       {
          // Execute IRQ handler...
          IRQ();
+         m_irqPending = false;
       }
 
       // Go back to fetch phases...
@@ -5346,7 +5386,7 @@ void C6502::SED ( void )
 //  1. A BRK command cannot be masked by setting I.
 void C6502::BRK ( void )
 {
-   PUSH ( GETHI8(rPC()) );
+   PUSH ( GETHI8(rPC()+1) );
    PUSH ( GETLO8((rPC()+1)) );
    sB ();
    PUSH ( rF() );
@@ -5439,7 +5479,9 @@ void C6502::RESET ( void )
    pDisassemblySample = NULL;
 
    m_irqAsserted = false;
+   m_irqPending = false;
    m_nmiAsserted = false;
+   m_nmiPending = false;
 
    wEA ( 0xFFFFFFFF );
 

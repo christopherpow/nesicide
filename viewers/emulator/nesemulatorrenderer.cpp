@@ -102,7 +102,6 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
       actualSize.setHeight(256.0f * ((float)height / (float)width));
    }
 
-
    // Let opengl know which surface we are working with
    makeCurrent();
 
