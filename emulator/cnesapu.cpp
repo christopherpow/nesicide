@@ -1846,18 +1846,27 @@ UINT CAPU::APU ( UINT addr )
 {
    UINT data = 0x00;
 
-   data |= (m_square[0].LENGTH()?0x01:0x00);
-   data |= (m_square[1].LENGTH()?0x02:0x00);
-   data |= (m_triangle.LENGTH()?0x04:0x00);
-   data |= (m_noise.LENGTH()?0x08:0x00);
-   data |= (m_dmc.LENGTH()?0x10:0x00);
-   data |= (m_irqAsserted?0x40:0x00);
-   data |= (m_dmc.IRQASSERTED()?0x80:0x00);
+   if ( addr == APUCTRL )
+   {
+      data |= (m_square[0].LENGTH()?0x01:0x00);
+      data |= (m_square[1].LENGTH()?0x02:0x00);
+      data |= (m_triangle.LENGTH()?0x04:0x00);
+      data |= (m_noise.LENGTH()?0x08:0x00);
+      data |= (m_dmc.LENGTH()?0x10:0x00);
+      data |= (m_irqAsserted?0x40:0x00);
+      data |= (m_dmc.IRQASSERTED()?0x80:0x00);
 
-   m_irqAsserted = false;
-   CAPU::RELEASEIRQ ();
+      m_irqAsserted = false;
+      CAPU::RELEASEIRQ ();
 
-   CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState, addr&0x1F);
+      CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState, addr&0x1F);
+   }
+   else
+   {
+      // All addresses but $4015 read as $40 since the
+      // high-byte of $4015 is what was last put on the bus.
+      data = 0x40;
+   }
 
    return data;
 }

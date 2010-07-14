@@ -21,6 +21,7 @@
 
 unsigned char  CIO::m_ioJoy [] = { 0x00, 0x00 };
 unsigned char  CIO::m_ioJoyLatch [] = { 0x00, 0x00 };
+unsigned char  CIO::m_last4016 = 0x00;
 
 CJoypadLogger  CIO::m_logger [ NUM_JOY ];
 
@@ -69,11 +70,12 @@ void CIO::IO ( UINT addr, unsigned char data )
    switch ( addr )
    {
       case IOJOY1:
-         if ( (data&1) == 0 ) // latch on negative edge
+         if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
          {
             *(m_ioJoyLatch+JOY1) = *(m_ioJoy+JOY1);
             *(m_ioJoyLatch+JOY2) = *(m_ioJoy+JOY2);
          }
+         m_last4016 = data;
       break;
 
       case IOSPRITEDMA:
@@ -117,11 +119,12 @@ void CIO::_IO ( UINT addr, unsigned char data )
    switch ( addr )
    {
       case IOJOY1:
-         if ( (data&1) == 0 ) // latch on negative edge
+         if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
          {
             *(m_ioJoyLatch+JOY1) = *(m_ioJoy+JOY1);
             *(m_ioJoyLatch+JOY2) = *(m_ioJoy+JOY2);
          }
+         m_last4016 = data;
       break;
 
       case IOSPRITEDMA:

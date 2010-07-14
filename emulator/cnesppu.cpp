@@ -322,6 +322,9 @@ void CPPU::EMULATE(void)
    // We're emulating one PPU cycle...
    m_curCycles += CPU_CYCLE_ADJUST;
 
+   // Update PPU address from latch at appropriate times...
+   UPDATEADDRESS();
+
    // How many CPU cycles might we do?  (0 or 1?)
    if ( CNES::VIDEOMODE() == MODE_NTSC )
    {
@@ -977,8 +980,8 @@ UINT CPPU::PPU ( UINT addr )
             data |= (m_ppuIOLatch&0xC0);
 
             // Refresh I/O latch...
-         m_ppuIOLatch &= (0xC0);
-         m_ppuIOLatch |= (data&0x3F);
+            m_ppuIOLatch &= (0xC0);
+            m_ppuIOLatch |= (data&0x3F);
 
             // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
             m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
@@ -1032,12 +1035,12 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          {
             if ( CNES::VIDEOMODE() == MODE_NTSC )
             {
-               // 600msec
+               // ~600msec
                m_ppuIOLatchDecayFrames [ bit ] = PPU_DECAY_FRAME_COUNT_NTSC;
             }
             else
             {
-               // 600msec
+               // ~600msec
                m_ppuIOLatchDecayFrames [ bit ] = PPU_DECAY_FRAME_COUNT_PAL;
             }
          }
@@ -1051,7 +1054,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
       fixAddr = addr&0x0007;
       if ( fixAddr != PPUSTATUS_REG )
       {
-         old2000 = *(m_PPUreg);
+         old2000 = *(m_PPUreg+PPUCTRL_REG);
          *(m_PPUreg+fixAddr) = data;
 
          // Check for need to re-assert NMI if NMI is enabled and we're in VBLANK...
@@ -1112,7 +1115,6 @@ void CPPU::PPU ( UINT addr, unsigned char data )
       }
       else if ( fixAddr == PPUADDR_REG )
       {
-         oldPpuAddr = m_ppuAddr;
          if ( m_ppuRegByte )
          {
             m_ppuAddrLatch &= 0x7F00;
@@ -1159,6 +1161,7 @@ void CPPU::PPU ( UINT addr, unsigned char data )
          CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_DMA );
 
          // DMA
+         // Note: DMA is done in CPPU::EMULATE, it is only set-up here.
          m_dmaAddr = data<<8;
          m_oamAddrForDma = m_oamAddr;
          m_dmaCounter = 512;
@@ -1389,6 +1392,11 @@ void CPPU::RENDERSCANLINE ( int scanline )
    SpriteBufferData* pSelectedSprite;
    int idx2;
    char* pTV = (char*)(m_pTV+rasttv);
+   int patternMask;
+   int spriteColorIdx;
+   int bkgndColorIdx;
+   int startBkgnd;
+   int startSprite;
 
    m_x = 0;
    m_y = scanline;
@@ -1405,16 +1413,16 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    for ( idxx = 0; idxx < 256; idxx += 8 )
    {
-      int spriteColorIdx = 0;
-      int bkgndColorIdx = 0;
-      int startBkgnd = (!(rPPU(PPUMASK)&PPUMASK_BKGND_CLIPPING))<<3;
-      int startSprite = (!(rPPU(PPUMASK)&PPUMASK_SPRITE_CLIPPING))<<3;
-      int patternMask;
-
       for ( patternMask = 0; patternMask < 8; patternMask++ )
       {
          unsigned char a, b1, b2;
 
+         spriteColorIdx = 0;
+         bkgndColorIdx = 0;
+         startBkgnd = (!(rPPU(PPUMASK)&PPUMASK_BKGND_CLIPPING))<<3;
+         startSprite = (!(rPPU(PPUMASK)&PPUMASK_SPRITE_CLIPPING))<<3;
+
+         // Only render to the screen on the visible scanlines...
          if ( scanline >= 0 )
          {
             m_x = idxx+patternMask;
@@ -1425,11 +1433,7 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
             // Check for PPU pixel-at breakpoint...
             CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
-         }
 
-         // Only render to the screen on the visible scanlines...
-         if ( scanline >= 0 )
-         {
             // Run sprite multiplexer to figure out what, if any,
             // sprite pixel to draw here...
             pSelectedSprite = NULL;
@@ -1455,7 +1459,9 @@ void CPPU::RENDERSCANLINE ( int scanline )
                   }
                   spriteColorIdx |= (pSprite->attribData<<2);
 
+                  // Render background color if necessary...
                   if ( !(spriteColorIdx&0x3) ) spriteColorIdx = 0;
+                  if ( !(rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) ) spriteColorIdx = 0;
 
                   if ( spriteColorIdx&0x3 )
                   {
@@ -1473,68 +1479,77 @@ void CPPU::RENDERSCANLINE ( int scanline )
             PIXELPIPELINES ( rSCROLLX(), &a, &b1, &b2 );
             bkgndColorIdx = ((a<<2)|b1|(b2<<1));
 
+            // Render background color if necessary...
             if ( !(bkgndColorIdx&0x3) ) bkgndColorIdx = 0;
+            if ( !(rPPU(PPUMASK)&PPUMASK_RENDER_BKGND) ) bkgndColorIdx = 0;
 
             // Sprite/background pixel rendering determination...
-            if ( (pSelectedSprite) &&
-                 ((!(pSelectedSprite->spriteBehind)) ||
-                 ((bkgndColorIdx == 0) &&
-                 (spriteColorIdx != 0))) &&
-                 (rPPU(PPUMASK)&PPUMASK_RENDER_SPRITES) )
+            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
             {
-               // Check for sprite rendering event breakpoint...
-               CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSprite->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
-
-               // Draw sprite...
-               *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-               *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-            }
-            else
-            {
-               if ( (idxx>=startBkgnd) && (rPPU(PPUMASK)&PPUMASK_RENDER_BKGND) )
+               if ( (pSelectedSprite) &&
+                    ((!(pSelectedSprite->spriteBehind)) ||
+                    ((bkgndColorIdx == 0) &&
+                    (spriteColorIdx != 0))) )
                {
+                  // Check for sprite rendering event breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSprite->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
+
+                  // Draw sprite...
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               }
+               else if ( p>=startBkgnd )
+               {
+                  // Draw background...
                   *pTV = CBasePalette::GetPaletteR(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                   *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                   *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                }
                else
                {
-                  if ( (m_ppuAddr&0x3F00) == 0x3F00 )
+                  // Draw 'nothing'...
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               }
+
+               // Sprite 0 hit checks...
+               if ( (pSelectedSprite) &&
+                    (pSelectedSprite->spriteIdx == 0) &&
+                    (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
+                    (bkgndColorIdx != 0) &&
+                    (p < 255) )
+               {
+                  if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
                   {
-                     *pTV = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                     *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                     *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  }
-                  else
-                  {
-                     *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                     *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                     *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                     wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
+
+                     // Save last sprite 0 hit coords for OAM viewer...
+                     m_lastSprite0HitX = p;
+                     m_lastSprite0HitY = scanline;
+
+                     // Add trace tag for Sprice 0 hit...
+                     CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eSource_PPU, 0, 0, 0 );
+
+                     // Check for Sprite 0 Hit breakpoint...
+                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
                   }
                }
             }
-
-            // Sprite 0 hit checks...
-            if ( (pSelectedSprite) &&
-                 (pSelectedSprite->spriteIdx == 0) &&
-                 (!(rPPU(PPUSTATUS)&PPUSTATUS_SPRITE_0_HIT)) &&
-                 (bkgndColorIdx != 0) &&
-                 (p < 255) )
+            else
             {
-               if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) )
+               if ( (m_ppuAddr&0x3F00) == 0x3F00 )
                {
-                  wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
-
-                  // Save last sprite 0 hit coords for OAM viewer...
-                  m_lastSprite0HitX = p;
-                  m_lastSprite0HitY = scanline;
-
-                  // TODO: update tracer info
-                  CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eSource_PPU, 0, 0, 0 );
-
-                  // Check for Sprite 0 Hit breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+               }
+               else
+               {
+                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
                }
             }
 
@@ -1561,30 +1576,31 @@ void CPPU::RENDERSCANLINE ( int scanline )
 
    // Fill pipeline for next scanline...
    memcpy ( m_bkgndBuffer.data, m_bkgndBuffer.data+1, sizeof(BackgroundBufferData) );
-   GATHERBKGND ( 0 );
-   GATHERBKGND ( 1 );
-   GATHERBKGND ( 2 );
-   GATHERBKGND ( 3 );
-   GATHERBKGND ( 4 );
-   GATHERBKGND ( 5 );
-   GATHERBKGND ( 6 );
-   GATHERBKGND ( 7 );
+   for ( p = 0; p < 8; p++ )
+   {
+      GATHERBKGND ( p );
+   }
 
    memcpy ( m_bkgndBuffer.data, m_bkgndBuffer.data+1, sizeof(BackgroundBufferData) );
-   GATHERBKGND ( 0 );
-   GATHERBKGND ( 1 );
-   GATHERBKGND ( 2 );
-   GATHERBKGND ( 3 );
-   GATHERBKGND ( 4 );
-   GATHERBKGND ( 5 );
-   GATHERBKGND ( 6 );
-   GATHERBKGND ( 7 );
+   for ( p = 0; p < 8; p++ )
+   {
+      GATHERBKGND ( p );
+   }
 
    // Finish off scanline render clock cycles...
-   EMULATE();
-   GARBAGE ( 0x2000, eTarget_NameTable );
-   EMULATE();
-   GARBAGE ( 0x2000, eTarget_NameTable );
+   for ( p = 0; p < 2; p++ )
+   {
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+      {
+         EMULATE();
+         GARBAGE ( 0x2000, eTarget_NameTable );
+      }
+      else
+      {
+         EMULATE();
+         EMULATE();
+      }
+   }
 
    // If this is a visible scanline it is 341 clocks long both NTSC and PAL...
    if ( scanline >= 0 )
@@ -1626,34 +1642,26 @@ void CPPU::GATHERBKGND ( char phase )
 
    if ( phase == 1 )
    {
-      patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
-      mapperfunc[CROM::MAPPER()].latch ( patternIdx );
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+      {
+         patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
+         mapperfunc[CROM::MAPPER()].latch ( patternIdx );
+      }
+      else
+      {
+         EMULATE();
+      }
    }
    else if ( phase == 3 )
    {
-      // Re-latch PPU address...
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
-         if ( (m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE )
-         {
-            if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 251) &&
-                 ((m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE) )
-            {
-               SCANLINEEND ();
-            }
-
-            if ( (m_ppuAddr&0x001F) != 0x001F )
-            {
-               m_ppuAddr++;
-            }
-            else
-            {
-               m_ppuAddr ^= 0x041F;
-            }
-         }
+         attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
       }
-
-      attribData = RENDER ( attribAddr,eTracer_RenderBkgnd );
+      else
+      {
+         EMULATE();
+      }
 
       if ( (tileY&0x0002) == 0 )
       {
@@ -1740,11 +1748,25 @@ void CPPU::GATHERBKGND ( char phase )
    }
    else if ( phase == 5 )
    {
-      bkgndTemp.patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+      {
+         bkgndTemp.patternData1 = RENDER ( patternIdx,eTracer_RenderBkgnd );
+      }
+      else
+      {
+         EMULATE();
+      }
    }
    else if ( phase == 7 )
    {
-      bkgndTemp.patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+      {
+         bkgndTemp.patternData2 = RENDER ( patternIdx+PATTERN_SIZE,eTracer_RenderBkgnd );
+      }
+      else
+      {
+         EMULATE();
+      }
 
       memcpy ( pBkgnd, &bkgndTemp, sizeof(BackgroundBufferData) );
    }
@@ -1767,6 +1789,27 @@ void CPPU::UPDATEADDRESS ( void )
       {
          FRAMESTART ();
       }
+      else if ( (m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE )
+      {
+         if ( (m_cycles%PPU_CYCLES_PER_SCANLINE) == 251 )
+         {
+            SCANLINEEND ();
+         }
+         if ( (((m_cycles%PPU_CYCLES_PER_SCANLINE)%8) == 3) &&
+              (((m_cycles%PPU_CYCLES_PER_SCANLINE) < 256) ||
+              ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 323) ||
+              ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 331)) )
+         {
+            if ( (m_ppuAddr&0x001F) != 0x001F )
+            {
+               m_ppuAddr++;
+            }
+            else
+            {
+               m_ppuAddr ^= 0x041F;
+            }
+         }
+      }
    }
 }
 
@@ -1784,6 +1827,7 @@ void CPPU::GATHERSPRITES ( int scanline )
    int           yByte = SPRITEY;
    int           roll = 0;
    SpriteBufferData devNull;
+   int p;
 
    // Clear sprite buffer....
    m_spriteBuffer.count = 0;
@@ -1859,25 +1903,40 @@ void CPPU::GATHERSPRITES ( int scanline )
          }
 
          // Garbage nametable fetches according to Samus Aran...
-         UPDATEADDRESS();
-         EMULATE();
-         UPDATEADDRESS();
-         GARBAGE ( 0x2000, eTarget_NameTable );
-         UPDATEADDRESS();
-         EMULATE();
-         UPDATEADDRESS();
-         GARBAGE ( 0x2000, eTarget_NameTable );
+         for ( p = 0; p < 2; p++ )
+         {
+            if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+            {
+               EMULATE();
+               GARBAGE ( 0x2000, eTarget_NameTable );
+            }
+            else
+            {
+               EMULATE();
+               EMULATE();
+            }
+         }
 
          // Get sprite's pattern data...
-         UPDATEADDRESS();
          EMULATE();
-         UPDATEADDRESS();
-         pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
-         mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
-         UPDATEADDRESS();
+         if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+         {
+            pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
+            mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
+         }
+         else
+         {
+            EMULATE();
+         }
          EMULATE();
-         UPDATEADDRESS();
-         pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
+         if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+         {
+            pSprite->patternData2 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7)+PATTERN_SIZE, eTracer_RenderSprite );
+         }
+         else
+         {
+            EMULATE();
+         }
       }
 
       // Is the sprite on this scanline?
@@ -1933,27 +1992,42 @@ void CPPU::GATHERSPRITES ( int scanline )
    for ( sprite = m_spriteBuffer.count; sprite < 8; sprite++ )
    {
       // Garbage nametable fetches according to Samus Aran...
-      UPDATEADDRESS();
-      EMULATE();
-      UPDATEADDRESS();
-      GARBAGE ( 0x2000, eTarget_NameTable );
-      UPDATEADDRESS();
-      EMULATE();
-      UPDATEADDRESS();
-      GARBAGE ( 0x2000, eTarget_NameTable );
+      for ( p = 0; p < 2; p++ )
+      {
+         if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+         {
+            EMULATE();
+            GARBAGE ( 0x2000, eTarget_NameTable );
+         }
+         else
+         {
+            EMULATE();
+            EMULATE();
+         }
+      }
       if ( spriteSize == 16 )
       {
          spritePatBase = (GARBAGE_SPRITE_FETCH&0x01)<<12;
          patternIdx &= 0xFE;
       }
-      UPDATEADDRESS();
       EMULATE();
-      UPDATEADDRESS();
-      GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
-      UPDATEADDRESS();
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+      {
+         GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
+      }
+      else
+      {
+         EMULATE();
+      }
       EMULATE();
-      UPDATEADDRESS();
-      GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+      {
+         GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
+      }
+      else
+      {
+         EMULATE();
+      }
    }
 
    // Order sprites by priority for rendering...

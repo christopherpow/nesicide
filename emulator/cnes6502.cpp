@@ -3007,8 +3007,6 @@ void C6502::RENDEREXECUTIONVISUALIZER ( void )
             m_pExecutionVisualizerInspectorTV[((idxy<<9) * 3) + (idxx * 3) + 2] = 0;
          }
 
-         // CPTODO: account for odd-frame cycle skip...
-
          if ( (idxx < PPU_CYCLES_PER_SCANLINE) && (idxy < numScanlines) )
          {
             marked = 0;
@@ -3084,7 +3082,6 @@ void C6502::EMULATE ( int cycles )
 
 void C6502::STEALCYCLES ( int cycles )
 {
-#if 0
 // CPTODO: complete implementation of cycle stealing that affects $4016 reads
    if ( (!m_sync) && m_write )
    {
@@ -3099,9 +3096,6 @@ void C6502::STEALCYCLES ( int cycles )
    {
       for ( int i = 0; i < cycles; i++ ) ADVANCE();
    }
-#else
-   for ( int i = 0; i < cycles; i++ ) ADVANCE();
-#endif
 }
 
 void C6502::ADVANCE ( void )

@@ -49,9 +49,9 @@
 | PASS | | cpu_reset\ram_after_reset.nes | |
 | PASS | | cpu_reset\registers.nes | |
 | PASS | | cpu_timing_test6\cpu_timing_test.nes | Passes official and NOP, fails undocumented (temporarily due to CPU restructuring) |
-| FAIL | | dmc_dma_during_read4\dma_2007_read.nes | |
+| PASS | | dmc_dma_during_read4\dma_2007_read.nes | CRC: 5E3DF9C4 |
 | PASS | | dmc_dma_during_read4\dma_2007_write.nes | |
-| FAIL | | dmc_dma_during_read4\dma_4016_read.nes | |
+| FAIL | | dmc_dma_during_read4\dma_4016_read.nes | Too many reads stealing joypad bits. |
 | FAIL | | dmc_dma_during_read4\double_2007_read.nes | |
 | PASS | | dmc_dma_during_read4\read_write_2007.nes | |
 | ???? | Not sure yet. | dmc_tests\buffer_retained.nes | |
@@ -93,22 +93,27 @@
 | PASS | | nes_instr_test\rom_singles\09-branches.nes | |
 | PASS | | nes_instr_test\rom_singles\10-stack.nes | |
 | PASS | | nes_instr_test\rom_singles\11-special.nes | |
+| PASS | | nmi_sync\demo_ntsc.nes | |
+| PASS | | nmi_sync\demo_pal.nes | |
 | PASS | | oam_read\oam_read.nes | |
 | PASS | | oam_stress\oam_stress.nes | |
+| FAIL | | other\blargg_litewall-2.nes | Strange sawtooth artifacting. |
+| PASS | | other\litewall5.nes | |
 | PASS | | other\midscanline.nes | | 
 | PASS | | other\nestest.nes | |
 | PASS | | other\PCM.demo.wgraphics.nes | | 
-| FAIL | Incorrect rastering. | other\RasterChromaLuma.NES | |
+| PASS | | other\RasterChromaLuma.NES | |
 | PASS | | other\RasterDemo.NES | |
 | PASS | | other\RasterTest1.NES | |
 | PASS | | other\RasterTest2.NES | |
-| FAIL | Incorrect rastering. | other\RasterTest3.NES | |
-| FAIL | Incorrect rastering. | other\RasterTest3a.NES | |
-| FAIL | Incorrect rastering. | other\RasterTest3b.NES | |
-| FAIL | Incorrect rastering. | other\RasterTest3c.NES | |
-| FAIL | Incorrect rastering. | other\RasterTest3d.NES | |
-| FAIL | Incorrect rastering. | other\RasterTest3e.NES | |
+| PASS | | other\RasterTest3.NES | |
+| PASS | | other\RasterTest3a.NES | |
+| PASS | | other\RasterTest3b.NES | |
+| PASS | | other\RasterTest3c.NES | |
+| PASS | | other\RasterTest3d.NES | |
+| PASS | | other\RasterTest3e.NES | |
 | FAIL | Incorrect OAM readback. | other\read2004.nes | Tests OAM readback. |
+| PASS | other\Retrocoders - Years behind.NES | |
 | PASS | | other\S0.NES | Tests Sprite-0 hit visually. |
 | PASS | | pal_apu_tests\01.len_ctr.nes | |
 | PASS | | pal_apu_tests\02.len_table.nes | |
@@ -121,7 +126,12 @@
 | PASS | | pal_apu_tests\10.len_halt_timing.nes | |
 | PASS | | pal_apu_tests\11.len_reload_timing.nes | |
 | PASS | | ppu_open_bus\ppu_open_bus.nes | |
+| FAIL | Conflicts: 72/1000 | read_joy3\count_errors.nes | |
+| FAIL | Errors: 7/1000 | read_joy3\count_errors_fast.nes | |
+| PASS | | read_joy3\test_buttons.nes | |
+| PASS | | read_joy3\thorough_test.nes | |
 | PASS | | scanline\scanline.nes | |
+| PASS | | scrolltest\scroll.nes | Strange characters instead of graphics but equivalent results on other emus. |
 | PASS | | sprdma_and_dmc_dma\sprdma_and_dmc_dma.nes | |
 | PASS | | sprdma_and_dmc_dma\sprdma_and_dmc_dma_512.nes | |
 | PASS | | sprite_hit_tests_2005.10.05\01.basics.nes | |
@@ -140,6 +150,7 @@
 | FAIL | Code $05: Set too late for first scanline | sprite_overflow_tests\3.Timing.nes | |
 | PASS | | sprite_overflow_tests\4.Obscure.nes | |
 | PASS | | sprite_overflow_tests\5.Emulator.nes | |
+| PASS | | stomper\smwstomp.nes | |
 | FAIL | 12/14 PPU, 0/0 APU, 48/48 CPU, 0/0 I/O | stress\NEStress.nes | |
 | PASS | | vbl_nmi_timing\1.frame_basics.nes | |
 | PASS | | vbl_nmi_timing\2.vbl_timing.nes | |
