@@ -1586,9 +1586,10 @@ void CAPU::EMULATE ( int cycles )
       }
 
       // Clock the 240Hz sequencer.
-      // APU sequencer mode 1
+      // NTSC APU
       if ( CNES::VIDEOMODE() == MODE_NTSC )
       {
+         // APU sequencer mode 1
          if ( m_sequencerMode )
          {
             if ( m_cycles == 1 )
@@ -1657,7 +1658,7 @@ void CAPU::EMULATE ( int cycles )
                if ( m_irqEnabled )
                {
                   m_irqAsserted = true;
-                  C6502::ASSERTIRQ(eSource_APU);
+//                  C6502::ASSERTIRQ(eSource_APU);
 
                   // Check for IRQ breakpoint...
                   CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
@@ -1673,8 +1674,10 @@ void CAPU::EMULATE ( int cycles )
             }
          }
       }
-      else // MODE_PAL
+      // PAL APU
+      else
       {
+         // APU sequencer mode 1
          if ( m_sequencerMode )
          {
             if ( m_cycles == 1 )
@@ -1743,7 +1746,7 @@ void CAPU::EMULATE ( int cycles )
                if ( m_irqEnabled )
                {
                   m_irqAsserted = true;
-                  C6502::ASSERTIRQ(eSource_APU);
+//                  C6502::ASSERTIRQ(eSource_APU);
 
                   // Check for IRQ breakpoint...
                   CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);

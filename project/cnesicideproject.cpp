@@ -277,6 +277,8 @@ void CNesicideProject::set_projectTitle(QString value)
 
 bool CNesicideProject::createProjectFromRom(QString fileName)
 {
+   QString str;
+
     // Make sure our pointers are in order..
     if (!m_pointerToCartridge)
         m_pointerToCartridge = new CCartridge();
@@ -346,9 +348,6 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         m_pointerToCartridge->setBatteryBackedRam(romCB1 & 0x02);
         bool hasTrainer = (romCB1 & 0x04);
 
-        // Extract the four lower bits of the mapper number
-        m_pointerToCartridge->setMapperNumber((romCB1>>4)&0x0F);
-
         // ROM Control Byte 2:
         //  Bits 0-3 - Reserved for future usage and should all be 0.
         //  Bits 4-7 - Four upper bits of the mapper number.
@@ -357,12 +356,12 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         if ( romCB2&0x0F )
         {
-            romCB2 &= 0xF0;
+            romCB2 = 0x00;
             QMessageBox::information(0, "Warning", "Invalid iNES header format.\nSave the project to fix.");
         }
 
         // Extract the upper four bits of the mapper number
-        m_pointerToCartridge->setMapperNumber(m_pointerToCartridge->getMapperNumber() | (romCB2 & 0xF0));
+        m_pointerToCartridge->setMapperNumber(((romCB1>>4)&0x0F)|(romCB2&0xF0));
 
         // Number of 8 KB RAM banks. For compatibility with previous
         // versions of the iNES format, assume 1 page of RAM when
@@ -415,6 +414,68 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
             m_pointerToCartridge->getPointerToChrRomBanks()->banks.append(romBank);
 
         }
+
+        builderTextLogger.clear();
+
+        str = "<b>Searcing internal game database: ";
+        str += gameDatabase.getGameDBAuthor();
+        str += ", ";
+        str += gameDatabase.getGameDBTimestamp();
+        str += "...</b>";
+        builderTextLogger.write(str);
+
+        bool gameFoundInDB = gameDatabase.find(m_pointerToCartridge);
+        if ( gameFoundInDB )
+        {
+           str = "SHA1: ";
+           str += gameDatabase.getSHA1();
+           builderTextLogger.write(str);
+
+           str = "Name: ";
+           str += gameDatabase.getName();
+           builderTextLogger.write(str);
+
+           str = "Publisher (date): ";
+           str += gameDatabase.getPublisher();
+           str += " (";
+           str += gameDatabase.getDate();
+           str += ")";
+           builderTextLogger.write(str);
+
+           str = "NESICIDE - ";
+           str += gameDatabase.getName();
+
+           // Set main window title...
+           nesicideWindow->setWindowTitle(str);
+
+           // Do NTSC/PAL autodetecting
+           if ( gameDatabase.getRegion() == MODE_NTSC )
+           {
+              // CPTODO: update the stupid UI...
+              CNES::VIDEOMODE(MODE_NTSC);
+           }
+           else
+           {
+              // CPTODO: update the stupid UI...
+              CNES::VIDEOMODE(MODE_PAL);
+           }
+
+           // Check cartridge validity?
+        }
+        else
+        {
+           str = "<i><font color=\"red\">Not found.</font></i>";
+           builderTextLogger.write(str);
+
+           str = "NESICIDE - ";
+           str += fileName;
+           str += " [Homebrew]";
+
+           // Set main window title...
+           nesicideWindow->setWindowTitle(str);
+        }
+        str = "<b>Game loaded.</b>";
+        builderTextLogger.write(str);
 
         fileIn.close();
     }

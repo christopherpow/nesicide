@@ -147,7 +147,9 @@ SOURCES += mainwindow.cpp \
     debugger/mapperinformationdialog.cpp \
     debugger/mapperinformationinspector.cpp \
     debugger/apuinformationdialog.cpp \
-    debugger/apuinformationinspector.cpp
+    debugger/apuinformationinspector.cpp \
+    common/cgamedatabasehandler.cpp \
+    common/cconfigurator.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -264,7 +266,9 @@ HEADERS += mainwindow.h \
     debugger/mapperinformationdialog.h \
     debugger/mapperinformationinspector.h \
     debugger/apuinformationdialog.h \
-    debugger/apuinformationinspector.h
+    debugger/apuinformationinspector.h \
+    common/cgamedatabasehandler.h \
+    common/cconfigurator.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

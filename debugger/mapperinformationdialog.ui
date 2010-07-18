@@ -246,46 +246,36 @@
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="noInternals"/>
          <widget class="QWidget" name="mapper1">
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="1" column="0">
+           <item row="0" column="0">
             <widget class="QLabel" name="label_15">
              <property name="text">
               <string>Shift Register:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1" colspan="2">
+           <item row="0" column="1" colspan="2">
             <widget class="QLineEdit" name="shiftRegister">
              <property name="readOnly">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
+           <item row="0" column="3">
             <widget class="QLabel" name="label_16">
              <property name="text">
               <string>Shift Register Bit:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="4">
+           <item row="0" column="4">
             <widget class="QLineEdit" name="shiftRegisterBit">
              <property name="readOnly">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="5">
-            <widget class="QLabel" name="label_17">
-             <property name="text">
-              <string>Mapper Internals</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>

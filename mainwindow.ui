@@ -186,14 +186,14 @@
     </property>
     <widget class="QMenu" name="menuVideo">
      <property name="title">
-      <string>Video</string>
+      <string>Video Settings</string>
      </property>
      <addaction name="actionNTSC"/>
      <addaction name="actionPAL"/>
     </widget>
     <widget class="QMenu" name="menuAudio">
      <property name="title">
-      <string>Audio</string>
+      <string>Audio Settings</string>
      </property>
      <addaction name="actionMute_All"/>
      <addaction name="separator"/>

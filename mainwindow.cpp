@@ -247,6 +247,7 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->actionNoise->setChecked(true);
    ui->actionDelta_Modulation->setChecked(true);
    ui->actionMute_All->setChecked(false);
+   ui->actionNTSC->setChecked(true);
    CNES::VIDEOMODE(MODE_NTSC);
 
    QStringList sl_raw = QApplication::arguments();
@@ -323,15 +324,6 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::projectDataChangesEvent()
 {
-    QString str;
-    str.append("NESICIDE2");
-    if (nesicideProject->get_isInitialized())
-    {
-        str.append(" - ");
-        str.append(nesicideProject->get_projectTitle());
-    }
-
-    this->setWindowTitle(str);
     projectTreeviewModel->layoutChangedEvent();
 
     // Enabled/Disable actions based on if we have a project loaded or not
@@ -931,6 +923,9 @@ void MainWindow::on_actionNTSC_triggered(bool checked)
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
    CNES::VIDEOMODE(MODE_NTSC);
+
+   emulator->resetEmulator();
+   emulator->startEmulation();
 }
 
 void MainWindow::on_actionPAL_triggered(bool checked)
@@ -938,6 +933,9 @@ void MainWindow::on_actionPAL_triggered(bool checked)
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
    CNES::VIDEOMODE(MODE_PAL);
+
+   emulator->resetEmulator();
+   emulator->startEmulation();
 }
 
 void MainWindow::on_actionDelta_Modulation_toggled(bool value)

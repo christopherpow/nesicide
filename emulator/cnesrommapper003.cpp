@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 #include "cnesrommapper003.h"
 
 #include "cnesppu.h"
@@ -73,14 +73,14 @@ void CROMMapper003::MAPPER ( UINT addr, unsigned char data )
 {
    m_reg = data;
 
-   m_pCHRmemory [ 0 ] = m_CHRROMmemory [ m_reg ] + (0<<UPSHIFT_1KB);
-   m_pCHRmemory [ 1 ] = m_CHRROMmemory [ m_reg ] + (1<<UPSHIFT_1KB);
-   m_pCHRmemory [ 2 ] = m_CHRROMmemory [ m_reg ] + (2<<UPSHIFT_1KB);
-   m_pCHRmemory [ 3 ] = m_CHRROMmemory [ m_reg ] + (3<<UPSHIFT_1KB);
-   m_pCHRmemory [ 4 ] = m_CHRROMmemory [ m_reg ] + (4<<UPSHIFT_1KB);
-   m_pCHRmemory [ 5 ] = m_CHRROMmemory [ m_reg ] + (5<<UPSHIFT_1KB);
-   m_pCHRmemory [ 6 ] = m_CHRROMmemory [ m_reg ] + (6<<UPSHIFT_1KB);
-   m_pCHRmemory [ 7 ] = m_CHRROMmemory [ m_reg ] + (7<<UPSHIFT_1KB);
+   m_pCHRmemory [ 0 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (0<<UPSHIFT_1KB);
+   m_pCHRmemory [ 1 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (1<<UPSHIFT_1KB);
+   m_pCHRmemory [ 2 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (2<<UPSHIFT_1KB);
+   m_pCHRmemory [ 3 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (3<<UPSHIFT_1KB);
+   m_pCHRmemory [ 4 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (4<<UPSHIFT_1KB);
+   m_pCHRmemory [ 5 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (5<<UPSHIFT_1KB);
+   m_pCHRmemory [ 6 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (6<<UPSHIFT_1KB);
+   m_pCHRmemory [ 7 ] = m_CHRROMmemory [ m_reg%m_numChrBanks ] + (7<<UPSHIFT_1KB);
 
    // Check mapper state breakpoints...
    CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);

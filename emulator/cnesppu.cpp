@@ -335,14 +335,25 @@ void CPPU::EMULATE(void)
       cpuCycles = m_curCycles/PPU_CPU_RATIO_PAL;
    }
 
+   // If the PPU started a sprite DMA because it was told to
+   // by the CPU (writing to $4014), do the DMA cycles one at
+   // a time, inserting stolen CPU cycles between to create the
+   // 512 + [1 or 2] CPU cycles of DMA transfer.
+   // The CPU is moved through the paces even though it cannot
+   // do anything, so that it can invoke the APU to do its job
+   // for each CPU cycle.
    if ( m_dmaCounter && cpuCycles )
    {
+      // Steal a CPU cycle if it is the appropriate time to do so...
       if ( (m_dmaCounter > 512) || (!(m_dmaCounter&1)) )
       {
          C6502::STEALCYCLES ( 1 );
          m_dmaCounter--;
+
+         // Don't do DMA this cycle...
          doDma = false;
       }
+      // If we are on a DMA cycle, do the DMA...
       if ( doDma )
       {
          *(m_PPUoam+((((512-m_dmaCounter)>>1)+m_oamAddrForDma)&0xFF)) = C6502::DMA ( (m_dmaAddr)|(((512-m_dmaCounter)>>1)&0xFF), eSource_PPU );
@@ -350,6 +361,7 @@ void CPPU::EMULATE(void)
       }
    }
 
+   // Run 0 or 1 CPU cycles...
    if ( CNES::VIDEOMODE() == MODE_NTSC )
    {
       C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );

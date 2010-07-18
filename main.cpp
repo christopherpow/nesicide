@@ -1,7 +1,8 @@
-
 #include <QtGui/QApplication>
+
 #include "main.h"
 #include "mainwindow.h"
+#include "cconfigurator.h"
 
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
@@ -14,9 +15,24 @@ BreakpointWatcherThread* breakpointWatcher = NULL;
 // opening/closing of inspector windows on things like breakpoints.
 QHash<QString,QDockWidget*> inspectors;
 
+// Database of all known games.
+CGameDatabaseHandler gameDatabase;
+
+// Main window of application.
+MainWindow* nesicideWindow;
+
+// Persistent settings for application.
+CConfigurator* CONFIG;
+
 int main(int argc, char *argv[])
 {
    QApplication nesicideApplication(argc, argv);
+
+   // Initialize the game database object...
+   gameDatabase.initialize("NesCarts (2010-02-08).xml");
+
+   // Initialize the persistent configuration...
+   CONFIG = new CConfigurator();
 
    // Create the NES emulator and breakpoint watcher threads...
    emulator = new NESEmulatorThread ();
@@ -27,8 +43,8 @@ int main(int argc, char *argv[])
    breakpointWatcher->start();
 
    // Create, show, and execute the main window (UI) thread.
-   MainWindow nesicideWindow;
-   nesicideWindow.show();
+   nesicideWindow = new MainWindow();
+   nesicideWindow->show();
 
    int result = nesicideApplication.exec();
 
