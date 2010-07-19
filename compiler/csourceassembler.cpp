@@ -61,7 +61,6 @@ bool CSourceAssembler::assemble()
    }
 
    int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
-   int bankIndex = 0;
 
    // Set up PRG-ROM banks...
    for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )

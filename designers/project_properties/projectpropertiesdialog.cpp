@@ -289,6 +289,7 @@ QString ProjectPropertiesDialog::getMainSource()
 
 void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
 {
+    action = action;
     // Try to get the selected item
     QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
 
@@ -309,6 +310,7 @@ void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
 
 void ProjectPropertiesDialog::on_greenHorizontalSlider_actionTriggered(int action)
 {
+    action = action;
     // Try to get the selected item
     QTableWidgetItem *item = ui->tableWidget->selectedItems().first();
 
