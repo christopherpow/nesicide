@@ -7,8 +7,8 @@ aboutdialog::aboutdialog(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->webView->setHtml("<html><head></head><body style=\"background-color: black; color: #CCCCCC; text-align:center; font-family:sans-serif; font-size: 10pt\">"
-                         "<img src=\"http://www.nesicide.com/images/nesicide.jpg\" /><br />"
-                         "NESICIDE - The NES Development GUI.<br /><br />"
+                         "<img src=\"http://wiki.nesicide.com/lib/exe/fetch.php?media=nesicide.png\" /><br /><br />"
+                         "NESICIDE2 - The NES Development GUI.<br /><br />"
                          "<b>Programmers</b><br />"
                          "Christopher Pow - <i>Emulation, Assembler and Debugger Subsystems</i><br />"
                          "Tim Sarbin - <i>User Interface and Designers</i><br />"
