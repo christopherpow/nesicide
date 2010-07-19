@@ -23,7 +23,7 @@
 #include "ppuinformationinspector.h"
 #include "apuinformationinspector.h"
 #include "mapperinformationinspector.h"
-#include "aboutdialog.h"z
+#include "aboutdialog.h"
 
 namespace Ui {
     class MainWindow;
