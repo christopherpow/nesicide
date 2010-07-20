@@ -82,29 +82,9 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
-    <property name="title">
-     <string>&amp;File</string>
-    </property>
-    <addaction name="actionNew_Project"/>
-    <addaction name="actionCreate_Project_from_ROM"/>
-    <addaction name="separator"/>
-    <addaction name="actionOpen_Project"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_Active_Document"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_Project"/>
-    <addaction name="actionSave_Project_As"/>
-    <addaction name="separator"/>
-    <addaction name="actionProject_Properties"/>
-    <addaction name="separator"/>
-    <addaction name="action_Close_Project"/>
-    <addaction name="separator"/>
-    <addaction name="actionE_xit"/>
-   </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
      <string>Project</string>
@@ -113,6 +93,8 @@
     <addaction name="separator"/>
     <addaction name="actionCompiler_Output"/>
     <addaction name="actionEmulation_Window"/>
+    <addaction name="separator"/>
+    <addaction name="actionProject_Properties"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -186,14 +168,14 @@
     </property>
     <widget class="QMenu" name="menuVideo">
      <property name="title">
-      <string>Video Settings</string>
+      <string>Video</string>
      </property>
      <addaction name="actionNTSC"/>
      <addaction name="actionPAL"/>
     </widget>
     <widget class="QMenu" name="menuAudio">
      <property name="title">
-      <string>Audio Settings</string>
+      <string>Audio</string>
      </property>
      <addaction name="actionMute_All"/>
      <addaction name="separator"/>
@@ -205,6 +187,24 @@
     </widget>
     <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
+   </widget>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionCreate_Project_from_ROM"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Active_Document"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Project"/>
+    <addaction name="actionSave_Project_As"/>
+    <addaction name="separator"/>
+    <addaction name="action_Close_Project"/>
+    <addaction name="separator"/>
+    <addaction name="actionE_xit"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>

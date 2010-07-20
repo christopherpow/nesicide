@@ -60,18 +60,24 @@ bool CSourceAssembler::assemble()
       }
    }
 
-   // Remove all banks...
+   int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
 
    // Set up PRG-ROM banks...
    for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
    {
-      CPRGROMBank *curBank = new CPRGROMBank();
-      curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
-      memset(curBank->get_pointerToBankData(), 0, 0x4000);
-      curBank->InitTreeItem(prgRomBanks);
-      prgRomBanks->appendChild(curBank);
-      prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+      // Grab either a previously used bank, or a new one
+      CPRGROMBank *curBank;
+      bool doAppend = (oldBanks <= 0);
+      curBank = (--oldBanks >= 1) ? prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks) : new CPRGROMBank();
 
+      // Initialize the bank into the project banks
+      if (doAppend) {
+         // This is a new bank
+         curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
+         curBank->InitTreeItem(prgRomBanks);
+         prgRomBanks->appendChild(curBank);
+         prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+      }
       curBank->set_pointerToBankData ( (quint8*)romData );
    }
 

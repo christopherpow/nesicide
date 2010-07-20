@@ -2,6 +2,7 @@
 #define CHRROMDISPLAYDIALOG_H
 
 #include <QDialog>
+#include <QFileDialog>
 #include "cchrrompreviewrenderer.h"
 
 namespace Ui {
@@ -34,6 +35,7 @@ public slots:
     void renderData();
 
 private slots:
+    void on_exportPushButton_clicked();
     void on_updateScanline_editingFinished();
     void on_verticalScrollBar_valueChanged(int value);
     void on_horizontalScrollBar_valueChanged(int value);

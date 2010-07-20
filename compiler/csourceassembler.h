@@ -22,7 +22,7 @@ const QString AssemblerPreprocessorDirectives[] =
     "BASE", "IF", "ELSEIF", "ELSE", "ENDIF",
     "IFDEF", "IFNDEF", "ENDIF",
     "MACRO", "ENDM", "REPT", "ENDR",
-    "ENUM", "ENDE",
+    "ENUM", "ENDE", "ADVANCE",
     ""
 };
 

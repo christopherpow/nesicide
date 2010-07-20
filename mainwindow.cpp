@@ -920,6 +920,7 @@ void MainWindow::on_MainWindow_destroyed()
 
 void MainWindow::on_actionNTSC_triggered(bool checked)
 {
+   checked = checked;
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
    CNES::VIDEOMODE(MODE_NTSC);
@@ -930,6 +931,7 @@ void MainWindow::on_actionNTSC_triggered(bool checked)
 
 void MainWindow::on_actionPAL_triggered(bool checked)
 {
+   checked = checked;
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
    CNES::VIDEOMODE(MODE_PAL);

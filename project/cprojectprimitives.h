@@ -16,8 +16,8 @@ public:
    CAttributeTables *m_attributeTables;
 
    // IXMLSerializable Interface Implementation
-   virtual bool serialize(QDomDocument &doc, QDomNode &node) { return true; }
-   virtual bool deserialize(QDomDocument &doc, QDomNode &node) { return true; }
+   virtual bool serialize(QDomDocument &doc, QDomNode &node) { IXMLEMPTYSPEC return true; }
+   virtual bool deserialize(QDomDocument &doc, QDomNode &node) { IXMLEMPTYSPEC return true; }
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;

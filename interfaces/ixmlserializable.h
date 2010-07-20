@@ -3,6 +3,8 @@
 
 #include <QtXml>
 
+#define IXMLEMPTYSPEC doc.firstChild(); node.firstChild();
+
 class IXMLSerializable
 {
 public:

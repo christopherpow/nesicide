@@ -44,7 +44,7 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
          m_offset = 0;
          m_length = MEM_8KB;
       break;
-      case eMemory_cartMapper:         
+      case eMemory_cartMapper:
          m_offset = 0; // bogus...
          m_length = 0; // bogus...
       break;
@@ -92,9 +92,11 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex &index, int role) c
    if (role != Qt::DisplayRole)
       return QVariant();
 
-   // FIXME: 64-bit support
+   #if __WORDSIZE == 64
    sprintf ( data, "%02X", (long)index.internalPointer() );
-   //sprintf ( data, "%02X", (int)index.internalPointer() );
+   #else
+   sprintf ( data, "%02X", (int)index.internalPointer() );
+   #endif
    return data;
 }
 

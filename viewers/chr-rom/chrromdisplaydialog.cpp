@@ -204,3 +204,19 @@ void CHRROMDisplayDialog::on_updateScanline_editingFinished()
 {
     CPPU::SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
 }
+
+void CHRROMDisplayDialog::on_exportPushButton_clicked()
+{
+   QString fileName = QFileDialog::getSaveFileName(this, QString("Save CHR-ROM Bank"), QString(""),
+                                                   QString("Binary File (*.bin)"));
+   if (!fileName.isEmpty())
+   {
+      QFile file(fileName);
+      file.open(QIODevice::WriteOnly);
+      QDataStream *ds = new QDataStream(&file);
+      ds->writeRawData((char*)chrrom, 0x4000);
+      file.close();
+      delete ds;
+
+   }
+}
