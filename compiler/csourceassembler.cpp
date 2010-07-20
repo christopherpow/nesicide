@@ -46,6 +46,7 @@ bool CSourceAssembler::assemble()
    else
    {
       builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with no errors...");
+      /*
       numSymbols = pasm_get_num_symbols();
       strBuffer.sprintf("<b>Symbol Table (%d symbols defined)</b>", numSymbols);
       builderTextLogger.write(strBuffer);
@@ -57,28 +58,28 @@ bool CSourceAssembler::assemble()
                            pasm_get_symbol_value(s),
                            pasm_get_symbol_linenum(s));
          builderTextLogger.write(strBuffer);
+      }*/
+
+      int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
+
+      // Set up PRG-ROM banks...
+      for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
+      {
+         // Grab either a previously used bank, or a new one
+         CPRGROMBank *curBank;
+         bool doAppend = (oldBanks <= 0);
+         curBank = (--oldBanks >= 0) ? prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks) : new CPRGROMBank();
+
+         // Initialize the bank into the project banks
+         if (doAppend) {
+            // This is a new bank
+            curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
+            curBank->InitTreeItem(prgRomBanks);
+            prgRomBanks->appendChild(curBank);
+            prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+         }
+         curBank->set_pointerToBankData ( (quint8*)romData );
       }
-   }
-
-   int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
-
-   // Set up PRG-ROM banks...
-   for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
-   {
-      // Grab either a previously used bank, or a new one
-      CPRGROMBank *curBank;
-      bool doAppend = (oldBanks <= 0);
-      curBank = (--oldBanks >= 0) ? prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks) : new CPRGROMBank();
-
-      // Initialize the bank into the project banks
-      if (doAppend) {
-         // This is a new bank
-         curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
-         curBank->InitTreeItem(prgRomBanks);
-         prgRomBanks->appendChild(curBank);
-         prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
-      }
-      curBank->set_pointerToBankData ( (quint8*)romData );
    }
 
    if ( !numErrors )
