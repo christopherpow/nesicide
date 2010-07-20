@@ -9,6 +9,8 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QWidget *parent) :
     model = new CChrRomItemListDisplayModel(ui->tableView);
     model->chrRomBankItems.append(chrRomBankItems);
     ui->tableView->setModel(model);
+
+    ui->tableView->setColumnWidth(0, 26);
 }
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()

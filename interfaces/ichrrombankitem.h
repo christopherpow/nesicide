@@ -3,6 +3,7 @@
 
 #include <QIcon>
 #include <QByteArray>
+#include <iprojecttreeviewitem.h>
 
 class IChrRomBankItem
 {

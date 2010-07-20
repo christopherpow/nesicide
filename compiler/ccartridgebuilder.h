@@ -3,6 +3,7 @@
 
 #include "cbuildertextlogger.h"
 #include "csourceassembler.h"
+#include "cgraphicsassembler.h"
 
 class CCartridgeBuilder
 {

@@ -214,7 +214,7 @@ void CHRROMDisplayDialog::on_exportPushButton_clicked()
       QFile file(fileName);
       file.open(QIODevice::WriteOnly);
       QDataStream *ds = new QDataStream(&file);
-      ds->writeRawData((char*)chrrom, 0x4000);
+      ds->writeRawData((char*)chrrom, 0x2000);
       file.close();
       delete ds;
 

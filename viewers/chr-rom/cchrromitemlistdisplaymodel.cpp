@@ -41,7 +41,7 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex &index, int role) c
    case 3:
       return QVariant(item->getChrRomBankItemSize());
    default:
-      return QVariant("x");
+      return QVariant("");
    }
 
 

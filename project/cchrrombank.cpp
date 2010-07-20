@@ -63,3 +63,27 @@ void CCHRROMBank::openItemEvent(QTabWidget *tabWidget)
 
 }
 
+bool CCHRROMBank::onCloseQuery()
+{
+   return true;
+}
+
+void CCHRROMBank::onClose()
+{
+   if (editor)
+   {
+       delete editor;
+       editor = (CHRROMDisplayDialog *)NULL;
+       tabId = -1;
+   }
+}
+
+int CCHRROMBank::getTabIndex()
+{
+   return tabId;
+}
+
+void CCHRROMBank::onSaveDocument()
+{
+
+}

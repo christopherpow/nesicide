@@ -17,6 +17,8 @@ public:
     QString getBankName();
     void setBankName(QString newName);
 
+    QList<IChrRomBankItem *>bankItems;
+
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
     virtual bool deserialize(QDomDocument &doc, QDomNode &node);

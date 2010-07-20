@@ -68,7 +68,7 @@ bool CSourceAssembler::assemble()
       // Grab either a previously used bank, or a new one
       CPRGROMBank *curBank;
       bool doAppend = (oldBanks <= 0);
-      curBank = (--oldBanks >= 1) ? prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks) : new CPRGROMBank();
+      curBank = (--oldBanks >= 0) ? prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks) : new CPRGROMBank();
 
       // Initialize the bank into the project banks
       if (doAppend) {
