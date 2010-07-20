@@ -427,15 +427,15 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         bool gameFoundInDB = gameDatabase.find(m_pointerToCartridge);
         if ( gameFoundInDB )
         {
-           str = "SHA1: ";
+           str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHA1: ";
            str += gameDatabase.getSHA1();
            builderTextLogger.write(str);
 
-           str = "Name: ";
+           str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name: ";
            str += gameDatabase.getName();
            builderTextLogger.write(str);
 
-           str = "Publisher (date): ";
+           str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Publisher (date): ";
            str += gameDatabase.getPublisher();
            str += " (";
            str += gameDatabase.getDate();
@@ -449,22 +449,12 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
            nesicideWindow->setWindowTitle(str);
 
            // Do NTSC/PAL autodetecting
-           if ( gameDatabase.getRegion() == MODE_NTSC )
-           {
-              // CPTODO: update the stupid UI...
-              CNES::VIDEOMODE(MODE_NTSC);
-           }
-           else
-           {
-              // CPTODO: update the stupid UI...
-              CNES::VIDEOMODE(MODE_PAL);
-           }
 
            // Check cartridge validity?
         }
         else
         {
-           str = "<i><font color=\"red\">Not found.</font></i>";
+           str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><font color=\"red\">Not found.</font></i>";
            builderTextLogger.write(str);
 
            str = "NESICIDE - ";

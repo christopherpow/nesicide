@@ -9,7 +9,19 @@
 
 #include "cbreakpointinfo.h"
 
-#define NUM_APU_BUFS 16
+// Samples per video frame for 44.1KHz audio output.
+// NTSC is 60Hz, PAL is 50Hz.  The number of samples
+// drives the rate at which the SDL library will invoke
+// the callback method to retrieve more audio samples to
+// play.
+#define APU_SAMPLES_NTSC 735
+#define APU_SAMPLES_PAL  882
+
+#define NUM_APU_BUFS 400
+#define MAX_APU_SAMPLES 1024
+#define APU_BUFFER_SIZE (NUM_APU_BUFS*MAX_APU_SAMPLES)
+#define APU_BUFFER_SIZE_NTSC (NUM_APU_BUFS*APU_SAMPLES_NTSC)
+#define APU_BUFFER_SIZE_PAL (NUM_APU_BUFS*APU_SAMPLES_PAL)
 
 // Breakpoint event identifiers.
 // These event identifiers must match the ordering
@@ -25,14 +37,6 @@ enum
 // APU mask register ($4017) bit definitions.
 #define APUSTATUS_FIVEFRAMES 0x80
 #define APUSTATUS_IRQDISABLE 0x40
-
-// Samples per video frame for 44.1KHz audio output.
-// NTSC is 60Hz, PAL is 50Hz.  The number of samples
-// drives the rate at which the SDL library will invoke
-// the callback method to retrieve more audio samples to
-// play.
-#define APU_SAMPLES_NTSC 735
-#define APU_SAMPLES_PAL  882
 
 // The CAPUOscillator class is the base class of all of the
 // sound channels within the APU.  There are five sound channels.
@@ -615,8 +619,8 @@ protected:
    static CAPUDMC m_dmc;
 
    static SDL_AudioSpec m_sdlAudioSpec;
-   static unsigned short m_waveBuf [ NUM_APU_BUFS ][ 1000 ];
-   static int m_waveBufDepth [ NUM_APU_BUFS ];
+   static unsigned short m_waveBuf [ APU_BUFFER_SIZE ];
+   static int m_waveBufDepth;
    static int m_waveBufProduce;
    static int m_waveBufConsume;
 

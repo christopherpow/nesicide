@@ -186,8 +186,8 @@ CAPUNoise     CAPU::m_noise;
 CAPUDMC       CAPU::m_dmc;
 
 SDL_AudioSpec  CAPU::m_sdlAudioSpec;
-unsigned short CAPU::m_waveBuf [ NUM_APU_BUFS ][ 1000 ] = { { 0, }, };
-int            CAPU::m_waveBufDepth [ NUM_APU_BUFS ] = { 0, };
+unsigned short CAPU::m_waveBuf [ APU_BUFFER_SIZE ] = { 0, };
+int            CAPU::m_waveBufDepth = 0;
 int            CAPU::m_waveBufProduce = 0;
 int            CAPU::m_waveBufConsume = 0;
 
@@ -572,16 +572,23 @@ void CAPU::OPEN ( void )
 
 void CAPU::PLAY ( Uint8 *stream, int len )
 {
-   int  waveBufDepth;
    unsigned short* waveBuf;
 
-   waveBufDepth = *(m_waveBufDepth+m_waveBufConsume);
-   waveBuf = *(m_waveBuf + m_waveBufConsume);
+   waveBuf = m_waveBuf + m_waveBufConsume;
+
+   if ( m_waveBufDepth < (len>>1) ) return;
 
    SDL_MixAudio ( stream, (const Uint8*)waveBuf, len, SDL_MIX_MAXVOLUME );
 
-   m_waveBufConsume++;
-   m_waveBufConsume %= NUM_APU_BUFS;
+   m_waveBufConsume += (len>>1);
+   if ( CNES::VIDEOMODE() == MODE_NTSC )
+   {
+      m_waveBufConsume %= APU_BUFFER_SIZE_NTSC;
+   }
+   else
+   {
+      m_waveBufConsume %= APU_BUFFER_SIZE_PAL;
+   }
 }
 
 void CAPU::CLOSE ( void )
@@ -704,6 +711,10 @@ void CAPU::RESET ( void )
    C6502::RELEASEIRQ ( eSource_APU );
    m_sequencerMode = 0;
    m_sequenceStep = 0;
+
+   m_waveBufProduce = 0;
+   m_waveBufConsume = 0;
+   m_waveBufDepth = 0;
 
    // At power-on reset APU is slightly ahead of CPU.
    m_cycles = 8;
@@ -1542,10 +1553,12 @@ void CAPUDMC::TIMERTICK ( void )
    SETDAC ( m_volume );
 }
 
+static char takeSample = 0;
 void CAPU::EMULATE ( int cycles )
 {
-   static char takeSample = 0;
-   static char takeSampleLimit;
+   char takeSampleLimit;
+   unsigned short* pWaveBuf = m_waveBuf+m_waveBufProduce;
+   int cycle;
 
    if ( CNES::VIDEOMODE() == MODE_NTSC )
    {
@@ -1555,11 +1568,6 @@ void CAPU::EMULATE ( int cycles )
    {
       takeSampleLimit = 37;
    }
-
-   unsigned short* pWaveBuf = *(m_waveBuf+m_waveBufProduce);
-   int* pWaveBufDepth = m_waveBufDepth+m_waveBufProduce;
-
-   int cycle;
 
    for ( cycle = 0; cycle < cycles; cycle++ )
    {
@@ -1625,7 +1633,7 @@ void CAPU::EMULATE ( int cycles )
                // Emit frame-end indication to Tracer...
                CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
 
-               SEQTICK ( 4 );
+               // Nothing to do this "tick"...
             }
          }
          // APU sequencer mode 0
@@ -1713,7 +1721,7 @@ void CAPU::EMULATE ( int cycles )
                // Emit frame-end indication to Tracer...
                CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eSource_APU, 0, 0, 0 );
 
-               SEQTICK ( 4 );
+               // Nothing to do this "tick"...
             }
          }
          // APU sequencer mode 0
@@ -1775,14 +1783,26 @@ void CAPU::EMULATE ( int cycles )
       takeSample%=takeSampleLimit;
       if ( !takeSample )
       {
-         (*(pWaveBuf+(*pWaveBufDepth))) = AMPLITUDE ();
-         (*pWaveBufDepth)++;
-
-         if ( (*pWaveBufDepth) == m_sampleRate )
+         (*pWaveBuf) = AMPLITUDE ();
+         m_waveBufProduce++;
+         m_waveBufDepth++;
+         if ( CNES::VIDEOMODE() == MODE_NTSC )
          {
-            m_waveBufProduce++;
-            m_waveBufProduce %= NUM_APU_BUFS;
-            m_waveBufDepth [ m_waveBufProduce ] = 0;
+            m_waveBufProduce %= APU_BUFFER_SIZE_NTSC;
+
+            if ( m_waveBufDepth >= APU_SAMPLES_NTSC )
+            {
+               m_waveBufDepth = APU_SAMPLES_NTSC;
+            }
+         }
+         else
+         {
+            m_waveBufProduce %= APU_BUFFER_SIZE_PAL;
+
+            if ( m_waveBufDepth >= APU_SAMPLES_PAL )
+            {
+               m_waveBufDepth = APU_SAMPLES_PAL;
+            }
          }
       }
 
@@ -1790,12 +1810,12 @@ void CAPU::EMULATE ( int cycles )
       m_cycles++;
       if ( CNES::VIDEOMODE() == MODE_NTSC )
       {
-         if ( (m_sequencerMode) && (m_cycles >= 37282) )
+         if ( (m_sequencerMode) && (m_cycles >= 37283) )
          {
             // Emit frame-end indication to Tracer...
             CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
 
-            RESETCYCLECOUNTER(0);
+            RESETCYCLECOUNTER(1);
 
             // Emit frame-start indication to Tracer...
             CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
@@ -1813,12 +1833,12 @@ void CAPU::EMULATE ( int cycles )
       }
       else // MODE_PAL
       {
-         if ( (m_sequencerMode) && (m_cycles >= 41566) )
+         if ( (m_sequencerMode) && (m_cycles >= 41567) )
          {
             // Emit frame-end indication to Tracer...
             CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eSource_APU, 0, 0, 0 );
 
-            RESETCYCLECOUNTER(0);
+            RESETCYCLECOUNTER(1);
 
             // Emit frame-start indication to Tracer...
             CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eSource_APU, 0, 0, 0 );
@@ -1927,7 +1947,7 @@ void CAPU::APU ( UINT addr, unsigned char data )
       }
 
       // Change modes on even cycle...
-      m_changeModes = m_cycles&1;
+      m_changeModes = C6502::_CYCLES()&1;
    }
 
    CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState,addr&0x1F);

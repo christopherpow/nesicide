@@ -103,8 +103,8 @@ bool CGameDatabaseHandler::find(CCartridge* pCartridge)
 
 int CGameDatabaseHandler::getRegion()
 {
-   QDomElement gameElem = m_game.toElement();
-   QString str = gameElem.attribute("region");
+   QDomElement cartridgeElem = m_cartridge.toElement();
+   QString str = cartridgeElem.attribute("system");
    if ( str.contains("USA") )
    {
       return MODE_NTSC;
