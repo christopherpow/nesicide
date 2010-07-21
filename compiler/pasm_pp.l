@@ -91,11 +91,11 @@ const char* filename_fmt = "!file %s\r\n";
 char filename_str [ 1024 ];
 void emit_filename ( char* filename );
 
-#define OUTPUT_DEFAULT_ALLOC 1024
+#define OUTPUT_DEFAULT_ALLOC 32768
 #define MAX_NESTS            256
 
 // Macro stuff.
-#define MACRO_DEFAULT_ALLOC 1024
+#define MACRO_DEFAULT_ALLOC 8192
 #define PPMTAB_ENT_INC 1
 
 typedef struct _ppmacro_table
@@ -157,6 +157,9 @@ extern void add_error ( char* s );
 extern char e [ 256 ];
 
 extern char currentFile [];
+
+// External linkage to NESICIDE for include directives...
+incobj_callback_fn incobj_fn;
 
 // Preprocessor redo pass input buffer.
 char* input_buffer;
@@ -279,6 +282,7 @@ ppkeyword ppkeywords [];
 }
 
 <CAPTURE_INCLUDE>[^\" \t\r\n]+ {
+#if defined ( PASM_EXE )
    char* buffer;
    int c, d;
    int bytes;
@@ -312,6 +316,29 @@ ppkeyword ppkeywords [];
       sprintf ( e, "cannot open included file: %s", pptext );
       pperror ( e );
    }
+#endif
+#if defined ( PASM_LIB )
+   char* buffer = NULL;
+   int size = 0;
+
+   if ( incobj_fn )
+   {
+      incobj_fn ( pptext, &buffer, &size );
+
+      if ( size )
+      {
+         emit_filename ( pptext );
+
+         output_text ( buffer, size );
+         output_text ( "\r\n", 2 );
+      }
+      else
+      {
+         sprintf ( e, "cannot open included file: %s", pptext );
+         pperror ( e );
+      }
+   }
+#endif
 }
 
 <CAPTURE_INCLUDE>\r\n |
@@ -839,6 +866,8 @@ int ppwrap(void)
 {
    int go_around = 0;
 
+   //printf ( "\n%d %d INPUT", pass, directives_processed );
+
    switch ( pass )
    {
       case COUNT_LINES:
@@ -1335,7 +1364,7 @@ unsigned char add_ppsymbol ( ppsymbol_list* list, char* symbol )
       }
       else
       {
-         asmerror ( "cannot allocate memory" );
+         pperror ( "cannot allocate memory" );
       }
    }
 

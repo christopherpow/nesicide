@@ -315,7 +315,6 @@ void CPPU::RENDERCODEDATALOGGER ( void )
 
 void CPPU::EMULATE(void)
 {
-   bool doDma = true;
    int cpuCycles;
    int vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
 
@@ -335,7 +334,7 @@ void CPPU::EMULATE(void)
       cpuCycles = m_curCycles/PPU_CPU_RATIO_PAL;
    }
 
-   // If the PPU started a sprite DMA because it was told to
+   // If the DMA engine started a sprite DMA because it was told to
    // by the CPU (writing to $4014), do the DMA cycles one at
    // a time, inserting stolen CPU cycles between to create the
    // 512 + [1 or 2] CPU cycles of DMA transfer.
@@ -349,27 +348,25 @@ void CPPU::EMULATE(void)
       {
          C6502::STEALCYCLES ( 1 );
          m_dmaCounter--;
-
-         // Don't do DMA this cycle...
-         doDma = false;
       }
       // If we are on a DMA cycle, do the DMA...
-      if ( doDma )
+      else
       {
-         *(m_PPUoam+((((512-m_dmaCounter)>>1)+m_oamAddrForDma)&0xFF)) = C6502::DMA ( (m_dmaAddr)|(((512-m_dmaCounter)>>1)&0xFF), eSource_PPU );
+         C6502::DMA ( OAMDATA, C6502::_MEM((m_dmaAddr)|(((512-m_dmaCounter)>>1)&0xFF)) );
          m_dmaCounter--;
       }
    }
 
    // Run 0 or 1 CPU cycles...
+   C6502::EMULATE ( cpuCycles );
+
+   // Adjust current cycle count...
    if ( CNES::VIDEOMODE() == MODE_NTSC )
    {
-      C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_NTSC );
       m_curCycles %= PPU_CPU_RATIO_NTSC;
    }
    else
    {
-      C6502::EMULATE ( m_curCycles/PPU_CPU_RATIO_PAL );
       m_curCycles %= PPU_CPU_RATIO_PAL;
    }
 

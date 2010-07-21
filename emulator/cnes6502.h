@@ -368,10 +368,9 @@ public:
    static void MEMSET ( UINT addr, unsigned char* data, UINT length ) { memcpy(m_6502memory+addr,data,length); };
    static void MEMCLR ( void ) { memset(m_6502memory,0,MEM_2KB); }
 
-   // Accessor method for supporting DMA from the RAM maintained
-   // internally by the CPU core object.  The APU and the
-   // PPU both use this method to transfer data from the CPU memory space.
-   static unsigned char DMA ( UINT addr, char source );
+   // Accessor methods for supporting DMA between the CPU and APU/PPU.
+   static unsigned char DMA ( UINT addr );
+   static void DMA ( UINT addr, unsigned char data );
 
    // The PPU and APU can steal cycles from the CPU in addition to
    // doing DMA transfers (actually, the DMA engine steals the cycles

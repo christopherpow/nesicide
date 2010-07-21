@@ -3,6 +3,15 @@
 
 CNesicideProject *nesicideProject = (CNesicideProject *)NULL;
 
+extern "C" int PASM_include ( char* objname, char** objdata, int* size )
+{
+   if ( nesicideProject )
+   {
+      return nesicideProject->findSource ( objname, objdata, size );
+   }
+   return 0;
+}
+
 CNesicideProject::CNesicideProject()
 {
     m_isInitialized = false;
@@ -25,6 +34,25 @@ CNesicideProject::~CNesicideProject()
         delete m_pointerToListOfProjectPaletteEntries;
 }
 
+int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
+{
+   QList<CSourceItem *> *sourceItems = nesicideProject->getProject()->getSources()->get_pointerToArrayOfSourceItems();
+   CSourceItem* source;
+
+   (*objdata) = NULL;
+   (*size) = 0;
+
+   foreach ( source, *sourceItems )
+   {
+      if ( source->caption() == objname )
+      {
+         (*objdata) = source->get_sourceCode().toLatin1().data();
+         (*size) = strlen((*objdata));
+         break;
+      }
+   }
+   return (*size);
+}
 
 QList<CPaletteEntry> *CNesicideProject::get_pointerToListOfProjectPaletteEntries()
 {

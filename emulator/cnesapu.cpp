@@ -1464,7 +1464,7 @@ void CAPUDMC::DMAREADER ( void )
                   C6502::STEALCYCLES ( 2 );
                }
             }
-            m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr, eSource_APU );
+            m_sampleBuffer = C6502::DMA ( m_dmaReaderAddrPtr );
 
             // Check for APU DMC channel DMA breakpoint event...
             CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);

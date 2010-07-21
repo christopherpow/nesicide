@@ -49,6 +49,8 @@ void APUInformationDialog::updateInformation()
    sprintf ( buffer, "%d", CAPU::CYCLES() );
    ui->apuCycle->setText ( buffer );
 
+   ui->apuSequencerMode->setText ( CAPU::SEQUENCERMODE()==0?"4-step":"5-step" );
+
    CAPU::LENGTHCOUNTERS ( &tempus1, &tempus2, &tempus3, &tempus4, &tempus5 );
    ui->lengthCounter1->setValue ( tempus1 );
    ui->lengthCounter2->setValue ( tempus2 );

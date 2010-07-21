@@ -161,8 +161,8 @@ extern file_table* cur_file;
 }
 
 <INITIAL>{identifier1} {
-	unsigned char f;
-	ref_type* ref;
+   unsigned char f;
+   ref_type* ref;
    text_type* text;
    keyword* k = asmkeywords;
    int m;
@@ -323,14 +323,14 @@ extern file_table* cur_file;
 
 <SOURCE>{hexdigits} {
    char* ptr = asmtext;
-	number_type* num = get_next_numtype ();
+   number_type* num = get_next_numtype ();
    if ( ptr[0] == '$' ) ptr++;
    num->number = strtoul(ptr,NULL,16);
-	if ( (num->number >= -128) &&
-	     (num->number < 256) )
-	{
-		num->zp_ok = 1;
-	}
+   if ( (num->number >= -128) &&
+        (num->number < 256) )
+   {
+      num->zp_ok = 1;
+   }
    asmlval.num = num;
    previous_state = SOURCE;
    BEGIN NOLABELREF;
@@ -338,13 +338,13 @@ extern file_table* cur_file;
 }
 
 <SOURCE>{decdigits} {
-	number_type* num = get_next_numtype ();
+   number_type* num = get_next_numtype ();
    num->number = strtoul(asmtext,NULL,10);
-	if ( (num->number >= -128) &&
-		  (num->number < 256) )
-	{
-		num->zp_ok = 1;
-	}
+   if ( (num->number >= -128) &&
+        (num->number < 256) )
+   {
+      num->zp_ok = 1;
+   }
    asmlval.num = num;
    previous_state = SOURCE;
    BEGIN NOLABELREF;
@@ -352,13 +352,13 @@ extern file_table* cur_file;
 }
 
 <SOURCE>{octdigits} {
-	number_type* num = get_next_numtype ();
+   number_type* num = get_next_numtype ();
    num->number = strtoul(asmtext,NULL,8);
-	if ( (num->number >= -128) &&
-	     (num->number < 256) )
-	{
-		num->zp_ok = 1;
-	}
+   if ( (num->number >= -128) &&
+        (num->number < 256) )
+   {
+      num->zp_ok = 1;
+   }
    asmlval.num = num;
    previous_state = SOURCE;
    BEGIN NOLABELREF;
@@ -559,16 +559,7 @@ keyword asmkeywords [] =
    { "data", ".data", SEGMENT, d_datasegment },
    { "incbin", ".incbin", INCBIN, NULL },
    { "bin", ".bin", INCBIN, NULL },
-   { "incobj", ".incobj", INCOBJ, NULL },
-   { "enum", ".enum", ENUMERATE, NULL },
-   { "ende", ".ende", ENDENUMERATE, NULL },
    { "fillvalue", ".fillvalue", FILLVALUE, NULL },
-   { "ifdef", ".ifdef", IFDEF, NULL },
-   { "ifndef", ".ifndef", IFNDEF, NULL },
-   { "if", ".if", IF, NULL },
-   { "elseif", ".elseif", ELSEIF, NULL },
-   { "else", ".else", ELSE, NULL },
-   { "endif", ".endif", ENDIF, NULL },
    { NULL, NULL, 0, NULL }
 };
 
@@ -579,8 +570,8 @@ long asm_get_current_buffer ( void )
 
 symbol_table* find_symbol ( char* symbol )
 {
-	unsigned int i;
-	symbol_table* ptr = NULL;
+   unsigned int i;
+   symbol_table* ptr = NULL;
    symbol_list* stab = current_stab;
    unsigned char found  = 0;
 
@@ -607,13 +598,13 @@ symbol_table* find_symbol ( char* symbol )
    } while ( stab != NULL );
 
    // ptr gets set to NULL if not found in loops above...
-	return ptr;
+   return ptr;
 }
 
 unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
 {
-	unsigned char a = 1;
-	unsigned int i;
+   unsigned char a = 1;
+   unsigned int i;
 
    (*ptr) = NULL;
 
@@ -635,7 +626,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
          }
       }
    }
-		
+
    if ( list->tail == NULL )
    {
       list->head = (symbol_table*) malloc ( sizeof(symbol_table) );
@@ -702,7 +693,7 @@ unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr )
 
    (*ptr) = list->tail;
 
-	return a;
+   return a;
 }
 
 void delete_symbol ( symbol_list* list, char* symbol )

@@ -5695,16 +5695,13 @@ unsigned char C6502::EXTRAFETCH ( UINT addr )
    return data;
 }
 
-unsigned char C6502::DMA ( UINT addr, char source )
+unsigned char C6502::DMA ( UINT addr )
 {
    char target;
    unsigned char data;
 
    // Synchronize CPU and APU...
-   if ( source == eSource_APU )
-   {
-      ADVANCE ();
-   }
+   ADVANCE ();
 
    data = LOAD ( addr, &target );
 
@@ -5715,20 +5712,50 @@ unsigned char C6502::DMA ( UINT addr, char source )
    if ( target == eTarget_ROM )
    {
       CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
-      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eSource_APU );
    }
    else if ( target == eTarget_RAM )
    {
-      m_logger.LogAccess ( m_cycles, addr, data, eLogger_DMA, source );
-   }
-
-   // Synchronize CPU and APU...
-   if ( source == eSource_PPU )
-   {
-      ADVANCE ();
+      m_logger.LogAccess ( m_cycles, addr, data, eLogger_DMA, eSource_APU );
    }
 
    return data;
+}
+
+void C6502::DMA ( UINT addr, unsigned char data )
+{
+   TracerInfo* pSample;
+   char target;
+
+   if ( addr > 0xFFFF )
+   {
+      return;
+   }
+
+   // Synchronize CPU and APU...
+   ADVANCE ();
+
+   // Store unknown target because otherwise the trace will be out of order...
+   CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eSource_CPU, target, addr, data );
+
+   STORE ( addr, data, &target );
+
+   // If ROM or RAM is being accessed, log code/data logger...
+   if ( target == eTarget_ROM )
+   {
+      CCodeDataLogger* pLogger = CROM::LOGGER ( addr );
+      pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eSource_PPU );
+   }
+   else if ( target == eTarget_RAM )
+   {
+      m_logger.LogAccess ( m_cycles, addr, data, eLogger_DMA, eSource_PPU );
+   }
+
+   // store real target...
+   if ( pSample )
+   {
+      pSample->target = target;
+   }
 }
 
 unsigned char C6502::MEM ( UINT addr )

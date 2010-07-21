@@ -20,12 +20,14 @@ public:
     CNesicideProject();
     virtual ~CNesicideProject();
 
+    // Search functions
+    int findSource ( char* objname, char** objdata, int* size );
 
     // Helper functions
     void initializeProject();
     bool createProjectFromRom(QString fileName);
     void terminateProject();
-    
+
     // Member Getters
     QString get_projectTitle();
     QList<CPaletteEntry> *get_pointerToListOfProjectPaletteEntries();

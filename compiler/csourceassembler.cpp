@@ -6,6 +6,8 @@
 
 #include "inspectorregistry.h"
 
+extern "C" int PASM_include ( char* objname, char** objdata, int* size );
+
 CSourceAssembler::CSourceAssembler()
 {
 }
@@ -31,7 +33,11 @@ bool CSourceAssembler::assemble()
 
    builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
 
-   pasm_assemble ( rootSource->get_sourceName().toLatin1().data(), rootSource->get_sourceCode().toLatin1().data(), &romData, &romLength, NULL );
+   pasm_assemble ( rootSource->get_sourceName().toLatin1().data(),
+                   rootSource->get_sourceCode().toLatin1().data(),
+                   &romData,
+                   &romLength,
+                   PASM_include );
 
    strBuffer.sprintf ( "%d (0x%x)", romLength, romLength );
    numErrors = pasm_get_num_errors ();
