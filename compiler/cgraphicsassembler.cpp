@@ -16,17 +16,21 @@ bool CGraphicsAssembler::assemble()
    for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBankArray()->count(); gfxBankIdx++)
    {
       CGraphicsBank *curGfxBank = gfxBanks->getGraphicsBankArray()->at(gfxBankIdx);
-      bool appendBank = (oldChrRomBanks <= 0);
-      CCHRROMBank* chrRomBank = (--oldChrRomBanks >= 0) ? chrRomBanks->banks.at(gfxBankIdx) : new CCHRROMBank();
+
+      bool appendBank = (--oldChrRomBanks < 0);
+      CCHRROMBank* chrRomBank;
 
       if (appendBank)
       {
+         chrRomBank = new CCHRROMBank();
          chrRomBank->data = new qint8[0x2000];
          chrRomBank->bankID = gfxBankIdx;
          chrRomBank->InitTreeItem(chrRomBanks);
          chrRomBanks->appendChild(chrRomBank);
          chrRomBanks->banks.append(chrRomBank);
-      }
+     } else {
+         chrRomBank = chrRomBanks->banks.at(gfxBankIdx);
+     }
 
       memset(chrRomBank->data, 0, sizeof(qint8)*0x2000);
       builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->getBankName() + "':");

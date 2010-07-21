@@ -73,17 +73,19 @@ bool CSourceAssembler::assemble()
       {
          // Grab either a previously used bank, or a new one
          CPRGROMBank *curBank;
-         bool doAppend = (oldBanks <= 0);
-         curBank = (--oldBanks >= 0) ? prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks) : new CPRGROMBank();
+         bool doAppend = (--oldBanks < 0);
 
          // Initialize the bank into the project banks
          if (doAppend) {
+            curBank = new CPRGROMBank();
             // This is a new bank
             curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
             curBank->InitTreeItem(prgRomBanks);
             prgRomBanks->appendChild(curBank);
             prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
-         }
+        } else {
+            curBank = prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks);
+        }
          curBank->set_pointerToBankData ( (quint8*)romData );
       }
    }
