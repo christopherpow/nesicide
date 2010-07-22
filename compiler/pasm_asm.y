@@ -622,11 +622,11 @@ directive: MARKER LABELREF LABELREF {
    // emit pure placeholder label...
    emit_label ( 0, 0 );
 
-   if ( stricmp($3->ref.symbol,"start") == 0 )
+   if ( strcasecmp($3->ref.symbol,"start") == 0 )
    {
       for ( color = 0; color < NUM_PERMANENT_MARKERS; color++ )
       {
-         if ( stricmp($2->ref.symbol,permanentMarkerColor[color]) == 0 )
+         if ( strcasecmp($2->ref.symbol,permanentMarkerColor[color]) == 0 )
          {
             if ( permanentMarker[color].start == NULL )
             {
@@ -646,11 +646,11 @@ directive: MARKER LABELREF LABELREF {
          asmerror ( e );
       }
    }
-   else if ( stricmp($3->ref.symbol,"end") == 0 )
+   else if ( strcasecmp($3->ref.symbol,"end") == 0 )
    {
       for ( color = 0; color < NUM_PERMANENT_MARKERS; color++ )
       {
-         if ( stricmp($2->ref.symbol,permanentMarkerColor[color]) == 0 )
+         if ( strcasecmp($2->ref.symbol,permanentMarkerColor[color]) == 0 )
          {
             if ( permanentMarker[color].end == NULL )
             {
@@ -1711,7 +1711,7 @@ blist: blist ',' expr {
    {
       emit_bin ( $3 );
    }
-   else
+   else if ( $3->vtype == value_is_string )
    {
       // String and length should have percolated to the
       // root node, just pass the expression...
@@ -1738,7 +1738,7 @@ blist: blist ',' expr {
    {
       emit_bin ( $1 );
    }
-   else
+   else if ( $1->vtype == value_is_string )
    {
       // String and length should have percolated to the
       // root node, just pass the expression...
@@ -3481,11 +3481,8 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_symtab) )
    {
-      if ( expr->node.ref->ref.symtab->ir )
-      {
-         expr->vtype = value_is_int;
-         expr->value.ival = expr->node.ref->ref.symtab->ir->addr;
-      }
+      expr->vtype = value_is_int;
+      expr->value.ival = expr->node.ref->ref.symtab->ir->addr;
    }
    else if ( (expr->type == expression_reference) &&
              (expr->node.ref->type == reference_const_string) )
