@@ -250,6 +250,8 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->actionNTSC->setChecked(true);
    CNES::VIDEOMODE(MODE_NTSC);
 
+   this->ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+
    QStringList sl_raw = QApplication::arguments();
    QStringList sl_nes = sl_raw.filter ( ".nes" );
    if ( sl_nes.count() >= 1 )
