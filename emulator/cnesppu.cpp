@@ -238,6 +238,8 @@ unsigned char  CPPU::m_y = 0xFF;
 
 UINT CPPU::m_iPPUViewerScanline = 0;
 UINT CPPU::m_iOAMViewerScanline = 0;
+bool CPPU::m_bPPUViewerShowVisible = true;
+bool CPPU::m_bOAMViewerShowVisible = false;
 
 CRegisterData** CPPU::m_tblRegisters = tblPPURegisters;
 int             CPPU::m_numRegisters = NUM_PPU_REGISTERS;
@@ -588,9 +590,8 @@ void CPPU::RENDEROAM ( void )
             sprite = (spriteSize==8)?((y>>3)<<5)+(x>>3):
                                      ((y>>4)<<5)+(x>>3);
             spriteY = CPPU::OAM ( SPRITEY, sprite );
-   // CPTODO: find replacement way to do OnScreen check
-   //         if ( ((m_bOnscreen) && ((spriteY+1) < SPRITE_YMAX)) ||
-   //              (!m_bOnscreen) )
+            if ( ((m_bOAMViewerShowVisible) && ((spriteY+1) < SPRITE_YMAX)) ||
+                 (!m_bOAMViewerShowVisible) )
             {
                patternIdx = CPPU::OAM ( SPRITEPAT, sprite );
                if ( spriteSize == 16 )
@@ -639,16 +640,15 @@ void CPPU::RENDEROAM ( void )
                   m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(0x10+colorIdx));
                }
             }
-   // CPTODO: find replacement way to do OnScreen check
-   //         else
-   //         {
-   //            for ( xf = 0; xf < PATTERN_SIZE; xf++ )
-   //            {
-   //               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = 0x00;
-   //               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = 0x00;
-   //               m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = 0x00;
-   //            }
-   //         }
+            else
+            {
+               for ( xf = 0; xf < PATTERN_SIZE; xf++ )
+               {
+                  m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = 0x00;
+                  m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = 0x00;
+                  m_pOAMInspectorTV[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = 0x00;
+               }
+            }
          }
       }
    }
@@ -657,7 +657,7 @@ void CPPU::RENDEROAM ( void )
 void CPPU::RENDERNAMETABLE ( void )
 {
    int x, xf, y;
-   //int lbx, ubx, lby, uby;
+   int lbx, ubx, lby, uby;
 
    UINT ppuAddr = 0x0000;
    unsigned short patternIdx;
@@ -671,9 +671,6 @@ void CPPU::RENDERNAMETABLE ( void )
    unsigned char patternData2;
    unsigned char bit1, bit2;
    unsigned char colorIdx;
-#if 0
-   unsigned char lbx, lby, ubx, uby;
-#endif
 
    if ( m_bNameTableInspector )
    {
@@ -720,9 +717,9 @@ void CPPU::RENDERNAMETABLE ( void )
                bit1 = (patternData1>>(7-(xf)))&0x1;
                bit2 = (patternData2>>(7-(xf)))&0x1;
                colorIdx = (attribData|bit1|(bit2<<1));
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(colorIdx));
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(colorIdx));
-               m_pNameTableInspectorTV [ (y*512*3)+(x*3)+(xf*3)+2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(colorIdx));
+               m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+(xf*3)+0] = CBasePalette::GetPaletteR(CPPU::_PALETTE(colorIdx));
+               m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+(xf*3)+1] = CBasePalette::GetPaletteG(CPPU::_PALETTE(colorIdx));
+               m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+(xf*3)+2] = CBasePalette::GetPaletteB(CPPU::_PALETTE(colorIdx));
             }
 
             ppuAddr++;
@@ -758,9 +755,7 @@ void CPPU::RENDERNAMETABLE ( void )
          }
       }
 
-// CPTODO: implement shadow disablement
-#if 0
-      //   if ( m_bShadow )
+      if ( m_bPPUViewerShowVisible )
       {
          for ( y = 0; y < 480; y++ )
          {
@@ -776,35 +771,34 @@ void CPPU::RENDERNAMETABLE ( void )
                     (((lby <= uby) && (y >= lby) && (y <= uby)) ||
                     ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
                {
-                  if ( m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] >= 0x30 )
+                  if ( (unsigned char)m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+0 ] >= 0x30 )
                   {
-                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] -= 0x30;
+                     m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+0 ] -= 0x30;
                   }
                   else
                   {
-                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+0 ] = 0x00;
+                     m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+0 ] = 0x00;
                   }
-                  if ( m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] >= 0x30 )
+                  if ( (unsigned char)m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+1 ] >= 0x30 )
                   {
-                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] -= 0x30;
-                  }
-                  else
-                  {
-                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+1 ] = 0x00;
-                  }
-                  if ( m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] >= 0x30 )
-                  {
-                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] -= 0x30;
+                     m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+1 ] -= 0x30;
                   }
                   else
                   {
-                     m_pNameTableInspectorTV [ (y*512*3)+(x*3)+2 ] = 0x00;
+                     m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+1 ] = 0x00;
+                  }
+                  if ( (unsigned char)m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+2 ] >= 0x30 )
+                  {
+                     m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+2 ] -= 0x30;
+                  }
+                  else
+                  {
+                     m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+2 ] = 0x00;
                   }
                }
             }
          }
       }
-#endif
    }
 }
 

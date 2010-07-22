@@ -20,6 +20,8 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     renderer = new CNameTablePreviewRenderer(ui->frame,imgData);
     ui->frame->layout()->addWidget(renderer);
     ui->frame->layout()->update();
+
+    ui->showVisible->setChecked ( true );
 }
 
 void NameTableDisplayDialog::showEvent(QShowEvent *event)
@@ -96,4 +98,9 @@ void NameTableDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 {
     renderer->scrollY = ui->verticalScrollBar->value();
     renderer->repaint();
+}
+
+void NameTableDisplayDialog::on_showVisible_toggled(bool checked)
+{
+    CPPU::SetPPUViewerShowVisible ( checked );
 }

@@ -498,6 +498,15 @@ public:
    static void SetOAMViewerScanline ( UINT scanline ) { m_iOAMViewerScanline = scanline; }
    static UINT GetOAMViewerScanline ( void ) { return m_iOAMViewerScanline; }
 
+   // This accessor method sets the flag indicating whether or not
+   // visible or invisible sprites should be decorated by the OAM viewer.
+   static void SetOAMViewerShowVisible ( bool visible ) { m_bOAMViewerShowVisible = visible; }
+
+   // This accessor method sets the flag indicating whether or not
+   // visible or invisible regions of the TV screen should be decorated by
+   // the NameTable viewer.
+   static void SetPPUViewerShowVisible ( bool visible ) { m_bPPUViewerShowVisible = visible; }
+
    // Accessor method to retrieve the database managed by the PPU
    // of accesses to its internally managed memories for the Code/Data
    // Logger debugger inspector.
@@ -742,6 +751,12 @@ protected:
    // debugger inspectors that are scanline-triggered are to be updated.
    static UINT           m_iPPUViewerScanline;
    static UINT           m_iOAMViewerScanline;
+
+   // Flag indicating whether or not to decorate invisible sprites.
+   static bool           m_bOAMViewerShowVisible;
+
+   // Flag indicating whether or not to decorate invisible TV region(s).
+   static bool           m_bPPUViewerShowVisible;
 
    // The database for PPU core registers.  Declaration
    // is in source file.

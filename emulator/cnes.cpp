@@ -236,9 +236,6 @@ void CNES::RUN ( unsigned char* joy )
    // Emit end-of-frame indication to Tracer...
    m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_EndPPUFrame, eSource_PPU, 0, 0, 0 );
 
-   // Update NameTable inspector...
-   CPPU::RENDERNAMETABLE ();
-
    // Increment PPU frame counter...
    m_frame++;
    m_tracer.SetFrame ( m_frame );

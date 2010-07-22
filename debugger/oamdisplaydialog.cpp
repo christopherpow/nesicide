@@ -22,6 +22,7 @@ OAMDisplayDialog::OAMDisplayDialog(QWidget *parent) :
     ui->frame->layout()->update();
 
     ui->updateScanline->setText ( "0" );
+    ui->showVisible->setChecked ( false );
 }
 
 void OAMDisplayDialog::changeEvent(QEvent *e)
@@ -53,7 +54,6 @@ void OAMDisplayDialog::renderData()
 {
    if ( this->isVisible() )
    {
-      CPPU::RENDEROAM();
       renderer->updateGL ();
    }
 }
@@ -103,4 +103,9 @@ void OAMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 void OAMDisplayDialog::on_updateScanline_editingFinished()
 {
     CPPU::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
+}
+
+void OAMDisplayDialog::on_showVisible_toggled(bool checked)
+{
+    CPPU::SetOAMViewerShowVisible ( checked );
 }
