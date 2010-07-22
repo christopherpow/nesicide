@@ -70,6 +70,7 @@ bool CSourceAssembler::assemble()
       }*/
 
       int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
+      int bankIdx = 0;
 
       // Set up PRG-ROM banks...
       for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
@@ -87,7 +88,7 @@ bool CSourceAssembler::assemble()
             prgRomBanks->appendChild(curBank);
             prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
         } else {
-            curBank = prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks);
+            curBank = prgRomBanks->get_pointerToArrayOfBanks()->at(bankIdx++);
         }
          curBank->set_pointerToBankData ( (quint8*)romData );
       }
