@@ -5,6 +5,7 @@
 #include "pasm_lib.h"
 
 #include "inspectorregistry.h"
+#include "cnes6502.h"
 
 extern "C" int PASM_include ( char* objname, char** objdata, int* size );
 
@@ -22,7 +23,8 @@ bool CSourceAssembler::assemble()
    char* errors;
    int numErrors;
    int numSymbols;
-   int s;
+   int symbol;
+   int marker;
 
    if (!rootSource)
    {
@@ -39,6 +41,7 @@ bool CSourceAssembler::assemble()
                    &romLength,
                    PASM_include );
 
+   // Dump errors...
    strBuffer.sprintf ( "%d (0x%x)", romLength, romLength );
    numErrors = pasm_get_num_errors ();
    if ( numErrors )
@@ -56,13 +59,13 @@ bool CSourceAssembler::assemble()
       numSymbols = pasm_get_num_symbols();
       strBuffer.sprintf("<b>Symbol Table (%d symbols defined)</b>", numSymbols);
       builderTextLogger.write(strBuffer);
-      for ( s = 0; s < numSymbols; s++ )
+      for ( symbol = 0; symbol < numSymbols; symbol++ )
       {
          strBuffer.sprintf("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$%04X at line %d",
-                           (pasm_get_symbol_type(s)==symbol_global)?"GLOBAL":"LABEL",
-                           pasm_get_symbol(s),
-                           pasm_get_symbol_value(s),
-                           pasm_get_symbol_linenum(s));
+                           (pasm_get_symbol_type(symbol)==symbol_global)?"GLOBAL":"LABEL",
+                           pasm_get_symbol(symbol),
+                           pasm_get_symbol_value(symbol),
+                           pasm_get_symbol_linenum(symbol));
          builderTextLogger.write(strBuffer);
       }*/
 
@@ -87,6 +90,19 @@ bool CSourceAssembler::assemble()
             curBank = prgRomBanks->get_pointerToArrayOfBanks()->at(oldBanks);
         }
          curBank->set_pointerToBankData ( (quint8*)romData );
+      }
+
+      // Add PermanentMarkers if any were found...
+      if ( pasm_get_num_permanent_markers() )
+      {
+         for ( marker = 0; marker < NUM_PERMANENT_MARKERS; marker++ )
+         {
+            if ( pasm_is_permanent_marker_set(marker) )
+            {
+               C6502::MARKERS().AddSpecificMarker(marker,pasm_get_permanent_marker_start_address(marker));
+               C6502::MARKERS().CompleteMarker(marker,pasm_get_permanent_marker_end_address(marker));
+            }
+         }
       }
    }
 

@@ -61,6 +61,17 @@ void CMarker::ZeroAllMarkers(void)
    }
 }
 
+int CMarker::AddSpecificMarker(int marker, unsigned int absAddr)
+{
+   m_marker [ marker ].state = eMarkerSet_Started;
+   m_marker [ marker ].startAbsAddr = absAddr;
+   m_marker [ marker ].startFrame = MARKER_NOT_MARKED;
+   m_marker [ marker ].startCycle = MARKER_NOT_MARKED;
+   m_marker [ marker ].endAbsAddr = absAddr;
+   m_marker [ marker ].endFrame = MARKER_NOT_MARKED;
+   m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
+}
+
 int CMarker::AddMarker(unsigned int absAddr)
 {
    int marker = -1;
@@ -68,13 +79,7 @@ int CMarker::AddMarker(unsigned int absAddr)
    {
       if ( m_marker[marker].state == eMarkerSet_Invalid )
       {
-         m_marker [ marker ].state = eMarkerSet_Started;
-         m_marker [ marker ].startAbsAddr = absAddr;
-         m_marker [ marker ].startFrame = MARKER_NOT_MARKED;
-         m_marker [ marker ].startCycle = MARKER_NOT_MARKED;
-         m_marker [ marker ].endAbsAddr = absAddr;
-         m_marker [ marker ].endFrame = MARKER_NOT_MARKED;
-         m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
+         AddSpecificMarker(marker,absAddr);
          break;
       }
    }

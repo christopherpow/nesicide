@@ -33,6 +33,7 @@ public:
    int GetNumMarkers(void) const { return MAX_MARKER_SETS; }
    MarkerSetInfo* GetMarker(int marker) { return m_marker+marker; }
    int AddMarker(unsigned int absAddr);
+   int AddSpecificMarker(int marker, unsigned int absAddr);
    int FindInProgressMarker(void);
    void ClearAllMarkers(void);
    void ZeroAllMarkers(void);

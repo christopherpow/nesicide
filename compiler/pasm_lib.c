@@ -14,6 +14,8 @@ extern int errorCount;
 
 extern char currentFile [];
 
+extern permanent_marker_table permanentMarker [];
+
 extern void initialize ( void );
 
 int asmparse();
@@ -326,3 +328,38 @@ int pasm_assemble( const char* name, const char* buffer_in, char** buffer_out, i
    return 0;
 }
 
+int pasm_get_num_permanent_markers ( void )
+{
+   int color;
+   int markers = 0;
+
+   for ( color = 0; color < NUM_PERMANENT_MARKERS; color++ )
+   {
+      if ( permanentMarker[color].start )
+      {
+         markers++;
+      }
+   }
+
+   return markers;
+}
+
+int pasm_is_permanent_marker_set ( int color )
+{
+   int set = 0;
+   if ( permanentMarker[color].start )
+   {
+      set = 1;
+   }
+   return set;
+}
+
+unsigned int pasm_get_permanent_marker_start_address ( int color )
+{
+   return permanentMarker[color].start->absAddr;
+}
+
+unsigned int pasm_get_permanent_marker_end_address ( int color )
+{
+   return permanentMarker[color].end->absAddr;
+}

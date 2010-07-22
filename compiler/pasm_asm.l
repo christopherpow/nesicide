@@ -560,6 +560,13 @@ keyword asmkeywords [] =
    { "incbin", ".incbin", INCBIN, NULL },
    { "bin", ".bin", INCBIN, NULL },
    { "fillvalue", ".fillvalue", FILLVALUE, NULL },
+   { "if", ".if", IF, NULL },
+   { "elseif", ".elseif", ELSEIF, NULL },
+   { "else", ".else", ELSE, NULL },
+   { "ifdef", ".ifdef", IF, NULL },
+   { "ifndef", ".ifndef", IF, NULL },
+   { "endif", ".endif", ENDIF, NULL },
+   { "marker", ".marker", MARKER, NULL },
    { NULL, NULL, 0, NULL }
 };
 

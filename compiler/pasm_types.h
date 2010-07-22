@@ -198,6 +198,27 @@ typedef struct _binary_table
    struct _ir_table* ir_tail;
 } binary_table;
 
+// PermanentMarker colors.
+enum
+{
+   PERMANENT_MARKER_RED = 0,
+   PERMANENT_MARKER_GREEN,
+   PERMANENT_MARKER_BLUE,
+   PERMANENT_MARKER_YELLOW,
+   PERMANENT_MARKER_MAGENTA,
+   PERMANENT_MARKER_CYAN,
+   PERMANENT_MARKER_WHITE,
+   PERMANENT_MARKER_BLACK,
+   NUM_PERMANENT_MARKERS
+};
+
+// PermanentMarker information.
+typedef struct _permanent_marker_table
+{
+   struct _ir_table* start;
+   struct _ir_table* end;
+} permanent_marker_table;
+
 symbol_table* find_symbol ( char* symbol );
 
 #if defined ( __cplusplus )

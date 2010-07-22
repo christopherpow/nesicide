@@ -398,6 +398,12 @@ void add_error ( char* s );
 int errorCount = 0;
 char* errorStorage = NULL;
 
+// Storage space for PermanentMarkers found during assembly.
+int permanentMarkerCount = 0;
+permanent_marker_table permanentMarker [ NUM_PERMANENT_MARKERS ];
+
+const char* permanentMarkerColor [] = { "red", "green", "blue", "cyan", "yellow", "magenta", "white", "black" };
+
 // Turning this flag on may actually be somewhat dangerous.  Consider
 // the fact that there are *several* undocumented variations of NOP
 // opcode [no operation], each of which is actually keying a different
@@ -505,9 +511,9 @@ void dump_expression ( expr_type* expr );
    struct _number_type* num;
    struct _expr_type* expr;
    struct _text_type* text;
-	int seg;
+   int seg;
    int instr;
-	unsigned char flag;
+   unsigned char flag;
    char* directive;
 }
 // Terminal tokens passed to the grammar parser from
@@ -521,11 +527,12 @@ void dump_expression ( expr_type* expr );
 %token <directive> FILLVALUE
 %token <directive> IFDEF IFNDEF
 %token <directive> IF ELSEIF ELSE ENDIF
+%token <directive> MARKER
 %token <text> QUOTEDSTRING
 %token <instr> INSTR
 %token <ref> LABEL LABELREF
 %token <num> DIGITS
-%token <seg> SEGMENT 
+%token <seg> SEGMENT
 
 // Non-terminal type assignment for expressions.  The
 // expression grammar is such that an expression binary
@@ -582,7 +589,7 @@ statement: identifier TERM
            | error {
    yyclearin;
 }
-			  ;
+           ;
 
 identifier: LABEL {
    ir_table* ptr;
@@ -609,34 +616,94 @@ instruction: no_params
            ;
 
 // Directive .incbin "<file>" includes a binary file into the intermediate representation stream...
-directive: INCBIN QUOTEDSTRING {
-	int c;
+directive: MARKER LABELREF LABELREF {
+   int color;
+
+   // emit pure placeholder label...
+   emit_label ( 0, 0 );
+
+   if ( stricmp($3->ref.symbol,"start") == 0 )
+   {
+      for ( color = 0; color < NUM_PERMANENT_MARKERS; color++ )
+      {
+         if ( stricmp($2->ref.symbol,permanentMarkerColor[color]) == 0 )
+         {
+            if ( permanentMarker[color].start == NULL )
+            {
+               permanentMarker [ color ].start = (*ir_tail);
+            }
+            else
+            {
+               sprintf ( e, "%s: marker already started: %s", $1, $2->ref.symbol );
+               asmerror ( e );
+            }
+            break;
+         }
+      }
+      if ( color == NUM_PERMANENT_MARKERS )
+      {
+         sprintf ( e, "%s: invalid marker color: %s", $1, $2->ref.symbol );
+         asmerror ( e );
+      }
+   }
+   else if ( stricmp($3->ref.symbol,"end") == 0 )
+   {
+      for ( color = 0; color < NUM_PERMANENT_MARKERS; color++ )
+      {
+         if ( stricmp($2->ref.symbol,permanentMarkerColor[color]) == 0 )
+         {
+            if ( permanentMarker[color].end == NULL )
+            {
+               permanentMarker [ color ].end = (*ir_tail);
+            }
+            else
+            {
+               sprintf ( e, "%s: marker already ended: %s", $1, $2->ref.symbol );
+               asmerror ( e );
+            }
+            break;
+         }
+      }
+      if ( color == NUM_PERMANENT_MARKERS )
+      {
+         sprintf ( e, "%s: invalid marker color: %s", $1, $2->ref.symbol );
+         asmerror ( e );
+      }
+   }
+   else
+   {
+      sprintf ( e, "%s: invalid marker action: %s", $1, $3->ref.symbol );
+      asmerror ( e );
+   }
+}
+           | INCBIN QUOTEDSTRING {
+   int c;
    FILE* fp = fopen ( $2->string, "rb" );
-	if ( fp != NULL )
-	{
-		for ( c=fgetc(fp); c!=EOF; c=fgetc(fp) )
-		{
+   if ( fp != NULL )
+   {
+      for ( c=fgetc(fp); c!=EOF; c=fgetc(fp) )
+      {
          emit_bin_data ( c );
-		}
-	}
-	else
-	{
+      }
+   }
+   else
+   {
       sprintf ( e, "%s: cannot open included file: %s", $1, $2->string );
       asmerror ( e );
-	}
+   }
 }
 // Directive .incobj "<file>" includes a NESICIDE object into the parser stream...
            | INCOBJ QUOTEDSTRING TERM {
-	char* data = NULL; 
-	int c;
-	int size = 0;
-	int f;
-	int buf, orig;
-	if ( incobj_fn )
-	{
+   char* data = NULL;
+   int c;
+   int size = 0;
+   int f;
+   int buf, orig;
+   if ( incobj_fn )
+   {
       f = incobj_fn ( $2->string, &data, &size );
-		if ( f != 0 )
-		{
+      if ( f != 0 )
+      {
          orig = asm_get_current_buffer ();
 
          buf = asm_scan_string ( data );
@@ -648,23 +715,23 @@ directive: INCBIN QUOTEDSTRING {
          asm_switch_to_buffer ( orig );
 
          asm_delete_buffer ( buf );
-			free ( data );
+         free ( data );
 
          asmparse();
 
          asm_flush_buffer ( orig );
-		}
-		else
-		{
+      }
+      else
+      {
          sprintf ( e, "%s: object not found for .incobj: %s", $1, $2->string );
          asmerror ( e );
-		}
-	}
-	else
-	{
+      }
+   }
+   else
+   {
       sprintf ( e, "%s: directive not supported", $1 );
       asmerror ( e );
-	}
+   }
 }
 // Directive .fillvalue <value> changes the default filler value.
            | FILLVALUE DIGITS {
@@ -1336,20 +1403,20 @@ directive: INCBIN QUOTEDSTRING {
 // There's no ambiguities here to note.  An instruction with
 // no parameters can only be of one form or the other.
 no_params: INSTR TERM {
-	unsigned char f;
+   unsigned char f;
    if ( (f=valid_instr_amode($1,AM_IMPLIED)) != INVALID_INSTR )
-	{
-		emit_bin_implied ( &(m_6502opcode[f]) );
-	}
-	else if ( (f=valid_instr_amode($1,AM_ACCUMULATOR)) != INVALID_INSTR )
-	{
-		emit_bin_accumulator ( &(m_6502opcode[f]) );
-	}
-	else
-	{
+   {
+      emit_bin_implied ( &(m_6502opcode[f]) );
+   }
+   else if ( (f=valid_instr_amode($1,AM_ACCUMULATOR)) != INVALID_INSTR )
+   {
+      emit_bin_accumulator ( &(m_6502opcode[f]) );
+   }
+   else
+   {
       sprintf ( e, "%s: invalid addressing mode", instr_mnemonic($1) );
       asmerror ( e );
-	}
+   }
 }
 ;
 
@@ -1357,7 +1424,7 @@ no_params: INSTR TERM {
 // There's no ambiguities here to note.  An instruction with
 // '#' can only be of immediate form.
 expression_param: INSTR '#' expr TERM {
-	unsigned char f;
+   unsigned char f;
 
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -1458,7 +1525,7 @@ index_reg_param: INSTR expr ',' 'x' TERM {
 // If there's no absolute addressing mode then we emit a zero-page
 // addressing mode [again, if it exists].
            | INSTR expr ',' 'y' TERM {
-	unsigned char f;
+   unsigned char f;
 
    // reduce expression...
    reduce_expression ( $2, NULL );
@@ -1544,7 +1611,7 @@ indirect_param: INSTR '(' expr ')' TERM {
 // There's no ambiguities here to note.  An instruction with
 // this form can only be preindexed indirect addressing.
 preindexed_indirect_param: INSTR '(' expr ',' 'x' ')' TERM {
-	unsigned char f;
+   unsigned char f;
 
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -2060,9 +2127,9 @@ int asmerror(char* s)
 
 void initialize ( void )
 {
-	ir_table* ptr;
+   ir_table* ptr;
    ir_table* ptd;
-	int idx;
+   int idx;
    symbol_table* sym;
    symbol_table* syd;
    file_table* fptr;
@@ -2072,8 +2139,14 @@ void initialize ( void )
    {
       free ( errorStorage );
    }
-	errorStorage = NULL;
-	errorCount = 0;
+   errorStorage = NULL;
+   errorCount = 0;
+
+   for ( idx = 0; idx < NUM_PERMANENT_MARKERS; idx++ )
+   {
+      permanentMarker [ idx ].start = NULL;
+      permanentMarker [ idx ].end = NULL;
+   }
 
    current_label = NULL;
 
@@ -2133,7 +2206,7 @@ void initialize ( void )
    current_stab = &global_stab;
 
    for ( idx = 0; idx < btab_ent; idx++ )
-	{
+   {
       free ( btab[idx].symbol );
       ptd = NULL;
       for ( ptr = btab[idx].ir_head; ptr != NULL; ptr = ptr->next )
@@ -2174,11 +2247,11 @@ void initialize ( void )
          free ( syd );
       }
    }
-	free ( btab );
-	btab = NULL;
+   free ( btab );
+   btab = NULL;
    btab_ent = 0;
    btab_ent_prior_to_enum = -1;
-	btab_max = 0;
+   btab_max = 0;
 }
 
 void add_file ( char* filename )
@@ -2198,49 +2271,49 @@ void add_error ( char *s )
    static char error_buffer [ 2048 ] = { 0, };
    static char* ptr;
 
-	errorCount++;
-	if ( errorStorage == NULL )
-	{
+   errorCount++;
+   if ( errorStorage == NULL )
+   {
       if ( current_label == NULL )
-		{
+      {
          sprintf ( error_buffer, "%s:%d: error: ", currentFile, recovered_linenum );
-			errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
+         errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
-			strcpy ( errorStorage, error_buffer );
-			strcat ( errorStorage, s );
+         strcpy ( errorStorage, error_buffer );
+         strcat ( errorStorage, s );
          strcat ( errorStorage, "\n" );
-		}
-		else
-		{
+      }
+      else
+      {
          sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, recovered_linenum, current_label->symbol );
          errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
          strcpy ( errorStorage, error_buffer );
-			strcat ( errorStorage, s );
+         strcat ( errorStorage, s );
          strcat ( errorStorage, "\n" );
       }
-	}
-	else
-	{
+   }
+   else
+   {
       if ( current_label == NULL )
-		{
+      {
          sprintf ( error_buffer, "%s:%d: error: ", currentFile, recovered_linenum );
          errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
-			strcat ( errorStorage, s );
+         strcat ( errorStorage, s );
          strcat ( errorStorage, "\n" );
       }
-		else
-		{
+      else
+      {
          sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, recovered_linenum, current_label->symbol );
          errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
-			strcat ( errorStorage, s );
+         strcat ( errorStorage, s );
          strcat ( errorStorage, "\n" );
       }
-	}
+   }
    fprintf ( stderr, ptr );
 }
 
@@ -2278,7 +2351,7 @@ unsigned char valid_instr ( char* instr )
 
 int promote_instructions ( unsigned char flag )
 {
-	ir_table* ptr;
+   ir_table* ptr;
    expr_type* expr;
    ir_table* walk_ptr;
    unsigned int d;
@@ -2725,14 +2798,14 @@ int promote_instructions ( unsigned char flag )
 
 unsigned int distance ( ir_table* from, ir_table* to )
 {
-	ir_table* ptr;
+   ir_table* ptr;
 
-	unsigned int d = 0;
-	for ( ptr = from; ptr != to->next; ptr = ptr->next )
-	{
-		d += ptr->len;
-	}
-	return d;
+   unsigned int d = 0;
+   for ( ptr = from; ptr != to->next; ptr = ptr->next )
+   {
+      d += ptr->len;
+   }
+   return d;
 }
 
 void check_fixup ( void )
@@ -2775,8 +2848,8 @@ void check_fixup ( void )
 
 unsigned char add_binary_bank ( segment_type type, char* symbol )
 {
-	unsigned char a = 1;
-	unsigned int i;
+   unsigned char a = 1;
+   unsigned int i;
    char     name [ 32 ];
 
    if ( symbol == NULL )
@@ -2807,20 +2880,20 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
       strncpy ( name, symbol, 31 );
    }
 
-	if ( btab == NULL )
-	{
-		btab = (binary_table*)calloc ( BTAB_ENT_INC, sizeof(binary_table) );
-		if ( btab != NULL )
-		{
-			btab_max += BTAB_ENT_INC;
+   if ( btab == NULL )
+   {
+      btab = (binary_table*)calloc ( BTAB_ENT_INC, sizeof(binary_table) );
+      if ( btab != NULL )
+      {
+         btab_max += BTAB_ENT_INC;
          btab[btab_ent].symbol = (char*)malloc ( strlen(name)+1 );
-			if ( btab[btab_ent].symbol != NULL )
-			{
+         if ( btab[btab_ent].symbol != NULL )
+         {
             memset ( btab[btab_ent].symbol, 0, strlen(name)+1 );
             strncpy ( btab[btab_ent].symbol, name, strlen(name) );
-				btab[btab_ent].idx = btab_ent;
-				btab[btab_ent].type = type;
-				btab[btab_ent].addr = 0;
+            btab[btab_ent].idx = btab_ent;
+            btab[btab_ent].type = type;
+            btab[btab_ent].addr = 0;
             btab[btab_ent].ir_head = NULL;
             btab[btab_ent].ir_tail = NULL;
             btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
@@ -2828,25 +2901,25 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
             btab[btab_ent].stab->head = NULL;
             btab[btab_ent].stab->tail = NULL;
          }
-		}
-		else
-		{
-			sprintf ( e, "unable to allocate memory for tables" );
+      }
+      else
+      {
+         sprintf ( e, "unable to allocate memory for tables" );
          asmerror ( e );
-		}
-	}
-	else
-	{
-		if ( btab_ent < btab_max )
-		{
+      }
+   }
+   else
+   {
+      if ( btab_ent < btab_max )
+      {
          btab[btab_ent].symbol = (char*)malloc ( strlen(name)+1 );
-			if ( btab[btab_ent].symbol != NULL )
-			{
+         if ( btab[btab_ent].symbol != NULL )
+         {
             memset ( btab[btab_ent].symbol, 0, strlen(name)+1 );
             strncpy ( btab[btab_ent].symbol, name, strlen(name) );
-				btab[btab_ent].idx = btab_ent;
-				btab[btab_ent].type = type;
-				btab[btab_ent].addr = 0;
+            btab[btab_ent].idx = btab_ent;
+            btab[btab_ent].type = type;
+            btab[btab_ent].addr = 0;
             btab[btab_ent].ir_head = NULL;
             btab[btab_ent].ir_tail = NULL;
             btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
@@ -2854,21 +2927,21 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
             btab[btab_ent].stab->head = NULL;
             btab[btab_ent].stab->tail = NULL;
          }
-		}
-		else
-		{
-			btab_max += BTAB_ENT_INC;
-			btab = (binary_table*)realloc ( btab, btab_max*sizeof(binary_table) );
-			if ( btab != NULL )
-			{
+      }
+      else
+      {
+         btab_max += BTAB_ENT_INC;
+         btab = (binary_table*)realloc ( btab, btab_max*sizeof(binary_table) );
+         if ( btab != NULL )
+         {
             btab[btab_ent].symbol = (char*)malloc ( strlen(name)+1 );
-				if ( btab[btab_ent].symbol != NULL )
-				{
+            if ( btab[btab_ent].symbol != NULL )
+            {
                memset ( btab[btab_ent].symbol, 0, strlen(name)+1 );
                strncpy ( btab[btab_ent].symbol, name, strlen(name) );
-					btab[btab_ent].idx = btab_ent;
-					btab[btab_ent].type = type;
-					btab[btab_ent].addr = 0;
+               btab[btab_ent].idx = btab_ent;
+               btab[btab_ent].type = type;
+               btab[btab_ent].addr = 0;
                btab[btab_ent].ir_head = NULL;
                btab[btab_ent].ir_tail = NULL;
                btab[btab_ent].stab = (symbol_list*) malloc ( sizeof(symbol_list) );
@@ -2876,16 +2949,16 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
                btab[btab_ent].stab->head = NULL;
                btab[btab_ent].stab->tail = NULL;
             }
-			}
-			else
-			{
-				sprintf ( e, "unable to allocate memory for tables" );
+         }
+         else
+         {
+            sprintf ( e, "unable to allocate memory for tables" );
             asmerror ( e );
-			}
-		}
-	}
+         }
+      }
+   }
 
-	cur = &(btab[btab_ent]);
+   cur = &(btab[btab_ent]);
 
    // Set up global IR pointers...
    ir_head = &(cur->ir_head);
@@ -2894,17 +2967,17 @@ unsigned char add_binary_bank ( segment_type type, char* symbol )
    // Set up current symbol table pointer...
    current_stab = cur->stab;
 
-	btab_ent++;
+   btab_ent++;
 
    //dump_binary_table ();
 
-	return a;
+   return a;
 }
 
 unsigned char set_binary_bank ( segment_type type, char* symbol )
 {
-	unsigned char a = 0;
-	unsigned int i;
+   unsigned char a = 0;
+   unsigned int i;
 
    if ( symbol == NULL )
    {
@@ -2945,24 +3018,24 @@ unsigned char set_binary_bank ( segment_type type, char* symbol )
 
 void output_binary ( char** buffer, int* size )
 {
-	int pos = 0;
+   int pos = 0;
    ir_table* ptr;
-	int       i;
-	int       bank;
+   int       i;
+   int       bank;
    ir_table* plast = NULL;
 
    (*buffer) = (char*) malloc ( DEFAULT_BANK_SIZE );
    (*size) = DEFAULT_BANK_SIZE;
-	if ( (*buffer) != NULL )
-	{
-		for ( bank = 0; bank < btab_ent; bank++ )
-		{
+   if ( (*buffer) != NULL )
+   {
+      for ( bank = 0; bank < btab_ent; bank++ )
+      {
          if ( btab[bank].type == text_segment )
          {
             for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
             {
                if ( ptr->emitted == 0 )
-					{
+               {
                   ptr->emitted = 1;
                   // Calculate absolute ROM address...
                   if ( plast )
@@ -2975,17 +3048,17 @@ void output_binary ( char** buffer, int* size )
                   }
                   plast = ptr;
                   if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
-						{
+                  {
                      for ( i = 0; i < ptr->len; i++ )
-							{
+                     {
                         (*buffer)[pos++] = (ptr->data[i])&0xFF;
-								if ( pos == (*size) )
-								{
+                        if ( pos == (*size) )
+                        {
                            (*size) += DEFAULT_BANK_SIZE;
-									(*buffer) = (char*) realloc ( (*buffer), (*size) );
-								}
-							}
-						}
+                           (*buffer) = (char*) realloc ( (*buffer), (*size) );
+                        }
+                     }
+                  }
                   else if ( ptr->string == 1 )
                   {
                      for ( i = 0; i < ptr->len; i++ )
@@ -2999,23 +3072,23 @@ void output_binary ( char** buffer, int* size )
                      }
                   }
                   else
-						{
+                  {
                      for ( i = 0; i < ptr->len; i++ )
-							{
+                     {
                         (*buffer)[pos++] = (ptr->data[0])&0xFF;
-								if ( pos == (*size) )
-								{
+                        if ( pos == (*size) )
+                        {
                            (*size) += DEFAULT_BANK_SIZE;
-									(*buffer) = (char*) realloc ( (*buffer), (*size) );
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	(*size) = pos;
+                           (*buffer) = (char*) realloc ( (*buffer), (*size) );
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   (*size) = pos;
 
    //dump_ir_tables ();
    //dump_ir_expressions ();
@@ -3028,22 +3101,22 @@ char* instr_mnemonic ( unsigned char op )
 
 unsigned char valid_instr_amode ( int instr, int amode )
 {
-	unsigned char a = INVALID_INSTR;
-	int i;
+   unsigned char a = INVALID_INSTR;
+   int i;
 
-	for ( i = 0; i < 256; i++ )
-	{
+   for ( i = 0; i < 256; i++ )
+   {
       if ( ((allowUndocumented) ||
            (m_6502opcode[i].documented)) &&
            (strlen(m_6502opcode[i].name) > 0) &&
-			  (strncmp(m_6502opcode[i].name,m_6502opcode[instr].name,3) == 0) &&
-			  (m_6502opcode[i].amode == amode) )
-		{
-			a = i;
-			return a;
-		}
-	}
-	return a;
+           (strncmp(m_6502opcode[i].name,m_6502opcode[instr].name,3) == 0) &&
+           (m_6502opcode[i].amode == amode) )
+      {
+         a = i;
+         return a;
+      }
+   }
+   return a;
 }
 
 void update_symbol_ir ( symbol_table* stab, ir_table* ir )
@@ -3074,7 +3147,7 @@ void dump_ir_expressions ( void )
 void dump_ir_table ( ir_table* head )
 {
    ir_table* ptr;
-	int       i;
+   int       i;
 
    for ( ptr = head; ptr != NULL; ptr = ptr->next )
    {
@@ -3166,17 +3239,17 @@ void dump_symbol_table ( symbol_list* list )
 
 void dump_binary_table ( void )
 {
-	int i;
-	for ( i = 0; i < btab_ent; i++ )
-	{
-		printf ( "%c%d: %s %s addr-%04X\n", cur==&(btab[i])?'*':' ', i, btab[i].type==text_segment?"TEXT":"DATA", btab[i].symbol, btab[i].addr );
-	}
+   int i;
+   for ( i = 0; i < btab_ent; i++ )
+   {
+      printf ( "%c%d: %s %s addr-%04X\n", cur==&(btab[i])?'*':' ', i, btab[i].type==text_segment?"TEXT":"DATA", btab[i].symbol, btab[i].addr );
+   }
 }
 
 void set_binary_addr ( unsigned int addr )
 {
-	cur->addr = addr;
-	//dump_binary_table ();
+   cur->addr = addr;
+   //dump_binary_table ();
 }
 
 void dump_expression ( expr_type* expr )
@@ -4137,7 +4210,7 @@ void reduce_expression ( expr_type* expr, symbol_table* hint )
 
 ir_table* emit_ir ( void )
 {
-	ir_table* ptr;
+   ir_table* ptr;
 
    // If we're supposed to be emitting, do so...
    if ( emitting[preproc_nest_level] )
@@ -4187,7 +4260,7 @@ ir_table* emit_ir ( void )
 
 ir_table* emit_fix ( int addr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_fixed;
@@ -4201,7 +4274,7 @@ ir_table* emit_fix ( int addr )
 
 ir_table* emit_label ( int m, int fill )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_fixed;
@@ -4324,7 +4397,7 @@ ir_table* emit_bin_align ( int m )
 
 ir_table* emit_bin_implied ( C6502_opcode* opcode )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_fixed;
@@ -4339,7 +4412,7 @@ ir_table* emit_bin_implied ( C6502_opcode* opcode )
 
 ir_table* emit_bin_accumulator ( C6502_opcode* opcode )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_fixed;
@@ -4354,7 +4427,7 @@ ir_table* emit_bin_accumulator ( C6502_opcode* opcode )
 
 ir_table* emit_bin_immediate ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_immediate;
@@ -4372,7 +4445,7 @@ ir_table* emit_bin_immediate ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_absolute ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_absolute;
@@ -4393,7 +4466,7 @@ ir_table* emit_bin_absolute ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_zeropage ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_zeropage;
@@ -4411,7 +4484,7 @@ ir_table* emit_bin_zeropage ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_relative ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->fixup = fixup_relative;
@@ -4429,7 +4502,7 @@ ir_table* emit_bin_relative ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_indirect ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;
@@ -4447,7 +4520,7 @@ ir_table* emit_bin_indirect ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_abs_idx_x ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;
@@ -4468,7 +4541,7 @@ ir_table* emit_bin_abs_idx_x ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_abs_idx_y ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;
@@ -4489,7 +4562,7 @@ ir_table* emit_bin_abs_idx_y ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_zp_idx_x ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;
@@ -4507,7 +4580,7 @@ ir_table* emit_bin_zp_idx_x ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;
@@ -4525,7 +4598,7 @@ ir_table* emit_bin_zp_idx_y ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;
@@ -4543,7 +4616,7 @@ ir_table* emit_bin_pre_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 
 ir_table* emit_bin_post_idx_ind ( C6502_opcode* opcode, expr_type* expr )
 {
-	ir_table* ptr = emit_ir ();
+   ir_table* ptr = emit_ir ();
    if ( ptr )
    {
       ptr->data[0] = opcode->op;

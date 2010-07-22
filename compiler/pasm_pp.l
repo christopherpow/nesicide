@@ -65,8 +65,11 @@ ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol );
 
 // Previous lexer state for returning.
 // State movement within lexer is:
-// Start -> PARSE_EQUATES: parse any equ directives and perform
-//          equivalency replacements in input text.
+// Start -> COUNT_LINES: insert line directives in the source stream.
+// ... -> PARSE_INCLUDES: parse any 'include' type directives
+//        and pull the included source into the stream.
+// ... -> PARSE_EQUATES: parse any equ directives and perform
+//        equivalency replacements in input text.
 // ... -> PARSE_MACROS: parse any macro/endm directives, form
 //        macro structures including macro text, perform macro
 //        invocation expansions.
@@ -444,7 +447,7 @@ ppkeyword ppkeywords [];
    }
    add_ppsymbol ( &(ppvartab.stab), equsym );
    add_ppsymbol ( &(ppvartab.vtab), pptext );
-//   dump_variables ();
+   //dump_variables ();
 
    sprintf ( line, "%s = %s\r\n", equsym, pptext );
 
@@ -866,7 +869,7 @@ int ppwrap(void)
 {
    int go_around = 0;
 
-   //printf ( "\n%d %d INPUT", pass, directives_processed );
+   printf ( "\n%d %d INPUT", pass, directives_processed );
 
    switch ( pass )
    {
@@ -1173,7 +1176,7 @@ void output_text ( char* text, int length )
       output_buffer = malloc ( OUTPUT_DEFAULT_ALLOC );
       output_buffer [ 0 ] = 0;
    }
-   strncat ( output_buffer, text, length );
+   sprintf ( output_buffer+output_length, "%s", text );
    output_length += length;
 }
 
@@ -1294,7 +1297,7 @@ void copy_to_macro ( int macro, char* string, int length )
       ppmtab [ macro ].text [ blocks*MACRO_DEFAULT_ALLOC ] = 0;
       ppmtab [ macro ].text_blocks = blocks;
    }
-   strncat ( ppmtab[macro].text, string, length );
+   sprintf ( ppmtab[macro].text+ppmtab[macro].text_length, "%s", string );
    ppmtab [ macro ].text_length += length;
 }
 
