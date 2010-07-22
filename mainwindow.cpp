@@ -646,6 +646,7 @@ void MainWindow::on_actionCompile_Project_triggered()
 {
     CCartridgeBuilder cartridgeBuilder;
     cartridgeBuilder.build();
+    projectDataChangesEvent();
 }
 
 void MainWindow::on_actionExecution_Inspector_toggled(bool value)
