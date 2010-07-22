@@ -451,7 +451,7 @@ void MainWindow::on_actionProject_Properties_triggered()
                 nesicideProject->getProject()->setMainSource(sourceItem);
             }
         }
-
+        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
     }
     delete dlg;
 }
@@ -466,6 +466,7 @@ void MainWindow::on_actionNew_Project_triggered()
         nesicideProject->initializeProject();
         ui->projectTreeWidget->setModel(projectTreeviewModel);
         projectDataChangesEvent();
+        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
 
     }
 
@@ -479,11 +480,11 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
       return;
 
    emulator->pauseEmulation(false);
-
    nesicideProject->createProjectFromRom(fileName);
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
    projectDataChangesEvent();
+   this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
 
    emulator->resetEmulator();
    emulator->startEmulation();
@@ -602,6 +603,8 @@ void MainWindow::on_actionOpen_Project_triggered()
 
         projectDataChangesEvent();
         projectFileName = fileName;
+
+        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
     }
 }
 
@@ -906,6 +909,7 @@ void MainWindow::on_action_Close_Project_triggered()
 
     // Let the UI know what's up
     projectDataChangesEvent();
+    this->setWindowTitle("NESICIDE");
 }
 
 void MainWindow::on_actionEmulation_Window_triggered()
