@@ -1023,3 +1023,13 @@ void MainWindow::on_actionMute_All_toggled(bool value)
       CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x1F );
    }
 }
+
+void MainWindow::on_actionEnvironment_Settings_triggered()
+{
+    EnvironmentSettingsDialog *dlg = new EnvironmentSettingsDialog(this);
+    if (dlg->exec() == QDialog::Accepted)
+    {
+        // Todo...
+    }
+    delete dlg;
+}

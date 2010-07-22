@@ -149,7 +149,8 @@ SOURCES += mainwindow.cpp \
     debugger/apuinformationdialog.cpp \
     debugger/apuinformationinspector.cpp \
     common/cgamedatabasehandler.cpp \
-    common/cconfigurator.cpp
+    common/cconfigurator.cpp \
+    environmentsettingsdialog.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -268,7 +269,8 @@ HEADERS += mainwindow.h \
     debugger/apuinformationdialog.h \
     debugger/apuinformationinspector.h \
     common/cgamedatabasehandler.h \
-    common/cconfigurator.h
+    common/cconfigurator.h \
+    environmentsettingsdialog.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -290,5 +292,6 @@ FORMS += mainwindow.ui \
     debugger/codedataloggerdialog.ui \
     debugger/executionvisualizerdialog.ui \
     debugger/mapperinformationdialog.ui \
-    debugger/apuinformationdialog.ui
+    debugger/apuinformationdialog.ui \
+    environmentsettingsdialog.ui
 RESOURCES += resource.qrc
