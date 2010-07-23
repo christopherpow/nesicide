@@ -9,14 +9,33 @@ extern "C" {
 
 #include <QString>
 
+#include "cbuildertextlogger.h"
+
 class CPluginManager
 {
 public:
     CPluginManager();
     ~CPluginManager();
     QString getVersionInfo();
+    void doInitScript();
+    void defineInterfaces(lua_State *lua);
+
+    // Functions called by lua
+    void lua_compiler_logger_print(QString text);
+
+protected:
+    lua_State *globalLuaInstance;
+    QString report(lua_State *L, int status);
 };
 
 extern CPluginManager *pluginManager;
+
+
+
+// ========================================================================
+// Only place functions bound directly to lua below!
+// ========================================================================
+
+static int luabind_compiler_logger_print(lua_State *lua);
 
 #endif // CPLUGINMANAGER_H

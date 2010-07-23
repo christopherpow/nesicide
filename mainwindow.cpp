@@ -276,6 +276,9 @@ MainWindow::MainWindow(QWidget *parent) :
                                                              "were ignored." );
       }
    }
+
+   // Always call this last
+   pluginManager->doInitScript();
 }
 
 MainWindow::~MainWindow()
