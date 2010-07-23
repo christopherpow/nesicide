@@ -24,6 +24,7 @@
 #include "apuinformationinspector.h"
 #include "mapperinformationinspector.h"
 #include "aboutdialog.h"
+#include "environmentsettingsdialog.h"
 
 namespace Ui {
     class MainWindow;
@@ -79,6 +80,7 @@ protected:
     virtual void closeEvent ( QCloseEvent * event );
 
 private slots:
+    void on_actionEnvironment_Settings_triggered();
     void on_actionMute_All_toggled(bool );
     void on_actionSquare_1_toggled(bool );
     void on_actionSquare_2_toggled(bool );

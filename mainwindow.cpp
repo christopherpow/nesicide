@@ -250,6 +250,8 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->actionNTSC->setChecked(true);
    CNES::VIDEOMODE(MODE_NTSC);
 
+   this->ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+
    QStringList sl_raw = QApplication::arguments();
    QStringList sl_nes = sl_raw.filter ( ".nes" );
    if ( sl_nes.count() >= 1 )
@@ -451,7 +453,7 @@ void MainWindow::on_actionProject_Properties_triggered()
                 nesicideProject->getProject()->setMainSource(sourceItem);
             }
         }
-
+        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
     }
     delete dlg;
 }
@@ -466,6 +468,7 @@ void MainWindow::on_actionNew_Project_triggered()
         nesicideProject->initializeProject();
         ui->projectTreeWidget->setModel(projectTreeviewModel);
         projectDataChangesEvent();
+        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
 
     }
 
@@ -479,11 +482,11 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
       return;
 
    emulator->pauseEmulation(false);
-
    nesicideProject->createProjectFromRom(fileName);
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
    projectDataChangesEvent();
+   this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
 
    emulator->resetEmulator();
    emulator->startEmulation();
@@ -602,6 +605,8 @@ void MainWindow::on_actionOpen_Project_triggered()
 
         projectDataChangesEvent();
         projectFileName = fileName;
+
+        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
     }
 }
 
@@ -646,6 +651,7 @@ void MainWindow::on_actionCompile_Project_triggered()
 {
     CCartridgeBuilder cartridgeBuilder;
     cartridgeBuilder.build();
+    projectDataChangesEvent();
 }
 
 void MainWindow::on_actionExecution_Inspector_toggled(bool value)
@@ -905,6 +911,7 @@ void MainWindow::on_action_Close_Project_triggered()
 
     // Let the UI know what's up
     projectDataChangesEvent();
+    this->setWindowTitle("NESICIDE");
 }
 
 void MainWindow::on_actionEmulation_Window_triggered()
@@ -1015,4 +1022,14 @@ void MainWindow::on_actionMute_All_toggled(bool value)
    {
       CAPU::SET4015MASK ( CAPU::GET4015MASK()|0x1F );
    }
+}
+
+void MainWindow::on_actionEnvironment_Settings_triggered()
+{
+    EnvironmentSettingsDialog *dlg = new EnvironmentSettingsDialog(this);
+    if (dlg->exec() == QDialog::Accepted)
+    {
+        // Todo...
+    }
+    delete dlg;
 }
