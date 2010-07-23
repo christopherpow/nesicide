@@ -32,10 +32,4 @@ extern CPluginManager *pluginManager;
 
 
 
-// ========================================================================
-// Only place functions bound directly to lua below!
-// ========================================================================
-
-static int luabind_compiler_logger_print(lua_State *lua);
-
 #endif // CPLUGINMANAGER_H

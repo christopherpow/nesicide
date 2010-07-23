@@ -12,6 +12,7 @@ win32:LIBS += compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
 win32:LIBS += lua/liblua.a
 unix:LIBS += lua/liblua.a
+mac:LIBS += lua/
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:LIBS += `sdl-config \

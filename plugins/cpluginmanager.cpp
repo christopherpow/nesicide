@@ -1,5 +1,6 @@
 #include "cpluginmanager.h"
 
+static int luabind_compiler_logger_print(lua_State *lua);
 
 
 CPluginManager *pluginManager = (CPluginManager *)NULL;
