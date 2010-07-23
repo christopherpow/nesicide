@@ -17,7 +17,7 @@ PP=pp
 
  # TODO: make a better test for os x
 ifdef Apple_PubSub_Socket_Render
-	CFLAGS     := $(CFLAGS) -arch i386 -arch x86_64 -arch ppc -arch ppc64
+	CFLAGS     := $(CFLAGS) -arch i386 -arch x86_64 -arch ppc
 	LIB_CREATE := libtool -static -o
 #	LIBFL_COPY := lipo -extract i386 -extract x86_64 -output libfl.a /usr/lib/libfl.a
 endif
