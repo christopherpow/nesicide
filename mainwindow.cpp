@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     nesicideProject = new CNesicideProject();
+    pluginManager = new CPluginManager();
+
     ui->setupUi(this);
     projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
     ui->projectTreeWidget->mdiTabWidget = ui->tabWidget;
@@ -235,6 +237,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
+    builderTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
    // Start in NTSC mode for now until we can have it configurable on app entry.
    ui->actionNTSC->setChecked(true);
@@ -280,6 +283,7 @@ MainWindow::~MainWindow()
     ui->tabWidget->clear();
 
     delete nesicideProject;
+    delete pluginManager;
     delete ui;
     delete projectTreeviewModel;
 }

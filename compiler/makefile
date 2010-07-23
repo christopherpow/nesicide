@@ -29,8 +29,8 @@ $(LIB_PREFIX)pasm$(LIB_POSTFIX): pasm_$(ASM).l pasm_$(ASM).y pasm_lib.c lex.$(AS
 	$(LIB_CREATE) $(LIB_PREFIX)pasm$(LIB_POSTFIX) lex.$(ASM).o lex.$(PP).o pasm_$(ASM).tab.o pasm_lib.o 
 
 pasm$(EXEC_POSTFIX): pasm_$(ASM).l pasm_$(PP).l pasm_$(ASM).y pasm_exe.c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c
-	gcc $(CFLAGS) -DPASM_EXE -o pasm$(EXEC_POSTFIX) lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_exe.c 
-#	gcc $(CFLAGS) -gstabs -pg -DPASM_EXE -o pasm$(EXEC_POSTFIX) lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_exe.c 
+	gcc $(CFLAGS) -DPASM_EXE -O2 -o pasm$(EXEC_POSTFIX) lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_exe.c
+#	gcc $(CFLAGS) -O2 -gstabs -pg -DPASM_EXE -o pasm$(EXEC_POSTFIX) lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_exe.c 
 
 clean:
 	rm -f lex.*.c *.tab.* $(LIB_PREFIX)pasm$(LIB_POSTFIX) pasm$(EXEC_POSTFIX) *.o

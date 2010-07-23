@@ -906,9 +906,6 @@ int ppwrap(void)
       break;
 
       case PARSE_VARIABLES:
-         // reduce any expressions found...
-         reduce_expressions ();
-
          // assign variable values for repeats stage...
          assign_variable_values ();
 

@@ -10,6 +10,8 @@ QT += network \
 win32:QMAKE_LFLAGS += -static-libgcc
 win32:LIBS += compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
+win32:LIBS += lua/liblua.a
+unix:LIBS += lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:LIBS += `sdl-config \
@@ -24,6 +26,7 @@ mac:INCLUDEPATH = ./ \
     ./libraries/SDL
 INCLUDEPATH += ./common \
     ./compiler \
+    ./lua \
     ./debugger \
     ./designers/cartridge_editor \
     ./designers/code_editor \
@@ -33,6 +36,7 @@ INCLUDEPATH += ./common \
     ./emulator \
     ./interfaces \
     ./project \
+    ./plugins \
     ./resources \
     ./viewers \
     ./viewers/chr-rom \
@@ -150,7 +154,8 @@ SOURCES += mainwindow.cpp \
     debugger/apuinformationinspector.cpp \
     common/cgamedatabasehandler.cpp \
     common/cconfigurator.cpp \
-    environmentsettingsdialog.cpp
+    environmentsettingsdialog.cpp \
+    plugins/cpluginmanager.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -270,7 +275,8 @@ HEADERS += mainwindow.h \
     debugger/apuinformationinspector.h \
     common/cgamedatabasehandler.h \
     common/cconfigurator.h \
-    environmentsettingsdialog.h
+    environmentsettingsdialog.h \
+    plugins/cpluginmanager.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

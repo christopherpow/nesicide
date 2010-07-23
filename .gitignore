@@ -21,3 +21,6 @@ compiler/pasm
 compiler/pasm_asm.output
 compiler/pasm_asm.tab.c
 compiler/pasm_asm.tab.h
+lua/*.a
+lua/*.o
+lua/*.dll

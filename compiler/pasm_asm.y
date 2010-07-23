@@ -599,7 +599,6 @@ identifier: LABEL {
    // Update IR->symbol pointer, too...
    ptr->symtab = $1->ref.symtab;
 
-   //reduce_expressions ();
    //dump_symbol_table ( current_stab );
 }
            ;
