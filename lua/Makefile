@@ -99,7 +99,7 @@ linux:
 	$(MAKE) all MYCFLAGS=-DLUA_USE_LINUX MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses"
 
 macosx:
-	$(MAKE) all MYCFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64 -DLU
+	$(MAKE) all MYCFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64 -DLUA_USE_LINUX" MYLIBS="-lreadline"
 # use this on Mac OS X 10.3-
 #	$(MAKE) all MYCFLAGS=-DLUA_USE_MACOSX
 
