@@ -869,7 +869,7 @@ int ppwrap(void)
 {
    int go_around = 0;
 
-   printf ( "\n%d %d INPUT", pass, directives_processed );
+   //printf ( "\n%d %d INPUT", pass, directives_processed );
 
    switch ( pass )
    {
@@ -1455,12 +1455,15 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
    int valid;
    int replacements = 0;
    int offset;
+   const char identifierSpecial [] = { '_', '\'', '.', '@' };
+   int length;
 
    // go through each symbol and replace the text with
    // the symbol value wherever the symbol value is found...
    while ( sptr != NULL )
    {
       ptr = (*text);
+      length = strlen(sptr->symbol);
       while ( (ptr=strstr(ptr,sptr->symbol)) != NULL )
       {
          // check to make sure this is actually a valid replacement
@@ -1468,7 +1471,11 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
          valid = 1;
          if ( ptr > (*text) )
          {
-            if ( isalnum(*(ptr-1)) )
+            if ( (isalnum(*(ptr-1))) ||
+                 ((*(ptr-1)) == identifierSpecial[0]) ||
+                 ((*(ptr-1)) == identifierSpecial[1]) ||
+                 ((*(ptr-1)) == identifierSpecial[2]) ||
+                 ((*(ptr-1)) == identifierSpecial[3]) )
             {
                // an alphanumeric character exists before me, probably
                // not a valid replacement here...
@@ -1478,7 +1485,11 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
          }
          if ( ptr < ((*text)+strlen((*text))-1) )
          {
-            if ( isalnum(*(ptr+strlen(sptr->symbol))) )
+            if ( (isalnum(*(ptr+length))) ||
+                 ((*(ptr+length)) == identifierSpecial[0]) ||
+                 ((*(ptr+length)) == identifierSpecial[1]) ||
+                 ((*(ptr+length)) == identifierSpecial[2]) ||
+                 ((*(ptr+length)) == identifierSpecial[3]) )
             {
                // an alphanumeric character exists after me, probably
                // not a valid replacement here...
@@ -1493,13 +1504,13 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
             // or if we need to masticate things a bit.  we can replace
             // directly if the symbol's invoke value is equal or less
             // characters than the symbol name.
-            if ( strlen(vptr->symbol) <= strlen(sptr->symbol) )
+            if ( strlen(vptr->symbol) <= length )
             {
                // replace and pad with spaces
                // use memcpy so no NULL is added...
                memcpy ( ptr, vptr->symbol, strlen(vptr->symbol) );
                ptr += strlen ( vptr->symbol );
-               for ( i = 0; i < (strlen(sptr->symbol)-strlen(vptr->symbol)); i++ )
+               for ( i = 0; i < (length-strlen(vptr->symbol)); i++ )
                {
                   (*ptr) = ' ';
                   ptr++;
@@ -1511,11 +1522,11 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
                // in the symbol's invoke value...
                // use memcpy so no NULL is added...
                offset = (long)ptr-(long)(*text);
-               (*text) = (char*) realloc ( (*text), strlen((*text))+(strlen(vptr->symbol)-strlen(sptr->symbol)) );
+               (*text) = (char*) realloc ( (*text), strlen((*text))+(strlen(vptr->symbol)-length) );
                ptr = (*text)+offset;
                for ( i = 0; i < strlen(ptr); i++ )
                {
-                  *(ptr+strlen(ptr)-i+(strlen(vptr->symbol)-strlen(sptr->symbol))) = *(ptr+strlen(ptr)-i);
+                  *(ptr+strlen(ptr)-i+(strlen(vptr->symbol)-length)) = *(ptr+strlen(ptr)-i);
                }
                *(ptr+strlen(ptr)+1) = 0;
                memcpy ( ptr, vptr->symbol, strlen(vptr->symbol) );

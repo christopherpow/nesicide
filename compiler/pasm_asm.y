@@ -599,7 +599,7 @@ identifier: LABEL {
    // Update IR->symbol pointer, too...
    ptr->symtab = $1->ref.symtab;
 
-   reduce_expressions ();
+   //reduce_expressions ();
    //dump_symbol_table ( current_stab );
 }
            ;
@@ -3380,32 +3380,85 @@ void convert_expression_to_string ( expr_type* expr, char** string )
    expr_type* tempr = NULL;
    expr_type* temp;
 
-   if ( expr->left )
-   {
-      convert_expression_to_string ( expr->left, string );
-   }
-   if ( expr->right )
-   {
-      convert_expression_to_string ( expr->right, string );
-   }
-
    if ( (*string) == NULL )
    {
-      (*string) = (char*) malloc ( 64 );
+      (*string) = (char*) malloc ( 128 );
       (*string)[0] = 0;
    }
    else
    {
-      (*string) = (char*) realloc ( (*string), strlen((*string))+64 );
+      (*string) = (char*) realloc ( (*string), strlen((*string))+128 );
+   }
+
+   if ( expr->left )
+   {
+      convert_expression_to_string ( expr->left, string );
    }
 
    if ( expr->type == expression_number )
    {
       sprintf ( (*string)+(strlen((*string))), "%d", expr->node.num->number );
    }
-   else
+   else if ( expr->type == expression_reference )
    {
+      if ( expr->node.ref->type == reference_symbol )
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", expr->node.ref->ref.symbol );
+      }
+      else if ( expr->node.ref->type == reference_symtab )
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", expr->node.ref->ref.symtab->symbol );
+         // CPTODO: plug in value if we know it...?
+      }
+      else if ( expr->node.ref->type == reference_const_string )
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", expr->node.ref->ref.text->string );
+      }
+   }
+   else if ( expr->type == expression_operator )
+   {
+      // Special cases for multi-character operations...
+      if ( expr->node.op == 'e' ) // ==
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", "==" );
+      }
+      else if ( expr->node.op == 'n' ) // != or <>
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", "!=" );
+      }
+      else if ( expr->node.op == 'l' ) // <=
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", "<=" );
+      }
+      else if ( expr->node.op == 'g' ) // >=
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", ">=" );
+      }
+      else if ( expr->node.op == ',' ) // <<
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", "<<" );
+      }
+      else if ( expr->node.op == '.' ) // >>
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", ">>" );
+      }
+      else if ( expr->node.op == '7' ) // &&
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", "&&" );
+      }
+      else if ( expr->node.op == '\\' ) // ||
+      {
+         sprintf ( (*string)+(strlen((*string))), "%s", "||" );
+      }
+      else
+      {
+         sprintf ( (*string)+(strlen((*string))), "%c", expr->node.op );
+      }
+   }
 
+   if ( expr->right )
+   {
+      convert_expression_to_string ( expr->right, string );
    }
 }
 
@@ -3464,6 +3517,10 @@ void evaluate_expression ( ir_table* ir, expr_type* expr, unsigned char* evaluat
    {
       evaluate_expression ( ir, expr->right, evaluated, flag, symbol );
    }
+
+   // Assume, for now, that the expression evaluates to an integer...
+   expr->vtype = value_is_int;
+
    if ( expr->type == expression_number )
    {
       expr->vtype = value_is_int;
