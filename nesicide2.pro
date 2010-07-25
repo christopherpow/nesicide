@@ -20,9 +20,9 @@ CONFIG(debug, debug|release) {
 	
 # multimedia
 win32:QMAKE_LFLAGS += -static-libgcc
-win32:LIBS += compiler/libpasm.a
+win32:LIBS += ../nesicide2-master/compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
-win32:LIBS += lua/liblua.a
+win32:LIBS += ../nesicide2-master/lua/liblua.a
 unix:LIBS += lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
