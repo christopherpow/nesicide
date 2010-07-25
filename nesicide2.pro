@@ -5,7 +5,19 @@ QT += network \
     opengl \
     webkit \
     xml
+system(cd compiler && make )
+win32:system(cd lua && make mingw)
+unix:system(cd lua && make linux)
+mac:system(cd lua && make macosx)
+	
+CONFIG += debug_and_release
 
+CONFIG(debug, debug|release) {
+	TARGET = debug_binary
+} else {
+	TARGET = release_binary
+}
+	
 # multimedia
 win32:QMAKE_LFLAGS += -static-libgcc
 win32:LIBS += compiler/libpasm.a

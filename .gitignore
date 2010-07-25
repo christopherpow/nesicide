@@ -10,6 +10,9 @@ Makefile
 moc_*
 *.moc
 qrc_*
+*.exe
+Makefile.Debug
+Makefile.Release
 nesicide2
 nesicide2.exe
 */.directory
