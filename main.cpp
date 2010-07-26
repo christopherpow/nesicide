@@ -3,6 +3,8 @@
 #include "main.h"
 #include "mainwindow.h"
 #include "cconfigurator.h"
+#include "cpluginmanager.h"
+#include "startupsplashdialog.h"
 
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
@@ -34,6 +36,14 @@ int main(int argc, char *argv[])
    // Initialize the persistent configuration...
    CONFIG = new CConfigurator();
 
+   // Initialize the plugin manager
+   pluginManager = new CPluginManager();
+
+   // Run the startup splash
+   StartupSplashDialog *splash = new StartupSplashDialog();
+   //splash->exec();
+   delete splash;
+
    // Create the NES emulator and breakpoint watcher threads...
    emulator = new NESEmulatorThread ();
    breakpointWatcher = new BreakpointWatcherThread ();
@@ -58,6 +68,8 @@ int main(int argc, char *argv[])
    breakpointWatcher = NULL;
    delete emulator;
    emulator = NULL;
+   delete pluginManager;
+   pluginManager = NULL;
 
    return result;
 }

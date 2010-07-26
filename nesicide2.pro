@@ -9,7 +9,6 @@ system(cd compiler && make clean && make )
 win32:system(cd lua && make mingw)
 unix:system(cd lua && make linux)
 mac:system(cd lua && make macosx)
-	
 CONFIG += debug_and_release
 
 CONFIG(debug, debug|release) {

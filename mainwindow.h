@@ -25,7 +25,6 @@
 #include "mapperinformationinspector.h"
 #include "aboutdialog.h"
 #include "environmentsettingsdialog.h"
-#include "cpluginmanager.h"
 
 namespace Ui {
     class MainWindow;

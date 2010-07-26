@@ -14,7 +14,7 @@ CPluginManager::CPluginManager()
 void CPluginManager::doInitScript()
 {
 #ifdef Q_WS_WIN
-   const char * initScriptPath   = "../plugins/init.lua";
+   const char * initScriptPath   = "../nesicide2-master/plugins/init.lua";
 #else
    const char * initScriptPath   = "plugins/init.lua";
 #endif

@@ -7,13 +7,14 @@
 #include <QApplication>
 #include <QStringList>
 #include <QMessageBox>
+#include "cpluginmanager.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     nesicideProject = new CNesicideProject();
-    pluginManager = new CPluginManager();
+
 
     ui->setupUi(this);
     projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
