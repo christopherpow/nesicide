@@ -5,7 +5,7 @@ QT += network \
     opengl \
     webkit \
     xml
-system(cd compiler && make )
+system(cd compiler && make clean && make )
 win32:system(cd lua && make mingw)
 unix:system(cd lua && make linux)
 mac:system(cd lua && make macosx)
@@ -167,7 +167,8 @@ SOURCES += mainwindow.cpp \
     common/cgamedatabasehandler.cpp \
     common/cconfigurator.cpp \
     environmentsettingsdialog.cpp \
-    plugins/cpluginmanager.cpp
+    plugins/cpluginmanager.cpp \
+    startupsplashdialog.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -288,7 +289,8 @@ HEADERS += mainwindow.h \
     common/cgamedatabasehandler.h \
     common/cconfigurator.h \
     environmentsettingsdialog.h \
-    plugins/cpluginmanager.h
+    plugins/cpluginmanager.h \
+    startupsplashdialog.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -311,5 +313,6 @@ FORMS += mainwindow.ui \
     debugger/executionvisualizerdialog.ui \
     debugger/mapperinformationdialog.ui \
     debugger/apuinformationdialog.ui \
-    environmentsettingsdialog.ui
+    environmentsettingsdialog.ui \
+    startupsplashdialog.ui
 RESOURCES += resource.qrc

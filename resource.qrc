@@ -50,5 +50,6 @@
         <file>resources/22_breakpoint.png</file>
         <file>resources/bomb.png</file>
         <file>resources/NesCarts (2010-02-08).xml</file>
+        <file>resources/logo.png</file>
     </qresource>
 </RCC>

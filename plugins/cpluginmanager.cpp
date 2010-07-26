@@ -13,7 +13,11 @@ CPluginManager::CPluginManager()
 
 void CPluginManager::doInitScript()
 {
-    const char * initScriptPath   = "plugins/init.lua";
+#ifdef Q_WS_WIN
+   const char * initScriptPath   = "../plugins/init.lua";
+#else
+   const char * initScriptPath   = "plugins/init.lua";
+#endif
     int status;
     QString result;
 #ifdef Q_WS_MAC
