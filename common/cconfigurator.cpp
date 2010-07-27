@@ -9,6 +9,9 @@ static unsigned int m_DEFAULTcontrollerConfig [ NUM_JOY ][ 9 ] =
     { 1, JOY2_LEFT, JOY2_RIGHT, JOY2_UP, JOY2_DOWN, JOY2_SELECT, JOY2_START, JOY2_B, JOY2_A }
 };
 */
+
+CConfigurator* appConfig;
+
 CConfigurator::CConfigurator()
 {
     QCoreApplication::setOrganizationName("CSPSoftware");

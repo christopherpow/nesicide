@@ -30,11 +30,11 @@ int main(int argc, char *argv[])
 {
    QApplication nesicideApplication(argc, argv);
 
+   // Initialize the configuration system
+   appConfig = new CConfigurator();
+
    // Initialize the game database object...
    gameDatabase.initialize("NesCarts (2010-02-08).xml");
-
-   // Initialize the persistent configuration...
-   CONFIG = new CConfigurator();
 
    // Initialize the plugin manager
    pluginManager = new CPluginManager();

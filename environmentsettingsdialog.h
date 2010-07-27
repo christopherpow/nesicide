@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QColorDialog>
+#include <QFileDialog>
 
 namespace Ui {
     class EnvironmentSettingsDialog;
@@ -22,6 +23,7 @@ private:
     QColor getIdealTextColor(const QColor& rBackgroundColor) const;
 
 private slots:
+    void on_PluginPathButton_clicked();
     void on_CodeStringsButton_clicked();
     void on_CodeNumbersButton_clicked();
     void on_CodePreprocessorButton_clicked();

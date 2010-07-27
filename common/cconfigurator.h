@@ -17,5 +17,7 @@ protected:
    void loadDefaultSettings();
 };
 
+extern CConfigurator* appConfig;
+
 #endif // CCONFIGURATOR_H
 

@@ -122,3 +122,10 @@ void EnvironmentSettingsDialog::on_CodeStringsButton_clicked()
     }
     delete dlg;
 }
+
+void EnvironmentSettingsDialog::on_PluginPathButton_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this, "Plugin Path", ui->PluginPathEdit->text());
+   if (!value.isEmpty())
+      ui->PluginPathEdit->setText(value);
+}
