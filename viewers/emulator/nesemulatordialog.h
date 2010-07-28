@@ -2,7 +2,6 @@
 #define NESEMULATORDIALOG_H
 
 #include <QDialog>
-#include <QBasicTimer>
 
 #include "cnesicidecommon.h"
 #include "nesemulatorrenderer.h"

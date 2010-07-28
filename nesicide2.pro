@@ -20,7 +20,6 @@ CONFIG(debug, debug|release) {
    TARGET = release_binary
 }
 
-# multimedia
 win32:QMAKE_LFLAGS += -static-libgcc
 win32:LIBS += ../nesicide2-master/compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
@@ -58,6 +57,7 @@ INCLUDEPATH += ./common \
     ./viewers/chr-rom \
     ./viewers/debugger \
     ./viewers/emulator \
+    ../nesicide2-emulator/viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
 unix:INCLUDEPATH += /usr/include/SDL
@@ -111,7 +111,7 @@ SOURCES += mainwindow.cpp \
     project/cbinaryfiles.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
     viewers/chr-rom/cchrrompreviewrenderer.cpp \
-    viewers/emulator/nesemulatorrenderer.cpp \
+    ../nesicide2-emulator/viewers/emulator/nesemulatorrenderer.cpp \
     viewers/emulator/nesemulatordialog.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
@@ -225,7 +225,7 @@ HEADERS += mainwindow.h \
     project/cbinaryfiles.h \
     viewers/chr-rom/chrromdisplaydialog.h \
     viewers/chr-rom/cchrrompreviewrenderer.h \
-    viewers/emulator/nesemulatorrenderer.h \
+    ../nesicide2-emulator/viewers/emulator/nesemulatorrenderer.h \
     viewers/emulator/nesemulatordialog.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \

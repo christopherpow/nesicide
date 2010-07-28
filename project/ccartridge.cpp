@@ -6,6 +6,7 @@ CCartridge::CCartridge()
     m_mapperNumber = 0;
     m_hasBatteryBackedRam = false;
 
+#if defined ( IDE_BUILD )
     m_pointerToPrgRomBanks = new CPRGROMBanks();
     m_pointerToPrgRomBanks->InitTreeItem(this);
     this->appendChild(m_pointerToPrgRomBanks);
@@ -13,17 +14,21 @@ CCartridge::CCartridge()
     m_pointerToChrRomBanks = new CCHRROMBanks();
     m_pointerToChrRomBanks->InitTreeItem(this);
     this->appendChild(m_pointerToChrRomBanks);
+#endif
 }
 
 CCartridge::~CCartridge()
 {
+#if defined ( IDE_BUILD )
     if (m_pointerToChrRomBanks)
         delete m_pointerToChrRomBanks;
 
     if (m_pointerToPrgRomBanks)
         delete m_pointerToPrgRomBanks;
+#endif
 }
 
+#if defined ( IDE_BUILD )
 CPRGROMBanks *CCartridge::getPointerToPrgRomBanks()
 {
     return m_pointerToPrgRomBanks;
@@ -32,37 +37,6 @@ CPRGROMBanks *CCartridge::getPointerToPrgRomBanks()
 CCHRROMBanks *CCartridge::getPointerToChrRomBanks()
 {
     return m_pointerToChrRomBanks;
-}
-
-
-GameMirrorMode::eGameMirrorMode CCartridge::getMirrorMode()
-{
-    return m_enumMirrorMode;
-}
-
-void CCartridge::setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
-{
-    m_enumMirrorMode = enumValue;
-}
-
-qint8 CCartridge::getMapperNumber()
-{
-    return m_mapperNumber;
-}
-
-void CCartridge::setMapperNumber(qint8 mapperNumber)
-{
-    m_mapperNumber = mapperNumber;
-}
-
-bool CCartridge::isBatteryBackedRam()
-{
-    return m_hasBatteryBackedRam;
-}
-
-void CCartridge::setBatteryBackedRam(bool hasBatteryBackedRam)
-{
-    m_hasBatteryBackedRam = hasBatteryBackedRam;
 }
 
 bool CCartridge::serialize(QDomDocument &doc, QDomNode &node)
@@ -107,8 +81,38 @@ bool CCartridge::deserialize(QDomDocument &doc, QDomNode &node)
    return true;
 }
 
-
 QString CCartridge::caption() const
 {
     return "Cartridge";
+}
+#endif
+
+GameMirrorMode::eGameMirrorMode CCartridge::getMirrorMode()
+{
+    return m_enumMirrorMode;
+}
+
+void CCartridge::setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
+{
+    m_enumMirrorMode = enumValue;
+}
+
+qint8 CCartridge::getMapperNumber()
+{
+    return m_mapperNumber;
+}
+
+void CCartridge::setMapperNumber(qint8 mapperNumber)
+{
+    m_mapperNumber = mapperNumber;
+}
+
+bool CCartridge::isBatteryBackedRam()
+{
+    return m_hasBatteryBackedRam;
+}
+
+void CCartridge::setBatteryBackedRam(bool hasBatteryBackedRam)
+{
+    m_hasBatteryBackedRam = hasBatteryBackedRam;
 }
