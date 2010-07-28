@@ -49,7 +49,7 @@ void CodeDataLoggerDialog::hideEvent(QHideEvent *event)
 
 void CodeDataLoggerDialog::renderData()
 {
-   if ( this->isVisible() )
+   if ( isVisible() )
    {
       switch ( ui->displaySelect->currentIndex() )
       {

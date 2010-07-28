@@ -204,64 +204,67 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
 {
    int addr;
 
-   if ( m_tblRegisters )
+   if ( (row >= 0) && (column >= 0) )
    {
-      addr = m_tblRegisters[m_register]->GetAddr();
-
-      switch ( m_display )
+      if ( m_tblRegisters )
       {
-         case eMemory_CPUregs:
-            switch ( m_register )
-            {
-               case 0:
-                  return createIndex(row, column, (int)C6502::__PC());
-               break;
-               case 1:
-                  return createIndex(row, column, (int)C6502::_A());
-               break;
-               case 2:
-                  return createIndex(row, column, (int)C6502::_X());
-               break;
-               case 3:
-                  return createIndex(row, column, (int)C6502::_Y());
-               break;
-               case 4:
-                  return createIndex(row, column, (int)0x100|C6502::_SP());
-               break;
-               case 5:
-                  return createIndex(row, column, (int)C6502::_F());
-               break;
-            }
-         break;
-         case eMemory_PPUregs:
-            return createIndex(row, column, (int)CPPU::_PPU(addr));
-         break;
-         case eMemory_IOregs:
-            return createIndex(row, column, (int)CAPU::_APU(addr));
-         break;
-         case eMemory_PPUoam:
-            return createIndex(row, column, (int)CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE));
-         break;
-         case eMemory_cartMapper:
-            if ( m_tblRegisters )
-            {
-               if ( addr < MEM_32KB )
+         addr = m_tblRegisters[m_register]->GetAddr();
+
+         switch ( m_display )
+         {
+            case eMemory_CPUregs:
+               switch ( m_register )
                {
-                  return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(addr));
+                  case 0:
+                     return createIndex(row, column, (int)C6502::__PC());
+                  break;
+                  case 1:
+                     return createIndex(row, column, (int)C6502::_A());
+                  break;
+                  case 2:
+                     return createIndex(row, column, (int)C6502::_X());
+                  break;
+                  case 3:
+                     return createIndex(row, column, (int)C6502::_Y());
+                  break;
+                  case 4:
+                     return createIndex(row, column, (int)0x100|C6502::_SP());
+                  break;
+                  case 5:
+                     return createIndex(row, column, (int)C6502::_F());
+                  break;
+               }
+            break;
+            case eMemory_PPUregs:
+               return createIndex(row, column, (int)CPPU::_PPU(addr));
+            break;
+            case eMemory_IOregs:
+               return createIndex(row, column, (int)CAPU::_APU(addr));
+            break;
+            case eMemory_PPUoam:
+               return createIndex(row, column, (int)CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE));
+            break;
+            case eMemory_cartMapper:
+               if ( m_tblRegisters )
+               {
+                  if ( addr < MEM_32KB )
+                  {
+                     return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(addr));
+                  }
+                  else
+                  {
+                     return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(addr));
+                  }
                }
                else
                {
-                  return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(addr));
+                  return QModelIndex();
                }
-            }
-            else
-            {
+            break;
+            default:
                return QModelIndex();
-            }
-         break;
-         default:
-            return QModelIndex();
-         break;
+            break;
+         }
       }
    }
    return QModelIndex();

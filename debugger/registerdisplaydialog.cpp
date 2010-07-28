@@ -67,11 +67,10 @@ RegisterDisplayDialog::~RegisterDisplayDialog()
    delete bitfieldDelegate;
 }
 
-void RegisterDisplayDialog::showEvent(QShowEvent *)
+void RegisterDisplayDialog::showEvent(QShowEvent *e)
 {
-   binaryModel->layoutChangedEvent();
-   bitfieldModel->layoutChangedEvent();
-   ui->binaryView->resizeColumnsToContents();
+   QDialog::showEvent(e);
+   updateMemory();
 }
 
 void RegisterDisplayDialog::contextMenuEvent(QContextMenuEvent *)
@@ -99,6 +98,13 @@ void RegisterDisplayDialog::updateMemory ()
    int low = 0, high = 0;
    int itemActual;
    char buffer [ 128 ];
+
+   if ( isVisible() )
+   {
+      binaryModel->layoutChangedEvent();
+      bitfieldModel->layoutChangedEvent();
+      ui->binaryView->resizeColumnsToContents();
+   }
 
    if ( m_display == eMemory_cartMapper )
    {
@@ -172,9 +178,6 @@ void RegisterDisplayDialog::updateMemory ()
          }
       }
    }
-
-   binaryModel->layoutChangedEvent();
-   bitfieldModel->layoutChangedEvent();
 }
 
 void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)

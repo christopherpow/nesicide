@@ -199,9 +199,15 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
 QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex &) const
 {
    int addr;
-   addr = CNES::SLOC2ADDR(row);
 
-   return createIndex(row, column, addr);
+   if ( (row >= 0) && (column >= 0) )
+   {
+      addr = CNES::SLOC2ADDR(row);
+
+      return createIndex(row, column, addr);
+   }
+
+   return QModelIndex();
 }
 
 int CCodeBrowserDisplayModel::rowCount(const QModelIndex &) const

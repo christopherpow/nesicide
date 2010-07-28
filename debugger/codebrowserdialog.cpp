@@ -40,8 +40,10 @@ CodeBrowserDialog::~CodeBrowserDialog()
     delete sourceViewModel;
 }
 
-void CodeBrowserDialog::showEvent(QShowEvent*)
+void CodeBrowserDialog::showEvent(QShowEvent* e)
 {
+   QDialog::showEvent(e);
+
    // Update display...
    CNES::DISASSEMBLE();
 
@@ -154,16 +156,19 @@ void CodeBrowserDialog::updateDisassembly(bool show)
       emit showMe();
    }
 
-   switch ( ui->displayMode->currentIndex() )
+   if ( isVisible() )
    {
-      case BROWSE_ASSEMBLY:
-         assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
-      break;
-      case BROWSE_SOURCE:
-         sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
-      break;
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
+         break;
+      }
    }
 }
 
@@ -186,16 +191,19 @@ void CodeBrowserDialog::updateBrowser()
       }
    }
 
-   switch ( ui->displayMode->currentIndex() )
+   if ( isVisible() )
    {
-      case BROWSE_ASSEMBLY:
-         assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
-      break;
-      case BROWSE_SOURCE:
-         sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
-      break;
+      switch ( ui->displayMode->currentIndex() )
+      {
+         case BROWSE_ASSEMBLY:
+            assemblyViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
+         break;
+         case BROWSE_SOURCE:
+            sourceViewModel->layoutChangedEvent();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
+         break;
+      }
    }
 }
 

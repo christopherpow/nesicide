@@ -49,7 +49,7 @@ void ExecutionVisualizerDialog::hideEvent(QHideEvent *event)
 
 void ExecutionVisualizerDialog::renderData()
 {
-   if ( this->isVisible() )
+   if ( isVisible() )
    {
       C6502::RENDEREXECUTIONVISUALIZER();
       renderer->updateGL ();

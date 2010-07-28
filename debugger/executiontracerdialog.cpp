@@ -30,8 +30,9 @@ ExecutionTracerDialog::~ExecutionTracerDialog()
     delete model;
 }
 
-void ExecutionTracerDialog::showEvent(QShowEvent*)
+void ExecutionTracerDialog::showEvent(QShowEvent* e)
 {
+   QDialog::showEvent(e);
    updateTracer();
    ui->tableView->resizeColumnsToContents();
 }

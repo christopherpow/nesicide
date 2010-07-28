@@ -29,15 +29,15 @@ MemoryDisplayDialog::~MemoryDisplayDialog()
     delete model;
 }
 
-void MemoryDisplayDialog::showEvent(QShowEvent *)
+void MemoryDisplayDialog::showEvent(QShowEvent* e)
 {
-   model->layoutChangedEvent();
-   ui->tableView->resizeColumnsToContents();
+   QDialog::showEvent(e);
+   updateMemory();
 }
 
 void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-   QMenu menu;   
+   QMenu menu;
 
    switch ( m_display )
    {
@@ -82,6 +82,13 @@ void MemoryDisplayDialog::updateMemory ()
    int low = 0, high = 0;
    int itemActual;
 
+   // Only update the UI if the inspector is visible...
+   if ( isVisible() )
+   {
+      model->layoutChangedEvent();
+      ui->tableView->resizeColumnsToContents();
+   }
+
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
@@ -125,8 +132,6 @@ void MemoryDisplayDialog::updateMemory ()
          }
       }
    }
-
-   model->layoutChangedEvent();
 }
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()

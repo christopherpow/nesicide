@@ -70,6 +70,8 @@ int CMarker::AddSpecificMarker(int marker, unsigned int absAddr)
    m_marker [ marker ].endAbsAddr = absAddr;
    m_marker [ marker ].endFrame = MARKER_NOT_MARKED;
    m_marker [ marker ].endCycle = MARKER_NOT_MARKED;
+
+   return marker;
 }
 
 int CMarker::AddMarker(unsigned int absAddr)

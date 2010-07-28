@@ -158,7 +158,11 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
 
 QModelIndex CSourceBrowserDisplayModel::index(int row, int column, const QModelIndex &) const
 {
-   return createIndex(row, column, row);
+   if ( (row >= 0) && (column >= 0) )
+   {
+      return createIndex(row, column, row);
+   }
+   return QModelIndex();
 }
 
 int CSourceBrowserDisplayModel::rowCount(const QModelIndex &) const

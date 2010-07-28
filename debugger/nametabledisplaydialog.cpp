@@ -26,14 +26,14 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
 
 void NameTableDisplayDialog::showEvent(QShowEvent *event)
 {
-    QDialog::changeEvent(event);
+    QDialog::showEvent(event);
     CPPU::EnableNameTableInspector(true);
     renderData();
 }
 
 void NameTableDisplayDialog::hideEvent(QHideEvent *event)
 {
-    QDialog::changeEvent(event);
+    QDialog::hideEvent(event);
     CPPU::EnableNameTableInspector(false);
 }
 
@@ -51,7 +51,7 @@ void NameTableDisplayDialog::changeEvent(QEvent *e)
 
 void NameTableDisplayDialog::renderData()
 {
-   if ( this->isVisible() )
+   if ( isVisible() )
    {
       CPPU::RENDERNAMETABLE();
       renderer->updateGL ();

@@ -264,78 +264,81 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex & index, const QVa
 
 QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModelIndex &) const
 {
-   switch ( m_display )
+   if ( (row >= 0) && (column >= 0) )
    {
-      case eMemory_CPUregs:
-         switch ( column )
-         {
-            case 0:
-               return createIndex(row, column, (int)C6502::__PC());
-            break;
-            case 1:
-               return createIndex(row, column, (int)C6502::_A());
-            break;
-            case 2:
-               return createIndex(row, column, (int)C6502::_X());
-            break;
-            case 3:
-               return createIndex(row, column, (int)C6502::_Y());
-            break;
-            case 4:
-               return createIndex(row, column, (int)0x100|C6502::_SP());
-            break;
-            case 5:
-               return createIndex(row, column, (int)C6502::_F());
-            break;
-         }
-      break;
-      case eMemory_CPU:
-         return createIndex(row, column, (int)C6502::_MEM(m_offset+(row<<4)+column));
-      break;
-      case eMemory_PPUregs:
-         return createIndex(row, column, (int)CPPU::_PPU(m_offset+column));
-      break;
-      case eMemory_IOregs:
-         return createIndex(row, column, (int)CAPU::_APU(m_offset+(row<<2)+column));
-      break;
-      case eMemory_cartROM:
-         return createIndex(row, column, (int)CROM::PRGROM(m_offset+(row<<4)+column));
-      break;
-      case eMemory_cartSRAM:
-         return createIndex(row, column, (int)CROM::SRAM(m_offset+(row<<4)+column));
-      break;
-      case eMemory_cartEXRAM:
-         return createIndex(row, column, (int)CROM::EXRAM(m_offset+(row<<4)+column));
-      break;
-      case eMemory_cartCHRMEM:
-         return createIndex(row, column, (int)CROM::CHRMEM(m_offset+(row<<4)+column));
-      break;
-      case eMemory_cartMapper:
-         if ( m_tblRegisters )
-         {
-            if ( m_tblRegisters[row]->GetAddr() < MEM_32KB )
+      switch ( m_display )
+      {
+         case eMemory_CPUregs:
+            switch ( column )
             {
-               return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(m_tblRegisters[row]->GetAddr()));
+               case 0:
+                  return createIndex(row, column, (int)C6502::__PC());
+               break;
+               case 1:
+                  return createIndex(row, column, (int)C6502::_A());
+               break;
+               case 2:
+                  return createIndex(row, column, (int)C6502::_X());
+               break;
+               case 3:
+                  return createIndex(row, column, (int)C6502::_Y());
+               break;
+               case 4:
+                  return createIndex(row, column, (int)0x100|C6502::_SP());
+               break;
+               case 5:
+                  return createIndex(row, column, (int)C6502::_F());
+               break;
+            }
+         break;
+         case eMemory_CPU:
+            return createIndex(row, column, (int)C6502::_MEM(m_offset+(row<<4)+column));
+         break;
+         case eMemory_PPUregs:
+            return createIndex(row, column, (int)CPPU::_PPU(m_offset+column));
+         break;
+         case eMemory_IOregs:
+            return createIndex(row, column, (int)CAPU::_APU(m_offset+(row<<2)+column));
+         break;
+         case eMemory_cartROM:
+            return createIndex(row, column, (int)CROM::PRGROM(m_offset+(row<<4)+column));
+         break;
+         case eMemory_cartSRAM:
+            return createIndex(row, column, (int)CROM::SRAM(m_offset+(row<<4)+column));
+         break;
+         case eMemory_cartEXRAM:
+            return createIndex(row, column, (int)CROM::EXRAM(m_offset+(row<<4)+column));
+         break;
+         case eMemory_cartCHRMEM:
+            return createIndex(row, column, (int)CROM::CHRMEM(m_offset+(row<<4)+column));
+         break;
+         case eMemory_cartMapper:
+            if ( m_tblRegisters )
+            {
+               if ( m_tblRegisters[row]->GetAddr() < MEM_32KB )
+               {
+                  return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(m_tblRegisters[row]->GetAddr()));
+               }
+               else
+               {
+                  return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[row]->GetAddr()));
+               }
             }
             else
             {
-               return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(m_tblRegisters[row]->GetAddr()));
+               return QModelIndex();
             }
-         }
-         else
-         {
-            return QModelIndex();
-         }
-      break;
-      case eMemory_PPU:
-         return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<4)+column));
-      break;
-      case eMemory_PPUpalette:
-         return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<2)+column));
-      break;
-      case eMemory_PPUoam:
-         return createIndex(row, column, (int)CPPU::OAM(column,row));
-      break;
+         break;
+         case eMemory_PPU:
+            return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<4)+column));
+         break;
+         case eMemory_PPUpalette:
+            return createIndex(row, column, (int)CPPU::_MEM(m_offset+(row<<2)+column));
+         break;
+         case eMemory_PPUoam:
+            return createIndex(row, column, (int)CPPU::OAM(column,row));
+         break;
+      }
    }
    return QModelIndex();
 }

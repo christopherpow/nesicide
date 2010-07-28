@@ -97,17 +97,20 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
 
 QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &) const
 {
-   if ( (m_bShowCPU) && (m_bShowPPU) )
+   if ( (row >= 0) && (column >= 0) )
    {
-      return createIndex(row, column, m_pTracer->GetSample(row));
-   }
-   else if ( m_bShowCPU )
-   {
-      return createIndex(row, column, m_pTracer->GetCPUSample(row));
-   }
-   else if ( m_bShowPPU )
-   {
-      return createIndex(row, column, m_pTracer->GetPPUSample(row));
+      if ( (m_bShowCPU) && (m_bShowPPU) )
+      {
+         return createIndex(row, column, m_pTracer->GetSample(row));
+      }
+      else if ( m_bShowCPU )
+      {
+         return createIndex(row, column, m_pTracer->GetCPUSample(row));
+      }
+      else if ( m_bShowPPU )
+      {
+         return createIndex(row, column, m_pTracer->GetPPUSample(row));
+      }
    }
    return QModelIndex();
 }

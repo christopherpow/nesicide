@@ -35,8 +35,10 @@ void MapperInformationDialog::changeEvent(QEvent *e)
     }
 }
 
-void MapperInformationDialog::showEvent(QShowEvent*)
+void MapperInformationDialog::showEvent(QShowEvent* e)
 {
+   QDialog::showEvent(e);
+   updateInformation();
 }
 
 void MapperInformationDialog::cartridgeLoaded()
@@ -55,6 +57,60 @@ void MapperInformationDialog::updateInformation()
    int idx;
    char buffer [ 16 ];
 
+   // Only update UI elements if the inspector is visible...
+   if ( isVisible() )
+   {
+      // Show PRG-ROM absolute addresses...
+      sprintf ( buffer, "$%X", CROM::ABSADDR(0x8000) );
+      ui->prg0->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::ABSADDR(0xA000) );
+      ui->prg1->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::ABSADDR(0xC000) );
+      ui->prg2->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::ABSADDR(0xE000) );
+      ui->prg3->setText ( buffer );
+
+      // Show CHR memory absolute addresses...
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0000) );
+      ui->chr0->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0400) );
+      ui->chr1->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0800) );
+      ui->chr2->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0C00) );
+      ui->chr3->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1000) );
+      ui->chr4->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1400) );
+      ui->chr5->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1800) );
+      ui->chr6->setText ( buffer );
+      sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1C00) );
+      ui->chr7->setText ( buffer );
+
+      switch ( CROM::MAPPER() )
+      {
+         case 1:
+            sprintf ( buffer, "$%02X", CROMMapper001::SHIFTREGISTER() );
+            ui->shiftRegister->setText ( buffer );
+            sprintf ( buffer, "%d", CROMMapper001::SHIFTREGISTERBIT() );
+            ui->shiftRegisterBit->setText ( buffer );
+         break;
+
+         case 4:
+            ui->irqEnabled->setChecked ( CROMMapper004::IRQENABLED() );
+            ui->irqAsserted->setChecked ( CROMMapper004::IRQASSERTED() );
+            ui->ppuAddrA12->setChecked ( CROMMapper004::PPUADDRA12() );
+            sprintf ( buffer, "$%02X", CROMMapper004::IRQRELOAD() );
+            ui->irqReload->setText ( buffer );
+            sprintf ( buffer, "$%02X", CROMMapper004::IRQCOUNTER() );
+            ui->irqCounter->setText ( buffer );
+            sprintf ( buffer, "%d", CROMMapper004::PPUCYCLE() );
+            ui->lastA12Cycle->setText ( buffer );
+         break;
+      }
+   }
+
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
@@ -67,55 +123,5 @@ void MapperInformationDialog::updateInformation()
             emit showMe();
          }
       }
-   }
-
-   // Show PRG-ROM absolute addresses...
-   sprintf ( buffer, "$%X", CROM::ABSADDR(0x8000) );
-   ui->prg0->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::ABSADDR(0xA000) );
-   ui->prg1->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::ABSADDR(0xC000) );
-   ui->prg2->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::ABSADDR(0xE000) );
-   ui->prg3->setText ( buffer );
-
-   // Show CHR memory absolute addresses...
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0000) );
-   ui->chr0->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0400) );
-   ui->chr1->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0800) );
-   ui->chr2->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x0C00) );
-   ui->chr3->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1000) );
-   ui->chr4->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1400) );
-   ui->chr5->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1800) );
-   ui->chr6->setText ( buffer );
-   sprintf ( buffer, "$%X", CROM::CHRMEMABSADDR(0x1C00) );
-   ui->chr7->setText ( buffer );
-
-   switch ( CROM::MAPPER() )
-   {
-      case 1:
-         sprintf ( buffer, "$%02X", CROMMapper001::SHIFTREGISTER() );
-         ui->shiftRegister->setText ( buffer );
-         sprintf ( buffer, "%d", CROMMapper001::SHIFTREGISTERBIT() );
-         ui->shiftRegisterBit->setText ( buffer );
-      break;
-
-      case 4:
-         ui->irqEnabled->setChecked ( CROMMapper004::IRQENABLED() );
-         ui->irqAsserted->setChecked ( CROMMapper004::IRQASSERTED() );
-         ui->ppuAddrA12->setChecked ( CROMMapper004::PPUADDRA12() );
-         sprintf ( buffer, "$%02X", CROMMapper004::IRQRELOAD() );
-         ui->irqReload->setText ( buffer );
-         sprintf ( buffer, "$%02X", CROMMapper004::IRQCOUNTER() );
-         ui->irqCounter->setText ( buffer );
-         sprintf ( buffer, "%d", CROMMapper004::PPUCYCLE() );
-         ui->lastA12Cycle->setText ( buffer );
-      break;
    }
 }

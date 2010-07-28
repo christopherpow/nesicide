@@ -52,7 +52,7 @@ void OAMDisplayDialog::hideEvent(QHideEvent *event)
 
 void OAMDisplayDialog::renderData()
 {
-   if ( this->isVisible() )
+   if ( isVisible() )
    {
       renderer->updateGL ();
    }
