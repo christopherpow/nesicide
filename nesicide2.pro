@@ -5,6 +5,9 @@ QT += network \
     opengl \
     webkit \
     xml
+
+DEFINES += IDE_BUILD
+
 system(cd compiler && make clean && make )
 win32:system(cd lua && make mingw)
 unix:system(cd lua && make linux)
