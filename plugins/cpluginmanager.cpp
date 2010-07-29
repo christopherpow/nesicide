@@ -1,9 +1,8 @@
+#include "cpluginmanager.h"
 
 #ifdef Q_WS_MAC
 #include <sys/stat.h>
 #endif
-
-#include "cpluginmanager.h"
 
 static int luabind_compiler_logger_print(lua_State *lua);
 
