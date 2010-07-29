@@ -10,7 +10,7 @@ DEFINES += IDE_BUILD
 
 system(cd compiler && make clean && make )
 win32:system(cd lua && make mingw)
-unix:system(cd lua && make linux)
+unix:!mac:system(cd lua && make linux)
 mac:system(cd lua && make macosx)
 CONFIG += debug_and_release
 
@@ -27,7 +27,7 @@ win32:LIBS += ../nesicide2-master/lua/liblua.a
 unix:LIBS += lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
-unix:LIBS += `sdl-config \
+unix!mac:LIBS += `sdl-config \
     --libs`
 mac:LIBS += -framework \
     SDL
