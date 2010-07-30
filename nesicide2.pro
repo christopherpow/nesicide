@@ -27,7 +27,7 @@ win32:LIBS += ../nesicide2-master/lua/liblua.a
 unix:LIBS += lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
-unix!mac:LIBS += `sdl-config \
+unix:!mac:LIBS += `sdl-config \
     --libs`
 mac:LIBS += -framework \
     SDL
