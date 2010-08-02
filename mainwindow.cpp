@@ -251,7 +251,6 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->actionNoise->setChecked(true);
    ui->actionDelta_Modulation->setChecked(true);
    ui->actionMute_All->setChecked(false);
-   ui->actionNTSC->setChecked(true);
    CNES::VIDEOMODE(MODE_NTSC);
 
    this->ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
@@ -933,23 +932,25 @@ void MainWindow::on_MainWindow_destroyed()
         on_action_Close_Project_triggered();
 }
 
-void MainWindow::on_actionNTSC_triggered(bool checked)
+void MainWindow::on_actionNTSC_triggered()
 {
-   checked = checked;
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
+   CAPU::CLOSE();
    CNES::VIDEOMODE(MODE_NTSC);
+   CAPU::OPEN();
 
    emulator->resetEmulator();
    emulator->startEmulation();
 }
 
-void MainWindow::on_actionPAL_triggered(bool checked)
+void MainWindow::on_actionPAL_triggered()
 {
-   checked = checked;
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
+   CAPU::CLOSE();
    CNES::VIDEOMODE(MODE_PAL);
+   CAPU::OPEN();
 
    emulator->resetEmulator();
    emulator->startEmulation();

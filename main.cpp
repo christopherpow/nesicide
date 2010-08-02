@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
    breakpointWatcher = new BreakpointWatcherThread ();
 
    // Start emulator and breakpoint-watcher threads...
+   CAPU::OPEN();
    emulator->start();
    breakpointWatcher->start();
 
@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
    breakpointWatcher->wait();
    emulator->kill();
    emulator->wait();
+   CAPU::CLOSE();
 
    delete breakpointWatcher;
    breakpointWatcher = NULL;
