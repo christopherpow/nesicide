@@ -4,6 +4,7 @@
 #include <QString>
 #include <string.h> // for memcpy...
 #include <stdio.h> // for sprintf...
+#include <stdint.h>
 
 // Common enumeration for sources of things.
 enum
