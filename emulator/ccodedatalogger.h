@@ -1,7 +1,7 @@
 #if !defined ( CODE_DATA_LOGGER_H )
 #define CODE_DATA_LOGGER_H
 
-#include "cnesicidecommon.h"
+#include "emulator_core.h"
 
 #define LAST_VALUE_LIST_LEN 10
 
@@ -38,34 +38,34 @@ typedef struct _LoggerInfo
 } LoggerInfo;
 #pragma pack()
 
-class CCodeDataLogger  
+class CCodeDataLogger
 {
 public:
-   CCodeDataLogger(UINT size, UINT mask);
-	virtual ~CCodeDataLogger();
+   CCodeDataLogger(uint32_t size, uint32_t mask);
+   virtual ~CCodeDataLogger();
 
    void ClearData ( void );
-   void LogAccess ( unsigned int cycle, UINT addr, unsigned char data, char type, char source );
-   unsigned int GetCount ( UINT addr ) { return (*(m_pLogger+addr)).count; }
-   unsigned int GetCycle ( UINT addr ) { return (*(m_pLogger+addr)).cycle; }
-   unsigned int GetCPUAddr ( UINT addr ) { return (*(m_pLogger+addr)).cpuAddr; }
-   unsigned int GetType ( UINT addr ) { return (*(m_pLogger+addr)).type; }
-   unsigned int GetSource ( UINT addr ) { return (*(m_pLogger+addr)).source; }
+   void LogAccess ( unsigned int cycle, uint32_t addr, unsigned char data, char type, char source );
+   unsigned int GetCount ( uint32_t addr ) { return (*(m_pLogger+addr)).count; }
+   unsigned int GetCycle ( uint32_t addr ) { return (*(m_pLogger+addr)).cycle; }
+   unsigned int GetCPUAddr ( uint32_t addr ) { return (*(m_pLogger+addr)).cpuAddr; }
+   unsigned int GetType ( uint32_t addr ) { return (*(m_pLogger+addr)).type; }
+   unsigned int GetSource ( uint32_t addr ) { return (*(m_pLogger+addr)).source; }
    unsigned int GetSize ( void ) { return m_size; }
-   void GetPrintable ( UINT addr, int subItem, char* str );
-   unsigned char GetLastValueCount ( UINT addr ) { return (*(m_pLogger+addr)).lastValueCount; }
-   unsigned char GetLastValue ( UINT addr, unsigned char count );
-   unsigned int GetLastLoadAddr ( UINT addr );
-   LoggerInfo* GetLogEntry ( UINT addr ) { return (m_pLogger+addr); }
+   void GetPrintable ( uint32_t addr, int subItem, char* str );
+   unsigned char GetLastValueCount ( uint32_t addr ) { return (*(m_pLogger+addr)).lastValueCount; }
+   unsigned char GetLastValue ( uint32_t addr, unsigned char count );
+   unsigned int GetLastLoadAddr ( uint32_t addr );
+   LoggerInfo* GetLogEntry ( uint32_t addr ) { return (m_pLogger+addr); }
 
-   static inline UINT GetCurCycle ( void ) { return m_curCycle; }
-   static inline UINT GetMaxCount ( void ) { return m_maxCount; }
+   static inline uint32_t GetCurCycle ( void ) { return m_curCycle; }
+   static inline uint32_t GetMaxCount ( void ) { return m_maxCount; }
 
 protected:
-   UINT        m_size;
-   UINT        m_mask;
-   static UINT m_curCycle;
-   static UINT m_maxCount;
+   uint32_t        m_size;
+   uint32_t        m_mask;
+   static uint32_t m_curCycle;
+   static uint32_t m_maxCount;
    static LoggerInfo* m_pLastLoad;
    LoggerInfo* m_pLogger;
 };

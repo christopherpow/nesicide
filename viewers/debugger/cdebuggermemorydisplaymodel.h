@@ -2,11 +2,10 @@
 #define CDEBUGGERMEMORYDISPLAYMODEL_H
 
 #include <QAbstractTableModel>
-#include "cnes6502.h"
-#include "cnesppu.h"
-#include "cnesapu.h"
 
-#include "cnesicidecommon.h"
+#include "emulator_core.h"
+
+#include "cregisterdata.h"
 
 class CDebuggerMemoryDisplayModel : public QAbstractTableModel
 {

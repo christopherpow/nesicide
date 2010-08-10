@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,10 +13,10 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 #include "cjoypadlogger.h"
 
-#include "cnesicidecommon.h"
+#include "emulator_core.h"
 
 CJoypadLogger::CJoypadLogger()
 {
@@ -59,7 +59,7 @@ JoypadLoggerInfo* CJoypadLogger::AddSample(unsigned int cycle, unsigned char dat
 //   if ( CONFIG.IsTracerEnabled() )
    {
       pSample = m_pSampleBuffer + m_cursor;
-   
+
       pSample->cycle = cycle;
       pSample->data = data;
 

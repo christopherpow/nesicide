@@ -1,7 +1,4 @@
 #include "chrmeminspector.h"
-#include "cnesppu.h"
-
-#include "cnesppu.h"
 
 CHRMEMInspector::CHRMEMInspector()
 {

@@ -1,10 +1,11 @@
 #include "breakpointdialog.h"
 #include "ui_breakpointdialog.h"
 
-#include "cnesrom.h"
-#include "cnes6502.h"
-#include "cnesppu.h"
-#include "cnesapu.h"
+#include "dbg_cnes.h"
+#include "dbg_cnesrom.h"
+#include "dbg_cnes6502.h"
+#include "dbg_cnesppu.h"
+#include "dbg_cnesapu.h"
 
 #include "main.h"
 
@@ -49,7 +50,7 @@ void BreakpointDialog::changeEvent(QEvent *e)
 
 void BreakpointDialog::showEvent(QShowEvent *)
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
    {
       ui->addButton->setEnabled(false);
@@ -64,7 +65,7 @@ void BreakpointDialog::showEvent(QShowEvent *)
 
 void BreakpointDialog::updateData()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    int idx;
 
    model->layoutChangedEvent();
@@ -117,7 +118,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->bitfield->clear();
          for ( idx = 0; idx < NUM_CPU_REGISTERS; idx++ )
          {
-            ui->reg->addItem ( C6502::REGISTERS()[idx]->GetName() );
+            ui->reg->addItem ( C6502DBG::REGISTERS()[idx]->GetName() );
          }
       break;
       case eBreakOnCPUEvent:
@@ -125,8 +126,8 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
-         pBreakpointEventInfo = C6502::BREAKPOINTEVENTS();
-         for ( idx = 0; idx < C6502::NUMBREAKPOINTEVENTS(); idx++ )
+         pBreakpointEventInfo = C6502DBG::BREAKPOINTEVENTS();
+         for ( idx = 0; idx < C6502DBG::NUMBREAKPOINTEVENTS(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
@@ -145,7 +146,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->bitfield->clear();
          for ( idx = 0; idx < NUM_PPU_REGISTERS; idx++ )
          {
-            ui->reg->addItem ( CPPU::REGISTERS()[idx]->GetName() );
+            ui->reg->addItem ( CPPUDBG::REGISTERS()[idx]->GetName() );
          }
       break;
       case eBreakOnPPUEvent:
@@ -153,8 +154,8 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
-         pBreakpointEventInfo = CPPU::BREAKPOINTEVENTS();
-         for ( idx = 0; idx < CPPU::NUMBREAKPOINTEVENTS(); idx++ )
+         pBreakpointEventInfo = CPPUDBG::BREAKPOINTEVENTS();
+         for ( idx = 0; idx < CPPUDBG::NUMBREAKPOINTEVENTS(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
@@ -168,7 +169,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->bitfield->clear();
          for ( idx = 0; idx < NUM_APU_REGISTERS; idx++ )
          {
-            ui->reg->addItem ( CAPU::REGISTERS()[idx]->GetName() );
+            ui->reg->addItem ( CAPUDBG::REGISTERS()[idx]->GetName() );
          }
       break;
       case eBreakOnAPUEvent:
@@ -176,8 +177,8 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
-         pBreakpointEventInfo = CAPU::BREAKPOINTEVENTS();
-         for ( idx = 0; idx < CAPU::NUMBREAKPOINTEVENTS(); idx++ )
+         pBreakpointEventInfo = CAPUDBG::BREAKPOINTEVENTS();
+         for ( idx = 0; idx < CAPUDBG::NUMBREAKPOINTEVENTS(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
@@ -189,11 +190,11 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->reg->clear();
          ui->bitfield->clear();
-         if ( CROM::REGISTERS() )
+         if ( CROMDBG::REGISTERS() )
          {
-            for ( idx = 0; idx < CROM::NUMREGISTERS(); idx++ )
+            for ( idx = 0; idx < CROMDBG::NUMREGISTERS(); idx++ )
             {
-               ui->reg->addItem ( CROM::REGISTERS()[idx]->GetName() );
+               ui->reg->addItem ( CROMDBG::REGISTERS()[idx]->GetName() );
             }
          }
          else
@@ -206,8 +207,8 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
-         pBreakpointEventInfo = CROM::BREAKPOINTEVENTS();
-         for ( idx = 0; idx < CROM::NUMBREAKPOINTEVENTS(); idx++ )
+         pBreakpointEventInfo = CROMDBG::BREAKPOINTEVENTS();
+         for ( idx = 0; idx < CROMDBG::NUMBREAKPOINTEVENTS(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
@@ -224,18 +225,18 @@ void BreakpointDialog::on_reg_currentIndexChanged(int index)
       switch ( ui->type->currentIndex() )
       {
          case eBreakOnCPUState:
-            m_pRegister = C6502::REGISTERS() [ ui->reg->currentIndex() ];
+            m_pRegister = C6502DBG::REGISTERS() [ ui->reg->currentIndex() ];
          break;
          case eBreakOnPPUState:
-            m_pRegister = CPPU::REGISTERS() [ ui->reg->currentIndex() ];
+            m_pRegister = CPPUDBG::REGISTERS() [ ui->reg->currentIndex() ];
          break;
          case eBreakOnAPUState:
-            m_pRegister = CAPU::REGISTERS() [ ui->reg->currentIndex() ];
+            m_pRegister = CAPUDBG::REGISTERS() [ ui->reg->currentIndex() ];
          break;
          case eBreakOnMapperState:
-            if ( CROM::NUMREGISTERS() > 0 )
+            if ( CROMDBG::NUMREGISTERS() > 0 )
             {
-               m_pRegister = CROM::REGISTERS() [ ui->reg->currentIndex() ];
+               m_pRegister = CROMDBG::REGISTERS() [ ui->reg->currentIndex() ];
             }
             else
             {
@@ -302,7 +303,7 @@ void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
 
 void BreakpointDialog::on_addButton_clicked()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    bool ok;
    int  item1 = 0;
    int  item2 = 0;
@@ -373,7 +374,7 @@ void BreakpointDialog::on_addButton_clicked()
 void BreakpointDialog::DisplayBreakpoint ( int idx )
 {
    char buffer [ 16 ];
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint ( idx );
 
    ui->type->setCurrentIndex ( pBreakpoint->type );
@@ -480,16 +481,16 @@ void BreakpointDialog::on_event_currentIndexChanged(int)
       switch ( ui->type->currentIndex() )
       {
          case eBreakOnCPUEvent:
-            m_pEvent = C6502::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+            m_pEvent = C6502DBG::BREAKPOINTEVENTS()[ui->event->currentIndex()];
          break;
          case eBreakOnPPUEvent:
-            m_pEvent = CPPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+            m_pEvent = CPPUDBG::BREAKPOINTEVENTS()[ui->event->currentIndex()];
          break;
          case eBreakOnAPUEvent:
-            m_pEvent = CAPU::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+            m_pEvent = CAPUDBG::BREAKPOINTEVENTS()[ui->event->currentIndex()];
          break;
          case eBreakOnMapperEvent:
-            m_pEvent = CROM::BREAKPOINTEVENTS()[ui->event->currentIndex()];
+            m_pEvent = CROMDBG::BREAKPOINTEVENTS()[ui->event->currentIndex()];
          break;
          default:
             // No events...
@@ -533,7 +534,7 @@ void BreakpointDialog::on_event_currentIndexChanged(int)
 
 void BreakpointDialog::on_removeButton_clicked()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
 
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
@@ -554,7 +555,7 @@ void BreakpointDialog::on_addr1_textChanged(QString )
 
 void BreakpointDialog::on_modifyButton_clicked()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    bool ok;
    int  item1 = 0;
    int  item2 = 0;
@@ -624,7 +625,7 @@ void BreakpointDialog::on_modifyButton_clicked()
 
 void BreakpointDialog::on_endisButton_clicked()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    QModelIndex sel = ui->tableView->currentIndex();
 
    if ( sel.row() >= 0 )

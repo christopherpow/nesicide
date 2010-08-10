@@ -2,8 +2,7 @@
 #include "ui_nesemulatordialog.h"
 #include "main.h"
 
-#include "cnes.h"
-#include "cnesppu.h"
+#include "emulator_core.h"
 
 NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     QDialog(parent),
@@ -27,7 +26,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 
    m_joy [ JOY1 ] = 0x00;
    m_joy [ JOY2 ] = 0x00;
-   CPPU::TV ( imgData );
+   nesSetTVOut((int8_t*)imgData);
 }
 
 NESEmulatorDialog::~NESEmulatorDialog()

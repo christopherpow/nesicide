@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include "cnametablepreviewrenderer.h"
-#include "cnesppu.h"
 
 namespace Ui {
     class NameTableDisplayDialog;

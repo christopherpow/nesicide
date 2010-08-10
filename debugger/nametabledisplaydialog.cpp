@@ -3,6 +3,8 @@
 
 #include "cnessystempalette.h"
 
+#include "dbg_cnesppu.h"
+
 #include "main.h"
 
 NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
@@ -12,7 +14,7 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     ui->setupUi(this);
     imgData = new char[512*512*3];
 
-    CPPU::NameTableInspectorTV(imgData);
+    CPPUDBG::NameTableInspectorTV((int8_t*)imgData);
 
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
@@ -27,14 +29,14 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
 void NameTableDisplayDialog::showEvent(QShowEvent *event)
 {
     QDialog::showEvent(event);
-    CPPU::EnableNameTableInspector(true);
+    CPPUDBG::EnableNameTableInspector(true);
     renderData();
 }
 
 void NameTableDisplayDialog::hideEvent(QHideEvent *event)
 {
     QDialog::hideEvent(event);
-    CPPU::EnableNameTableInspector(false);
+    CPPUDBG::EnableNameTableInspector(false);
 }
 
 void NameTableDisplayDialog::changeEvent(QEvent *e)
@@ -53,7 +55,7 @@ void NameTableDisplayDialog::renderData()
 {
    if ( isVisible() )
    {
-      CPPU::RENDERNAMETABLE();
+      CPPUDBG::RENDERNAMETABLE();
       renderer->updateGL ();
    }
 }
@@ -102,5 +104,5 @@ void NameTableDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 
 void NameTableDisplayDialog::on_showVisible_toggled(bool checked)
 {
-    CPPU::SetPPUViewerShowVisible ( checked );
+    CPPUDBG::SetPPUViewerShowVisible ( checked );
 }

@@ -3,7 +3,8 @@
 
 #include <QDialog>
 
-#include "cnesicidecommon.h"
+#include "emulator_core.h"
+
 #include "nesemulatorrenderer.h"
 
 namespace Ui {

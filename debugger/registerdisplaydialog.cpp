@@ -1,9 +1,12 @@
 #include "registerdisplaydialog.h"
 #include "ui_registerdisplaydialog.h"
 
-#include "cnes6502.h"
-#include "cnesppu.h"
-#include "cnesapu.h"
+#include "dbg_cnes.h"
+#include "dbg_cnesrom.h"
+#include "dbg_cnes6502.h"
+#include "dbg_cnesppu.h"
+#include "dbg_cnesapu.h"
+#include "dbg_cnesmappers.h"
 
 #include "main.h"
 
@@ -22,19 +25,19 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     switch ( display )
     {
        case eMemory_CPUregs:
-         m_tblRegisters = C6502::REGISTERS();
+         m_tblRegisters = C6502DBG::REGISTERS();
        break;
        case eMemory_PPUregs:
-          m_tblRegisters = CPPU::REGISTERS();
+          m_tblRegisters = CPPUDBG::REGISTERS();
        break;
        case eMemory_IOregs:
-          m_tblRegisters = CAPU::REGISTERS();
+          m_tblRegisters = CAPUDBG::REGISTERS();
        break;
        case eMemory_PPUoam:
           m_tblRegisters = tblOAMRegisters;
        break;
        case eMemory_cartMapper:
-          m_tblRegisters = CROM::REGISTERS();
+          m_tblRegisters = CROMDBG::REGISTERS();
        break;
        default:
           m_tblRegisters = NULL;
@@ -91,7 +94,7 @@ void RegisterDisplayDialog::changeEvent(QEvent *e)
 
 void RegisterDisplayDialog::updateMemory ()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    eMemoryType memoryType = binaryModel->memoryType();
    int idx;
    int row = 0, col = 0;
@@ -108,8 +111,8 @@ void RegisterDisplayDialog::updateMemory ()
 
    if ( m_display == eMemory_cartMapper )
    {
-      m_tblRegisters = CROM::REGISTERS();
-      sprintf ( buffer, "Mapper %d: %s", CROM::MAPPER(), mapperNameFromID(CROM::MAPPER()) );
+      m_tblRegisters = CROMDBG::REGISTERS();
+      sprintf ( buffer, "Mapper %d: %s", CROMDBG::MAPPER(), mapperNameFromID(CROMDBG::MAPPER()) );
       ui->info->setText ( buffer );
    }
    if ( m_tblRegisters )

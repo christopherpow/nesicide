@@ -1,9 +1,10 @@
 #include "cbreakpointinfo.h"
 #include "cnesicidecommon.h"
 
-#include "cnes6502.h"
-#include "cnesppu.h"
-#include "cnesapu.h"
+#include "dbg_cnes6502.h"
+#include "dbg_cnesppu.h"
+#include "dbg_cnesapu.h"
+#include "dbg_cnesrom.h"
 
 CBreakpointInfo::CBreakpointInfo()
    : m_numBreakpoints(0)
@@ -107,16 +108,16 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, eBreakpointType type, eBreakpoi
          switch ( m_breakpoint [ bp ].target )
          {
             case eBreakInCPU:
-               m_breakpoint [ bp ].pEvent = C6502::BREAKPOINTEVENTS()[event];
+               m_breakpoint [ bp ].pEvent = C6502DBG::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInPPU:
-               m_breakpoint [ bp ].pEvent = CPPU::BREAKPOINTEVENTS()[event];
+               m_breakpoint [ bp ].pEvent = CPPUDBG::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInAPU:
-               m_breakpoint [ bp ].pEvent = CAPU::BREAKPOINTEVENTS()[event];
+               m_breakpoint [ bp ].pEvent = CAPUDBG::BREAKPOINTEVENTS()[event];
             break;
             case eBreakInMapper:
-               m_breakpoint [ bp ].pEvent = CROM::BREAKPOINTEVENTS()[event];
+               m_breakpoint [ bp ].pEvent = CROMDBG::BREAKPOINTEVENTS()[event];
             break;
          }
       }
@@ -918,7 +919,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
          }
       break;
       case eBreakOnCPUState:
-         pRegister = C6502::REGISTERS()[m_breakpoint[idx].item1];
+         pRegister = C6502DBG::REGISTERS()[m_breakpoint[idx].item1];
          pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
          switch ( m_breakpoint[idx].dataType )
          {
@@ -1074,7 +1075,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
          }
       break;
       case eBreakOnPPUState:
-         pRegister = CPPU::REGISTERS()[m_breakpoint[idx].item1];
+         pRegister = CPPUDBG::REGISTERS()[m_breakpoint[idx].item1];
          pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
          switch ( m_breakpoint[idx].dataType )
          {
@@ -1156,7 +1157,7 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                       m_breakpoint[idx].item2 );
       break;
       case eBreakOnAPUState:
-         pRegister = CAPU::REGISTERS()[m_breakpoint[idx].item1];
+         pRegister = CAPUDBG::REGISTERS()[m_breakpoint[idx].item1];
          pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
          switch ( m_breakpoint[idx].dataType )
          {
@@ -1238,9 +1239,9 @@ void CBreakpointInfo::GetPrintable ( int idx, char *msg )
                       m_breakpoint[idx].item2 );
       break;
       case eBreakOnMapperState:
-         if ( CROM::REGISTERS() )
+         if ( CROMDBG::REGISTERS() )
          {
-            pRegister = CROM::REGISTERS()[m_breakpoint[idx].item1];
+            pRegister = CROMDBG::REGISTERS()[m_breakpoint[idx].item1];
             pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
             switch ( m_breakpoint[idx].dataType )
             {

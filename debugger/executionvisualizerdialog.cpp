@@ -1,7 +1,7 @@
 #include "executionvisualizerdialog.h"
 #include "ui_executionvisualizerdialog.h"
 
-#include "cnes6502.h"
+#include "dbg_cnes6502.h"
 
 #include "main.h"
 
@@ -13,7 +13,7 @@ ExecutionVisualizerDialog::ExecutionVisualizerDialog(QWidget *parent) :
     imgData = new char[512*512*3];
     memset ( imgData, 0, sizeof(imgData) );
 
-    C6502::ExecutionVisualizerInspectorTV ( imgData );
+    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
@@ -51,7 +51,7 @@ void ExecutionVisualizerDialog::renderData()
 {
    if ( isVisible() )
    {
-      C6502::RENDEREXECUTIONVISUALIZER();
+      C6502DBG::RENDEREXECUTIONVISUALIZER();
       renderer->updateGL ();
    }
 }

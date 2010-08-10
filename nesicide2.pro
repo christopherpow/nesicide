@@ -21,6 +21,7 @@ CONFIG(debug, debug|release) {
 }
 
 win32:QMAKE_LFLAGS += -static-libgcc
+LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
 win32:LIBS += ../nesicide2-master/compiler/libpasm.a
 unix:LIBS += compiler/libpasm.a
 win32:LIBS += ../nesicide2-master/lua/liblua.a
@@ -37,8 +38,8 @@ unix:INCLUDEPATH = ./ \
     /usr/include/SDL
 mac:INCLUDEPATH = ./ \
     ./libraries/SDL
-INCLUDEPATH += ./common \
-    ../nesicide2-emulator/common \
+INCLUDEPATH += ../libnesicide2-emulator \
+    ./common \
     ./compiler \
     ./lua \
     ./debugger \
@@ -48,7 +49,6 @@ INCLUDEPATH += ./common \
     ./designers/project_properties \
     ./designers/graphics_bank_editor \
     ./emulator \
-    ../nesicide2-emulator/emulator \
     ./interfaces \
     ./project \
     ./plugins \
@@ -57,7 +57,6 @@ INCLUDEPATH += ./common \
     ./viewers/chr-rom \
     ./viewers/debugger \
     ./viewers/emulator \
-    ../nesicide2-emulator/viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
 unix:INCLUDEPATH += /usr/include/SDL
@@ -67,7 +66,7 @@ TEMPLATE = app
 SOURCES += mainwindow.cpp \
     main.cpp \
     common/qtcolorpicker.cpp \
-    ../nesicide2-emulator/common/cnessystempalette.cpp \
+    common/cnessystempalette.cpp \
     common/cgltexturemanager.cpp \
     compiler/csourceassembler.cpp \
     compiler/cgraphicsassembler.cpp \
@@ -78,24 +77,6 @@ SOURCES += mainwindow.cpp \
     designers/new_project/newprojectdialog.cpp \
     designers/project_properties/projectpropertiesdialog.cpp \
     emulator/ctracer.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper068.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper065.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper011.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper010.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper009.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper007.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper005.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper004.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper003.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper002.cpp \
-    ../nesicide2-emulator/emulator/cnesrommapper001.cpp \
-    ../nesicide2-emulator/emulator/cnesrom.cpp \
-    ../nesicide2-emulator/emulator/cnesppu.cpp \
-    ../nesicide2-emulator/emulator/cnesmappers.cpp \
-    ../nesicide2-emulator/emulator/cnesio.cpp \
-    ../nesicide2-emulator/emulator/cnesapu.cpp \
-    ../nesicide2-emulator/emulator/cnes6502.cpp \
-    ../nesicide2-emulator/emulator/cnes.cpp \
     emulator/cjoypadlogger.cpp \
     emulator/ccodedatalogger.cpp \
     project/csources.cpp \
@@ -111,7 +92,7 @@ SOURCES += mainwindow.cpp \
     project/cbinaryfiles.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
     viewers/chr-rom/cchrrompreviewrenderer.cpp \
-    ../nesicide2-emulator/viewers/emulator/nesemulatorrenderer.cpp \
+    viewers/emulator/nesemulatorrenderer.cpp \
     viewers/emulator/nesemulatordialog.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
@@ -144,7 +125,7 @@ SOURCES += mainwindow.cpp \
     debugger/cbreakpointinfo.cpp \
     viewers/debugger/cbreakpointdisplaymodel.cpp \
     debugger/breakpointwatcherthread.cpp \
-    ../nesicide2-emulator/emulator/nesemulatorthread.cpp \
+    emulator/nesemulatorthread.cpp \
     debugger/cregisterdata.cpp \
     debugger/codebrowserdialog.cpp \
     debugger/codeinspector.cpp \
@@ -172,13 +153,21 @@ SOURCES += mainwindow.cpp \
     common/cconfigurator.cpp \
     environmentsettingsdialog.cpp \
     plugins/cpluginmanager.cpp \
-    startupsplashdialog.cpp
+    startupsplashdialog.cpp \
+    debugger/dbg_cnes6502.cpp \
+    debugger/dbg_cnesmappers.cpp \
+    debugger/dbg_cnesppu.cpp \
+    debugger/dbg_cnes.cpp \
+    debugger/dbg_cnesapu.cpp \
+    debugger/dbg_cnesrom.cpp \
+    debugger/dbg_cnesrommapper004.cpp \
+    debugger/dbg_cnesrommapper001.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
     common/defaultnespalette.h \
     common/cpaletteitemdelegate.h \
-    ../nesicide2-emulator/common/cnessystempalette.h \
+    common/cnessystempalette.h \
     common/cnesicidecommon.h \
     common/cgltexturemanager.h \
     compiler/csourceassembler.h \
@@ -190,24 +179,6 @@ HEADERS += mainwindow.h \
     designers/new_project/newprojectdialog.h \
     designers/project_properties/projectpropertiesdialog.h \
     emulator/ctracer.h \
-    ../nesicide2-emulator/emulator/cnesrommapper068.h \
-    ../nesicide2-emulator/emulator/cnesrommapper065.h \
-    ../nesicide2-emulator/emulator/cnesrommapper011.h \
-    ../nesicide2-emulator/emulator/cnesrommapper010.h \
-    ../nesicide2-emulator/emulator/cnesrommapper009.h \
-    ../nesicide2-emulator/emulator/cnesrommapper007.h \
-    ../nesicide2-emulator/emulator/cnesrommapper005.h \
-    ../nesicide2-emulator/emulator/cnesrommapper004.h \
-    ../nesicide2-emulator/emulator/cnesrommapper003.h \
-    ../nesicide2-emulator/emulator/cnesrommapper002.h \
-    ../nesicide2-emulator/emulator/cnesrommapper001.h \
-    ../nesicide2-emulator/emulator/cnesrom.h \
-    ../nesicide2-emulator/emulator/cnesppu.h \
-    ../nesicide2-emulator/emulator/cnesmappers.h \
-    ../nesicide2-emulator/emulator/cnesio.h \
-    ../nesicide2-emulator/emulator/cnesapu.h \
-    ../nesicide2-emulator/emulator/cnes6502.h \
-    ../nesicide2-emulator/emulator/cnes.h \
     emulator/cjoypadlogger.h \
     emulator/ccodedatalogger.h \
     interfaces/ixmlserializable.h \
@@ -225,7 +196,7 @@ HEADERS += mainwindow.h \
     project/cbinaryfiles.h \
     viewers/chr-rom/chrromdisplaydialog.h \
     viewers/chr-rom/cchrrompreviewrenderer.h \
-    ../nesicide2-emulator/viewers/emulator/nesemulatorrenderer.h \
+    viewers/emulator/nesemulatorrenderer.h \
     viewers/emulator/nesemulatordialog.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
@@ -258,7 +229,7 @@ HEADERS += mainwindow.h \
     debugger/cbreakpointinfo.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
-    ../nesicide2-emulator/emulator/nesemulatorthread.h \
+    emulator/nesemulatorthread.h \
     debugger/cregisterdata.h \
     debugger/codebrowserdialog.h \
     debugger/codeinspector.h \
@@ -289,7 +260,16 @@ HEADERS += mainwindow.h \
     common/cconfigurator.h \
     environmentsettingsdialog.h \
     plugins/cpluginmanager.h \
-    startupsplashdialog.h
+    startupsplashdialog.h \
+    common/cnessystempalette.h \
+    debugger/dbg_cnes6502.h \
+    debugger/dbg_cnesmappers.h \
+    debugger/dbg_cnesppu.h \
+    debugger/dbg_cnes.h \
+    debugger/dbg_cnesrom.h \
+    debugger/dbg_cnesapu.h \
+    debugger/dbg_cnesrommapper001.h \
+    debugger/dbg_cnesrommapper004.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

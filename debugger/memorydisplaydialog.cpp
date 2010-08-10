@@ -1,7 +1,9 @@
 #include "memorydisplaydialog.h"
 #include "ui_memorydisplaydialog.h"
 
-#include "cnes.h"
+#include "emulator_core.h"
+
+#include "dbg_cnes.h"
 
 #include "inspectorregistry.h"
 #include "main.h"
@@ -75,7 +77,7 @@ void MemoryDisplayDialog::cartridgeLoaded ()
 
 void MemoryDisplayDialog::updateMemory ()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    eMemoryType memoryType = model->memoryType();
    int idx;
    int row = 0, col = 0;
@@ -136,7 +138,7 @@ void MemoryDisplayDialog::updateMemory ()
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
@@ -164,7 +166,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
@@ -192,7 +194,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();

@@ -6,7 +6,6 @@
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
 #include "cbreakpointdisplaymodel.h"
-#include "cnes.h"
 
 namespace Ui {
    class BreakpointDialog;

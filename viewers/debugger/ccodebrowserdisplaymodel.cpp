@@ -1,8 +1,8 @@
 #include "ccodebrowserdisplaymodel.h"
 
-#include "cnes.h"
-#include "cnesrom.h"
-#include "cnes6502.h"
+#include "dbg_cnes.h"
+#include "dbg_cnesrom.h"
+#include "dbg_cnes6502.h"
 #include "cnesicideproject.h"
 
 #include "cbreakpointinfo.h"
@@ -20,18 +20,18 @@ CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
 QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) const
 {
    // FIXME: 64-bit support
-    UINT addr = (long)index.internalPointer();
-    UINT absAddr;
-   //UINT addr = (UINT)index.internalPointer();
+    uint32_t addr = (long)index.internalPointer();
+    uint32_t absAddr;
+   //uint32_t addr = (uint32_t)index.internalPointer();
    char buffer [ 3 ];
    unsigned char opSize;
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
-   CMarker& markers = C6502::MARKERS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CMarker& markers = C6502DBG::MARKERS();
    MarkerSetInfo* pMarker;
    int idx;
    char tooltipBuffer [ 2048 ];
 
-   absAddr = CROM::ABSADDR(addr);
+   absAddr = CROMDBG::ABSADDR(addr);
 
    if ( role == Qt::ToolTipRole )
    {
@@ -39,15 +39,15 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
       {
          if ( index.column() == 4 )
          {
-            CNES::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,tooltipBuffer);
+            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,tooltipBuffer);
             return tooltipBuffer;
          }
          else if ( index.column() > 0 )
          {
-            opSize = OPCODESIZE ( CNES::_MEM(addr) );
+            opSize = OPCODESIZE ( CNESDBG::_MEM(addr) );
             if ( opSize > (index.column()-1) )
             {
-               CNES::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
+               CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
                return tooltipBuffer;
             }
          }
@@ -79,10 +79,10 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
          if ( (pBreakpoint->enabled) &&
               (pBreakpoint->type == eBreakOnCPUExecution) &&
-              ((UINT)pBreakpoint->item1 <= addr) &&
-              ((UINT)pBreakpoint->item2 >= addr) )
+              ((uint32_t)pBreakpoint->item1 <= addr) &&
+              ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502::__PC() )
+            if ( addr == C6502DBG::__PC() )
             {
                return QIcon(":/resources/22_execution_break.png");
             }
@@ -93,10 +93,10 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
-                   ((UINT)pBreakpoint->item1 <= addr) &&
-                   ((UINT)pBreakpoint->item2 >= addr) )
+                   ((uint32_t)pBreakpoint->item1 <= addr) &&
+                   ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502::__PC() )
+            if ( addr == C6502DBG::__PC() )
             {
                return QIcon(":/resources/22_execution_break_disabled.png");
             }
@@ -106,7 +106,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
             }
          }
       }
-      if ( addr == C6502::__PC() )
+      if ( addr == C6502DBG::__PC() )
       {
          return QIcon(":/resources/22_execution_pointer.png");
       }
@@ -124,27 +124,27 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          return QVariant();
       break;
       case 1:
-         sprintf ( buffer, "%02X", CNES::_MEM(addr) );
+         sprintf ( buffer, "%02X", CNESDBG::_MEM(addr) );
          return buffer;
       break;
       case 2:
-         opSize = OPCODESIZE ( CNES::_MEM(addr) );
+         opSize = OPCODESIZE ( CNESDBG::_MEM(addr) );
          if ( 1 < opSize )
          {
-            sprintf ( buffer, "%02X", CNES::_MEM(addr+1) );
+            sprintf ( buffer, "%02X", CNESDBG::_MEM(addr+1) );
             return buffer;
          }
       break;
       case 3:
-         opSize = OPCODESIZE ( CNES::_MEM(addr) );
+         opSize = OPCODESIZE ( CNESDBG::_MEM(addr) );
          if ( 2 < opSize )
          {
-            sprintf ( buffer, "%02X", CNES::_MEM(addr+2) );
+            sprintf ( buffer, "%02X", CNESDBG::_MEM(addr+2) );
             return buffer;
          }
       break;
       case 4:
-         return CNES::DISASSEMBLY(addr);
+         return CNESDBG::DISASSEMBLY(addr);
       break;
    }
 
@@ -188,7 +188,7 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    }
    else
    {
-      addr = CNES::SLOC2ADDR(section);
+      addr = CNESDBG::SLOC2ADDR(section);
       sprintf ( buffer, "$%04X", addr );
       return buffer;
    }
@@ -202,7 +202,7 @@ QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelInd
 
    if ( (row >= 0) && (column >= 0) )
    {
-      addr = CNES::SLOC2ADDR(row);
+      addr = CNESDBG::SLOC2ADDR(row);
 
       return createIndex(row, column, addr);
    }
@@ -215,7 +215,7 @@ int CCodeBrowserDisplayModel::rowCount(const QModelIndex &) const
    unsigned int rows;
 
    // Get the source-lines-of-code count from RAM/SRAM/EXRAM/PRG-ROM that is currently visible to the CPU...
-   rows = CNES::SLOC(C6502::__PC());
+   rows = CNESDBG::SLOC(C6502DBG::__PC());
 
    return rows;
 }

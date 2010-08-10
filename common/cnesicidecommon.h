@@ -1,12 +1,8 @@
 #if !defined ( NESICIDE_COMMON_H )
 #define NESICIDE_COMMON_H
 
-#include <QString>
-#include <string.h> // for memcpy...
-#include <stdio.h> // for sprintf...
-#include <stdint.h>
-
-// Common enumeration for sources of things.
+#if 0
+// Common enumerations for emulated items.
 enum
 {
    eSource_CPU,
@@ -15,238 +11,88 @@ enum
    eSource_Mapper
 };
 
-// CPTODO: removed everything from here (for now) that is not needed yet...
-
-// CPTODO: temporaries to prevent having to do glob srch/rplc yet
-typedef unsigned int UINT;
-
-extern qint8 hex_char[];
-//static qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
-//                                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-#define sprintf02x(b,v) \
-{ \
-   (**b) = *(hex_char+((v)>>4)); (*b)++; \
-   (**b) = *(hex_char+((v)&0xF)); (*b)++; \
-   (**b) = 0; \
-}
-#define sprintf03x(b,v) \
-{ \
-   (**b) = *(hex_char+(((v)>>8)&0xF)); (*b)++; \
-   (**b) = *(hex_char+(((v)>>4)&0xF)); (*b)++; \
-   (**b) = *(hex_char+((v)&0xF)); (*b)++; \
-   (**b) = 0; \
-}
-#define sprintf04x(b,v) \
-{ \
-   (**b) = *(hex_char+((v)>>12)); (*b)++; \
-   (**b) = *(hex_char+(((v)>>8)&0xF)); (*b)++; \
-   (**b) = *(hex_char+(((v)>>4)&0xF)); (*b)++; \
-   (**b) = *(hex_char+((v)&0xF)); (*b)++; \
-   (**b) = 0; \
-}
-#define sprintf04xc(b,v) \
-{ \
-   (**b) = *(hex_char+((v)>>12)); (*b)++; \
-   (**b) = *(hex_char+(((v)>>8)&0xF)); (*b)++; \
-   (**b) = *(hex_char+(((v)>>4)&0xF)); (*b)++; \
-   (**b) = *(hex_char+((v)&0xF)); (*b)++; \
-   (**b) = ':'; (*b)++; \
-   (**b) = 0; \
-}
-#define sprintfcrlf(b) \
-{ \
-   (**b) = '\r'; (*b)++; \
-   (**b) = '\n'; (*b)++; \
-   (**b) = 0; \
-}
-
-#if 0
-// Project configuration IDs
-#define PCI_BUILD_TOOL     0x100000
-#define PCI_GLOBAL_DEFINES 0x100001
-
-// File New Project Dialog stuff
-typedef enum
+enum
 {
-   e_PROJECT_EMPTY,
-   e_PROJECT_NES_CARTRIDGE
+   eTracer_Unknown = 0,
+   eTracer_InstructionFetch,
+   eTracer_DataRead,
+   eTracer_DataWrite,
+   eTracer_DMA,
+   eTracer_RESET,
+   eTracer_NMI,
+   eTracer_IRQ,
+   eTracer_GarbageRead,
+   eTracer_RenderBkgnd,
+   eTracer_RenderSprite,
+   eTracer_StartPPUFrame,
+   eTracer_Sprite0Hit,
+   eTracer_VBLANKStart,
+   eTracer_VBLANKEnd,
+   eTracer_PreRenderStart,
+   eTracer_PreRenderEnd,
+   eTracer_QuietStart,
+   eTracer_QuietEnd,
+   eTracer_EndPPUFrame,
+   eTracer_StartAPUFrame,
+   eTracer_SequencerStep,
+   eTracer_EndAPUFrame
 };
 
-typedef struct _FileNewRecentDataStruct
+enum
 {
-   int iMRU;
-} FileNewRecentDataStruct;
-
-typedef struct _FileNewProjectDataStruct
-{
-   char szProjectName [ 1024 ];
-   char szProjectPath [ 1024 ];
-   char szProjectFullPath [ 1024 ];
-   int iMapper;
-   int iNumPrgBanks;
-   int iNumChrBanks;
-   BOOL bLaunchBrowser;
-   int  type;
-} FileNewProjectDataStruct;
-
-#define SPECIAL 0xFF000000
-class CItemInfo;
-typedef struct _FileNewFileDataStruct
-{
-   char szFileName [ 1024 ];
-   char szFilePath [ 1024 ];
-   int  type; // Use same enumeration as ItemInfo types...
-   int  special; // Use to indicate which type of ROM bank...
-   CItemInfo* pIIRom;
-} FileNewFileDataStruct;
-
-typedef union _FileNewDataUnion
-{
-   struct _FileNewRecentDataStruct  rcnt;
-   struct _FileNewProjectDataStruct proj;
-   struct _FileNewFileDataStruct    file;
-} FileNewDataUnion;
-
-typedef struct _FileNewDataStruct
-{
-   int type;
-   FileNewDataUnion data;
-} FileNewDataStruct;
-
-// Item types...
-typedef enum
-{
-   e_TYPE_NULL = 0,
-   e_TYPE_PRIMITIVES,
-   e_TYPE_PRIMITIVES_PAL,
-   e_TYPE_PRIMITIVES_PAT,
-   e_TYPE_BKGNDS,
-   e_TYPE_BKGNDS_ATT,
-   e_TYPE_BKGNDS_ASS,
-   e_TYPE_BKGNDS_NAM,
-   e_TYPE_FGNDS,
-   e_TYPE_FGNDS_ASS,
-   e_TYPE_SOUNDS,
-   e_TYPE_SOUNDS_MUS,
-   e_TYPE_SOUNDS_EFX,
-   e_TYPE_SCODE,
-   e_TYPE_SCODE_SUB,
-   e_TYPE_ROM,
-   e_TYPE_ROM_INFO,
-   e_TYPE_ROM_BANK,
-   e_TYPE_ITEM_START,
-   e_TYPE_ROM_EMUL_ITEM = e_TYPE_ITEM_START,
-   e_TYPE_PRIMITIVES_PAL_ITEM,
-   e_TYPE_PRIMITIVES_PAT_ITEM,
-   e_TYPE_BKGNDS_ATT_ITEM,
-   e_TYPE_BKGNDS_ASS_ITEM,
-   e_TYPE_BKGNDS_NAM_ITEM,
-   e_TYPE_FGNDS_ASS_ITEM,
-   e_TYPE_SOUNDS_MUS_ITEM,
-   e_TYPE_SOUNDS_EFX_ITEM,
-   e_TYPE_SCODE_SUB_ITEM,
-   e_TYPE_ROM_INFO_ITEM,
-   e_TYPE_ROM_BANK_ITEM,
-   e_TYPE_MAX
+   eTarget_Unknown = 0,
+   eTarget_RAM,
+   eTarget_PPURegister,
+   eTarget_APURegister,
+   eTarget_IORegister,
+   eTarget_SRAM,
+   eTarget_EXRAM,
+   eTarget_ROM,
+   eTarget_Mapper,
+   eTarget_PatternMemory,
+   eTarget_NameTable,
+   eTarget_AttributeTable,
+   eTarget_Palette,
+   eTarget_ExtraCycle
 };
 
-// Menu IDs...
-#define PRIMITIVES_MENU_ID 0
-#define BKGNDS_MENU_ID 1
-#define FGNDS_MENU_ID 2
-#define SOUNDS_MENU_ID 3
-#define SOURCECODE_MENU_ID 4
-#define ROM_MENU_ID 5
-#define PRIMITIVES_PAL_MENU_ID 6
-#define PRIMITIVES_PAL_ITEM_MENU_ID 7
-#define PRIMITIVES_PAT_MENU_ID 8
-#define PRIMITIVES_PAT_ITEM_MENU_ID 9
-#define BKGNDS_ATT_MENU_ID 10
-#define BKGNDS_ATT_ITEM_MENU_ID 11
-#define BKGNDS_ASS_MENU_ID 12
-#define BKGNDS_ASS_ITEM_MENU_ID 13
-#define BKGNDS_NAM_MENU_ID 14
-#define BKGNDS_NAM_ITEM_MENU_ID 15
-#define FGNDS_ASS_MENU_ID 16
-#define FGNDS_ASS_ITEM_MENU_ID 17
-#define SOUNDS_MUS_MENU_ID 18
-#define SOUNDS_MUS_ITEM_MENU_ID 19
-#define SOUNDS_EFX_MENU_ID 20
-#define SOUNDS_EFX_ITEM_MENU_ID 21
-#define SOURCECODE_SUB_MENU_ID 22
-#define SOURCECODE_SUB_ITEM_MENU_ID 23
-#define ROM_INFO_MENU_ID 24
-#define ROM_BANK_MENU_ID 25
-#define ROM_INFO_ITEM_MENU_ID 26
-#define ROM_BANK_ITEM_MENU_ID 27
-#define BKGNDS_ATT_VIEW_MENU_ID 28
-#define BKGNDS_ASS_VIEW_MENU_ID 29
-#define BKGNDS_NAM_VIEW_MENU_ID 30
-#define ROM_BANK_VIEW_MENU_ID 31
-#define SOUNDS_MUS_VIEW_MENU_ID 32
-#define ROM_EMUL_VIEW_MENU_ID 33
+typedef enum
+{
+   eMemory_CPU = 0,
+   eMemory_CPUregs,
+   eMemory_PPUregs,
+   eMemory_PPU,
+   eMemory_PPUpalette,
+   eMemory_PPUoam,
+   eMemory_IOregs,
+   eMemory_cartROM,
+   eMemory_cartSRAM,
+   eMemory_cartEXRAM,
+   eMemory_cartCHRMEM,
+   eMemory_cartMapper
+} eMemoryType;
 
-#define MODE_PAL_NORMAL 0
-#define MODE_PAL_BKGND_COLOR_ONLY 1
-#define MODE_SHOW_FOR_LISTBOX 2
-#define MODE_PAT_LARGE 3
-#define MODE_ASS_LARGE 4
-#define MODE_NAM_LARGE 5
-#define MODE_USE_EXTRADATA 6
+// Video modes.  The emulator supports both NTSC and PAL.
+#define MODE_NTSC 0
+#define MODE_PAL  1
 
-#define TREE_REINIT 0x10000
-
-#define INSERT_ITEM 0x12000
-#define SHOW_ITEM 0x12001
-#define CHANGE_ITEM_NAME 0x12002
-#define DELETE_ITEM 0x12003
-#define FORCE_UPDATE 0x12004
-
-#define LIST_SELCHANGED 0x20000
-#define LIST_SELCHANGING 0x20001
-
-#define FORM_UPDATE 0x24000
-
-#define TREE_SELCHANGING 0x28000
-#define TREE_SELCHANGED 0x28001
-
-#define REDRAW_VIEW 0x29000
-#define FINAL_NOTICE 0x80000
-#define SHUTDOWN_NOTICE 0x80001
-
-#define PATTERN_ATTRTABLE_LINK_UPDATE 0x30000
-
-#define ATTRTABLE_PALETTE_SELCHANGED 0x40000
-#define ATTRTABLE_GLOBAL_BKGND_SELCHANGED 0x40001
-
-#define NAMETABLE_ATTRTABLE_LINK_UPDATE 0x50000
-#define NAMETABLE_FORCE_UPDATE 0x50001
-
-#define ASSEMBLY_ATTRTABLE_LINK_UPDATE 0x60000
-
-#define ROM_BANK_UPDATE_PATTERN 0x70000
-#define ROM_BANK_VIEW_CHANGED_TO_SOURCE 0x70001
-#define ROM_BANK_VIEW_CHANGED_TO_BINARY 0x70002
-
-#define UNDO_STACK_SIZE 100
-#endif
+#define NUM_ROM_BANKS 64
+#define NUM_SRAM_BANKS 8
 
 #define PATTERN_SIZE 8
 
-#if 0
-#define PATTERN_SCALE 4
-
-#define ASSEMBLY_SIZE 16
-#define ASSEMBLY_DIM 2
-
-#define NAMETABLE_SIZE_X 256
-#define NAMETABLE_DIM_X 32
-#define NAMETABLE_SIZE_Y 240
-#define NAMETABLE_DIM_Y 30
-#endif
-
 #define NUM_PALETTES 64
+
+// Samples per video frame for 44.1KHz audio output.
+// NTSC is 60Hz, PAL is 50Hz.  The number of samples
+// drives the rate at which the SDL library will invoke
+// the callback method to retrieve more audio samples to
+// play.
+#define APU_SAMPLES_NTSC 735
+#define APU_SAMPLES_PAL  882
+
+#define APU_BUFFER_PRERENDER_THRESHOLD (735*3)   // When to start doing more rendering
+#define APU_BUFFER_PRERENDER           (735*3)  // How much rendering to do
 
 #pragma pack(1)
 typedef struct
@@ -295,28 +141,17 @@ typedef struct
 #define MASK_64KB 0xFFFF
 #define SHIFT_64KB_8KB 13
 
-typedef enum
-{
-   eMemory_CPU = 0,
-   eMemory_CPUregs,
-   eMemory_PPUregs,
-   eMemory_PPU,
-   eMemory_PPUpalette,
-   eMemory_PPUoam,
-   eMemory_IOregs,
-   eMemory_cartROM,
-   eMemory_cartSRAM,
-   eMemory_cartEXRAM,
-   eMemory_cartCHRMEM,
-   eMemory_cartMapper
-} eMemoryType;
-
 #define EXRAM_START 0x5C00
 #define SRAM_START 0x6000
 #define PPUMEM_START 0x2000
 #define PPUPAL_START 0x3F00
 #define PPUREG_START 0x2000
 #define IOREG_START 0x4000
+#define IOPORTREGBASE  0x4000
+#define IOSPRITEDMA    0x4014
+#define APUCTRL        0x4015
+#define IOJOY1         0x4016
+#define IOJOY2         0x4017
 
 enum
 {
@@ -341,47 +176,6 @@ enum
 };
 
 #define INES_HEADER_ID 0x1a53454e
-#define PRG_BANK 0
-#define CHR_BANK 1
-#define TRN_BANK 2
-
-#define ROM_BANK_BIN_LINE_LEN 16
-
-#define NUM_PLANES 2
-#define NUM_BYTES_PER_PLANE 8
-
-// Emulator threads stuff
-
-#define BRKPT_NONE       0
-#define BRKPT_CPU_EXEC   1
-#define BRKPT_CPU_ACCESS 2
-#define BRKPT_CPU_READ   3
-#define BRKPT_CPU_WRITE  4
-#define BRKPT_CPU_A      5
-#define BRKPT_CPU_X      6
-#define BRKPT_CPU_Y      7
-#define BRKPT_CPU_F      8
-#define BRKPT_CPU_SP     9
-#define BRKPT_IO_ACCESS  10
-#define BRKPT_IO_READ    11
-#define BRKPT_IO_WRITE   12
-#define BRKPT_PPU_ACCESS 13
-#define BRKPT_PPU_READ   14
-#define BRKPT_PPU_WRITE  15
-
-#define BRKPT_NA 0
-#define BRKPT_EQ 1
-#define BRKPT_NE 2
-#define BRKPT_LT 3
-#define BRKPT_GT 4
-#define BRKPT_BS 5
-#define BRKPT_BC 6
-
-#define IOPORTREGBASE  0x4000
-#define IOSPRITEDMA    0x4014
-#define APUCTRL        0x4015
-#define IOJOY1         0x4016
-#define IOJOY2         0x4017
 
 // Joypads
 #define NUM_JOY    2
@@ -423,5 +217,7 @@ enum
 #define idxJOY_START     6
 #define idxJOY_B         7
 #define idxJOY_A         8
+
+#endif
 
 #endif // #if !defined ( NESICIDE_COMMON_H )

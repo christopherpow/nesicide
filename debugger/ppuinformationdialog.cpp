@@ -3,8 +3,8 @@
 
 #include "main.h"
 
-#include "cnes.h"
-#include "cnesppu.h"
+#include "dbg_cnes.h"
+#include "dbg_cnesppu.h"
 
 PPUInformationDialog::PPUInformationDialog(QWidget *parent) :
     QDialog(parent),
@@ -43,43 +43,43 @@ void PPUInformationDialog::showEvent(QShowEvent* e)
 void PPUInformationDialog::updateInformation()
 {
    const char* ppuFlipFlopStr [] = { "Low", "High" };
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    int idx;
    char buffer[16];
-   unsigned char y = CPPU::_Y();
+   unsigned char y = CPPUDBG::_Y();
 
    // Only update the UI elements if the inspector is visible...
    if ( isVisible() )
    {
-      sprintf ( buffer, "%d", (unsigned char)CPPU::_X() );
+      sprintf ( buffer, "%d", (unsigned char)CPPUDBG::_X() );
       ui->pixelX->setText(buffer);
 
       // Fix for scanline -1...
       sprintf ( buffer, "%d", y );
       ui->pixelY->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPU::_FRAME() );
+      sprintf ( buffer, "%d", CPPUDBG::_FRAME() );
       ui->frameNumber->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPU::_CYCLES() );
+      sprintf ( buffer, "%d", CPPUDBG::_CYCLES() );
       ui->cycleNumber->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPU::_CYCLES()%PPU_CYCLES_PER_SCANLINE );
+      sprintf ( buffer, "%d", CPPUDBG::_CYCLES()%PPU_CYCLES_PER_SCANLINE );
       ui->ppuX->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPU::_CYCLES()/PPU_CYCLES_PER_SCANLINE );
+      sprintf ( buffer, "%d", CPPUDBG::_CYCLES()/PPU_CYCLES_PER_SCANLINE );
       ui->ppuY->setText(buffer);
 
-      sprintf ( buffer, "$%04X", CPPU::_PPUADDR() );
+      sprintf ( buffer, "$%04X", CPPUDBG::_PPUADDR() );
       ui->ppuAddr->setText(buffer);
 
-      sprintf ( buffer, "$%02X", CPPU::_PPUREADLATCH() );
+      sprintf ( buffer, "$%02X", CPPUDBG::_PPUREADLATCH() );
       ui->ppuLatch->setText(buffer);
 
-      sprintf ( buffer, "$%02X", CPPU::_PPUADDRLATCH() );
+      sprintf ( buffer, "$%02X", CPPUDBG::_PPUADDRLATCH() );
       ui->ppuAddrLatch->setText(buffer);
 
-      ui->ppuFlipFlop->setText(ppuFlipFlopStr[CPPU::_PPUFLIPFLOP()]);
+      ui->ppuFlipFlop->setText(ppuFlipFlopStr[CPPUDBG::_PPUFLIPFLOP()]);
    }
 
    // Check breakpoints for hits and highlight if necessary...

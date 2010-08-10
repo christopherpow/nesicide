@@ -1,8 +1,7 @@
 #include "prgromdisplaydialog.h"
 #include "ui_prgromdisplaydialog.h"
 
-#include "cnesicidecommon.h"
-#include "cnesrom.h"
+#include "main.h"
 
 PRGROMDisplayDialog::PRGROMDisplayDialog(QWidget *parent) :
     QDialog(parent),

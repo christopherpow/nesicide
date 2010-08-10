@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,18 +13,18 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 #include "ccodedatalogger.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-UINT CCodeDataLogger::m_curCycle = 0;
-UINT CCodeDataLogger::m_maxCount = 1;
+uint32_t CCodeDataLogger::m_curCycle = 0;
+uint32_t CCodeDataLogger::m_maxCount = 1;
 LoggerInfo* CCodeDataLogger::m_pLastLoad = NULL;
 
-CCodeDataLogger::CCodeDataLogger(UINT size, UINT mask)
+CCodeDataLogger::CCodeDataLogger(uint32_t size, uint32_t mask)
 {
    m_pLogger = new LoggerInfo [ size ];
    m_size = size;
@@ -37,7 +37,7 @@ CCodeDataLogger::~CCodeDataLogger()
    delete [] m_pLogger;
 }
 
-unsigned char CCodeDataLogger::GetLastValue ( UINT addr, unsigned char count )
+unsigned char CCodeDataLogger::GetLastValue ( uint32_t addr, unsigned char count )
 {
    LoggerInfo* pLogger = m_pLogger+(addr&m_mask);
    int pos = pLogger->lastValuePos;
@@ -63,7 +63,7 @@ void CCodeDataLogger::ClearData ( void )
    m_maxCount = 1;
 }
 
-unsigned int CCodeDataLogger::GetLastLoadAddr ( UINT addr )
+unsigned int CCodeDataLogger::GetLastLoadAddr ( uint32_t addr )
 {
    unsigned int laddr = 0xFFFFFFFF;
 
@@ -77,7 +77,7 @@ unsigned int CCodeDataLogger::GetLastLoadAddr ( UINT addr )
    return laddr;
 }
 
-void CCodeDataLogger::LogAccess ( unsigned int cycle, UINT addr, unsigned char data, char type, char source )
+void CCodeDataLogger::LogAccess ( unsigned int cycle, uint32_t addr, unsigned char data, char type, char source )
 {
    LoggerInfo* pLogger = m_pLogger+(addr&m_mask);
 
@@ -118,7 +118,7 @@ void CCodeDataLogger::LogAccess ( unsigned int cycle, UINT addr, unsigned char d
    m_curCycle = cycle;
 }
 
-void CCodeDataLogger::GetPrintable ( UINT addr, int subItem, char* str )
+void CCodeDataLogger::GetPrintable ( uint32_t addr, int subItem, char* str )
 {
    LoggerInfo* pLogger = m_pLogger+(addr&m_mask);
 

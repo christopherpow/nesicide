@@ -1,9 +1,10 @@
 #include "cdebuggerregisterdisplaymodel.h"
 
-#include "cnesmappers.h"
-#include "cnes6502.h"
-#include "cnesppu.h"
-#include "cnesapu.h"
+#include "dbg_cnesmappers.h"
+#include "dbg_cnes6502.h"
+#include "dbg_cnesppu.h"
+#include "dbg_cnesapu.h"
+#include "dbg_cnesrom.h"
 
 CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject*, eMemoryType display)
 {
@@ -12,19 +13,19 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject*, eMemoryTy
    switch ( m_display )
    {
       case eMemory_CPUregs:
-         m_tblRegisters = C6502::REGISTERS();
+         m_tblRegisters = C6502DBG::REGISTERS();
       break;
       case eMemory_PPUregs:
-         m_tblRegisters = CPPU::REGISTERS();
+         m_tblRegisters = CPPUDBG::REGISTERS();
       break;
       case eMemory_IOregs:
-         m_tblRegisters = CAPU::REGISTERS();
+         m_tblRegisters = CAPUDBG::REGISTERS();
       break;
       case eMemory_PPUoam:
          m_tblRegisters = tblOAMRegisters;
       break;
       case eMemory_cartMapper:
-         m_tblRegisters = CROM::REGISTERS();
+         m_tblRegisters = CROMDBG::REGISTERS();
       break;
       default:
          m_tblRegisters = NULL;
@@ -153,42 +154,42 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
                switch ( m_register )
                {
                   case 0:
-                     C6502::__PC(data);
+                     C6502DBG::__PC(data);
                   break;
                   case 1:
-                     C6502::_A(data);
+                     C6502DBG::_A(data);
                   break;
                   case 2:
-                     C6502::_X(data);
+                     C6502DBG::_X(data);
                   break;
                   case 3:
-                     C6502::_Y(data);
+                     C6502DBG::_Y(data);
                   break;
                   case 4:
-                     C6502::_SP(data);
+                     C6502DBG::_SP(data);
                   break;
                   case 5:
-                     C6502::_F(data);
+                     C6502DBG::_F(data);
                   break;
                }
             break;
             case eMemory_PPUregs:
-               CPPU::PPU(addr, data);
+               CPPUDBG::_PPU(addr, data);
             break;
             case eMemory_IOregs:
-               CAPU::APU(addr, data);
+               CAPUDBG::_APU(addr, data);
             break;
             case eMemory_PPUoam:
-               CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE, data);
+               CPPUDBG::_OAM(addr%OAM_SIZE,addr/OAM_SIZE, data);
             break;
             case eMemory_cartMapper:
                if ( addr < MEM_32KB )
                {
-                  mapperfunc[CROM::MAPPER()].lowwrite(addr, data);
+                  CROMDBG::LOWWRITE(addr,data);
                }
                else
                {
-                  mapperfunc[CROM::MAPPER()].highwrite(addr, data);
+                  CROMDBG::HIGHWRITE(addr, data);
                }
             break;
             default:
@@ -216,44 +217,44 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
                switch ( m_register )
                {
                   case 0:
-                     return createIndex(row, column, (int)C6502::__PC());
+                     return createIndex(row, column, (int)C6502DBG::__PC());
                   break;
                   case 1:
-                     return createIndex(row, column, (int)C6502::_A());
+                     return createIndex(row, column, (int)C6502DBG::_A());
                   break;
                   case 2:
-                     return createIndex(row, column, (int)C6502::_X());
+                     return createIndex(row, column, (int)C6502DBG::_X());
                   break;
                   case 3:
-                     return createIndex(row, column, (int)C6502::_Y());
+                     return createIndex(row, column, (int)C6502DBG::_Y());
                   break;
                   case 4:
-                     return createIndex(row, column, (int)0x100|C6502::_SP());
+                     return createIndex(row, column, (int)0x100|C6502DBG::_SP());
                   break;
                   case 5:
-                     return createIndex(row, column, (int)C6502::_F());
+                     return createIndex(row, column, (int)C6502DBG::_F());
                   break;
                }
             break;
             case eMemory_PPUregs:
-               return createIndex(row, column, (int)CPPU::_PPU(addr));
+               return createIndex(row, column, (int)CPPUDBG::_PPU(addr));
             break;
             case eMemory_IOregs:
-               return createIndex(row, column, (int)CAPU::_APU(addr));
+               return createIndex(row, column, (int)CAPUDBG::_APU(addr));
             break;
             case eMemory_PPUoam:
-               return createIndex(row, column, (int)CPPU::OAM(addr%OAM_SIZE,addr/OAM_SIZE));
+               return createIndex(row, column, (int)CPPUDBG::_OAM(addr%OAM_SIZE,addr/OAM_SIZE));
             break;
             case eMemory_cartMapper:
                if ( m_tblRegisters )
                {
                   if ( addr < MEM_32KB )
                   {
-                     return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].lowread(addr));
+                     return createIndex(row, column, (int)CROMDBG::LOWREAD(addr));
                   }
                   else
                   {
-                     return createIndex(row, column, (int)mapperfunc[CROM::MAPPER()].highread(addr));
+                     return createIndex(row, column, (int)CROMDBG::HIGHREAD(addr));
                   }
                }
                else
@@ -295,7 +296,7 @@ void CDebuggerRegisterDisplayModel::layoutChangedEvent()
    if ( m_display == eMemory_cartMapper )
    {
       // get the registers from the mapper just incase a cart has been loaded...
-      m_tblRegisters = CROM::REGISTERS();
+      m_tblRegisters = CROMDBG::REGISTERS();
    }
    this->layoutChanged();
 }

@@ -1,10 +1,9 @@
 #include "projectpropertiesdialog.h"
 #include "ui_projectpropertiesdialog.h"
 
-#include "cnesmappers.h"
+#include "dbg_cnesmappers.h"
 
 const char hexStr[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
     QDialog(parent),

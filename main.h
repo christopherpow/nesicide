@@ -7,6 +7,8 @@
 
 #include "mainwindow.h"
 
+extern qint8 hex_char[];
+
 extern CGameDatabaseHandler gameDatabase;
 
 extern MainWindow* nesicideWindow;

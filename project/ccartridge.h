@@ -9,7 +9,7 @@
 #include "cprgrombanks.h"
 #include "cchrrombanks.h"
 #else
-#include "cnesrom.h"
+#include "emulator_core.h"
 #endif
 
 namespace GameMirrorMode {

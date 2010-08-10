@@ -1,8 +1,8 @@
 #include "csourcebrowserdisplaymodel.h"
 
-#include "cnes.h"
-#include "cnesrom.h"
-#include "cnes6502.h"
+#include "dbg_cnes.h"
+#include "dbg_cnesrom.h"
+#include "dbg_cnes6502.h"
 #include "cnesicideproject.h"
 
 #include "cbreakpointinfo.h"
@@ -21,11 +21,11 @@ CSourceBrowserDisplayModel::~CSourceBrowserDisplayModel()
 
 QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) const
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    int idx;
    unsigned int addr;
    unsigned int absAddr;
-   CMarker& markers = C6502::MARKERS();
+   CMarker& markers = C6502DBG::MARKERS();
    MarkerSetInfo* pMarker;
    char tooltipBuffer [ 128 ];
 
@@ -34,7 +34,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
 
    addr = pasm_get_source_addr_from_linenum(index.row()+1);
 
-   absAddr = CROM::ABSADDR(addr);
+   absAddr = CROMDBG::ABSADDR(addr);
 
    if ( role == Qt::ToolTipRole )
    {
@@ -42,7 +42,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
       {
          if ( index.column() > 0 )
          {
-            CNES::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
+            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
             return tooltipBuffer;
          }
       }
@@ -73,10 +73,10 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
          if ( (pBreakpoint->enabled) &&
               (pBreakpoint->type == eBreakOnCPUExecution) &&
-              ((UINT)pBreakpoint->item1 <= addr) &&
-              ((UINT)pBreakpoint->item2 >= addr) )
+              ((uint32_t)pBreakpoint->item1 <= addr) &&
+              ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502::__PC() )
+            if ( addr == C6502DBG::__PC() )
             {
                return QIcon(":/resources/22_execution_break.png");
             }
@@ -87,10 +87,10 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
-                   ((UINT)pBreakpoint->item1 <= addr) &&
-                   ((UINT)pBreakpoint->item2 >= addr) )
+                   ((uint32_t)pBreakpoint->item1 <= addr) &&
+                   ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502::__PC() )
+            if ( addr == C6502DBG::__PC() )
             {
                return QIcon(":/resources/22_execution_break_disabled.png");
             }
@@ -100,7 +100,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
             }
          }
       }
-      if ( addr == C6502::__PC() )
+      if ( addr == C6502DBG::__PC() )
       {
          return QIcon(":/resources/22_execution_pointer.png");
       }

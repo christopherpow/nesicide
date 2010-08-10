@@ -7,51 +7,6 @@
 
 enum
 {
-   eTracer_Unknown = 0,
-   eTracer_InstructionFetch,
-   eTracer_DataRead,
-   eTracer_DataWrite,
-   eTracer_DMA,
-   eTracer_RESET,
-   eTracer_NMI,
-   eTracer_IRQ,
-   eTracer_GarbageRead,
-   eTracer_RenderBkgnd,
-   eTracer_RenderSprite,
-   eTracer_StartPPUFrame,
-   eTracer_Sprite0Hit,
-   eTracer_VBLANKStart,
-   eTracer_VBLANKEnd,
-   eTracer_PreRenderStart,
-   eTracer_PreRenderEnd,
-   eTracer_QuietStart,
-   eTracer_QuietEnd,
-   eTracer_EndPPUFrame,
-   eTracer_StartAPUFrame,
-   eTracer_SequencerStep,
-   eTracer_EndAPUFrame
-};
-
-enum
-{
-   eTarget_Unknown = 0,
-   eTarget_RAM,
-   eTarget_PPURegister,
-   eTarget_APURegister,
-   eTarget_IORegister,
-   eTarget_SRAM,
-   eTarget_EXRAM,
-   eTarget_ROM,
-   eTarget_Mapper,
-   eTarget_PatternMemory,
-   eTarget_NameTable,
-   eTarget_AttributeTable,
-   eTarget_Palette,
-   eTarget_ExtraCycle
-};
-
-enum
-{
    eTracerCol_Frame = 0,
    eTracerCol_Cycle,
    eTracerCol_Source,
@@ -90,16 +45,16 @@ typedef struct
 } TracerInfo;
 #pragma pack()
 
-class CTracer  
+class CTracer
 {
 public:
-	void ClearSampleBuffer ( void );
-	TracerInfo* AddRESET ( void );
-	TracerInfo* AddNMI ( char source );
-	TracerInfo* AddIRQ ( char source );
+   void ClearSampleBuffer ( void );
+   TracerInfo* AddRESET ( void );
+   TracerInfo* AddNMI ( unsigned int cycle, char source );
+   TracerInfo* AddIRQ ( unsigned int cycle, char source );
    TracerInfo* AddGarbageFetch( unsigned int cycle, char target, unsigned short addr );
    TracerInfo* AddSample ( unsigned int cycle, char type, char source, char target, unsigned short addr, unsigned char data );
-	bool ReallocateTracerMemory ( int newDepth );
+   bool ReallocateTracerMemory ( int newDepth );
    unsigned int GetNumSamples ( void ) const { return m_samples; }
    TracerInfo* GetSample ( unsigned int sample );
    TracerInfo* GetCPUSample ( unsigned int sample );
@@ -110,8 +65,8 @@ public:
    void SetRegisters ( TracerInfo* pS, unsigned char a, unsigned char x, unsigned char y, unsigned char sp, unsigned char f );
    void SetEffectiveAddress ( TracerInfo* pS, unsigned int ea ) { if ( pS ) pS->ea = ea; }
 
-	CTracer();
-	virtual ~CTracer();
+   CTracer();
+   virtual ~CTracer();
 
    unsigned int GetNumCPUSamples() const { return m_cpuSamples; }
    unsigned int GetNumPPUSamples() const { return m_ppuSamples; }

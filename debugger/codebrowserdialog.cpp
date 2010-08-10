@@ -1,8 +1,9 @@
 #include "codebrowserdialog.h"
 #include "ui_codebrowserdialog.h"
 
-#include "cnes6502.h"
-#include "cnesrom.h"
+#include "dbg_cnes.h"
+#include "dbg_cnes6502.h"
+#include "dbg_cnesrom.h"
 #include "pasm_lib.h"
 
 #include "inspectorregistry.h"
@@ -45,17 +46,17 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
    QDialog::showEvent(e);
 
    // Update display...
-   CNES::DISASSEMBLE();
+   CNESDBG::DISASSEMBLE();
 
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
          assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(CNESDBG::ADDR2SLOC(C6502DBG::__PC()),0));
       break;
       case BROWSE_SOURCE:
          sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROMDBG::ABSADDR(C6502DBG::__PC()))-1,0));
       break;
    }
 
@@ -64,7 +65,7 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
 
 void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    QMenu menu;
    int bp;
    int addr = 0;
@@ -73,7 +74,7 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         addr = CNES::SLOC2ADDR(index.row());
+         addr = CNESDBG::SLOC2ADDR(index.row());
       break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -149,7 +150,7 @@ void CodeBrowserDialog::breakpointHit()
 void CodeBrowserDialog::updateDisassembly(bool show)
 {
    // Update display...
-   CNES::DISASSEMBLE();
+   CNESDBG::DISASSEMBLE();
 
    if ( show )
    {
@@ -162,11 +163,11 @@ void CodeBrowserDialog::updateDisassembly(bool show)
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNESDBG::ADDR2SLOC(C6502DBG::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROMDBG::ABSADDR(C6502DBG::__PC()))-1,0));
          break;
       }
    }
@@ -174,7 +175,7 @@ void CodeBrowserDialog::updateDisassembly(bool show)
 
 void CodeBrowserDialog::updateBrowser()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    int idx;
 
    // Check breakpoints for hits and highlight if necessary...
@@ -184,7 +185,7 @@ void CodeBrowserDialog::updateBrowser()
       if ( pBreakpoint->hit )
       {
          // Update display...
-         CNES::DISASSEMBLE();
+         CNESDBG::DISASSEMBLE();
 
          emit showMe();
          break;
@@ -197,11 +198,11 @@ void CodeBrowserDialog::updateBrowser()
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNES::ADDR2SLOC(C6502::__PC()),0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNESDBG::ADDR2SLOC(C6502DBG::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROM::ABSADDR(C6502::__PC()))-1,0));
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROMDBG::ABSADDR(C6502DBG::__PC()))-1,0));
          break;
       }
    }
@@ -209,7 +210,7 @@ void CodeBrowserDialog::updateBrowser()
 
 void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    QModelIndex index = ui->tableView->currentIndex();
    bool added;
    int addr = 0;
@@ -217,7 +218,7 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         addr = CNES::SLOC2ADDR(index.row());
+         addr = CNESDBG::SLOC2ADDR(index.row());
       break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -253,14 +254,14 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         addr = CNES::SLOC2ADDR(index.row());
+         addr = CNESDBG::SLOC2ADDR(index.row());
       break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
       break;
    }
 
-   C6502::GOTO(addr);
+   C6502DBG::GOTO(addr);
 }
 
 void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
@@ -284,7 +285,7 @@ void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
 
 void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    int bp;
    int addr = 0;
 
@@ -293,7 +294,7 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            addr = CNES::SLOC2ADDR(index.row());
+            addr = CNESDBG::SLOC2ADDR(index.row());
          break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -334,7 +335,7 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
 
 void CodeBrowserDialog::on_actionDisable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
@@ -343,7 +344,7 @@ void CodeBrowserDialog::on_actionDisable_breakpoint_triggered()
 
 void CodeBrowserDialog::on_actionRemove_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
@@ -352,7 +353,7 @@ void CodeBrowserDialog::on_actionRemove_breakpoint_triggered()
 
 void CodeBrowserDialog::on_actionEnable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
@@ -361,7 +362,7 @@ void CodeBrowserDialog::on_actionEnable_breakpoint_triggered()
 
 void CodeBrowserDialog::on_actionStart_marker_here_triggered()
 {
-   CMarker& markers = C6502::MARKERS();
+   CMarker& markers = C6502DBG::MARKERS();
    int marker;
    int addr = 0;
    QModelIndex index = ui->tableView->currentIndex();
@@ -371,7 +372,7 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            addr = CNES::SLOC2ADDR(index.row());
+            addr = CNESDBG::SLOC2ADDR(index.row());
          break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -379,13 +380,13 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
       }
 
       // Find unused Marker entry...
-      marker = markers.AddMarker(CROM::ABSADDR(addr));
+      marker = markers.AddMarker(CROMDBG::ABSADDR(addr));
    }
 }
 
 void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
 {
-   CMarker& markers = C6502::MARKERS();
+   CMarker& markers = C6502DBG::MARKERS();
    int marker = markers.FindInProgressMarker();
    int addr = 0;
    QModelIndex index = ui->tableView->currentIndex();
@@ -395,20 +396,20 @@ void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            addr = CNES::SLOC2ADDR(index.row());
+            addr = CNESDBG::SLOC2ADDR(index.row());
          break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
          break;
       }
 
-      markers.CompleteMarker(marker,CROM::ABSADDR(addr));
+      markers.CompleteMarker(marker,CROMDBG::ABSADDR(addr));
    }
 }
 
 void CodeBrowserDialog::on_actionClear_marker_triggered()
 {
-   CMarker& markers = C6502::MARKERS();
+   CMarker& markers = C6502DBG::MARKERS();
    markers.ClearAllMarkers();
 }
 

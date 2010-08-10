@@ -6,6 +6,9 @@
 #include "cpluginmanager.h"
 #include "startupsplashdialog.h"
 
+// CPTODO put this somewhere more meaningful
+qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
 
@@ -49,7 +52,6 @@ int main(int argc, char *argv[])
    breakpointWatcher = new BreakpointWatcherThread ();
 
    // Start emulator and breakpoint-watcher threads...
-   CAPU::OPEN();
    emulator->start();
    breakpointWatcher->start();
 
@@ -64,7 +66,6 @@ int main(int argc, char *argv[])
    breakpointWatcher->wait();
    emulator->kill();
    emulator->wait();
-   CAPU::CLOSE();
 
    delete breakpointWatcher;
    breakpointWatcher = NULL;

@@ -1,8 +1,7 @@
 #include "executiontracerdialog.h"
 #include "ui_executiontracerdialog.h"
 
-#include "cnes6502.h"
-#include "cnesrom.h"
+#include "dbg_cnes.h"
 
 #include "inspectorregistry.h"
 #include "main.h"
@@ -59,7 +58,7 @@ void ExecutionTracerDialog::changeEvent(QEvent *e)
 
 void ExecutionTracerDialog::updateTracer ()
 {
-   CBreakpointInfo* pBreakpoints = CNES::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
    int idx;
 
    // Check breakpoints for hits and highlight if necessary...

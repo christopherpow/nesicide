@@ -2,7 +2,7 @@
 #include "ui_oamdisplaydialog.h"
 
 #include "cnessystempalette.h"
-#include "cnesppu.h"
+#include "dbg_cnesppu.h"
 
 #include "main.h"
 
@@ -13,7 +13,7 @@ OAMDisplayDialog::OAMDisplayDialog(QWidget *parent) :
     ui->setupUi(this);
     imgData = new char[256*256*3];
 
-    CPPU::OAMInspectorTV ( imgData );
+    CPPUDBG::OAMInspectorTV ( (int8_t*)imgData );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
@@ -40,14 +40,14 @@ void OAMDisplayDialog::changeEvent(QEvent *e)
 void OAMDisplayDialog::showEvent(QShowEvent *event)
 {
    QDialog::showEvent(event);
-   CPPU::EnableOAMInspector(true);
+   CPPUDBG::EnableOAMInspector(true);
    renderData();
 }
 
 void OAMDisplayDialog::hideEvent(QHideEvent *event)
 {
    QDialog::hideEvent(event);
-   CPPU::EnableOAMInspector(false);
+   CPPUDBG::EnableOAMInspector(false);
 }
 
 void OAMDisplayDialog::renderData()
@@ -102,10 +102,10 @@ void OAMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 
 void OAMDisplayDialog::on_updateScanline_editingFinished()
 {
-    CPPU::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
+    CPPUDBG::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
 }
 
 void OAMDisplayDialog::on_showVisible_toggled(bool checked)
 {
-    CPPU::SetOAMViewerShowVisible ( checked );
+    CPPUDBG::SetOAMViewerShowVisible ( checked );
 }

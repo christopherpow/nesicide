@@ -3,8 +3,6 @@
 
 #include <QAbstractTableModel>
 #include "ctracer.h"
-#include "cnes.h"
-#include "cnes6502.h"
 
 class CDebuggerExecutionTracerModel : public QAbstractTableModel
 {

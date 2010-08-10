@@ -1,8 +1,8 @@
 #include "codedataloggerdialog.h"
 #include "ui_codedataloggerdialog.h"
 
-#include "cnes6502.h"
-#include "cnesppu.h"
+#include "dbg_cnes6502.h"
+#include "dbg_cnesppu.h"
 
 #include "main.h"
 
@@ -14,8 +14,8 @@ CodeDataLoggerDialog::CodeDataLoggerDialog(QWidget *parent) :
     cpuImgData = new char[256*256*3];
     ppuImgData = new char[256*256*3];
 
-    C6502::CodeDataLoggerInspectorTV ( cpuImgData );
-    CPPU::CodeDataLoggerInspectorTV ( ppuImgData );
+    C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)cpuImgData );
+    CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)ppuImgData );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
@@ -54,10 +54,10 @@ void CodeDataLoggerDialog::renderData()
       switch ( ui->displaySelect->currentIndex() )
       {
          case 0:
-            C6502::RENDERCODEDATALOGGER();
+            C6502DBG::RENDERCODEDATALOGGER();
          break;
          case 1:
-            CPPU::RENDERCODEDATALOGGER();
+            CPPUDBG::RENDERCODEDATALOGGER();
          break;
       }
       renderer->updateGL ();

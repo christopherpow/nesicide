@@ -1,7 +1,7 @@
 #include "chrromdisplaydialog.h"
 #include "ui_chrromdisplaydialog.h"
 #include "cnessystempalette.h"
-#include "cnesppu.h"
+#include "dbg_cnesppu.h"
 
 #include "main.h"
 
@@ -37,7 +37,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *da
 
     if ( m_usePPU )
     {
-       CPPU::CHRMEMInspectorTV ( imgData );
+       CPPUDBG::CHRMEMInspectorTV ( (int8_t*)imgData );
        QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
        QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
     }
@@ -70,14 +70,14 @@ void CHRROMDisplayDialog::colorChanged (const QColor &color)
 void CHRROMDisplayDialog::showEvent(QShowEvent *event)
 {
    QDialog::showEvent(event);
-   CPPU::EnableCHRMEMInspector(true);
+   CPPUDBG::EnableCHRMEMInspector(true);
    renderData();
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent *event)
 {
    QDialog::hideEvent(event);
-   CPPU::EnableCHRMEMInspector(false);
+   CPPUDBG::EnableCHRMEMInspector(false);
 }
 
 void CHRROMDisplayDialog::renderData()
@@ -201,7 +201,7 @@ void CHRROMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 
 void CHRROMDisplayDialog::on_updateScanline_editingFinished()
 {
-    CPPU::SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
+    CPPUDBG::SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
 }
 
 void CHRROMDisplayDialog::on_exportPushButton_clicked()

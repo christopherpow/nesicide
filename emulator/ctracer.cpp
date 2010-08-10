@@ -1,4 +1,4 @@
-//    NESICIDE - an IDE for the 8-bit NES.  
+//    NESICIDE - an IDE for the 8-bit NES.
 //    Copyright (C) 2009  Christopher S. Pow
 
 //    This program is free software: you can redistribute it and/or modify
@@ -13,11 +13,10 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 #include "ctracer.h"
 
-#include "cnes6502.h"
-#include "cnesapu.h"
+#include "emulator_core.h"
 
 CTracer::CTracer()
 {
@@ -165,21 +164,14 @@ TracerInfo* CTracer::AddRESET(void)
    return AddSample ( 0, eTracer_RESET, eSource_CPU, 0, 0, 0 );
 }
 
-TracerInfo* CTracer::AddNMI(char source)
+TracerInfo* CTracer::AddNMI(unsigned int cycle, char source)
 {
-   return AddSample ( C6502::_CYCLES(), eTracer_NMI, source, 0, 0, 0 );
+   return AddSample ( cycle, eTracer_NMI, source, 0, 0, 0 );
 }
 
-TracerInfo* CTracer::AddIRQ(char source)
+TracerInfo* CTracer::AddIRQ(unsigned int cycle, char source)
 {
-   if ( source == eSource_Mapper )
-   {
-      return AddSample ( C6502::_CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
-   }
-   else
-   {
-      return AddSample ( CAPU::CYCLES(), eTracer_IRQ, source, 0, 0, 0 );
-   }
+   return AddSample ( cycle, eTracer_IRQ, source, 0, 0, 0 );
 }
 
 TracerInfo* CTracer::AddGarbageFetch( unsigned int cycle, char target, unsigned short addr )
@@ -275,7 +267,7 @@ TracerInfo* CTracer::GetPPUSample ( unsigned int sample )
 }
 
 void CTracer::SetDisassembly ( TracerInfo* pS, unsigned char* szD )
-{ 
+{
    if ( pS )
    {
       (*((pS->disassemble)+0)) = (*szD); szD++;
