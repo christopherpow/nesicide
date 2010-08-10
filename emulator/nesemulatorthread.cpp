@@ -38,12 +38,12 @@ SDL_AudioSpec sdlAudioSpec;
 QMutex doFrameMutex;
 
 // Hook function endpoints.
-void __stdcall coreMutexLock ( void )
+void coreMutexLock ( void )
 {
    doFrameMutex.lock();
 }
 
-void __stdcall coreMutexUnlock ( void )
+void coreMutexUnlock ( void )
 {
    doFrameMutex.unlock();
 }

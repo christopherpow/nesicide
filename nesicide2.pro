@@ -20,12 +20,21 @@ CONFIG(debug, debug|release) {
    TARGET = release_binary
 }
 
+mac:QMAKE_POST_LINK += mkdir -p ./NESICIDE2\ IDE.app/Contents/Frameworks \
+                       $$escape_expand(\n\t)
+mac:QMAKE_POST_LINK += cp ../libnesicide2-emulator-build-desktop/libnesicide2-emulator.1.0.0.dylib \
+                       ./NESICIDE2\ IDE.app/Contents/Frameworks/libnesicide2-emulator.1.dylib \
+                       $$escape_expand(\n\t)
+mac:QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
+                       @executable_path/../Frameworks/libnesicide2-emulator.1.dylib \
+                       NESICIDE2\ IDE.app/Contents/MacOS/NESICIDE2\ IDE \
+                       $$escape_expand(\n\t)
+
 win32:QMAKE_LFLAGS += -static-libgcc
-LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
-win32:LIBS += ../nesicide2-master/compiler/libpasm.a
-unix:LIBS += compiler/libpasm.a
-win32:LIBS += ../nesicide2-master/lua/liblua.a
-unix:LIBS += lua/liblua.a
+LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
+win32:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
+LIBS += ../nesicide2-master/compiler/libpasm.a
+LIBS += ../nesicide2-master/lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:!mac:LIBS += `sdl-config \
@@ -61,7 +70,8 @@ INCLUDEPATH += ../libnesicide2-emulator \
     ./viewers/project_treeview
 unix:INCLUDEPATH += /usr/include/SDL
 mac:INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
-TARGET = nesicide2
+!mac:TARGET = nesicide2
+mac:TARGET = "NESICIDE2 IDE"
 TEMPLATE = app
 SOURCES += mainwindow.cpp \
     main.cpp \
