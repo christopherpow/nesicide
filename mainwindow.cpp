@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
     nesicideProject = new CNesicideProject();
 
 
@@ -926,7 +927,7 @@ void MainWindow::on_actionEmulation_Window_triggered()
 
 }
 
-void MainWindow::on_MainWindow_destroyed()
+void MainWindow::handle_MainWindow_destroyed()
 {
     if (nesicideProject->get_isInitialized())
         on_action_Close_Project_triggered();

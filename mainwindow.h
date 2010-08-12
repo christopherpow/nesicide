@@ -89,7 +89,7 @@ private slots:
     void on_actionDelta_Modulation_toggled(bool );
     void on_actionPAL_triggered();
     void on_actionNTSC_triggered();
-    void on_MainWindow_destroyed();
+    void handle_MainWindow_destroyed();
     void on_actionEmulation_Window_triggered();
     void on_action_Close_Project_triggered();
     void on_action_About_Nesicide_triggered();
