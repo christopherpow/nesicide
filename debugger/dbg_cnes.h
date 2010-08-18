@@ -2,7 +2,6 @@
 #define NES_H
 
 #include "cbreakpointinfo.h"
-#include "ctracer.h"
 
 #include "emulator_core.h"
 
@@ -26,11 +25,6 @@ public:
    // each byte, but as the ROM is emulated the disassembly of actual
    // executed code fills in.
    static void CLEAROPCODEMASKS ( void );
-
-   // Accessor method to retrieve the execution tracer database.  Other
-   // elements of the NES use this method to add entries to the database
-   // during emulation.
-   static inline CTracer* TRACER ( void ) { return &m_tracer; }
 
    // This method globally enables or disables breakpoints.  It is used
    // during an emulation hard-reset (which is caused whenever a new
@@ -65,18 +59,6 @@ public:
    static void STEPCPUBREAKPOINT ( void ) { m_bStepCPUBreakpoint = true; }
    static void STEPPPUBREAKPOINT ( void ) { m_bStepPPUBreakpoint = true; }
 
-   // These methods are wrapper methods around the similar methods
-   // declared in the CPU and ROM objects.  These wrapper
-   // methods contain the logic to determine which of the sub-object
-   // methods to invoke based on the passed parameters.
-   static char* DISASSEMBLY ( uint32_t addr );
-   static uint32_t SLOC2ADDR ( uint16_t sloc );
-   static uint16_t ADDR2SLOC ( uint32_t addr );
-   static uint32_t SLOC ( uint32_t addr );
-   static uint8_t _MEM ( uint32_t addr );
-   static void DISASSEMBLE ( void );
-   static uint32_t ABSADDR ( uint32_t addr );
-
    // This method retrieves information to be displayed in ToolTips
    // for the Code Browser window.
    static void CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltipBuffer );
@@ -90,9 +72,6 @@ protected:
    static bool            m_bAtBreakpoint;
    static bool            m_bStepCPUBreakpoint;
    static bool            m_bStepPPUBreakpoint;
-
-   // The execution tracer database.
-   static CTracer         m_tracer;
 };
 
 #endif

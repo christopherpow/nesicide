@@ -8,6 +8,8 @@
 
 #include "dbg_cnes6502.h"
 
+#include "emulator_core.h"
+
 extern "C" int PASM_include ( char* objname, char** objdata, int* size );
 
 CSourceAssembler::CSourceAssembler()
@@ -101,8 +103,8 @@ bool CSourceAssembler::assemble()
          {
             if ( pasm_is_permanent_marker_set(marker) )
             {
-               C6502DBG::MARKERS().AddSpecificMarker(marker,pasm_get_permanent_marker_start_address(marker));
-               C6502DBG::MARKERS().CompleteMarker(marker,pasm_get_permanent_marker_end_address(marker));
+               nesGetExecutionMarkerDatabase()->AddSpecificMarker(marker,pasm_get_permanent_marker_start_address(marker));
+               nesGetExecutionMarkerDatabase()->CompleteMarker(marker,pasm_get_permanent_marker_end_address(marker));
             }
          }
       }

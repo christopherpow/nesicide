@@ -7,7 +7,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str );
 
 CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject*)
 {
-   m_pTracer = CNESDBG::TRACER();
+   m_pTracer = nesGetExecutionTracerDatabase();
    m_bShowCPU = true;
    m_bShowPPU = true;
 }
@@ -413,7 +413,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             if ( (*(pSample->disassemble+3)) == 0x00 )
             {
                // Extra byte indicates whether an instruction should be decoded...
-               C6502DBG::Disassemble ( pSample->disassemble, str );
+               nesDisassembleSingle ( pSample->disassemble, str );
             }
             else
             {

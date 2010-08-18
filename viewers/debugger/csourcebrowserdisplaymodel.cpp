@@ -9,6 +9,8 @@
 
 #include "pasm_lib.h"
 
+#include "cmarker.h"
+
 #include <QIcon>
 
 CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject*)
@@ -25,7 +27,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    int idx;
    unsigned int addr;
    unsigned int absAddr;
-   CMarker& markers = C6502DBG::MARKERS();
+   CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    char tooltipBuffer [ 128 ];
 
@@ -34,7 +36,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
 
    addr = pasm_get_source_addr_from_linenum(index.row()+1);
 
-   absAddr = CROMDBG::ABSADDR(addr);
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( role == Qt::ToolTipRole )
    {
@@ -50,9 +52,9 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
 
    if ( (role == Qt::BackgroundRole) && (index.column() == 0) )
    {
-      for ( idx = 0; idx < markers.GetNumMarkers(); idx++ )
+      for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
       {
-         pMarker = markers.GetMarker(idx);
+         pMarker = markers->GetMarker(idx);
          if ( (pMarker->state == eMarkerSet_Started) ||
               (pMarker->state == eMarkerSet_Complete) )
          {

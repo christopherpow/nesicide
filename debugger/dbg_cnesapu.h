@@ -6,17 +6,6 @@
 #include "cbreakpointinfo.h"
 #include "cregisterdata.h"
 
-// Breakpoint event identifiers.
-// These event identifiers must match the ordering
-// of breakpoint events defined in the source module.
-enum
-{
-   APU_EVENT_IRQ = 0,
-   APU_EVENT_DMC_DMA,
-   APU_EVENT_LENGTH_COUNTER_CLOCKED,
-   NUM_APU_EVENTS
-};
-
 class CAPUDBG
 {
 public:

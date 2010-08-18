@@ -48,6 +48,11 @@ void coreMutexUnlock ( void )
    doFrameMutex.unlock();
 }
 
+void breakpointHook ( eBreakpointTarget target, eBreakpointType type, int32_t data, int32_t event )
+{
+   CNESDBG::CHECKBREAKPOINT(target,type,data,event);
+}
+
 extern "C" void SDL_GetMoreData(void *userdata, uint8_t *stream, int32_t len)
 {
    if (nesGetAudioSamplesAvailable() < 0)
@@ -81,6 +86,12 @@ NESEmulatorThread::NESEmulatorThread(QObject *)
 
    nesSetCoreMutexLockHook(coreMutexLock);
    nesSetCoreMutexUnlockHook(coreMutexUnlock);
+
+   // Enable debugging in the external emulator library.
+   nesEnableDebug ();
+
+   // Enable breakpoint callbacks from the external emulator library.
+   nesSetBreakpointHook(breakpointHook);
 
    SDL_Init ( SDL_INIT_AUDIO );
 

@@ -3,32 +3,8 @@
 
 #include "emulator_core.h"
 
-#include "ctracer.h"
-#include "ccodedatalogger.h"
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
-
-// Breakpoint event identifiers.
-// These event identifiers must match the ordering
-// of breakpoint events defined in the source module.
-enum
-{
-   PPU_EVENT_PIXEL_XY = 0,
-   PPU_EVENT_ADDRESS_EQUALS,
-   PPU_EVENT_PRE_RENDER_SCANLINE_START,
-   PPU_EVENT_PRE_RENDER_SCANLINE_END,
-   PPU_EVENT_SCANLINE_START,
-   PPU_EVENT_SCANLINE_END,
-   PPU_EVENT_XSCROLL_UPDATE,
-   PPU_EVENT_YSCROLL_UPDATE,
-   PPU_EVENT_SPRITE_DMA,
-   PPU_EVENT_SPRITE0_HIT,
-   PPU_EVENT_SPRITE_IN_MULTIPLEXER,
-   PPU_EVENT_SPRITE_SELECTED,
-   PPU_EVENT_SPRITE_RENDERING,
-   PPU_EVENT_SPRITE_OVERFLOW,
-   NUM_PPU_EVENTS
-};
 
 // The Execution Visualizer debugger inspector converts PPU cycles to
 // (x,y) coordinates for visualization of the execution of code in the
@@ -190,11 +166,6 @@ public:
    // the NameTable viewer.
    static void SetPPUViewerShowVisible ( bool visible ) { m_bPPUViewerShowVisible = visible; }
 
-   // Accessor method to retrieve the database managed by the PPU
-   // of accesses to its internally managed memories for the Code/Data
-   // Logger debugger inspector.
-   static inline CCodeDataLogger& LOGGER ( void ) { return m_logger; }
-
    // Interface to retrieve the database defining the registers
    // of the PPU core in a "human readable" form that is used by
    // the Register-type debugger inspector.  The hexadecimal world
@@ -218,12 +189,6 @@ public:
    // to generate it.
    static inline void CodeDataLoggerInspectorTV ( int8_t* pTV ) { m_pCodeDataLoggerInspectorTV = pTV; }
    static void RENDERCODEDATALOGGER ( void );
-
-   // Database used by the Code/Data Logger debugger inspector.  The data structure
-   // is maintained by the PPU core as it performs fetches, reads,
-   // and writes to/from its managed RAM.  The
-   // Code/Data Logger displays the collected information graphically.
-   static CCodeDataLogger m_logger;
 
    // These items are the database that keeps track of the status of the
    // x and y scroll values for each rendered pixel.  This information is

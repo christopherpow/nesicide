@@ -27,8 +27,6 @@ bool            CNESDBG::m_bAtBreakpoint = false;
 bool            CNESDBG::m_bStepCPUBreakpoint = false;
 bool            CNESDBG::m_bStepPPUBreakpoint = false;
 
-CTracer         CNESDBG::m_tracer;
-
 QSemaphore breakpointSemaphore(0);
 extern QSemaphore breakpointWatcherSemaphore;
 
@@ -39,6 +37,42 @@ CNESDBG::CNESDBG()
 CNESDBG::~CNESDBG()
 {
 
+}
+
+void CNESDBG::CLEAROPCODEMASKS ( void )
+{
+   // Clear code/data logger info...
+   nesClearOpcodeMasks();
+}
+
+void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltipBuffer )
+{
+   char* ptr = tooltipBuffer;
+   ptr += sprintf ( ptr, "<pre>" );
+   if ( tipType == TOOLTIP_BYTES )
+   {
+      if ( addr < 0x800 )
+      {
+         ptr += sprintf ( ptr, "6502 @ $%X<br>RAM  @ $%X", addr, addr );
+      }
+      else if ( addr < 0x6000 )
+      {
+         ptr += sprintf ( ptr, "6502  @ $%X<br>EXRAM @ $%X", addr, nesGetAbsoluteAddressFromAddress(addr) );
+      }
+      else if ( addr < 0x8000 )
+      {
+         ptr += sprintf ( ptr, "6502 @ $%X<br>SRAM @ $%X", addr, nesGetAbsoluteAddressFromAddress(addr) );
+      }
+      else
+      {
+         ptr += sprintf ( ptr, "6502    @ $%X<br>PRG-ROM @ $%X", addr, nesGetAbsoluteAddressFromAddress(addr) );
+      }
+   }
+   else if ( tipType == TOOLTIP_INFO )
+   {
+      ptr += sprintf ( ptr, "%s", OPCODEINFO(nesGetMemory(addr)) );
+   }
+   ptr += sprintf ( ptr, "</pre>" );
 }
 
 void CNESDBG::BREAKPOINTS ( bool enable )
@@ -72,15 +106,6 @@ void CNESDBG::BREAKPOINTS ( bool enable )
 // is loaded after the one that was running when the breakpoint was created.
       }
    }
-}
-
-void CNESDBG::CLEAROPCODEMASKS ( void )
-{
-   // Clear code/data logger info...
-   C6502DBG::OPCODEMASKCLR ();
-   CROMDBG::PRGROMOPCODEMASKCLR ();
-   CROMDBG::SRAMOPCODEMASKCLR ();
-   CROMDBG::EXRAMOPCODEMASKCLR ();
 }
 
 void CNESDBG::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int32_t data, int32_t event )
@@ -500,145 +525,4 @@ void CNESDBG::FORCEBREAKPOINT ( void )
    m_bAtBreakpoint = true;
    breakpointWatcherSemaphore.release();
    breakpointSemaphore.acquire();
-}
-
-char* CNESDBG::DISASSEMBLY ( uint32_t addr )
-{
-   if ( addr < 0x800 )
-   {
-      return C6502DBG::DISASSEMBLY ( addr );
-   }
-   else if ( addr < 0x6000 )
-   {
-      return CROMDBG::EXRAMDISASSEMBLY ( addr );
-   }
-   else if ( addr < 0x8000 )
-   {
-      return CROMDBG::SRAMDISASSEMBLY ( addr );
-   }
-   else
-   {
-      return CROMDBG::PRGROMDISASSEMBLY ( addr );
-   }
-}
-
-void CNESDBG::DISASSEMBLE ( void )
-{
-   C6502DBG::DISASSEMBLE();
-   CROMDBG::DISASSEMBLE();
-}
-
-uint32_t CNESDBG::SLOC2ADDR ( uint16_t sloc )
-{
-   if ( C6502DBG::__PC() < 0x800 )
-   {
-      return C6502DBG::SLOC2ADDR ( sloc );
-   }
-   else if ( C6502DBG::__PC() < 0x6000 )
-   {
-      return CROMDBG::EXRAMSLOC2ADDR ( sloc );
-   }
-   else if ( C6502DBG::__PC() < 0x8000 )
-   {
-      return CROMDBG::SRAMSLOC2ADDR ( sloc );
-   }
-   else
-   {
-      return CROMDBG::PRGROMSLOC2ADDR ( sloc );
-   }
-}
-
-uint16_t CNESDBG::ADDR2SLOC ( uint32_t addr )
-{
-   if ( addr < 0x800 )
-   {
-      return C6502DBG::ADDR2SLOC ( addr );
-   }
-   else if ( addr < 0x6000 )
-   {
-      return CROMDBG::EXRAMADDR2SLOC ( addr );
-   }
-   else if ( addr < 0x8000 )
-   {
-      return CROMDBG::SRAMADDR2SLOC ( addr );
-   }
-   else
-   {
-      return CROMDBG::PRGROMADDR2SLOC ( addr );
-   }
-}
-
-uint32_t CNESDBG::SLOC ( uint32_t addr )
-{
-   if ( addr < 0x800 )
-   {
-      return C6502DBG::SLOC ();
-   }
-   else if ( addr < 0x6000 )
-   {
-      return CROMDBG::EXRAMSLOC ();
-   }
-   else if ( addr < 0x8000 )
-   {
-      return CROMDBG::SRAMSLOC ( addr );
-   }
-   else
-   {
-      return CROMDBG::PRGROMSLOC(0x8000)+CROMDBG::PRGROMSLOC(0xA000)+CROMDBG::PRGROMSLOC(0xC000)+CROMDBG::PRGROMSLOC(0xE000);
-   }
-}
-
-uint8_t CNESDBG::_MEM ( uint32_t addr )
-{
-   return nesGetMemory(addr);
-}
-
-void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltipBuffer )
-{
-   char* ptr = tooltipBuffer;
-   ptr += sprintf ( ptr, "<pre>" );
-   if ( tipType == TOOLTIP_BYTES )
-   {
-      if ( addr < 0x800 )
-      {
-         ptr += sprintf ( ptr, "6502 @ $%X<br>RAM  @ $%X", addr, addr );
-      }
-      else if ( addr < 0x6000 )
-      {
-         ptr += sprintf ( ptr, "6502  @ $%X<br>EXRAM @ $%X", addr, CROMDBG::EXRAMABSADDR(addr) );
-      }
-      else if ( addr < 0x8000 )
-      {
-         ptr += sprintf ( ptr, "6502 @ $%X<br>SRAM @ $%X", addr, CROMDBG::SRAMABSADDR(addr) );
-      }
-      else
-      {
-         ptr += sprintf ( ptr, "6502    @ $%X<br>PRG-ROM @ $%X", addr, CROMDBG::ABSADDR(addr) );
-      }
-   }
-   else if ( tipType == TOOLTIP_INFO )
-   {
-      ptr += sprintf ( ptr, "%s", OPCODEINFO(C6502DBG::_MEM(addr)) );
-   }
-   ptr += sprintf ( ptr, "</pre>" );
-}
-
-uint32_t CNESDBG::ABSADDR ( uint32_t addr )
-{
-   if ( addr < 0x800 )
-   {
-      return addr;
-   }
-   else if ( addr < 0x6000 )
-   {
-      return CROMDBG::EXRAMABSADDR ( addr );
-   }
-   else if ( addr < 0x8000 )
-   {
-      return CROMDBG::SRAMABSADDR ( addr );
-   }
-   else
-   {
-      return CROMDBG::ABSADDR ( addr );
-   }
 }

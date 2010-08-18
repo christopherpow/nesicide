@@ -5,68 +5,7 @@
 
 #include <stdlib.h>
 
-typedef enum
-{
-   eBreakOnCPUExecution = 0,
-   eBreakOnCPUMemoryAccess,
-   eBreakOnCPUMemoryRead,
-   eBreakOnCPUMemoryWrite,
-   eBreakOnCPUState,
-   eBreakOnCPUEvent,
-   eBreakOnPPUFetch,
-   eBreakOnOAMPortalAccess,
-   eBreakOnOAMPortalRead,
-   eBreakOnOAMPortalWrite,
-   eBreakOnPPUPortalAccess,
-   eBreakOnPPUPortalRead,
-   eBreakOnPPUPortalWrite,
-   eBreakOnPPUState,
-   eBreakOnPPUEvent,
-   eBreakOnAPUState,
-   eBreakOnAPUEvent,
-   eBreakOnMapperState,
-   eBreakOnMapperEvent,
-   // The following breakpoint is not settable, it is internal only.
-   eBreakOnPPUCycle
-} eBreakpointType;
-
-typedef enum
-{
-   eBreakInCPU = 0,
-   eBreakInPPU,
-   eBreakInAPU,
-   eBreakInMapper
-} eBreakpointTarget;
-
-typedef enum
-{
-   eBreakIfAnything = 0,
-   eBreakIfEqual,
-   eBreakIfNotEqual,
-   eBreakIfGreaterThan,
-   eBreakIfLessThan
-} eBreakpointCondition;
-
-typedef enum
-{
-   eBreakpointItemAddress = 0,
-   eBreakpointItemRegister,
-   eBreakpointItemEvent,
-   eBreakpointItemNone
-} eBreakpointItemType;
-
-typedef enum
-{
-   eBreakpointConditionNone = 0,
-   eBreakpointConditionTest
-} eBreakpointConditionType;
-
-typedef enum
-{
-   eBreakpointDataNone = 0,
-   eBreakpointDataPure,
-   eBreakpointDataPick
-} eBreakpointDataType;
+#include "emulator_core.h"
 
 class CBreakpointEventInfo
 {

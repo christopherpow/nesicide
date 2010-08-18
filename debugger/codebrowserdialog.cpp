@@ -9,6 +9,8 @@
 #include "inspectorregistry.h"
 #include "main.h"
 
+#include "cmarker.h"
+
 #include <QMessageBox>
 
 #define BROWSE_ASSEMBLY 0
@@ -46,17 +48,17 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
    QDialog::showEvent(e);
 
    // Update display...
-   CNESDBG::DISASSEMBLE();
+   nesDisassemble();
 
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
          assemblyViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(CNESDBG::ADDR2SLOC(C6502DBG::__PC()),0));
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
       break;
       case BROWSE_SOURCE:
          sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROMDBG::ABSADDR(C6502DBG::__PC()))-1,0));
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
       break;
    }
 
@@ -74,7 +76,7 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         addr = CNESDBG::SLOC2ADDR(index.row());
+         addr = nesGetAddressFromSLOC(index.row());
       break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -150,7 +152,7 @@ void CodeBrowserDialog::breakpointHit()
 void CodeBrowserDialog::updateDisassembly(bool show)
 {
    // Update display...
-   CNESDBG::DISASSEMBLE();
+   nesDisassemble();
 
    if ( show )
    {
@@ -163,11 +165,11 @@ void CodeBrowserDialog::updateDisassembly(bool show)
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNESDBG::ADDR2SLOC(C6502DBG::__PC()),0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROMDBG::ABSADDR(C6502DBG::__PC()))-1,0));
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
          break;
       }
    }
@@ -185,7 +187,7 @@ void CodeBrowserDialog::updateBrowser()
       if ( pBreakpoint->hit )
       {
          // Update display...
-         CNESDBG::DISASSEMBLE();
+         nesDisassemble();
 
          emit showMe();
          break;
@@ -198,11 +200,11 @@ void CodeBrowserDialog::updateBrowser()
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(CNESDBG::ADDR2SLOC(C6502DBG::__PC()),0));
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
          break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(CROMDBG::ABSADDR(C6502DBG::__PC()))-1,0));
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
          break;
       }
    }
@@ -218,7 +220,7 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         addr = CNESDBG::SLOC2ADDR(index.row());
+         addr = nesGetAddressFromSLOC(index.row());
       break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -254,7 +256,7 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         addr = CNESDBG::SLOC2ADDR(index.row());
+         addr = nesGetAddressFromSLOC(index.row());
       break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -294,7 +296,7 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            addr = CNESDBG::SLOC2ADDR(index.row());
+            addr = nesGetAddressFromSLOC(index.row());
          break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -362,7 +364,7 @@ void CodeBrowserDialog::on_actionEnable_breakpoint_triggered()
 
 void CodeBrowserDialog::on_actionStart_marker_here_triggered()
 {
-   CMarker& markers = C6502DBG::MARKERS();
+   CMarker* markers = nesGetExecutionMarkerDatabase();
    int marker;
    int addr = 0;
    QModelIndex index = ui->tableView->currentIndex();
@@ -372,7 +374,7 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            addr = CNESDBG::SLOC2ADDR(index.row());
+            addr = nesGetAddressFromSLOC(index.row());
          break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
@@ -380,14 +382,14 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
       }
 
       // Find unused Marker entry...
-      marker = markers.AddMarker(CROMDBG::ABSADDR(addr));
+      marker = markers->AddMarker(nesGetAbsoluteAddressFromAddress(addr));
    }
 }
 
 void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
 {
-   CMarker& markers = C6502DBG::MARKERS();
-   int marker = markers.FindInProgressMarker();
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   int marker = markers->FindInProgressMarker();
    int addr = 0;
    QModelIndex index = ui->tableView->currentIndex();
 
@@ -396,20 +398,20 @@ void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            addr = CNESDBG::SLOC2ADDR(index.row());
+            addr = nesGetAddressFromSLOC(index.row());
          break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
          break;
       }
 
-      markers.CompleteMarker(marker,CROMDBG::ABSADDR(addr));
+      markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
    }
 }
 
 void CodeBrowserDialog::on_actionClear_marker_triggered()
 {
-   CMarker& markers = C6502DBG::MARKERS();
-   markers.ClearAllMarkers();
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   markers->ClearAllMarkers();
 }
 

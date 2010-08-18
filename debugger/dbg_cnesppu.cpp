@@ -18,7 +18,7 @@
 
 #include "dbg_cnesppu.h"
 
-#include "ctracer.h"
+#include "ccodedatalogger.h"
 
 #include <QColor>
 
@@ -162,8 +162,6 @@ static CBreakpointEventInfo* tblPPUEvents [] =
    new CBreakpointEventInfo("Sprite overflow", ppuAlwaysFireEvent, 0, "Break on sprite-per-scanline overflow", 10)
 };
 
-CCodeDataLogger CPPUDBG::m_logger ( MEM_16KB, MASK_16KB );
-
 int8_t*          CPPUDBG::m_pCodeDataLoggerInspectorTV = NULL;
 
 int8_t*          CPPUDBG::m_pCHRMEMInspectorTV = NULL;
@@ -227,7 +225,7 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
    pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
 
    // Show PPU memory...
-   pLogger = &m_logger;
+   pLogger = nesGetPpuCodeDataLoggerDatabase();
    for ( idxx = 0; idxx < 0x4000; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);

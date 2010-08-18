@@ -48,6 +48,7 @@ unix:INCLUDEPATH = ./ \
 mac:INCLUDEPATH = ./ \
     ./libraries/SDL
 INCLUDEPATH += ../libnesicide2-emulator \
+    ../libnesicide2-emulator/emulator \
     ./common \
     ./compiler \
     ./lua \
@@ -86,9 +87,6 @@ SOURCES += mainwindow.cpp \
     designers/code_editor/codeeditorform.cpp \
     designers/new_project/newprojectdialog.cpp \
     designers/project_properties/projectpropertiesdialog.cpp \
-    emulator/ctracer.cpp \
-    emulator/cjoypadlogger.cpp \
-    emulator/ccodedatalogger.cpp \
     project/csources.cpp \
     project/csourceitem.cpp \
     project/cprojectprimitives.cpp \
@@ -154,7 +152,6 @@ SOURCES += mainwindow.cpp \
     debugger/executionvisualizer.cpp \
     debugger/executionvisualizerdialog.cpp \
     debugger/cexecutionvisualizerrenderer.cpp \
-    emulator/cmarker.cpp \
     debugger/mapperinformationdialog.cpp \
     debugger/mapperinformationinspector.cpp \
     debugger/apuinformationdialog.cpp \
@@ -188,9 +185,6 @@ HEADERS += mainwindow.h \
     designers/code_editor/codeeditorform.h \
     designers/new_project/newprojectdialog.h \
     designers/project_properties/projectpropertiesdialog.h \
-    emulator/ctracer.h \
-    emulator/cjoypadlogger.h \
-    emulator/ccodedatalogger.h \
     interfaces/ixmlserializable.h \
     interfaces/iprojecttreeviewitem.h \
     project/csources.h \
@@ -220,6 +214,7 @@ HEADERS += mainwindow.h \
     debugger/cnametablepreviewrenderer.h \
     debugger/nametableinspector.h \
     debugger/executiontracerdialog.h \
+    emulator/nesemulatorthread.h \
     project/cbinaryfile.h \
     project/cgraphics.h \
     project/cgraphicsbanks.h \
@@ -239,7 +234,6 @@ HEADERS += mainwindow.h \
     debugger/cbreakpointinfo.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
-    emulator/nesemulatorthread.h \
     debugger/cregisterdata.h \
     debugger/codebrowserdialog.h \
     debugger/codeinspector.h \
@@ -261,7 +255,6 @@ HEADERS += mainwindow.h \
     debugger/executionvisualizer.h \
     debugger/executionvisualizerdialog.h \
     debugger/cexecutionvisualizerrenderer.h \
-    emulator/cmarker.h \
     debugger/mapperinformationdialog.h \
     debugger/mapperinformationinspector.h \
     debugger/apuinformationdialog.h \

@@ -20,6 +20,9 @@
 
 #include "emulator_core.h"
 
+#include "cmarker.h"
+#include "ccodedatalogger.h"
+
 #include <QColor>
 
 // CPU Registers
@@ -128,17 +131,6 @@ static CBreakpointEventInfo* tblCPUEvents [] =
    new CBreakpointEventInfo("NMI", cpuNMIEvent, 0, "Break if CPU NMI fires", 10)
 };
 
-uint8_t   C6502DBG::m_RAMopcodeMask [ MEM_2KB ] = { 0, };
-char*     C6502DBG::m_RAMdisassembly [ MEM_2KB ] = { 0, };
-uint16_t  C6502DBG::m_RAMsloc2addr [ MEM_2KB ] = { 0, };
-uint16_t  C6502DBG::m_RAMaddr2sloc [ MEM_2KB ] = { 0, };
-uint32_t  C6502DBG::m_RAMsloc = 0;
-
-CMarker         C6502DBG::m_marker;
-
-CCodeDataLogger C6502DBG::m_logger ( MEM_32KB, MASK_32KB );
-TracerInfo*     C6502DBG::pDisassemblySample = NULL;
-
 CRegisterData** C6502DBG::m_tblRegisters = tblCPURegisters;
 int             C6502DBG::m_numRegisters = NUM_CPU_REGISTERS;
 
@@ -164,23 +156,6 @@ static int32_t opcode_size [ NUM_ADDRESSING_MODES ] =
    2, // AM_PREINDEXED_INDIRECT
    2, // AM_POSTINDEXED_INDIRECT
    2  // AM_RELATIVE
-};
-
-static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
-{
-   "", // AM_IMPLIED
-   " #$%02X", // AM_IMMEDIATE
-   " $%02X%02X", // AM_ABSOLUTE
-   " $%02X", // AM_ZEROPAGE
-   "", // AM_ACCUMULATOR
-   " $%02X%02X, X", // AM_ABSOLUTE_INDEXED_X
-   " $%02X%02X, Y", // AM_ABSOLUTE_INDEXED_Y
-   " $%02X, X", // AM_ZEROPAGE_INDEXED_X
-   " $%02X, Y", // AM_ZEROPAGE_INDEXED_Y
-   " ($%02X%02X)", // AM_INDIRECT
-   " ($%02X, X)", // AM_PREINDEXED_INDIRECT
-   " ($%02X), Y", // AM_POSTINDEXED_INDIRECT
-   " $%02X"  // AM_RELATIVE
 };
 
 static C6502_opcode m_6502opcode [ 256 ] =
@@ -2717,24 +2692,12 @@ uint8_t OPCODESIZE ( uint8_t op )
    return *(opcode_size+pOp->amode);
 }
 
-static C6502DBG __init __attribute((unused));
-
 C6502DBG::C6502DBG()
 {
-   int32_t addr;
-   for ( addr = 0; addr < MEM_2KB; addr++ )
-   {
-      m_RAMdisassembly[addr] = new char [ 16 ];
-   }
 }
 
 C6502DBG::~C6502DBG()
 {
-   int32_t addr;
-   for ( addr = 0; addr < MEM_2KB; addr++ )
-   {
-      delete [] m_RAMdisassembly[addr];
-   }
 }
 
 static QColor color [] =
@@ -2769,7 +2732,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
 
    // Show CPU RAM...
-   pLogger = &m_logger;
+   pLogger = nesGetCpuCodeDataLoggerDatabase();
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
@@ -2807,7 +2770,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    }
 
    // Show I/O region...
-   pLogger = &m_logger;
+   pLogger = nesGetCpuCodeDataLoggerDatabase();
    pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_8KB*3));
 
    for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
@@ -2847,7 +2810,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    }
 
    // Show cartrige EXRAM memory...
-   pLogger = CROMDBG::EXRAMLOGGER();
+   pLogger = nesGetEXRAMCodeDataLoggerDatabase();
    pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x5C00*3));
 
    for ( idxx = 0; idxx < MEM_1KB; idxx++ )
@@ -2891,7 +2854,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
    for ( idxx = 0; idxx < MEM_8KB; idxx++ )
    {
-      pLogger = CROMDBG::SRAMLOGGER(0x6000);
+      pLogger = nesGetSRAMCodeDataLoggerDatabase(0x6000);
 
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
@@ -2934,7 +2897,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    {
       for ( idxx = 0; idxx < MEM_8KB; idxx++ )
       {
-         pLogger = CROMDBG::LOGGER(MEM_32KB+(idxy*MEM_8KB)+idxx);
+         pLogger = nesGetPRGROMCodeDataLoggerDatabase(MEM_32KB+(idxy*MEM_8KB)+idxx);
 
          pLogEntry = pLogger->GetLogEntry(idxx);
          cycleDiff = (curCycle-pLogEntry->cycle)/17800;
@@ -2997,9 +2960,9 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
          if ( (idxx < PPU_CYCLES_PER_SCANLINE) && (idxy < numScanlines) )
          {
             marked = 0;
-            for ( marker = 0; marker < m_marker.GetNumMarkers(); marker++ )
+            for ( marker = 0; marker < nesGetExecutionMarkerDatabase()->GetNumMarkers(); marker++ )
             {
-               pMarker = m_marker.GetMarker(marker);
+               pMarker = nesGetExecutionMarkerDatabase()->GetMarker(marker);
                frameDiff = pMarker->endFrame-pMarker->startFrame;
                if ( ((pMarker->state == eMarkerSet_Started) ||
                     (pMarker->state == eMarkerSet_Complete)) &&
@@ -3044,141 +3007,3 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
    }
 }
 
-void C6502DBG::DISASSEMBLE ()
-{
-   if ( C6502DBG::__PC() < 0x800 )
-   {
-      DISASSEMBLE ( m_RAMdisassembly,
-                    C6502DBG::_MEMPTR(),
-                    MEM_2KB,
-                    m_RAMopcodeMask,
-                    m_RAMsloc2addr,
-                    m_RAMaddr2sloc,
-                    &(m_RAMsloc) );
-   }
-}
-
-void C6502DBG::DISASSEMBLE ( char** disassembly, uint8_t* binary, int32_t binaryLength, uint8_t* opcodeMask, uint16_t* sloc2addr, uint16_t* addr2sloc, uint32_t* sourceLength )
-{
-   C6502_opcode* pOp;
-   int32_t opSize;
-   uint8_t op;
-   char* ptr;
-   uint8_t mask;
-
-   (*sourceLength) = 0;
-
-   for ( int32_t i = 0; i < binaryLength; )
-   {
-      op = *(binary+i);
-      pOp = m_6502opcode+op;
-      opSize = *(opcode_size+pOp->amode);
-
-      mask = *(opcodeMask+i);
-
-      ptr = (*disassembly);
-
-      // save sloc
-      (*sloc2addr) = i;
-      sloc2addr++;
-      (*addr2sloc) = (*sourceLength);
-      addr2sloc++;
-
-      // If we've discovered this address has been executed by the 6502 we'll
-      // attempt to provide disassembly for it...
-      if ( (mask) && ((i+opSize) < binaryLength) )
-      {
-         ptr += sprintf ( ptr, "%s", pOp->name );
-
-         switch ( pOp->amode )
-         {
-            // Single byte operands
-            case AM_IMMEDIATE:
-            case AM_ZEROPAGE_INDEXED_X:
-            case AM_ZEROPAGE_INDEXED_Y:
-            case AM_ZEROPAGE:
-            case AM_PREINDEXED_INDIRECT:
-            case AM_POSTINDEXED_INDIRECT:
-            case AM_RELATIVE:
-               ptr += sprintf ( ptr, operandFmt[pOp->amode], binary[i+1] );
-            break;
-
-            // Two byte operands
-            case AM_ABSOLUTE:
-            case AM_ABSOLUTE_INDEXED_X:
-            case AM_ABSOLUTE_INDEXED_Y:
-            case AM_INDIRECT:
-               ptr += sprintf ( ptr, operandFmt[pOp->amode], binary[i+2], binary[i+1] );
-            break;
-         }
-
-         if ( opSize > 2 )
-         {
-            strcpy((*(disassembly+2)), (*disassembly));
-            (*addr2sloc) = (*sourceLength);
-            addr2sloc++;
-         }
-         if ( opSize > 1 )
-         {
-            strcpy((*(disassembly+1)), (*disassembly));
-            (*addr2sloc) = (*sourceLength);
-            addr2sloc++;
-         }
-
-         i += opSize;
-         disassembly += opSize;
-      }
-      else
-      {
-         ptr += sprintf ( ptr, ".DB $%02X", binary[i] );
-
-         i++;
-         disassembly++;
-      }
-
-      (*sourceLength)++;
-   }
-}
-
-char* C6502DBG::Disassemble ( uint8_t* pOpcode, char* buffer )
-{
-   char* lbuffer = buffer;
-   C6502_opcode* pOp = m_6502opcode+(*pOpcode);
-
-   if ( pOp->documented )
-   {
-      buffer += sprintf ( buffer, "%s", pOp->name );
-   }
-   else
-   {
-      buffer += sprintf ( buffer, "*%s", pOp->name );
-   }
-
-   switch ( pOp->amode )
-   {
-      // Single byte operands
-      case AM_IMMEDIATE:
-      case AM_ZEROPAGE_INDEXED_X:
-      case AM_ZEROPAGE_INDEXED_Y:
-      case AM_ZEROPAGE:
-      case AM_PREINDEXED_INDIRECT:
-      case AM_POSTINDEXED_INDIRECT:
-      case AM_RELATIVE:
-         buffer += sprintf ( buffer, operandFmt[pOp->amode],
-                             (*(pOpcode+1)) );
-      break;
-
-      // Two byte operands
-      case AM_ABSOLUTE:
-      case AM_ABSOLUTE_INDEXED_X:
-      case AM_ABSOLUTE_INDEXED_Y:
-      case AM_INDIRECT:
-         buffer += sprintf ( buffer, operandFmt[pOp->amode],
-                             (*(pOpcode+2)),
-                             (*(pOpcode+1)) );
-      break;
-   }
-   (*buffer) = 0;
-
-   return lbuffer;
-}
