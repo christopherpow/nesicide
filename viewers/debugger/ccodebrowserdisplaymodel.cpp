@@ -27,7 +27,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    //uint32_t addr = (uint32_t)index.internalPointer();
    char buffer [ 3 ];
    unsigned char opSize;
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int idx;

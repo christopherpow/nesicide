@@ -27,18 +27,12 @@ public:
 
    void setDialog(QDialog* dialog);
 
-#if defined ( IDE_BUILD )
    void primeEmulator ();
-#else
-   void primeEmulator ( CCartridge* pCartridge );
-#endif
    void resetEmulator ();
    void startEmulation ();
    void pauseEmulation (bool show);
-#if defined ( IDE_BUILD )
    void stepCPUEmulation ();
    void stepPPUEmulation ();
-#endif
    void controllerInput ( uint8_t* joy ) {
       coreMutexLock();
       m_joy[JOY1] = joy[JOY1];
@@ -49,9 +43,7 @@ public:
 signals:
    void emulatedFrame ();
    void cartridgeLoaded ();
-#if defined ( IDE_BUILD )
    void breakpointClear ();
-#endif
    void emulatorPaused (bool show);
    void emulatorReset();
    void emulatorStarted();

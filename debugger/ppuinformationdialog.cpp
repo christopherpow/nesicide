@@ -43,15 +43,17 @@ void PPUInformationDialog::showEvent(QShowEvent* e)
 void PPUInformationDialog::updateInformation()
 {
    const char* ppuFlipFlopStr [] = { "Low", "High" };
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
    char buffer[16];
-   unsigned char y = CPPUDBG::_Y();
+   unsigned char x,y;
+
+   nesGetCurrentPixel(&x,&y);
 
    // Only update the UI elements if the inspector is visible...
    if ( isVisible() )
    {
-      sprintf ( buffer, "%d", (unsigned char)CPPUDBG::_X() );
+      sprintf ( buffer, "%d", (unsigned char)x );
       ui->pixelX->setText(buffer);
 
       // Fix for scanline -1...

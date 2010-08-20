@@ -15,7 +15,7 @@ CBreakpointDisplayModel::~CBreakpointDisplayModel()
 QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
 {
    char data [ 256 ];
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    BreakpointStatus brkptStatus;
 
    if ((role == Qt::DecorationRole) && (index.column() == 0))
@@ -54,7 +54,7 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
 
 int CBreakpointDisplayModel::rowCount(const QModelIndex &) const
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
 
    return pBreakpoints->GetNumBreakpoints();
 }

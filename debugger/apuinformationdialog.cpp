@@ -41,7 +41,7 @@ void APUInformationDialog::showEvent(QShowEvent* e)
 
 void APUInformationDialog::updateInformation()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
    char buffer[16];
    unsigned char temp1, temp2, temp3, temp4, temp5;

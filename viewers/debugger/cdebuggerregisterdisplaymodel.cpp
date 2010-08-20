@@ -13,19 +13,19 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject*, eMemoryTy
    switch ( m_display )
    {
       case eMemory_CPUregs:
-         m_tblRegisters = C6502DBG::REGISTERS();
+         m_tblRegisters = nesGetCpuRegisterDatabase();
       break;
       case eMemory_PPUregs:
-         m_tblRegisters = CPPUDBG::REGISTERS();
+         m_tblRegisters = nesGetPpuRegisterDatabase();
       break;
       case eMemory_IOregs:
-         m_tblRegisters = CAPUDBG::REGISTERS();
+         m_tblRegisters = nesGetApuRegisterDatabase();
       break;
       case eMemory_PPUoam:
-         m_tblRegisters = tblOAMRegisters;
+         m_tblRegisters = nesGetPpuOamRegisterDatabase();
       break;
       case eMemory_cartMapper:
-         m_tblRegisters = CROMDBG::REGISTERS();
+         m_tblRegisters = nesGetCartridgeRegisterDatabase();
       break;
       default:
          m_tblRegisters = NULL;
@@ -296,7 +296,7 @@ void CDebuggerRegisterDisplayModel::layoutChangedEvent()
    if ( m_display == eMemory_cartMapper )
    {
       // get the registers from the mapper just incase a cart has been loaded...
-      m_tblRegisters = CROMDBG::REGISTERS();
+      m_tblRegisters = nesGetCartridgeRegisterDatabase();
    }
    this->layoutChanged();
 }

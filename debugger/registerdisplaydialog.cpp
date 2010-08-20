@@ -25,19 +25,19 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget *parent, eMemoryType displa
     switch ( display )
     {
        case eMemory_CPUregs:
-         m_tblRegisters = C6502DBG::REGISTERS();
+         m_tblRegisters = nesGetCpuRegisterDatabase();
        break;
        case eMemory_PPUregs:
-          m_tblRegisters = CPPUDBG::REGISTERS();
+          m_tblRegisters = nesGetPpuRegisterDatabase();
        break;
        case eMemory_IOregs:
-          m_tblRegisters = CAPUDBG::REGISTERS();
+          m_tblRegisters = nesGetApuRegisterDatabase();
        break;
        case eMemory_PPUoam:
-          m_tblRegisters = tblOAMRegisters;
+          m_tblRegisters = nesGetPpuOamRegisterDatabase();
        break;
        case eMemory_cartMapper:
-          m_tblRegisters = CROMDBG::REGISTERS();
+          m_tblRegisters = nesGetCartridgeRegisterDatabase();
        break;
        default:
           m_tblRegisters = NULL;
@@ -94,7 +94,7 @@ void RegisterDisplayDialog::changeEvent(QEvent *e)
 
 void RegisterDisplayDialog::updateMemory ()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    eMemoryType memoryType = binaryModel->memoryType();
    int idx;
    int row = 0, col = 0;
@@ -111,7 +111,7 @@ void RegisterDisplayDialog::updateMemory ()
 
    if ( m_display == eMemory_cartMapper )
    {
-      m_tblRegisters = CROMDBG::REGISTERS();
+      m_tblRegisters = nesGetCartridgeRegisterDatabase();
       sprintf ( buffer, "Mapper %d: %s", CROMDBG::MAPPER(), mapperNameFromID(CROMDBG::MAPPER()) );
       ui->info->setText ( buffer );
    }

@@ -77,7 +77,7 @@ void MemoryDisplayDialog::cartridgeLoaded ()
 
 void MemoryDisplayDialog::updateMemory ()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    eMemoryType memoryType = model->memoryType();
    int idx;
    int row = 0, col = 0;
@@ -138,7 +138,7 @@ void MemoryDisplayDialog::updateMemory ()
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
@@ -166,7 +166,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
@@ -194,7 +194,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
 
 void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();

@@ -22,146 +22,6 @@
 
 #include <QColor>
 
-// PPU Registers
-static CBitfieldData* tblPPUCTRLBitfields [] =
-{
-   new CBitfieldData("Generate NMI", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("PPU Master/Slave", 6, 1, "%X", 2, "Master", "Slave"),
-   new CBitfieldData("Sprite Size", 5, 1, "%X", 2, "8x8", "8x16"),
-   new CBitfieldData("Playfield Pattern Table", 4, 1, "%X", 2, "$0000", "$1000"),
-   new CBitfieldData("Sprite Pattern Table", 3, 1, "%X", 2, "$0000", "$1000"),
-   new CBitfieldData("VRAM Address Increment", 2, 1, "%X", 2, "+1", "+32"),
-   new CBitfieldData("NameTable", 0, 2, "%X", 4, "NT1", "NT2", "NT3", "NT4")
-};
-
-static CBitfieldData* tblPPUMASKBitfields [] =
-{
-   new CBitfieldData("Blue Emphasis", 7, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Green Emphasis", 6, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Red Emphasis", 5, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Sprite Rendering", 4, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Playfield Rendering", 3, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Sprite Clipping", 2, 1, "%X", 2, "Yes", "No"),
-   new CBitfieldData("Playfield Clipping", 1, 1, "%X", 2, "Yes", "No"),
-   new CBitfieldData("Greyscale", 0, 1, "%X", 2, "No", "Yes")
-};
-
-static CBitfieldData* tblPPUSTATUSBitfields [] =
-{
-   new CBitfieldData("Vertical Blank", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Sprite 0 Hit", 6, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Sprite Overflow", 5, 1, "%X", 2, "No", "Yes")
-};
-
-static CBitfieldData* tblOAMADDRBitfields [] =
-{
-   new CBitfieldData("OAM Address", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblOAMDATABitfields [] =
-{
-   new CBitfieldData("OAM Data", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblPPUSCROLLBitfields [] =
-{
-   new CBitfieldData("PPU Scroll", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblPPUADDRBitfields [] =
-{
-   new CBitfieldData("PPU Address", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblPPUDATABitfields [] =
-{
-   new CBitfieldData("PPU Data", 0, 8, "%02X", 0)
-};
-
-static CRegisterData* tblPPURegisters [] =
-{
-   new CRegisterData(0x2000, "PPUCTRL", 7, tblPPUCTRLBitfields),
-   new CRegisterData(0x2001, "PPUMASK", 8, tblPPUMASKBitfields),
-   new CRegisterData(0x2002, "PPUSTATUS", 3, tblPPUSTATUSBitfields),
-   new CRegisterData(0x2003, "OAMADDR", 1, tblOAMADDRBitfields),
-   new CRegisterData(0x2004, "OAMDATA", 1, tblOAMDATABitfields),
-   new CRegisterData(0x2005, "PPUSCROLL", 1, tblPPUSCROLLBitfields),
-   new CRegisterData(0x2006, "PPUADDR", 1, tblPPUADDRBitfields),
-   new CRegisterData(0x2007, "PPUDATA", 1, tblPPUDATABitfields)
-};
-
-// PPU Event breakpoints
-bool ppuAlwaysFireEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place for each scanline
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( (pBreakpoint->item1 == CPPUDBG::_X()) &&
-        (pBreakpoint->item2 == CPPUDBG::_Y()) )
-   {
-      return true;
-   }
-   return false;
-}
-
-bool ppuSpriteInMultiplexerEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-   return false;
-}
-
-bool ppuSpriteSelectedEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-   return false;
-}
-
-bool ppuSpriteRenderingEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-   return false;
-}
-
-bool ppuAddressEqualsEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-   return false;
-}
-
-static CBreakpointEventInfo* tblPPUEvents [] =
-{
-   new CBreakpointEventInfo("Raster Position", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10, "X:", "Y:"),
-   new CBreakpointEventInfo("PPU Address Equals", ppuAddressEqualsEvent, 1, "Break if PPU address is $%04X", 16, "PPU Address:"),
-   new CBreakpointEventInfo("Pre-render Scanline Start (X=0,Y=-1)", ppuAlwaysFireEvent, 0, "Break at start of pre-render scanline", 10),
-   new CBreakpointEventInfo("Pre-render Scanline End (X=256,Y=-1)", ppuAlwaysFireEvent, 0, "Break at end of pre-render scanline", 10),
-   new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuAlwaysFireEvent, 0, "Break at start of scanline", 10),
-   new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuAlwaysFireEvent, 0, "Break at end of scanline", 10),
-   new CBreakpointEventInfo("X Scroll Updated", ppuAlwaysFireEvent, 0, "Break if PPU's X scroll is updated", 10),
-   new CBreakpointEventInfo("Y Scroll Updated", ppuAlwaysFireEvent, 0, "Break if PPU's Y scroll is updated", 10),
-   new CBreakpointEventInfo("Sprite DMA", ppuAlwaysFireEvent, 0, "Break on sprite DMA", 10),
-   new CBreakpointEventInfo("Sprite 0 Hit", ppuAlwaysFireEvent, 0, "Break on sprite 0 hit", 10),
-   new CBreakpointEventInfo("Sprite enters multiplexer", ppuSpriteInMultiplexerEvent, 1, "Break if sprite %d enters multiplexer", 10, "Sprite:"),
-   new CBreakpointEventInfo("Sprite selected by multiplexer", ppuSpriteSelectedEvent, 1, "Break if sprite %d is selected by multiplexer", 10, "Sprite:"),
-   new CBreakpointEventInfo("Sprite rendering", ppuSpriteRenderingEvent, 1, "Break if rendering sprite %d on scanline", 10, "Sprite:"),
-   new CBreakpointEventInfo("Sprite overflow", ppuAlwaysFireEvent, 0, "Break on sprite-per-scanline overflow", 10)
-};
-
 int8_t*          CPPUDBG::m_pCodeDataLoggerInspectorTV = NULL;
 
 int8_t*          CPPUDBG::m_pCHRMEMInspectorTV = NULL;
@@ -171,25 +31,10 @@ bool           CPPUDBG::m_bOAMInspector = false;
 int8_t*          CPPUDBG::m_pNameTableInspectorTV = NULL;
 bool           CPPUDBG::m_bNameTableInspector = false;
 
-uint8_t  CPPUDBG::m_last2005x = 0;
-uint8_t  CPPUDBG::m_last2005y = 0;
-uint16_t CPPUDBG::m_2005x [256][240] = { {0,}, };
-uint16_t CPPUDBG::m_2005y [256][240] = { {0,}, };
-uint8_t  CPPUDBG::m_lastSprite0HitX = 0xFF;
-uint8_t  CPPUDBG::m_lastSprite0HitY = 0xFF;
-uint8_t  CPPUDBG::m_x = 0xFF;
-uint8_t  CPPUDBG::m_y = 0xFF;
-
 uint32_t CPPUDBG::m_iPPUViewerScanline = 0;
 uint32_t CPPUDBG::m_iOAMViewerScanline = 0;
 bool CPPUDBG::m_bPPUViewerShowVisible = true;
 bool CPPUDBG::m_bOAMViewerShowVisible = false;
-
-CRegisterData** CPPUDBG::m_tblRegisters = tblPPURegisters;
-int             CPPUDBG::m_numRegisters = NUM_PPU_REGISTERS;
-
-CBreakpointEventInfo** CPPUDBG::m_tblBreakpointEvents = tblPPUEvents;
-int                    CPPUDBG::m_numBreakpointEvents = NUM_PPU_EVENTS;
 
 CPPUDBG::CPPUDBG()
 {

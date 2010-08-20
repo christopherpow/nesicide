@@ -43,19 +43,6 @@ public:
    {
       return nesGetAPUDMCDMAInfo(buffer,full);
    }
-
-   static CRegisterData** REGISTERS() { return m_tblRegisters; }
-   static int32_t NUMREGISTERS() { return m_numRegisters; }
-
-   static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
-   static int32_t NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
-
-protected:
-   static CRegisterData** m_tblRegisters;
-   static int32_t             m_numRegisters;
-
-   static CBreakpointEventInfo** m_tblBreakpointEvents;
-   static int32_t                    m_numBreakpointEvents;
 };
 
 #endif

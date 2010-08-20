@@ -23,7 +23,7 @@ CSourceBrowserDisplayModel::~CSourceBrowserDisplayModel()
 
 QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) const
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
    unsigned int addr;
    unsigned int absAddr;

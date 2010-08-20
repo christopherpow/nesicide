@@ -19,25 +19,6 @@
 
 #include "emulator_core.h"
 
-// Mapper Event breakpoints
-bool mapperIRQEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place for each scanline
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-static CBreakpointEventInfo* tblMapperEvents [] =
-{
-   new CBreakpointEventInfo("IRQ", mapperIRQEvent, 0, "Break if mapper asserts IRQ", 10),
-};
-
-CRegisterData**  CROMDBG::m_tblRegisters = NULL;
-int              CROMDBG::m_numRegisters = 0;
-
-CBreakpointEventInfo** CROMDBG::m_tblBreakpointEvents = tblMapperEvents;
-int                    CROMDBG::m_numBreakpointEvents = NUM_MAPPER_EVENTS;
-
 static CROMDBG __init __attribute((unused));
 
 CROMDBG::CROMDBG()

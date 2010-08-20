@@ -58,7 +58,7 @@ void ExecutionTracerDialog::changeEvent(QEvent *e)
 
 void ExecutionTracerDialog::updateTracer ()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
 
    // Check breakpoints for hits and highlight if necessary...

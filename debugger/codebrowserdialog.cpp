@@ -28,7 +28,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     ui->tableView->setModel(assemblyViewModel);
     ui->displayMode->setCurrentIndex ( 0 );
     QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
+//    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
     QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateBrowser()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
@@ -67,7 +67,7 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
 
 void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QMenu menu;
    int bp;
    int addr = 0;
@@ -177,7 +177,7 @@ void CodeBrowserDialog::updateDisassembly(bool show)
 
 void CodeBrowserDialog::updateBrowser()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
 
    // Check breakpoints for hits and highlight if necessary...
@@ -212,7 +212,7 @@ void CodeBrowserDialog::updateBrowser()
 
 void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    bool added;
    int addr = 0;
@@ -287,7 +287,7 @@ void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
 
 void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
 
@@ -337,7 +337,7 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
 
 void CodeBrowserDialog::on_actionDisable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
@@ -346,7 +346,7 @@ void CodeBrowserDialog::on_actionDisable_breakpoint_triggered()
 
 void CodeBrowserDialog::on_actionRemove_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
@@ -355,7 +355,7 @@ void CodeBrowserDialog::on_actionRemove_breakpoint_triggered()
 
 void CodeBrowserDialog::on_actionEnable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);

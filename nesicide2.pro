@@ -130,11 +130,9 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
     debugger/breakpointdialog.cpp \
     debugger/breakpointinspector.cpp \
-    debugger/cbreakpointinfo.cpp \
     viewers/debugger/cbreakpointdisplaymodel.cpp \
     debugger/breakpointwatcherthread.cpp \
     emulator/nesemulatorthread.cpp \
-    debugger/cregisterdata.cpp \
     debugger/codebrowserdialog.cpp \
     debugger/codeinspector.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
@@ -231,10 +229,8 @@ HEADERS += mainwindow.h \
     viewers/debugger/cdebuggerregistercomboboxdelegate.h \
     debugger/breakpointdialog.h \
     debugger/breakpointinspector.h \
-    debugger/cbreakpointinfo.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
-    debugger/cregisterdata.h \
     debugger/codebrowserdialog.h \
     debugger/codeinspector.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \

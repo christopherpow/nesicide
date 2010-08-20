@@ -6,7 +6,6 @@ CCartridge::CCartridge()
     m_mapperNumber = 0;
     m_hasBatteryBackedRam = false;
 
-#if defined ( IDE_BUILD )
     m_pointerToPrgRomBanks = new CPRGROMBanks();
     m_pointerToPrgRomBanks->InitTreeItem(this);
     this->appendChild(m_pointerToPrgRomBanks);
@@ -14,21 +13,17 @@ CCartridge::CCartridge()
     m_pointerToChrRomBanks = new CCHRROMBanks();
     m_pointerToChrRomBanks->InitTreeItem(this);
     this->appendChild(m_pointerToChrRomBanks);
-#endif
 }
 
 CCartridge::~CCartridge()
 {
-#if defined ( IDE_BUILD )
     if (m_pointerToChrRomBanks)
         delete m_pointerToChrRomBanks;
 
     if (m_pointerToPrgRomBanks)
         delete m_pointerToPrgRomBanks;
-#endif
 }
 
-#if defined ( IDE_BUILD )
 CPRGROMBanks *CCartridge::getPointerToPrgRomBanks()
 {
     return m_pointerToPrgRomBanks;
@@ -85,7 +80,6 @@ QString CCartridge::caption() const
 {
     return "Cartridge";
 }
-#endif
 
 GameMirrorMode::eGameMirrorMode CCartridge::getMirrorMode()
 {

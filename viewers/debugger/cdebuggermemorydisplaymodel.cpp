@@ -379,7 +379,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex &) const
          return (MEM_8KB>>4);
       break;
       case eMemory_cartMapper:
-         return CROMDBG::NUMREGISTERS();
+         return nesGetSizeOfCartridgeRegisterDatabase();
       break;
       case eMemory_PPU:
          return (MEM_4KB>>4);
@@ -437,7 +437,7 @@ void CDebuggerMemoryDisplayModel::layoutChangedEvent()
    if ( m_display == eMemory_cartMapper )
    {
       // get the registers from the mapper just incase a cart has been loaded...
-      m_tblRegisters = CROMDBG::REGISTERS();
+      m_tblRegisters = nesGetCartridgeRegisterDatabase();
    }
    this->layoutChanged();
 }

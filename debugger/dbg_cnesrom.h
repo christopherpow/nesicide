@@ -36,22 +36,6 @@ public:
 
    static void RESET ( void );
    static void RESET ( uint32_t mapper );
-
-   // Breakpoint support functions
-   static CBreakpointEventInfo** BREAKPOINTEVENTS() { return m_tblBreakpointEvents; }
-   static int32_t NUMBREAKPOINTEVENTS() { return m_numBreakpointEvents; }
-
-   // Debug register display interfaces
-   static inline CRegisterData** REGISTERS ( void ) { return m_tblRegisters; }
-   static inline int32_t NUMREGISTERS ( void ) { return m_numRegisters; }
-
-protected:
-   // Other UI stuff...
-   static CRegisterData** m_tblRegisters;
-   static int32_t             m_numRegisters;
-
-   static CBreakpointEventInfo** m_tblBreakpointEvents;
-   static int32_t                    m_numBreakpointEvents;
 };
 
 #endif

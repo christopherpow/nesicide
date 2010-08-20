@@ -54,7 +54,7 @@ void MapperInformationDialog::cartridgeLoaded()
 
 void MapperInformationDialog::updateInformation()
 {
-   CBreakpointInfo* pBreakpoints = CNESDBG::BREAKPOINTS();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
    char buffer [ 16 ];
 

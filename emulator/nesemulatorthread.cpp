@@ -24,13 +24,10 @@
 #undef main
 #include "SDL.h"
 
-#if defined ( IDE_BUILD )
 #include "cnesicideproject.h"
-#endif
 
-#if defined ( IDE_BUILD )
 extern QSemaphore breakpointSemaphore;
-#endif
+extern QSemaphore breakpointWatcherSemaphore;
 
 #include <QMutex>
 
@@ -48,9 +45,10 @@ void coreMutexUnlock ( void )
    doFrameMutex.unlock();
 }
 
-void breakpointHook ( eBreakpointTarget target, eBreakpointType type, int32_t data, int32_t event )
+void breakpointHook ( void )
 {
-   CNESDBG::CHECKBREAKPOINT(target,type,data,event);
+   breakpointWatcherSemaphore.release();
+   breakpointSemaphore.acquire();
 }
 
 extern "C" void SDL_GetMoreData(void *userdata, uint8_t *stream, int32_t len)
@@ -107,12 +105,10 @@ NESEmulatorThread::~NESEmulatorThread()
 
 void NESEmulatorThread::kill()
 {
-#if defined ( IDE_BUILD )
    // Force hard-reset of the machine...
-   CNESDBG::BREAKPOINTS(false);
+   nesEnableBreakpoints(false);
 
    breakpointSemaphore.release();
-#endif
 
    m_isRunning = true;
    m_isPaused = false;
@@ -124,7 +120,6 @@ void NESEmulatorThread::setDialog(QDialog* dialog)
 {
 }
 
-#if defined ( IDE_BUILD )
 void NESEmulatorThread::primeEmulator()
 {
    if ( (nesicideProject) &&
@@ -133,7 +128,7 @@ void NESEmulatorThread::primeEmulator()
       m_pCartridge = nesicideProject->get_pointerToCartridge();
 
       // Force hard-reset of the machine...
-      CNESDBG::BREAKPOINTS(false);
+      nesEnableBreakpoints(false);
       CNESDBG::CLEAROPCODEMASKS();
 
       // If we were stopped at a breakpoint, release...
@@ -144,12 +139,6 @@ void NESEmulatorThread::primeEmulator()
       }
    }
 }
-#else
-void NESEmulatorThread::primeEmulator(CCartridge* pCartridge)
-{
-   m_pCartridge = pCartridge;
-}
-#endif
 
 void NESEmulatorThread::loadCartridge()
 {
@@ -158,7 +147,6 @@ void NESEmulatorThread::loadCartridge()
    // Clear emulator's cartridge ROMs...
    nesUnloadROM();
 
-#if defined ( IDE_BUILD )
    // Load cartridge PRG-ROM banks into emulator...
    for ( b = 0; b < m_pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count(); b++ )
    {
@@ -171,19 +159,6 @@ void NESEmulatorThread::loadCartridge()
    {
       nesLoadCHRROMBank ( b, (uint8_t*)m_pCartridge->getPointerToChrRomBanks()->banks.at(b)->data );
    }
-#else
-   // Load cartridge PRG-ROM banks into emulator...
-   for ( b = 0; b < m_pCartridge->getNumPrgRomBanks(); b++ )
-   {
-      nesLoadPRGROMBank(b,(uint8_t*)m_pCartridge->getPointerToPrgRomBank(b));
-   }
-
-   // Load cartridge CHR-ROM banks into emulator...
-   for ( b = 0; b < m_pCartridge->getNumChrRomBanks(); b++ )
-   {
-      nesLoadCHRROMBank(b,(uint8_t*)m_pCartridge->getPointerToChrRomBank(b));
-   }
-#endif
 
    // Perform any necessary fixup on from the ROM loading...
    nesLoadROM();
@@ -222,16 +197,14 @@ void NESEmulatorThread::resetEmulator()
 {
    SDL_AudioSpec obtained;
 
-#if defined ( IDE_BUILD )
    // Force hard-reset of the machine...
-   CNESDBG::BREAKPOINTS(false);
+   nesEnableBreakpoints(false);
 
    // If during the last run we were stopped at a breakpoint, clear it...
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
    }
-#endif
 
    SDL_CloseAudio ();
 
@@ -260,23 +233,21 @@ void NESEmulatorThread::resetEmulator()
 
 void NESEmulatorThread::startEmulation ()
 {
-#if defined ( IDE_BUILD )
    // If during the last run we were stopped at a breakpoint, clear it...
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
    }
-#endif
 
    m_isStarting = true;
+   emulator->start();
 }
 
-#if defined ( IDE_BUILD )
 void NESEmulatorThread::stepCPUEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
-   CNESDBG::STEPCPUBREAKPOINT();
+   nesStepCpu();
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
@@ -289,7 +260,7 @@ void NESEmulatorThread::stepPPUEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
-   CNESDBG::STEPPPUBREAKPOINT();
+   nesStepPpu();
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
@@ -297,7 +268,6 @@ void NESEmulatorThread::stepPPUEmulation ()
 
    m_isStarting = true;
 }
-#endif
 
 void NESEmulatorThread::pauseEmulation (bool show)
 {
@@ -325,10 +295,8 @@ void NESEmulatorThread::run ()
          m_isRunning = true;
          m_isPaused = false;
 
-#if defined ( IDE_BUILD )
          // Trigger Breakpoint dialog redraw...
          emit breakpointClear();
-#endif
 
          // Trigger emulator UI button update...
          emit emulatorStarted();
@@ -341,10 +309,8 @@ void NESEmulatorThread::run ()
          m_joy [ JOY1 ] = 0x00;
          m_joy [ JOY2 ] = 0x00;
 
-#if defined ( IDE_BUILD )
          // Re-enable breakpoints that were previously enabled...
-         CNESDBG::BREAKPOINTS(true);
-#endif
+         nesEnableBreakpoints(true);
 
          // Reset NES...
          nesReset();
@@ -367,10 +333,9 @@ void NESEmulatorThread::run ()
       // Run the NES...
       if ( m_isRunning )
       {
-#if defined ( IDE_BUILD )
          // Make sure breakpoint semaphore is on the precipice...
          breakpointSemaphore.tryAcquire();
-#endif
+
          coreMutexLock();
          if (nesGetAudioSamplesAvailable() >= APU_BUFFER_PRERENDER)
          {
