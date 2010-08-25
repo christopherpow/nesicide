@@ -173,7 +173,6 @@ HEADERS += mainwindow.h \
     common/defaultnespalette.h \
     common/cpaletteitemdelegate.h \
     common/cnessystempalette.h \
-    common/cnesicidecommon.h \
     common/cgltexturemanager.h \
     compiler/csourceassembler.h \
     compiler/cgraphicsassembler.h \

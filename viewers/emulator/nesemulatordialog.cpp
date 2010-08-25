@@ -15,6 +15,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    ui->pauseButton->setEnabled(false);
 
    renderer = new CNESEmulatorRenderer(ui->frame, imgData);
+   renderer->setMouseTracking(true);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
@@ -24,8 +25,8 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause(bool)));
    QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
 
-   m_joy [ JOY1 ] = 0x00;
-   m_joy [ JOY2 ] = 0x00;
+   m_joy [ CONTROLLER1 ] = 0x00;
+   m_joy [ CONTROLLER2 ] = 0x00;
    nesSetTVOut((int8_t*)imgData);
 }
 
@@ -46,160 +47,201 @@ void NESEmulatorDialog::changeEvent(QEvent *e)
     }
 }
 
+void NESEmulatorDialog::mousePressEvent(QMouseEvent *event)
+{
+   // CPTODO: defaulted controller 2 to zapper for now
+   if ( event->button()&Qt::LeftButton )
+   {
+      m_joy [ CONTROLLER2 ] |= JOY_TRIGGER;
+
+      nesSetControllerScreenPosition(CONTROLLER2,event->pos().x()-ui->frame->pos().x(),event->pos().y()-ui->frame->pos().y());
+
+      emulator->controllerInput ( m_joy );
+
+      event->accept();
+   }
+}
+
+void NESEmulatorDialog::mouseReleaseEvent(QMouseEvent *event)
+{
+   // CPTODO: defaulted controller 2 to zapper for now
+   if ( event->button()&Qt::LeftButton )
+   {
+      m_joy [ CONTROLLER2 ] &= (~(JOY_TRIGGER));
+
+      nesSetControllerScreenPosition(CONTROLLER2,event->pos().x()-ui->frame->pos().x(),event->pos().y()-ui->frame->pos().y());
+
+      emulator->controllerInput ( m_joy );
+
+      event->accept();
+   }
+}
+
+void NESEmulatorDialog::mouseMoveEvent(QMouseEvent *event)
+{
+   // CPTODO: defaulted controller 2 to zapper for now
+   nesSetControllerScreenPosition(CONTROLLER2,event->pos().x()-ui->frame->pos().x(),event->pos().y()-ui->frame->pos().y());
+   event->accept();
+}
+
 void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
 {
 // CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( JOY1 );
+//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
    if ( (char)event->key() == 'A' )
    {
-      m_joy [ JOY1 ] |= JOY_LEFT;
+      m_joy [ CONTROLLER1 ] |= JOY_LEFT;
    }
    else if ( (char)event->key() == 'D' )
    {
-      m_joy [ JOY1 ] |= JOY_RIGHT;
+      m_joy [ CONTROLLER1 ] |= JOY_RIGHT;
    }
    else if ( (char)event->key() == 'W' )
    {
-      m_joy [ JOY1 ] |= JOY_UP;
+      m_joy [ CONTROLLER1 ] |= JOY_UP;
    }
    else if ( (char)event->key() == 'S' )
    {
-      m_joy [ JOY1 ] |= JOY_DOWN;
+      m_joy [ CONTROLLER1 ] |= JOY_DOWN;
    }
    else if ( (char)event->key() == '[' )
    {
-      m_joy [ JOY1 ] |= JOY_SELECT;
+      m_joy [ CONTROLLER1 ] |= JOY_SELECT;
    }
    else if ( (char)event->key() == ']' )
    {
-      m_joy [ JOY1 ] |= JOY_START;
+      m_joy [ CONTROLLER1 ] |= JOY_START;
    }
    else if ( (char)event->key() == '.' )
    {
-      m_joy [ JOY1 ] |= JOY_B;
+      m_joy [ CONTROLLER1 ] |= JOY_B;
    }
    else if ( (char)event->key() == '/' )
    {
-      m_joy [ JOY1 ] |= JOY_A;
+      m_joy [ CONTROLLER1 ] |= JOY_A;
    }
 
 // CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( JOY2 );
+//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER2 );
 // CPTODO: only need one controller for now...(don't feel like picking keys)
 #if 0
    if ( lChar == pControllerConfig[idxJOY_LEFT] )
    {
-      m_joy [ JOY2 ] |= JOY_LEFT;
+      m_joy [ CONTROLLER2 ] |= JOY_LEFT;
    }
    else if ( lChar == pControllerConfig[idxJOY_RIGHT] )
    {
-      m_joy [ JOY2 ] |= JOY_RIGHT;
+      m_joy [ CONTROLLER2 ] |= JOY_RIGHT;
    }
    else if ( lChar == pControllerConfig[idxJOY_UP] )
    {
-      m_joy [ JOY2 ] |= JOY_UP;
+      m_joy [ CONTROLLER2 ] |= JOY_UP;
    }
    else if ( lChar == pControllerConfig[idxJOY_DOWN] )
    {
-      m_joy [ JOY2 ] |= JOY_DOWN;
+      m_joy [ CONTROLLER2 ] |= JOY_DOWN;
    }
    else if ( lChar == pControllerConfig[idxJOY_SELECT] )
    {
-      m_joy [ JOY2 ] |= JOY_SELECT;
+      m_joy [ CONTROLLER2 ] |= JOY_SELECT;
    }
    else if ( lChar == pControllerConfig[idxJOY_START] )
    {
-      m_joy [ JOY2 ] |= JOY_START;
+      m_joy [ CONTROLLER2 ] |= JOY_START;
    }
    else if ( lChar == pControllerConfig[idxJOY_B] )
    {
-      m_joy [ JOY2 ] |= JOY_B;
+      m_joy [ CONTROLLER2 ] |= JOY_B;
    }
    else if ( lChar == pControllerConfig[idxJOY_A] )
    {
-      m_joy [ JOY2 ] |= JOY_A;
+      m_joy [ CONTROLLER2 ] |= JOY_A;
    }
 #endif
 
    emulator->controllerInput ( m_joy );
+
+   event->accept();
 }
 
 void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
 {
 // CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( JOY1 );
+//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
    if ( (char)event->key() == 'A' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_LEFT));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_LEFT));
    }
    else if ( (char)event->key() == 'D' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_RIGHT));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_RIGHT));
    }
    else if ( (char)event->key() == 'W' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_UP));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_UP));
    }
    else if ( (char)event->key() == 'S' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_DOWN));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_DOWN));
    }
    else if ( (char)event->key() == '[' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_SELECT));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_SELECT));
    }
    else if ( (char)event->key() == ']' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_START));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_START));
    }
    else if ( (char)event->key() == '.' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_B));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_B));
    }
    else if ( (char)event->key() == '/' )
    {
-      m_joy [ JOY1 ] &= (~(JOY_A));
+      m_joy [ CONTROLLER1 ] &= (~(JOY_A));
    }
 
 // CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( JOY2 );
+//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER2 );
 // CPTODO: only need one controller for now...(don't feel like picking keys)
 #if 0
    if ( lChar == pControllerConfig[idxJOY_LEFT] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_LEFT));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_LEFT));
    }
    else if ( lChar == pControllerConfig[idxJOY_RIGHT] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_RIGHT));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_RIGHT));
    }
    else if ( lChar == pControllerConfig[idxJOY_UP] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_UP));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_UP));
    }
    else if ( lChar == pControllerConfig[idxJOY_DOWN] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_DOWN));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_DOWN));
    }
    else if ( lChar == pControllerConfig[idxJOY_SELECT] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_SELECT));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_SELECT));
    }
    else if ( lChar == pControllerConfig[idxJOY_START] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_START));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_START));
    }
    else if ( lChar == pControllerConfig[idxJOY_B] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_B));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_B));
    }
    else if ( lChar == pControllerConfig[idxJOY_A] )
    {
-      m_joy [ JOY2 ] &= (~(JOY_A));
+      m_joy [ CONTROLLER2 ] &= (~(JOY_A));
    }
 #endif
 
    emulator->controllerInput ( m_joy );
+
+   event->accept();
 }
 
 void NESEmulatorDialog::internalPlay()

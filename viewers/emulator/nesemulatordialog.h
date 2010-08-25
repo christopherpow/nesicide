@@ -2,9 +2,9 @@
 #define NESEMULATORDIALOG_H
 
 #include <QDialog>
+#include <QKeyEvent>
 
 #include "emulator_core.h"
-
 #include "nesemulatorrenderer.h"
 
 namespace Ui {
@@ -20,13 +20,16 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
 private:
     Ui::NESEmulatorDialog *ui;
     char *imgData;
-    unsigned char m_joy [ NUM_JOY ];
+    unsigned char m_joy [ NUM_CONTROLLERS ];
 
 private slots:
     void on_stepCPUButton_clicked();

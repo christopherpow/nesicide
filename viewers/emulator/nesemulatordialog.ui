@@ -10,6 +10,9 @@
     <height>271</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
@@ -205,6 +208,12 @@
          <width>0</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>CrossCursor</cursorShape>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
        </property>
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>

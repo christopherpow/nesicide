@@ -6,7 +6,6 @@
 #include "cdebuggerregisterdisplaymodel.h"
 #include "cdebuggerregistercomboboxdelegate.h"
 
-#include "cnesicidecommon.h"
 #include "cregisterdata.h"
 
 namespace Ui {

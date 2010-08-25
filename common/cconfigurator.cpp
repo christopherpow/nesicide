@@ -1,14 +1,6 @@
 #include "cconfigurator.h"
-#include "cnesicidecommon.h"
 
 #include <QCoreApplication>
-/*
-static unsigned int m_DEFAULTcontrollerConfig [ NUM_JOY ][ 9 ] =
-{
-    { 1, JOY1_LEFT, JOY1_RIGHT, JOY1_UP, JOY1_DOWN, JOY1_SELECT, JOY1_START, JOY1_B, JOY1_A },
-    { 1, JOY2_LEFT, JOY2_RIGHT, JOY2_UP, JOY2_DOWN, JOY2_SELECT, JOY2_START, JOY2_B, JOY2_A }
-};
-*/
 
 CConfigurator* appConfig;
 

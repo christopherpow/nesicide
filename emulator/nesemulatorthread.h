@@ -35,8 +35,8 @@ public:
    void stepPPUEmulation ();
    void controllerInput ( uint8_t* joy ) {
       coreMutexLock();
-      m_joy[JOY1] = joy[JOY1];
-      m_joy[JOY2] = joy[JOY2];
+      m_joy[CONTROLLER1] = joy[CONTROLLER1];
+      m_joy[CONTROLLER2] = joy[CONTROLLER2];
       coreMutexUnlock();
    }
 
@@ -60,7 +60,7 @@ protected:
    bool          m_isTerminating;
    bool          m_isResetting;
    bool          m_isStarting;
-   uint8_t m_joy [ NUM_JOY ];
+   uint8_t m_joy [ NUM_CONTROLLERS ];
 };
 
 #endif // NESEMULATORTHREAD_H

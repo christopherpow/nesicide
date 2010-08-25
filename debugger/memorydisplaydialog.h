@@ -4,7 +4,6 @@
 #include <QDialog>
 #include "cdebuggermemorydisplaymodel.h"
 
-#include "cnesicidecommon.h"
 #include "cregisterdata.h"
 
 namespace Ui {

@@ -1,5 +1,4 @@
 #include "cdebuggerregistercomboboxdelegate.h"
-#include "cnesicidecommon.h"
 
 CDebuggerRegisterComboBoxDelegate::CDebuggerRegisterComboBoxDelegate()
    : m_pBitfield(NULL)
