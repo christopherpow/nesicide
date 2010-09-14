@@ -75,7 +75,8 @@ void BreakpointDialog::updateData()
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
       if ( pBreakpoint->hit )
       {
-         emit showMe();
+//         emit showMe();
+         debugTextLogger.write ( QString(model->data(model->index(idx,1),Qt::DisplayRole).toByteArray()) );
          ui->tableView->setCurrentIndex(model->index(idx,0));
       }
    }

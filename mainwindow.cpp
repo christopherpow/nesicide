@@ -238,10 +238,11 @@ MainWindow::MainWindow(QWidget *parent) :
     InspectorRegistry::addInspector ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
     ui->outputTabWidget->setCurrentIndex(0);
-    buildTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
     generalTextLogger.setTextEditControl(ui->generalOutputTextEdit);
     generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
     generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
+    buildTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
+    debugTextLogger.setTextEditControl(ui->debuggerOutputTextEdit);
 
    // Start in NTSC mode for now until we can have it configurable on app entry.
    ui->actionNTSC->setChecked(true);
