@@ -45,7 +45,7 @@ void CPluginManager::doInitScript()
     result = report(globalLuaInstance, status);
     if (!result.isEmpty())
     {
-        builderTextLogger.write("<font color='red'><strong>Script Error:</strong> " + result + "</font>");
+        generalTextLogger.write("<font color='red'><strong>Script Error:</strong> " + result + "</font>");
     }
 }
 
@@ -62,7 +62,7 @@ void CPluginManager::defineInterfaces(lua_State *lua)
 
 void CPluginManager::lua_compiler_logger_print(QString text)
 {
-    builderTextLogger.write(text);
+    generalTextLogger.write(text);
 }
 
 QString CPluginManager::getVersionInfo()

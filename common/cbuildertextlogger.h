@@ -3,17 +3,19 @@
 
 #include <QPlainTextEdit>
 
-class CBuilderTextLogger
+class CTextLogger
 {
 public:
-    CBuilderTextLogger();
-    void setTextEditControl(QPlainTextEdit *control);
-    void clear();
-    void write(QString text);
+    CTextLogger();
+    virtual void setTextEditControl(QPlainTextEdit *control) { m_textEdit = control; }
+    virtual void clear();
+    virtual void write(QString text);
 private:
     QPlainTextEdit *m_textEdit;
 };
 
-extern CBuilderTextLogger builderTextLogger;
+extern CTextLogger generalTextLogger;
+extern CTextLogger buildTextLogger;
+extern CTextLogger debugTextLogger;
 
 #endif // CBUILDERTEXTLOGGER_H

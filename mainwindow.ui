@@ -88,8 +88,8 @@
     </property>
     <addaction name="action_Project_Browser"/>
     <addaction name="separator"/>
-    <addaction name="actionCompiler_Output"/>
     <addaction name="actionEmulation_Window"/>
+    <addaction name="actionOutput_Window"/>
     <addaction name="separator"/>
     <addaction name="actionProject_Properties"/>
    </widget>
@@ -369,6 +369,35 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="debuggerOutput">
+        <attribute name="title">
+         <string>Debug</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QPlainTextEdit" name="debuggerOutputTextEdit">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOn</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -385,7 +414,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionCompile_Project"/>
-   <addaction name="actionCompiler_Output"/>
+   <addaction name="actionOutput_Window"/>
   </widget>
   <action name="actionE_xit">
    <property name="icon">
@@ -529,7 +558,7 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionCompiler_Output">
+  <action name="actionOutput_Window">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -538,7 +567,7 @@
      <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
-    <string>Compiler Output</string>
+    <string>Output Window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
@@ -976,6 +1005,11 @@
    </property>
    <property name="text">
     <string>Environment Settings...</string>
+   </property>
+  </action>
+  <action name="actionView">
+   <property name="text">
+    <string>View</string>
    </property>
   </action>
  </widget>

@@ -238,9 +238,10 @@ MainWindow::MainWindow(QWidget *parent) :
     InspectorRegistry::addInspector ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
     ui->outputTabWidget->setCurrentIndex(0);
-    builderTextLogger.setTextEditControl(ui->generalOutputTextEdit);
-    builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
-    builderTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
+    buildTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
+    generalTextLogger.setTextEditControl(ui->generalOutputTextEdit);
+    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
+    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
    // Start in NTSC mode for now until we can have it configurable on app entry.
    ui->actionNTSC->setChecked(true);
@@ -638,19 +639,19 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
 }
 
-void MainWindow::on_compilerOutputDockWidget_visibilityChanged(bool visible)
+void MainWindow::on_outputDockWidget_visibilityChanged(bool visible)
 {
     if (!visible)
     {
         if (!ui->compilerOutputTextEdit->isVisibleTo(this))
         {
-            ui->actionCompiler_Output->setChecked(false);
+            ui->actionOutput_Window->setChecked(false);
         }
     } else
-        ui->actionCompiler_Output->setChecked(visible);
+        ui->actionOutput_Window->setChecked(visible);
 }
 
-void MainWindow::on_actionCompiler_Output_toggled(bool value)
+void MainWindow::on_actionOutput_Window_toggled(bool value)
 {
     ui->outputDockWidget->setVisible(value);
 }
@@ -659,6 +660,8 @@ void MainWindow::on_actionCompiler_Output_toggled(bool value)
 void MainWindow::on_actionCompile_Project_triggered()
 {
     CCartridgeBuilder cartridgeBuilder;
+
+    ui->outputDockWidget->setVisible(true);
     cartridgeBuilder.build();
     projectDataChangesEvent();
 }

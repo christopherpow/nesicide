@@ -443,32 +443,32 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         }
 
-        builderTextLogger.clear();
+        generalTextLogger.clear();
 
         str = "<b>Searcing internal game database: ";
         str += gameDatabase.getGameDBAuthor();
         str += ", ";
         str += gameDatabase.getGameDBTimestamp();
         str += "...</b>";
-        builderTextLogger.write(str);
+        generalTextLogger.write(str);
 
         bool gameFoundInDB = gameDatabase.find(m_pointerToCartridge);
         if ( gameFoundInDB )
         {
            str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHA1: ";
            str += gameDatabase.getSHA1();
-           builderTextLogger.write(str);
+           generalTextLogger.write(str);
 
            str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name: ";
            str += gameDatabase.getName();
-           builderTextLogger.write(str);
+           generalTextLogger.write(str);
 
            str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Publisher (date): ";
            str += gameDatabase.getPublisher();
            str += " (";
            str += gameDatabase.getDate();
            str += ")";
-           builderTextLogger.write(str);
+           generalTextLogger.write(str);
 
            str = "NESICIDE - ";
            str += gameDatabase.getName();
@@ -483,7 +483,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         else
         {
            str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><font color=\"red\">Not found.</font></i>";
-           builderTextLogger.write(str);
+           generalTextLogger.write(str);
 
            str = "NESICIDE - ";
            str += fileName;
@@ -493,7 +493,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
            nesicideWindow->setWindowTitle(str);
         }
         str = "<b>Game loaded.</b>";
-        builderTextLogger.write(str);
+        generalTextLogger.write(str);
 
         fileIn.close();
     }

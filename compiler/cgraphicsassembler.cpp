@@ -7,7 +7,7 @@ CGraphicsAssembler::CGraphicsAssembler()
 
 bool CGraphicsAssembler::assemble()
 {
-   builderTextLogger.write("<b>Building CHR-ROM Banks:</b>");
+   buildTextLogger.write("<b>Building CHR-ROM Banks:</b>");
    CGraphicsBanks *gfxBanks = nesicideProject->getProject()->getGraphics()->getGraphicsBanks();
    CCHRROMBanks *chrRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToChrRomBanks();
 
@@ -33,7 +33,7 @@ bool CGraphicsAssembler::assemble()
      }
 
       memset(chrRomBank->data, 0, sizeof(qint8)*0x2000);
-      builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->getBankName() + "':");
+      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->getBankName() + "':");
 
       int dataOffset = 0;
 
@@ -41,7 +41,7 @@ bool CGraphicsAssembler::assemble()
       {
          IChrRomBankItem *bankItem = curGfxBank->bankItems.at(bankItemIdx);
          IProjectTreeViewItem *ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-         builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+         buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                                  ptvi->caption() + "...");
 
          memcpy(chrRomBank->data + dataOffset, bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());

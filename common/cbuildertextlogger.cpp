@@ -1,24 +1,21 @@
 #include "cbuildertextlogger.h"
 
-CBuilderTextLogger builderTextLogger;
+CTextLogger generalTextLogger;
+CTextLogger buildTextLogger;
+CTextLogger debugTextLogger;
 
-CBuilderTextLogger::CBuilderTextLogger()
+CTextLogger::CTextLogger()
+: m_textEdit(NULL)
 {
-    m_textEdit = (QPlainTextEdit *)NULL;
 }
 
-void CBuilderTextLogger::setTextEditControl(QPlainTextEdit *control)
-{
-    m_textEdit = control;
-}
-
-void CBuilderTextLogger::clear()
+void CTextLogger::clear()
 {
     if (m_textEdit)
         m_textEdit->clear();
 }
 
-void CBuilderTextLogger::write(QString text)
+void CTextLogger::write(QString text)
 {
     if (m_textEdit)
         m_textEdit->appendHtml(text);

@@ -33,12 +33,12 @@ bool CSourceAssembler::assemble()
 
    if (!rootSource)
    {
-      builderTextLogger.write("Error: No main source has been defined.");
-      builderTextLogger.write("<i>You can select the main source to compile in the project properties dialog.</i>");
+      buildTextLogger.write("Error: No main source has been defined.");
+      buildTextLogger.write("<i>You can select the main source to compile in the project properties dialog.</i>");
       return false;
    }
 
-   builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
+   buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
 
    pasm_assemble ( rootSource->get_sourceName().toLatin1().data(),
                    rootSource->get_sourceCode().toLatin1().data(),
@@ -52,18 +52,18 @@ bool CSourceAssembler::assemble()
    if ( numErrors )
    {
       strBuffer.sprintf ( "%d", numErrors );
-      builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with " + strBuffer + " errors...");
+      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with " + strBuffer + " errors...");
       pasm_get_errors ( &errors );
       strBuffer.sprintf ( "%s", errors );
-      builderTextLogger.write("<font color='red'><pre>" + strBuffer + "</pre></font>");
+      buildTextLogger.write("<font color='red'><pre>" + strBuffer + "</pre></font>");
    }
    else
    {
-      builderTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with no errors...");
+      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with no errors...");
       /*
       numSymbols = pasm_get_num_symbols();
       strBuffer.sprintf("<b>Symbol Table (%d symbols defined)</b>", numSymbols);
-      builderTextLogger.write(strBuffer);
+      buildTextLogger.write(strBuffer);
       for ( symbol = 0; symbol < numSymbols; symbol++ )
       {
          strBuffer.sprintf("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$%04X at line %d",
@@ -71,7 +71,7 @@ bool CSourceAssembler::assemble()
                            pasm_get_symbol(symbol),
                            pasm_get_symbol_value(symbol),
                            pasm_get_symbol_linenum(symbol));
-         builderTextLogger.write(strBuffer);
+         buildTextLogger.write(strBuffer);
       }*/
 
       int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
