@@ -189,6 +189,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTracer_InstructionFetch:
                   strcpy ( str, "Instruction Fetch" );
                break;
+               case eTracer_ExtraInstructionFetch:
+                  strcpy ( str, "Extra Fetch" );
+               break;
                case eTracer_DataRead:
                   strcpy ( str, "Memory Read" );
                break;

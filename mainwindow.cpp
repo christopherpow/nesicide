@@ -237,7 +237,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
     InspectorRegistry::addInspector ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
-    builderTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
+    ui->outputTabWidget->setCurrentIndex(0);
+    builderTextLogger.setTextEditControl(ui->generalOutputTextEdit);
     builderTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
     builderTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
@@ -651,7 +652,7 @@ void MainWindow::on_compilerOutputDockWidget_visibilityChanged(bool visible)
 
 void MainWindow::on_actionCompiler_Output_toggled(bool value)
 {
-    ui->compilerOutputDockWidget->setVisible(value);
+    ui->outputDockWidget->setVisible(value);
 }
 
 

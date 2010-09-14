@@ -10,6 +10,8 @@
 
 #include "emulator_core.h"
 
+#include "cmarker.h"
+
 extern "C" int PASM_include ( char* objname, char** objdata, int* size );
 
 CSourceAssembler::CSourceAssembler()

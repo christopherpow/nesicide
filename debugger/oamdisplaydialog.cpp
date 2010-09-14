@@ -54,6 +54,7 @@ void OAMDisplayDialog::renderData()
 {
    if ( isVisible() )
    {
+      CPPUDBG::RENDEROAM();
       renderer->updateGL ();
    }
 }

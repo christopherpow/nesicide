@@ -28,7 +28,7 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
     ui->tableView->setModel(assemblyViewModel);
     ui->displayMode->setCurrentIndex ( 0 );
     QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
-//    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
+    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
     QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
     QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateBrowser()) );
     QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );

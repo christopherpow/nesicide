@@ -93,6 +93,7 @@ void CHRROMDisplayDialog::renderData()
    {
     if ( m_usePPU )
     {
+       CPPUDBG::RENDERCHRMEM();
        renderer->updateGL ();
     }
     else

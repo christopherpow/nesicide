@@ -100,7 +100,6 @@ NESEmulatorThread::NESEmulatorThread(QObject *)
 
 NESEmulatorThread::~NESEmulatorThread()
 {
-
 }
 
 void NESEmulatorThread::kill()
@@ -279,9 +278,10 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::run ()
 {
+   int32_t samplesAvailable;
+
    while ( m_isStarting || m_isRunning || m_isResetting )
    {
-
       // Allow thread exit...
       if ( m_isTerminating )
       {
@@ -337,12 +337,13 @@ void NESEmulatorThread::run ()
          breakpointSemaphore.tryAcquire();
 
          coreMutexLock();
-         if (nesGetAudioSamplesAvailable() >= APU_BUFFER_PRERENDER)
-         {
-             coreMutexUnlock();
-             break;
-         }
+         samplesAvailable = nesGetAudioSamplesAvailable();
          coreMutexUnlock();
+         if ( samplesAvailable >= APU_BUFFER_PRERENDER )
+         {
+            break;
+         }
+
          // Run emulator for one frame...
          SDL_LockAudio();
          nesRun(m_joy);

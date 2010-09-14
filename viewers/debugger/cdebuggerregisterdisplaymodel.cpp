@@ -153,22 +153,22 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
             case eMemory_CPUregs:
                switch ( m_register )
                {
-                  case 0:
+                  case CPU_PC:
                      C6502DBG::__PC(data);
                   break;
-                  case 1:
+                  case CPU_A:
                      C6502DBG::_A(data);
                   break;
-                  case 2:
+                  case CPU_X:
                      C6502DBG::_X(data);
                   break;
-                  case 3:
+                  case CPU_Y:
                      C6502DBG::_Y(data);
                   break;
-                  case 4:
+                  case CPU_SP:
                      C6502DBG::_SP(data);
                   break;
-                  case 5:
+                  case CPU_F:
                      C6502DBG::_F(data);
                   break;
                }
@@ -216,22 +216,22 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
             case eMemory_CPUregs:
                switch ( m_register )
                {
-                  case 0:
+                  case CPU_PC:
                      return createIndex(row, column, (int)C6502DBG::__PC());
                   break;
-                  case 1:
+                  case CPU_A:
                      return createIndex(row, column, (int)C6502DBG::_A());
                   break;
-                  case 2:
+                  case CPU_X:
                      return createIndex(row, column, (int)C6502DBG::_X());
                   break;
-                  case 3:
+                  case CPU_Y:
                      return createIndex(row, column, (int)C6502DBG::_Y());
                   break;
-                  case 4:
+                  case CPU_SP:
                      return createIndex(row, column, (int)0x100|C6502DBG::_SP());
                   break;
-                  case 5:
+                  case CPU_F:
                      return createIndex(row, column, (int)C6502DBG::_F());
                   break;
                }
