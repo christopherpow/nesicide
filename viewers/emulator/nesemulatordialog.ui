@@ -218,6 +218,9 @@
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::PreventContextMenu</enum>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Panel</enum>
        </property>
