@@ -23,12 +23,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->projectTreeWidget->setModel(projectTreeviewModel);
 
     emulatorDlg = new NESEmulatorDialog();
-    emulator->setDialog ( emulatorDlg );
     emulatorDlgTabIdx = -1;
 
-    breakpointWatcher->setDialog ( emulatorDlg );
-
     projectDataChangesEvent();
+
+    m_pOutput = new OutputDockWidget ();
+    m_pOutput->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    m_pOutput->setWindowTitle("Output");
+    m_pOutput->setAllowedAreas(Qt::BottomDockWidgetArea);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pOutput );
+//    QObject::connect(m_pOutput, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
 
     m_pBreakpointInspector = new BreakpointInspector ();
     m_pBreakpointInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -236,13 +240,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pBinMapperMemoryInspector->hide();
     QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
     InspectorRegistry::addInspector ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
-
-    ui->outputTabWidget->setCurrentIndex(0);
-    generalTextLogger.setTextEditControl(ui->generalOutputTextEdit);
-    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
-    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
-    buildTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
-    debugTextLogger.setTextEditControl(ui->debuggerOutputTextEdit);
 
    // Start in NTSC mode for now until we can have it configurable on app entry.
    ui->actionNTSC->setChecked(true);
@@ -642,19 +639,12 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
 void MainWindow::on_outputDockWidget_visibilityChanged(bool visible)
 {
-    if (!visible)
-    {
-        if (!ui->compilerOutputTextEdit->isVisibleTo(this))
-        {
-            ui->actionOutput_Window->setChecked(false);
-        }
-    } else
-        ui->actionOutput_Window->setChecked(visible);
+   ui->actionOutput_Window->setChecked(visible);
 }
 
 void MainWindow::on_actionOutput_Window_toggled(bool value)
 {
-    ui->outputDockWidget->setVisible(value);
+    m_pOutput->show();
 }
 
 
@@ -662,7 +652,7 @@ void MainWindow::on_actionCompile_Project_triggered()
 {
     CCartridgeBuilder cartridgeBuilder;
 
-    ui->outputDockWidget->setVisible(true);
+    m_pOutput->show();
     cartridgeBuilder.build();
     projectDataChangesEvent();
 }
@@ -1043,4 +1033,13 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
         // Todo...
     }
     delete dlg;
+}
+
+void MainWindow::contextMenuEvent ( QContextMenuEvent *event )
+{
+    QMenu menu;
+    QAction action("Clear",0);
+
+    menu.addAction(&action);
+    menu.exec(event->globalPos());
 }

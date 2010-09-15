@@ -25,6 +25,7 @@
 #include "mapperinformationinspector.h"
 #include "aboutdialog.h"
 #include "environmentsettingsdialog.h"
+#include "outputdockwidget.h"
 
 namespace Ui {
     class MainWindow;
@@ -76,8 +77,11 @@ private:
     APUInformationInspector* m_pAPUInformationInspector;
     MapperInformationInspector* m_pMapperInformationInspector;
 
+    OutputDockWidget* m_pOutput;
+
 protected:
     virtual void closeEvent ( QCloseEvent * event );
+    virtual void contextMenuEvent ( QContextMenuEvent *event );
 
 private slots:
     void on_actionEnvironment_Settings_triggered();

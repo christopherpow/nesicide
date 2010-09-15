@@ -11,7 +11,6 @@ public:
    BreakpointWatcherThread ( QObject* parent = 0 );
    virtual ~BreakpointWatcherThread ();
    void kill();
-   void setDialog(QDialog* dialog);
 
 signals:
    void breakpointHit();

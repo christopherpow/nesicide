@@ -25,8 +25,6 @@ public:
    virtual ~NESEmulatorThread ();
    void kill();
 
-   void setDialog(QDialog* dialog);
-
    void primeEmulator ();
    void resetEmulator ();
    void startEmulation ();

@@ -20,10 +20,6 @@ void BreakpointWatcherThread::kill()
    breakpointWatcherSemaphore.release();
 }
 
-void BreakpointWatcherThread::setDialog(QDialog*)
-{
-}
-
 void BreakpointWatcherThread::run ()
 {
    for ( ; ; )

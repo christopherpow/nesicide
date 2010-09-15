@@ -166,7 +166,9 @@ SOURCES += mainwindow.cpp \
     debugger/dbg_cnesapu.cpp \
     debugger/dbg_cnesrom.cpp \
     debugger/dbg_cnesrommapper004.cpp \
-    debugger/dbg_cnesrommapper001.cpp
+    debugger/dbg_cnesrommapper001.cpp \
+    outputdockwidget.cpp \
+    outputdialog.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -267,7 +269,9 @@ HEADERS += mainwindow.h \
     debugger/dbg_cnesrom.h \
     debugger/dbg_cnesapu.h \
     debugger/dbg_cnesrommapper001.h \
-    debugger/dbg_cnesrommapper004.h
+    debugger/dbg_cnesrommapper004.h \
+    outputdockwidget.h \
+    outputdialog.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -291,5 +295,6 @@ FORMS += mainwindow.ui \
     debugger/mapperinformationdialog.ui \
     debugger/apuinformationdialog.ui \
     environmentsettingsdialog.ui \
-    startupsplashdialog.ui
+    startupsplashdialog.ui \
+    outputdialog.ui
 RESOURCES += resource.qrc

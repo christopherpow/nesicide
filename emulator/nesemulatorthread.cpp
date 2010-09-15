@@ -115,10 +115,6 @@ void NESEmulatorThread::kill()
    m_isTerminating = true;
 }
 
-void NESEmulatorThread::setDialog(QDialog* dialog)
-{
-}
-
 void NESEmulatorThread::primeEmulator()
 {
    if ( (nesicideProject) &&
