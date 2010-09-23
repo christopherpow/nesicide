@@ -66,7 +66,7 @@ extern "C" void SDL_GetMoreData(void *userdata, uint8_t *stream, int32_t len)
       coreMutexUnlock();
       emulator->start();
    } else
-      //qDebug() << "No Render: " << apuDataAvailable;
+//      qDebug() << "No Render: " << nesGetAudioSamplesAvailable();
       coreMutexUnlock();
 }
 

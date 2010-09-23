@@ -11,12 +11,30 @@ CTextLogger::CTextLogger()
 
 void CTextLogger::clear()
 {
-    if (m_textEdit)
-        m_textEdit->clear();
+   m_text.clear();
+   if (m_textEdit)
+      m_textEdit->clear();
 }
 
-void CTextLogger::write(QString text)
+void CTextLogger::write(QString text, bool updateNow)
 {
-    if (m_textEdit)
-        m_textEdit->appendHtml(text);
+   m_text.append(text);
+#if 0
+   if ( updateNow )
+   {
+      update();
+   }
+#endif
+}
+
+void CTextLogger::update()
+{
+   if (m_textEdit)
+   {
+      if ( !m_text.isEmpty() )
+      {
+         m_textEdit->appendHtml(m_text);
+      }
+      m_text.clear();
+   }
 }

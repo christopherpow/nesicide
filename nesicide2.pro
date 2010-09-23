@@ -168,7 +168,8 @@ SOURCES += mainwindow.cpp \
     debugger/dbg_cnesrommapper004.cpp \
     debugger/dbg_cnesrommapper001.cpp \
     outputdockwidget.cpp \
-    outputdialog.cpp
+    outputdialog.cpp \
+    compiler/compilerthread.cpp
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -271,7 +272,8 @@ HEADERS += mainwindow.h \
     debugger/dbg_cnesrommapper001.h \
     debugger/dbg_cnesrommapper004.h \
     outputdockwidget.h \
-    outputdialog.h
+    outputdialog.h \
+    compiler/compilerthread.h
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \

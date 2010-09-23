@@ -31,6 +31,8 @@ namespace Ui {
     class MainWindow;
 }
 
+extern OutputDockWidget* output;
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -77,13 +79,11 @@ private:
     APUInformationInspector* m_pAPUInformationInspector;
     MapperInformationInspector* m_pMapperInformationInspector;
 
-    OutputDockWidget* m_pOutput;
-
 protected:
     virtual void closeEvent ( QCloseEvent * event );
-    virtual void contextMenuEvent ( QContextMenuEvent *event );
 
 private slots:
+    void compileDone();
     void on_actionEnvironment_Settings_triggered();
     void on_actionMute_All_toggled(bool );
     void on_actionSquare_1_toggled(bool );
@@ -143,9 +143,9 @@ private slots:
     void reflectedPPUInformationInspector_close(bool toplevel);
     void reflectedAPUInformationInspector_close(bool toplevel);
     void reflectedMapperInformationInspector_close(bool toplevel);
+    void reflectedOutput_Window_close(bool toplevel);
     void on_actionCompile_Project_triggered();
     void on_actionOutput_Window_toggled(bool );
-    void on_outputDockWidget_visibilityChanged(bool visible);
     void on_actionSave_Active_Document_triggered();
     void on_tabWidget_currentChanged(int index);
     void on_actionOpen_Project_triggered();

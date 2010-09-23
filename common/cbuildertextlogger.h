@@ -9,9 +9,12 @@ public:
     CTextLogger();
     virtual void setTextEditControl(QPlainTextEdit *control) { m_textEdit = control; }
     virtual void clear();
-    virtual void write(QString text);
+    virtual void write(QString text,bool updateNow=false);
+    virtual void update();
+
 private:
     QPlainTextEdit *m_textEdit;
+    QString         m_text;
 };
 
 extern CTextLogger generalTextLogger;

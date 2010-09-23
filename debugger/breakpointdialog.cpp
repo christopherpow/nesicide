@@ -67,7 +67,6 @@ void BreakpointDialog::updateData()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
-   char hitMsg [ 256 ];
 
    model->layoutChangedEvent();
 
@@ -76,9 +75,7 @@ void BreakpointDialog::updateData()
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
       if ( pBreakpoint->hit )
       {
-         pBreakpoints->GetHitPrintable(idx,hitMsg);
 //         emit showMe();
-         debugTextLogger.write ( hitMsg );
          ui->tableView->setCurrentIndex(model->index(idx,0));
       }
    }

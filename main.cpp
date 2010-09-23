@@ -8,13 +8,16 @@
 
 // CPTODO put this somewhere more meaningful
 qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+                          '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
 
 // Thread for watching for breakpoints ejected by the NES
 // emulator thread.
 BreakpointWatcherThread* breakpointWatcher = NULL;
+
+// Thread for compiling NES ROMs.
+CompilerThread* compiler = NULL;
 
 // Hash table of debugger inspector windows to support automagic
 // opening/closing of inspector windows on things like breakpoints.
@@ -51,9 +54,11 @@ int main(int argc, char *argv[])
    emulator = new NESEmulatorThread ();
    breakpointWatcher = new BreakpointWatcherThread ();
 
-   // Start emulator and breakpoint-watcher threads...
-   emulator->start();
+   // Start breakpoint-watcher thread...emulator thread starts later.
    breakpointWatcher->start();
+
+   // Create compiler threads...
+   compiler = new CompilerThread ();
 
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();

@@ -9,13 +9,17 @@
 #include <QMessageBox>
 #include "cpluginmanager.h"
 
+OutputDockWidget* output = NULL;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
-    nesicideProject = new CNesicideProject();
+    QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
 
+    QObject::connect(compiler, SIGNAL(finished()), this, SLOT(compileDone()));
+
+    nesicideProject = new CNesicideProject();
 
     ui->setupUi(this);
     projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
@@ -27,12 +31,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     projectDataChangesEvent();
 
-    m_pOutput = new OutputDockWidget ();
-    m_pOutput->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-    m_pOutput->setWindowTitle("Output");
-    m_pOutput->setAllowedAreas(Qt::BottomDockWidgetArea);
-    addDockWidget(Qt::BottomDockWidgetArea, m_pOutput );
-//    QObject::connect(m_pOutput, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
+    output = new OutputDockWidget ();
+    output->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+    output->setWindowTitle("Output");
+    output->setAllowedAreas(Qt::BottomDockWidgetArea);
+    addDockWidget(Qt::BottomDockWidgetArea, output );
+    QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
+
+    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release<br>");
+    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo() + "<br>");
+    generalTextLogger.update();
 
     m_pBreakpointInspector = new BreakpointInspector ();
     m_pBreakpointInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -637,24 +645,31 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
 }
 
-void MainWindow::on_outputDockWidget_visibilityChanged(bool visible)
+void MainWindow::reflectedOutput_Window_close(bool toplevel)
 {
-   ui->actionOutput_Window->setChecked(visible);
+   ui->actionOutput_Window->setChecked(toplevel);
 }
 
 void MainWindow::on_actionOutput_Window_toggled(bool value)
 {
-    m_pOutput->show();
+   output->setVisible(value);
 }
 
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-    CCartridgeBuilder cartridgeBuilder;
+   output->showBuildPane();
+   compiler->start();
+}
 
-    m_pOutput->show();
-    cartridgeBuilder.build();
-    projectDataChangesEvent();
+void MainWindow::compileDone()
+{
+   emulator->pauseEmulation(false);
+
+   projectDataChangesEvent();
+
+   emulator->primeEmulator();
+   emulator->resetEmulator();
 }
 
 void MainWindow::on_actionExecution_Inspector_toggled(bool value)
@@ -1033,13 +1048,4 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
         // Todo...
     }
     delete dlg;
-}
-
-void MainWindow::contextMenuEvent ( QContextMenuEvent *event )
-{
-    QMenu menu;
-    QAction action("Clear",0);
-
-    menu.addAction(&action);
-    menu.exec(event->globalPos());
 }

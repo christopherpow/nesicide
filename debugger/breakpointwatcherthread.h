@@ -2,7 +2,6 @@
 #define BREAKPOINTWATCHERTHREAD_H
 
 #include <QThread>
-#include <QDialog>
 
 class BreakpointWatcherThread : public QThread
 {

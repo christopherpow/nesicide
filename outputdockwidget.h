@@ -14,6 +14,10 @@ public:
    OutputDockWidget();
    virtual ~OutputDockWidget();
 
+   void showGeneralPane() { dialog->setCurrentOutputTab(0); this->show(); }
+   void showBuildPane() { dialog->setCurrentOutputTab(1); this->show(); }
+   void showDebugPane() { dialog->setCurrentOutputTab(2); this->show(); }
+
 protected:
    OutputDialog* dialog;
    QFrame* frame;

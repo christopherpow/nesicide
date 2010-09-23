@@ -7,15 +7,12 @@ CCartridgeBuilder::CCartridgeBuilder()
 {
 }
 
-
 void CCartridgeBuilder::build()
 {
-   emulator->pauseEmulation(false);
-
-   buildTextLogger.clear();
-   buildTextLogger.write("<b>Project build started.</b>");
    CSourceAssembler sourceAssembler;
    CGraphicsAssembler graphicsAssembler;
+
+   buildTextLogger.write("<b>Project build started.</b>");
 
    if (!(sourceAssembler.assemble() && graphicsAssembler.assemble()))
    {
@@ -23,7 +20,4 @@ void CCartridgeBuilder::build()
       return;
    }
    buildTextLogger.write("<b>Build completed successfully.</b>");
-
-   emulator->primeEmulator();
-   emulator->resetEmulator();
 }

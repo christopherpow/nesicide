@@ -3,7 +3,6 @@
 
 #include <QThread>
 #include <QSemaphore>
-#include <QDialog>
 
 #include "emulator_core.h"
 
@@ -42,9 +41,10 @@ signals:
    void emulatedFrame ();
    void cartridgeLoaded ();
    void breakpointClear ();
-   void emulatorPaused (bool show);
+   void emulatorPaused(bool show);
    void emulatorReset();
    void emulatorStarted();
+   void debugMessage(char* message);
 
 protected:
    virtual void run ();
