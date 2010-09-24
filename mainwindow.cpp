@@ -37,10 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
     output->setAllowedAreas(Qt::BottomDockWidgetArea);
     addDockWidget(Qt::BottomDockWidgetArea, output );
     QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
+    QObject::connect(&generalTextLogger,SIGNAL(updateText()),&generalTextLogger,SLOT(update()));
+    QObject::connect(&buildTextLogger,SIGNAL(updateText()),&buildTextLogger,SLOT(update()));
+    QObject::connect(&debugTextLogger,SIGNAL(updateText()),&debugTextLogger,SLOT(update()));
 
-    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release<br>");
-    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo() + "<br>");
-    generalTextLogger.update();
+    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
+    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
     m_pBreakpointInspector = new BreakpointInspector ();
     m_pBreakpointInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);

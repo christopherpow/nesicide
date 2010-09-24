@@ -16,15 +16,10 @@ void CTextLogger::clear()
       m_textEdit->clear();
 }
 
-void CTextLogger::write(QString text, bool updateNow)
+void CTextLogger::write(QString text)
 {
    m_text.append(text);
-#if 0
-   if ( updateNow )
-   {
-      update();
-   }
-#endif
+   emit updateText();
 }
 
 void CTextLogger::update()
