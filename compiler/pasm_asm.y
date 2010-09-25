@@ -3478,14 +3478,13 @@ void reduce_expressions ( void )
       // found there with the newly-reduced symbol
       for ( ptr1 = stab->head; ptr1 != NULL; ptr1 = ptr1->next )
       {
-         for ( ptr2 = stab->head; ptr2 != NULL; ptr2 = ptr2->next )
+         if ( ptr1->expr )
          {
-            if ( ptr1->expr )
+            for ( ptr2 = stab->head; ptr2 != NULL; ptr2 = ptr2->next )
             {
                reduce_expression ( ptr1->expr, ptr2 );
             }
          }
-
          for ( bank = 0; bank < btab_ent; bank++ )
          {
             for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )

@@ -1,3 +1,6 @@
+#include <QFileDialog>
+#include <QFile>
+
 #include "csources.h"
 
 CSources::CSources()
@@ -96,8 +99,29 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
                 ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
             }
         } else if (ret->text() == "&Import Source from File...") {
+            QString fileName = QFileDialog::getOpenFileName(NULL, 0, 0);
+            if (!fileName.isEmpty())
+            {
+                QFile fileIn (fileName);
 
+                if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
+                {
+                    QDataStream fs(&fileIn);
+                    char* buffer = new char [ fileIn.size() ];
 
+                    fs.readRawData(buffer,fileIn.size());
+
+                   CSourceItem *pointerToSourceItem = new CSourceItem();
+                   pointerToSourceItem->set_sourceName(fileName);
+                   pointerToSourceItem->set_sourceCode(buffer);
+                   pointerToSourceItem->InitTreeItem(this);
+                   m_pointerToArrayOfSourceItems->append(pointerToSourceItem);
+                   this->appendChild(pointerToSourceItem);
+                   ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
+
+                   delete [] buffer;
+               }
+            }
         }
     }
 }

@@ -249,6 +249,8 @@ void NESEmulatorThread::stepCPUEmulation ()
    }
 
    m_isStarting = true;
+   m_isPaused = false;
+   emulator->start();
 }
 
 void NESEmulatorThread::stepPPUEmulation ()
@@ -262,6 +264,8 @@ void NESEmulatorThread::stepPPUEmulation ()
    }
 
    m_isStarting = true;
+   m_isPaused = false;
+   emulator->start();
 }
 
 void NESEmulatorThread::pauseEmulation (bool show)
@@ -355,8 +359,6 @@ void NESEmulatorThread::run ()
          emit emulatorPaused(m_showOnPause);
          m_isPaused = false;
          m_isRunning = false;
-
-//         CAPU::PAUSE();
       }
 
    }

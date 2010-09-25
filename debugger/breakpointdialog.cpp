@@ -75,7 +75,6 @@ void BreakpointDialog::updateData()
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
       if ( pBreakpoint->hit )
       {
-//         emit showMe();
          ui->tableView->setCurrentIndex(model->index(idx,0));
       }
    }
