@@ -1,5 +1,4 @@
 #include "outputdockwidget.h"
-#include "ui_outputdockwidget.h"
 
 #include "outputdialog.h"
 
