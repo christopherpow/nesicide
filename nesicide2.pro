@@ -32,7 +32,8 @@ mac:QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
 
 win32:QMAKE_LFLAGS += -static-libgcc
 LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
-win32:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
+win32:release:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
+win32:debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug -lnesicide2-emulator
 LIBS += ../nesicide2-master/compiler/libpasm.a
 LIBS += ../nesicide2-master/lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
