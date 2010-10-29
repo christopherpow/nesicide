@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&generalTextLogger,SIGNAL(updateText()),&generalTextLogger,SLOT(update()));
     QObject::connect(&buildTextLogger,SIGNAL(updateText()),&buildTextLogger,SLOT(update()));
     QObject::connect(&debugTextLogger,SIGNAL(updateText()),&debugTextLogger,SLOT(update()));
+    QObject::connect(breakpointWatcher,SIGNAL(showDebugPane()),output,SLOT(showDebugPane()));
 
     generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
     generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
@@ -270,6 +271,8 @@ MainWindow::MainWindow(QWidget *parent) :
    QStringList sl_nes = sl_raw.filter ( ".nes", Qt::CaseInsensitive );
    if ( sl_nes.count() >= 1 )
    {
+      output->showGeneralPane();
+      
       emulator->pauseEmulation(false);
 
       nesicideProject->createProjectFromRom(sl_nes.at(0));
@@ -328,6 +331,8 @@ void MainWindow::dropEvent(QDropEvent *event)
 {
    QStringList sl = event->mimeData()->formats();
    QByteArray ba = event->mimeData()->data(sl.at(6));
+
+   output->showGeneralPane();
 
    emulator->pauseEmulation(false);
 
@@ -498,6 +503,8 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
    QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "iNES ROM (*.nes)");
    if (fileName.isEmpty())
       return;
+
+   output->showGeneralPane();
 
    emulator->pauseEmulation(false);
    nesicideProject->createProjectFromRom(fileName);

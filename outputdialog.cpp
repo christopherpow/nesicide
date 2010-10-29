@@ -6,6 +6,7 @@
 #include "main.h"
 
 #include <QMenu>
+#include <QFileDialog>
 
 OutputDialog::OutputDialog(QWidget *parent) :
     QDialog(parent),
@@ -25,6 +26,7 @@ OutputDialog::~OutputDialog()
     delete ui;
 }
 
+
 void OutputDialog::setCurrentOutputTab(int tab)
 {
    ui->outputTabWidget->setCurrentIndex(tab);
@@ -33,12 +35,14 @@ void OutputDialog::setCurrentOutputTab(int tab)
 void OutputDialog::contextMenuEvent ( QContextMenuEvent *event )
 {
     QMenu menu;
-    QAction action("Clear",0);
+    QAction clear("Clear",0);
+    QAction logToFile("Log to file",0);
     QAction* chosen;
 
-    menu.addAction(&action);
+    menu.addAction(&clear);
+    menu.addAction(&logToFile);
     chosen = menu.exec(event->globalPos());
-    if ( chosen == &action )
+    if ( chosen == &clear )
     {
       switch ( ui->outputTabWidget->currentIndex() )
       {
@@ -52,6 +56,25 @@ void OutputDialog::contextMenuEvent ( QContextMenuEvent *event )
             debugTextLogger.clear();
          break;
       }
+    }
+    if ( chosen == &logToFile )
+    {
+       QString fileName = QFileDialog::getSaveFileName(this, 0, 0, "Text Document (*.txt)");
+       if (fileName.isEmpty())
+          return;
+       
+       switch ( ui->outputTabWidget->currentIndex() )
+       {
+          case 0:
+             generalTextLogger.clear();
+          break;
+          case 1:
+             buildTextLogger.clear();
+          break;
+          case 2:
+             debugTextLogger.clear();
+          break;
+       }
     }
 }
 

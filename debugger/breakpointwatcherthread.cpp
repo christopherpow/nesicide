@@ -46,10 +46,11 @@ void BreakpointWatcherThread::run ()
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
          if ( pBreakpoint->hit )
          {
-            output->showDebugPane();
             pBreakpoints->GetHitPrintable(idx,hitMsg);
 
             debugTextLogger.write ( hitMsg );
+            
+            emit showDebugPane();
          }
       }
 

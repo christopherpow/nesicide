@@ -13,6 +13,7 @@ public:
 
 signals:
    void breakpointHit();
+   void showDebugPane();
 
 protected:
    virtual void run ();

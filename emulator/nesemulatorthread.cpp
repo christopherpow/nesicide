@@ -100,6 +100,7 @@ NESEmulatorThread::NESEmulatorThread(QObject *)
 
 NESEmulatorThread::~NESEmulatorThread()
 {
+   SDL_Quit();
 }
 
 void NESEmulatorThread::kill()
@@ -359,6 +360,8 @@ void NESEmulatorThread::run ()
          emit emulatorPaused(m_showOnPause);
          m_isPaused = false;
          m_isRunning = false;
+
+         nesClearAudioSamplesAvailable();
       }
 
    }
