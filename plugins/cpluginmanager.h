@@ -28,7 +28,7 @@ public:
 
 protected:
    lua_State *globalLuaInstance;
-   QString report(lua_State *L, int status);
+   int report(lua_State *L, int status);
     
    // Database of plugins
    static QHash<QString,QDomDocument*> plugins;

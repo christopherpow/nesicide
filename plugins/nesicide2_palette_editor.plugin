@@ -7,7 +7,8 @@
 	<desc>A Palette Designer.</desc>
 	<logic onLoad="sayHi">
 		function sayHi ()
-			compiler_logger_print("Hello from palette editor lua script!");
+			compiler_logger_print("Hello from after the script has been loaded!");
 		end
+		compiler_logger_print("Hello from palette editor lua script!");
 	</logic>
 </plugin>

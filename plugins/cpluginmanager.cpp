@@ -41,15 +41,10 @@ void CPluginManager::doInitScript()
     } else {
         // no more place to look for the script, bailing out... lua will do the error handling though
     }
-    status = luaL_dofile(globalLuaInstance, filePath.toAscii().constData());
+     report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toAscii().constData()));
 #else
-    status = luaL_dofile(globalLuaInstance, initScriptPath);
+    report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, initScriptPath));
 #endif
-    result = report(globalLuaInstance, status);
-    if (!result.isEmpty())
-    {
-        generalTextLogger.write("<font color='red'><strong>Script Error:</strong> " + result + "</font>");
-    }
 }
 
 void CPluginManager::loadPlugins()
@@ -116,7 +111,9 @@ void CPluginManager::loadPlugins()
                  QString luascript = logicScript.toText().data();
                  if (luascript.length() != 0) {
                     generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;loading logic" );
-                    int status = luaL_loadstring(globalLuaInstance, luascript.toAscii());
+                    if (report(globalLuaInstance, luaL_dostring(globalLuaInstance, luascript.toAscii()))) {
+                        continue; // ignore rest of the plugin and continue with next one if we couldn't load the script
+                    }
                 }
              }
              QString onLoad = logicNode.toElement().attribute("onLoad");
@@ -124,7 +121,9 @@ void CPluginManager::loadPlugins()
                  //onLoad
                  generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;call onLoadFunc \"" + onLoad + "\"");
                  lua_getglobal(globalLuaInstance, onLoad.toAscii());
-                 lua_pcall(globalLuaInstance, 0, 0, 0);
+                 if (report(globalLuaInstance, lua_pcall(globalLuaInstance, 0, LUA_MULTRET, 0))) {
+                     continue;
+                 }
              }
          }
 
@@ -161,16 +160,28 @@ QString CPluginManager::getVersionInfo()
 // Only place functions bound directly to lua below!
 // ========================================================================
 
-QString CPluginManager::report(lua_State *L, int status)
+int CPluginManager::report(lua_State *L, int status)
 {
-    if (status && !lua_isnil(L, -1)) {
-        const char *msg = lua_tostring(L, -1);
-        if (msg == NULL) msg = "(error object is not a string)";
-        lua_pop(L, 1);
-        return QString(msg);
+    if (status) {
+        QString err = QString("");
+        switch (status) {
+        case LUA_YIELD:     err += "Yield"; break;
+        case LUA_ERRRUN:    err += "Runtime error"; break;
+        case LUA_ERRSYNTAX: err += "Syntax error"; break;
+        case LUA_ERRMEM:    err += "Memory allocation error"; break;
+        case LUA_ERRERR:    err += "Error when running the error handler"; break;
+        default:            err += "Unknown error"; break;
+        }
+        err += ", ";
+        if (!lua_isnil(L, -1)) {
+            const char *msg = lua_tostring(L, -1);
+            if (msg == NULL) msg = "(error object is not a string)";
+            lua_pop(L, 1);
+            err += msg;
+            generalTextLogger.write("<font color='red'><strong> Lua Script Error:</strong> " + err + "</font>");
+        }
     }
-
-    return QString();
+    return status;
 }
 
 static int luabind_compiler_logger_print(lua_State *lua)
