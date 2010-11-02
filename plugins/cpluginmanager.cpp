@@ -59,16 +59,32 @@ void CPluginManager::loadPlugins()
 #else
    const char * pluginPath   = "plugins/";
 #endif
-   QDir pluginDir(pluginPath);
+
+#ifdef Q_WS_MAC
+    struct stat stFileInfo;
+    QString filePath = pluginPath;
+    if(!stat((filePath = QString(pluginPath)).toAscii().constData(), &stFileInfo)) {
+        // the script is in a plugin folder in the same folder as a distributed application
+    } else if(!stat((filePath = QString("nesicide2.app/Contents/Resources/")+pluginPath).toAscii().constData(), &stFileInfo)) {
+        // normal path to scripts when dubbel clicking on an application
+    } else if(!stat((filePath = QString("../../../")+pluginPath).toAscii().constData(), &stFileInfo)) {
+        // the script is in a plugin folder in the same folder as an application that's debugged with Qt
+    } else if(!stat((filePath = QString("../Resources/")+pluginPath).toAscii().constData(), &stFileInfo)) {
+        // path to find scripts when using the Qt debuger
+    } else {
+        // no more place to look for the script, bailing out... lua will do the error handling though
+    }
+    QDir pluginDir(filePath.toAscii().constData());
+#else
+    QDir pluginDir(pluginPath);
+#endif
    QStringList pluginFiles;
    QDomElement pluginDocElement;
-   QDomNode    pluginNode;
-   QDomElement pluginElement;
    int i;
 
    generalTextLogger.write ( "<strong>Loading plugins...</strong>" );
    
-   pluginFiles = pluginDir.entryList(QStringList("*.xml"),QDir::Files | QDir::NoSymLinks);
+   pluginFiles = pluginDir.entryList(QStringList("*.plugin"),QDir::Files);
 
    for ( i = 0; i < pluginFiles.size(); i++ )
    {
@@ -77,8 +93,10 @@ void CPluginManager::loadPlugins()
       QFile pluginFile ( pluginDir.absoluteFilePath(pluginFiles[i]) );
       pluginFile.open(QIODevice::ReadOnly);
       if ( pluginFile.isOpen() )
-      {         
+      {
          QDomDocument* plugin = new QDomDocument();
+         //QDomNode    logicNode;
+         //QDomElement logicElement;
          
          plugin->setContent(&pluginFile);
          
@@ -88,7 +106,28 @@ void CPluginManager::loadPlugins()
          generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;caption: " + pluginDocElement.attribute("caption") );
          generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;author: " + pluginDocElement.attribute("author") );
          generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;version: " + pluginDocElement.attribute("version") );
-         
+
+         QDomNodeList logicNodeList = pluginDocElement.elementsByTagName("logic");
+         if (!logicNodeList.isEmpty()) {
+             // only read the first logic node
+             QDomNode logicNode = logicNodeList.item(0);
+             QDomNode logicScript = logicNode.firstChild();
+             if (logicScript.nodeType() == QDomNode::TextNode) {
+                 QString luascript = logicScript.toText().data();
+                 if (luascript.length() != 0) {
+                    generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;loading logic" );
+                    int status = luaL_loadstring(globalLuaInstance, luascript.toAscii());
+                }
+             }
+             QString onLoad = logicNode.toElement().attribute("onLoad");
+             if (!onLoad.isEmpty()) {
+                 //onLoad
+                 generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;call onLoadFunc \"" + onLoad + "\"");
+                 lua_getglobal(globalLuaInstance, onLoad.toAscii());
+                 lua_pcall(globalLuaInstance, 0, 0, 0);
+             }
+         }
+
          pluginFile.close();
       }
       generalTextLogger.write ( "done." );
