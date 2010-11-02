@@ -40,8 +40,8 @@
 | PASS | PASS | | | branch_timing_tests\2.Backward_Branch.nes | |
 | PASS | PASS | | | branch_timing_tests\3.Forward_Branch.nes | |
 | PASS | PASS | | | cpu_dummy_reads\cpu_dummy_reads.nes | |
-| FAIL | FAIL | | Fails test 1 | cpu_interrupts_v2\cpu_interrupts.nes | Runs cli_latency test first. |
-| FAIL | PASS | | Code $05: CLI SEI should allow only one IRQ just after SEI | cpu_interrupts_v2\rom_singles\2-nmi_and_brk.nex | |
+| FAIL | FAIL | | Fails test 2 | cpu_interrupts_v2\cpu_interrupts.nes | |
+| PASS | PASS | | | cpu_interrupts_v2\rom_singles\1-cli_latency.nes | |
 | FAIL | PASS | | Wrong clocking | cpu_interrupts_v2\rom_singles\2-nmi_and_brk.nes | |
 | FAIL | PASS | | Wrong clocking | cpu_interrupts_v2\rom_singles\3-nmi_and_irq.nes | |
 | FAIL | FAIL | | Wrong clocking | cpu_interrupts_v2\rom_singles\4-irq_and_dma.nes | |
@@ -147,7 +147,7 @@
 | PASS | PASS | | | sprite_hit_tests_2005.10.05\11.edge_timing.nes | |
 | PASS | PASS | | | sprite_overflow_tests\1.Basics.nes | |
 | PASS | PASS | | | sprite_overflow_tests\2.Details.nes | |
-| FAIL | PASS | | Code $05: Set too late for first scanline | sprite_overflow_tests\3.Timing.nes | |
+| PASS | PASS | | | sprite_overflow_tests\3.Timing.nes | |
 | PASS | PASS | | | sprite_overflow_tests\4.Obscure.nes | |
 | PASS | PASS | | | sprite_overflow_tests\5.Emulator.nes | |
 | PASS | PASS | | | stomper\smwstomp.nes | |

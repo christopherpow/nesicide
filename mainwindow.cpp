@@ -293,6 +293,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
    // Always call this last
    pluginManager->doInitScript();
+   pluginManager->loadPlugins();
 }
 
 MainWindow::~MainWindow()

@@ -4,10 +4,13 @@
 #include <sys/stat.h>
 #endif
 
+#include <QDir>
+
 static int luabind_compiler_logger_print(lua_State *lua);
 
-
 CPluginManager *pluginManager = (CPluginManager *)NULL;
+
+QHash<QString,QDomDocument*> CPluginManager::plugins;
 
 CPluginManager::CPluginManager()
 {
@@ -47,6 +50,51 @@ void CPluginManager::doInitScript()
     {
         generalTextLogger.write("<font color='red'><strong>Script Error:</strong> " + result + "</font>");
     }
+}
+
+void CPluginManager::loadPlugins()
+{
+#ifdef Q_WS_WIN
+   const char * pluginPath   = "../nesicide2-master/plugins/";
+#else
+   const char * pluginPath   = "plugins/";
+#endif
+   QDir pluginDir(pluginPath);
+   QStringList pluginFiles;
+   QDomElement pluginDocElement;
+   QDomNode    pluginNode;
+   QDomElement pluginElement;
+   int i;
+
+   generalTextLogger.write ( "<strong>Loading plugins...</strong>" );
+   
+   pluginFiles = pluginDir.entryList(QStringList("*.xml"),QDir::Files | QDir::NoSymLinks);
+
+   for ( i = 0; i < pluginFiles.size(); i++ )
+   {
+      generalTextLogger.write ( pluginFiles[i] + ": " );
+      
+      QFile pluginFile ( pluginDir.absoluteFilePath(pluginFiles[i]) );
+      pluginFile.open(QIODevice::ReadOnly);
+      if ( pluginFile.isOpen() )
+      {         
+         QDomDocument* plugin = new QDomDocument();
+         
+         plugin->setContent(&pluginFile);
+         
+         plugins.insert(pluginFiles[i],plugin);
+         
+         pluginDocElement = plugin->documentElement();
+         generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;caption: " + pluginDocElement.attribute("caption") );
+         generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;author: " + pluginDocElement.attribute("author") );
+         generalTextLogger.write ( "&nbsp;&nbsp;&nbsp;version: " + pluginDocElement.attribute("version") );
+         
+         pluginFile.close();
+      }
+      generalTextLogger.write ( "done." );
+   }
+   
+   generalTextLogger.write ( "<strong>Done loading plugins.</strong>" );
 }
 
 CPluginManager::~CPluginManager()
