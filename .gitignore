@@ -5,7 +5,7 @@ ui_*.cpp
 object_script.nesicide2*
 *.pro.user
 ./output
-Makefile
+./Makefile
 *.o
 moc_*
 *.moc
