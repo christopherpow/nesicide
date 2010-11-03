@@ -9,7 +9,6 @@ QT += network \
 DEFINES += IDE_BUILD
 
 system(cd compiler && make clean && make )
-win32:system(cd lua && make mingw)
 unix:!mac:system(cd lua && make linux)
 mac:system(cd lua && make macosx)
 CONFIG += debug_and_release
@@ -35,7 +34,8 @@ LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
 win32:release:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
 win32:debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug -lnesicide2-emulator
 LIBS += ../nesicide2-master/compiler/libpasm.a
-LIBS += ../nesicide2-master/lua/liblua.a
+win32:LIBS += ../nesicide2-master/libraries/Lua/liblua.a
+!win32:LIBS += ../nesicide2-master/lua/liblua.a
 win32:LIBS += -L./libraries/SDL/ \
     -lsdl
 unix:!mac:LIBS += `sdl-config \
@@ -43,7 +43,8 @@ unix:!mac:LIBS += `sdl-config \
 mac:LIBS += -framework \
     SDL
 win32:INCLUDEPATH = ./ \
-    ./libraries/SDL
+    ./libraries/SDL \
+    ./libraries/Lua
 unix:INCLUDEPATH = ./ \
     /usr/include/SDL
 mac:INCLUDEPATH = ./ \
@@ -52,7 +53,6 @@ INCLUDEPATH += ../libnesicide2-emulator \
     ../libnesicide2-emulator/emulator \
     ./common \
     ./compiler \
-    ./lua \
     ./debugger \
     ./designers/cartridge_editor \
     ./designers/code_editor \
