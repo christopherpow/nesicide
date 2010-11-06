@@ -393,6 +393,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          ui->bitfield->setCurrentIndex ( pBreakpoint->item2 );
       break;
       case eBreakpointItemEvent:
+         ui->event->setCurrentIndex(pBreakpoint->event);
          if ( pBreakpoint->pEvent->GetElementRadix() == 16 )
          {
             sprintf ( buffer, "%X", pBreakpoint->item1 );
