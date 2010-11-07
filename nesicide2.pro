@@ -6,52 +6,68 @@ QT += network \
     webkit \
     xml
 
-DEFINES += IDE_BUILD
-
 system(cd compiler && make clean && make )
-unix:!mac:system(cd lua && make linux)
-mac:system(cd lua && make macosx)
-CONFIG += debug_and_release
+
+CONFIG += release debug_and_release
 
 CONFIG(debug, debug|release) {
    TARGET = debug_binary
 } else {
    TARGET = release_binary
 }
+#TARGET = nesicide-master
 
-mac:QMAKE_POST_LINK += mkdir -p ./NESICIDE2\ IDE.app/Contents/Frameworks \
-                       $$escape_expand(\n\t)
-mac:QMAKE_POST_LINK += cp ../libnesicide2-emulator-build-desktop/libnesicide2-emulator.1.0.0.dylib \
-                       ./NESICIDE2\ IDE.app/Contents/Frameworks/libnesicide2-emulator.1.dylib \
-                       $$escape_expand(\n\t)
-mac:QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
-                       @executable_path/../Frameworks/libnesicide2-emulator.1.dylib \
-                       NESICIDE2\ IDE.app/Contents/MacOS/NESICIDE2\ IDE \
-                       $$escape_expand(\n\t)
+INCLUDEPATH += .
 
-win32:QMAKE_LFLAGS += -static-libgcc
-LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
-win32:release:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
-win32:debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug -lnesicide2-emulator
+LIBS += -lnesicide2-emulator
 LIBS += ../nesicide2-master/compiler/libpasm.a
-win32:LIBS += ../nesicide2-master/libraries/Lua/liblua.a
-!win32:LIBS += ../nesicide2-master/lua/liblua.a
-win32:LIBS += -L./libraries/SDL/ \
-    -lsdl
-unix:!mac:LIBS += `sdl-config \
-    --libs`
-mac:LIBS += -framework \
-    SDL
-win32:INCLUDEPATH = ./ \
-    ./libraries/SDL \
-    ./libraries/Lua
-unix:INCLUDEPATH = ./ \
-    /usr/include/SDL
-mac:INCLUDEPATH = ./ \
-    ./libraries/SDL
-INCLUDEPATH += ../libnesicide2-emulator \
-    ../libnesicide2-emulator/emulator \
-    ./common \
+
+win32 {
+	INCLUDEPATH += ./libraries/SDL
+	INCLUDEPATH += ./libraries/Lua
+	INCLUDEPATH += ../libnesicide2-emulator
+	INCLUDEPATH += ../libnesicide2-emulator/emulator	
+	QMAKE_LFLAGS += -static-libgcc
+
+	release:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
+	debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug -lnesicide2-emulator
+
+	LIBS += ../nesicide2-master/libraries/Lua/liblua.a
+	LIBS += -L./libraries/SDL/ -lsdl
+}
+
+mac {
+	INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
+	INCLUDEPATH += ./libraries/SDL
+	INCLUDEPATH += ../libnesicide2-emulator
+	INCLUDEPATH += ../libnesicide2-emulator/emulator	
+	LIBS += -framework SDL
+	LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
+
+	mac:QMAKE_POST_LINK += mkdir -p ./NESICIDE2\ IDE.app/Contents/Frameworks \
+		$$escape_expand(\n\t)
+	mac:QMAKE_POST_LINK += cp ../libnesicide2-emulator-build-desktop/libnesicide2-emulator.1.0.0.dylib \
+		./NESICIDE2\ IDE.app/Contents/Frameworks/libnesicide2-emulator.1.dylib \
+			$$escape_expand(\n\t)
+	mac:QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
+		@executable_path/../Frameworks/libnesicide2-emulator.1.dylib \
+		NESICIDE2\ IDE.app/Contents/MacOS/NESICIDE2\ IDE \
+		$$escape_expand(\n\t)
+}
+
+unix:!mac {
+	SDL_CXXFLAGS = $$system(sdl-config --cflags)
+	SDL_LIBS = $$system(sdl-config --libs)
+
+	LUA_CXXFLAGS = $$system(pkg-config --cflags lua)
+	LUA_LIBS = $$system(pkg-config --libs lua)
+
+	QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$LUA_CXXFLAGS
+	LIBS += -lnesicide2-emulator compiler/libpasm.a $$SDL_LIBS $$LUA_LIBS
+}
+
+# do we need the ./ here, could it be just commom and compiler ?
+INCLUDEPATH += ./common \
     ./compiler \
     ./debugger \
     ./designers/cartridge_editor \
@@ -70,11 +86,7 @@ INCLUDEPATH += ../libnesicide2-emulator \
     ./viewers/emulator \
     ./viewers/prg-rom \
     ./viewers/project_treeview
-unix:INCLUDEPATH += /usr/include/SDL
-mac:INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
-!mac:TARGET = nesicide2
-mac:TARGET = "NESICIDE2 IDE"
-TEMPLATE = app
+
 SOURCES += mainwindow.cpp \
     main.cpp \
     common/qtcolorpicker.cpp \
@@ -171,6 +183,7 @@ SOURCES += mainwindow.cpp \
     outputdockwidget.cpp \
     outputdialog.cpp \
     compiler/compilerthread.cpp
+
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
@@ -275,6 +288,7 @@ HEADERS += mainwindow.h \
     outputdockwidget.h \
     outputdialog.h \
     compiler/compilerthread.h
+
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
@@ -300,4 +314,5 @@ FORMS += mainwindow.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
     outputdialog.ui
+
 RESOURCES += resource.qrc
