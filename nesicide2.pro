@@ -41,8 +41,12 @@ mac {
 	INCLUDEPATH += ./libraries/SDL
 	INCLUDEPATH += ../libnesicide2-emulator
 	INCLUDEPATH += ../libnesicide2-emulator/emulator	
+	INCLUDEPATH += ../Lua.framework/Headers
+	LIBS += -F..
 	LIBS += -framework SDL
+	LIBS += -framework Lua
 	LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
+	TARGET = "NESICIDE2 IDE"
 
 	mac:QMAKE_POST_LINK += mkdir -p ./NESICIDE2\ IDE.app/Contents/Frameworks \
 		$$escape_expand(\n\t)
@@ -53,6 +57,9 @@ mac {
 		@executable_path/../Frameworks/libnesicide2-emulator.1.dylib \
 		NESICIDE2\ IDE.app/Contents/MacOS/NESICIDE2\ IDE \
 		$$escape_expand(\n\t)
+	mac:QMAKE_POST_LINK += cp -r ../Lua.framework \
+		./NESICIDE2\ IDE.app/Contents/Frameworks/ \
+			$$escape_expand(\n\t)
 }
 
 unix:!mac {
