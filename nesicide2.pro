@@ -2,64 +2,75 @@
 # Project created by QtCreator 2009-12-07T20:35:20
 # -------------------------------------------------
 QT += network \
-    opengl \
-    webkit \
-    xml
+	opengl \
+	webkit \
+	xml
 
 system(cd compiler && make clean && make )
 
+# should the user set this at build time ?
 CONFIG += release debug_and_release
 
+# what is this for, and if its really needed could it be in a platform specific section ?
 CONFIG(debug, debug|release) {
-   TARGET = debug_binary
+	TARGET = debug_binary
 } else {
-   TARGET = release_binary
+	TARGET = release_binary
 }
-#TARGET = nesicide-master
 
-INCLUDEPATH += .
+TARGET = nesicide-master
 
-LIBS += -lnesicide2-emulator
-LIBS += ../nesicide2-master/compiler/libpasm.a
+# not sure this is needed, would anyone miss it ?
+#INCLUDEPATH += .
+
+NESICIDE_CXXFLAGS = $$(NESICIDE_CXXFLAGS)
+NESICIDE_LIBS = -lnesicide2-emulator
+
+#SDL_CXXFLAGS = 
+#SDL_LIBS = 
+
+#LUA_CXXFLAGS = 
+#LUA_LIBS = 
+
+#PASM_LIBS =
 
 win32 {
-	INCLUDEPATH += ./libraries/SDL
-	INCLUDEPATH += ./libraries/Lua
-	INCLUDEPATH += ../libnesicide2-emulator
-	INCLUDEPATH += ../libnesicide2-emulator/emulator	
+	SDL_CXXFLAGS = -I libraries/SDL 
+	SDL_LIBS =  -L./libraries/SDL/ -lsdl
+
+	LUA_CXXFLAGS =  -I libraries/Lua
+	LUA_LIBS = ../nesicide2-master/libraries/Lua/liblua.a
+
+	PASM_LIBS = ../nesicide2-master/compiler/libpasm.a
+
+	NESICIDE_CXXFLAGS = -I ../libnesicide2-emulator -I ../libnesicide2-emulator/emulator
+
 	QMAKE_LFLAGS += -static-libgcc
 
-	release:LIBS += -L../libnesicide2-emulator-build-desktop/release -lnesicide2-emulator
-	debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug -lnesicide2-emulator
-
-	LIBS += ../nesicide2-master/libraries/Lua/liblua.a
-	LIBS += -L./libraries/SDL/ -lsdl
+	release:LIBS += -L../libnesicide2-emulator-build-desktop/release
+	debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug
 }
 
 mac {
-	INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
-	INCLUDEPATH += ./libraries/SDL
-	INCLUDEPATH += ../libnesicide2-emulator
-	INCLUDEPATH += ../libnesicide2-emulator/emulator	
-	INCLUDEPATH += ../Lua.framework/Headers
-	LIBS += -F..
-	LIBS += -framework SDL
-	LIBS += -framework Lua
-	LIBS += -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
+	NESICIDE_CXXFLAGS = -I ../libnesicide2-emulator -I ../libnesicide2-emulator/emulator
+	NESICIDE_LIBS = -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
+
+	SDL_CXXFLAGS = -framework SDL
+	SDL_LIBS = -framework SDL
+
+	LUA_CXXFLAGS = -F.. -framework Lua
+	LUA_LIBS = -F.. -framework Lua
+
 	TARGET = "NESICIDE2 IDE"
 
-	mac:QMAKE_POST_LINK += mkdir -p ./NESICIDE2\ IDE.app/Contents/Frameworks \
-		$$escape_expand(\n\t)
-	mac:QMAKE_POST_LINK += cp ../libnesicide2-emulator-build-desktop/libnesicide2-emulator.1.0.0.dylib \
-		./NESICIDE2\ IDE.app/Contents/Frameworks/libnesicide2-emulator.1.dylib \
-			$$escape_expand(\n\t)
-	mac:QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
+	QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
+	QMAKE_POST_LINK += cp ../libnesicide2-emulator-build-desktop/libnesicide2-emulator.1.0.0.dylib \
+		$$TARGET.app/Contents/Frameworks/libnesicide2-emulator.1.dylib $$escape_expand(\n\t)
+	QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
 		@executable_path/../Frameworks/libnesicide2-emulator.1.dylib \
-		NESICIDE2\ IDE.app/Contents/MacOS/NESICIDE2\ IDE \
-		$$escape_expand(\n\t)
-	mac:QMAKE_POST_LINK += cp -r ../Lua.framework \
-		./NESICIDE2\ IDE.app/Contents/Frameworks/ \
-			$$escape_expand(\n\t)
+		$$TARGET.app/Contents/MacOS/NESICIDE2\ IDE $$escape_expand(\n\t)
+	QMAKE_POST_LINK += cp -r ../Lua.framework \
+		$$TARGET.app/Contents/Frameworks/ $$escape_expand(\n\t)
 }
 
 unix:!mac {
@@ -69,11 +80,25 @@ unix:!mac {
 	LUA_CXXFLAGS = $$system(pkg-config --cflags lua)
 	LUA_LIBS = $$system(pkg-config --libs lua)
 
-	QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$LUA_CXXFLAGS
-	LIBS += -lnesicide2-emulator compiler/libpasm.a $$SDL_LIBS $$LUA_LIBS
+	PASM_LIBS = compiler/libpasm.a
+
+	PREFIX = $$(PREFIX)
+	sEmpty (PREFIX) {
+		PREFIX = /usr/local
+	}
+
+	BINDIR = $$(BINDIR)
+	isEmpty (BINDIR) {
+		BINDIR=$$EPREFIX/bin
+	}
+
+	target.path = $$BINDIR
+	INSTALLS += target
 }
 
-# do we need the ./ here, could it be just commom and compiler ?
+QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS
+LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS
+
 INCLUDEPATH += ./common \
     ./compiler \
     ./debugger \
