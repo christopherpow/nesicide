@@ -56,7 +56,7 @@ void CExecutionVisualizerRenderer::initializeGL()
    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
    // Load the actual texture
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
 }
 
 void CExecutionVisualizerRenderer::updateGL()
@@ -64,7 +64,7 @@ void CExecutionVisualizerRenderer::updateGL()
    makeCurrent();
 
    glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    repaint();
 }
 

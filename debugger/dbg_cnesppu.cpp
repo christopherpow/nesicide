@@ -64,9 +64,6 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
    LoggerInfo* pLogEntry;
    int8_t* pTV;
 
-   // Clearly...
-   memset ( m_pCodeDataLoggerInspectorTV, 255, 49152 );
-
    pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
 
    // Show PPU memory...
@@ -100,12 +97,18 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor.setBlue(cycleDiff);
          }
-         *pTV = lcolor.red();
+         *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.blue();
-
-         pTV += 3;
+         *(pTV+2) = lcolor.red();
       }
+      else
+      {
+         *pTV = 0xFF;
+         *(pTV+1) = 0xFF;
+         *(pTV+2) = 0xFF;
+      }
+
+      pTV += 4;
    }
 }
 
@@ -150,11 +153,11 @@ void CPPUDBG::RENDERCHRMEM ( void )
                  bit1 = (patternData1>>(7-(xf)))&0x1;
                  bit2 = (patternData2>>(7-(xf)))&0x1;
                  colorIdx = (bit1|(bit2<<1));
-                 *pTV = color[colorIdx][0];
+                 *pTV = color[colorIdx][2];
                  *(pTV+1) = color[colorIdx][1];
-                 *(pTV+2) = color[colorIdx][2];
+                 *(pTV+2) = color[colorIdx][0];
 
-                 pTV += 3;
+                 pTV += 4;
              }
           }
       }
@@ -247,11 +250,11 @@ void CPPUDBG::RENDEROAM ( void )
                      bit2 = (patternData2>>(7-(xf)))&0x1;
                   }
                   colorIdx = (attribData|bit1|(bit2<<1));
-                  *pTV = CBasePalette::GetPaletteR(CPPUDBG::_PALETTE(0x10+colorIdx));
+                  *pTV = CBasePalette::GetPaletteB(CPPUDBG::_PALETTE(0x10+colorIdx));
                   *(pTV+1) = CBasePalette::GetPaletteG(CPPUDBG::_PALETTE(0x10+colorIdx));
-                  *(pTV+2) = CBasePalette::GetPaletteB(CPPUDBG::_PALETTE(0x10+colorIdx));
+                  *(pTV+2) = CBasePalette::GetPaletteR(CPPUDBG::_PALETTE(0x10+colorIdx));
 
-                  pTV += 3;
+                  pTV += 4;
                }
             }
             else
@@ -262,7 +265,7 @@ void CPPUDBG::RENDEROAM ( void )
                   *(pTV+1) = 0x00;
                   *(pTV+2) = 0x00;
 
-                  pTV += 3;
+                  pTV += 4;
                }
             }
          }
@@ -336,11 +339,11 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                bit1 = (patternData1>>(7-(xf)))&0x1;
                bit2 = (patternData2>>(7-(xf)))&0x1;
                colorIdx = (attribData|bit1|(bit2<<1));
-               *pTV = CBasePalette::GetPaletteR(CPPUDBG::_PALETTE(colorIdx));
+               *pTV = CBasePalette::GetPaletteB(CPPUDBG::_PALETTE(colorIdx));
                *(pTV+1) = CBasePalette::GetPaletteG(CPPUDBG::_PALETTE(colorIdx));
-               *(pTV+2) = CBasePalette::GetPaletteB(CPPUDBG::_PALETTE(colorIdx));
+               *(pTV+2) = CBasePalette::GetPaletteR(CPPUDBG::_PALETTE(colorIdx));
 
-               pTV += 3;
+               pTV += 4;
             }
 
             ppuAddr++;
@@ -394,7 +397,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                     (((lby <= uby) && (y >= lby) && (y <= uby)) ||
                     ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
                {
-                  if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+0 ] >= 0x30 )
+                  if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)<<2)+(x<<2)+0 ] >= 0x30 )
                   {
                      *pTV -= 0x30;
                   }
@@ -402,7 +405,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                   {
                      *pTV = 0x00;
                   }
-                  if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+1 ] >= 0x30 )
+                  if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)<<2)+(x<<2)+1 ] >= 0x30 )
                   {
                      *(pTV+1) -= 0x30;
                   }
@@ -410,7 +413,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                   {
                      *(pTV+1) = 0x00;
                   }
-                  if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)*3)+(x*3)+2 ] >= 0x30 )
+                  if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)<<2)+(x<<2)+2 ] >= 0x30 )
                   {
                      *(pTV+2) -= 0x30;
                   }
@@ -420,7 +423,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                   }
                }
 
-               pTV += 3;
+               pTV += 4;
             }
          }
       }

@@ -334,9 +334,6 @@ void NESEmulatorThread::run ()
       // Run the NES...
       if ( m_isRunning )
       {
-         // Make sure breakpoint semaphore is on the precipice...
-         breakpointSemaphore.tryAcquire();
-
          coreMutexLock();
          samplesAvailable = nesGetAudioSamplesAvailable();
          coreMutexUnlock();
@@ -344,6 +341,9 @@ void NESEmulatorThread::run ()
          {
             break;
          }
+
+         // Make sure breakpoint semaphore is on the precipice...
+         breakpointSemaphore.tryAcquire();
 
          // Run emulator for one frame...
          SDL_LockAudio();

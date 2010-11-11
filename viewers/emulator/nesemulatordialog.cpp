@@ -8,8 +8,8 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NESEmulatorDialog)
 {
-   imgData = new char[256*256*3];
-   memset ( imgData, 0, sizeof(char)*256*256*3 );
+   imgData = new char[256*256*4];
+   memset ( imgData, 0, sizeof(char)*256*256*4 );
 
    ui->setupUi(this);
    ui->pauseButton->setEnabled(false);
@@ -27,6 +27,9 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
+   
+   // Clear image to set alpha channel...
+   memset ( imgData, 0xFF, 256*256*4 );
    nesSetTVOut((int8_t*)imgData);
 }
 

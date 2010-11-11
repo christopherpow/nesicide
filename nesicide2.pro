@@ -6,19 +6,12 @@ QT += network \
 	webkit \
 	xml
 
-system(cd compiler && make clean && make )
+system(make -C ./compiler)
 
 # should the user set this at build time ?
 CONFIG += release debug_and_release
 
-# what is this for, and if its really needed could it be in a platform specific section ?
-CONFIG(debug, debug|release) {
-	TARGET = debug_binary
-} else {
-	TARGET = release_binary
-}
-
-TARGET = nesicide-master
+TARGET = nesicide
 
 # not sure this is needed, would anyone miss it ?
 #INCLUDEPATH += .
@@ -35,15 +28,15 @@ NESICIDE_LIBS = -lnesicide2-emulator
 #PASM_LIBS =
 
 win32 {
-	SDL_CXXFLAGS = -I libraries/SDL 
-	SDL_LIBS =  -L./libraries/SDL/ -lsdl
+	SDL_CXXFLAGS = -I../nesicide2-master/libraries/SDL 
+	SDL_LIBS =  -L../nesicide2-master/libraries/SDL/ -lsdl
 
-	LUA_CXXFLAGS =  -I libraries/Lua
+	LUA_CXXFLAGS = -I../nesicide2-master/libraries/Lua
 	LUA_LIBS = ../nesicide2-master/libraries/Lua/liblua.a
 
 	PASM_LIBS = ../nesicide2-master/compiler/libpasm.a
 
-	NESICIDE_CXXFLAGS = -I ../libnesicide2-emulator -I ../libnesicide2-emulator/emulator
+	NESICIDE_CXXFLAGS = -I../libnesicide2-emulator -I../libnesicide2-emulator/emulator
 
 	QMAKE_LFLAGS += -static-libgcc
 
@@ -83,7 +76,7 @@ unix:!mac {
 	PASM_LIBS = compiler/libpasm.a
 
 	PREFIX = $$(PREFIX)
-	sEmpty (PREFIX) {
+	isEmpty (PREFIX) {
 		PREFIX = /usr/local
 	}
 

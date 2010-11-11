@@ -126,6 +126,17 @@
 | PASS | PASS | | | pal_apu_tests\10.len_halt_timing.nes | |
 | PASS | PASS | | | pal_apu_tests\11.len_reload_timing.nes | |
 | PASS | FAIL | | | ppu_open_bus\ppu_open_bus.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\01-vbl_basics.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\02-vbl_set_time.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\03-vbl_clear_time.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\04-nmi_control.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\05-nmi_timing.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\06-suppression.nes | |
+| PASS | FAIL | | | ppu_vbl_nmi\rom_singles\07-nmi_on_timing.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\08-nmi_off_timing.nes | |
+| PASS | PASS | | | ppu_vbl_nmi\rom_singles\09-even_odd_frames.nes | |
+| FAIL | PASS | | Failed #3 | ppu_vbl_nmi\rom_singles\10-even_odd_timing.nes | |
+| FAIL | FAIL | | Fails on 10-even-odd-timing.nes | ppu_vbl_nmi\ppu_vbl_nmi.nes | |
 | FAIL | FAIL | | Conflicts: 72/1000 | read_joy3\count_errors.nes | |
 | FAIL | FAIL | | Errors: 7/1000 | read_joy3\count_errors_fast.nes | |
 | PASS | PASS | | | read_joy3\test_buttons.nes | |

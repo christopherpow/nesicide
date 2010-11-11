@@ -149,7 +149,7 @@
      <item row="0" column="0">
       <widget class="QCheckBox" name="showVisible">
        <property name="text">
-        <string>Shade Non-visible Region(s)</string>
+        <string>Shade Off-screen Region(s)</string>
        </property>
       </widget>
      </item>

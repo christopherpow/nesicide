@@ -12,7 +12,8 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget *parent) :
     ui(new Ui::NameTableDisplayDialog)
 {
     ui->setupUi(this);
-    imgData = new char[512*512*3];
+    imgData = new char[512*512*4];
+    memset ( imgData, 0xFF, 512*512*4 );
 
     CPPUDBG::NameTableInspectorTV((int8_t*)imgData);
 

@@ -10,7 +10,8 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget *parent, bool usePPU, qint8 *da
     ui(new Ui::CHRROMDisplayDialog)
 {
     ui->setupUi(this);
-    imgData = new char[256*256*3];
+    imgData = new char[256*256*4];
+    memset(imgData,0xFF,256*256*4);
     m_usePPU = usePPU;
     for (int i=0; i<0x40; i++)
     {
@@ -89,17 +90,16 @@ void CHRROMDisplayDialog::renderData()
     unsigned char colorIdx;
     QColor color[4];
 
-   if ( this->isVisible() )
-   {
     if ( m_usePPU )
     {
+      if ( this->isVisible() )
+      {
        CPPUDBG::RENDERCHRMEM();
        renderer->updateGL ();
+      }
     }
     else
     {
-       memset ( imgData, 0,sizeof(imgData));
-
        color[0] = ui->col0PushButton->currentColor();
        color[1] = ui->col1PushButton->currentColor();
        color[2] = ui->col2PushButton->currentColor();
@@ -119,14 +119,13 @@ void CHRROMDisplayDialog::renderData()
                   bit1 = (patternData1>>(7-(xf)))&0x1;
                   bit2 = (patternData2>>(7-(xf)))&0x1;
                   colorIdx = (bit1|(bit2<<1));
-                  imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 0] = color[colorIdx].red();
-                  imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 1] = color[colorIdx].green();
-                  imgData[(y * 256 * 3) + (x * 3) + (xf * 3) + 2] = color[colorIdx].blue();
+                  imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].blue();
+                  imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = color[colorIdx].green();
+                  imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].red();
               }
            }
        }
     }
-   }
 }
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()

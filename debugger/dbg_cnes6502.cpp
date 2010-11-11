@@ -2614,9 +2614,6 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    LoggerInfo* pLogEntry;
    int8_t* pTV;
 
-   // Clearly...
-   memset ( m_pCodeDataLoggerInspectorTV, 255, 196608 );
-
    pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
 
    // Show CPU RAM...
@@ -2649,17 +2646,23 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor.setBlue(cycleDiff);
          }
-         *pTV = lcolor.red();
+         *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.blue();
+         *(pTV+2) = lcolor.red();
+      }
+      else
+      {
+         *pTV = 0x00;
+         *(pTV+1) = 0xFF;
+         *(pTV+2) = 0xFF;
       }
 
-      pTV += 3;
+      pTV += 4;
    }
 
    // Show I/O region...
    pLogger = nesGetCpuCodeDataLoggerDatabase();
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_8KB*3));
+   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_8KB<<2));
 
    for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
    {
@@ -2689,17 +2692,23 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor.setBlue(cycleDiff);
          }
-         *pTV = lcolor.red();
+         *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.blue();
+         *(pTV+2) = lcolor.red();
+      }
+      else
+      {
+         *pTV = 0xFF;
+         *(pTV+1) = 0xFF;
+         *(pTV+2) = 0xFF;
       }
 
-      pTV += 3;
+      pTV += 4;
    }
 
    // Show cartrige EXRAM memory...
    pLogger = nesGetEXRAMCodeDataLoggerDatabase();
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x5C00*3));
+   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x5C00<<2));
 
    for ( idxx = 0; idxx < MEM_1KB; idxx++ )
    {
@@ -2729,16 +2738,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor.setBlue(cycleDiff);
          }
-         *pTV = lcolor.red();
+         *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.blue();
+         *(pTV+2) = lcolor.red();
+      }
+      else
+      {
+         *pTV = 0xFF;
+         *(pTV+1) = 0xFF;
+         *(pTV+2) = 0xFF;
       }
 
-      pTV += 3;
+      pTV += 4;
    }
 
    // Show cartrige SRAM memory...
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x6000*3));
+   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x6000<<2));
 
    for ( idxx = 0; idxx < MEM_8KB; idxx++ )
    {
@@ -2770,16 +2785,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor.setBlue(cycleDiff);
          }
-         *pTV = lcolor.red();
+         *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.blue();
+         *(pTV+2) = lcolor.red();
+      }
+      else
+      {
+         *pTV = 0xFF;
+         *(pTV+1) = 0xFF;
+         *(pTV+2) = 0xFF;
       }
 
-      pTV += 3;
+      pTV += 4;
    }
 
    // Show cartrige PRG-ROM memory...
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_32KB*3));
+   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_32KB<<2));
 
    for ( idxy = 0; idxy < 4; idxy++ )
    {
@@ -2813,12 +2834,18 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             {
                lcolor.setBlue(cycleDiff);
             }
-            *pTV = lcolor.red();
+            *pTV = lcolor.blue();
             *(pTV+1) = lcolor.green();
-            *(pTV+2) = lcolor.blue();
+            *(pTV+2) = lcolor.red();
          }
-
-         pTV += 3;
+         else
+         {
+            *pTV = 0xFF;
+            *(pTV+1) = 0xFF;
+            *(pTV+2) = 0xFF;
+         }
+   
+         pTV += 4;
       }
    }
 }
@@ -2865,9 +2892,9 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
                     (frameDiff > 1)) )
                {
                   // Marker color!
-                  *pTV = pMarker->red;
+                  *pTV = pMarker->blue;
                   *(pTV+1) = pMarker->green;
-                  *(pTV+2) = pMarker->blue;
+                  *(pTV+2) = pMarker->red;
                   marked++;
                }
             }
@@ -2876,9 +2903,9 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
                if ( (idxx < 256) && (idxy < 240) )
                {
                   // Screen...
-                  *pTV = nesGetTVOut()[((idxy<<8) * 3) + (idxx * 3) + 0];
-                  *(pTV+1) = nesGetTVOut()[((idxy<<8) * 3) + (idxx * 3) + 1];
-                  *(pTV+2) = nesGetTVOut()[((idxy<<8) * 3) + (idxx * 3) + 2];
+                  *pTV = nesGetTVOut()[((idxy<<8)<<2) + (idxx<<2) + 0];
+                  *(pTV+1) = nesGetTVOut()[((idxy<<8)<<2) + (idxx<<2) + 1];
+                  *(pTV+2) = nesGetTVOut()[((idxy<<8)<<2) + (idxx<<2) + 2];
                }
                else
                {
@@ -2890,7 +2917,7 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
             }
          }
 
-         pTV += 3;
+         pTV += 4;
       }
    }
 }

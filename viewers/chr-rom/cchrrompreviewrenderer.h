@@ -4,6 +4,11 @@
 #include <QWidget>
 #include <QGLWidget>
 #include "cgltexturemanager.h"
+#if defined ( __APPLE__ )
+#include <OpenGL/glext.h>
+#else
+#include <GL/glext.h>
+#endif
 
 class CCHRROMPreviewRenderer : public QGLWidget
 {

@@ -11,9 +11,11 @@ CodeDataLoggerDialog::CodeDataLoggerDialog(QWidget *parent) :
     ui(new Ui::CodeDataLoggerDialog)
 {
     ui->setupUi(this);
-    cpuImgData = new char[256*256*3];
-    ppuImgData = new char[256*256*3];
+    cpuImgData = new char[256*256*4];
+    ppuImgData = new char[256*256*4];
 
+    memset(cpuImgData,0xFF,256*256*4);
+    memset(ppuImgData,0xFF,256*256*4);
     C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)cpuImgData );
     CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)ppuImgData );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );

@@ -11,7 +11,8 @@ OAMDisplayDialog::OAMDisplayDialog(QWidget *parent) :
     ui(new Ui::OAMDisplayDialog)
 {
     ui->setupUi(this);
-    imgData = new char[256*256*3];
+    imgData = new char[256*256*4];
+    memset(imgData,0xFF,256*256*4);
 
     CPPUDBG::OAMInspectorTV ( (int8_t*)imgData );
     QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );

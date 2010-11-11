@@ -10,8 +10,8 @@ ExecutionVisualizerDialog::ExecutionVisualizerDialog(QWidget *parent) :
     ui(new Ui::ExecutionVisualizerDialog)
 {
     ui->setupUi(this);
-    imgData = new char[512*512*3];
-    memset ( imgData, 0, sizeof(imgData) );
+    imgData = new char[512*512*4];
+    memset ( imgData, 0xFF, 512*512*4 );
 
     C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
