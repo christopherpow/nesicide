@@ -67,6 +67,23 @@
 | PASS | PASS | | | instr_misc\rom_singles\02-branch_wrap.nes | |
 | PASS | PASS | | | instr_misc\rom_singles\03-dummy_reads.nes | |
 | PASS | PASS | | | instr_misc\rom_singles\04-dummy_reads_apu.nes | |
+| PASS | PASS | | | instr_test\rom_singles\01-implied.nes | |
+| FAIL | FAIL | | ARR, ATX, AXS fail | instr_test-v3\rom_singles\02-immediate.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\03-zero_page.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\04-zp_xy.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\05-absolute.nes | |
+| FAIL | FAIL | | SYA, SXA fail | instr_test-v3\rom_singles\06-abs_xy.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\07-ind_x.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\08-ind_y.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\09-branches.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\10-stack.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\11-jmp_jsr.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\12-rts.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\13-rti.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\14-brk.nes | |
+| PASS | PASS | | | instr_test-v3\rom_singles\15-special.nes | |
+| FAIL | FAIL | | Fails on 02-immediate.nes run. | instr_test-v3\all_instrs.nes | |
+| PASS | PASS | | | instr_test-v3\official_only.nes | |
 | PASS | PASS | | | instr_timing\instr_timing.nes | Fails undocumented (temporarily, due to CPU restructuring) | 
 | PASS | PASS | | | instr_timing\rom_singles\1-instr_timing.nes | Fails undocumented (temporarily, due to CPU restructuring) | 
 | PASS | PASS | | | instr_timing\rom_singles\2-branch_timing.nes | | 
@@ -82,17 +99,6 @@
 | FAIL | PASS | | Scanline 0 IRQ should occur later when $2000=$08 | mmc3_test\4-scanline_timing.nes | |
 | FAIL | PASS | | Code $03: IRQ shouldn't occur when reloading after counter normally reaches 0 | mmc3_irq_tests\5-MMC3.nes | |
 | FAIL | FAIL | | Code $02: Should reload and set IRQ every clock when reload is 0 | mmc3_irq_tests\6.MMC6.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\01-implied.nes | |
-| FAIL | PASS | | ARR, ATX, AXS fail | nes_instr_test\rom_singles\02-immediate.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\03-zero_page.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\04-zp_xy.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\05-absolute.nes | |
-| FAIL | FAIL | | SYA, SXA fail | nes_instr_test\rom_singles\06-abs_xy.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\07-ind_x.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\08-ind_y.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\09-branches.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\10-stack.nes | |
-| PASS | PASS | | | nes_instr_test\rom_singles\11-special.nes | |
 | PASS | PASS | | | nmi_sync\demo_ntsc.nes | |
 | PASS | PASS | | | nmi_sync\demo_pal.nes | |
 | PASS | PASS | | | oam_read\oam_read.nes | |
