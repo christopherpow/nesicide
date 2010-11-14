@@ -1059,3 +1059,13 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
     }
     delete dlg;
 }
+
+void MainWindow::on_actionPreferences_triggered()
+{
+    EmulatorPrefsDialog *dlg =  new EmulatorPrefsDialog();
+    if (dlg->exec() == QDialog::Accepted)
+    {
+
+    }
+    delete dlg;
+}

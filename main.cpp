@@ -6,6 +6,17 @@
 #include "cpluginmanager.h"
 #include "startupsplashdialog.h"
 
+#if defined ( QT_NO_DEBUG )
+static char __ide_version__ [] = "RELEASE";
+#else
+static char __ide_version__ [] = "DEBUG";
+#endif
+
+char* ideGetVersion()
+{
+   return __ide_version__;
+}
+
 // CPTODO put this somewhere more meaningful
 qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
                           '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };

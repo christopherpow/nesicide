@@ -52,5 +52,6 @@
         <file>resources/NesCarts (2010-02-08).xml</file>
         <file>resources/logo.png</file>
         <file>resources/gplv3.png</file>
+        <file>resources/controller.svg</file>
     </qresource>
 </RCC>

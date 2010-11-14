@@ -9,6 +9,8 @@
 
 #include "cgamedatabasehandler.h"
 
+char* ideGetVersion();
+
 extern qint8 hex_char[];
 
 extern MainWindow* nesicideWindow;

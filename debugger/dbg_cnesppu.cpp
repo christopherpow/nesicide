@@ -170,8 +170,8 @@ void CPPUDBG::RENDEROAM ( void )
    uint16_t spritePatBase = 0x0000;
    uint8_t patternIdx;
    uint8_t spriteAttr;
-   int32_t           spriteSize;
-   int32_t           sprite;
+   int32_t spriteSize;
+   int32_t sprite;
    uint8_t spriteFlipVert;
    uint8_t spriteFlipHoriz;
    uint8_t patternData1;

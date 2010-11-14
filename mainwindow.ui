@@ -182,6 +182,7 @@
      <addaction name="actionNoise"/>
      <addaction name="actionDelta_Modulation"/>
     </widget>
+    <addaction name="actionPreferences"/>
     <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
    </widget>
@@ -892,6 +893,11 @@
   <action name="actionView">
    <property name="text">
     <string>View</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences...</string>
    </property>
   </action>
  </widget>

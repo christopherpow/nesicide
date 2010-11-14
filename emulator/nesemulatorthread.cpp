@@ -53,21 +53,22 @@ void breakpointHook ( void )
 
 extern "C" void SDL_GetMoreData(void *userdata, uint8_t *stream, int32_t len)
 {
-   if (nesGetAudioSamplesAvailable() < 0)
+   int32_t samplesAvailable;
+
+   coreMutexLock();
+   samplesAvailable = nesGetAudioSamplesAvailable();
+   coreMutexUnlock();
+   
+   if (samplesAvailable < 0)
    {
       return;
    }
 
    SDL_MixAudio ( stream, nesGetAudioSamples(), len, SDL_MIX_MAXVOLUME );
-
-   coreMutexLock();
-   if ( emulator->isFinished() && (nesGetAudioSamplesAvailable() < APU_BUFFER_PRERENDER_THRESHOLD) )
+   if ( emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
    {
-      coreMutexUnlock();
       emulator->start();
-   } else
-//      qDebug() << "No Render: " << nesGetAudioSamplesAvailable();
-      coreMutexUnlock();
+   } 
 }
 
 NESEmulatorThread::NESEmulatorThread(QObject *)

@@ -8,10 +8,11 @@ QT += network \
 
 system(make -C ./compiler)
 
-# should the user set this at build time ?
-CONFIG += release debug_and_release
-
 TARGET = nesicide
+
+#Trying to profile, but gprof doesn't like the output for some reason...
+#QMAKE_CXXFLAGS += -pg
+#QMAKE_LFLAGS += -pg
 
 # not sure this is needed, would anyone miss it ?
 #INCLUDEPATH += .
@@ -207,7 +208,9 @@ SOURCES += mainwindow.cpp \
     debugger/dbg_cnesrommapper001.cpp \
     outputdockwidget.cpp \
     outputdialog.cpp \
-    compiler/compilerthread.cpp
+    compiler/compilerthread.cpp \
+    emulatorprefsdialog.cpp \
+    qkeymapitemedit.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -312,7 +315,9 @@ HEADERS += mainwindow.h \
     debugger/dbg_cnesrommapper004.h \
     outputdockwidget.h \
     outputdialog.h \
-    compiler/compilerthread.h
+    compiler/compilerthread.h \
+    emulatorprefsdialog.h \
+    qkeymapitemedit.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -338,6 +343,7 @@ FORMS += mainwindow.ui \
     debugger/apuinformationdialog.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
-    outputdialog.ui
+    outputdialog.ui \
+    emulatorprefsdialog.ui
 
 RESOURCES += resource.qrc
