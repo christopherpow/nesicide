@@ -8,8 +8,6 @@ QT += network \
 
 system(make -C ./compiler)
 
-TARGET = nesicide
-
 #Trying to profile, but gprof doesn't like the output for some reason...
 #QMAKE_CXXFLAGS += -pg
 #QMAKE_LFLAGS += -pg
@@ -18,7 +16,9 @@ TARGET = nesicide
 #INCLUDEPATH += .
 
 NESICIDE_CXXFLAGS = $$(NESICIDE_CXXFLAGS)
-NESICIDE_LIBS = -lnesicide2-emulator
+NESICIDE_LIBS = -lnesicide-emulator
+
+TARGET = "nesicide"
 
 #SDL_CXXFLAGS = 
 #SDL_LIBS = 
@@ -29,25 +29,25 @@ NESICIDE_LIBS = -lnesicide2-emulator
 #PASM_LIBS =
 
 win32 {
-	SDL_CXXFLAGS = -I../nesicide2-master/libraries/SDL 
-	SDL_LIBS =  -L../nesicide2-master/libraries/SDL/ -lsdl
+	SDL_CXXFLAGS = -I../nesicide/libraries/SDL 
+	SDL_LIBS =  -L../nesicide/libraries/SDL/ -lsdl
 
-	LUA_CXXFLAGS = -I../nesicide2-master/libraries/Lua
-	LUA_LIBS = ../nesicide2-master/libraries/Lua/liblua.a
+	LUA_CXXFLAGS = -I../nesicide/libraries/Lua
+	LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
 
-	PASM_LIBS = ../nesicide2-master/compiler/libpasm.a
+	PASM_LIBS = ../nesicide/compiler/libpasm.a
 
-	NESICIDE_CXXFLAGS = -I../libnesicide2-emulator -I../libnesicide2-emulator/emulator
+	NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator
 
 	QMAKE_LFLAGS += -static-libgcc
 
-	release:LIBS += -L../libnesicide2-emulator-build-desktop/release
-	debug:LIBS += -L../libnesicide2-emulator-build-desktop/debug
+	release:LIBS += -L../nesicide-emulator-lib-build-desktop/release
+	debug:LIBS += -L../nesicide-emulator-lib-build-desktop/debug
 }
 
 mac {
-	NESICIDE_CXXFLAGS = -I ../libnesicide2-emulator -I ../libnesicide2-emulator/emulator
-	NESICIDE_LIBS = -L../libnesicide2-emulator-build-desktop -lnesicide2-emulator
+	NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator
+	NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
 
 	SDL_CXXFLAGS = -framework SDL
 	SDL_LIBS = -framework SDL
@@ -55,14 +55,14 @@ mac {
 	LUA_CXXFLAGS = -F.. -framework Lua
 	LUA_LIBS = -F.. -framework Lua
 
-	TARGET = "NESICIDE2 IDE"
+	TARGET = "NESICIDE"
 
 	QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
-	QMAKE_POST_LINK += cp ../libnesicide2-emulator-build-desktop/libnesicide2-emulator.1.0.0.dylib \
-		$$TARGET.app/Contents/Frameworks/libnesicide2-emulator.1.dylib $$escape_expand(\n\t)
-	QMAKE_POST_LINK += install_name_tool -change libnesicide2-emulator.1.dylib \
-		@executable_path/../Frameworks/libnesicide2-emulator.1.dylib \
-		$$TARGET.app/Contents/MacOS/NESICIDE2\ IDE $$escape_expand(\n\t)
+	QMAKE_POST_LINK += cp ../nesicide-emulator-lib-build-desktop/libnesicide-emulator.1.0.0.dylib \
+		$$TARGET.app/Contents/Frameworks/libnesicide-emulator.1.dylib $$escape_expand(\n\t)
+	QMAKE_POST_LINK += install_name_tool -change libnesicide-emulator.1.dylib \
+		@executable_path/../Frameworks/libnesicide-emulator.1.dylib \
+		$$TARGET.app/Contents/MacOS/NESICIDE $$escape_expand(\n\t)
 	QMAKE_POST_LINK += cp -r ../Lua.framework \
 		$$TARGET.app/Contents/Frameworks/ $$escape_expand(\n\t)
 }
