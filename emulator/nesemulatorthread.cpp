@@ -22,7 +22,7 @@
 #include "main.h"
 
 #undef main
-#include "SDL.h"
+#include <SDL.h>
 
 #include "cnesicideproject.h"
 

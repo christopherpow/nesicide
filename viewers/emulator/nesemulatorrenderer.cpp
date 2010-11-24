@@ -48,8 +48,8 @@ void CNESEmulatorRenderer::initializeGL()
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, textureID);
 
-   // We want it to be RGBRGB(etc) formatted
-   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+   // We want it to be BGRA formatted
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
    // Set our texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -67,7 +67,7 @@ void CNESEmulatorRenderer::updateGL()
    makeCurrent();
 
    glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    repaint();
 }
 
@@ -150,7 +150,6 @@ void CNESEmulatorRenderer::paintGL()
       glTexCoord2f (0.0, 1.0);
       glVertex3f(x, y+256.0f, 0.0f);
    glEnd();
-
 }
 
 void CNESEmulatorRenderer::changeZoom(int newZoom)

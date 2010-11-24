@@ -24,7 +24,8 @@ bool CSourceAssembler::assemble()
    CPRGROMBanks *prgRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToPrgRomBanks();
    char* romData = NULL;
    int romLength = 0;
-   QString strBuffer;
+   QString strBuffer1;
+   QString strBuffer2;
    char* errors;
    int numErrors;
    int numSymbols;
@@ -47,19 +48,19 @@ bool CSourceAssembler::assemble()
                    PASM_include );
 
    // Dump errors...
-   strBuffer.sprintf ( "%d (0x%x)", romLength, romLength );
+   strBuffer1.sprintf ( "%d (0x%x)", romLength, romLength );
    numErrors = pasm_get_num_errors ();
    if ( numErrors )
    {
-      strBuffer.sprintf ( "%d", numErrors );
-      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with " + strBuffer + " errors...");
+      strBuffer2.sprintf ( "%d", numErrors );
+      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with " + strBuffer2 + " errors...<br />");
       pasm_get_errors ( &errors );
-      strBuffer.sprintf ( "%s", errors );
-      buildTextLogger.write("<font color='red'><pre>" + strBuffer + "</pre></font>");
+      strBuffer1.sprintf ( "%s", errors );
+      buildTextLogger.write("<font color='red'><pre>" + strBuffer1 + "</pre></font>");
    }
    else
    {
-      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer + " bytes with no errors...");
+      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with no errors...<br />");
       /*
       numSymbols = pasm_get_num_symbols();
       strBuffer.sprintf("<b>Symbol Table (%d symbols defined)</b>", numSymbols);

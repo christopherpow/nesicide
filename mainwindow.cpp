@@ -670,10 +670,14 @@ void MainWindow::on_actionCompile_Project_triggered()
 {
    output->showBuildPane();
    compiler->start();
+   
+   ui->actionCompile_Project->setEnabled(false);
 }
 
 void MainWindow::compileDone()
 {
+   ui->actionCompile_Project->setEnabled(true);
+   
    emulator->pauseEmulation(false);
 
    projectDataChangesEvent();
