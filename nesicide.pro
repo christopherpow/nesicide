@@ -71,10 +71,10 @@ unix:!mac {
 	SDL_CXXFLAGS = $$system(sdl-config --cflags)
 	SDL_LIBS = $$system(sdl-config --libs)
 
-	LUA_CXXFLAGS = $$system(pkg-config --cflags lua)
-	LUA_LIBS = $$system(pkg-config --libs lua)
+        LUA_CXXFLAGS = $$system(pkg-config --cflags lua5.1)
+        LUA_LIBS = $$system(pkg-config --libs lua5.1)
 
-	PASM_LIBS = compiler/libpasm.a
+        PASM_LIBS = ../nesicide/compiler/libpasm.a
 
 	PREFIX = $$(PREFIX)
 	isEmpty (PREFIX) {
@@ -83,8 +83,10 @@ unix:!mac {
 
 	BINDIR = $$(BINDIR)
 	isEmpty (BINDIR) {
-		BINDIR=$$EPREFIX/bin
+                BINDIR=$$PREFIX/bin
 	}
+
+        INCLUDEPATH += $$PREFIX/include/nesicide-emulator
 
 	target.path = $$BINDIR
 	INSTALLS += target
