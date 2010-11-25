@@ -85,6 +85,7 @@ protected:
 
 private slots:
     void on_actionPreferences_triggered();
+    void compileStarted();
     void compileDone();
     void on_actionEnvironment_Settings_triggered();
     void on_actionMute_All_toggled(bool );

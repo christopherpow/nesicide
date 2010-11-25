@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
 
     QObject::connect(compiler, SIGNAL(finished()), this, SLOT(compileDone()));
+    QObject::connect(compiler, SIGNAL(started()), this, SLOT(compileStarted()));
 
     nesicideProject = new CNesicideProject();
 
@@ -583,7 +584,7 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 {
     if (value)
     {
-        emulatorDlgTabIdx = ui->tabWidget->addTab(emulatorDlg, "Emulation Window");
+        emulatorDlgTabIdx = ui->tabWidget->addTab(emulatorDlg, "Emulator");
         ui->tabWidget->setCurrentIndex(emulatorDlgTabIdx);
     }
     else
@@ -668,17 +669,20 @@ void MainWindow::on_actionOutput_Window_toggled(bool value)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-   output->showBuildPane();
    compiler->start();
-   
+}
+
+void MainWindow::compileStarted()
+{
+   output->showBuildPane();
    ui->actionCompile_Project->setEnabled(false);
+   
+   emulator->pauseEmulation(false);
 }
 
 void MainWindow::compileDone()
 {
    ui->actionCompile_Project->setEnabled(true);
-   
-   emulator->pauseEmulation(false);
 
    projectDataChangesEvent();
 
@@ -918,7 +922,7 @@ void MainWindow::reflectedMapperInformationInspector_close ( bool toplevel )
 
 void MainWindow::on_action_About_Nesicide_triggered()
 {
-    aboutdialog *dlg = new aboutdialog(this);
+    AboutDialog *dlg = new AboutDialog(this);
     dlg->exec();
     delete dlg;
 }

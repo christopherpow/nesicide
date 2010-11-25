@@ -21,7 +21,7 @@ CPluginManager::CPluginManager()
 void CPluginManager::doInitScript()
 {
 #ifdef Q_WS_WIN
-   const char * initScriptPath   = "../nesicide2-master/plugins/init.lua";
+   const char * initScriptPath   = "../nesicide/plugins/init.lua";
 #else
    const char * initScriptPath   = "plugins/init.lua";
 #endif
@@ -32,7 +32,7 @@ void CPluginManager::doInitScript()
     QString filePath = initScriptPath;
     if(!stat((filePath = QString(initScriptPath)).toAscii().constData(), &stFileInfo)) {
         // the script is in a plugin folder in the same folder as a distributed application
-    } else if(!stat((filePath = QString("nesicide2.app/Contents/Resources/")+initScriptPath).toAscii().constData(), &stFileInfo)) {
+    } else if(!stat((filePath = QString("nesicide.app/Contents/Resources/")+initScriptPath).toAscii().constData(), &stFileInfo)) {
         // normal path to scripts when dubbel clicking on an application
     } else if(!stat((filePath = QString("../../../")+initScriptPath).toAscii().constData(), &stFileInfo)) {
         // the script is in a plugin folder in the same folder as an application that's debugged with Qt
@@ -50,7 +50,7 @@ void CPluginManager::doInitScript()
 void CPluginManager::loadPlugins()
 {
 #ifdef Q_WS_WIN
-   const char * pluginPath   = "../nesicide2-master/plugins/";
+   const char * pluginPath   = "../nesicide/plugins/";
 #else
    const char * pluginPath   = "plugins/";
 #endif
@@ -60,7 +60,7 @@ void CPluginManager::loadPlugins()
     QString filePath = pluginPath;
     if(!stat((filePath = QString(pluginPath)).toAscii().constData(), &stFileInfo)) {
         // the script is in a plugin folder in the same folder as a distributed application
-    } else if(!stat((filePath = QString("nesicide2.app/Contents/Resources/")+pluginPath).toAscii().constData(), &stFileInfo)) {
+    } else if(!stat((filePath = QString("nesicide.app/Contents/Resources/")+pluginPath).toAscii().constData(), &stFileInfo)) {
         // normal path to scripts when dubbel clicking on an application
     } else if(!stat((filePath = QString("../../../")+pluginPath).toAscii().constData(), &stFileInfo)) {
         // the script is in a plugin folder in the same folder as an application that's debugged with Qt

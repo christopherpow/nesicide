@@ -394,7 +394,7 @@
     <string>Project &amp;Properties...</string>
    </property>
    <property name="toolTip">
-    <string>Project properties</string>
+    <string>Project Properties</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -417,10 +417,10 @@
      <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
    </property>
    <property name="text">
-    <string>Emulation Window</string>
+    <string>Emulator</string>
    </property>
    <property name="toolTip">
-    <string>Emulation Window</string>
+    <string>Emulator</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
