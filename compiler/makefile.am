@@ -1,0 +1,55 @@
+# work in progress      
+# this doenst work at all yet
+
+AUTOMAKE_OPTIONS=subdir-objects
+
+AM_YFLAGS = -d -sil -Pasm
+AM_FFLAGS = -dv -pasm -r all
+
+#bin_PROGRAMS=pasm
+
+#BUILT_SOURCES = lex.asm.c lex.pp.c
+#BUILT_SOURCES = pasm_asm.c lex_pp.c pasm_asm.tab.c pasm_asm.tab.h
+
+lib_LTLIBRARIES = libpasm.la
+
+libpasm_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version -shared
+
+libpasm_la_SOURCES = pasm_lib.h \
+	pasm_lib.c \
+	pasm_asm.l \
+	pasm_asm.tab.y \
+	pasm_pp.l
+
+#$(LIB_PREFIX)pasm$(LIB_POSTFIX): pasm_$(ASM).l pasm_$(ASM).y pasm_lib.c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c
+#        gcc $(CFLAGS) $(CFLAGS_LIB) -DPASM_LIB -c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_lib.c
+#        $(LIB_CREATE) $(LIB_PREFIX)pasm$(LIB_POSTFIX) lex.$(ASM).o lex.$(PP).o pasm_$(ASM).tab.o pasm_lib.o
+
+
+
+
+#lex.$(ASM).c : pasm_$(ASM).l
+#        flex -sil -P$(ASM) pasm_$(ASM).l
+
+#pasm_asm.l	-> lex.asm.c
+
+
+#lex.$(PP).c : pasm_$(PP).l
+#        flex -sil -P$(PP) pasm_$(PP).l
+
+#pasm_pp.l	-> lex.pp.c
+
+
+#pasm_$(ASM).tab.c : pasm_$(ASM).y
+#        bison -dv -p$(ASM) -r all pasm_$(ASM).y
+
+#pasm_asm.y	-> pasm_asm.tab.c
+
+
+
+
+
+#flex -sil -Pasm pasm_asm.l
+#flex -sil -Ppp pasm_pp.l
+#bison -dv -pasm -r all pasm_asm.y
+#gcc  -g -DPASM_LIB -c lex.asm.c lex.pp.c pasm_asm.tab.c pasm_lib.c
