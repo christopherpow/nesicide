@@ -8,25 +8,74 @@ QT += network \
 
 system(make -C ./compiler)
 
-#Trying to profile, but gprof doesn't like the output for some reason...
-#QMAKE_CXXFLAGS += -pg
-#QMAKE_LFLAGS += -pg
-
-# not sure this is needed, would anyone miss it ?
-#INCLUDEPATH += .
-
-NESICIDE_CXXFLAGS = $$(NESICIDE_CXXFLAGS)
-NESICIDE_LIBS = -lnesicide-emulator
-
 TARGET = "nesicide"
 
-#SDL_CXXFLAGS = 
-#SDL_LIBS = 
+# set cxxflags and libs from the env
+####################################
 
-#LUA_CXXFLAGS = 
-#LUA_LIBS = 
+NESICIDE_CXXFLAGS = $$(NESICIDE_CXXFLAGS)
+NESICIDE_LIBS = $$(NESICIDE_LIBS)
 
-#PASM_LIBS =
+SDL_CXXFLAGS = $$(SDL_CXXFLAGS)
+SDL_LIBS = $$(SDL_LIBS)
+
+LUA_CXXFLAGS = $$(LUA_CXXFLAGS)
+LUA_LIBS = $$(LUA_LIBS)
+
+PASM_CXXFLAGS = $$(PASM_CXXFLAGS)
+PASM_LIBS = $$(PASM_LIBS)
+
+# if the user didnt set cxxflags and libs then use defaults
+###########################################################
+
+isEmpty (NESICIDE_LIBS) {
+	NESICIDE_LIBS = -lnesicide-emulator
+}
+
+isEmpty (SDL_CXXFLAGS) {
+	SDL_CXXFLAGS = $$system(sdl-config --cflags)
+}
+
+isEmpty (SDL_LIBS) {
+        SDL_LIBS = $$system(sdl-config --libs)
+}
+
+# lua provides lua.pc, but several distros renamed it for slotting ( installing multiple versions )
+
+isEmpty (LUA_CXXFLAGS) {
+        LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua)
+}
+
+isEmpty (LUA_CXXFLAGS) {
+        LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.1)
+}
+
+isEmpty (LUA_CXXFLAGS) {
+	LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
+}
+
+isEmpty (LUA_LIBS) {
+        LUA_LIBS = $$system(pkg-config --silence-errors --libs lua)
+}
+
+isEmpty (LUA_LIBS) {
+        LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.1)
+}
+
+isEmpty (LUA_LIBS) {
+	LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
+}
+
+isEmpty (PASM_CXXFLAGS) {
+        PASM_CXXFLAGS = -Icompiler
+}
+
+isEmpty (PASM_LIBS) {
+	PASM_LIBS = -Lcompiler -lpasm
+}
+
+# set platform specific cxxflags and libs
+#########################################
 
 win32 {
 	SDL_CXXFLAGS = -I../nesicide/libraries/SDL 
@@ -68,14 +117,6 @@ mac {
 }
 
 unix:!mac {
-	SDL_CXXFLAGS = $$system(sdl-config --cflags)
-	SDL_LIBS = $$system(sdl-config --libs)
-
-        LUA_CXXFLAGS = $$system(pkg-config --cflags lua5.1)
-        LUA_LIBS = $$system(pkg-config --libs lua5.1)
-
-        PASM_LIBS = ../nesicide/compiler/libpasm.a
-
 	PREFIX = $$(PREFIX)
 	isEmpty (PREFIX) {
 		PREFIX = /usr/local
@@ -86,34 +127,31 @@ unix:!mac {
                 BINDIR=$$PREFIX/bin
 	}
 
-        INCLUDEPATH += $$PREFIX/include/nesicide-emulator
-
 	target.path = $$BINDIR
 	INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS
+QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$PASM_CXXFLAGS
 LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS
 
-INCLUDEPATH += ./common \
-    ./compiler \
-    ./debugger \
-    ./designers/cartridge_editor \
-    ./designers/code_editor \
-    ./designers/new_project \
-    ./designers/project_properties \
-    ./designers/graphics_bank_editor \
-    ./emulator \
-    ./interfaces \
-    ./project \
-    ./plugins \
-    ./resources \
-    ./viewers \
-    ./viewers/chr-rom \
-    ./viewers/debugger \
-    ./viewers/emulator \
-    ./viewers/prg-rom \
-    ./viewers/project_treeview
+INCLUDEPATH += common \
+    debugger \
+    designers/cartridge_editor \
+    designers/code_editor \
+    designers/new_project \
+    designers/project_properties \
+    designers/graphics_bank_editor \
+    emulator \
+    interfaces \
+    project \
+    plugins \
+    resources \
+    viewers \
+    viewers/chr-rom \
+    viewers/debugger \
+    viewers/emulator \
+    viewers/prg-rom \
+    viewers/project_treeview
 
 SOURCES += mainwindow.cpp \
     main.cpp \
