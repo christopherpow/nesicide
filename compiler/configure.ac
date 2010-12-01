@@ -2,17 +2,16 @@
 # this doenst work at all yet
 
 AC_PREREQ([2.65])
-AC_INIT([nesicide-pasm], [2.0], [BUG-REPORT-ADDRESS])
+AC_INIT([nesicide-pasm], [2.0.0], [BUG-REPORT-ADDRESS])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([pasm_types.h])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 
-AM_PROG_LEX
-AC_PROG_YACC
+#AM_PROG_LEX
+#AC_PROG_YACC
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
