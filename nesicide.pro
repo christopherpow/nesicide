@@ -10,21 +10,6 @@ system(make -C ./compiler)
 
 TARGET = "nesicide"
 
-# set cxxflags and libs from the env
-####################################
-
-NESICIDE_CXXFLAGS = $$(NESICIDE_CXXFLAGS)
-NESICIDE_LIBS = $$(NESICIDE_LIBS)
-
-SDL_CXXFLAGS = $$(SDL_CXXFLAGS)
-SDL_LIBS = $$(SDL_LIBS)
-
-LUA_CXXFLAGS = $$(LUA_CXXFLAGS)
-LUA_LIBS = $$(LUA_LIBS)
-
-PASM_CXXFLAGS = $$(PASM_CXXFLAGS)
-PASM_LIBS = $$(PASM_LIBS)
-
 # if the user didnt set cxxflags and libs then use defaults
 ###########################################################
 
