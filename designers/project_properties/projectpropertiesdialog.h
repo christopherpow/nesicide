@@ -7,7 +7,6 @@
 #include <QFile>
 #include <QMessageBox>
 #include "cpaletteitemdelegate.h"
-#include "defaultnespalette.h"
 #include "cnesicideproject.h"
 #include "csourceitem.h"
 

@@ -354,38 +354,38 @@ void MainWindow::projectDataChangesEvent()
     projectTreeviewModel->layoutChangedEvent();
 
     // Enabled/Disable actions based on if we have a project loaded or not
-    ui->actionNew_Project->setEnabled(!nesicideProject->get_isInitialized());
-    ui->actionCreate_Project_from_ROM->setEnabled(!nesicideProject->get_isInitialized());
-    ui->actionOpen_Project->setEnabled(!nesicideProject->get_isInitialized());
-    ui->action_Close_Project->setEnabled(nesicideProject->get_isInitialized());
-    ui->actionCompile_Project->setEnabled(nesicideProject->get_isInitialized());
-    ui->actionProject_Properties->setEnabled(nesicideProject->get_isInitialized());
-    ui->actionSave_Project->setEnabled(nesicideProject->get_isInitialized());
-    ui->actionSave_Project_As->setEnabled(nesicideProject->get_isInitialized());
-    ui->actionEmulation_Window->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionExecution_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionCode_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinCPURAM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinROM_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinNameTableMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinOAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinPaletteMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinSRAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinEXRAMMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
-    ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->get_isInitialized() );
+    ui->actionNew_Project->setEnabled(!nesicideProject->isInitialized());
+    ui->actionCreate_Project_from_ROM->setEnabled(!nesicideProject->isInitialized());
+    ui->actionOpen_Project->setEnabled(!nesicideProject->isInitialized());
+    ui->action_Close_Project->setEnabled(nesicideProject->isInitialized());
+    ui->actionCompile_Project->setEnabled(nesicideProject->isInitialized());
+    ui->actionProject_Properties->setEnabled(nesicideProject->isInitialized());
+    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
+    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
+    ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionCode_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinCPURAM_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinROM_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinPaletteMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinSRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinEXRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() );
+    ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() );
 
     if (ui->tabWidget->currentIndex() >= 0)
     {
@@ -464,10 +464,10 @@ void MainWindow::on_actionProject_Properties_triggered()
     ProjectPropertiesDialog *dlg = new ProjectPropertiesDialog(this);
     if (dlg->exec() == QDialog::Accepted)
     {
-        nesicideProject->set_projectTitle(dlg->getProjectName());
-        nesicideProject->get_pointerToListOfProjectPaletteEntries()->clear();
+        nesicideProject->setProjectTitle(dlg->getProjectName());
+        nesicideProject->getProjectPaletteEntries()->clear();
         for (int paletteItemIndex=0; paletteItemIndex<dlg->currentPalette.count(); paletteItemIndex++)
-            nesicideProject->get_pointerToListOfProjectPaletteEntries()->append(dlg->currentPalette.at(paletteItemIndex));
+            nesicideProject->getProjectPaletteEntries()->append(dlg->currentPalette.at(paletteItemIndex));
         projectDataChangesEvent();
 
         for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
@@ -478,7 +478,7 @@ void MainWindow::on_actionProject_Properties_triggered()
                 nesicideProject->getProject()->setMainSource(sourceItem);
             }
         }
-        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
+        this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
     }
     delete dlg;
 }
@@ -489,14 +489,14 @@ void MainWindow::on_actionNew_Project_triggered()
     if (dlg->exec() == QDialog::Accepted)
     {
         ui->projectTreeWidget->setModel(NULL);
-        nesicideProject->set_projectTitle(dlg->getProjectTitle());
+        nesicideProject->setProjectTitle(dlg->getProjectTitle());
         nesicideProject->initializeProject();
         ui->projectTreeWidget->setModel(projectTreeviewModel);
         projectDataChangesEvent();
-        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
+        this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
 
     }
-
+   
     delete dlg;
 }
 
@@ -513,7 +513,7 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
    projectDataChangesEvent();
-   this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
+   this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
 
    emulator->resetEmulator();
    emulator->startEmulation();
@@ -633,7 +633,7 @@ void MainWindow::on_actionOpen_Project_triggered()
         projectDataChangesEvent();
         projectFileName = fileName;
 
-        this->setWindowTitle(nesicideProject->get_projectTitle().prepend("NESICIDE - "));
+        this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
     }
 }
 
@@ -957,7 +957,7 @@ void MainWindow::on_actionEmulation_Window_triggered()
 
 void MainWindow::handle_MainWindow_destroyed()
 {
-    if (nesicideProject->get_isInitialized())
+    if (nesicideProject->isInitialized())
         on_action_Close_Project_triggered();
 }
 

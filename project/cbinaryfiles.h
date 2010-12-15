@@ -1,16 +1,15 @@
 #ifndef CBINARYFILES_H
 #define CBINARYFILES_H
 
+#include "cprojectbase.h"
+#include "cbinaryfile.h"
+#include "cprojecttreeviewmodel.h"
+
 #include <QList>
 #include <QMenu>
 #include <QFileDialog>
 
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
-#include "cbinaryfile.h"
-#include "cprojecttreeviewmodel.h"
-
-class CBinaryFiles : public IXMLSerializable, public IProjectTreeViewItem
+class CBinaryFiles : public CProjectBase
 {
 public:
     CBinaryFiles();

@@ -1,13 +1,12 @@
 #ifndef CPRGROMBANKS_H
 #define CPRGROMBANKS_H
 
-#include <QList>
-
-#include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
+#include "cprojectbase.h"
 #include "cprgrombank.h"
 
-class CPRGROMBanks : public IXMLSerializable, public IProjectTreeViewItem
+#include <QList>
+
+class CPRGROMBanks : public CProjectBase
 {
 public:
     CPRGROMBanks();

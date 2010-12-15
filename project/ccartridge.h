@@ -1,12 +1,11 @@
 #ifndef CCARTRIDGE_H
 #define CCARTRIDGE_H
 
-#include <QtGlobal>
-
-#include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
+#include "cprojectbase.h"
 #include "cprgrombanks.h"
 #include "cchrrombanks.h"
+
+#include <QtGlobal>
 
 namespace GameMirrorMode {
     typedef enum {
@@ -17,7 +16,7 @@ namespace GameMirrorMode {
     } eGameMirrorMode;
 }
 
-class CCartridge : public IXMLSerializable, public IProjectTreeViewItem
+class CCartridge : public CProjectBase
 {
 public:
     CCartridge();

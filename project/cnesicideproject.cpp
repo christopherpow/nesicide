@@ -1,7 +1,7 @@
 #include "cnesicideproject.h"
 #include "main.h"
 
-CNesicideProject *nesicideProject = (CNesicideProject *)NULL;
+#include "cnessystempalette.h"
 
 extern "C" int PASM_include ( char* objname, char** objdata, int* size )
 {
@@ -15,23 +15,23 @@ extern "C" int PASM_include ( char* objname, char** objdata, int* size )
 CNesicideProject::CNesicideProject()
 {
     m_isInitialized = false;
-    m_pointerToCartridge = (CCartridge *)NULL;
-    m_pointerToListOfProjectPaletteEntries = new QList<CPaletteEntry>();
-    m_pointerToProject = (CProject*)NULL;
+    m_pProjectPaletteEntries = new QList<CPaletteEntry>();
+    m_pProject = (CProject*)NULL;
+    m_pCartridge = (CCartridge *)NULL;
     m_projectTitle = "(No project loaded)";
     InitTreeItem();
 }
 
 CNesicideProject::~CNesicideProject()
 {
-    if (m_pointerToCartridge)
-        delete m_pointerToCartridge;
+    if (m_pCartridge)
+        delete m_pCartridge;
 
-    if (m_pointerToProject)
-        delete m_pointerToProject;
+    if (m_pProject)
+        delete m_pProject;
 
-    if (m_pointerToListOfProjectPaletteEntries)
-        delete m_pointerToListOfProjectPaletteEntries;
+    if (m_pProjectPaletteEntries)
+        delete m_pProjectPaletteEntries;
 }
 
 int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
@@ -54,30 +54,30 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
    return (*size);
 }
 
-QList<CPaletteEntry> *CNesicideProject::get_pointerToListOfProjectPaletteEntries()
+QList<CPaletteEntry> *CNesicideProject::getProjectPaletteEntries()
 {
-    return m_pointerToListOfProjectPaletteEntries;
+    return m_pProjectPaletteEntries;
 }
 
-void CNesicideProject::set_pointerToListOfProjectPaletteEntries
-        (QList<CPaletteEntry> *pointerToListOfProjectPaletteEntries)
+void CNesicideProject::setProjectPaletteEntries
+        (QList<CPaletteEntry> *pProjectPaletteEntries)
 {
-    m_pointerToListOfProjectPaletteEntries = pointerToListOfProjectPaletteEntries;
+    m_pProjectPaletteEntries = pProjectPaletteEntries;
 }
 
-bool CNesicideProject::get_isInitialized()
+bool CNesicideProject::isInitialized()
 {
     return m_isInitialized;
 }
 
 CProject *CNesicideProject::getProject()
 {
-    return m_pointerToProject;
+    return m_pProject;
 }
 
 void CNesicideProject::setProject(CProject *project)
 {
-    m_pointerToProject = project;
+    m_pProject = project;
 }
 
 void CNesicideProject::initializeProject()
@@ -85,16 +85,15 @@ void CNesicideProject::initializeProject()
     initializeNodes();
 
     // Load the default palette into the project
-    if (!m_pointerToListOfProjectPaletteEntries)
-        m_pointerToListOfProjectPaletteEntries = new QList<CPaletteEntry>();
+    if (!m_pProjectPaletteEntries)
+        m_pProjectPaletteEntries = new QList<CPaletteEntry>();
 
-    m_pointerToListOfProjectPaletteEntries->clear();
-    for (int row=0; row <= 0x3; row++) {
-        for (int col=0; col <= 0xF; col++){
-            m_pointerToListOfProjectPaletteEntries->append(QColor(defaultPalette[(row << 4) + col][0],
-                                                                  defaultPalette[(row << 4) + col][1],
-                                                                  defaultPalette[(row << 4) + col][2]));
-        }
+    m_pProjectPaletteEntries->clear();
+    for (int col=0; col <= 64; col++) 
+    {
+      m_pProjectPaletteEntries->append(QColor(nesGetPaletteRedComponent(col),
+                                              nesGetPaletteGreenComponent(col),
+                                              nesGetPaletteBlueComponent(col)));
     }
 
     // Notify the fact that the project data has been initialized properly
@@ -104,18 +103,18 @@ void CNesicideProject::initializeProject()
 void CNesicideProject::terminateProject()
 {
     // Destroying the project node destroys everything else
-    if (m_pointerToCartridge)
+    if (m_pCartridge)
     {
-        this->removeChild(m_pointerToCartridge);
-        delete m_pointerToCartridge;
-        m_pointerToCartridge = NULL;
+        this->removeChild(m_pCartridge);
+        delete m_pCartridge;
+        m_pCartridge = NULL;
     }
 
-    if (m_pointerToProject)
+    if (m_pProject)
     {
-        this->removeChild(m_pointerToProject);
-        delete m_pointerToProject;
-        m_pointerToProject = NULL;
+        this->removeChild(m_pProject);
+        delete m_pProject;
+        m_pProject = NULL;
     }
 
     // Notify the fact that the project data is no longer valid
@@ -125,33 +124,30 @@ void CNesicideProject::terminateProject()
 
 void CNesicideProject::initializeNodes()
 {
-    if (m_pointerToCartridge)
+    if (m_pCartridge)
     {
-        this->removeChild(m_pointerToCartridge);
-        delete m_pointerToCartridge;
+        this->removeChild(m_pCartridge);
+        delete m_pCartridge;
     }
 
-    if (m_pointerToProject)
+    if (m_pProject)
     {
-        this->removeChild(m_pointerToProject);
-        delete m_pointerToProject;
+        this->removeChild(m_pProject);
+        delete m_pProject;
     }
 
     // No need to keep deleting and reloading this, just clear it
-    m_pointerToListOfProjectPaletteEntries->clear();
-
+    m_pProjectPaletteEntries->clear();
 
     // Create our Project node and append it as a child to this tree
-    m_pointerToProject = new CProject();
-    m_pointerToProject->InitTreeItem(this);
-    this->appendChild(m_pointerToProject);
+    m_pProject = new CProject();
+    m_pProject->InitTreeItem(this);
+    this->appendChild(m_pProject);
 
     // Create our Cartridge node and append it as a child to this tree
-    m_pointerToCartridge = new CCartridge();
-    m_pointerToCartridge->InitTreeItem(this);
-    this->appendChild(m_pointerToCartridge);
-
-
+    m_pCartridge = new CCartridge();
+    m_pCartridge->InitTreeItem(this);
+    this->appendChild(m_pCartridge);
 }
 
 bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
@@ -173,22 +169,22 @@ bool CNesicideProject::serialize(QDomDocument &doc, QDomNode &node)
     {
         QDomElement elm = addElement( doc, rootPaletteElement, "entry");
         elm.setAttribute("index", indexOfCurrentPaletteEntry);
-        elm.setAttribute("r", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).red());
-        elm.setAttribute("g", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).green());
-        elm.setAttribute("b", m_pointerToListOfProjectPaletteEntries->at(indexOfCurrentPaletteEntry).blue());
+        elm.setAttribute("r", m_pProjectPaletteEntries->at(indexOfCurrentPaletteEntry).red());
+        elm.setAttribute("g", m_pProjectPaletteEntries->at(indexOfCurrentPaletteEntry).green());
+        elm.setAttribute("b", m_pProjectPaletteEntries->at(indexOfCurrentPaletteEntry).blue());
     }
 
     // Now serialize all child objects
-    if (m_pointerToCartridge)
+    if (m_pCartridge)
     {
-        if (!m_pointerToCartridge->serialize(doc, projectElement))
+        if (!m_pCartridge->serialize(doc, projectElement))
             return false;
     } else
         return false;
 
-    if (m_pointerToProject)
+    if (m_pProject)
     {
-        if (!m_pointerToProject->serialize(doc, projectElement))
+        if (!m_pProject->serialize(doc, projectElement))
             return false;
     } else
         return false;
@@ -220,12 +216,11 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
     m_projectTitle = projectElement.attribute("title", "Untitled Project");
 
     // Initialize the palette.
-    for (int row=0; row <= 0x3; row++) {
-        for (int col=0; col <= 0xF; col++){
-            m_pointerToListOfProjectPaletteEntries->append(QColor(defaultPalette[(row << 4) + col][0],
-                                                                  defaultPalette[(row << 4) + col][1],
-                                                                  defaultPalette[(row << 4) + col][2]));
-        }
+    for (int color = 0; color < 64; color++) 
+    {
+      m_pProjectPaletteEntries->append(QColor(nesGetPaletteRedComponent(color),
+                                              nesGetPaletteGreenComponent(color),
+                                              nesGetPaletteBlueComponent(color)));
     }
 
     // Now loop through the child elements and process the ones we find
@@ -254,7 +249,7 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
                     return false;
 
                 CPaletteEntry palEntry;
-                m_pointerToListOfProjectPaletteEntries->replace(nodeIndex,
+                m_pProjectPaletteEntries->replace(nodeIndex,
                     QColor(paletteItem.attribute("r").toInt(),
                            paletteItem.attribute("g").toInt(), paletteItem.attribute("b").toInt()));
 
@@ -262,7 +257,7 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
 
         } else if (child.nodeName() == "project") {
 
-            if (!m_pointerToProject->deserialize(doc, child))
+            if (!m_pProject->deserialize(doc, child))
                 return false;
 
         } else if (child.nodeName() == "cartridge") {
@@ -272,32 +267,31 @@ bool CNesicideProject::deserialize(QDomDocument &doc, QDomNode &node)
 
     } while (!(child = child.nextSibling()).isNull());
 
-
     m_isInitialized = true;
     return true;
 }
 
 QString CNesicideProject::caption() const
 {
-    return QString("Project");
+    return QString("NESICIDE");
 }
 
-CCartridge *CNesicideProject::get_pointerToCartridge()
+CCartridge *CNesicideProject::getCartridge()
 {
-    return m_pointerToCartridge;
+    return m_pCartridge;
 }
 
-void CNesicideProject::set_pointerToCartridge(CCartridge *pointerToCartridge)
+void CNesicideProject::setCartridge(CCartridge *pCartridge)
 {
-    m_pointerToCartridge = pointerToCartridge;
+    m_pCartridge = pCartridge;
 }
 
-QString CNesicideProject::get_projectTitle()
+QString CNesicideProject::getProjectTitle()
 {
     return m_projectTitle;
 }
 
-void CNesicideProject::set_projectTitle(QString value)
+void CNesicideProject::setProjectTitle(QString value)
 {
     m_projectTitle = value;
 }
@@ -308,13 +302,13 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
    QString str;
 
     // Make sure our pointers are in order..
-    if (!m_pointerToCartridge)
-        m_pointerToCartridge = new CCartridge();
+    if (!m_pCartridge)
+        m_pCartridge = new CCartridge();
 
-    if (!m_pointerToCartridge->getPointerToChrRomBanks())
+    if (!m_pCartridge->getPointerToChrRomBanks())
         return false;
 
-    if (!m_pointerToCartridge->getPointerToPrgRomBanks())
+    if (!m_pCartridge->getPointerToPrgRomBanks())
         return false;
 
 
@@ -366,14 +360,14 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
         // First extract the mirror mode
         if (romCB1 & 0x08)
-            m_pointerToCartridge->setMirrorMode(GameMirrorMode::FourScreenMirroring);
+            m_pCartridge->setMirrorMode(GameMirrorMode::FourScreenMirroring);
         else if (romCB1 & 0x01)
-            m_pointerToCartridge->setMirrorMode(GameMirrorMode::VerticalMirroring);
+            m_pCartridge->setMirrorMode(GameMirrorMode::VerticalMirroring);
         else
-            m_pointerToCartridge->setMirrorMode(GameMirrorMode::HorizontalMirroring);
+            m_pCartridge->setMirrorMode(GameMirrorMode::HorizontalMirroring);
 
         // Now extract the two flags (battery backed ram and trainer)
-        m_pointerToCartridge->setBatteryBackedRam(romCB1 & 0x02);
+        m_pCartridge->setBatteryBackedRam(romCB1 & 0x02);
         bool hasTrainer = (romCB1 & 0x04);
 
         // ROM Control Byte 2:
@@ -389,7 +383,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         }
 
         // Extract the upper four bits of the mapper number
-        m_pointerToCartridge->setMapperNumber(((romCB1>>4)&0x0F)|(romCB2&0xF0));
+        m_pCartridge->setMapperNumber(((romCB1>>4)&0x0F)|(romCB2&0xF0));
 
         // Number of 8 KB RAM banks. For compatibility with previous
         // versions of the iNES format, assume 1 page of RAM when
@@ -418,13 +412,13 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
             // Create the ROM bank and load in the binary data
             CPRGROMBank *romBank = new CPRGROMBank();
             romBank->set_indexOfPrgRomBank(
-                    m_pointerToCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count());
+                    m_pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count());
             fs.readRawData((char*)romBank->get_pointerToBankData(),0x4000);
 
             // Attach the rom bank to the rom banks object
-            romBank->InitTreeItem(m_pointerToCartridge->getPointerToPrgRomBanks());
-            m_pointerToCartridge->getPointerToPrgRomBanks()->appendChild(romBank);
-            m_pointerToCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->append(romBank);
+            romBank->InitTreeItem(m_pCartridge->getPointerToPrgRomBanks());
+            m_pCartridge->getPointerToPrgRomBanks()->appendChild(romBank);
+            m_pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->append(romBank);
 
         }
 
@@ -433,13 +427,13 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         {
             // Create the ROM bank and load in the binary data
             CCHRROMBank *romBank = new CCHRROMBank();
-            romBank->bankID = m_pointerToCartridge->getPointerToChrRomBanks()->banks.count();
+            romBank->bankID = m_pCartridge->getPointerToChrRomBanks()->banks.count();
             fs.readRawData((char*)romBank->data,0x2000);
 
             // Attach the rom bank to the rom banks object
-            romBank->InitTreeItem(m_pointerToCartridge->getPointerToChrRomBanks());
-            m_pointerToCartridge->getPointerToChrRomBanks()->appendChild(romBank);
-            m_pointerToCartridge->getPointerToChrRomBanks()->banks.append(romBank);
+            romBank->InitTreeItem(m_pCartridge->getPointerToChrRomBanks());
+            m_pCartridge->getPointerToChrRomBanks()->appendChild(romBank);
+            m_pCartridge->getPointerToChrRomBanks()->banks.append(romBank);
 
         }
 
@@ -452,7 +446,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
         str += "...</b>";
         generalTextLogger.write(str);
 
-        bool gameFoundInDB = gameDatabase.find(m_pointerToCartridge);
+        bool gameFoundInDB = gameDatabase.find(m_pCartridge);
         if ( gameFoundInDB )
         {
            str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHA1: ";

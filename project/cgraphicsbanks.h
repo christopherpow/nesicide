@@ -1,15 +1,14 @@
 #ifndef CGRAPHICSBANKS_H
 #define CGRAPHICSBANKS_H
 
-#include <QList>
-#include <QInputDialog>
-
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
+#include "cprojectbase.h"
 #include "cgraphicsbank.h"
 #include "cprojecttreeviewmodel.h"
 
-class CGraphicsBanks : public IXMLSerializable, public IProjectTreeViewItem
+#include <QList>
+#include <QInputDialog>
+
+class CGraphicsBanks : public CProjectBase
 {
 public:
     CGraphicsBanks();
@@ -23,7 +22,7 @@ public:
     virtual bool deserialize(QDomDocument &doc, QDomNode &node);
 
     // IProjectTreeViewItem Interface Implmentation
-    QString caption() const { return QString("Banks"); }
+    QString caption() const { return QString("Graphics Banks"); }
     virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent);
     virtual void openItemEvent(QTabWidget*) {}
     virtual bool onCloseQuery() { return true; }
@@ -35,7 +34,7 @@ public:
     virtual bool onNameChanged(QString) { return true; }
 
 private:
-    QList<CGraphicsBank *> *m_paGraphicsBank;
+    QList<CGraphicsBank *> *m_pGraphicsBank;
 };
 
 #endif // CGRAPHICSBANKS_H

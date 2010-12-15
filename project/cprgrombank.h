@@ -1,11 +1,10 @@
 #ifndef CPRGROMBANK_H
 #define CPRGROMBANK_H
 
-#include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
+#include "cprojectbase.h"
 #include "prgromdisplaydialog.h"
 
-class CPRGROMBank : public IXMLSerializable, public IProjectTreeViewItem
+class CPRGROMBank : public CProjectBase
 {
 public:
     CPRGROMBank();

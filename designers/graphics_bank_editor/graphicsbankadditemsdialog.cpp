@@ -2,6 +2,8 @@
 #include "ui_graphicsbankadditemsdialog.h"
 #include "cnesicideproject.h"
 
+#include "main.h"
+
 GraphicsBankAddItemsDialog::GraphicsBankAddItemsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GraphicsBankAddItemsDialog)
@@ -9,8 +11,16 @@ GraphicsBankAddItemsDialog::GraphicsBankAddItemsDialog(QWidget *parent) :
     ui->setupUi(this);
     model = new CChrRomItemListDisplayModel(ui->tableView);
 
-    for (int i=0; i < nesicideProject->childCount(); i++)
-      enumChildren(nesicideProject->child(i));
+    IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+    while ( iter.current() != NULL )
+    {
+      if (IChrRomBankItem* chrRomItem = dynamic_cast<IChrRomBankItem*>(iter.current()))
+      {
+         model->chrRomBankItems.append(chrRomItem);
+      }
+      iter.next();
+    }
+
     model->layoutChangedEvent();
     ui->tableView->setModel(model);
     ui->tableView->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -18,17 +28,6 @@ GraphicsBankAddItemsDialog::GraphicsBankAddItemsDialog(QWidget *parent) :
     ui->tableView->setColumnWidth(1, 90);
     ui->tableView->setColumnWidth(2, 140);
     ui->tableView->setColumnWidth(3, 70);
-}
-
-void GraphicsBankAddItemsDialog::enumChildren(IProjectTreeViewItem* item)
-{
-   if (IChrRomBankItem* chrRomItem = dynamic_cast<IChrRomBankItem*>(item))
-   {
-      model->chrRomBankItems.append(chrRomItem);
-   }
-
-   for (int i=0; i < item->childCount(); i++)
-     enumChildren(item->child(i));
 }
 
 GraphicsBankAddItemsDialog::~GraphicsBankAddItemsDialog()

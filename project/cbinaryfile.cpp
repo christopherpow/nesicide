@@ -1,6 +1,8 @@
 #include "cbinaryfile.h"
 #include "cnesicideproject.h"
 
+#include "main.h"
+
 CBinaryFile::CBinaryFile()
 {
     m_binaryData = new QByteArray();
@@ -20,12 +22,12 @@ QByteArray *CBinaryFile::getBinaryData()
 
 void CBinaryFile::setBinaryName(QString newName)
 {
-    m_binaryName = newName;
+    m_name = newName;
 }
 
 bool CBinaryFile::onNameChanged(QString newName)
 {
-    m_binaryName = newName;
+    m_name = newName;
     return true;
 }
 
@@ -36,11 +38,12 @@ void CBinaryFile::setBinaryData(QByteArray *newBinaryData)
 
 bool CBinaryFile::serialize(QDomDocument &doc, QDomNode &node)
 {
-    QDomElement binaryElement = addElement( doc, node, "binaryitem" );
-    binaryElement.setAttribute("binaryname", m_binaryName);
-    QDomCDATASection dataSect = doc.createCDATASection(m_binaryData->toBase64());
-    binaryElement.appendChild(dataSect);
-    return true;
+   QDomElement element = addElement( doc, node, "binaryfile" );   
+   element.setAttribute("name", m_name);
+   element.setAttribute("uuid", getIdent());
+   QDomCDATASection dataSect = doc.createCDATASection(m_binaryData->toBase64());
+   element.appendChild(dataSect);
+   return true;
 }
 
 bool CBinaryFile::deserialize(QDomDocument &doc, QDomNode &node)
@@ -50,13 +53,18 @@ bool CBinaryFile::deserialize(QDomDocument &doc, QDomNode &node)
     if (element.isNull())
         return false;
 
-    if (!element.hasAttribute("binaryname"))
+    if (!element.hasAttribute("name"))
         return false;
 
-    m_binaryName = element.attribute("binaryname");
+    if (!element.hasAttribute("uuid"))
+        return false;
+
+    m_name = element.attribute("name");
     QDomCDATASection cdata = element.firstChild().toCDATASection();
     if (cdata.isNull())
         return false;
+
+    setIdent(element.attribute("uuid"));
 
     m_binaryData = new QByteArray(QByteArray::fromBase64(cdata.data().toUtf8()));
 
@@ -65,7 +73,7 @@ bool CBinaryFile::deserialize(QDomDocument &doc, QDomNode &node)
 
 QString CBinaryFile::caption() const
 {
-    return m_binaryName;
+    return m_name;
 }
 
 void CBinaryFile::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
@@ -78,7 +86,7 @@ void CBinaryFile::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
     {
         if (ret->text() == "&Delete")
         {
-            if (QMessageBox::question(parent, "Delete Binary File", "Are you sure you want to delete " + m_binaryName,
+            if (QMessageBox::question(parent, "Delete Binary File", "Are you sure you want to delete " + m_name,
                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
                 return;
 

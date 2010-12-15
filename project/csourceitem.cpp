@@ -1,10 +1,12 @@
 #include "csourceitem.h"
 #include "cnesicideproject.h"
 
+#include "main.h"
+
 CSourceItem::CSourceItem()
 {
     m_indexOfTab = -1;
-    m_sourceName = "";
+    m_name = "";
     m_codeEditorForm = (CodeEditorForm *)NULL;
 }
 
@@ -37,11 +39,12 @@ int CSourceItem::getTabIndex()
 
 bool CSourceItem::serialize(QDomDocument &doc, QDomNode &node)
 {
-    QDomElement sourcesElement = addElement( doc, node, "sourceitem" );
-    sourcesElement.setAttribute("sourcename", m_sourceName);
-    QDomCDATASection dataSect = doc.createCDATASection(get_sourceCode());
-    sourcesElement.appendChild(dataSect);
-    return true;
+   QDomElement element = addElement( doc, node, "source" );   
+   element.setAttribute("name", m_name);
+   element.setAttribute("uuid", getIdent());
+   QDomCDATASection dataSect = doc.createCDATASection(get_sourceCode());
+   element.appendChild(dataSect);
+   return true;
 }
 
 bool CSourceItem::deserialize(QDomDocument&, QDomNode &node)
@@ -51,10 +54,16 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode &node)
     if (element.isNull())
         return false;
 
-    if (!element.hasAttribute("sourcename"))
+    if (!element.hasAttribute("name"))
         return false;
 
-    m_sourceName = element.attribute("sourcename");
+    if (!element.hasAttribute("uuid"))
+        return false;
+
+    m_name = element.attribute("name");
+
+    setIdent(element.attribute("uuid"));
+
     QDomCDATASection cdata = element.firstChild().toCDATASection();
     if (cdata.isNull())
         return false;
@@ -66,7 +75,7 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode &node)
 
 QString CSourceItem::caption() const
 {
-    return m_sourceName;
+    return m_name;
 }
 void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
@@ -119,19 +128,17 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
         m_indexOfTab = tabWidget->addTab(m_codeEditorForm, this->caption());
     }
 
-
     tabWidget->setCurrentIndex(m_indexOfTab);
 }
 
 QString CSourceItem::get_sourceName()
 {
-
-    return m_sourceName;
+    return m_name;
 }
 
 void CSourceItem::set_sourceName(QString sourceName)
 {
-    m_sourceName = sourceName;
+    m_name = sourceName;
 }
 
 bool CSourceItem::onCloseQuery()
@@ -174,9 +181,9 @@ bool CSourceItem::canChangeName()
 
 bool CSourceItem::onNameChanged(QString newName)
 {
-    if (m_sourceName != newName)
+    if (m_name != newName)
     {
-        m_sourceName = newName;
+        m_name = newName;
         if (m_codeEditorForm && (m_indexOfTab != -1))
         {
             QTabWidget * tabWidget = (QTabWidget *)m_codeEditorForm->parentWidget()->parentWidget();

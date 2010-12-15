@@ -1,12 +1,12 @@
 #ifndef CCHRROMBANKS_H
 #define CCHRROMBANKS_H
 
-#include <QList>
-#include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
+#include "cprojectbase.h"
 #include "cchrrombank.h"
 
-class CCHRROMBanks : public IXMLSerializable, public IProjectTreeViewItem
+#include <QList>
+
+class CCHRROMBanks : public CProjectBase
 {
 public:
     CCHRROMBanks();

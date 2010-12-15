@@ -43,6 +43,9 @@ MainWindow* nesicideWindow;
 // Persistent settings for application.
 CConfigurator* CONFIG;
 
+// The project container.
+CNesicideProject *nesicideProject = (CNesicideProject *)NULL;
+
 int main(int argc, char *argv[])
 {
    QApplication nesicideApplication(argc, argv);

@@ -3,19 +3,23 @@
 
 #include "dbg_cnesmappers.h"
 
+#include "cnessystempalette.h"
+
+#include "main.h"
+
 const char hexStr[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ProjectPropertiesDialog)
 {
-   QList<QColor> *pal = nesicideProject->get_pointerToListOfProjectPaletteEntries();
+   QList<QColor> *pal = nesicideProject->getProjectPaletteEntries();
    int i;
    char mapperTag [ 64 ];
 
    // Initialize UI elements...
    ui->setupUi(this);
-   ui->projectNameLineEdit->setText(nesicideProject->get_projectTitle());
+   ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
    ui->mainSourceComboBox->clear();
    for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
    {
@@ -58,7 +62,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
       i++;
    }
 
-   CCartridge* pCartridge = nesicideProject->get_pointerToCartridge();
+   CCartridge* pCartridge = nesicideProject->getCartridge();
    ui->mapperComboBox->setCurrentIndex(mapperIndexFromID(pCartridge->getMapperNumber()));
    ui->romTypeComboBox->setCurrentIndex(0);
 
@@ -137,9 +141,9 @@ void ProjectPropertiesDialog::on_resetPalettePushButton_clicked()
     {
         for (int row=0; row <= 0x3; row++)
         {
-            currentPalette.replace((row << 4) + col, QColor(defaultPalette[(row << 4) + col][0],
-                                                            defaultPalette[(row << 4) + col][1],
-                                                            defaultPalette[(row << 4) + col][2]));
+            currentPalette.replace((row << 4) + col, QColor(nesGetPaletteRedComponent((row << 4)+col),
+                                                            nesGetPaletteGreenComponent((row << 4)+col),
+                                                            nesGetPaletteBlueComponent((row << 4)+col)));
         }
     }
     updateUI();

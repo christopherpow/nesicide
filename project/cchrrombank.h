@@ -1,11 +1,10 @@
 #ifndef CCHRROMBANK_H
 #define CCHRROMBANK_H
 
-#include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
+#include "cprojectbase.h"
 #include "chrromdisplaydialog.h"
 
-class CCHRROMBank : public IXMLSerializable, public IProjectTreeViewItem
+class CCHRROMBank : public CProjectBase
 {
 public:
     CCHRROMBank();

@@ -8,6 +8,7 @@
 #include "compilerthread.h"
 
 #include "cgamedatabasehandler.h"
+#include "cnesicideproject.h"
 
 char* ideGetVersion();
 
@@ -20,5 +21,7 @@ extern BreakpointWatcherThread* breakpointWatcher;
 extern CompilerThread* compiler;
 
 extern CGameDatabaseHandler gameDatabase;
+
+extern CNesicideProject *nesicideProject;
 
 #endif // MAIN_H

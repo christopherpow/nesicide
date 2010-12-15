@@ -1,12 +1,12 @@
 #ifndef CSOURCES_H
 #define CSOURCES_H
 
-#include <QInputDialog>
-#include <QList>
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
+#include "cprojectbase.h"
 #include "csourceitem.h"
 #include "cprojecttreeviewmodel.h"
+
+#include <QInputDialog>
+#include <QList>
 
 class CSources : public IXMLSerializable, public IProjectTreeViewItem
 {

@@ -1,11 +1,11 @@
 #ifndef CATTRIBUTETABLES_H
 #define CATTRIBUTETABLES_H
 
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
+#include "cprojectbase.h"
+
 #include <QString>
 
-class CAttributeTables : public IProjectTreeViewItem, public IXMLSerializable
+class CAttributeTables : public CProjectBase
 {
 public:
    CAttributeTables();

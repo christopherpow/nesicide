@@ -52,3 +52,18 @@ void GraphicsBankEditorForm::on_AddItemPushButton_clicked()
    }
    delete dlg;
 }
+
+void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> newList)
+{
+   chrRomBankItems.clear();
+   chrRomBankItems.append(newList);
+   model->chrRomBankItems.clear();
+   model->chrRomBankItems.append(newList);
+   ui->progressBar->setMaximum(0x2000);
+   int dataSize = 0;
+   for (int i=0; i<chrRomBankItems.count(); i++)
+      dataSize += chrRomBankItems.at(i)->getChrRomBankItemSize();
+   ui->progressBar->setValue(dataSize);
+        model->layoutChangedEvent();
+   
+}

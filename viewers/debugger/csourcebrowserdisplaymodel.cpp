@@ -11,6 +11,8 @@
 
 #include "cmarker.h"
 
+#include "main.h"
+
 #include <QIcon>
 
 CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject*)

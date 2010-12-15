@@ -37,7 +37,7 @@ win32 {
 
 	PASM_LIBS = ../nesicide/compiler/libpasm.a
 
-	NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator
+	NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator -I../nesicide-emulator-lib/common
 
 	QMAKE_LFLAGS += -static-libgcc
 
@@ -46,7 +46,7 @@ win32 {
 }
 
 mac {
-	NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator
+	NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator -I ../nesicide-emulator-lib/common
 	NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
 
 	SDL_CXXFLAGS = -framework SDL
@@ -86,7 +86,7 @@ unix:!mac {
                 BINDIR=$$PREFIX/bin
 	}
 
-        INCLUDEPATH += $$PREFIX/include/nesicide-emulator
+   INCLUDEPATH += $$PREFIX/include/nesicide-emulator
 
 	target.path = $$BINDIR
 	INSTALLS += target
@@ -156,7 +156,6 @@ SOURCES += mainwindow.cpp \
     debugger/nametableinspector.cpp \
     debugger/executiontracerdialog.cpp \
     project/cbinaryfile.cpp \
-    project/cgraphics.cpp \
     project/cgraphicsbanks.cpp \
     project/cgraphicsbank.cpp \
     designers/graphics_bank_editor/graphicsbankeditorform.cpp \
@@ -212,12 +211,12 @@ SOURCES += mainwindow.cpp \
     outputdialog.cpp \
     compiler/compilerthread.cpp \
     emulatorprefsdialog.cpp \
-    qkeymapitemedit.cpp
+    qkeymapitemedit.cpp \
+    project/cprojectbase.cpp
 
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
-    common/defaultnespalette.h \
     common/cpaletteitemdelegate.h \
     common/cnessystempalette.h \
     common/cgltexturemanager.h \
@@ -260,7 +259,6 @@ HEADERS += mainwindow.h \
     debugger/executiontracerdialog.h \
     emulator/nesemulatorthread.h \
     project/cbinaryfile.h \
-    project/cgraphics.h \
     project/cgraphicsbanks.h \
     project/cgraphicsbank.h \
     designers/graphics_bank_editor/graphicsbankeditorform.h \
@@ -319,7 +317,8 @@ HEADERS += mainwindow.h \
     outputdialog.h \
     compiler/compilerthread.h \
     emulatorprefsdialog.h \
-    qkeymapitemedit.h
+    qkeymapitemedit.h \
+    project/cprojectbase.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

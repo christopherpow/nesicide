@@ -1,18 +1,16 @@
 #ifndef CNESICIDEPROJECT_H
 #define CNESICIDEPROJECT_H
 
+#include "cprojectbase.h"
+#include "ccartridge.h"
+#include "cproject.h"
+
 #include <QString>
 #include <QMessageBox>
-#include "ixmlserializable.h"
-#include "iprojecttreeviewitem.h"
-#include "ccartridge.h"
-#include "defaultnespalette.h"
-#include "iprojecttreeviewitem.h"
-#include "cproject.h"
 
 typedef QColor CPaletteEntry;
 
-class CNesicideProject : public IXMLSerializable, public IProjectTreeViewItem
+class CNesicideProject : public CProjectBase
 {
 
 public:
@@ -29,16 +27,16 @@ public:
     void terminateProject();
 
     // Member Getters
-    QString get_projectTitle();
-    QList<CPaletteEntry> *get_pointerToListOfProjectPaletteEntries();
-    bool get_isInitialized();
-    CCartridge *get_pointerToCartridge();
+    QString getProjectTitle();
+    QList<CPaletteEntry> *getProjectPaletteEntries();
+    bool isInitialized();
+    CCartridge *getCartridge();
     CProject *getProject();
 
     // Member Setters
-    void set_projectTitle(QString value);
-    void set_pointerToListOfProjectPaletteEntries(QList<CPaletteEntry> *pointerToListOfProjectPaletteEntries);
-    void set_pointerToCartridge(CCartridge *pointerToCartridge);
+    void setProjectTitle(QString value);
+    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
+    void setCartridge(CCartridge *pCartridge);
     void setProject(CProject *project);
 
     // IXMLSerializable Interface Implementation
@@ -60,15 +58,12 @@ public:
 private:
     void initializeNodes();
 
-    QString m_projectTitle;                                         // The visible title of the project
-    QList<CPaletteEntry> *m_pointerToListOfProjectPaletteEntries;   // List of palette entries for the emulator.
     bool m_isInitialized;                                           // Is the project initialized?
 
-    CProject *m_pointerToProject;
-    CCartridge *m_pointerToCartridge;
-
+    QString m_projectTitle;                                         // The visible title of the project
+    QList<CPaletteEntry> *m_pProjectPaletteEntries;                 // List of palette entries for the emulator.
+    CProject *m_pProject;
+    CCartridge *m_pCartridge;
 };
-
-extern CNesicideProject *nesicideProject;
 
 #endif // CNESICIDEPROJECT_H

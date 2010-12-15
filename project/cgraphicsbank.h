@@ -1,14 +1,13 @@
 #ifndef CGRAPHICSBANK_H
 #define CGRAPHICSBANK_H
 
+#include "cprojectbase.h"
+#include "graphicsbankeditorform.h"
+
 #include <QMessageBox>
 #include <QMenu>
 
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
-#include "graphicsbankeditorform.h"
-
-class CGraphicsBank : public IXMLSerializable, public IProjectTreeViewItem
+class CGraphicsBank : public CProjectBase
 {
 public:
     CGraphicsBank();
@@ -38,7 +37,7 @@ public:
 private:
     bool m_isModified;
     int m_tabIndex;
-    QString m_bankName;
+    QString m_name;
     GraphicsBankEditorForm *m_editor;
 };
 

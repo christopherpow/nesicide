@@ -1,15 +1,13 @@
 #ifndef CBINARYFILE_H
 #define CBINARYFILE_H
 
+#include "cprojectbase.h"
+#include "ichrrombankitem.h"
+
 #include <QMessageBox>
 
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
-#include "ichrrombankitem.h"
-#include "cprojecttreeviewmodel.h"
-
-class CBinaryFile : public IXMLSerializable, public IProjectTreeViewItem,
-   public IChrRomBankItem
+class CBinaryFile : public CProjectBase,
+                    public IChrRomBankItem
 {
 public:
     CBinaryFile();
@@ -43,7 +41,7 @@ public:
 
 private:
     QByteArray *m_binaryData;
-    QString m_binaryName;
+    QString m_name;
 };
 
 #endif // CBINARYFILE_H

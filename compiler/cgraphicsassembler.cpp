@@ -1,6 +1,8 @@
 #include "cgraphicsassembler.h"
 #include "cnesicideproject.h"
 
+#include "main.h"
+
 CGraphicsAssembler::CGraphicsAssembler()
 {
 }
@@ -8,8 +10,8 @@ CGraphicsAssembler::CGraphicsAssembler()
 bool CGraphicsAssembler::assemble()
 {
    buildTextLogger.write("<b>Building CHR-ROM Banks:</b>");
-   CGraphicsBanks *gfxBanks = nesicideProject->getProject()->getGraphics()->getGraphicsBanks();
-   CCHRROMBanks *chrRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToChrRomBanks();
+   CGraphicsBanks *gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
+   CCHRROMBanks *chrRomBanks = nesicideProject->getCartridge()->getPointerToChrRomBanks();
 
    int oldChrRomBanks = chrRomBanks->banks.count();
 

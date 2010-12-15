@@ -1,13 +1,12 @@
 #ifndef CPROJECTPRIMITIVES_H
 #define CPROJECTPRIMITIVES_H
 
+#include "cprojectbase.h"
 #include "cattributetables.h"
 
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
 #include <QString>
 
-class CProjectPrimitives : public IProjectTreeViewItem, public IXMLSerializable
+class CProjectPrimitives : public CProjectBase
 {
 public:
    CProjectPrimitives();

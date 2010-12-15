@@ -1,5 +1,8 @@
 #include "cgraphicsbank.h"
 #include "cnesicideproject.h"
+
+#include "main.h"
+
 CGraphicsBank::CGraphicsBank()
 {
    m_isModified = false;
@@ -16,19 +19,63 @@ CGraphicsBank::~CGraphicsBank()
 
 bool CGraphicsBank::serialize(QDomDocument &doc, QDomNode &node)
 {
-   QDomElement graphicsBankElement = addElement( doc, node, "graphicsbank" );
+   QDomElement element = addElement( doc, node, "graphicsbank" );   
+   element.setAttribute("name", m_name);
+   element.setAttribute("uuid", getIdent());
+
+   for (int i=0; i < bankItems.count(); i++)
+   {
+      QDomElement graphicsItemElement = addElement( doc, element, "graphicitem" );
+      IProjectTreeViewItem* projectItem = dynamic_cast<IProjectTreeViewItem*>(bankItems.at(i));
+      graphicsItemElement.setAttribute("uuid", projectItem->getIdent() );
+   }
 
    return true;
 }
 
 bool CGraphicsBank::deserialize(QDomDocument &doc, QDomNode &node)
 {
-   return true;
+    QDomElement element = node.toElement();
+
+    if (element.isNull())
+        return false;
+
+    if (!element.hasAttribute("name"))
+        return false;
+
+    if (!element.hasAttribute("uuid"))
+        return false;
+
+    m_name = element.attribute("name");
+
+    setIdent(element.attribute("uuid"));
+
+    bankItems.clear();
+   
+    QDomNode childNode = node.firstChild();
+    if (!childNode.isNull()) do
+    {
+        if (childNode.nodeName() == "graphicitem") 
+        {
+            QDomElement graphicItem = childNode.toElement();
+
+            IProjectTreeViewItem* projectItem = findProjectItem(graphicItem.attribute("uuid"));
+            IChrRomBankItem* pItem = dynamic_cast<IChrRomBankItem*>(projectItem);
+            if ( pItem )
+            {
+               bankItems.append(pItem);
+            }
+
+        } else
+            return false;
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
+    return true;
 }
 
 QString CGraphicsBank::caption() const
 {
-   return m_bankName;
+   return m_name;
 }
 
 void CGraphicsBank::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
@@ -52,8 +99,8 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent
          }
 
          // TODO: Fix this logic so the memory doesn't get lost.
-         nesicideProject->getProject()->getGraphics()->getGraphicsBanks()->removeChild(this);
-         nesicideProject->getProject()->getGraphics()->getGraphicsBanks()->getGraphicsBankArray()->removeAll(this);
+         nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
+         nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBankArray()->removeAll(this);
          ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
       }
    }
@@ -77,7 +124,8 @@ void CGraphicsBank::openItemEvent(QTabWidget *tabWidget)
       m_editor = new GraphicsBankEditorForm();
       m_tabIndex = tabWidget->addTab(m_editor, this->caption());
    }
-
+   
+   m_editor->updateChrRomBankItemList(bankItems);
 
    tabWidget->setCurrentIndex(m_tabIndex);
 }
@@ -113,9 +161,9 @@ void CGraphicsBank::onSaveDocument()
 
 bool CGraphicsBank::onNameChanged(QString newName)
 {
-   if (m_bankName != newName)
+   if (m_name != newName)
    {
-      m_bankName = newName;
+      m_name = newName;
       if (m_editor && (m_tabIndex != -1))
       {
          QTabWidget * tabWidget = (QTabWidget *)m_editor->parentWidget()->parentWidget();
@@ -127,10 +175,10 @@ bool CGraphicsBank::onNameChanged(QString newName)
 
 QString CGraphicsBank::getBankName()
 {
-   return m_bankName;
+   return m_name;
 }
 
 void CGraphicsBank::setBankName(QString newName)
 {
-   m_bankName = newName;
+   m_name = newName;
 }

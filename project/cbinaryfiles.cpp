@@ -57,7 +57,7 @@ bool CBinaryFiles::deserialize(QDomDocument &doc, QDomNode &node)
     QDomNode childNode = node.firstChild();
     if (!childNode.isNull()) do
     {
-        if (childNode.nodeName() == "binaryitem") {
+        if (childNode.nodeName() == "binaryfile") {
 
             CBinaryFile *pNewBinaryFile = new CBinaryFile();
             pNewBinaryFile->InitTreeItem(this);

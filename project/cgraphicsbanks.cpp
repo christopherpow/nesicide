@@ -2,20 +2,20 @@
 
 CGraphicsBanks::CGraphicsBanks()
 {
-    m_paGraphicsBank = new QList<CGraphicsBank *>();
+    m_pGraphicsBank = new QList<CGraphicsBank *>();
 }
 
 CGraphicsBanks::~CGraphicsBanks()
 {
-    if (m_paGraphicsBank)
+    if (m_pGraphicsBank)
     {
-        for (int idx = 0; idx < m_paGraphicsBank->count(); idx++)
+        for (int idx = 0; idx < m_pGraphicsBank->count(); idx++)
         {
-            CGraphicsBank *bank = m_paGraphicsBank->at(idx);
+            CGraphicsBank *bank = m_pGraphicsBank->at(idx);
             if (bank)
                 delete bank;
         }
-        delete m_paGraphicsBank;
+        delete m_pGraphicsBank;
     }
 
 }
@@ -23,11 +23,50 @@ CGraphicsBanks::~CGraphicsBanks()
 bool CGraphicsBanks::serialize(QDomDocument &doc, QDomNode &node)
 {
     QDomElement graphicsBanksElement = addElement( doc, node, "graphicsbanks" );
+
+    for (int sourceItemIdx = 0; sourceItemIdx < m_pGraphicsBank->count(); sourceItemIdx++)
+    {
+        if (!m_pGraphicsBank->at(sourceItemIdx))
+            return false;
+        if (!m_pGraphicsBank->at(sourceItemIdx)->serialize(doc, graphicsBanksElement))
+            return false;
+    }
     return true;
 }
 
-bool CGraphicsBanks::deserialize(QDomDocument &, QDomNode &)
+bool CGraphicsBanks::deserialize(QDomDocument &doc, QDomNode &node)
 {
+    if (m_pGraphicsBank)
+    {
+        for (int indexOfSourceItem=0; indexOfSourceItem<m_pGraphicsBank->count(); indexOfSourceItem++)
+        {
+            if (m_pGraphicsBank->at(indexOfSourceItem))
+            {
+                this->removeChild(m_pGraphicsBank->at(indexOfSourceItem));
+                delete m_pGraphicsBank->at(indexOfSourceItem);
+            }
+        }
+        delete m_pGraphicsBank;
+    }
+
+    m_pGraphicsBank = new QList<CGraphicsBank *>();
+
+    QDomNode childNode = node.firstChild();
+    if (!childNode.isNull()) do
+    {
+        if (childNode.nodeName() == "graphicsbank") {
+
+            CGraphicsBank *pNewGraphicsBank = new CGraphicsBank();
+            pNewGraphicsBank->InitTreeItem(this);
+            m_pGraphicsBank->append(pNewGraphicsBank);
+            this->appendChild(pNewGraphicsBank);
+            if (!pNewGraphicsBank->deserialize(doc, childNode))
+                return false;
+
+        } else
+            return false;
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
     return true;
 }
 
@@ -49,7 +88,7 @@ void CGraphicsBanks::contextMenuEvent(QContextMenuEvent *event, QTreeView *paren
                 CGraphicsBank *pBank = new CGraphicsBank();
                 pBank->setBankName(bankName);
                 pBank->InitTreeItem(this);
-                m_paGraphicsBank->append(pBank);
+                m_pGraphicsBank->append(pBank);
                 this->appendChild(pBank);
                 ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
             }
@@ -59,10 +98,10 @@ void CGraphicsBanks::contextMenuEvent(QContextMenuEvent *event, QTreeView *paren
 
 QList<CGraphicsBank *> *CGraphicsBanks::getGraphicsBankArray()
 {
-    return m_paGraphicsBank;
+    return m_pGraphicsBank;
 }
 
 void CGraphicsBanks::setGraphicsBankArray(QList<CGraphicsBank *> *newGraphicsBankArray)
 {
-    m_paGraphicsBank = newGraphicsBankArray;
+    m_pGraphicsBank = newGraphicsBankArray;
 }

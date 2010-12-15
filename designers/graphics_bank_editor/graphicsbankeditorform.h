@@ -17,6 +17,7 @@ public:
     GraphicsBankEditorForm(QWidget *parent = 0);
     ~GraphicsBankEditorForm();
     QList<IChrRomBankItem*> chrRomBankItems;
+    void updateChrRomBankItemList(QList<IChrRomBankItem*> newList);
 
 protected:
     void changeEvent(QEvent *e);

@@ -1,15 +1,13 @@
 #ifndef CPROJECT_H
 #define CPROJECT_H
 
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
+#include "cprojectbase.h"
 #include "cprojectprimitives.h"
 #include "csources.h"
-#include "csourceitem.h"
 #include "cbinaryfiles.h"
-#include "cgraphics.h"
+#include "cgraphicsbanks.h"
 
-class CProject : public IXMLSerializable, public IProjectTreeViewItem
+class CProject : public CProjectBase
 {
 public:
     CProject();
@@ -23,8 +21,8 @@ public:
     void setSources(CSources *newSources);
     CBinaryFiles *getBinaryFiles();
     void setBinaryFiles(CBinaryFiles *newBinaryFiles);
-    CGraphics *getGraphics();
-    void setGraphics(CGraphics *newGraphics);
+    CGraphicsBanks *getGraphicsBanks();
+    void setGraphicsBanks(CGraphicsBanks *newGraphicsBanks);
 
     // IXMLSerializable Interface Implementation
     virtual bool serialize(QDomDocument &doc, QDomNode &node);
@@ -47,7 +45,7 @@ private:
     CProjectPrimitives *m_pProjectPrimitives;
     CSourceItem *m_mainSource;
     CBinaryFiles *m_pBinaryFiles;
-    CGraphics *m_pGraphics;
+    CGraphicsBanks *m_pGraphicsBanks;
 };
 
 #endif // CPROJECT_H

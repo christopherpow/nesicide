@@ -120,9 +120,9 @@ void NESEmulatorThread::kill()
 void NESEmulatorThread::primeEmulator()
 {
    if ( (nesicideProject) &&
-        (nesicideProject->get_pointerToCartridge()) )
+        (nesicideProject->getCartridge()) )
    {
-      m_pCartridge = nesicideProject->get_pointerToCartridge();
+      m_pCartridge = nesicideProject->getCartridge();
 
       // Force hard-reset of the machine...
       nesEnableBreakpoints(false);

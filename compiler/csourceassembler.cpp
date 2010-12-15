@@ -12,6 +12,8 @@
 
 #include "cmarker.h"
 
+#include "main.h"
+
 extern "C" int PASM_include ( char* objname, char** objdata, int* size );
 
 CSourceAssembler::CSourceAssembler()
@@ -21,7 +23,7 @@ CSourceAssembler::CSourceAssembler()
 bool CSourceAssembler::assemble()
 {
    CSourceItem *rootSource = nesicideProject->getProject()->getMainSource();
-   CPRGROMBanks *prgRomBanks = nesicideProject->get_pointerToCartridge()->getPointerToPrgRomBanks();
+   CPRGROMBanks *prgRomBanks = nesicideProject->getCartridge()->getPointerToPrgRomBanks();
    char* romData = NULL;
    int romLength = 0;
    QString strBuffer1;

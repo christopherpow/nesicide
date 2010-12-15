@@ -15,9 +15,9 @@ CProject::CProject()
     m_pBinaryFiles->InitTreeItem(this);
     this->appendChild(m_pBinaryFiles);
 
-    m_pGraphics = new CGraphics();
-    m_pGraphics->InitTreeItem(this);
-    this->appendChild(m_pGraphics);
+    m_pGraphicsBanks = new CGraphicsBanks();
+    m_pGraphicsBanks->InitTreeItem(this);
+    this->appendChild(m_pGraphicsBanks);
 }
 
 CProject::~CProject()
@@ -31,8 +31,8 @@ CProject::~CProject()
     if (m_pBinaryFiles)
         delete m_pBinaryFiles;
 
-    if (m_pGraphics)
-        delete m_pGraphics;
+    if (m_pGraphicsBanks)
+        delete m_pGraphicsBanks;
 }
 
 CProjectPrimitives *CProject::getProjectPrimitives()
@@ -45,14 +45,14 @@ void CProject::setProjectPrimitives(CProjectPrimitives *newProjectPrimitives)
     m_pProjectPrimitives = newProjectPrimitives;
 }
 
-CGraphics *CProject::getGraphics()
+CGraphicsBanks *CProject::getGraphicsBanks()
 {
-    return m_pGraphics;
+    return m_pGraphicsBanks;
 }
 
-void CProject::setGraphics(CGraphics *newGraphics)
+void CProject::setGraphicsBanks(CGraphicsBanks *newGraphicsBanks)
 {
-    m_pGraphics = newGraphics;
+    m_pGraphicsBanks = newGraphicsBanks;
 }
 
 CSourceItem *CProject::getMainSource()
@@ -111,41 +111,76 @@ bool CProject::serialize(QDomDocument &doc, QDomNode &node)
     } else
         return false;
 
+    if (m_pGraphicsBanks)
+    {
+        if (!m_pGraphicsBanks->serialize(doc, projectElement))
+            return false;
+    } else
+        return false;
+
     if (m_mainSource)
-        projectElement.setAttribute("mainSource", m_mainSource->get_sourceName());
+        projectElement.setAttribute("mainsourceuuid", m_mainSource->getIdent());
 
     return true;
 }
 
 bool CProject::deserialize(QDomDocument &doc, QDomNode &node)
 {
+   QDomNode childNode;
+   
     if (m_pSources)
         delete m_pSources;
 
     m_pSources = new CSources();
     m_pSources->InitTreeItem(this);
 
-    QDomNode childNode = node.firstChild();
+    // Deserialization order is important but file order is not, 
+    // so we must take care of any possible XML ordering of items
+    // here.  First, look for primitives.
+    childNode = node.firstChild();
     do
     {
         if (childNode.nodeName() == "primitives") {
             if (!m_pProjectPrimitives->deserialize(doc, childNode))
                 return false;
-        } else if (childNode.nodeName() == "sources") {
-            if (!m_pSources->deserialize(doc, childNode))
-                return false;
-        } else if (childNode.nodeName() == "binaryfiles") {
-            if (!m_pBinaryFiles->deserialize(doc, childNode))
-                return false;
-        } else
-            return false;
+        }
     } while (!(childNode = childNode.nextSibling()).isNull());
 
-    QString mainSource = node.toElement().attribute("mainSource");
+    // Next, look for sources.
+    childNode = node.firstChild();
+    do
+    {
+        if (childNode.nodeName() == "sources") {
+            if (!m_pSources->deserialize(doc, childNode))
+                return false;
+        }
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
+    // Next, look for binary files.
+    childNode = node.firstChild();
+    do
+    {
+        if (childNode.nodeName() == "binaryfiles") {
+            if (!m_pBinaryFiles->deserialize(doc, childNode))
+                return false;
+        }
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
+    // Next, look for graphics banks.
+    childNode = node.firstChild();
+    do
+    {
+        if (childNode.nodeName() == "graphicsbanks") {
+            if (!m_pGraphicsBanks->deserialize(doc, childNode))
+                return false;
+        }
+    } while (!(childNode = childNode.nextSibling()).isNull());
+
+    QString mainSource = node.toElement().attribute("mainsourceuuid");
     m_mainSource = (CSourceItem *)NULL;
     for (int sourceIdx = 0; sourceIdx < m_pSources->childCount(); sourceIdx++)
     {
-        if (mainSource == (((CSourceItem *)m_pSources->child(sourceIdx))->get_sourceName()))
+        if (mainSource == (((CSourceItem *)m_pSources->child(sourceIdx))->getIdent()))
         {
             m_mainSource = ((CSourceItem *)m_pSources->child(sourceIdx));
             break;

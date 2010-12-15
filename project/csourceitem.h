@@ -1,13 +1,13 @@
 #ifndef CSOURCEITEM_H
 #define CSOURCEITEM_H
 
-#include <QMessageBox>
-#include <QTabWidget>
-#include "iprojecttreeviewitem.h"
-#include "ixmlserializable.h"
+#include "cprojectbase.h"
 #include "codeeditorform.h"
 
-class CSourceItem : public IXMLSerializable, public IProjectTreeViewItem
+#include <QMessageBox>
+#include <QTabWidget>
+
+class CSourceItem : public CProjectBase
 {
 public:
     CSourceItem();
@@ -38,10 +38,10 @@ public:
     virtual bool onNameChanged(QString newName);
 
 private:
-    QString m_sourceName;
-    QString m_sourceCode;
-    int m_indexOfTab;
-    CodeEditorForm *m_codeEditorForm;
+   QString m_name;
+   QString m_sourceCode;
+   int m_indexOfTab;
+   CodeEditorForm *m_codeEditorForm;
 };
 
 #endif // CSOURCEITEM_H
