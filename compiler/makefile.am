@@ -1,0 +1,32 @@
+AUTOMAKE_OPTIONS=subdir-objects
+
+bin_PROGRAMS = pasm
+
+pasm_CPPFLAGS = -DPASM_EXE
+
+pasm_SOURCES = pasm_exe.c
+
+nodist_pasm_SOURCES = lex.asm.c lex.pp.c pasm_asm.tab.c pasm_asm.tab.h
+
+lib_LTLIBRARIES = libpasm.la
+
+libpasm_la_CPPFLAGS = -DPASM_LIB
+
+libpasm_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version -shared
+
+libpasm_la_SOURCES = pasm_lib.h pasm_lib.c pasm_types.h
+
+nodist_libpasm_la_SOURCES = lex.asm.c lex.pp.c pasm_asm.tab.c
+
+CLEANFILES = lex.asm.c lex.pp.c pasm_asm.tab.c
+
+EXTRA_DIST = pasm_asm.l pasm_pp.l pasm_asm.y
+
+lex.asm.c : pasm_asm.l pasm_asm.tab.h
+	flex -sil -Pasm pasm_asm.l
+
+lex.pp.c : pasm_pp.l
+	flex -sil -Ppp pasm_pp.l
+
+pasm_asm.tab.c pasm_asm.tab.h : pasm_asm.y
+	bison -dv -pasm -r all pasm_asm.y
