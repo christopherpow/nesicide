@@ -120,6 +120,7 @@ QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$PASM_CXXFL
 LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS
 
 INCLUDEPATH += common \
+    compiler \
     debugger \
     designers/cartridge_editor \
     designers/code_editor \
