@@ -43,6 +43,7 @@ void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltip
 {
    char* ptr = tooltipBuffer;
    ptr += sprintf ( ptr, "<pre>" );
+
    if ( tipType == TOOLTIP_BYTES )
    {
       if ( addr < 0x800 )
@@ -66,5 +67,6 @@ void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltip
    {
       ptr += sprintf ( ptr, "%s", OPCODEINFO(nesGetMemory(addr)) );
    }
+
    ptr += sprintf ( ptr, "</pre>" );
 }

@@ -12,7 +12,7 @@ CBreakpointDisplayModel::~CBreakpointDisplayModel()
 {
 }
 
-QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
+QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const
 {
    char data [ 256 ];
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -21,6 +21,7 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
    if ((role == Qt::DecorationRole) && (index.column() == 0))
    {
       brkptStatus = pBreakpoints->GetStatus(index.row());
+
       if ( brkptStatus == Breakpoint_Idle )
       {
          return QIcon(":/resources/22_breakpoint.png");
@@ -36,30 +37,32 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex &index, int role) const
    }
 
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    // Get data for columns...
    switch ( index.column() )
    {
       case 0:
          return QVariant();
-      break;
+         break;
       case 1:
          pBreakpoints->GetPrintable(index.row(),data);
-      break;
+         break;
    }
 
    return data;
 }
 
-int CBreakpointDisplayModel::rowCount(const QModelIndex &) const
+int CBreakpointDisplayModel::rowCount(const QModelIndex&) const
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
 
    return pBreakpoints->GetNumBreakpoints();
 }
 
-int CBreakpointDisplayModel::columnCount(const QModelIndex &) const
+int CBreakpointDisplayModel::columnCount(const QModelIndex&) const
 {
    return 2;
 }

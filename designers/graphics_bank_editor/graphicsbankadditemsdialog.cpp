@@ -4,48 +4,52 @@
 
 #include "main.h"
 
-GraphicsBankAddItemsDialog::GraphicsBankAddItemsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::GraphicsBankAddItemsDialog)
+GraphicsBankAddItemsDialog::GraphicsBankAddItemsDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::GraphicsBankAddItemsDialog)
 {
-    ui->setupUi(this);
-    model = new CChrRomItemListDisplayModel(ui->tableView);
+   ui->setupUi(this);
+   model = new CChrRomItemListDisplayModel(ui->tableView);
 
-    IProjectTreeViewItemIterator iter(nesicideProject->getProject());
-    while ( iter.current() != NULL )
-    {
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+
+   while ( iter.current() != NULL )
+   {
       if (IChrRomBankItem* chrRomItem = dynamic_cast<IChrRomBankItem*>(iter.current()))
       {
          model->chrRomBankItems.append(chrRomItem);
       }
-      iter.next();
-    }
 
-    model->layoutChangedEvent();
-    ui->tableView->setModel(model);
-    ui->tableView->setSelectionMode(QAbstractItemView::MultiSelection);
-    ui->tableView->setColumnWidth(0, 26);
-    ui->tableView->setColumnWidth(1, 90);
-    ui->tableView->setColumnWidth(2, 140);
-    ui->tableView->setColumnWidth(3, 70);
+      iter.next();
+   }
+
+   model->layoutChangedEvent();
+   ui->tableView->setModel(model);
+   ui->tableView->setSelectionMode(QAbstractItemView::MultiSelection);
+   ui->tableView->setColumnWidth(0, 26);
+   ui->tableView->setColumnWidth(1, 90);
+   ui->tableView->setColumnWidth(2, 140);
+   ui->tableView->setColumnWidth(3, 70);
 }
 
 GraphicsBankAddItemsDialog::~GraphicsBankAddItemsDialog()
 {
-    delete ui;
-    delete model;
+   delete ui;
+   delete model;
 }
 
-void GraphicsBankAddItemsDialog::changeEvent(QEvent *e)
+void GraphicsBankAddItemsDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void GraphicsBankAddItemsDialog::on_buttonBox_accepted()
@@ -61,6 +65,9 @@ void GraphicsBankAddItemsDialog::on_buttonBox_rejected()
 IChrRomBankItem* GraphicsBankAddItemsDialog::getSelectedBankItem()
 {
    if (ui->tableView->selectionModel()->selectedIndexes().count() == 0)
+   {
       return (IChrRomBankItem*)NULL;
+   }
+
    return model->chrRomBankItems.at(ui->tableView->selectionModel()->selectedIndexes().at(0).row());
 }

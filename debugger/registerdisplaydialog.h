@@ -8,44 +8,46 @@
 
 #include "cregisterdata.h"
 
-namespace Ui {
-    class RegisterDisplayDialog;
+namespace Ui
+{
+class RegisterDisplayDialog;
 }
 
-class RegisterDisplayDialog : public QDialog {
-    Q_OBJECT
+class RegisterDisplayDialog : public QDialog
+{
+   Q_OBJECT
 public:
-    RegisterDisplayDialog(QWidget *parent = 0, eMemoryType display = eMemory_IOregs);
-    ~RegisterDisplayDialog();
+   RegisterDisplayDialog(QWidget* parent = 0, eMemoryType display = eMemory_IOregs);
+   ~RegisterDisplayDialog();
 
 protected:
-    void changeEvent(QEvent *e);
-    void contextMenuEvent(QContextMenuEvent *e);
-    void showEvent(QShowEvent *e);
+   void changeEvent(QEvent* e);
+   void contextMenuEvent(QContextMenuEvent* e);
+   void showEvent(QShowEvent* e);
 
 public slots:
    void updateMemory();
 
 signals:
-    void showMe(eMemoryType display);
+   void showMe(eMemoryType display);
 
 private:
-    Ui::RegisterDisplayDialog *ui;
-    CDebuggerMemoryDisplayModel *binaryModel;
-    CDebuggerRegisterDisplayModel *bitfieldModel;
-    CDebuggerRegisterComboBoxDelegate * bitfieldDelegate;
-    CRegisterData** m_tblRegisters;
-    eMemoryType m_display;
-    int m_register;
+   Ui::RegisterDisplayDialog* ui;
+   CDebuggerMemoryDisplayModel* binaryModel;
+   CDebuggerRegisterDisplayModel* bitfieldModel;
+   CDebuggerRegisterComboBoxDelegate* bitfieldDelegate;
+   CRegisterData** m_tblRegisters;
+   eMemoryType m_display;
+   int m_register;
 
 private slots:
-    void on_binaryView_entered(QModelIndex index);
-    void on_binaryView_activated(QModelIndex index);
-    void on_binaryView_pressed(QModelIndex index);
-    void on_bitfieldView_doubleClicked(QModelIndex index);
-    void on_bitfieldView_clicked(QModelIndex index);
-    void on_binaryView_doubleClicked(QModelIndex index);
-    void on_binaryView_clicked(QModelIndex index);
+   void on_binaryView_entered(QModelIndex index);
+   void on_binaryView_activated(QModelIndex index);
+   void on_binaryView_pressed(QModelIndex index);
+   void on_bitfieldView_doubleClicked(QModelIndex index);
+   void on_bitfieldView_clicked(QModelIndex index);
+   void on_binaryView_doubleClicked(QModelIndex index);
+   void on_binaryView_clicked(QModelIndex index);
 };
 
 #endif // REGISTERDISPLAYDIALOG_H

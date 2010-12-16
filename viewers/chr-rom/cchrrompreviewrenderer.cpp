@@ -1,7 +1,7 @@
 #include "cchrrompreviewrenderer.h"
 
-CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget *parent, char *imgData)
-    : QGLWidget(parent)
+CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget* parent, char* imgData)
+   : QGLWidget(parent)
 {
    imageData = imgData;
    scrollX = 0;
@@ -68,7 +68,7 @@ void CCHRROMPreviewRenderer::updateGL()
    repaint();
 }
 
-void CCHRROMPreviewRenderer::reloadData(char *imgData)
+void CCHRROMPreviewRenderer::reloadData(char* imgData)
 {
    makeCurrent();
 
@@ -94,7 +94,9 @@ void CCHRROMPreviewRenderer::resizeGL(int width, int height)
 
    // Width cannot be 0
    if (width == 0)
-     width = 1;
+   {
+      width = 1;
+   }
 
    // Initialize our viewpoint using the actual size so 1 point should = 1 pixel.
    glViewport(0, 0, width, height);
@@ -124,14 +126,14 @@ void CCHRROMPreviewRenderer::paintGL()
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
    glBegin(GL_QUADS);
-      glTexCoord2f (0.0, 0.0);
-      glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
-      glTexCoord2f (1.0, 0.0);
-      glVertex3f(256.0f - scrollX, 000.0f - scrollY, 0.0f);
-      glTexCoord2f (1.0, 0.5);
-      glVertex3f(256.0f - scrollX, 128.0f - scrollY, 0.0f);
-      glTexCoord2f (0.0, 0.5);
-      glVertex3f(000.0f - scrollX, 128.0f - scrollY, 0.0f);
+   glTexCoord2f (0.0, 0.0);
+   glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
+   glTexCoord2f (1.0, 0.0);
+   glVertex3f(256.0f - scrollX, 000.0f - scrollY, 0.0f);
+   glTexCoord2f (1.0, 0.5);
+   glVertex3f(256.0f - scrollX, 128.0f - scrollY, 0.0f);
+   glTexCoord2f (0.0, 0.5);
+   glVertex3f(000.0f - scrollX, 128.0f - scrollY, 0.0f);
    glEnd();
 }
 

@@ -57,6 +57,7 @@ void CROMMapper065::RESET ()
 void CROMMapper065::SYNCH ( uint32_t ppuCycle, uint32_t ppuAddr )
 {
 #if 0
+
 // CPTODO: reimplement...
    if ( m_irqEnable )
    {
@@ -70,6 +71,7 @@ void CROMMapper065::SYNCH ( uint32_t ppuCycle, uint32_t ppuAddr )
          m_irqCounter--;
       }
    }
+
 #endif
 }
 
@@ -89,56 +91,57 @@ uint32_t CROMMapper065::MAPPER ( uint32_t addr )
    {
       case 0x8000:
          return m_reg [ 0 ];
-      break;
+         break;
       case 0x9000:
          return m_reg [ 1 ];
-      break;
+         break;
       case 0x9001:
          return m_reg [ 2 ];
-      break;
+         break;
       case 0x9003:
          return m_reg [ 3 ];
-      break;
+         break;
       case 0x9004:
          return m_reg [ 4 ];
-      break;
+         break;
       case 0x9005:
          return m_reg [ 5 ];
-      break;
+         break;
       case 0x9006:
          return m_reg [ 6 ];
-      break;
+         break;
       case 0xA000:
          return m_reg [ 7 ];
-      break;
+         break;
       case 0xB000:
          return m_reg [ 8 ];
-      break;
+         break;
       case 0xB001:
          return m_reg [ 9 ];
-      break;
+         break;
       case 0xB002:
          return m_reg [ 10 ];
-      break;
+         break;
       case 0xB003:
          return m_reg [ 11 ];
-      break;
+         break;
       case 0xB004:
          return m_reg [ 12 ];
-      break;
+         break;
       case 0xB005:
          return m_reg [ 13 ];
-      break;
+         break;
       case 0xB006:
          return m_reg [ 14 ];
-      break;
+         break;
       case 0xB007:
          return m_reg [ 15 ];
-      break;
+         break;
       case 0xC000:
          return m_reg [ 16 ];
-      break;
+         break;
    }
+
    return 0xFF;
 }
 
@@ -150,66 +153,66 @@ void CROMMapper065::MAPPER ( uint32_t addr, uint8_t data )
          m_reg [ 0 ] = data;
          m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
          m_PRGROMbank [ 0 ] = data;
-      break;
+         break;
       case 0x9000:
          m_reg [ 1 ] = data;
-      break;
+         break;
       case 0x9001:
          m_reg [ 2 ] = data;
-      break;
+         break;
       case 0x9003:
          m_reg [ 3 ] = data;
-      break;
+         break;
       case 0x9004:
          m_reg [ 4 ] = data;
-      break;
+         break;
       case 0x9005:
          m_reg [ 5 ] = data;
-      break;
+         break;
       case 0x9006:
          m_reg [ 6 ] = data;
-      break;
+         break;
       case 0xA000:
          m_reg [ 7 ] = data;
          m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data ];
          m_PRGROMbank [ 1 ] = data;
-      break;
+         break;
       case 0xB000:
          m_reg [ 8 ] = data;
          m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB001:
          m_reg [ 9 ] = data;
          m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB002:
          m_reg [ 10 ] = data;
          m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB003:
          m_reg [ 11 ] = data;
          m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB004:
          m_reg [ 12 ] = data;
          m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB005:
          m_reg [ 13 ] = data;
          m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB006:
          m_reg [ 14 ] = data;
          m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB007:
          m_reg [ 15 ] = data;
          m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xC000:
          m_reg [ 16 ] = data;
          m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data ];
          m_PRGROMbank [ 2 ] = data;
-      break;
+         break;
    }
 }

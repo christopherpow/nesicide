@@ -9,7 +9,7 @@
 
 QSemaphore breakpointWatcherSemaphore(0);
 
-BreakpointWatcherThread::BreakpointWatcherThread(QObject *)
+BreakpointWatcherThread::BreakpointWatcherThread(QObject*)
 {
    m_isTerminating = false;
 }
@@ -44,20 +44,21 @@ void BreakpointWatcherThread::run ()
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
          if ( pBreakpoint->hit )
          {
             pBreakpoints->GetHitPrintable(idx,hitMsg);
 
             debugTextLogger.write ( hitMsg );
-            
+
             emit showDebugPane();
          }
       }
 
       nesClearAudioSamplesAvailable();
-      
+
       // A breakpoint has occurred...
-      
+
       emit breakpointHit();
    }
 

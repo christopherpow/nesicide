@@ -9,6 +9,7 @@ CGLTextureManager::CGLTextureManager()
 {
    int idx;
    glGenTextures ( 10, m_textures );
+
    for ( idx = 0; idx < 10; idx++ )
    {
       m_arrayOfTextureIndexes.append ( m_textures[idx] );
@@ -18,12 +19,15 @@ CGLTextureManager::CGLTextureManager()
 int CGLTextureManager::getNewTextureID()
 {
    m_mutex.lock ();
+
    if ( !m_inited )
    {
       CGLTextureManager ();
       m_inited = true;
    }
+
    int textureID = -1;
+
    if ( m_arrayOfTextureIndexes.size() )
    {
       textureID = m_arrayOfTextureIndexes.at(0);
@@ -33,6 +37,7 @@ int CGLTextureManager::getNewTextureID()
    {
       // assert
    }
+
    m_mutex.unlock ();
    return textureID;
 }

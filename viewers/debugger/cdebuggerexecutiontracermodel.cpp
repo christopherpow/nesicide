@@ -16,31 +16,37 @@ CDebuggerExecutionTracerModel::~CDebuggerExecutionTracerModel()
 {
 }
 
-QVariant CDebuggerExecutionTracerModel::data(const QModelIndex &index, int role) const
+QVariant CDebuggerExecutionTracerModel::data(const QModelIndex& index, int role) const
 {
    char data [ 64 ];
 
    if (!index.isValid())
+   {
       return QVariant();
+   }
 
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    GetPrintable((TracerInfo*)index.internalPointer(), index.column(), data);
 
    return data;
 }
 
-Qt::ItemFlags CDebuggerExecutionTracerModel::flags(const QModelIndex &) const
+Qt::ItemFlags CDebuggerExecutionTracerModel::flags(const QModelIndex&) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    return flags;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   return flags;
 }
 
 QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    if ( orientation == Qt::Horizontal )
    {
@@ -48,46 +54,46 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
       {
          case eTracerCol_Frame:
             return QString("Frame");
-         break;
+            break;
          case eTracerCol_Cycle:
             return QString("Cycle");
-         break;
+            break;
          case eTracerCol_Source:
             return QString("Source");
-         break;
+            break;
          case eTracerCol_Type:
             return QString("Type");
-         break;
+            break;
          case eTracerCol_Target:
             return QString("Target");
-         break;
+            break;
          case eTracerCol_Addr:
             return QString("Address");
-         break;
+            break;
          case eTracerCol_Data:
             return QString("Data");
-         break;
+            break;
          case eTracerCol_Info:
             return QString("Info");
-         break;
+            break;
          case eTracerCol_CPU_A:
             return QString("A");
-         break;
+            break;
          case eTracerCol_CPU_X:
             return QString("X");
-         break;
+            break;
          case eTracerCol_CPU_Y:
             return QString("Y");
-         break;
+            break;
          case eTracerCol_CPU_SP:
             return QString("SP");
-         break;
+            break;
          case eTracerCol_CPU_F:
             return QString("Flags");
-         break;
+            break;
          case eTracerCol_CPU_EA:
             return QString("Effective Address");
-         break;
+            break;
       }
    }
    else
@@ -98,7 +104,7 @@ QVariant CDebuggerExecutionTracerModel::headerData(int section, Qt::Orientation 
    return  QVariant();
 }
 
-QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex &) const
+QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QModelIndex&) const
 {
    if ( (row >= 0) && (column >= 0) )
    {
@@ -115,10 +121,11 @@ QModelIndex CDebuggerExecutionTracerModel::index(int row, int column, const QMod
          return createIndex(row, column, m_pTracer->GetPPUSample(row));
       }
    }
+
    return QModelIndex();
 }
 
-int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &) const
+int CDebuggerExecutionTracerModel::rowCount(const QModelIndex&) const
 {
    int rows = 0;
 
@@ -134,21 +141,23 @@ int CDebuggerExecutionTracerModel::rowCount(const QModelIndex &) const
    {
       rows = m_pTracer->GetNumPPUSamples();
    }
+
    return rows;
 }
 
-int CDebuggerExecutionTracerModel::columnCount(const QModelIndex &parent) const
+int CDebuggerExecutionTracerModel::columnCount(const QModelIndex& parent) const
 {
    if ( parent.isValid())
    {
       return 0;
    }
+
    return 14;
 }
 
 void CDebuggerExecutionTracerModel::layoutChangedEvent()
 {
-    this->layoutChanged();
+   this->layoutChanged();
 }
 
 void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
@@ -159,167 +168,174 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
       {
          case eTracerCol_Frame:
             sprintf ( str, "%u", pSample->frame );
-         break;
+            break;
          case eTracerCol_Cycle:
             sprintf ( str, "%u", pSample->cycle );
-         break;
+            break;
          case eTracerCol_Source:
+
             switch ( pSample->source )
             {
                case eSource_CPU:
                   strcpy ( str, "CPU" );
-               break;
+                  break;
                case eSource_PPU:
                   strcpy ( str, "PPU" );
-               break;
+                  break;
                case eSource_APU:
                   strcpy ( str, "APU" );
-               break;
+                  break;
                case eSource_Mapper:
                   strcpy ( str, "Mapper" );
-               break;
+                  break;
             }
-         break;
+
+            break;
          case eTracerCol_Type:
+
             switch ( pSample->type )
             {
                case eTracer_Unknown:
                   str[0] = 0;
-               break;
+                  break;
                case eTracer_InstructionFetch:
                   strcpy ( str, "Instruction Fetch" );
-               break;
+                  break;
                case eTracer_ExtraInstructionFetch:
                   strcpy ( str, "Extra Fetch" );
-               break;
+                  break;
                case eTracer_DataRead:
                   strcpy ( str, "Memory Read" );
-               break;
+                  break;
                case eTracer_DataWrite:
                   strcpy ( str, "Memory Write" );
-               break;
+                  break;
                case eTracer_DMA:
                   strcpy ( str, "DMA" );
-               break;
+                  break;
                case eTracer_RESET:
                   strcpy ( str, "RESET" );
-               break;
+                  break;
                case eTracer_NMI:
                   strcpy ( str, "NMI" );
-               break;
+                  break;
                case eTracer_IRQ:
                   strcpy ( str, "IRQ" );
-               break;
+                  break;
                case eTracer_GarbageRead:
                   strcpy ( str, "Garbage Fetch" );
-               break;
+                  break;
                case eTracer_RenderBkgnd:
                   strcpy ( str, "Playfield Render" );
-               break;
+                  break;
                case eTracer_RenderSprite:
                   strcpy ( str, "Sprite Render" );
-               break;
+                  break;
                case eTracer_Sprite0Hit:
                   strcpy ( str, "Sprite 0 Hit" );
-               break;
+                  break;
                case eTracer_StartPPUFrame:
                   strcpy ( str, "Frame Start" );
-               break;
+                  break;
                case eTracer_VBLANKStart:
                   strcpy ( str, "VBLANK Start" );
-               break;
+                  break;
                case eTracer_VBLANKEnd:
                   strcpy ( str, "VBLANK End" );
-               break;
+                  break;
                case eTracer_PreRenderStart:
                   strcpy ( str, "Pre-render Scanline Start" );
-               break;
+                  break;
                case eTracer_PreRenderEnd:
                   strcpy ( str, "Pre-render Scanline End" );
-               break;
+                  break;
                case eTracer_QuietStart:
                   strcpy ( str, "Post-render Scanline Start" );
-               break;
+                  break;
                case eTracer_QuietEnd:
                   strcpy ( str, "Post-render Scanline End" );
-               break;
+                  break;
                case eTracer_EndPPUFrame:
                   strcpy ( str, "Frame End" );
-               break;
+                  break;
                case eTracer_StartAPUFrame:
                   strcpy ( str, "Frame Start" );
-               break;
+                  break;
                case eTracer_SequencerStep:
                   strcpy ( str, "Sequencer Step" );
-               break;
+                  break;
                case eTracer_EndAPUFrame:
                   strcpy ( str, "Frame End" );
-               break;
+                  break;
             }
-         break;
+
+            break;
          case eTracerCol_Target:
+
             switch ( pSample->target )
             {
                case eTarget_Unknown:
                   str[0] = 0;
-               break;
+                  break;
                case eTarget_RAM:
                   strcpy ( str, "RAM" );
-               break;
+                  break;
                case eTarget_PPURegister:
                   strcpy ( str, "PPU Register" );
-               break;
+                  break;
                case eTarget_APURegister:
                   strcpy ( str, "APU Register" );
-               break;
+                  break;
                case eTarget_IORegister:
                   strcpy ( str, "I/O Register" );
-               break;
+                  break;
                case eTarget_SRAM:
                   strcpy ( str, "SRAM" );
-               break;
+                  break;
                case eTarget_EXRAM:
                   strcpy ( str, "EXRAM" );
-               break;
+                  break;
                case eTarget_ROM:
                   strcpy ( str, "ROM" );
-               break;
+                  break;
                case eTarget_Mapper:
                   strcpy ( str, "Mapper" );
-               break;
+                  break;
                case eTarget_PatternMemory:
                   strcpy ( str, "Pattern Memory" );
-               break;
+                  break;
                case eTarget_NameTable:
                   strcpy ( str, "NameTable RAM" );
-               break;
+                  break;
                case eTarget_AttributeTable:
                   strcpy ( str, "AttributeTable RAM" );
-               break;
+                  break;
                case eTarget_Palette:
                   strcpy ( str, "Palette RAM" );
-               break;
+                  break;
                case eTarget_ExtraCycle:
                   strcpy ( str, "Extra Cycle" );
-               break;
+                  break;
             }
-         break;
+
+            break;
          case eTracerCol_Addr:
+
             if ( (pSample->type == eTracer_RESET) ||
-                      (pSample->type == eTracer_NMI) ||
-                      (pSample->type == eTracer_IRQ) ||
-                      (pSample->type == eTracer_Sprite0Hit) ||
-                      (pSample->type == eTracer_StartPPUFrame) ||
-                      (pSample->type == eTracer_VBLANKStart) ||
-                      (pSample->type == eTracer_VBLANKEnd) ||
-                      (pSample->type == eTracer_PreRenderStart) ||
-                      (pSample->type == eTracer_PreRenderEnd) ||
-                      (pSample->type == eTracer_QuietStart) ||
-                      (pSample->type == eTracer_QuietEnd) ||
-                      (pSample->type == eTracer_EndPPUFrame) ||
-                      (pSample->type == eTracer_StartAPUFrame) ||
-                      (pSample->type == eTracer_SequencerStep) ||
-                      (pSample->type == eTracer_EndAPUFrame) )
+                  (pSample->type == eTracer_NMI) ||
+                  (pSample->type == eTracer_IRQ) ||
+                  (pSample->type == eTracer_Sprite0Hit) ||
+                  (pSample->type == eTracer_StartPPUFrame) ||
+                  (pSample->type == eTracer_VBLANKStart) ||
+                  (pSample->type == eTracer_VBLANKEnd) ||
+                  (pSample->type == eTracer_PreRenderStart) ||
+                  (pSample->type == eTracer_PreRenderEnd) ||
+                  (pSample->type == eTracer_QuietStart) ||
+                  (pSample->type == eTracer_QuietEnd) ||
+                  (pSample->type == eTracer_EndPPUFrame) ||
+                  (pSample->type == eTracer_StartAPUFrame) ||
+                  (pSample->type == eTracer_SequencerStep) ||
+                  (pSample->type == eTracer_EndAPUFrame) )
             {
                str[0] = 0;
             }
@@ -327,23 +343,25 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                sprintf ( str, "$%04X", pSample->addr );
             }
-         break;
+
+            break;
          case eTracerCol_Data:
+
             if ( (pSample->type == eTracer_RESET) ||
-                      (pSample->type == eTracer_NMI) ||
-                      (pSample->type == eTracer_IRQ) ||
-                      (pSample->type == eTracer_Sprite0Hit) ||
-                      (pSample->type == eTracer_StartPPUFrame) ||
-                      (pSample->type == eTracer_VBLANKStart) ||
-                      (pSample->type == eTracer_VBLANKEnd) ||
-                      (pSample->type == eTracer_PreRenderStart) ||
-                      (pSample->type == eTracer_PreRenderEnd) ||
-                      (pSample->type == eTracer_QuietStart) ||
-                      (pSample->type == eTracer_QuietEnd) ||
-                      (pSample->type == eTracer_EndPPUFrame) ||
-                      (pSample->type == eTracer_StartAPUFrame) ||
-                      (pSample->type == eTracer_SequencerStep) ||
-                      (pSample->type == eTracer_EndAPUFrame) )
+                  (pSample->type == eTracer_NMI) ||
+                  (pSample->type == eTracer_IRQ) ||
+                  (pSample->type == eTracer_Sprite0Hit) ||
+                  (pSample->type == eTracer_StartPPUFrame) ||
+                  (pSample->type == eTracer_VBLANKStart) ||
+                  (pSample->type == eTracer_VBLANKEnd) ||
+                  (pSample->type == eTracer_PreRenderStart) ||
+                  (pSample->type == eTracer_PreRenderEnd) ||
+                  (pSample->type == eTracer_QuietStart) ||
+                  (pSample->type == eTracer_QuietEnd) ||
+                  (pSample->type == eTracer_EndPPUFrame) ||
+                  (pSample->type == eTracer_StartAPUFrame) ||
+                  (pSample->type == eTracer_SequencerStep) ||
+                  (pSample->type == eTracer_EndAPUFrame) )
             {
                str[0] = 0;
             }
@@ -351,8 +369,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                sprintf ( str, "$%02X", pSample->data );
             }
-         break;
+
+            break;
          case eTracerCol_CPU_EA:
+
             if ( pSample->ea == 0xFFFFFFFF )
             {
                str[0] = 0;
@@ -361,8 +381,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                sprintf ( str, "$%04X", pSample->ea );
             }
-         break;
+
+            break;
          case eTracerCol_CPU_A:
+
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->a );
@@ -371,8 +393,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                str[0] = 0;
             }
-         break;
+
+            break;
          case eTracerCol_CPU_X:
+
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->x );
@@ -381,8 +405,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                str[0] = 0;
             }
-         break;
+
+            break;
          case eTracerCol_CPU_Y:
+
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->y );
@@ -391,8 +417,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                str[0] = 0;
             }
-         break;
+
+            break;
          case eTracerCol_CPU_SP:
+
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->sp );
@@ -401,8 +429,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                str[0] = 0;
             }
-         break;
+
+            break;
          case eTracerCol_CPU_F:
+
             if ( pSample->regsset )
             {
                sprintf ( str, "$%02X", pSample->f );
@@ -411,8 +441,10 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                str[0] = 0;
             }
-         break;
+
+            break;
          case eTracerCol_Info:
+
             if ( (*(pSample->disassemble+3)) == 0x00 )
             {
                // Extra byte indicates whether an instruction should be decoded...
@@ -422,7 +454,8 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             {
                str[0] = 0;
             }
-         break;
+
+            break;
       }
    }
 }

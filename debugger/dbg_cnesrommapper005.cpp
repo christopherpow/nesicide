@@ -74,18 +74,22 @@ void CROMMapper005::RESET ()
 void CROMMapper005::SYNCH ( uint32_t ppuCycle, uint32_t ppuAddr )
 {
    int32_t scanline = CYCLE_TO_VISY(ppuCycle);
+
    if ( scanline == 0 )
    {
       m_irqStatus = 0x40;
    }
+
    if ( scanline == 239 )
    {
       m_irqStatus &= ~(0x40);
    }
+
    if ( (m_irqScanline > 0) && (scanline == m_irqScanline) )
    {
       m_irqStatus |= 0x80;
    }
+
    if ( m_irqEnabled && (m_irqStatus&0x80) )
    {
       C6502::ASSERTIRQ ( eSource_Mapper );
@@ -141,13 +145,13 @@ uint32_t CROMMapper005::LMAPPER ( uint32_t addr )
          case 0x5204:
             data = m_irqStatus;
             m_irqStatus &= ~(0x80);
-         break;
+            break;
          case 0x5205:
             data = m_prod&0xFF;
-         break;
+            break;
          case 0x5206:
             data = (m_prod>>8)&0xFF;
-         break;
+            break;
       }
    }
 
@@ -166,12 +170,13 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       {
          case 0x5100:
             m_prgMode = data;
-         break;
+            break;
          case 0x5101:
             m_chrMode = data;
-         break;
+            break;
          case 0x5103:
             m_wp1 = data&0x3;
+
             if ( (m_wp1 == 0x2) && (m_wp2 == 0x1) )
             {
                m_wp = false;
@@ -180,9 +185,11 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             {
                m_wp = true;
             }
-         break;
+
+            break;
          case 0x5104:
             m_wp2 = data&0x3;
+
             if ( (m_wp1 == 0x2) && (m_wp2 == 0x1) )
             {
                m_wp = false;
@@ -191,24 +198,30 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             {
                m_wp = true;
             }
-         break;
+
+            break;
          case 0x5105:
             CPPU::MIRROR ( data&0x03, (data&0x0C)>>2, (data&0x30)>>4, (data&0xC0)>>6 );
-         break;
+            break;
          case 0x5106:
             m_fillTile = data;
-         break;
+            break;
          case 0x5107:
             m_fillAttr = data&0x3;
-         break;
+            break;
          case 0x5113:
             data &= 0x7;
             CROM::REMAPSRAM ( 0x6000, data );
-         break;
+            break;
          case 0x5114:
             m_prgRAM [ 0 ] = !(data&0x80);
             data &= 0x7F;
-            if ( m_prgRAM[0] ) data &= 0x7;
+
+            if ( m_prgRAM[0] )
+            {
+               data &= 0x7;
+            }
+
             if ( m_prgMode == 3 )
             {
                if ( m_prgRAM[0] )
@@ -223,11 +236,17 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_PRGROMbank [ 0 ] = data;
                }
             }
-         break;
+
+            break;
          case 0x5115:
             m_prgRAM [ 1 ] = !(data&0x80);
             data &= 0x7F;
-            if ( m_prgRAM[1] ) data &= 0x7;
+
+            if ( m_prgRAM[1] )
+            {
+               data &= 0x7;
+            }
+
             if ( (m_prgMode == 1) || (m_prgMode == 2) )
             {
                if ( m_prgRAM[1] )
@@ -260,11 +279,17 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_PRGROMbank [ 1 ] = data;
                }
             }
-         break;
+
+            break;
          case 0x5116:
             m_prgRAM [ 2 ] = !(data&0x80);
             data &= 0x7F;
-            if ( m_prgRAM[2] ) data &= 0x7;
+
+            if ( m_prgRAM[2] )
+            {
+               data &= 0x7;
+            }
+
             if ( (m_prgMode == 2) || (m_prgMode == 3) )
             {
                if ( m_prgRAM[0] )
@@ -279,11 +304,17 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_PRGROMbank [ 2 ] = data;
                }
             }
-         break;
+
+            break;
          case 0x5117:
             m_prgRAM [ 3 ] = !(data&0x80);
             data &= 0x7F;
-            if ( m_prgRAM[3] ) data &= 0x7;
+
+            if ( m_prgRAM[3] )
+            {
+               data &= 0x7;
+            }
+
             if ( m_prgMode == 0 )
             {
                m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
@@ -307,8 +338,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ data ];
                m_PRGROMbank [ 3 ] = data;
             }
-         break;
+
+            break;
          case 0x5120:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -320,8 +353,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5121:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -333,8 +368,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5122:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -346,8 +383,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5123:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -359,8 +398,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5124:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -372,8 +413,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5125:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -385,8 +428,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5126:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -398,8 +443,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5127:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -411,8 +458,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5128:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -424,8 +473,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5129:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -437,8 +488,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x512A:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -450,8 +503,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x512B:
+
             if ( m_chrMode == 3 )
             {
                if ( m_numChrBanks > 0 )
@@ -463,21 +518,22 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                   m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
                }
             }
-         break;
+
+            break;
          case 0x5203:
             m_irqScanline = data;
-         break;
+            break;
          case 0x5204:
             m_irqEnabled = data;
-         break;
+            break;
          case 0x5205:
             m_mult1 = data;
             m_prod = m_mult1*m_mult2;
-         break;
+            break;
          case 0x5206:
             m_mult2 = data;
             m_prod = m_mult1*m_mult2;
-         break;
+            break;
       }
    }
 }

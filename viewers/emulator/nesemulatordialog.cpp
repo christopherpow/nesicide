@@ -4,9 +4,9 @@
 
 #include "emulator_core.h"
 
-NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::NESEmulatorDialog)
+NESEmulatorDialog::NESEmulatorDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::NESEmulatorDialog)
 {
    imgData = new char[256*256*4];
    memset ( imgData, 0, sizeof(char)*256*256*4 );
@@ -27,7 +27,7 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
-   
+
    // Clear image to set alpha channel...
    memset ( imgData, 0xFF, 256*256*4 );
    nesSetTVOut((int8_t*)imgData);
@@ -35,22 +35,24 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget *parent) :
 
 NESEmulatorDialog::~NESEmulatorDialog()
 {
-    delete ui;
+   delete ui;
 }
 
-void NESEmulatorDialog::changeEvent(QEvent *e)
+void NESEmulatorDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
-void NESEmulatorDialog::mousePressEvent(QMouseEvent *event)
+void NESEmulatorDialog::mousePressEvent(QMouseEvent* event)
 {
    // CPTODO: defaulted controller 2 to zapper for now
    if ( event->button()&Qt::LeftButton )
@@ -65,7 +67,7 @@ void NESEmulatorDialog::mousePressEvent(QMouseEvent *event)
    }
 }
 
-void NESEmulatorDialog::mouseReleaseEvent(QMouseEvent *event)
+void NESEmulatorDialog::mouseReleaseEvent(QMouseEvent* event)
 {
    // CPTODO: defaulted controller 2 to zapper for now
    if ( event->button()&Qt::LeftButton )
@@ -80,14 +82,14 @@ void NESEmulatorDialog::mouseReleaseEvent(QMouseEvent *event)
    }
 }
 
-void NESEmulatorDialog::mouseMoveEvent(QMouseEvent *event)
+void NESEmulatorDialog::mouseMoveEvent(QMouseEvent* event)
 {
    // CPTODO: defaulted controller 2 to zapper for now
    nesSetControllerScreenPosition(CONTROLLER2,event->pos().x()-ui->frame->pos().x(),event->pos().y()-ui->frame->pos().y());
    event->accept();
 }
 
-void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
+void NESEmulatorDialog::keyPressEvent(QKeyEvent* event)
 {
 // CPTODO: get controller configuration...
 //   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
@@ -128,6 +130,7 @@ void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
 //   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER2 );
 // CPTODO: only need one controller for now...(don't feel like picking keys)
 #if 0
+
    if ( lChar == pControllerConfig[idxJOY_LEFT] )
    {
       m_joy [ CONTROLLER2 ] |= JOY_LEFT;
@@ -160,6 +163,7 @@ void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
    {
       m_joy [ CONTROLLER2 ] |= JOY_A;
    }
+
 #endif
 
    emulator->controllerInput ( m_joy );
@@ -167,7 +171,7 @@ void NESEmulatorDialog::keyPressEvent(QKeyEvent *event)
    event->accept();
 }
 
-void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
+void NESEmulatorDialog::keyReleaseEvent(QKeyEvent* event)
 {
 // CPTODO: get controller configuration...
 //   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
@@ -208,6 +212,7 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
 //   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER2 );
 // CPTODO: only need one controller for now...(don't feel like picking keys)
 #if 0
+
    if ( lChar == pControllerConfig[idxJOY_LEFT] )
    {
       m_joy [ CONTROLLER2 ] &= (~(JOY_LEFT));
@@ -240,6 +245,7 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent *event)
    {
       m_joy [ CONTROLLER2 ] &= (~(JOY_A));
    }
+
 #endif
 
    emulator->controllerInput ( m_joy );

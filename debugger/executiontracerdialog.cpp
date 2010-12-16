@@ -6,27 +6,27 @@
 #include "inspectorregistry.h"
 #include "main.h"
 
-ExecutionTracerDialog::ExecutionTracerDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ExecutionTracerDialog)
+ExecutionTracerDialog::ExecutionTracerDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::ExecutionTracerDialog)
 {
-    ui->setupUi(this);
-    model = new CDebuggerExecutionTracerModel(this);
-    model->showCPU ( true );
-    model->showPPU ( true );
-    ui->showCPU->setChecked(true);
-    ui->showPPU->setChecked(true);
-    ui->tableView->setModel(model);
-    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
-    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateTracer()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
+   ui->setupUi(this);
+   model = new CDebuggerExecutionTracerModel(this);
+   model->showCPU ( true );
+   model->showPPU ( true );
+   ui->showCPU->setChecked(true);
+   ui->showPPU->setChecked(true);
+   ui->tableView->setModel(model);
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
+   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateTracer()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
 }
 
 ExecutionTracerDialog::~ExecutionTracerDialog()
 {
-    delete ui;
-    delete model;
+   delete ui;
+   delete model;
 }
 
 void ExecutionTracerDialog::showEvent(QShowEvent* e)
@@ -36,7 +36,7 @@ void ExecutionTracerDialog::showEvent(QShowEvent* e)
    ui->tableView->resizeColumnsToContents();
 }
 
-void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent *e)
+void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent* e)
 {
    QMenu menu;
 
@@ -44,16 +44,18 @@ void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent *e)
    menu.exec(e->globalPos());
 }
 
-void ExecutionTracerDialog::changeEvent(QEvent *e)
+void ExecutionTracerDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void ExecutionTracerDialog::updateTracer ()
@@ -65,8 +67,9 @@ void ExecutionTracerDialog::updateTracer ()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( (pBreakpoint->type == eBreakOnCPUExecution) &&
-           (pBreakpoint->hit) )
+            (pBreakpoint->hit) )
       {
          // Update display...
          emit showMe();

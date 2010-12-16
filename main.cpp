@@ -19,7 +19,8 @@ char* ideGetVersion()
 
 // CPTODO put this somewhere more meaningful
 qint8 hex_char [ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                          '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+                          '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+                        };
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
 
@@ -44,9 +45,9 @@ MainWindow* nesicideWindow;
 CConfigurator* CONFIG;
 
 // The project container.
-CNesicideProject *nesicideProject = (CNesicideProject *)NULL;
+CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
    QApplication nesicideApplication(argc, argv);
 
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
    pluginManager = new CPluginManager();
 
    // Run the startup splash
-   StartupSplashDialog *splash = new StartupSplashDialog();
+   StartupSplashDialog* splash = new StartupSplashDialog();
    //splash->exec();
    delete splash;
 

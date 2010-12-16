@@ -30,7 +30,8 @@ public:
    void pauseEmulation (bool show);
    void stepCPUEmulation ();
    void stepPPUEmulation ();
-   void controllerInput ( uint8_t* joy ) {
+   void controllerInput ( uint8_t* joy )
+   {
       coreMutexLock();
       m_joy[CONTROLLER1] = joy[CONTROLLER1];
       m_joy[CONTROLLER2] = joy[CONTROLLER2];

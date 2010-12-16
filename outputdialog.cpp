@@ -8,9 +8,9 @@
 #include <QMenu>
 #include <QFileDialog>
 
-OutputDialog::OutputDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::OutputDialog)
+OutputDialog::OutputDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::OutputDialog)
 {
    ui->setupUi(this);
    ui->outputTabWidget->setCurrentIndex(0);
@@ -23,7 +23,7 @@ OutputDialog::OutputDialog(QWidget *parent) :
 
 OutputDialog::~OutputDialog()
 {
-    delete ui;
+   delete ui;
 }
 
 
@@ -32,50 +32,55 @@ void OutputDialog::setCurrentOutputTab(int tab)
    ui->outputTabWidget->setCurrentIndex(tab);
 }
 
-void OutputDialog::contextMenuEvent ( QContextMenuEvent *event )
+void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )
 {
-    QMenu menu;
-    QAction clear("Clear",0);
-    QAction logToFile("Log to file",0);
-    QAction* chosen;
+   QMenu menu;
+   QAction clear("Clear",0);
+   QAction logToFile("Log to file",0);
+   QAction* chosen;
 
-    menu.addAction(&clear);
-    menu.addAction(&logToFile);
-    chosen = menu.exec(event->globalPos());
-    if ( chosen == &clear )
-    {
+   menu.addAction(&clear);
+   menu.addAction(&logToFile);
+   chosen = menu.exec(event->globalPos());
+
+   if ( chosen == &clear )
+   {
       switch ( ui->outputTabWidget->currentIndex() )
       {
          case 0:
             generalTextLogger.clear();
-         break;
+            break;
          case 1:
             buildTextLogger.clear();
-         break;
+            break;
          case 2:
             debugTextLogger.clear();
-         break;
+            break;
       }
-    }
-    if ( chosen == &logToFile )
-    {
-       QString fileName = QFileDialog::getSaveFileName(this, 0, 0, "Text Document (*.txt)");
-       if (fileName.isEmpty())
-          return;
-       
-       switch ( ui->outputTabWidget->currentIndex() )
-       {
-          case 0:
-             generalTextLogger.clear();
-          break;
-          case 1:
-             buildTextLogger.clear();
-          break;
-          case 2:
-             debugTextLogger.clear();
-          break;
-       }
-    }
+   }
+
+   if ( chosen == &logToFile )
+   {
+      QString fileName = QFileDialog::getSaveFileName(this, 0, 0, "Text Document (*.txt)");
+
+      if (fileName.isEmpty())
+      {
+         return;
+      }
+
+      switch ( ui->outputTabWidget->currentIndex() )
+      {
+         case 0:
+            generalTextLogger.clear();
+            break;
+         case 1:
+            buildTextLogger.clear();
+            break;
+         case 2:
+            debugTextLogger.clear();
+            break;
+      }
+   }
 }
 
 void OutputDialog::updateData()

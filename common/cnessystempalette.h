@@ -18,6 +18,7 @@ public:
       {
          idx&= 0xF0;
       }
+
       return *(*(m_paletteVariants+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx);
    }
    static inline int8_t GetPaletteR ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
@@ -26,6 +27,7 @@ public:
       {
          idx&= 0xF0;
       }
+
       return *(*(*(m_paletteRGBs+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx));
    }
    static inline int8_t GetPaletteG ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
@@ -34,6 +36,7 @@ public:
       {
          idx&= 0xF0;
       }
+
       return *(*(*(m_paletteRGBs+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx)+1);
    }
    static inline int8_t GetPaletteB ( int idx, int bMonochrome = 0, int bEmphasizeRed = 0, int bEmphasizeGreen = 0, int bEmphasizeBlue = 0 )
@@ -42,6 +45,7 @@ public:
       {
          idx&= 0xF0;
       }
+
       return *(*(*(m_paletteRGBs+((bEmphasizeRed)|((bEmphasizeGreen)<<1)|((bEmphasizeBlue)<<2)))+idx)+2);
    }
 

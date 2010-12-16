@@ -224,8 +224,10 @@ int mapperIndexFromID ( int32_t id )
       {
          break;
       }
+
       i++;
    }
+
    if ( !mapper[i].name )
    {
       // Move index to the unknown...
@@ -247,8 +249,10 @@ const char* mapperNameFromID ( int32_t id )
       {
          break;
       }
+
       i++;
    }
+
    if ( !mapper[i].name )
    {
       // Move index to the unknown...

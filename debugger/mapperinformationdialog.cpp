@@ -9,31 +9,33 @@
 #include "dbg_cnesrommapper004.h"
 #include "dbg_cnesmappers.h"
 
-MapperInformationDialog::MapperInformationDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::MapperInformationDialog)
+MapperInformationDialog::MapperInformationDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::MapperInformationDialog)
 {
-    ui->setupUi(this);
-    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   ui->setupUi(this);
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
+   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 MapperInformationDialog::~MapperInformationDialog()
 {
-    delete ui;
+   delete ui;
 }
 
-void MapperInformationDialog::changeEvent(QEvent *e)
+void MapperInformationDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void MapperInformationDialog::showEvent(QShowEvent* e)
@@ -96,7 +98,7 @@ void MapperInformationDialog::updateInformation()
             ui->shiftRegister->setText ( buffer );
             sprintf ( buffer, "%d", CROMMapper001DBG::SHIFTREGISTERBIT() );
             ui->shiftRegisterBit->setText ( buffer );
-         break;
+            break;
 
          case 4:
             ui->irqEnabled->setChecked ( CROMMapper004DBG::IRQENABLED() );
@@ -108,7 +110,7 @@ void MapperInformationDialog::updateInformation()
             ui->irqCounter->setText ( buffer );
             sprintf ( buffer, "%d", CROMMapper004DBG::PPUCYCLE() );
             ui->lastA12Cycle->setText ( buffer );
-         break;
+            break;
       }
    }
 
@@ -116,6 +118,7 @@ void MapperInformationDialog::updateInformation()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( pBreakpoint->hit )
       {
          if ( pBreakpoint->type == eBreakOnMapperEvent )

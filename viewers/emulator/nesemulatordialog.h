@@ -7,40 +7,42 @@
 #include "emulator_core.h"
 #include "nesemulatorrenderer.h"
 
-namespace Ui {
-    class NESEmulatorDialog;
+namespace Ui
+{
+class NESEmulatorDialog;
 }
 
-class NESEmulatorDialog : public QDialog {
-    Q_OBJECT
+class NESEmulatorDialog : public QDialog
+{
+   Q_OBJECT
 public:
-    NESEmulatorDialog(QWidget *parent = 0);
-    ~NESEmulatorDialog();
-    CNESEmulatorRenderer *renderer;
+   NESEmulatorDialog(QWidget* parent = 0);
+   ~NESEmulatorDialog();
+   CNESEmulatorRenderer* renderer;
 
 protected:
-    void changeEvent(QEvent *e);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
+   void changeEvent(QEvent* e);
+   void mousePressEvent(QMouseEvent* event);
+   void mouseReleaseEvent(QMouseEvent* event);
+   void mouseMoveEvent(QMouseEvent* event);
+   void keyPressEvent(QKeyEvent* event);
+   void keyReleaseEvent(QKeyEvent* event);
 
 private:
-    Ui::NESEmulatorDialog *ui;
-    char *imgData;
-    unsigned char m_joy [ NUM_CONTROLLERS ];
+   Ui::NESEmulatorDialog* ui;
+   char* imgData;
+   unsigned char m_joy [ NUM_CONTROLLERS ];
 
 private slots:
-    void on_stepCPUButton_clicked();
-    void on_stepPPUButton_clicked();
-    void on_pauseButton_clicked();
-    void on_playButton_clicked();
-    void on_resetButton_clicked();
-    void internalPause(bool);
-    void internalPauseWithoutShow();
-    void internalPlay();
-    void renderData();
+   void on_stepCPUButton_clicked();
+   void on_stepPPUButton_clicked();
+   void on_pauseButton_clicked();
+   void on_playButton_clicked();
+   void on_resetButton_clicked();
+   void internalPause(bool);
+   void internalPauseWithoutShow();
+   void internalPlay();
+   void renderData();
 };
 
 #endif // NESEMULATORDIALOG_H

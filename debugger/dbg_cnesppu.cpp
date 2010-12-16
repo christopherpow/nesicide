@@ -68,11 +68,16 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
 
    // Show PPU memory...
    pLogger = nesGetPpuCodeDataLoggerDatabase();
+
    for ( idxx = 0; idxx < 0x4000; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
-      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( cycleDiff > 199 )
+      {
+         cycleDiff = 199;
+      }
 
       if ( pLogEntry->count )
       {
@@ -85,18 +90,22 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor = color[(int)pLogEntry->type];
          }
+
          if ( !lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
+
          if ( !lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
+
          if ( !lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
+
          *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
          *(pTV+2) = lcolor.red();
@@ -141,25 +150,30 @@ void CPPUDBG::RENDERCHRMEM ( void )
 
       for (int y = 0; y < 128; y++)
       {
-          for (int x = 0; x < 256; x += 8)
-          {
-              ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
-              if ( x >= 128 ) ppuAddr += 0x1000;
-              patternData1 = CPPUDBG::_MEM(ppuAddr);
-              patternData2 = CPPUDBG::_MEM(ppuAddr+8);
+         for (int x = 0; x < 256; x += 8)
+         {
+            ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
 
-              for ( int32_t xf = 0; xf < 8; xf++ )
-              {
-                 bit1 = (patternData1>>(7-(xf)))&0x1;
-                 bit2 = (patternData2>>(7-(xf)))&0x1;
-                 colorIdx = (bit1|(bit2<<1));
-                 *pTV = color[colorIdx][2];
-                 *(pTV+1) = color[colorIdx][1];
-                 *(pTV+2) = color[colorIdx][0];
+            if ( x >= 128 )
+            {
+               ppuAddr += 0x1000;
+            }
 
-                 pTV += 4;
-             }
-          }
+            patternData1 = CPPUDBG::_MEM(ppuAddr);
+            patternData2 = CPPUDBG::_MEM(ppuAddr+8);
+
+            for ( int32_t xf = 0; xf < 8; xf++ )
+            {
+               bit1 = (patternData1>>(7-(xf)))&0x1;
+               bit2 = (patternData2>>(7-(xf)))&0x1;
+               colorIdx = (bit1|(bit2<<1));
+               *pTV = color[colorIdx][2];
+               *(pTV+1) = color[colorIdx][1];
+               *(pTV+2) = color[colorIdx][0];
+
+               pTV += 4;
+            }
+         }
       }
    }
 }
@@ -193,6 +207,7 @@ void CPPUDBG::RENDEROAM ( void )
       color[3] = CBasePalette::GetPalette ( 0x30 );
 
       spriteSize = ((!!(CPPUDBG::_PPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
+
       if ( spriteSize == 8 )
       {
          spritePatBase = (!!(CPPUDBG::_PPU(PPUCTRL)&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
@@ -203,12 +218,14 @@ void CPPUDBG::RENDEROAM ( void )
          for ( x = 0; x < 256; x += PATTERN_SIZE ) // pattern-slice rendering...
          {
             sprite = (spriteSize==8)?((y>>3)<<5)+(x>>3):
-                                     ((y>>4)<<5)+(x>>3);
+                     ((y>>4)<<5)+(x>>3);
             spriteY = CPPUDBG::_OAM ( SPRITEY, sprite );
+
             if ( ((m_bOAMViewerShowVisible) && ((spriteY+1) < SPRITE_YMAX)) ||
-                 (!m_bOAMViewerShowVisible) )
+                  (!m_bOAMViewerShowVisible) )
             {
                patternIdx = CPPUDBG::_OAM ( SPRITEPAT, sprite );
+
                if ( spriteSize == 16 )
                {
                   spritePatBase = (patternIdx&0x01)<<12;
@@ -222,13 +239,14 @@ void CPPUDBG::RENDEROAM ( void )
 
                // For 8x16 sprites...
                if ( (spriteSize == 16) &&
-                    (((!spriteFlipVert) && (((y>>3)&1))) ||
-                    ((spriteFlipVert) && (!((y>>3)&1)))) )
+                     (((!spriteFlipVert) && (((y>>3)&1))) ||
+                      ((spriteFlipVert) && (!((y>>3)&1)))) )
                {
                   patternIdx++;
                }
 
                yf = y&0x7;
+
                if ( spriteFlipVert )
                {
                   yf = (7-yf);
@@ -249,6 +267,7 @@ void CPPUDBG::RENDEROAM ( void )
                      bit1 = (patternData1>>(7-(xf)))&0x1;
                      bit2 = (patternData2>>(7-(xf)))&0x1;
                   }
+
                   colorIdx = (attribData|bit1|(bit2<<1));
                   *pTV = CBasePalette::GetPaletteB(CPPUDBG::_PALETTE(0x10+colorIdx));
                   *(pTV+1) = CBasePalette::GetPaletteG(CPPUDBG::_PALETTE(0x10+colorIdx));
@@ -347,15 +366,18 @@ void CPPUDBG::RENDERNAMETABLE ( void )
             }
 
             ppuAddr++;
+
             if ( x == 248 || x == 504 )
             {
                ppuAddr ^= 0x400;
                ppuAddr -= 0x20;
             }
          }
+
          if ( (ppuAddr&0x7000) == 0x7000 )
          {
             ppuAddr &= 0x8FFF;
+
             if ( (ppuAddr&0x03E0) == 0x03A0 )
             {
                ppuAddr ^= 0x0800;
@@ -393,9 +415,9 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                uby = lby/240?lby%240:lby+239;
 
                if ( !( (((lbx <= ubx) && (x >= lbx) && (x <= ubx)) ||
-                    ((lbx > ubx) && (!((x <= lbx) && (x >= ubx))))) &&
-                    (((lby <= uby) && (y >= lby) && (y <= uby)) ||
-                    ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
+                        ((lbx > ubx) && (!((x <= lbx) && (x >= ubx))))) &&
+                       (((lby <= uby) && (y >= lby) && (y <= uby)) ||
+                        ((lby > uby) && (!((y <= lby) && (y >= uby))))) ) )
                {
                   if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)<<2)+(x<<2)+0 ] >= 0x30 )
                   {
@@ -405,6 +427,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                   {
                      *pTV = 0x00;
                   }
+
                   if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)<<2)+(x<<2)+1 ] >= 0x30 )
                   {
                      *(pTV+1) -= 0x30;
@@ -413,6 +436,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                   {
                      *(pTV+1) = 0x00;
                   }
+
                   if ( (uint8_t)m_pNameTableInspectorTV [ ((y<<9)<<2)+(x<<2)+2 ] >= 0x30 )
                   {
                      *(pTV+2) -= 0x30;

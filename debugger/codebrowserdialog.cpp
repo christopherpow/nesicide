@@ -16,31 +16,31 @@
 #define BROWSE_ASSEMBLY 0
 #define BROWSE_SOURCE   1
 
-CodeBrowserDialog::CodeBrowserDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::CodeBrowserDialog)
+CodeBrowserDialog::CodeBrowserDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::CodeBrowserDialog)
 {
-    QDockWidget* breakpointInspector = InspectorRegistry::getInspector("Breakpoints");
+   QDockWidget* breakpointInspector = InspectorRegistry::getInspector("Breakpoints");
 
-    ui->setupUi(this);
-    assemblyViewModel = new CCodeBrowserDisplayModel(this);
-    sourceViewModel = new CSourceBrowserDisplayModel(this);
-    ui->tableView->setModel(assemblyViewModel);
-    ui->displayMode->setCurrentIndex ( 0 );
-    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
-    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
-    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateBrowser()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
-    QObject::connect ( breakpointInspector->widget(), SIGNAL(breakpointsChanged()), this, SLOT(updateBrowser()) );
-    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpointInspector->widget(), SLOT(updateData()) );
+   ui->setupUi(this);
+   assemblyViewModel = new CCodeBrowserDisplayModel(this);
+   sourceViewModel = new CSourceBrowserDisplayModel(this);
+   ui->tableView->setModel(assemblyViewModel);
+   ui->displayMode->setCurrentIndex ( 0 );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
+   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateBrowser()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
+   QObject::connect ( breakpointInspector->widget(), SIGNAL(breakpointsChanged()), this, SLOT(updateBrowser()) );
+   QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpointInspector->widget(), SLOT(updateData()) );
 }
 
 CodeBrowserDialog::~CodeBrowserDialog()
 {
-    delete ui;
-    delete assemblyViewModel;
-    delete sourceViewModel;
+   delete ui;
+   delete assemblyViewModel;
+   delete sourceViewModel;
 }
 
 void CodeBrowserDialog::showEvent(QShowEvent* e)
@@ -55,17 +55,17 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
       case BROWSE_ASSEMBLY:
          assemblyViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
-      break;
+         break;
       case BROWSE_SOURCE:
          sourceViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
-      break;
+         break;
    }
 
    ui->tableView->resizeColumnsToContents();
 }
 
-void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
+void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent* e)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QMenu menu;
@@ -77,10 +77,10 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    {
       case BROWSE_ASSEMBLY:
          addr = nesGetAddressFromSLOC(index.row());
-      break;
+         break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-      break;
+         break;
    }
 
    bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
@@ -132,16 +132,18 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent *e)
    emit breakpointsChanged();
 }
 
-void CodeBrowserDialog::changeEvent(QEvent *e)
+void CodeBrowserDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void CodeBrowserDialog::breakpointHit()
@@ -166,11 +168,11 @@ void CodeBrowserDialog::updateDisassembly(bool show)
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
             ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
-         break;
+            break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
             ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
-         break;
+            break;
       }
    }
 }
@@ -184,6 +186,7 @@ void CodeBrowserDialog::updateBrowser()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( pBreakpoint->hit )
       {
          // Update display...
@@ -201,11 +204,11 @@ void CodeBrowserDialog::updateBrowser()
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
             ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
-         break;
+            break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
             ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
-         break;
+            break;
       }
    }
 }
@@ -221,10 +224,10 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
    {
       case BROWSE_ASSEMBLY:
          addr = nesGetAddressFromSLOC(index.row());
-      break;
+         break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-      break;
+         break;
    }
 
    added = pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
@@ -257,10 +260,10 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
    {
       case BROWSE_ASSEMBLY:
          addr = nesGetAddressFromSLOC(index.row());
-      break;
+         break;
       case BROWSE_SOURCE:
          addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-      break;
+         break;
    }
 
    C6502DBG::GOTO(addr);
@@ -273,11 +276,11 @@ void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
       case BROWSE_ASSEMBLY:
          ui->tableView->setModel(assemblyViewModel);
          assemblyViewModel->layoutChangedEvent();
-      break;
+         break;
       case BROWSE_SOURCE:
          ui->tableView->setModel(sourceViewModel);
          sourceViewModel->layoutChangedEvent();
-      break;
+         break;
    }
 
    updateDisassembly(false);
@@ -297,10 +300,10 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
       {
          case BROWSE_ASSEMBLY:
             addr = nesGetAddressFromSLOC(index.row());
-         break;
+            break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-         break;
+            break;
       }
 
       bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
@@ -326,11 +329,12 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
       {
          case BROWSE_ASSEMBLY:
             assemblyViewModel->layoutChangedEvent();
-         break;
+            break;
          case BROWSE_SOURCE:
             sourceViewModel->layoutChangedEvent();
-         break;
+            break;
       }
+
       emit breakpointsChanged();
    }
 }
@@ -338,6 +342,7 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
 void CodeBrowserDialog::on_actionDisable_breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
@@ -347,6 +352,7 @@ void CodeBrowserDialog::on_actionDisable_breakpoint_triggered()
 void CodeBrowserDialog::on_actionRemove_breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
@@ -356,6 +362,7 @@ void CodeBrowserDialog::on_actionRemove_breakpoint_triggered()
 void CodeBrowserDialog::on_actionEnable_breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
@@ -375,10 +382,10 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
       {
          case BROWSE_ASSEMBLY:
             addr = nesGetAddressFromSLOC(index.row());
-         break;
+            break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-         break;
+            break;
       }
 
       // Find unused Marker entry...
@@ -399,10 +406,10 @@ void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
       {
          case BROWSE_ASSEMBLY:
             addr = nesGetAddressFromSLOC(index.row());
-         break;
+            break;
          case BROWSE_SOURCE:
             addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
-         break;
+            break;
       }
 
       markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));

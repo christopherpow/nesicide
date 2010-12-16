@@ -6,31 +6,33 @@
 #include "dbg_cnes.h"
 #include "dbg_cnesppu.h"
 
-PPUInformationDialog::PPUInformationDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::PPUInformationDialog)
+PPUInformationDialog::PPUInformationDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::PPUInformationDialog)
 {
-    ui->setupUi(this);
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
-    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   ui->setupUi(this);
+   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 PPUInformationDialog::~PPUInformationDialog()
 {
-    delete ui;
+   delete ui;
 }
 
-void PPUInformationDialog::changeEvent(QEvent *e)
+void PPUInformationDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void PPUInformationDialog::showEvent(QShowEvent* e)
@@ -88,12 +90,13 @@ void PPUInformationDialog::updateInformation()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( pBreakpoint->hit )
       {
          if ( (pBreakpoint->type == eBreakOnPPUEvent) ||
-              (pBreakpoint->type == eBreakOnPPUPortalAccess) ||
-              (pBreakpoint->type == eBreakOnPPUPortalRead) ||
-              (pBreakpoint->type == eBreakOnPPUPortalWrite) )
+               (pBreakpoint->type == eBreakOnPPUPortalAccess) ||
+               (pBreakpoint->type == eBreakOnPPUPortalRead) ||
+               (pBreakpoint->type == eBreakOnPPUPortalWrite) )
          {
             // Update display...
             emit showMe();

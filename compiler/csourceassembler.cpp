@@ -22,8 +22,8 @@ CSourceAssembler::CSourceAssembler()
 
 bool CSourceAssembler::assemble()
 {
-   CSourceItem *rootSource = nesicideProject->getProject()->getMainSource();
-   CPRGROMBanks *prgRomBanks = nesicideProject->getCartridge()->getPointerToPrgRomBanks();
+   CSourceItem* rootSource = nesicideProject->getProject()->getMainSource();
+   CPRGROMBanks* prgRomBanks = nesicideProject->getCartridge()->getPointerToPrgRomBanks();
    char* romData = NULL;
    int romLength = 0;
    QString strBuffer1;
@@ -52,6 +52,7 @@ bool CSourceAssembler::assemble()
    // Dump errors...
    strBuffer1.sprintf ( "%d (0x%x)", romLength, romLength );
    numErrors = pasm_get_num_errors ();
+
    if ( numErrors )
    {
       strBuffer2.sprintf ( "%d", numErrors );
@@ -84,20 +85,24 @@ bool CSourceAssembler::assemble()
       for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
       {
          // Grab either a previously used bank, or a new one
-         CPRGROMBank *curBank;
+         CPRGROMBank* curBank;
          bool doAppend = (--oldBanks < 0);
 
          // Initialize the bank into the project banks
-         if (doAppend) {
+         if (doAppend)
+         {
             curBank = new CPRGROMBank();
             // This is a new bank
             curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
             curBank->InitTreeItem(prgRomBanks);
             prgRomBanks->appendChild(curBank);
             prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
-        } else {
+         }
+         else
+         {
             curBank = prgRomBanks->get_pointerToArrayOfBanks()->at(bankIdx++);
-        }
+         }
+
          curBank->set_pointerToBankData ( (quint8*)romData );
       }
 
@@ -118,6 +123,7 @@ bool CSourceAssembler::assemble()
    if ( !numErrors )
    {
       QDockWidget* pCodeBrowser = InspectorRegistry::getInspector ( "Code Browser" );
+
       if ( pCodeBrowser->isVisible() )
       {
          pCodeBrowser->hide();

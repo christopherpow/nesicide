@@ -3,8 +3,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class OutputDialog;
+namespace Ui
+{
+class OutputDialog;
 }
 
 class OutputDialog : public QDialog
@@ -12,19 +13,19 @@ class OutputDialog : public QDialog
    Q_OBJECT
 
 public:
-   explicit OutputDialog(QWidget *parent = 0);
+   explicit OutputDialog(QWidget* parent = 0);
    ~OutputDialog();
 
    void setCurrentOutputTab ( int tab );
 
 protected:
-   virtual void contextMenuEvent ( QContextMenuEvent *event );
+   virtual void contextMenuEvent ( QContextMenuEvent* event );
 
 private slots:
-    void updateData();
+   void updateData();
 
 private:
-   Ui::OutputDialog *ui;
+   Ui::OutputDialog* ui;
 };
 
 #endif // OUTPUTDIALOG_H

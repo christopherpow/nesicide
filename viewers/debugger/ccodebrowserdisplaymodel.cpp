@@ -19,11 +19,11 @@ CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
 {
 }
 
-QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) const
+QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) const
 {
    // FIXME: 64-bit support
-    uint32_t addr = (long)index.internalPointer();
-    uint32_t absAddr;
+   uint32_t addr = (long)index.internalPointer();
+   uint32_t absAddr;
    //uint32_t addr = (uint32_t)index.internalPointer();
    char buffer [ 3 ];
    unsigned char opSize;
@@ -47,6 +47,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
          else if ( index.column() > 0 )
          {
             opSize = OPCODESIZE ( nesGetMemory(addr) );
+
             if ( opSize > (index.column()-1) )
             {
                CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
@@ -61,16 +62,18 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
       for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
       {
          pMarker = markers->GetMarker(idx);
+
          if ( (pMarker->state == eMarkerSet_Started) ||
-              (pMarker->state == eMarkerSet_Complete) )
+               (pMarker->state == eMarkerSet_Complete) )
          {
             if ( (absAddr >= pMarker->startAbsAddr) &&
-                 (absAddr <= pMarker->endAbsAddr) )
+                  (absAddr <= pMarker->endAbsAddr) )
             {
                return QColor(pMarker->red,pMarker->green,pMarker->blue);
             }
          }
       }
+
       return QVariant();
    }
 
@@ -79,10 +82,11 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
          if ( (pBreakpoint->enabled) &&
-              (pBreakpoint->type == eBreakOnCPUExecution) &&
-              ((uint32_t)pBreakpoint->item1 <= addr) &&
-              ((uint32_t)pBreakpoint->item2 >= addr) )
+               (pBreakpoint->type == eBreakOnCPUExecution) &&
+               ((uint32_t)pBreakpoint->item1 <= addr) &&
+               ((uint32_t)pBreakpoint->item2 >= addr) )
          {
             if ( addr == C6502DBG::__PC() )
             {
@@ -108,6 +112,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
             }
          }
       }
+
       if ( addr == C6502DBG::__PC() )
       {
          return QIcon(":/resources/22_execution_pointer.png");
@@ -115,48 +120,56 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex &index, int role) cons
    }
 
    if (!index.isValid())
+   {
       return QVariant();
+   }
 
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    switch ( index.column() )
    {
       case 0:
          return QVariant();
-      break;
+         break;
       case 1:
          sprintf ( buffer, "%02X", nesGetMemory(addr) );
          return buffer;
-      break;
+         break;
       case 2:
          opSize = OPCODESIZE ( nesGetMemory(addr) );
+
          if ( 1 < opSize )
          {
             sprintf ( buffer, "%02X", nesGetMemory(addr+1) );
             return buffer;
          }
-      break;
+
+         break;
       case 3:
          opSize = OPCODESIZE ( nesGetMemory(addr) );
+
          if ( 2 < opSize )
          {
             sprintf ( buffer, "%02X", nesGetMemory(addr+2) );
             return buffer;
          }
-      break;
+
+         break;
       case 4:
          return nesGetDisassemblyAtAddress(addr);
-      break;
+         break;
    }
 
    return QVariant();
 }
 
-Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex &) const
+Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex&) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    return flags;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   return flags;
 }
 
 QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -165,7 +178,9 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    int addr;
 
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    if ( orientation == Qt::Horizontal )
    {
@@ -173,19 +188,19 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
       {
          case 0:
             return "!";
-         break;
+            break;
          case 1:
             return "Op";
-         break;
+            break;
          case 2:
             return "Lo";
-         break;
+            break;
          case 3:
             return "Hi";
-         break;
+            break;
          case 4:
             return "Disassembly";
-         break;
+            break;
       }
    }
    else
@@ -198,7 +213,7 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    return  QVariant();
 }
 
-QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex &) const
+QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex&) const
 {
    int addr;
 
@@ -212,7 +227,7 @@ QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelInd
    return QModelIndex();
 }
 
-int CCodeBrowserDisplayModel::rowCount(const QModelIndex &) const
+int CCodeBrowserDisplayModel::rowCount(const QModelIndex&) const
 {
    unsigned int rows;
 
@@ -222,16 +237,17 @@ int CCodeBrowserDisplayModel::rowCount(const QModelIndex &) const
    return rows;
 }
 
-int CCodeBrowserDisplayModel::columnCount(const QModelIndex &parent) const
+int CCodeBrowserDisplayModel::columnCount(const QModelIndex& parent) const
 {
    if ( parent.isValid())
    {
       return 0;
    }
+
    return 5;
 }
 
 void CCodeBrowserDisplayModel::layoutChangedEvent()
 {
-    this->layoutChanged();
+   this->layoutChanged();
 }

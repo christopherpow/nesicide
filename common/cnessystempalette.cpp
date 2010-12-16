@@ -102,15 +102,17 @@ void CBasePalette::CalculateVariants ( void )
 {
    int idx1, idx2;
    int temp;
-   double emphfactor [ 8 ] [ 3 ] = {
-   {1.00, 1.00, 1.00},
-   {1.00, 0.80, 0.81},
-   {0.78, 0.94, 0.66},
-   {0.79, 0.77, 0.63},
-   {0.82, 0.83, 1.12},
-   {0.81, 0.71, 0.87},
-   {0.68, 0.79, 0.79},
-   {0.70, 0.70, 0.70}};
+   double emphfactor [ 8 ] [ 3 ] =
+   {
+      {1.00, 1.00, 1.00},
+      {1.00, 0.80, 0.81},
+      {0.78, 0.94, 0.66},
+      {0.79, 0.77, 0.63},
+      {0.82, 0.83, 1.12},
+      {0.81, 0.71, 0.87},
+      {0.68, 0.79, 0.79},
+      {0.70, 0.70, 0.70}
+   };
 
    for ( idx2 = 0; idx2 < NUM_PALETTES; idx2++ )
    {
@@ -118,6 +120,7 @@ void CBasePalette::CalculateVariants ( void )
       m_paletteRGBs [ 0 ] [ idx2 ] [ 1 ] = m_paletteVariants[0][idx2].green();
       m_paletteRGBs [ 0 ] [ idx2 ] [ 2 ] = m_paletteVariants[0][idx2].blue();
    }
+
    for ( idx1 = 1; idx1 < 8; idx1++ )
    {
       // Calculate emphasis palettes:
@@ -135,19 +138,34 @@ void CBasePalette::CalculateVariants ( void )
 
          temp = m_paletteVariants[idx1][idx2].red();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 0 ];
-         if ( temp > 0xFF ) temp = 0xFF;
+
+         if ( temp > 0xFF )
+         {
+            temp = 0xFF;
+         }
+
          m_paletteVariants [ idx1 ] [ idx2 ].setRed ( temp );
          m_paletteRGBs [ idx1 ] [ idx2 ] [ 0 ] = temp;
 
          temp = m_paletteVariants[idx1][idx2].green();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 1 ];
-         if ( temp > 0xFF ) temp = 0xFF;
+
+         if ( temp > 0xFF )
+         {
+            temp = 0xFF;
+         }
+
          m_paletteVariants [ idx1 ] [ idx2 ].setGreen ( temp );
          m_paletteRGBs [ idx1 ] [ idx2 ] [ 1 ] = temp;
 
          temp = m_paletteVariants[idx1][idx2].blue();
          temp = ((double)temp)*emphfactor [ idx1 ] [ 2 ];
-         if ( temp > 0xFF ) temp = 0xFF;
+
+         if ( temp > 0xFF )
+         {
+            temp = 0xFF;
+         }
+
          m_paletteVariants [ idx1 ] [ idx2 ].setBlue ( temp );
          m_paletteRGBs [ idx1 ] [ idx2 ] [ 2 ] = temp;
       }

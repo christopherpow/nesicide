@@ -24,14 +24,29 @@ public:
    bool find(CCartridge* pCartridge);
 
    // Game values.
-   QString getName() { GAME_DATA("name"); }
-   QString getPublisher() { GAME_DATA("publisher"); }
-   QString getDate() { GAME_DATA("date"); }
+   QString getName()
+   {
+      GAME_DATA("name");
+   }
+   QString getPublisher()
+   {
+      GAME_DATA("publisher");
+   }
+   QString getDate()
+   {
+      GAME_DATA("date");
+   }
    int getRegion();
 
    // Cartridge values.
-   QString getSystem() { CART_DATA("system"); }
-   QString getSHA1() { CART_DATA("sha1").toUpper(); }
+   QString getSystem()
+   {
+      CART_DATA("system");
+   }
+   QString getSHA1()
+   {
+      CART_DATA("sha1").toUpper();
+   }
 
 protected:
    QDomDocument m_db;

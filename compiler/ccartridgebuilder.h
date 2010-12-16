@@ -8,8 +8,8 @@
 class CCartridgeBuilder
 {
 public:
-    CCartridgeBuilder();
-    void build();
+   CCartridgeBuilder();
+   void build();
 private:
 };
 

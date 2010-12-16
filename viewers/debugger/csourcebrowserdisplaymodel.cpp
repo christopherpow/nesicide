@@ -23,7 +23,7 @@ CSourceBrowserDisplayModel::~CSourceBrowserDisplayModel()
 {
 }
 
-QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) const
+QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) const
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
@@ -34,7 +34,9 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    char tooltipBuffer [ 128 ];
 
    if (!index.isValid())
+   {
       return QVariant();
+   }
 
    addr = pasm_get_source_addr_from_linenum(index.row()+1);
 
@@ -57,16 +59,18 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
       for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
       {
          pMarker = markers->GetMarker(idx);
+
          if ( (pMarker->state == eMarkerSet_Started) ||
-              (pMarker->state == eMarkerSet_Complete) )
+               (pMarker->state == eMarkerSet_Complete) )
          {
             if ( (absAddr >= pMarker->startAbsAddr) &&
-                 (absAddr <= pMarker->endAbsAddr) )
+                  (absAddr <= pMarker->endAbsAddr) )
             {
                return QColor(pMarker->red,pMarker->green,pMarker->blue);
             }
          }
       }
+
       return QVariant();
    }
 
@@ -75,10 +79,11 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
          if ( (pBreakpoint->enabled) &&
-              (pBreakpoint->type == eBreakOnCPUExecution) &&
-              ((uint32_t)pBreakpoint->item1 <= addr) &&
-              ((uint32_t)pBreakpoint->item2 >= addr) )
+               (pBreakpoint->type == eBreakOnCPUExecution) &&
+               ((uint32_t)pBreakpoint->item1 <= addr) &&
+               ((uint32_t)pBreakpoint->item2 >= addr) )
          {
             if ( addr == C6502DBG::__PC() )
             {
@@ -104,6 +109,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
             }
          }
       }
+
       if ( addr == C6502DBG::__PC() )
       {
          return QIcon(":/resources/22_execution_pointer.png");
@@ -111,25 +117,27 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex &index, int role) co
    }
 
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    switch ( index.column() )
    {
       case 0:
          return QVariant();
-      break;
+         break;
       case 1:
          return m_source.at ( index.row() );
-      break;
+         break;
    }
 
    return QVariant();
 }
 
-Qt::ItemFlags CSourceBrowserDisplayModel::flags(const QModelIndex &) const
+Qt::ItemFlags CSourceBrowserDisplayModel::flags(const QModelIndex&) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    return flags;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   return flags;
 }
 
 QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -137,7 +145,9 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
    char buffer [ 16 ];
 
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
 
    if ( orientation == Qt::Horizontal )
    {
@@ -145,10 +155,10 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
       {
          case 0:
             return "!";
-         break;
+            break;
          case 1:
             return "Source Code";
-         break;
+            break;
       }
    }
    else
@@ -160,39 +170,42 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
    return  QVariant();
 }
 
-QModelIndex CSourceBrowserDisplayModel::index(int row, int column, const QModelIndex &) const
+QModelIndex CSourceBrowserDisplayModel::index(int row, int column, const QModelIndex&) const
 {
    if ( (row >= 0) && (column >= 0) )
    {
       return createIndex(row, column, row);
    }
+
    return QModelIndex();
 }
 
-int CSourceBrowserDisplayModel::rowCount(const QModelIndex &) const
+int CSourceBrowserDisplayModel::rowCount(const QModelIndex&) const
 {
    return m_source.count();
 }
 
-int CSourceBrowserDisplayModel::columnCount(const QModelIndex &parent) const
+int CSourceBrowserDisplayModel::columnCount(const QModelIndex& parent) const
 {
    if ( parent.isValid())
    {
       return 0;
    }
+
    return 2;
 }
 
 void CSourceBrowserDisplayModel::layoutChangedEvent()
 {
-   CSourceItem *sourceItem;
+   CSourceItem* sourceItem;
 
    if ( nesicideProject )
    {
       m_source.empty ();
+
       for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
       {
-         sourceItem = (CSourceItem *)nesicideProject->getProject()->getSources()->child(sourceIndex);
+         sourceItem = (CSourceItem*)nesicideProject->getProject()->getSources()->child(sourceIndex);
          m_source = sourceItem->get_sourceCode().split ( QRegExp("[\r\n]") );
       }
    }

@@ -8,10 +8,10 @@ class QKeymapItemEdit : public QLineEdit
 {
    Q_OBJECT
 public:
-   explicit QKeymapItemEdit(QWidget *parent = 0);
+   explicit QKeymapItemEdit(QWidget* parent = 0);
 protected:
-   bool event(QEvent *);
-   void contextMenuEvent(QContextMenuEvent *) {}
+   bool event(QEvent*);
+   void contextMenuEvent(QContextMenuEvent*) {}
 signals:
 
 public slots:

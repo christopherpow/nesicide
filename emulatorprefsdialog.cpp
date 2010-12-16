@@ -3,9 +3,9 @@
 
 #include "emulator_core.h"
 
-EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget *parent) :
-      QDialog(parent),
-      ui(new Ui::EmulatorPrefsDialog)
+EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::EmulatorPrefsDialog)
 {
    ui->setupUi(this);
 }
@@ -20,9 +20,13 @@ void EmulatorPrefsDialog::on_controllerTypeComboBox_currentIndexChanged(int inde
    if (index == IO_Disconnected)
    {
       ui->ControllerKeysStackedWidget->setCurrentIndex(0);
-   } else if (index == IO_StandardJoypad) {
+   }
+   else if (index == IO_StandardJoypad)
+   {
       ui->ControllerKeysStackedWidget->setCurrentIndex(1);
-   } else if (index == IO_Zapper) {
+   }
+   else if (index == IO_Zapper)
+   {
       ui->ControllerKeysStackedWidget->setCurrentIndex(2);
    }
 }

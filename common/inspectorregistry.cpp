@@ -8,6 +8,7 @@ QDockWidget* InspectorRegistry::getInspector(const QString& name)
    {
       return inspectors[name];
    }
+
    return 0;
 }
 
@@ -18,7 +19,10 @@ void InspectorRegistry::addInspector(const QString& name, QDockWidget* inspector
 
 void InspectorRegistry::hideAll()
 {
-    QHash<QString,QDockWidget*>::const_iterator i;
-    for (i = inspectors.begin(); i != inspectors.end(); ++i)
+   QHash<QString,QDockWidget*>::const_iterator i;
+
+   for (i = inspectors.begin(); i != inspectors.end(); ++i)
+   {
       i.value()->hide();
+   }
 }

@@ -7,7 +7,8 @@
 
 #include "oamdisplaydialog.h"
 
-class OAMInspector : public QDockWidget {
+class OAMInspector : public QDockWidget
+{
    Q_OBJECT
 public:
    OAMInspector();

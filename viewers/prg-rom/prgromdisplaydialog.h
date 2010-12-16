@@ -3,26 +3,31 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class PRGROMDisplayDialog;
+namespace Ui
+{
+class PRGROMDisplayDialog;
 }
 
-class PRGROMDisplayDialog : public QDialog {
-    Q_OBJECT
+class PRGROMDisplayDialog : public QDialog
+{
+   Q_OBJECT
 public:
-    PRGROMDisplayDialog(QWidget *parent = 0);
-    ~PRGROMDisplayDialog();
-    void setRomData(unsigned char* data) { m_data = data; }
+   PRGROMDisplayDialog(QWidget* parent = 0);
+   ~PRGROMDisplayDialog();
+   void setRomData(unsigned char* data)
+   {
+      m_data = data;
+   }
 
 protected:
-    void changeEvent(QEvent *e);
-    void showEvent(QShowEvent *e);
+   void changeEvent(QEvent* e);
+   void showEvent(QShowEvent* e);
 
 protected:
-    unsigned char* m_data;
+   unsigned char* m_data;
 
 private:
-    Ui::PRGROMDisplayDialog *ui;
+   Ui::PRGROMDisplayDialog* ui;
 };
 
 #endif // PRGROMDISPLAYDIALOG_H

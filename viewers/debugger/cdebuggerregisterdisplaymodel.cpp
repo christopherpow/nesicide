@@ -10,26 +10,27 @@ CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject*, eMemoryTy
 {
    m_display = display;
    m_register = 0;
+
    switch ( m_display )
    {
       case eMemory_CPUregs:
          m_tblRegisters = nesGetCpuRegisterDatabase();
-      break;
+         break;
       case eMemory_PPUregs:
          m_tblRegisters = nesGetPpuRegisterDatabase();
-      break;
+         break;
       case eMemory_IOregs:
          m_tblRegisters = nesGetApuRegisterDatabase();
-      break;
+         break;
       case eMemory_PPUoam:
          m_tblRegisters = nesGetPpuOamRegisterDatabase();
-      break;
+         break;
       case eMemory_cartMapper:
          m_tblRegisters = nesGetCartridgeRegisterDatabase();
-      break;
+         break;
       default:
          m_tblRegisters = NULL;
-      break;
+         break;
    }
 }
 
@@ -37,7 +38,7 @@ CDebuggerRegisterDisplayModel::~CDebuggerRegisterDisplayModel()
 {
 }
 
-QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role) const
+QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex& index, int role) const
 {
    char data [ 64 ];
    char tooltipBuffer [ 512 ];
@@ -45,7 +46,9 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
    int value;
 
    if (!index.isValid())
+   {
       return QVariant();
+   }
 
    // FIXME: 64-bit support
    int regData = (long)index.internalPointer();
@@ -60,6 +63,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
          if ( pBitfield->GetNumValues() )
          {
             pValues += sprintf ( pValues, "<pre>" );
+
             for ( value = 0; value < pBitfield->GetNumValues(); value++ )
             {
                if ( value == pBitfield->GetValueRaw(regData) )
@@ -70,11 +74,13 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
                {
                   pValues += sprintf ( pValues, "%s", pBitfield->GetValueByIndex(value) );
                }
+
                if ( value < pBitfield->GetNumValues()-1 )
                {
                   pValues += sprintf ( pValues, "\n" );
                }
             }
+
             pValues += sprintf ( pValues, "</pre>" );
             return tooltipBuffer;
          }
@@ -90,6 +96,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
          {
             sprintf ( data, pBitfield->GetDisplayFormat(), pBitfield->GetValueRaw(regData) );
          }
+
          return QVariant(data);
       }
       else if ( role == Qt::EditRole )
@@ -98,10 +105,11 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex &index, int role)
          return QVariant(data);
       }
    }
+
    return QVariant();
 }
 
-Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex &) const
+Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex&) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
    return flags;
@@ -110,8 +118,12 @@ Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex &) const
 QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
    if (role != Qt::DisplayRole)
+   {
       return QVariant();
+   }
+
    char buffer [ 64 ] = { 0, };
+
    if ( orientation == Qt::Horizontal )
    {
       sprintf ( buffer, "Value" );
@@ -121,6 +133,7 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
       if ( m_tblRegisters )
       {
          CBitfieldData* pBitfield = m_tblRegisters[m_register]->GetBitfield ( section );
+
          if ( pBitfield->GetWidth() == 1 )
          {
             sprintf ( buffer, "[%d] %s", pBitfield->GetLsb(), pBitfield->GetName() );
@@ -135,7 +148,7 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
    return  QString(buffer);
 }
 
-bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const QVariant & value, int )
+bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex& index, const QVariant& value, int )
 {
    int data;
    bool ok = false;
@@ -151,38 +164,41 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
          switch ( m_display )
          {
             case eMemory_CPUregs:
+
                switch ( m_register )
                {
                   case CPU_PC:
                      C6502DBG::__PC(data);
-                  break;
+                     break;
                   case CPU_A:
                      C6502DBG::_A(data);
-                  break;
+                     break;
                   case CPU_X:
                      C6502DBG::_X(data);
-                  break;
+                     break;
                   case CPU_Y:
                      C6502DBG::_Y(data);
-                  break;
+                     break;
                   case CPU_SP:
                      C6502DBG::_SP(data);
-                  break;
+                     break;
                   case CPU_F:
                      C6502DBG::_F(data);
-                  break;
+                     break;
                }
-            break;
+
+               break;
             case eMemory_PPUregs:
                CPPUDBG::_PPU(addr, data);
-            break;
+               break;
             case eMemory_IOregs:
                CAPUDBG::_APU(addr, data);
-            break;
+               break;
             case eMemory_PPUoam:
                CPPUDBG::_OAM(addr%OAM_SIZE,addr/OAM_SIZE, data);
-            break;
+               break;
             case eMemory_cartMapper:
+
                if ( addr < MEM_32KB )
                {
                   CROMDBG::LOWWRITE(addr,data);
@@ -191,17 +207,20 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex & index, const Q
                {
                   CROMDBG::HIGHWRITE(addr, data);
                }
-            break;
+
+               break;
             default:
-            break;
+               break;
          }
+
          emit dataChanged(index,index);
       }
    }
+
    return ok;
 }
 
-QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QModelIndex &) const
+QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QModelIndex&) const
 {
    int addr;
 
@@ -214,38 +233,41 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
          switch ( m_display )
          {
             case eMemory_CPUregs:
+
                switch ( m_register )
                {
                   case CPU_PC:
                      return createIndex(row, column, (int)C6502DBG::__PC());
-                  break;
+                     break;
                   case CPU_A:
                      return createIndex(row, column, (int)C6502DBG::_A());
-                  break;
+                     break;
                   case CPU_X:
                      return createIndex(row, column, (int)C6502DBG::_X());
-                  break;
+                     break;
                   case CPU_Y:
                      return createIndex(row, column, (int)C6502DBG::_Y());
-                  break;
+                     break;
                   case CPU_SP:
                      return createIndex(row, column, (int)0x100|C6502DBG::_SP());
-                  break;
+                     break;
                   case CPU_F:
                      return createIndex(row, column, (int)C6502DBG::_F());
-                  break;
+                     break;
                }
-            break;
+
+               break;
             case eMemory_PPUregs:
                return createIndex(row, column, (int)CPPUDBG::_PPU(addr));
-            break;
+               break;
             case eMemory_IOregs:
                return createIndex(row, column, (int)CAPUDBG::_APU(addr));
-            break;
+               break;
             case eMemory_PPUoam:
                return createIndex(row, column, (int)CPPUDBG::_OAM(addr%OAM_SIZE,addr/OAM_SIZE));
-            break;
+               break;
             case eMemory_cartMapper:
+
                if ( m_tblRegisters )
                {
                   if ( addr < MEM_32KB )
@@ -261,32 +283,36 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
                {
                   return QModelIndex();
                }
-            break;
+
+               break;
             default:
                return QModelIndex();
-            break;
+               break;
          }
       }
    }
+
    return QModelIndex();
 }
 
-int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex &) const
+int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex&) const
 {
    if ( m_tblRegisters )
    {
       return m_tblRegisters[m_register]->GetNumBitfields();
    }
+
    // Nothing to display here...
    return 0;
 }
 
-int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex &) const
+int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex&) const
 {
    if ( m_tblRegisters )
    {
       return 1;
    }
+
    // Nothing to display here...
    return 0;
 }
@@ -298,5 +324,6 @@ void CDebuggerRegisterDisplayModel::layoutChangedEvent()
       // get the registers from the mapper just incase a cart has been loaded...
       m_tblRegisters = nesGetCartridgeRegisterDatabase();
    }
+
    this->layoutChanged();
 }

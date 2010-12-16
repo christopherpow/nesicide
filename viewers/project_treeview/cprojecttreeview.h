@@ -8,14 +8,14 @@
 class CProjectTreeView : public QTreeView
 {
 public:
-    CProjectTreeView(QWidget *parent = 0);
-    QTabWidget *mdiTabWidget;
+   CProjectTreeView(QWidget* parent = 0);
+   QTabWidget* mdiTabWidget;
 private:
-    CProjectTreeViewModel *treeViewModel;
+   CProjectTreeViewModel* treeViewModel;
 protected:
-    virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual void mouseDoubleClickEvent (QMouseEvent * event);
-    void keyPressEvent ( QKeyEvent * e );
+   virtual void contextMenuEvent(QContextMenuEvent* event);
+   virtual void mouseDoubleClickEvent (QMouseEvent* event);
+   void keyPressEvent ( QKeyEvent* e );
 };
 
 #endif // CPROJECTTREEVIEW_H

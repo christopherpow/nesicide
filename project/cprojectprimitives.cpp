@@ -10,15 +10,17 @@ CProjectPrimitives::CProjectPrimitives()
 CProjectPrimitives::~CProjectPrimitives()
 {
    if (m_attributeTables)
+   {
       delete m_attributeTables;
+   }
 }
 
 QString CProjectPrimitives::caption() const
 {
-    return QString("Primitives");
+   return QString("Primitives");
 }
 
-void CProjectPrimitives::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
+void CProjectPrimitives::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
 }
 

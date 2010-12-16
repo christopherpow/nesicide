@@ -10,20 +10,20 @@
 
 typedef struct AssemblerInstructionItem
 {
-    QString mnemonic;
+   QString mnemonic;
 } AssemblerInstructionItem_s;
 
 const QString AssemblerPreprocessorDirectives[] =
 {
-    "EQU", "INCLUDE", "INCBIN", "DB", "DW",
-    "DCB", "DCW", "DC.B", "DC.W",
-    "HEX", "DSB", "DSW", "DS.B", "DS.W",
-    "PAD", "ORG", "ALIGN", "FILLVALUE",
-    "BASE", "IF", "ELSEIF", "ELSE", "ENDIF",
-    "IFDEF", "IFNDEF", "ENDIF",
-    "MACRO", "ENDM", "REPT", "ENDR",
-    "ENUM", "ENDE", "ADVANCE",
-    ""
+   "EQU", "INCLUDE", "INCBIN", "DB", "DW",
+   "DCB", "DCW", "DC.B", "DC.W",
+   "HEX", "DSB", "DSW", "DS.B", "DS.W",
+   "PAD", "ORG", "ALIGN", "FILLVALUE",
+   "BASE", "IF", "ELSEIF", "ELSE", "ENDIF",
+   "IFDEF", "IFNDEF", "ENDIF",
+   "MACRO", "ENDM", "REPT", "ENDR",
+   "ENUM", "ENDE", "ADVANCE",
+   ""
 };
 
 const AssemblerInstructionItem AssemblerInstructionItems[] =
@@ -290,8 +290,8 @@ const AssemblerInstructionItem AssemblerInstructionItems[] =
 class CSourceAssembler
 {
 public:
-    CSourceAssembler();
-    bool assemble();
+   CSourceAssembler();
+   bool assemble();
 };
 
 #endif // CSOURCEASSEMBLER_H

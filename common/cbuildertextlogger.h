@@ -8,7 +8,10 @@ class CTextLogger : public QObject
    Q_OBJECT
 public:
    CTextLogger();
-   virtual void setTextEditControl(QPlainTextEdit *control) { m_textEdit = control; }
+   virtual void setTextEditControl(QPlainTextEdit* control)
+   {
+      m_textEdit = control;
+   }
    virtual void clear();
    virtual void write(QString text);
 
@@ -19,7 +22,7 @@ signals:
    void updateText();
 
 private:
-   QPlainTextEdit *m_textEdit;
+   QPlainTextEdit* m_textEdit;
    QString         m_text;
 };
 

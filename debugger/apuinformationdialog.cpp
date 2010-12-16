@@ -6,31 +6,33 @@
 #include "dbg_cnes.h"
 #include "dbg_cnesapu.h"
 
-APUInformationDialog::APUInformationDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::APUInformationDialog)
+APUInformationDialog::APUInformationDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::APUInformationDialog)
 {
-    ui->setupUi(this);
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
-    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   ui->setupUi(this);
+   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 APUInformationDialog::~APUInformationDialog()
 {
-    delete ui;
+   delete ui;
 }
 
-void APUInformationDialog::changeEvent(QEvent *e)
+void APUInformationDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void APUInformationDialog::showEvent(QShowEvent* e)
@@ -95,6 +97,7 @@ void APUInformationDialog::updateInformation()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( pBreakpoint->hit )
       {
          if ( pBreakpoint->type == eBreakOnAPUEvent )

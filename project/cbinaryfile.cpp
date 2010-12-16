@@ -5,40 +5,42 @@
 
 CBinaryFile::CBinaryFile()
 {
-    m_binaryData = new QByteArray();
+   m_binaryData = new QByteArray();
 }
 
 CBinaryFile::~CBinaryFile()
 {
-    if (m_binaryData)
-        delete m_binaryData;
+   if (m_binaryData)
+   {
+      delete m_binaryData;
+   }
 }
 
 
-QByteArray *CBinaryFile::getBinaryData()
+QByteArray* CBinaryFile::getBinaryData()
 {
-    return m_binaryData;
+   return m_binaryData;
 }
 
 void CBinaryFile::setBinaryName(QString newName)
 {
-    m_name = newName;
+   m_name = newName;
 }
 
 bool CBinaryFile::onNameChanged(QString newName)
 {
-    m_name = newName;
-    return true;
+   m_name = newName;
+   return true;
 }
 
-void CBinaryFile::setBinaryData(QByteArray *newBinaryData)
+void CBinaryFile::setBinaryData(QByteArray* newBinaryData)
 {
-    m_binaryData = newBinaryData;
+   m_binaryData = newBinaryData;
 }
 
-bool CBinaryFile::serialize(QDomDocument &doc, QDomNode &node)
+bool CBinaryFile::serialize(QDomDocument& doc, QDomNode& node)
 {
-   QDomElement element = addElement( doc, node, "binaryfile" );   
+   QDomElement element = addElement( doc, node, "binaryfile" );
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", getIdent());
    QDomCDATASection dataSect = doc.createCDATASection(m_binaryData->toBase64());
@@ -46,56 +48,68 @@ bool CBinaryFile::serialize(QDomDocument &doc, QDomNode &node)
    return true;
 }
 
-bool CBinaryFile::deserialize(QDomDocument &doc, QDomNode &node)
+bool CBinaryFile::deserialize(QDomDocument& doc, QDomNode& node)
 {
-    QDomElement element = node.toElement();
+   QDomElement element = node.toElement();
 
-    if (element.isNull())
-        return false;
+   if (element.isNull())
+   {
+      return false;
+   }
 
-    if (!element.hasAttribute("name"))
-        return false;
+   if (!element.hasAttribute("name"))
+   {
+      return false;
+   }
 
-    if (!element.hasAttribute("uuid"))
-        return false;
+   if (!element.hasAttribute("uuid"))
+   {
+      return false;
+   }
 
-    m_name = element.attribute("name");
-    QDomCDATASection cdata = element.firstChild().toCDATASection();
-    if (cdata.isNull())
-        return false;
+   m_name = element.attribute("name");
+   QDomCDATASection cdata = element.firstChild().toCDATASection();
 
-    setIdent(element.attribute("uuid"));
+   if (cdata.isNull())
+   {
+      return false;
+   }
 
-    m_binaryData = new QByteArray(QByteArray::fromBase64(cdata.data().toUtf8()));
+   setIdent(element.attribute("uuid"));
 
-    return true;
+   m_binaryData = new QByteArray(QByteArray::fromBase64(cdata.data().toUtf8()));
+
+   return true;
 }
 
 QString CBinaryFile::caption() const
 {
-    return m_name;
+   return m_name;
 }
 
 void CBinaryFile::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
-    QMenu menu(parent);
-    menu.addAction("&Delete");
+   QMenu menu(parent);
+   menu.addAction("&Delete");
 
-    QAction *ret = menu.exec(event->globalPos());
-    if (ret)
-    {
-        if (ret->text() == "&Delete")
-        {
-            if (QMessageBox::question(parent, "Delete Binary File", "Are you sure you want to delete " + m_name,
-                                  QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-                return;
+   QAction* ret = menu.exec(event->globalPos());
 
-            // TODO: Fix this logic so the memory doesn't get lost.
-            nesicideProject->getProject()->getBinaryFiles()->removeChild(this);
-            nesicideProject->getProject()->getBinaryFiles()->getBinaryFileList()->removeAll(this);
-            ((CProjectTreeViewModel *)parent->model())->layoutChangedEvent();
-        }
-    }
+   if (ret)
+   {
+      if (ret->text() == "&Delete")
+      {
+         if (QMessageBox::question(parent, "Delete Binary File", "Are you sure you want to delete " + m_name,
+                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+         {
+            return;
+         }
+
+         // TODO: Fix this logic so the memory doesn't get lost.
+         nesicideProject->getProject()->getBinaryFiles()->removeChild(this);
+         nesicideProject->getProject()->getBinaryFiles()->getBinaryFileList()->removeAll(this);
+         ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+      }
+   }
 }
 
 int CBinaryFile::getChrRomBankItemSize()

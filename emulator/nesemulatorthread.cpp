@@ -51,27 +51,28 @@ void breakpointHook ( void )
    breakpointSemaphore.acquire();
 }
 
-extern "C" void SDL_GetMoreData(void *userdata, uint8_t *stream, int32_t len)
+extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
    int32_t samplesAvailable;
 
    coreMutexLock();
    samplesAvailable = nesGetAudioSamplesAvailable();
    coreMutexUnlock();
-   
+
    if (samplesAvailable < 0)
    {
       return;
    }
 
    SDL_MixAudio ( stream, nesGetAudioSamples(), len, SDL_MIX_MAXVOLUME );
+
    if ( emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
    {
       emulator->start();
-   } 
+   }
 }
 
-NESEmulatorThread::NESEmulatorThread(QObject *)
+NESEmulatorThread::NESEmulatorThread(QObject*)
 {
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -120,7 +121,7 @@ void NESEmulatorThread::kill()
 void NESEmulatorThread::primeEmulator()
 {
    if ( (nesicideProject) &&
-        (nesicideProject->getCartridge()) )
+         (nesicideProject->getCartridge()) )
    {
       m_pCartridge = nesicideProject->getCartridge();
 
@@ -162,7 +163,7 @@ void NESEmulatorThread::loadCartridge()
 
    // Set up PPU with iNES header information...
    if ( (m_pCartridge->getMirrorMode() == GameMirrorMode::NoMirroring) ||
-        (m_pCartridge->getMirrorMode() == GameMirrorMode::HorizontalMirroring) )
+         (m_pCartridge->getMirrorMode() == GameMirrorMode::HorizontalMirroring) )
    {
       nesSetHorizontalMirroring();
    }
@@ -182,6 +183,7 @@ void NESEmulatorThread::loadCartridge()
    {
       mapperfunc [ m_pRIID->GetMapperID() ].load ( pMapperState );
    }
+
 #endif
 
    // Initialize NES...
@@ -245,6 +247,7 @@ void NESEmulatorThread::stepCPUEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepCpu();
+
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
@@ -260,6 +263,7 @@ void NESEmulatorThread::stepPPUEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepPpu();
+
    if ( !(breakpointSemaphore.available()) )
    {
       breakpointSemaphore.release();
@@ -338,6 +342,7 @@ void NESEmulatorThread::run ()
          coreMutexLock();
          samplesAvailable = nesGetAudioSamplesAvailable();
          coreMutexUnlock();
+
          if ( samplesAvailable >= APU_BUFFER_PRERENDER )
          {
             break;

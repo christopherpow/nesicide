@@ -43,6 +43,7 @@ void CROMMapper068::RESET ()
    {
       m_reg [ idx ] = 0x00;
    }
+
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_PRGROMbank [ 0 ] = 0;
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
@@ -78,21 +79,22 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
       case 0x8000:
          m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
          m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0x9000:
          m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
          m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xA000:
          m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
          m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xB000:
          m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
          m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
-      break;
+         break;
       case 0xC000:
          m_reg [ 2 ] = data|0x80;
+
          if ( m_reg[0] )
          {
             switch ( m_reg[1] )
@@ -102,25 +104,25 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 1:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 2:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 3:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
             }
          }
          else
@@ -129,21 +131,23 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
             {
                case 0:
                   CPPU::MIRRORVERT ();
-               break;
+                  break;
                case 1:
                   CPPU::MIRRORHORIZ ();
-               break;
+                  break;
                case 2:
                   CPPU::MIRROR ( 0 );
-               break;
+                  break;
                case 3:
                   CPPU::MIRROR ( 1 );
-               break;
+                  break;
             }
          }
-      break;
+
+         break;
       case 0xD000:
          m_reg [ 3 ] = data|0x80;
+
          if ( m_reg[0] )
          {
             switch ( m_reg[1] )
@@ -153,25 +157,25 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 1:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 2:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 3:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
             }
          }
          else
@@ -180,22 +184,24 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
             {
                case 0:
                   CPPU::MIRRORVERT ();
-               break;
+                  break;
                case 1:
                   CPPU::MIRRORHORIZ ();
-               break;
+                  break;
                case 2:
                   CPPU::MIRROR ( 0 );
-               break;
+                  break;
                case 3:
                   CPPU::MIRROR ( 1 );
-               break;
+                  break;
             }
          }
-      break;
+
+         break;
       case 0xE000:
          m_reg [ 0 ] = (data>>4)&0x01;
          m_reg [ 1 ] = data&0x03;
+
          if ( m_reg[0] )
          {
             switch ( m_reg[1] )
@@ -205,25 +211,25 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 1:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 2:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
                case 3:
                   CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
                   CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-               break;
+                  break;
             }
          }
          else
@@ -232,24 +238,25 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
             {
                case 0:
                   CPPU::MIRRORVERT ();
-               break;
+                  break;
                case 1:
                   CPPU::MIRRORHORIZ ();
-               break;
+                  break;
                case 2:
                   CPPU::MIRROR ( 0 );
-               break;
+                  break;
                case 3:
                   CPPU::MIRROR ( 1 );
-               break;
+                  break;
             }
          }
-      break;
+
+         break;
       case 0xF000:
          m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
          m_PRGROMbank [ 0 ] = data;
          m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data+1 ];
          m_PRGROMbank [ 1 ] = data+1;
-      break;
+         break;
    }
 }

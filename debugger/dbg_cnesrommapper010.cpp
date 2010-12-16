@@ -84,29 +84,31 @@ uint32_t CROMMapper010::MAPPER ( uint32_t addr )
    {
       case 0xA000:
          return m_reg [ 0 ];
-      break;
+         break;
       case 0xB000:
          return m_reg [ 1 ];
-      break;
+         break;
       case 0xC000:
          return m_reg [ 2 ];
-      break;
+         break;
       case 0xD000:
          return m_reg [ 3 ];
-      break;
+         break;
       case 0xE000:
          return m_reg [ 4 ];
-      break;
+         break;
       case 0xF000:
          return m_reg [ 5 ];
-      break;
+         break;
    }
+
    return 0xFF;
 }
 
 void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
 {
    int32_t reg;
+
    switch ( addr&0xF000 )
    {
       case 0xA000:
@@ -116,11 +118,12 @@ void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
          m_PRGROMbank [ 0 ] = data;
          m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data+1 ];
          m_PRGROMbank [ 1 ] = data+1;
-      break;
+         break;
       case 0xB000:
          reg = 1;
          m_reg [ 1 ] = data;
          m_latch0FD = data;
+
          if ( m_latch0 == 0xFD )
          {
             m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
@@ -128,11 +131,13 @@ void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
             m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
             m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
          }
-      break;
+
+         break;
       case 0xC000:
          reg = 2;
          m_reg [ 2 ] = data;
          m_latch0FE = data;
+
          if ( m_latch0 == 0xFE )
          {
             m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
@@ -140,11 +145,13 @@ void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
             m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
             m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
          }
-      break;
+
+         break;
       case 0xD000:
          reg = 3;
          m_reg [ 3 ] = data;
          m_latch1FD = data;
+
          if ( m_latch1 == 0xFD )
          {
             m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
@@ -152,11 +159,13 @@ void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
             m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
             m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
          }
-      break;
+
+         break;
       case 0xE000:
          reg = 4;
          m_reg [ 4 ] = data;
          m_latch1FE = data;
+
          if ( m_latch1 == 0xFE )
          {
             m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
@@ -164,10 +173,12 @@ void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
             m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
             m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
          }
-      break;
+
+         break;
       case 0xF000:
          reg = 5;
          m_reg [ 5 ] = data;
+
          if ( !(CPPU::FOURSCREEN()) )
          {
             if ( data&0x01 )
@@ -179,7 +190,8 @@ void CROMMapper010::MAPPER ( uint32_t addr, uint8_t data )
                CPPU::MIRRORVERT ();
             }
          }
-      break;
+
+         break;
    }
 
 #if defined ( IDE_BUILD )

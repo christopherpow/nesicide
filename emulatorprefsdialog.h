@@ -3,23 +3,24 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class EmulatorPrefsDialog;
+namespace Ui
+{
+class EmulatorPrefsDialog;
 }
 
 class EmulatorPrefsDialog : public QDialog
 {
-    Q_OBJECT
+   Q_OBJECT
 
 public:
-    explicit EmulatorPrefsDialog(QWidget *parent = 0);
-    ~EmulatorPrefsDialog();
+   explicit EmulatorPrefsDialog(QWidget* parent = 0);
+   ~EmulatorPrefsDialog();
 
 private:
-    Ui::EmulatorPrefsDialog *ui;
+   Ui::EmulatorPrefsDialog* ui;
 
 private slots:
-    void on_controllerTypeComboBox_currentIndexChanged(int index );
+   void on_controllerTypeComboBox_currentIndexChanged(int index );
 };
 
 #endif // EMULATORPREFSDIALOG_H

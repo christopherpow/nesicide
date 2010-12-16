@@ -17,6 +17,7 @@ void CGameDatabaseHandler::initialize(QString fileName)
 
    // First attempt to open the user-specified game database...
    file.open(QIODevice::ReadOnly);
+
    if ( file.isOpen() )
    {
       m_db.clear();
@@ -66,6 +67,7 @@ bool CGameDatabaseHandler::find(CCartridge* pCartridge)
    {
       sha1alg.addData((char*)pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->at(i)->get_pointerToBankData(),0x4000);
    }
+
    for ( i = 0; i < pCartridge->getPointerToChrRomBanks()->banks.count(); i++ )
    {
       sha1alg.addData((char*)pCartridge->getPointerToChrRomBanks()->banks.at(i)->data,0x2000);
@@ -76,13 +78,16 @@ bool CGameDatabaseHandler::find(CCartridge* pCartridge)
 
    // Search the loaded game database for the corresponding hash value...
    QDomNode gameNode = docElem.firstChild();
-   while(!gameNode.isNull())
+
+   while (!gameNode.isNull())
    {
       QDomElement gameElem = gameNode.toElement(); // try to convert the node to an element.
-      if(!gameElem.isNull())
+
+      if (!gameElem.isNull())
       {
          QDomNode cartridgeNode = gameElem.firstChild();
-         while(!cartridgeNode.isNull())
+
+         while (!cartridgeNode.isNull())
          {
             QDomElement cartridgeElem = cartridgeNode.toElement(); // try to convert the node to an element.
 
@@ -93,11 +98,14 @@ bool CGameDatabaseHandler::find(CCartridge* pCartridge)
                m_cartridge = cartridgeNode.cloneNode();
                return true;
             }
+
             cartridgeNode = cartridgeNode.nextSibling();
          }
       }
+
       gameNode = gameNode.nextSibling();
    }
+
    return false;
 }
 
@@ -105,6 +113,7 @@ int CGameDatabaseHandler::getRegion()
 {
    QDomElement cartridgeElem = m_cartridge.toElement();
    QString str = cartridgeElem.attribute("system");
+
    if ( str.contains("USA") )
    {
       return MODE_NTSC;

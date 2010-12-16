@@ -19,5 +19,6 @@ void CCartridgeBuilder::build()
       buildTextLogger.write("<font color='red'><b>Build failed.</b></font><br />");
       return;
    }
+
    buildTextLogger.write("<b>Build completed successfully.</b><br />");
 }

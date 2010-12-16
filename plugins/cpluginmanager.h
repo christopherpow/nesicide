@@ -21,20 +21,20 @@ public:
    QString getVersionInfo();
    void doInitScript();
    void loadPlugins();
-   void defineInterfaces(lua_State *lua);
+   void defineInterfaces(lua_State* lua);
 
    // Functions called by lua
    void lua_compiler_logger_print(QString text);
 
 protected:
-   lua_State *globalLuaInstance;
-   int report(lua_State *L, int status);
-    
+   lua_State* globalLuaInstance;
+   int report(lua_State* L, int status);
+
    // Database of plugins
    static QHash<QString,QDomDocument*> plugins;
 };
 
-extern CPluginManager *pluginManager;
+extern CPluginManager* pluginManager;
 
 
 

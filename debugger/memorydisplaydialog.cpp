@@ -10,25 +10,25 @@
 
 #include <QMessageBox>
 
-MemoryDisplayDialog::MemoryDisplayDialog(QWidget *parent, eMemoryType display) :
-    QDialog(parent),
-    ui(new Ui::MemoryDisplayDialog),
-    m_display(display)
+MemoryDisplayDialog::MemoryDisplayDialog(QWidget* parent, eMemoryType display) :
+   QDialog(parent),
+   ui(new Ui::MemoryDisplayDialog),
+   m_display(display)
 {
-    ui->setupUi(this);
-    model = new CDebuggerMemoryDisplayModel(this,display);
-    ui->tableView->setModel(model);
+   ui->setupUi(this);
+   model = new CDebuggerMemoryDisplayModel(this,display);
+   ui->tableView->setModel(model);
 
-    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
-    QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
-    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
+   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 }
 
 MemoryDisplayDialog::~MemoryDisplayDialog()
 {
-    delete ui;
-    delete model;
+   delete ui;
+   delete model;
 }
 
 void MemoryDisplayDialog::showEvent(QShowEvent* e)
@@ -37,7 +37,7 @@ void MemoryDisplayDialog::showEvent(QShowEvent* e)
    updateMemory();
 }
 
-void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
+void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent* e)
 {
    QMenu menu;
 
@@ -51,23 +51,26 @@ void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent *e)
          menu.addAction(ui->actionBreak_on_CPU_access_here);
          menu.addAction(ui->actionBreak_on_CPU_read_here);
          menu.addAction(ui->actionBreak_on_CPU_write_here);
-      break;
+         break;
       default:
-      break;
+         break;
    }
+
    menu.exec(e->globalPos());
 }
 
-void MemoryDisplayDialog::changeEvent(QEvent *e)
+void MemoryDisplayDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void MemoryDisplayDialog::cartridgeLoaded ()
@@ -95,31 +98,32 @@ void MemoryDisplayDialog::updateMemory ()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( pBreakpoint->hit )
       {
          if ( (pBreakpoint->type == eBreakOnCPUMemoryAccess) ||
-              (pBreakpoint->type == eBreakOnCPUMemoryRead) ||
-              (pBreakpoint->type == eBreakOnCPUMemoryWrite) ||
-              (pBreakpoint->type == eBreakOnPPUPortalAccess) ||
-              (pBreakpoint->type == eBreakOnPPUPortalRead) ||
-              (pBreakpoint->type == eBreakOnPPUPortalWrite) )
+               (pBreakpoint->type == eBreakOnCPUMemoryRead) ||
+               (pBreakpoint->type == eBreakOnCPUMemoryWrite) ||
+               (pBreakpoint->type == eBreakOnPPUPortalAccess) ||
+               (pBreakpoint->type == eBreakOnPPUPortalRead) ||
+               (pBreakpoint->type == eBreakOnPPUPortalWrite) )
          {
             // Check memory range...
             low = model->memoryBottom();
             high = model->memoryTop();
 
             if ( (pBreakpoint->itemActual >= low) &&
-                 (pBreakpoint->itemActual <= high) )
+                  (pBreakpoint->itemActual <= high) )
             {
                if ( ((pBreakpoint->target == eBreakInCPU) &&
-                    ((memoryType == eMemory_CPU) ||
-                    (memoryType == eMemory_cartSRAM) ||
-                    (memoryType == eMemory_cartEXRAM) ||
-                    (memoryType == eMemory_cartROM))) ||
-                    ((pBreakpoint->target == eBreakInPPU) &&
-                    ((memoryType == eMemory_PPU) ||
-                    (memoryType == eMemory_PPUpalette) ||
-                    (memoryType == eMemory_cartCHRMEM))) )
+                     ((memoryType == eMemory_CPU) ||
+                      (memoryType == eMemory_cartSRAM) ||
+                      (memoryType == eMemory_cartEXRAM) ||
+                      (memoryType == eMemory_cartROM))) ||
+                     ((pBreakpoint->target == eBreakInPPU) &&
+                      ((memoryType == eMemory_PPU) ||
+                       (memoryType == eMemory_PPUpalette) ||
+                       (memoryType == eMemory_cartCHRMEM))) )
                {
                   // Change memory address into row/column of display...
                   itemActual = pBreakpoint->itemActual - model->memoryBottom();

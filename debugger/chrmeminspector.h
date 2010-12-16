@@ -7,7 +7,8 @@
 
 #include "chrromdisplaydialog.h"
 
-class CHRMEMInspector : public QDockWidget {
+class CHRMEMInspector : public QDockWidget
+{
    Q_OBJECT
 public:
    CHRMEMInspector();

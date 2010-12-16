@@ -7,8 +7,8 @@
 class CGraphicsAssembler
 {
 public:
-    CGraphicsAssembler();
-    bool assemble();
+   CGraphicsAssembler();
+   bool assemble();
 };
 
 #endif // CGRAPHICSASSEMBLER_H

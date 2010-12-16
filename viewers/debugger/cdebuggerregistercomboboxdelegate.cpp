@@ -4,9 +4,9 @@ CDebuggerRegisterComboBoxDelegate::CDebuggerRegisterComboBoxDelegate()
    : m_pBitfield(NULL)
 {}
 
-QWidget *CDebuggerRegisterComboBoxDelegate::createEditor(QWidget *parent,
-     const QStyleOptionViewItem &/* option */,
-     const QModelIndex &/* index */) const
+QWidget* CDebuggerRegisterComboBoxDelegate::createEditor(QWidget* parent,
+      const QStyleOptionViewItem& /* option */,
+      const QModelIndex& /* index */) const
 {
    char data [ 64 ];
    int idx;
@@ -15,30 +15,32 @@ QWidget *CDebuggerRegisterComboBoxDelegate::createEditor(QWidget *parent,
    {
       if ( m_pBitfield->GetNumValues() )
       {
-         QComboBox *editor = new QComboBox(parent);
+         QComboBox* editor = new QComboBox(parent);
+
          for ( idx = 0; idx < m_pBitfield->GetNumValues(); idx++ )
          {
             sprintf ( data, "%s", m_pBitfield->GetValueByIndex(idx) );
             editor->addItem ( data, QVariant(idx) );
          }
+
          editor->setEditable(false);
          return editor;
       }
       else
       {
-         QLineEdit *editor = new QLineEdit(parent);
+         QLineEdit* editor = new QLineEdit(parent);
          return editor;
       }
    }
    else
    {
-      QLineEdit *editor = new QLineEdit(parent);
+      QLineEdit* editor = new QLineEdit(parent);
       return editor;
    }
 }
 
-void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
-                                    const QModelIndex &index) const
+void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget* editor,
+      const QModelIndex& index) const
 {
    // get register value from model...
    bool ok;
@@ -49,14 +51,15 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
    if ( m_pBitfield )
    {
       value = m_pBitfield->GetValueRaw ( index.model()->data(index, Qt::EditRole).toString().toInt(&ok,16) );
+
       if ( m_pBitfield->GetNumValues() )
       {
-         QComboBox *comboBox = static_cast<QComboBox*>(editor);
+         QComboBox* comboBox = static_cast<QComboBox*>(editor);
          comboBox->setCurrentIndex(value);
       }
       else
       {
-         QLineEdit *edit = static_cast<QLineEdit*>(editor);
+         QLineEdit* edit = static_cast<QLineEdit*>(editor);
 
          sprintf ( data, m_pBitfield->GetDisplayFormat(), value );
 
@@ -65,13 +68,13 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget *editor,
    }
    else
    {
-      QLineEdit *edit = static_cast<QLineEdit*>(editor);
+      QLineEdit* edit = static_cast<QLineEdit*>(editor);
       edit->setText(index.model()->data(index, Qt::EditRole).toString());
    }
 }
 
-void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                   const QModelIndex &index) const
+void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
+      const QModelIndex& index) const
 {
    // get register value from model...
    bool ok;
@@ -82,7 +85,7 @@ void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget *editor, QAbstractI
    {
       if ( m_pBitfield->GetNumValues() )
       {
-         QComboBox *comboBox = static_cast<QComboBox*>(editor);
+         QComboBox* comboBox = static_cast<QComboBox*>(editor);
 
          int bitfieldValue = comboBox->currentIndex();
 
@@ -105,8 +108,8 @@ void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget *editor, QAbstractI
    }
 }
 
-void CDebuggerRegisterComboBoxDelegate::updateEditorGeometry(QWidget *editor,
-    const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
+void CDebuggerRegisterComboBoxDelegate::updateEditorGeometry(QWidget* editor,
+      const QStyleOptionViewItem& option, const QModelIndex& /* index */) const
 {
-    editor->setGeometry(option.rect);
+   editor->setGeometry(option.rect);
 }

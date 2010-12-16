@@ -10,38 +10,38 @@
 class CSourceItem : public CProjectBase
 {
 public:
-    CSourceItem();
-    virtual ~CSourceItem();
+   CSourceItem();
+   virtual ~CSourceItem();
 
-    // Member Getters
-    QString get_sourceName();
-    QString get_sourceCode();
+   // Member Getters
+   QString get_sourceName();
+   QString get_sourceCode();
 
-    // Member Setters
-    void set_sourceCode(QString sourceCode);
-    void set_sourceName(QString sourceName);
+   // Member Setters
+   void set_sourceCode(QString sourceCode);
+   void set_sourceName(QString sourceName);
 
-    // IXMLSerializable Interface Implementation
-    virtual bool serialize(QDomDocument &doc, QDomNode &node);
-    virtual bool deserialize(QDomDocument &doc, QDomNode &node);
+   // IXMLSerializable Interface Implementation
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
 
-    // IProjectTreeViewItem Interface Implmentation
-    QString caption() const;
-    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
-    virtual void openItemEvent(QTabWidget* parent);
-    virtual bool onCloseQuery();
-    virtual void onClose();
-    virtual int getTabIndex();
-    virtual bool isDocumentSaveable();
-    virtual void onSaveDocument();
-    virtual bool canChangeName();
-    virtual bool onNameChanged(QString newName);
+   // IProjectTreeViewItem Interface Implmentation
+   QString caption() const;
+   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
+   virtual void openItemEvent(QTabWidget* parent);
+   virtual bool onCloseQuery();
+   virtual void onClose();
+   virtual int getTabIndex();
+   virtual bool isDocumentSaveable();
+   virtual void onSaveDocument();
+   virtual bool canChangeName();
+   virtual bool onNameChanged(QString newName);
 
 private:
    QString m_name;
    QString m_sourceCode;
    int m_indexOfTab;
-   CodeEditorForm *m_codeEditorForm;
+   CodeEditorForm* m_codeEditorForm;
 };
 
 #endif // CSOURCEITEM_H

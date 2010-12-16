@@ -6,16 +6,16 @@ CConfigurator* appConfig;
 
 CConfigurator::CConfigurator()
 {
-    QCoreApplication::setOrganizationName("CSPSoftware");
-    QCoreApplication::setOrganizationDomain("nesicide.com");
-    QCoreApplication::setApplicationName("NESICIDE");
-    m_config = new QSettings();
+   QCoreApplication::setOrganizationName("CSPSoftware");
+   QCoreApplication::setOrganizationDomain("nesicide.com");
+   QCoreApplication::setApplicationName("NESICIDE");
+   m_config = new QSettings();
 
-    // Initialize the default settings
-    loadDefaultSettings();
+   // Initialize the default settings
+   loadDefaultSettings();
 
-    // Load any existing configuration settings
-    m_config->sync();
+   // Load any existing configuration settings
+   m_config->sync();
 
 
 
@@ -24,8 +24,10 @@ CConfigurator::CConfigurator()
 
 CConfigurator::~CConfigurator()
 {
-    if (m_config)
-        delete m_config;
+   if (m_config)
+   {
+      delete m_config;
+   }
 }
 
 void CConfigurator::loadDefaultSettings()

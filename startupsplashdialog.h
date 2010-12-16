@@ -3,20 +3,21 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class StartupSplashDialog;
+namespace Ui
+{
+class StartupSplashDialog;
 }
 
 class StartupSplashDialog : public QDialog
 {
-    Q_OBJECT
+   Q_OBJECT
 
 public:
-    explicit StartupSplashDialog(QWidget *parent = 0);
-    ~StartupSplashDialog();
+   explicit StartupSplashDialog(QWidget* parent = 0);
+   ~StartupSplashDialog();
 
 private:
-    Ui::StartupSplashDialog *ui;
+   Ui::StartupSplashDialog* ui;
 };
 
 #endif // STARTUPSPLASHDIALOG_H

@@ -45,23 +45,23 @@ uint32_t CIO::IO ( uint32_t addr )
    {
       case APUCTRL:
          data = CAPU::APU ( addr );
-      break;
+         break;
 
       case IOSPRITEDMA:
          data = CPPU::PPU ( addr );
-      break;
+         break;
 
       case IOJOY1:
          data = 0x40|((*(m_ioJoyLatch+JOY1))&0x01);
          *(m_ioJoyLatch+JOY1) >>= 1;
          *(m_ioJoyLatch+JOY1) |= 0x80;
-      break;
+         break;
 
       case IOJOY2:
          data = 0x40|((*(m_ioJoyLatch+JOY2))&0x01);
          *(m_ioJoyLatch+JOY2) >>= 1;
          *(m_ioJoyLatch+JOY2) |= 0x80;
-      break;
+         break;
    }
 
    return data;
@@ -72,21 +72,23 @@ void CIO::IO ( uint32_t addr, uint8_t data )
    switch ( addr )
    {
       case IOJOY1:
+
          if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
          {
             *(m_ioJoyLatch+JOY1) = *(m_ioJoy+JOY1);
             *(m_ioJoyLatch+JOY2) = *(m_ioJoy+JOY2);
          }
+
          m_last4016 = data;
-      break;
+         break;
 
       case IOSPRITEDMA:
          CPPU::PPU ( addr, data );
-      break;
+         break;
 
       default:
          CAPU::APU ( addr, data );
-      break;
+         break;
    }
 }
 
@@ -98,19 +100,19 @@ uint32_t CIO::_IO ( uint32_t addr )
    {
       case IOSPRITEDMA:
          data = CPPU::PPU ( addr );
-      break;
+         break;
 
       case IOJOY1:
          data = 0x40|(m_ioJoyLatch[JOY1]&0x01);
-      break;
+         break;
 
       case IOJOY2:
          data = 0x40|(m_ioJoyLatch[JOY2]&0x01);
-      break;
+         break;
 
       default:
          data = CAPU::_APU ( addr );
-      break;
+         break;
    }
 
    return data;
@@ -121,20 +123,22 @@ void CIO::_IO ( uint32_t addr, uint8_t data )
    switch ( addr )
    {
       case IOJOY1:
+
          if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
          {
             *(m_ioJoyLatch+JOY1) = *(m_ioJoy+JOY1);
             *(m_ioJoyLatch+JOY2) = *(m_ioJoy+JOY2);
          }
+
          m_last4016 = data;
-      break;
+         break;
 
       case IOSPRITEDMA:
          CPPU::PPU ( addr, data );
-      break;
+         break;
 
       default:
          CAPU::APU ( addr, data );
-      break;
+         break;
    }
 }

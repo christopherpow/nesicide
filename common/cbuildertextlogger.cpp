@@ -5,15 +5,18 @@ CTextLogger buildTextLogger;
 CTextLogger debugTextLogger;
 
 CTextLogger::CTextLogger()
-: m_textEdit(NULL)
+   : m_textEdit(NULL)
 {
 }
 
 void CTextLogger::clear()
 {
    m_text.clear();
+
    if (m_textEdit)
+   {
       m_textEdit->clear();
+   }
 }
 
 void CTextLogger::write(QString text)
@@ -30,6 +33,7 @@ void CTextLogger::update()
       {
          m_textEdit->appendHtml(m_text);
       }
+
       m_text.clear();
    }
 }

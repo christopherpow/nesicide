@@ -22,6 +22,6 @@ extern CompilerThread* compiler;
 
 extern CGameDatabaseHandler gameDatabase;
 
-extern CNesicideProject *nesicideProject;
+extern CNesicideProject* nesicideProject;
 
 #endif // MAIN_H

@@ -9,9 +9,9 @@
 
 #include "main.h"
 
-BreakpointDialog::BreakpointDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::BreakpointDialog)
+BreakpointDialog::BreakpointDialog(QWidget* parent) :
+   QDialog(parent),
+   ui(new Ui::BreakpointDialog)
 {
    ui->setupUi(this);
    ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
@@ -33,24 +33,27 @@ BreakpointDialog::BreakpointDialog(QWidget *parent) :
 
 BreakpointDialog::~BreakpointDialog()
 {
-    delete ui;
+   delete ui;
 }
 
-void BreakpointDialog::changeEvent(QEvent *e)
+void BreakpointDialog::changeEvent(QEvent* e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+   QDialog::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
-void BreakpointDialog::showEvent(QShowEvent *)
+void BreakpointDialog::showEvent(QShowEvent*)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
    if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
    {
       ui->addButton->setEnabled(false);
@@ -59,6 +62,7 @@ void BreakpointDialog::showEvent(QShowEvent *)
    {
       ui->addButton->setEnabled(true);
    }
+
    model->layoutChangedEvent();
    ui->tableView->resizeColumnToContents(0);
 }
@@ -73,6 +77,7 @@ void BreakpointDialog::updateData()
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
    {
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
       if ( pBreakpoint->hit )
       {
          ui->tableView->setCurrentIndex(model->index(idx,0));
@@ -89,13 +94,14 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
    ui->item1label->setText("Data1:");
    ui->item2label->setText("Data2:");
    ui->event->setCurrentIndex(0);
+
    switch ( index )
    {
       case eBreakOnCPUExecution:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
-      break;
+         break;
       case eBreakOnCPUMemoryAccess:
       case eBreakOnCPUMemoryRead:
       case eBreakOnCPUMemoryWrite:
@@ -108,87 +114,100 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
-      break;
+         break;
       case eBreakOnCPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->reg->clear();
          ui->bitfield->clear();
+
          for ( idx = 0; idx < NUM_CPU_REGISTERS; idx++ )
          {
             ui->reg->addItem ( nesGetCpuRegisterDatabase()[idx]->GetName() );
          }
-      break;
+
+         break;
       case eBreakOnCPUEvent:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
          pBreakpointEventInfo = nesGetCpuBreakpointEventDatabase();
+
          for ( idx = 0; idx < nesGetSizeOfCpuBreakpointEventDatabase(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+
          ui->event->setCurrentIndex ( 0 );
-      break;
+         break;
       case eBreakOnPPUFetch:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
-      break;
+         break;
       case eBreakOnPPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->reg->clear();
          ui->bitfield->clear();
+
          for ( idx = 0; idx < NUM_PPU_REGISTERS; idx++ )
          {
             ui->reg->addItem ( nesGetPpuRegisterDatabase()[idx]->GetName() );
          }
-      break;
+
+         break;
       case eBreakOnPPUEvent:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
          pBreakpointEventInfo = nesGetPpuBreakpointEventDatabase();
+
          for ( idx = 0; idx < nesGetSizeOfPpuBreakpointEventDatabase(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+
          ui->event->setCurrentIndex ( 0 );
-      break;
+         break;
       case eBreakOnAPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->reg->clear();
          ui->bitfield->clear();
+
          for ( idx = 0; idx < NUM_APU_REGISTERS; idx++ )
          {
             ui->reg->addItem ( nesGetApuRegisterDatabase()[idx]->GetName() );
          }
-      break;
+
+         break;
       case eBreakOnAPUEvent:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
          pBreakpointEventInfo = nesGetApuBreakpointEventDatabase();
+
          for ( idx = 0; idx < nesGetSizeOfApuBreakpointEventDatabase(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+
          ui->event->setCurrentIndex ( 0 );
-      break;
+         break;
       case eBreakOnMapperState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->reg->clear();
          ui->bitfield->clear();
+
          if ( nesGetCartridgeRegisterDatabase() )
          {
             for ( idx = 0; idx < nesGetSizeOfCartridgeRegisterDatabase(); idx++ )
@@ -200,39 +219,44 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          {
             ui->addButton->setEnabled(false);
          }
-      break;
+
+         break;
       case eBreakOnMapperEvent:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->event->clear();
          pBreakpointEventInfo = nesGetCartridgeBreakpointEventDatabase();
+
          for ( idx = 0; idx < nesGetSizeOfCartridgeBreakpointEventDatabase(); idx++ )
          {
             ui->event->addItem ( pBreakpointEventInfo[idx]->GetName() );
          }
+
          ui->event->setCurrentIndex ( 0 );
-      break;
+         break;
    }
 }
 
 void BreakpointDialog::on_reg_currentIndexChanged(int index)
 {
    int idx;
+
    if ( index >= 0 )
    {
       switch ( ui->type->currentIndex() )
       {
          case eBreakOnCPUState:
             m_pRegister = nesGetCpuRegisterDatabase() [ ui->reg->currentIndex() ];
-         break;
+            break;
          case eBreakOnPPUState:
             m_pRegister = nesGetPpuRegisterDatabase() [ ui->reg->currentIndex() ];
-         break;
+            break;
          case eBreakOnAPUState:
             m_pRegister = nesGetApuRegisterDatabase() [ ui->reg->currentIndex() ];
-         break;
+            break;
          case eBreakOnMapperState:
+
             if ( nesGetSizeOfCartridgeRegisterDatabase() > 0 )
             {
                m_pRegister = nesGetCartridgeRegisterDatabase() [ ui->reg->currentIndex() ];
@@ -241,12 +265,15 @@ void BreakpointDialog::on_reg_currentIndexChanged(int index)
             {
                m_pRegister = NULL;
             }
-         break;
+
+            break;
          default:
             m_pRegister = NULL;
-         break;
+            break;
       }
+
       ui->bitfield->clear();
+
       if ( m_pRegister )
       {
          for ( idx = 0; idx < m_pRegister->GetNumBitfields(); idx++ )
@@ -254,6 +281,7 @@ void BreakpointDialog::on_reg_currentIndexChanged(int index)
             CBitfieldData* pBitfield = m_pRegister->GetBitfield(idx);
             ui->bitfield->addItem ( pBitfield->GetName() );
          }
+
          if ( m_pRegister->GetNumBitfields() > 1 )
          {
             ui->bitfield->setEnabled ( true );
@@ -272,6 +300,7 @@ void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
    int idx;
 
    ui->data2->clear();
+
    if ( m_pRegister )
    {
       if ( index >= 0 )
@@ -282,11 +311,13 @@ void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
       {
          m_pBitfield = NULL;
       }
+
       if ( m_pBitfield )
       {
          if ( m_pBitfield->GetNumValues() )
          {
             ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+
             for ( idx = 0; idx < m_pBitfield->GetNumValues(); idx++ )
             {
                ui->data2->addItem ( m_pBitfield->GetValueByIndex(idx) );
@@ -313,41 +344,49 @@ void BreakpointDialog::on_addButton_clicked()
    {
       case eBreakpointItemNone:
          // No item...
-      break;
+         break;
       case eBreakpointItemAddress:
          // Address item...
          item1 = ui->addr1->text().toInt(&ok, 16);
          item2 = ui->addr2->text().toInt(&ok, 16);
-      break;
+         break;
       case eBreakpointItemRegister:
          // Register item...
          item1 = ui->reg->currentIndex ();
          item2 = ui->bitfield->currentIndex ();
+
          // sometimes no bitfield...
-         if ( item2 < 0 ) item2 = 0;
-      break;
+         if ( item2 < 0 )
+         {
+            item2 = 0;
+         }
+
+         break;
       case eBreakpointItemEvent:
+
          if ( m_pEvent )
          {
             item1 = ui->eventData1->text().toInt(&ok, m_pEvent->GetElementRadix());
             item2 = ui->eventData2->text().toInt(&ok, m_pEvent->GetElementRadix());
             event = ui->event->currentIndex ();
          }
-      break;
+
+         break;
    }
+
    switch ( ui->dataWidget->currentIndex() )
    {
       case eBreakpointDataNone:
          // No data...
-      break;
+         break;
       case eBreakpointDataPure:
          // Direct value data...
          data = ui->data1->text().toInt(&ok, 16);
-      break;
+         break;
       case eBreakpointDataPick:
          // Picklist data...
          data = ui->data2->currentIndex ();
-      break;
+         break;
    }
 
    pBreakpoints->AddBreakpoint ( (eBreakpointType)ui->type->currentIndex(),
@@ -380,6 +419,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
    ui->item1label->setText("Data1:");
    ui->item2label->setText("Data2:");
+
    switch ( pBreakpoint->itemType )
    {
       case eBreakpointItemAddress:
@@ -387,13 +427,14 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          ui->addr1->setText ( buffer );
          sprintf ( buffer, "%X", pBreakpoint->item2 );
          ui->addr2->setText ( buffer );
-      break;
+         break;
       case eBreakpointItemRegister:
          ui->reg->setCurrentIndex ( pBreakpoint->item1 );
          ui->bitfield->setCurrentIndex ( pBreakpoint->item2 );
-      break;
+         break;
       case eBreakpointItemEvent:
          ui->event->setCurrentIndex(pBreakpoint->event);
+
          if ( pBreakpoint->pEvent->GetElementRadix() == 16 )
          {
             sprintf ( buffer, "%X", pBreakpoint->item1 );
@@ -402,7 +443,9 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          {
             sprintf ( buffer, "%d", pBreakpoint->item1 );
          }
+
          ui->eventData1->setText ( buffer );
+
          if ( pBreakpoint->pEvent->GetElementRadix() == 16 )
          {
             sprintf ( buffer, "%X", pBreakpoint->item2 );
@@ -411,41 +454,47 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          {
             sprintf ( buffer, "%d", pBreakpoint->item2 );
          }
+
          ui->eventData2->setText ( buffer );
          ui->item1label->setVisible ( false );
          ui->eventData1->setVisible ( false );
          ui->item2label->setVisible ( false );
          ui->eventData2->setVisible ( false );
+
          if ( pBreakpoint->pEvent->GetItemName(0) )
          {
             ui->item1label->setText(pBreakpoint->pEvent->GetItemName(0));
             ui->eventData1->setVisible ( true );
             ui->item1label->setVisible ( true );
          }
+
          if ( pBreakpoint->pEvent->GetItemName(1) )
          {
             ui->item2label->setText(pBreakpoint->pEvent->GetItemName(1));
             ui->eventData2->setVisible ( true );
             ui->item2label->setVisible ( true );
          }
-      break;
+
+         break;
       case eBreakpointItemNone:
-      break;
+         break;
    }
+
    ui->conditionWidget->setCurrentIndex ( pBreakpoint->conditionType );
    ui->condition->setCurrentIndex ( pBreakpoint->condition );
    ui->dataWidget->setCurrentIndex ( pBreakpoint->dataType );
+
    switch ( pBreakpoint->dataType )
    {
       case eBreakpointDataPure:
          sprintf ( buffer, "%X", pBreakpoint->data );
          ui->data1->setText ( buffer );
-      break;
+         break;
       case eBreakpointDataPick:
          ui->data2->setCurrentIndex ( pBreakpoint->data );
-      break;
+         break;
       case eBreakpointDataNone:
-      break;
+         break;
    }
 }
 
@@ -482,21 +531,22 @@ void BreakpointDialog::on_event_currentIndexChanged(int)
       {
          case eBreakOnCPUEvent:
             m_pEvent = nesGetCpuBreakpointEventDatabase()[ui->event->currentIndex()];
-         break;
+            break;
          case eBreakOnPPUEvent:
             m_pEvent = nesGetPpuBreakpointEventDatabase()[ui->event->currentIndex()];
-         break;
+            break;
          case eBreakOnAPUEvent:
             m_pEvent = nesGetApuBreakpointEventDatabase()[ui->event->currentIndex()];
-         break;
+            break;
          case eBreakOnMapperEvent:
             m_pEvent = nesGetCartridgeBreakpointEventDatabase()[ui->event->currentIndex()];
-         break;
+            break;
          default:
             // No events...
             m_pEvent = NULL;
-         break;
+            break;
       }
+
       if ( m_pEvent )
       {
          if ( m_pEvent->GetNumElements() == 2 )
@@ -520,10 +570,12 @@ void BreakpointDialog::on_event_currentIndexChanged(int)
             ui->item1label->setVisible ( false );
             ui->item2label->setVisible ( false );
          }
+
          if ( m_pEvent->GetItemName(0) )
          {
             ui->item1label->setText(m_pEvent->GetItemName(0));
          }
+
          if ( m_pEvent->GetItemName(1) )
          {
             ui->item2label->setText(m_pEvent->GetItemName(1));
@@ -550,7 +602,7 @@ void BreakpointDialog::on_removeButton_clicked()
 
 void BreakpointDialog::on_addr1_textChanged(QString )
 {
-    ui->addr2->setText(ui->addr1->text());
+   ui->addr2->setText(ui->addr1->text());
 }
 
 void BreakpointDialog::on_modifyButton_clicked()
@@ -569,41 +621,49 @@ void BreakpointDialog::on_modifyButton_clicked()
       {
          case eBreakpointItemNone:
             // No item...
-         break;
+            break;
          case eBreakpointItemAddress:
             // Address item...
             item1 = ui->addr1->text().toInt(&ok, 16);
             item2 = ui->addr2->text().toInt(&ok, 16);
-         break;
+            break;
          case eBreakpointItemRegister:
             // Register item...
             item1 = ui->reg->currentIndex ();
             item2 = ui->bitfield->currentIndex ();
+
             // sometimes no bitfield...
-            if ( item2 < 0 ) item2 = 0;
-         break;
+            if ( item2 < 0 )
+            {
+               item2 = 0;
+            }
+
+            break;
          case eBreakpointItemEvent:
+
             if ( m_pEvent )
             {
                item1 = ui->eventData1->text().toInt(&ok, m_pEvent->GetElementRadix());
                item2 = ui->eventData2->text().toInt(&ok, m_pEvent->GetElementRadix());
                event = ui->event->currentIndex ();
             }
-         break;
+
+            break;
       }
+
       switch ( ui->dataWidget->currentIndex() )
       {
          case eBreakpointDataNone:
             // No data...
-         break;
+            break;
          case eBreakpointDataPure:
             // Direct value data...
             data = ui->data1->text().toInt(&ok, 16);
-         break;
+            break;
          case eBreakpointDataPick:
             // Picklist data...
             data = ui->data2->currentIndex ();
-         break;
+            break;
       }
    }
 

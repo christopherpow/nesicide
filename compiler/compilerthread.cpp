@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-CompilerThread::CompilerThread(QObject *)
+CompilerThread::CompilerThread(QObject*)
 {
    m_isTerminating = false;
 }

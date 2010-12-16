@@ -21,78 +21,189 @@ public:
    C6502DBG();
    virtual ~C6502DBG();
 
-   static void GOTO ( uint32_t pcGoto ) { nesSetGotoAddress(pcGoto); }
-   static void GOTO () { nesSetGotoAddress(0xFFFFFFFF); }
+   static void GOTO ( uint32_t pcGoto )
+   {
+      nesSetGotoAddress(pcGoto);
+   }
+   static void GOTO ()
+   {
+      nesSetGotoAddress(0xFFFFFFFF);
+   }
 
    // Accessor methods for retrieving information from or about
    // the managed entities within the CPU core object.
    // These routines are used by the debugger, not the emulator core.
    // Return the currently calculated effective address.
-   static uint32_t _EA ( void ) { return nesGetCPUEffectiveAddress(); }
+   static uint32_t _EA ( void )
+   {
+      return nesGetCPUEffectiveAddress();
+   }
 
    // Return the contents of a memory location visible to the CPU.
-   static inline uint8_t _MEM ( uint32_t addr ) { return nesGetCPUMemory(addr); }
+   static inline uint8_t _MEM ( uint32_t addr )
+   {
+      return nesGetCPUMemory(addr);
+   }
 
    // Modify the contents of a memory location visible to the CPU.
-   static inline void _MEM ( uint32_t addr, uint8_t data ) { nesSetCPUMemory(addr,data); }
+   static inline void _MEM ( uint32_t addr, uint8_t data )
+   {
+      nesSetCPUMemory(addr,data);
+   }
 
    // Retrieve a pointer to the whole memory.
-   static uint8_t* _MEMPTR ( void ) { return nesGetCPUMemory(); }
+   static uint8_t* _MEMPTR ( void )
+   {
+      return nesGetCPUMemory();
+   }
 
    // Return whether or not the CPU is currently in the middle of
    // the first cycle of an instruction fetch (the opcode fetch).
-   static bool _SYNC ( void ) { return nesCPUIsFetchingOpcode(); }
+   static bool _SYNC ( void )
+   {
+      return nesCPUIsFetchingOpcode();
+   }
 
    // Return whether or not the CPU is currently in the middle of
    // a write memory cycle.
-   static bool _WRITING ( void ) { return nesCPUIsWritingMemory(); }
+   static bool _WRITING ( void )
+   {
+      return nesCPUIsWritingMemory();
+   }
 
    // Return the current cycle index of the CPU core.
    // The cycle index is a free-running counter of executed CPU cycles.
    // It will roll-over after approximately 40 minutes of emulation.
    // But, roll-over of this counter is not a significant event.
-   static inline uint32_t _CYCLES ( void ) { return nesGetCPUCycle(); }
+   static inline uint32_t _CYCLES ( void )
+   {
+      return nesGetCPUCycle();
+   }
 
    // Accessor methods for manipulating CPU core registers.
    // These routines are used by the debugger, not by the
    // emulator core.
-   static uint32_t __PC ( void ) { return nesGetCPUProgramCounter(); }
-   static void __PC ( uint16_t pc ) { nesSetCPUProgramCounter(pc); }
-   static uint32_t _SP ( void ) { return nesGetCPUStackPointer(); }
-   static void _SP ( uint8_t sp ) { nesSetCPUStackPointer(sp); }
-   static uint32_t _A ( void ) { return nesGetCPUAccumulator(); }
-   static void _A ( uint8_t a ) { nesSetCPUAccumulator(a); }
-   static uint32_t _X ( void ) { return nesGetCPUIndexX(); }
-   static void _X ( uint8_t x ) { nesSetCPUIndexX(x); }
-   static uint32_t _Y ( void ) { return nesGetCPUIndexY(); }
-   static void _Y ( uint8_t y ) { nesSetCPUIndexY(y); }
-   static uint32_t _F ( void ) { return nesGetCPUFlags(); }
-   static void _F ( uint8_t f ) { nesSetCPUFlags(f); }
-   static uint32_t _N ( void ) { return nesGetCPUFlagNegative(); }
-   static uint32_t _V ( void ) { return nesGetCPUFlagOverflow(); }
-   static uint32_t _B ( void ) { return nesGetCPUFlagBreak(); }
-   static uint32_t _D ( void ) { return nesGetCPUFlagDecimal(); }
-   static uint32_t _I ( void ) { return nesGetCPUFlagInterrupt(); }
-   static uint32_t _Z ( void ) { return nesGetCPUFlagZero(); }
-   static uint32_t _C ( void ) { return nesGetCPUFlagCarry(); }
-   static void _N ( uint32_t set ) { nesSetCPUFlagNegative(set); }
-   static void _V ( uint32_t set ) { nesSetCPUFlagOverflow(set); }
-   static void _B ( uint32_t set ) { nesSetCPUFlagBreak(set); }
-   static void _D ( uint32_t set ) { nesSetCPUFlagDecimal(set); }
-   static void _I ( uint32_t set ) { nesSetCPUFlagInterrupt(set); }
-   static void _Z ( uint32_t set ) { nesSetCPUFlagZero(set); }
-   static void _C ( uint32_t set ) { nesSetCPUFlagCarry(set); }
+   static uint32_t __PC ( void )
+   {
+      return nesGetCPUProgramCounter();
+   }
+   static void __PC ( uint16_t pc )
+   {
+      nesSetCPUProgramCounter(pc);
+   }
+   static uint32_t _SP ( void )
+   {
+      return nesGetCPUStackPointer();
+   }
+   static void _SP ( uint8_t sp )
+   {
+      nesSetCPUStackPointer(sp);
+   }
+   static uint32_t _A ( void )
+   {
+      return nesGetCPUAccumulator();
+   }
+   static void _A ( uint8_t a )
+   {
+      nesSetCPUAccumulator(a);
+   }
+   static uint32_t _X ( void )
+   {
+      return nesGetCPUIndexX();
+   }
+   static void _X ( uint8_t x )
+   {
+      nesSetCPUIndexX(x);
+   }
+   static uint32_t _Y ( void )
+   {
+      return nesGetCPUIndexY();
+   }
+   static void _Y ( uint8_t y )
+   {
+      nesSetCPUIndexY(y);
+   }
+   static uint32_t _F ( void )
+   {
+      return nesGetCPUFlags();
+   }
+   static void _F ( uint8_t f )
+   {
+      nesSetCPUFlags(f);
+   }
+   static uint32_t _N ( void )
+   {
+      return nesGetCPUFlagNegative();
+   }
+   static uint32_t _V ( void )
+   {
+      return nesGetCPUFlagOverflow();
+   }
+   static uint32_t _B ( void )
+   {
+      return nesGetCPUFlagBreak();
+   }
+   static uint32_t _D ( void )
+   {
+      return nesGetCPUFlagDecimal();
+   }
+   static uint32_t _I ( void )
+   {
+      return nesGetCPUFlagInterrupt();
+   }
+   static uint32_t _Z ( void )
+   {
+      return nesGetCPUFlagZero();
+   }
+   static uint32_t _C ( void )
+   {
+      return nesGetCPUFlagCarry();
+   }
+   static void _N ( uint32_t set )
+   {
+      nesSetCPUFlagNegative(set);
+   }
+   static void _V ( uint32_t set )
+   {
+      nesSetCPUFlagOverflow(set);
+   }
+   static void _B ( uint32_t set )
+   {
+      nesSetCPUFlagBreak(set);
+   }
+   static void _D ( uint32_t set )
+   {
+      nesSetCPUFlagDecimal(set);
+   }
+   static void _I ( uint32_t set )
+   {
+      nesSetCPUFlagInterrupt(set);
+   }
+   static void _Z ( uint32_t set )
+   {
+      nesSetCPUFlagZero(set);
+   }
+   static void _C ( uint32_t set )
+   {
+      nesSetCPUFlagCarry(set);
+   }
 
    // The CPU's Code/Data Logger display is generated by the CPU core
    // because the CPU core maintains all of the information necessary
    // to generate it.
-   static inline void CodeDataLoggerInspectorTV ( int8_t* pTV ) { m_pCodeDataLoggerInspectorTV = pTV; }
+   static inline void CodeDataLoggerInspectorTV ( int8_t* pTV )
+   {
+      m_pCodeDataLoggerInspectorTV = pTV;
+   }
    static void RENDERCODEDATALOGGER ( void );
 
    // The Execution Visualizer display is generated by the CPU core
    // because the CPU core maintains all of the information necessary
    // to generate it.
-   static inline void ExecutionVisualizerInspectorTV ( int8_t* pTV ) { m_pExecutionVisualizerInspectorTV = pTV; }
+   static inline void ExecutionVisualizerInspectorTV ( int8_t* pTV )
+   {
+      m_pExecutionVisualizerInspectorTV = pTV;
+   }
    static void RENDEREXECUTIONVISUALIZER ( void );
 
 protected:

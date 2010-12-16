@@ -7,7 +7,8 @@
 
 #include "nametabledisplaydialog.h"
 
-class NameTableInspector : public QDockWidget {
+class NameTableInspector : public QDockWidget
+{
    Q_OBJECT
 public:
    NameTableInspector();

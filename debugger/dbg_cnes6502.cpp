@@ -2618,11 +2618,16 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
    // Show CPU RAM...
    pLogger = nesGetCpuCodeDataLoggerDatabase();
+
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
-      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( cycleDiff > 199 )
+      {
+         cycleDiff = 199;
+      }
 
       if ( pLogEntry->count )
       {
@@ -2634,18 +2639,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor = color[(int)pLogEntry->type];
          }
+
          if ( !lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
+
          if ( !lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
+
          if ( !lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
+
          *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
          *(pTV+2) = lcolor.red();
@@ -2668,7 +2677,11 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
-      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( cycleDiff > 199 )
+      {
+         cycleDiff = 199;
+      }
 
       if ( pLogEntry->count )
       {
@@ -2680,18 +2693,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor = color[(int)pLogEntry->type];
          }
+
          if ( !lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
+
          if ( !lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
+
          if ( !lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
+
          *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
          *(pTV+2) = lcolor.red();
@@ -2714,7 +2731,11 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
-      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( cycleDiff > 199 )
+      {
+         cycleDiff = 199;
+      }
 
       if ( pLogEntry->count )
       {
@@ -2726,18 +2747,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor = color[(int)pLogEntry->type];
          }
+
          if ( !lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
+
          if ( !lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
+
          if ( !lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
+
          *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
          *(pTV+2) = lcolor.red();
@@ -2761,7 +2786,11 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
-      if ( cycleDiff > 199 ) cycleDiff = 199;
+
+      if ( cycleDiff > 199 )
+      {
+         cycleDiff = 199;
+      }
 
       if ( pLogEntry->count )
       {
@@ -2773,18 +2802,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          {
             lcolor = color[(int)pLogEntry->type];
          }
+
          if ( !lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
+
          if ( !lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
+
          if ( !lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
+
          *pTV = lcolor.blue();
          *(pTV+1) = lcolor.green();
          *(pTV+2) = lcolor.red();
@@ -2810,7 +2843,11 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
          pLogEntry = pLogger->GetLogEntry(idxx);
          cycleDiff = (curCycle-pLogEntry->cycle)/17800;
-         if ( cycleDiff > 199 ) cycleDiff = 199;
+
+         if ( cycleDiff > 199 )
+         {
+            cycleDiff = 199;
+         }
 
          if ( pLogEntry->count )
          {
@@ -2822,18 +2859,22 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             {
                lcolor = color[(int)pLogEntry->type];
             }
+
             if ( !lcolor.red() )
             {
                lcolor.setRed(cycleDiff);
             }
+
             if ( !lcolor.green() )
             {
                lcolor.setGreen(cycleDiff);
             }
+
             if ( !lcolor.blue() )
             {
                lcolor.setBlue(cycleDiff);
             }
+
             *pTV = lcolor.blue();
             *(pTV+1) = lcolor.green();
             *(pTV+2) = lcolor.red();
@@ -2844,7 +2885,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             *(pTV+1) = 0xFF;
             *(pTV+2) = 0xFF;
          }
-   
+
          pTV += 4;
       }
    }
@@ -2875,21 +2916,23 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
          if ( (idxx < PPU_CYCLES_PER_SCANLINE) && (idxy < numScanlines) )
          {
             marked = 0;
+
             for ( marker = 0; marker < nesGetExecutionMarkerDatabase()->GetNumMarkers(); marker++ )
             {
                pMarker = nesGetExecutionMarkerDatabase()->GetMarker(marker);
                frameDiff = pMarker->endFrame-pMarker->startFrame;
+
                if ( ((pMarker->state == eMarkerSet_Started) ||
-                    (pMarker->state == eMarkerSet_Complete)) &&
-                    (pMarker->endCycle != MARKER_NOT_MARKED) &&
-                    (((frameDiff == 0) &&
-                    (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) &&
-                    (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)) ||
-                    ((frameDiff == 1) &&
-                    ((pMarker->startCycle > pMarker->endCycle) &&
-                    ((VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) ||
-                    (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)))) ||
-                    (frameDiff > 1)) )
+                     (pMarker->state == eMarkerSet_Complete)) &&
+                     (pMarker->endCycle != MARKER_NOT_MARKED) &&
+                     (((frameDiff == 0) &&
+                       (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) &&
+                       (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)) ||
+                      ((frameDiff == 1) &&
+                       ((pMarker->startCycle > pMarker->endCycle) &&
+                        ((VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) ||
+                         (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)))) ||
+                      (frameDiff > 1)) )
                {
                   // Marker color!
                   *pTV = pMarker->blue;
@@ -2898,6 +2941,7 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
                   marked++;
                }
             }
+
             if ( !marked  )
             {
                if ( (idxx < 256) && (idxy < 240) )

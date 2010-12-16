@@ -3,22 +3,24 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class NewProjectDialog;
+namespace Ui
+{
+class NewProjectDialog;
 }
 
-class NewProjectDialog : public QDialog {
-    Q_OBJECT
+class NewProjectDialog : public QDialog
+{
+   Q_OBJECT
 public:
-    NewProjectDialog(QWidget *parent = 0);
-    ~NewProjectDialog();
-    QString getProjectTitle();
+   NewProjectDialog(QWidget* parent = 0);
+   ~NewProjectDialog();
+   QString getProjectTitle();
 
 protected:
-    void changeEvent(QEvent *e);
+   void changeEvent(QEvent* e);
 
 private:
-    Ui::NewProjectDialog *ui;
+   Ui::NewProjectDialog* ui;
 };
 
 #endif // NEWPROJECTDIALOG_H

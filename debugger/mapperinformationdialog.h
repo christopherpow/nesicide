@@ -3,29 +3,31 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class MapperInformationDialog;
+namespace Ui
+{
+class MapperInformationDialog;
 }
 
-class MapperInformationDialog : public QDialog {
-    Q_OBJECT
+class MapperInformationDialog : public QDialog
+{
+   Q_OBJECT
 public:
-    MapperInformationDialog(QWidget *parent = 0);
-    ~MapperInformationDialog();
+   MapperInformationDialog(QWidget* parent = 0);
+   ~MapperInformationDialog();
 
 protected:
-    void showEvent(QShowEvent *e);
-    void changeEvent(QEvent *e);
+   void showEvent(QShowEvent* e);
+   void changeEvent(QEvent* e);
 
 public slots:
-    void updateInformation();
-    void cartridgeLoaded();
+   void updateInformation();
+   void cartridgeLoaded();
 
 signals:
-    void showMe();
+   void showMe();
 
 private:
-    Ui::MapperInformationDialog *ui;
+   Ui::MapperInformationDialog* ui;
 };
 
 #endif // MAPPERINFORMATIONDIALOG_H

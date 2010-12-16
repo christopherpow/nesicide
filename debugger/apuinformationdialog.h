@@ -3,28 +3,30 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class APUInformationDialog;
+namespace Ui
+{
+class APUInformationDialog;
 }
 
-class APUInformationDialog : public QDialog {
-    Q_OBJECT
+class APUInformationDialog : public QDialog
+{
+   Q_OBJECT
 public:
-    APUInformationDialog(QWidget *parent = 0);
-    ~APUInformationDialog();
+   APUInformationDialog(QWidget* parent = 0);
+   ~APUInformationDialog();
 
 protected:
-    void showEvent(QShowEvent *e);
-    void changeEvent(QEvent *e);
+   void showEvent(QShowEvent* e);
+   void changeEvent(QEvent* e);
 
 public slots:
-    void updateInformation();
+   void updateInformation();
 
 signals:
-    void showMe();
+   void showMe();
 
 private:
-    Ui::APUInformationDialog *ui;
+   Ui::APUInformationDialog* ui;
 };
 
 #endif // APUINFORMATIONDIALOG_H

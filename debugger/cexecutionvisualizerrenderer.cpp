@@ -1,7 +1,7 @@
 #include "cexecutionvisualizerrenderer.h"
 
-CExecutionVisualizerRenderer::CExecutionVisualizerRenderer(QWidget *parent, char* data)
-    : QGLWidget(parent)
+CExecutionVisualizerRenderer::CExecutionVisualizerRenderer(QWidget* parent, char* data)
+   : QGLWidget(parent)
 {
    imageData = data;
    scrollX = 0;
@@ -84,7 +84,9 @@ void CExecutionVisualizerRenderer::resizeGL(int width, int height)
 
    // Width cannot be 0
    if (width == 0)
-     width = 1;
+   {
+      width = 1;
+   }
 
    // Initialize our viewpoint using the actual size so 1 point should = 1 pixel.
    glViewport(0, 0, width, height);
@@ -116,14 +118,14 @@ void CExecutionVisualizerRenderer::paintGL()
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
    glBegin(GL_QUADS);
-      glTexCoord2f (0.0, 0.0);
-      glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
-      glTexCoord2f (width, 0.0);
-      glVertex3f(512.0f - scrollX, 000.0f - scrollY, 0.0f);
-      glTexCoord2f (width, height);
-      glVertex3f(512.0f - scrollX, 512.0f - scrollY, 0.0f);
-      glTexCoord2f (0.0, height);
-      glVertex3f(000.0f - scrollX, 512.0f - scrollY, 0.0f);
+   glTexCoord2f (0.0, 0.0);
+   glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
+   glTexCoord2f (width, 0.0);
+   glVertex3f(512.0f - scrollX, 000.0f - scrollY, 0.0f);
+   glTexCoord2f (width, height);
+   glVertex3f(512.0f - scrollX, 512.0f - scrollY, 0.0f);
+   glTexCoord2f (0.0, height);
+   glVertex3f(000.0f - scrollX, 512.0f - scrollY, 0.0f);
    glEnd();
 }
 

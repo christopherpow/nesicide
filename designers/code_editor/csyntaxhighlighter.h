@@ -8,27 +8,27 @@
 
 class CSyntaxHighlighter : public QSyntaxHighlighter
 {
-    Q_OBJECT
+   Q_OBJECT
 
 public:
-    CSyntaxHighlighter(QTextDocument *parent = 0);
+   CSyntaxHighlighter(QTextDocument* parent = 0);
 
 protected:
-    void highlightBlock(const QString &text);
+   void highlightBlock(const QString& text);
 
 private:
-    struct HighlightingRule
-    {
-        QRegExp pattern;
-        QTextCharFormat format;
-    };
-    QVector<HighlightingRule> highlightingRules;
+   struct HighlightingRule
+   {
+      QRegExp pattern;
+      QTextCharFormat format;
+   };
+   QVector<HighlightingRule> highlightingRules;
 
-    QTextCharFormat keywordFormat;
-    QTextCharFormat classFormat;
-    QTextCharFormat singleLineCommentFormat;
-    QTextCharFormat quotationFormat;
-    QTextCharFormat labelFormat;
-    QTextCharFormat dotPreprocessorFormat;
+   QTextCharFormat keywordFormat;
+   QTextCharFormat classFormat;
+   QTextCharFormat singleLineCommentFormat;
+   QTextCharFormat quotationFormat;
+   QTextCharFormat labelFormat;
+   QTextCharFormat dotPreprocessorFormat;
 };
 #endif // CSYNTAXHIGHLIGHTER_H

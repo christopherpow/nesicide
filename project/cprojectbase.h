@@ -7,7 +7,7 @@
 class CProjectBase : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
-    CProjectBase();
+   CProjectBase();
 };
 
 IProjectTreeViewItem* findProjectItem(QString uuid);

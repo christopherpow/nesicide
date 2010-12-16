@@ -14,8 +14,8 @@
 class IProjectTreeViewItem
 {
 public:
-friend class IProjectTreeViewItemIterator;
-   void InitTreeItem(IProjectTreeViewItem *parent = 0)
+   friend class IProjectTreeViewItemIterator;
+   void InitTreeItem(IProjectTreeViewItem* parent = 0)
    {
       parentItem = parent;
       ident = new QUuid();
@@ -31,23 +31,23 @@ friend class IProjectTreeViewItemIterator;
    {
       ident = new QUuid(uuid);
    }
-   
+
    void FreeTreeItem()
    {
       qDeleteAll(childItems);
    }
 
-   void appendChild(IProjectTreeViewItem *child)
+   void appendChild(IProjectTreeViewItem* child)
    {
       childItems.append(child);
    }
 
-   void removeChild(IProjectTreeViewItem *child)
+   void removeChild(IProjectTreeViewItem* child)
    {
       childItems.removeAll(child);
    }
 
-   IProjectTreeViewItem *child(int row)
+   IProjectTreeViewItem* child(int row)
    {
       return childItems.value(row);
    }
@@ -62,7 +62,8 @@ friend class IProjectTreeViewItemIterator;
       if (parentItem)
       {
          return parentItem->childItems.indexOf(const_cast<IProjectTreeViewItem*>(this));
-      }      
+      }
+
       return 0;
    }
 
@@ -76,14 +77,14 @@ friend class IProjectTreeViewItemIterator;
       return caption();
    }
 
-   IProjectTreeViewItem *parent()
+   IProjectTreeViewItem* parent()
    {
       return parentItem;
    }
 
    virtual QString caption() const = 0;
-   virtual void contextMenuEvent(QContextMenuEvent *event, QTreeView *parent) = 0;
-   virtual void openItemEvent(QTabWidget *tabWidget) = 0;
+   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent) = 0;
+   virtual void openItemEvent(QTabWidget* tabWidget) = 0;
    virtual bool onCloseQuery() = 0;
    virtual void onClose() = 0;
    virtual int getTabIndex() = 0;
@@ -91,17 +92,17 @@ friend class IProjectTreeViewItemIterator;
    virtual void onSaveDocument() = 0;
    virtual bool canChangeName() = 0;
    virtual bool onNameChanged(QString newValue) = 0;
-   
+
 private:
    QList<IProjectTreeViewItem*> childItems;
-   IProjectTreeViewItem *parentItem;
+   IProjectTreeViewItem* parentItem;
    QUuid* ident;
 };
 
 // Iterator class for walking through a project, starting from either a specific trunk
 // node or from the project root node.
 // Example usages:
-// 
+//
 // Walk the entire project printing the captions of each project item.
 //   IProjectTreeViewItemIterator iter();
 //   while ( iter.current() != NULL )
@@ -109,7 +110,7 @@ private:
 //      qDebug(iter.current()->caption().toAscii().data());
 //      iter.next();
 //   }
-// 
+//
 // Walk a subtree of the project printing the captions of each project item.
 //   IProjectTreeViewItemIterator iter(pCartridge);
 //   while ( iter.current() != NULL )
@@ -126,27 +127,27 @@ public:
       m_pAt = NULL; // CPTODO: fix this!
       m_nodeIndex = 0;
    }
-   
+
    IProjectTreeViewItemIterator(IProjectTreeViewItem* pTVI)
    {
       m_pBase = pTVI;
       m_pAt = pTVI;
       m_nodeIndex = 0;
    }
-   
+
    void next()
    {
       IProjectTreeViewItem* pNode = m_pBase;
       IProjectTreeViewItem* pAt = NULL;
-      
+
       m_nodeIndex++;
       m_node = 0;
-      
+
       walk(pNode,&pAt);
-      
+
       m_pAt = pAt;
    }
-   
+
    IProjectTreeViewItem* current()
    {
       return m_pAt;
@@ -160,16 +161,21 @@ private:
          (*l) = p;
          return;
       }
+
       if ( !(*l) )
       {
          for (int i=0; i < p->childCount(); i++)
          {
             m_node++;
             walk(p->child(i),l);
-            if ( (*l) ) break;
+
+            if ( (*l) )
+            {
+               break;
+            }
          }
       }
-   }   
+   }
 
    IProjectTreeViewItem* m_pBase;
    IProjectTreeViewItem* m_pAt;
