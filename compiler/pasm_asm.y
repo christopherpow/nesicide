@@ -392,7 +392,7 @@ int org_found = 0;
 // Error generation.  All parsing errors are constructed into
 // the global buffer and then added to the list of errors.
 char e [ 256 ];
-void add_error ( char* s );
+void add_error ( char* s, int lineno );
 
 // Storage space for error strings spit out by the assembler.
 int errorCount = 0;
@@ -2121,7 +2121,7 @@ expr : QUOTEDSTRING {
 
 int asmerror(char* s)
 {
-   add_error ( s );
+   add_error ( s, recovered_linenum );
 }
 
 void initialize ( void )
@@ -2265,7 +2265,7 @@ void add_file ( char* filename )
    ptr->name = strdup ( filename );
 }
 
-void add_error ( char *s )
+void add_error ( char *s, int lineno )
 {
    static char error_buffer [ 2048 ] = { 0, };
    static char* ptr;
@@ -2275,7 +2275,7 @@ void add_error ( char *s )
    {
       if ( current_label == NULL )
       {
-         sprintf ( error_buffer, "%s:%d: error: ", currentFile, recovered_linenum );
+         sprintf ( error_buffer, "%s:%d: error: ", currentFile, lineno );
          errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
          strcpy ( errorStorage, error_buffer );
@@ -2284,7 +2284,7 @@ void add_error ( char *s )
       }
       else
       {
-         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, recovered_linenum, current_label->symbol );
+         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, lineno, current_label->symbol );
          errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage;
          strcpy ( errorStorage, error_buffer );
@@ -2296,7 +2296,7 @@ void add_error ( char *s )
    {
       if ( current_label == NULL )
       {
-         sprintf ( error_buffer, "%s:%d: error: ", currentFile, recovered_linenum );
+         sprintf ( error_buffer, "%s:%d: error: ", currentFile, lineno );
          errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );
@@ -2305,7 +2305,7 @@ void add_error ( char *s )
       }
       else
       {
-         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, recovered_linenum, current_label->symbol );
+         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, lineno, current_label->symbol );
          errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
          ptr = errorStorage+strlen(errorStorage);
          strcat ( errorStorage, error_buffer );

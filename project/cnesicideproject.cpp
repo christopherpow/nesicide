@@ -43,20 +43,26 @@ CNesicideProject::~CNesicideProject()
 
 int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
 {
-   QList<CSourceItem*> *sourceItems = nesicideProject->getProject()->getSources()->get_pointerToArrayOfSourceItems();
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* source;
 
    (*objdata) = NULL;
    (*size) = 0;
 
-   foreach ( source, *sourceItems )
+   while ( iter.current() != NULL )
    {
-      if ( source->caption() == objname )
+      if ( iter.current()->caption() == objname )
       {
-         (*objdata) = source->get_sourceCode().toLatin1().data();
-         (*size) = strlen((*objdata));
+         source = dynamic_cast<CSourceItem*>(iter.current());
+         if ( source )
+         {
+            (*objdata) = source->get_sourceCode().toLatin1().data();
+            (*size) = strlen((*objdata));
+         }
          break;
       }
+      
+      iter.next();
    }
    return (*size);
 }

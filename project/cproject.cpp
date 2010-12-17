@@ -170,7 +170,6 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
    // so we must take care of any possible XML ordering of items
    // here.  First, look for primitives.
    childNode = node.firstChild();
-
    do
    {
       if (childNode.nodeName() == "primitives")
@@ -185,7 +184,6 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
 
    // Next, look for sources.
    childNode = node.firstChild();
-
    do
    {
       if (childNode.nodeName() == "sources")
@@ -200,7 +198,6 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
 
    // Next, look for binary files.
    childNode = node.firstChild();
-
    do
    {
       if (childNode.nodeName() == "binaryfiles")
@@ -215,7 +212,6 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
 
    // Next, look for graphics banks.
    childNode = node.firstChild();
-
    do
    {
       if (childNode.nodeName() == "graphicsbanks")

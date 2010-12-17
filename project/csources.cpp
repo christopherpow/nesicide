@@ -64,7 +64,7 @@ bool CSources::deserialize(QDomDocument& doc, QDomNode& node)
 
    if (!childNode.isNull()) do
       {
-         if (childNode.nodeName() == "sourceitem")
+         if (childNode.nodeName() == "source")
          {
 
             CSourceItem* pointerToSourceItem = new CSourceItem();

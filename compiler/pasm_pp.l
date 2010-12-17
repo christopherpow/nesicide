@@ -156,7 +156,7 @@ char line [ 2048 ];
 const char* reptsym = "----@@@@";
 
 // Interface to add assembler errors to output
-extern void add_error ( char* s );
+extern void add_error ( char* s, int linenum );
 extern char e [ 256 ];
 
 extern char currentFile [];
@@ -183,7 +183,7 @@ int pass;
 
 int pperror(char* s)
 {
-   add_error ( s );
+   add_error ( s, pplineno );
 }
 
 // Keyword processing.
