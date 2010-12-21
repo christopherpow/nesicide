@@ -3,8 +3,12 @@
 
 #include "main.h"
 
-CSourceItem::CSourceItem()
+CSourceItem::CSourceItem(IProjectTreeViewItem* parent)
 {
+   // Add node to tree
+   InitTreeItem(parent);
+   
+   // Allocate attributes
    m_indexOfTab = -1;
    m_name = "";
    m_codeEditorForm = (CodeEditorForm*)NULL;
@@ -122,7 +126,7 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
          // TODO: Fix this logic so the memory doesn't get lost.
          nesicideProject->getProject()->getSources()->removeChild(this);
-         nesicideProject->getProject()->getSources()->get_pointerToArrayOfSourceItems()->removeAll(this);
+         nesicideProject->getProject()->getSources()->getSourceItems().removeAll(this);
          ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
       }
    }

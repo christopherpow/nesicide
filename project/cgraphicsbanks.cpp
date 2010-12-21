@@ -1,41 +1,56 @@
 #include "cgraphicsbanks.h"
 
-CGraphicsBanks::CGraphicsBanks()
+CGraphicsBanks::CGraphicsBanks(IProjectTreeViewItem* parent)
 {
-   m_pGraphicsBank = new QList<CGraphicsBank*>();
+   // Add node to tree
+   InitTreeItem(parent);
 }
 
 CGraphicsBanks::~CGraphicsBanks()
 {
-   if (m_pGraphicsBank)
+   // Remove any allocated children
+   for ( int i = 0; i < m_graphicsBanks.count(); i++ )
    {
-      for (int idx = 0; idx < m_pGraphicsBank->count(); idx++)
-      {
-         CGraphicsBank* bank = m_pGraphicsBank->at(idx);
-
-         if (bank)
-         {
-            delete bank;
-         }
-      }
-
-      delete m_pGraphicsBank;
+      delete m_graphicsBanks.at(i);
    }
 
+   // Initialize this node's attributes
+   m_graphicsBanks.clear();
+}
+
+void CGraphicsBanks::initializeProject()
+{
+   // Remove any allocated children
+   for ( int i = 0; i < m_graphicsBanks.count(); i++ )
+   {
+      removeChild(m_graphicsBanks.at(i));
+      delete m_graphicsBanks.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_graphicsBanks.clear();
+}
+
+void CGraphicsBanks::terminateProject()
+{
+   // Remove any allocated children
+   for ( int i = 0; i < m_graphicsBanks.count(); i++ )
+   {
+      removeChild(m_graphicsBanks.at(i));
+      delete m_graphicsBanks.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_graphicsBanks.clear();
 }
 
 bool CGraphicsBanks::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement graphicsBanksElement = addElement( doc, node, "graphicsbanks" );
 
-   for (int sourceItemIdx = 0; sourceItemIdx < m_pGraphicsBank->count(); sourceItemIdx++)
+   for (int i = 0; i < m_graphicsBanks.count(); i++)
    {
-      if (!m_pGraphicsBank->at(sourceItemIdx))
-      {
-         return false;
-      }
-
-      if (!m_pGraphicsBank->at(sourceItemIdx)->serialize(doc, graphicsBanksElement))
+      if (!m_graphicsBanks.at(i)->serialize(doc, graphicsBanksElement))
       {
          return false;
       }
@@ -46,35 +61,17 @@ bool CGraphicsBanks::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node)
 {
-   if (m_pGraphicsBank)
-   {
-      for (int indexOfSourceItem=0; indexOfSourceItem<m_pGraphicsBank->count(); indexOfSourceItem++)
-      {
-         if (m_pGraphicsBank->at(indexOfSourceItem))
-         {
-            this->removeChild(m_pGraphicsBank->at(indexOfSourceItem));
-            delete m_pGraphicsBank->at(indexOfSourceItem);
-         }
-      }
-
-      delete m_pGraphicsBank;
-   }
-
-   m_pGraphicsBank = new QList<CGraphicsBank*>();
-
    QDomNode childNode = node.firstChild();
 
    if (!childNode.isNull()) do
       {
          if (childNode.nodeName() == "graphicsbank")
          {
+            CGraphicsBank* pGraphicsBank = new CGraphicsBank(this);
+            m_graphicsBanks.append(pGraphicsBank);
+            appendChild(pGraphicsBank);
 
-            CGraphicsBank* pNewGraphicsBank = new CGraphicsBank();
-            pNewGraphicsBank->InitTreeItem(this);
-            m_pGraphicsBank->append(pNewGraphicsBank);
-            this->appendChild(pNewGraphicsBank);
-
-            if (!pNewGraphicsBank->deserialize(doc, childNode))
+            if (!pGraphicsBank->deserialize(doc, childNode))
             {
                return false;
             }
@@ -107,23 +104,12 @@ void CGraphicsBanks::contextMenuEvent(QContextMenuEvent* event, QTreeView* paren
 
          if (!bankName.isEmpty())
          {
-            CGraphicsBank* pBank = new CGraphicsBank();
-            pBank->setBankName(bankName);
-            pBank->InitTreeItem(this);
-            m_pGraphicsBank->append(pBank);
-            this->appendChild(pBank);
+            CGraphicsBank* pGraphicsBank = new CGraphicsBank(this);
+            pGraphicsBank->setBankName(bankName);
+            m_graphicsBanks.append(pGraphicsBank);
+            appendChild(pGraphicsBank);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
          }
       }
    }
-}
-
-QList<CGraphicsBank*> *CGraphicsBanks::getGraphicsBankArray()
-{
-   return m_pGraphicsBank;
-}
-
-void CGraphicsBanks::setGraphicsBankArray(QList<CGraphicsBank*> *newGraphicsBankArray)
-{
-   m_pGraphicsBank = newGraphicsBankArray;
 }

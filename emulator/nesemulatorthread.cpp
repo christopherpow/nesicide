@@ -146,19 +146,18 @@ void NESEmulatorThread::loadCartridge()
    nesUnloadROM();
 
    // Load cartridge PRG-ROM banks into emulator...
-   for ( b = 0; b < m_pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count(); b++ )
+   for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
    {
-      nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->at(b)->
-                          get_pointerToBankData() );
+      nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPrgRomBanks()->getPrgRomBanks().at(b)->getBankData() );
    }
 
    // Load cartridge CHR-ROM banks into emulator...
-   for ( b = 0; b < m_pCartridge->getPointerToChrRomBanks()->banks.count(); b++ )
+   for ( b = 0; b < m_pCartridge->getChrRomBanks()->getChrRomBanks().count(); b++ )
    {
-      nesLoadCHRROMBank ( b, (uint8_t*)m_pCartridge->getPointerToChrRomBanks()->banks.at(b)->data );
+      nesLoadCHRROMBank ( b, (uint8_t*)m_pCartridge->getChrRomBanks()->getChrRomBanks().at(b)->getBankData() );
    }
 
-   // Perform any necessary fixup on from the ROM loading...
+   // Perform any necessary fixup from the ROM loading...
    nesLoadROM();
 
    // Set up PPU with iNES header information...

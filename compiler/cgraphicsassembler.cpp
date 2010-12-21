@@ -11,32 +11,30 @@ bool CGraphicsAssembler::assemble()
 {
    buildTextLogger.write("<b>Building CHR-ROM Banks:</b>");
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
-   CCHRROMBanks* chrRomBanks = nesicideProject->getCartridge()->getPointerToChrRomBanks();
+   CCHRROMBanks* chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
 
-   int oldChrRomBanks = chrRomBanks->banks.count();
+   int oldChrRomBanks = chrRomBanks->getChrRomBanks().count();
 
-   for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBankArray()->count(); gfxBankIdx++)
+   for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
    {
-      CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBankArray()->at(gfxBankIdx);
+      CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
 
       bool appendBank = (--oldChrRomBanks < 0);
       CCHRROMBank* chrRomBank;
 
       if (appendBank)
       {
-         chrRomBank = new CCHRROMBank();
-         chrRomBank->data = new qint8[0x2000];
-         chrRomBank->bankID = gfxBankIdx;
-         chrRomBank->InitTreeItem(chrRomBanks);
+         chrRomBank = new CCHRROMBank(nesicideProject->getCartridge()->getChrRomBanks());
+         chrRomBank->setBankIndex(gfxBankIdx);
          chrRomBanks->appendChild(chrRomBank);
-         chrRomBanks->banks.append(chrRomBank);
+         chrRomBanks->getChrRomBanks().append(chrRomBank);
       }
       else
       {
-         chrRomBank = chrRomBanks->banks.at(gfxBankIdx);
+         chrRomBank = chrRomBanks->getChrRomBanks().at(gfxBankIdx);
       }
 
-      memset(chrRomBank->data, 0, sizeof(qint8)*0x2000);
+      chrRomBank->clearBankData();
       buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->getBankName() + "':");
 
       int dataOffset = 0;
@@ -48,7 +46,7 @@ bool CGraphicsAssembler::assemble()
          buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                                ptvi->caption() + "...");
 
-         memcpy(chrRomBank->data + dataOffset, bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
+         memcpy(chrRomBank->getBankData() + dataOffset, bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
          dataOffset += bankItem->getChrRomBankItemSize();
       }
 

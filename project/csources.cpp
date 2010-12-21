@@ -3,37 +3,57 @@
 
 #include "csources.h"
 
-CSources::CSources()
+CSources::CSources(IProjectTreeViewItem* parent)
 {
-   m_pointerToArrayOfSourceItems = new QList<CSourceItem*>();
+   // Add node to tree
+   InitTreeItem(parent);
 }
 
 CSources::~CSources()
 {
-   if (m_pointerToArrayOfSourceItems)
+   // Remove any allocated children
+   for ( int i = 0; i < m_sourceItems.count(); i++ )
    {
-      for (int indexOfSourceItem=0; indexOfSourceItem<m_pointerToArrayOfSourceItems->count(); indexOfSourceItem++)
-         if (m_pointerToArrayOfSourceItems->at(indexOfSourceItem))
-         {
-            delete m_pointerToArrayOfSourceItems->at(indexOfSourceItem);
-         }
-
-      delete m_pointerToArrayOfSourceItems;
+      delete m_sourceItems.at(i);
    }
+
+   // Initialize this node's attributes
+   m_sourceItems.clear();
+}
+
+void CSources::initializeProject()
+{
+   // Remove any allocated children
+   for ( int i = 0; i < m_sourceItems.count(); i++ )
+   {
+      removeChild(m_sourceItems.at(i));
+      delete m_sourceItems.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_sourceItems.clear();
+}
+
+void CSources::terminateProject()
+{
+   // Remove any allocated children
+   for ( int i = 0; i < m_sourceItems.count(); i++ )
+   {
+      removeChild(m_sourceItems.at(i));
+      delete m_sourceItems.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_sourceItems.clear();
 }
 
 bool CSources::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement sourcesElement = addElement( doc, node, "sources" );
 
-   for (int indexOfSourceItem = 0; indexOfSourceItem < m_pointerToArrayOfSourceItems->count(); indexOfSourceItem++)
+   for (int i = 0; i < m_sourceItems.count(); i++)
    {
-      if (!m_pointerToArrayOfSourceItems->at(indexOfSourceItem))
-      {
-         return false;
-      }
-
-      if (!m_pointerToArrayOfSourceItems->at(indexOfSourceItem)->serialize(doc, sourcesElement))
+      if (!m_sourceItems.at(i)->serialize(doc, sourcesElement))
       {
          return false;
       }
@@ -44,35 +64,17 @@ bool CSources::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CSources::deserialize(QDomDocument& doc, QDomNode& node)
 {
-   if (m_pointerToArrayOfSourceItems)
-   {
-      for (int indexOfSourceItem=0; indexOfSourceItem<m_pointerToArrayOfSourceItems->count(); indexOfSourceItem++)
-      {
-         if (m_pointerToArrayOfSourceItems->at(indexOfSourceItem))
-         {
-            this->removeChild(m_pointerToArrayOfSourceItems->at(indexOfSourceItem));
-            delete m_pointerToArrayOfSourceItems->at(indexOfSourceItem);
-         }
-      }
-
-      delete m_pointerToArrayOfSourceItems;
-   }
-
-   m_pointerToArrayOfSourceItems = new QList<CSourceItem*>();
-
    QDomNode childNode = node.firstChild();
 
    if (!childNode.isNull()) do
       {
          if (childNode.nodeName() == "source")
          {
+            CSourceItem* pSourceItem = new CSourceItem(this);
+            m_sourceItems.append(pSourceItem);
+            appendChild(pSourceItem);
 
-            CSourceItem* pointerToSourceItem = new CSourceItem();
-            pointerToSourceItem->InitTreeItem(this);
-            m_pointerToArrayOfSourceItems->append(pointerToSourceItem);
-            this->appendChild(pointerToSourceItem);
-
-            if (!pointerToSourceItem->deserialize(doc, childNode))
+            if (!pSourceItem->deserialize(doc, childNode))
             {
                return false;
             }
@@ -111,11 +113,10 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
          if (!sourceName.isEmpty())
          {
-            CSourceItem* pointerToSourceItem = new CSourceItem();
-            pointerToSourceItem->set_sourceName(sourceName);
-            pointerToSourceItem->InitTreeItem(this);
-            m_pointerToArrayOfSourceItems->append(pointerToSourceItem);
-            this->appendChild(pointerToSourceItem);
+            CSourceItem* pSourceItem = new CSourceItem(this);
+            pSourceItem->set_sourceName(sourceName);
+            m_sourceItems.append(pSourceItem);
+            appendChild(pSourceItem);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
          }
       }
@@ -134,12 +135,11 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
                fs.readRawData(buffer,fileIn.size());
 
-               CSourceItem* pointerToSourceItem = new CSourceItem();
-               pointerToSourceItem->set_sourceName(fileName);
-               pointerToSourceItem->set_sourceCode(buffer);
-               pointerToSourceItem->InitTreeItem(this);
-               m_pointerToArrayOfSourceItems->append(pointerToSourceItem);
-               this->appendChild(pointerToSourceItem);
+               CSourceItem* pSourceItem = new CSourceItem(this);
+               pSourceItem->set_sourceName(fileName);
+               pSourceItem->set_sourceCode(buffer);
+               m_sourceItems.append(pSourceItem);
+               appendChild(pSourceItem);
                ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
 
                delete [] buffer;
@@ -147,14 +147,4 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          }
       }
    }
-}
-
-QList<CSourceItem*> *CSources::get_pointerToArrayOfSourceItems()
-{
-   return m_pointerToArrayOfSourceItems;
-}
-
-void CSources::set_pointerToArrayOfSourceItems(QList<CSourceItem*> *pointerToArrayOfSourceItems)
-{
-   m_pointerToArrayOfSourceItems = pointerToArrayOfSourceItems;
 }

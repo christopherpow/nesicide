@@ -4,21 +4,24 @@
 #include "cprojectbase.h"
 #include "prgromdisplaydialog.h"
 
+#include "emulator_core.h"
+
 class CPRGROMBank : public CProjectBase
 {
 public:
-   CPRGROMBank();
+   CPRGROMBank(IProjectTreeViewItem* parent);
    virtual ~CPRGROMBank();
 
    // Member Getters
-   qint8 get_indexOfPrgRomBank();
-   quint8* get_pointerToBankData();
+   uint32_t getBankIndex() { return m_bankIndex; }
+   uint8_t* getBankData() { return m_bankData; }
    PRGROMDisplayDialog* get_pointerToEditorDialog();
    int get_indexOfEditorTab();
-
+   
    // Member Setters
-   void set_indexOfPrgRomBank(qint8 indexOfPrgRomBank);
-   void set_pointerToBankData(quint8* pointerToBankData);
+   void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
+   void setBankData(uint8_t* bankData) { memcpy(m_bankData,bankData,MEM_16KB); }
+   void clearBankData() { memset(m_bankData,0,MEM_16KB); }
    void set_pointerToEditorDialog(PRGROMDisplayDialog* pointerToEditorDialog);
    void set_indexOfEditorTab(int indexOfEditorTab);
 
@@ -54,10 +57,14 @@ public:
    }
 
 private:
-   qint8 m_indexOfPrgRomBank;
-   quint8* m_pointerToBankData;
-   PRGROMDisplayDialog* m_pointerToEditorDialog;
    int m_indexOfEditorTab;
+
+   // Attributes
+   uint32_t m_bankIndex;
+   uint8_t  m_bankData [ MEM_16KB ];
+   
+   // Designer
+   PRGROMDisplayDialog* m_pointerToEditorDialog;
 
 };
 

@@ -1,41 +1,68 @@
 #include "ccartridge.h"
 
-CCartridge::CCartridge()
+CCartridge::CCartridge(IProjectTreeViewItem* parent)
 {
-   m_enumMirrorMode = GameMirrorMode::NoMirroring;
+   // Add node to tree
+   InitTreeItem(parent);
+
+   // Initialize this node's attributes
+   m_mirrorMode = GameMirrorMode::NoMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
 
-   m_pointerToPrgRomBanks = new CPRGROMBanks();
-   m_pointerToPrgRomBanks->InitTreeItem(this);
-   this->appendChild(m_pointerToPrgRomBanks);
-
-   m_pointerToChrRomBanks = new CCHRROMBanks();
-   m_pointerToChrRomBanks->InitTreeItem(this);
-   this->appendChild(m_pointerToChrRomBanks);
+   // Allocate children
+   m_pPrgRomBanks = new CPRGROMBanks(this);
+   m_pChrRomBanks = new CCHRROMBanks(this);
 }
 
 CCartridge::~CCartridge()
 {
-   if (m_pointerToChrRomBanks)
+   if (m_pChrRomBanks)
    {
-      delete m_pointerToChrRomBanks;
+      delete m_pChrRomBanks;
    }
 
-   if (m_pointerToPrgRomBanks)
+   if (m_pPrgRomBanks)
    {
-      delete m_pointerToPrgRomBanks;
+      delete m_pPrgRomBanks;
    }
 }
 
-CPRGROMBanks* CCartridge::getPointerToPrgRomBanks()
+void CCartridge::initializeProject()
 {
-   return m_pointerToPrgRomBanks;
+   // Initialize this node's attributes
+   m_mirrorMode = GameMirrorMode::NoMirroring;
+   m_mapperNumber = 0;
+   m_hasBatteryBackedRam = false;
+   
+   // Initialize child nodes
+   m_pPrgRomBanks->initializeProject();
+   m_pChrRomBanks->initializeProject();
+   
+   // Add child nodes to tree
+   appendChild(m_pPrgRomBanks);
+   appendChild(m_pChrRomBanks);
 }
 
-CCHRROMBanks* CCartridge::getPointerToChrRomBanks()
+void CCartridge::terminateProject()
 {
-   return m_pointerToChrRomBanks;
+   // Terminate child nodes
+   m_pPrgRomBanks->terminateProject();
+   m_pChrRomBanks->terminateProject();
+   
+   // Remove child nodes from tree
+   removeChild(m_pPrgRomBanks);
+   removeChild(m_pChrRomBanks);
+}
+
+CPRGROMBanks* CCartridge::getPrgRomBanks()
+{
+   return m_pPrgRomBanks;
+}
+
+CCHRROMBanks* CCartridge::getChrRomBanks()
+{
+   return m_pChrRomBanks;
 }
 
 bool CCartridge::serialize(QDomDocument& doc, QDomNode& node)
@@ -45,17 +72,17 @@ bool CCartridge::serialize(QDomDocument& doc, QDomNode& node)
 
    // Export the iNES header
    cartridgeElement.setAttribute("mapperNumber", m_mapperNumber);
-   cartridgeElement.setAttribute("mirrorMode", m_enumMirrorMode);
+   cartridgeElement.setAttribute("mirrorMode", m_mirrorMode);
    cartridgeElement.setAttribute("hasBatteryBackedRam", m_hasBatteryBackedRam);
 
    // Export the PRG-ROM banks
-   if (!m_pointerToPrgRomBanks->serialize(doc, cartridgeElement))
+   if (!m_pPrgRomBanks->serialize(doc, cartridgeElement))
    {
       return false;
    }
 
    // Export the CHR-ROM banks
-   if (!m_pointerToChrRomBanks->serialize(doc, cartridgeElement))
+   if (!m_pChrRomBanks->serialize(doc, cartridgeElement))
    {
       return false;
    }
@@ -73,14 +100,14 @@ bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node)
                  cartridgeElement.attribute("mirrorMode").toInt());
    setBatteryBackedRam(cartridgeElement.attribute("hasBatteryBackedRam").toInt() == 1);
 
-   // Export the PRG-ROM banks
-   if (!m_pointerToPrgRomBanks->deserialize(doc, cartridgeElement))
+   // Import the PRG-ROM banks
+   if (!m_pPrgRomBanks->deserialize(doc, cartridgeElement))
    {
       return false;
    }
 
-   // Export the CHR-ROM banks
-   if (!m_pointerToChrRomBanks->deserialize(doc, cartridgeElement))
+   // Import the CHR-ROM banks
+   if (!m_pChrRomBanks->deserialize(doc, cartridgeElement))
    {
       return false;
    }
@@ -95,12 +122,12 @@ QString CCartridge::caption() const
 
 GameMirrorMode::eGameMirrorMode CCartridge::getMirrorMode()
 {
-   return m_enumMirrorMode;
+   return m_mirrorMode;
 }
 
 void CCartridge::setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
 {
-   m_enumMirrorMode = enumValue;
+   m_mirrorMode = enumValue;
 }
 
 qint8 CCartridge::getMapperNumber()

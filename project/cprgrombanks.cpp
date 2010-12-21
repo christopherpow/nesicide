@@ -1,34 +1,61 @@
 #include "cprgrombanks.h"
 
-CPRGROMBanks::CPRGROMBanks()
+CPRGROMBanks::CPRGROMBanks(IProjectTreeViewItem* parent)
 {
-   m_pointerToArrayOfBanks = new QList<CPRGROMBank*>();
+   // Add node to tree
+   InitTreeItem(parent);
 }
 
 CPRGROMBanks::~CPRGROMBanks()
 {
-   if (m_pointerToArrayOfBanks)
+   // Remove any allocated children
+   for ( int i = 0; i < m_prgRomBanks.count(); i++ )
    {
-      for (int indexOfBank=0; indexOfBank<m_pointerToArrayOfBanks->count(); indexOfBank++)
-         if (m_pointerToArrayOfBanks->at(indexOfBank))
-         {
-            delete m_pointerToArrayOfBanks->at(indexOfBank);
-         }
-
-      delete m_pointerToArrayOfBanks;
+      delete m_prgRomBanks.at(i);
    }
+
+   // Initialize this node's attributes
+   m_prgRomBanks.clear();
+}
+
+void CPRGROMBanks::initializeProject()
+{
+   // Remove any allocated children
+   for ( int i = 0; i < m_prgRomBanks.count(); i++ )
+   {
+      removeChild(m_prgRomBanks.at(i));
+      delete m_prgRomBanks.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_prgRomBanks.clear();
+}
+
+void CPRGROMBanks::terminateProject()
+{
+   // Remove any allocated children
+   for ( int i = 0; i < m_prgRomBanks.count(); i++ )
+   {
+      removeChild(m_prgRomBanks.at(i));
+      delete m_prgRomBanks.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_prgRomBanks.clear();
 }
 
 bool CPRGROMBanks::serialize(QDomDocument& doc, QDomNode& node)
 {
-   // Create the root element for the CHR-ROM banks
+   // Create the root element for the PRG-ROM banks
    QDomElement prgromElement = addElement( doc, node, "prgrombanks" );
 
-   for (int indexOfBank=0; indexOfBank<m_pointerToArrayOfBanks->count(); indexOfBank++)
-      if (!m_pointerToArrayOfBanks->at(indexOfBank)->serialize(doc, prgromElement))
+   for (int i = 0; i < m_prgRomBanks.count(); i++)
+   {
+      if (!m_prgRomBanks.at(i)->serialize(doc, prgromElement))
       {
          return false;
       }
+   }
 
    return true;
 }
@@ -41,14 +68,4 @@ bool CPRGROMBanks::deserialize(QDomDocument&, QDomNode&)
 QString CPRGROMBanks::caption() const
 {
    return "PRG-ROM Banks";
-}
-
-QList<CPRGROMBank*> *CPRGROMBanks::get_pointerToArrayOfBanks()
-{
-   return m_pointerToArrayOfBanks;
-}
-
-void CPRGROMBanks::set_pointerToArrayOfBanks(QList<CPRGROMBank*> *pointerToArrayOfBanks)
-{
-   m_pointerToArrayOfBanks = pointerToArrayOfBanks;
 }

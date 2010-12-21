@@ -9,9 +9,15 @@
 class CCHRROMBanks : public CProjectBase
 {
 public:
-   CCHRROMBanks();
+   CCHRROMBanks(IProjectTreeViewItem* parent);
    virtual ~CCHRROMBanks();
-   QList<CCHRROMBank*> banks;
+
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
+
+   // Member Getters
+   QList<CCHRROMBank*>& getChrRomBanks() { return m_chrRomBanks; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -43,6 +49,10 @@ public:
    {
       return true;
    }
+   
+private:
+   // Contained children
+   QList<CCHRROMBank*> m_chrRomBanks;
 };
 
 #endif // CCHRROMBANKS_H

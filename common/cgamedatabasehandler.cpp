@@ -63,14 +63,14 @@ bool CGameDatabaseHandler::find(CCartridge* pCartridge)
    m_cartridge.clear();
 
    // Pump ROM data into crypto to get SHA1...
-   for ( i = 0; i < pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->count(); i++ )
+   for ( i = 0; i < pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); i++ )
    {
-      sha1alg.addData((char*)pCartridge->getPointerToPrgRomBanks()->get_pointerToArrayOfBanks()->at(i)->get_pointerToBankData(),0x4000);
+      sha1alg.addData((char*)pCartridge->getPrgRomBanks()->getPrgRomBanks().at(i)->getBankData(),MEM_16KB);
    }
 
-   for ( i = 0; i < pCartridge->getPointerToChrRomBanks()->banks.count(); i++ )
+   for ( i = 0; i < pCartridge->getChrRomBanks()->getChrRomBanks().count(); i++ )
    {
-      sha1alg.addData((char*)pCartridge->getPointerToChrRomBanks()->banks.at(i)->data,0x2000);
+      sha1alg.addData((char*)pCartridge->getChrRomBanks()->getChrRomBanks().at(i)->getBankData(),MEM_8KB);
    }
 
    // Get the resulting hash value from the crypto...

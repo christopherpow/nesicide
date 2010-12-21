@@ -341,7 +341,15 @@ void MainWindow::dropEvent(QDropEvent* event)
 
    emulator->pauseEmulation(false);
 
+   // Remove any lingering project content
+   ui->projectTreeWidget->setModel(NULL);
+   nesicideProject->terminateProject();
+   
+   // Create new project from ROM
    nesicideProject->createProjectFromRom(QString(ba));
+
+   ui->projectTreeWidget->setModel(projectTreeviewModel);
+   
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
    projectDataChangesEvent();
@@ -536,7 +544,16 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
    output->showGeneralPane();
 
    emulator->pauseEmulation(false);
+   
+   // Remove any lingering project content
+   ui->projectTreeWidget->setModel(NULL);
+   nesicideProject->terminateProject();
+   
+   // Create new project from ROM
    nesicideProject->createProjectFromRom(fileName);
+
+   ui->projectTreeWidget->setModel(projectTreeviewModel);
+   
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
    projectDataChangesEvent();
@@ -669,7 +686,11 @@ void MainWindow::on_actionOpen_Project_triggered()
 
       ui->projectTreeWidget->setModel(NULL);
 
+      nesicideProject->initializeProject();
+      
+      // Load new project content
       nesicideProject->deserialize(doc, doc);
+
       ui->projectTreeWidget->setModel(projectTreeviewModel);
 
       while (ui->tabWidget->currentIndex() >= 0)
@@ -992,6 +1013,7 @@ void MainWindow::on_action_Close_Project_triggered()
    }
 
    // Terminate the project and let the IDE know
+   ui->projectTreeWidget->setModel(NULL);
    nesicideProject->terminateProject();
 
    // Remove any tabs

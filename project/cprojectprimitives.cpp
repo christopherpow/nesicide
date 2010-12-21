@@ -1,18 +1,38 @@
 #include "cprojectprimitives.h"
 
-CProjectPrimitives::CProjectPrimitives()
+CProjectPrimitives::CProjectPrimitives(IProjectTreeViewItem* parent)
 {
-   m_attributeTables = new CAttributeTables();
-   m_attributeTables->InitTreeItem(this);
-   this->appendChild(m_attributeTables);
+   // Add node to tree
+   InitTreeItem(parent);
+
+   // Allocate children
+   m_pAttributeTables = new CAttributeTables(this);
 }
 
 CProjectPrimitives::~CProjectPrimitives()
 {
-   if (m_attributeTables)
+   if (m_pAttributeTables)
    {
-      delete m_attributeTables;
+      delete m_pAttributeTables;
    }
+}
+
+void CProjectPrimitives::initializeProject()
+{
+   // Initialize child nodes
+   m_pAttributeTables->initializeProject();
+   
+   // Add child nodes to tree
+   appendChild(m_pAttributeTables);
+}
+
+void CProjectPrimitives::terminateProject()
+{
+   // Terminate child nodes
+   m_pAttributeTables->terminateProject();
+   
+   // Remove child nodes from tree
+   removeChild(m_pAttributeTables);
 }
 
 QString CProjectPrimitives::caption() const
@@ -23,4 +43,3 @@ QString CProjectPrimitives::caption() const
 void CProjectPrimitives::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
 }
-

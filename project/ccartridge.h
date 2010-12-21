@@ -21,16 +21,20 @@ typedef enum
 class CCartridge : public CProjectBase
 {
 public:
-   CCartridge();
+   CCartridge(IProjectTreeViewItem* parent);
    virtual ~CCartridge();
+
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
 
    // Member Getters
    GameMirrorMode::eGameMirrorMode getMirrorMode();
    qint8 getMapperNumber();
    bool isBatteryBackedRam();
 
-   CPRGROMBanks* getPointerToPrgRomBanks();
-   CCHRROMBanks* getPointerToChrRomBanks();
+   CPRGROMBanks* getPrgRomBanks();
+   CCHRROMBanks* getChrRomBanks();
 
    // Member Setters
    void setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue);
@@ -69,12 +73,14 @@ public:
    }
 
 private:
-   CPRGROMBanks* m_pointerToPrgRomBanks;
-   CCHRROMBanks* m_pointerToChrRomBanks;
-   GameMirrorMode::eGameMirrorMode m_enumMirrorMode;               // Mirror mode used in the emulator
+   // Contained children
+   CPRGROMBanks* m_pPrgRomBanks;
+   CCHRROMBanks* m_pChrRomBanks;
+
+   // Attributes
+   GameMirrorMode::eGameMirrorMode m_mirrorMode;               // Mirror mode used in the emulator
    bool m_hasBatteryBackedRam;                                     // Memory can be saved via RAM kept valid with a battery
    qint8 m_mapperNumber;                                           // Numeric ID of the cartridge mapper
-
 };
 
 #endif // CCARTRIDGE_H

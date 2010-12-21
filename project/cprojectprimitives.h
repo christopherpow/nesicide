@@ -9,10 +9,12 @@
 class CProjectPrimitives : public CProjectBase
 {
 public:
-   CProjectPrimitives();
+   CProjectPrimitives(IProjectTreeViewItem* parent);
    virtual ~CProjectPrimitives();
 
-   CAttributeTables* m_attributeTables;
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node)
@@ -50,6 +52,10 @@ public:
    {
       return true;
    }
+
+private:
+   // Contained children
+   CAttributeTables* m_pAttributeTables;
 };
 
 #endif // CPROJECTPRIMITIVES_H

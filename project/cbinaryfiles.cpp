@@ -1,40 +1,56 @@
 #include "cbinaryfiles.h"
 
-CBinaryFiles::CBinaryFiles()
+CBinaryFiles::CBinaryFiles(IProjectTreeViewItem* parent)
 {
-   m_pBinaryFileList = new QList<CBinaryFile*>();
+   // Add node to tree
+   InitTreeItem(parent);
 }
 
 CBinaryFiles::~CBinaryFiles()
 {
-   if (m_pBinaryFileList)
+   // Remove any allocated children
+   for ( int i = 0; i < m_binaryFiles.count(); i++ )
    {
-      delete m_pBinaryFileList;
+      delete m_binaryFiles.at(i);
    }
+
+   // Initialize this node's attributes
+   m_binaryFiles.clear();
 }
 
-QList<CBinaryFile*> *CBinaryFiles::getBinaryFileList()
+void CBinaryFiles::initializeProject()
 {
-   return m_pBinaryFileList;
+   // Remove any allocated children
+   for ( int i = 0; i < m_binaryFiles.count(); i++ )
+   {
+      removeChild(m_binaryFiles.at(i));
+      delete m_binaryFiles.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_binaryFiles.clear();
 }
 
-void CBinaryFiles::setBinaryFileList(QList<CBinaryFile*> * newBinaryFileList)
+void CBinaryFiles::terminateProject()
 {
-   m_pBinaryFileList = newBinaryFileList;
+   // Remove any allocated children
+   for ( int i = 0; i < m_binaryFiles.count(); i++ )
+   {
+      removeChild(m_binaryFiles.at(i));
+      delete m_binaryFiles.at(i);
+   }
+
+   // Initialize this node's attributes
+   m_binaryFiles.clear();
 }
 
 bool CBinaryFiles::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement binaryFilesElement = addElement( doc, node, "binaryfiles" );
 
-   for (int sourceItemIdx = 0; sourceItemIdx < m_pBinaryFileList->count(); sourceItemIdx++)
+   for (int i = 0; i < m_binaryFiles.count(); i++)
    {
-      if (!m_pBinaryFileList->at(sourceItemIdx))
-      {
-         return false;
-      }
-
-      if (!m_pBinaryFileList->at(sourceItemIdx)->serialize(doc, binaryFilesElement))
+      if (!m_binaryFiles.at(i)->serialize(doc, binaryFilesElement))
       {
          return false;
       }
@@ -45,22 +61,6 @@ bool CBinaryFiles::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CBinaryFiles::deserialize(QDomDocument& doc, QDomNode& node)
 {
-   if (m_pBinaryFileList)
-   {
-      for (int indexOfSourceItem=0; indexOfSourceItem<m_pBinaryFileList->count(); indexOfSourceItem++)
-      {
-         if (m_pBinaryFileList->at(indexOfSourceItem))
-         {
-            this->removeChild(m_pBinaryFileList->at(indexOfSourceItem));
-            delete m_pBinaryFileList->at(indexOfSourceItem);
-         }
-      }
-
-      delete m_pBinaryFileList;
-   }
-
-   m_pBinaryFileList = new QList<CBinaryFile*>();
-
    QDomNode childNode = node.firstChild();
 
    if (!childNode.isNull()) do
@@ -68,10 +68,9 @@ bool CBinaryFiles::deserialize(QDomDocument& doc, QDomNode& node)
          if (childNode.nodeName() == "binaryfile")
          {
 
-            CBinaryFile* pNewBinaryFile = new CBinaryFile();
-            pNewBinaryFile->InitTreeItem(this);
-            m_pBinaryFileList->append(pNewBinaryFile);
-            this->appendChild(pNewBinaryFile);
+            CBinaryFile* pNewBinaryFile = new CBinaryFile(this);
+            m_binaryFiles.append(pNewBinaryFile);
+            appendChild(pNewBinaryFile);
 
             if (!pNewBinaryFile->deserialize(doc, childNode))
             {
@@ -111,7 +110,7 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
          if (QFile::exists(fileName))
          {
-            CBinaryFile* pNewBinaryFile = new CBinaryFile();
+            CBinaryFile* pNewBinaryFile = new CBinaryFile(this);
             QFile file(fileName);
 
             if (file.open(QFile::ReadOnly))
@@ -122,8 +121,8 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             }
 
             pNewBinaryFile->InitTreeItem(this);
-            m_pBinaryFileList->append(pNewBinaryFile);
-            this->appendChild(pNewBinaryFile);
+            m_binaryFiles.append(pNewBinaryFile);
+            appendChild(pNewBinaryFile);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
          }
       }

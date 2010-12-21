@@ -23,21 +23,19 @@ public:
 
    // Helper functions
    void initializeProject();
-   bool createProjectFromRom(QString fileName);
    void terminateProject();
+   bool createProjectFromRom(QString fileName);
 
    // Member Getters
-   QString getProjectTitle();
-   QList<CPaletteEntry> *getProjectPaletteEntries();
    bool isInitialized();
-   CCartridge* getCartridge();
-   CProject* getProject();
+   QString getProjectTitle();
+   QList<CPaletteEntry> *getProjectPaletteEntries() { return &m_projectPaletteEntries; }
+   CCartridge* getCartridge() { return m_pCartridge; }
+   CProject* getProject() { return m_pProject; }
 
    // Member Setters
    void setProjectTitle(QString value);
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
-   void setCartridge(CCartridge* pCartridge);
-   void setProject(CProject* project);
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -71,14 +69,15 @@ public:
    }
 
 private:
-   void initializeNodes();
-
    bool m_isInitialized;                                           // Is the project initialized?
 
+   // Attributes
    QString m_projectTitle;                                         // The visible title of the project
-   QList<CPaletteEntry> *m_pProjectPaletteEntries;                 // List of palette entries for the emulator.
-   CProject* m_pProject;
-   CCartridge* m_pCartridge;
+   
+   // Contained children
+   QList<CPaletteEntry> m_projectPaletteEntries;                 // List of palette entries for the emulator.
+   CProject*            m_pProject;
+   CCartridge*          m_pCartridge;
 };
 
 #endif // CNESICIDEPROJECT_H

@@ -10,7 +10,7 @@
 class CGraphicsBank : public CProjectBase
 {
 public:
-   CGraphicsBank();
+   CGraphicsBank(IProjectTreeViewItem* parent);
    virtual ~CGraphicsBank();
 
    QString getBankName();
@@ -43,7 +43,11 @@ public:
 private:
    bool m_isModified;
    int m_tabIndex;
+   
+   // Attributes
    QString m_name;
+   
+   // Designer
    GraphicsBankEditorForm* m_editor;
 };
 

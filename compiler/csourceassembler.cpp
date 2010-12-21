@@ -23,7 +23,7 @@ CSourceAssembler::CSourceAssembler()
 bool CSourceAssembler::assemble()
 {
    CSourceItem* rootSource = nesicideProject->getProject()->getMainSource();
-   CPRGROMBanks* prgRomBanks = nesicideProject->getCartridge()->getPointerToPrgRomBanks();
+   CPRGROMBanks* prgRomBanks = nesicideProject->getCartridge()->getPrgRomBanks();
    char* romData = NULL;
    int romLength = 0;
    QString strBuffer1;
@@ -78,11 +78,11 @@ bool CSourceAssembler::assemble()
          buildTextLogger.write(strBuffer);
       }*/
 
-      int oldBanks = prgRomBanks->get_pointerToArrayOfBanks()->count();
+      int oldBanks = prgRomBanks->getPrgRomBanks().count();
       int bankIdx = 0;
 
       // Set up PRG-ROM banks...
-      for ( ; romLength > 0; romLength -= 0x4000, romData += 0x4000 )
+      for ( ; romLength > 0; romLength -= MEM_16KB, romData += MEM_16KB )
       {
          // Grab either a previously used bank, or a new one
          CPRGROMBank* curBank;
@@ -91,19 +91,18 @@ bool CSourceAssembler::assemble()
          // Initialize the bank into the project banks
          if (doAppend)
          {
-            curBank = new CPRGROMBank();
+            curBank = new CPRGROMBank(nesicideProject->getCartridge()->getPrgRomBanks());
             // This is a new bank
-            curBank->set_indexOfPrgRomBank(prgRomBanks->get_pointerToArrayOfBanks()->count());
-            curBank->InitTreeItem(prgRomBanks);
+            curBank->setBankIndex(prgRomBanks->getPrgRomBanks().count());
             prgRomBanks->appendChild(curBank);
-            prgRomBanks->get_pointerToArrayOfBanks()->append(curBank);
+            prgRomBanks->getPrgRomBanks().append(curBank);
          }
          else
          {
-            curBank = prgRomBanks->get_pointerToArrayOfBanks()->at(bankIdx++);
+            curBank = prgRomBanks->getPrgRomBanks().at(bankIdx++);
          }
 
-         curBank->set_pointerToBankData ( (quint8*)romData );
+         curBank->setBankData ( (quint8*)romData );
       }
 
       // Add PermanentMarkers if any were found...

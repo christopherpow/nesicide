@@ -3,8 +3,12 @@
 
 #include "main.h"
 
-CGraphicsBank::CGraphicsBank()
+CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
 {
+   // Add node to tree
+   InitTreeItem(parent);
+   
+   // Allocate attributes
    m_isModified = false;
    m_tabIndex = -1;
    m_editor = (GraphicsBankEditorForm*)NULL;
@@ -117,7 +121,7 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
 
          // TODO: Fix this logic so the memory doesn't get lost.
          nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
-         nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBankArray()->removeAll(this);
+         nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
          ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
       }
    }

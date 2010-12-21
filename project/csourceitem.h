@@ -10,7 +10,7 @@
 class CSourceItem : public CProjectBase
 {
 public:
-   CSourceItem();
+   CSourceItem(IProjectTreeViewItem* parent);
    virtual ~CSourceItem();
 
    // Member Getters
@@ -38,9 +38,13 @@ public:
    virtual bool onNameChanged(QString newName);
 
 private:
+   int m_indexOfTab;
+
+   // Attributes
    QString m_name;
    QString m_sourceCode;
-   int m_indexOfTab;
+   
+   // Designer
    CodeEditorForm* m_codeEditorForm;
 };
 

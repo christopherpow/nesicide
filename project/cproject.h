@@ -10,19 +10,19 @@
 class CProject : public CProjectBase
 {
 public:
-   CProject();
+   CProject(IProjectTreeViewItem* parent);
    virtual ~CProject();
 
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
+
    CProjectPrimitives* getProjectPrimitives();
-   void setProjectPrimitives(CProjectPrimitives* newProjectPrimitives);
    CSourceItem* getMainSource();
    void setMainSource(CSourceItem* newSource);
    CSources* getSources();
-   void setSources(CSources* newSources);
    CBinaryFiles* getBinaryFiles();
-   void setBinaryFiles(CBinaryFiles* newBinaryFiles);
    CGraphicsBanks* getGraphicsBanks();
-   void setGraphicsBanks(CGraphicsBanks* newGraphicsBanks);
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -56,9 +56,12 @@ public:
    }
 
 private:
-   CSources* m_pSources;
-   CProjectPrimitives* m_pProjectPrimitives;
+   // Attributes
    CSourceItem* m_mainSource;
+
+   // Contained children
+   CProjectPrimitives* m_pProjectPrimitives;
+   CSources* m_pSources;
    CBinaryFiles* m_pBinaryFiles;
    CGraphicsBanks* m_pGraphicsBanks;
 };

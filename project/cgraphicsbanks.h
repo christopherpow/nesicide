@@ -11,11 +11,14 @@
 class CGraphicsBanks : public CProjectBase
 {
 public:
-   CGraphicsBanks();
+   CGraphicsBanks(IProjectTreeViewItem* parent);
    virtual ~CGraphicsBanks();
 
-   QList<CGraphicsBank*> *getGraphicsBankArray();
-   void setGraphicsBankArray(QList<CGraphicsBank*> *newGraphicsBankArray);
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
+
+   QList<CGraphicsBank*>& getGraphicsBanks() { return m_graphicsBanks; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -52,7 +55,8 @@ public:
    }
 
 private:
-   QList<CGraphicsBank*> *m_pGraphicsBank;
+   // Contained children
+   QList<CGraphicsBank*> m_graphicsBanks;
 };
 
 #endif // CGRAPHICSBANKS_H

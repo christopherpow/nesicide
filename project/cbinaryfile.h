@@ -10,7 +10,7 @@ class CBinaryFile : public CProjectBase,
    public IChrRomBankItem
 {
 public:
-   CBinaryFile();
+   CBinaryFile(IProjectTreeViewItem* parent);
    virtual ~CBinaryFile();
 
    QByteArray* getBinaryData();
@@ -55,6 +55,7 @@ public:
    };
 
 private:
+   // Attributes
    QByteArray* m_binaryData;
    QString m_name;
 };

@@ -1,23 +1,19 @@
 #include "cproject.h"
 
-CProject::CProject()
+CProject::CProject(IProjectTreeViewItem* parent)
 {
-   m_pProjectPrimitives = new CProjectPrimitives();
-   m_pProjectPrimitives->InitTreeItem(this);
-   this->appendChild(m_pProjectPrimitives);
+   // Add node to tree
+   InitTreeItem(parent);
 
+   // Initialize this node's attributes
+   m_mainSource = NULL;
+   
+   // Allocate children
+   m_pProjectPrimitives = new CProjectPrimitives(this);
    m_mainSource = (CSourceItem*)NULL;
-   m_pSources = new CSources();
-   m_pSources->InitTreeItem(this);
-   this->appendChild(m_pSources);
-
-   m_pBinaryFiles = new CBinaryFiles();
-   m_pBinaryFiles->InitTreeItem(this);
-   this->appendChild(m_pBinaryFiles);
-
-   m_pGraphicsBanks = new CGraphicsBanks();
-   m_pGraphicsBanks->InitTreeItem(this);
-   this->appendChild(m_pGraphicsBanks);
+   m_pSources = new CSources(this);
+   m_pBinaryFiles = new CBinaryFiles(this);
+   m_pGraphicsBanks = new CGraphicsBanks(this);
 }
 
 CProject::~CProject()
@@ -43,24 +39,47 @@ CProject::~CProject()
    }
 }
 
+void CProject::initializeProject()
+{
+   // Initialize this node's attributes
+   m_mainSource = NULL;
+   
+   // Initialize child nodes
+   m_pProjectPrimitives->initializeProject();
+   m_pSources->initializeProject();
+   m_pBinaryFiles->initializeProject();
+   m_pGraphicsBanks->initializeProject();
+   
+   // Add child nodes to tree
+   appendChild(m_pProjectPrimitives);
+   appendChild(m_pSources);
+   appendChild(m_pBinaryFiles);
+   appendChild(m_pGraphicsBanks);
+}
+
+void CProject::terminateProject()
+{
+   // Terminate child nodes
+   m_pProjectPrimitives->terminateProject();
+   m_pSources->terminateProject();
+   m_pBinaryFiles->terminateProject();
+   m_pGraphicsBanks->terminateProject();
+   
+   // Remove child nodes from tree
+   removeChild(m_pProjectPrimitives);
+   removeChild(m_pSources);
+   removeChild(m_pBinaryFiles);
+   removeChild(m_pGraphicsBanks);
+}
+
 CProjectPrimitives* CProject::getProjectPrimitives()
 {
    return m_pProjectPrimitives;
 }
 
-void CProject::setProjectPrimitives(CProjectPrimitives* newProjectPrimitives)
-{
-   m_pProjectPrimitives = newProjectPrimitives;
-}
-
 CGraphicsBanks* CProject::getGraphicsBanks()
 {
    return m_pGraphicsBanks;
-}
-
-void CProject::setGraphicsBanks(CGraphicsBanks* newGraphicsBanks)
-{
-   m_pGraphicsBanks = newGraphicsBanks;
 }
 
 CSourceItem* CProject::getMainSource()
@@ -78,19 +97,9 @@ CSources* CProject::getSources()
    return m_pSources;
 }
 
-void CProject::setSources(CSources* newSources)
-{
-   m_pSources = newSources;
-}
-
 CBinaryFiles* CProject::getBinaryFiles()
 {
    return m_pBinaryFiles;
-}
-
-void CProject::setBinaryFiles(CBinaryFiles* newBinaryFiles)
-{
-   m_pBinaryFiles = newBinaryFiles;
 }
 
 bool CProject::serialize(QDomDocument& doc, QDomNode& node)
@@ -157,14 +166,6 @@ bool CProject::serialize(QDomDocument& doc, QDomNode& node)
 bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
 {
    QDomNode childNode;
-
-   if (m_pSources)
-   {
-      delete m_pSources;
-   }
-
-   m_pSources = new CSources();
-   m_pSources->InitTreeItem(this);
 
    // Deserialization order is important but file order is not,
    // so we must take care of any possible XML ordering of items

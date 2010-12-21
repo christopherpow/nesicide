@@ -8,8 +8,12 @@
 class CAttributeTables : public CProjectBase
 {
 public:
-   CAttributeTables();
+   CAttributeTables(IProjectTreeViewItem* parent);
    virtual ~CAttributeTables();
+
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node)

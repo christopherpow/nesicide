@@ -9,14 +9,15 @@
 class CPRGROMBanks : public CProjectBase
 {
 public:
-   CPRGROMBanks();
+   CPRGROMBanks(IProjectTreeViewItem* parent);
    virtual ~CPRGROMBanks();
 
-   // Member Getters
-   QList<CPRGROMBank*> *get_pointerToArrayOfBanks();
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
 
-   // Member Setters
-   void set_pointerToArrayOfBanks(QList<CPRGROMBank*> *pointerToArrayOfBanks);
+   // Member Getters
+   QList<CPRGROMBank*>& getPrgRomBanks() { return m_prgRomBanks; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -50,8 +51,8 @@ public:
    }
 
 private:
-   QList<CPRGROMBank*> *m_pointerToArrayOfBanks;
-
+   // Contained children
+   QList<CPRGROMBank*> m_prgRomBanks;
 };
 
 #endif // CPRGROMBANKS_H

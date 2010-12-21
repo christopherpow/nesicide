@@ -12,11 +12,14 @@
 class CBinaryFiles : public CProjectBase
 {
 public:
-   CBinaryFiles();
+   CBinaryFiles(IProjectTreeViewItem* parent);
    virtual ~CBinaryFiles();
 
-   QList<CBinaryFile*> *getBinaryFileList();
-   void setBinaryFileList(QList<CBinaryFile*> * newBinaryFileList);
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
+
+   QList<CBinaryFile*>& getBinaryFileList() { return m_binaryFiles; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -50,7 +53,8 @@ public:
    }
 
 private:
-   QList<CBinaryFile*> *m_pBinaryFileList;
+   // Contained children
+   QList<CBinaryFile*> m_binaryFiles;
 };
 
 #endif // CBINARYFILES_H

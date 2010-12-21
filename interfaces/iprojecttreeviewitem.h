@@ -14,7 +14,6 @@
 class IProjectTreeViewItem
 {
 public:
-   friend class IProjectTreeViewItemIterator;
    void InitTreeItem(IProjectTreeViewItem* parent = 0)
    {
       parentItem = parent;

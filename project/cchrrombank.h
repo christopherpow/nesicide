@@ -4,16 +4,21 @@
 #include "cprojectbase.h"
 #include "chrromdisplaydialog.h"
 
+#include "emulator_core.h"
+
 class CCHRROMBank : public CProjectBase
 {
 public:
-   CCHRROMBank();
+   CCHRROMBank(IProjectTreeViewItem* parent);
    virtual ~CCHRROMBank();
 
-   qint8 bankID;
-   qint8* data;
-   CHRROMDisplayDialog* editor;
-   qint8 tabId;
+   // Member Getters
+   uint32_t getBankIndex() { return m_bankIndex; }
+   uint8_t* getBankData() { return m_bankData; }
+   
+   // Member Setters
+   void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
+   void clearBankData() { memset(m_bankData,0,MEM_8KB); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -39,6 +44,16 @@ public:
    {
       return true;
    };
+   
+private:
+   qint8 tabId;
+   
+   // Attributes
+   uint32_t m_bankIndex;
+   uint8_t  m_bankData [ MEM_8KB ];
+   
+   // Designer
+   CHRROMDisplayDialog* editor;
 };
 
 #endif // CCHRROMBANK_H

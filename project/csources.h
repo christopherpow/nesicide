@@ -11,14 +11,15 @@
 class CSources : public IXMLSerializable, public IProjectTreeViewItem
 {
 public:
-   CSources();
+   CSources(IProjectTreeViewItem* parent);
    virtual ~CSources();
 
-   // Member Getters
-   QList<CSourceItem*> *get_pointerToArrayOfSourceItems();
+   // Helper functions
+   void initializeProject();
+   void terminateProject();
 
-   // Member Setters
-   void set_pointerToArrayOfSourceItems(QList<CSourceItem*> *pointerToArrayOfSourceItems);
+   // Member Getters
+   QList<CSourceItem*>& getSourceItems() { return m_sourceItems; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -52,7 +53,8 @@ public:
    }
 
 private:
-   QList<CSourceItem*> *m_pointerToArrayOfSourceItems;
+   // Contained children
+   QList<CSourceItem*> m_sourceItems;
 };
 
 #endif // CSOURCES_H
