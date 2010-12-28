@@ -15,8 +15,6 @@ CNameTablePreviewRenderer::~CNameTablePreviewRenderer()
 
 void CNameTablePreviewRenderer::initializeGL()
 {
-   makeCurrent();
-
    textureID = CGLTextureManager::getNewTextureID();
    zoom = 100;
 
@@ -59,15 +57,6 @@ void CNameTablePreviewRenderer::initializeGL()
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
 }
 
-void CNameTablePreviewRenderer::updateGL()
-{
-   makeCurrent();
-
-   glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
-   repaint();
-}
-
 void CNameTablePreviewRenderer::setBGColor(QColor clr)
 {
    glClearColor((float)clr.red() / 255.0f, (float)clr.green() / 255.0f, (float)clr.blue() / 255.0f, 0.5f);
@@ -79,8 +68,6 @@ void CNameTablePreviewRenderer::resizeGL(int width, int height)
    // then the renderer's width will be 50.
    int newWidth = (int)((float)width / ((float)zoom / 100.0f));
    int newHeight = (int)((float)height / ((float)zoom / 100.0f));
-
-   makeCurrent();
 
    // Width cannot be 0
    if (width == 0)
@@ -111,10 +98,9 @@ void CNameTablePreviewRenderer::resizeGL(int width, int height)
 
 void CNameTablePreviewRenderer::paintGL()
 {
-   makeCurrent();
-
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 512, 512, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);

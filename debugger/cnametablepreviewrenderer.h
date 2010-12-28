@@ -18,7 +18,6 @@ public:
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();
-   void updateGL();
    void changeZoom(int newZoom);
    void setBGColor(QColor clr);
    int zoom;

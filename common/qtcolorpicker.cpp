@@ -362,6 +362,22 @@ void QtColorPicker::buttonPressed(bool toggled)
 */
 void QtColorPicker::paintEvent(QPaintEvent* e)
 {
+   QPainter p(this);
+   int w = width();       // width of cell in pixels
+   int h = height();         // height of cell in pixels
+
+   p.setPen( QPen( Qt::gray, 0, Qt::SolidLine ) );
+
+//   p.setPen( QPen( Qt::black, 0, Qt::SolidLine ) );
+//   p.drawRect(3, 3, w - 7, h - 7);
+//   p.fillRect(QRect(4, 4, w - 8, h - 8), QBrush(c));
+   p.fillRect(QRect(2, 2, w - 4, h - 4), QBrush(col));
+
+   if (hasFocus())
+   {
+      p.drawRect(0, 0, w - 1, h - 1);
+   }
+#if 0
    if (dirty)
    {
       int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize);
@@ -375,12 +391,13 @@ void QtColorPicker::paintEvent(QPaintEvent* e)
       p.setPen(QPen(Qt::gray));
       p.setBrush(col);
       p.drawRect(2, 2, w - 5, h - 5);
-      setIcon(QIcon(pix));
+      //setIcon(QIcon(pix));
 
       dirty = false;
    }
 
    QPushButton::paintEvent(e);
+#endif
 }
 
 /*! \internal
@@ -625,7 +642,7 @@ ColorPickerItem* ColorPickerPopup::find(const QColor& col) const
 void ColorPickerPopup::insertColor(const QColor& col, const QString& text, int index)
 {
    // Don't add colors that we have already.
-   ColorPickerItem* existingItem = find(col);
+   ColorPickerItem* existingItem = NULL;//find(col);
    ColorPickerItem* lastSelectedItem = find(lastSelected());
 
    if (existingItem)
@@ -1052,8 +1069,8 @@ ColorPickerItem::ColorPickerItem(const QColor& color, const QString& text,
    : QFrame(parent), c(color), t(text), sel(false)
 {
    setToolTip(t);
-   setFixedWidth(24);
-   setFixedHeight(21);
+   setFixedWidth(30);
+   setFixedHeight(30);
 }
 
 /*!
@@ -1151,12 +1168,14 @@ void ColorPickerItem::paintEvent(QPaintEvent*)
 
    if (sel)
    {
-      p.drawRect(1, 1, w - 3, h - 3);
+//      p.drawRect(1, 1, w - 3, h - 3);
+      p.drawRect(0, 0, w, h);
    }
 
-   p.setPen( QPen( Qt::black, 0, Qt::SolidLine ) );
-   p.drawRect(3, 3, w - 7, h - 7);
-   p.fillRect(QRect(4, 4, w - 8, h - 8), QBrush(c));
+//   p.setPen( QPen( Qt::black, 0, Qt::SolidLine ) );
+//   p.drawRect(3, 3, w - 7, h - 7);
+//   p.fillRect(QRect(4, 4, w - 8, h - 8), QBrush(c));
+   p.fillRect(QRect(2, 2, w - 4, h - 4), QBrush(c));
 
    if (hasFocus())
    {
@@ -1275,6 +1294,8 @@ void ColorPickerButton::focusOutEvent(QFocusEvent* e)
 void ColorPickerButton::paintEvent(QPaintEvent* e)
 {
    QFrame::paintEvent(e);
+   int w = width();       // width of cell in pixels
+   int h = height();         // height of cell in pixels
 
    QPainter p(this);
    p.fillRect(contentsRect(), palette().button());

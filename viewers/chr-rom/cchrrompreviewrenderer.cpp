@@ -15,8 +15,6 @@ CCHRROMPreviewRenderer::~CCHRROMPreviewRenderer()
 
 void CCHRROMPreviewRenderer::initializeGL()
 {
-   makeCurrent();
-
    textureID = CGLTextureManager::getNewTextureID();
    zoom = 100;
 
@@ -59,22 +57,13 @@ void CCHRROMPreviewRenderer::initializeGL()
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
 }
 
-void CCHRROMPreviewRenderer::updateGL()
-{
-   makeCurrent();
-
-   glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
-   repaint();
-}
-
 void CCHRROMPreviewRenderer::reloadData(char* imgData)
 {
    makeCurrent();
 
    imageData = imgData;
    glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    repaint();
 }
 
@@ -89,8 +78,6 @@ void CCHRROMPreviewRenderer::resizeGL(int width, int height)
    // then the renderer's width will be 50.
    int newWidth = (int)((float)width / ((float)zoom / 100.0f));
    int newHeight = (int)((float)height / ((float)zoom / 100.0f));
-
-   makeCurrent();
 
    // Width cannot be 0
    if (width == 0)
@@ -121,10 +108,9 @@ void CCHRROMPreviewRenderer::resizeGL(int width, int height)
 
 void CCHRROMPreviewRenderer::paintGL()
 {
-   makeCurrent();
-
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);

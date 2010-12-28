@@ -17,7 +17,6 @@ public:
    ~CNESEmulatorRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
-   void updateGL();
    void paintGL();
    void changeZoom(int newZoom);
    void setBGColor(QColor clr);

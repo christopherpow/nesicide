@@ -14,18 +14,18 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* da
    memset(imgData,0xFF,256*256*4);
    m_usePPU = usePPU;
 
-   for (int i=0; i<0x40; i++)
+   for (int i=0; i<NUM_PALETTES; i++)
    {
-      ui->col0PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
-      ui->col1PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
-      ui->col2PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
-      ui->col3PushButton->insertColor(CBasePalette::GetPalette(i), "", i);
+      ui->col0PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
+      ui->col1PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
+      ui->col2PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
+      ui->col3PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
    }
 
-   ui->col0PushButton->setCurrentColor(CBasePalette::GetPalette(0x0D));
-   ui->col1PushButton->setCurrentColor(CBasePalette::GetPalette(0x00));
-   ui->col2PushButton->setCurrentColor(CBasePalette::GetPalette(0x10));
-   ui->col3PushButton->setCurrentColor(CBasePalette::GetPalette(0x20));
+   ui->col0PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x0D),nesGetPaletteGreenComponent(0x0D),nesGetPaletteBlueComponent(0x0D)));
+   ui->col1PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x00),nesGetPaletteGreenComponent(0x00),nesGetPaletteBlueComponent(0x00)));
+   ui->col2PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x10),nesGetPaletteGreenComponent(0x10),nesGetPaletteBlueComponent(0x10)));
+   ui->col3PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x20),nesGetPaletteGreenComponent(0x20),nesGetPaletteBlueComponent(0x20)));
 
    ui->col0PushButton->setText("");
    ui->col1PushButton->setText("");

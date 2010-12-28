@@ -80,7 +80,7 @@ class QT_QTCOLORPICKER_EXPORT QtColorPicker : public QPushButton
 
 public:
    QtColorPicker(QWidget* parent = 0,
-                 int columns = -1, bool enableColorDialog = true);
+                 int columns = 16, bool enableColorDialog = false);
 
    ~QtColorPicker();
 

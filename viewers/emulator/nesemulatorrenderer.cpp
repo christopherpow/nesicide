@@ -21,8 +21,6 @@ void CNESEmulatorRenderer::initializeGL()
    textureID = CGLTextureManager::getNewTextureID();
    zoom = 100;
 
-   makeCurrent();
-
    // Enable flat shading
    glShadeModel(GL_FLAT);
 
@@ -62,15 +60,6 @@ void CNESEmulatorRenderer::initializeGL()
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
 }
 
-void CNESEmulatorRenderer::updateGL()
-{
-   makeCurrent();
-
-   glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
-   repaint();
-}
-
 void CNESEmulatorRenderer::setBGColor(QColor clr)
 {
    glClearColor((float)clr.red() / 255.0f, (float)clr.green() / 255.0f, (float)clr.blue() / 255.0f, 0.5f);
@@ -105,9 +94,6 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
       actualSize.setHeight(256.0f * ((float)height / (float)width));
    }
 
-   // Let opengl know which surface we are working with
-   makeCurrent();
-
    // Width cannot be 0 or the system will freak out
    if (width == 0)
    {
@@ -137,14 +123,12 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
-   // Select this renderer as the current so opengl paints to the right surface
-   makeCurrent();
-
    float x = 0;
    float y = 0;
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glBindTexture (GL_TEXTURE_2D, textureID);
+   glBindTexture(GL_TEXTURE_2D, textureID);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(x, y, 0.0f);
