@@ -377,27 +377,6 @@ void QtColorPicker::paintEvent(QPaintEvent* e)
    {
       p.drawRect(0, 0, w - 1, h - 1);
    }
-#if 0
-   if (dirty)
-   {
-      int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize);
-      QPixmap pix(iconSize, iconSize);
-      pix.fill(palette().button().color());
-
-      QPainter p(&pix);
-
-      int w = pix.width();        // width of cell in pixels
-      int h = pix.height();       // height of cell in pixels
-      p.setPen(QPen(Qt::gray));
-      p.setBrush(col);
-      p.drawRect(2, 2, w - 5, h - 5);
-      //setIcon(QIcon(pix));
-
-      dirty = false;
-   }
-
-   QPushButton::paintEvent(e);
-#endif
 }
 
 /*! \internal

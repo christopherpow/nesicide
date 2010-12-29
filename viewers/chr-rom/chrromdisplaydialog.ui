@@ -46,6 +46,9 @@
    </item>
    <item row="0" column="0" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <property name="margin">
       <number>4</number>
      </property>

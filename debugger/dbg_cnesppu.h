@@ -6,6 +6,8 @@
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
 
+#include <QColor>
+
 // The Execution Visualizer debugger inspector converts PPU cycles to
 // (x,y) coordinates for visualization of the execution of code in the
 // PPU frame.
@@ -186,6 +188,10 @@ public:
    {
       m_pCHRMEMInspectorTV = pTV;
    }
+   static inline void SetCHRMEMInspectorColor ( int32_t idx, QColor color ) 
+   { 
+      m_chrMemColor[idx] = color; 
+   }
 
    // The OAM memory rendering is performed by the PPU.  The OAM
    // visualization inspector allocates the memory to be rendered to,
@@ -274,6 +280,8 @@ public:
    static bool           m_bCHRMEMInspector;
    static bool           m_bOAMInspector;
    static bool           m_bNameTableInspector;
+   
+   static QColor         m_chrMemColor [ 4 ];
 
    // These are the rendering surfaces on which the PPU draws
    // the data to be visualized by the various debugger inspectors

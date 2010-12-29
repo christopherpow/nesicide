@@ -40,6 +40,10 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* da
    if ( m_usePPU )
    {
       CPPUDBG::CHRMEMInspectorTV ( (int8_t*)imgData );
+      CPPUDBG::SetCHRMEMInspectorColor(0,ui->col0PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(1,ui->col1PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
       QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
       QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
    }
@@ -63,7 +67,15 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
    ui->col1PushButton->setText("");
    ui->col2PushButton->setText("");
    ui->col3PushButton->setText("");
-
+   
+   if ( m_usePPU )
+   {
+      CPPUDBG::SetCHRMEMInspectorColor(0,ui->col0PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(1,ui->col1PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
+   }
+   
    renderData();
    renderer->setBGColor(ui->col0PushButton->currentColor());
    renderer->reloadData(imgData);

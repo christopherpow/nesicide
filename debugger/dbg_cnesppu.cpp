@@ -26,6 +26,7 @@ int8_t*          CPPUDBG::m_pCodeDataLoggerInspectorTV = NULL;
 
 int8_t*          CPPUDBG::m_pCHRMEMInspectorTV = NULL;
 bool           CPPUDBG::m_bCHRMEMInspector = false;
+QColor         CPPUDBG::m_chrMemColor[4];
 int8_t*          CPPUDBG::m_pOAMInspectorTV = NULL;
 bool           CPPUDBG::m_bOAMInspector = false;
 int8_t*          CPPUDBG::m_pNameTableInspectorTV = NULL;
@@ -135,18 +136,18 @@ void CPPUDBG::RENDERCHRMEM ( void )
    {
       pTV = (int8_t*)m_pCHRMEMInspectorTV;
 
-      color[0][0] = CBasePalette::GetPaletteR ( 0x0D );
-      color[0][1] = CBasePalette::GetPaletteG ( 0x0D );
-      color[0][2] = CBasePalette::GetPaletteB ( 0x0D );
-      color[1][0] = CBasePalette::GetPaletteR ( 0x10 );
-      color[1][1] = CBasePalette::GetPaletteG ( 0x10 );
-      color[1][2] = CBasePalette::GetPaletteB ( 0x10 );
-      color[2][0] = CBasePalette::GetPaletteR ( 0x20 );
-      color[2][1] = CBasePalette::GetPaletteG ( 0x20 );
-      color[2][2] = CBasePalette::GetPaletteB ( 0x20 );
-      color[3][0] = CBasePalette::GetPaletteR ( 0x30 );
-      color[3][1] = CBasePalette::GetPaletteG ( 0x30 );
-      color[3][2] = CBasePalette::GetPaletteB ( 0x30 );
+      color[0][0] = m_chrMemColor[0].red();
+      color[0][1] = m_chrMemColor[0].green();
+      color[0][2] = m_chrMemColor[0].blue();
+      color[1][0] = m_chrMemColor[1].red();
+      color[1][1] = m_chrMemColor[1].green();
+      color[1][2] = m_chrMemColor[1].blue();
+      color[2][0] = m_chrMemColor[2].red();
+      color[2][1] = m_chrMemColor[2].green();
+      color[2][2] = m_chrMemColor[2].blue();
+      color[3][0] = m_chrMemColor[3].red();
+      color[3][1] = m_chrMemColor[3].green();
+      color[3][2] = m_chrMemColor[3].blue();
 
       for (int y = 0; y < 128; y++)
       {
