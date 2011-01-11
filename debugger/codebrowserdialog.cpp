@@ -70,7 +70,7 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
          break;
       case BROWSE_SOURCE:
          updateSource();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
          sourceViewModel->layoutChangedEvent();
          break;
    }
@@ -92,57 +92,60 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent* e)
          addr = nesGetAddressFromSLOC(index.row());
          break;
       case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
+         addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().data() );
          break;
    }
 
-   bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                       eBreakpointItemAddress,
-                                       0,
-                                       addr,
-                                       addr,
-                                       eBreakpointConditionNone,
-                                       0,
-                                       eBreakpointDataNone,
-                                       0 );
-
-   // Build context menu...
-   menu.addAction(ui->actionRun_to_here);
-   menu.addSeparator();
-
-   // If breakpoint isn't set here, give menu options to set one...
-   if ( bp < 0 )
+   if ( addr != -1 )
    {
-      menu.addAction(ui->actionBreak_on_CPU_execution_here);
-   }
-   else
-   {
-      if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                          eBreakpointItemAddress,
+                                          0,
+                                          addr,
+                                          addr,
+                                          eBreakpointConditionNone,
+                                          0,
+                                          eBreakpointDataNone,
+                                          0 );
+   
+      // Build context menu...
+      menu.addAction(ui->actionRun_to_here);
+      menu.addSeparator();
+   
+      // If breakpoint isn't set here, give menu options to set one...
+      if ( bp < 0 )
       {
-         menu.addAction(ui->actionEnable_breakpoint);
-         menu.addAction(ui->actionRemove_breakpoint);
+         menu.addAction(ui->actionBreak_on_CPU_execution_here);
       }
       else
       {
-         menu.addAction(ui->actionDisable_breakpoint);
-         menu.addAction(ui->actionRemove_breakpoint);
+         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+         {
+            menu.addAction(ui->actionEnable_breakpoint);
+            menu.addAction(ui->actionRemove_breakpoint);
+         }
+         else
+         {
+            menu.addAction(ui->actionDisable_breakpoint);
+            menu.addAction(ui->actionRemove_breakpoint);
+         }
       }
+   
+      menu.addSeparator();
+      menu.addAction(ui->actionClear_marker);
+      menu.addSeparator();
+   
+      menu.addAction(ui->actionStart_marker_here);
+      menu.addAction(ui->actionEnd_marker_here);
+   
+      // Run the context menu...
+      // CPTODO: Hokey trick to provide the breakpoint-of-interest to action handlers...
+      m_breakpointIndex = bp;
+   
+      menu.exec(e->globalPos());
+   
+      emit breakpointsChanged();
    }
-
-   menu.addSeparator();
-   menu.addAction(ui->actionClear_marker);
-   menu.addSeparator();
-
-   menu.addAction(ui->actionStart_marker_here);
-   menu.addAction(ui->actionEnd_marker_here);
-
-   // Run the context menu...
-   // CPTODO: Hokey trick to provide the breakpoint-of-interest to action handlers...
-   m_breakpointIndex = bp;
-
-   menu.exec(e->globalPos());
-
-   emit breakpointsChanged();
 }
 
 void CodeBrowserDialog::changeEvent(QEvent* e)
@@ -184,7 +187,7 @@ void CodeBrowserDialog::updateDisassembly(bool show)
             break;
          case BROWSE_SOURCE:
             updateSource();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
             sourceViewModel->layoutChangedEvent();
             break;
       }
@@ -220,7 +223,7 @@ void CodeBrowserDialog::updateBrowser()
             assemblyViewModel->layoutChangedEvent();
             break;
          case BROWSE_SOURCE:
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
             sourceViewModel->layoutChangedEvent();
             break;
       }
@@ -240,29 +243,32 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
          addr = nesGetAddressFromSLOC(index.row());
          break;
       case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
+         addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().data() );
          break;
    }
 
-   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
-                                         eBreakpointItemAddress,
-                                         0,
-                                         addr,
-                                         addr,
-                                         eBreakpointConditionNone,
-                                         0,
-                                         eBreakpointDataNone,
-                                         0 );
-
-   if ( !added )
+   if ( addr != -1 )
    {
-      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+      added = pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
+                                            eBreakpointItemAddress,
+                                            0,
+                                            addr,
+                                            addr,
+                                            eBreakpointConditionNone,
+                                            0,
+                                            eBreakpointDataNone,
+                                            0 );
+   
+      if ( !added )
+      {
+         QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+      }
+   
+      InspectorRegistry::getInspector("Breakpoints")->hide();
+      InspectorRegistry::getInspector("Breakpoints")->show();
+   
+      emit breakpointsChanged();
    }
-
-   InspectorRegistry::getInspector("Breakpoints")->hide();
-   InspectorRegistry::getInspector("Breakpoints")->show();
-
-   emit breakpointsChanged();
 }
 
 void CodeBrowserDialog::on_actionRun_to_here_triggered()
@@ -276,11 +282,14 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
          addr = nesGetAddressFromSLOC(index.row());
          break;
       case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
+         addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().data() );
          break;
    }
 
-   C6502DBG::GOTO(addr);
+   if ( addr != -1 )
+   {
+      C6502DBG::GOTO(addr);
+   }
 }
 
 void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
@@ -326,40 +335,43 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
             addr = nesGetAddressFromSLOC(index.row());
             break;
          case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
+            addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().data() );
             break;
       }
 
-      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                          eBreakpointItemAddress,
-                                          0,
-                                          addr,
-                                          addr,
-                                          eBreakpointConditionNone,
-                                          0,
-                                          eBreakpointDataNone,
-                                          0 );
-
-      if ( bp < 0 )
+      if ( addr != -1 )
       {
-         on_actionBreak_on_CPU_execution_here_triggered();
+         bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                             eBreakpointItemAddress,
+                                             0,
+                                             addr,
+                                             addr,
+                                             eBreakpointConditionNone,
+                                             0,
+                                             eBreakpointDataNone,
+                                             0 );
+   
+         if ( bp < 0 )
+         {
+            on_actionBreak_on_CPU_execution_here_triggered();
+         }
+         else
+         {
+            pBreakpoints->RemoveBreakpoint(bp);
+         }
+   
+         switch ( ui->displayMode->currentIndex() )
+         {
+            case BROWSE_ASSEMBLY:
+               assemblyViewModel->layoutChangedEvent();
+               break;
+            case BROWSE_SOURCE:
+               sourceViewModel->layoutChangedEvent();
+               break;
+         }
+   
+         emit breakpointsChanged();
       }
-      else
-      {
-         pBreakpoints->RemoveBreakpoint(bp);
-      }
-
-      switch ( ui->displayMode->currentIndex() )
-      {
-         case BROWSE_ASSEMBLY:
-            assemblyViewModel->layoutChangedEvent();
-            break;
-         case BROWSE_SOURCE:
-            sourceViewModel->layoutChangedEvent();
-            break;
-      }
-
-      emit breakpointsChanged();
    }
 }
 
@@ -408,12 +420,15 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
             addr = nesGetAddressFromSLOC(index.row());
             break;
          case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
+            addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().data() );
             break;
       }
 
-      // Find unused Marker entry...
-      marker = markers->AddMarker(nesGetAbsoluteAddressFromAddress(addr));
+      if ( addr != -1 )
+      {
+         // Find unused Marker entry...
+         marker = markers->AddMarker(nesGetAbsoluteAddressFromAddress(addr));
+      }
    }
 }
 
@@ -432,11 +447,14 @@ void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
             addr = nesGetAddressFromSLOC(index.row());
             break;
          case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
+            addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().data() );
             break;
       }
 
-      markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
+      if ( addr != -1 )
+      {
+         markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
+      }
    }
 }
 

@@ -179,7 +179,7 @@ char* pasm_get_source_file_text_by_addr ( unsigned int absAddr )
    return filetext;
 }
 
-int pasm_get_source_linenum_by_addr ( unsigned int absAddr )
+int pasm_get_source_linenum_by_absolute_addr ( unsigned int absAddr )
 {
    int b, foundbank = -1;
    int linenum = -1;
@@ -227,6 +227,33 @@ unsigned int pasm_get_source_addr_by_linenum ( int linenum )
          for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
          {
             if ( (ptr->instr) && (ptr->source_linenum == linenum) )
+            {
+               addr = ptr->addr;
+               break;
+            }
+         }
+      }
+   }
+
+   return addr;
+}
+
+unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, char* file )
+{
+   int b;
+   unsigned int addr = -1;
+   ir_table* ptr;
+
+   // Search through all banks looking for the appropriate source line number...
+   // CPTODO: translate this to be smarter about source files also!
+   for ( b = 0; b < btab_ent; b++ )
+   {
+      if ( btab[b].type == text_segment )
+      {
+         for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( (ptr->instr) && (ptr->source_linenum == linenum) &&
+                 (ptr->file) && (strcmp(ptr->file->name,file) == 0) )
             {
                addr = ptr->addr;
                break;

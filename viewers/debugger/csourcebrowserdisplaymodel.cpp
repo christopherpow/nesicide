@@ -48,10 +48,9 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
       return QVariant();
    }
 
-   //addr = pasm_get_source_addr_by_linenum(index.row()+1);
-   absAddr = pasm_get_source_absolute_addr_by_linenum(index.row()+1);
+   addr = pasm_get_source_addr_by_linenum_and_file(index.row()+1,this->m_sourceFilename.toAscii().data());
 
-   //absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( role == Qt::ToolTipRole )
    {
@@ -121,7 +120,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
          }
       }
 
-      if ( addr == C6502DBG::__PC() )
+      if ( absAddr == nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()) )
       {
          return QIcon(":/resources/22_execution_pointer.png");
       }

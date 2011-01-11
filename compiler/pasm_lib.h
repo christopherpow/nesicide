@@ -49,8 +49,9 @@ extern "C" {
 // Note this information is destroyed and re-created on subsequent calls to
 // pasm_assemble, so no dependence should be placed on its
 // permanent existence.  [If you want it later, copy it!]
-   int pasm_get_source_linenum_by_addr ( unsigned int absAddr );
+   int pasm_get_source_linenum_by_absolute_addr ( unsigned int absAddr );
    unsigned int pasm_get_source_addr_by_linenum ( int linenum );
+   unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, char* file );
 
 // Interfaces to retrieve PermanentMarker information generated
 // during the most recent assemble.  Note this information
