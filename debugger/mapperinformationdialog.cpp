@@ -14,8 +14,10 @@ MapperInformationDialog::MapperInformationDialog(QWidget* parent) :
    ui(new Ui::MapperInformationDialog)
 {
    ui->setupUi(this);
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 

@@ -37,10 +37,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;

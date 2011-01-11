@@ -27,10 +27,11 @@ CodeBrowserDialog::CodeBrowserDialog(QWidget* parent) :
    sourceViewModel = new CSourceBrowserDisplayModel(this);
    ui->tableView->setModel(assemblyViewModel);
    ui->displayMode->setCurrentIndex ( 0 );
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()) );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
+   ui->sourceFiles->setEnabled(false);
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateBrowser()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateBrowser()));
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateBrowser()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
    QObject::connect ( breakpointInspector->widget(), SIGNAL(breakpointsChanged()), this, SLOT(updateBrowser()) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpointInspector->widget(), SLOT(updateData()) );
@@ -43,6 +44,17 @@ CodeBrowserDialog::~CodeBrowserDialog()
    delete sourceViewModel;
 }
 
+void CodeBrowserDialog::updateSource()
+{
+   QStringList  source;
+   QString      filetext(pasm_get_source_file_text_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC())));
+   
+   source = filetext.split ( QRegExp("[\r\n]") );
+   sourceViewModel->setSource(source);
+   sourceViewModel->setSourceFilename(pasm_get_source_file_name_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC())));
+   ui->sourceFiles->setCurrentIndex(pasm_get_source_file_index_by_name(pasm_get_source_file_name_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))));
+}
+
 void CodeBrowserDialog::showEvent(QShowEvent* e)
 {
    QDialog::showEvent(e);
@@ -53,12 +65,13 @@ void CodeBrowserDialog::showEvent(QShowEvent* e)
    switch ( ui->displayMode->currentIndex() )
    {
       case BROWSE_ASSEMBLY:
-         assemblyViewModel->layoutChangedEvent();
          ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
+         assemblyViewModel->layoutChangedEvent();
          break;
       case BROWSE_SOURCE:
+         updateSource();
+         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
          sourceViewModel->layoutChangedEvent();
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
          break;
    }
 
@@ -79,7 +92,7 @@ void CodeBrowserDialog::contextMenuEvent(QContextMenuEvent* e)
          addr = nesGetAddressFromSLOC(index.row());
          break;
       case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+         addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
          break;
    }
 
@@ -166,12 +179,13 @@ void CodeBrowserDialog::updateDisassembly(bool show)
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            assemblyViewModel->layoutChangedEvent();
             ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
+            assemblyViewModel->layoutChangedEvent();
             break;
          case BROWSE_SOURCE:
+            updateSource();
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
             sourceViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
             break;
       }
    }
@@ -202,12 +216,12 @@ void CodeBrowserDialog::updateBrowser()
       switch ( ui->displayMode->currentIndex() )
       {
          case BROWSE_ASSEMBLY:
-            assemblyViewModel->layoutChangedEvent();
             ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(C6502DBG::__PC()),0));
+            assemblyViewModel->layoutChangedEvent();
             break;
          case BROWSE_SOURCE:
+            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_addr(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
             sourceViewModel->layoutChangedEvent();
-            ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum(nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()))-1,0));
             break;
       }
    }
@@ -226,7 +240,7 @@ void CodeBrowserDialog::on_actionBreak_on_CPU_execution_here_triggered()
          addr = nesGetAddressFromSLOC(index.row());
          break;
       case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+         addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
          break;
    }
 
@@ -262,7 +276,7 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
          addr = nesGetAddressFromSLOC(index.row());
          break;
       case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+         addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
          break;
    }
 
@@ -271,15 +285,25 @@ void CodeBrowserDialog::on_actionRun_to_here_triggered()
 
 void CodeBrowserDialog::on_displayMode_currentIndexChanged(int index)
 {
+   int file;
+   
    switch ( index )
    {
       case BROWSE_ASSEMBLY:
          ui->tableView->setModel(assemblyViewModel);
          assemblyViewModel->layoutChangedEvent();
+         ui->sourceFiles->setEnabled(false);
          break;
       case BROWSE_SOURCE:
+         updateSource();
          ui->tableView->setModel(sourceViewModel);
          sourceViewModel->layoutChangedEvent();
+         ui->sourceFiles->setEnabled(true);
+         ui->sourceFiles->clear();
+         for ( file = 0; file < pasm_get_num_source_files(); file++ )
+         {
+            ui->sourceFiles->insertItem(file,pasm_get_source_file_name_by_index(file));
+         }
          break;
    }
 
@@ -302,7 +326,7 @@ void CodeBrowserDialog::on_tableView_doubleClicked(QModelIndex index)
             addr = nesGetAddressFromSLOC(index.row());
             break;
          case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+            addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
             break;
       }
 
@@ -384,7 +408,7 @@ void CodeBrowserDialog::on_actionStart_marker_here_triggered()
             addr = nesGetAddressFromSLOC(index.row());
             break;
          case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+            addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
             break;
       }
 
@@ -408,7 +432,7 @@ void CodeBrowserDialog::on_actionEnd_marker_here_triggered()
             addr = nesGetAddressFromSLOC(index.row());
             break;
          case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_from_linenum ( index.row()+1 );
+            addr = pasm_get_source_addr_by_linenum ( index.row()+1 );
             break;
       }
 
@@ -422,3 +446,18 @@ void CodeBrowserDialog::on_actionClear_marker_triggered()
    markers->ClearAllMarkers();
 }
 
+
+void CodeBrowserDialog::on_sourceFiles_currentIndexChanged(int index)
+{
+   QStringList  source;
+   QString      str;   
+   
+   if ( index >= 0 )
+   {
+      str = pasm_get_source_file_text_by_index(index);
+      source = str.split ( QRegExp("[\r\n]") );
+      sourceViewModel->setSource(source);
+      sourceViewModel->setSourceFilename(pasm_get_source_file_name_by_index(index));
+      sourceViewModel->layoutChangedEvent();
+   }
+}

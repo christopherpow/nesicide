@@ -1,9 +1,11 @@
 #ifndef CATTRIBUTETABLES_H
 #define CATTRIBUTETABLES_H
 
-#include "cprojectbase.h"
+#include "cattributetable.h"
+#include "cprojecttreeviewmodel.h"
 
-#include <QString>
+#include <QInputDialog>
+#include <QList>
 
 class CAttributeTables : public CProjectBase
 {
@@ -15,15 +17,11 @@ public:
    void initializeProject();
    void terminateProject();
 
+   QList<CAttributeTable*>& getAttributeTableList() { return m_attributeTables; }
+
    // IXMLSerializable Interface Implementation
-   virtual bool serialize(QDomDocument& doc, QDomNode& node)
-   {
-      IXMLEMPTYSPEC return true;
-   }
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node)
-   {
-      IXMLEMPTYSPEC return true;
-   }
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -34,10 +32,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;
@@ -51,6 +45,10 @@ public:
    {
       return true;
    }
+
+private:
+   // Contained children
+   QList<CAttributeTable*> m_attributeTables;
 };
 
 #endif // CATTRIBUTETABLES_H

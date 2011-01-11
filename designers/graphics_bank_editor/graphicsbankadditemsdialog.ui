@@ -46,8 +46,8 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>

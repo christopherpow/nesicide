@@ -21,13 +21,14 @@ public:
       (*ident) = QUuid::createUuid();
    }
 
-   QString getIdent()
+   QString uuid()
    {
       return ident->toString();
    }
 
-   void setIdent(QString uuid)
+   void setUuid(QString uuid)
    {
+      if ( ident ) delete ident;
       ident = new QUuid(uuid);
    }
 
@@ -86,7 +87,7 @@ public:
    virtual void openItemEvent(QTabWidget* tabWidget) = 0;
    virtual bool onCloseQuery() = 0;
    virtual void onClose() = 0;
-   virtual int getTabIndex() = 0;
+   virtual int tabIndex() = 0;
    virtual bool isDocumentSaveable() = 0;
    virtual void onSaveDocument() = 0;
    virtual bool canChangeName() = 0;

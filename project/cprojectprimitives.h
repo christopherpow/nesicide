@@ -17,14 +17,8 @@ public:
    void terminateProject();
 
    // IXMLSerializable Interface Implementation
-   virtual bool serialize(QDomDocument& doc, QDomNode& node)
-   {
-      IXMLEMPTYSPEC return true;
-   }
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node)
-   {
-      IXMLEMPTYSPEC return true;
-   }
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -35,10 +29,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;

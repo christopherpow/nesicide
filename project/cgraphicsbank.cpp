@@ -12,7 +12,7 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
    m_isModified = false;
    m_tabIndex = -1;
    m_editor = (GraphicsBankEditorForm*)NULL;
-   bankItems.clear();
+   m_bankItems.clear();
 }
 
 CGraphicsBank::~CGraphicsBank()
@@ -27,13 +27,13 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "graphicsbank" );
    element.setAttribute("name", m_name);
-   element.setAttribute("uuid", getIdent());
+   element.setAttribute("uuid", uuid());
 
-   for (int i=0; i < bankItems.count(); i++)
+   for (int i=0; i < m_bankItems.count(); i++)
    {
       QDomElement graphicsItemElement = addElement( doc, element, "graphicitem" );
-      IProjectTreeViewItem* projectItem = dynamic_cast<IProjectTreeViewItem*>(bankItems.at(i));
-      graphicsItemElement.setAttribute("uuid", projectItem->getIdent() );
+      IProjectTreeViewItem* projectItem = dynamic_cast<IProjectTreeViewItem*>(m_bankItems.at(i));
+      graphicsItemElement.setAttribute("uuid", projectItem->uuid() );
    }
 
    return true;
@@ -60,9 +60,9 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node)
 
    m_name = element.attribute("name");
 
-   setIdent(element.attribute("uuid"));
+   setUuid(element.attribute("uuid"));
 
-   bankItems.clear();
+   m_bankItems.clear();
 
    QDomNode childNode = node.firstChild();
 
@@ -77,7 +77,7 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node)
 
             if ( pItem )
             {
-               bankItems.append(pItem);
+               m_bankItems.append(pItem);
             }
 
          }
@@ -107,7 +107,7 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
    {
       if (ret->text() == "&Delete")
       {
-         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + getBankName(),
+         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + name(),
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
          {
             return;
@@ -149,7 +149,7 @@ void CGraphicsBank::openItemEvent(QTabWidget* tabWidget)
       m_tabIndex = tabWidget->addTab(m_editor, this->caption());
    }
 
-   m_editor->updateChrRomBankItemList(bankItems);
+   m_editor->updateChrRomBankItemList(m_bankItems);
 
    tabWidget->setCurrentIndex(m_tabIndex);
 }
@@ -174,18 +174,13 @@ void CGraphicsBank::onClose()
    m_isModified = false;
 }
 
-int CGraphicsBank::getTabIndex()
-{
-   return m_tabIndex;
-}
-
 void CGraphicsBank::onSaveDocument()
 {
-   bankItems.clear();
+   m_bankItems.clear();
 
    for (int i=0; i < m_editor->chrRomBankItems.count(); i++)
    {
-      bankItems.append(m_editor->chrRomBankItems.at(i));
+      m_bankItems.append(m_editor->chrRomBankItems.at(i));
    }
 
    m_isModified = false;
@@ -205,14 +200,4 @@ bool CGraphicsBank::onNameChanged(QString newName)
    }
 
    return true;
-}
-
-QString CGraphicsBank::getBankName()
-{
-   return m_name;
-}
-
-void CGraphicsBank::setBankName(QString newName)
-{
-   m_name = newName;
 }

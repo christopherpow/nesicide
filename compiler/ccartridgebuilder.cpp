@@ -7,7 +7,7 @@ CCartridgeBuilder::CCartridgeBuilder()
 {
 }
 
-void CCartridgeBuilder::build()
+bool CCartridgeBuilder::build()
 {
    CSourceAssembler sourceAssembler;
    CGraphicsAssembler graphicsAssembler;
@@ -17,8 +17,9 @@ void CCartridgeBuilder::build()
    if (!(sourceAssembler.assemble() && graphicsAssembler.assemble()))
    {
       buildTextLogger.write("<font color='red'><b>Build failed.</b></font><br />");
-      return;
+      return false;
    }
 
    buildTextLogger.write("<b>Build completed successfully.</b><br />");
+   return true;
 }

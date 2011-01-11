@@ -1,22 +1,16 @@
 #ifndef CCARTRIDGE_H
 #define CCARTRIDGE_H
 
+#include "emulator_core.h"
 #include "cprojectbase.h"
 #include "cprgrombanks.h"
 #include "cchrrombanks.h"
 
-#include <QtGlobal>
-
-namespace GameMirrorMode
-{
 typedef enum
 {
-   NoMirroring = 0,
-   HorizontalMirroring = 1,
-   VerticalMirroring = 2,
-   FourScreenMirroring = 3
-} eGameMirrorMode;
-}
+   HorizontalMirroring = 0,
+   VerticalMirroring = 1
+} eMirrorMode;
 
 class CCartridge : public CProjectBase
 {
@@ -29,17 +23,40 @@ public:
    void terminateProject();
 
    // Member Getters
-   GameMirrorMode::eGameMirrorMode getMirrorMode();
-   qint8 getMapperNumber();
-   bool isBatteryBackedRam();
-
-   CPRGROMBanks* getPrgRomBanks();
-   CCHRROMBanks* getChrRomBanks();
+   eMirrorMode getMirrorMode()
+   {
+      return m_mirrorMode;
+   }
+   int getMapperNumber()
+   {
+      return m_mapperNumber;
+   }
+   bool isBatteryBackedRam()
+   {
+      return m_hasBatteryBackedRam;
+   }
+   CPRGROMBanks* getPrgRomBanks()
+   {
+      return m_pPrgRomBanks;
+   }
+   CCHRROMBanks* getChrRomBanks()
+   {
+      return m_pChrRomBanks;
+   }
 
    // Member Setters
-   void setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue);
-   void setMapperNumber(qint8 indexOfValue);
-   void setBatteryBackedRam(bool hasBatteryBackedRam);
+   void setMirrorMode(eMirrorMode mirrorMode)
+   {
+      m_mirrorMode = mirrorMode;
+   }
+   void setMapperNumber(int mapperNumber)
+   {
+      m_mapperNumber = mapperNumber;
+   }
+   void setBatteryBackedRam(bool batteryBackedRam)
+   {
+      m_hasBatteryBackedRam = batteryBackedRam;
+   }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -54,10 +71,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;
@@ -78,9 +91,9 @@ private:
    CCHRROMBanks* m_pChrRomBanks;
 
    // Attributes
-   GameMirrorMode::eGameMirrorMode m_mirrorMode;               // Mirror mode used in the emulator
+   eMirrorMode m_mirrorMode;               // Mirror mode used in the emulator
    bool m_hasBatteryBackedRam;                                     // Memory can be saved via RAM kept valid with a battery
-   qint8 m_mapperNumber;                                           // Numeric ID of the cartridge mapper
+   int  m_mapperNumber;                                           // Numeric ID of the cartridge mapper
 };
 
 #endif // CCARTRIDGE_H

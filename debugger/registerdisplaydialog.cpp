@@ -60,9 +60,10 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget* parent, eMemoryType displa
    QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
    QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
 
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateMemory()) );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 }
 

@@ -53,7 +53,7 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
          source = dynamic_cast<CSourceItem*>(iter.current());
          if ( source )
          {
-            (*objdata) = source->get_sourceCode().toLatin1().data();
+            (*objdata) = strdup(source->get_sourceCode().toAscii().data());
             (*size) = strlen((*objdata));
          }
          break;
@@ -104,6 +104,7 @@ void CNesicideProject::terminateProject()
    removeChild(m_pProject);
 
    // Notify the fact that the project data is no longer valid
+   m_projectTitle = "(No project loaded)";
    m_isInitialized = false;
 }
 
@@ -272,7 +273,6 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
    if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
    {
-      m_projectTitle = "Imported ROM";
       initializeProject();
 
       QDataStream fs(&fileIn);
@@ -317,17 +317,13 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       fs >> romCB1;
 
       // First extract the mirror mode
-      if (romCB1 & 0x08)
+      if ((romCB1&FLAG_MIRROR) == FLAG_MIRROR_VERT)
       {
-         m_pCartridge->setMirrorMode(GameMirrorMode::FourScreenMirroring);
-      }
-      else if (romCB1 & 0x01)
-      {
-         m_pCartridge->setMirrorMode(GameMirrorMode::VerticalMirroring);
+         m_pCartridge->setMirrorMode(VerticalMirroring);
       }
       else
       {
-         m_pCartridge->setMirrorMode(GameMirrorMode::HorizontalMirroring);
+         m_pCartridge->setMirrorMode(HorizontalMirroring);
       }
 
       // Now extract the two flags (battery backed ram and trainer)
@@ -414,6 +410,9 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       str += gameDatabase.getGameDBTimestamp();
       str += "...</b>";
       generalTextLogger.write(str);
+      str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+      str += fileName;
+      generalTextLogger.write(str);
 
       bool gameFoundInDB = gameDatabase.find(m_pCartridge);
 
@@ -434,11 +433,8 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
          str += ")";
          generalTextLogger.write(str);
 
-         str = "NESICIDE - ";
-         str += gameDatabase.getName();
-
-         // Set main window title...
-         nesicideWindow->setWindowTitle(str);
+         // Set project title...
+         m_projectTitle = gameDatabase.getName();
 
          // Do NTSC/PAL autodetecting
 
@@ -449,12 +445,8 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
          str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><font color=\"red\">Not found.</font></i>";
          generalTextLogger.write(str);
 
-         str = "NESICIDE - ";
-         str += fileName;
-         str += " [Homebrew]";
-
-         // Set main window title...
-         nesicideWindow->setWindowTitle(str);
+         // Set project title...
+         m_projectTitle = fileName;
       }
 
       str = "<b>Game loaded.</b>";

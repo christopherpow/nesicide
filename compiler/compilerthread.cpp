@@ -7,6 +7,7 @@
 CompilerThread::CompilerThread(QObject*)
 {
    m_isTerminating = false;
+   m_assembledOk = false;
 }
 
 CompilerThread::~CompilerThread()
@@ -23,7 +24,7 @@ void CompilerThread::run ()
 {
    CCartridgeBuilder cartridgeBuilder;
 
-   cartridgeBuilder.build();
+   m_assembledOk = cartridgeBuilder.build();
 
    return;
 }

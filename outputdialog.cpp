@@ -26,10 +26,16 @@ OutputDialog::~OutputDialog()
    delete ui;
 }
 
-
 void OutputDialog::setCurrentOutputTab(int tab)
 {
    ui->outputTabWidget->setCurrentIndex(tab);
+}
+
+void OutputDialog::clearAllTabs()
+{
+   generalTextLogger.clear();
+   buildTextLogger.clear();
+   debugTextLogger.clear();
 }
 
 void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )

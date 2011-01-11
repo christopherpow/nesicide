@@ -17,6 +17,7 @@ public:
 
    QString get_sourceCode();
    void set_sourceCode(QString source);
+   void selectLine(int linenumber);
 
 protected:
    void changeEvent(QEvent* e);

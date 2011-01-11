@@ -17,6 +17,7 @@ public:
    ~OutputDialog();
 
    void setCurrentOutputTab ( int tab );
+   void clearAllTabs();
 
 protected:
    virtual void contextMenuEvent ( QContextMenuEvent* event );

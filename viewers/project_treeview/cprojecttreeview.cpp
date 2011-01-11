@@ -13,7 +13,6 @@ void CProjectTreeView::contextMenuEvent(QContextMenuEvent* event)
    {
       item->contextMenuEvent(event, (QTreeView*)this);
    }
-
 }
 
 void CProjectTreeView::mouseDoubleClickEvent (QMouseEvent* event)
@@ -22,7 +21,8 @@ void CProjectTreeView::mouseDoubleClickEvent (QMouseEvent* event)
 
    if (item)
    {
-      item->openItemEvent(mdiTabWidget);
+      item->openItemEvent(m_pTarget);
+      emit projectTreeView_openItem(item->caption());
    }
 }
 
@@ -47,5 +47,44 @@ void CProjectTreeView::keyPressEvent ( QKeyEvent* e )
    else
    {
       e->ignore();
+   }
+}
+
+void CProjectTreeView::fileNavigator_fileChanged(QString file)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+
+   while ( iter.current() )
+   {
+      pSource = dynamic_cast<CSourceItem*>(iter.current());
+      if ( pSource && 
+           (pSource->caption() == file) )
+      {
+         pSource->openItemEvent(m_pTarget);
+         emit projectTreeView_openItem(pSource->caption());
+         break;
+      }
+      iter.next();
+   }
+}
+
+void CProjectTreeView::fileNavigator_symbolChanged(QString file, QString symbol, int linenumber)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+
+   while ( iter.current() )
+   {
+      pSource = dynamic_cast<CSourceItem*>(iter.current());
+      if ( pSource &&
+           (pSource->caption() == file) )
+      {
+         pSource->openItemEvent(m_pTarget);
+//         emit projectTreeView_ensureItemOpen(pSource->caption());
+         pSource->getEditor()->selectLine(linenumber);
+         break;
+      }
+      iter.next();
    }
 }

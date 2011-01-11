@@ -12,6 +12,7 @@
 identifier ([_'.@a-zA-Z][_'.@a-zA-Z0-9]*)
 
 comment        ";"[^\r\n]*
+breadcrumb     ^"!".+"!"[1-9]([0-9]*)"!"
 
 %x COUNT_LINES
 %x PARSE_INCLUDES CAPTURE_INCLUDE
@@ -83,16 +84,16 @@ ppsymbol_table* find_ppsymbol ( ppsymbol_list* list, char* symbol );
 //        the assembler stage.
 int ppprevious_state;
 
-// Line number emitting
-#define LINENUM_SPACING 1
-unsigned char force_linenum_emit = 1;
-const char* linenum_fmt = "!line %d\r\n";
-char linenum_str [ 256 ];
-void emit_linenum ( void );
+// Filename and linenumber emitting
+const char* breadcrumb_fmt = "!%s!%d!";
+char breadcrumb_str [ 1024 ];
+void emit_breadcrumb ( void );
 
-const char* filename_fmt = "!file %s\r\n";
-char filename_str [ 1024 ];
-void emit_filename ( char* filename );
+// Table of processed files...
+file_table* ftab = NULL;
+void add_file ( char* filename, char* filetext );
+file_table* find_file ( char* filename );
+void dump_file_table ( void );
 
 #define OUTPUT_DEFAULT_ALLOC 32768
 #define MAX_NESTS            256
@@ -142,6 +143,7 @@ void dump_variables ( void );
 
 // Repeat stuff.
 int repeat_start [ MAX_NESTS ];
+char* repeat_text [ MAX_NESTS ];
 int repeat_count [ MAX_NESTS ];
 int reptnestlevel = 0;
 ppvariable_table pprepttab;
@@ -154,6 +156,10 @@ char line [ 2048 ];
 
 // Temporary repeat label to pass to parser to invoke variable = expression rule...
 const char* reptsym = "----@@@@";
+
+// Include stack information
+YY_BUFFER_STATE include_stack[MAX_NESTS];
+int includenestlevel = 0;
 
 // Interface to add assembler errors to output
 extern void add_error ( char* s, int linenum );
@@ -194,7 +200,6 @@ void k_endm ( void );
 void k_rept ( void );
 void k_endr ( void );
 
-ppkeyword ppkeywords_linecount [];
 ppkeyword ppkeywords_include [];
 ppkeyword ppkeywords_equ [];
 ppkeyword ppkeywords_macro [];
@@ -209,34 +214,14 @@ ppkeyword ppkeywords [];
    // throw away!
 }
 
-<COUNT_LINES>{identifier} {
-   ppkeyword* k = ppkeywords_linecount;
-   int found = 0;
-
-   // Check for directives...
-   while ( k->directive != NULL )
+<*>{breadcrumb} { 
+   if ( macronestlevel > 0 )
    {
-      if ( ((strlen(k->directive) == ppleng) &&
-           (strnicmp(yytext,k->directive,strlen(k->directive)) == 0)) ||
-           ((strlen(k->dotdirective) == ppleng) &&
-           (strnicmp(yytext,k->dotdirective,strlen(k->dotdirective)) == 0)) )
-      {
-         found = 1;
-         break;
-      }
-      k++;
-   }
-
-   if ( found )
-   {
-      force_linenum_emit = 1;
-      emit_linenum ();
-      output_text ( pptext, ppleng );
-      force_linenum_emit = 1;
+      copy_to_macro(current_macro[macronestlevel],pptext,ppleng);
    }
    else
    {
-      output_text ( pptext, ppleng );
+      output_text(pptext,ppleng);
    }
 }
 
@@ -244,7 +229,7 @@ ppkeyword ppkeywords [];
 <COUNT_LINES>\n\r |
 <COUNT_LINES>\n {
    output_text ( pptext, ppleng );
-   emit_linenum ();
+   emit_breadcrumb ();
 }
 
 <PARSE_INCLUDES>{identifier} {
@@ -289,7 +274,6 @@ ppkeyword ppkeywords [];
    char* buffer;
    int c, d;
    int bytes;
-   file_table* orig_file;
 
    FILE* fp = fopen ( pptext, "r" );
    if ( fp != NULL )
@@ -305,10 +289,42 @@ ppkeyword ppkeywords [];
          {
             fread ( buffer, 1, bytes, fp );
 
-            emit_filename ( pptext );
+            strcpy ( currentFile, pptext );
+            
+            add_file ( currentFile, buffer );
+            //dump_file_table();
 
-            output_text ( buffer, strlen(buffer) );
-            output_text ( "\r\n", 2 );
+            includenestlevel++;
+            if ( includenestlevel < (MAX_NESTS-1) )
+            {
+               include_stack[includenestlevel] = YY_CURRENT_BUFFER;
+               pp_scan_string ( buffer );
+               ppin = NULL;
+               pplineno = 1;
+   
+               output_text("\r\n",2);
+                  
+               // Emit first file/line marker...
+               emit_breadcrumb ();
+            
+               BEGIN COUNT_LINES;
+            
+               // Preprocessor lexer returns when done...
+               pplex ();
+               
+               pp_flush_buffer(YY_CURRENT_BUFFER);
+               pp_delete_buffer(YY_CURRENT_BUFFER);
+               pp_switch_to_buffer ( include_stack[includenestlevel] );
+               includenestlevel--;
+               
+               // Finish capture to get rid of trailing quote...
+               BEGIN CAPTURE_INCLUDE;
+            }
+            else
+            {
+               sprintf ( e, "too many nested includes, max is %d", MAX_NESTS );
+               pperror ( e );
+            }
 
             free ( buffer );
          }
@@ -330,10 +346,44 @@ ppkeyword ppkeywords [];
 
       if ( size )
       {
-         emit_filename ( pptext );
+         strcpy ( currentFile, pptext );
 
-         output_text ( buffer, size );
-         output_text ( "\r\n", 2 );
+         add_file ( currentFile, buffer );
+         //dump_file_table();
+
+         includenestlevel++;
+         if ( includenestlevel < (MAX_NESTS-1) )
+         {
+            include_stack[includenestlevel] = YY_CURRENT_BUFFER;
+            pp_scan_string ( buffer );
+            ppin = NULL;
+            pplineno = 1;
+
+            output_text("\r\n",2);
+               
+            // Emit first file/line marker...
+            emit_breadcrumb ();
+         
+            BEGIN COUNT_LINES;
+         
+            // Preprocessor lexer returns when done...
+            pplex ();
+            
+            pp_flush_buffer(YY_CURRENT_BUFFER);
+            pp_delete_buffer(YY_CURRENT_BUFFER);
+            pp_switch_to_buffer ( include_stack[includenestlevel] );
+            includenestlevel--;
+            
+            // Finish capture to get rid of trailing quote...
+            BEGIN CAPTURE_INCLUDE;
+         }
+         else
+         {
+            sprintf ( e, "too many nested includes, max is %d", MAX_NESTS );
+            pperror ( e );
+         }
+         
+         free ( buffer );
       }
       else
       {
@@ -513,7 +563,7 @@ ppkeyword ppkeywords [];
          }
          else
          {
-            sprintf ( e, "too many nested repeats, max is %d", MAX_NESTS );
+            sprintf ( e, "too many nested macros, max is %d", MAX_NESTS );
             pperror ( e );
          }
 
@@ -628,7 +678,7 @@ ppkeyword ppkeywords [];
       break;
    }
 
-//         dump_macro ( current_macro[macronestlevel] );
+   //dump_macro ( current_macro[macronestlevel] );
    free ( invoketext );
    destroy_macro_values ( current_macro[macronestlevel] );
    current_macro [ macronestlevel ] = -1;
@@ -671,6 +721,7 @@ ppkeyword ppkeywords [];
 <REPEAT_COUNT>[^;\r\n]+ {
    symbol_table* ptr;
    int buf;
+   int evaluated = 1;
 
    // Kill any previous declarations, use this one...
    ppsymbol_table* ppptr = find_ppsymbol ( &(pprepttab.stab), (char*)reptsym );
@@ -680,7 +731,6 @@ ppkeyword ppkeywords [];
    }
    add_ppsymbol ( &(pprepttab.stab), (char*)reptsym );
    add_ppsymbol ( &(pprepttab.vtab), pptext );
-//   dump_variables ();
 
    sprintf ( line, "%s = %s\r\n", reptsym, pptext );
 
@@ -692,16 +742,21 @@ ppkeyword ppkeywords [];
 
    // Find symbol we should have just parsed...
    ptr = find_symbol ( (char*)reptsym );
-   if ( ptr )
+   if ( ptr && ptr->expr )
    {
+      evaluate_expression ( ptr->ir, ptr->expr, &evaluated, 0, NULL );
+
       // Figure out if expression exists and is fully parsed...
-      if ( (ptr->expr) &&
-           (ptr->expr->type == expression_number) )
+      if ( (evaluated) && 
+           (ptr->expr->vtype == value_is_int) )
       {
-         repeat_count [ reptnestlevel ] = ptr->expr->node.num->number;
+         repeat_count [ reptnestlevel ] = ptr->expr->value.ival;
       }
       else
       {
+         pperror ( "illegal repeat value" );
+         
+         repeat_count [ reptnestlevel ] = 1;
       }
 
       // Get rid of the annoying temporary symbol...
@@ -744,6 +799,7 @@ void k_endm ( void )
 {
    if ( macronestlevel )
    {
+      copy_to_macro(current_macro[macronestlevel],"\r\n",2);
 //      dump_macro ( current_macro[macronestlevel] );
       current_macro [ macronestlevel ] = -1;
       macronestlevel--;
@@ -778,15 +834,18 @@ void k_endr ( void )
 
    if ( reptnestlevel )
    {
-      // store current length because it's going to grow...
-      length = strlen ( output_buffer+repeat_start[reptnestlevel] );
+      // store repeated text...
+      repeat_text[reptnestlevel] = strdup ( output_buffer+repeat_start[reptnestlevel] );
+      length = strlen ( repeat_text[reptnestlevel] );
 
       // repeat stuff...but take off one for the original that
       // defined the stuff to repeat first.
       repeat_count [ reptnestlevel ]--;
       while ( repeat_count[reptnestlevel] > 0)
       {
-         output_text ( output_buffer+repeat_start[reptnestlevel], length );
+         output_text ( repeat_text[reptnestlevel], length );
+         free ( repeat_text[reptnestlevel] );
+         repeat_text[reptnestlevel] = NULL;
          repeat_count [ reptnestlevel ]--;
       }
 
@@ -814,17 +873,6 @@ void k_include ( void )
 // for keywords and handle them.  This is similar to the mechanism
 // used to determine an assembler mnemonic in the 'identifier'
 // regular expression.
-
-ppkeyword ppkeywords_linecount [] =
-{
-   { "include", ".include", k_include },
-   { "incsrc", ".incsrc", k_include },
-   { "macro", ".macro", k_macro },
-   { "endm", ".endm", k_endm},
-   { "rept", ".rept", k_rept },
-   { "endr", ".endr", k_endr },
-   { NULL, NULL, NULL }
-};
 
 ppkeyword ppkeywords_include [] =
 {
@@ -924,7 +972,7 @@ int ppwrap(void)
    }
 
    //printf ( "\n%d %d INPUT: \n%s\n\n", pass, directives_processed, input_buffer );
-   //printf ( "\nOUTPUT: \n%s\n\n", output_buffer );
+   //printf ( "\nOUTPUT: %d %d %d \n%s\n\n", go_around, pass, directives_processed, output_buffer );
 
    if ( go_around )
    {
@@ -962,7 +1010,8 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    pass = COUNT_LINES;
    ppprevious_state = COUNT_LINES;
    pplineno = 1;
-   force_linenum_emit = 1;
+
+   add_file ( currentFile, buffer_in );
 
    if ( ppmtab )
    {
@@ -1119,9 +1168,8 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
       ppin = NULL;
    }
 
-   // First things first, emit file and line number breadcrumbs...
-   emit_filename ( currentFile );
-   emit_linenum ();
+   // Emit first file/line marker...
+   emit_breadcrumb ();
 
    BEGIN pass;
 
@@ -1138,21 +1186,78 @@ int preprocess ( char* buffer_in, char** buffer_out, int* length )
    return output_length;
 }
 
-void emit_linenum ( void )
+void add_file ( char* filename, char* filetext )
 {
-   if ( (!(pplineno%LINENUM_SPACING)) ||
-        (force_linenum_emit) )
+   file_table* ptr = (file_table*) malloc ( sizeof(file_table) );
+   file_table* wptr;
+
+   // Add to tail...
+   ptr->next = NULL;
+   if ( ftab )
    {
-      sprintf ( linenum_str, linenum_fmt, pplineno );
-      output_text ( linenum_str, strlen(linenum_str) );
-      force_linenum_emit = 0;
+      wptr = ftab;
+      while ( wptr->next )
+      {
+         wptr = wptr->next;
+      }
+      wptr->next = ptr;
+   }
+   else
+   {
+      ftab = ptr;
+   }
+
+   // Save info...
+   ptr->name = strdup ( filename );
+   if ( filetext )
+   {
+      ptr->text = strdup ( filetext );
+   }
+   else
+   {
+      ptr->text = NULL;
    }
 }
 
-void emit_filename ( char* filename )
+file_table* find_file ( char* filename )
 {
-   sprintf ( filename_str, filename_fmt, filename );
-   output_text ( filename_str, strlen(filename_str) );
+   file_table* ptr = ftab;
+   file_table* file = NULL;
+   
+   while ( ptr )
+   {
+      if ( strcmp(ptr->name,filename) == 0 )
+      {
+         file = ptr;
+         break;
+      }
+      ptr = ptr->next;
+   }
+   return file;
+}
+
+void dump_file_table ( void )
+{
+   file_table* ptr = ftab;
+   
+   while ( ptr )
+   {
+      if ( ptr->text )
+      {
+         printf ( "file: %s (%d bytes)\n", ptr->name, strlen(ptr->text) );
+      }
+      else
+      {
+         printf ( "file: %s\n", ptr->name );
+      }
+      ptr = ptr->next;
+   }
+}
+
+void emit_breadcrumb ( void )
+{
+   sprintf ( breadcrumb_str, breadcrumb_fmt, currentFile, pplineno );
+   output_text ( breadcrumb_str, strlen(breadcrumb_str) );
 }
 
 void output_text ( char* text, int length )
@@ -1454,6 +1559,8 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
    int offset;
    const char identifierSpecial [] = { '_', '\'', '.', '@' };
    int length;
+   int textLength;
+   char* temp;
 
    // go through each symbol and replace the text with
    // the symbol value wherever the symbol value is found...
@@ -1519,14 +1626,21 @@ int replace_symbols_with_values ( char** text, ppsymbol_list* slist, ppsymbol_li
                // in the symbol's invoke value...
                // use memcpy so no NULL is added...
                offset = (long)ptr-(long)(*text);
-               (*text) = (char*) realloc ( (*text), strlen((*text))+(strlen(vptr->symbol)-length) );
-               ptr = (*text)+offset;
-               for ( i = 0; i < strlen(ptr); i++ )
+               textLength = strlen((*text));
+               temp = (char*) malloc ( textLength+(strlen(vptr->symbol)-length)+1 );
+               if ( temp )
                {
-                  *(ptr+strlen(ptr)-i+(strlen(vptr->symbol)-length)) = *(ptr+strlen(ptr)-i);
+                  memmove ( temp, (*text), offset );
+                  memmove ( temp+offset+strlen(vptr->symbol)-length, (*text)+offset, textLength-offset );
+                  *(temp+textLength+strlen(vptr->symbol)-length) = 0;
+                  (*text) = temp;
+                  ptr = (*text)+offset;
+                  memcpy ( ptr, vptr->symbol, strlen(vptr->symbol) );
                }
-               *(ptr+strlen(ptr)+1) = 0;
-               memcpy ( ptr, vptr->symbol, strlen(vptr->symbol) );
+               else
+               {
+                  pperror ( "internal error!" );
+               }
             }
 
             // we did a replacement, keep track...

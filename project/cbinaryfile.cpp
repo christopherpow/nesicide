@@ -26,11 +26,6 @@ QByteArray* CBinaryFile::getBinaryData()
    return m_binaryData;
 }
 
-void CBinaryFile::setBinaryName(QString newName)
-{
-   m_name = newName;
-}
-
 bool CBinaryFile::onNameChanged(QString newName)
 {
    m_name = newName;
@@ -46,7 +41,7 @@ bool CBinaryFile::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "binaryfile" );
    element.setAttribute("name", m_name);
-   element.setAttribute("uuid", getIdent());
+   element.setAttribute("uuid", uuid());
    QDomCDATASection dataSect = doc.createCDATASection(m_binaryData->toBase64());
    element.appendChild(dataSect);
    return true;
@@ -79,7 +74,7 @@ bool CBinaryFile::deserialize(QDomDocument& doc, QDomNode& node)
       return false;
    }
 
-   setIdent(element.attribute("uuid"));
+   setUuid(element.attribute("uuid"));
 
    m_binaryData = new QByteArray(QByteArray::fromBase64(cdata.data().toUtf8()));
 

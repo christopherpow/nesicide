@@ -4,6 +4,8 @@
 
 #include <QIcon>
 
+static char modelStringBuffer [ 2048 ];
+   
 CBreakpointDisplayModel::CBreakpointDisplayModel(QObject*)
 {
 }
@@ -14,7 +16,6 @@ CBreakpointDisplayModel::~CBreakpointDisplayModel()
 
 QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const
 {
-   char data [ 256 ];
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    BreakpointStatus brkptStatus;
 
@@ -48,11 +49,12 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const
          return QVariant();
          break;
       case 1:
-         pBreakpoints->GetPrintable(index.row(),data);
+         pBreakpoints->GetPrintable(index.row(),modelStringBuffer);
+         return QVariant(modelStringBuffer);
          break;
    }
 
-   return data;
+   return QVariant();
 }
 
 int CBreakpointDisplayModel::rowCount(const QModelIndex&) const

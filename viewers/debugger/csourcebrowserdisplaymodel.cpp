@@ -15,8 +15,19 @@
 
 #include <QIcon>
 
+static char modelStringBuffer [ 2048 ];
+
+enum
+{
+   Column_LineNumber = 0,
+   Column_Decoration,
+   Column_Source,
+   Column_Max
+};
+
 CSourceBrowserDisplayModel::CSourceBrowserDisplayModel(QObject*)
 {
+   m_sourceFilename = "?";
 }
 
 CSourceBrowserDisplayModel::~CSourceBrowserDisplayModel()
@@ -31,30 +42,30 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
    unsigned int absAddr;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
-   char tooltipBuffer [ 128 ];
 
    if (!index.isValid())
    {
       return QVariant();
    }
 
-   addr = pasm_get_source_addr_from_linenum(index.row()+1);
+   //addr = pasm_get_source_addr_by_linenum(index.row()+1);
+   absAddr = pasm_get_source_absolute_addr_by_linenum(index.row()+1);
 
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   //absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( role == Qt::ToolTipRole )
    {
       if ( addr != 0xFFFFFFFF )
       {
-         if ( index.column() > 0 )
+         if ( index.column() > Column_Decoration )
          {
-            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
-            return tooltipBuffer;
+            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
+            return QVariant(modelStringBuffer);
          }
       }
    }
 
-   if ( (role == Qt::BackgroundRole) && (index.column() == 0) )
+   if ( (role == Qt::BackgroundRole) && (index.column() == Column_Decoration)  )
    {
       for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
       {
@@ -74,7 +85,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
       return QVariant();
    }
 
-   if ((role == Qt::DecorationRole) && (index.column() == 0))
+   if ( (role == Qt::DecorationRole) && (index.column() == Column_Decoration) )
    {
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {
@@ -123,10 +134,14 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
 
    switch ( index.column() )
    {
-      case 0:
+      case Column_LineNumber:
+         sprintf ( modelStringBuffer, "%d", index.row()+1 );
+         return QVariant(modelStringBuffer);
+         break;
+      case Column_Decoration:
          return QVariant();
          break;
-      case 1:
+      case Column_Source:
          return m_source.at ( index.row() );
          break;
    }
@@ -142,8 +157,6 @@ Qt::ItemFlags CSourceBrowserDisplayModel::flags(const QModelIndex&) const
 
 QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-   char buffer [ 16 ];
-
    if (role != Qt::DisplayRole)
    {
       return QVariant();
@@ -153,18 +166,16 @@ QVariant CSourceBrowserDisplayModel::headerData(int section, Qt::Orientation ori
    {
       switch ( section )
       {
-         case 0:
+         case Column_LineNumber:
+            return "#";
+            break;
+         case Column_Decoration:
             return "!";
             break;
-         case 1:
-            return "Source Code";
+         case Column_Source:
+            return QVariant(m_sourceFilename);
             break;
       }
-   }
-   else
-   {
-      sprintf ( buffer, "%d", section+1 );
-      return buffer;
    }
 
    return  QVariant();
@@ -192,23 +203,10 @@ int CSourceBrowserDisplayModel::columnCount(const QModelIndex& parent) const
       return 0;
    }
 
-   return 2;
+   return Column_Max;
 }
 
 void CSourceBrowserDisplayModel::layoutChangedEvent()
 {
-   CSourceItem* sourceItem;
-
-   if ( nesicideProject )
-   {
-      m_source.empty ();
-
-      for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
-      {
-         sourceItem = (CSourceItem*)nesicideProject->getProject()->getSources()->child(sourceIndex);
-         m_source = sourceItem->get_sourceCode().split ( QRegExp("[\r\n]") );
-      }
-   }
-
    this->layoutChanged();
 }

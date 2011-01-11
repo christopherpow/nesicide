@@ -26,9 +26,11 @@ BreakpointDialog::BreakpointDialog(QWidget* parent) :
    m_pBitfield = NULL;
    m_pEvent = NULL;
 
-   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateData()));
-   QObject::connect(emulator, SIGNAL(breakpointClear()), this, SLOT(updateData()));
-   QObject::connect(emulator, SIGNAL(emulatorReset()), this, SLOT(updateData()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()));
+   QObject::connect(emulator,SIGNAL(breakpointClear()),this,SLOT(updateData()));
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(updateData()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),this,SLOT(updateData()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),this,SLOT(updateData()));
 }
 
 BreakpointDialog::~BreakpointDialog()

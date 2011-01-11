@@ -3,6 +3,8 @@
 #include "dbg_cnes.h"
 #include "dbg_cnes6502.h"
 
+static char modelStringBuffer [ 2048 ];
+   
 void GetPrintable ( TracerInfo* pSample, int subItem, char* str );
 
 CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject*)
@@ -18,8 +20,6 @@ CDebuggerExecutionTracerModel::~CDebuggerExecutionTracerModel()
 
 QVariant CDebuggerExecutionTracerModel::data(const QModelIndex& index, int role) const
 {
-   char data [ 64 ];
-
    if (!index.isValid())
    {
       return QVariant();
@@ -30,9 +30,9 @@ QVariant CDebuggerExecutionTracerModel::data(const QModelIndex& index, int role)
       return QVariant();
    }
 
-   GetPrintable((TracerInfo*)index.internalPointer(), index.column(), data);
+   GetPrintable((TracerInfo*)index.internalPointer(), index.column(), modelStringBuffer);
 
-   return data;
+   return QVariant(modelStringBuffer);
 }
 
 Qt::ItemFlags CDebuggerExecutionTracerModel::flags(const QModelIndex&) const

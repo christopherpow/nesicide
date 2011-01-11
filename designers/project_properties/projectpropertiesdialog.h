@@ -22,8 +22,9 @@ public:
    ProjectPropertiesDialog(QWidget* parent);
    ~ProjectPropertiesDialog();
    QString getProjectName();
-   void setMainSource(QString mainSource);
    QString getMainSource();
+   eMirrorMode getMirrorMode();
+   int         getMapperNumber();
    QList<QColor> currentPalette;
 
 protected:
@@ -32,6 +33,7 @@ protected:
 private:
    Ui::ProjectPropertiesDialog* ui;
    void updateUI(int colid = -1);
+   void setMainSource(QString mainSource);
    QDomElement addElement( QDomDocument& doc, QDomNode& node,
                            const QString& tag,
                            const QString& value = QString::null )

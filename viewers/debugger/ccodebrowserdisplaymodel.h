@@ -18,7 +18,6 @@ public:
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    void layoutChangedEvent();
-
 };
 
 #endif // CCODEBROWSERDISPLAYMODEL_H

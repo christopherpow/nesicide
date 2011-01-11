@@ -8,7 +8,7 @@
 #include <QInputDialog>
 #include <QList>
 
-class CSources : public IXMLSerializable, public IProjectTreeViewItem
+class CSources : public CProjectBase
 {
 public:
    CSources(IProjectTreeViewItem* parent);
@@ -34,10 +34,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;

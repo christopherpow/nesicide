@@ -12,5 +12,6 @@ typedef struct _MapperInfo
 extern MapperInfo  mapper[];
 const char* mapperNameFromID ( int32_t id );
 int mapperIndexFromID ( int32_t id );
+int mapperIDFromIndex ( int32_t index );
 
 #endif

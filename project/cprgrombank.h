@@ -38,10 +38,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;
@@ -57,15 +53,12 @@ public:
    }
 
 private:
-   int m_indexOfEditorTab;
-
    // Attributes
    uint32_t m_bankIndex;
    uint8_t  m_bankData [ MEM_16KB ];
    
    // Designer
    PRGROMDisplayDialog* m_pointerToEditorDialog;
-
 };
 
 #endif // CPRGROMBANK_H

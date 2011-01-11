@@ -44,7 +44,10 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* da
       CPPUDBG::SetCHRMEMInspectorColor(1,ui->col1PushButton->currentColor());
       CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
       CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
-      QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+//      QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+      QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
       QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
    }
    else

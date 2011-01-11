@@ -35,6 +35,49 @@ void CProjectPrimitives::terminateProject()
    removeChild(m_pAttributeTables);
 }
 
+bool CProjectPrimitives::serialize(QDomDocument& doc, QDomNode& node)
+{
+   // Create the root element for the CHR-ROM banks
+   QDomElement projectPrimitivesElement = addElement( doc, node, "primitives" );
+
+   if (m_pAttributeTables)
+   {
+      if (!m_pAttributeTables->serialize(doc, projectPrimitivesElement))
+      {
+         return false;
+      }
+   }
+   else
+   {
+      return false;
+   }
+
+   return true;
+}
+
+bool CProjectPrimitives::deserialize(QDomDocument& doc, QDomNode& node)
+{
+   QDomNode childNode;
+
+   // Deserialization order is important but file order is not,
+   // so we must take care of any possible XML ordering of items
+   // here.  First, look for primitives.
+   childNode = node.firstChild();
+   do
+   {
+      if (childNode.nodeName() == "attributetables")
+      {
+         if (!m_pAttributeTables->deserialize(doc, childNode))
+         {
+            return false;
+         }
+      }
+   }
+   while (!(childNode = childNode.nextSibling()).isNull());
+
+   return true;
+}
+
 QString CProjectPrimitives::caption() const
 {
    return QString("Primitives");

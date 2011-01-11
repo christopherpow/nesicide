@@ -2,12 +2,12 @@
 #include "ui_mainwindow.h"
 
 #include "inspectorregistry.h"
+#include "cpluginmanager.h"
 #include "main.h"
 
 #include <QApplication>
 #include <QStringList>
 #include <QMessageBox>
-#include "cpluginmanager.h"
 
 OutputDockWidget* output = NULL;
 
@@ -17,21 +17,29 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
 
-   QObject::connect(compiler, SIGNAL(finished()), this, SLOT(compileDone()));
-   QObject::connect(compiler, SIGNAL(started()), this, SLOT(compileStarted()));
+   QObject::connect(compiler, SIGNAL(started()), this, SLOT(compiler_compileStarted()));
+   QObject::connect(compiler, SIGNAL(finished()), this, SLOT(compiler_compileDone()));
 
    nesicideProject = new CNesicideProject();
 
    ui->setupUi(this);
-   projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
-   ui->projectTreeWidget->mdiTabWidget = ui->tabWidget;
-   ui->projectTreeWidget->setModel(projectTreeviewModel);
 
    emulatorDlg = new NESEmulatorDialog();
    emulatorDlgTabIdx = -1;
+   
+   QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
 
+   m_pSourceNavigator = new SourceNavigator();
+   ui->compilerToolbar->addWidget(m_pSourceNavigator);
+
+   projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
+   ui->projectTreeWidget->setTarget(ui->tabWidget);
+   ui->projectTreeWidget->setModel(projectTreeviewModel);
+   QObject::connect(m_pSourceNavigator,SIGNAL(fileNavigator_fileChanged(QString)),ui->projectTreeWidget,SLOT(fileNavigator_fileChanged(QString)));
+   QObject::connect(m_pSourceNavigator,SIGNAL(fileNavigator_symbolChanged(QString,QString,int)),ui->projectTreeWidget,SLOT(fileNavigator_symbolChanged(QString,QString,int)));
+   QObject::connect(ui->projectTreeWidget,SIGNAL(projectTreeView_openItem(QString)),m_pSourceNavigator,SLOT(projectTreeView_openItem(QString)));
    projectDataChangesEvent();
-
+   
    output = new OutputDockWidget ();
    output->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    output->setWindowTitle("Output");
@@ -256,6 +264,7 @@ MainWindow::MainWindow(QWidget* parent) :
    // Start in NTSC mode for now until we can have it configurable on app entry.
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
+   nesSetSystemMode(MODE_NTSC);
 
    // Start with all sound channels enabled...
    ui->actionSquare_1->setChecked(true);
@@ -264,31 +273,38 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->actionNoise->setChecked(true);
    ui->actionDelta_Modulation->setChecked(true);
    ui->actionMute_All->setChecked(false);
-   nesSetSystemMode(MODE_NTSC);
 
-   this->ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
 
-   QStringList sl_raw = QApplication::arguments();
-   QStringList sl_nes = sl_raw.filter ( ".nes", Qt::CaseInsensitive );
+   QStringList argv = QApplication::arguments();
+   QStringList argv_nes = argv.filter ( QRegExp("*.nes",Qt::CaseInsensitive,QRegExp::Wildcard) );
+   QStringList argv_nesproject = argv.filter ( QRegExp("*.nesproject",Qt::CaseInsensitive,QRegExp::Wildcard) );
 
-   if ( sl_nes.count() >= 1 )
+   if ( (argv_nes.count() >= 1) && 
+        (argv_nesproject.count() >= 1) )
    {
-      output->showGeneralPane();
+      QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .nes and a .nesproject file to open.\n" );
+   }
+   
+   if ( argv_nes.count() >= 1 )
+   {
+      openROM(argv_nes.at(0));
 
-      emulator->pauseEmulation(false);
-
-      nesicideProject->createProjectFromRom(sl_nes.at(0));
-      ui->actionEmulation_Window->setChecked(true);
-      on_actionEmulation_Window_toggled(true);
-      projectDataChangesEvent();
-
-      emulator->resetEmulator();
-      emulator->startEmulation();
-
-      if ( sl_nes.count() > 1 )
+      if ( argv_nes.count() > 1 )
       {
          QMessageBox::information ( 0, "Command Line Error", "Too many NES ROM files were specified on the command\n"
                                     "line.  Only the first NES ROM was opened, all others\n"
+                                    "were ignored." );
+      }
+   }
+   else if ( argv_nesproject.count() >= 1 )
+   {
+      openProject(argv_nesproject.at(0));
+
+      if ( argv_nesproject.count() > 1 )
+      {
+         QMessageBox::information ( 0, "Command Line Error", "Too many NESICIDE project files were specified on the command\n"
+                                    "line.  Only the first NESICIDE project was opened, all others\n"
                                     "were ignored." );
       }
    }
@@ -306,6 +322,31 @@ MainWindow::~MainWindow()
    delete pluginManager;
    delete ui;
    delete projectTreeviewModel;
+   
+   delete m_pBreakpointInspector;
+   delete m_pGfxCHRMemoryInspector;
+   delete m_pGfxOAMMemoryInspector;
+   delete m_pGfxNameTableMemoryInspector;
+   delete m_pExecutionInspector;
+   delete m_pExecutionVisualizer;
+   delete m_pCodeInspector;
+   delete m_pCodeDataLoggerInspector;
+   delete m_pBinCPURegisterInspector;
+   delete m_pBinCPURAMInspector;
+   delete m_pBinROMInspector;
+   delete m_pBinNameTableMemoryInspector;
+   delete m_pBinPPURegisterInspector;
+   delete m_pPPUInformationInspector;
+   delete m_pBinAPURegisterInspector;
+   delete m_pAPUInformationInspector;
+   delete m_pBinCHRMemoryInspector;
+   delete m_pBinOAMMemoryInspector;
+   delete m_pBinPaletteMemoryInspector;
+   delete m_pBinSRAMMemoryInspector;
+   delete m_pBinEXRAMMemoryInspector; 
+   delete m_pMapperInformationInspector;
+   delete m_pBinMapperMemoryInspector;
+   delete m_pSourceNavigator;
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -324,40 +365,72 @@ void MainWindow::changeEvent(QEvent* e)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
-   event->acceptProposedAction();
+   QList<QUrl> fileUrls;
+   QString     fileName;
+      
+   if ( event->mimeData()->hasUrls() )
+   {
+      fileUrls = event->mimeData()->urls();
+      
+      fileName = fileUrls.at(0).toLocalFile();
+      
+      if ( ((!fileName.contains(".nesproject",Qt::CaseInsensitive)) && (fileName.contains(".nes",Qt::CaseInsensitive))) ||
+           (fileName.contains(".nesproject",Qt::CaseInsensitive)) )
+      {   
+         event->acceptProposedAction();
+      }
+   }
 }
 
 void MainWindow::dragMoveEvent(QDragMoveEvent* event)
 {
-   event->acceptProposedAction();
+   QList<QUrl> fileUrls;
+   QString     fileName;
+      
+   if ( event->mimeData()->hasUrls() )
+   {
+      fileUrls = event->mimeData()->urls();
+      
+      fileName = fileUrls.at(0).toLocalFile();
+      
+      if ( ((!fileName.contains(".nesproject",Qt::CaseInsensitive)) && (fileName.contains(".nes",Qt::CaseInsensitive))) ||
+           (fileName.contains(".nesproject",Qt::CaseInsensitive)) )
+      {   
+         event->acceptProposedAction();
+      }
+   }
 }
 
 void MainWindow::dropEvent(QDropEvent* event)
 {
-   QStringList sl = event->mimeData()->formats();
-   QByteArray ba = event->mimeData()->data(sl.at(6));
-
-   output->showGeneralPane();
-
-   emulator->pauseEmulation(false);
-
-   // Remove any lingering project content
-   ui->projectTreeWidget->setModel(NULL);
-   nesicideProject->terminateProject();
+   QList<QUrl> fileUrls;
+   QString     fileName;
    
-   // Create new project from ROM
-   nesicideProject->createProjectFromRom(QString(ba));
-
-   ui->projectTreeWidget->setModel(projectTreeviewModel);
-   
-   ui->actionEmulation_Window->setChecked(true);
-   on_actionEmulation_Window_toggled(true);
-   projectDataChangesEvent();
-
-   emulator->resetEmulator();
-   emulator->startEmulation();
-
-   event->acceptProposedAction();
+   if ( event->mimeData()->hasUrls() )
+   {
+      output->showGeneralPane();
+            
+      fileUrls = event->mimeData()->urls();
+      
+      fileName = fileUrls.at(0).toLocalFile();
+      
+      if ( fileName.contains(".nesproject",Qt::CaseInsensitive) )
+      {
+         if ( nesicideProject->isInitialized() )
+         {
+            on_action_Close_Project_triggered();
+         }
+         openProject(fileName);
+         
+         event->acceptProposedAction();
+      }
+      else if ( fileName.contains(".nes",Qt::CaseInsensitive) )
+      {   
+         openROM(fileName);
+         
+         event->acceptProposedAction();
+      }
+   }
 }
 
 void MainWindow::projectDataChangesEvent()
@@ -373,34 +446,34 @@ void MainWindow::projectDataChangesEvent()
    ui->actionProject_Properties->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
-   ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionCode_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinCPURAM_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinROM_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinPaletteMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinSRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinEXRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() );
-   ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() );
+   ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionCode_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinCPURAM_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinROM_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinPaletteMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinSRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinEXRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
 
    if (ui->tabWidget->currentIndex() >= 0)
    {
-      IProjectTreeViewItem* projectItem = matchTab(nesicideProject, ui->tabWidget->currentIndex());
+      IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentIndex());
 
       if (projectItem)
       {
@@ -412,31 +485,26 @@ void MainWindow::projectDataChangesEvent()
       }
    }
 
-   // set up emulator if it needs to be...
-   emulator->primeEmulator ();
+   setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
 }
 
 void MainWindow::on_actionSave_Project_triggered()
 {
    if (projectFileName.isEmpty())
    {
-      QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
-                         QString("NESICIDE2 Project (*.nesproject)"));
-
-      if (!fileName.isEmpty())
-      {
-         saveProject(fileName);
-      }
+      projectFileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
+                                                     QString("NESICIDE Project (*.nesproject)"));
    }
-   else
+   
+   if (!projectFileName.isEmpty())
    {
-      saveProject(projectFileName);
+      saveProject();
    }
 }
 
-void MainWindow::saveProject(QString fileName)
+void MainWindow::saveProject()
 {
-   QFile file(fileName);
+   QFile file(projectFileName);
 
    if ( !file.open( QFile::WriteOnly) )
    {
@@ -465,20 +533,18 @@ void MainWindow::saveProject(QString fileName)
 
    // And finally close the file.
    file.close();
-
-   projectFileName = fileName;
 }
 
 void MainWindow::on_actionSave_Project_As_triggered()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   QString fileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
-                      QString("NESICIDE2 Project (*.nesproject)"));
+   projectFileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
+                                                  QString("NESICIDE Project (*.nesproject)"));
 
-   if (!fileName.isEmpty())
+   if (!projectFileName.isEmpty())
    {
-      saveProject(fileName);
+      saveProject();
    }
 }
 
@@ -488,6 +554,8 @@ void MainWindow::on_actionProject_Properties_triggered()
 
    if (dlg->exec() == QDialog::Accepted)
    {
+      emulator->pauseEmulation(false);
+   
       nesicideProject->setProjectTitle(dlg->getProjectName());
       nesicideProject->getProjectPaletteEntries()->clear();
 
@@ -495,6 +563,12 @@ void MainWindow::on_actionProject_Properties_triggered()
       {
          nesicideProject->getProjectPaletteEntries()->append(dlg->currentPalette.at(paletteItemIndex));
       }
+      
+      nesicideProject->getCartridge()->setMapperNumber(dlg->getMapperNumber());
+      nesicideProject->getCartridge()->setMirrorMode(dlg->getMirrorMode());
+      
+      emulator->primeEmulator();
+      emulator->resetEmulator();
 
       projectDataChangesEvent();
 
@@ -502,13 +576,11 @@ void MainWindow::on_actionProject_Properties_triggered()
       {
          CSourceItem* sourceItem = (CSourceItem*)nesicideProject->getProject()->getSources()->child(sourceIndex);
 
-         if (sourceItem->get_sourceName() == dlg->getMainSource())
+         if (sourceItem->name() == dlg->getMainSource())
          {
             nesicideProject->getProject()->setMainSource(sourceItem);
          }
       }
-
-      this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
    }
 
    delete dlg;
@@ -525,11 +597,37 @@ void MainWindow::on_actionNew_Project_triggered()
       nesicideProject->initializeProject();
       ui->projectTreeWidget->setModel(projectTreeviewModel);
       projectDataChangesEvent();
-      this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
-
    }
 
    delete dlg;
+}
+
+void MainWindow::openROM(QString fileName)
+{
+   output->showGeneralPane();
+
+   emulator->pauseEmulation(false);
+   
+   // Remove any lingering project content
+   ui->projectTreeWidget->setModel(NULL);
+   nesicideProject->terminateProject();
+   
+   // Clear output
+   output->clearAllPanes();
+   
+   // Create new project from ROM
+   nesicideProject->createProjectFromRom(fileName);
+
+   ui->projectTreeWidget->setModel(projectTreeviewModel);
+   
+   emulator->primeEmulator();
+   emulator->resetEmulator();
+   emulator->startEmulation();
+   
+   projectDataChangesEvent();
+   
+   ui->actionEmulation_Window->setChecked(true);
+   on_actionEmulation_Window_toggled(true);
 }
 
 void MainWindow::on_actionCreate_Project_from_ROM_triggered()
@@ -541,62 +639,31 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
       return;
    }
 
-   output->showGeneralPane();
-
-   emulator->pauseEmulation(false);
-   
-   // Remove any lingering project content
-   ui->projectTreeWidget->setModel(NULL);
-   nesicideProject->terminateProject();
-   
-   // Create new project from ROM
-   nesicideProject->createProjectFromRom(fileName);
-
-   ui->projectTreeWidget->setModel(projectTreeviewModel);
-   
-   ui->actionEmulation_Window->setChecked(true);
-   on_actionEmulation_Window_toggled(true);
-   projectDataChangesEvent();
-   this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
-
-   emulator->resetEmulator();
-   emulator->startEmulation();
+   openROM(fileName);
 }
 
-IProjectTreeViewItem* MainWindow::matchTab(IProjectTreeViewItem* root, int tabIndex)
+IProjectTreeViewItem* MainWindow::matchTab(int tabIndex)
 {
-   for (int treeviewItemIndex = 0;
-         treeviewItemIndex < ((IProjectTreeViewItem*)root)->childCount(); treeviewItemIndex++)
+   IProjectTreeViewItemIterator iter(nesicideProject);
+   IProjectTreeViewItem*        item = NULL;
+   
+   while ( iter.current() )
    {
-      IProjectTreeViewItem* item = ((IProjectTreeViewItem*)root)->child(treeviewItemIndex);
-
-      if (!item)
+      if ( iter.current()->tabIndex() == tabIndex )
       {
-         continue;
+         item = iter.current();
+         break;
       }
-
-      if (((IProjectTreeViewItem*)item)->getTabIndex() == tabIndex)
-      {
-         return item;
-      }
-
-      if (((IProjectTreeViewItem*)item)->childCount() > 0)
-      {
-         IProjectTreeViewItem* result = matchTab(item, tabIndex);
-
-         if (result)
-         {
-            return result;
-         }
-      }
+      
+      iter.next();
    }
 
-   return (IProjectTreeViewItem*)NULL;
+   return item;
 }
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
-   IProjectTreeViewItem* projectItem = matchTab(nesicideProject, index);
+   IProjectTreeViewItem* projectItem = matchTab(index);
 
    if (projectItem)
    {
@@ -660,10 +727,8 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QWidget::closeEvent(event);
 }
 
-void MainWindow::on_actionOpen_Project_triggered()
+void MainWindow::openProject(QString fileName)
 {
-   QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESICIDE2 Project (*.nesproject)");
-
    if (QFile::exists(fileName))
    {
       QDomDocument doc;
@@ -688,30 +753,39 @@ void MainWindow::on_actionOpen_Project_triggered()
 
       nesicideProject->initializeProject();
       
+      // Clear output
+      output->clearAllPanes();
+   
       // Load new project content
       nesicideProject->deserialize(doc, doc);
 
       ui->projectTreeWidget->setModel(projectTreeviewModel);
 
-      while (ui->tabWidget->currentIndex() >= 0)
-      {
-         ui->tabWidget->removeTab(0);
-      }
-
       projectDataChangesEvent();
       projectFileName = fileName;
-
-      this->setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
    }
+}
+
+void MainWindow::on_actionOpen_Project_triggered()
+{
+   QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESICIDE Project (*.nesproject)");
+   
+   if (fileName.isEmpty())
+   {
+      return;
+   }
+   
+   openProject(fileName);
 }
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-   IProjectTreeViewItem* projectItem = matchTab(nesicideProject, index);
+   IProjectTreeViewItem* projectItem = matchTab(index);
 
    if (projectItem)
    {
-      ui->actionSave_Active_Document->setEnabled(((IProjectTreeViewItem*)projectItem)->isDocumentSaveable());
+      ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
+      m_pSourceNavigator->changeFile(projectItem->caption());
    }
    else
    {
@@ -721,7 +795,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_actionSave_Active_Document_triggered()
 {
-   IProjectTreeViewItem* projectItem = matchTab(nesicideProject, ui->tabWidget->currentIndex());
+   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentIndex());
 
    if (projectItem)
    {
@@ -743,25 +817,25 @@ void MainWindow::on_actionOutput_Window_toggled(bool value)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
+   emulator->pauseEmulation(false);
    compiler->start();
 }
 
-void MainWindow::compileStarted()
+void MainWindow::compiler_compileStarted()
 {
    output->showBuildPane();
    ui->actionCompile_Project->setEnabled(false);
-
-   emulator->pauseEmulation(false);
 }
 
-void MainWindow::compileDone()
+void MainWindow::compiler_compileDone()
 {
    ui->actionCompile_Project->setEnabled(true);
 
-   projectDataChangesEvent();
-
    emulator->primeEmulator();
    emulator->resetEmulator();
+   emulator->startEmulation();
+
+   projectDataChangesEvent();
 }
 
 void MainWindow::on_actionExecution_Inspector_toggled(bool value)
@@ -1015,21 +1089,21 @@ void MainWindow::on_action_Close_Project_triggered()
    // Terminate the project and let the IDE know
    ui->projectTreeWidget->setModel(NULL);
    nesicideProject->terminateProject();
+   
+   emulator->primeEmulator();
+   emulator->resetEmulator();
 
    // Remove any tabs
    ui->tabWidget->clear();
+   
+   // Clear output
+   output->clearAllPanes();
 
    // Close all inspectors
    InspectorRegistry::hideAll();
 
    // Let the UI know what's up
    projectDataChangesEvent();
-   this->setWindowTitle("NESICIDE");
-}
-
-void MainWindow::on_actionEmulation_Window_triggered()
-{
-
 }
 
 void MainWindow::handle_MainWindow_destroyed()
@@ -1156,7 +1230,7 @@ void MainWindow::on_actionPreferences_triggered()
 
    if (dlg->exec() == QDialog::Accepted)
    {
-
+      // Todo...
    }
 
    delete dlg;

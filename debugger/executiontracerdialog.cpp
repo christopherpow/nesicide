@@ -17,8 +17,9 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget* parent) :
    ui->showCPU->setChecked(true);
    ui->showPPU->setChecked(true);
    ui->tableView->setModel(model);
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateTracer()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateTracer()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateTracer()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
 }

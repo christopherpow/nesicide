@@ -114,7 +114,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          if (!sourceName.isEmpty())
          {
             CSourceItem* pSourceItem = new CSourceItem(this);
-            pSourceItem->set_sourceName(sourceName);
+            pSourceItem->setName(sourceName);
             m_sourceItems.append(pSourceItem);
             appendChild(pSourceItem);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
@@ -136,7 +136,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
                fs.readRawData(buffer,fileIn.size());
 
                CSourceItem* pSourceItem = new CSourceItem(this);
-               pSourceItem->set_sourceName(fileName);
+               pSourceItem->setName(fileName);
                pSourceItem->set_sourceCode(buffer);
                m_sourceItems.append(pSourceItem);
                appendChild(pSourceItem);

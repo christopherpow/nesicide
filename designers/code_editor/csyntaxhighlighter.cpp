@@ -1,35 +1,23 @@
 #include "csyntaxhighlighter.h"
 #include "csourceassembler.h"
+
 CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    : QSyntaxHighlighter(parent)
 {
    HighlightingRule rule;
    QStringList keywordPatterns;
-
-   for (int inx = 0; ; inx++)
-   {
-      if (AssemblerInstructionItems[inx].mnemonic.isEmpty())
-      {
-         break;
-      }
-
-      keywordPatterns << ("\\b" + AssemblerInstructionItems[inx].mnemonic + "\\b");
-   }
-
    QStringList preprocessorPatterns;
 
+   // Assembler mnemonics
    for (int inx = 0; ; inx++)
    {
-      if (AssemblerPreprocessorDirectives[inx].isEmpty())
+      if (AssemblerInstructionItems[inx].isEmpty())
       {
          break;
       }
 
-      preprocessorPatterns << ("\\b" + AssemblerPreprocessorDirectives[inx] + "\\b");
-      preprocessorPatterns << ("\\b." + AssemblerPreprocessorDirectives[inx] + "\\b");
+      keywordPatterns << ("\\b" + AssemblerInstructionItems[inx] + "\\b");
    }
-
-   // Keywords (opcodes)
    keywordFormat.setForeground(Qt::blue);
    keywordFormat.setFontWeight(QFont::Bold);
    foreach (const QString &pattern, keywordPatterns)
@@ -47,20 +35,16 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    rule.format = classFormat;
    highlightingRules.append(rule);
 
-   // Hexidecimal Numbers
+   // Hexadecimal Numbers
    classFormat.setFontWeight(QFont::Normal);
    classFormat.setForeground(Qt::darkMagenta);
    rule.pattern = QRegExp("0[xX][0-9a-fA-F]+\\b");
    rule.format = classFormat;
    highlightingRules.append(rule);
-
    rule.pattern = QRegExp("[0-9a-fA-F]+\\h\\b");
    highlightingRules.append(rule);
-
    rule.pattern = QRegExp("\\$[0-9a-fA-F]+\\b");
    highlightingRules.append(rule);
-
-
 
    // Labels
    labelFormat.setForeground(Qt::darkCyan);
@@ -70,6 +54,17 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    highlightingRules.append(rule);
 
    // Preprocessor Commands
+   // Assembler directives
+   for (int inx = 0; ; inx++)
+   {
+      if (AssemblerPreprocessorDirectives[inx].isEmpty())
+      {
+         break;
+      }
+
+      preprocessorPatterns << ("\\b" + AssemblerPreprocessorDirectives[inx] + "\\b");
+      preprocessorPatterns << ("\\b." + AssemblerPreprocessorDirectives[inx] + "\\b");
+   }
    dotPreprocessorFormat.setForeground(Qt::darkYellow);
    foreach (const QString &pattern, preprocessorPatterns)
    {
@@ -81,31 +76,34 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
 
    // Quoted Text
    quotationFormat.setForeground(Qt::darkGreen);
-   rule.pattern = QRegExp("\".*\"");
+   rule.pattern = QRegExp("\".*\"|'.*'");
    rule.format = quotationFormat;
    highlightingRules.append(rule);
 
    // Single Line Comments
+   // This rule has to be last or the other rules will overpaint
    singleLineCommentFormat.setForeground(Qt::gray);
    singleLineCommentFormat.setFontWeight(QFont::Normal);
-   rule.pattern = QRegExp(";.*$");
+   rule.pattern = QRegExp(";.*$|//.*$");
    rule.format = singleLineCommentFormat;
    highlightingRules.append(rule);
-
 }
 
 void CSyntaxHighlighter::highlightBlock(const QString& text)
 {
-   foreach (const HighlightingRule &rule, highlightingRules)
+   if ( (currentBlock().isVisible()) && (!text.isEmpty()) )
    {
-      QRegExp expression(rule.pattern);
-      int index = expression.indexIn(text);
-
-      while (index >= 0)
+      foreach (const HighlightingRule &rule, highlightingRules)
       {
-         int length = expression.matchedLength();
-         setFormat(index, length, rule.format);
-         index = expression.indexIn(text, index + length);
+         QRegExp expression(rule.pattern);
+         int index = expression.indexIn(text);
+   
+         while (index >= 0)
+         {
+            int length = expression.matchedLength();
+            setFormat(index, length, rule.format);
+            index = expression.indexIn(text, index + length);
+         }
       }
    }
 }

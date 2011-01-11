@@ -30,7 +30,6 @@ public:
    virtual void openItemEvent(QTabWidget* tabWidget);
    virtual bool onCloseQuery();
    virtual void onClose();
-   virtual int getTabIndex();
    virtual bool isDocumentSaveable()
    {
       return false;
@@ -45,9 +44,7 @@ public:
       return true;
    };
    
-private:
-   qint8 tabId;
-   
+private:   
    // Attributes
    uint32_t m_bankIndex;
    uint8_t  m_bankData [ MEM_8KB ];

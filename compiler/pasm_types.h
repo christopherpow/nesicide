@@ -123,6 +123,7 @@ extern "C" {
    typedef struct _file_table
    {
       char* name;
+      char* text;
       struct _file_table* next;
    } file_table;
 

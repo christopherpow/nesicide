@@ -36,8 +36,9 @@ rawhex         ([0-9a-fA-F]+)
 whitespace     ([ \t]+)
 linenum        ^"!line"
 filename       ^"!file"
+breadcrumb     ^"!".+"!"[1-9]([0-9]*)"!"
 
-%x FILENAME LINENUM HEX SOURCE NOLABELREF
+%x HEX SOURCE NOLABELREF
 
 %{
 
@@ -124,40 +125,22 @@ text_type* get_next_texttype ( void )
 unsigned char valid_instr ( char* instr );
 
 extern char currentFile [];
-extern file_table* ftab;
-extern file_table* cur_file;
 
 %}
 
 %%
 
-<*>{filename} {
-   BEGIN FILENAME;
-}
+<*>{breadcrumb} {
+   char* ptr;
 
-<FILENAME>[ \t] {
-   // throw away!
-}
-
-<FILENAME>[^ \t\r\n]+ {
-   add_file ( asmtext );
-   // current file is always at the head...
-   cur_file = ftab;
-   strcpy ( currentFile, ftab->name );
-}
-
-<*>{linenum} {
-   BEGIN LINENUM;
-}
-
-<LINENUM>[^\r\n]+ {
-   recovered_linenum = strtoul ( asmtext, NULL, 10 );
-}
-
-<FILENAME,LINENUM>\r\n |
-<FILENAME,LINENUM>\n\r |
-<FILENAME,LINENUM>\n {
-   BEGIN INITIAL;
+   // Recover the file name from the breadcrumb...
+   strcpy ( currentFile, asmtext+1 ); // Skip the first !
+   ptr = strchr(currentFile,'!');
+   (*ptr) = '\0';                     // Remove the trailing !
+   
+   // Recover the line number from the breadcrumb...
+   ptr = strchr(asmtext+1,'!')+1;     // Get to the second !
+   recovered_linenum = strtoul ( ptr, NULL, 10 );
 }
 
 <INITIAL>{identifier1} {

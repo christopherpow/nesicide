@@ -15,7 +15,6 @@ public:
 
    QByteArray* getBinaryData();
    void setBinaryData(QByteArray* newBinaryData);
-   void setBinaryName(QString newName);
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -30,10 +29,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual int getTabIndex()
-   {
-      return -1;
-   }
    virtual bool isDocumentSaveable()
    {
       return false;
@@ -57,7 +52,6 @@ public:
 private:
    // Attributes
    QByteArray* m_binaryData;
-   QString m_name;
 };
 
 #endif // CBINARYFILE_H

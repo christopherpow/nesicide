@@ -89,6 +89,9 @@
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
+         <property name="maximumBlockCount">
+          <number>0</number>
+         </property>
          <property name="backgroundVisible">
           <bool>false</bool>
          </property>

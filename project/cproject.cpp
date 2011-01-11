@@ -157,7 +157,7 @@ bool CProject::serialize(QDomDocument& doc, QDomNode& node)
 
    if (m_mainSource)
    {
-      projectElement.setAttribute("mainsourceuuid", m_mainSource->getIdent());
+      projectElement.setAttribute("mainsourceuuid", m_mainSource->uuid());
    }
 
    return true;
@@ -230,7 +230,7 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
 
    for (int sourceIdx = 0; sourceIdx < m_pSources->childCount(); sourceIdx++)
    {
-      if (mainSource == (((CSourceItem*)m_pSources->child(sourceIdx))->getIdent()))
+      if (mainSource == (((CSourceItem*)m_pSources->child(sourceIdx))->uuid()))
       {
          m_mainSource = ((CSourceItem*)m_pSources->child(sourceIdx));
          break;

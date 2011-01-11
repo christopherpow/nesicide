@@ -29,16 +29,6 @@ void CPRGROMBank::set_pointerToEditorDialog(PRGROMDisplayDialog* pointerToEditor
    m_pointerToEditorDialog = pointerToEditorDialog;
 }
 
-int CPRGROMBank::get_indexOfEditorTab()
-{
-   return m_indexOfEditorTab;
-}
-
-void CPRGROMBank::set_indexOfEditorTab(int indexOfEditorTab)
-{
-   m_indexOfEditorTab = indexOfEditorTab;
-}
-
 bool CPRGROMBank::serialize(QDomDocument& doc, QDomNode& node)
 {
    // Create the root element for the CHR-ROM object
@@ -74,12 +64,12 @@ void CPRGROMBank::openItemEvent(QTabWidget* tabWidget)
    {
       if (m_pointerToEditorDialog->isVisible())
       {
-         tabWidget->setCurrentIndex(m_indexOfEditorTab);
+         tabWidget->setCurrentIndex(m_tabIndex);
       }
       else
       {
-         m_indexOfEditorTab = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
-         tabWidget->setCurrentIndex(m_indexOfEditorTab);
+         m_tabIndex = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
+         tabWidget->setCurrentIndex(m_tabIndex);
       }
 
       return;
@@ -88,10 +78,10 @@ void CPRGROMBank::openItemEvent(QTabWidget* tabWidget)
    {
       m_pointerToEditorDialog = new PRGROMDisplayDialog();
       m_pointerToEditorDialog->setRomData(m_bankData);
-      m_indexOfEditorTab = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
+      m_tabIndex = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
    }
 
-   tabWidget->setCurrentIndex(m_indexOfEditorTab);
+   tabWidget->setCurrentIndex(m_tabIndex);
 }
 
 

@@ -14,17 +14,8 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
+   <property name="margin">
     <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>10</number>
    </property>
    <property name="spacing">
     <number>0</number>

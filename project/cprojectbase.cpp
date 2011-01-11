@@ -4,6 +4,8 @@
 
 CProjectBase::CProjectBase()
 {
+   m_tabIndex = -1;
+   m_name = "";      
 }
 
 IProjectTreeViewItem* findProjectItem(QString uuid)
@@ -14,7 +16,7 @@ IProjectTreeViewItem* findProjectItem(QString uuid)
    {
       IProjectTreeViewItem* pItem = iter.current();
 
-      if ( pItem->getIdent() == uuid )
+      if ( pItem->uuid() == uuid )
       {
          return pItem;
       }

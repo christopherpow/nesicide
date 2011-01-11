@@ -12,7 +12,10 @@
 
 #include <QColor>
 #include <QBrush>
+#include <QRgb>
 
+static char modelStringBuffer [ 2048 ];
+   
 CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType display)
 {
    m_display = display;
@@ -77,8 +80,6 @@ CDebuggerMemoryDisplayModel::~CDebuggerMemoryDisplayModel()
 
 QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) const
 {
-   char data [ 64 ];
-
    if (!index.isValid())
    {
       return QVariant();
@@ -86,12 +87,12 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) c
 
    if (m_display==eMemory_PPUpalette && role == Qt::BackgroundRole)
    {
-      return QBrush(CBasePalette::GetPalette((long)index.internalPointer()));
+      return QBrush(QColor(nesGetPaletteRedComponent((long)index.internalPointer()),nesGetPaletteGreenComponent((long)index.internalPointer()),nesGetPaletteBlueComponent((long)index.internalPointer())));
    }
 
    if (m_display==eMemory_PPUpalette && role == Qt::ForegroundRole)
    {
-      QColor col = CBasePalette::GetPalette((long)index.internalPointer());
+      QColor col = QColor(nesGetPaletteRedComponent((long)index.internalPointer()),nesGetPaletteGreenComponent((long)index.internalPointer()),nesGetPaletteBlueComponent((long)index.internalPointer()));
 
       if ((((double)col.red() +
             (double)col.green() +
@@ -111,11 +112,11 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) c
    }
 
 #if __WORDSIZE == 64
-   sprintf ( data, "%02X", (long)index.internalPointer() );
+   sprintf ( modelStringBuffer, "%02X", (long)index.internalPointer() );
 #else
-   sprintf ( data, "%02X", (int)index.internalPointer() );
+   sprintf ( modelStringBuffer, "%02X", (int)index.internalPointer() );
 #endif
-   return data;
+   return QVariant(modelStringBuffer);
 }
 
 Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex& index) const
@@ -138,8 +139,6 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
       return QVariant();
    }
 
-   char buffer [ 64 ] = { 0, };
-
    if ( orientation == Qt::Horizontal )
    {
       switch ( m_display )
@@ -149,28 +148,28 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
             switch ( section )
             {
                case 0:
-                  sprintf ( buffer, "PC" );
+                  sprintf ( modelStringBuffer, "PC" );
                   break;
                case 1:
-                  sprintf ( buffer, "A" );
+                  sprintf ( modelStringBuffer, "A" );
                   break;
                case 2:
-                  sprintf ( buffer, "X" );
+                  sprintf ( modelStringBuffer, "X" );
                   break;
                case 3:
-                  sprintf ( buffer, "Y" );
+                  sprintf ( modelStringBuffer, "Y" );
                   break;
                case 4:
-                  sprintf ( buffer, "SP" );
+                  sprintf ( modelStringBuffer, "SP" );
                   break;
                case 5:
-                  sprintf ( buffer, "Flags" );
+                  sprintf ( modelStringBuffer, "Flags" );
                   break;
             }
 
             break;
          default:
-            sprintf ( buffer, "x%1X", section );
+            sprintf ( modelStringBuffer, "x%1X", section );
             break;
       }
    }
@@ -179,13 +178,13 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
       switch ( m_display )
       {
          case eMemory_CPUregs:
-            sprintf ( buffer, "CPU" );
+            sprintf ( modelStringBuffer, "CPU" );
             break;
          case eMemory_cartMapper:
 
             if ( m_tblRegisters )
             {
-               sprintf ( buffer, "$%04X", m_tblRegisters[section]->GetAddr());
+               sprintf ( modelStringBuffer, "$%04X", m_tblRegisters[section]->GetAddr());
             }
 
             break;
@@ -196,19 +195,19 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
          case eMemory_cartCHRMEM:
          case eMemory_PPU:
          case eMemory_PPUregs:
-            sprintf ( buffer, "$%04X", m_offset+(section<<4) );
+            sprintf ( modelStringBuffer, "$%04X", m_offset+(section<<4) );
             break;
          case eMemory_PPUoam:
-            sprintf ( buffer, "%d", section );
+            sprintf ( modelStringBuffer, "%d", section );
             break;
          case eMemory_PPUpalette:
          case eMemory_IOregs:
-            sprintf ( buffer, "$%04X", m_offset+(section<<2) );
+            sprintf ( modelStringBuffer, "$%04X", m_offset+(section<<2) );
             break;
       }
    }
 
-   return  QString(buffer);
+   return QVariant(modelStringBuffer);
 }
 
 bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVariant& value, int )

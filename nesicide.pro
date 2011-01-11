@@ -122,6 +122,7 @@ LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS
 INCLUDEPATH += common \
     compiler \
     debugger \
+    designers/attribute_table_editor \
     designers/cartridge_editor \
     designers/code_editor \
     designers/new_project \
@@ -236,7 +237,10 @@ SOURCES += mainwindow.cpp \
     compiler/compilerthread.cpp \
     emulatorprefsdialog.cpp \
     qkeymapitemedit.cpp \
-    project/cprojectbase.cpp
+    project/cprojectbase.cpp \
+    designers/attribute_table_editor/attributetableeditorform.cpp \
+    project/cattributetable.cpp \
+    common/sourcenavigator.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -342,7 +346,10 @@ HEADERS += mainwindow.h \
     compiler/compilerthread.h \
     emulatorprefsdialog.h \
     qkeymapitemedit.h \
-    project/cprojectbase.h
+    project/cprojectbase.h \
+    designers/attribute_table_editor/attributetableeditorform.h \
+    project/cattributetable.h \
+    common/sourcenavigator.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -369,6 +376,8 @@ FORMS += mainwindow.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
     outputdialog.ui \
-    emulatorprefsdialog.ui
+    emulatorprefsdialog.ui \
+    designers/attribute_table_editor/attributetableeditorform.ui \
+    common/sourcenavigator.ui
 
 RESOURCES += resource.qrc

@@ -60,6 +60,9 @@
         </property>
         <item row="0" column="0">
          <widget class="QWebView" name="webView">
+          <property name="acceptDrops">
+           <bool>false</bool>
+          </property>
           <property name="url">
            <url>
             <string>about:blank</string>
@@ -235,7 +238,6 @@
    <addaction name="actionSave_Project"/>
    <addaction name="separator"/>
    <addaction name="actionProject_Properties"/>
-   <addaction name="actionEmulation_Window"/>
   </widget>
   <widget class="QDockWidget" name="projectBrowserDockWidget">
    <property name="floating">
@@ -287,6 +289,12 @@
    </widget>
   </widget>
   <widget class="QToolBar" name="compilerToolbar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowTitle">
     <string>Compiler Tools</string>
    </property>
@@ -297,7 +305,20 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionCompile_Project"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QToolBar" name="toolToolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
    <addaction name="actionOutput_Window"/>
+   <addaction name="actionEmulation_Window"/>
   </widget>
   <action name="actionE_xit">
    <property name="icon">

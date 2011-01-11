@@ -41,10 +41,10 @@ bool CSourceAssembler::assemble()
       return false;
    }
 
-   buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->get_sourceName() + "'...");
+   buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->name() + "'...");
 
-   pasm_assemble ( rootSource->get_sourceName().toLatin1().data(),
-                   rootSource->get_sourceCode().toLatin1().data(),
+   pasm_assemble ( rootSource->name().toAscii().data(),
+                   rootSource->get_sourceCode().toAscii().data(),
                    &romData,
                    &romLength,
                    PASM_include );
@@ -64,19 +64,6 @@ bool CSourceAssembler::assemble()
    else
    {
       buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with no errors...<br />");
-      /*
-      numSymbols = pasm_get_num_symbols();
-      strBuffer.sprintf("<b>Symbol Table (%d symbols defined)</b>", numSymbols);
-      buildTextLogger.write(strBuffer);
-      for ( symbol = 0; symbol < numSymbols; symbol++ )
-      {
-         strBuffer.sprintf("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$%04X at line %d",
-                           (pasm_get_symbol_type(symbol)==symbol_global)?"GLOBAL":"LABEL",
-                           pasm_get_symbol(symbol),
-                           pasm_get_symbol_value(symbol),
-                           pasm_get_symbol_linenum(symbol));
-         buildTextLogger.write(strBuffer);
-      }*/
 
       int oldBanks = prgRomBanks->getPrgRomBanks().count();
       int bankIdx = 0;

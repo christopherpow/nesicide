@@ -46,12 +46,12 @@ void CCHRROMBank::openItemEvent(QTabWidget* tabWidget)
    {
       if (editor->isVisible())
       {
-         tabWidget->setCurrentIndex(tabId);
+         tabWidget->setCurrentIndex(m_tabIndex);
       }
       else
       {
-         tabId = tabWidget->addTab(editor, this->caption());
-         tabWidget->setCurrentIndex(tabId);
+         m_tabIndex = tabWidget->addTab(editor, this->caption());
+         tabWidget->setCurrentIndex(m_tabIndex);
       }
 
       return;
@@ -59,11 +59,11 @@ void CCHRROMBank::openItemEvent(QTabWidget* tabWidget)
    else
    {
       editor = new CHRROMDisplayDialog(0, false, (qint8*)m_bankData);
-      tabId = tabWidget->addTab(editor, this->caption());
+      m_tabIndex = tabWidget->addTab(editor, this->caption());
    }
 
 
-   tabWidget->setCurrentIndex(tabId);
+   tabWidget->setCurrentIndex(m_tabIndex);
    editor->updateScrollbars();
 
 }
@@ -79,13 +79,8 @@ void CCHRROMBank::onClose()
    {
       delete editor;
       editor = (CHRROMDisplayDialog*)NULL;
-      tabId = -1;
+      m_tabIndex = -1;
    }
-}
-
-int CCHRROMBank::getTabIndex()
-{
-   return tabId;
 }
 
 void CCHRROMBank::onSaveDocument()

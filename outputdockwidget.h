@@ -30,6 +30,10 @@ public slots:
       dialog->setCurrentOutputTab(2);
       this->show();
    }
+   void clearAllPanes()
+   {
+      dialog->clearAllTabs();
+   }
 
 protected:
    OutputDialog* dialog;

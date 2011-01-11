@@ -13,10 +13,7 @@ public:
    CGraphicsBank(IProjectTreeViewItem* parent);
    virtual ~CGraphicsBank();
 
-   QString getBankName();
-   void setBankName(QString newName);
-
-   QList<IChrRomBankItem*>bankItems;
+   QList<IChrRomBankItem*>& getGraphics() { return m_bankItems; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -28,7 +25,6 @@ public:
    virtual void openItemEvent(QTabWidget* tabWidget);
    virtual bool onCloseQuery();
    virtual void onClose();
-   virtual int getTabIndex();
    virtual void onSaveDocument();
    virtual bool onNameChanged(QString newName);
    virtual bool canChangeName()
@@ -41,12 +37,9 @@ public:
    }
 
 private:
-   bool m_isModified;
-   int m_tabIndex;
-   
    // Attributes
-   QString m_name;
-   
+   QList<IChrRomBankItem*> m_bankItems;
+
    // Designer
    GraphicsBankEditorForm* m_editor;
 };

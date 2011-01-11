@@ -237,6 +237,11 @@ int mapperIndexFromID ( int32_t id )
    return i;
 }
 
+int mapperIDFromIndex ( int32_t index )
+{
+   return mapper[index].id;
+}
+
 const char* mapperNameFromID ( int32_t id )
 {
    int32_t i = 0;

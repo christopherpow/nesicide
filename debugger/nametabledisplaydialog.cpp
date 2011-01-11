@@ -17,7 +17,10 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget* parent) :
 
    CPPUDBG::NameTableInspectorTV((int8_t*)imgData);
 
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
    renderer = new CNameTablePreviewRenderer(ui->frame,imgData);

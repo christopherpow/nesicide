@@ -9,7 +9,7 @@ class CCartridgeBuilder
 {
 public:
    CCartridgeBuilder();
-   void build();
+   bool build();
 private:
 };
 

@@ -14,12 +14,11 @@ public:
    virtual ~CSourceItem();
 
    // Member Getters
-   QString get_sourceName();
    QString get_sourceCode();
+   CodeEditorForm* getEditor() { return m_codeEditorForm; }
 
    // Member Setters
    void set_sourceCode(QString sourceCode);
-   void set_sourceName(QString sourceName);
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -31,17 +30,13 @@ public:
    virtual void openItemEvent(QTabWidget* parent);
    virtual bool onCloseQuery();
    virtual void onClose();
-   virtual int getTabIndex();
    virtual bool isDocumentSaveable();
    virtual void onSaveDocument();
    virtual bool canChangeName();
    virtual bool onNameChanged(QString newName);
 
 private:
-   int m_indexOfTab;
-
    // Attributes
-   QString m_name;
    QString m_sourceCode;
    
    // Designer

@@ -9,8 +9,6 @@ CSourceItem::CSourceItem(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
    
    // Allocate attributes
-   m_indexOfTab = -1;
-   m_name = "";
    m_codeEditorForm = (CodeEditorForm*)NULL;
 }
 
@@ -42,16 +40,11 @@ void CSourceItem::set_sourceCode(QString sourceCode)
    }
 }
 
-int CSourceItem::getTabIndex()
-{
-   return m_indexOfTab;
-}
-
 bool CSourceItem::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "source" );
    element.setAttribute("name", m_name);
-   element.setAttribute("uuid", getIdent());
+   element.setAttribute("uuid", uuid());
    QDomCDATASection dataSect = doc.createCDATASection(get_sourceCode());
    element.appendChild(dataSect);
    return true;
@@ -78,7 +71,7 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode& node)
 
    m_name = element.attribute("name");
 
-   setIdent(element.attribute("uuid"));
+   setUuid(element.attribute("uuid"));
 
    QDomCDATASection cdata = element.firstChild().toCDATASection();
 
@@ -107,7 +100,7 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == "&Delete")
       {
-         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + get_sourceName(),
+         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + name(),
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
          {
             return;
@@ -121,7 +114,7 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          if (this->m_codeEditorForm)
          {
             QTabWidget* tabWidget = (QTabWidget*)this->m_codeEditorForm->parentWidget()->parentWidget();
-            tabWidget->removeTab(m_indexOfTab);
+            tabWidget->removeTab(m_tabIndex);
          }
 
          // TODO: Fix this logic so the memory doesn't get lost.
@@ -138,12 +131,12 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    {
       if (m_codeEditorForm->isVisible())
       {
-         tabWidget->setCurrentIndex(m_indexOfTab);
+         tabWidget->setCurrentIndex(m_tabIndex);
       }
       else
       {
-         m_indexOfTab = tabWidget->addTab(m_codeEditorForm, this->caption());
-         tabWidget->setCurrentIndex(m_indexOfTab);
+         m_tabIndex = tabWidget->addTab(m_codeEditorForm, this->caption());
+         tabWidget->setCurrentIndex(m_tabIndex);
       }
 
       return;
@@ -152,20 +145,10 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    {
       m_codeEditorForm = new CodeEditorForm();
       m_codeEditorForm->set_sourceCode(m_sourceCode);
-      m_indexOfTab = tabWidget->addTab(m_codeEditorForm, this->caption());
+      m_tabIndex = tabWidget->addTab(m_codeEditorForm, this->caption());
    }
 
-   tabWidget->setCurrentIndex(m_indexOfTab);
-}
-
-QString CSourceItem::get_sourceName()
-{
-   return m_name;
-}
-
-void CSourceItem::set_sourceName(QString sourceName)
-{
-   m_name = sourceName;
+   tabWidget->setCurrentIndex(m_tabIndex);
 }
 
 bool CSourceItem::onCloseQuery()
@@ -190,7 +173,7 @@ void CSourceItem::onClose()
    {
       delete m_codeEditorForm;
       m_codeEditorForm = (CodeEditorForm*)NULL;
-      m_indexOfTab = -1;
+      m_tabIndex = -1;
    }
 }
 
@@ -215,10 +198,10 @@ bool CSourceItem::onNameChanged(QString newName)
    {
       m_name = newName;
 
-      if (m_codeEditorForm && (m_indexOfTab != -1))
+      if (m_codeEditorForm && (m_tabIndex != -1))
       {
          QTabWidget* tabWidget = (QTabWidget*)m_codeEditorForm->parentWidget()->parentWidget();
-         tabWidget->setTabText(m_indexOfTab, newName);
+         tabWidget->setTabText(m_tabIndex, newName);
       }
    }
 

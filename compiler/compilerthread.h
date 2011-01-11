@@ -10,6 +10,8 @@ public:
    CompilerThread ( QObject* parent = 0 );
    virtual ~CompilerThread ();
    void kill();
+   
+   bool assembledOk() { return m_assembledOk; }
 
 signals:
    void compileStep(char* message);
@@ -17,6 +19,7 @@ signals:
 protected:
    virtual void run ();
    bool m_isTerminating;
+   bool m_assembledOk;
 };
 
 #endif // COMPILERTHREAD_H

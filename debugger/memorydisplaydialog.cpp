@@ -19,9 +19,10 @@ MemoryDisplayDialog::MemoryDisplayDialog(QWidget* parent, eMemoryType display) :
    model = new CDebuggerMemoryDisplayModel(this,display);
    ui->tableView->setModel(model);
 
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 }
 

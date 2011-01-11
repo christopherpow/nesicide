@@ -23,6 +23,7 @@ protected:
    void changeEvent(QEvent* e);
 
 public slots:
+   void updateSource();
    void updateBrowser();
    void updateDisassembly(bool show);
    void breakpointHit();
@@ -38,6 +39,7 @@ private:
    int m_breakpointIndex;
 
 private slots:
+   void on_sourceFiles_currentIndexChanged(int index);
    void on_actionEnable_breakpoint_triggered();
    void on_actionRemove_breakpoint_triggered();
    void on_actionDisable_breakpoint_triggered();

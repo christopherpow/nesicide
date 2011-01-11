@@ -19,10 +19,12 @@ public:
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    void layoutChangedEvent();
+   void setSource(QStringList& source) { m_source = source; }
+   void setSourceFilename(char* fileName) { m_sourceFilename = fileName; }
 
 private:
    QStringList m_source;
-
+   QString     m_sourceFilename;
 };
 
 #endif // CSOURCEBROWSERDISPLAYMODEL_H

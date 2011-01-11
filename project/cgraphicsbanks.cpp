@@ -105,7 +105,7 @@ void CGraphicsBanks::contextMenuEvent(QContextMenuEvent* event, QTreeView* paren
          if (!bankName.isEmpty())
          {
             CGraphicsBank* pGraphicsBank = new CGraphicsBank(this);
-            pGraphicsBank->setBankName(bankName);
+            pGraphicsBank->setName(bankName);
             m_graphicsBanks.append(pGraphicsBank);
             appendChild(pGraphicsBank);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();

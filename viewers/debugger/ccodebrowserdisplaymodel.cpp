@@ -11,6 +11,19 @@
 
 #include <QIcon>
 
+static char modelStringBuffer [ 2048 ];
+
+enum
+{
+   Column_Address = 0,
+   Column_Decoration,
+   Column_Opcode,
+   Column_Operand1,
+   Column_Operand2,
+   Column_Disassembly,
+   Column_Max
+};
+   
 CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject*)
 {
 }
@@ -25,13 +38,11 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    uint32_t addr = (long)index.internalPointer();
    uint32_t absAddr;
    //uint32_t addr = (uint32_t)index.internalPointer();
-   char buffer [ 3 ];
    unsigned char opSize;
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int idx;
-   char tooltipBuffer [ 2048 ];
 
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
@@ -39,25 +50,25 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    {
       if ( addr != 0xFFFFFFFF )
       {
-         if ( index.column() == 4 )
+         if ( index.column() == Column_Disassembly )
          {
-            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,tooltipBuffer);
-            return tooltipBuffer;
+            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
+            return QVariant(modelStringBuffer);
          }
-         else if ( index.column() > 0 )
+         else if ( index.column() > Column_Decoration )
          {
             opSize = OPCODESIZE ( nesGetMemory(addr) );
 
-            if ( opSize > (index.column()-1) )
+            if ( opSize > (index.column()-Column_Opcode) )
             {
-               CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-1),tooltipBuffer);
-               return tooltipBuffer;
+               CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-Column_Opcode),modelStringBuffer);
+               return QVariant(modelStringBuffer);
             }
          }
       }
    }
 
-   if ( (role == Qt::BackgroundRole) && (index.column() == 0) )
+   if ( (role == Qt::BackgroundRole) && (index.column() == Column_Decoration) )
    {
       for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
       {
@@ -77,7 +88,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
       return QVariant();
    }
 
-   if ((role == Qt::DecorationRole) && (index.column() == 0))
+   if ((role == Qt::DecorationRole) && (index.column() == Column_Decoration))
    {
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {
@@ -131,34 +142,38 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
    switch ( index.column() )
    {
-      case 0:
+      case Column_Address:
+         sprintf ( modelStringBuffer, "$%04X", addr );
+         return QVariant(modelStringBuffer);
+         break;
+      case Column_Decoration:
          return QVariant();
          break;
-      case 1:
-         sprintf ( buffer, "%02X", nesGetMemory(addr) );
-         return buffer;
+      case Column_Opcode:
+         sprintf ( modelStringBuffer, "%02X", nesGetMemory(addr) );
+         return QVariant(modelStringBuffer);
          break;
-      case 2:
+      case Column_Operand1:
          opSize = OPCODESIZE ( nesGetMemory(addr) );
 
          if ( 1 < opSize )
          {
-            sprintf ( buffer, "%02X", nesGetMemory(addr+1) );
-            return buffer;
+            sprintf ( modelStringBuffer, "%02X", nesGetMemory(addr+1) );
+            return QVariant(modelStringBuffer);
          }
 
          break;
-      case 3:
+      case Column_Operand2:
          opSize = OPCODESIZE ( nesGetMemory(addr) );
 
          if ( 2 < opSize )
          {
-            sprintf ( buffer, "%02X", nesGetMemory(addr+2) );
-            return buffer;
+            sprintf ( modelStringBuffer, "%02X", nesGetMemory(addr+2) );
+            return QVariant(modelStringBuffer);
          }
 
          break;
-      case 4:
+      case Column_Disassembly:
          return nesGetDisassemblyAtAddress(addr);
          break;
    }
@@ -174,9 +189,6 @@ Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex&) const
 
 QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-   char buffer [ 6 ];
-   int addr;
-
    if (role != Qt::DisplayRole)
    {
       return QVariant();
@@ -186,28 +198,25 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
    {
       switch ( section )
       {
-         case 0:
+         case Column_Address:
+            return "@";
+            break;
+         case Column_Decoration:
             return "!";
             break;
-         case 1:
+         case Column_Opcode:
             return "Op";
             break;
-         case 2:
+         case Column_Operand1:
             return "Lo";
             break;
-         case 3:
+         case Column_Operand2:
             return "Hi";
             break;
-         case 4:
+         case Column_Disassembly:
             return "Disassembly";
             break;
       }
-   }
-   else
-   {
-      addr = nesGetAddressFromSLOC(section);
-      sprintf ( buffer, "$%04X", addr );
-      return buffer;
    }
 
    return  QVariant();
@@ -244,7 +253,7 @@ int CCodeBrowserDisplayModel::columnCount(const QModelIndex& parent) const
       return 0;
    }
 
-   return 5;
+   return Column_Max;
 }
 
 void CCodeBrowserDisplayModel::layoutChangedEvent()

@@ -25,12 +25,12 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
    {
       CSourceItem* sourceItem = (CSourceItem*)nesicideProject->getProject()->getSources()->child(sourceIndex);
-      ui->mainSourceComboBox->addItem(sourceItem->get_sourceName());
+      ui->mainSourceComboBox->addItem(sourceItem->name());
    }
 
    if (nesicideProject->getProject()->getMainSource())
    {
-      setMainSource(nesicideProject->getProject()->getMainSource()->get_sourceName());
+      setMainSource(nesicideProject->getProject()->getMainSource()->name());
    }
    else
    {
@@ -73,6 +73,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    CCartridge* pCartridge = nesicideProject->getCartridge();
    ui->mapperComboBox->setCurrentIndex(mapperIndexFromID(pCartridge->getMapperNumber()));
    ui->romTypeComboBox->setCurrentIndex(0);
+   ui->mirroringComboBox->setCurrentIndex(pCartridge->getMirrorMode());
 
    updateUI();
 }
@@ -331,6 +332,16 @@ QString ProjectPropertiesDialog::getMainSource()
    {
       return ui->mainSourceComboBox->itemText(ui->mainSourceComboBox->currentIndex());
    }
+}
+
+eMirrorMode ProjectPropertiesDialog::getMirrorMode()
+{
+   return (eMirrorMode)ui->mirroringComboBox->currentIndex();
+}
+
+int ProjectPropertiesDialog::getMapperNumber()
+{
+   return mapperIDFromIndex(ui->mapperComboBox->currentIndex());
 }
 
 void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)

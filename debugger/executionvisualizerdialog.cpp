@@ -15,9 +15,11 @@ ExecutionVisualizerDialog::ExecutionVisualizerDialog(QWidget* parent) :
 
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
    renderer = new CExecutionVisualizerRenderer(ui->frame,imgData);
    ui->frame->layout()->addWidget(renderer);

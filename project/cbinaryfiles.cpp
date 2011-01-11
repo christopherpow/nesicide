@@ -116,7 +116,7 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             if (file.open(QFile::ReadOnly))
             {
                pNewBinaryFile->setBinaryData(new QByteArray(file.readAll()));
-               pNewBinaryFile->setBinaryName(QFileInfo(file).fileName());
+               pNewBinaryFile->setName(QFileInfo(file).fileName());
                file.close();
             }
 

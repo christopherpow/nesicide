@@ -110,18 +110,18 @@ void NESEmulatorThread::kill()
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
 
-   breakpointSemaphore.release();
-
    m_isRunning = true;
    m_isPaused = false;
    m_showOnPause = false;
    m_isTerminating = true;
+
+   breakpointSemaphore.release();
 }
 
 void NESEmulatorThread::primeEmulator()
 {
    if ( (nesicideProject) &&
-         (nesicideProject->getCartridge()) )
+        (nesicideProject->getCartridge()) )
    {
       m_pCartridge = nesicideProject->getCartridge();
 
@@ -161,12 +161,11 @@ void NESEmulatorThread::loadCartridge()
    nesLoadROM();
 
    // Set up PPU with iNES header information...
-   if ( (m_pCartridge->getMirrorMode() == GameMirrorMode::NoMirroring) ||
-         (m_pCartridge->getMirrorMode() == GameMirrorMode::HorizontalMirroring) )
+   if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )
    {
       nesSetHorizontalMirroring();
    }
-   else if ( m_pCartridge->getMirrorMode() == GameMirrorMode::VerticalMirroring )
+   else if ( m_pCartridge->getMirrorMode() == VerticalMirroring )
    {
       nesSetVerticalMirroring();
    }

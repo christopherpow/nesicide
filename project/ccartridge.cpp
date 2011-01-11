@@ -6,7 +6,7 @@ CCartridge::CCartridge(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Initialize this node's attributes
-   m_mirrorMode = GameMirrorMode::NoMirroring;
+   m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
 
@@ -31,7 +31,7 @@ CCartridge::~CCartridge()
 void CCartridge::initializeProject()
 {
    // Initialize this node's attributes
-   m_mirrorMode = GameMirrorMode::NoMirroring;
+   m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
    
@@ -46,6 +46,11 @@ void CCartridge::initializeProject()
 
 void CCartridge::terminateProject()
 {
+   // Initialize this node's attributes
+   m_mirrorMode = HorizontalMirroring;
+   m_mapperNumber = 0;
+   m_hasBatteryBackedRam = false;
+   
    // Terminate child nodes
    m_pPrgRomBanks->terminateProject();
    m_pChrRomBanks->terminateProject();
@@ -53,16 +58,6 @@ void CCartridge::terminateProject()
    // Remove child nodes from tree
    removeChild(m_pPrgRomBanks);
    removeChild(m_pChrRomBanks);
-}
-
-CPRGROMBanks* CCartridge::getPrgRomBanks()
-{
-   return m_pPrgRomBanks;
-}
-
-CCHRROMBanks* CCartridge::getChrRomBanks()
-{
-   return m_pChrRomBanks;
 }
 
 bool CCartridge::serialize(QDomDocument& doc, QDomNode& node)
@@ -93,11 +88,10 @@ bool CCartridge::serialize(QDomDocument& doc, QDomNode& node)
 bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node)
 {
    // Read in the DOM element
-   QDomElement cartridgeElement = doc.documentElement();
+   QDomElement cartridgeElement = node.toElement();
 
    setMapperNumber(cartridgeElement.attribute("mapperNumber").toInt());
-   setMirrorMode((GameMirrorMode::eGameMirrorMode)
-                 cartridgeElement.attribute("mirrorMode").toInt());
+   setMirrorMode((eMirrorMode)cartridgeElement.attribute("mirrorMode").toInt());
    setBatteryBackedRam(cartridgeElement.attribute("hasBatteryBackedRam").toInt() == 1);
 
    // Import the PRG-ROM banks
@@ -118,34 +112,4 @@ bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node)
 QString CCartridge::caption() const
 {
    return "Cartridge";
-}
-
-GameMirrorMode::eGameMirrorMode CCartridge::getMirrorMode()
-{
-   return m_mirrorMode;
-}
-
-void CCartridge::setMirrorMode(GameMirrorMode::eGameMirrorMode enumValue)
-{
-   m_mirrorMode = enumValue;
-}
-
-qint8 CCartridge::getMapperNumber()
-{
-   return m_mapperNumber;
-}
-
-void CCartridge::setMapperNumber(qint8 mapperNumber)
-{
-   m_mapperNumber = mapperNumber;
-}
-
-bool CCartridge::isBatteryBackedRam()
-{
-   return m_hasBatteryBackedRam;
-}
-
-void CCartridge::setBatteryBackedRam(bool hasBatteryBackedRam)
-{
-   m_hasBatteryBackedRam = hasBatteryBackedRam;
 }

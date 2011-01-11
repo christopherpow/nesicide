@@ -35,13 +35,13 @@ bool CGraphicsAssembler::assemble()
       }
 
       chrRomBank->clearBankData();
-      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->getBankName() + "':");
+      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->name() + "':");
 
       int dataOffset = 0;
 
-      for (int bankItemIdx = 0; bankItemIdx < curGfxBank->bankItems.count(); bankItemIdx++)
+      for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
       {
-         IChrRomBankItem* bankItem = curGfxBank->bankItems.at(bankItemIdx);
+         IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
          IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
          buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                                ptvi->caption() + "...");

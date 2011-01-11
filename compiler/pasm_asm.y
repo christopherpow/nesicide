@@ -334,9 +334,7 @@ int asmwrap(void);
 char currentFile [ 1024 ];
 
 // Table of processed files...
-file_table* ftab;
-file_table* cur_file = NULL;
-void add_file ( char* filename );
+extern file_table* ftab;
 
 // Intermediate representation pointer-pointers.
 ir_table** ir_head = NULL;
@@ -570,12 +568,9 @@ void dump_expression ( expr_type* expr );
 %start program
 %%
 // A program is a list of statements...
-program: program statement {
-   recovered_linenum++;
-}
-         | statement {
-   recovered_linenum++;
-}
+program: program statement
+         | statement
+         ;
 
 // A statement is either:
 // a) A lable on a line by itself,
@@ -2134,6 +2129,28 @@ void initialize ( void )
    file_table* fptr;
    file_table* fptd;
 
+   if ( ftab )
+   {
+      fptd = NULL;
+      for ( fptr = ftab; fptr != NULL; fptr = fptr->next )
+      {
+         if ( fptd )
+         {
+            free ( fptd->name );
+            free ( fptd->text );
+            free ( fptd );
+         }
+         fptd = fptr;
+      }
+      if ( fptd )
+      {
+         free ( fptd->name );
+         free ( fptd->text );
+         free ( fptd );
+      }
+   }
+   ftab = NULL;
+   
    if ( errorStorage )
    {
       free ( errorStorage );
@@ -2152,27 +2169,6 @@ void initialize ( void )
    recovered_linenum = 0;
 
    org_found = 0;
-
-   if ( ftab )
-   {
-      fptd = NULL;
-      for ( fptr = ftab; fptr != NULL; fptr = fptr->next )
-      {
-         if ( fptd )
-         {
-            free ( fptd->name );
-            free ( fptd );
-         }
-         fptd = fptr;
-      }
-      if ( fptd )
-      {
-         free ( fptd->name );
-         free ( fptd );
-      }
-   }
-   ftab = NULL;
-   cur_file = NULL;
 
    syd = NULL;
    for ( sym = global_stab.head; sym != NULL; sym = sym->next )
@@ -2251,18 +2247,6 @@ void initialize ( void )
    btab_ent = 0;
    btab_ent_prior_to_enum = -1;
    btab_max = 0;
-}
-
-void add_file ( char* filename )
-{
-   file_table* ptr = (file_table*) malloc ( sizeof(file_table) );
-
-   // Add to head to make life easy...
-   ptr->next = ftab;
-   ftab = ptr;
-
-   // Save name...
-   ptr->name = strdup ( filename );
 }
 
 void add_error ( char *s, int lineno )
@@ -3090,6 +3074,7 @@ void output_binary ( char** buffer, int* size )
    (*size) = pos;
 
    //dump_ir_tables ();
+   //dump_symbol_tables();
    //dump_ir_expressions ();
 }
 
@@ -3152,6 +3137,11 @@ void dump_ir_table ( ir_table* head )
    {
       printf ( "%08x %04X %08x [%d]: ", ptr, ptr->addr, ptr->absAddr, ptr->source_linenum );
 
+      if ( ptr->file )
+      {
+         printf ( "'%s': ", ptr->file->name );
+      }
+      
       if ( (ptr->multi == 0) && (ptr->label == 0) && (ptr->string == 0) )
       {
          // only dump out three bytes!
@@ -3225,11 +3215,11 @@ void dump_symbol_table ( symbol_list* list )
          {
             if ( ptr->ir )
             {
-               printf ( "%08x %d: %s value %04X (%08x)\n", ptr, i, ptr->symbol, ptr->ir->addr, ptr->ir );
+               printf ( "%08x %d: %s value %04X [%d] (%08x)\n", ptr, i, ptr->symbol, ptr->ir->addr, ptr->ir->source_linenum, ptr->ir );
             }
             else
             {
-               printf ( "%08x %d: %s value UNKNOWN (%08x)\n", ptr, i, ptr->symbol, ptr->ir );
+               printf ( "%08x %d: %s value UNKNOWN [%d] (%08x)\n", ptr, i, ptr->symbol, ptr->ir->source_linenum, ptr->ir );
             }
          }
       }
@@ -4283,7 +4273,7 @@ ir_table* emit_ir ( void )
          ptr->source_linenum = recovered_linenum;
          ptr->expr = NULL;
          ptr->symtab = NULL;
-         ptr->file = cur_file;
+         ptr->file = find_file(currentFile);
       }
       else
       {

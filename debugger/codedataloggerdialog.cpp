@@ -18,7 +18,10 @@ CodeDataLoggerDialog::CodeDataLoggerDialog(QWidget* parent) :
    memset(ppuImgData,0xFF,256*256*4);
    C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)cpuImgData );
    CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)ppuImgData );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()));
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
    renderer = new CCodeDataLoggerRenderer(ui->frame,cpuImgData);

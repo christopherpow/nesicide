@@ -15,7 +15,10 @@ OAMDisplayDialog::OAMDisplayDialog(QWidget* parent) :
    memset(imgData,0xFF,256*256*4);
 
    CPPUDBG::OAMInspectorTV ( (int8_t*)imgData );
-   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
 
    renderer = new COAMPreviewRenderer(ui->frame,imgData);

@@ -23,10 +23,17 @@ int main(int argc, char **argv)
       exit( 1 );
    }
 
-   strcpy ( currentFile, "main_source" );
-
+   if ( argc == 1 )
+   {
+      strcpy ( currentFile, "stdin" );
+   }
+   else
+   {
+      strcpy ( currentFile, argv[1] );
+   }
+   
    initialize ();
-
+   
    preprocess ( NULL, &buffer, &length );
 
    add_binary_bank ( text_segment, NULL );

@@ -27,6 +27,7 @@
 #include "environmentsettingsdialog.h"
 #include "outputdockwidget.h"
 #include "emulatorprefsdialog.h"
+#include "sourcenavigator.h"
 
 namespace Ui
 {
@@ -51,11 +52,12 @@ protected:
 
 private:
    Ui::MainWindow* ui;
-   void projectDataChangesEvent();
    CProjectTreeViewModel* projectTreeviewModel;
-   IProjectTreeViewItem* matchTab(IProjectTreeViewItem* root, int tabIndex);
+   IProjectTreeViewItem* matchTab(int tabIndex);
    QString projectFileName;
-   void saveProject(QString fileName);
+   void openProject(QString fileName);
+   void openROM(QString fileName);
+   void saveProject();
 
    // Debugger inspector dockables
    ExecutionInspector* m_pExecutionInspector;
@@ -81,14 +83,17 @@ private:
    PPUInformationInspector* m_pPPUInformationInspector;
    APUInformationInspector* m_pAPUInformationInspector;
    MapperInformationInspector* m_pMapperInformationInspector;
+   
+   SourceNavigator* m_pSourceNavigator;
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void projectDataChangesEvent();
    void on_actionPreferences_triggered();
-   void compileStarted();
-   void compileDone();
+   void compiler_compileStarted();
+   void compiler_compileDone();
    void on_actionEnvironment_Settings_triggered();
    void on_actionMute_All_toggled(bool );
    void on_actionSquare_1_toggled(bool );
@@ -99,7 +104,6 @@ private slots:
    void on_actionPAL_triggered();
    void on_actionNTSC_triggered();
    void handle_MainWindow_destroyed();
-   void on_actionEmulation_Window_triggered();
    void on_action_Close_Project_triggered();
    void on_action_About_Nesicide_triggered();
    void on_actionCode_Inspector_toggled(bool );
