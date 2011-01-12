@@ -1,6 +1,7 @@
 #ifndef SOURCENAVIGATOR_H
 #define SOURCENAVIGATOR_H
 
+#include <QTabWidget>
 #include <QWidget>
 
 namespace Ui {
@@ -12,7 +13,7 @@ class SourceNavigator : public QWidget
    Q_OBJECT
 
 public:
-   explicit SourceNavigator(QWidget *parent = 0);
+   explicit SourceNavigator(QTabWidget* pTarget,QWidget *parent = 0);
    ~SourceNavigator();
 
    void changeFile(QString file);
@@ -20,14 +21,15 @@ public:
 private:
    Ui::SourceNavigator *ui;
    void updateSymbolsForFile(int file);
+   QTabWidget* m_pTarget;
     
 signals:
    void fileNavigator_fileChanged(QString file);
    void fileNavigator_symbolChanged(QString file, QString symbol, int linenumber);
 
 private slots:
-   void on_symbols_currentIndexChanged(QString file);
-   void on_files_currentIndexChanged(QString symbol);
+   void on_symbols_activated(QString );
+   void on_files_activated(QString );
 
 public slots:
    void compiler_compileDone();

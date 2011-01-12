@@ -34,6 +34,10 @@ public slots:
    {
       dialog->clearAllTabs();
    }
+   void clearBuildPane()
+   {
+      dialog->clearTab(1);
+   }
 
 protected:
    OutputDialog* dialog;

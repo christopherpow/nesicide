@@ -36,7 +36,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
+       <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
        <number>0</number>
@@ -90,16 +90,18 @@
      <string>Project</string>
     </property>
     <addaction name="action_Project_Browser"/>
+    <addaction name="actionProject_Properties"/>
     <addaction name="separator"/>
-    <addaction name="actionEmulation_Window"/>
     <addaction name="actionOutput_Window"/>
     <addaction name="separator"/>
-    <addaction name="actionProject_Properties"/>
+    <addaction name="actionEmulation_Window"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionOnline_Help"/>
+    <addaction name="separator"/>
     <addaction name="action_About_Nesicide"/>
    </widget>
    <widget class="QMenu" name="menuDebugger">
@@ -237,56 +239,6 @@
    <addaction name="actionOpen_Project"/>
    <addaction name="actionSave_Project"/>
    <addaction name="separator"/>
-   <addaction name="actionProject_Properties"/>
-  </widget>
-  <widget class="QDockWidget" name="projectBrowserDockWidget">
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
-   <property name="windowTitle">
-    <string>Project Browser</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="margin">
-      <number>0</number>
-     </property>
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item row="0" column="0">
-      <widget class="CProjectTreeView" name="projectTreeWidget">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="autoExpandDelay">
-        <number>1</number>
-       </property>
-       <property name="animated">
-        <bool>true</bool>
-       </property>
-       <property name="headerHidden">
-        <bool>true</bool>
-       </property>
-       <attribute name="headerVisible">
-        <bool>false</bool>
-       </attribute>
-      </widget>
-     </item>
-    </layout>
-   </widget>
   </widget>
   <widget class="QToolBar" name="compilerToolbar">
    <property name="sizePolicy">
@@ -317,7 +269,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Project_Browser"/>
+   <addaction name="actionProject_Properties"/>
+   <addaction name="separator"/>
    <addaction name="actionOutput_Window"/>
+   <addaction name="separator"/>
    <addaction name="actionEmulation_Window"/>
   </widget>
   <action name="actionE_xit">
@@ -350,7 +306,7 @@
   <action name="actionOpen_Project">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_document-open.png</normaloff>:/resources/22_document-open.png</iconset>
+     <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
    </property>
    <property name="text">
     <string>Open &amp;Project...</string>
@@ -921,6 +877,11 @@
     <string>Preferences...</string>
    </property>
   </action>
+  <action name="actionOnline_Help">
+   <property name="text">
+    <string>Online Documentation</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -928,11 +889,6 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKit/QWebView</header>
-  </customwidget>
-  <customwidget>
-   <class>CProjectTreeView</class>
-   <extends>QTreeWidget</extends>
-   <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

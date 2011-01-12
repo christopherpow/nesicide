@@ -927,11 +927,22 @@ int ppwrap(void)
       break;
 
       case PARSE_INCLUDES:
+         if ( includenestlevel )
+         {
+         if ( directives_processed == 0 )
+         {
+            pass = INITIAL;
+         }
+         go_around = 0;
+         }
+         else
+         {
          if ( directives_processed == 0 )
          {
             pass = PARSE_EQUATES;
          }
          go_around = 1;
+         }
       break;
 
       case PARSE_EQUATES:

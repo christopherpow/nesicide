@@ -13,7 +13,7 @@ OutputDialog::OutputDialog(QWidget* parent) :
    ui(new Ui::OutputDialog)
 {
    ui->setupUi(this);
-   ui->outputTabWidget->setCurrentIndex(0);
+   ui->outputTabWidget->setCurrentIndex(Output_General);
    generalTextLogger.setTextEditControl(ui->generalOutputTextEdit);
    buildTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
    debugTextLogger.setTextEditControl(ui->debuggerOutputTextEdit);
@@ -38,6 +38,22 @@ void OutputDialog::clearAllTabs()
    debugTextLogger.clear();
 }
 
+void OutputDialog::clearTab(int tab)
+{
+   switch ( tab )
+   {
+      case Output_General:
+         generalTextLogger.clear();
+         break;
+      case Output_Build:
+         buildTextLogger.clear();
+         break;
+      case Output_Debug:
+         debugTextLogger.clear();
+         break;
+   }
+}
+
 void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )
 {
    QMenu menu;
@@ -53,13 +69,13 @@ void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )
    {
       switch ( ui->outputTabWidget->currentIndex() )
       {
-         case 0:
+         case Output_General:
             generalTextLogger.clear();
             break;
-         case 1:
+         case Output_Build:
             buildTextLogger.clear();
             break;
-         case 2:
+         case Output_Debug:
             debugTextLogger.clear();
             break;
       }
@@ -76,13 +92,13 @@ void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )
 
       switch ( ui->outputTabWidget->currentIndex() )
       {
-         case 0:
+         case Output_General:
             generalTextLogger.clear();
             break;
-         case 1:
+         case Output_Build:
             buildTextLogger.clear();
             break;
-         case 2:
+         case Output_Debug:
             debugTextLogger.clear();
             break;
       }

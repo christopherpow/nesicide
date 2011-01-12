@@ -136,5 +136,4 @@ int CProjectTreeViewModel::columnCount(const QModelIndex& parent) const
 void CProjectTreeViewModel::layoutChangedEvent()
 {
    this->layoutChanged();
-
 }

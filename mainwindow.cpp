@@ -10,6 +10,7 @@
 #include <QMessageBox>
 
 OutputDockWidget* output = NULL;
+ProjectBrowserDockWidget* projectBrowser = NULL;
 
 MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
@@ -29,15 +30,18 @@ MainWindow::MainWindow(QWidget* parent) :
    
    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
 
-   m_pSourceNavigator = new SourceNavigator();
+   m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
 
-   projectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
-   ui->projectTreeWidget->setTarget(ui->tabWidget);
-   ui->projectTreeWidget->setModel(projectTreeviewModel);
-   QObject::connect(m_pSourceNavigator,SIGNAL(fileNavigator_fileChanged(QString)),ui->projectTreeWidget,SLOT(fileNavigator_fileChanged(QString)));
-   QObject::connect(m_pSourceNavigator,SIGNAL(fileNavigator_symbolChanged(QString,QString,int)),ui->projectTreeWidget,SLOT(fileNavigator_symbolChanged(QString,QString,int)));
-   QObject::connect(ui->projectTreeWidget,SIGNAL(projectTreeView_openItem(QString)),m_pSourceNavigator,SLOT(projectTreeView_openItem(QString)));
+   projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
+   projectBrowser->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+   projectBrowser->setWindowTitle("Project");
+   projectBrowser->setAllowedAreas(Qt::LeftDockWidgetArea);
+   addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
+   projectBrowser->hide();
+   QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
+   InspectorRegistry::addInspector ( "Project", projectBrowser );
+
    projectDataChangesEvent();
    
    output = new OutputDockWidget ();
@@ -45,11 +49,13 @@ MainWindow::MainWindow(QWidget* parent) :
    output->setWindowTitle("Output");
    output->setAllowedAreas(Qt::BottomDockWidgetArea);
    addDockWidget(Qt::BottomDockWidgetArea, output );
+   output->hide();
    QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
    QObject::connect(&generalTextLogger,SIGNAL(updateText()),&generalTextLogger,SLOT(update()));
    QObject::connect(&buildTextLogger,SIGNAL(updateText()),&buildTextLogger,SLOT(update()));
    QObject::connect(&debugTextLogger,SIGNAL(updateText()),&debugTextLogger,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(showDebugPane()),output,SLOT(showDebugPane()));
+   InspectorRegistry::addInspector ( "Output", output );
 
    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
@@ -321,7 +327,6 @@ MainWindow::~MainWindow()
    delete nesicideProject;
    delete pluginManager;
    delete ui;
-   delete projectTreeviewModel;
    
    delete m_pBreakpointInspector;
    delete m_pGfxCHRMemoryInspector;
@@ -433,9 +438,19 @@ void MainWindow::dropEvent(QDropEvent* event)
    }
 }
 
+void MainWindow::hideEvent(QHideEvent *event)
+{
+   InspectorRegistry::saveVisibility();
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+   InspectorRegistry::restoreVisibility();
+}
+
 void MainWindow::projectDataChangesEvent()
 {
-   projectTreeviewModel->layoutChangedEvent();
+   projectBrowser->layoutChangedEvent();
 
    // Enabled/Disable actions based on if we have a project loaded or not
    ui->actionNew_Project->setEnabled(!nesicideProject->isInitialized());
@@ -592,10 +607,10 @@ void MainWindow::on_actionNew_Project_triggered()
 
    if (dlg->exec() == QDialog::Accepted)
    {
-      ui->projectTreeWidget->setModel(NULL);
+      projectBrowser->disableNavigation();
       nesicideProject->setProjectTitle(dlg->getProjectTitle());
       nesicideProject->initializeProject();
-      ui->projectTreeWidget->setModel(projectTreeviewModel);
+      projectBrowser->enableNavigation();
       projectDataChangesEvent();
    }
 
@@ -609,16 +624,18 @@ void MainWindow::openROM(QString fileName)
    emulator->pauseEmulation(false);
    
    // Remove any lingering project content
-   ui->projectTreeWidget->setModel(NULL);
+   projectBrowser->disableNavigation();
    nesicideProject->terminateProject();
    
    // Clear output
    output->clearAllPanes();
-   
+   output->show();
+    
    // Create new project from ROM
    nesicideProject->createProjectFromRom(fileName);
 
-   ui->projectTreeWidget->setModel(projectTreeviewModel);
+   projectBrowser->enableNavigation();
+   projectBrowser->show();
    
    emulator->primeEmulator();
    emulator->resetEmulator();
@@ -686,24 +703,16 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
    }
 }
 
-void MainWindow::on_projectBrowserDockWidget_visibilityChanged(bool visible)
+void MainWindow::on_action_Project_Browser_toggled(bool visible)
 {
-   if (!visible)
+   if ( visible )
    {
-      if (!ui->projectBrowserDockWidget->isVisibleTo(this))
-      {
-         ui->action_Project_Browser->setChecked(false);
-      }
+      projectBrowser->show();
    }
    else
    {
-      ui->action_Project_Browser->setChecked(visible);
+      projectBrowser->hide();
    }
-}
-
-void MainWindow::on_action_Project_Browser_toggled(bool visible)
-{
-   ui->projectBrowserDockWidget->setVisible(visible);
 }
 
 void MainWindow::on_actionEmulation_Window_toggled(bool value)
@@ -749,17 +758,19 @@ void MainWindow::openProject(QString fileName)
 
       file.close();
 
-      ui->projectTreeWidget->setModel(NULL);
+      projectBrowser->disableNavigation();
 
       nesicideProject->initializeProject();
       
       // Clear output
       output->clearAllPanes();
-   
+      output->show();
+
       // Load new project content
       nesicideProject->deserialize(doc, doc);
 
-      ui->projectTreeWidget->setModel(projectTreeviewModel);
+      projectBrowser->enableNavigation();
+      projectBrowser->show();
 
       projectDataChangesEvent();
       projectFileName = fileName;
@@ -791,6 +802,11 @@ void MainWindow::on_tabWidget_currentChanged(int index)
    {
       ui->actionSave_Active_Document->setEnabled(false);
    }
+   
+   if (index != emulatorDlgTabIdx)
+   {
+      emulator->pauseEmulation(false);
+   }
 }
 
 void MainWindow::on_actionSave_Active_Document_triggered()
@@ -814,16 +830,21 @@ void MainWindow::on_actionOutput_Window_toggled(bool value)
    output->setVisible(value);
 }
 
+void MainWindow::reflectedProjectBrowser_close(bool toplevel)
+{
+   ui->action_Project_Browser->setChecked(toplevel);
+}
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
+   output->showBuildPane();
+   output->clearBuildPane();
    emulator->pauseEmulation(false);
    compiler->start();
 }
 
 void MainWindow::compiler_compileStarted()
 {
-   output->showBuildPane();
    ui->actionCompile_Project->setEnabled(false);
 }
 
@@ -1087,7 +1108,9 @@ void MainWindow::on_action_Close_Project_triggered()
    }
 
    // Terminate the project and let the IDE know
-   ui->projectTreeWidget->setModel(NULL);
+   projectBrowser->disableNavigation();
+   projectBrowser->hide();
+   
    nesicideProject->terminateProject();
    
    emulator->primeEmulator();
@@ -1095,9 +1118,12 @@ void MainWindow::on_action_Close_Project_triggered()
 
    // Remove any tabs
    ui->tabWidget->clear();
+   ui->tabWidget->addTab(ui->tab,"Welcome Page");
+   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
    
    // Clear output
    output->clearAllPanes();
+   output->hide();
 
    // Close all inspectors
    InspectorRegistry::hideAll();
@@ -1234,4 +1260,10 @@ void MainWindow::on_actionPreferences_triggered()
    }
 
    delete dlg;
+}
+
+void MainWindow::on_actionOnline_Help_triggered()
+{
+   ui->tabWidget->addTab(ui->tab,"Welcome Page");
+   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));    
 }

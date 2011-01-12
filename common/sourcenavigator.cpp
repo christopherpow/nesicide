@@ -5,42 +5,23 @@
 
 #include "pasm_lib.h"
 
-SourceNavigator::SourceNavigator(QWidget *parent) :
+SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SourceNavigator)
 {
     ui->setupUi(this);
     
+    ui->files->setEnabled(false);
+    ui->symbols->setEnabled(false);
+    
     QObject::connect(compiler,SIGNAL(finished()),this,SLOT(compiler_compileDone()));
+    
+    m_pTarget = pTarget;
 }
 
 SourceNavigator::~SourceNavigator()
 {
     delete ui;
-}
-
-void SourceNavigator::on_files_currentIndexChanged(QString file)
-{
-   if ( (!signalsBlocked()) && (ui->files->currentIndex() >= 0) )
-   {
-      updateSymbolsForFile(ui->files->currentIndex());
-      emit fileNavigator_fileChanged(ui->files->currentText());
-   }
-   else
-   {
-      ui->symbols->clear();
-   }
-}
-
-void SourceNavigator::on_symbols_currentIndexChanged(QString symbol)
-{
-   int linenumber;
-   
-   if ( (!signalsBlocked()) && (ui->symbols->currentIndex() >= 0) )
-   {
-      linenumber = pasm_get_symbol_linenum_by_name(symbol.toAscii().data());
-      emit fileNavigator_symbolChanged(ui->files->currentText(), ui->symbols->currentText(), linenumber-1);
-   }
 }
 
 void SourceNavigator::changeFile(QString fileName)
@@ -97,6 +78,15 @@ void SourceNavigator::compiler_compileDone()
       }
       updateSymbolsForFile(0);      
    }
+   else
+   {
+      ui->files->clear();
+      ui->symbols->clear();
+   }
+   
+   ui->files->setEnabled(compiler->assembledOk());
+   ui->symbols->setEnabled(compiler->assembledOk());
+   
    blockSignals(false);
 }
 
@@ -111,4 +101,45 @@ void SourceNavigator::projectTreeView_openItem(QString item)
    updateSymbolsForFile(file);      
 
    blockSignals(false);
+}
+
+void SourceNavigator::on_files_activated(QString file)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+
+   while ( iter.current() )
+   {
+      pSource = dynamic_cast<CSourceItem*>(iter.current());
+      if ( pSource && 
+           (pSource->caption() == file) )
+      {
+         pSource->openItemEvent(m_pTarget);
+         updateSymbolsForFile(ui->files->currentIndex());
+         emit fileNavigator_fileChanged(ui->files->currentText());
+         break;
+      }
+      iter.next();
+   }
+}
+
+void SourceNavigator::on_symbols_activated(QString symbol)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   int linenumber = pasm_get_symbol_linenum_by_name(symbol.toAscii().data());
+
+   while ( iter.current() )
+   {
+      pSource = dynamic_cast<CSourceItem*>(iter.current());
+      if ( pSource &&
+           (pSource->caption() == ui->files->currentText()) )
+      {
+         pSource->openItemEvent(m_pTarget);
+         pSource->getEditor()->selectLine(linenumber);
+         emit fileNavigator_symbolChanged(ui->symbols->currentText(),ui->symbols->currentText(),linenumber);
+         break;
+      }
+      iter.next();
+   }
 }

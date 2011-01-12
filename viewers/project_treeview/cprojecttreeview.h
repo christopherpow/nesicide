@@ -1,11 +1,12 @@
 #ifndef CPROJECTTREEVIEW_H
 #define CPROJECTTREEVIEW_H
 
+#include <QTabWidget>
 #include <QTreeView>
 #include <QContextMenuEvent>
 
 #include "cprojecttreeviewmodel.h"
-#include "main.h"
+//#include "main.h"
 
 class CProjectTreeView : public QTreeView
 {
@@ -13,9 +14,9 @@ class CProjectTreeView : public QTreeView
 public:
    CProjectTreeView(QWidget* parent = 0);
    void setTarget(QTabWidget* pTarget) { m_pTarget = pTarget; }
-   QTabWidget* m_pTarget;
 private:
-   CProjectTreeViewModel* treeViewModel;
+   CProjectTreeViewModel* m_pTreeViewModel;
+   QTabWidget* m_pTarget;
 protected:
    virtual void contextMenuEvent(QContextMenuEvent* event);
    virtual void mouseDoubleClickEvent (QMouseEvent* event);
@@ -23,10 +24,6 @@ protected:
 
 signals:
    void projectTreeView_openItem(QString item);
-   
-public slots:
-   void fileNavigator_fileChanged(QString file);
-   void fileNavigator_symbolChanged(QString file, QString symbol, int linenumber);
 };
 
 #endif // CPROJECTTREEVIEW_H

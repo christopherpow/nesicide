@@ -240,7 +240,8 @@ SOURCES += mainwindow.cpp \
     project/cprojectbase.cpp \
     designers/attribute_table_editor/attributetableeditorform.cpp \
     project/cattributetable.cpp \
-    common/sourcenavigator.cpp
+    common/sourcenavigator.cpp \
+    projectbrowserdockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -349,7 +350,8 @@ HEADERS += mainwindow.h \
     project/cprojectbase.h \
     designers/attribute_table_editor/attributetableeditorform.h \
     project/cattributetable.h \
-    common/sourcenavigator.h
+    common/sourcenavigator.h \
+    projectbrowserdockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -378,6 +380,7 @@ FORMS += mainwindow.ui \
     outputdialog.ui \
     emulatorprefsdialog.ui \
     designers/attribute_table_editor/attributetableeditorform.ui \
-    common/sourcenavigator.ui
+    common/sourcenavigator.ui \
+    projectbrowserdockwidget.ui
 
 RESOURCES += resource.qrc

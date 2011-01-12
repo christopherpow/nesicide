@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include "cnesicideproject.h"
-#include "cprojecttreeviewmodel.h"
+#include "projectbrowserdockwidget.h"
 #include "projectpropertiesdialog.h"
 #include "newprojectdialog.h"
 #include "nesemulatordialog.h"
@@ -49,10 +49,11 @@ protected:
    void dragEnterEvent ( QDragEnterEvent* event );
    void dragMoveEvent ( QDragMoveEvent* event );
    void dropEvent ( QDropEvent* event );
+   void hideEvent(QHideEvent* event);
+   void showEvent(QShowEvent* event);
 
 private:
    Ui::MainWindow* ui;
-   CProjectTreeViewModel* projectTreeviewModel;
    IProjectTreeViewItem* matchTab(int tabIndex);
    QString projectFileName;
    void openProject(QString fileName);
@@ -90,6 +91,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void on_actionOnline_Help_triggered();
    void projectDataChangesEvent();
    void on_actionPreferences_triggered();
    void compiler_compileStarted();
@@ -153,6 +155,7 @@ private slots:
    void reflectedAPUInformationInspector_close(bool toplevel);
    void reflectedMapperInformationInspector_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
+   void reflectedProjectBrowser_close(bool toplevel);
    void on_actionCompile_Project_triggered();
    void on_actionOutput_Window_toggled(bool );
    void on_actionSave_Active_Document_triggered();
@@ -160,7 +163,6 @@ private slots:
    void on_actionOpen_Project_triggered();
    void on_actionEmulation_Window_toggled(bool );
    void on_action_Project_Browser_toggled(bool );
-   void on_projectBrowserDockWidget_visibilityChanged(bool visible);
    void on_tabWidget_tabCloseRequested(int index);
    void on_actionCreate_Project_from_ROM_triggered();
    void on_actionNew_Project_triggered();

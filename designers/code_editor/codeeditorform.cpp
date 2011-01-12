@@ -43,7 +43,7 @@ void CodeEditorForm::selectLine(int linenumber)
 {
    QTextCursor textCursor = ui->textEdit->textCursor();
    textCursor.movePosition(QTextCursor::Start);
-   textCursor.movePosition(QTextCursor::Down,QTextCursor::MoveAnchor,linenumber);
+   textCursor.movePosition(QTextCursor::Down,QTextCursor::MoveAnchor,linenumber-1);
    textCursor.select(QTextCursor::LineUnderCursor);
    ui->textEdit->setTextCursor(textCursor);
 }
