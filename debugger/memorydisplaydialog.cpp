@@ -18,12 +18,17 @@ MemoryDisplayDialog::MemoryDisplayDialog(QWidget* parent, eMemoryType display) :
    ui->setupUi(this);
    model = new CDebuggerMemoryDisplayModel(this,display);
    ui->tableView->setModel(model);
-
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateMemory()) );
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
+   
+   // Connect signals to the UI to have the UI update.
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
+
+   // Connect signals to the models to have the model update.
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), model, SLOT(update()));
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
+   QObject::connect ( this, SIGNAL(showMe(eMemoryType)), model, SLOT(update()) );
 }
 
 MemoryDisplayDialog::~MemoryDisplayDialog()
@@ -34,7 +39,7 @@ MemoryDisplayDialog::~MemoryDisplayDialog()
 
 void MemoryDisplayDialog::showEvent(QShowEvent* e)
 {
-   QDialog::showEvent(e);
+   ui->tableView->resizeColumnsToContents();
    updateMemory();
 }
 
@@ -74,11 +79,6 @@ void MemoryDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-void MemoryDisplayDialog::cartridgeLoaded ()
-{
-   model->layoutChangedEvent();
-}
-
 void MemoryDisplayDialog::updateMemory ()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -87,13 +87,6 @@ void MemoryDisplayDialog::updateMemory ()
    int row = 0, col = 0;
    int low = 0, high = 0;
    int itemActual;
-
-   // Only update the UI if the inspector is visible...
-   if ( isVisible() )
-   {
-      model->layoutChangedEvent();
-      ui->tableView->resizeColumnsToContents();
-   }
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
@@ -133,6 +126,7 @@ void MemoryDisplayDialog::updateMemory ()
 
                   // Update display...
                   emit showMe(memoryType);
+                  ui->tableView->resizeColumnsToContents();
                   ui->tableView->setCurrentIndex(model->index(row,col));
                }
             }

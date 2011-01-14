@@ -23,7 +23,6 @@ protected:
    void changeEvent(QEvent* e);
 
 public slots:
-   void updateSource();
    void updateBrowser();
    void updateDisassembly(bool show);
    void breakpointHit();

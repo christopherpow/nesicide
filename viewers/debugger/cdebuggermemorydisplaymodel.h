@@ -22,7 +22,6 @@ public:
                      const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
-   void layoutChangedEvent();
    eMemoryType memoryType() const
    {
       return m_display;
@@ -35,6 +34,10 @@ public:
    {
       return m_offset+m_length-1;
    }
+   
+public slots:
+   void update(void);
+
 private:
    eMemoryType m_display;
    int m_offset;

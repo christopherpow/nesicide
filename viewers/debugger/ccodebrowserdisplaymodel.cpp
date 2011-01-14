@@ -99,7 +99,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
                ((uint32_t)pBreakpoint->item1 <= addr) &&
                ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502DBG::__PC() )
+            if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {
                return QIcon(":/resources/22_execution_break.png");
             }
@@ -113,7 +113,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
                    ((uint32_t)pBreakpoint->item1 <= addr) &&
                    ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502DBG::__PC() )
+            if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {
                return QIcon(":/resources/22_execution_break_disabled.png");
             }
@@ -124,7 +124,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
          }
       }
 
-      if ( addr == C6502DBG::__PC() )
+      if ( addr == nesGetCPUProgramCounterOfLastSync() )
       {
          return QIcon(":/resources/22_execution_pointer.png");
       }
@@ -241,7 +241,7 @@ int CCodeBrowserDisplayModel::rowCount(const QModelIndex&) const
    unsigned int rows;
 
    // Get the source-lines-of-code count from RAM/SRAM/EXRAM/PRG-ROM that is currently visible to the CPU...
-   rows = nesGetSLOC(C6502DBG::__PC());
+   rows = nesGetSLOC(nesGetCPUProgramCounterOfLastSync());
 
    return rows;
 }
@@ -256,7 +256,10 @@ int CCodeBrowserDisplayModel::columnCount(const QModelIndex& parent) const
    return Column_Max;
 }
 
-void CCodeBrowserDisplayModel::layoutChangedEvent()
+void CCodeBrowserDisplayModel::update()
 {
-   this->layoutChanged();
+   // Update display...
+   nesDisassemble();
+
+   emit layoutChanged();
 }

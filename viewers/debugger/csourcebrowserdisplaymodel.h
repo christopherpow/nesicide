@@ -18,9 +18,12 @@ public:
                      const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
-   void layoutChangedEvent();
    void setSource(QStringList& source) { m_source = source; }
    void setSourceFilename(char* fileName) { m_sourceFilename = fileName; }
+   
+public slots:
+   void update(void);
+   void force(void);
 
 private:
    QStringList m_source;

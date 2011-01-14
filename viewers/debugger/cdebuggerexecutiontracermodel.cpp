@@ -155,9 +155,19 @@ int CDebuggerExecutionTracerModel::columnCount(const QModelIndex& parent) const
    return 14;
 }
 
-void CDebuggerExecutionTracerModel::layoutChangedEvent()
+void CDebuggerExecutionTracerModel::update()
 {
-   this->layoutChanged();
+   emit layoutChanged();
+}
+
+void CDebuggerExecutionTracerModel::showCPU ( bool show )
+{
+   m_bShowCPU = show;
+}
+
+void CDebuggerExecutionTracerModel::showPPU ( bool show )
+{
+   m_bShowPPU = show;
 }
 
 void GetPrintable ( TracerInfo* pSample, int subItem, char* str )

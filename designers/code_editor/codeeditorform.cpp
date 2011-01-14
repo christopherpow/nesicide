@@ -50,13 +50,6 @@ void CodeEditorForm::selectLine(int linenumber)
 
 void CodeEditorForm::on_textEdit_textChanged()
 {
-#if 0
-CPTODO fix sourcecode browser so that it shows the execution arrow and breakpoints in the right file
-right now the execution arrow shows up on line 7 for all files if it is currently on line 7 of a file
-but another file is selected.  also need to support absolute addressing of breakpoints so that the breakpoint
-bomb shows up in the right line/file in the source browser.  also need to add breakpoint/execution tracking to
-codeeditor widget.
-#endif
 }
 
 void CodeEditorForm::on_textEdit_selectionChanged()

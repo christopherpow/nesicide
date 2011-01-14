@@ -25,9 +25,10 @@ public:
    void setRegister ( int newRegister )
    {
       m_register = newRegister;
-      layoutChangedEvent();
    }
-   void layoutChangedEvent();
+   
+public slots:
+   void update(void);
 
 private:
    eMemoryType m_display;

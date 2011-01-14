@@ -95,7 +95,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
                ((uint32_t)pBreakpoint->item1 <= addr) &&
                ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502DBG::__PC() )
+            if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {
                return QIcon(":/resources/22_execution_break.png");
             }
@@ -109,7 +109,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
                    ((uint32_t)pBreakpoint->item1 <= addr) &&
                    ((uint32_t)pBreakpoint->item2 >= addr) )
          {
-            if ( addr == C6502DBG::__PC() )
+            if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {
                return QIcon(":/resources/22_execution_break_disabled.png");
             }
@@ -120,7 +120,7 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
          }
       }
 
-      if ( absAddr == nesGetAbsoluteAddressFromAddress(C6502DBG::__PC()) )
+      if ( absAddr == nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()) )
       {
          return QIcon(":/resources/22_execution_pointer.png");
       }
@@ -205,7 +205,19 @@ int CSourceBrowserDisplayModel::columnCount(const QModelIndex& parent) const
    return Column_Max;
 }
 
-void CSourceBrowserDisplayModel::layoutChangedEvent()
+void CSourceBrowserDisplayModel::update()
 {
-   this->layoutChanged();
+   QStringList  source;
+   QString      filetext(pasm_get_source_file_text_by_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync())));
+   
+   source = filetext.split ( QRegExp("[\r\n]") );
+   setSource(source);
+   setSourceFilename(pasm_get_source_file_name_by_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync())));
+
+   emit layoutChanged();
+}
+
+void CSourceBrowserDisplayModel::force()
+{
+   emit layoutChanged();
 }

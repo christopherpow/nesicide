@@ -62,7 +62,6 @@ public:
    }
    CBasePalette()
    {
-      // TODO: Create logical palette to speed things up?
       memcpy ( m_paletteVariants[0], m_paletteBase, sizeof(m_paletteBase) );
       CalculateVariants ();
    };

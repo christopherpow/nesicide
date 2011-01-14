@@ -166,22 +166,22 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex& index, const QV
                switch ( m_register )
                {
                   case CPU_PC:
-                     C6502DBG::__PC(data);
+                     nesSetCPUProgramCounter(data);
                      break;
                   case CPU_A:
-                     C6502DBG::_A(data);
+                     nesSetCPUAccumulator(data);
                      break;
                   case CPU_X:
-                     C6502DBG::_X(data);
+                     nesSetCPUIndexX(data);
                      break;
                   case CPU_Y:
-                     C6502DBG::_Y(data);
+                     nesSetCPUIndexY(data);
                      break;
                   case CPU_SP:
-                     C6502DBG::_SP(data);
+                     nesSetCPUStackPointer(data);
                      break;
                   case CPU_F:
-                     C6502DBG::_F(data);
+                     nesSetCPUFlags(data);
                      break;
                }
 
@@ -235,22 +235,22 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
                switch ( m_register )
                {
                   case CPU_PC:
-                     return createIndex(row, column, (int)C6502DBG::__PC());
+                     return createIndex(row, column, (int)nesGetCPUProgramCounter());
                      break;
                   case CPU_A:
-                     return createIndex(row, column, (int)C6502DBG::_A());
+                     return createIndex(row, column, (int)nesGetCPUAccumulator());
                      break;
                   case CPU_X:
-                     return createIndex(row, column, (int)C6502DBG::_X());
+                     return createIndex(row, column, (int)nesGetCPUIndexX());
                      break;
                   case CPU_Y:
-                     return createIndex(row, column, (int)C6502DBG::_Y());
+                     return createIndex(row, column, (int)nesGetCPUIndexY());
                      break;
                   case CPU_SP:
-                     return createIndex(row, column, (int)0x100|C6502DBG::_SP());
+                     return createIndex(row, column, (int)0x100|nesGetCPUStackPointer());
                      break;
                   case CPU_F:
-                     return createIndex(row, column, (int)C6502DBG::_F());
+                     return createIndex(row, column, (int)nesGetCPUFlags());
                      break;
                }
 
@@ -315,7 +315,7 @@ int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex&) const
    return 0;
 }
 
-void CDebuggerRegisterDisplayModel::layoutChangedEvent()
+void CDebuggerRegisterDisplayModel::update()
 {
    if ( m_display == eMemory_cartMapper )
    {
@@ -323,5 +323,5 @@ void CDebuggerRegisterDisplayModel::layoutChangedEvent()
       m_tblRegisters = nesGetCartridgeRegisterDatabase();
    }
 
-   this->layoutChanged();
+   emit layoutChanged();
 }

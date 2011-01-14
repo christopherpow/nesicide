@@ -12,8 +12,6 @@
 
 char* ideGetVersion();
 
-extern qint8 hex_char[];
-
 extern MainWindow* nesicideWindow;
 
 extern NESEmulatorThread* emulator;

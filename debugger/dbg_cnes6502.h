@@ -83,54 +83,6 @@ public:
    // Accessor methods for manipulating CPU core registers.
    // These routines are used by the debugger, not by the
    // emulator core.
-   static uint32_t __PC ( void )
-   {
-      return nesGetCPUProgramCounter();
-   }
-   static void __PC ( uint16_t pc )
-   {
-      nesSetCPUProgramCounter(pc);
-   }
-   static uint32_t _SP ( void )
-   {
-      return nesGetCPUStackPointer();
-   }
-   static void _SP ( uint8_t sp )
-   {
-      nesSetCPUStackPointer(sp);
-   }
-   static uint32_t _A ( void )
-   {
-      return nesGetCPUAccumulator();
-   }
-   static void _A ( uint8_t a )
-   {
-      nesSetCPUAccumulator(a);
-   }
-   static uint32_t _X ( void )
-   {
-      return nesGetCPUIndexX();
-   }
-   static void _X ( uint8_t x )
-   {
-      nesSetCPUIndexX(x);
-   }
-   static uint32_t _Y ( void )
-   {
-      return nesGetCPUIndexY();
-   }
-   static void _Y ( uint8_t y )
-   {
-      nesSetCPUIndexY(y);
-   }
-   static uint32_t _F ( void )
-   {
-      return nesGetCPUFlags();
-   }
-   static void _F ( uint8_t f )
-   {
-      nesSetCPUFlags(f);
-   }
    static uint32_t _N ( void )
    {
       return nesGetCPUFlagNegative();

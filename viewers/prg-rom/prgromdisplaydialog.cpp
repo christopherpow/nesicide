@@ -30,24 +30,19 @@ void PRGROMDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-unsigned char c2a(unsigned char c)
-{
-   return hex_char [ c ];
-}
-
 void PRGROMDisplayDialog::showEvent(QShowEvent* e)
 {
    if ( m_data )
    {
       QString rt;
+      char    temp[4];
 
       for (int i=0; i<MEM_16KB; i++)
       {
          char l = (m_data[i]>>4)&0x0F;
          char r = m_data[i]&0x0F;
-         QChar c[2] = { c2a(l), c2a(r) };
-         rt += QString(c,2);
-         rt += " ";
+         sprintf(temp,"%01X%01X ",l,r);
+         rt.append(temp);
       }
 
       ui->textBrowser->setText(rt);

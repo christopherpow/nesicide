@@ -456,9 +456,10 @@ void MainWindow::projectDataChangesEvent()
    ui->actionNew_Project->setEnabled(!nesicideProject->isInitialized());
    ui->actionCreate_Project_from_ROM->setEnabled(!nesicideProject->isInitialized());
    ui->actionOpen_Project->setEnabled(!nesicideProject->isInitialized());
+   ui->actionProject_Properties->setEnabled(nesicideProject->isInitialized());
+   ui->action_Project_Browser->setEnabled(nesicideProject->isInitialized());
    ui->action_Close_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionCompile_Project->setEnabled(nesicideProject->isInitialized());
-   ui->actionProject_Properties->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
    ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );

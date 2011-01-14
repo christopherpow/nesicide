@@ -24,7 +24,6 @@ protected:
    void changeEvent(QEvent* e);
 
 public slots:
-   void cartridgeLoaded();
    void updateMemory();
 
 signals:

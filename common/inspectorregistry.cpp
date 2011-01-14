@@ -19,6 +19,26 @@ void InspectorRegistry::addInspector(const QString& name, QDockWidget* inspector
    visibility.insert ( name, visible );
 }
 
+void InspectorRegistry::enable()
+{
+   QHash<QString,QDockWidget*>::const_iterator i;
+
+   for (i = inspectors.begin(); i != inspectors.end(); ++i)
+   {
+      i.value()->setEnabled(true);
+   }
+}
+
+void InspectorRegistry::disable()
+{
+   QHash<QString,QDockWidget*>::const_iterator i;
+
+   for (i = inspectors.begin(); i != inspectors.end(); ++i)
+   {
+      i.value()->setEnabled(false);
+   }
+}
+
 void InspectorRegistry::hideAll()
 {
    QHash<QString,QDockWidget*>::const_iterator i;

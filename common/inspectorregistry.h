@@ -14,6 +14,8 @@ public:
    static void         hideAll();
    static void         saveVisibility();
    static bool         visible(const QString& name);
+   static void         enable();
+   static void         disable();
    static void         restoreVisibility();
 
 private:

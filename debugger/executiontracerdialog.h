@@ -23,7 +23,6 @@ protected:
 
 public slots:
    void updateTracer();
-   void cartridgeLoaded();
 
 signals:
    void showMe();

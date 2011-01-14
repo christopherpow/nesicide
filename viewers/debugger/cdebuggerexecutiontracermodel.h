@@ -18,15 +18,12 @@ public:
                      const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
-   void layoutChangedEvent();
-   void showCPU ( bool show )
-   {
-      m_bShowCPU = show;
-   }
-   void showPPU ( bool show )
-   {
-      m_bShowPPU = show;
-   }
+   void showCPU ( bool show );
+   void showPPU ( bool show );
+   
+public slots:
+   void update();
+
 private:
    CTracer* m_pTracer;
    bool    m_bShowCPU;
