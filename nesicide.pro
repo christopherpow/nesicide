@@ -173,12 +173,8 @@ SOURCES += mainwindow.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
     common/cbuildertextlogger.cpp \
     debugger/chrmeminspector.cpp \
-    debugger/oaminspector.cpp \
-    debugger/oamdisplaydialog.cpp \
     debugger/coampreviewrenderer.cpp \
-    debugger/nametabledisplaydialog.cpp \
     debugger/cnametablepreviewrenderer.cpp \
-    debugger/nametableinspector.cpp \
     project/cbinaryfile.cpp \
     project/cgraphicsbanks.cpp \
     project/cgraphicsbank.cpp \
@@ -192,27 +188,15 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cbreakpointdisplaymodel.cpp \
     debugger/breakpointwatcherthread.cpp \
     emulator/nesemulatorthread.cpp \
-    debugger/codebrowserdialog.cpp \
-    debugger/codeinspector.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
     common/inspectorregistry.cpp \
     viewers/debugger/csourcebrowserdisplaymodel.cpp \
     aboutdialog.cpp \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
-    debugger/ppuinformationdialog.cpp \
-    debugger/ppuinformationinspector.cpp \
-    debugger/codedataloggerdialog.cpp \
-    debugger/codedataloggerinspector.cpp \
     debugger/ccodedataloggerrenderer.cpp \
     project/cattributetables.cpp \
-    debugger/executionvisualizer.cpp \
-    debugger/executionvisualizerdialog.cpp \
     debugger/cexecutionvisualizerrenderer.cpp \
-    debugger/mapperinformationdialog.cpp \
-    debugger/mapperinformationinspector.cpp \
-    debugger/apuinformationdialog.cpp \
-    debugger/apuinformationinspector.cpp \
     common/cgamedatabasehandler.cpp \
     common/cconfigurator.cpp \
     environmentsettingsdialog.cpp \
@@ -238,7 +222,15 @@ SOURCES += mainwindow.cpp \
     projectbrowserdockwidget.cpp \
     debugger/memoryinspectordockwidget.cpp \
     debugger/registerinspectordockwidget.cpp \
-    debugger/executioninspectordockwidget.cpp
+    debugger/executioninspectordockwidget.cpp \
+    debugger/codebrowserdockwidget.cpp \
+    debugger/codedataloggerdockwidget.cpp \
+    debugger/apuinformationdockwidget.cpp \
+    debugger/ppuinformationdockwidget.cpp \
+    debugger/executionvisualizerdockwidget.cpp \
+    debugger/mapperinformationdockwidget.cpp \
+    debugger/nametablevisualizerdockwidget.cpp \
+    debugger/oamvisualizerdockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -276,12 +268,8 @@ HEADERS += mainwindow.h \
     viewers/project_treeview/cprojecttreeview.h \
     common/cbuildertextlogger.h \
     debugger/chrmeminspector.h \
-    debugger/oaminspector.h \
-    debugger/oamdisplaydialog.h \
     debugger/coampreviewrenderer.h \
-    debugger/nametabledisplaydialog.h \
     debugger/cnametablepreviewrenderer.h \
-    debugger/nametableinspector.h \
     emulator/nesemulatorthread.h \
     project/cbinaryfile.h \
     project/cgraphicsbanks.h \
@@ -295,8 +283,6 @@ HEADERS += mainwindow.h \
     debugger/breakpointinspector.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
-    debugger/codebrowserdialog.h \
-    debugger/codeinspector.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
     common/inspectorregistry.h \
     compiler/pasm_types.h \
@@ -306,19 +292,9 @@ HEADERS += mainwindow.h \
     interfaces/ichrrombankitem.h \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.h \
     viewers/chr-rom/cchrromitemlistdisplaymodel.h \
-    debugger/ppuinformationdialog.h \
-    debugger/ppuinformationinspector.h \
-    debugger/codedataloggerdialog.h \
-    debugger/codedataloggerinspector.h \
     debugger/ccodedataloggerrenderer.h \
     project/cattributetables.h \
-    debugger/executionvisualizer.h \
-    debugger/executionvisualizerdialog.h \
     debugger/cexecutionvisualizerrenderer.h \
-    debugger/mapperinformationdialog.h \
-    debugger/mapperinformationinspector.h \
-    debugger/apuinformationdialog.h \
-    debugger/apuinformationinspector.h \
     common/cgamedatabasehandler.h \
     common/cconfigurator.h \
     environmentsettingsdialog.h \
@@ -345,7 +321,15 @@ HEADERS += mainwindow.h \
     projectbrowserdockwidget.h \
     debugger/memoryinspectordockwidget.h \
     debugger/registerinspectordockwidget.h \
-    debugger/executioninspectordockwidget.h
+    debugger/executioninspectordockwidget.h \
+    debugger/codebrowserdockwidget.h \
+    debugger/codedataloggerdockwidget.h \
+    debugger/apuinformationdockwidget.h \
+    debugger/ppuinformationdockwidget.h \
+    debugger/executionvisualizerdockwidget.h \
+    debugger/mapperinformationdockwidget.h \
+    debugger/nametablevisualizerdockwidget.h \
+    debugger/oamvisualizerdockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -354,18 +338,10 @@ FORMS += mainwindow.ui \
     viewers/chr-rom/chrromdisplaydialog.ui \
     viewers/emulator/nesemulatordialog.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
-    debugger/oamdisplaydialog.ui \
-    debugger/nametabledisplaydialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
     debugger/breakpointdialog.ui \
-    debugger/codebrowserdialog.ui \
     aboutdialog.ui \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.ui \
-    debugger/ppuinformationdialog.ui \
-    debugger/codedataloggerdialog.ui \
-    debugger/executionvisualizerdialog.ui \
-    debugger/mapperinformationdialog.ui \
-    debugger/apuinformationdialog.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
     outputdialog.ui \
@@ -375,6 +351,14 @@ FORMS += mainwindow.ui \
     projectbrowserdockwidget.ui \
     debugger/memoryinspectordockwidget.ui \
     debugger/registerinspectordockwidget.ui \
-    debugger/executioninspectordockwidget.ui
+    debugger/executioninspectordockwidget.ui \
+    debugger/codebrowserdockwidget.ui \
+    debugger/codedataloggerdockwidget.ui \
+    debugger/apuinformationdockwidget.ui \
+    debugger/ppuinformationdockwidget.ui \
+    debugger/executionvisualizerdockwidget.ui \
+    debugger/mapperinformationdockwidget.ui \
+    debugger/nametablevisualizerdockwidget.ui \
+    debugger/oamvisualizerdockwidget.ui
 
 RESOURCES += resource.qrc

@@ -1,34 +1,29 @@
-#ifndef OAMDISPLAYDIALOG_H
-#define OAMDISPLAYDIALOG_H
+#ifndef OAMVISUALIZERDOCKWIDGET_H
+#define OAMVISUALIZERDOCKWIDGET_H
 
-#include <QDialog>
 #include "coampreviewrenderer.h"
 
-namespace Ui
-{
-class OAMDisplayDialog;
+#include <QDockWidget>
+
+namespace Ui {
+   class OAMVisualizerDockWidget;
 }
 
-class OAMDisplayDialog : public QDialog
+class OAMVisualizerDockWidget : public QDockWidget
 {
    Q_OBJECT
-public:
-   OAMDisplayDialog(QWidget* parent = 0);
-   ~OAMDisplayDialog();
-   void updateScrollbars();
 
-protected:
-   COAMPreviewRenderer* renderer;
+public:
+   explicit OAMVisualizerDockWidget(QWidget *parent = 0);
+   ~OAMVisualizerDockWidget();
 
 protected:
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
    void resizeEvent(QResizeEvent* event);
-
-private:
-   Ui::OAMDisplayDialog* ui;
-   char* imgData;
+   COAMPreviewRenderer* renderer;
+   void updateScrollbars();
 
 public slots:
    void renderData();
@@ -39,6 +34,10 @@ private slots:
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);
    void on_zoomSlider_valueChanged(int value);
+
+private:
+   Ui::OAMVisualizerDockWidget *ui;
+   char* imgData;
 };
 
-#endif // OAMDISPLAYDIALOG_H
+#endif // OAMVISUALIZERDOCKWIDGET_H

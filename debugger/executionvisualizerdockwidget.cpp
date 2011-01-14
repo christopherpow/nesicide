@@ -1,13 +1,13 @@
-#include "executionvisualizerdialog.h"
-#include "ui_executionvisualizerdialog.h"
+#include "executionvisualizerdockwidget.h"
+#include "ui_executionvisualizerdockwidget.h"
 
 #include "dbg_cnes6502.h"
 
 #include "main.h"
 
-ExecutionVisualizerDialog::ExecutionVisualizerDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::ExecutionVisualizerDialog)
+ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::ExecutionVisualizerDockWidget)
 {
    ui->setupUi(this);
    imgData = new char[512*512*4];
@@ -26,9 +26,15 @@ ExecutionVisualizerDialog::ExecutionVisualizerDialog(QWidget* parent) :
    ui->frame->layout()->update();
 }
 
-void ExecutionVisualizerDialog::changeEvent(QEvent* e)
+ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 {
-   QDialog::changeEvent(e);
+   delete ui;
+   delete imgData;
+}
+
+void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
+{
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -40,46 +46,37 @@ void ExecutionVisualizerDialog::changeEvent(QEvent* e)
    }
 }
 
-void ExecutionVisualizerDialog::showEvent(QShowEvent* event)
+void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 {
-   QDialog::showEvent(event);
+   QDockWidget::showEvent(event);
    renderData();
 }
 
-void ExecutionVisualizerDialog::hideEvent(QHideEvent* event)
+void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDialog::hideEvent(event);
+   QDockWidget::hideEvent(event);
 }
 
-void ExecutionVisualizerDialog::renderData()
+void ExecutionVisualizerDockWidget::renderData()
 {
-   if ( isVisible() )
-   {
-      C6502DBG::RENDEREXECUTIONVISUALIZER();
-      renderer->updateGL ();
-   }
+   C6502DBG::RENDEREXECUTIONVISUALIZER();
+   renderer->updateGL ();
 }
 
-ExecutionVisualizerDialog::~ExecutionVisualizerDialog()
+void ExecutionVisualizerDockWidget::resizeEvent(QResizeEvent* event)
 {
-   delete imgData;
-   delete ui;
-}
-
-void ExecutionVisualizerDialog::resizeEvent(QResizeEvent* event)
-{
-   QDialog::resizeEvent(event);
+   QDockWidget::resizeEvent(event);
    updateScrollbars();
 }
 
-void ExecutionVisualizerDialog::on_zoomSlider_valueChanged(int value)
+void ExecutionVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
 {
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
 }
 
-void ExecutionVisualizerDialog::updateScrollbars()
+void ExecutionVisualizerDockWidget::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
    int viewWidth = (float)341 * ((float)value / 100.0f);
@@ -90,13 +87,13 @@ void ExecutionVisualizerDialog::updateScrollbars()
    renderer->scrollY = ui->verticalScrollBar->value();
 }
 
-void ExecutionVisualizerDialog::on_horizontalScrollBar_valueChanged(int value)
+void ExecutionVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
    renderer->repaint();
 }
 
-void ExecutionVisualizerDialog::on_verticalScrollBar_valueChanged(int value)
+void ExecutionVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
    renderer->repaint();

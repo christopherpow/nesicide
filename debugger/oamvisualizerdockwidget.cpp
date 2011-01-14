@@ -1,14 +1,14 @@
-#include "oamdisplaydialog.h"
-#include "ui_oamdisplaydialog.h"
+#include "oamvisualizerdockwidget.h"
+#include "ui_oamvisualizerdockwidget.h"
 
 #include "cnessystempalette.h"
 #include "dbg_cnesppu.h"
 
 #include "main.h"
 
-OAMDisplayDialog::OAMDisplayDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::OAMDisplayDialog)
+OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::OAMVisualizerDockWidget)
 {
    ui->setupUi(this);
    imgData = new char[256*256*4];
@@ -29,9 +29,15 @@ OAMDisplayDialog::OAMDisplayDialog(QWidget* parent) :
    ui->showVisible->setChecked ( false );
 }
 
-void OAMDisplayDialog::changeEvent(QEvent* e)
+OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
 {
-   QDialog::changeEvent(e);
+   delete ui;
+   delete imgData;
+}
+
+void OAMVisualizerDockWidget::changeEvent(QEvent* e)
+{
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -43,48 +49,39 @@ void OAMDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-void OAMDisplayDialog::showEvent(QShowEvent* event)
+void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
 {
-   QDialog::showEvent(event);
+   QDockWidget::showEvent(event);
    CPPUDBG::EnableOAMInspector(true);
    renderData();
 }
 
-void OAMDisplayDialog::hideEvent(QHideEvent* event)
+void OAMVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDialog::hideEvent(event);
+   QDockWidget::hideEvent(event);
    CPPUDBG::EnableOAMInspector(false);
 }
 
-void OAMDisplayDialog::renderData()
+void OAMVisualizerDockWidget::renderData()
 {
-   if ( isVisible() )
-   {
-      CPPUDBG::RENDEROAM();
-      renderer->updateGL ();
-   }
+   CPPUDBG::RENDEROAM();
+   renderer->updateGL ();
 }
 
-OAMDisplayDialog::~OAMDisplayDialog()
+void OAMVisualizerDockWidget::resizeEvent(QResizeEvent* event)
 {
-   delete imgData;
-   delete ui;
-}
-
-void OAMDisplayDialog::resizeEvent(QResizeEvent* event)
-{
-   QDialog::resizeEvent(event);
+   QDockWidget::resizeEvent(event);
    updateScrollbars();
 }
 
-void OAMDisplayDialog::on_zoomSlider_valueChanged(int value)
+void OAMVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
 {
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
 }
 
-void OAMDisplayDialog::updateScrollbars()
+void OAMVisualizerDockWidget::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
    int viewWidth = (float)256 * ((float)value / 100.0f);
@@ -95,24 +92,24 @@ void OAMDisplayDialog::updateScrollbars()
    renderer->scrollY = ui->verticalScrollBar->value();
 }
 
-void OAMDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
+void OAMVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
    renderer->repaint();
 }
 
-void OAMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
+void OAMVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
    renderer->repaint();
 }
 
-void OAMDisplayDialog::on_updateScanline_editingFinished()
+void OAMVisualizerDockWidget::on_updateScanline_editingFinished()
 {
    CPPUDBG::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
 }
 
-void OAMDisplayDialog::on_showVisible_toggled(bool checked)
+void OAMVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
    CPPUDBG::SetOAMViewerShowVisible ( checked );
 }

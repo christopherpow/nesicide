@@ -1,15 +1,14 @@
-#include "nametabledisplaydialog.h"
-#include "ui_nametabledisplaydialog.h"
+#include "nametablevisualizerdockwidget.h"
+#include "ui_nametablevisualizerdockwidget.h"
 
 #include "cnessystempalette.h"
-
 #include "dbg_cnesppu.h"
 
 #include "main.h"
 
-NameTableDisplayDialog::NameTableDisplayDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::NameTableDisplayDialog)
+NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::NameTableVisualizerDockWidget)
 {
    ui->setupUi(this);
    imgData = new char[512*512*4];
@@ -30,22 +29,28 @@ NameTableDisplayDialog::NameTableDisplayDialog(QWidget* parent) :
    ui->showVisible->setChecked ( true );
 }
 
-void NameTableDisplayDialog::showEvent(QShowEvent* event)
+NameTableVisualizerDockWidget::~NameTableVisualizerDockWidget()
 {
-   QDialog::showEvent(event);
+   delete ui;
+   delete imgData;
+}
+
+void NameTableVisualizerDockWidget::showEvent(QShowEvent* event)
+{
+   QDockWidget::showEvent(event);
    CPPUDBG::EnableNameTableInspector(true);
    renderData();
 }
 
-void NameTableDisplayDialog::hideEvent(QHideEvent* event)
+void NameTableVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDialog::hideEvent(event);
+   QDockWidget::hideEvent(event);
    CPPUDBG::EnableNameTableInspector(false);
 }
 
-void NameTableDisplayDialog::changeEvent(QEvent* e)
+void NameTableVisualizerDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -57,35 +62,26 @@ void NameTableDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-void NameTableDisplayDialog::renderData()
+void NameTableVisualizerDockWidget::renderData()
 {
-   if ( isVisible() )
-   {
-      CPPUDBG::RENDERNAMETABLE();
-      renderer->updateGL ();
-   }
+   CPPUDBG::RENDERNAMETABLE();
+   renderer->updateGL ();
 }
 
-NameTableDisplayDialog::~NameTableDisplayDialog()
+void NameTableVisualizerDockWidget::resizeEvent(QResizeEvent* event)
 {
-   delete imgData;
-   delete ui;
-}
-
-void NameTableDisplayDialog::resizeEvent(QResizeEvent* event)
-{
-   QDialog::resizeEvent(event);
+   QDockWidget::resizeEvent(event);
    updateScrollbars();
 }
 
-void NameTableDisplayDialog::on_zoomSlider_valueChanged(int value)
+void NameTableVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
 {
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
 }
 
-void NameTableDisplayDialog::updateScrollbars()
+void NameTableVisualizerDockWidget::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
    int viewWidth = (float)512 * ((float)value / 100.0f);
@@ -96,19 +92,19 @@ void NameTableDisplayDialog::updateScrollbars()
    renderer->scrollY = ui->verticalScrollBar->value();
 }
 
-void NameTableDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
+void NameTableVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
    renderer->repaint();
 }
 
-void NameTableDisplayDialog::on_verticalScrollBar_valueChanged(int value)
+void NameTableVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
    renderer->repaint();
 }
 
-void NameTableDisplayDialog::on_showVisible_toggled(bool checked)
+void NameTableVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
    CPPUDBG::SetPPUViewerShowVisible ( checked );
 }

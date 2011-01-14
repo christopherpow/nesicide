@@ -1,36 +1,35 @@
-#ifndef CODEDATALOGGERDIALOG_H
-#define CODEDATALOGGERDIALOG_H
+#ifndef CODEDATALOGGERDOCKWIDGET_H
+#define CODEDATALOGGERDOCKWIDGET_H
 
-#include <QDialog>
 #include "ccodedataloggerrenderer.h"
 
-namespace Ui
-{
-class CodeDataLoggerDialog;
+#include <QDockWidget>
+
+namespace Ui {
+   class CodeDataLoggerDockWidget;
 }
 
-class CodeDataLoggerDialog : public QDialog
+class CodeDataLoggerDockWidget : public QDockWidget
 {
    Q_OBJECT
-public:
-   CodeDataLoggerDialog(QWidget* parent = 0);
-   ~CodeDataLoggerDialog();
-   void updateScrollbars();
 
-protected:
-   CCodeDataLoggerRenderer* renderer;
+public:
+   explicit CodeDataLoggerDockWidget(QWidget *parent = 0);
+   ~CodeDataLoggerDockWidget();
 
 protected:
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
    void resizeEvent(QResizeEvent* event);
-
+   void updateScrollbars();
+   CCodeDataLoggerRenderer* renderer;
+   
 private:
-   Ui::CodeDataLoggerDialog* ui;
+   Ui::CodeDataLoggerDockWidget *ui;
    char* cpuImgData;
    char* ppuImgData;
-
+   
 public slots:
    void renderData();
 
@@ -41,4 +40,4 @@ private slots:
    void on_zoomSlider_valueChanged(int value);
 };
 
-#endif // CODEDATALOGGERDIALOG_H
+#endif // CODEDATALOGGERDOCKWIDGET_H

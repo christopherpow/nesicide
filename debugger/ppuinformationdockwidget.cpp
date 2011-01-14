@@ -1,14 +1,14 @@
-#include "ppuinformationdialog.h"
-#include "ui_ppuinformationdialog.h"
-
-#include "main.h"
+#include "ppuinformationdockwidget.h"
+#include "ui_ppuinformationdockwidget.h"
 
 #include "dbg_cnes.h"
 #include "dbg_cnesppu.h"
 
-PPUInformationDialog::PPUInformationDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::PPUInformationDialog)
+#include "main.h"
+
+PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::PPUInformationDockWidget)
 {
    ui->setupUi(this);
 //   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
@@ -18,14 +18,14 @@ PPUInformationDialog::PPUInformationDialog(QWidget* parent) :
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
-PPUInformationDialog::~PPUInformationDialog()
+PPUInformationDockWidget::~PPUInformationDockWidget()
 {
    delete ui;
 }
 
-void PPUInformationDialog::changeEvent(QEvent* e)
+void PPUInformationDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -37,14 +37,13 @@ void PPUInformationDialog::changeEvent(QEvent* e)
    }
 }
 
-void PPUInformationDialog::showEvent(QShowEvent* e)
+void PPUInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QDialog::showEvent(e);
-
+   QDockWidget::showEvent(e);
    updateInformation();
 }
 
-void PPUInformationDialog::updateInformation()
+void PPUInformationDockWidget::updateInformation()
 {
    const char* ppuFlipFlopStr [] = { "Low", "High" };
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -101,7 +100,7 @@ void PPUInformationDialog::updateInformation()
                (pBreakpoint->type == eBreakOnPPUPortalWrite) )
          {
             // Update display...
-            emit showMe();
+            show();
          }
       }
    }

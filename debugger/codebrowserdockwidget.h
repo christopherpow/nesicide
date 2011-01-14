@@ -1,21 +1,22 @@
-#ifndef CODEBROWSERDIALOG_H
-#define CODEBROWSERDIALOG_H
+#ifndef CODEBROWSERDOCKWIDGET_H
+#define CODEBROWSERDOCKWIDGET_H
 
-#include <QDialog>
 #include "ccodebrowserdisplaymodel.h"
 #include "csourcebrowserdisplaymodel.h"
 
-namespace Ui
-{
-class CodeBrowserDialog;
+#include <QDockWidget>
+
+namespace Ui {
+   class CodeBrowserDockWidget;
 }
 
-class CodeBrowserDialog : public QDialog
+class CodeBrowserDockWidget : public QDockWidget
 {
    Q_OBJECT
+   
 public:
-   CodeBrowserDialog(QWidget* parent = 0);
-   ~CodeBrowserDialog();
+   explicit CodeBrowserDockWidget(QWidget *parent = 0);
+   ~CodeBrowserDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);
@@ -24,15 +25,15 @@ protected:
 
 public slots:
    void updateBrowser();
-   void updateDisassembly(bool show);
+   void updateDisassembly(bool showMe = false);
    void breakpointHit();
 
 signals:
    void showMe();
    void breakpointsChanged();
-
+   
 private:
-   Ui::CodeBrowserDialog* ui;
+   Ui::CodeBrowserDockWidget *ui;
    CCodeBrowserDisplayModel* assemblyViewModel;
    CSourceBrowserDisplayModel* sourceViewModel;
    int m_breakpointIndex;
@@ -51,4 +52,4 @@ private slots:
    void on_actionClear_marker_triggered();
 };
 
-#endif // CODEBROWSERDIALOG_H
+#endif // CODEBROWSERDOCKWIDGET_H

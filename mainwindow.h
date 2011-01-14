@@ -11,18 +11,18 @@
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
 #include "chrmeminspector.h"
-#include "oaminspector.h"
-#include "nametableinspector.h"
+#include "oamvisualizerdockwidget.h"
+#include "nametablevisualizerdockwidget.h"
 #include "executioninspectordockwidget.h"
-#include "executionvisualizer.h"
+#include "executionvisualizerdockwidget.h"
 #include "memoryinspectordockwidget.h"
 #include "registerinspectordockwidget.h"
 #include "breakpointinspector.h"
-#include "codeinspector.h"
-#include "codedataloggerinspector.h"
-#include "ppuinformationinspector.h"
-#include "apuinformationinspector.h"
-#include "mapperinformationinspector.h"
+#include "codebrowserdockwidget.h"
+#include "codedataloggerdockwidget.h"
+#include "ppuinformationdockwidget.h"
+#include "apuinformationdockwidget.h"
+#include "mapperinformationdockwidget.h"
 #include "aboutdialog.h"
 #include "environmentsettingsdialog.h"
 #include "outputdockwidget.h"
@@ -62,11 +62,11 @@ private:
 
    // Debugger inspector dockables
    ExecutionInspectorDockWidget* m_pExecutionInspector;
-   ExecutionVisualizer* m_pExecutionVisualizer;
+   ExecutionVisualizerDockWidget* m_pExecutionVisualizer;
    RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
    CHRMEMInspector* m_pGfxCHRMemoryInspector;
-   OAMInspector* m_pGfxOAMMemoryInspector;
-   NameTableInspector* m_pGfxNameTableMemoryInspector;
+   OAMVisualizerDockWidget* m_pGfxOAMMemoryInspector;
+   NameTableVisualizerDockWidget* m_pGfxNameTableMemoryInspector;
    MemoryInspectorDockWidget* m_pBinCPURAMInspector;
    MemoryInspectorDockWidget* m_pBinROMInspector;
    MemoryInspectorDockWidget* m_pBinNameTableMemoryInspector;
@@ -79,11 +79,11 @@ private:
    MemoryInspectorDockWidget* m_pBinPaletteMemoryInspector;
    RegisterInspectorDockWidget* m_pBinMapperMemoryInspector;
    BreakpointInspector* m_pBreakpointInspector;
-   CodeInspector* m_pCodeInspector;
-   CodeDataLoggerInspector* m_pCodeDataLoggerInspector;
-   PPUInformationInspector* m_pPPUInformationInspector;
-   APUInformationInspector* m_pAPUInformationInspector;
-   MapperInformationInspector* m_pMapperInformationInspector;
+   CodeBrowserDockWidget* m_pCodeInspector;
+   CodeDataLoggerDockWidget* m_pCodeDataLoggerInspector;
+   PPUInformationDockWidget* m_pPPUInformationInspector;
+   APUInformationDockWidget* m_pAPUInformationInspector;
+   MapperInformationDockWidget* m_pMapperInformationInspector;
    
    SourceNavigator* m_pSourceNavigator;
 

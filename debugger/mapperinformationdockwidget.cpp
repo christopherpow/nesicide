@@ -1,7 +1,5 @@
-#include "mapperinformationdialog.h"
-#include "ui_mapperinformationdialog.h"
-
-#include "main.h"
+#include "mapperinformationdockwidget.h"
+#include "ui_mapperinformationdockwidget.h"
 
 #include "dbg_cnes.h"
 #include "dbg_cnesrom.h"
@@ -9,9 +7,11 @@
 #include "dbg_cnesrommapper004.h"
 #include "dbg_cnesmappers.h"
 
-MapperInformationDialog::MapperInformationDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::MapperInformationDialog)
+#include "main.h"
+
+MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::MapperInformationDockWidget)
 {
    ui->setupUi(this);
 //   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
@@ -21,14 +21,14 @@ MapperInformationDialog::MapperInformationDialog(QWidget* parent) :
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
-MapperInformationDialog::~MapperInformationDialog()
+MapperInformationDockWidget::~MapperInformationDockWidget()
 {
-   delete ui;
+    delete ui;
 }
 
-void MapperInformationDialog::changeEvent(QEvent* e)
+void MapperInformationDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -40,13 +40,13 @@ void MapperInformationDialog::changeEvent(QEvent* e)
    }
 }
 
-void MapperInformationDialog::showEvent(QShowEvent* e)
+void MapperInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QDialog::showEvent(e);
+   QDockWidget::showEvent(e);
    updateInformation();
 }
 
-void MapperInformationDialog::cartridgeLoaded()
+void MapperInformationDockWidget::cartridgeLoaded()
 {
    char buffer [ 128 ];
    sprintf ( buffer, "Mapper %d: %s", CROMDBG::MAPPER(), mapperNameFromID(CROMDBG::MAPPER()) );
@@ -56,7 +56,7 @@ void MapperInformationDialog::cartridgeLoaded()
    ui->internalInfo->setCurrentIndex(CROMDBG::MAPPER());
 }
 
-void MapperInformationDialog::updateInformation()
+void MapperInformationDockWidget::updateInformation()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
@@ -126,7 +126,7 @@ void MapperInformationDialog::updateInformation()
          if ( pBreakpoint->type == eBreakOnMapperEvent )
          {
             // Update display...
-            emit showMe();
+            show();
          }
       }
    }
