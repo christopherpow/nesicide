@@ -1,22 +1,22 @@
-#ifndef MEMORYDISPLAYDIALOG_H
-#define MEMORYDISPLAYDIALOG_H
+#ifndef MEMORYINSPECTORDOCKWIDGET_H
+#define MEMORYINSPECTORDOCKWIDGET_H
 
-#include <QDialog>
 #include "cdebuggermemorydisplaymodel.h"
-
 #include "cregisterdata.h"
 
-namespace Ui
-{
-class MemoryDisplayDialog;
+#include <QDockWidget>
+
+namespace Ui {
+    class MemoryInspectorDockWidget;
 }
 
-class MemoryDisplayDialog : public QDialog
+class MemoryInspectorDockWidget : public QDockWidget
 {
    Q_OBJECT
+
 public:
-   MemoryDisplayDialog(QWidget* parent = 0, eMemoryType display = eMemory_CPU);
-   ~MemoryDisplayDialog();
+   explicit MemoryInspectorDockWidget(eMemoryType display = eMemory_CPU, QWidget *parent = 0);
+   ~MemoryInspectorDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);
@@ -26,11 +26,8 @@ protected:
 public slots:
    void updateMemory();
 
-signals:
-   void showMe(eMemoryType display);
-
 private:
-   Ui::MemoryDisplayDialog* ui;
+   Ui::MemoryInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* model;
    eMemoryType m_display;
 
@@ -40,4 +37,4 @@ private slots:
    void on_actionBreak_on_CPU_access_here_triggered();
 };
 
-#endif // MEMORYDISPLAYDIALOG_H
+#endif // MEMORYINSPECTORDOCKWIDGET_H

@@ -1,14 +1,14 @@
-#include "executiontracerdialog.h"
-#include "ui_executiontracerdialog.h"
+#include "executioninspectordockwidget.h"
+#include "ui_executioninspectordockwidget.h"
 
 #include "dbg_cnes.h"
 
 #include "inspectorregistry.h"
 #include "main.h"
 
-ExecutionTracerDialog::ExecutionTracerDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::ExecutionTracerDialog)
+ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::ExecutionInspectorDockWidget)
 {
    ui->setupUi(this);
    model = new CDebuggerExecutionTracerModel(this);
@@ -19,7 +19,6 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget* parent) :
    ui->tableView->setModel(model);
 
    // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateTracer()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
 
    // Connect signals to the models to have the model update.
@@ -27,22 +26,20 @@ ExecutionTracerDialog::ExecutionTracerDialog(QWidget* parent) :
    QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
-   QObject::connect ( this, SIGNAL(showMe()), model, SLOT(update()) );
 }
 
-ExecutionTracerDialog::~ExecutionTracerDialog()
+ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
 {
    delete ui;
    delete model;
 }
 
-void ExecutionTracerDialog::showEvent(QShowEvent* e)
+void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   updateTracer();
    ui->tableView->resizeColumnsToContents();
 }
 
-void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent* e)
+void ExecutionInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
 {
    QMenu menu;
 
@@ -50,9 +47,9 @@ void ExecutionTracerDialog::contextMenuEvent(QContextMenuEvent* e)
    menu.exec(e->globalPos());
 }
 
-void ExecutionTracerDialog::changeEvent(QEvent* e)
+void ExecutionInspectorDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -64,7 +61,7 @@ void ExecutionTracerDialog::changeEvent(QEvent* e)
    }
 }
 
-void ExecutionTracerDialog::updateTracer ()
+void ExecutionInspectorDockWidget::updateTracer ()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
@@ -78,7 +75,7 @@ void ExecutionTracerDialog::updateTracer ()
             (pBreakpoint->hit) )
       {
          // Update display...
-         emit showMe();
+         show();
          ui->tableView->resizeColumnsToContents();
          ui->tableView->setCurrentIndex(model->index(0,0));
       }
@@ -86,25 +83,25 @@ void ExecutionTracerDialog::updateTracer ()
                 (pBreakpoint->hit) )
       {
          // Update display...
-         emit showMe();
+         show();
          ui->tableView->resizeColumnsToContents();
          ui->tableView->setCurrentIndex(model->index(0,0));
       }
    }
 }
 
-void ExecutionTracerDialog::on_showCPU_toggled(bool checked)
+void ExecutionInspectorDockWidget::on_showCPU_toggled(bool checked)
 {
    model->showCPU ( checked );
    model->update();
 }
 
-void ExecutionTracerDialog::on_showPPU_toggled(bool checked)
+void ExecutionInspectorDockWidget::on_showPPU_toggled(bool checked)
 {
    model->showPPU ( checked );
    model->update();
 }
 
-void ExecutionTracerDialog::on_actionBreak_on_CPU_execution_here_triggered()
+void ExecutionInspectorDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
 {
 }

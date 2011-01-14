@@ -179,19 +179,13 @@ SOURCES += mainwindow.cpp \
     debugger/nametabledisplaydialog.cpp \
     debugger/cnametablepreviewrenderer.cpp \
     debugger/nametableinspector.cpp \
-    debugger/executiontracerdialog.cpp \
     project/cbinaryfile.cpp \
     project/cgraphicsbanks.cpp \
     project/cgraphicsbank.cpp \
     designers/graphics_bank_editor/graphicsbankeditorform.cpp \
     viewers/debugger/cdebuggerexecutiontracermodel.cpp \
-    debugger/executioninspector.cpp \
-    debugger/memorydisplaydialog.cpp \
-    debugger/memoryinspector.cpp \
     viewers/debugger/cdebuggermemorydisplaymodel.cpp \
-    debugger/registerdisplaydialog.cpp \
     viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
-    debugger/registerinspector.cpp \
     viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
     debugger/breakpointdialog.cpp \
     debugger/breakpointinspector.cpp \
@@ -241,7 +235,10 @@ SOURCES += mainwindow.cpp \
     designers/attribute_table_editor/attributetableeditorform.cpp \
     project/cattributetable.cpp \
     common/sourcenavigator.cpp \
-    projectbrowserdockwidget.cpp
+    projectbrowserdockwidget.cpp \
+    debugger/memoryinspectordockwidget.cpp \
+    debugger/registerinspectordockwidget.cpp \
+    debugger/executioninspectordockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -285,20 +282,14 @@ HEADERS += mainwindow.h \
     debugger/nametabledisplaydialog.h \
     debugger/cnametablepreviewrenderer.h \
     debugger/nametableinspector.h \
-    debugger/executiontracerdialog.h \
     emulator/nesemulatorthread.h \
     project/cbinaryfile.h \
     project/cgraphicsbanks.h \
     project/cgraphicsbank.h \
     designers/graphics_bank_editor/graphicsbankeditorform.h \
     viewers/debugger/cdebuggerexecutiontracermodel.h \
-    debugger/executioninspector.h \
-    debugger/memorydisplaydialog.h \
-    debugger/memoryinspector.h \
     viewers/debugger/cdebuggermemorydisplaymodel.h \
-    debugger/registerdisplaydialog.h \
     viewers/debugger/cdebuggerregisterdisplaymodel.h \
-    debugger/registerinspector.h \
     viewers/debugger/cdebuggerregistercomboboxdelegate.h \
     debugger/breakpointdialog.h \
     debugger/breakpointinspector.h \
@@ -351,7 +342,10 @@ HEADERS += mainwindow.h \
     designers/attribute_table_editor/attributetableeditorform.h \
     project/cattributetable.h \
     common/sourcenavigator.h \
-    projectbrowserdockwidget.h
+    projectbrowserdockwidget.h \
+    debugger/memoryinspectordockwidget.h \
+    debugger/registerinspectordockwidget.h \
+    debugger/executioninspectordockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -362,10 +356,7 @@ FORMS += mainwindow.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
     debugger/oamdisplaydialog.ui \
     debugger/nametabledisplaydialog.ui \
-    debugger/executiontracerdialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
-    debugger/memorydisplaydialog.ui \
-    debugger/registerdisplaydialog.ui \
     debugger/breakpointdialog.ui \
     debugger/codebrowserdialog.ui \
     aboutdialog.ui \
@@ -381,6 +372,9 @@ FORMS += mainwindow.ui \
     emulatorprefsdialog.ui \
     designers/attribute_table_editor/attributetableeditorform.ui \
     common/sourcenavigator.ui \
-    projectbrowserdockwidget.ui
+    projectbrowserdockwidget.ui \
+    debugger/memoryinspectordockwidget.ui \
+    debugger/registerinspectordockwidget.ui \
+    debugger/executioninspectordockwidget.ui
 
 RESOURCES += resource.qrc

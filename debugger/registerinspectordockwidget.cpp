@@ -1,5 +1,5 @@
-#include "registerdisplaydialog.h"
-#include "ui_registerdisplaydialog.h"
+#include "registerinspectordockwidget.h"
+#include "ui_registerinspectordockwidget.h"
 
 #include "dbg_cnes.h"
 #include "dbg_cnesrom.h"
@@ -10,9 +10,9 @@
 
 #include "main.h"
 
-RegisterDisplayDialog::RegisterDisplayDialog(QWidget* parent, eMemoryType display) :
-   QDialog(parent),
-   ui(new Ui::RegisterDisplayDialog)
+RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::RegisterInspectorDockWidget)
 {
    ui->setupUi(this);
    binaryModel = new CDebuggerMemoryDisplayModel(this,display);
@@ -60,6 +60,7 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget* parent, eMemoryType displa
    
    // Connect signals to the UI to have the UI update.
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 
    // Connect signals to the models to have the model update.
@@ -67,19 +68,17 @@ RegisterDisplayDialog::RegisterDisplayDialog(QWidget* parent, eMemoryType displa
    QObject::connect ( emulator, SIGNAL(emulatorReset()), binaryModel, SLOT(update()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), binaryModel, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
-   QObject::connect ( this, SIGNAL(showMe(eMemoryType)), binaryModel, SLOT(update()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), bitfieldModel, SLOT(update()));
    QObject::connect ( emulator, SIGNAL(emulatorReset()), bitfieldModel, SLOT(update()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), bitfieldModel, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
-   QObject::connect ( this, SIGNAL(showMe(eMemoryType)), bitfieldModel, SLOT(update()) );
 
    // Connect inter-model signals so the models can update each other.
    QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
    QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
 }
 
-RegisterDisplayDialog::~RegisterDisplayDialog()
+RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
 {
    delete ui;
    delete binaryModel;
@@ -87,20 +86,20 @@ RegisterDisplayDialog::~RegisterDisplayDialog()
    delete bitfieldDelegate;
 }
 
-void RegisterDisplayDialog::showEvent(QShowEvent* e)
+void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
 {
    ui->binaryView->resizeColumnsToContents();
    ui->bitfieldView->resizeColumnsToContents();
    updateMemory();
 }
 
-void RegisterDisplayDialog::contextMenuEvent(QContextMenuEvent*)
+void RegisterInspectorDockWidget::contextMenuEvent(QContextMenuEvent*)
 {
 }
 
-void RegisterDisplayDialog::changeEvent(QEvent* e)
+void RegisterInspectorDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -112,7 +111,7 @@ void RegisterDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-void RegisterDisplayDialog::updateMemory ()
+void RegisterInspectorDockWidget::updateMemory ()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    eMemoryType memoryType = binaryModel->memoryType();
@@ -162,7 +161,7 @@ void RegisterDisplayDialog::updateMemory ()
                   col = itemActual%binaryModel->columnCount();
 
                   // Update display...
-                  emit showMe(memoryType);
+                  show();
                   ui->binaryView->resizeColumnsToContents();
                   ui->bitfieldView->resizeColumnsToContents();
                   ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
@@ -190,7 +189,7 @@ void RegisterDisplayDialog::updateMemory ()
                col = pBreakpoint->item1%binaryModel->columnCount();
 
                // Update display...
-               emit showMe(memoryType);
+               show();
                ui->binaryView->resizeColumnsToContents();
                ui->bitfieldView->resizeColumnsToContents();
                ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
@@ -202,7 +201,7 @@ void RegisterDisplayDialog::updateMemory ()
    }
 }
 
-void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)
+void RegisterInspectorDockWidget::on_binaryView_clicked(QModelIndex index)
 {
    char buffer [ 128 ];
    int cols = index.model()->columnCount();
@@ -218,7 +217,7 @@ void RegisterDisplayDialog::on_binaryView_clicked(QModelIndex index)
    bitfieldModel->update();
 }
 
-void RegisterDisplayDialog::on_binaryView_doubleClicked(QModelIndex index)
+void RegisterInspectorDockWidget::on_binaryView_doubleClicked(QModelIndex index)
 {
    char buffer [ 128 ];
    int cols = index.model()->columnCount();
@@ -234,7 +233,7 @@ void RegisterDisplayDialog::on_binaryView_doubleClicked(QModelIndex index)
    bitfieldModel->update();
 }
 
-void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
+void RegisterInspectorDockWidget::on_binaryView_pressed(QModelIndex index)
 {
    char buffer [ 128 ];
    int cols = index.model()->columnCount();
@@ -250,7 +249,7 @@ void RegisterDisplayDialog::on_binaryView_pressed(QModelIndex index)
    bitfieldModel->update();
 }
 
-void RegisterDisplayDialog::on_binaryView_activated(QModelIndex index)
+void RegisterInspectorDockWidget::on_binaryView_activated(QModelIndex index)
 {
    char buffer [ 128 ];
    int cols = index.model()->columnCount();
@@ -266,7 +265,7 @@ void RegisterDisplayDialog::on_binaryView_activated(QModelIndex index)
    bitfieldModel->update();
 }
 
-void RegisterDisplayDialog::on_binaryView_entered(QModelIndex index)
+void RegisterInspectorDockWidget::on_binaryView_entered(QModelIndex index)
 {
    char buffer [ 128 ];
    int cols = index.model()->columnCount();
@@ -282,13 +281,13 @@ void RegisterDisplayDialog::on_binaryView_entered(QModelIndex index)
    bitfieldModel->update();
 }
 
-void RegisterDisplayDialog::on_bitfieldView_clicked(QModelIndex index)
+void RegisterInspectorDockWidget::on_bitfieldView_clicked(QModelIndex index)
 {
    bitfieldDelegate->setBitfield ( m_tblRegisters[m_register]->GetBitfield(index.row()) );
    binaryModel->update();
 }
 
-void RegisterDisplayDialog::on_bitfieldView_doubleClicked(QModelIndex index)
+void RegisterInspectorDockWidget::on_bitfieldView_doubleClicked(QModelIndex index)
 {
    bitfieldDelegate->setBitfield ( m_tblRegisters[m_register]->GetBitfield(index.row()) );
    binaryModel->update();

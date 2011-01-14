@@ -1,5 +1,5 @@
-#include "memorydisplaydialog.h"
-#include "ui_memorydisplaydialog.h"
+#include "memoryinspectordockwidget.h"
+#include "ui_memoryinspectordockwidget.h"
 
 #include "emulator_core.h"
 
@@ -10,17 +10,16 @@
 
 #include <QMessageBox>
 
-MemoryDisplayDialog::MemoryDisplayDialog(QWidget* parent, eMemoryType display) :
-   QDialog(parent),
-   ui(new Ui::MemoryDisplayDialog),
-   m_display(display)
+MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::MemoryInspectorDockWidget)
 {
    ui->setupUi(this);
+    
    model = new CDebuggerMemoryDisplayModel(this,display);
    ui->tableView->setModel(model);
    
    // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 
    // Connect signals to the models to have the model update.
@@ -28,22 +27,22 @@ MemoryDisplayDialog::MemoryDisplayDialog(QWidget* parent, eMemoryType display) :
    QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
-   QObject::connect ( this, SIGNAL(showMe(eMemoryType)), model, SLOT(update()) );
+
+   m_display = display;
 }
 
-MemoryDisplayDialog::~MemoryDisplayDialog()
+MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
 {
    delete ui;
    delete model;
 }
 
-void MemoryDisplayDialog::showEvent(QShowEvent* e)
+void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
 {
    ui->tableView->resizeColumnsToContents();
-   updateMemory();
 }
 
-void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent* e)
+void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
 {
    QMenu menu;
 
@@ -65,9 +64,9 @@ void MemoryDisplayDialog::contextMenuEvent(QContextMenuEvent* e)
    menu.exec(e->globalPos());
 }
 
-void MemoryDisplayDialog::changeEvent(QEvent* e)
+void MemoryInspectorDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -79,7 +78,7 @@ void MemoryDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-void MemoryDisplayDialog::updateMemory ()
+void MemoryInspectorDockWidget::updateMemory ()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    eMemoryType memoryType = model->memoryType();
@@ -125,7 +124,7 @@ void MemoryDisplayDialog::updateMemory ()
                   col = itemActual%model->columnCount();
 
                   // Update display...
-                  emit showMe(memoryType);
+                  show();
                   ui->tableView->resizeColumnsToContents();
                   ui->tableView->setCurrentIndex(model->index(row,col));
                }
@@ -135,7 +134,7 @@ void MemoryDisplayDialog::updateMemory ()
    }
 }
 
-void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
+void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
@@ -163,7 +162,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_access_here_triggered()
    InspectorRegistry::getInspector("Breakpoints")->show();
 }
 
-void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
+void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
@@ -191,7 +190,7 @@ void MemoryDisplayDialog::on_actionBreak_on_CPU_read_here_triggered()
    InspectorRegistry::getInspector("Breakpoints")->show();
 }
 
-void MemoryDisplayDialog::on_actionBreak_on_CPU_write_here_triggered()
+void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();

@@ -1,20 +1,21 @@
-#ifndef EXECUTIONTRACERDIALOG_H
-#define EXECUTIONTRACERDIALOG_H
+#ifndef EXECUTIONINSPECTORDOCKWIDGET_H
+#define EXECUTIONINSPECTORDOCKWIDGET_H
 
-#include <QDialog>
 #include "cdebuggerexecutiontracermodel.h"
 
-namespace Ui
-{
-class ExecutionTracerDialog;
+#include <QDockWidget>
+
+namespace Ui {
+   class ExecutionInspectorDockWidget;
 }
 
-class ExecutionTracerDialog : public QDialog
+class ExecutionInspectorDockWidget : public QDockWidget
 {
    Q_OBJECT
+
 public:
-   ExecutionTracerDialog(QWidget* parent = 0);
-   ~ExecutionTracerDialog();
+   explicit ExecutionInspectorDockWidget(QWidget *parent = 0);
+   ~ExecutionInspectorDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);
@@ -24,11 +25,8 @@ protected:
 public slots:
    void updateTracer();
 
-signals:
-   void showMe();
-
 private:
-   Ui::ExecutionTracerDialog* ui;
+   Ui::ExecutionInspectorDockWidget *ui;
    CDebuggerExecutionTracerModel* model;
 
 private slots:
@@ -37,4 +35,4 @@ private slots:
    void on_showPPU_toggled(bool checked);
 };
 
-#endif // EXECUTIONTRACERDIALOG_H
+#endif // EXECUTIONINSPECTORDOCKWIDGET_H

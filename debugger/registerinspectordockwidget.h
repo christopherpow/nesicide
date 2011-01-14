@@ -1,24 +1,24 @@
-#ifndef REGISTERDISPLAYDIALOG_H
-#define REGISTERDISPLAYDIALOG_H
+#ifndef REGISTERINSPECTORDOCKWIDGET_H
+#define REGISTERINSPECTORDOCKWIDGET_H
 
-#include <QDialog>
 #include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggerregisterdisplaymodel.h"
 #include "cdebuggerregistercomboboxdelegate.h"
-
 #include "cregisterdata.h"
 
-namespace Ui
-{
-class RegisterDisplayDialog;
+#include <QDockWidget>
+
+namespace Ui {
+   class RegisterInspectorDockWidget;
 }
 
-class RegisterDisplayDialog : public QDialog
+class RegisterInspectorDockWidget : public QDockWidget
 {
    Q_OBJECT
+
 public:
-   RegisterDisplayDialog(QWidget* parent = 0, eMemoryType display = eMemory_IOregs);
-   ~RegisterDisplayDialog();
+   explicit RegisterInspectorDockWidget(eMemoryType display = eMemory_IOregs, QWidget *parent = 0);
+   ~RegisterInspectorDockWidget();
 
 protected:
    void changeEvent(QEvent* e);
@@ -28,11 +28,8 @@ protected:
 public slots:
    void updateMemory();
 
-signals:
-   void showMe(eMemoryType display);
-
 private:
-   Ui::RegisterDisplayDialog* ui;
+   Ui::RegisterInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* binaryModel;
    CDebuggerRegisterDisplayModel* bitfieldModel;
    CDebuggerRegisterComboBoxDelegate* bitfieldDelegate;
@@ -50,4 +47,4 @@ private slots:
    void on_binaryView_clicked(QModelIndex index);
 };
 
-#endif // REGISTERDISPLAYDIALOG_H
+#endif // REGISTERINSPECTORDOCKWIDGET_H

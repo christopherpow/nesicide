@@ -13,10 +13,10 @@
 #include "chrmeminspector.h"
 #include "oaminspector.h"
 #include "nametableinspector.h"
-#include "executioninspector.h"
+#include "executioninspectordockwidget.h"
 #include "executionvisualizer.h"
-#include "memoryinspector.h"
-#include "registerinspector.h"
+#include "memoryinspectordockwidget.h"
+#include "registerinspectordockwidget.h"
 #include "breakpointinspector.h"
 #include "codeinspector.h"
 #include "codedataloggerinspector.h"
@@ -61,23 +61,23 @@ private:
    void saveProject();
 
    // Debugger inspector dockables
-   ExecutionInspector* m_pExecutionInspector;
+   ExecutionInspectorDockWidget* m_pExecutionInspector;
    ExecutionVisualizer* m_pExecutionVisualizer;
-   RegisterInspector* m_pBinCPURegisterInspector;
+   RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
    CHRMEMInspector* m_pGfxCHRMemoryInspector;
    OAMInspector* m_pGfxOAMMemoryInspector;
    NameTableInspector* m_pGfxNameTableMemoryInspector;
-   MemoryInspector* m_pBinCPURAMInspector;
-   MemoryInspector* m_pBinROMInspector;
-   MemoryInspector* m_pBinNameTableMemoryInspector;
-   MemoryInspector* m_pBinCHRMemoryInspector;
-   MemoryInspector* m_pBinSRAMMemoryInspector;
-   MemoryInspector* m_pBinEXRAMMemoryInspector;
-   RegisterInspector* m_pBinPPURegisterInspector;
-   RegisterInspector* m_pBinAPURegisterInspector;
-   RegisterInspector* m_pBinOAMMemoryInspector;
-   MemoryInspector* m_pBinPaletteMemoryInspector;
-   RegisterInspector* m_pBinMapperMemoryInspector;
+   MemoryInspectorDockWidget* m_pBinCPURAMInspector;
+   MemoryInspectorDockWidget* m_pBinROMInspector;
+   MemoryInspectorDockWidget* m_pBinNameTableMemoryInspector;
+   MemoryInspectorDockWidget* m_pBinCHRMemoryInspector;
+   MemoryInspectorDockWidget* m_pBinSRAMMemoryInspector;
+   MemoryInspectorDockWidget* m_pBinEXRAMMemoryInspector;
+   RegisterInspectorDockWidget* m_pBinPPURegisterInspector;
+   RegisterInspectorDockWidget* m_pBinAPURegisterInspector;
+   RegisterInspectorDockWidget* m_pBinOAMMemoryInspector;
+   MemoryInspectorDockWidget* m_pBinPaletteMemoryInspector;
+   RegisterInspectorDockWidget* m_pBinMapperMemoryInspector;
    BreakpointInspector* m_pBreakpointInspector;
    CodeInspector* m_pCodeInspector;
    CodeDataLoggerInspector* m_pCodeDataLoggerInspector;
