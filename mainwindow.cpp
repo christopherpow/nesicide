@@ -9,12 +9,12 @@
 #include <QStringList>
 #include <QMessageBox>
 
-OutputDockWidget* output = NULL;
+OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* projectBrowser = NULL;
 
 
-oam visualizer "show onscreen" not working
-move dialog for output pane into output pane dock widget
+// TODO: oam visualizer "show onscreen" not working
+// TODO: move dialog for output pane into output pane dock widget
 
 MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    projectDataChangesEvent();
    
-   output = new OutputDockWidget ();
+   output = new OutputPaneDockWidget ();
    output->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    output->setWindowTitle("Output");
    output->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(&generalTextLogger,SIGNAL(updateText()),&generalTextLogger,SLOT(update()));
    QObject::connect(&buildTextLogger,SIGNAL(updateText()),&buildTextLogger,SLOT(update()));
    QObject::connect(&debugTextLogger,SIGNAL(updateText()),&debugTextLogger,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(showDebugPane()),output,SLOT(showDebugPane()));
+   QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
    InspectorRegistry::addInspector ( "Output", output );
 
    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
@@ -417,7 +417,7 @@ void MainWindow::dropEvent(QDropEvent* event)
    
    if ( event->mimeData()->hasUrls() )
    {
-      output->showGeneralPane();
+      output->showPane(OutputPaneDockWidget::Output_General);
             
       fileUrls = event->mimeData()->urls();
       
@@ -624,7 +624,7 @@ void MainWindow::on_actionNew_Project_triggered()
 
 void MainWindow::openROM(QString fileName)
 {
-   output->showGeneralPane();
+   output->showPane(OutputPaneDockWidget::Output_General);
 
    emulator->pauseEmulation(false);
    
@@ -842,8 +842,8 @@ void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-   output->showBuildPane();
-   output->clearBuildPane();
+   output->showPane(OutputPaneDockWidget::Output_Build);
+   output->clearPane(OutputPaneDockWidget::Output_Build);
    emulator->pauseEmulation(false);
    compiler->start();
 }

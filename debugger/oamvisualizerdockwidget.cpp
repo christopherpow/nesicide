@@ -107,9 +107,11 @@ void OAMVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 void OAMVisualizerDockWidget::on_updateScanline_editingFinished()
 {
    CPPUDBG::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
+   renderer->repaint();
 }
 
 void OAMVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
    CPPUDBG::SetOAMViewerShowVisible ( checked );
+   renderer->repaint();
 }

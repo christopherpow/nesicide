@@ -51,7 +51,7 @@ void BreakpointWatcherThread::run ()
 
             debugTextLogger.write ( hitMsg );
 
-            emit showDebugPane();
+            emit showPane(OutputPaneDockWidget::Output_Debug);
          }
       }
 

@@ -210,8 +210,6 @@ SOURCES += mainwindow.cpp \
     debugger/dbg_cnesrom.cpp \
     debugger/dbg_cnesrommapper004.cpp \
     debugger/dbg_cnesrommapper001.cpp \
-    outputdockwidget.cpp \
-    outputdialog.cpp \
     compiler/compilerthread.cpp \
     emulatorprefsdialog.cpp \
     qkeymapitemedit.cpp \
@@ -230,7 +228,8 @@ SOURCES += mainwindow.cpp \
     debugger/executionvisualizerdockwidget.cpp \
     debugger/mapperinformationdockwidget.cpp \
     debugger/nametablevisualizerdockwidget.cpp \
-    debugger/oamvisualizerdockwidget.cpp
+    debugger/oamvisualizerdockwidget.cpp \
+    outputpanedockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -309,8 +308,6 @@ HEADERS += mainwindow.h \
     debugger/dbg_cnesapu.h \
     debugger/dbg_cnesrommapper001.h \
     debugger/dbg_cnesrommapper004.h \
-    outputdockwidget.h \
-    outputdialog.h \
     compiler/compilerthread.h \
     emulatorprefsdialog.h \
     qkeymapitemedit.h \
@@ -329,7 +326,8 @@ HEADERS += mainwindow.h \
     debugger/executionvisualizerdockwidget.h \
     debugger/mapperinformationdockwidget.h \
     debugger/nametablevisualizerdockwidget.h \
-    debugger/oamvisualizerdockwidget.h
+    debugger/oamvisualizerdockwidget.h \
+    outputpanedockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -344,7 +342,6 @@ FORMS += mainwindow.ui \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
-    outputdialog.ui \
     emulatorprefsdialog.ui \
     designers/attribute_table_editor/attributetableeditorform.ui \
     common/sourcenavigator.ui \
@@ -359,6 +356,7 @@ FORMS += mainwindow.ui \
     debugger/executionvisualizerdockwidget.ui \
     debugger/mapperinformationdockwidget.ui \
     debugger/nametablevisualizerdockwidget.ui \
-    debugger/oamvisualizerdockwidget.ui
+    debugger/oamvisualizerdockwidget.ui \
+    outputpanedockwidget.ui
 
 RESOURCES += resource.qrc

@@ -1,5 +1,5 @@
-#include "outputdialog.h"
-#include "ui_outputdialog.h"
+#include "outputpanedockwidget.h"
+#include "ui_outputpanedockwidget.h"
 
 #include "cbuildertextlogger.h"
 
@@ -8,9 +8,9 @@
 #include <QMenu>
 #include <QFileDialog>
 
-OutputDialog::OutputDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::OutputDialog)
+OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::OutputPaneDockWidget)
 {
    ui->setupUi(this);
    ui->outputTabWidget->setCurrentIndex(Output_General);
@@ -21,24 +21,24 @@ OutputDialog::OutputDialog(QWidget* parent) :
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateData()));
 }
 
-OutputDialog::~OutputDialog()
+OutputPaneDockWidget::~OutputPaneDockWidget()
 {
    delete ui;
 }
 
-void OutputDialog::setCurrentOutputTab(int tab)
+void OutputPaneDockWidget::showPane(int tab)
 {
    ui->outputTabWidget->setCurrentIndex(tab);
 }
 
-void OutputDialog::clearAllTabs()
+void OutputPaneDockWidget::clearAllPanes()
 {
    generalTextLogger.clear();
    buildTextLogger.clear();
    debugTextLogger.clear();
 }
 
-void OutputDialog::clearTab(int tab)
+void OutputPaneDockWidget::clearPane(int tab)
 {
    switch ( tab )
    {
@@ -54,7 +54,7 @@ void OutputDialog::clearTab(int tab)
    }
 }
 
-void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )
+void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
 {
    QMenu menu;
    QAction clear("Clear",0);
@@ -105,7 +105,7 @@ void OutputDialog::contextMenuEvent ( QContextMenuEvent* event )
    }
 }
 
-void OutputDialog::updateData()
+void OutputPaneDockWidget::updateData()
 {
    debugTextLogger.update();
 }

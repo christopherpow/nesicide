@@ -25,7 +25,7 @@
 #include "mapperinformationdockwidget.h"
 #include "aboutdialog.h"
 #include "environmentsettingsdialog.h"
-#include "outputdockwidget.h"
+#include "outputpanedockwidget.h"
 #include "emulatorprefsdialog.h"
 #include "sourcenavigator.h"
 
@@ -34,7 +34,7 @@ namespace Ui
 class MainWindow;
 }
 
-extern OutputDockWidget* output;
+extern OutputPaneDockWidget* output;
 
 class MainWindow : public QMainWindow
 {
