@@ -87,11 +87,11 @@ public:
    virtual void openItemEvent(QTabWidget* tabWidget) = 0;
    virtual bool onCloseQuery() = 0;
    virtual void onClose() = 0;
-   virtual int tabIndex() = 0;
    virtual bool isDocumentSaveable() = 0;
    virtual void onSaveDocument() = 0;
    virtual bool canChangeName() = 0;
    virtual bool onNameChanged(QString newValue) = 0;
+   virtual QWidget* tab() { return 0; }
 
 private:
    QList<IProjectTreeViewItem*> childItems;

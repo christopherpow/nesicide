@@ -26,10 +26,10 @@ public:
    virtual void onSaveDocument();
    virtual bool canChangeName();
    virtual bool onNameChanged(QString newName);
-
+   virtual QWidget* tab() { return m_editor; }
 private:
    // Designer
-   AttributeTableEditorForm* m_attributeTableEditorForm;
+   AttributeTableEditorForm* m_editor;
 };
 
 #endif // CATTRIBUTETABLE_H

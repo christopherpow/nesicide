@@ -2572,6 +2572,21 @@ const char* OPCODEINFO(uint8_t op)
    return *(m_6502opcodeInfo+op);
 }
 
+const char* OPCODEINFO(const char* op)
+{
+   int i;
+   
+   for ( i = 0; i < 256; i++ )
+   {
+      if ( strnicmp((m_6502opcode+i)->name,op,3) == 0 )
+      {
+         return *(m_6502opcodeInfo+i);
+      }
+   }
+   
+   return NULL;
+}
+
 uint8_t OPCODESIZE ( uint8_t op )
 {
    C6502_opcode* pOp;

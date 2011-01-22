@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>327</width>
-    <height>230</height>
+    <height>222</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>327</width>
-    <height>230</height>
+    <height>0</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -157,7 +157,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -269,7 +269,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page"/>
+     <widget class="QWidget" name="emptypage"/>
     </widget>
    </item>
    <item row="2" column="0">
@@ -281,7 +281,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="emptyCondition"/>
      <widget class="QWidget" name="addrCondition">
@@ -341,16 +341,16 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
-     <widget class="QWidget" name="page_4">
+     <widget class="QWidget" name="emptyData">
       <layout class="QGridLayout" name="gridLayout_7">
        <property name="margin">
         <number>0</number>
        </property>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_5">
+     <widget class="QWidget" name="editData">
       <layout class="QFormLayout" name="formLayout_5">
        <property name="margin">
         <number>0</number>
@@ -367,7 +367,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_6">
+     <widget class="QWidget" name="comboData">
       <layout class="QFormLayout" name="formLayout_4">
        <property name="margin">
         <number>0</number>
@@ -386,110 +386,58 @@
      </widget>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item row="2" column="0" colspan="6">
-      <widget class="QTableView" name="tableView">
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <property name="alternatingRowColors">
-        <bool>true</bool>
-       </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="textElideMode">
-        <enum>Qt::ElideNone</enum>
-       </property>
-       <property name="showGrid">
-        <bool>false</bool>
-       </property>
-       <property name="cornerButtonEnabled">
-        <bool>false</bool>
-       </property>
-       <attribute name="horizontalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
-        <number>23</number>
-       </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
-        <number>23</number>
-       </attribute>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
-        <number>23</number>
-       </attribute>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="horizontalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
-        <number>23</number>
-       </attribute>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="addButton">
+   <item row="5" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="cancel">
        <property name="text">
-        <string>Add</string>
+        <string>Cancel</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="enabled">
+       <property name="text">
+        <string>Enabled</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addBreakpoint">
+       <property name="text">
+        <string>Add Breakpoint</string>
        </property>
        <property name="default">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="removeButton">
-       <property name="text">
-        <string>Remove</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="modifyButton">
-       <property name="text">
-        <string>Modify</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QPushButton" name="endisButton">
-       <property name="text">
-        <string>Enable/Disable</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QStackedWidget" name="resolverWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="emptyMap"/>
+     <widget class="QWidget" name="useMap">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="1">
+        <widget class="QComboBox" name="resolutions"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="resolve">
+         <property name="text">
+          <string>Resolve using Mapper</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -503,11 +451,6 @@
   <tabstop>eventData1</tabstop>
   <tabstop>condition</tabstop>
   <tabstop>data2</tabstop>
-  <tabstop>addButton</tabstop>
-  <tabstop>removeButton</tabstop>
-  <tabstop>modifyButton</tabstop>
-  <tabstop>endisButton</tabstop>
-  <tabstop>tableView</tabstop>
  </tabstops>
  <resources/>
  <connections/>

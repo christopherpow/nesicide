@@ -38,8 +38,8 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
-   unsigned int addr;
-   unsigned int absAddr;
+   int32_t addr;
+   int32_t absAddr;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
 
@@ -48,13 +48,13 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
       return QVariant();
    }
 
-   addr = pasm_get_source_addr_by_linenum_and_file(index.row()+1,this->m_sourceFilename.toAscii().data());
+   addr = pasm_get_source_addr_by_linenum_and_file(index.row()+1,this->m_sourceFilename.toAscii().constData());
 
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file(index.row()+1,this->m_sourceFilename.toAscii().constData());
 
    if ( role == Qt::ToolTipRole )
    {
-      if ( addr != 0xFFFFFFFF )
+      if ( addr != -1 )
       {
          if ( index.column() > Column_Decoration )
          {
@@ -92,8 +92,9 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
 
          if ( (pBreakpoint->enabled) &&
                (pBreakpoint->type == eBreakOnCPUExecution) &&
-               ((uint32_t)pBreakpoint->item1 <= addr) &&
-               ((uint32_t)pBreakpoint->item2 >= addr) )
+               (pBreakpoint->item1 <= addr) &&
+               ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+               (pBreakpoint->item2 >= addr) )
          {
             if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {
@@ -106,8 +107,9 @@ QVariant CSourceBrowserDisplayModel::data(const QModelIndex& index, int role) co
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
-                   ((uint32_t)pBreakpoint->item1 <= addr) &&
-                   ((uint32_t)pBreakpoint->item2 >= addr) )
+                   (pBreakpoint->item1 <= addr) &&
+                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                   (pBreakpoint->item2 >= addr) )
          {
             if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {

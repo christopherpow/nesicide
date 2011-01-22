@@ -30,8 +30,6 @@ bool CSourceAssembler::assemble()
    QString strBuffer2;
    char* errors;
    int numErrors;
-   int numSymbols;
-   int symbol;
    int marker;
 
    if (!rootSource)
@@ -43,8 +41,8 @@ bool CSourceAssembler::assemble()
 
    buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->name() + "'...");
 
-   pasm_assemble ( rootSource->name().toAscii().data(),
-                   rootSource->get_sourceCode().toAscii().data(),
+   pasm_assemble ( rootSource->name().toAscii().constData(),
+                   rootSource->get_sourceCode().toAscii().constData(),
                    &romData,
                    &romLength,
                    PASM_include );
@@ -103,17 +101,6 @@ bool CSourceAssembler::assemble()
                nesGetExecutionMarkerDatabase()->CompleteMarker(marker,pasm_get_permanent_marker_end_address(marker));
             }
          }
-      }
-   }
-
-   if ( !numErrors )
-   {
-      QDockWidget* pCodeBrowser = InspectorRegistry::getInspector ( "Code Browser" );
-
-      if ( pCodeBrowser->isVisible() )
-      {
-         pCodeBrowser->hide();
-         pCodeBrowser->show();
       }
    }
 

@@ -9,7 +9,9 @@
 
 #include "main.h"
 
-BreakpointDialog::BreakpointDialog(QWidget* parent) :
+#include "pasm_lib.h"
+
+BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
    QDialog(parent),
    ui(new Ui::BreakpointDialog)
 {
@@ -18,19 +20,29 @@ BreakpointDialog::BreakpointDialog(QWidget* parent) :
    ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
    ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
    ui->type->setCurrentIndex ( eBreakOnCPUExecution );
-
-   model = new CBreakpointDisplayModel();
-   ui->tableView->setModel ( model );
+   
+   ui->enabled->setChecked(true);
+   
+   ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
+   ui->resolve->setChecked(false);
+   ui->resolutions->addItem("N/A");
+   ui->resolutions->setEnabled(false);
 
    m_pRegister = NULL;
    m_pBitfield = NULL;
    m_pEvent = NULL;
-
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()));
-   QObject::connect(emulator,SIGNAL(breakpointClear()),this,SLOT(updateData()));
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(updateData()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),this,SLOT(updateData()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),this,SLOT(updateData()));
+   
+   if ( bp >= 0 )
+   {
+      setWindowTitle("Edit Breakpoint");
+      ui->addBreakpoint->setText("Edit Breakpoint");
+      DisplayBreakpoint(bp);
+   }
+   else
+   {
+      setWindowTitle("Add Breakpoint");
+      ui->addBreakpoint->setText("Add Breakpoint");
+   }
 }
 
 BreakpointDialog::~BreakpointDialog()
@@ -52,47 +64,11 @@ void BreakpointDialog::changeEvent(QEvent* e)
    }
 }
 
-void BreakpointDialog::showEvent(QShowEvent*)
-{
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
-   if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
-   {
-      ui->addButton->setEnabled(false);
-   }
-   else
-   {
-      ui->addButton->setEnabled(true);
-   }
-
-   model->layoutChangedEvent();
-   ui->tableView->resizeColumnToContents(0);
-}
-
-void BreakpointDialog::updateData()
-{
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int idx;
-
-   model->layoutChangedEvent();
-
-   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
-   {
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-
-      if ( pBreakpoint->hit )
-      {
-         ui->tableView->setCurrentIndex(model->index(idx,0));
-      }
-   }
-}
-
 void BreakpointDialog::on_type_currentIndexChanged(int index)
 {
    CBreakpointEventInfo** pBreakpointEventInfo = NULL;
    int idx;
 
-   ui->addButton->setEnabled(true);
    ui->item1label->setText("Data1:");
    ui->item2label->setText("Data2:");
    ui->event->setCurrentIndex(0);
@@ -217,11 +193,6 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
                ui->reg->addItem ( nesGetCartridgeRegisterDatabase()[idx]->GetName() );
             }
          }
-         else
-         {
-            ui->addButton->setEnabled(false);
-         }
-
          break;
       case eBreakOnMapperEvent:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
@@ -333,82 +304,136 @@ void BreakpointDialog::on_bitfield_currentIndexChanged(int index)
    }
 }
 
-void BreakpointDialog::on_addButton_clicked()
+void BreakpointDialog::on_event_currentIndexChanged(int)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   bool ok;
-   int  item1 = 0;
-   int  item2 = 0;
-   int  data = 0;
-   int  event = 0;
-
-   switch ( ui->itemWidget->currentIndex() )
+   if ( ui->event->currentIndex() >= 0 )
    {
-      case eBreakpointItemNone:
-         // No item...
-         break;
-      case eBreakpointItemAddress:
-         // Address item...
-         item1 = ui->addr1->text().toInt(&ok, 16);
-         item2 = ui->addr2->text().toInt(&ok, 16);
-         break;
-      case eBreakpointItemRegister:
-         // Register item...
-         item1 = ui->reg->currentIndex ();
-         item2 = ui->bitfield->currentIndex ();
+      switch ( ui->type->currentIndex() )
+      {
+         case eBreakOnCPUEvent:
+            m_pEvent = nesGetCpuBreakpointEventDatabase()[ui->event->currentIndex()];
+            break;
+         case eBreakOnPPUEvent:
+            m_pEvent = nesGetPpuBreakpointEventDatabase()[ui->event->currentIndex()];
+            break;
+         case eBreakOnAPUEvent:
+            m_pEvent = nesGetApuBreakpointEventDatabase()[ui->event->currentIndex()];
+            break;
+         case eBreakOnMapperEvent:
+            m_pEvent = nesGetCartridgeBreakpointEventDatabase()[ui->event->currentIndex()];
+            break;
+         default:
+            // No events...
+            m_pEvent = NULL;
+            break;
+      }
 
-         // sometimes no bitfield...
-         if ( item2 < 0 )
+      if ( m_pEvent )
+      {
+         if ( m_pEvent->GetNumElements() == 2 )
          {
-            item2 = 0;
+            ui->eventData1->setVisible ( true );
+            ui->eventData2->setVisible ( true );
+            ui->item1label->setVisible ( true );
+            ui->item2label->setVisible ( true );
+         }
+         else if ( m_pEvent->GetNumElements() == 1 )
+         {
+            ui->eventData1->setVisible ( true );
+            ui->eventData2->setVisible ( false );
+            ui->item1label->setVisible ( true );
+            ui->item2label->setVisible ( false );
+         }
+         else
+         {
+            ui->eventData1->setVisible ( false );
+            ui->eventData2->setVisible ( false );
+            ui->item1label->setVisible ( false );
+            ui->item2label->setVisible ( false );
          }
 
-         break;
-      case eBreakpointItemEvent:
-
-         if ( m_pEvent )
+         if ( m_pEvent->GetItemName(0) )
          {
-            item1 = ui->eventData1->text().toInt(&ok, m_pEvent->GetElementRadix());
-            item2 = ui->eventData2->text().toInt(&ok, m_pEvent->GetElementRadix());
-            event = ui->event->currentIndex ();
+            ui->item1label->setText(m_pEvent->GetItemName(0));
          }
 
-         break;
+         if ( m_pEvent->GetItemName(1) )
+         {
+            ui->item2label->setText(m_pEvent->GetItemName(1));
+         }
+      }
    }
+}
 
-   switch ( ui->dataWidget->currentIndex() )
+void BreakpointDialog::on_addr1_textChanged(QString )
+{
+   ui->addr2->setText(ui->addr1->text());
+   DisplayResolutions();
+   
+}
+
+void BreakpointDialog::DisplayResolutions ()
+{
+   char buffer [ 16 ];
+   uint32_t size = nesGetPRGROMSize();
+   uint32_t originalAddr;
+   uint32_t maskedAddr;
+   int      linenum;
+   char*    source;
+   QString  item;
+   QString  text;
+   QStringList textSplit;
+   
+   // Get address from UI
+   originalAddr = ui->addr1->text().toInt(0,16);
+   // Mask to get all available potential absolute addresses
+   maskedAddr = originalAddr&MASK_8KB;
+   
+   if ( ui->resolve->isChecked() )
    {
-      case eBreakpointDataNone:
-         // No data...
-         break;
-      case eBreakpointDataPure:
-         // Direct value data...
-         data = ui->data1->text().toInt(&ok, 16);
-         break;
-      case eBreakpointDataPick:
-         // Picklist data...
-         data = ui->data2->currentIndex ();
-         break;
+      ui->resolutions->clear();
+      for ( ; maskedAddr < size; maskedAddr += MEM_8KB )
+      {
+         if ( compiler->assembledOk() )
+         {
+            source = pasm_get_source_file_name_by_addr(maskedAddr);
+            if ( source )
+            {
+               text = pasm_get_source_file_text_by_addr(maskedAddr);
+               linenum = pasm_get_source_linenum_by_absolute_addr(maskedAddr);
+               textSplit = text.split(QRegExp("[\r\n]"));
+               text = textSplit.at(linenum-1);
+               item.sprintf("%s:%d:",
+                            source,
+                            linenum);
+               item.append(text);
+               ui->resolutions->addItem(item);
+               ui->resolutions->setItemData(ui->resolutions->count()-1,maskedAddr);
+            }
+         }
+         else
+         {
+            nesGetDisassemblyAtAbsoluteAddress(maskedAddr,buffer);
+            item.sprintf("%06X:%s",maskedAddr,buffer);
+            ui->resolutions->addItem(item);
+            ui->resolutions->setItemData(ui->resolutions->count()-1,maskedAddr);
+         }
+         if ( nesGetAbsoluteAddressFromAddress(originalAddr) == maskedAddr )
+         {
+            ui->resolutions->setCurrentIndex(ui->resolutions->count()-1);
+         }
+      }
+      if ( ui->resolutions->count() )
+      {
+         ui->resolutions->setEnabled(true);
+      }
    }
-
-   pBreakpoints->AddBreakpoint ( (eBreakpointType)ui->type->currentIndex(),
-                                 (eBreakpointItemType)ui->itemWidget->currentIndex(),
-                                 event,
-                                 item1,
-                                 item2,
-                                 (eBreakpointConditionType)ui->conditionWidget->currentIndex(),
-                                 ui->condition->currentIndex(),
-                                 (eBreakpointDataType)ui->dataWidget->currentIndex(),
-                                 data );
-
-   if ( pBreakpoints->GetNumBreakpoints() == NUM_BREAKPOINTS )
+   else
    {
-      ui->addButton->setEnabled(false);
+      ui->resolutions->clear();
+      ui->resolutions->addItem("N/A");
+      ui->resolutions->setEnabled(false);
    }
-
-   model->layoutChangedEvent();
-
-   emit breakpointsChanged();
 }
 
 void BreakpointDialog::DisplayBreakpoint ( int idx )
@@ -421,6 +446,18 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
    ui->item1label->setText("Data1:");
    ui->item2label->setText("Data2:");
+   
+   ui->enabled->setChecked(pBreakpoint->enabled);
+   
+   // Turn resolver on so it populates if the absolute address is known.
+   if ( pBreakpoint->item1Absolute >= 0 )
+   {
+      ui->resolve->setChecked(true);
+   }
+   else
+   {
+      ui->resolve->setChecked(false);
+   }
 
    switch ( pBreakpoint->itemType )
    {
@@ -498,204 +535,99 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
       case eBreakpointDataNone:
          break;
    }
+   DisplayResolutions();
 }
 
-void BreakpointDialog::on_tableView_activated(QModelIndex index)
+
+void BreakpointDialog::on_cancel_clicked()
 {
-   DisplayBreakpoint ( index.row() );
+   reject();
 }
 
-void BreakpointDialog::on_tableView_clicked(QModelIndex index)
-{
-   DisplayBreakpoint ( index.row() );
-}
-
-void BreakpointDialog::on_tableView_doubleClicked(QModelIndex index)
-{
-   DisplayBreakpoint ( index.row() );
-}
-
-void BreakpointDialog::on_tableView_entered(QModelIndex index)
-{
-   DisplayBreakpoint ( index.row() );
-}
-
-void BreakpointDialog::on_tableView_pressed(QModelIndex index)
-{
-   DisplayBreakpoint ( index.row() );
-}
-
-void BreakpointDialog::on_event_currentIndexChanged(int)
-{
-   if ( ui->event->currentIndex() >= 0 )
-   {
-      switch ( ui->type->currentIndex() )
-      {
-         case eBreakOnCPUEvent:
-            m_pEvent = nesGetCpuBreakpointEventDatabase()[ui->event->currentIndex()];
-            break;
-         case eBreakOnPPUEvent:
-            m_pEvent = nesGetPpuBreakpointEventDatabase()[ui->event->currentIndex()];
-            break;
-         case eBreakOnAPUEvent:
-            m_pEvent = nesGetApuBreakpointEventDatabase()[ui->event->currentIndex()];
-            break;
-         case eBreakOnMapperEvent:
-            m_pEvent = nesGetCartridgeBreakpointEventDatabase()[ui->event->currentIndex()];
-            break;
-         default:
-            // No events...
-            m_pEvent = NULL;
-            break;
-      }
-
-      if ( m_pEvent )
-      {
-         if ( m_pEvent->GetNumElements() == 2 )
-         {
-            ui->eventData1->setVisible ( true );
-            ui->eventData2->setVisible ( true );
-            ui->item1label->setVisible ( true );
-            ui->item2label->setVisible ( true );
-         }
-         else if ( m_pEvent->GetNumElements() == 1 )
-         {
-            ui->eventData1->setVisible ( true );
-            ui->eventData2->setVisible ( false );
-            ui->item1label->setVisible ( true );
-            ui->item2label->setVisible ( false );
-         }
-         else
-         {
-            ui->eventData1->setVisible ( false );
-            ui->eventData2->setVisible ( false );
-            ui->item1label->setVisible ( false );
-            ui->item2label->setVisible ( false );
-         }
-
-         if ( m_pEvent->GetItemName(0) )
-         {
-            ui->item1label->setText(m_pEvent->GetItemName(0));
-         }
-
-         if ( m_pEvent->GetItemName(1) )
-         {
-            ui->item2label->setText(m_pEvent->GetItemName(1));
-         }
-      }
-   }
-}
-
-void BreakpointDialog::on_removeButton_clicked()
+void BreakpointDialog::on_addBreakpoint_clicked()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
-   if ( ui->tableView->currentIndex().row() >= 0 )
-   {
-      pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
-
-      ui->addButton->setEnabled(true);
-   }
-
-   model->layoutChangedEvent();
-
-   emit breakpointsChanged();
-}
-
-void BreakpointDialog::on_addr1_textChanged(QString )
-{
-   ui->addr2->setText(ui->addr1->text());
-}
-
-void BreakpointDialog::on_modifyButton_clicked()
-{
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   bool ok;
    int  item1 = 0;
+   int  item1Absolute = 0;
    int  item2 = 0;
    int  data = 0;
    int  event = 0;
-   QModelIndex sel = ui->tableView->currentIndex();
 
-   if ( sel.row() >= 0 )
+   switch ( ui->itemWidget->currentIndex() )
    {
-      switch ( ui->itemWidget->currentIndex() )
-      {
-         case eBreakpointItemNone:
-            // No item...
-            break;
-         case eBreakpointItemAddress:
-            // Address item...
-            item1 = ui->addr1->text().toInt(&ok, 16);
-            item2 = ui->addr2->text().toInt(&ok, 16);
-            break;
-         case eBreakpointItemRegister:
-            // Register item...
-            item1 = ui->reg->currentIndex ();
-            item2 = ui->bitfield->currentIndex ();
+      case eBreakpointItemNone:
+         // No item...
+         break;
+      case eBreakpointItemAddress:
+         // Address item...
+         item1 = ui->addr1->text().toInt(0, 16);
+         item2 = ui->addr2->text().toInt(0, 16);
+         break;
+      case eBreakpointItemRegister:
+         // Register item...
+         item1 = ui->reg->currentIndex ();
+         item2 = ui->bitfield->currentIndex ();
 
-            // sometimes no bitfield...
-            if ( item2 < 0 )
-            {
-               item2 = 0;
-            }
+         // sometimes no bitfield...
+         if ( item2 < 0 )
+         {
+            item2 = 0;
+         }
 
-            break;
-         case eBreakpointItemEvent:
+         break;
+      case eBreakpointItemEvent:
 
-            if ( m_pEvent )
-            {
-               item1 = ui->eventData1->text().toInt(&ok, m_pEvent->GetElementRadix());
-               item2 = ui->eventData2->text().toInt(&ok, m_pEvent->GetElementRadix());
-               event = ui->event->currentIndex ();
-            }
+         if ( m_pEvent )
+         {
+            item1 = ui->eventData1->text().toInt(0, m_pEvent->GetElementRadix());
+            item2 = ui->eventData2->text().toInt(0, m_pEvent->GetElementRadix());
+            event = ui->event->currentIndex ();
+         }
 
-            break;
-      }
-
-      switch ( ui->dataWidget->currentIndex() )
-      {
-         case eBreakpointDataNone:
-            // No data...
-            break;
-         case eBreakpointDataPure:
-            // Direct value data...
-            data = ui->data1->text().toInt(&ok, 16);
-            break;
-         case eBreakpointDataPick:
-            // Picklist data...
-            data = ui->data2->currentIndex ();
-            break;
-      }
+         break;
    }
 
-   pBreakpoints->ModifyBreakpoint ( sel.row(),
-                                    (eBreakpointType)ui->type->currentIndex(),
-                                    (eBreakpointItemType)ui->itemWidget->currentIndex(),
-                                    event,
-                                    item1,
-                                    item2,
-                                    (eBreakpointConditionType)ui->conditionWidget->currentIndex(),
-                                    ui->condition->currentIndex(),
-                                    (eBreakpointDataType)ui->dataWidget->currentIndex(),
-                                    data );
+   switch ( ui->dataWidget->currentIndex() )
+   {
+      case eBreakpointDataNone:
+         // No data...
+         break;
+      case eBreakpointDataPure:
+         // Direct value data...
+         data = ui->data1->text().toInt(0, 16);
+         break;
+      case eBreakpointDataPick:
+         // Picklist data...
+         data = ui->data2->currentIndex ();
+         break;
+   }
 
-   model->layoutChangedEvent();
-
-   emit breakpointsChanged();
+   if ( ui->resolve->isChecked() )
+   {
+      item1Absolute = ui->resolutions->itemData(ui->resolutions->currentIndex()).toInt();
+   }
+   pBreakpoints->ConstructBreakpoint ( &m_breakpoint,
+                                       (eBreakpointType)ui->type->currentIndex(),
+                                       (eBreakpointItemType)ui->itemWidget->currentIndex(),
+                                       event,
+                                       item1,
+                                       item1Absolute,
+                                       item2,
+                                       (eBreakpointConditionType)ui->conditionWidget->currentIndex(),
+                                       ui->condition->currentIndex(),
+                                       (eBreakpointDataType)ui->dataWidget->currentIndex(),
+                                       data,
+                                       ui->enabled->isChecked() );
+   
+   accept();
 }
 
-void BreakpointDialog::on_endisButton_clicked()
+void BreakpointDialog::on_resolutions_activated(int index)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   QModelIndex sel = ui->tableView->currentIndex();
+    
+}
 
-   if ( sel.row() >= 0 )
-   {
-      pBreakpoints->ToggleEnabled ( sel.row() );
-
-      model->layoutChangedEvent();
-
-      emit breakpointsChanged();
-   }
+void BreakpointDialog::on_resolve_clicked()
+{
+    DisplayResolutions();
 }

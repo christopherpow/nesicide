@@ -2,7 +2,6 @@
 
 #include "main.h"
 #include "mainwindow.h"
-#include "cconfigurator.h"
 #include "cpluginmanager.h"
 #include "startupsplashdialog.h"
 
@@ -37,9 +36,6 @@ CGameDatabaseHandler gameDatabase;
 // Main window of application.
 MainWindow* nesicideWindow;
 
-// Persistent settings for application.
-CConfigurator* CONFIG;
-
 // The project container.
 CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 
@@ -47,8 +43,9 @@ int main(int argc, char* argv[])
 {
    QApplication nesicideApplication(argc, argv);
 
-   // Initialize the configuration system
-   appConfig = new CConfigurator();
+   QCoreApplication::setOrganizationName("CSPSoftware");
+   QCoreApplication::setOrganizationDomain("nesicide.com");
+   QCoreApplication::setApplicationName("NESICIDE");
 
    // Initialize the game database object...
    gameDatabase.initialize("NesCarts (2010-02-08).xml");

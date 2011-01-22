@@ -21,6 +21,8 @@ public:
 
 protected:
    void changeEvent(QEvent* e);
+   void mouseMoveEvent ( QMouseEvent* e );
+   void contextMenuEvent(QContextMenuEvent* e);
 
 private:
    Ui::CodeEditorForm* ui;

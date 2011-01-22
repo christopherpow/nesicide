@@ -4,7 +4,6 @@
 
 CProjectBase::CProjectBase()
 {
-   m_tabIndex = -1;
    m_name = "";      
 }
 

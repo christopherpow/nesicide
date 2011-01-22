@@ -8,6 +8,7 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    QStringList keywordPatterns;
    QStringList preprocessorPatterns;
 
+#if 1
    // Assembler mnemonics
    for (int inx = 0; ; inx++)
    {
@@ -87,6 +88,7 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    rule.pattern = QRegExp(";.*$|//.*$");
    rule.format = singleLineCommentFormat;
    highlightingRules.append(rule);
+#endif
 }
 
 void CSyntaxHighlighter::highlightBlock(const QString& text)
@@ -95,6 +97,7 @@ void CSyntaxHighlighter::highlightBlock(const QString& text)
    {
       foreach (const HighlightingRule &rule, highlightingRules)
       {
+#if 1
          QRegExp expression(rule.pattern);
          int index = expression.indexIn(text);
    
@@ -104,6 +107,16 @@ void CSyntaxHighlighter::highlightBlock(const QString& text)
             setFormat(index, length, rule.format);
             index = expression.indexIn(text, index + length);
          }
+#else
+         int index = text.indexOf(rule.pattern);
+   
+         while (index >= 0)
+         {
+            int length = rule.pattern.matchedLength();
+            setFormat(index, length, rule.format);
+            index = text.indexOf(rule.pattern,index+length);
+         }
+#endif
       }
    }
 }

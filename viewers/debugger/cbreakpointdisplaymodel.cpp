@@ -69,7 +69,7 @@ int CBreakpointDisplayModel::columnCount(const QModelIndex&) const
    return 2;
 }
 
-void CBreakpointDisplayModel::layoutChangedEvent()
+void CBreakpointDisplayModel::update()
 {
-   this->layoutChanged();
+   emit layoutChanged();
 }

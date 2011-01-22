@@ -1,11 +1,17 @@
 #include "environmentsettingsdialog.h"
 #include "ui_environmentsettingsdialog.h"
 
+#include <QSettings>
+
 EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EnvironmentSettingsDialog)
 {
+   QSettings settings;
    ui->setupUi(this);
+   
+   ui->showWelcomeOnStart->setChecked(settings.value(ui->showWelcomeOnStart->objectName(),true).toBool());
+   ui->saveAllOnCompile->setChecked(settings.value(ui->saveAllOnCompile->objectName(),true).toBool());
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -147,4 +153,12 @@ void EnvironmentSettingsDialog::on_PluginPathButton_clicked()
    {
       ui->PluginPathEdit->setText(value);
    }
+}
+
+void EnvironmentSettingsDialog::on_buttonBox_accepted()
+{
+    QSettings settings;
+    
+    settings.setValue(ui->showWelcomeOnStart->objectName(),ui->showWelcomeOnStart->isChecked());
+    settings.setValue(ui->saveAllOnCompile->objectName(),ui->saveAllOnCompile->isChecked());
 }

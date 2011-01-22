@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BreakpointDockWidget</class>
+ <widget class="QDockWidget" name="BreakpointDockWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>237</width>
+    <height>116</height>
+   </rect>
+  </property>
+  <property name="floating">
+   <bool>false</bool>
+  </property>
+  <property name="windowTitle">
+   <string>Breakpoints</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>6</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QTableView" name="tableView">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="textElideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
+      <property name="showGrid">
+       <bool>false</bool>
+      </property>
+      <property name="cornerButtonEnabled">
+       <bool>false</bool>
+      </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>23</number>
+      </attribute>
+      <attribute name="verticalHeaderMinimumSectionSize">
+       <number>23</number>
+      </attribute>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <action name="actionAdd_Breakpoint">
+   <property name="text">
+    <string>Add Breakpoint</string>
+   </property>
+  </action>
+  <action name="actionRemove_Breakpoint">
+   <property name="text">
+    <string>Remove Breakpoint</string>
+   </property>
+  </action>
+  <action name="actionEdit_Breakpoint">
+   <property name="text">
+    <string>Edit Breakpoint</string>
+   </property>
+  </action>
+  <action name="actionEnable_Breakpoint">
+   <property name="text">
+    <string>Enable Breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable Breakpoint</string>
+   </property>
+  </action>
+  <action name="actionDisable_Breakpoint">
+   <property name="text">
+    <string>Disable Breakpoint</string>
+   </property>
+  </action>
+  <action name="actionEnable_All_Breakpoints">
+   <property name="text">
+    <string>Enable All Breakpoints</string>
+   </property>
+  </action>
+  <action name="actionDisable_All_Breakpoints">
+   <property name="text">
+    <string>Disable All Breakpoints</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

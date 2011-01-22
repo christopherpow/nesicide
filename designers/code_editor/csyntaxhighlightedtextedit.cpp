@@ -25,6 +25,12 @@ CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget*)
    highlightCurrentLine();
 }
 
+CSyntaxHighlightedTextEdit::~CSyntaxHighlightedTextEdit()
+{
+   delete highlighter;
+   delete lineNumberArea;
+}
+
 int CSyntaxHighlightedTextEdit::lineNumberAreaWidth()
 {
    int digits = 1;

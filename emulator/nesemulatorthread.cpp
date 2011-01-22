@@ -21,6 +21,8 @@
 
 #include "main.h"
 
+#include "pasm_lib.h"
+
 #undef main
 #include <SDL.h>
 
@@ -118,29 +120,10 @@ void NESEmulatorThread::kill()
    breakpointSemaphore.release();
 }
 
-void NESEmulatorThread::primeEmulator()
-{
-   if ( (nesicideProject) &&
-        (nesicideProject->getCartridge()) )
-   {
-      m_pCartridge = nesicideProject->getCartridge();
-
-      // Force hard-reset of the machine...
-      nesEnableBreakpoints(false);
-      CNESDBG::CLEAROPCODEMASKS();
-
-      // If we were stopped at a breakpoint, release...
-      // Breakpoints have been deleted.
-      if ( !(breakpointSemaphore.available()) )
-      {
-         breakpointSemaphore.release();
-      }
-   }
-}
-
 void NESEmulatorThread::loadCartridge()
 {
    int32_t b;
+   int32_t a;
 
    // Clear emulator's cartridge ROMs...
    nesUnloadROM();
@@ -149,6 +132,19 @@ void NESEmulatorThread::loadCartridge()
    for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
    {
       nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPrgRomBanks()->getPrgRomBanks().at(b)->getBankData() );
+      
+      // Update opcode masks to show proper disassembly...
+      for ( a = 0; a < MEM_16KB; a++ )
+      {
+         if ( pasm_check_for_instruction_at_absolute_addr((b*MEM_16KB)+a) )
+         {
+            nesSetOpcodeMask((b*MEM_16KB)+a,1);
+         }
+         else
+         {
+            nesSetOpcodeMask((b*MEM_16KB)+a,0);
+         }
+      }
    }
 
    // Load cartridge CHR-ROM banks into emulator...
@@ -190,6 +186,26 @@ void NESEmulatorThread::loadCartridge()
    emit cartridgeLoaded();
 }
 
+void NESEmulatorThread::primeEmulator()
+{
+   if ( (nesicideProject) &&
+        (nesicideProject->getCartridge()) )
+   {
+      m_pCartridge = nesicideProject->getCartridge();
+
+      // Force hard-reset of the machine...
+      nesEnableBreakpoints(false);
+      nesClearOpcodeMasks();
+
+      // If we were stopped at a breakpoint, release...
+      // Breakpoints have been deleted.
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+   }
+}
+
 void NESEmulatorThread::resetEmulator()
 {
    SDL_AudioSpec obtained;
@@ -226,6 +242,11 @@ void NESEmulatorThread::resetEmulator()
    SDL_PauseAudio ( 0 );
 
    m_isResetting = true;
+   m_isStarting = false;
+   m_isRunning = false;
+   m_isPaused = true;
+   m_showOnPause = false;
+   emulator->start();
 }
 
 void NESEmulatorThread::startEmulation ()
@@ -278,13 +299,14 @@ void NESEmulatorThread::pauseEmulation (bool show)
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = show;
+   emulator->start();
 }
 
 void NESEmulatorThread::run ()
 {
    int32_t samplesAvailable;
 
-   while ( m_isStarting || m_isRunning || m_isResetting )
+   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
    {
       // Allow thread exit...
       if ( m_isTerminating )
@@ -334,6 +356,17 @@ void NESEmulatorThread::run ()
          m_isResetting = false;
       }
 
+      // Pause?
+      if ( m_isPaused )
+      {
+         // Trigger inspectors to update on a pause also...
+         emit emulatorPaused(m_showOnPause);
+         m_isPaused = false;
+         m_isRunning = false;
+
+         nesClearAudioSamplesAvailable();
+      }
+
       // Run the NES...
       if ( m_isRunning )
       {
@@ -356,18 +389,6 @@ void NESEmulatorThread::run ()
 
          emit emulatedFrame();
       }
-
-      // Pause?
-      if ( m_isPaused )
-      {
-         // Trigger inspectors to update on a pause also...
-         emit emulatorPaused(m_showOnPause);
-         m_isPaused = false;
-         m_isRunning = false;
-
-         nesClearAudioSamplesAvailable();
-      }
-
    }
 
    return;

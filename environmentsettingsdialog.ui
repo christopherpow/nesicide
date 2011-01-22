@@ -52,14 +52,14 @@
         </spacer>
        </item>
        <item row="1" column="0">
-        <widget class="QCheckBox" name="checkBox_3">
+        <widget class="QCheckBox" name="showWelcomeOnStart">
          <property name="text">
           <string>Show welcome page on startup</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QCheckBox" name="checkBox_4">
+        <widget class="QCheckBox" name="saveAllOnCompile">
          <property name="text">
           <string>Save all documents on compile</string>
          </property>

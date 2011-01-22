@@ -7,6 +7,9 @@
 extern "C" {
 #endif
 
+// Assembler initialization.
+   void pasm_initialize ( void );
+   
 // Assembler main interface.
    int pasm_assemble( const char* name, const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj );
 
@@ -25,11 +28,12 @@ extern "C" {
 // permanent existence.  [If you want it later, copy it!]
    int pasm_get_num_source_files ( void );
    file_table* pasm_get_source_file_by_index ( int file );
+   file_table* pasm_get_source_file_by_name ( const char* filename );
    char* pasm_get_source_file_text_by_addr ( unsigned int absAddr );
    char* pasm_get_source_file_text_by_index ( int file );
    char* pasm_get_source_file_name_by_addr ( unsigned int absAddr );
    char* pasm_get_source_file_name_by_index ( int file );
-   int pasm_get_source_file_index_by_name ( char* filename );
+   int pasm_get_source_file_index_by_name ( const char* filename );
    
 // Interfaces to retrieve symbol information generated
 // during the most recent assemble.  Note this information
@@ -43,7 +47,7 @@ extern "C" {
    int pasm_get_symbol_value_by_index ( int symbol );
    symbol_type pasm_get_symbol_type_by_index ( int symbol );
    int pasm_get_symbol_linenum_by_index ( int symbol );
-   int pasm_get_symbol_linenum_by_name ( char* symbol );
+   int pasm_get_symbol_linenum_by_name ( const char* symbol );
    
 // Interfaces to convert between source code line number and assembled address.
 // Note this information is destroyed and re-created on subsequent calls to
@@ -51,7 +55,9 @@ extern "C" {
 // permanent existence.  [If you want it later, copy it!]
    int pasm_get_source_linenum_by_absolute_addr ( unsigned int absAddr );
    unsigned int pasm_get_source_addr_by_linenum ( int linenum );
-   unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, char* file );
+   unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, const char* file );
+   unsigned int pasm_get_source_absolute_addr_by_linenum_and_file ( int linenum, const char* file );
+   int pasm_check_for_instruction_at_absolute_addr ( unsigned int absAddr );
 
 // Interfaces to retrieve PermanentMarker information generated
 // during the most recent assemble.  Note this information

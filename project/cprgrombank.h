@@ -15,15 +15,12 @@ public:
    // Member Getters
    uint32_t getBankIndex() { return m_bankIndex; }
    uint8_t* getBankData() { return m_bankData; }
-   PRGROMDisplayDialog* get_pointerToEditorDialog();
-   int get_indexOfEditorTab();
+   PRGROMDisplayDialog* getEditor();
    
    // Member Setters
    void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
    void setBankData(uint8_t* bankData) { memcpy(m_bankData,bankData,MEM_16KB); }
    void clearBankData() { memset(m_bankData,0,MEM_16KB); }
-   void set_pointerToEditorDialog(PRGROMDisplayDialog* pointerToEditorDialog);
-   void set_indexOfEditorTab(int indexOfEditorTab);
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -51,6 +48,7 @@ public:
    {
       return true;
    }
+   virtual QWidget* tab() { return m_editor; }
 
 private:
    // Attributes
@@ -58,7 +56,7 @@ private:
    uint8_t  m_bankData [ MEM_16KB ];
    
    // Designer
-   PRGROMDisplayDialog* m_pointerToEditorDialog;
+   PRGROMDisplayDialog* m_editor;
 };
 
 #endif // CPRGROMBANK_H

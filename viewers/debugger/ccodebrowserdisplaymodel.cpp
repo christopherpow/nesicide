@@ -35,8 +35,8 @@ CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
 QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) const
 {
    // FIXME: 64-bit support
-   uint32_t addr = (long)index.internalPointer();
-   uint32_t absAddr;
+   int32_t addr = (long)index.internalPointer();
+   int32_t absAddr;
    //uint32_t addr = (uint32_t)index.internalPointer();
    unsigned char opSize;
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -48,7 +48,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
    if ( role == Qt::ToolTipRole )
    {
-      if ( addr != 0xFFFFFFFF )
+      if ( addr != -1 )
       {
          if ( index.column() == Column_Disassembly )
          {
@@ -96,8 +96,9 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
          if ( (pBreakpoint->enabled) &&
                (pBreakpoint->type == eBreakOnCPUExecution) &&
-               ((uint32_t)pBreakpoint->item1 <= addr) &&
-               ((uint32_t)pBreakpoint->item2 >= addr) )
+               (pBreakpoint->item1 <= addr) &&
+               ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+               (pBreakpoint->item2 >= addr) )
          {
             if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {
@@ -110,8 +111,9 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
-                   ((uint32_t)pBreakpoint->item1 <= addr) &&
-                   ((uint32_t)pBreakpoint->item2 >= addr) )
+                   (pBreakpoint->item1 <= addr) &&
+                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                   (pBreakpoint->item2 >= addr) )
          {
             if ( addr == nesGetCPUProgramCounterOfLastSync() )
             {

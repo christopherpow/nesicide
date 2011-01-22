@@ -23,6 +23,8 @@ public:
 
    void clearAllPanes();
    void clearPane(int tab);
+
+public slots:
    void showPane(int tab);
 
 protected:

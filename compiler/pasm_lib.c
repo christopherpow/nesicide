@@ -45,7 +45,7 @@ int pasm_get_num_source_files ( void )
    return files;
 }
 
-file_table* pasm_get_source_file_by_name ( char* filename )
+file_table* pasm_get_source_file_by_name ( const char* filename )
 {
    file_table* ptr = ftab;
    
@@ -75,7 +75,7 @@ file_table* pasm_get_source_file_by_index ( int file )
    return ptr;
 }
 
-int pasm_get_source_file_index_by_name ( char* filename )
+int pasm_get_source_file_index_by_name ( const char* filename )
 {
    file_table* ptr = ftab;
    int files = 0;
@@ -238,7 +238,7 @@ unsigned int pasm_get_source_addr_by_linenum ( int linenum )
    return addr;
 }
 
-unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, char* file )
+unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, const char* file )
 {
    int b;
    unsigned int addr = -1;
@@ -263,6 +263,59 @@ unsigned int pasm_get_source_addr_by_linenum_and_file ( int linenum, char* file 
    }
 
    return addr;
+}
+
+unsigned int pasm_get_source_absolute_addr_by_linenum_and_file ( int linenum, const char* file )
+{
+   int b;
+   unsigned int absAddr = -1;
+   ir_table* ptr;
+
+   // Search through all banks looking for the appropriate source line number...
+   // CPTODO: translate this to be smarter about source files also!
+   for ( b = 0; b < btab_ent; b++ )
+   {
+      if ( btab[b].type == text_segment )
+      {
+         for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( (ptr->instr) && (ptr->source_linenum == linenum) &&
+                 (ptr->file) && (strcmp(ptr->file->name,file) == 0) )
+            {
+               absAddr = ptr->absAddr;
+               break;
+            }
+         }
+      }
+   }
+
+   return absAddr;
+}
+
+int pasm_check_for_instruction_at_absolute_addr ( unsigned int absAddr )
+{
+   int b;
+   int instr = 0;
+   ir_table* ptr;
+
+   // Search through all banks looking for the appropriate source line number...
+   // CPTODO: translate this to be smarter about source files also!
+   for ( b = 0; b < btab_ent; b++ )
+   {
+      if ( btab[b].type == text_segment )
+      {
+         for ( ptr = btab[b].ir_head; ptr != NULL; ptr = ptr->next )
+         {
+            if ( (ptr->instr) && (ptr->absAddr == absAddr) )
+            {
+               instr = 1;
+               break;
+            }
+         }
+      }
+   }
+
+   return instr;
 }
 
 int pasm_get_num_symbols ( void )
@@ -340,7 +393,7 @@ symbol_table* pasm_get_symbol_by_index ( int symbol )
    return pasm_get_symbol_entry ( symbol );
 }
 
-int pasm_get_symbol_linenum_by_name ( char* symbol )
+int pasm_get_symbol_linenum_by_name ( const char* symbol )
 {
    symbol_table* ptr = find_symbol ( symbol );
    
@@ -480,6 +533,11 @@ unsigned int pasm_get_permanent_marker_start_address ( int color )
 unsigned int pasm_get_permanent_marker_end_address ( int color )
 {
    return permanentMarker[color].end->absAddr;
+}
+
+void pasm_initialize ( void )
+{
+   initialize ();
 }
 
 int pasm_assemble( const char* name, const char* buffer_in, char** buffer_out, int* size, incobj_callback_fn incobj )

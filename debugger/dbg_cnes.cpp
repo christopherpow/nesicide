@@ -33,12 +33,6 @@ CNESDBG::~CNESDBG()
 
 }
 
-void CNESDBG::CLEAROPCODEMASKS ( void )
-{
-   // Clear code/data logger info...
-   nesClearOpcodeMasks();
-}
-
 void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltipBuffer )
 {
    char* ptr = tooltipBuffer;

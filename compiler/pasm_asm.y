@@ -328,6 +328,7 @@ incobj_callback_fn incobj_fn = NULL;
 
 // Standard YACC functions.
 int asmerror(char *s);
+int asmerror_line(char *s, int linenum);
 int asmwrap(void);
 
 // Current file being parsed for more meaningful error/warnings.
@@ -358,7 +359,7 @@ int btab_ent_prior_to_enum = -1;
 // the address of the symbol can be computed.
 extern symbol_list* current_stab;
 extern symbol_list global_stab;
-extern symbol_table* find_symbol ( char* symbol );
+extern symbol_table* find_symbol ( const char* symbol );
 void update_symbol_ir ( symbol_table* stab, ir_table* ir );
 extern symbol_table* current_label;
 
@@ -456,6 +457,8 @@ ir_table* emit_ir ( void );
 ir_table* emit_fix ( int addr );
 ir_table* emit_label ( int m, int fill );
 ir_table* emit_bin ( expr_type* expr );
+ir_table* emit_bin_lo ( expr_type* expr );
+ir_table* emit_bin_hi ( expr_type* expr );
 ir_table* emit_bin2 ( expr_type* expr );
 ir_table* emit_bin_string ( expr_type* expr );
 ir_table* emit_bin_space ( int m, int fill );
@@ -516,7 +519,7 @@ void dump_expression ( expr_type* expr );
 }
 // Terminal tokens passed to the grammar parser from
 // the lexical analyzer.
-%token <directive> DATAB DATAW DATABHEX
+%token <directive> DATAB DATAW DATABHEX DATAL DATAH
 %token <directive> FILLSPACEB FILLSPACEW
 %token <directive> VARSPACE
 %token <directive> ENUMERATE ENDENUMERATE
@@ -754,6 +757,8 @@ directive: MARKER LABELREF LABELREF {
 // the intermediate representation of the list for us, so there's nothing more
 // to do when these rules are reduced.
            | DATAB blist TERM
+           | DATAL lolist TERM
+           | DATAH hilist TERM
            | DATAW wlist TERM
            | DATABHEX hlist TERM
 // Directive <.text|.data|.segment> "<name>" sets the current segment or creates a new one
@@ -1741,6 +1746,114 @@ blist: blist ',' expr {
 }
     ;
 
+lolist: lolist ',' expr {
+   unsigned char evaluated;
+
+   // reduce expression...
+   reduce_expression ( $3, NULL );
+
+   // Attempt to evaluate expression to see what type we'll get...
+   evaluate_expression ( (*ir_tail), $3, &evaluated, FIX, NULL );
+
+   // We can't care about whether or not the expression completely
+   // evaluates here due to possible forward symbol references.  All
+   // we're interested in is the *type* of expression which should
+   // percolate up to the root node by evaluation...
+
+   // Emit different stuff depending on whether expression
+   // is string literal-based or numeric...
+   if ( $3->vtype == value_is_int )
+   {
+      emit_bin_lo ( $3 );
+   }
+   else if ( $3->vtype == value_is_string )
+   {
+      sprintf ( e, "not a number" );
+      asmerror ( e );
+   }
+}
+     | expr {
+   unsigned char evaluated;
+
+   // reduce expression...
+   reduce_expression ( $1, NULL );
+
+   // Attempt to evaluate expression to see what type we'll get...
+   evaluate_expression ( (*ir_tail), $1, &evaluated, FIX, NULL );
+
+   // We can't care about whether or not the expression completely
+   // evaluates here due to possible forward symbol references.  All
+   // we're interested in is the *type* of expression which should
+   // percolate up to the root node by evaluation...
+
+   // Emit different stuff depending on whether expression
+   // is string literal-based or numeric...
+   if ( $1->vtype == value_is_int )
+   {
+      emit_bin_lo ( $1 );
+   }
+   else if ( $1->vtype == value_is_string )
+   {
+      sprintf ( e, "not a number" );
+      asmerror ( e );
+   }
+}
+    ;
+
+hilist: hilist ',' expr {
+   unsigned char evaluated;
+
+   // reduce expression...
+   reduce_expression ( $3, NULL );
+
+   // Attempt to evaluate expression to see what type we'll get...
+   evaluate_expression ( (*ir_tail), $3, &evaluated, FIX, NULL );
+
+   // We can't care about whether or not the expression completely
+   // evaluates here due to possible forward symbol references.  All
+   // we're interested in is the *type* of expression which should
+   // percolate up to the root node by evaluation...
+
+   // Emit different stuff depending on whether expression
+   // is string literal-based or numeric...
+   if ( $3->vtype == value_is_int )
+   {
+      emit_bin_hi ( $3 );
+   }
+   else if ( $3->vtype == value_is_string )
+   {
+      sprintf ( e, "not a number" );
+      asmerror ( e );
+   }
+}
+     | expr {
+   unsigned char evaluated;
+
+   // reduce expression...
+   reduce_expression ( $1, NULL );
+
+   // Attempt to evaluate expression to see what type we'll get...
+   evaluate_expression ( (*ir_tail), $1, &evaluated, FIX, NULL );
+
+   // We can't care about whether or not the expression completely
+   // evaluates here due to possible forward symbol references.  All
+   // we're interested in is the *type* of expression which should
+   // percolate up to the root node by evaluation...
+
+   // Emit different stuff depending on whether expression
+   // is string literal-based or numeric...
+   if ( $1->vtype == value_is_int )
+   {
+      emit_bin_hi ( $1 );
+   }
+   else if ( $1->vtype == value_is_string )
+   {
+      sprintf ( e, "not a number" );
+      asmerror ( e );
+   }
+}
+   ;
+   
 wlist: wlist ',' expr {
    // reduce expression...
    reduce_expression ( $3, NULL );
@@ -2119,6 +2232,11 @@ int asmerror(char* s)
    add_error ( s, recovered_linenum );
 }
 
+int asmerror_line(char* s,int linenum)
+{
+   add_error ( s, linenum );
+}
+
 void initialize ( void )
 {
    ir_table* ptr;
@@ -2392,6 +2510,30 @@ int promote_instructions ( unsigned char flag )
                }
             break;
 
+            case fixup_datab_lo:
+               if ( (evaluated) && (expr->vtype == value_is_int) )
+               {
+                  ptr->data[0] = value&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+            break;
+
+            case fixup_datab_hi:
+               if ( (evaluated) && (expr->vtype == value_is_int) )
+               {
+                  ptr->data[0] = (value>>8)&0xFF;
+                  if ( flag == FIX )
+                  {
+                     // done!
+                     ptr->fixup = fixup_fixed;
+                  }
+               }
+            break;
+
             case fixup_dataw:
                if ( (evaluated) && (expr->vtype == value_is_int) )
                {
@@ -2460,7 +2602,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
                else
                {
@@ -2524,7 +2666,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
                else
                {
@@ -2588,7 +2730,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
                else
                {
@@ -2610,7 +2752,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
 
@@ -2627,7 +2769,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
 
@@ -2644,7 +2786,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
 
@@ -2691,13 +2833,13 @@ int promote_instructions ( unsigned char flag )
                      }
 
                      sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
-                     asmerror ( e );
+                     asmerror_line ( e, ptr->source_linenum );
                   }
                }
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
 
@@ -2715,7 +2857,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
 
@@ -2745,14 +2887,14 @@ int promote_instructions ( unsigned char flag )
                   else
                   {
                      sprintf ( e, "branch to address out of range" );
-                     asmerror ( e );
+                     asmerror_line ( e, ptr->source_linenum );
                   }
                   // done!
                }
                else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
 
@@ -2769,7 +2911,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror ( e );
+                  asmerror_line ( e, ptr->source_linenum );
                }
             break;
          }
@@ -2804,6 +2946,12 @@ void check_fixup ( void )
    {
       for ( ptr = btab[bank].ir_head; ptr != NULL; ptr = ptr->next )
       {
+         if ( ptr->fixup != fixup_fixed )
+         {
+            sprintf ( e, "unable to determine value of expression" );
+            asmerror_line ( e, ptr->source_linenum );
+         }
+         
          expr = ptr->expr;
 
          if ( expr )
@@ -2817,12 +2965,12 @@ void check_fixup ( void )
             if ( (!evaluated) && symbol )
             {
                sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
-               asmerror ( e );
+               asmerror_line ( e, ptr->source_linenum );
             }
             else if ( !evaluated )
             {
                sprintf ( e, "unable to determine value of expression" );
-               asmerror ( e );
+               asmerror_line ( e, ptr->source_linenum );
             }
          }
       }
@@ -4350,6 +4498,38 @@ ir_table* emit_bin ( expr_type* expr )
    if ( ptr )
    {
       ptr->fixup = fixup_datab;
+
+      ptr->expr = expr;
+
+      ptr->len = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
+   return ptr;
+}
+
+ir_table* emit_bin_lo ( expr_type* expr )
+{
+   ir_table* ptr = emit_ir ();
+   if ( ptr )
+   {
+      ptr->fixup = fixup_datab_lo;
+
+      ptr->expr = expr;
+
+      ptr->len = 1;
+      ptr->addr = cur->addr;
+      cur->addr += ptr->len;
+   }
+   return ptr;
+}
+
+ir_table* emit_bin_hi ( expr_type* expr )
+{
+   ir_table* ptr = emit_ir ();
+   if ( ptr )
+   {
+      ptr->fixup = fixup_datab_hi;
 
       ptr->expr = expr;
 

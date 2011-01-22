@@ -35,6 +35,7 @@ public:
    {
       return true;
    }
+   virtual QWidget* tab() { return dynamic_cast<QWidget*>(m_editor); }
 
 private:
    // Attributes

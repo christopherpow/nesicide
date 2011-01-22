@@ -3,11 +3,15 @@
 
 #include "inspectorregistry.h"
 #include "cpluginmanager.h"
+
 #include "main.h"
+
+#include "pasm_lib.h"
 
 #include <QApplication>
 #include <QStringList>
 #include <QMessageBox>
+#include <QSettings>
 
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* projectBrowser = NULL;
@@ -20,6 +24,8 @@ MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
    ui(new Ui::MainWindow)
 {
+   QSettings settings;
+   
    QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
 
    QObject::connect(compiler, SIGNAL(started()), this, SLOT(compiler_compileStarted()));
@@ -29,8 +35,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
    ui->setupUi(this);
 
-   emulatorDlg = new NESEmulatorDialog();
-   emulatorDlgTabIdx = -1;
+   emulatorDlg = new NESEmulatorDockWidget();
+   addDockWidget(Qt::RightDockWidgetArea, emulatorDlg );
+   emulatorDlg->hide();
+   QObject::connect(emulatorDlg, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
+   InspectorRegistry::addInspector ( "Emulator", emulatorDlg );
    
    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
 
@@ -38,20 +47,12 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
 
    projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
-   projectBrowser->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   projectBrowser->setWindowTitle("Project");
-   projectBrowser->setAllowedAreas(Qt::LeftDockWidgetArea);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
    projectBrowser->hide();
    QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
    InspectorRegistry::addInspector ( "Project", projectBrowser );
-
-   projectDataChangesEvent();
    
    output = new OutputPaneDockWidget ();
-   output->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   output->setWindowTitle("Output");
-   output->setAllowedAreas(Qt::BottomDockWidgetArea);
    addDockWidget(Qt::BottomDockWidgetArea, output );
    output->hide();
    QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
@@ -64,10 +65,7 @@ MainWindow::MainWindow(QWidget* parent) :
    generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
    generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
-   m_pBreakpointInspector = new BreakpointInspector ();
-   m_pBreakpointInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pBreakpointInspector->setWindowTitle("Breakpoints");
-   m_pBreakpointInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+   m_pBreakpointInspector = new BreakpointDockWidget ();
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
    QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
@@ -83,189 +81,138 @@ MainWindow::MainWindow(QWidget* parent) :
    InspectorRegistry::addInspector ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
-   m_pGfxOAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pGfxOAMMemoryInspector->setWindowTitle("OAM Memory Visualizer");
-   m_pGfxOAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
    m_pGfxOAMMemoryInspector->hide();
    QObject::connect(m_pGfxOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxOAMMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
 
    m_pGfxNameTableMemoryInspector = new NameTableVisualizerDockWidget ();
-   m_pGfxNameTableMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pGfxNameTableMemoryInspector->setWindowTitle("Name Table Visualizer");
-   m_pGfxNameTableMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
    m_pGfxNameTableMemoryInspector->hide();
    QObject::connect(m_pGfxNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxNameTableMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
 
    m_pExecutionInspector = new ExecutionInspectorDockWidget();
-   m_pExecutionInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pExecutionInspector->setWindowTitle("Execution Inspector");
-   m_pExecutionInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
    m_pExecutionInspector->hide();
    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
    InspectorRegistry::addInspector ( "Execution Inspector", m_pExecutionInspector );
 
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
-   m_pExecutionVisualizer->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pExecutionVisualizer->setWindowTitle("Execution Visualizer");
-   m_pExecutionVisualizer->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
    m_pExecutionVisualizer->hide();
    QObject::connect(m_pExecutionVisualizer, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionVisualizer_Inspector_close(bool)));
    InspectorRegistry::addInspector ( "Execution Visualizer", m_pExecutionVisualizer );
 
    m_pCodeInspector = new CodeBrowserDockWidget();
-   m_pCodeInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pCodeInspector->setWindowTitle("Code Browser");
-   m_pCodeInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeInspector );
    m_pCodeInspector->hide();
    QObject::connect(m_pCodeInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeInspector_close(bool)));
    InspectorRegistry::addInspector ( "Code Browser", m_pCodeInspector );
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
-   m_pCodeDataLoggerInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pCodeDataLoggerInspector->setWindowTitle("Code/Data Logger Inspector");
-   m_pCodeDataLoggerInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
    m_pCodeDataLoggerInspector->hide();
    QObject::connect(m_pCodeDataLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeDataLoggerInspector_close(bool)));
    InspectorRegistry::addInspector ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(eMemory_CPUregs);
-   m_pBinCPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
-   m_pBinCPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
    m_pBinCPURegisterInspector->hide();
    QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
    InspectorRegistry::addInspector ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(eMemory_CPU);
-   m_pBinCPURAMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
-   m_pBinCPURAMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
    m_pBinCPURAMInspector->hide();
    QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
    InspectorRegistry::addInspector ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
    m_pBinROMInspector = new MemoryInspectorDockWidget(eMemory_cartROM);
-   m_pBinROMInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
-   m_pBinROMInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
    m_pBinROMInspector->hide();
    QObject::connect(m_pBinROMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinROMInspector_close(bool)));
    InspectorRegistry::addInspector ( "PRG-ROM Inspector", m_pBinROMInspector );
 
    m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(eMemory_PPU);
-   m_pBinNameTableMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pBinNameTableMemoryInspector->setWindowTitle("Name Table Inspector");
-   m_pBinNameTableMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
+   m_pBinNameTableMemoryInspector->setWindowTitle("NameTable Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
    m_pBinNameTableMemoryInspector->hide();
    QObject::connect(m_pBinNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinNameTableMemoryInspector_close(bool)));
-   InspectorRegistry::addInspector ( "Name Table Inspector", m_pBinNameTableMemoryInspector );
+   InspectorRegistry::addInspector ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
 
    m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(eMemory_PPUregs);
-   m_pBinPPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
-   m_pBinPPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPURegisterInspector );
    m_pBinPPURegisterInspector->hide();
    QObject::connect(m_pBinPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPURegisterInspector_close(bool)));
    InspectorRegistry::addInspector ( "PPU Register Inspector", m_pBinPPURegisterInspector );
 
    m_pPPUInformationInspector = new PPUInformationDockWidget();
-   m_pPPUInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pPPUInformationInspector->setWindowTitle("PPU Information");
-   m_pPPUInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
    m_pPPUInformationInspector->hide();
    QObject::connect(m_pPPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedPPUInformationInspector_close(bool)));
    InspectorRegistry::addInspector ( "PPU Information", m_pPPUInformationInspector );
 
    m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(eMemory_IOregs);
-   m_pBinAPURegisterInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
-   m_pBinAPURegisterInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinAPURegisterInspector );
    m_pBinAPURegisterInspector->hide();
    QObject::connect(m_pBinAPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinAPURegisterInspector_close(bool)));
    InspectorRegistry::addInspector ( "APU Register Inspector", m_pBinAPURegisterInspector );
 
    m_pAPUInformationInspector = new APUInformationDockWidget();
-   m_pAPUInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pAPUInformationInspector->setWindowTitle("APU Information");
-   m_pAPUInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pAPUInformationInspector );
    m_pAPUInformationInspector->hide();
    QObject::connect(m_pAPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAPUInformationInspector_close(bool)));
    InspectorRegistry::addInspector ( "APU Information", m_pAPUInformationInspector );
 
    m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartCHRMEM);
-   m_pBinCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
-   m_pBinCHRMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCHRMemoryInspector );
    m_pBinCHRMemoryInspector->hide();
    QObject::connect(m_pBinCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCHRMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
 
    m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(eMemory_PPUoam);
-   m_pBinOAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
-   m_pBinOAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinOAMMemoryInspector );
    m_pBinOAMMemoryInspector->hide();
    QObject::connect(m_pBinOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinOAMMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
 
    m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(eMemory_PPUpalette);
-   m_pBinPaletteMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
-   m_pBinPaletteMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPaletteMemoryInspector );
    m_pBinPaletteMemoryInspector->hide();
    QObject::connect(m_pBinPaletteMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPaletteMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
 
    m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartSRAM);
-   m_pBinSRAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
-   m_pBinSRAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
    m_pBinSRAMMemoryInspector->hide();
    QObject::connect(m_pBinSRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinSRAMMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
 
    m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartEXRAM);
-   m_pBinEXRAMMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
-   m_pBinEXRAMMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );
    m_pBinEXRAMMemoryInspector->hide();
    QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinEXRAMMemoryInspector_close(bool)));
    InspectorRegistry::addInspector ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
 
    m_pMapperInformationInspector = new MapperInformationDockWidget();
-   m_pMapperInformationInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
-   m_pMapperInformationInspector->setWindowTitle("Cartridge Mapper Information");
-   m_pMapperInformationInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
    m_pMapperInformationInspector->hide();
    QObject::connect(m_pMapperInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedMapperInformationInspector_close(bool)));
    InspectorRegistry::addInspector ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
    m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(eMemory_cartMapper);
-   m_pBinMapperMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
-   m_pBinMapperMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
    m_pBinMapperMemoryInspector->hide();
    QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
@@ -284,7 +231,15 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->actionDelta_Modulation->setChecked(true);
    ui->actionMute_All->setChecked(false);
 
-   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+   if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
+   {
+      ui->tabWidget->addTab(ui->tab,"Welcome Page");
+      ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+   }
+   else
+   {
+      ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tab));
+   }
 
    QStringList argv = QApplication::arguments();
    QStringList argv_nes = argv.filter ( QRegExp("*.nes",Qt::CaseInsensitive,QRegExp::Wildcard) );
@@ -318,6 +273,8 @@ MainWindow::MainWindow(QWidget* parent) :
                                     "were ignored." );
       }
    }
+   
+   projectDataChangesEvent();
 
    // Always call this last
    pluginManager->doInitScript();
@@ -455,6 +412,8 @@ void MainWindow::showEvent(QShowEvent *event)
 void MainWindow::projectDataChangesEvent()
 {
    projectBrowser->layoutChangedEvent();
+   projectBrowser->setVisible(nesicideProject->isInitialized());
+   output->setVisible(nesicideProject->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not
    ui->actionNew_Project->setEnabled(!nesicideProject->isInitialized());
@@ -466,6 +425,8 @@ void MainWindow::projectDataChangesEvent()
    ui->actionCompile_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
+   
+   // Enabled/Disable actions based on if we have a project loaded or not and a cartridge loaded in the emulator
    ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
@@ -491,9 +452,12 @@ void MainWindow::projectDataChangesEvent()
    ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
 
+   // Enabled/Disable actions based on if we have a project loaded or not and a good compile
+   ui->actionRun_In_Emulator->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
+
    if (ui->tabWidget->currentIndex() >= 0)
    {
-      IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentIndex());
+      IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentWidget());
 
       if (projectItem)
       {
@@ -618,7 +582,6 @@ void MainWindow::on_actionNew_Project_triggered()
       projectBrowser->enableNavigation();
       projectDataChangesEvent();
    }
-
    delete dlg;
 }
 
@@ -640,11 +603,14 @@ void MainWindow::openROM(QString fileName)
    nesicideProject->createProjectFromRom(fileName);
 
    projectBrowser->enableNavigation();
-   projectBrowser->show();
    
    emulator->primeEmulator();
    emulator->resetEmulator();
    emulator->startEmulation();
+   
+   compiler->reset();
+   
+   pasm_initialize();
    
    projectDataChangesEvent();
    
@@ -664,14 +630,14 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
    openROM(fileName);
 }
 
-IProjectTreeViewItem* MainWindow::matchTab(int tabIndex)
+IProjectTreeViewItem* MainWindow::matchTab(QWidget* pTab)
 {
    IProjectTreeViewItemIterator iter(nesicideProject);
    IProjectTreeViewItem*        item = NULL;
    
    while ( iter.current() )
    {
-      if ( iter.current()->tabIndex() == tabIndex )
+      if ( iter.current()->tab() == pTab )
       {
          item = iter.current();
          break;
@@ -685,7 +651,7 @@ IProjectTreeViewItem* MainWindow::matchTab(int tabIndex)
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
-   IProjectTreeViewItem* projectItem = matchTab(index);
+   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->widget(index));
 
    if (projectItem)
    {
@@ -698,13 +664,6 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
    else
    {
       ui->tabWidget->removeTab(index);
-
-      if (index == emulatorDlgTabIdx)
-      {
-         emulator->pauseEmulation(false);
-         ui->actionEmulation_Window->setChecked(false);
-         emulatorDlgTabIdx = -1;
-      }
    }
 }
 
@@ -724,13 +683,11 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 {
    if (value)
    {
-      emulatorDlgTabIdx = ui->tabWidget->addTab(emulatorDlg, "Emulator");
-      ui->tabWidget->setCurrentIndex(emulatorDlgTabIdx);
+      emulatorDlg->show();
    }
    else
    {
-      ui->tabWidget->removeTab(emulatorDlgTabIdx);
-      emulatorDlgTabIdx = -1;
+      emulatorDlg->hide();
    }
 }
 
@@ -775,9 +732,13 @@ void MainWindow::openProject(QString fileName)
       nesicideProject->deserialize(doc, doc);
 
       projectBrowser->enableNavigation();
-      projectBrowser->show();
-
+   
+      compiler->reset();
+      
+      pasm_initialize();
+      
       projectDataChangesEvent();
+      
       projectFileName = fileName;
    }
 }
@@ -796,27 +757,21 @@ void MainWindow::on_actionOpen_Project_triggered()
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-   IProjectTreeViewItem* projectItem = matchTab(index);
+   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->widget(index));
 
    if (projectItem)
    {
       ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
-      m_pSourceNavigator->changeFile(projectItem->caption());
    }
    else
    {
       ui->actionSave_Active_Document->setEnabled(false);
    }
-   
-   if (index != emulatorDlgTabIdx)
-   {
-      emulator->pauseEmulation(false);
-   }
 }
 
 void MainWindow::on_actionSave_Active_Document_triggered()
 {
-   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentIndex());
+   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentWidget());
 
    if (projectItem)
    {
@@ -842,25 +797,28 @@ void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
+   QSettings settings;
    output->showPane(OutputPaneDockWidget::Output_Build);
    output->clearPane(OutputPaneDockWidget::Output_Build);
    emulator->pauseEmulation(false);
+   
+   if ( settings.value("saveAllOnCompile",QVariant(true)) == QVariant(true) )
+   {
+      saveProject();
+   }
    compiler->start();
 }
 
 void MainWindow::compiler_compileStarted()
 {
    ui->actionCompile_Project->setEnabled(false);
+   ui->actionRun_In_Emulator->setEnabled(false);
 }
 
 void MainWindow::compiler_compileDone()
 {
    ui->actionCompile_Project->setEnabled(true);
-
-   emulator->primeEmulator();
-   emulator->resetEmulator();
-   emulator->startEmulation();
-
+   
    projectDataChangesEvent();
 }
 
@@ -1049,6 +1007,11 @@ void MainWindow::on_actionCode_Inspector_toggled(bool value)
    m_pCodeInspector->setVisible(value);
 }
 
+void MainWindow::reflectedEmulator_close ( bool toplevel )
+{
+   ui->actionEmulation_Window->setChecked(toplevel);
+}
+
 void MainWindow::reflectedCodeInspector_close ( bool toplevel )
 {
    ui->actionCode_Inspector->setChecked(toplevel);
@@ -1103,29 +1066,34 @@ void MainWindow::on_action_About_Nesicide_triggered()
 
 void MainWindow::on_action_Close_Project_triggered()
 {
+   QSettings settings;
+   
    // Stop the emulator if it is running
    emulator->pauseEmulation(false);
 
-   if (emulatorDlgTabIdx > -1)
-   {
-      ui->actionEmulation_Window->toggle();
-      emulatorDlgTabIdx = -1;
-   }
-
    // Terminate the project and let the IDE know
    projectBrowser->disableNavigation();
-   projectBrowser->hide();
    
    nesicideProject->terminateProject();
    
    emulator->primeEmulator();
    emulator->resetEmulator();
+   
+   compiler->reset();
+   
+   m_pSourceNavigator->shutdown();
+   
+   pasm_initialize();
 
    // Remove any tabs
    ui->tabWidget->clear();
-   ui->tabWidget->addTab(ui->tab,"Welcome Page");
-   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
    
+   if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
+   {
+      ui->tabWidget->addTab(ui->tab,"Welcome Page");
+      ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+   }
+      
    // Clear output
    output->clearAllPanes();
    output->hide();
@@ -1271,4 +1239,19 @@ void MainWindow::on_actionOnline_Help_triggered()
 {
    ui->tabWidget->addTab(ui->tab,"Welcome Page");
    ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));    
+}
+
+void MainWindow::on_actionRun_In_Emulator_triggered()
+{
+   if ( compiler->assembledOk() )
+   {
+      emulator->primeEmulator();
+      emulator->resetEmulator();
+      emulator->pauseEmulation(true);
+      emulator->startEmulation();
+      
+      ui->actionEmulation_Window->setChecked(true);
+      on_actionEmulation_Window_toggled(true);
+   }
+    
 }

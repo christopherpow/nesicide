@@ -167,7 +167,6 @@ SOURCES += mainwindow.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
     viewers/chr-rom/cchrrompreviewrenderer.cpp \
     viewers/emulator/nesemulatorrenderer.cpp \
-    viewers/emulator/nesemulatordialog.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
@@ -184,7 +183,6 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
     viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
     debugger/breakpointdialog.cpp \
-    debugger/breakpointinspector.cpp \
     viewers/debugger/cbreakpointdisplaymodel.cpp \
     debugger/breakpointwatcherthread.cpp \
     emulator/nesemulatorthread.cpp \
@@ -198,7 +196,6 @@ SOURCES += mainwindow.cpp \
     project/cattributetables.cpp \
     debugger/cexecutionvisualizerrenderer.cpp \
     common/cgamedatabasehandler.cpp \
-    common/cconfigurator.cpp \
     environmentsettingsdialog.cpp \
     plugins/cpluginmanager.cpp \
     startupsplashdialog.cpp \
@@ -229,7 +226,9 @@ SOURCES += mainwindow.cpp \
     debugger/mapperinformationdockwidget.cpp \
     debugger/nametablevisualizerdockwidget.cpp \
     debugger/oamvisualizerdockwidget.cpp \
-    outputpanedockwidget.cpp
+    outputpanedockwidget.cpp \
+    debugger/breakpointdockwidget.cpp \
+    emulator/nesemulatordockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -261,7 +260,6 @@ HEADERS += mainwindow.h \
     viewers/chr-rom/chrromdisplaydialog.h \
     viewers/chr-rom/cchrrompreviewrenderer.h \
     viewers/emulator/nesemulatorrenderer.h \
-    viewers/emulator/nesemulatordialog.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
     viewers/project_treeview/cprojecttreeview.h \
@@ -279,7 +277,6 @@ HEADERS += mainwindow.h \
     viewers/debugger/cdebuggerregisterdisplaymodel.h \
     viewers/debugger/cdebuggerregistercomboboxdelegate.h \
     debugger/breakpointdialog.h \
-    debugger/breakpointinspector.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
@@ -295,7 +292,6 @@ HEADERS += mainwindow.h \
     project/cattributetables.h \
     debugger/cexecutionvisualizerrenderer.h \
     common/cgamedatabasehandler.h \
-    common/cconfigurator.h \
     environmentsettingsdialog.h \
     plugins/cpluginmanager.h \
     startupsplashdialog.h \
@@ -327,14 +323,15 @@ HEADERS += mainwindow.h \
     debugger/mapperinformationdockwidget.h \
     debugger/nametablevisualizerdockwidget.h \
     debugger/oamvisualizerdockwidget.h \
-    outputpanedockwidget.h
+    outputpanedockwidget.h \
+    debugger/breakpointdockwidget.h \
+    emulator/nesemulatordockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
     designers/new_project/newprojectdialog.ui \
     designers/project_properties/projectpropertiesdialog.ui \
     viewers/chr-rom/chrromdisplaydialog.ui \
-    viewers/emulator/nesemulatordialog.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
     debugger/breakpointdialog.ui \
@@ -357,6 +354,8 @@ FORMS += mainwindow.ui \
     debugger/mapperinformationdockwidget.ui \
     debugger/nametablevisualizerdockwidget.ui \
     debugger/oamvisualizerdockwidget.ui \
-    outputpanedockwidget.ui
+    outputpanedockwidget.ui \
+    debugger/breakpointdockwidget.ui \
+    emulator/nesemulatordockwidget.ui
 
 RESOURCES += resource.qrc

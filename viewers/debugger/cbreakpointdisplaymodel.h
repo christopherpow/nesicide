@@ -12,7 +12,9 @@ public:
    QVariant data(const QModelIndex& index, int role) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-   void layoutChangedEvent();
+   
+public slots:
+   void update();
 };
 
 #endif // CBREAKPOINTDISPLAYMODEL_H

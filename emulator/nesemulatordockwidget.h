@@ -1,24 +1,23 @@
-#ifndef NESEMULATORDIALOG_H
-#define NESEMULATORDIALOG_H
-
-#include <QDialog>
-#include <QKeyEvent>
+#ifndef NESEMULATORDOCKWIDGET_H
+#define NESEMULATORDOCKWIDGET_H
 
 #include "emulator_core.h"
 #include "nesemulatorrenderer.h"
 
-namespace Ui
-{
-class NESEmulatorDialog;
+#include <QDockWidget>
+#include <QKeyEvent>
+
+namespace Ui {
+   class NESEmulatorDockWidget;
 }
 
-class NESEmulatorDialog : public QDialog
+class NESEmulatorDockWidget : public QDockWidget
 {
    Q_OBJECT
+
 public:
-   NESEmulatorDialog(QWidget* parent = 0);
-   ~NESEmulatorDialog();
-   CNESEmulatorRenderer* renderer;
+   explicit NESEmulatorDockWidget(QWidget *parent = 0);
+   ~NESEmulatorDockWidget();
 
 protected:
    void changeEvent(QEvent* e);
@@ -29,7 +28,8 @@ protected:
    void keyReleaseEvent(QKeyEvent* event);
 
 private:
-   Ui::NESEmulatorDialog* ui;
+   Ui::NESEmulatorDockWidget *ui;
+   CNESEmulatorRenderer* renderer;
    char* imgData;
    unsigned char m_joy [ NUM_CONTROLLERS ];
 
@@ -45,4 +45,4 @@ private slots:
    void renderData();
 };
 
-#endif // NESEMULATORDIALOG_H
+#endif // NESEMULATORDOCKWIDGET_H

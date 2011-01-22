@@ -16,7 +16,7 @@ public:
    explicit SourceNavigator(QTabWidget* pTarget,QWidget *parent = 0);
    ~SourceNavigator();
 
-   void changeFile(QString file);
+   void shutdown();
 
 private:
    Ui::SourceNavigator *ui;
@@ -33,6 +33,7 @@ private slots:
 
 public slots:
    void compiler_compileDone();
+   void emulator_emulatorPaused(bool show = true);
    void projectTreeView_openItem(QString item);
 };
 

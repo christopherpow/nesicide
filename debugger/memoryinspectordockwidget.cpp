@@ -141,21 +141,25 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
    int row = index.row();
    int col = index.column();
    int addr = model->memoryBottom()+(row*model->columnCount())+col;
-   bool added;
+   int bpIdx;
 
-   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+   bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
                                          eBreakpointItemAddress,
                                          0,
+                                         addr,
                                          addr,
                                          addr,
                                          eBreakpointConditionTest,
                                          0,
                                          eBreakpointDataPure,
-                                         0 );
+                                         0,
+                                         true );
 
-   if ( !added )
+   if ( bpIdx < 0 )
    {
-      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+      QString str;
+      str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+      QMessageBox::information(0, "Error", str);
    }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
@@ -169,21 +173,25 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
    int row = index.row();
    int col = index.column();
    int addr = model->memoryBottom()+(row*model->columnCount())+col;
-   bool added;
+   int bpIdx;
 
-   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
+   bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
                                          eBreakpointItemAddress,
                                          0,
+                                         addr,
                                          addr,
                                          addr,
                                          eBreakpointConditionTest,
                                          0,
                                          eBreakpointDataPure,
-                                         0 );
+                                         0,
+                                         true );
 
-   if ( !added )
+   if ( bpIdx < 0 )
    {
-      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+      QString str;
+      str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+      QMessageBox::information(0, "Error", str);
    }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();
@@ -197,21 +205,25 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
    int row = index.row();
    int col = index.column();
    int addr = model->memoryBottom()+(row*model->columnCount())+col;
-   bool added;
+   int bpIdx;
 
-   added = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
+   bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
                                          eBreakpointItemAddress,
                                          0,
+                                         addr,
                                          addr,
                                          addr,
                                          eBreakpointConditionTest,
                                          0,
                                          eBreakpointDataPure,
-                                         0 );
+                                         0,
+                                         true );
 
-   if ( !added )
+   if ( bpIdx < 0 )
    {
-      QMessageBox::information(0, "Error", "Cannot add breakpoint, already have 8 defined.");
+      QString str;
+      str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+      QMessageBox::information(0, "Error", str);
    }
 
    InspectorRegistry::getInspector("Breakpoints")->hide();

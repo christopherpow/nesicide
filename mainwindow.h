@@ -7,7 +7,7 @@
 #include "projectbrowserdockwidget.h"
 #include "projectpropertiesdialog.h"
 #include "newprojectdialog.h"
-#include "nesemulatordialog.h"
+#include "nesemulatordockwidget.h"
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
 #include "chrmeminspector.h"
@@ -17,7 +17,7 @@
 #include "executionvisualizerdockwidget.h"
 #include "memoryinspectordockwidget.h"
 #include "registerinspectordockwidget.h"
-#include "breakpointinspector.h"
+#include "breakpointdockwidget.h"
 #include "codebrowserdockwidget.h"
 #include "codedataloggerdockwidget.h"
 #include "ppuinformationdockwidget.h"
@@ -42,8 +42,7 @@ class MainWindow : public QMainWindow
 public:
    MainWindow(QWidget* parent = 0);
    ~MainWindow();
-   NESEmulatorDialog* emulatorDlg;
-   int emulatorDlgTabIdx;
+   NESEmulatorDockWidget* emulatorDlg;
 protected:
    void changeEvent(QEvent* e);
    void dragEnterEvent ( QDragEnterEvent* event );
@@ -54,7 +53,7 @@ protected:
 
 private:
    Ui::MainWindow* ui;
-   IProjectTreeViewItem* matchTab(int tabIndex);
+   IProjectTreeViewItem* matchTab(QWidget* pTab);
    QString projectFileName;
    void openProject(QString fileName);
    void openROM(QString fileName);
@@ -78,7 +77,7 @@ private:
    RegisterInspectorDockWidget* m_pBinOAMMemoryInspector;
    MemoryInspectorDockWidget* m_pBinPaletteMemoryInspector;
    RegisterInspectorDockWidget* m_pBinMapperMemoryInspector;
-   BreakpointInspector* m_pBreakpointInspector;
+   BreakpointDockWidget* m_pBreakpointInspector;
    CodeBrowserDockWidget* m_pCodeInspector;
    CodeDataLoggerDockWidget* m_pCodeDataLoggerInspector;
    PPUInformationDockWidget* m_pPPUInformationInspector;
@@ -91,6 +90,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void on_actionRun_In_Emulator_triggered();
    void on_actionOnline_Help_triggered();
    void projectDataChangesEvent();
    void on_actionPreferences_triggered();
@@ -131,6 +131,7 @@ private slots:
    void on_actionPPUInformation_Inspector_toggled(bool );
    void on_actionAPUInformation_Inspector_toggled(bool );
    void on_actionMapperInformation_Inspector_toggled(bool );
+   void reflectedEmulator_close(bool toplevel);
    void reflectedCodeInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
    void reflectedExecutionInspector_close(bool toplevel);

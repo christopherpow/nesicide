@@ -76,7 +76,7 @@ symbol_list* current_stab = NULL;
 symbol_list global_stab;
 unsigned char add_symbol ( symbol_list* list, char* symbol, symbol_table** ptr );
 void delete_symbol ( symbol_list* list, char* symbol );
-symbol_table* find_symbol ( char* symbol );
+symbol_table* find_symbol ( const char* symbol );
 
 // Index of last declared label, for useful error messages like:
 // error: <line>: after <symbol>: blah...
@@ -518,6 +518,8 @@ keyword asmkeywords [] =
 {
    { "byte", ".byte", DATAB, NULL },
    { "db", ".db", DATAB, NULL },
+   { "dl", ".dl", DATAL, NULL },
+   { "dh", ".dh", DATAH, NULL },
    { "dcb", ".dcb", DATAB, NULL },
    { "dc.b", ".dc.b", DATAB, NULL },
    { "ascii", ".ascii", DATAB, NULL },
@@ -534,6 +536,8 @@ keyword asmkeywords [] =
    { "org", ".org", ORIGIN, NULL },
    { "base", ".base", BASE, NULL },
    { "space", ".space", VARSPACE, NULL },
+   { "enum", ".enum", ENUMERATE, NULL },
+   { "ende", ".ende", ENDENUMERATE, NULL },
    { "advance", ".advance", ADVANCE, NULL },
    { "pad", ".pad", ADVANCE, NULL },
    { "align", ".align", ALIGN, NULL },
@@ -558,7 +562,7 @@ long asm_get_current_buffer ( void )
    return (long)YY_CURRENT_BUFFER;
 }
 
-symbol_table* find_symbol ( char* symbol )
+symbol_table* find_symbol ( const char* symbol )
 {
    unsigned int i;
    symbol_table* ptr = NULL;

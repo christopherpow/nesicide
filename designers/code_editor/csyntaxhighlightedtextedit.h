@@ -17,6 +17,7 @@ class CSyntaxHighlightedTextEdit : public QPlainTextEdit
 
 public:
    CSyntaxHighlightedTextEdit(QWidget* parent = 0);
+   virtual ~CSyntaxHighlightedTextEdit();
 
    void lineNumberAreaPaintEvent(QPaintEvent* event);
    int lineNumberAreaWidth();
@@ -24,9 +25,11 @@ public:
 protected:
    void resizeEvent(QResizeEvent* event);
 
+public slots:
+   void highlightCurrentLine();
+
 private slots:
    void updateLineNumberAreaWidth(int newBlockCount);
-   void highlightCurrentLine();
    void updateLineNumberArea(const QRect&, int);
 
 private:

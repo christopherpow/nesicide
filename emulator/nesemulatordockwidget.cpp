@@ -1,12 +1,13 @@
-#include "nesemulatordialog.h"
-#include "ui_nesemulatordialog.h"
+#include "nesemulatordockwidget.h"
+#include "ui_nesemulatordockwidget.h"
+
 #include "main.h"
 
 #include "emulator_core.h"
 
-NESEmulatorDialog::NESEmulatorDialog(QWidget* parent) :
-   QDialog(parent),
-   ui(new Ui::NESEmulatorDialog)
+NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
+    QDockWidget(parent),
+    ui(new Ui::NESEmulatorDockWidget)
 {
    imgData = new char[256*256*4];
    memset ( imgData, 0, sizeof(char)*256*256*4 );
@@ -28,19 +29,21 @@ NESEmulatorDialog::NESEmulatorDialog(QWidget* parent) :
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
 
-   // Clear image to set alpha channel...
+   // Clear image...
    memset ( imgData, 0xFF, 256*256*4 );
    nesSetTVOut((int8_t*)imgData);
 }
 
-NESEmulatorDialog::~NESEmulatorDialog()
+NESEmulatorDockWidget::~NESEmulatorDockWidget()
 {
-   delete ui;
+    delete ui;
+    delete renderer;
+    delete imgData;
 }
 
-void NESEmulatorDialog::changeEvent(QEvent* e)
+void NESEmulatorDockWidget::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QDockWidget::changeEvent(e);
 
    switch (e->type())
    {
@@ -52,7 +55,7 @@ void NESEmulatorDialog::changeEvent(QEvent* e)
    }
 }
 
-void NESEmulatorDialog::mousePressEvent(QMouseEvent* event)
+void NESEmulatorDockWidget::mousePressEvent(QMouseEvent* event)
 {
    // CPTODO: defaulted controller 2 to zapper for now
    if ( event->button()&Qt::LeftButton )
@@ -67,7 +70,7 @@ void NESEmulatorDialog::mousePressEvent(QMouseEvent* event)
    }
 }
 
-void NESEmulatorDialog::mouseReleaseEvent(QMouseEvent* event)
+void NESEmulatorDockWidget::mouseReleaseEvent(QMouseEvent* event)
 {
    // CPTODO: defaulted controller 2 to zapper for now
    if ( event->button()&Qt::LeftButton )
@@ -82,14 +85,14 @@ void NESEmulatorDialog::mouseReleaseEvent(QMouseEvent* event)
    }
 }
 
-void NESEmulatorDialog::mouseMoveEvent(QMouseEvent* event)
+void NESEmulatorDockWidget::mouseMoveEvent(QMouseEvent* event)
 {
    // CPTODO: defaulted controller 2 to zapper for now
    nesSetControllerScreenPosition(CONTROLLER2,event->pos().x()-ui->frame->pos().x(),event->pos().y()-ui->frame->pos().y());
    event->accept();
 }
 
-void NESEmulatorDialog::keyPressEvent(QKeyEvent* event)
+void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
 {
 // CPTODO: get controller configuration...
 //   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
@@ -171,7 +174,7 @@ void NESEmulatorDialog::keyPressEvent(QKeyEvent* event)
    event->accept();
 }
 
-void NESEmulatorDialog::keyReleaseEvent(QKeyEvent* event)
+void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 {
 // CPTODO: get controller configuration...
 //   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
@@ -253,7 +256,7 @@ void NESEmulatorDialog::keyReleaseEvent(QKeyEvent* event)
    event->accept();
 }
 
-void NESEmulatorDialog::internalPlay()
+void NESEmulatorDockWidget::internalPlay()
 {
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
@@ -261,58 +264,68 @@ void NESEmulatorDialog::internalPlay()
    ui->stepPPUButton->setEnabled(false);
 }
 
-void NESEmulatorDialog::on_playButton_clicked()
+void NESEmulatorDockWidget::internalPause(bool)
 {
+   ui->playButton->setEnabled(true);
+   ui->pauseButton->setEnabled(false);
+   ui->stepCPUButton->setEnabled(true);
+   ui->stepPPUButton->setEnabled(true);
+}
+
+void NESEmulatorDockWidget::internalPauseWithoutShow()
+{
+   ui->playButton->setEnabled(true);
+   ui->pauseButton->setEnabled(false);
+   ui->stepCPUButton->setEnabled(true);
+   ui->stepPPUButton->setEnabled(true);
+}
+
+void NESEmulatorDockWidget::on_playButton_clicked()
+{
+#if 0
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
    ui->stepCPUButton->setEnabled(false);
    ui->stepPPUButton->setEnabled(false);
-
+#endif
    emulator->startEmulation();
 }
 
-void NESEmulatorDialog::internalPause(bool)
+void NESEmulatorDockWidget::on_pauseButton_clicked()
 {
+#if 0
    ui->playButton->setEnabled(true);
    ui->pauseButton->setEnabled(false);
    ui->stepCPUButton->setEnabled(true);
    ui->stepPPUButton->setEnabled(true);
-}
-
-void NESEmulatorDialog::internalPauseWithoutShow()
-{
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
-}
-
-void NESEmulatorDialog::on_pauseButton_clicked()
-{
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
+#endif
 
    emulator->pauseEmulation(true);
 }
 
-void NESEmulatorDialog::on_stepCPUButton_clicked()
+void NESEmulatorDockWidget::on_stepCPUButton_clicked()
 {
    emulator->stepCPUEmulation();
 }
 
-void NESEmulatorDialog::on_stepPPUButton_clicked()
+void NESEmulatorDockWidget::on_stepPPUButton_clicked()
 {
    emulator->stepPPUEmulation();
 }
 
-void NESEmulatorDialog::on_resetButton_clicked()
+void NESEmulatorDockWidget::on_resetButton_clicked()
 {
+#if 0
+   ui->playButton->setEnabled(true);
+   ui->pauseButton->setEnabled(false);
+   ui->stepCPUButton->setEnabled(true);
+   ui->stepPPUButton->setEnabled(true);
+#endif
+
    emulator->resetEmulator();
 }
 
-void NESEmulatorDialog::renderData()
+void NESEmulatorDockWidget::renderData()
 {
    renderer->updateGL();
 }

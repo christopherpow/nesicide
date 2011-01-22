@@ -6,7 +6,7 @@ CCHRROMBank::CCHRROMBank(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
    
    // Allocate attributes
-   editor = (CHRROMDisplayDialog*)NULL;
+   m_editor = (CHRROMDisplayDialog*)NULL;
 }
 
 CCHRROMBank::~ CCHRROMBank()
@@ -42,30 +42,25 @@ void CCHRROMBank::contextMenuEvent(QContextMenuEvent*, QTreeView*)
 
 void CCHRROMBank::openItemEvent(QTabWidget* tabWidget)
 {
-   if (editor)
+   if (m_editor)
    {
-      if (editor->isVisible())
+      if (m_editor->isVisible())
       {
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->setCurrentWidget(m_editor);
       }
       else
       {
-         m_tabIndex = tabWidget->addTab(editor, this->caption());
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->addTab(m_editor, this->caption());
+         tabWidget->setCurrentWidget(m_editor);
       }
-
-      return;
    }
    else
    {
-      editor = new CHRROMDisplayDialog(0, false, (qint8*)m_bankData);
-      m_tabIndex = tabWidget->addTab(editor, this->caption());
+      m_editor = new CHRROMDisplayDialog(0, false, (qint8*)m_bankData);
+      tabWidget->addTab(m_editor, this->caption());
+      tabWidget->setCurrentWidget(m_editor);
+//      m_editor->updateScrollbars();
    }
-
-
-   tabWidget->setCurrentIndex(m_tabIndex);
-   editor->updateScrollbars();
-
 }
 
 bool CCHRROMBank::onCloseQuery()
@@ -75,11 +70,10 @@ bool CCHRROMBank::onCloseQuery()
 
 void CCHRROMBank::onClose()
 {
-   if (editor)
+   if (m_editor)
    {
-      delete editor;
-      editor = (CHRROMDisplayDialog*)NULL;
-      m_tabIndex = -1;
+      delete m_editor;
+      m_editor = (CHRROMDisplayDialog*)NULL;
    }
 }
 

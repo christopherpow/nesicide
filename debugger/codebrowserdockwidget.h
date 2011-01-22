@@ -24,12 +24,11 @@ protected:
    void changeEvent(QEvent* e);
 
 public slots:
-   void updateBrowser();
    void updateDisassembly(bool showMe = false);
    void breakpointHit();
+   void cartridgeLoaded();
 
 signals:
-   void showMe();
    void breakpointsChanged();
    
 private:

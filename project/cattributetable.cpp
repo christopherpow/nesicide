@@ -9,14 +9,14 @@ CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
    
    // Allocate attributes
-   m_attributeTableEditorForm = (AttributeTableEditorForm*)NULL;
+   m_editor = (AttributeTableEditorForm*)NULL;
 }
 
 CAttributeTable::~CAttributeTable()
 {
-   if (m_attributeTableEditorForm)
+   if (m_editor)
    {
-      delete m_attributeTableEditorForm;
+      delete m_editor;
    }
 }
 
@@ -71,10 +71,10 @@ void CAttributeTable::contextMenuEvent(QContextMenuEvent* event, QTreeView* pare
             return;
          }
 
-         if (this->m_attributeTableEditorForm)
+         if (m_editor)
          {
-            QTabWidget* tabWidget = (QTabWidget*)this->m_attributeTableEditorForm->parentWidget()->parentWidget();
-            tabWidget->removeTab(m_tabIndex);
+            QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
+            tabWidget->removeTab(tabWidget->indexOf(m_editor));
          }
 
          // TODO: Fix this logic so the memory doesn't get lost.
@@ -87,27 +87,24 @@ void CAttributeTable::contextMenuEvent(QContextMenuEvent* event, QTreeView* pare
 
 void CAttributeTable::openItemEvent(QTabWidget* tabWidget)
 {
-   if (m_attributeTableEditorForm)
+   if (m_editor)
    {
-      if (m_attributeTableEditorForm->isVisible())
+      if (m_editor->isVisible())
       {
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->setCurrentWidget(m_editor);
       }
       else
       {
-         m_tabIndex = tabWidget->addTab(m_attributeTableEditorForm, this->caption());
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->addTab(m_editor, this->caption());
+         tabWidget->setCurrentWidget(m_editor);
       }
-
-      return;
    }
    else
    {
-      m_attributeTableEditorForm = new AttributeTableEditorForm();
-      m_tabIndex = tabWidget->addTab(m_attributeTableEditorForm, this->caption());
+      m_editor = new AttributeTableEditorForm();
+      tabWidget->addTab(m_editor, this->caption());
+      tabWidget->setCurrentWidget(m_editor);
    }
-
-   tabWidget->setCurrentIndex(m_tabIndex);
 }
 
 bool CAttributeTable::onCloseQuery()
@@ -117,11 +114,10 @@ bool CAttributeTable::onCloseQuery()
 
 void CAttributeTable::onClose()
 {
-   if (m_attributeTableEditorForm)
+   if (m_editor)
    {
-      delete m_attributeTableEditorForm;
-      m_attributeTableEditorForm = (AttributeTableEditorForm*)NULL;
-      m_tabIndex = -1;
+      delete m_editor;
+      m_editor = (AttributeTableEditorForm*)NULL;
    }
 }
 
@@ -145,10 +141,10 @@ bool CAttributeTable::onNameChanged(QString newName)
    {
       m_name = newName;
 
-      if (m_attributeTableEditorForm && (m_tabIndex != -1))
+      if ( m_editor )
       {
-         QTabWidget* tabWidget = (QTabWidget*)m_attributeTableEditorForm->parentWidget()->parentWidget();
-         tabWidget->setTabText(m_tabIndex, newName);
+         QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
+         tabWidget->setTabText(tabWidget->indexOf(m_editor), newName);
       }
    }
 

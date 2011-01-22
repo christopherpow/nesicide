@@ -8,25 +8,20 @@ CPRGROMBank::CPRGROMBank(IProjectTreeViewItem* parent)
    // Allocate attributes
    m_bankIndex = -1;
 
-   m_pointerToEditorDialog = (PRGROMDisplayDialog*)0;
+   m_editor = (PRGROMDisplayDialog*)0;
 }
 
 CPRGROMBank::~CPRGROMBank()
 {
-   if (m_pointerToEditorDialog)
+   if (m_editor)
    {
-      delete m_pointerToEditorDialog;
+      delete m_editor;
    }
 }
 
-PRGROMDisplayDialog* CPRGROMBank::get_pointerToEditorDialog()
+PRGROMDisplayDialog* CPRGROMBank::getEditor()
 {
-   return m_pointerToEditorDialog;
-}
-
-void CPRGROMBank::set_pointerToEditorDialog(PRGROMDisplayDialog* pointerToEditorDialog)
-{
-   m_pointerToEditorDialog = pointerToEditorDialog;
+   return m_editor;
 }
 
 bool CPRGROMBank::serialize(QDomDocument& doc, QDomNode& node)
@@ -60,28 +55,27 @@ void CPRGROMBank::contextMenuEvent(QContextMenuEvent*, QTreeView*)
 void CPRGROMBank::openItemEvent(QTabWidget* tabWidget)
 {
 
-   if (m_pointerToEditorDialog)
+   if (m_editor)
    {
-      if (m_pointerToEditorDialog->isVisible())
+      if (m_editor->isVisible())
       {
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->setCurrentWidget(m_editor);
       }
       else
       {
-         m_tabIndex = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->addTab(m_editor, this->caption());
+         tabWidget->setCurrentWidget(m_editor);
       }
 
       return;
    }
    else
    {
-      m_pointerToEditorDialog = new PRGROMDisplayDialog();
-      m_pointerToEditorDialog->setRomData(m_bankData);
-      m_tabIndex = tabWidget->addTab(m_pointerToEditorDialog, this->caption());
+      m_editor = new PRGROMDisplayDialog();
+      m_editor->setRomData(m_bankData);
+      tabWidget->addTab(m_editor, this->caption());
+      tabWidget->setCurrentWidget(m_editor);
    }
-
-   tabWidget->setCurrentIndex(m_tabIndex);
 }
 
 

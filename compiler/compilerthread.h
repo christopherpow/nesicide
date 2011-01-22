@@ -12,6 +12,7 @@ public:
    void kill();
    
    bool assembledOk() { return m_assembledOk; }
+   void reset() { m_assembledOk = false; }
 
 signals:
    void compileStep(char* message);

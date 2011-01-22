@@ -141,6 +141,8 @@ extern "C" {
       fixup_post_idx_ind,
       fixup_relative,
       fixup_datab,
+      fixup_datab_lo,
+      fixup_datab_hi,
       fixup_dataw,
       fixup_align,
       fixup_string
@@ -220,7 +222,7 @@ extern "C" {
       struct _ir_table* end;
    } permanent_marker_table;
 
-   symbol_table* find_symbol ( char* symbol );
+   symbol_table* find_symbol ( const char* symbol );
 
 #if defined ( __cplusplus )
 }

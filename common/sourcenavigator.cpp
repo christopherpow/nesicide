@@ -15,6 +15,9 @@ SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
     ui->symbols->setEnabled(false);
     
     QObject::connect(compiler,SIGNAL(finished()),this,SLOT(compiler_compileDone()));
+    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),this,SLOT(emulator_emulatorPaused(bool)));
+    QObject::connect(emulator,SIGNAL(emulatorReset()),this,SLOT(emulator_emulatorPaused()));
+    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(emulator_emulatorPaused()));
     
     m_pTarget = pTarget;
 }
@@ -24,19 +27,12 @@ SourceNavigator::~SourceNavigator()
     delete ui;
 }
 
-void SourceNavigator::changeFile(QString fileName)
+void SourceNavigator::shutdown()
 {
-   if ( ui->files->currentText() != fileName )
-   {
-      int file = pasm_get_source_file_index_by_name(fileName.toAscii().data());
-      blockSignals(true);
-      
-      ui->files->setCurrentIndex(file);
-   
-      updateSymbolsForFile(file);      
-   
-      blockSignals(false);
-   }
+   ui->files->clear();
+   ui->symbols->clear();
+   ui->files->setEnabled(false);
+   ui->symbols->setEnabled(false);
 }
 
 void SourceNavigator::updateSymbolsForFile(int file)
@@ -61,6 +57,40 @@ void SourceNavigator::updateSymbolsForFile(int file)
       }
    }
    blockSignals(false);
+}
+
+void SourceNavigator::emulator_emulatorPaused(bool show)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   char* file;
+   int   linenumber;
+   unsigned int absAddr;
+   
+   if ( show )
+   {
+      blockSignals(true);
+      absAddr = nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync());
+      file = pasm_get_source_file_name_by_addr(absAddr);
+      if ( file )
+      {
+         linenumber = pasm_get_source_linenum_by_absolute_addr(absAddr);
+         on_files_activated(QString(file));
+      
+         while ( iter.current() )
+         {
+            pSource = dynamic_cast<CSourceItem*>(iter.current());
+            if ( pSource && 
+                 (pSource->caption() == file) )
+            {
+               pSource->getEditor()->selectLine(linenumber);
+               break;
+            }
+            iter.next();
+         }
+      }
+      blockSignals(false);
+   }
 }
 
 void SourceNavigator::compiler_compileDone()
@@ -92,7 +122,7 @@ void SourceNavigator::compiler_compileDone()
 
 void SourceNavigator::projectTreeView_openItem(QString item)
 {
-   int file = pasm_get_source_file_index_by_name(item.toAscii().data());
+   int file = pasm_get_source_file_index_by_name(item.toAscii().constData());
    blockSignals(true);
    
    ui->files->setCurrentIndex(file);
@@ -127,7 +157,7 @@ void SourceNavigator::on_symbols_activated(QString symbol)
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
-   int linenumber = pasm_get_symbol_linenum_by_name(symbol.toAscii().data());
+   int linenumber = pasm_get_symbol_linenum_by_name(symbol.toAscii().constData());
 
    while ( iter.current() )
    {

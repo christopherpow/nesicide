@@ -15,7 +15,7 @@ public:
 
    // Member Getters
    QString get_sourceCode();
-   CodeEditorForm* getEditor() { return m_codeEditorForm; }
+   CodeEditorForm* getEditor() { return m_editor; }
 
    // Member Setters
    void set_sourceCode(QString sourceCode);
@@ -34,13 +34,14 @@ public:
    virtual void onSaveDocument();
    virtual bool canChangeName();
    virtual bool onNameChanged(QString newName);
+   virtual QWidget* tab() { return dynamic_cast<QWidget*>(m_editor); }
 
 private:
    // Attributes
    QString m_sourceCode;
    
    // Designer
-   CodeEditorForm* m_codeEditorForm;
+   CodeEditorForm* m_editor;
 };
 
 #endif // CSOURCEITEM_H

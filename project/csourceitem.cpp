@@ -9,22 +9,22 @@ CSourceItem::CSourceItem(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
    
    // Allocate attributes
-   m_codeEditorForm = (CodeEditorForm*)NULL;
+   m_editor = (CodeEditorForm*)NULL;
 }
 
 CSourceItem::~CSourceItem()
 {
-   if (m_codeEditorForm)
+   if (m_editor)
    {
-      delete m_codeEditorForm;
+      delete m_editor;
    }
 }
 
 QString CSourceItem::get_sourceCode()
 {
-   if (m_codeEditorForm)
+   if (m_editor)
    {
-      m_sourceCode = m_codeEditorForm->get_sourceCode();
+      m_sourceCode = m_editor->get_sourceCode();
    }
 
    return m_sourceCode;
@@ -34,9 +34,9 @@ void CSourceItem::set_sourceCode(QString sourceCode)
 {
    m_sourceCode = sourceCode;
 
-   if (m_codeEditorForm)
+   if (m_editor)
    {
-      m_codeEditorForm->set_sourceCode(sourceCode);
+      m_editor->set_sourceCode(sourceCode);
    }
 }
 
@@ -89,6 +89,7 @@ QString CSourceItem::caption() const
 {
    return m_name;
 }
+
 void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    QMenu menu(parent);
@@ -111,10 +112,10 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             nesicideProject->getProject()->setMainSource((CSourceItem*)NULL);
          }
 
-         if (this->m_codeEditorForm)
+         if (m_editor)
          {
-            QTabWidget* tabWidget = (QTabWidget*)this->m_codeEditorForm->parentWidget()->parentWidget();
-            tabWidget->removeTab(m_tabIndex);
+            QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
+            tabWidget->removeTab(tabWidget->indexOf(m_editor));
          }
 
          // TODO: Fix this logic so the memory doesn't get lost.
@@ -127,33 +128,30 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
 void CSourceItem::openItemEvent(QTabWidget* tabWidget)
 {
-   if (m_codeEditorForm)
+   if (m_editor)
    {
-      if (m_codeEditorForm->isVisible())
+      if (m_editor->isVisible())
       {
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->setCurrentWidget(m_editor);
       }
       else
       {
-         m_tabIndex = tabWidget->addTab(m_codeEditorForm, this->caption());
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->addTab(m_editor, this->caption());
+         tabWidget->setCurrentWidget(m_editor);
       }
-
-      return;
    }
    else
    {
-      m_codeEditorForm = new CodeEditorForm();
-      m_codeEditorForm->set_sourceCode(m_sourceCode);
-      m_tabIndex = tabWidget->addTab(m_codeEditorForm, this->caption());
+      m_editor = new CodeEditorForm();
+      m_editor->set_sourceCode(m_sourceCode);
+      tabWidget->addTab(m_editor, this->caption());
+      tabWidget->setCurrentWidget(m_editor);
    }
-
-   tabWidget->setCurrentIndex(m_tabIndex);
 }
 
 bool CSourceItem::onCloseQuery()
 {
-   if (m_sourceCode != m_codeEditorForm->get_sourceCode())
+   if (m_sourceCode != m_editor->get_sourceCode())
    {
       return (QMessageBox::question(0, QString("Confirm Close"),
                                     QString("This file has unsaved changes that\n"
@@ -169,11 +167,10 @@ bool CSourceItem::onCloseQuery()
 
 void CSourceItem::onClose()
 {
-   if (m_codeEditorForm)
+   if (m_editor)
    {
-      delete m_codeEditorForm;
-      m_codeEditorForm = (CodeEditorForm*)NULL;
-      m_tabIndex = -1;
+      delete m_editor;
+      m_editor = (CodeEditorForm*)NULL;
    }
 }
 
@@ -184,7 +181,7 @@ bool CSourceItem::isDocumentSaveable()
 
 void CSourceItem::onSaveDocument()
 {
-   m_sourceCode = m_codeEditorForm->get_sourceCode();
+   m_sourceCode = m_editor->get_sourceCode();
 }
 
 bool CSourceItem::canChangeName()
@@ -198,10 +195,10 @@ bool CSourceItem::onNameChanged(QString newName)
    {
       m_name = newName;
 
-      if (m_codeEditorForm && (m_tabIndex != -1))
+      if ( m_editor )
       {
-         QTabWidget* tabWidget = (QTabWidget*)m_codeEditorForm->parentWidget()->parentWidget();
-         tabWidget->setTabText(m_tabIndex, newName);
+         QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
+         tabWidget->setTabText(tabWidget->indexOf(m_editor), newName);
       }
    }
 

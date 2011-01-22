@@ -50,7 +50,7 @@ private:
    uint8_t  m_bankData [ MEM_8KB ];
    
    // Designer
-   CHRROMDisplayDialog* editor;
+   CHRROMDisplayDialog* m_editor;
 };
 
 #endif // CCHRROMBANK_H

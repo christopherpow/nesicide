@@ -10,7 +10,6 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
    
    // Allocate attributes
    m_isModified = false;
-   m_tabIndex = -1;
    m_editor = (GraphicsBankEditorForm*)NULL;
    m_bankItems.clear();
 }
@@ -113,10 +112,10 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
             return;
          }
 
-         if (this->m_editor)
+         if (m_editor)
          {
             QTabWidget* tabWidget = (QTabWidget*)this->m_editor->parentWidget()->parentWidget();
-            tabWidget->removeTab(m_tabIndex);
+            tabWidget->removeTab(tabWidget->indexOf(m_editor));
          }
 
          // TODO: Fix this logic so the memory doesn't get lost.
@@ -133,25 +132,21 @@ void CGraphicsBank::openItemEvent(QTabWidget* tabWidget)
    {
       if (m_editor->isVisible())
       {
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->setCurrentWidget(m_editor);
       }
       else
       {
-         m_tabIndex = tabWidget->addTab(m_editor, this->caption());
-         tabWidget->setCurrentIndex(m_tabIndex);
+         tabWidget->addTab(m_editor, this->caption());
+         tabWidget->setCurrentWidget(m_editor);
       }
-
-      return;
    }
    else
    {
       m_editor = new GraphicsBankEditorForm();
-      m_tabIndex = tabWidget->addTab(m_editor, this->caption());
+      tabWidget->addTab(m_editor, this->caption());
+      m_editor->updateChrRomBankItemList(m_bankItems);
+      tabWidget->setCurrentWidget(m_editor);
    }
-
-   m_editor->updateChrRomBankItemList(m_bankItems);
-
-   tabWidget->setCurrentIndex(m_tabIndex);
 }
 
 bool CGraphicsBank::onCloseQuery()
@@ -192,10 +187,10 @@ bool CGraphicsBank::onNameChanged(QString newName)
    {
       m_name = newName;
 
-      if (m_editor && (m_tabIndex != -1))
+      if ( m_editor )
       {
          QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
-         tabWidget->setTabText(m_tabIndex, newName);
+         tabWidget->setTabText(tabWidget->indexOf(m_editor), newName);
       }
    }
 

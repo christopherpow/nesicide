@@ -16,17 +16,20 @@
   <property name="windowTitle">
    <string>NESICIDE</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
   <property name="tabShape">
-   <enum>QTabWidget::Rounded</enum>
+   <enum>QTabWidget::Triangular</enum>
   </property>
   <property name="dockNestingEnabled">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="dockOptions">
-   <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -35,11 +38,20 @@
     </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
        <number>0</number>
+      </property>
+      <property name="usesScrollButtons">
+       <bool>true</bool>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -217,7 +229,6 @@
    <addaction name="menuDebugger"/>
    <addaction name="menu_Help"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="projectToolBar">
    <property name="windowTitle">
     <string>Project File Operations</string>
@@ -257,6 +268,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionCompile_Project"/>
+   <addaction name="separator"/>
+   <addaction name="actionRun_In_Emulator"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="toolToolbar">
@@ -880,6 +893,15 @@
   <action name="actionOnline_Help">
    <property name="text">
     <string>Online Documentation</string>
+   </property>
+  </action>
+  <action name="actionRun_In_Emulator">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/stock_media-play.svg</normaloff>:/resources/stock_media-play.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Run In Emulator</string>
    </property>
   </action>
  </widget>
