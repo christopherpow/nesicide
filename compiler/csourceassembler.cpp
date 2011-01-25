@@ -28,18 +28,19 @@ bool CSourceAssembler::assemble()
    int romLength = 0;
    QString strBuffer1;
    QString strBuffer2;
-   char* errors;
+   error_table* pError;
    int numErrors;
    int marker;
+   int e;
 
    if (!rootSource)
    {
-      buildTextLogger.write("Error: No main source has been defined.");
-      buildTextLogger.write("<i>You can select the main source to compile in the project properties dialog.</i>");
+      buildTextLogger->write("Error: No main source has been defined.");
+      buildTextLogger->write("<i>You can select the main source to compile in the project properties dialog.</i>");
       return false;
    }
 
-   buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->name() + "'...");
+   buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembling '" + rootSource->name() + "'...");
 
    pasm_assemble ( rootSource->name().toAscii().constData(),
                    rootSource->get_sourceCode().toAscii().constData(),
@@ -54,14 +55,17 @@ bool CSourceAssembler::assemble()
    if ( numErrors )
    {
       strBuffer2.sprintf ( "%d", numErrors );
-      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with " + strBuffer2 + " errors...<br />");
-      pasm_get_errors ( &errors );
-      strBuffer1.sprintf ( "%s", errors );
-      buildTextLogger.write("<font color='red'><pre>" + strBuffer1 + "</pre></font>");
+      buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with " + strBuffer2 + " errors...");
+      for ( e = 0; e < numErrors; e++ )
+      {
+         pError = pasm_get_error ( e );
+         strBuffer1.sprintf ( "<b><a href='error://?file=%s?line=%d'>%s:%d:%s</a></b>", pError->file->name, pError->line, pError->file->name, pError->line, pError->error );
+         buildTextLogger->write(strBuffer1);
+      }
    }
    else
    {
-      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with no errors...<br />");
+      buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with no errors...");
 
       int oldBanks = prgRomBanks->getPrgRomBanks().count();
       int bankIdx = 0;

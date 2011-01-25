@@ -49,7 +49,7 @@ void BreakpointWatcherThread::run ()
          {
             pBreakpoints->GetHitPrintable(idx,hitMsg);
 
-            debugTextLogger.write ( hitMsg );
+            debugTextLogger->write ( hitMsg );
 
             emit showPane(OutputPaneDockWidget::Output_Debug);
          }

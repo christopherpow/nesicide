@@ -32,7 +32,7 @@ private slots:
    void on_files_activated(QString );
 
 public slots:
-   void compiler_compileDone();
+   void compiler_compileDone(bool bOk);
    void emulator_emulatorPaused(bool show = true);
    void projectTreeView_openItem(QString item);
 };

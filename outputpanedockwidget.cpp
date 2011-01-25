@@ -8,17 +8,15 @@
 #include <QMenu>
 #include <QFileDialog>
 
-OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
+OutputPaneDockWidget::OutputPaneDockWidget(QTabWidget* pTarget, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::OutputPaneDockWidget)
 {
-   ui->setupUi(this);
+   ui->setupUi(this); 
+      
+   m_pTarget = pTarget;
+   
    ui->outputTabWidget->setCurrentIndex(Output_General);
-   generalTextLogger.setTextEditControl(ui->generalOutputTextEdit);
-   buildTextLogger.setTextEditControl(ui->compilerOutputTextEdit);
-   debugTextLogger.setTextEditControl(ui->debuggerOutputTextEdit);
-
-   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateData()));
 }
 
 OutputPaneDockWidget::~OutputPaneDockWidget()
@@ -33,9 +31,9 @@ void OutputPaneDockWidget::showPane(int tab)
 
 void OutputPaneDockWidget::clearAllPanes()
 {
-   generalTextLogger.clear();
-   buildTextLogger.clear();
-   debugTextLogger.clear();
+   ui->generalOutputTextEdit->clear();
+   ui->compilerOutputTextEdit->clear();
+   ui->debuggerOutputTextEdit->clear();
 }
 
 void OutputPaneDockWidget::clearPane(int tab)
@@ -43,15 +41,45 @@ void OutputPaneDockWidget::clearPane(int tab)
    switch ( tab )
    {
       case Output_General:
-         generalTextLogger.clear();
+         ui->generalOutputTextEdit->clear();
          break;
       case Output_Build:
-         buildTextLogger.clear();
+         ui->compilerOutputTextEdit->clear();
          break;
       case Output_Debug:
-         debugTextLogger.clear();
+         ui->debuggerOutputTextEdit->clear();
          break;
    }
+}
+
+void OutputPaneDockWidget::updateGeneralPane(QString text)
+{
+   ui->generalOutputTextEdit->appendHtml(text);
+}
+
+void OutputPaneDockWidget::updateBuildPane(QString text)
+{
+   ui->compilerOutputTextEdit->appendHtml(text);
+}
+
+void OutputPaneDockWidget::updateDebugPane(QString text)
+{
+   ui->debuggerOutputTextEdit->appendHtml(text);
+}
+
+void OutputPaneDockWidget::eraseGeneralPane()
+{
+   ui->generalOutputTextEdit->clear();
+}
+
+void OutputPaneDockWidget::eraseBuildPane()
+{
+   ui->compilerOutputTextEdit->clear();
+}
+
+void OutputPaneDockWidget::eraseDebugPane()
+{
+   ui->debuggerOutputTextEdit->clear();
 }
 
 void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
@@ -70,13 +98,13 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
       switch ( ui->outputTabWidget->currentIndex() )
       {
          case Output_General:
-            generalTextLogger.clear();
+            ui->generalOutputTextEdit->clear();
             break;
          case Output_Build:
-            buildTextLogger.clear();
+            ui->compilerOutputTextEdit->clear();
             break;
          case Output_Debug:
-            debugTextLogger.clear();
+            ui->debuggerOutputTextEdit->clear();
             break;
       }
    }
@@ -93,19 +121,48 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
       switch ( ui->outputTabWidget->currentIndex() )
       {
          case Output_General:
-            generalTextLogger.clear();
+            ui->generalOutputTextEdit->clear();
             break;
          case Output_Build:
-            buildTextLogger.clear();
+            ui->compilerOutputTextEdit->clear();
             break;
          case Output_Debug:
-            debugTextLogger.clear();
+            ui->debuggerOutputTextEdit->clear();
             break;
       }
    }
 }
 
-void OutputPaneDockWidget::updateData()
+void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
 {
-   debugTextLogger.update();
+   QTextCursor textCursor = ui->compilerOutputTextEdit->textCursor();
+   QString     selection;
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   QStringList errorParts;
+   
+   if ( ui->compilerOutputTextEdit->blockCount() > 1 )
+   {
+      textCursor.select(QTextCursor::LineUnderCursor);
+      selection = textCursor.selectedText();
+      ui->compilerOutputTextEdit->setTextCursor(textCursor);
+      
+      if ( selection.contains("error:") )
+      {
+         errorParts = selection.split(":");
+   
+         while ( iter.current() )
+         {
+            pSource = dynamic_cast<CSourceItem*>(iter.current());
+            if ( pSource && 
+                 (pSource->caption() == errorParts.at(0)) )
+            {
+               pSource->openItemEvent(m_pTarget);
+               pSource->getEditor()->selectLine(errorParts.at(1).toInt(0,10));
+               break;
+            }
+            iter.next();
+         }
+      }
+   }
 }

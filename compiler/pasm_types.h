@@ -223,6 +223,21 @@ extern "C" {
    } permanent_marker_table;
 
    symbol_table* find_symbol ( const char* symbol );
+   
+   typedef struct _error_table
+   {
+      struct _file_table* file;
+      int   line;
+      char* error;
+      struct _error_table* next;
+      struct _error_table* prev;
+   } error_table;
+   
+   typedef struct _error_list
+   {
+      struct _error_table* head;
+      struct _error_table* tail;
+   } error_list;
 
 #if defined ( __cplusplus )
 }

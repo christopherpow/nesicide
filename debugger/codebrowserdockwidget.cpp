@@ -4,7 +4,6 @@
 #include "dbg_cnes.h"
 #include "dbg_cnes6502.h"
 #include "dbg_cnesrom.h"
-#include "pasm_lib.h"
 
 #include "emulator_core.h"
 
@@ -15,19 +14,13 @@
 
 #include <QMessageBox>
 
-#define BROWSE_ASSEMBLY 0
-#define BROWSE_SOURCE   1
-
 CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::CodeBrowserDockWidget)
 {
    ui->setupUi(this);
    assemblyViewModel = new CCodeBrowserDisplayModel(this);
-   sourceViewModel = new CSourceBrowserDisplayModel(this);
    ui->tableView->setModel(assemblyViewModel);
-   ui->displayMode->setCurrentIndex ( 0 );
-   ui->sourceFiles->setEnabled(false);
 
    // Connect signals to the models to have the model update.
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), assemblyViewModel, SLOT(update()));
@@ -35,11 +28,6 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), assemblyViewModel, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), assemblyViewModel, SLOT(update()) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), sourceViewModel, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), sourceViewModel, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), sourceViewModel, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), sourceViewModel, SLOT(update()) );
-   QObject::connect ( this, SIGNAL(breakpointsChanged()), sourceViewModel, SLOT(update()) );
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
@@ -52,37 +40,20 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 {
    delete ui;
    delete assemblyViewModel;
-   delete sourceViewModel;
 }
 
 void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
    QDockWidget* breakpointInspector = InspectorRegistry::getInspector("Breakpoints");
-   int file;
    
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
-   QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), sourceViewModel, SLOT(update()) );
    
-   switch ( ui->displayMode->currentIndex() )
-   {
-      case BROWSE_ASSEMBLY:
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-         ui->tableView->resizeColumnToContents(2);
-         ui->tableView->resizeColumnToContents(3);
-         ui->tableView->resizeColumnToContents(4);
-         break;
-      case BROWSE_SOURCE:
-         ui->sourceFiles->clear();
-         for ( file = 0; file < pasm_get_num_source_files(); file++ )
-         {
-            ui->sourceFiles->insertItem(file,pasm_get_source_file_name_by_index(file));
-         }
-         ui->sourceFiles->setCurrentIndex(pasm_get_source_file_index_by_name(pasm_get_source_file_name_by_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()))));
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()))-1,0));
-         break;
-   }
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    ui->tableView->resizeColumnToContents(0);
    ui->tableView->resizeColumnToContents(1);
+   ui->tableView->resizeColumnToContents(2);
+   ui->tableView->resizeColumnToContents(3);
+   ui->tableView->resizeColumnToContents(4);
 }
 
 void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
@@ -94,17 +65,9 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
    int absAddr = 0;
    QModelIndex index = ui->tableView->currentIndex();
 
-   switch ( ui->displayMode->currentIndex() )
-   {
-      case BROWSE_ASSEMBLY:
-         addr = nesGetAddressFromSLOC(index.row());
-         absAddr = nesGetAbsoluteAddressFromAddress(addr);
-         break;
-      case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-         absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-         break;
-   }
+   addr = nesGetAddressFromSLOC(index.row());
+   
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( addr != -1 )
    {
@@ -175,15 +138,7 @@ void CodeBrowserDockWidget::changeEvent(QEvent* e)
 
 void CodeBrowserDockWidget::breakpointHit()
 {
-   switch ( ui->displayMode->currentIndex() )
-   {
-      case BROWSE_ASSEMBLY:
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-         break;
-      case BROWSE_SOURCE:
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()))-1,0));
-         break;
-   }
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    show();
 }
 
@@ -197,15 +152,7 @@ void CodeBrowserDockWidget::cartridgeLoaded()
 
 void CodeBrowserDockWidget::updateDisassembly(bool showMe)
 {
-   switch ( ui->displayMode->currentIndex() )
-   {
-      case BROWSE_ASSEMBLY:
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-         break;
-      case BROWSE_SOURCE:
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()))-1,0));
-         break;
-   }
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    if ( showMe )
    {
       show();
@@ -220,17 +167,9 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   switch ( ui->displayMode->currentIndex() )
-   {
-      case BROWSE_ASSEMBLY:
-         addr = nesGetAddressFromSLOC(index.row());
-         absAddr = nesGetAbsoluteAddressFromAddress(addr);
-         break;
-      case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-         absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-         break;
-   }
+   addr = nesGetAddressFromSLOC(index.row());
+   
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( addr != -1 )
    {
@@ -266,52 +205,14 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   switch ( ui->displayMode->currentIndex() )
-   {
-      case BROWSE_ASSEMBLY:
-         addr = nesGetAddressFromSLOC(index.row());
-         absAddr = nesGetAbsoluteAddressFromAddress(addr);
-         break;
-      case BROWSE_SOURCE:
-         addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-         absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-         break;
-   }
+   addr = nesGetAddressFromSLOC(index.row());
+   
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( addr != -1 )
    {
       C6502DBG::GOTO(addr);
    }// CPTODO: fix the goto for absolute
-}
-
-void CodeBrowserDockWidget::on_displayMode_currentIndexChanged(int index)
-{
-   int file;
-   
-   switch ( index )
-   {
-      case BROWSE_ASSEMBLY:
-         ui->tableView->setModel(assemblyViewModel);
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-         ui->tableView->resizeColumnToContents(2);
-         ui->tableView->resizeColumnToContents(3);
-         ui->tableView->resizeColumnToContents(4);
-         ui->sourceFiles->setEnabled(false);
-         break;
-      case BROWSE_SOURCE:
-         ui->tableView->setModel(sourceViewModel);
-         ui->tableView->setCurrentIndex(sourceViewModel->index(pasm_get_source_linenum_by_absolute_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()))-1,0));
-         ui->sourceFiles->setEnabled(true);
-         ui->sourceFiles->clear();
-         for ( file = 0; file < pasm_get_num_source_files(); file++ )
-         {
-            ui->sourceFiles->insertItem(file,pasm_get_source_file_name_by_index(file));
-         }
-         ui->sourceFiles->setCurrentIndex(pasm_get_source_file_index_by_name(pasm_get_source_file_name_by_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()))));
-         break;
-   }
-   ui->tableView->resizeColumnToContents(0);
-   ui->tableView->resizeColumnToContents(1);
 }
 
 void CodeBrowserDockWidget::on_tableView_doubleClicked(QModelIndex index)
@@ -323,17 +224,9 @@ void CodeBrowserDockWidget::on_tableView_doubleClicked(QModelIndex index)
 
    if ( index.isValid() )
    {
-      switch ( ui->displayMode->currentIndex() )
-      {
-         case BROWSE_ASSEMBLY:
-            addr = nesGetAddressFromSLOC(index.row());
-            absAddr = nesGetAbsoluteAddressFromAddress(addr);
-            break;
-         case BROWSE_SOURCE:
-            addr = pasm_get_source_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-            absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-            break;
-      }
+      addr = nesGetAddressFromSLOC(index.row());
+      
+      absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
       if ( addr != -1 )
       {
@@ -404,26 +297,12 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
 
    if ( index.isValid() )
    {
-      switch ( ui->displayMode->currentIndex() )
-      {
-         case BROWSE_ASSEMBLY:
-            addr = nesGetAddressFromSLOC(index.row());
+      addr = nesGetAddressFromSLOC(index.row());
 
-            if ( addr != -1 )
-            {
-               // Find unused Marker entry...
-               marker = markers->AddMarker(nesGetAbsoluteAddressFromAddress(addr));
-            }
-            break;
-         case BROWSE_SOURCE:
-            addr = pasm_get_source_absolute_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
-            
-            if ( addr != -1 )
-            {
-               // Find unused Marker entry...
-               marker = markers->AddMarker(addr);
-            }
-            break;
+      if ( addr != -1 )
+      {
+         // Find unused Marker entry...
+         marker = markers->AddMarker(nesGetAbsoluteAddressFromAddress(addr));
       }
    }
 }
@@ -437,24 +316,11 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
 
    if ( marker >= 0 )
    {
-      switch ( ui->displayMode->currentIndex() )
-      {
-         case BROWSE_ASSEMBLY:
-            addr = nesGetAddressFromSLOC(index.row());
-      
-            if ( addr != -1 )
-            {
-               markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
-            }
-            break;
-         case BROWSE_SOURCE:
-            addr = pasm_get_source_absolute_addr_by_linenum_and_file ( index.row()+1, ui->sourceFiles->currentText().toAscii().constData() );
+      addr = nesGetAddressFromSLOC(index.row());
 
-            if ( addr != -1 )
-            {
-               markers->CompleteMarker(marker,addr);
-            }
-            break;
+      if ( addr != -1 )
+      {
+         markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
       }
    }
 }
@@ -463,20 +329,4 @@ void CodeBrowserDockWidget::on_actionClear_marker_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
    markers->ClearAllMarkers();
-}
-
-
-void CodeBrowserDockWidget::on_sourceFiles_currentIndexChanged(int index)
-{
-   QStringList  source;
-   QString      str;   
-   
-   if ( index >= 0 )
-   {
-      str = pasm_get_source_file_text_by_index(index);
-      source = str.split ( QRegExp("[\r\n]") );
-      sourceViewModel->setSource(source);
-      sourceViewModel->setSourceFilename(pasm_get_source_file_name_by_index(index));
-      sourceViewModel->force();
-   }
 }

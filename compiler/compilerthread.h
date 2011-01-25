@@ -13,9 +13,12 @@ public:
    
    bool assembledOk() { return m_assembledOk; }
    void reset() { m_assembledOk = false; }
+   void assemble();
 
 signals:
+   void compileStarted();
    void compileStep(char* message);
+   void compileDone(bool bOk);
 
 protected:
    virtual void run ();

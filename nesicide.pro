@@ -188,7 +188,6 @@ SOURCES += mainwindow.cpp \
     emulator/nesemulatorthread.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
     common/inspectorregistry.cpp \
-    viewers/debugger/csourcebrowserdisplaymodel.cpp \
     aboutdialog.cpp \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
@@ -283,7 +282,6 @@ HEADERS += mainwindow.h \
     common/inspectorregistry.h \
     compiler/pasm_types.h \
     compiler/pasm_lib.h \
-    viewers/debugger/csourcebrowserdisplaymodel.h \
     aboutdialog.h \
     interfaces/ichrrombankitem.h \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.h \

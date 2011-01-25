@@ -95,7 +95,7 @@ private slots:
    void projectDataChangesEvent();
    void on_actionPreferences_triggered();
    void compiler_compileStarted();
-   void compiler_compileDone();
+   void compiler_compileDone(bool bOk);
    void on_actionEnvironment_Settings_triggered();
    void on_actionMute_All_toggled(bool );
    void on_actionSquare_1_toggled(bool );

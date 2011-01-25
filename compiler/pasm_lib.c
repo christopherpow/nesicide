@@ -8,10 +8,11 @@ extern incobj_callback_fn incobj_fn;
 extern int btab_ent;
 extern binary_table* btab;
 extern symbol_list global_stab;
+extern symbol_table* current_label;
 extern file_table* ftab;
 
-extern char* errorStorage;
-extern int errorCount;
+extern error_list etab;
+extern int error_count;
 
 extern char currentFile [];
 
@@ -23,12 +24,18 @@ int asmparse();
 
 int pasm_get_num_errors ( void )
 {
-   return errorCount;
+   return error_count;
 }
 
-void pasm_get_errors ( char** errors )
+error_table* pasm_get_error ( int error )
 {
-   (*errors) = errorStorage;
+   int e = 0;
+   error_table* ptr = etab.head;
+   for ( e = 0; e < error; e++ )
+   {
+      ptr = ptr->next;
+   }
+   return ptr;
 }
 
 int pasm_get_num_source_files ( void )
@@ -579,6 +586,8 @@ int pasm_assemble( const char* name, const char* buffer_in, char** buffer_out, i
 
    // There should not have been any promotions in the last
    // run...check for that?  Maybe just let fixup spit out the errors...
+   
+   current_label = NULL;
 
    // Provide errors for incomplete fixup (undefined references)...
    check_fixup ();

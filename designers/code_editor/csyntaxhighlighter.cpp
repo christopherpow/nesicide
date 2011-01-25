@@ -8,7 +8,7 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    QStringList keywordPatterns;
    QStringList preprocessorPatterns;
 
-#if 1
+#if 0 // TODO: these things take FOREVER...
    // Assembler mnemonics
    for (int inx = 0; ; inx++)
    {

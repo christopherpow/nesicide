@@ -28,6 +28,9 @@
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -37,6 +40,70 @@
     </widget>
    </item>
   </layout>
+  <action name="actionBreak_on_CPU_execution_here">
+   <property name="text">
+    <string>Break on CPU execution here</string>
+   </property>
+   <property name="toolTip">
+    <string>Break on CPU execution here</string>
+   </property>
+  </action>
+  <action name="actionRun_to_here">
+   <property name="text">
+    <string>Run to here</string>
+   </property>
+   <property name="toolTip">
+    <string>Run to here</string>
+   </property>
+  </action>
+  <action name="actionDisable_breakpoint">
+   <property name="text">
+    <string>Disable this breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable this breakpoint</string>
+   </property>
+  </action>
+  <action name="actionRemove_breakpoint">
+   <property name="text">
+    <string>Remove this breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove this breakpoint</string>
+   </property>
+  </action>
+  <action name="actionEnable_breakpoint">
+   <property name="text">
+    <string>Enable this breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable this breakpoint</string>
+   </property>
+  </action>
+  <action name="actionStart_marker_here">
+   <property name="text">
+    <string>Set Visualization START Marker here</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Visualization START Marker here</string>
+   </property>
+  </action>
+  <action name="actionEnd_marker_here">
+   <property name="text">
+    <string>Set Visualization END Marker here</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Visualization END Marker here</string>
+   </property>
+  </action>
+  <action name="actionClear_marker">
+   <property name="text">
+    <string>Clear Visualization Markers</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear Visualization Markers</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

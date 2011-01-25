@@ -19,7 +19,7 @@ extern "C" {
 // pasm_assemble, so no dependence should be placed on its
 // permanent existence.  [If you want it later, copy it!]
    int pasm_get_num_errors ( void );
-   void pasm_get_errors ( char** errors );
+   error_table* pasm_get_error ( int error );
    
 // Interface to retrieve file information generated during
 // the most recent assemble.  Note this information

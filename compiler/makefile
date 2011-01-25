@@ -27,7 +27,7 @@ endif
 all: $(LIB_PREFIX)pasm$(LIB_POSTFIX) pasm$(EXEC_POSTFIX)
 
 $(LIB_PREFIX)pasm$(LIB_POSTFIX): pasm_$(ASM).l pasm_$(ASM).y pasm_lib.c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c
-	$(CC) $(CFLAGS) $(CFLAGS_LIB) -ggdb -DPASM_LIB -c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_lib.c
+	$(CC) $(CFLAGS) $(CFLAGS_LIB) -DPASM_LIB -c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c pasm_lib.c
 	$(LIB_CREATE) $(LIB_PREFIX)pasm$(LIB_POSTFIX) lex.$(ASM).o lex.$(PP).o pasm_$(ASM).tab.o pasm_lib.o 
 
 pasm$(EXEC_POSTFIX): pasm_$(ASM).l pasm_$(PP).l pasm_$(ASM).y pasm_exe.c lex.$(ASM).c lex.$(PP).c pasm_$(ASM).tab.c

@@ -402,17 +402,17 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
       }
 
-      generalTextLogger.clear();
+//      generalTextLogger->erase();
 
       str = "<b>Searcing internal game database: ";
       str += gameDatabase.getGameDBAuthor();
       str += ", ";
       str += gameDatabase.getGameDBTimestamp();
       str += "...</b>";
-      generalTextLogger.write(str);
+      generalTextLogger->write(str);
       str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
       str += fileName;
-      generalTextLogger.write(str);
+      generalTextLogger->write(str);
 
       bool gameFoundInDB = gameDatabase.find(m_pCartridge);
 
@@ -420,18 +420,18 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       {
          str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHA1: ";
          str += gameDatabase.getSHA1();
-         generalTextLogger.write(str);
+         generalTextLogger->write(str);
 
          str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name: ";
          str += gameDatabase.getName();
-         generalTextLogger.write(str);
+         generalTextLogger->write(str);
 
          str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Publisher (date): ";
          str += gameDatabase.getPublisher();
          str += " (";
          str += gameDatabase.getDate();
          str += ")";
-         generalTextLogger.write(str);
+         generalTextLogger->write(str);
 
          // Set project title...
          m_projectTitle = gameDatabase.getName();
@@ -443,14 +443,14 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       else
       {
          str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><font color=\"red\">Not found.</font></i>";
-         generalTextLogger.write(str);
+         generalTextLogger->write(str);
 
          // Set project title...
          m_projectTitle = fileName;
       }
 
       str = "<b>Game loaded.</b>";
-      generalTextLogger.write(str);
+      generalTextLogger->write(str);
 
       fileIn.close();
    }

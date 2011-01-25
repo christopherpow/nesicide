@@ -142,7 +142,7 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new CodeEditorForm();
+      m_editor = new CodeEditorForm(this->caption());
       m_editor->set_sourceCode(m_sourceCode);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);

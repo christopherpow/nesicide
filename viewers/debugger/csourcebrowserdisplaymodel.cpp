@@ -209,13 +209,14 @@ int CSourceBrowserDisplayModel::columnCount(const QModelIndex& parent) const
 
 void CSourceBrowserDisplayModel::update()
 {
+#if 0
    QStringList  source;
    QString      filetext(pasm_get_source_file_text_by_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync())));
    
    source = filetext.split ( QRegExp("[\r\n]") );
    setSource(source);
    setSourceFilename(pasm_get_source_file_name_by_addr(nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync())));
-
+#endif
    emit layoutChanged();
 }
 

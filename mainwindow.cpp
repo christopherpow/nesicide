@@ -16,10 +16,6 @@
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* projectBrowser = NULL;
 
-
-// TODO: oam visualizer "show onscreen" not working
-// TODO: move dialog for output pane into output pane dock widget
-
 MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
    ui(new Ui::MainWindow)
@@ -28,8 +24,12 @@ MainWindow::MainWindow(QWidget* parent) :
    
    QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
 
-   QObject::connect(compiler, SIGNAL(started()), this, SLOT(compiler_compileStarted()));
-   QObject::connect(compiler, SIGNAL(finished()), this, SLOT(compiler_compileDone()));
+   QObject::connect(compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()));
+   QObject::connect(compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)));
+   
+   generalTextLogger = new CTextLogger();
+   buildTextLogger = new CTextLogger();
+   debugTextLogger = new CTextLogger();
 
    nesicideProject = new CNesicideProject();
 
@@ -52,18 +52,21 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
    InspectorRegistry::addInspector ( "Project", projectBrowser );
    
-   output = new OutputPaneDockWidget ();
+   output = new OutputPaneDockWidget(ui->tabWidget);
    addDockWidget(Qt::BottomDockWidgetArea, output );
    output->hide();
    QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
-   QObject::connect(&generalTextLogger,SIGNAL(updateText()),&generalTextLogger,SLOT(update()));
-   QObject::connect(&buildTextLogger,SIGNAL(updateText()),&buildTextLogger,SLOT(update()));
-   QObject::connect(&debugTextLogger,SIGNAL(updateText()),&debugTextLogger,SLOT(update()));
+   QObject::connect(generalTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateGeneralPane(QString)));
+   QObject::connect(buildTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateBuildPane(QString)));
+   QObject::connect(debugTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateDebugPane(QString)));
+   QObject::connect(generalTextLogger,SIGNAL(eraseText()),output,SLOT(eraseGeneralPane()));
+   QObject::connect(buildTextLogger,SIGNAL(eraseText()),output,SLOT(eraseBuildPane()));
+   QObject::connect(debugTextLogger,SIGNAL(eraseText()),output,SLOT(eraseDebugPane()));
    QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
    InspectorRegistry::addInspector ( "Output", output );
 
-   generalTextLogger.write("<strong>NESICIDE2</strong> Alpha Release");
-   generalTextLogger.write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
+   generalTextLogger->write("<strong>NESICIDE2</strong> Alpha Release");
+   generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
    m_pBreakpointInspector = new BreakpointDockWidget ();
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
@@ -284,6 +287,10 @@ MainWindow::MainWindow(QWidget* parent) :
 MainWindow::~MainWindow()
 {
    ui->tabWidget->clear();
+
+   delete generalTextLogger;
+   delete buildTextLogger;
+   delete debugTextLogger;
 
    delete nesicideProject;
    delete pluginManager;
@@ -799,14 +806,13 @@ void MainWindow::on_actionCompile_Project_triggered()
 {
    QSettings settings;
    output->showPane(OutputPaneDockWidget::Output_Build);
-   output->clearPane(OutputPaneDockWidget::Output_Build);
    emulator->pauseEmulation(false);
    
    if ( settings.value("saveAllOnCompile",QVariant(true)) == QVariant(true) )
    {
       saveProject();
    }
-   compiler->start();
+   compiler->assemble();
 }
 
 void MainWindow::compiler_compileStarted()
@@ -815,7 +821,7 @@ void MainWindow::compiler_compileStarted()
    ui->actionRun_In_Emulator->setEnabled(false);
 }
 
-void MainWindow::compiler_compileDone()
+void MainWindow::compiler_compileDone(bool bOk)
 {
    ui->actionCompile_Project->setEnabled(true);
    

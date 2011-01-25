@@ -2,6 +2,7 @@
 #define CODEEDITORFORM_H
 
 #include <QWidget>
+#include <QTextCursor>
 
 namespace Ui
 {
@@ -12,7 +13,7 @@ class CodeEditorForm : public QWidget
 {
    Q_OBJECT
 public:
-   CodeEditorForm(QWidget* parent = 0);
+   CodeEditorForm(QString fileName,QWidget* parent = 0);
    ~CodeEditorForm();
 
    QString get_sourceCode();
@@ -26,8 +27,22 @@ protected:
 
 private:
    Ui::CodeEditorForm* ui;
+   QString m_fileName;
+   int m_breakpointIndex;
+   QTextCursor m_ctxtTextCursor;
+
+signals:
+   void breakpointsChanged();
 
 private slots:
+   void on_actionClear_marker_triggered();
+   void on_actionEnd_marker_here_triggered();
+   void on_actionStart_marker_here_triggered();
+   void on_actionEnable_breakpoint_triggered();
+   void on_actionRemove_breakpoint_triggered();
+   void on_actionDisable_breakpoint_triggered();
+   void on_actionRun_to_here_triggered();
+   void on_actionBreak_on_CPU_execution_here_triggered();
    void on_textEdit_selectionChanged();
    void on_textEdit_textChanged();
 };

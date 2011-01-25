@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QTextBlock>
 #include <QScrollBar>
+#include <QIcon>
+
 #include "csyntaxhighlighter.h"
 
 class LineNumberArea;
@@ -35,6 +37,11 @@ private slots:
 private:
    QWidget* lineNumberArea;
    CSyntaxHighlighter* highlighter;
+   QIcon*   executionIcon;
+   QIcon*   breakEnabledIcon;
+   QIcon*   breakDisabledIcon;
+   QIcon*   breakEnabledHitIcon;
+   QIcon*   breakDisabledHitIcon;
 };
 
 

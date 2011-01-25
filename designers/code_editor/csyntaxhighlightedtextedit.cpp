@@ -1,5 +1,10 @@
 #include "csyntaxhighlightedtextedit.h"
 
+#include "pasm_lib.h"
+
+#include "cbreakpointinfo.h"
+#include "cmarker.h"
+
 CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget*)
 {
 #ifdef Q_WS_MAC
@@ -20,7 +25,13 @@ CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget*)
    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
 
    highlighter = new CSyntaxHighlighter(this->document());
-
+   
+   executionIcon = new QIcon(":/resources/22_execution_pointer.png");
+   breakEnabledIcon = new QIcon(":/resources/22_breakpoint.png");
+   breakDisabledIcon = new QIcon(":/resources/22_breakpoint_disabled.png");
+   breakEnabledHitIcon = new QIcon(":/resources/22_execution_break.png");
+   breakDisabledHitIcon = new QIcon(":/resources/22_execution_break_disabled.png");
+   
    updateLineNumberAreaWidth(0);
    highlightCurrentLine();
 }
@@ -29,6 +40,11 @@ CSyntaxHighlightedTextEdit::~CSyntaxHighlightedTextEdit()
 {
    delete highlighter;
    delete lineNumberArea;
+   delete executionIcon;
+   delete breakEnabledIcon;
+   delete breakDisabledIcon;
+   delete breakEnabledHitIcon;
+   delete breakDisabledHitIcon;
 }
 
 int CSyntaxHighlightedTextEdit::lineNumberAreaWidth()
@@ -104,20 +120,86 @@ void CSyntaxHighlightedTextEdit::highlightCurrentLine()
 
 void CSyntaxHighlightedTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int idx;
    QPainter painter(lineNumberArea);
-   painter.fillRect(event->rect(), this->palette().background().color());
-
-
    QTextBlock block = firstVisibleBlock();
    int blockNumber = block.blockNumber();
    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
    int bottom = top + (int) blockBoundingRect(block).height();
+   int32_t addr;
+   int32_t absAddr;
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   MarkerSetInfo* pMarker;
+   QString number;
+
+   painter.fillRect(event->rect(), this->palette().background().color());
 
    while (block.isValid() && top <= event->rect().bottom())
    {
       if (block.isVisible() && bottom >= event->rect().top())
       {
-         QString number = QString::number(blockNumber + 1);
+         addr = pasm_get_source_addr_by_linenum_and_file(blockNumber+1,this->documentTitle().toAscii().constData());
+      
+         absAddr = pasm_get_source_absolute_addr_by_linenum_and_file(blockNumber+1,this->documentTitle().toAscii().constData());
+            
+         for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
+         {
+            pMarker = markers->GetMarker(idx);
+   
+            if ( (pMarker->state == eMarkerSet_Started) ||
+                  (pMarker->state == eMarkerSet_Complete) )
+            {
+               if ( (absAddr >= pMarker->startAbsAddr) &&
+                     (absAddr <= pMarker->endAbsAddr) )
+               {
+                  painter.fillRect(0,top,lineNumberArea->width(),fontMetrics().height(),QColor(pMarker->red,pMarker->green,pMarker->blue));
+               }
+            }
+         }
+         
+         for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+         {
+            BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+   
+            if ( (pBreakpoint->enabled) &&
+                  (pBreakpoint->type == eBreakOnCPUExecution) &&
+                  (pBreakpoint->item1 <= addr) &&
+                  ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                  (pBreakpoint->item2 >= addr) )
+            {
+               if ( addr == nesGetCPUProgramCounterOfLastSync() )
+               {
+                  breakEnabledHitIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+               }
+               else
+               {
+                  breakEnabledIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+               }
+            }
+            else if ( (!pBreakpoint->enabled) &&
+                      (pBreakpoint->type == eBreakOnCPUExecution) &&
+                      (pBreakpoint->item1 <= addr) &&
+                      ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                      (pBreakpoint->item2 >= addr) )
+            {
+               if ( addr == nesGetCPUProgramCounterOfLastSync() )
+               {
+                  breakDisabledHitIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+               }
+               else
+               {
+                  breakDisabledIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+               }
+            }
+         }
+   
+         if ( absAddr == nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()) )
+         {
+            executionIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+         }
+         
+         number = QString::number(blockNumber + 1);
          painter.setPen(Qt::black);
          painter.drawText(0, top, lineNumberArea->width() - 16, fontMetrics().height(),
                           Qt::AlignRight, number);

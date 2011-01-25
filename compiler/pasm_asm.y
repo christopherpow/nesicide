@@ -328,7 +328,7 @@ incobj_callback_fn incobj_fn = NULL;
 
 // Standard YACC functions.
 int asmerror(char *s);
-int asmerror_line(char *s, int linenum);
+int asmerror_ir(char *s, ir_table* ir);
 int asmwrap(void);
 
 // Current file being parsed for more meaningful error/warnings.
@@ -392,10 +392,12 @@ int org_found = 0;
 // the global buffer and then added to the list of errors.
 char e [ 256 ];
 void add_error ( char* s, int lineno );
+void add_error_ir ( char* s, ir_table* ir );
 
 // Storage space for error strings spit out by the assembler.
-int errorCount = 0;
-char* errorStorage = NULL;
+error_list etab;
+char error_buffer [ 2048 ];
+int error_count = 0;
 
 // Storage space for PermanentMarkers found during assembly.
 int permanentMarkerCount = 0;
@@ -2232,9 +2234,9 @@ int asmerror(char* s)
    add_error ( s, recovered_linenum );
 }
 
-int asmerror_line(char* s,int linenum)
+int asmerror_ir(char* s,ir_table* ir)
 {
-   add_error ( s, linenum );
+   add_error_ir ( s, ir );
 }
 
 void initialize ( void )
@@ -2246,6 +2248,29 @@ void initialize ( void )
    symbol_table* syd;
    file_table* fptr;
    file_table* fptd;
+   error_table* eptr;
+   error_table* eptd;
+
+   if ( etab.head )
+   {
+      eptd = NULL;
+      for ( eptr = etab.head; eptr != NULL; eptr = eptr->next )
+      {
+         if ( eptd )
+         {
+            free ( eptd->error );
+            free ( eptd );
+         }
+         eptd = eptr;
+      }
+      if ( eptd )
+      {
+         free ( eptd->error );
+         free ( eptd );
+      }
+   }
+   etab.head = NULL;
+   etab.tail = NULL;
 
    if ( ftab )
    {
@@ -2268,13 +2293,8 @@ void initialize ( void )
       }
    }
    ftab = NULL;
-   
-   if ( errorStorage )
-   {
-      free ( errorStorage );
-   }
-   errorStorage = NULL;
-   errorCount = 0;
+
+   error_count = 0;
 
    for ( idx = 0; idx < NUM_PERMANENT_MARKERS; idx++ )
    {
@@ -2369,53 +2389,96 @@ void initialize ( void )
 
 void add_error ( char *s, int lineno )
 {
-   static char error_buffer [ 2048 ] = { 0, };
-   static char* ptr;
+   error_table* ptr;
 
-   errorCount++;
-   if ( errorStorage == NULL )
+   ptr = (error_table*) malloc ( sizeof(error_table) );
+   if ( ptr != NULL )
    {
       if ( current_label == NULL )
       {
-         sprintf ( error_buffer, "%s:%d: error: ", currentFile, lineno );
-         errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
-         ptr = errorStorage;
-         strcpy ( errorStorage, error_buffer );
-         strcat ( errorStorage, s );
-         strcat ( errorStorage, "\n" );
+         sprintf ( error_buffer, "error: " );
+         strcat ( error_buffer, s );
       }
       else
       {
-         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, lineno, current_label->symbol );
-         errorStorage = (char*) malloc ( strlen(error_buffer)+1+strlen(s)+3 );
-         ptr = errorStorage;
-         strcpy ( errorStorage, error_buffer );
-         strcat ( errorStorage, s );
-         strcat ( errorStorage, "\n" );
+         sprintf ( error_buffer, "error:after '%s': ", current_label->symbol );
+         strcat ( error_buffer, s );
       }
+      ptr->file = find_file(currentFile);
+      ptr->line = lineno;
+      ptr->error = strdup(error_buffer);
    }
    else
    {
+      asmerror ( "cannot allocate memory" );
+   }
+   if ( etab.head == NULL )
+   {
+      etab.head = ptr;
+      etab.tail = ptr;
+      ptr->next = NULL;
+      ptr->prev = NULL;
+   }
+   else
+   {
+      ptr->prev = etab.tail;
+      etab.tail->next = ptr;
+      ptr->next = NULL;
+      etab.tail = ptr;
+   }
+   error_count++;
+   
+#if defined ( PASM_EXE )
+   fprintf ( stderr, "%s:%d:", ptr->file->name, ptr->line );
+   fprintf ( stderr, "%s\n", ptr->error );
+#endif
+}
+
+void add_error_ir ( char *s, ir_table* ir )
+{
+   error_table* ptr;
+
+   ptr = (error_table*) malloc ( sizeof(error_table) );
+   if ( ptr != NULL )
+   {
       if ( current_label == NULL )
       {
-         sprintf ( error_buffer, "%s:%d: error: ", currentFile, lineno );
-         errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
-         ptr = errorStorage+strlen(errorStorage);
-         strcat ( errorStorage, error_buffer );
-         strcat ( errorStorage, s );
-         strcat ( errorStorage, "\n" );
+         sprintf ( error_buffer, "error: " );
+         strcat ( error_buffer, s );
       }
       else
       {
-         sprintf ( error_buffer, "%s:%d: after '%s': error: ", currentFile, lineno, current_label->symbol );
-         errorStorage = (char*) realloc ( errorStorage, strlen(errorStorage)+1+strlen(error_buffer)+1+strlen(s)+3 );
-         ptr = errorStorage+strlen(errorStorage);
-         strcat ( errorStorage, error_buffer );
-         strcat ( errorStorage, s );
-         strcat ( errorStorage, "\n" );
+         sprintf ( error_buffer, "error:after '%s': ", current_label->symbol );
+         strcat ( error_buffer, s );
       }
+      ptr->file = ir->file;
+      ptr->line = ir->source_linenum;
+      ptr->error = strdup(error_buffer);
    }
-   fprintf ( stderr, ptr );
+   else
+   {
+      asmerror ( "cannot allocate memory" );
+   }
+   if ( etab.head == NULL )
+   {
+      etab.head = ptr;
+      etab.tail = ptr;
+      ptr->next = NULL;
+      ptr->prev = NULL;
+   }
+   else
+   {
+      ptr->prev = etab.tail;
+      etab.tail->next = ptr;
+      ptr->next = NULL;
+      etab.tail = ptr;
+   }
+   error_count++;
+   
+#if defined ( PASM_EXE )
+   fprintf ( stderr, "%s:%d:", ptr->file->name, ptr->line );
+   fprintf ( stderr, "%s\n", ptr->error );
+#endif
 }
 
 int asmwrap(void)
@@ -2602,7 +2665,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
                else
                {
@@ -2666,7 +2729,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
                else
                {
@@ -2730,7 +2793,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
                else
                {
@@ -2752,7 +2815,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
 
@@ -2769,7 +2832,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
 
@@ -2786,7 +2849,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
 
@@ -2833,13 +2896,13 @@ int promote_instructions ( unsigned char flag )
                      }
 
                      sprintf ( e, "demotion of assumed post-indexed indirect instruction to absolute indexed instruction" );
-                     asmerror_line ( e, ptr->source_linenum );
+                     asmerror_ir ( e, ptr );
                   }
                }
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
 
@@ -2857,7 +2920,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
 
@@ -2887,14 +2950,14 @@ int promote_instructions ( unsigned char flag )
                   else
                   {
                      sprintf ( e, "branch to address out of range" );
-                     asmerror_line ( e, ptr->source_linenum );
+                     asmerror_ir ( e, ptr );
                   }
                   // done!
                }
                else if ( (flag == FIX) && (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
 
@@ -2911,7 +2974,7 @@ int promote_instructions ( unsigned char flag )
                else if ( (evaluated) && (expr->vtype == value_is_string) )
                {
                   sprintf ( e, "illegal string constant: %s", expr->value.sval->string );
-                  asmerror_line ( e, ptr->source_linenum );
+                  asmerror_ir ( e, ptr );
                }
             break;
          }
@@ -2949,7 +3012,7 @@ void check_fixup ( void )
          if ( ptr->fixup != fixup_fixed )
          {
             sprintf ( e, "unable to determine value of expression" );
-            asmerror_line ( e, ptr->source_linenum );
+            asmerror_ir ( e, ptr );
          }
          
          expr = ptr->expr;
@@ -2965,12 +3028,12 @@ void check_fixup ( void )
             if ( (!evaluated) && symbol )
             {
                sprintf ( e, "reference to undefined or unreachable symbol: %s", symbol );
-               asmerror_line ( e, ptr->source_linenum );
+               asmerror_ir ( e, ptr );
             }
             else if ( !evaluated )
             {
                sprintf ( e, "unable to determine value of expression" );
-               asmerror_line ( e, ptr->source_linenum );
+               asmerror_ir ( e, ptr );
             }
          }
       }

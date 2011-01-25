@@ -34,16 +34,13 @@ signals:
 private:
    Ui::CodeBrowserDockWidget *ui;
    CCodeBrowserDisplayModel* assemblyViewModel;
-   CSourceBrowserDisplayModel* sourceViewModel;
    int m_breakpointIndex;
 
 private slots:
-   void on_sourceFiles_currentIndexChanged(int index);
    void on_actionEnable_breakpoint_triggered();
    void on_actionRemove_breakpoint_triggered();
    void on_actionDisable_breakpoint_triggered();
    void on_tableView_doubleClicked(QModelIndex index);
-   void on_displayMode_currentIndexChanged(int index);
    void on_actionRun_to_here_triggered();
    void on_actionBreak_on_CPU_execution_here_triggered();
    void on_actionStart_marker_here_triggered();

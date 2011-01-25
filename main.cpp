@@ -67,6 +67,9 @@ int main(int argc, char* argv[])
 
    // Create compiler threads...
    compiler = new CompilerThread ();
+   
+   // Start the compiler thread...
+   compiler->start();
 
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();
@@ -79,11 +82,15 @@ int main(int argc, char* argv[])
    breakpointWatcher->wait();
    emulator->kill();
    emulator->wait();
+   compiler->kill();
+   compiler->wait();
 
    delete breakpointWatcher;
    breakpointWatcher = NULL;
    delete emulator;
    emulator = NULL;
+   delete compiler;
+   compiler = NULL;
    delete pluginManager;
    pluginManager = NULL;
 

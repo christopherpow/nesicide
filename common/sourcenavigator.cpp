@@ -14,7 +14,7 @@ SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
     ui->files->setEnabled(false);
     ui->symbols->setEnabled(false);
     
-    QObject::connect(compiler,SIGNAL(finished()),this,SLOT(compiler_compileDone()));
+    QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
     QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),this,SLOT(emulator_emulatorPaused(bool)));
     QObject::connect(emulator,SIGNAL(emulatorReset()),this,SLOT(emulator_emulatorPaused()));
     QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(emulator_emulatorPaused()));
@@ -93,14 +93,14 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
    }
 }
 
-void SourceNavigator::compiler_compileDone()
+void SourceNavigator::compiler_compileDone(bool bOk)
 {
    int           file;
    
    blockSignals(true);
    ui->files->clear();
    ui->symbols->clear();
-   if ( compiler->assembledOk() )
+   if ( bOk )
    {
       for ( file = 0; file < pasm_get_num_source_files(); file++ )
       {
@@ -114,8 +114,8 @@ void SourceNavigator::compiler_compileDone()
       ui->symbols->clear();
    }
    
-   ui->files->setEnabled(compiler->assembledOk());
-   ui->symbols->setEnabled(compiler->assembledOk());
+   ui->files->setEnabled(bOk);
+   ui->symbols->setEnabled(bOk);
    
    blockSignals(false);
 }

@@ -9,12 +9,12 @@ CGraphicsAssembler::CGraphicsAssembler()
 
 bool CGraphicsAssembler::assemble()
 {
-   buildTextLogger.write("<b>Building CHR-ROM Banks:</b>");
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
    CCHRROMBanks* chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
-
    int oldChrRomBanks = chrRomBanks->getChrRomBanks().count();
 
+   buildTextLogger->write("<b>Building CHR-ROM Banks:</b>");
+   
    for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
    {
       CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
@@ -35,7 +35,7 @@ bool CGraphicsAssembler::assemble()
       }
 
       chrRomBank->clearBankData();
-      buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->name() + "':");
+      buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->name() + "':");
 
       int dataOffset = 0;
 
@@ -43,7 +43,7 @@ bool CGraphicsAssembler::assemble()
       {
          IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
          IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-         buildTextLogger.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+         buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                                ptvi->caption() + "...");
 
          memcpy(chrRomBank->getBankData() + dataOffset, bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
