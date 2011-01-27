@@ -22,7 +22,7 @@ public:
 
 protected:
    void changeEvent(QEvent* e);
-   void mouseMoveEvent ( QMouseEvent* e );
+   void mouseDoubleClickEvent ( QMouseEvent* e );
    void contextMenuEvent(QContextMenuEvent* e);
 
 private:
@@ -35,6 +35,7 @@ signals:
    void breakpointsChanged();
 
 private slots:
+   void on_textEdit_cursorPositionChanged();
    void on_actionClear_marker_triggered();
    void on_actionEnd_marker_here_triggered();
    void on_actionStart_marker_here_triggered();
@@ -45,6 +46,8 @@ private slots:
    void on_actionBreak_on_CPU_execution_here_triggered();
    void on_textEdit_selectionChanged();
    void on_textEdit_textChanged();
+   void repaintWithDecoration();
+   void repaintWithoutDecoration();
 };
 
 #endif // CODEEDITORFORM_H

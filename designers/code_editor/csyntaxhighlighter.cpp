@@ -8,8 +8,8 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
    QStringList keywordPatterns;
    QStringList preprocessorPatterns;
 
-#if 0 // TODO: these things take FOREVER...
    // Assembler mnemonics
+#if 0 // TODO these things take forever
    for (int inx = 0; ; inx++)
    {
       if (AssemblerInstructionItems[inx].isEmpty())
@@ -28,7 +28,7 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument* parent)
       rule.format = keywordFormat;
       highlightingRules.append(rule);
    }
-
+#else
    // Normal Numbers
    classFormat.setFontWeight(QFont::Normal);
    classFormat.setForeground(Qt::darkCyan);
@@ -95,19 +95,8 @@ void CSyntaxHighlighter::highlightBlock(const QString& text)
 {
    if ( (currentBlock().isVisible()) && (!text.isEmpty()) )
    {
-      foreach (const HighlightingRule &rule, highlightingRules)
+      foreach (HighlightingRule rule, highlightingRules)
       {
-#if 1
-         QRegExp expression(rule.pattern);
-         int index = expression.indexIn(text);
-   
-         while (index >= 0)
-         {
-            int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
-         }
-#else
          int index = text.indexOf(rule.pattern);
    
          while (index >= 0)
@@ -116,7 +105,6 @@ void CSyntaxHighlighter::highlightBlock(const QString& text)
             setFormat(index, length, rule.format);
             index = text.indexOf(rule.pattern,index+length);
          }
-#endif
       }
    }
 }

@@ -247,7 +247,14 @@ void CodeBrowserDockWidget::on_tableView_doubleClicked(QModelIndex index)
          }
          else
          {
-            pBreakpoints->RemoveBreakpoint(bp);
+            if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+            {
+               pBreakpoints->RemoveBreakpoint(bp);
+            }
+            else
+            {
+               pBreakpoints->SetEnabled(bp,false);
+            }
 
             InspectorRegistry::getInspector("Breakpoints")->hide();
             InspectorRegistry::getInspector("Breakpoints")->show();

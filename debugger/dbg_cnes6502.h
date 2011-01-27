@@ -10,6 +10,7 @@
 // Routines to retrieve the ToolTip information for a particular opcode.
 const char* OPCODEINFO ( uint8_t op );
 const char* OPCODEINFO ( const char* op );
+const char* OPCODECHECK ( uint8_t idx, const char* op );
 
 // Routine to retrieve the size of the specified opcode.
 uint8_t OPCODESIZE ( uint8_t op );

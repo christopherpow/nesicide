@@ -2587,6 +2587,16 @@ const char* OPCODEINFO(const char* op)
    return NULL;
 }
 
+const char* OPCODECHECK(uint8_t idx, const char* op)
+{
+   if ( strnicmp((m_6502opcode+idx)->name,op,strlen(op)) == 0 )
+   {
+      return (m_6502opcode+idx)->name;
+   }
+   
+   return NULL;
+}
+
 uint8_t OPCODESIZE ( uint8_t op )
 {
    C6502_opcode* pOp;

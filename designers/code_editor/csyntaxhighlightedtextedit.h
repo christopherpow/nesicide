@@ -7,6 +7,8 @@
 #include <QTextBlock>
 #include <QScrollBar>
 #include <QIcon>
+#include <QListWidget>
+#include <QStringList>
 
 #include "csyntaxhighlighter.h"
 
@@ -22,10 +24,19 @@ public:
    virtual ~CSyntaxHighlightedTextEdit();
 
    void lineNumberAreaPaintEvent(QPaintEvent* event);
+   void lineNumberAreaMouseDoubleClickEvent(QMouseEvent* event);
+   void lineNumberAreaMousePressEvent(QMouseEvent* event);
+   void lineNumberAreaMouseReleaseEvent(QMouseEvent* event);
+   void lineNumberAreaMouseMoveEvent(QMouseEvent* event);
    int lineNumberAreaWidth();
+   void enableDecoration(bool enable) { decorationEnabled = enable; }
 
 protected:
    void resizeEvent(QResizeEvent* event);
+   void mouseMoveEvent(QMouseEvent* event);
+   void mousePressEvent(QMouseEvent* event);
+   void keyPressEvent(QKeyEvent* event);
+   void focusOutEvent(QFocusEvent* event);
 
 public slots:
    void highlightCurrentLine();
@@ -42,6 +53,10 @@ private:
    QIcon*   breakDisabledIcon;
    QIcon*   breakEnabledHitIcon;
    QIcon*   breakDisabledHitIcon;
+   bool     decorationEnabled;
+   QListWidget* symbolListWidget;
+   void updateToolTip(QString selectedText);
+   int updateSymbolList(QString selectedText,QStringList* symbols);
 };
 
 
@@ -62,6 +77,26 @@ protected:
    void paintEvent(QPaintEvent* event)
    {
       codeEditor->lineNumberAreaPaintEvent(event);
+   }
+   
+   void mouseDoubleClickEvent(QMouseEvent *e)
+   {
+      return codeEditor->lineNumberAreaMouseDoubleClickEvent(e);
+   }
+   
+   void mousePressEvent(QMouseEvent *e)
+   {
+      return codeEditor->lineNumberAreaMousePressEvent(e);
+   }
+   
+   void mouseReleaseEvent(QMouseEvent *e)
+   {
+      return codeEditor->lineNumberAreaMouseReleaseEvent(e);
+   }
+   
+   void mouseMoveEvent(QMouseEvent *e)
+   {
+      return codeEditor->lineNumberAreaMouseMoveEvent(e);
    }
 
 private:

@@ -20,6 +20,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    ui(new Ui::CodeEditorForm)
 {
    QDockWidget* codeBrowser = InspectorRegistry::getInspector("Code Browser");
+   QDockWidget* breakpoints = InspectorRegistry::getInspector("Breakpoints");
    
    ui->setupUi(this);
    ui->textEdit->viewport()->setMouseTracking(true);
@@ -27,10 +28,15 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),ui->textEdit, SLOT(repaint()) );
    
    // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaint()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaint()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaint()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(repaint()) );
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaintWithoutDecoration()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaintWithDecoration()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaintWithDecoration()) );
+   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(repaintWithoutDecoration()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(repaintWithDecoration()) );
+   
+   QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
+   
+   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
 
    m_fileName = fileName;
 }
@@ -38,6 +44,18 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 CodeEditorForm::~CodeEditorForm()
 {
    delete ui;
+}
+
+void CodeEditorForm::repaintWithDecoration()
+{
+   ui->textEdit->enableDecoration(true);
+   repaint();
+}
+
+void CodeEditorForm::repaintWithoutDecoration()
+{
+   ui->textEdit->enableDecoration(false);
+   repaint();
 }
 
 void CodeEditorForm::changeEvent(QEvent* e)
@@ -54,17 +72,64 @@ void CodeEditorForm::changeEvent(QEvent* e)
    }
 }
 
-void CodeEditorForm::mouseMoveEvent ( QMouseEvent* e )
+void CodeEditorForm::mouseDoubleClickEvent ( QMouseEvent* e )
 {
-   QTextCursor textCursor = ui->textEdit->cursorForPosition(e->globalPos());
-   QString text = textCursor.block().text();
-   setToolTip ( text );
-   e->accept();
+   QPoint pos = e->pos();
+   
+   pos.setX(pos.x()-ui->textEdit->lineNumberAreaWidth());
+   
+   QTextCursor textCursor = ui->textEdit->cursorForPosition(pos);
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int bp;
+   int addr = 0;
+   int absAddr = 0;
+   
+   addr = pasm_get_source_addr_by_linenum_and_file ( textCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( textCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+
+   if ( addr != -1 )
+   {
+      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                          eBreakpointItemAddress,
+                                          0,
+                                          addr,
+                                          absAddr,
+                                          addr,
+                                          eBreakpointConditionNone,
+                                          0,
+                                          eBreakpointDataNone,
+                                          0 );
+      
+      m_breakpointIndex = bp;
+      
+      m_ctxtTextCursor = textCursor;
+   
+      // If breakpoint isn't set here, give menu options to set one...
+      if ( bp < 0 )
+      {
+         on_actionBreak_on_CPU_execution_here_triggered();
+      }
+      else
+      {
+         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+         {
+            on_actionRemove_breakpoint_triggered();
+         }
+         else
+         {
+            on_actionDisable_breakpoint_triggered();
+         }
+      }
+      
+      emit breakpointsChanged();
+   }
 }
 
 void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
 {
-   QMenu *menu = ui->textEdit->createStandardContextMenu();
+   QMenu menu;
+   QMenu *pMenu = ui->textEdit->createStandardContextMenu();
    QTextCursor textCursor = ui->textEdit->cursorForPosition(e->pos());
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
@@ -89,47 +154,51 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
                                           0 );
    
       // Build context menu...
-      menu->addSeparator();
-      menu->addAction(ui->actionRun_to_here);
-      menu->addSeparator();
+      menu.addAction(ui->actionRun_to_here);
+      menu.addSeparator();
    
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
       {
-         menu->addAction(ui->actionBreak_on_CPU_execution_here);
+         menu.addAction(ui->actionBreak_on_CPU_execution_here);
       }
       else
       {
          if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
          {
-            menu->addAction(ui->actionEnable_breakpoint);
-            menu->addAction(ui->actionRemove_breakpoint);
+            menu.addAction(ui->actionEnable_breakpoint);
+            menu.addAction(ui->actionRemove_breakpoint);
          }
          else
          {
-            menu->addAction(ui->actionDisable_breakpoint);
-            menu->addAction(ui->actionRemove_breakpoint);
+            menu.addAction(ui->actionDisable_breakpoint);
+            menu.addAction(ui->actionRemove_breakpoint);
          }
       }
    
-      menu->addSeparator();
-      menu->addAction(ui->actionClear_marker);
-      menu->addSeparator();
+      menu.addSeparator();
+      menu.addAction(ui->actionClear_marker);
+      menu.addSeparator();
    
-      menu->addAction(ui->actionStart_marker_here);
-      menu->addAction(ui->actionEnd_marker_here);   
+      menu.addAction(ui->actionStart_marker_here);
+      menu.addAction(ui->actionEnd_marker_here);   
+      menu.addSeparator();
       
+      menu.addActions(pMenu->actions());
+
       m_breakpointIndex = bp;
       
       m_ctxtTextCursor = textCursor;
    }
+   else
+   {      
+      menu.addActions(pMenu->actions());
+   }
 
    // Run the context menu...
-   menu->exec(e->globalPos());
-
-   emit breakpointsChanged();
+   menu.exec(e->globalPos());
    
-   delete menu;
+   delete pMenu;
 }
 
 
@@ -289,47 +358,11 @@ void CodeEditorForm::on_textEdit_selectionChanged()
 {
    QTextCursor textCursor = ui->textEdit->textCursor();
    QString selection = textCursor.selectedText();
-   symbol_table* pSymbol;
-   int symbol;
-   int symbolType;
-   QString toolTipText;
-   const char* opcodeToolTipText;
    
-   setToolTip("");
-   
-   opcodeToolTipText = OPCODEINFO(selection.toAscii().constData());
-   if ( opcodeToolTipText )
-   {
-      toolTipText = opcodeToolTipText;
-   }
-   else
-   {   
-      for ( symbol = 0; symbol < pasm_get_num_symbols(); symbol++ )
-      {   
-         if ( selection == pasm_get_symbol_name_by_index(symbol) )
-         {
-            pSymbol = pasm_get_symbol_by_index(symbol);
-            symbolType = pasm_get_symbol_type_by_index(symbol);         
-            
-            if ( symbolType == symbol_global )
-            {
-               toolTipText.sprintf("GLOBAL %s: %04X", pSymbol->symbol, pSymbol->expr->value.ival);
-            }
-            else
-            {
-               toolTipText.sprintf("LABEL %s: %04X", pSymbol->symbol, pSymbol->ir->addr);
-            }
-   
-            break;
-         }
-      }
-   }
-   setToolTip(toolTipText);
-         
-   // Figure out what is being selected and show an appropriate tooltip...
-   // 1. If selection is 6502 opcode, show helpful information on it.
-   // 2. If selection is a compiler-identified symbol, show its address and value.
-   // 3. If selection is a macro, show its declaration.
-   // 4. If selection is a label, show its address.
-   // 5. If selection is an expression, evaluate and display its current value.
+   //updateToolTip(selection);
+}
+
+void CodeEditorForm::on_textEdit_cursorPositionChanged()
+{
+//    symbolList->hide();
 }

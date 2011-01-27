@@ -6,23 +6,38 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>372</width>
-    <height>291</height>
+    <width>328</width>
+    <height>287</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>328</width>
+    <height>287</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Emulator</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetDefaultConstraint</enum>
+    </property>
     <property name="margin">
      <number>0</number>
     </property>
     <property name="spacing">
      <number>0</number>
     </property>
-    <item row="1" column="0">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
+      </property>
       <property name="topMargin">
        <number>0</number>
       </property>
@@ -33,7 +48,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>20</width>
           <height>20</height>
          </size>
         </property>
@@ -78,7 +93,13 @@
          <enum>QFrame::Sunken</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
          <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
           <number>0</number>
          </property>
         </layout>
@@ -91,7 +112,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>20</width>
           <height>20</height>
          </size>
         </property>
@@ -99,13 +120,16 @@
       </item>
      </layout>
     </item>
-    <item row="0" column="0">
+    <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <property name="margin">
-       <number>3</number>
+       <number>0</number>
       </property>
       <item>
        <spacer name="horizontalSpacer_4">
@@ -115,7 +139,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
-          <height>20</height>
+          <height>1</height>
          </size>
         </property>
        </spacer>
@@ -240,7 +264,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
-          <height>20</height>
+          <height>1</height>
          </size>
         </property>
        </spacer>

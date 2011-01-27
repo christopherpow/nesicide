@@ -613,7 +613,7 @@ void MainWindow::openROM(QString fileName)
    
    emulator->primeEmulator();
    emulator->resetEmulator();
-   emulator->startEmulation();
+//   emulator->startEmulation();
    
    compiler->reset();
    
@@ -1254,7 +1254,7 @@ void MainWindow::on_actionRun_In_Emulator_triggered()
       emulator->primeEmulator();
       emulator->resetEmulator();
       emulator->pauseEmulation(true);
-      emulator->startEmulation();
+//      emulator->startEmulation();
       
       ui->actionEmulation_Window->setChecked(true);
       on_actionEmulation_Window_toggled(true);

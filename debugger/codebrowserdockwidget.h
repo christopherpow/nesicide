@@ -2,7 +2,6 @@
 #define CODEBROWSERDOCKWIDGET_H
 
 #include "ccodebrowserdisplaymodel.h"
-#include "csourcebrowserdisplaymodel.h"
 
 #include <QDockWidget>
 

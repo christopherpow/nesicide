@@ -5,6 +5,11 @@
 #include "cbreakpointinfo.h"
 #include "cmarker.h"
 
+#include "dbg_cnes6502.h"
+
+#include <QCoreApplication>
+#include <QLayout>
+
 CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget*)
 {
 #ifdef Q_WS_MAC
@@ -25,7 +30,7 @@ CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget*)
    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
 
    highlighter = new CSyntaxHighlighter(this->document());
-   
+      
    executionIcon = new QIcon(":/resources/22_execution_pointer.png");
    breakEnabledIcon = new QIcon(":/resources/22_breakpoint.png");
    breakDisabledIcon = new QIcon(":/resources/22_breakpoint_disabled.png");
@@ -34,6 +39,12 @@ CSyntaxHighlightedTextEdit::CSyntaxHighlightedTextEdit(QWidget*)
    
    updateLineNumberAreaWidth(0);
    highlightCurrentLine();
+   
+   decorationEnabled = true;
+   
+   symbolListWidget = new QListWidget(this);
+   symbolListWidget->setFont(font());
+   symbolListWidget->hide();
 }
 
 CSyntaxHighlightedTextEdit::~CSyntaxHighlightedTextEdit()
@@ -45,6 +56,153 @@ CSyntaxHighlightedTextEdit::~CSyntaxHighlightedTextEdit()
    delete breakDisabledIcon;
    delete breakEnabledHitIcon;
    delete breakDisabledHitIcon;
+   delete symbolListWidget;
+}
+
+void CSyntaxHighlightedTextEdit::keyPressEvent(QKeyEvent* event)
+{
+   QTextCursor cursor = textCursor();
+   QStringList symbolList;
+   QString     selection;
+   QPoint      symbolListPos;
+   int         picked;
+
+   if ( ((event->key() > Qt::Key_Space) && 
+        (event->key() <= Qt::Key_AsciiTilde)) ||
+        (event->key() == Qt::Key_Delete) ||
+        (event->key() == Qt::Key_Backspace) )
+   {
+      QPlainTextEdit::keyPressEvent(event);
+   
+      cursor.select(QTextCursor::WordUnderCursor);
+      
+      selection = cursor.selectedText();
+   
+      if ( !(selection.isEmpty()) )
+      {
+         picked = updateSymbolList(selection,&symbolList);
+         
+         if ( symbolList.count() > 0 )
+         {
+            symbolListWidget->clear();
+            symbolListWidget->addItems(symbolList);
+            symbolListWidget->setFixedSize(100,(fontMetrics().height()*symbolList.count()));
+            symbolListPos = pos()+cursorRect().bottomLeft();
+            symbolListPos.setX(symbolListPos.x()+lineNumberAreaWidth());
+            symbolListPos.setX(symbolListPos.x()-fontMetrics().width(selection));
+            symbolListWidget->move(symbolListPos);
+            symbolListWidget->showNormal();
+            symbolListWidget->setCurrentRow(picked);
+            symbolListWidget->repaint();
+         }
+         else
+         {
+            symbolListWidget->hide();
+         }
+      }
+      else
+      {
+         symbolListWidget->hide();
+      }
+   }
+   else if ( (event->key() == Qt::Key_Up) || 
+             (event->key() == Qt::Key_PageUp) )
+   {
+      if ( symbolListWidget->isVisible() )
+      {
+         if ( symbolListWidget->currentRow() > 0 )
+         {
+            QCoreApplication::sendEvent(symbolListWidget,event);
+            event->accept();
+         }
+      }
+      else
+      {
+         QPlainTextEdit::keyPressEvent(event);
+      }
+   }
+   else if ( (event->key() == Qt::Key_Down) || 
+             (event->key() == Qt::Key_PageDown) )
+   {
+      if ( symbolListWidget->isVisible() )
+      {
+         if ( symbolListWidget->currentRow() < symbolListWidget->count()-1 )
+         {
+            QCoreApplication::sendEvent(symbolListWidget,event);
+            event->accept();
+         }
+      }
+      else
+      {
+         QPlainTextEdit::keyPressEvent(event);
+      }
+   }
+   else if ( (event->key() != Qt::Key_Tab) &&
+             (event->key() != Qt::Key_Shift) )
+   {
+      symbolListWidget->hide();
+      QPlainTextEdit::keyPressEvent(event);
+   }
+   
+   if ( !symbolListWidget->isHidden() )
+   {
+      if ( event->key() == Qt::Key_Tab )
+      {
+         cursor.movePosition(QTextCursor::WordLeft);
+         cursor.selectionStart();
+         cursor.movePosition(QTextCursor::WordRight,QTextCursor::KeepAnchor);
+         cursor.selectionEnd();
+         cursor.removeSelectedText();
+         insertPlainText(symbolListWidget->currentItem()->text().toAscii().constData());
+         event->accept();
+         symbolListWidget->hide();
+      }
+   }
+   else
+   {
+      if ( event->key() == Qt::Key_Tab )
+      {
+         QPlainTextEdit::keyPressEvent(event);
+      }
+   }
+}
+
+void CSyntaxHighlightedTextEdit::mouseMoveEvent(QMouseEvent *event)
+{
+   QPoint toolTipPos = event->pos();
+   
+   toolTipPos.setX(toolTipPos.x()-lineNumberAreaWidth());
+   
+   QTextCursor cursor = cursorForPosition(toolTipPos);
+   cursor.select(QTextCursor::WordUnderCursor);
+   QString selection = cursor.selectedText();
+   updateToolTip ( selection );
+   event->accept();
+}
+
+void CSyntaxHighlightedTextEdit::mousePressEvent(QMouseEvent *event)
+{
+   symbolListWidget->hide();
+   QPlainTextEdit::mousePressEvent(event);
+}
+
+void CSyntaxHighlightedTextEdit::focusOutEvent(QFocusEvent* event)
+{
+   symbolListWidget->hide();
+   QPlainTextEdit::focusOutEvent(event);
+}
+
+void CSyntaxHighlightedTextEdit::resizeEvent(QResizeEvent* e)
+{
+   QPlainTextEdit::resizeEvent(e);
+
+   QRect cr = contentsRect();
+#ifndef Q_WS_MAC
+   lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+#else
+   lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(),
+                                     cr.height() - this->horizontalScrollBar()->height()));
+#endif
 }
 
 int CSyntaxHighlightedTextEdit::lineNumberAreaWidth()
@@ -85,19 +243,6 @@ void CSyntaxHighlightedTextEdit::updateLineNumberArea(const QRect& rect, int dy)
    }
 }
 
-void CSyntaxHighlightedTextEdit::resizeEvent(QResizeEvent* e)
-{
-   QPlainTextEdit::resizeEvent(e);
-
-   QRect cr = contentsRect();
-#ifndef Q_WS_MAC
-   lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
-#else
-   lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(),
-                                     cr.height() - this->horizontalScrollBar()->height()));
-#endif
-}
-
 void CSyntaxHighlightedTextEdit::highlightCurrentLine()
 {
    QList<QTextEdit::ExtraSelection> extraSelections;
@@ -116,6 +261,100 @@ void CSyntaxHighlightedTextEdit::highlightCurrentLine()
    }
 
    setExtraSelections(extraSelections);
+}
+
+void CSyntaxHighlightedTextEdit::lineNumberAreaMouseDoubleClickEvent(QMouseEvent* event)
+{
+   QMouseEvent* newEvent;
+   QPointF      pos;
+   QPoint       globalPos;
+   QPoint       adjust;
+   
+   pos = event->pos();
+   globalPos = event->globalPos();
+   
+   adjust.setX(pos.x());
+   adjust.setY(0);
+   
+   pos -= adjust;
+   globalPos -= adjust;
+   
+   newEvent = event->createExtendedMouseEvent(event->type(),pos,globalPos,event->button(),event->buttons(),event->modifiers());
+   
+   mouseDoubleClickEvent(newEvent);
+   
+   event->ignore();
+   
+   delete newEvent;
+}
+
+void CSyntaxHighlightedTextEdit::lineNumberAreaMousePressEvent(QMouseEvent* event)
+{
+   QMouseEvent* newEvent;
+   QPointF      pos;
+   QPoint       globalPos;
+   QPoint       adjust;
+   
+   pos = event->pos();
+   globalPos = event->globalPos();
+   
+   adjust.setX(pos.x());
+   adjust.setY(0);
+   
+   pos -= adjust;
+   globalPos -= adjust;
+   
+   newEvent = event->createExtendedMouseEvent(event->type(),pos,globalPos,event->button(),event->buttons(),event->modifiers());
+   
+   mousePressEvent(newEvent);
+   
+   delete newEvent;
+}
+
+void CSyntaxHighlightedTextEdit::lineNumberAreaMouseReleaseEvent(QMouseEvent* event)
+{
+   QMouseEvent* newEvent;
+   QPointF      pos;
+   QPoint       globalPos;
+   QPoint       adjust;
+   
+   pos = event->pos();
+   globalPos = event->globalPos();
+   
+   adjust.setX(pos.x());
+   adjust.setY(0);
+   
+   pos -= adjust;
+   globalPos -= adjust;
+   
+   newEvent = event->createExtendedMouseEvent(event->type(),pos,globalPos,event->button(),event->buttons(),event->modifiers());
+   
+   mouseReleaseEvent(event);
+   
+   delete newEvent;
+}
+
+void CSyntaxHighlightedTextEdit::lineNumberAreaMouseMoveEvent(QMouseEvent* event)
+{
+   QMouseEvent* newEvent;
+   QPointF      pos;
+   QPoint       globalPos;
+   QPoint       adjust;
+   
+   pos = event->pos();
+   globalPos = event->globalPos();
+   
+   adjust.setX(pos.x());
+   adjust.setY(0);
+   
+   pos -= adjust;
+   globalPos -= adjust;
+   
+   newEvent = event->createExtendedMouseEvent(event->type(),pos,globalPos,event->button(),event->buttons(),event->modifiers());
+   
+   mouseMoveEvent(event);
+   
+   delete newEvent;
 }
 
 void CSyntaxHighlightedTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
@@ -170,11 +409,11 @@ void CSyntaxHighlightedTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
             {
                if ( addr == nesGetCPUProgramCounterOfLastSync() )
                {
-                  breakEnabledHitIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+                  breakEnabledHitIcon->paint(&painter,0,top,16,fontMetrics().height());
                }
                else
                {
-                  breakEnabledIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+                  breakEnabledIcon->paint(&painter,0,top,16,fontMetrics().height());
                }
             }
             else if ( (!pBreakpoint->enabled) &&
@@ -185,23 +424,26 @@ void CSyntaxHighlightedTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
             {
                if ( addr == nesGetCPUProgramCounterOfLastSync() )
                {
-                  breakDisabledHitIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+                  breakDisabledHitIcon->paint(&painter,0,top,16,fontMetrics().height());
                }
                else
                {
-                  breakDisabledIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+                  breakDisabledIcon->paint(&painter,0,top,16,fontMetrics().height());
                }
             }
          }
    
-         if ( absAddr == nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()) )
+         if ( decorationEnabled )
          {
-            executionIcon->paint(&painter,lineNumberArea->width() - 16,top,16,fontMetrics().height());
+            if ( absAddr == nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync()) )
+            {
+               executionIcon->paint(&painter,0,top,16,fontMetrics().height());
+            }
          }
-         
+                  
          number = QString::number(blockNumber + 1);
          painter.setPen(Qt::black);
-         painter.drawText(0, top, lineNumberArea->width() - 16, fontMetrics().height(),
+         painter.drawText(0, top, lineNumberAreaWidth() - 2, fontMetrics().height(),
                           Qt::AlignRight, number);
       }
 
@@ -210,4 +452,99 @@ void CSyntaxHighlightedTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
       bottom = top + (int) blockBoundingRect(block).height();
       ++blockNumber;
    }
+}
+
+int CSyntaxHighlightedTextEdit::updateSymbolList(QString selectedText,QStringList* symbols)
+{
+   symbol_table* pSymbol;
+   int idx;
+   QString match;
+   const char* opcodeText;
+   int selected = -1;
+   
+   if ( selectedText.length() )
+   {
+      symbols->clear();
+      
+      // All opcode mnemonics are 3-characters
+      if ( selectedText.length() <= 3 )
+      {
+         for ( idx = 0; idx < 256; idx++ )
+         {
+            opcodeText = OPCODECHECK(idx,selectedText.toAscii().constData());   
+            if ( opcodeText )
+            {
+               if ( !(symbols->contains(opcodeText,Qt::CaseSensitive)) )
+               {
+                  if ( selected < 0 )
+                  {
+                     selected = symbols->count();
+                  }
+                  symbols->append(opcodeText);
+               }
+            }
+         }
+      }
+      for ( idx = 0; idx < pasm_get_num_symbols(); idx++ )
+      {   
+         pSymbol = pasm_get_symbol_by_index(idx);
+         match = pSymbol->symbol;
+         if ( match.startsWith(selectedText,Qt::CaseInsensitive) )
+         {
+            if ( selected < 0 )
+            {
+               selected = symbols->count();
+            }
+            symbols->append(match);
+         }
+      }
+   }
+   return selected;
+}
+
+void CSyntaxHighlightedTextEdit::updateToolTip(QString selectedText)
+{
+   symbol_table* pSymbol;
+   int symbol;
+   int symbolType;
+   QString toolTipText;
+   const char* opcodeToolTipText;
+   
+   setToolTip("");
+   
+   opcodeToolTipText = OPCODEINFO(selectedText.toAscii().constData());
+   if ( opcodeToolTipText )
+   {
+      toolTipText = opcodeToolTipText;
+   }
+   else
+   {   
+      for ( symbol = 0; symbol < pasm_get_num_symbols(); symbol++ )
+      {   
+         if ( selectedText == pasm_get_symbol_name_by_index(symbol) )
+         {
+            pSymbol = pasm_get_symbol_by_index(symbol);
+            symbolType = pasm_get_symbol_type_by_index(symbol);         
+            
+            if ( symbolType == symbol_global )
+            {
+               toolTipText.sprintf("GLOBAL %s: %04X", pSymbol->symbol, pSymbol->expr->value.ival);
+            }
+            else
+            {
+               toolTipText.sprintf("LABEL %s: %04X", pSymbol->symbol, pSymbol->ir->addr);
+            }
+   
+            break;
+         }
+      }
+   }
+   setToolTip(toolTipText);
+         
+   // Figure out what is being selected and show an appropriate tooltip...
+   // 1. If selection is 6502 opcode, show helpful information on it.
+   // 2. If selection is a compiler-identified symbol, show its address and value.
+   // 3. If selection is a macro, show its declaration.
+   // 4. If selection is a label, show its address.
+   // 5. If selection is an expression, evaluate and display its current value.
 }

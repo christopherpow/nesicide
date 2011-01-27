@@ -11,7 +11,10 @@
    </rect>
   </property>
   <property name="mouseTracking">
-   <bool>false</bool>
+   <bool>true</bool>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -33,9 +36,6 @@
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
     </widget>
    </item>
@@ -108,7 +108,7 @@
  <customwidgets>
   <customwidget>
    <class>CSyntaxHighlightedTextEdit</class>
-   <extends>QTextEdit</extends>
+   <extends>QPlainTextEdit</extends>
    <header location="global">csyntaxhighlightedtextedit.h</header>
   </customwidget>
  </customwidgets>
