@@ -2578,7 +2578,7 @@ const char* OPCODEINFO(const char* op)
    
    for ( i = 0; i < 256; i++ )
    {
-      if ( strnicmp((m_6502opcode+i)->name,op,3) == 0 )
+      if ( strncasecmp((m_6502opcode+i)->name,op,3) == 0 )
       {
          return *(m_6502opcodeInfo+i);
       }
@@ -2589,7 +2589,7 @@ const char* OPCODEINFO(const char* op)
 
 const char* OPCODECHECK(uint8_t idx, const char* op)
 {
-   if ( strnicmp((m_6502opcode+idx)->name,op,strlen(op)) == 0 )
+   if ( strncasecmp((m_6502opcode+idx)->name,op,strlen(op)) == 0 )
    {
       return (m_6502opcode+idx)->name;
    }
