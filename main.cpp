@@ -42,10 +42,10 @@ CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 int main(int argc, char* argv[])
 {
    QApplication nesicideApplication(argc, argv);
-
+   
    QCoreApplication::setOrganizationName("CSPSoftware");
    QCoreApplication::setOrganizationDomain("nesicide.com");
-   QCoreApplication::setApplicationName("NESICIDE");
+   QCoreApplication::setApplicationName("NESICIDE");   
 
    // Initialize the game database object...
    gameDatabase.initialize("NesCarts (2010-02-08).xml");

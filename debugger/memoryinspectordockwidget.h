@@ -26,6 +26,9 @@ protected:
 public slots:
    void updateMemory();
 
+signals:
+   void breakpointsChanged();
+
 private:
    Ui::MemoryInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* model;

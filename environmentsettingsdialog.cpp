@@ -12,6 +12,8 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    
    ui->showWelcomeOnStart->setChecked(settings.value(ui->showWelcomeOnStart->objectName(),true).toBool());
    ui->saveAllOnCompile->setChecked(settings.value(ui->saveAllOnCompile->objectName(),true).toBool());
+   ui->rememberWindowSettings->setChecked(settings.value(ui->rememberWindowSettings->objectName(),true).toBool());
+   ui->trackRecentProjects->setChecked(settings.value(ui->trackRecentProjects->objectName(),true).toBool());
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -161,4 +163,6 @@ void EnvironmentSettingsDialog::on_buttonBox_accepted()
     
     settings.setValue(ui->showWelcomeOnStart->objectName(),ui->showWelcomeOnStart->isChecked());
     settings.setValue(ui->saveAllOnCompile->objectName(),ui->saveAllOnCompile->isChecked());
+    settings.setValue(ui->rememberWindowSettings->objectName(),ui->rememberWindowSettings->isChecked());
+    settings.setValue(ui->trackRecentProjects->objectName(),ui->trackRecentProjects->isChecked());
 }

@@ -4,12 +4,9 @@
 
 #include "pasm_lib.h"
 
-#include "inspectorregistry.h"
-
-#include "dbg_cnes6502.h"
-
 #include "emulator_core.h"
 
+#include "dbg_cnes6502.h"
 #include "cmarker.h"
 
 #include "main.h"

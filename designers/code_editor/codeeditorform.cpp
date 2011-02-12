@@ -8,7 +8,7 @@
 
 #include "pasm_lib.h"
 
-#include "inspectorregistry.h"
+#include "cdockwidgetregistry.h"
 
 #include "dbg_cnes6502.h"
 
@@ -19,24 +19,46 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    QWidget(parent),
    ui(new Ui::CodeEditorForm)
 {
-   QDockWidget* codeBrowser = InspectorRegistry::getInspector("Code Browser");
-   QDockWidget* breakpoints = InspectorRegistry::getInspector("Breakpoints");
+   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
+   QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
    
    ui->setupUi(this);
-   ui->textEdit->viewport()->setMouseTracking(true);
+   
+   m_editor = new QsciScintilla();
+#ifdef Q_WS_MAC
+   m_editor->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_WS_X11
+   m_editor->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_WS_WIN
+   m_editor->setFont(QFont("Consolas", 11));
+#endif
+   m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   m_editor->setMarginLineNumbers(1,true);
+   m_editor->setMarginWidth(1,"01234");
+   m_editor->setMarginType(1,QsciScintilla::NumberMargin);
+   m_editor->setMarginSensitivity(1,true);
+   m_editor->setMarginWidth(0,22);
+   m_editor->setMarginType(0,QsciScintilla::SymbolMargin);
+   m_editor->setMarginSensitivity(0,true);
+   m_editor->setSelectionBackgroundColor(QColor(230,230,230));
+   QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
+   
+   ui->gridLayout->addWidget(m_editor);
 
-   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),ui->textEdit, SLOT(repaint()) );
+//   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),ui->textEdit, SLOT(repaint()) );
    
    // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaintWithoutDecoration()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaintWithDecoration()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaintWithDecoration()) );
-   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(repaintWithoutDecoration()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(repaintWithDecoration()) );
+//   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaint()) );
+//   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaint()) );
+//   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaint()) );
+//   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(repaint()) );
+//   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(repaint()) );
    
-   QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
+//   QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    
-   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
+//   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
 
    m_fileName = fileName;
 }
@@ -44,18 +66,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 CodeEditorForm::~CodeEditorForm()
 {
    delete ui;
-}
-
-void CodeEditorForm::repaintWithDecoration()
-{
-   ui->textEdit->enableDecoration(true);
-   repaint();
-}
-
-void CodeEditorForm::repaintWithoutDecoration()
-{
-   ui->textEdit->enableDecoration(false);
-   repaint();
 }
 
 void CodeEditorForm::changeEvent(QEvent* e)
@@ -72,21 +82,16 @@ void CodeEditorForm::changeEvent(QEvent* e)
    }
 }
 
-void CodeEditorForm::mouseDoubleClickEvent ( QMouseEvent* e )
+void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
 {
-   QPoint pos = e->pos();
-   
-   pos.setX(pos.x()-ui->textEdit->lineNumberAreaWidth());
-   
-   QTextCursor textCursor = ui->textEdit->cursorForPosition(pos);
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
    int absAddr = 0;
    
-   addr = pasm_get_source_addr_by_linenum_and_file ( textCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( textCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
    if ( addr != -1 )
    {
@@ -102,8 +107,6 @@ void CodeEditorForm::mouseDoubleClickEvent ( QMouseEvent* e )
                                           0 );
       
       m_breakpointIndex = bp;
-      
-      m_ctxtTextCursor = textCursor;
    
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
@@ -128,6 +131,7 @@ void CodeEditorForm::mouseDoubleClickEvent ( QMouseEvent* e )
 
 void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
 {
+#if 0
    QMenu menu;
    QMenu *pMenu = ui->textEdit->createStandardContextMenu();
    QTextCursor textCursor = ui->textEdit->cursorForPosition(e->pos());
@@ -199,11 +203,13 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
    menu.exec(e->globalPos());
    
    delete pMenu;
+#endif
 }
 
 
 void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
 {
+#if 0
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bpIdx;
    int addr = 0;
@@ -234,15 +240,14 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
          QMessageBox::information(0, "Error", str);
       }
    
-      InspectorRegistry::getInspector("Breakpoints")->hide();
-      InspectorRegistry::getInspector("Breakpoints")->show();
-   
       emit breakpointsChanged();
    }
+#endif
 }
 
 void CodeEditorForm::on_actionRun_to_here_triggered()
 {
+#if 0
    int addr = 0;
    int absAddr = 0;
 
@@ -254,6 +259,7 @@ void CodeEditorForm::on_actionRun_to_here_triggered()
    {
 //      C6502DBG::GOTO(addr);
    }// CPTODO: fix the goto for absolute
+#endif
 }
 
 void CodeEditorForm::on_actionDisable_breakpoint_triggered()
@@ -288,6 +294,7 @@ void CodeEditorForm::on_actionEnable_breakpoint_triggered()
 
 void CodeEditorForm::on_actionStart_marker_here_triggered()
 {
+#if 0
    CMarker* markers = nesGetExecutionMarkerDatabase();
    int marker;
    int addr = 0;
@@ -302,10 +309,12 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
       // Find unused Marker entry...
       marker = markers->AddMarker(absAddr);
    }
+#endif
 }
 
 void CodeEditorForm::on_actionEnd_marker_here_triggered()
 {
+#if 0
    CMarker* markers = nesGetExecutionMarkerDatabase();
    int marker = markers->FindInProgressMarker();
    int addr = 0;
@@ -322,6 +331,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
          markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
       }
    }
+#endif
 }
 
 void CodeEditorForm::on_actionClear_marker_triggered()
@@ -332,37 +342,26 @@ void CodeEditorForm::on_actionClear_marker_triggered()
 
 QString CodeEditorForm::get_sourceCode()
 {
-   return ui->textEdit->toPlainText();
+//   return ui->textEdit->toPlainText();
 }
 
 void CodeEditorForm::set_sourceCode(QString source)
 {
-   ui->textEdit->setPlainText(source);
-   ui->textEdit->setDocumentTitle(m_fileName);
+   m_editor->setText(source);
+//   ui->textEdit->setPlainText(source);
+//   ui->textEdit->setDocumentTitle(m_fileName);
 }
 
 void CodeEditorForm::selectLine(int linenumber)
 {
+   m_editor->ensureLineVisible(linenumber-1);
+   m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
+   
+#if 0
    QTextCursor textCursor = ui->textEdit->textCursor();
    textCursor.movePosition(QTextCursor::Start);
    textCursor.movePosition(QTextCursor::Down,QTextCursor::MoveAnchor,linenumber-1);
    ui->textEdit->setTextCursor(textCursor);
    ui->textEdit->highlightCurrentLine();
-}
-
-void CodeEditorForm::on_textEdit_textChanged()
-{
-}
-
-void CodeEditorForm::on_textEdit_selectionChanged()
-{
-   QTextCursor textCursor = ui->textEdit->textCursor();
-   QString selection = textCursor.selectedText();
-   
-   //updateToolTip(selection);
-}
-
-void CodeEditorForm::on_textEdit_cursorPositionChanged()
-{
-//    symbolList->hide();
+#endif
 }

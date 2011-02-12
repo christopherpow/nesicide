@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>150</width>
-    <height>81</height>
+    <height>83</height>
    </size>
   </property>
   <property name="features">
@@ -29,8 +29,14 @@
    <string>Project</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
     <property name="margin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
      <number>0</number>
     </property>
     <item row="0" column="0">

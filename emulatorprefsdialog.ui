@@ -19,13 +19,13 @@
      <property name="currentIndex">
       <number>1</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="general">
       <attribute name="title">
        <string>General</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2"/>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="controllers">
       <attribute name="title">
        <string>Controllers</string>
       </attribute>
@@ -39,7 +39,7 @@
           <number>3</number>
          </property>
          <item>
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="controllerPortComboBox">
            <property name="editable">
             <bool>false</bool>
            </property>
@@ -85,7 +85,7 @@
           <enum>QFrame::Plain</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="noControllerPage"/>
          <widget class="QWidget" name="standardControllerPage">
@@ -113,7 +113,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QKeymapItemEdit" name="lineEdit">
+              <widget class="QKeymapItemEdit" name="upKey">
                <property name="text">
                 <string>W</string>
                </property>
@@ -139,7 +139,7 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QKeymapItemEdit" name="lineEdit_2">
+              <widget class="QKeymapItemEdit" name="downKey">
                <property name="text">
                 <string>S</string>
                </property>
@@ -165,7 +165,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QKeymapItemEdit" name="lineEdit_3">
+              <widget class="QKeymapItemEdit" name="leftKey">
                <property name="text">
                 <string>A</string>
                </property>
@@ -191,7 +191,7 @@
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QKeymapItemEdit" name="lineEdit_4">
+              <widget class="QKeymapItemEdit" name="rightKey">
                <property name="text">
                 <string>D</string>
                </property>
@@ -210,7 +210,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QKeymapItemEdit" name="lineEdit_5">
+              <widget class="QKeymapItemEdit" name="bKey">
                <property name="text">
                 <string>.</string>
                </property>
@@ -229,7 +229,7 @@
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QKeymapItemEdit" name="lineEdit_6">
+              <widget class="QKeymapItemEdit" name="aKey">
                <property name="text">
                 <string>/</string>
                </property>
@@ -276,7 +276,7 @@
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QKeymapItemEdit" name="lineEdit_7">
+              <widget class="QKeymapItemEdit" name="selectKey">
                <property name="text">
                 <string>[</string>
                </property>
@@ -295,7 +295,7 @@
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QKeymapItemEdit" name="lineEdit_8">
+              <widget class="QKeymapItemEdit" name="startKey">
                <property name="text">
                 <string>]</string>
                </property>

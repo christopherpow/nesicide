@@ -3,7 +3,6 @@
 
 #include "dbg_cnes.h"
 
-#include "inspectorregistry.h"
 #include "main.h"
 
 ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :

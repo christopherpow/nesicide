@@ -19,8 +19,20 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
+  <property name="iconSize">
+   <size>
+    <width>24</width>
+    <height>24</height>
+   </size>
+  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="animated">
+   <bool>true</bool>
+  </property>
+  <property name="documentMode">
+   <bool>true</bool>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
@@ -33,12 +45,18 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="margin">
      <number>0</number>
     </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="tabPosition">
@@ -70,6 +88,9 @@
         <property name="margin">
          <number>0</number>
         </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="QWebView" name="webView">
           <property name="acceptDrops">
@@ -94,7 +115,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>18</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_View">
@@ -269,7 +290,7 @@
    </attribute>
    <addaction name="actionCompile_Project"/>
    <addaction name="separator"/>
-   <addaction name="actionRun_In_Emulator"/>
+   <addaction name="actionLoad_In_Emulator"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="toolToolbar">
@@ -404,7 +425,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-gaming.png</normaloff>:/resources/22_preferences-desktop-gaming.png</iconset>
+     <normaloff>:/resources/controller.svg</normaloff>:/resources/controller.svg</iconset>
    </property>
    <property name="text">
     <string>Emulator</string>
@@ -895,13 +916,13 @@
     <string>Online Documentation</string>
    </property>
   </action>
-  <action name="actionRun_In_Emulator">
+  <action name="actionLoad_In_Emulator">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/stock_media-play.svg</normaloff>:/resources/stock_media-play.svg</iconset>
+     <normaloff>:/resources/22_cpu_ram.png</normaloff>:/resources/22_cpu_ram.png</iconset>
    </property>
    <property name="text">
-    <string>Run In Emulator</string>
+    <string>Load In Emulator</string>
    </property>
   </action>
  </widget>

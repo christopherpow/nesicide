@@ -15,8 +15,8 @@ static char modelStringBuffer [ 2048 ];
 
 enum
 {
-   Column_Address = 0,
-   Column_Decoration,
+   Column_Decoration = 0,
+   Column_Address,
    Column_Opcode,
    Column_Operand1,
    Column_Operand2,

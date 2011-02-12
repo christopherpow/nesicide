@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QTextCursor>
 
+#include <Qsci/qsciscintilla.h>
+
 namespace Ui
 {
 class CodeEditorForm;
@@ -22,12 +24,12 @@ public:
 
 protected:
    void changeEvent(QEvent* e);
-   void mouseDoubleClickEvent ( QMouseEvent* e );
    void contextMenuEvent(QContextMenuEvent* e);
 
 private:
    Ui::CodeEditorForm* ui;
    QString m_fileName;
+   QsciScintilla* m_editor;
    int m_breakpointIndex;
    QTextCursor m_ctxtTextCursor;
 
@@ -35,7 +37,7 @@ signals:
    void breakpointsChanged();
 
 private slots:
-   void on_textEdit_cursorPositionChanged();
+   void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
    void on_actionClear_marker_triggered();
    void on_actionEnd_marker_here_triggered();
    void on_actionStart_marker_here_triggered();
@@ -44,10 +46,6 @@ private slots:
    void on_actionDisable_breakpoint_triggered();
    void on_actionRun_to_here_triggered();
    void on_actionBreak_on_CPU_execution_here_triggered();
-   void on_textEdit_selectionChanged();
-   void on_textEdit_textChanged();
-   void repaintWithDecoration();
-   void repaintWithoutDecoration();
 };
 
 #endif // CODEEDITORFORM_H

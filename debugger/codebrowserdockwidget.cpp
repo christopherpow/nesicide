@@ -7,10 +7,10 @@
 
 #include "emulator_core.h"
 
-#include "inspectorregistry.h"
-#include "main.h"
-
 #include "cmarker.h"
+#include "cdockwidgetregistry.h"
+
+#include "main.h"
 
 #include <QMessageBox>
 
@@ -44,7 +44,7 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 
 void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
-   QDockWidget* breakpointInspector = InspectorRegistry::getInspector("Breakpoints");
+   QDockWidget* breakpointInspector = CDockWidgetRegistry::getWidget("Breakpoints");
    
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
    
@@ -192,9 +192,6 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
          QMessageBox::information(0, "Error", str);
       }
    
-      InspectorRegistry::getInspector("Breakpoints")->hide();
-      InspectorRegistry::getInspector("Breakpoints")->show();
-   
       emit breakpointsChanged();
    }
 }
@@ -255,9 +252,6 @@ void CodeBrowserDockWidget::on_tableView_doubleClicked(QModelIndex index)
             {
                pBreakpoints->SetEnabled(bp,false);
             }
-
-            InspectorRegistry::getInspector("Breakpoints")->hide();
-            InspectorRegistry::getInspector("Breakpoints")->show();
          }
    
          emit breakpointsChanged();

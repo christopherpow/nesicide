@@ -5,7 +5,6 @@
 
 #include "dbg_cnes.h"
 
-#include "inspectorregistry.h"
 #include "main.h"
 
 #include <QMessageBox>
@@ -62,6 +61,8 @@ void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
    }
 
    menu.exec(e->globalPos());
+   
+   emit breakpointsChanged();
 }
 
 void MemoryInspectorDockWidget::changeEvent(QEvent* e)
@@ -161,9 +162,6 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
       str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
       QMessageBox::information(0, "Error", str);
    }
-
-   InspectorRegistry::getInspector("Breakpoints")->hide();
-   InspectorRegistry::getInspector("Breakpoints")->show();
 }
 
 void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
@@ -193,9 +191,6 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
       str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
       QMessageBox::information(0, "Error", str);
    }
-
-   InspectorRegistry::getInspector("Breakpoints")->hide();
-   InspectorRegistry::getInspector("Breakpoints")->show();
 }
 
 void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
@@ -225,7 +220,4 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
       str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
       QMessageBox::information(0, "Error", str);
    }
-
-   InspectorRegistry::getInspector("Breakpoints")->hide();
-   InspectorRegistry::getInspector("Breakpoints")->show();
 }

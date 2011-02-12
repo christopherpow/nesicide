@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>377</width>
     <height>300</height>
    </rect>
   </property>
@@ -23,22 +23,6 @@
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="0">
-    <widget class="CSyntaxHighlightedTextEdit" name="textEdit">
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::NoContextMenu</enum>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
   <action name="actionBreak_on_CPU_execution_here">
    <property name="text">
@@ -105,13 +89,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CSyntaxHighlightedTextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header location="global">csyntaxhighlightedtextedit.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

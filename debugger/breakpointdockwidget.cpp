@@ -9,7 +9,7 @@
 
 #include "breakpointdialog.h"
 
-#include "inspectorregistry.h"
+#include "cdockwidgetregistry.h"
 
 #include "main.h"
 
@@ -54,10 +54,19 @@ void BreakpointDockWidget::changeEvent(QEvent* e)
 
 void BreakpointDockWidget::showEvent(QShowEvent*)
 {
-   QDockWidget* codeBrowser = InspectorRegistry::getInspector("Code Browser");
-   
-   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
+   QDockWidget* memoryInspector;
 
+   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   
+   memoryInspector = CDockWidgetRegistry::getWidget("CPU RAM Inspector");
+   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   memoryInspector = CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector");
+   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   memoryInspector = CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector");
+   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   memoryInspector = CDockWidgetRegistry::getWidget("PRG-ROM Inspector");
+   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    updateData();
 }
 

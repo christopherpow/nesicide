@@ -17,6 +17,10 @@ isEmpty (NESICIDE_LIBS) {
 	NESICIDE_LIBS = -lnesicide-emulator
 }
 
+isEmpty (SCINTILLA_LIBS) {
+   SCINTILLA_LIBS = -lqscintilla2
+}
+
 isEmpty (SDL_CXXFLAGS) {
 	SDL_CXXFLAGS = $$system(sdl-config --cflags)
 }
@@ -65,6 +69,9 @@ isEmpty (PASM_LIBS) {
 win32 {
 	SDL_CXXFLAGS = -I../nesicide/libraries/SDL 
 	SDL_LIBS =  -L../nesicide/libraries/SDL/ -lsdl
+
+   SCINTILLA_CXXFLAGS = -I../nesicide/libraries/Qscintilla
+   SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla -lqscintilla2
 
 	LUA_CXXFLAGS = -I../nesicide/libraries/Lua
 	LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
@@ -116,8 +123,8 @@ unix:!mac {
 	INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$PASM_CXXFLAGS
-LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS
+QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$PASM_CXXFLAGS $$SCINTILLA_CXXFLAGS
+LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += common \
     compiler \
@@ -148,8 +155,6 @@ SOURCES += mainwindow.cpp \
     compiler/csourceassembler.cpp \
     compiler/cgraphicsassembler.cpp \
     compiler/ccartridgebuilder.cpp \
-    designers/code_editor/csyntaxhighlighter.cpp \
-    designers/code_editor/csyntaxhighlightedtextedit.cpp \
     designers/code_editor/codeeditorform.cpp \
     designers/new_project/newprojectdialog.cpp \
     designers/project_properties/projectpropertiesdialog.cpp \
@@ -187,7 +192,6 @@ SOURCES += mainwindow.cpp \
     debugger/breakpointwatcherthread.cpp \
     emulator/nesemulatorthread.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
-    common/inspectorregistry.cpp \
     aboutdialog.cpp \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
@@ -227,7 +231,9 @@ SOURCES += mainwindow.cpp \
     debugger/oamvisualizerdockwidget.cpp \
     outputpanedockwidget.cpp \
     debugger/breakpointdockwidget.cpp \
-    emulator/nesemulatordockwidget.cpp
+    emulator/nesemulatordockwidget.cpp \
+    compiler/ccompilerinterface.cpp \
+    common/cdockwidgetregistry.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -238,8 +244,6 @@ HEADERS += mainwindow.h \
     compiler/csourceassembler.h \
     compiler/cgraphicsassembler.h \
     compiler/ccartridgebuilder.h \
-    designers/code_editor/csyntaxhighlighter.h \
-    designers/code_editor/csyntaxhighlightedtextedit.h \
     designers/code_editor/codeeditorform.h \
     designers/new_project/newprojectdialog.h \
     designers/project_properties/projectpropertiesdialog.h \
@@ -279,7 +283,6 @@ HEADERS += mainwindow.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
-    common/inspectorregistry.h \
     compiler/pasm_types.h \
     compiler/pasm_lib.h \
     aboutdialog.h \
@@ -323,7 +326,9 @@ HEADERS += mainwindow.h \
     debugger/oamvisualizerdockwidget.h \
     outputpanedockwidget.h \
     debugger/breakpointdockwidget.h \
-    emulator/nesemulatordockwidget.h
+    emulator/nesemulatordockwidget.h \
+    compiler/ccompilerinterface.h \
+    common/cdockwidgetregistry.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

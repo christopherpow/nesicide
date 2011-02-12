@@ -34,13 +34,13 @@ void CompilerThread::run ()
 
    for ( ; ; )
    {
+      // Acquire the compile semaphore to know when the main thread wants a compile done...
+      compileSemaphore.acquire();
+      
       if ( m_isTerminating )
       {
          break;
       }
-      
-      // Acquire the compile semaphore to know when the main thread wants a compile done...
-      compileSemaphore.acquire();
       
       emit compileStarted();
       

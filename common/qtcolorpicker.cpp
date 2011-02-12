@@ -1273,8 +1273,6 @@ void ColorPickerButton::focusOutEvent(QFocusEvent* e)
 void ColorPickerButton::paintEvent(QPaintEvent* e)
 {
    QFrame::paintEvent(e);
-   int w = width();       // width of cell in pixels
-   int h = height();         // height of cell in pixels
 
    QPainter p(this);
    p.fillRect(contentsRect(), palette().button());
