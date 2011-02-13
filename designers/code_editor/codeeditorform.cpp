@@ -43,6 +43,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->setMarginType(0,QsciScintilla::SymbolMargin);
    m_editor->setMarginSensitivity(0,true);
    m_editor->setSelectionBackgroundColor(QColor(230,230,230));
+   m_editor->setSelectionToEol(true);
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    
    ui->gridLayout->addWidget(m_editor);

@@ -70,9 +70,14 @@ win32 {
 	SDL_CXXFLAGS = -I../nesicide/libraries/SDL 
 	SDL_LIBS =  -L../nesicide/libraries/SDL/ -lsdl
 
+release {
    SCINTILLA_CXXFLAGS = -I../nesicide/libraries/Qscintilla
-   SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla -lqscintilla2
-
+   SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/release -lqscintilla2
+}
+debug {
+   SCINTILLA_CXXFLAGS = -I../nesicide/libraries/Qscintilla
+   SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/debug -lqscintilla2
+}
 	LUA_CXXFLAGS = -I../nesicide/libraries/Lua
 	LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
 
