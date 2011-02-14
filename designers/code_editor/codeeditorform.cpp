@@ -3,6 +3,7 @@
 
 #include <QToolTip>
 #include <QMenu>
+#include <QPixmap>
 
 #include "main.h"
 
@@ -14,6 +15,19 @@
 
 #include "cbreakpointinfo.h"
 #include "cmarker.h"
+
+enum
+{
+   Margin_Decorations = 0,
+   Margin_LineNumbers
+};
+
+enum
+{
+   Marker_Breakpoint = 0,
+   Marker_BreakpointDisabled,
+   Marker_Execution
+};
 
 CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    QWidget(parent),
@@ -35,31 +49,51 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->setFont(QFont("Consolas", 11));
 #endif
    m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-   m_editor->setMarginLineNumbers(1,true);
-   m_editor->setMarginWidth(1,"01234");
-   m_editor->setMarginType(1,QsciScintilla::NumberMargin);
-   m_editor->setMarginSensitivity(1,true);
-   m_editor->setMarginWidth(0,22);
-   m_editor->setMarginType(0,QsciScintilla::SymbolMargin);
-   m_editor->setMarginSensitivity(0,true);
+
+   m_editor->setMarginWidth(2,0);
+   m_editor->setMarginMarkerMask(2,0);
+   m_editor->setMarginWidth(3,0);
+   m_editor->setMarginMarkerMask(3,0);
+   m_editor->setMarginWidth(4,0);
+   m_editor->setMarginMarkerMask(4,0);
+
+   m_editor->setMarginWidth(Margin_Decorations,22);
+   m_editor->setMarginMarkerMask(Margin_Decorations,0xFFFFFF);
+   m_editor->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
+   m_editor->setMarginSensitivity(Margin_Decorations,true);
+
+   m_editor->setMarginLineNumbers(Margin_LineNumbers,true);
+   m_editor->setMarginWidth(Margin_LineNumbers,0);
+   m_editor->setMarginMarkerMask(Margin_LineNumbers,0);
+   m_editor->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
+   m_editor->setMarginSensitivity(Margin_LineNumbers,true);
+   
    m_editor->setSelectionBackgroundColor(QColor(230,230,230));
    m_editor->setSelectionToEol(true);
+   
+   m_editor->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
+   m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
+   m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
+
+   m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
+   
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
+   QObject::connect(m_editor,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
    
    ui->gridLayout->addWidget(m_editor);
 
-//   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),ui->textEdit, SLOT(repaint()) );
+   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    
    // Connect signals to the UI to have the UI update.
 //   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaint()) );
 //   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaint()) );
 //   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaint()) );
 //   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(repaint()) );
-//   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(repaint()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
    
-//   QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
+   QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    
-//   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
+   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
 
    m_fileName = fileName;
 }
@@ -83,12 +117,33 @@ void CodeEditorForm::changeEvent(QEvent* e)
    }
 }
 
+void CodeEditorForm::external_breakpointsChanged()
+{
+   
+}
+
+void CodeEditorForm::breakpointHit()
+{
+   
+}
+
+void CodeEditorForm::editor_linesChanged()
+{
+   QString maxLineNum;
+   
+   maxLineNum.sprintf("%d",m_editor->lines());
+   
+   m_editor->setMarginWidth(Margin_LineNumbers,maxLineNum);
+}
+
 void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
    int absAddr = 0;
+   
+   m_editor->setCursorPosition(line,0);
    
    addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
@@ -119,10 +174,15 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
          if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
          {
             on_actionRemove_breakpoint_triggered();
+            
+            m_editor->markerDelete(line,Marker_BreakpointDisabled);
          }
          else
          {
             on_actionDisable_breakpoint_triggered();
+            
+            m_editor->markerDelete(line,Marker_Breakpoint);
+            m_editor->markerAdd(line,Marker_BreakpointDisabled);
          }
       }
       
@@ -132,18 +192,20 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
 
 void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
 {
-#if 0
    QMenu menu;
-   QMenu *pMenu = ui->textEdit->createStandardContextMenu();
-   QTextCursor textCursor = ui->textEdit->cursorForPosition(e->pos());
+//   QMenu *pMenu = m_editor->createStandardContextMenu();
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
+   int line;
+   int index;
    int addr = 0;
    int absAddr = 0;
-   
-   addr = pasm_get_source_addr_by_linenum_and_file ( textCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( textCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   m_editor->getCursorPosition(&line,&index);
+   
+   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
    if ( addr != -1 )
    {
@@ -189,36 +251,36 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
       menu.addAction(ui->actionEnd_marker_here);   
       menu.addSeparator();
       
-      menu.addActions(pMenu->actions());
+//      menu.addActions(pMenu->actions());
 
       m_breakpointIndex = bp;
-      
-      m_ctxtTextCursor = textCursor;
    }
    else
    {      
-      menu.addActions(pMenu->actions());
+//      menu.addActions(pMenu->actions());
    }
 
    // Run the context menu...
    menu.exec(e->globalPos());
    
-   delete pMenu;
-#endif
+//   delete pMenu;
 }
 
 
 void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
 {
-#if 0
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bpIdx;
+   int line;
+   int index;
    int addr = 0;
    int absAddr = 0;
+   
+   m_editor->getCursorPosition(&line,&index);
 
-   addr = pasm_get_source_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
    if ( addr != -1 )
    {
@@ -240,10 +302,13 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
       }
+      else
+      {
+         m_editor->markerAdd(line,Marker_Breakpoint);
+      }
    
       emit breakpointsChanged();
    }
-#endif
 }
 
 void CodeEditorForm::on_actionRun_to_here_triggered()
@@ -295,44 +360,48 @@ void CodeEditorForm::on_actionEnable_breakpoint_triggered()
 
 void CodeEditorForm::on_actionStart_marker_here_triggered()
 {
-#if 0
    CMarker* markers = nesGetExecutionMarkerDatabase();
    int marker;
+   int line;
+   int index;
    int addr = 0;
    int absAddr = 0;
 
-   addr = pasm_get_source_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   m_editor->getCursorPosition(&line,&index);
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
    if ( addr != -1 )
    {
       // Find unused Marker entry...
       marker = markers->AddMarker(absAddr);
    }
-#endif
 }
 
 void CodeEditorForm::on_actionEnd_marker_here_triggered()
 {
-#if 0
    CMarker* markers = nesGetExecutionMarkerDatabase();
    int marker = markers->FindInProgressMarker();
+   int line;
+   int index;
    int addr = 0;
    int absAddr = 0;
 
    if ( marker >= 0 )
-   {
-      addr = pasm_get_source_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   {   
+      m_editor->getCursorPosition(&line,&index);
    
-      absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+      addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   
+      absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
       if ( addr != -1 )
       {
          markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
       }
    }
-#endif
 }
 
 void CodeEditorForm::on_actionClear_marker_triggered()
@@ -343,26 +412,18 @@ void CodeEditorForm::on_actionClear_marker_triggered()
 
 QString CodeEditorForm::get_sourceCode()
 {
-//   return ui->textEdit->toPlainText();
+   return m_editor->text();
 }
 
 void CodeEditorForm::set_sourceCode(QString source)
 {
    m_editor->setText(source);
-//   ui->textEdit->setPlainText(source);
-//   ui->textEdit->setDocumentTitle(m_fileName);
 }
 
 void CodeEditorForm::selectLine(int linenumber)
 {
    m_editor->ensureLineVisible(linenumber-1);
    m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
-   
-#if 0
-   QTextCursor textCursor = ui->textEdit->textCursor();
-   textCursor.movePosition(QTextCursor::Start);
-   textCursor.movePosition(QTextCursor::Down,QTextCursor::MoveAnchor,linenumber-1);
-   ui->textEdit->setTextCursor(textCursor);
-   ui->textEdit->highlightCurrentLine();
-#endif
+   m_editor->markerDeleteAll(Marker_Execution);
+   m_editor->markerAdd(linenumber-1,Marker_Execution);
 }

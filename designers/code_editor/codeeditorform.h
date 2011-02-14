@@ -38,6 +38,9 @@ signals:
 
 private slots:
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
+   void editor_linesChanged();
+   void external_breakpointsChanged();
+   void breakpointHit();
    void on_actionClear_marker_triggered();
    void on_actionEnd_marker_here_triggered();
    void on_actionStart_marker_here_triggered();
