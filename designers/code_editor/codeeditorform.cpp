@@ -74,8 +74,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
-
-   m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
    
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_editor,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
@@ -119,7 +117,62 @@ void CodeEditorForm::changeEvent(QEvent* e)
 
 void CodeEditorForm::external_breakpointsChanged()
 {
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   MarkerSetInfo* pMarker;
+   int addr;
+   int absAddr;
+   int line;
+   int index;
+   int idx;
    
+   m_editor->getCursorPosition(&line,&index);
+   
+   m_editor->markerDeleteAll(Marker_Breakpoint);
+   m_editor->markerDeleteAll(Marker_BreakpointDisabled);
+
+   for ( line = 0; line < m_editor->lines(); line++ )
+   {
+      addr = pasm_get_source_addr_by_linenum_and_file(line+1,m_fileName.toAscii().constData());
+      
+      absAddr = pasm_get_source_absolute_addr_by_linenum_and_file(line+1,m_fileName.toAscii().constData());
+      
+      for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
+      {
+         pMarker = markers->GetMarker(idx);
+         
+         if ( (pMarker->state == eMarkerSet_Started) ||
+              (pMarker->state == eMarkerSet_Complete) )
+         {
+            if ( (absAddr >= pMarker->startAbsAddr) &&
+                 (absAddr <= pMarker->endAbsAddr) )
+            {
+            }
+         }
+      }
+      
+      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+      {
+         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      
+         if ( (pBreakpoint->enabled) &&
+              (pBreakpoint->type == eBreakOnCPUExecution) &&
+              (pBreakpoint->item1 <= addr) &&
+              ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+              (pBreakpoint->item2 >= addr) )
+         {
+            m_editor->markerAdd(line,Marker_Breakpoint);
+         }
+         else if ( (!pBreakpoint->enabled) &&
+                   (pBreakpoint->type == eBreakOnCPUExecution) &&
+                   (pBreakpoint->item1 <= addr) &&
+                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                   (pBreakpoint->item2 >= addr) )
+         {
+            m_editor->markerAdd(line,Marker_BreakpointDisabled);
+         }
+      }
+   }
 }
 
 void CodeEditorForm::breakpointHit()
@@ -422,8 +475,11 @@ void CodeEditorForm::set_sourceCode(QString source)
 
 void CodeEditorForm::selectLine(int linenumber)
 {
-   m_editor->ensureLineVisible(linenumber-1);
-   m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
    m_editor->markerDeleteAll(Marker_Execution);
-   m_editor->markerAdd(linenumber-1,Marker_Execution);
+   if ( linenumber >= 0 )
+   {
+      m_editor->ensureLineVisible(linenumber-1);
+      m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
+      m_editor->markerAdd(linenumber-1,Marker_Execution);
+   }
 }

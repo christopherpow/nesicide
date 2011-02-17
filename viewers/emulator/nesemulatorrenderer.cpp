@@ -48,6 +48,9 @@ void CNESEmulatorRenderer::initializeGL()
 
    // We want it to be BGRA formatted
    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+   glPixelStorei(GL_PACK_ALIGNMENT, 4);
+   glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
+   glPixelStorei(GL_PACK_ROW_LENGTH, 256);
 
    // Set our texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

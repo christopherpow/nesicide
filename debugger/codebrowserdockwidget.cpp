@@ -212,53 +212,6 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
    }// CPTODO: fix the goto for absolute
 }
 
-void CodeBrowserDockWidget::on_tableView_doubleClicked(QModelIndex index)
-{
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int bp;
-   int addr = 0;
-   int absAddr = 0;
-
-   if ( index.isValid() )
-   {
-      addr = nesGetAddressFromSLOC(index.row());
-      
-      absAddr = nesGetAbsoluteAddressFromAddress(addr);
-
-      if ( addr != -1 )
-      {
-         bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                             eBreakpointItemAddress,
-                                             0,
-                                             addr,
-                                             absAddr,
-                                             addr,
-                                             eBreakpointConditionNone,
-                                             0,
-                                             eBreakpointDataNone,
-                                             0 );
-   
-         if ( bp < 0 )
-         {
-            on_actionBreak_on_CPU_execution_here_triggered();
-         }
-         else
-         {
-            if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
-            {
-               pBreakpoints->RemoveBreakpoint(bp);
-            }
-            else
-            {
-               pBreakpoints->SetEnabled(bp,false);
-            }
-         }
-   
-         emit breakpointsChanged();
-      }
-   }
-}
-
 void CodeBrowserDockWidget::on_actionDisable_breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -330,4 +283,51 @@ void CodeBrowserDockWidget::on_actionClear_marker_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
    markers->ClearAllMarkers();
+}
+
+void CodeBrowserDockWidget::on_tableView_clicked(QModelIndex index)
+{
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int bp;
+   int addr = 0;
+   int absAddr = 0;
+
+   if ( index.isValid() && index.column() == 0 )
+   {
+      addr = nesGetAddressFromSLOC(index.row());
+      
+      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+
+      if ( addr != -1 )
+      {
+         bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                             eBreakpointItemAddress,
+                                             0,
+                                             addr,
+                                             absAddr,
+                                             addr,
+                                             eBreakpointConditionNone,
+                                             0,
+                                             eBreakpointDataNone,
+                                             0 );
+   
+         if ( bp < 0 )
+         {
+            on_actionBreak_on_CPU_execution_here_triggered();
+         }
+         else
+         {
+            if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+            {
+               pBreakpoints->RemoveBreakpoint(bp);
+            }
+            else
+            {
+               pBreakpoints->SetEnabled(bp,false);
+            }
+         }
+   
+         emit breakpointsChanged();
+      }
+   }
 }

@@ -84,7 +84,10 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
                  (pSource->caption() == file) )
             {
                pSource->getEditor()->selectLine(linenumber);
-               break;
+            }
+            else if ( pSource && pSource->getEditor() )
+            {
+               pSource->getEditor()->selectLine(-1);
             }
             iter.next();
          }
