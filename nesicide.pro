@@ -155,7 +155,6 @@ INCLUDEPATH += common \
 SOURCES += mainwindow.cpp \
     main.cpp \
     common/qtcolorpicker.cpp \
-    common/cnessystempalette.cpp \
     common/cgltexturemanager.cpp \
     compiler/csourceassembler.cpp \
     compiler/cgraphicsassembler.cpp \
@@ -244,7 +243,6 @@ HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
     common/cpaletteitemdelegate.h \
-    common/cnessystempalette.h \
     common/cgltexturemanager.h \
     compiler/csourceassembler.h \
     compiler/cgraphicsassembler.h \
@@ -301,7 +299,6 @@ HEADERS += mainwindow.h \
     environmentsettingsdialog.h \
     plugins/cpluginmanager.h \
     startupsplashdialog.h \
-    common/cnessystempalette.h \
     debugger/dbg_cnes6502.h \
     debugger/dbg_cnesmappers.h \
     debugger/dbg_cnesppu.h \
