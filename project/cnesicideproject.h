@@ -28,13 +28,27 @@ public:
 
    // Member Getters
    bool isInitialized();
-   QString getProjectTitle();
+   QString getProjectTitle() { return m_projectTitle; }
+   QString getProjectBasePath() { return m_projectBasePath; }
+   QString getProjectSourceBasePath() { return m_projectSourceBasePath; }
+   QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
+   QString getCompilerToolchain() { return m_compilerToolchain; }
+   QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
+   QString getCompilerUndefinedSymbols() { return m_compilerUndefinedSymbols; }
+   QString getCompilerIncludePaths() { return m_compilerIncludePaths; }
    QList<CPaletteEntry> *getProjectPaletteEntries() { return &m_projectPaletteEntries; }
    CCartridge* getCartridge() { return m_pCartridge; }
    CProject* getProject() { return m_pProject; }
 
    // Member Setters
-   void setProjectTitle(QString value);
+   void setProjectTitle(QString value) { m_projectTitle = value; }
+   void setProjectBasePath(QString value) { m_projectBasePath = value; }
+   void setProjectSourceBasePath(QString value) { m_projectSourceBasePath = value; }
+   void setProjectOutputBasePath(QString value) { m_projectOutputBasePath = value; }
+   void setCompilerToolchain(QString value) { m_compilerToolchain = value; }
+   void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
+   void setCompilerUndefinedSymbols(QString value) { m_compilerUndefinedSymbols = value; }
+   void setCompilerIncludePaths(QString value) { m_compilerIncludePaths = value; }
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
 
    // IXMLSerializable Interface Implementation
@@ -65,10 +79,20 @@ public:
    }
 
 private:
-   bool m_isInitialized;                                           // Is the project initialized?
+   // Is the project initialized?
+   bool m_isInitialized;
 
    // Attributes
-   QString m_projectTitle;                                         // The visible title of the project
+   // The visible title of the project
+   QString m_projectTitle;
+   QString m_projectBasePath;
+   QString m_projectSourceBasePath;
+   QString m_projectOutputBasePath;
+   // The toolchain used to compile the project
+   QString m_compilerToolchain;       
+   QString m_compilerDefinedSymbols;
+   QString m_compilerUndefinedSymbols;
+   QString m_compilerIncludePaths;       
    
    // Contained children
    QList<CPaletteEntry> m_projectPaletteEntries;                 // List of palette entries for the emulator.

@@ -10,10 +10,11 @@ CGameDatabaseHandler::CGameDatabaseHandler()
 {
 }
 
-void CGameDatabaseHandler::initialize(QString fileName)
+bool CGameDatabaseHandler::initialize(QString fileName)
 {
    QFile file(fileName);
-   QFile res(":/resources/NesCarts (2010-02-08).xml");
+   QFile res(":GameDatabase");
+   bool openedFile = false;
 
    // First attempt to open the user-specified game database...
    file.open(QIODevice::ReadOnly);
@@ -23,6 +24,7 @@ void CGameDatabaseHandler::initialize(QString fileName)
       m_db.clear();
       m_db.setContent(&file);
       file.close();
+      openedFile = true;
    }
    else
    {
@@ -34,6 +36,7 @@ void CGameDatabaseHandler::initialize(QString fileName)
       m_db.setContent(&res);
       res.close();
    }
+   return openedFile;
 }
 
 QString CGameDatabaseHandler::getGameDBTimestamp()

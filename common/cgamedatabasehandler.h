@@ -14,7 +14,7 @@ class CGameDatabaseHandler
 {
 public:
    CGameDatabaseHandler();
-   void initialize(QString fileName);
+   bool initialize(QString fileName);
 
    // Database information.
    QString getGameDBTimestamp();

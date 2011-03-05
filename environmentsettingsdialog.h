@@ -25,6 +25,9 @@ private:
    QColor getIdealTextColor(const QColor& rBackgroundColor) const;
 
 private slots:
+   void on_ROMPathBrowse_clicked();
+   void on_GameDatabasePathButton_clicked();
+   void on_useInternalDB_toggled(bool checked);
    void on_buttonBox_accepted();
    void on_PluginPathButton_clicked();
    void on_CodeStringsButton_clicked();

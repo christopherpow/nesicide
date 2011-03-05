@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QMessageBox>
+
 #include "cpaletteitemdelegate.h"
 #include "cnesicideproject.h"
 #include "csourceitem.h"
@@ -19,21 +20,18 @@ class ProjectPropertiesDialog : public QDialog
 {
    Q_OBJECT
 public:
-   ProjectPropertiesDialog(QWidget* parent);
+   ProjectPropertiesDialog(QWidget* parent = 0);
    ~ProjectPropertiesDialog();
-   QString getProjectName();
-   QString getMainSource();
-   eMirrorMode getMirrorMode();
-   int         getMapperNumber();
-   QList<QColor> currentPalette;
 
 protected:
    void changeEvent(QEvent* e);
+   void updateExampleInvocation();
 
 private:
    Ui::ProjectPropertiesDialog* ui;
    void updateUI(int colid = -1);
    void setMainSource(QString mainSource);
+   QString getMainSource();
    QDomElement addElement( QDomDocument& doc, QDomNode& node,
                            const QString& tag,
                            const QString& value = QString::null )
@@ -49,8 +47,17 @@ private:
 
       return el;
    }
+   QList<QColor> currentPalette;
 
 private slots:
+   void on_projectOutputBasePathBrowse_clicked();
+   void on_projectSourceBasePathBrowse_clicked();
+   void on_projectBasePathBrowse_clicked();
+   void on_buttonBox_accepted();
+   void on_includePathBrowse_clicked();
+   void on_includePaths_textChanged();
+   void on_undefinedSymbols_textChanged();
+   void on_definedSymbols_textChanged();
    void on_blueHorizontalSlider_actionTriggered(int action);
    void on_greenHorizontalSlider_actionTriggered(int action);
    void on_redHorizontalSlider_actionTriggered(int action);

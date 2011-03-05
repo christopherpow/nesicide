@@ -53,9 +53,12 @@ void breakpointHook ( void )
    breakpointSemaphore.acquire();
 }
 
+extern FILE* wavOut;
+
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
    int32_t samplesAvailable;
+   uint16_t dead[3] = { 0, 0, 0 };
 
    coreMutexLock();
    samplesAvailable = nesGetAudioSamplesAvailable();
@@ -63,10 +66,12 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 
    if (samplesAvailable < 0)
    {
+      dead[2]=samplesAvailable;
+      fwrite(dead,1,6,wavOut);
       return;
    }
 
-   SDL_MixAudio ( stream, nesGetAudioSamples(), len, SDL_MIX_MAXVOLUME );
+   memcpy(stream,nesGetAudioSamples(),len);
 
    if ( emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
    {
@@ -125,65 +130,68 @@ void NESEmulatorThread::loadCartridge()
    int32_t b;
    int32_t a;
 
-   // Clear emulator's cartridge ROMs...
-   nesUnloadROM();
-
-   // Load cartridge PRG-ROM banks into emulator...
-   for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
+   if ( m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count() )
    {
-      nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPrgRomBanks()->getPrgRomBanks().at(b)->getBankData() );
-      
-      // Update opcode masks to show proper disassembly...
-      for ( a = 0; a < MEM_16KB; a++ )
+      // Clear emulator's cartridge ROMs...
+      nesUnloadROM();
+   
+      // Load cartridge PRG-ROM banks into emulator...
+      for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
       {
-         if ( pasm_check_for_instruction_at_absolute_addr((b*MEM_16KB)+a) )
+         nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPrgRomBanks()->getPrgRomBanks().at(b)->getBankData() );
+         
+         // Update opcode masks to show proper disassembly...
+         for ( a = 0; a < MEM_16KB; a++ )
          {
-            nesSetOpcodeMask((b*MEM_16KB)+a,1);
-         }
-         else
-         {
-            nesSetOpcodeMask((b*MEM_16KB)+a,0);
+            if ( pasm_check_for_instruction_at_absolute_addr((b*MEM_16KB)+a) )
+            {
+               nesSetOpcodeMask((b*MEM_16KB)+a,1);
+            }
+            else
+            {
+               nesSetOpcodeMask((b*MEM_16KB)+a,0);
+            }
          }
       }
+   
+      // Load cartridge CHR-ROM banks into emulator...
+      for ( b = 0; b < m_pCartridge->getChrRomBanks()->getChrRomBanks().count(); b++ )
+      {
+         nesLoadCHRROMBank ( b, (uint8_t*)m_pCartridge->getChrRomBanks()->getChrRomBanks().at(b)->getBankData() );
+      }
+   
+      // Perform any necessary fixup from the ROM loading...
+      nesLoadROM();
+   
+      // Set up PPU with iNES header information...
+      if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )
+      {
+         nesSetHorizontalMirroring();
+      }
+      else if ( m_pCartridge->getMirrorMode() == VerticalMirroring )
+      {
+         nesSetVerticalMirroring();
+      }
+   
+      // CPTODO: implement mapper reloading...project reload should load ROM in saved state.
+   #if 0
+      // Force mapper to intialize...
+      mapperfunc [ m_pCartridge->getMapperNumber() ].reset ();
+   
+      MapperState* pMapperState = m_pRIID->GetMapperState ();
+   
+      if ( pMapperState->valid )
+      {
+         mapperfunc [ m_pRIID->GetMapperID() ].load ( pMapperState );
+      }
+   
+   #endif
+   
+      // Initialize NES...
+      nesReset(m_pCartridge->getMapperNumber());
+   
+      emit cartridgeLoaded();
    }
-
-   // Load cartridge CHR-ROM banks into emulator...
-   for ( b = 0; b < m_pCartridge->getChrRomBanks()->getChrRomBanks().count(); b++ )
-   {
-      nesLoadCHRROMBank ( b, (uint8_t*)m_pCartridge->getChrRomBanks()->getChrRomBanks().at(b)->getBankData() );
-   }
-
-   // Perform any necessary fixup from the ROM loading...
-   nesLoadROM();
-
-   // Set up PPU with iNES header information...
-   if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )
-   {
-      nesSetHorizontalMirroring();
-   }
-   else if ( m_pCartridge->getMirrorMode() == VerticalMirroring )
-   {
-      nesSetVerticalMirroring();
-   }
-
-   // CPTODO: implement mapper reloading...project reload should load ROM in saved state.
-#if 0
-   // Force mapper to intialize...
-   mapperfunc [ m_pCartridge->getMapperNumber() ].reset ();
-
-   MapperState* pMapperState = m_pRIID->GetMapperState ();
-
-   if ( pMapperState->valid )
-   {
-      mapperfunc [ m_pRIID->GetMapperID() ].load ( pMapperState );
-   }
-
-#endif
-
-   // Initialize NES...
-   nesReset(m_pCartridge->getMapperNumber());
-
-   emit cartridgeLoaded();
 }
 
 void NESEmulatorThread::primeEmulator()
@@ -225,17 +233,10 @@ void NESEmulatorThread::resetEmulator()
    sdlAudioSpec.userdata = NULL;
    sdlAudioSpec.channels = 1;
    sdlAudioSpec.format = AUDIO_S16SYS;
-   sdlAudioSpec.freq = 44100;
+   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
 
    // Set up audio sample rate for video mode...
-   if ( nesGetSystemMode() == MODE_NTSC )
-   {
-      sdlAudioSpec.samples = APU_SAMPLES_NTSC;
-   }
-   else
-   {
-      sdlAudioSpec.samples = APU_SAMPLES_PAL;
-   }
+   sdlAudioSpec.samples = APU_SAMPLES;
 
    SDL_OpenAudio ( &sdlAudioSpec, &obtained );
 

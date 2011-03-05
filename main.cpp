@@ -19,12 +19,18 @@ char* ideGetVersion()
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
 
+// Interface to compiler.
+CompilerThread* compiler = NULL;
+const char* compilers[] = 
+{
+   "Internal PASM",
+   "External CC65 in PATH",
+   NULL
+};
+
 // Thread for watching for breakpoints ejected by the NES
 // emulator thread.
 BreakpointWatcherThread* breakpointWatcher = NULL;
-
-// Thread for compiling NES ROMs.
-CompilerThread* compiler = NULL;
 
 // Hash table of debugger inspector windows to support automagic
 // opening/closing of inspector windows on things like breakpoints.
@@ -42,13 +48,24 @@ CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 int main(int argc, char* argv[])
 {
    QApplication nesicideApplication(argc, argv);
-   
+      
    QCoreApplication::setOrganizationName("CSPSoftware");
    QCoreApplication::setOrganizationDomain("nesicide.com");
    QCoreApplication::setApplicationName("NESICIDE");   
+ 
+   QSettings settings;
 
    // Initialize the game database object...
-   gameDatabase.initialize("NesCarts (2010-02-08).xml");
+   if ( settings.value("useInternalDB",QVariant(true)).toBool() )
+   {
+      // Use internal resource.
+      gameDatabase.initialize(":GameDatabase");
+   }
+   else
+   {
+      // Use named file resource.  Default to internal if it's not set.
+      gameDatabase.initialize(settings.value("GameDatabase",QVariant(":GameDatabase")).toString());
+   } 
 
    // Initialize the plugin manager
    pluginManager = new CPluginManager();
@@ -61,14 +78,14 @@ int main(int argc, char* argv[])
    // Create the NES emulator and breakpoint watcher threads...
    emulator = new NESEmulatorThread ();
    breakpointWatcher = new BreakpointWatcherThread ();
-
-   // Start breakpoint-watcher thread...emulator thread starts later.
-   breakpointWatcher->start();
-
-   // Create compiler threads...
+   
+   // Create the compiler thread...
    compiler = new CompilerThread ();
    
-   // Start the compiler thread...
+   // Start breakpoint-watcher thread...
+   breakpointWatcher->start();
+
+   // Start compiler thread...
    compiler->start();
 
    // Create, show, and execute the main window (UI) thread.
@@ -80,17 +97,18 @@ int main(int argc, char* argv[])
    // Properly kill and destroy the threads we created above.
    breakpointWatcher->kill();
    breakpointWatcher->wait();
-   emulator->kill();
-   emulator->wait();
    compiler->kill();
    compiler->wait();
-
+   emulator->kill();
+   emulator->wait();
+   
    delete breakpointWatcher;
    breakpointWatcher = NULL;
-   delete emulator;
-   emulator = NULL;
    delete compiler;
    compiler = NULL;
+   delete emulator;
+   emulator = NULL;
+   
    delete pluginManager;
    pluginManager = NULL;
 

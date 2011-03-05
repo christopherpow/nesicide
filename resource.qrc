@@ -49,9 +49,9 @@
         <file>resources/22_breakpoint_disabled.png</file>
         <file>resources/22_breakpoint.png</file>
         <file>resources/bomb.png</file>
-        <file>resources/NesCarts (2010-02-08).xml</file>
         <file>resources/logo.png</file>
         <file>resources/gplv3.png</file>
         <file>resources/controller.svg</file>
+        <file alias="GameDatabase">resources/NesCarts (2010-12-26).xml</file>
     </qresource>
 </RCC>

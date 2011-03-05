@@ -1,6 +1,8 @@
 #include "environmentsettingsdialog.h"
 #include "ui_environmentsettingsdialog.h"
 
+#include "main.h"
+
 #include <QSettings>
 
 EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
@@ -14,6 +16,15 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->saveAllOnCompile->setChecked(settings.value(ui->saveAllOnCompile->objectName(),true).toBool());
    ui->rememberWindowSettings->setChecked(settings.value(ui->rememberWindowSettings->objectName(),true).toBool());
    ui->trackRecentProjects->setChecked(settings.value(ui->trackRecentProjects->objectName(),true).toBool());
+   
+   ui->useInternalDB->setChecked(settings.value(ui->useInternalDB->objectName(),true).toBool());
+   ui->GameDatabasePathEdit->setText(settings.value("GameDatabase",QVariant("")).toString());
+   ui->GameDatabasePathButton->setEnabled(!ui->useInternalDB->isChecked());
+   ui->GameDatabasePathEdit->setEnabled(!ui->useInternalDB->isChecked());
+   
+   ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+   
+   ui->ROMPath->setText(settings.value("ROMPath","").toString());
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -165,4 +176,62 @@ void EnvironmentSettingsDialog::on_buttonBox_accepted()
     settings.setValue(ui->saveAllOnCompile->objectName(),ui->saveAllOnCompile->isChecked());
     settings.setValue(ui->rememberWindowSettings->objectName(),ui->rememberWindowSettings->isChecked());
     settings.setValue(ui->trackRecentProjects->objectName(),ui->trackRecentProjects->isChecked());
+    
+    settings.setValue(ui->useInternalDB->objectName(),ui->useInternalDB->isChecked());
+    settings.setValue("GameDatabase",ui->GameDatabasePathEdit->text());
+    
+    settings.setValue("ROMPath",ui->ROMPath->text());
+}
+
+void EnvironmentSettingsDialog::on_useInternalDB_toggled(bool checked)
+{
+   ui->GameDatabasePathButton->setEnabled(!checked);
+   ui->GameDatabasePathEdit->setEnabled(!checked);
+
+   if ( (!checked) && (!ui->GameDatabasePathEdit->text().isEmpty()) )
+   {
+      bool openedOk = gameDatabase.initialize(ui->GameDatabasePathEdit->text());
+      
+      ui->GameDatabasePathButton->setEnabled(openedOk);
+      ui->GameDatabasePathEdit->setEnabled(openedOk);
+      
+      ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+   }
+   else if ( checked )
+   {
+      bool openedOk = gameDatabase.initialize(":GameDatabase");
+      
+      ui->GameDatabasePathButton->setEnabled(openedOk);
+      ui->GameDatabasePathEdit->setEnabled(openedOk);
+      
+      ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+   }
+}
+
+void EnvironmentSettingsDialog::on_GameDatabasePathButton_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Game Database",QDir::currentPath(),"XML Files (*.xml)");
+
+   if (!value.isEmpty())
+   {
+      ui->GameDatabasePathEdit->setText(value);
+         
+      bool openedOk = gameDatabase.initialize(ui->GameDatabasePathEdit->text());
+      
+      ui->useInternalDB->setChecked(!openedOk);
+      ui->GameDatabasePathButton->setEnabled(openedOk);
+      ui->GameDatabasePathEdit->setEnabled(openedOk);
+      
+      ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+   }
+}
+
+void EnvironmentSettingsDialog::on_ROMPathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"ROM Path",ui->ROMPath->text());
+   
+   if ( !value.isEmpty() )
+   {
+      ui->ROMPath->setText(value);
+   }
 }

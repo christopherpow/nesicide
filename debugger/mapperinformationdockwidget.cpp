@@ -62,6 +62,7 @@ void MapperInformationDockWidget::updateInformation()
    int idx;
    char buffer [ 16 ];
    nesMapper001Info mapper001Info;
+   nesMapper004Info mapper004Info;
 
    // Show PRG-ROM absolute addresses...
    sprintf ( buffer, "$%X", CROMDBG::ABSADDR(0x8000) );
@@ -102,14 +103,15 @@ void MapperInformationDockWidget::updateInformation()
          break;
 
       case 4:
-         ui->irqEnabled->setChecked ( CROMMapper004DBG::IRQENABLED() );
-         ui->irqAsserted->setChecked ( CROMMapper004DBG::IRQASSERTED() );
-         ui->ppuAddrA12->setChecked ( CROMMapper004DBG::PPUADDRA12() );
-         sprintf ( buffer, "$%02X", CROMMapper004DBG::IRQRELOAD() );
+         nesMapper004GetInformation(&mapper004Info);
+         ui->irqEnabled->setChecked ( mapper004Info.irqEnabled );
+         ui->irqAsserted->setChecked ( mapper004Info.irqAsserted );
+         ui->ppuAddrA12->setChecked ( mapper004Info.ppuAddrA12 );
+         sprintf ( buffer, "$%02X", mapper004Info.irqReload );
          ui->irqReload->setText ( buffer );
-         sprintf ( buffer, "$%02X", CROMMapper004DBG::IRQCOUNTER() );
+         sprintf ( buffer, "$%02X", mapper004Info.irqCounter );
          ui->irqCounter->setText ( buffer );
-         sprintf ( buffer, "%d", CROMMapper004DBG::PPUCYCLE() );
+         sprintf ( buffer, "%d", mapper004Info.ppuCycle );
          ui->lastA12Cycle->setText ( buffer );
          break;
    }

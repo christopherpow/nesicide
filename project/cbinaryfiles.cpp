@@ -1,5 +1,7 @@
 #include "cbinaryfiles.h"
 
+#include "main.h"
+
 CBinaryFiles::CBinaryFiles(IProjectTreeViewItem* parent)
 {
    // Add node to tree
@@ -106,7 +108,7 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
       if (ret->text() == "&Import Binary File...")
       {
 
-         QString fileName = QFileDialog::getOpenFileName(parent, "Import Binary File", "", "All Files (*.*)");
+         QString fileName = QFileDialog::getOpenFileName(parent, "Import Binary File", nesicideProject->getProjectOutputBasePath(), "All Files (*.*)");
 
          if (QFile::exists(fileName))
          {

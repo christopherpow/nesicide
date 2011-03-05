@@ -3,6 +3,8 @@
 
 #include "csources.h"
 
+#include "main.h"
+
 CSources::CSources(IProjectTreeViewItem* parent)
 {
    // Add node to tree
@@ -122,7 +124,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
       }
       else if (ret->text() == "&Import Source from File...")
       {
-         QString fileName = QFileDialog::getOpenFileName(NULL, 0, 0);
+         QString fileName = QFileDialog::getOpenFileName(NULL, "Import Source", nesicideProject->getProjectSourceBasePath(), "All Files (*.*)");
 
          if (!fileName.isEmpty())
          {
@@ -136,7 +138,8 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
                fs.readRawData(buffer,fileIn.size());
 
                CSourceItem* pSourceItem = new CSourceItem(this);
-               pSourceItem->setName(fileName);
+               QStringList fileParts = fileName.split(QRegExp("[\\/]"));
+               pSourceItem->setName(fileParts.at(fileParts.count()-1));
                pSourceItem->set_sourceCode(buffer);
                m_sourceItems.append(pSourceItem);
                appendChild(pSourceItem);

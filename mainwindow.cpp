@@ -6,7 +6,7 @@
 
 #include "main.h"
 
-#include "pasm_lib.h"
+#include "compilerthread.h"
 
 #include <QApplication>
 #include <QStringList>
@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    QObject::connect(compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()));
    QObject::connect(compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)));
-   
+
    generalTextLogger = new CTextLogger();
    buildTextLogger = new CTextLogger();
    debugTextLogger = new CTextLogger();
@@ -526,8 +526,8 @@ void MainWindow::on_actionSave_Project_triggered()
 {
    if (projectFileName.isEmpty())
    {
-      projectFileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
-                                                     QString("NESICIDE Project (*.nesproject)"));
+      projectFileName = QFileDialog::getSaveFileName(this, "Save Project", nesicideProject->getProjectBasePath(),
+                                                     "NESICIDE Project (*.nesproject)");
    }
    
    if (!projectFileName.isEmpty())
@@ -573,8 +573,8 @@ void MainWindow::on_actionSave_Project_As_triggered()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   projectFileName = QFileDialog::getSaveFileName(this, QString("Save Project"), QString(""),
-                                                  QString("NESICIDE Project (*.nesproject)"));
+   projectFileName = QFileDialog::getSaveFileName(this, "Save Project", nesicideProject->getProjectBasePath(),
+                                                  "NESICIDE Project (*.nesproject)");
 
    if (!projectFileName.isEmpty())
    {
@@ -584,40 +584,17 @@ void MainWindow::on_actionSave_Project_As_triggered()
 
 void MainWindow::on_actionProject_Properties_triggered()
 {
-   ProjectPropertiesDialog* dlg = new ProjectPropertiesDialog(this);
+   ProjectPropertiesDialog dlg;
 
-   if (dlg->exec() == QDialog::Accepted)
+   if (dlg.exec() == QDialog::Accepted)
    {
       emulator->pauseEmulation(false);
-   
-      nesicideProject->setProjectTitle(dlg->getProjectName());
-      nesicideProject->getProjectPaletteEntries()->clear();
 
-      for (int paletteItemIndex=0; paletteItemIndex<dlg->currentPalette.count(); paletteItemIndex++)
-      {
-         nesicideProject->getProjectPaletteEntries()->append(dlg->currentPalette.at(paletteItemIndex));
-      }
-      
-      nesicideProject->getCartridge()->setMapperNumber(dlg->getMapperNumber());
-      nesicideProject->getCartridge()->setMirrorMode(dlg->getMirrorMode());
-      
       emulator->primeEmulator();
       emulator->resetEmulator();
 
       projectDataChangesEvent();
-
-      for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
-      {
-         CSourceItem* sourceItem = (CSourceItem*)nesicideProject->getProject()->getSources()->child(sourceIndex);
-
-         if (sourceItem->name() == dlg->getMainSource())
-         {
-            nesicideProject->getProject()->setMainSource(sourceItem);
-         }
-      }
    }
-
-   delete dlg;
 }
 
 void MainWindow::on_actionNew_Project_triggered()
@@ -628,6 +605,9 @@ void MainWindow::on_actionNew_Project_triggered()
    {
       projectBrowser->disableNavigation();
       nesicideProject->setProjectTitle(dlg->getProjectTitle());
+      nesicideProject->setProjectBasePath(dlg->getProjectBasePath());
+      nesicideProject->setProjectSourceBasePath(dlg->getProjectBasePath());
+      nesicideProject->setProjectOutputBasePath(dlg->getProjectBasePath());
       nesicideProject->initializeProject();
       projectBrowser->enableNavigation();
       projectDataChangesEvent();
@@ -658,10 +638,6 @@ void MainWindow::openROM(QString fileName)
    emulator->resetEmulator();
 //   emulator->startEmulation();
    
-   compiler->reset();
-   
-   pasm_initialize();
-   
    projectDataChangesEvent();
    
    ui->actionEmulation_Window->setChecked(true);
@@ -670,7 +646,10 @@ void MainWindow::openROM(QString fileName)
 
 void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 {
-   QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "iNES ROM (*.nes)");
+   QSettings settings;
+   
+   QString romPath = settings.value("ROMPath","").toString();
+   QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "iNES ROM (*.nes)");
 
    if (fileName.isEmpty())
    {
@@ -787,10 +766,6 @@ void MainWindow::openProject(QString fileName)
 
       projectBrowser->enableNavigation();
    
-      compiler->reset();
-      
-      pasm_initialize();
-      
       projectDataChangesEvent();
       
       projectFileName = fileName;
@@ -799,7 +774,7 @@ void MainWindow::openProject(QString fileName)
 
 void MainWindow::on_actionOpen_Project_triggered()
 {
-   QString fileName = QFileDialog::getOpenFileName(this, 0, 0, "NESICIDE Project (*.nesproject)");
+   QString fileName = QFileDialog::getOpenFileName(this, "Open Project", "", "NESICIDE Project (*.nesproject)");
    
    if (fileName.isEmpty())
    {
@@ -871,7 +846,7 @@ void MainWindow::compiler_compileStarted()
 void MainWindow::compiler_compileDone(bool bOk)
 {
    ui->actionCompile_Project->setEnabled(true);
-   
+      
    projectDataChangesEvent();
 }
 
@@ -1132,12 +1107,8 @@ void MainWindow::on_action_Close_Project_triggered()
    emulator->primeEmulator();
    emulator->resetEmulator();
    
-   compiler->reset();
-   
    m_pSourceNavigator->shutdown();
    
-   pasm_initialize();
-
    // Remove any tabs
    ui->tabWidget->clear();
    
@@ -1266,26 +1237,16 @@ void MainWindow::on_actionMute_All_toggled(bool value)
 
 void MainWindow::on_actionEnvironment_Settings_triggered()
 {
-   EnvironmentSettingsDialog* dlg = new EnvironmentSettingsDialog(this);
-
-   if (dlg->exec() == QDialog::Accepted)
-   {
-      // Todo...
-   }
-
-   delete dlg;
+   EnvironmentSettingsDialog dlg;
+   
+   dlg.exec();
 }
 
 void MainWindow::on_actionPreferences_triggered()
 {
-   EmulatorPrefsDialog* dlg =  new EmulatorPrefsDialog();
+   EmulatorPrefsDialog dlg;
 
-   if (dlg->exec() == QDialog::Accepted)
-   {
-      // Todo...
-   }
-
-   delete dlg;
+   dlg.exec();
 }
 
 void MainWindow::on_actionOnline_Help_triggered()

@@ -15,19 +15,39 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::ProjectPropertiesDialog)
 {
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    QList<QColor> *pal = nesicideProject->getProjectPaletteEntries();
-   int i;
+   int i = 0;
    char mapperTag [ 64 ];
 
    // Initialize UI elements...
    ui->setupUi(this);
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
+   ui->projectBasePath->setText(nesicideProject->getProjectBasePath());
+   ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
+   ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->mainSourceComboBox->clear();
 
-   for (int sourceIndex = 0; sourceIndex < nesicideProject->getProject()->getSources()->childCount(); sourceIndex++)
+   while ( compilers[i] )
    {
-      CSourceItem* sourceItem = (CSourceItem*)nesicideProject->getProject()->getSources()->child(sourceIndex);
-      ui->mainSourceComboBox->addItem(sourceItem->name());
+      ui->compilerToolchain->addItem(compilers[i]);
+      i++;
+   }
+   ui->compilerToolchain->setCurrentIndex(ui->compilerToolchain->findText(nesicideProject->getCompilerToolchain()));
+   ui->definedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
+   ui->undefinedSymbols->setText(nesicideProject->getCompilerUndefinedSymbols());
+   ui->includePaths->setText(nesicideProject->getCompilerIncludePaths());
+   updateExampleInvocation();
+
+   while ( iter.current() )
+   {
+      CSourceItem* sourceItem = dynamic_cast<CSourceItem*>(iter.current());
+      if ( sourceItem )
+      {
+         ui->mainSourceComboBox->addItem(sourceItem->name());
+      }
+      
+      iter.next();
    }
 
    if (nesicideProject->getProject()->getMainSource())
@@ -182,8 +202,8 @@ void ProjectPropertiesDialog::on_exportPalettePushButton_clicked()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   QString fileName = QFileDialog::getSaveFileName(this, QString("Export Palette"), QString(""),
-                      QString("NESICIDE2 Palette (*.npf)"));
+   QString fileName = QFileDialog::getSaveFileName(this, "Export Palette", nesicideProject->getProjectBasePath(),
+                                                   "NESICIDE Palette (*.npf)");
 
    if (!fileName.isEmpty())
    {
@@ -233,8 +253,8 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   QString fileName = QFileDialog::getOpenFileName(this, QString("Import Palette"), QString(""),
-                      QString("NESICIDE2 Palette (*.npf)"));
+   QString fileName = QFileDialog::getOpenFileName(this,"Import Palette",nesicideProject->getProjectBasePath(),
+                      "NESICIDE Palette (*.npf)");
 
    if (!fileName.isEmpty())
    {
@@ -301,11 +321,6 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
    }
 }
 
-QString ProjectPropertiesDialog::getProjectName()
-{
-   return ui->projectNameLineEdit->text();
-}
-
 void ProjectPropertiesDialog::setMainSource(QString mainSource)
 {
    if (mainSource.isEmpty())
@@ -334,16 +349,6 @@ QString ProjectPropertiesDialog::getMainSource()
    {
       return ui->mainSourceComboBox->itemText(ui->mainSourceComboBox->currentIndex());
    }
-}
-
-eMirrorMode ProjectPropertiesDialog::getMirrorMode()
-{
-   return (eMirrorMode)ui->mirroringComboBox->currentIndex();
-}
-
-int ProjectPropertiesDialog::getMapperNumber()
-{
-   return mapperIDFromIndex(ui->mapperComboBox->currentIndex());
 }
 
 void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
@@ -412,4 +417,111 @@ void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action
 
    // Refresh the user interface
    updateUI(3);
+}
+
+void ProjectPropertiesDialog::updateExampleInvocation()
+{
+   QString example;
+   example = "ca65.exe ";
+   example.append(ui->definedSymbols->text());
+   example.append(" ");
+   example.append(ui->undefinedSymbols->text());
+   example.append(" ");
+   example.append(ui->includePaths->text());
+   example.append(" ");
+   example.append("assembly.s");
+   ui->exampleInvocation->setText(example);
+}
+
+void ProjectPropertiesDialog::on_definedSymbols_textChanged()
+{
+   updateExampleInvocation();
+}
+
+void ProjectPropertiesDialog::on_undefinedSymbols_textChanged()
+{
+   updateExampleInvocation();
+}
+
+void ProjectPropertiesDialog::on_includePaths_textChanged()
+{
+   updateExampleInvocation();
+}
+
+void ProjectPropertiesDialog::on_includePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",ui->projectBasePath->text());
+   QString includes = ui->includePaths->text();
+   
+   if ( !value.isEmpty() )
+   {
+      includes.append(" -I ");
+      includes.append(value);
+      ui->includePaths->setText(includes);
+   }
+}
+
+void ProjectPropertiesDialog::on_buttonBox_accepted()
+{   
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+
+   nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
+   nesicideProject->setProjectBasePath(ui->projectBasePath->text());
+   nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
+   nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
+   nesicideProject->setCompilerToolchain(ui->compilerToolchain->currentText());
+   nesicideProject->setCompilerDefinedSymbols(ui->definedSymbols->text());
+   nesicideProject->setCompilerUndefinedSymbols(ui->undefinedSymbols->text());
+   nesicideProject->setCompilerIncludePaths(ui->includePaths->text());
+   
+   nesicideProject->getProjectPaletteEntries()->clear();
+   
+   for (int paletteItemIndex=0; paletteItemIndex<currentPalette.count(); paletteItemIndex++)
+   {
+      nesicideProject->getProjectPaletteEntries()->append(currentPalette.at(paletteItemIndex));
+   }
+   
+   nesicideProject->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
+   nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
+   
+   while ( iter.current() )
+   {
+      CSourceItem* sourceItem = dynamic_cast<CSourceItem*>(iter.current());
+      if ( sourceItem && (sourceItem->name() == getMainSource()) )
+      {
+         nesicideProject->getProject()->setMainSource(sourceItem);
+      }
+      
+      iter.next();
+   }
+}
+
+void ProjectPropertiesDialog::on_projectBasePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"Project Base Path");
+   
+   if ( !value.isEmpty() )
+   {
+      ui->projectBasePath->setText(value);
+   }
+}
+
+void ProjectPropertiesDialog::on_projectSourceBasePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"Project Source Base Path",ui->projectBasePath->text());
+   
+   if ( !value.isEmpty() )
+   {
+      ui->projectSourceBasePath->setText(value);
+   }
+}
+
+void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"Project Output Base Path",ui->projectBasePath->text());
+   
+   if ( !value.isEmpty() )
+   {
+      ui->projectOutputBasePath->setText(value);
+   }
 }

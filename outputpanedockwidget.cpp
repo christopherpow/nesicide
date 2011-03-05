@@ -111,7 +111,7 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
 
    if ( chosen == &logToFile )
    {
-      QString fileName = QFileDialog::getSaveFileName(this, 0, 0, "Text Document (*.txt)");
+      QString fileName = QFileDialog::getSaveFileName(this, "Log Output", nesicideProject->getProjectBasePath(), "Text Document (*.txt)");
 
       if (fileName.isEmpty())
       {

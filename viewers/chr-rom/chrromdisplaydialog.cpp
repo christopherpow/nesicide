@@ -229,8 +229,8 @@ void CHRROMDisplayDialog::on_updateScanline_editingFinished()
 
 void CHRROMDisplayDialog::on_exportPushButton_clicked()
 {
-   QString fileName = QFileDialog::getSaveFileName(this, QString("Save CHR-ROM Bank"), QString(""),
-                      QString("Binary File (*.bin)"));
+   QString fileName = QFileDialog::getSaveFileName(this, "Save CHR-ROM Bank", nesicideProject->getProjectBasePath(),
+                                                   "Binary File (*.bin)");
 
    if (!fileName.isEmpty())
    {

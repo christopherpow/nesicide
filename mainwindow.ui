@@ -123,11 +123,14 @@
      <string>Project</string>
     </property>
     <addaction name="action_Project_Browser"/>
-    <addaction name="actionProject_Properties"/>
     <addaction name="separator"/>
     <addaction name="actionOutput_Window"/>
-    <addaction name="separator"/>
     <addaction name="actionEmulation_Window"/>
+    <addaction name="separator"/>
+    <addaction name="actionCompile_Project"/>
+    <addaction name="actionLoad_In_Emulator"/>
+    <addaction name="separator"/>
+    <addaction name="actionProject_Properties"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -289,7 +292,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionCompile_Project"/>
-   <addaction name="separator"/>
    <addaction name="actionLoad_In_Emulator"/>
    <addaction name="separator"/>
   </widget>
@@ -304,11 +306,16 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_Project_Browser"/>
-   <addaction name="actionProject_Properties"/>
    <addaction name="separator"/>
    <addaction name="actionOutput_Window"/>
-   <addaction name="separator"/>
    <addaction name="actionEmulation_Window"/>
+   <addaction name="separator"/>
+   <addaction name="actionProject_Properties"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
   </widget>
   <action name="actionE_xit">
    <property name="icon">
@@ -923,6 +930,9 @@
    </property>
    <property name="text">
     <string>Load In Emulator</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
    </property>
   </action>
  </widget>

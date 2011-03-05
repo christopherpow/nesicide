@@ -24,6 +24,10 @@ CNesicideProject::CNesicideProject()
 
    m_isInitialized = false;
    m_projectTitle = "(No project loaded)";
+   m_compilerToolchain = compilers[0];
+   m_projectBasePath = "";
+   m_projectSourceBasePath = "";
+   m_projectOutputBasePath = "";
 }
 
 CNesicideProject::~CNesicideProject()
@@ -117,6 +121,13 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    // Set some variables as tags to this node.
    projectElement.setAttribute("version", 0.3);
    projectElement.setAttribute("title", m_projectTitle);
+   projectElement.setAttribute("basepath",m_projectBasePath);
+   projectElement.setAttribute("sourcebasepath",m_projectSourceBasePath);
+   projectElement.setAttribute("outputbasepath",m_projectOutputBasePath);
+   projectElement.setAttribute("compilertoolchain",m_compilerToolchain);
+   projectElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
+   projectElement.setAttribute("compilerundefinedsymbols",m_compilerUndefinedSymbols);
+   projectElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
 
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
@@ -151,10 +162,10 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node)
 {
-   m_isInitialized = false;
-
    // Read in the DOM element
    QDomElement projectElement = doc.documentElement();
+
+   m_isInitialized = false;
 
    if (projectElement.isNull())
    {
@@ -170,7 +181,14 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node)
 
    // Load our properties. Note that the default value is returned if an attribute is missing.
    // This is the expected behavior.
-   m_projectTitle = projectElement.attribute("title", "Untitled Project");
+   m_projectTitle = projectElement.attribute("title","Untitled Project");
+   m_projectBasePath = projectElement.attribute("basepath");
+   m_projectSourceBasePath = projectElement.attribute("sourcebasepath");
+   m_projectOutputBasePath = projectElement.attribute("outputbasepath");
+   m_compilerToolchain = projectElement.attribute("compilertoolchain","External CC65 in PATH");
+   m_compilerDefinedSymbols = projectElement.attribute("compilerdefinedsymbols");
+   m_compilerUndefinedSymbols = projectElement.attribute("compilerundefinedsymbols");
+   m_compilerIncludePaths = projectElement.attribute("compilerincludepaths");
 
    // Initialize the palette.
    for (int color = 0; color < 64; color++)
@@ -253,17 +271,6 @@ QString CNesicideProject::caption() const
 {
    return QString("NESICIDE");
 }
-
-QString CNesicideProject::getProjectTitle()
-{
-   return m_projectTitle;
-}
-
-void CNesicideProject::setProjectTitle(QString value)
-{
-   m_projectTitle = value;
-}
-
 
 bool CNesicideProject::createProjectFromRom(QString fileName)
 {
@@ -401,8 +408,6 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
          m_pCartridge->getChrRomBanks()->getChrRomBanks().append(romBank);
 
       }
-
-//      generalTextLogger->erase();
 
       str = "<b>Searcing internal game database: ";
       str += gameDatabase.getGameDBAuthor();
