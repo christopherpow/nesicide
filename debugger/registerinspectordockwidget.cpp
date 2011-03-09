@@ -76,6 +76,7 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QW
    // Connect inter-model signals so the models can update each other.
    QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
    QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
+   QObject::connect ( ui->binaryView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(binaryView_currentChanged(QModelIndex,QModelIndex)) );
 }
 
 RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
@@ -199,6 +200,22 @@ void RegisterInspectorDockWidget::updateMemory ()
          }
       }
    }
+}
+
+void RegisterInspectorDockWidget::binaryView_currentChanged(QModelIndex index, QModelIndex)
+{
+    char buffer [ 128 ];
+    int cols = index.model()->columnCount();
+    m_register = (index.row()*cols)+index.column();
+
+    if ( m_tblRegisters )
+    {
+       sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+       ui->label->setText ( buffer );
+    }
+
+    bitfieldModel->setRegister ( m_register );
+    bitfieldModel->update();
 }
 
 void RegisterInspectorDockWidget::on_binaryView_clicked(QModelIndex index)

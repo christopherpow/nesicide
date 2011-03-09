@@ -75,6 +75,14 @@ int main(int argc, char* argv[])
    //splash->exec();
    delete splash;
 
+   // Set up default OpenGL format.
+   QGLFormat fmt = QGLFormat::defaultFormat();
+
+   // Disable VSYNC waiting.
+   fmt.setSwapInterval(0);
+
+   QGLFormat::setDefaultFormat(fmt);
+
    // Create the NES emulator and breakpoint watcher threads...
    emulator = new NESEmulatorThread ();
    breakpointWatcher = new BreakpointWatcherThread ();
