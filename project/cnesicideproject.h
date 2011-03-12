@@ -32,6 +32,7 @@ public:
    QString getProjectBasePath() { return m_projectBasePath; }
    QString getProjectSourceBasePath() { return m_projectSourceBasePath; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
+   QString getProjectOutputName() { return m_projectOutputName; }
    QString getCompilerToolchain() { return m_compilerToolchain; }
    QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
    QString getCompilerUndefinedSymbols() { return m_compilerUndefinedSymbols; }
@@ -41,10 +42,11 @@ public:
    CProject* getProject() { return m_pProject; }
 
    // Member Setters
-   void setProjectTitle(QString value) { m_projectTitle = value; }
+   void setProjectTitle(QString value) { m_projectTitle = value; m_projectOutputName = m_projectTitle.toLower().replace(" ","_"); }
    void setProjectBasePath(QString value) { m_projectBasePath = value; }
    void setProjectSourceBasePath(QString value) { m_projectSourceBasePath = value; }
    void setProjectOutputBasePath(QString value) { m_projectOutputBasePath = value; }
+   void setProjectOutputName(QString value) { m_projectOutputName = value; }
    void setCompilerToolchain(QString value) { m_compilerToolchain = value; }
    void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
    void setCompilerUndefinedSymbols(QString value) { m_compilerUndefinedSymbols = value; }
@@ -53,7 +55,7 @@ public:
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -88,12 +90,14 @@ private:
    QString m_projectBasePath;
    QString m_projectSourceBasePath;
    QString m_projectOutputBasePath;
+   QString m_projectOutputName;
    // The toolchain used to compile the project
-   QString m_compilerToolchain;       
+   QString m_compilerToolchain;
+   // The toolchain argument strings
    QString m_compilerDefinedSymbols;
    QString m_compilerUndefinedSymbols;
-   QString m_compilerIncludePaths;       
-   
+   QString m_compilerIncludePaths;
+
    // Contained children
    QList<CPaletteEntry> m_projectPaletteEntries;                 // List of palette entries for the emulator.
    CProject*            m_pProject;

@@ -57,11 +57,11 @@ bool CCHRROMBanks::serialize(QDomDocument& doc, QDomNode& node)
          return false;
       }
    }
-   
+
    return true;
 }
 
-bool CCHRROMBanks::deserialize(QDomDocument&, QDomNode&)
+bool CCHRROMBanks::deserialize(QDomDocument&, QDomNode&, QString& errors)
 {
    return true;
 }

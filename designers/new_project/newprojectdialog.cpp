@@ -3,11 +3,14 @@
 
 #include <QFileDialog>
 
-NewProjectDialog::NewProjectDialog(QWidget* parent) :
+NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString defName,QString defPath) :
    QDialog(parent),
    ui(new Ui::NewProjectDialog)
 {
    ui->setupUi(this);
+   ui->name->setText(defName);
+   ui->path->setText(defPath);
+   setWindowTitle(windowTitle);
 }
 
 NewProjectDialog::~NewProjectDialog()
@@ -29,22 +32,22 @@ void NewProjectDialog::changeEvent(QEvent* e)
    }
 }
 
-QString NewProjectDialog::getProjectTitle()
+QString NewProjectDialog::getName()
 {
-   return ui->projectTitleLineEdit->text();
+   return ui->name->text();
 }
 
-QString NewProjectDialog::getProjectBasePath()
+QString NewProjectDialog::getPath()
 {
-   return ui->projectBasePath->text();
+   return ui->path->text();
 }
 
-void NewProjectDialog::on_projectBasePathBrowse_clicked()
+void NewProjectDialog::on_pathBrowse_clicked()
 {
-   QString value = QFileDialog::getExistingDirectory(this,"Project Base Path");
-   
+   QString value = QFileDialog::getExistingDirectory(this,"Path");
+
    if ( !value.isEmpty() )
    {
-      ui->projectBasePath->setText(value);
-   }    
+      ui->path->setText(value);
+   }
 }

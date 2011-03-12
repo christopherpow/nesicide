@@ -59,7 +59,7 @@ bool CGraphicsBanks::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node)
+bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomNode childNode = node.firstChild();
 
@@ -71,7 +71,7 @@ bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node)
             m_graphicsBanks.append(pGraphicsBank);
             appendChild(pGraphicsBank);
 
-            if (!pGraphicsBank->deserialize(doc, childNode))
+            if (!pGraphicsBank->deserialize(doc,childNode,errors))
             {
                return false;
             }

@@ -15,14 +15,14 @@ public:
    // Member Getters
    uint32_t getBankIndex() { return m_bankIndex; }
    uint8_t* getBankData() { return m_bankData; }
-   
+
    // Member Setters
    void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
    void clearBankData() { memset(m_bankData,0,MEM_8KB); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -43,12 +43,12 @@ public:
    {
       return true;
    };
-   
-private:   
+
+private:
    // Attributes
    uint32_t m_bankIndex;
    uint8_t  m_bankData [ MEM_8KB ];
-   
+
    // Designer
    CHRROMDisplayDialog* m_editor;
 };

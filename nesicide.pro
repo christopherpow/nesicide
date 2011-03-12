@@ -232,7 +232,8 @@ SOURCES += mainwindow.cpp \
     emulator/nesemulatordockwidget.cpp \
     common/cdockwidgetregistry.cpp \
     compiler/ccc65interface.cpp \
-    compiler/cpasminterface.cpp
+    compiler/cpasminterface.cpp \
+    compiler/dbginfo.c
 
 HEADERS += mainwindow.h \
     main.h \
@@ -326,7 +327,8 @@ HEADERS += mainwindow.h \
     emulator/nesemulatordockwidget.h \
     common/cdockwidgetregistry.h \
     compiler/ccc65interface.h \
-    compiler/cpasminterface.h
+    compiler/cpasminterface.h \
+    compiler/dbginfo.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

@@ -1,6 +1,8 @@
 #include <QFileDialog>
 #include <QFile>
 
+#include "newprojectdialog.h"
+
 #include "csources.h"
 
 #include "main.h"
@@ -64,7 +66,7 @@ bool CSources::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CSources::deserialize(QDomDocument& doc, QDomNode& node)
+bool CSources::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomNode childNode = node.firstChild();
 
@@ -76,7 +78,7 @@ bool CSources::deserialize(QDomDocument& doc, QDomNode& node)
             m_sourceItems.append(pSourceItem);
             appendChild(pSourceItem);
 
-            if (!pSourceItem->deserialize(doc, childNode))
+            if (!pSourceItem->deserialize(doc,childNode,errors))
             {
                return false;
             }
@@ -110,16 +112,33 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == "&New Source...")
       {
-         QString sourceName = QInputDialog::getText(parent, "New Source",
-                              "What name would you like to use to identify this source file?");
+         NewProjectDialog dlg(0,"New Source","",nesicideProject->getProjectSourceBasePath());
 
-         if (!sourceName.isEmpty())
+         int result = dlg.exec();
+
+         if ( result )
          {
-            CSourceItem* pSourceItem = new CSourceItem(this);
-            pSourceItem->setName(sourceName);
-            m_sourceItems.append(pSourceItem);
-            appendChild(pSourceItem);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            QString fileName = dlg.getName();
+
+            if ( !fileName.isEmpty() )
+            {
+               QDir dir(dlg.getPath());
+               QString filePath = dir.absoluteFilePath(dlg.getName());
+               QFile fileIn(filePath);
+
+               if ( fileIn.open(QIODevice::ReadWrite) )
+               {
+                  CSourceItem* pSourceItem = new CSourceItem(this);
+                  pSourceItem->setName(dlg.getName());
+                  pSourceItem->setPath(filePath);
+
+                  pSourceItem->serializeContent();
+
+                  m_sourceItems.append(pSourceItem);
+                  appendChild(pSourceItem);
+                  ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+               }
+            }
          }
       }
       else if (ret->text() == "&Import Source from File...")
@@ -128,25 +147,16 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
          if (!fileName.isEmpty())
          {
-            QFile fileIn (fileName);
+            CSourceItem* pSourceItem = new CSourceItem(this);
+            QStringList fileParts = fileName.split(QRegExp("[\\/]"));
+            pSourceItem->setName(fileParts.at(fileParts.count()-1));
+            pSourceItem->setPath(fileName);
 
-            if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
-            {
-               QDataStream fs(&fileIn);
-               char* buffer = new char [ fileIn.size() ];
+            pSourceItem->deserializeContent();
 
-               fs.readRawData(buffer,fileIn.size());
-
-               CSourceItem* pSourceItem = new CSourceItem(this);
-               QStringList fileParts = fileName.split(QRegExp("[\\/]"));
-               pSourceItem->setName(fileParts.at(fileParts.count()-1));
-               pSourceItem->set_sourceCode(buffer);
-               m_sourceItems.append(pSourceItem);
-               appendChild(pSourceItem);
-               ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-
-               delete [] buffer;
-            }
+            m_sourceItems.append(pSourceItem);
+            appendChild(pSourceItem);
+            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
          }
       }
    }

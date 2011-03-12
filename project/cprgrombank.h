@@ -16,7 +16,7 @@ public:
    uint32_t getBankIndex() { return m_bankIndex; }
    uint8_t* getBankData() { return m_bankData; }
    PRGROMDisplayDialog* getEditor();
-   
+
    // Member Setters
    void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
    void setBankData(uint8_t* bankData) { memcpy(m_bankData,bankData,MEM_16KB); }
@@ -24,7 +24,7 @@ public:
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -54,7 +54,7 @@ private:
    // Attributes
    uint32_t m_bankIndex;
    uint8_t  m_bankData [ MEM_16KB ];
-   
+
    // Designer
    PRGROMDisplayDialog* m_editor;
 };

@@ -7,7 +7,7 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
 {
    // Add node to tree
    InitTreeItem(parent);
-   
+
    // Allocate attributes
    m_isModified = false;
    m_editor = (GraphicsBankEditorForm*)NULL;
@@ -38,7 +38,7 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node)
+bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomElement element = node.toElement();
 
@@ -49,11 +49,13 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node)
 
    if (!element.hasAttribute("name"))
    {
+      errors.append("Missing required attribute 'name' of element <source name='???'>\n");
       return false;
    }
 
    if (!element.hasAttribute("uuid"))
    {
+      errors.append("Missing required attribute 'uuid' of element <source name='"+element.attribute("name")+"'>\n");
       return false;
    }
 

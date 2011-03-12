@@ -22,7 +22,9 @@ public:
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node);
+   virtual bool serializeContent();
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+   virtual bool deserializeContent();
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -39,7 +41,7 @@ public:
 private:
    // Attributes
    QString m_sourceCode;
-   
+
    // Designer
    CodeEditorForm* m_editor;
 };

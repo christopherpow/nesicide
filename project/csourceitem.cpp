@@ -7,7 +7,7 @@ CSourceItem::CSourceItem(IProjectTreeViewItem* parent)
 {
    // Add node to tree
    InitTreeItem(parent);
-   
+
    // Allocate attributes
    m_editor = (CodeEditorForm*)NULL;
 }
@@ -43,14 +43,27 @@ void CSourceItem::set_sourceCode(QString sourceCode)
 bool CSourceItem::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "source" );
-   element.setAttribute("name", m_name);
-   element.setAttribute("uuid", uuid());
-   QDomCDATASection dataSect = doc.createCDATASection(get_sourceCode());
-   element.appendChild(dataSect);
+
+   element.setAttribute("name",m_name);
+   element.setAttribute("path",m_path);
+   element.setAttribute("uuid",uuid());
+
+   return serializeContent();
+}
+
+bool CSourceItem::serializeContent()
+{
+   QFile fileOut(m_path);
+
+   if ( fileOut.open(QIODevice::ReadWrite) )
+   {
+      fileOut.write(get_sourceCode().toAscii());
+   }
+
    return true;
 }
 
-bool CSourceItem::deserialize(QDomDocument&, QDomNode& node)
+bool CSourceItem::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 {
    QDomElement element = node.toElement();
 
@@ -61,26 +74,48 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode& node)
 
    if (!element.hasAttribute("name"))
    {
+      errors.append("Missing required attribute 'name' of element <source name='???'>\n");
+      return false;
+   }
+
+   if (!element.hasAttribute("path"))
+   {
+      errors.append("Missing required attribute 'path' of element <source name='"+element.attribute("name")+"'>\n");
       return false;
    }
 
    if (!element.hasAttribute("uuid"))
    {
+      errors.append("Missing required attribute 'uuid' of element <source name='"+element.attribute("name")+"'>\n");
       return false;
    }
 
    m_name = element.attribute("name");
 
+   m_path = element.attribute("path");
+
    setUuid(element.attribute("uuid"));
 
-   QDomCDATASection cdata = element.firstChild().toCDATASection();
+   return deserializeContent();
+}
 
-   if (cdata.isNull())
+bool CSourceItem::deserializeContent()
+{
+   QFile fileIn(m_path);
+
+   if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
    {
-      return false;
-   }
+      QDataStream fs(&fileIn);
+      char* buffer = new char [ fileIn.size()+1 ];
 
-   m_sourceCode = cdata.data();
+      memset(buffer,0,fileIn.size()+1);
+
+      fs.readRawData(buffer,fileIn.size());
+
+      set_sourceCode(buffer);
+
+      delete [] buffer;
+   }
 
    return true;
 }

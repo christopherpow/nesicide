@@ -61,7 +61,7 @@ bool CBinaryFiles::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CBinaryFiles::deserialize(QDomDocument& doc, QDomNode& node)
+bool CBinaryFiles::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomNode childNode = node.firstChild();
 
@@ -74,7 +74,7 @@ bool CBinaryFiles::deserialize(QDomDocument& doc, QDomNode& node)
             m_binaryFiles.append(pNewBinaryFile);
             appendChild(pNewBinaryFile);
 
-            if (!pNewBinaryFile->deserialize(doc, childNode))
+            if (!pNewBinaryFile->deserialize(doc,childNode,errors))
             {
                return false;
             }

@@ -7,7 +7,7 @@ CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
 {
    // Add node to tree
    InitTreeItem(parent);
-   
+
    // Allocate attributes
    m_editor = (AttributeTableEditorForm*)NULL;
 }
@@ -28,7 +28,7 @@ bool CAttributeTable::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CAttributeTable::deserialize(QDomDocument&, QDomNode& node)
+bool CAttributeTable::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 {
    QDomElement element = node.toElement();
 
@@ -39,11 +39,13 @@ bool CAttributeTable::deserialize(QDomDocument&, QDomNode& node)
 
    if (!element.hasAttribute("name"))
    {
+      errors.append("Missing required attribute 'name' of element <source name='???'>\n");
       return false;
    }
 
    if (!element.hasAttribute("uuid"))
    {
+      errors.append("Missing required attribute 'uuid' of element <source name='"+element.attribute("name")+"'>\n");
       return false;
    }
 

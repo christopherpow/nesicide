@@ -21,7 +21,7 @@ void CProjectPrimitives::initializeProject()
 {
    // Initialize child nodes
    m_pAttributeTables->initializeProject();
-   
+
    // Add child nodes to tree
    appendChild(m_pAttributeTables);
 }
@@ -30,7 +30,7 @@ void CProjectPrimitives::terminateProject()
 {
    // Terminate child nodes
    m_pAttributeTables->terminateProject();
-   
+
    // Remove child nodes from tree
    removeChild(m_pAttributeTables);
 }
@@ -55,7 +55,7 @@ bool CProjectPrimitives::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CProjectPrimitives::deserialize(QDomDocument& doc, QDomNode& node)
+bool CProjectPrimitives::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomNode childNode;
 
@@ -67,7 +67,7 @@ bool CProjectPrimitives::deserialize(QDomDocument& doc, QDomNode& node)
    {
       if (childNode.nodeName() == "attributetables")
       {
-         if (!m_pAttributeTables->deserialize(doc, childNode))
+         if (!m_pAttributeTables->deserialize(doc,childNode,errors))
          {
             return false;
          }

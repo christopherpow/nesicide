@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui(new Ui::MainWindow)
 {
    QSettings settings;
-   
+
    if ( settings.value("rememberWindowSettings").toBool() )
    {
       restoreGeometry(settings.value("geometry").toByteArray());
@@ -40,14 +40,14 @@ MainWindow::MainWindow(QWidget* parent) :
    nesicideProject = new CNesicideProject();
 
    ui->setupUi(this);
-   
+
    emulatorDlg = new NESEmulatorDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, emulatorDlg );
    emulatorDlg->hide();
    QObject::connect(emulatorDlg, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
    CDockWidgetRegistry::addWidget ( "Emulator", emulatorDlg );
    CDockWidgetRegistry::setFlags ("Emulator", CDockWidgetRegistry::DockWidgetDisabledOnCompileError);
-   
+
    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
 
    m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget* parent) :
    projectBrowser->hide();
    QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
    CDockWidgetRegistry::addWidget ( "Project", projectBrowser );
-   
+
    output = new OutputPaneDockWidget(ui->tabWidget);
    addDockWidget(Qt::BottomDockWidgetArea, output );
    output->hide();
@@ -291,12 +291,12 @@ MainWindow::MainWindow(QWidget* parent) :
    QStringList argv_nes = argv.filter ( QRegExp("*.nes",Qt::CaseInsensitive,QRegExp::Wildcard) );
    QStringList argv_nesproject = argv.filter ( QRegExp("*.nesproject",Qt::CaseInsensitive,QRegExp::Wildcard) );
 
-   if ( (argv_nes.count() >= 1) && 
+   if ( (argv_nes.count() >= 1) &&
         (argv_nesproject.count() >= 1) )
    {
       QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .nes and a .nesproject file to open.\n" );
    }
-   
+
    if ( argv_nes.count() >= 1 )
    {
       openROM(argv_nes.at(0));
@@ -319,9 +319,9 @@ MainWindow::MainWindow(QWidget* parent) :
                                     "were ignored." );
       }
    }
-   
+
    projectDataChangesEvent();
-   
+
    // Always call this last
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
@@ -338,7 +338,7 @@ MainWindow::~MainWindow()
    delete nesicideProject;
    delete pluginManager;
    delete ui;
-   
+
    delete m_pBreakpointInspector;
    delete m_pGfxCHRMemoryInspector;
    delete m_pGfxOAMMemoryInspector;
@@ -359,7 +359,7 @@ MainWindow::~MainWindow()
    delete m_pBinOAMMemoryInspector;
    delete m_pBinPaletteMemoryInspector;
    delete m_pBinSRAMMemoryInspector;
-   delete m_pBinEXRAMMemoryInspector; 
+   delete m_pBinEXRAMMemoryInspector;
    delete m_pMapperInformationInspector;
    delete m_pBinMapperMemoryInspector;
    delete m_pSourceNavigator;
@@ -383,16 +383,16 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
-      
+
    if ( event->mimeData()->hasUrls() )
    {
       fileUrls = event->mimeData()->urls();
-      
+
       fileName = fileUrls.at(0).toLocalFile();
-      
+
       if ( ((!fileName.contains(".nesproject",Qt::CaseInsensitive)) && (fileName.contains(".nes",Qt::CaseInsensitive))) ||
            (fileName.contains(".nesproject",Qt::CaseInsensitive)) )
-      {   
+      {
          event->acceptProposedAction();
       }
    }
@@ -402,16 +402,16 @@ void MainWindow::dragMoveEvent(QDragMoveEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
-      
+
    if ( event->mimeData()->hasUrls() )
    {
       fileUrls = event->mimeData()->urls();
-      
+
       fileName = fileUrls.at(0).toLocalFile();
-      
+
       if ( ((!fileName.contains(".nesproject",Qt::CaseInsensitive)) && (fileName.contains(".nes",Qt::CaseInsensitive))) ||
            (fileName.contains(".nesproject",Qt::CaseInsensitive)) )
-      {   
+      {
          event->acceptProposedAction();
       }
    }
@@ -421,15 +421,15 @@ void MainWindow::dropEvent(QDropEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
-   
+
    if ( event->mimeData()->hasUrls() )
    {
       output->showPane(OutputPaneDockWidget::Output_General);
-            
+
       fileUrls = event->mimeData()->urls();
-      
+
       fileName = fileUrls.at(0).toLocalFile();
-      
+
       if ( fileName.contains(".nesproject",Qt::CaseInsensitive) )
       {
          if ( nesicideProject->isInitialized() )
@@ -437,13 +437,13 @@ void MainWindow::dropEvent(QDropEvent* event)
             on_action_Close_Project_triggered();
          }
          openProject(fileName);
-         
+
          event->acceptProposedAction();
       }
       else if ( fileName.contains(".nes",Qt::CaseInsensitive) )
-      {   
+      {
          openROM(fileName);
-         
+
          event->acceptProposedAction();
       }
    }
@@ -475,7 +475,7 @@ void MainWindow::projectDataChangesEvent()
    ui->actionCompile_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
-   
+
    // Enabled/Disable actions based on if we have a project loaded or not and a cartridge loaded in the emulator
    ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
@@ -529,7 +529,7 @@ void MainWindow::on_actionSave_Project_triggered()
       projectFileName = QFileDialog::getSaveFileName(this, "Save Project", nesicideProject->getProjectBasePath(),
                                                      "NESICIDE Project (*.nesproject)");
    }
-   
+
    if (!projectFileName.isEmpty())
    {
       saveProject();
@@ -599,20 +599,22 @@ void MainWindow::on_actionProject_Properties_triggered()
 
 void MainWindow::on_actionNew_Project_triggered()
 {
-   NewProjectDialog* dlg = new NewProjectDialog();
+   NewProjectDialog dlg(this,"New Project","Untitled");
 
-   if (dlg->exec() == QDialog::Accepted)
+   if (dlg.exec() == QDialog::Accepted)
    {
       projectBrowser->disableNavigation();
-      nesicideProject->setProjectTitle(dlg->getProjectTitle());
-      nesicideProject->setProjectBasePath(dlg->getProjectBasePath());
-      nesicideProject->setProjectSourceBasePath(dlg->getProjectBasePath());
-      nesicideProject->setProjectOutputBasePath(dlg->getProjectBasePath());
+
+      nesicideProject->setProjectTitle(dlg.getName());
       nesicideProject->initializeProject();
+
+      ProjectPropertiesDialog dlg2;
+
+      dlg2.exec();
+
       projectBrowser->enableNavigation();
       projectDataChangesEvent();
    }
-   delete dlg;
 }
 
 void MainWindow::openROM(QString fileName)
@@ -620,26 +622,26 @@ void MainWindow::openROM(QString fileName)
    output->showPane(OutputPaneDockWidget::Output_General);
 
    emulator->pauseEmulation(false);
-   
+
    // Remove any lingering project content
    projectBrowser->disableNavigation();
    nesicideProject->terminateProject();
-   
+
    // Clear output
    output->clearAllPanes();
    output->show();
-    
+
    // Create new project from ROM
    nesicideProject->createProjectFromRom(fileName);
 
    projectBrowser->enableNavigation();
-   
+
    emulator->primeEmulator();
    emulator->resetEmulator();
 //   emulator->startEmulation();
-   
+
    projectDataChangesEvent();
-   
+
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
 }
@@ -647,7 +649,7 @@ void MainWindow::openROM(QString fileName)
 void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 {
    QSettings settings;
-   
+
    QString romPath = settings.value("ROMPath","").toString();
    QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "iNES ROM (*.nes)");
 
@@ -663,7 +665,7 @@ IProjectTreeViewItem* MainWindow::matchTab(QWidget* pTab)
 {
    IProjectTreeViewItemIterator iter(nesicideProject);
    IProjectTreeViewItem*        item = NULL;
-   
+
    while ( iter.current() )
    {
       if ( iter.current()->tab() == pTab )
@@ -671,7 +673,7 @@ IProjectTreeViewItem* MainWindow::matchTab(QWidget* pTab)
          item = iter.current();
          break;
       }
-      
+
       iter.next();
    }
 
@@ -723,16 +725,19 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings;
-   
+
    settings.setValue("geometry",saveGeometry());
    settings.setValue("state",saveState());
-   
+
    emulator->pauseEmulation(false);
    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::openProject(QString fileName)
 {
+   QString errors;
+   bool    ok;
+
    if (QFile::exists(fileName))
    {
       QDomDocument doc;
@@ -756,18 +761,24 @@ void MainWindow::openProject(QString fileName)
       projectBrowser->disableNavigation();
 
       nesicideProject->initializeProject();
-      
+
       // Clear output
       output->clearAllPanes();
       output->show();
 
       // Load new project content
-      nesicideProject->deserialize(doc, doc);
+      ok = nesicideProject->deserialize(doc,doc,errors);
+      if ( !ok )
+      {
+         QMessageBox::warning(this,"Project Load Error", "The project failed to load.\n\n"+errors);
+
+         nesicideProject->terminateProject();
+      }
 
       projectBrowser->enableNavigation();
-   
+
       projectDataChangesEvent();
-      
+
       projectFileName = fileName;
    }
 }
@@ -775,12 +786,12 @@ void MainWindow::openProject(QString fileName)
 void MainWindow::on_actionOpen_Project_triggered()
 {
    QString fileName = QFileDialog::getOpenFileName(this, "Open Project", "", "NESICIDE Project (*.nesproject)");
-   
+
    if (fileName.isEmpty())
    {
       return;
    }
-   
+
    openProject(fileName);
 }
 
@@ -829,7 +840,7 @@ void MainWindow::on_actionCompile_Project_triggered()
    QSettings settings;
    output->showPane(OutputPaneDockWidget::Output_Build);
    emulator->pauseEmulation(false);
-   
+
    if ( settings.value("saveAllOnCompile",QVariant(true)) == QVariant(true) )
    {
       on_actionSave_Project_triggered();
@@ -846,7 +857,7 @@ void MainWindow::compiler_compileStarted()
 void MainWindow::compiler_compileDone(bool bOk)
 {
    ui->actionCompile_Project->setEnabled(true);
-      
+
    projectDataChangesEvent();
 }
 
@@ -1095,29 +1106,29 @@ void MainWindow::on_action_About_Nesicide_triggered()
 void MainWindow::on_action_Close_Project_triggered()
 {
    QSettings settings;
-   
+
    // Stop the emulator if it is running
    emulator->pauseEmulation(false);
 
    // Terminate the project and let the IDE know
    projectBrowser->disableNavigation();
-   
+
    nesicideProject->terminateProject();
-   
+
    emulator->primeEmulator();
    emulator->resetEmulator();
-   
+
    m_pSourceNavigator->shutdown();
-   
+
    // Remove any tabs
    ui->tabWidget->clear();
-   
+
    if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
    {
       ui->tabWidget->addTab(ui->tab,"Welcome Page");
       ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
    }
-      
+
    // Clear output
    output->clearAllPanes();
    output->hide();
@@ -1238,7 +1249,7 @@ void MainWindow::on_actionMute_All_toggled(bool value)
 void MainWindow::on_actionEnvironment_Settings_triggered()
 {
    EnvironmentSettingsDialog dlg;
-   
+
    dlg.exec();
 }
 
@@ -1252,7 +1263,7 @@ void MainWindow::on_actionPreferences_triggered()
 void MainWindow::on_actionOnline_Help_triggered()
 {
    ui->tabWidget->addTab(ui->tab,"Welcome Page");
-   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));    
+   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
 }
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
@@ -1263,9 +1274,9 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       emulator->resetEmulator();
       emulator->pauseEmulation(true);
 //      emulator->startEmulation();
-      
+
       ui->actionEmulation_Window->setChecked(true);
       on_actionEmulation_Window_toggled(true);
    }
-    
+
 }

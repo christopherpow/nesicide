@@ -4,7 +4,7 @@ CPRGROMBank::CPRGROMBank(IProjectTreeViewItem* parent)
 {
    // Add node to tree
    InitTreeItem(parent);
-   
+
    // Allocate attributes
    m_bankIndex = -1;
 
@@ -35,7 +35,7 @@ bool CPRGROMBank::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CPRGROMBank::deserialize(QDomDocument& doc, QDomNode& node)
+bool CPRGROMBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    // Read in the DOM element
    QDomElement prgromElement = doc.documentElement();

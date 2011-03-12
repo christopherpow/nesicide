@@ -4,7 +4,8 @@
 
 CProjectBase::CProjectBase()
 {
-   m_name = "";      
+   m_name = "";
+   m_path = "";
 }
 
 IProjectTreeViewItem* findProjectItem(QString uuid)

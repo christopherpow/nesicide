@@ -4,7 +4,7 @@ CCHRROMBank::CCHRROMBank(IProjectTreeViewItem* parent)
 {
    // Add node to tree
    InitTreeItem(parent);
-   
+
    // Allocate attributes
    m_editor = (CHRROMDisplayDialog*)NULL;
 }
@@ -22,7 +22,7 @@ bool CCHRROMBank::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CCHRROMBank::deserialize(QDomDocument& doc, QDomNode& node)
+bool CCHRROMBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    // Read in the DOM element
    QDomElement chrromElement = doc.documentElement();

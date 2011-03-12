@@ -59,7 +59,7 @@ bool CAttributeTables::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CAttributeTables::deserialize(QDomDocument& doc, QDomNode& node)
+bool CAttributeTables::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomNode childNode = node.firstChild();
 
@@ -72,7 +72,7 @@ bool CAttributeTables::deserialize(QDomDocument& doc, QDomNode& node)
             m_attributeTables.append(pNewAttributeTable);
             appendChild(pNewAttributeTable);
 
-            if (!pNewAttributeTable->deserialize(doc, childNode))
+            if (!pNewAttributeTable->deserialize(doc,childNode,errors))
             {
                return false;
             }

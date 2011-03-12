@@ -7,7 +7,7 @@ CProject::CProject(IProjectTreeViewItem* parent)
 
    // Initialize this node's attributes
    m_mainSource = NULL;
-   
+
    // Allocate children
    m_pProjectPrimitives = new CProjectPrimitives(this);
    m_mainSource = (CSourceItem*)NULL;
@@ -43,13 +43,13 @@ void CProject::initializeProject()
 {
    // Initialize this node's attributes
    m_mainSource = NULL;
-   
+
    // Initialize child nodes
    m_pProjectPrimitives->initializeProject();
    m_pSources->initializeProject();
    m_pBinaryFiles->initializeProject();
    m_pGraphicsBanks->initializeProject();
-   
+
    // Add child nodes to tree
    appendChild(m_pProjectPrimitives);
    appendChild(m_pSources);
@@ -64,7 +64,7 @@ void CProject::terminateProject()
    m_pSources->terminateProject();
    m_pBinaryFiles->terminateProject();
    m_pGraphicsBanks->terminateProject();
-   
+
    // Remove child nodes from tree
    removeChild(m_pProjectPrimitives);
    removeChild(m_pSources);
@@ -163,7 +163,7 @@ bool CProject::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
+bool CProject::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    QDomNode childNode;
 
@@ -175,7 +175,7 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
    {
       if (childNode.nodeName() == "primitives")
       {
-         if (!m_pProjectPrimitives->deserialize(doc, childNode))
+         if (!m_pProjectPrimitives->deserialize(doc,childNode,errors))
          {
             return false;
          }
@@ -189,7 +189,7 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
    {
       if (childNode.nodeName() == "sources")
       {
-         if (!m_pSources->deserialize(doc, childNode))
+         if (!m_pSources->deserialize(doc,childNode,errors))
          {
             return false;
          }
@@ -203,7 +203,7 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
    {
       if (childNode.nodeName() == "binaryfiles")
       {
-         if (!m_pBinaryFiles->deserialize(doc, childNode))
+         if (!m_pBinaryFiles->deserialize(doc,childNode,errors))
          {
             return false;
          }
@@ -217,7 +217,7 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node)
    {
       if (childNode.nodeName() == "graphicsbanks")
       {
-         if (!m_pGraphicsBanks->deserialize(doc, childNode))
+         if (!m_pGraphicsBanks->deserialize(doc,childNode,errors))
          {
             return false;
          }

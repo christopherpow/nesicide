@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>474</width>
-    <height>422</height>
+    <height>441</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,31 +40,31 @@
        <item row="0" column="2">
         <widget class="QLineEdit" name="projectNameLineEdit"/>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>Main Source:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="2" column="2">
         <widget class="QComboBox" name="mainSourceComboBox"/>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>Compiler Toolchain:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
+       <item row="3" column="2">
         <widget class="QComboBox" name="compilerToolchain">
          <property name="maxVisibleItems">
           <number>10</number>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="3">
+       <item row="4" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Project Base Path</string>
@@ -91,7 +91,7 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0" colspan="3">
+       <item row="5" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
           <string>Project Source Base Path</string>
@@ -118,7 +118,7 @@
          </layout>
         </widget>
        </item>
-       <item row="5" column="0" colspan="3">
+       <item row="6" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
           <string>Project Output Base Path</string>
@@ -145,7 +145,7 @@
          </layout>
         </widget>
        </item>
-       <item row="6" column="0" colspan="3">
+       <item row="7" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
           <string>Unused</string>
@@ -172,7 +172,7 @@
          </layout>
         </widget>
        </item>
-       <item row="7" column="0" colspan="3">
+       <item row="8" column="0" colspan="3">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -184,6 +184,16 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Project Output Name:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="outputName"/>
        </item>
       </layout>
      </widget>

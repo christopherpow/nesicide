@@ -17,7 +17,7 @@ CNesicideProject::CNesicideProject()
 {
    // Add node to tree as root
    InitTreeItem();
-   
+
    // Allocate children
    m_pProject = new CProject(this);
    m_pCartridge = new CCartridge(this);
@@ -62,7 +62,7 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
          }
          break;
       }
-      
+
       iter.next();
    }
    return (*size);
@@ -87,11 +87,11 @@ void CNesicideProject::initializeProject()
 
    // Notify the fact that the project data has been initialized properly
    m_isInitialized = true;
-   
+
    // Initialize child nodes
    m_pProject->initializeProject();
    m_pCartridge->initializeProject();
-   
+
    // Add child nodes to tree
    appendChild(m_pProject);
    appendChild(m_pCartridge);
@@ -102,7 +102,7 @@ void CNesicideProject::terminateProject()
    // Terminate child nodes
    m_pProject->terminateProject();
    m_pCartridge->terminateProject();
-   
+
    // Remove child nodes from tree
    removeChild(m_pCartridge);
    removeChild(m_pProject);
@@ -121,16 +121,21 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    // Set some variables as tags to this node.
    projectElement.setAttribute("version", 0.3);
    projectElement.setAttribute("title", m_projectTitle);
-   projectElement.setAttribute("basepath",m_projectBasePath);
-   projectElement.setAttribute("sourcebasepath",m_projectSourceBasePath);
-   projectElement.setAttribute("outputbasepath",m_projectOutputBasePath);
-   projectElement.setAttribute("compilertoolchain",m_compilerToolchain);
-   projectElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
-   projectElement.setAttribute("compilerundefinedsymbols",m_compilerUndefinedSymbols);
-   projectElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
+
+   // Create the project configuration node.
+   QDomElement propertiesElement = addElement(doc,projectElement,"properties");
+
+   propertiesElement.setAttribute("basepath",m_projectBasePath);
+   propertiesElement.setAttribute("sourcebasepath",m_projectSourceBasePath);
+   propertiesElement.setAttribute("outputbasepath",m_projectOutputBasePath);
+   propertiesElement.setAttribute("outputname",m_projectOutputName);
+   propertiesElement.setAttribute("compilertoolchain",m_compilerToolchain);
+   propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
+   propertiesElement.setAttribute("compilerundefinedsymbols",m_compilerUndefinedSymbols);
+   propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
 
    // Create the root palette element, and give it a version attribute
-   QDomElement rootPaletteElement = addElement( doc, projectElement, "nesicidepalette" );
+   QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
 
    // Loop through all palette entries, and for each entry add an <entry /> tag that has the
    // index, as well as the RGB properties of the palette.
@@ -160,7 +165,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node)
+bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    // Read in the DOM element
    QDomElement projectElement = doc.documentElement();
@@ -176,19 +181,13 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node)
    // we need to split up the loader into versions for backwards compatibility.
    if (projectElement.attribute("version", "") != "0.3")
    {
+      errors.append("NESICIDE Project files must be version 0.3\n");
       return false;
    }
 
    // Load our properties. Note that the default value is returned if an attribute is missing.
    // This is the expected behavior.
    m_projectTitle = projectElement.attribute("title","Untitled Project");
-   m_projectBasePath = projectElement.attribute("basepath");
-   m_projectSourceBasePath = projectElement.attribute("sourcebasepath");
-   m_projectOutputBasePath = projectElement.attribute("outputbasepath");
-   m_compilerToolchain = projectElement.attribute("compilertoolchain","External CC65 in PATH");
-   m_compilerDefinedSymbols = projectElement.attribute("compilerdefinedsymbols");
-   m_compilerUndefinedSymbols = projectElement.attribute("compilerundefinedsymbols");
-   m_compilerIncludePaths = projectElement.attribute("compilerincludepaths");
 
    // Initialize the palette.
    for (int color = 0; color < 64; color++)
@@ -203,63 +202,76 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node)
 
    do
    {
-      if (child.nodeName() == "nesicidepalette")
+      if (child.nodeName() == "properties")
       {
+         // Get the properties that are just attributes of the main node.
+         QDomElement propertiesElement = child.toElement();
 
-         QDomNode paletteNode = child.firstChild();
+         m_projectBasePath = propertiesElement.attribute("basepath");
+         m_projectSourceBasePath = propertiesElement.attribute("sourcebasepath");
+         m_projectOutputBasePath = propertiesElement.attribute("outputbasepath");
+         m_projectOutputName = propertiesElement.attribute("outputname");
+         m_compilerToolchain = propertiesElement.attribute("compilertoolchain","External CC65 in PATH");
+         m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
+         m_compilerUndefinedSymbols = propertiesElement.attribute("compilerundefinedsymbols");
+         m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
 
+         // Loop through the properties nodes.
+         QDomNode property = child.firstChild();
          do
          {
-            QDomElement paletteItem = paletteNode.toElement();
-
-            if (paletteItem.isNull())
+            if ( property.nodeName() == "palette" )
             {
-               return false;
+               QDomNode paletteNode = property.firstChild();
+               do
+               {
+                  QDomElement paletteItem = paletteNode.toElement();
+
+                  if (paletteItem.isNull())
+                  {
+                     return false;
+                  }
+
+                  if ((!paletteItem.hasAttribute("index"))
+                        || (!paletteItem.hasAttribute("r"))
+                        || (!paletteItem.hasAttribute("g"))
+                        || (!paletteItem.hasAttribute("b")))
+                  {
+                     errors.append("Error parsing <nesicidepalette> element.\n");
+                     return false;
+                  }
+
+                  int nodeIndex = paletteItem.attribute("index").toInt();
+
+                  if ((nodeIndex < 0) || (nodeIndex > NUM_PALETTES))
+                  {
+                     return false;
+                  }
+
+                  m_projectPaletteEntries.replace(nodeIndex,
+                                                  QColor(paletteItem.attribute("r").toInt(),
+                                                         paletteItem.attribute("g").toInt(),
+                                                         paletteItem.attribute("b").toInt()));
+
+               }
+               while (!(paletteNode = paletteNode.nextSibling()).isNull());
             }
-
-            if ((!paletteItem.hasAttribute("index"))
-                  || (!paletteItem.hasAttribute("r"))
-                  || (!paletteItem.hasAttribute("g"))
-                  || (!paletteItem.hasAttribute("b")))
-            {
-               return false;
-            }
-
-            int nodeIndex = paletteItem.attribute("index").toInt();
-
-            if ((nodeIndex < 0) || (nodeIndex > NUM_PALETTES))
-            {
-               return false;
-            }
-
-            m_projectPaletteEntries.replace(nodeIndex,
-                                            QColor(paletteItem.attribute("r").toInt(),
-                                                   paletteItem.attribute("g").toInt(), 
-                                                   paletteItem.attribute("b").toInt()));
-
-         }
-         while (!(paletteNode = paletteNode.nextSibling()).isNull());
-
+         } while (!(property = property.nextSibling()).isNull());
       }
       else if (child.nodeName() == "project")
       {
-         if (!m_pProject->deserialize(doc, child))
+         if (!m_pProject->deserialize(doc,child,errors))
          {
             return false;
          }
       }
       else if (child.nodeName() == "cartridge")
       {
-         if (!m_pCartridge->deserialize(doc, child))
+         if (!m_pCartridge->deserialize(doc,child,errors))
          {
             return false;
          }
       }
-      else
-      {
-         return false;
-      }
-
    }
    while (!(child = child.nextSibling()).isNull());
 

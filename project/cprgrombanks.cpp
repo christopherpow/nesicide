@@ -60,7 +60,7 @@ bool CPRGROMBanks::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CPRGROMBanks::deserialize(QDomDocument&, QDomNode&)
+bool CPRGROMBanks::deserialize(QDomDocument&, QDomNode&, QString& errors)
 {
    return true;
 }

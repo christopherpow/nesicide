@@ -26,6 +26,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->projectBasePath->setText(nesicideProject->getProjectBasePath());
    ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
+   ui->outputName->setText(nesicideProject->getProjectOutputName());
    ui->mainSourceComboBox->clear();
 
    while ( compilers[i] )
@@ -46,7 +47,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
       {
          ui->mainSourceComboBox->addItem(sourceItem->name());
       }
-      
+
       iter.next();
    }
 
@@ -452,7 +453,7 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",ui->projectBasePath->text());
    QString includes = ui->includePaths->text();
-   
+
    if ( !value.isEmpty() )
    {
       includes.append(" -I ");
@@ -462,28 +463,29 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 }
 
 void ProjectPropertiesDialog::on_buttonBox_accepted()
-{   
+{
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
 
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
    nesicideProject->setProjectBasePath(ui->projectBasePath->text());
    nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
+   nesicideProject->setProjectOutputName(ui->outputName->text());
    nesicideProject->setCompilerToolchain(ui->compilerToolchain->currentText());
    nesicideProject->setCompilerDefinedSymbols(ui->definedSymbols->text());
    nesicideProject->setCompilerUndefinedSymbols(ui->undefinedSymbols->text());
    nesicideProject->setCompilerIncludePaths(ui->includePaths->text());
-   
+
    nesicideProject->getProjectPaletteEntries()->clear();
-   
+
    for (int paletteItemIndex=0; paletteItemIndex<currentPalette.count(); paletteItemIndex++)
    {
       nesicideProject->getProjectPaletteEntries()->append(currentPalette.at(paletteItemIndex));
    }
-   
+
    nesicideProject->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
    nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
-   
+
    while ( iter.current() )
    {
       CSourceItem* sourceItem = dynamic_cast<CSourceItem*>(iter.current());
@@ -491,7 +493,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
       {
          nesicideProject->getProject()->setMainSource(sourceItem);
       }
-      
+
       iter.next();
    }
 }
@@ -499,7 +501,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
 void ProjectPropertiesDialog::on_projectBasePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Project Base Path");
-   
+
    if ( !value.isEmpty() )
    {
       ui->projectBasePath->setText(value);
@@ -509,7 +511,7 @@ void ProjectPropertiesDialog::on_projectBasePathBrowse_clicked()
 void ProjectPropertiesDialog::on_projectSourceBasePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Project Source Base Path",ui->projectBasePath->text());
-   
+
    if ( !value.isEmpty() )
    {
       ui->projectSourceBasePath->setText(value);
@@ -519,9 +521,19 @@ void ProjectPropertiesDialog::on_projectSourceBasePathBrowse_clicked()
 void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Project Output Base Path",ui->projectBasePath->text());
-   
+
    if ( !value.isEmpty() )
    {
       ui->projectOutputBasePath->setText(value);
    }
+}
+
+void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
+{
+    QString text = ui->projectNameLineEdit->text();
+
+    text = text.toLower();
+    text.replace(" ","_");
+
+    ui->outputName->setText(text);
 }

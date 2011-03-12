@@ -34,11 +34,11 @@ void CCartridge::initializeProject()
    m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
-   
+
    // Initialize child nodes
    m_pPrgRomBanks->initializeProject();
    m_pChrRomBanks->initializeProject();
-   
+
    // Add child nodes to tree
    appendChild(m_pPrgRomBanks);
    appendChild(m_pChrRomBanks);
@@ -50,11 +50,11 @@ void CCartridge::terminateProject()
    m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
-   
+
    // Terminate child nodes
    m_pPrgRomBanks->terminateProject();
    m_pChrRomBanks->terminateProject();
-   
+
    // Remove child nodes from tree
    removeChild(m_pPrgRomBanks);
    removeChild(m_pChrRomBanks);
@@ -85,7 +85,7 @@ bool CCartridge::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node)
+bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    // Read in the DOM element
    QDomElement cartridgeElement = node.toElement();
@@ -95,13 +95,13 @@ bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node)
    setBatteryBackedRam(cartridgeElement.attribute("hasBatteryBackedRam").toInt() == 1);
 
    // Import the PRG-ROM banks
-   if (!m_pPrgRomBanks->deserialize(doc, cartridgeElement))
+   if (!m_pPrgRomBanks->deserialize(doc,cartridgeElement,errors))
    {
       return false;
    }
 
    // Import the CHR-ROM banks
-   if (!m_pChrRomBanks->deserialize(doc, cartridgeElement))
+   if (!m_pChrRomBanks->deserialize(doc,cartridgeElement,errors))
    {
       return false;
    }
