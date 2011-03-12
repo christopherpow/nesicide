@@ -12,6 +12,7 @@ public:
    CCC65Interface();
    ~CCC65Interface();
    bool assemble();
+   bool captureDebugInfo();
 };
 
 #endif // CCC65INTERFACE_H

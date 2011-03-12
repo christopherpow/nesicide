@@ -2,9 +2,9 @@
 # Project created by QtCreator 2009-12-07T20:35:20
 # -------------------------------------------------
 QT += network \
-	opengl \
-	webkit \
-	xml
+   opengl \
+   webkit \
+   xml
 
 system(make -C ./compiler)
 
@@ -14,7 +14,7 @@ TARGET = "nesicide"
 ###########################################################
 
 isEmpty (NESICIDE_LIBS) {
-	NESICIDE_LIBS = -lnesicide-emulator
+   NESICIDE_LIBS = -lnesicide-emulator
 }
 
 isEmpty (SCINTILLA_LIBS) {
@@ -22,7 +22,7 @@ isEmpty (SCINTILLA_LIBS) {
 }
 
 isEmpty (SDL_CXXFLAGS) {
-	SDL_CXXFLAGS = $$system(sdl-config --cflags)
+   SDL_CXXFLAGS = $$system(sdl-config --cflags)
 }
 
 isEmpty (SDL_LIBS) {
@@ -40,7 +40,7 @@ isEmpty (LUA_CXXFLAGS) {
 }
 
 isEmpty (LUA_CXXFLAGS) {
-	LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
+   LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
 }
 
 isEmpty (LUA_LIBS) {
@@ -52,7 +52,7 @@ isEmpty (LUA_LIBS) {
 }
 
 isEmpty (LUA_LIBS) {
-	LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
+   LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
 }
 
 isEmpty (PASM_CXXFLAGS) {
@@ -60,66 +60,66 @@ isEmpty (PASM_CXXFLAGS) {
 }
 
 isEmpty (PASM_LIBS) {
-	PASM_LIBS = -Lcompiler -lpasm
+   PASM_LIBS = -Lcompiler -lpasm
 }
 
 # set platform specific cxxflags and libs
 #########################################
 
 win32 {
-	SDL_CXXFLAGS = -I../nesicide/libraries/SDL 
-	SDL_LIBS =  -L../nesicide/libraries/SDL/ -lsdl
+   SDL_CXXFLAGS = -I../nesicide/libraries/SDL
+   SDL_LIBS =  -L../nesicide/libraries/SDL/ -lsdl
 
    SCINTILLA_CXXFLAGS = -I../nesicide/libraries/Qscintilla
    SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/release -lqscintilla2
 
-	LUA_CXXFLAGS = -I../nesicide/libraries/Lua
-	LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
+   LUA_CXXFLAGS = -I../nesicide/libraries/Lua
+   LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
 
-	PASM_LIBS = ../nesicide/compiler/libpasm.a
+   PASM_LIBS = ../nesicide/compiler/libpasm.a
 
-	NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator -I../nesicide-emulator-lib/common
+   NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator -I../nesicide-emulator-lib/common
 
-	QMAKE_LFLAGS += -static-libgcc
+   QMAKE_LFLAGS += -static-libgcc
 
-	LIBS += -L../nesicide-emulator-lib-build-desktop/release
+   LIBS += -L../nesicide-emulator-lib-build-desktop/release
 }
 
 mac {
-	NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator -I ../nesicide-emulator-lib/common
-	NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
+   NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator -I ../nesicide-emulator-lib/common
+   NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
 
-	SDL_CXXFLAGS = -framework SDL
-	SDL_LIBS = -framework SDL
+   SDL_CXXFLAGS = -framework SDL
+   SDL_LIBS = -framework SDL
 
-	LUA_CXXFLAGS = -F.. -framework Lua
-	LUA_LIBS = -F.. -framework Lua
+   LUA_CXXFLAGS = -F.. -framework Lua
+   LUA_LIBS = -F.. -framework Lua
 
-	TARGET = "NESICIDE"
+   TARGET = "NESICIDE"
 
-	QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
-	QMAKE_POST_LINK += cp ../nesicide-emulator-lib-build-desktop/libnesicide-emulator.1.0.0.dylib \
-		$$TARGET.app/Contents/Frameworks/libnesicide-emulator.1.dylib $$escape_expand(\n\t)
-	QMAKE_POST_LINK += install_name_tool -change libnesicide-emulator.1.dylib \
-		@executable_path/../Frameworks/libnesicide-emulator.1.dylib \
-		$$TARGET.app/Contents/MacOS/NESICIDE $$escape_expand(\n\t)
-	QMAKE_POST_LINK += cp -r ../Lua.framework \
-		$$TARGET.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
+   QMAKE_POST_LINK += cp ../nesicide-emulator-lib-build-desktop/libnesicide-emulator.1.0.0.dylib \
+      $$TARGET.app/Contents/Frameworks/libnesicide-emulator.1.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libnesicide-emulator.1.dylib \
+      @executable_path/../Frameworks/libnesicide-emulator.1.dylib \
+      $$TARGET.app/Contents/MacOS/NESICIDE $$escape_expand(\n\t)
+   QMAKE_POST_LINK += cp -r ../Lua.framework \
+      $$TARGET.app/Contents/Frameworks/ $$escape_expand(\n\t)
 }
 
 unix:!mac {
-	PREFIX = $$(PREFIX)
-	isEmpty (PREFIX) {
-		PREFIX = /usr/local
-	}
+   PREFIX = $$(PREFIX)
+   isEmpty (PREFIX) {
+      PREFIX = /usr/local
+   }
 
-	BINDIR = $$(BINDIR)
-	isEmpty (BINDIR) {
+   BINDIR = $$(BINDIR)
+   isEmpty (BINDIR) {
                 BINDIR=$$PREFIX/bin
-	}
+   }
 
-	target.path = $$BINDIR
-	INSTALLS += target
+   target.path = $$BINDIR
+   INSTALLS += target
 }
 
 QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$PASM_CXXFLAGS $$SCINTILLA_CXXFLAGS
@@ -127,6 +127,7 @@ LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += common \
     compiler \
+    compiler/cc65 \
     debugger \
     designers/attribute_table_editor \
     designers/cartridge_editor \
@@ -231,9 +232,9 @@ SOURCES += mainwindow.cpp \
     debugger/breakpointdockwidget.cpp \
     emulator/nesemulatordockwidget.cpp \
     common/cdockwidgetregistry.cpp \
-    compiler/ccc65interface.cpp \
     compiler/cpasminterface.cpp \
-    compiler/dbginfo.c
+    compiler/cc65/ccc65interface.cpp \
+    compiler/cc65/dbginfo.c
 
 HEADERS += mainwindow.h \
     main.h \
@@ -326,9 +327,9 @@ HEADERS += mainwindow.h \
     debugger/breakpointdockwidget.h \
     emulator/nesemulatordockwidget.h \
     common/cdockwidgetregistry.h \
-    compiler/ccc65interface.h \
     compiler/cpasminterface.h \
-    compiler/dbginfo.h
+    compiler/cc65/ccc65interface.h \
+    compiler/cc65/dbginfo.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
