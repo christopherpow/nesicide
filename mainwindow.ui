@@ -115,7 +115,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_View">
@@ -226,6 +226,8 @@
     <addaction name="actionPreferences"/>
     <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
+    <addaction name="separator"/>
+    <addaction name="actionRun_Test_Suite"/>
    </widget>
    <widget class="QMenu" name="menu_File">
     <property name="title">
@@ -933,6 +935,11 @@
    </property>
    <property name="shortcut">
     <string>F7</string>
+   </property>
+  </action>
+  <action name="actionRun_Test_Suite">
+   <property name="text">
+    <string>Run Test Suite</string>
    </property>
   </action>
  </widget>

@@ -10,6 +10,7 @@ NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString d
    ui->setupUi(this);
    ui->name->setText(defName);
    ui->path->setText(defPath);
+   on_path_textChanged(defPath);
    setWindowTitle(windowTitle);
 }
 
@@ -49,5 +50,29 @@ void NewProjectDialog::on_pathBrowse_clicked()
    if ( !value.isEmpty() )
    {
       ui->path->setText(value);
+   }
+}
+
+void NewProjectDialog::on_path_textChanged(QString text)
+{
+   ui->buttonBox->setEnabled(checkValidity());
+}
+
+void NewProjectDialog::on_name_textChanged(QString text)
+{
+   ui->buttonBox->setEnabled(checkValidity());
+}
+
+bool NewProjectDialog::checkValidity()
+{
+   QDir check(ui->path->text());
+
+   if ( (!ui->path->text().isEmpty()) && check.exists() && (!ui->name->text().isEmpty()) )
+   {
+      return true;
+   }
+   else
+   {
+      return false;
    }
 }

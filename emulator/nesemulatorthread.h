@@ -28,6 +28,7 @@ public:
    void resetEmulator ();
    void startEmulation ();
    void pauseEmulation (bool show);
+   void pauseEmulationAfter (int frames) { m_pauseAfterFrames = frames; }
    void stepCPUEmulation ();
    void stepPPUEmulation ();
    void controllerInput ( uint8_t* joy )
@@ -37,6 +38,7 @@ public:
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
       coreMutexUnlock();
    }
+   bool isActive () { return (m_isStarting||m_isRunning); }
 
 signals:
    void emulatedFrame ();
@@ -56,6 +58,7 @@ protected:
    bool          m_isRunning;
    bool          m_isPaused;
    bool          m_showOnPause;
+   int           m_pauseAfterFrames;
    bool          m_isTerminating;
    bool          m_isResetting;
    bool          m_isStarting;

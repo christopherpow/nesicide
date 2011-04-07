@@ -131,8 +131,9 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("outputname",m_projectOutputName);
    propertiesElement.setAttribute("compilertoolchain",m_compilerToolchain);
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
-   propertiesElement.setAttribute("compilerundefinedsymbols",m_compilerUndefinedSymbols);
    propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
+   propertiesElement.setAttribute("compileradditionaloptions",m_compilerAdditionalOptions);
+   propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
 
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
@@ -213,8 +214,9 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_projectOutputName = propertiesElement.attribute("outputname");
          m_compilerToolchain = propertiesElement.attribute("compilertoolchain","External CC65 in PATH");
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
-         m_compilerUndefinedSymbols = propertiesElement.attribute("compilerundefinedsymbols");
          m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
+         m_compilerAdditionalOptions = propertiesElement.attribute("compileradditionaloptions");
+         m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
 
          // Loop through the properties nodes.
          QDomNode property = child.firstChild();
@@ -292,8 +294,6 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
 
    if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
    {
-      initializeProject();
-
       QDataStream fs(&fileIn);
 
       // Check the NES header
@@ -394,17 +394,30 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       }
 
       // Load the PRG-ROM banks (16KB each)
+      CPRGROMBanks* prgRomBanks = getCartridge()->getPrgRomBanks();
+      int oldBanks = prgRomBanks->getPrgRomBanks().count();
+      int bankIdx = 0;
       for (int bank=0; bank<numPrgRomBanks; bank++)
       {
-         // Create the ROM bank and load in the binary data
-         CPRGROMBank* romBank = new CPRGROMBank(nesicideProject->getCartridge()->getPrgRomBanks());
-         romBank->setBankIndex(
-            m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count());
-         fs.readRawData((char*)romBank->getBankData(),MEM_16KB);
+         // Grab either a previously used bank, or a new one
+         CPRGROMBank* curBank;
+         bool doAppend = (--oldBanks < 0);
 
-         // Attach the rom bank to the rom banks object
-         m_pCartridge->getPrgRomBanks()->appendChild(romBank);
-         m_pCartridge->getPrgRomBanks()->getPrgRomBanks().append(romBank);
+         // Initialize the bank into the project banks
+         if (doAppend)
+         {
+            curBank = new CPRGROMBank(nesicideProject->getCartridge()->getPrgRomBanks());
+            // This is a new bank
+            curBank->setBankIndex(prgRomBanks->getPrgRomBanks().count());
+            prgRomBanks->appendChild(curBank);
+            prgRomBanks->getPrgRomBanks().append(curBank);
+         }
+         else
+         {
+            curBank = prgRomBanks->getPrgRomBanks().at(bankIdx++);
+         }
+
+         fs.readRawData((char*)curBank->getBankData(),MEM_16KB);
       }
 
       // Load the CHR-ROM banks (8KB each)

@@ -101,6 +101,7 @@ QString CSources::caption() const
 
 void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
+   QDir dir(nesicideProject->getProjectSourceBasePath());
    QMenu menu(parent);
    menu.addAction("&New Source...");
    menu.addSeparator();
@@ -122,15 +123,14 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
             if ( !fileName.isEmpty() )
             {
-               QDir dir(dlg.getPath());
-               QString filePath = dir.absoluteFilePath(dlg.getName());
-               QFile fileIn(filePath);
+               QFile fileIn(dir.absoluteFilePath(dlg.getName()));
 
-               if ( fileIn.open(QIODevice::ReadWrite) )
+               if ( fileIn.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
                {
                   CSourceItem* pSourceItem = new CSourceItem(this);
                   pSourceItem->setName(dlg.getName());
-                  pSourceItem->setPath(filePath);
+
+                  pSourceItem->setPath(dir.relativeFilePath(dlg.getName()));
 
                   pSourceItem->serializeContent();
 
@@ -150,7 +150,8 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             CSourceItem* pSourceItem = new CSourceItem(this);
             QStringList fileParts = fileName.split(QRegExp("[\\/]"));
             pSourceItem->setName(fileParts.at(fileParts.count()-1));
-            pSourceItem->setPath(fileName);
+
+            pSourceItem->setPath(dir.relativeFilePath(fileName));
 
             pSourceItem->deserializeContent();
 

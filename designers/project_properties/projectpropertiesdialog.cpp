@@ -36,9 +36,10 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    }
    ui->compilerToolchain->setCurrentIndex(ui->compilerToolchain->findText(nesicideProject->getCompilerToolchain()));
    ui->definedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
-   ui->undefinedSymbols->setText(nesicideProject->getCompilerUndefinedSymbols());
    ui->includePaths->setText(nesicideProject->getCompilerIncludePaths());
-   updateExampleInvocation();
+   ui->additionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
+   ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
+   deserializeLinkerConfig();
 
    while ( iter.current() )
    {
@@ -420,35 +421,6 @@ void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action
    updateUI(3);
 }
 
-void ProjectPropertiesDialog::updateExampleInvocation()
-{
-   QString example;
-   example = "ca65.exe ";
-   example.append(ui->definedSymbols->text());
-   example.append(" ");
-   example.append(ui->undefinedSymbols->text());
-   example.append(" ");
-   example.append(ui->includePaths->text());
-   example.append(" ");
-   example.append("assembly.s");
-   ui->exampleInvocation->setText(example);
-}
-
-void ProjectPropertiesDialog::on_definedSymbols_textChanged()
-{
-   updateExampleInvocation();
-}
-
-void ProjectPropertiesDialog::on_undefinedSymbols_textChanged()
-{
-   updateExampleInvocation();
-}
-
-void ProjectPropertiesDialog::on_includePaths_textChanged()
-{
-   updateExampleInvocation();
-}
-
 void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",ui->projectBasePath->text());
@@ -473,8 +445,10 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectOutputName(ui->outputName->text());
    nesicideProject->setCompilerToolchain(ui->compilerToolchain->currentText());
    nesicideProject->setCompilerDefinedSymbols(ui->definedSymbols->text());
-   nesicideProject->setCompilerUndefinedSymbols(ui->undefinedSymbols->text());
    nesicideProject->setCompilerIncludePaths(ui->includePaths->text());
+   nesicideProject->setCompilerAdditionalOptions(ui->additionalOptions->text());
+   nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
+   serializeLinkerConfig();
 
    nesicideProject->getProjectPaletteEntries()->clear();
 
@@ -536,4 +510,63 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
     text.replace(" ","_");
 
     ui->outputName->setText(text);
+}
+
+void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Linker Config File",nesicideProject->getProjectBasePath());
+
+   if (!value.isEmpty())
+   {
+      ui->linkerConfigFile->setText(value);
+   }
+   deserializeLinkerConfig();
+}
+
+void ProjectPropertiesDialog::serializeLinkerConfig()
+{
+   QFile fileOut(ui->linkerConfigFile->text());
+
+   if ( linkerConfigChanged )
+   {
+      fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
+      if ( fileOut.isOpen() )
+      {
+         fileOut.write(ui->linkerConfig->toPlainText().toAscii());
+         fileOut.close();
+      }
+      else
+      {
+         QMessageBox::critical(0,"File I/O Error", "Could not write linker config file:\n"+ui->linkerConfigFile->text());
+      }
+   }
+
+   linkerConfigChanged = false;
+}
+
+void ProjectPropertiesDialog::deserializeLinkerConfig()
+{
+   QFile fileIn(ui->linkerConfigFile->text());
+
+   if ( fileIn.exists() )
+   {
+      fileIn.open(QIODevice::ReadOnly|QIODevice::Text);
+      if ( fileIn.isOpen() )
+      {
+         ui->linkerConfig->setText(QString(fileIn.readAll()));
+         fileIn.close();
+      }
+      else
+      {
+         QMessageBox::critical(0,"File I/O Error", "Could not read linker config file:\n"+ui->linkerConfigFile->text());
+      }
+   }
+
+   linkerConfigChanged = false;
+}
+
+void ProjectPropertiesDialog::on_linkerConfig_textChanged()
+{
+   // Trigger deserialization of linker config file on dialog close.
+   linkerConfigChanged = true;
 }

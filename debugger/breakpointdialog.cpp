@@ -20,9 +20,9 @@ BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
    ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
    ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
    ui->type->setCurrentIndex ( eBreakOnCPUExecution );
-   
+
    ui->enabled->setChecked(true);
-   
+
    ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
    ui->resolve->setChecked(false);
    ui->resolutions->addItem("N/A");
@@ -31,7 +31,7 @@ BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
    m_pRegister = NULL;
    m_pBitfield = NULL;
    m_pEvent = NULL;
-   
+
    if ( bp >= 0 )
    {
       setWindowTitle("Edit Breakpoint");
@@ -369,7 +369,7 @@ void BreakpointDialog::on_addr1_textChanged(QString )
 {
    ui->addr2->setText(ui->addr1->text());
    DisplayResolutions();
-   
+
 }
 
 void BreakpointDialog::DisplayResolutions ()
@@ -383,12 +383,12 @@ void BreakpointDialog::DisplayResolutions ()
    QString  item;
    QString  text;
    QStringList textSplit;
-   
+
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);
    // Mask to get all available potential absolute addresses
    maskedAddr = originalAddr&MASK_8KB;
-   
+
    if ( ui->resolve->isChecked() )
    {
       ui->resolutions->clear();
@@ -414,7 +414,7 @@ void BreakpointDialog::DisplayResolutions ()
          else
          {
             nesGetDisassemblyAtAbsoluteAddress(maskedAddr,buffer);
-            item.sprintf("%06X:%s",maskedAddr,buffer);
+            item.sprintf("%02X:%04X:%s",nesGetPhysicalPRGROMBank(maskedAddr),maskedAddr&MASK_64KB,buffer);
             ui->resolutions->addItem(item);
             ui->resolutions->setItemData(ui->resolutions->count()-1,maskedAddr);
          }
@@ -446,9 +446,9 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
    ui->item1label->setText("Data1:");
    ui->item2label->setText("Data2:");
-   
+
    ui->enabled->setChecked(pBreakpoint->enabled);
-   
+
    // Turn resolver on so it populates if the absolute address is known.
    if ( pBreakpoint->item1Absolute >= 0 )
    {
@@ -618,13 +618,13 @@ void BreakpointDialog::on_addBreakpoint_clicked()
                                        (eBreakpointDataType)ui->dataWidget->currentIndex(),
                                        data,
                                        ui->enabled->isChecked() );
-   
+
    accept();
 }
 
 void BreakpointDialog::on_resolutions_activated(int index)
 {
-    
+
 }
 
 void BreakpointDialog::on_resolve_clicked()

@@ -43,6 +43,7 @@ public:
    MainWindow(QWidget* parent = 0);
    ~MainWindow();
    NESEmulatorDockWidget* emulatorDlg;
+   void openROM(QString fileName);
 protected:
    void changeEvent(QEvent* e);
    void dragEnterEvent ( QDragEnterEvent* event );
@@ -56,7 +57,6 @@ private:
    IProjectTreeViewItem* matchTab(QWidget* pTab);
    QString projectFileName;
    void openProject(QString fileName);
-   void openROM(QString fileName);
    void saveProject();
 
    // Debugger inspector dockables
@@ -83,13 +83,14 @@ private:
    PPUInformationDockWidget* m_pPPUInformationInspector;
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
-   
+
    SourceNavigator* m_pSourceNavigator;
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void on_actionRun_Test_Suite_triggered();
    void on_actionLoad_In_Emulator_triggered();
    void on_actionOnline_Help_triggered();
    void projectDataChangesEvent();

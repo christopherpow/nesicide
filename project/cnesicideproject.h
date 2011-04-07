@@ -35,8 +35,9 @@ public:
    QString getProjectOutputName() { return m_projectOutputName; }
    QString getCompilerToolchain() { return m_compilerToolchain; }
    QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
-   QString getCompilerUndefinedSymbols() { return m_compilerUndefinedSymbols; }
    QString getCompilerIncludePaths() { return m_compilerIncludePaths; }
+   QString getCompilerAdditionalOptions() { return m_compilerAdditionalOptions; }
+   QString getLinkerConfigFile() { return m_linkerConfigFile; }
    QList<CPaletteEntry> *getProjectPaletteEntries() { return &m_projectPaletteEntries; }
    CCartridge* getCartridge() { return m_pCartridge; }
    CProject* getProject() { return m_pProject; }
@@ -49,8 +50,9 @@ public:
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
    void setCompilerToolchain(QString value) { m_compilerToolchain = value; }
    void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
-   void setCompilerUndefinedSymbols(QString value) { m_compilerUndefinedSymbols = value; }
    void setCompilerIncludePaths(QString value) { m_compilerIncludePaths = value; }
+   void setCompilerAdditionalOptions(QString value) { m_compilerAdditionalOptions = value; }
+   void setLinkerConfigFile(QString value) { m_linkerConfigFile = value; }
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
 
    // IXMLSerializable Interface Implementation
@@ -95,8 +97,9 @@ private:
    QString m_compilerToolchain;
    // The toolchain argument strings
    QString m_compilerDefinedSymbols;
-   QString m_compilerUndefinedSymbols;
    QString m_compilerIncludePaths;
+   QString m_compilerAdditionalOptions;
+   QString m_linkerConfigFile;
 
    // Contained children
    QList<CPaletteEntry> m_projectPaletteEntries;                 // List of palette entries for the emulator.

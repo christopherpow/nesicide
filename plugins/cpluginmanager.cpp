@@ -108,7 +108,7 @@ void CPluginManager::loadPlugins()
       generalTextLogger->write ( pluginFiles[i] + ": " );
 
       QFile pluginFile ( pluginDir.absoluteFilePath(pluginFiles[i]) );
-      pluginFile.open(QIODevice::ReadOnly);
+      pluginFile.open(QIODevice::ReadOnly|QIODevice::Text);
 
       if ( pluginFile.isOpen() )
       {

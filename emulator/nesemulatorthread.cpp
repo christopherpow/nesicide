@@ -58,16 +58,19 @@ extern FILE* wavOut;
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
    int32_t samplesAvailable;
+#if defined ( OUTPUT_WAV )
    uint16_t dead[3] = { 0, 0, 0 };
+#endif
 
    coreMutexLock();
    samplesAvailable = nesGetAudioSamplesAvailable();
    coreMutexUnlock();
-
    if (samplesAvailable < 0)
    {
+#if defined ( OUTPUT_WAV )
       dead[2]=samplesAvailable;
       fwrite(dead,1,6,wavOut);
+#endif
       return;
    }
 
@@ -86,6 +89,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_isRunning = false;
    m_isPaused = false;
    m_showOnPause = false;
+   m_pauseAfterFrames = -1;
    m_isStarting = false;
    m_isTerminating = false;
    m_isResetting = false;
@@ -134,12 +138,12 @@ void NESEmulatorThread::loadCartridge()
    {
       // Clear emulator's cartridge ROMs...
       nesUnloadROM();
-   
+
       // Load cartridge PRG-ROM banks into emulator...
       for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
       {
          nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPrgRomBanks()->getPrgRomBanks().at(b)->getBankData() );
-         
+
          // Update opcode masks to show proper disassembly...
          for ( a = 0; a < MEM_16KB; a++ )
          {
@@ -153,16 +157,16 @@ void NESEmulatorThread::loadCartridge()
             }
          }
       }
-   
+
       // Load cartridge CHR-ROM banks into emulator...
       for ( b = 0; b < m_pCartridge->getChrRomBanks()->getChrRomBanks().count(); b++ )
       {
          nesLoadCHRROMBank ( b, (uint8_t*)m_pCartridge->getChrRomBanks()->getChrRomBanks().at(b)->getBankData() );
       }
-   
+
       // Perform any necessary fixup from the ROM loading...
       nesLoadROM();
-   
+
       // Set up PPU with iNES header information...
       if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )
       {
@@ -172,24 +176,24 @@ void NESEmulatorThread::loadCartridge()
       {
          nesSetVerticalMirroring();
       }
-   
+
       // CPTODO: implement mapper reloading...project reload should load ROM in saved state.
    #if 0
       // Force mapper to intialize...
       mapperfunc [ m_pCartridge->getMapperNumber() ].reset ();
-   
+
       MapperState* pMapperState = m_pRIID->GetMapperState ();
-   
+
       if ( pMapperState->valid )
       {
          mapperfunc [ m_pRIID->GetMapperID() ].load ( pMapperState );
       }
-   
+
    #endif
-   
+
       // Initialize NES...
       nesReset(m_pCartridge->getMapperNumber());
-   
+
       emit cartridgeLoaded();
    }
 }
@@ -336,11 +340,11 @@ void NESEmulatorThread::run ()
          m_joy [ CONTROLLER1 ] = 0x00;
          m_joy [ CONTROLLER2 ] = 0x00;
 
-         // Re-enable breakpoints that were previously enabled...
-         nesEnableBreakpoints(true);
-
          // Reset NES...
          nesReset();
+
+         // Re-enable breakpoints that were previously enabled...
+         nesEnableBreakpoints(true);
 
          // Allow cartridge to be loaded...
          if ( m_pCartridge )
@@ -358,14 +362,20 @@ void NESEmulatorThread::run ()
       }
 
       // Pause?
-      if ( m_isPaused )
+      if ( m_isPaused || (m_pauseAfterFrames == 0) )
       {
          // Trigger inspectors to update on a pause also...
          emit emulatorPaused(m_showOnPause);
          m_isPaused = false;
          m_isRunning = false;
+         if ( m_pauseAfterFrames == 0 )
+         {
+            m_pauseAfterFrames = -1;
+         }
 
          nesClearAudioSamplesAvailable();
+
+         break;
       }
 
       // Run the NES...
@@ -387,6 +397,11 @@ void NESEmulatorThread::run ()
          SDL_LockAudio();
          nesRun(m_joy);
          SDL_UnlockAudio();
+
+         if ( m_pauseAfterFrames != -1 )
+         {
+            m_pauseAfterFrames--;
+         }
 
          emit emulatedFrame();
       }

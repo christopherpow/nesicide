@@ -12,19 +12,15 @@ CSourceAssembler::CSourceAssembler()
 }
 
 bool CSourceAssembler::assemble()
-{   
+{
    if ( nesicideProject->getCompilerToolchain() == compilers[0] )
    {
       // Internal PASM
-      CPASMInterface pasm;
-      
-      return pasm.assemble();
+      return CPASMInterface::assemble();
    }
    else if ( nesicideProject->getCompilerToolchain() == compilers[1] )
    {
       // External CC65 in PATH
-      CCC65Interface cc65;
-      
-      return cc65.assemble();
+      return CCC65Interface::assemble();
    }
 }

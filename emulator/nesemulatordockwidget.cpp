@@ -9,8 +9,9 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::NESEmulatorDockWidget)
 {
+   int32_t i;
+
    imgData = new char[256*256*4];
-   memset ( imgData, 0, sizeof(char)*256*256*4 );
 
    ui->setupUi(this);
    ui->pauseButton->setEnabled(false);
@@ -30,7 +31,13 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    m_joy [ CONTROLLER2 ] = 0x00;
 
    // Clear image...
-   memset ( imgData, 0xFF, 256*256*4 );
+   for ( i = 0; i < 256*256*4; i+=4 )
+   {
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
+   }
    nesSetTVOut((int8_t*)imgData);
 }
 

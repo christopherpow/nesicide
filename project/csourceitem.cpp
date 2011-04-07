@@ -53,9 +53,10 @@ bool CSourceItem::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CSourceItem::serializeContent()
 {
-   QFile fileOut(m_path);
+   QDir dir(nesicideProject->getProjectSourceBasePath());
+   QFile fileOut(dir.absoluteFilePath(m_path));
 
-   if ( fileOut.open(QIODevice::ReadWrite) )
+   if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
    {
       fileOut.write(get_sourceCode().toAscii());
    }
@@ -101,20 +102,16 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 
 bool CSourceItem::deserializeContent()
 {
-   QFile fileIn(m_path);
+   QDir dir(nesicideProject->getProjectSourceBasePath());
+   QFile fileIn(dir.absoluteFilePath(m_path));
 
-   if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
+   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
    {
-      QDataStream fs(&fileIn);
-      char* buffer = new char [ fileIn.size()+1 ];
-
-      memset(buffer,0,fileIn.size()+1);
-
-      fs.readRawData(buffer,fileIn.size());
-
-      set_sourceCode(buffer);
-
-      delete [] buffer;
+      set_sourceCode(QString(fileIn.readAll()));
+   }
+   else
+   {
+      // CPTODO: provide a file dialog for finding the source
    }
 
    return true;

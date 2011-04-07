@@ -19,9 +19,12 @@ char* ideGetVersion()
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
 
+// Modeless dialog for Test Suite executive.
+TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
+
 // Interface to compiler.
 CompilerThread* compiler = NULL;
-const char* compilers[] = 
+const char* compilers[] =
 {
    "Internal PASM",
    "External CC65 in PATH",
@@ -48,11 +51,11 @@ CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 int main(int argc, char* argv[])
 {
    QApplication nesicideApplication(argc, argv);
-      
+
    QCoreApplication::setOrganizationName("CSPSoftware");
    QCoreApplication::setOrganizationDomain("nesicide.com");
-   QCoreApplication::setApplicationName("NESICIDE");   
- 
+   QCoreApplication::setApplicationName("NESICIDE");
+
    QSettings settings;
 
    // Initialize the game database object...
@@ -65,7 +68,7 @@ int main(int argc, char* argv[])
    {
       // Use named file resource.  Default to internal if it's not set.
       gameDatabase.initialize(settings.value("GameDatabase",QVariant(":GameDatabase")).toString());
-   } 
+   }
 
    // Initialize the plugin manager
    pluginManager = new CPluginManager();
@@ -86,10 +89,10 @@ int main(int argc, char* argv[])
    // Create the NES emulator and breakpoint watcher threads...
    emulator = new NESEmulatorThread ();
    breakpointWatcher = new BreakpointWatcherThread ();
-   
+
    // Create the compiler thread...
    compiler = new CompilerThread ();
-   
+
    // Start breakpoint-watcher thread...
    breakpointWatcher->start();
 
@@ -100,6 +103,9 @@ int main(int argc, char* argv[])
    nesicideWindow = new MainWindow();
    nesicideWindow->show();
 
+   // Create the Test Suite executive modeless dialog...
+   testSuiteExecutive = new TestSuiteExecutiveDialog(nesicideWindow);
+
    int result = nesicideApplication.exec();
 
    // Properly kill and destroy the threads we created above.
@@ -109,14 +115,14 @@ int main(int argc, char* argv[])
    compiler->wait();
    emulator->kill();
    emulator->wait();
-   
+
    delete breakpointWatcher;
    breakpointWatcher = NULL;
    delete compiler;
    compiler = NULL;
    delete emulator;
    emulator = NULL;
-   
+
    delete pluginManager;
    pluginManager = NULL;
 

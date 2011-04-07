@@ -23,7 +23,7 @@ enum
    Column_Disassembly,
    Column_Max
 };
-   
+
 CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject*)
 {
 }
@@ -145,7 +145,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    switch ( index.column() )
    {
       case Column_Address:
-         sprintf ( modelStringBuffer, "$%04X", addr );
+         sprintf ( modelStringBuffer, "%02X:%04X", nesGetPhysicalPRGROMBank(absAddr), addr );
          return QVariant(modelStringBuffer);
          break;
       case Column_Decoration:

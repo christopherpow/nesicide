@@ -70,7 +70,7 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
    ui->col1PushButton->setText("");
    ui->col2PushButton->setText("");
    ui->col3PushButton->setText("");
-   
+
    if ( m_usePPU )
    {
       CPPUDBG::SetCHRMEMInspectorColor(0,ui->col0PushButton->currentColor());
@@ -78,7 +78,7 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
       CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
       CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
    }
-   
+
    renderData();
    renderer->setBGColor(ui->col0PushButton->currentColor());
    renderer->reloadData(imgData);
@@ -237,7 +237,7 @@ void CHRROMDisplayDialog::on_exportPushButton_clicked()
       QFile file(fileName);
       file.open(QIODevice::WriteOnly);
       QDataStream* ds = new QDataStream(&file);
-      ds->writeRawData((char*)chrrom, 0x2000);
+      ds->writeRawData((char*)chrrom, MEM_8KB);
       file.close();
       delete ds;
 

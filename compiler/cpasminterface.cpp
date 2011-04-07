@@ -7,11 +7,20 @@
 #include "dbg_cnes6502.h"
 #include "cmarker.h"
 
+#include "cnesicideproject.h"
+#include "iprojecttreeviewitem.h"
+
 #include "main.h"
+
+QStringList CPASMInterface::files;
 
 extern "C" int PASM_include ( char* objname, char** objdata, int* size );
 
 CPASMInterface::CPASMInterface()
+{
+}
+
+CPASMInterface::~CPASMInterface()
 {
 }
 
@@ -62,33 +71,6 @@ bool CPASMInterface::assemble()
    {
       buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assembled " + strBuffer1 + " bytes with no errors...");
 
-      int oldBanks = prgRomBanks->getPrgRomBanks().count();
-      int bankIdx = 0;
-
-      // Set up PRG-ROM banks...
-      for ( ; romLength > 0; romLength -= MEM_16KB, romData += MEM_16KB )
-      {
-         // Grab either a previously used bank, or a new one
-         CPRGROMBank* curBank;
-         bool doAppend = (--oldBanks < 0);
-
-         // Initialize the bank into the project banks
-         if (doAppend)
-         {
-            curBank = new CPRGROMBank(nesicideProject->getCartridge()->getPrgRomBanks());
-            // This is a new bank
-            curBank->setBankIndex(prgRomBanks->getPrgRomBanks().count());
-            prgRomBanks->appendChild(curBank);
-            prgRomBanks->getPrgRomBanks().append(curBank);
-         }
-         else
-         {
-            curBank = prgRomBanks->getPrgRomBanks().at(bankIdx++);
-         }
-
-         curBank->setBankData ( (quint8*)romData );
-      }
-
       // Add PermanentMarkers if any were found...
       if ( pasm_get_num_permanent_markers() )
       {
@@ -104,4 +86,27 @@ bool CPASMInterface::assemble()
    }
 
    return numErrors?false:true;
+}
+
+bool CPASMInterface::captureDebugInfo()
+{
+   int file;
+
+   files.clear();
+   for ( file = 0; file < pasm_get_num_source_files(); file++ )
+   {
+      files.append(pasm_get_source_file_name_by_index(file));
+   }
+
+   return true;
+}
+
+QStringList& CPASMInterface::getSourceFiles()
+{
+   return files;
+}
+
+QStringList& CPASMInterface::getSymbolsForSourceFile(QString& sourceFile)
+{
+
 }

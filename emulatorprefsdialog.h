@@ -20,6 +20,7 @@ private:
    Ui::EmulatorPrefsDialog* ui;
    void readSettings();
    void writeSettings();
+   void updateUi();
 
 private slots:
    void on_buttonBox_accepted();

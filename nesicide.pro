@@ -234,7 +234,9 @@ SOURCES += mainwindow.cpp \
     common/cdockwidgetregistry.cpp \
     compiler/cpasminterface.cpp \
     compiler/cc65/ccc65interface.cpp \
-    compiler/cc65/dbginfo.c
+    compiler/cc65/dbginfo.c \
+    common/xmlhelpers.cpp \
+    testsuiteexecutivedialog.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -329,7 +331,8 @@ HEADERS += mainwindow.h \
     common/cdockwidgetregistry.h \
     compiler/cpasminterface.h \
     compiler/cc65/ccc65interface.h \
-    compiler/cc65/dbginfo.h
+    compiler/cc65/dbginfo.h \
+    testsuiteexecutivedialog.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -360,6 +363,7 @@ FORMS += mainwindow.ui \
     debugger/oamvisualizerdockwidget.ui \
     outputpanedockwidget.ui \
     debugger/breakpointdockwidget.ui \
-    emulator/nesemulatordockwidget.ui
+    emulator/nesemulatordockwidget.ui \
+    testsuiteexecutivedialog.ui
 
 RESOURCES += resource.qrc

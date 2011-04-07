@@ -4,6 +4,8 @@
 #include "cdockwidgetregistry.h"
 #include "cpluginmanager.h"
 
+#include "testsuiteexecutivedialog.h"
+
 #include "main.h"
 
 #include "compilerthread.h"
@@ -265,17 +267,33 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::setFlags ("Cartridge Mapper Register Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    // Start in NTSC mode for now until we can have it configurable on app entry.
-   ui->actionNTSC->setChecked(true);
-   ui->actionPAL->setChecked(false);
-   nesSetSystemMode(MODE_NTSC);
+   int systemMode = settings.value("EmulatorPreferences/System",QVariant(MODE_NTSC)).toInt();
+   ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
+   ui->actionPAL->setChecked(systemMode==MODE_PAL);
+
+   nesSetSystemMode(systemMode);
 
    // Start with all sound channels enabled...
-   ui->actionSquare_1->setChecked(true);
-   ui->actionSquare_2->setChecked(true);
-   ui->actionTriangle->setChecked(true);
-   ui->actionNoise->setChecked(true);
-   ui->actionDelta_Modulation->setChecked(true);
-   ui->actionMute_All->setChecked(false);
+   bool audioChan;
+   audioChan = settings.value("EmulatorPreferences/Audio/Square1",QVariant(true)).toBool();
+   ui->actionSquare_1->setChecked(audioChan);
+   audioChan = settings.value("EmulatorPreferences/Audio/Square2",QVariant(true)).toBool();
+   ui->actionSquare_2->setChecked(audioChan);
+   audioChan = settings.value("EmulatorPreferences/Audio/Triangle",QVariant(true)).toBool();
+   ui->actionTriangle->setChecked(audioChan);
+   audioChan = settings.value("EmulatorPreferences/Audio/Noise",QVariant(true)).toBool();
+   ui->actionNoise->setChecked(audioChan);
+   audioChan = settings.value("EmulatorPreferences/Audio/DMC",QVariant(true)).toBool();
+   ui->actionDelta_Modulation->setChecked(audioChan);
+   audioChan = settings.value("EmulatorPreferences/Audio/MuteAll",QVariant(false)).toBool();
+   ui->actionMute_All->setChecked(audioChan);
+
+   // Set up controllers
+   int32_t controllerType;
+   controllerType = settings.value("EmulatorPreferences/ControllerConfig/Port0/Type",QVariant(IO_StandardJoypad)).toInt();
+   nesSetControllerType(0,controllerType);
+   controllerType = settings.value("EmulatorPreferences/ControllerConfig/Port1/Type",QVariant(IO_Zapper)).toInt();
+   nesSetControllerType(1,controllerType);
 
    if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
    {
@@ -606,6 +624,9 @@ void MainWindow::on_actionNew_Project_triggered()
       projectBrowser->disableNavigation();
 
       nesicideProject->setProjectTitle(dlg.getName());
+      nesicideProject->setProjectBasePath(dlg.getPath());
+      nesicideProject->setProjectSourceBasePath(dlg.getPath());
+      nesicideProject->setProjectOutputBasePath(dlg.getPath());
       nesicideProject->initializeProject();
 
       ProjectPropertiesDialog dlg2;
@@ -632,13 +653,14 @@ void MainWindow::openROM(QString fileName)
    output->show();
 
    // Create new project from ROM
+   nesicideProject->initializeProject();
    nesicideProject->createProjectFromRom(fileName);
 
    projectBrowser->enableNavigation();
 
    emulator->primeEmulator();
    emulator->resetEmulator();
-//   emulator->startEmulation();
+   emulator->startEmulation();
 
    projectDataChangesEvent();
 
@@ -1150,6 +1172,9 @@ void MainWindow::handle_MainWindow_destroyed()
 
 void MainWindow::on_actionNTSC_triggered()
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/System",QVariant(MODE_NTSC));
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
    nesSetSystemMode(MODE_NTSC);
@@ -1160,6 +1185,9 @@ void MainWindow::on_actionNTSC_triggered()
 
 void MainWindow::on_actionPAL_triggered()
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/System",QVariant(MODE_PAL));
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
    nesSetSystemMode(MODE_PAL);
@@ -1170,6 +1198,9 @@ void MainWindow::on_actionPAL_triggered()
 
 void MainWindow::on_actionDelta_Modulation_toggled(bool value)
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/Audio/DMC",QVariant(value));
    if ( value )
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x10);
@@ -1182,6 +1213,9 @@ void MainWindow::on_actionDelta_Modulation_toggled(bool value)
 
 void MainWindow::on_actionNoise_toggled(bool value)
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/Audio/Noise",QVariant(value));
    if ( value )
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x08);
@@ -1194,6 +1228,9 @@ void MainWindow::on_actionNoise_toggled(bool value)
 
 void MainWindow::on_actionTriangle_toggled(bool value)
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/Audio/Triangle",QVariant(value));
    if ( value )
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x04);
@@ -1206,6 +1243,9 @@ void MainWindow::on_actionTriangle_toggled(bool value)
 
 void MainWindow::on_actionSquare_2_toggled(bool value)
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/Audio/Square2",QVariant(value));
    if ( value )
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x02);
@@ -1218,6 +1258,9 @@ void MainWindow::on_actionSquare_2_toggled(bool value)
 
 void MainWindow::on_actionSquare_1_toggled(bool value)
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/Audio/Square1",QVariant(value));
    if ( value )
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x01);
@@ -1230,11 +1273,19 @@ void MainWindow::on_actionSquare_1_toggled(bool value)
 
 void MainWindow::on_actionMute_All_toggled(bool value)
 {
+   QSettings settings;
+
+   settings.setValue("EmulatorPreferences/Audio/Square1",QVariant(!value));
    ui->actionSquare_1->setChecked(!value);
+   settings.setValue("EmulatorPreferences/Audio/Square2",QVariant(!value));
    ui->actionSquare_2->setChecked(!value);
+   settings.setValue("EmulatorPreferences/Audio/Triangle",QVariant(!value));
    ui->actionTriangle->setChecked(!value);
+   settings.setValue("EmulatorPreferences/Audio/Noise",QVariant(!value));
    ui->actionNoise->setChecked(!value);
+   settings.setValue("EmulatorPreferences/Audio/DMC",QVariant(!value));
    ui->actionDelta_Modulation->setChecked(!value);
+   settings.setValue("EmulatorPreferences/Audio/MuteAll",QVariant(value));
 
    if ( value )
    {
@@ -1279,4 +1330,9 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       on_actionEmulation_Window_toggled(true);
    }
 
+}
+
+void MainWindow::on_actionRun_Test_Suite_triggered()
+{
+   testSuiteExecutive->show();
 }

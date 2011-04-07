@@ -6,6 +6,7 @@
 #include "nesemulatorthread.h"
 #include "breakpointwatcherthread.h"
 #include "compilerthread.h"
+#include "testsuiteexecutivedialog.h"
 
 #include "cgamedatabasehandler.h"
 #include "cnesicideproject.h"
@@ -19,6 +20,8 @@ extern BreakpointWatcherThread* breakpointWatcher;
 
 extern CompilerThread* compiler;
 extern const char* compilers[];
+
+extern TestSuiteExecutiveDialog* testSuiteExecutive;
 
 extern CGameDatabaseHandler gameDatabase;
 

@@ -18,7 +18,7 @@ BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
     ui(new Ui::BreakpointDockWidget)
 {
    ui->setupUi(this);
-    
+
    model = new CBreakpointDisplayModel();
    ui->tableView->setModel ( model );
 
@@ -58,7 +58,7 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
    QDockWidget* memoryInspector;
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   
+
    memoryInspector = CDockWidgetRegistry::getWidget("CPU RAM Inspector");
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    memoryInspector = CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector");
@@ -67,6 +67,7 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    memoryInspector = CDockWidgetRegistry::getWidget("PRG-ROM Inspector");
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   model->update();
    updateData();
 }
 
@@ -74,11 +75,11 @@ void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QMenu menu;
-   
+
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
       menu.addAction(ui->actionEdit_Breakpoint);
-      
+
       BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(ui->tableView->currentIndex().row());
       if ( pBreakpoint->enabled )
       {
@@ -100,7 +101,7 @@ void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
       menu.addAction(ui->actionEnable_All_Breakpoints);
       menu.addAction(ui->actionDisable_All_Breakpoints);
    }
-   
+
    menu.exec(e->globalPos());
 }
 
@@ -125,7 +126,7 @@ void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
-   
+
    // Check for double-click to "edit"...
    if ( (index.row() >= 0) && (index.column() > 0) )
    {
@@ -149,7 +150,7 @@ void BreakpointDockWidget::on_actionAdd_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
-   
+
    BreakpointDialog bd(-1,this);
    result = bd.exec();
    if ( result )
@@ -162,7 +163,7 @@ void BreakpointDockWidget::on_actionAdd_Breakpoint_triggered()
 void BreakpointDockWidget::on_actionRemove_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   
+
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
@@ -174,7 +175,7 @@ void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
-   
+
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
       BreakpointDialog bd(ui->tableView->currentIndex().row(),this);
@@ -190,7 +191,7 @@ void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()
 void BreakpointDockWidget::on_actionEnable_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   
+
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
       pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), true);
@@ -201,7 +202,7 @@ void BreakpointDockWidget::on_actionEnable_Breakpoint_triggered()
 void BreakpointDockWidget::on_actionDisable_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   
+
    if ( ui->tableView->currentIndex().row() >= 0 )
    {
       pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), false);
@@ -213,11 +214,11 @@ void BreakpointDockWidget::on_actionEnable_All_Breakpoints_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
-   
+
    for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
    {
       pBreakpoints->SetEnabled(bp,true);
-   }    
+   }
    emit breakpointsChanged();
 }
 
@@ -225,10 +226,10 @@ void BreakpointDockWidget::on_actionDisable_All_Breakpoints_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
-   
+
    for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
    {
       pBreakpoints->SetEnabled(bp,false);
-   }    
+   }
    emit breakpointsChanged();
 }
