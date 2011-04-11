@@ -79,6 +79,10 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
+         ui->resolve->setChecked(false);
+         ui->resolutions->addItem("N/A");
+         ui->resolutions->setEnabled(false);
          break;
       case eBreakOnCPUMemoryAccess:
       case eBreakOnCPUMemoryRead:
@@ -92,11 +96,13 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
+         ui->resolverWidget->setCurrentIndex(0);
          break;
       case eBreakOnCPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -110,6 +116,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->event->clear();
          pBreakpointEventInfo = nesGetCpuBreakpointEventDatabase();
 
@@ -124,11 +131,13 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
+         ui->resolverWidget->setCurrentIndex(0);
          break;
       case eBreakOnPPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -142,6 +151,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->event->clear();
          pBreakpointEventInfo = nesGetPpuBreakpointEventDatabase();
 
@@ -156,6 +166,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -169,6 +180,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->event->clear();
          pBreakpointEventInfo = nesGetApuBreakpointEventDatabase();
 
@@ -183,6 +195,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -198,6 +211,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemEvent );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
+         ui->resolverWidget->setCurrentIndex(0);
          ui->event->clear();
          pBreakpointEventInfo = nesGetCartridgeBreakpointEventDatabase();
 
