@@ -172,16 +172,16 @@
   <tvsha1><![CDATA[SpC0wIweffQZSre327sLMWsRfP4=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="180" failcomment="Incorrect timing" testnotes="" testresult="fail" filename="cpu_interrupts_v2\rom_singles\2-nmi_and_brk.nes" system="ntsc">
-  <tvsha1><![CDATA[SgMYZrvzrkIRu0pGHYDvVMU80O8=]]></tvsha1>
+ <test runframes="180" failcomment="" testnotes="" testresult="pass" filename="cpu_interrupts_v2\rom_singles\2-nmi_and_brk.nes" system="ntsc">
+  <tvsha1><![CDATA[G51vjIhxdNPMxGRkDStGjECiZdo=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="180" failcomment="Incorrect timing" testnotes="" testresult="fail" filename="cpu_interrupts_v2\rom_singles\3-nmi_and_irq.nes" system="ntsc">
-  <tvsha1><![CDATA[TTDt4uJT38Jp4GQ4RVG4/8DHRGo=]]></tvsha1>
+ <test runframes="180" failcomment="" testnotes="" testresult="pass" filename="cpu_interrupts_v2\rom_singles\3-nmi_and_irq.nes" system="ntsc">
+  <tvsha1><![CDATA[nhdRKkcnEqojeRlTCr+F1kMz9IU=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="120" failcomment="Incorrect timing" testnotes="" testresult="fail" filename="cpu_interrupts_v2\rom_singles\4-irq_and_dma.nes" system="ntsc">
-  <tvsha1><![CDATA[9yC2jqdpuhYzEu9c7p4WaNVPf90=]]></tvsha1>
+  <tvsha1><![CDATA[UJ2RQxlYNBA2sMDJktkKScnRjv8=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="420" failcomment="Fails branch taken case" testnotes="" testresult="fail" filename="cpu_interrupts_v2\rom_singles\5-branch_delays_irq.nes" system="ntsc">

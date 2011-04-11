@@ -4,7 +4,7 @@
 #include "dbg_cnes6502.h"
 
 static char modelStringBuffer [ 2048 ];
-   
+
 void GetPrintable ( TracerInfo* pSample, int subItem, char* str );
 
 CDebuggerExecutionTracerModel::CDebuggerExecutionTracerModel(QObject*)
@@ -208,6 +208,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTracer_Unknown:
                   str[0] = 0;
                   break;
+               case eTracer_OpcodeFetch:
+                  strcpy ( str, "Opcode Fetch" );
+                  break;
                case eTracer_InstructionFetch:
                   strcpy ( str, "Instruction Fetch" );
                   break;
@@ -231,6 +234,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                   break;
                case eTracer_IRQ:
                   strcpy ( str, "IRQ" );
+                  break;
+               case eTracer_IRQRelease:
+                  strcpy ( str, "IRQ Released" );
                   break;
                case eTracer_GarbageRead:
                   strcpy ( str, "Garbage Fetch" );
@@ -334,6 +340,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             if ( (pSample->type == eTracer_RESET) ||
                   (pSample->type == eTracer_NMI) ||
                   (pSample->type == eTracer_IRQ) ||
+                  (pSample->type == eTracer_IRQRelease) ||
                   (pSample->type == eTracer_Sprite0Hit) ||
                   (pSample->type == eTracer_StartPPUFrame) ||
                   (pSample->type == eTracer_VBLANKStart) ||
@@ -360,6 +367,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             if ( (pSample->type == eTracer_RESET) ||
                   (pSample->type == eTracer_NMI) ||
                   (pSample->type == eTracer_IRQ) ||
+                  (pSample->type == eTracer_IRQRelease) ||
                   (pSample->type == eTracer_Sprite0Hit) ||
                   (pSample->type == eTracer_StartPPUFrame) ||
                   (pSample->type == eTracer_VBLANKStart) ||

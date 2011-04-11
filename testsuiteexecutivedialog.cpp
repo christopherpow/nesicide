@@ -17,6 +17,8 @@ TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    ui->suiteProgress->setValue(0);
    ui->testProgress->setMaximum(1);
    ui->testProgress->setValue(0);
+   ui->passRate->setMaximum(100);
+   ui->passRate->setValue(0);
 
    mainWindow = (MainWindow*)parent;
    aborted = false;
@@ -171,12 +173,14 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
    int     test;
    int     sample;
    int     numTests = ui->tableWidget->rowCount();
+   int     numPass = 0;
 
    testSuiteFolder.cdUp();
 
    ui->suiteProgress->setMaximum(numTests);
    ui->suiteProgress->setValue(0);
    ui->testProgress->setValue(0);
+   ui->passRate->setValue(0);
 
    aborted = false;
 
@@ -300,7 +304,7 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
          {
             testFailComment = QInputDialog::getText(this,testFileName+": Enter failure comment","Reason:",QLineEdit::Normal,testFailComment);
          }
-         else
+         else if ( result == QMessageBox::Yes )
          {
             testFailComment = "";
          }
@@ -314,7 +318,7 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
          {
             testResult = "pass";
          }
-         else
+         else if ( result == QMessageBox::No )
          {
             testResult = "fail";
          }
@@ -334,6 +338,12 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
          ui->tableWidget->item(test,1)->setText(QString::number(framesRun));
          ui->tableWidget->item(test,6)->setText(crypto.result().toBase64());
       }
+
+      if ( testResult == "pass" )
+      {
+         numPass++;
+      }
+      ui->passRate->setValue(((float)numPass/(float)numTests)*100);
 
       emulator->pauseEmulationAfter(-1);
    }
