@@ -35,7 +35,14 @@ ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
 
 void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
 {
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   model->update();
    ui->tableView->resizeColumnsToContents();
+}
+
+void ExecutionInspectorDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
 }
 
 void ExecutionInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)

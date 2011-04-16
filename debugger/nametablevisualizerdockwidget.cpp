@@ -10,13 +10,21 @@ NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::NameTableVisualizerDockWidget)
 {
+   int i;
+
    ui->setupUi(this);
    imgData = new char[512*512*4];
-   memset ( imgData, 0xFF, 512*512*4 );
 
+   // Clear image...
+   for ( i = 0; i < 512*512*4; i+=4 )
+   {
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
+   }
    CPPUDBG::NameTableInspectorTV((int8_t*)imgData);
 
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
@@ -37,14 +45,14 @@ NameTableVisualizerDockWidget::~NameTableVisualizerDockWidget()
 
 void NameTableVisualizerDockWidget::showEvent(QShowEvent* event)
 {
-   QDockWidget::showEvent(event);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    CPPUDBG::EnableNameTableInspector(true);
    renderData();
 }
 
 void NameTableVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDockWidget::hideEvent(event);
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    CPPUDBG::EnableNameTableInspector(false);
 }
 

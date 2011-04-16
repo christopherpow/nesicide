@@ -358,7 +358,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             }
             else
             {
-               sprintf ( str, "$%04X", pSample->addr );
+               sprintf ( str, "%04X", pSample->addr );
             }
 
             break;
@@ -385,7 +385,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             }
             else
             {
-               sprintf ( str, "$%02X", pSample->data );
+               sprintf ( str, "%02X", pSample->data );
             }
 
             break;
@@ -397,7 +397,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
             }
             else
             {
-               sprintf ( str, "$%04X", pSample->ea );
+               sprintf ( str, "%04X", pSample->ea );
             }
 
             break;
@@ -405,7 +405,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 
             if ( pSample->regsset )
             {
-               sprintf ( str, "$%02X", pSample->a );
+               sprintf ( str, "%02X", pSample->a );
             }
             else
             {
@@ -417,7 +417,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 
             if ( pSample->regsset )
             {
-               sprintf ( str, "$%02X", pSample->x );
+               sprintf ( str, "%02X", pSample->x );
             }
             else
             {
@@ -429,7 +429,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 
             if ( pSample->regsset )
             {
-               sprintf ( str, "$%02X", pSample->y );
+               sprintf ( str, "%02X", pSample->y );
             }
             else
             {
@@ -441,7 +441,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 
             if ( pSample->regsset )
             {
-               sprintf ( str, "$%02X", pSample->sp );
+               sprintf ( str, "%02X", pSample->sp );
             }
             else
             {
@@ -453,7 +453,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 
             if ( pSample->regsset )
             {
-               sprintf ( str, "$%02X", pSample->f );
+               sprintf ( str, "%02X", pSample->f );
             }
             else
             {

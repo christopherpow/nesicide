@@ -28,14 +28,14 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Test Suite Progress:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="6">
+   <item row="6" column="1" colspan="6">
     <widget class="QProgressBar" name="suiteProgress">
      <property name="value">
       <number>24</number>
@@ -65,42 +65,42 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="6">
+   <item row="8" column="6">
     <widget class="QPushButton" name="abort">
      <property name="text">
       <string>Abort</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="5">
+   <item row="8" column="5">
     <widget class="QPushButton" name="save">
      <property name="text">
       <string>Save</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="4">
+   <item row="8" column="4">
     <widget class="QPushButton" name="executeSelection">
      <property name="text">
       <string>Execute Selection</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="3">
+   <item row="8" column="3">
     <widget class="QPushButton" name="execute">
      <property name="text">
       <string>Execute All</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="2">
+   <item row="8" column="2">
     <widget class="QPushButton" name="clear">
      <property name="text">
       <string>Clear Results</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="QPushButton" name="load">
      <property name="text">
       <string>Load</string>
@@ -117,39 +117,39 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="7">
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Test Progress:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="6">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Test Progress:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QProgressBar" name="testProgress">
-       <property name="value">
-        <number>24</number>
-       </property>
-       <property name="format">
-        <string>%v/%m frames</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
+     <item row="0" column="3">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>Pass:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QProgressBar" name="passRate">
        <property name="value">
         <number>24</number>
        </property>
        <property name="format">
         <string>%p%</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QProgressBar" name="testProgress">
+       <property name="value">
+        <number>24</number>
+       </property>
+       <property name="format">
+        <string>%v/%m frames</string>
        </property>
       </widget>
      </item>

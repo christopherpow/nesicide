@@ -14,6 +14,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <QSettings>
+
 #include "nesemulatorthread.h"
 
 #include "dbg_cnes.h"
@@ -93,6 +95,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_isStarting = false;
    m_isTerminating = false;
    m_isResetting = false;
+   m_debugFrame = 0;
    m_pCartridge = NULL;
 
    nesSetCoreMutexLockHook(coreMutexLock);
@@ -309,7 +312,22 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::run ()
 {
+   QSettings settings;
    int32_t samplesAvailable;
+   int32_t debuggerUpdateRate = settings.value("debuggerUpdateRate").toInt();
+
+   // Special case for 1Hz debugger update to match system mode.
+   if ( debuggerUpdateRate == -1 )
+   {
+      if ( nesGetSystemMode() == MODE_NTSC )
+      {
+         debuggerUpdateRate = 60;
+      }
+      else
+      {
+         debuggerUpdateRate = 50;
+      }
+   }
 
    while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
    {
@@ -404,6 +422,16 @@ void NESEmulatorThread::run ()
          }
 
          emit emulatedFrame();
+
+         if ( m_debugFrame )
+         {
+            m_debugFrame--;
+         }
+         if ( (!m_debugFrame) && (debuggerUpdateRate) )
+         {
+            m_debugFrame = debuggerUpdateRate;
+            emit updateDebuggers();
+         }
       }
    }
 

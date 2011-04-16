@@ -20,6 +20,7 @@ public:
 
 protected:
    void showEvent(QShowEvent* e);
+   void hideEvent(QHideEvent* e);
    void contextMenuEvent(QContextMenuEvent* e);
    void changeEvent(QEvent* e);
 

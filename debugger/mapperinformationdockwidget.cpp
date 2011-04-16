@@ -14,7 +14,7 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
     ui(new Ui::MapperInformationDockWidget)
 {
    ui->setupUi(this);
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
@@ -42,8 +42,13 @@ void MapperInformationDockWidget::changeEvent(QEvent* e)
 
 void MapperInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QDockWidget::showEvent(e);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
+}
+
+void MapperInformationDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 
 void MapperInformationDockWidget::cartridgeLoaded()
@@ -65,38 +70,38 @@ void MapperInformationDockWidget::updateInformation()
    nesMapper004Info mapper004Info;
 
    // Show PRG-ROM absolute addresses...
-   sprintf ( buffer, "$%X", CROMDBG::ABSADDR(0x8000) );
+   sprintf ( buffer, "%X", CROMDBG::ABSADDR(0x8000) );
    ui->prg0->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::ABSADDR(0xA000) );
+   sprintf ( buffer, "%X", CROMDBG::ABSADDR(0xA000) );
    ui->prg1->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::ABSADDR(0xC000) );
+   sprintf ( buffer, "%X", CROMDBG::ABSADDR(0xC000) );
    ui->prg2->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::ABSADDR(0xE000) );
+   sprintf ( buffer, "%X", CROMDBG::ABSADDR(0xE000) );
    ui->prg3->setText ( buffer );
 
    // Show CHR memory absolute addresses...
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x0000) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x0000) );
    ui->chr0->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x0400) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x0400) );
    ui->chr1->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x0800) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x0800) );
    ui->chr2->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x0C00) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x0C00) );
    ui->chr3->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x1000) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x1000) );
    ui->chr4->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x1400) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x1400) );
    ui->chr5->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x1800) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x1800) );
    ui->chr6->setText ( buffer );
-   sprintf ( buffer, "$%X", CROMDBG::CHRMEMABSADDR(0x1C00) );
+   sprintf ( buffer, "%X", CROMDBG::CHRMEMABSADDR(0x1C00) );
    ui->chr7->setText ( buffer );
 
    switch ( CROMDBG::MAPPER() )
    {
       case 1:
          nesMapper001GetInformation(&mapper001Info);
-         sprintf ( buffer, "$%02X", mapper001Info.shiftRegister );
+         sprintf ( buffer, "%02X", mapper001Info.shiftRegister );
          ui->shiftRegister->setText ( buffer );
          sprintf ( buffer, "%d", mapper001Info.shiftRegisterBit );
          ui->shiftRegisterBit->setText ( buffer );
@@ -107,9 +112,9 @@ void MapperInformationDockWidget::updateInformation()
          ui->irqEnabled->setChecked ( mapper004Info.irqEnabled );
          ui->irqAsserted->setChecked ( mapper004Info.irqAsserted );
          ui->ppuAddrA12->setChecked ( mapper004Info.ppuAddrA12 );
-         sprintf ( buffer, "$%02X", mapper004Info.irqReload );
+         sprintf ( buffer, "%02X", mapper004Info.irqReload );
          ui->irqReload->setText ( buffer );
-         sprintf ( buffer, "$%02X", mapper004Info.irqCounter );
+         sprintf ( buffer, "%02X", mapper004Info.irqCounter );
          ui->irqCounter->setText ( buffer );
          sprintf ( buffer, "%d", mapper004Info.ppuCycle );
          ui->lastA12Cycle->setText ( buffer );

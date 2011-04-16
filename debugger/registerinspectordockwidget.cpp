@@ -57,7 +57,7 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QW
    }
 
    ui->label->setText ( "" );
-   
+
    // Connect signals to the UI to have the UI update.
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateMemory()) );
@@ -89,9 +89,17 @@ RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
 
 void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
 {
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
+   updateMemory();
    ui->binaryView->resizeColumnsToContents();
    ui->bitfieldView->resizeColumnsToContents();
-   updateMemory();
+}
+
+void RegisterInspectorDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
 }
 
 void RegisterInspectorDockWidget::contextMenuEvent(QContextMenuEvent*)
@@ -131,7 +139,7 @@ void RegisterInspectorDockWidget::updateMemory ()
 
    if ( m_tblRegisters )
    {
-      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -210,7 +218,7 @@ void RegisterInspectorDockWidget::binaryView_currentChanged(QModelIndex index, Q
 
     if ( m_tblRegisters )
     {
-       sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+       sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
        ui->label->setText ( buffer );
     }
 
@@ -226,7 +234,7 @@ void RegisterInspectorDockWidget::on_binaryView_clicked(QModelIndex index)
 
    if ( m_tblRegisters )
    {
-      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -242,7 +250,7 @@ void RegisterInspectorDockWidget::on_binaryView_doubleClicked(QModelIndex index)
 
    if ( m_tblRegisters )
    {
-      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -258,7 +266,7 @@ void RegisterInspectorDockWidget::on_binaryView_pressed(QModelIndex index)
 
    if ( m_tblRegisters )
    {
-      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -274,7 +282,7 @@ void RegisterInspectorDockWidget::on_binaryView_activated(QModelIndex index)
 
    if ( m_tblRegisters )
    {
-      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -290,7 +298,7 @@ void RegisterInspectorDockWidget::on_binaryView_entered(QModelIndex index)
 
    if ( m_tblRegisters )
    {
-      sprintf ( buffer, "$%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
+      sprintf ( buffer, "%04X: %s", m_tblRegisters[m_register]->GetAddr(), m_tblRegisters[m_register]->GetName() );
       ui->label->setText ( buffer );
    }
 

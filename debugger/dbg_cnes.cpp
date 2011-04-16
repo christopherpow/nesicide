@@ -42,19 +42,19 @@ void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltip
    {
       if ( addr < 0x800 )
       {
-         ptr += sprintf ( ptr, "6502 @ $%X<br>RAM  @ $%X", addr, addr );
+         ptr += sprintf ( ptr, "6502 @ %X<br>RAM  @ %X", addr, addr );
       }
       else if ( addr < 0x6000 )
       {
-         ptr += sprintf ( ptr, "6502  @ $%X<br>EXRAM @ $%X", addr, nesGetAbsoluteAddressFromAddress(addr) );
+         ptr += sprintf ( ptr, "6502  @ %X<br>EXRAM @ %X", addr, nesGetAbsoluteAddressFromAddress(addr) );
       }
       else if ( addr < 0x8000 )
       {
-         ptr += sprintf ( ptr, "6502 @ $%X<br>SRAM @ $%X", addr, nesGetAbsoluteAddressFromAddress(addr) );
+         ptr += sprintf ( ptr, "6502 @ %X<br>SRAM @ %X", addr, nesGetAbsoluteAddressFromAddress(addr) );
       }
       else
       {
-         ptr += sprintf ( ptr, "6502    @ $%X<br>PRG-ROM @ $%X", addr, nesGetAbsoluteAddressFromAddress(addr) );
+         ptr += sprintf ( ptr, "6502    @ %X<br>PRG-ROM @ %X", addr, nesGetAbsoluteAddressFromAddress(addr) );
       }
    }
    else if ( tipType == TOOLTIP_INFO )

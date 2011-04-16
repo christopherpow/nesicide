@@ -30,6 +30,7 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
    QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 
    // Connect signals to the UI to have the UI update.
+   QObject::connect ( assemblyViewModel, SIGNAL(layoutChanged()), this, SLOT(updateDisassembly()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateDisassembly()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
@@ -45,15 +46,21 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
    QDockWidget* breakpointInspector = CDockWidgetRegistry::getWidget("Breakpoints");
-   
+
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
-   
+
    ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    ui->tableView->resizeColumnToContents(0);
    ui->tableView->resizeColumnToContents(1);
    ui->tableView->resizeColumnToContents(2);
    ui->tableView->resizeColumnToContents(3);
    ui->tableView->resizeColumnToContents(4);
+}
+
+void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
 }
 
 void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
@@ -66,7 +73,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
    QModelIndex index = ui->tableView->currentIndex();
 
    addr = nesGetAddressFromSLOC(index.row());
-   
+
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( addr != -1 )
@@ -81,11 +88,11 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
                                           0,
                                           eBreakpointDataNone,
                                           0 );
-   
+
       // Build context menu...
       menu.addAction(ui->actionRun_to_here);
       menu.addSeparator();
-   
+
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
       {
@@ -104,20 +111,20 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
             menu.addAction(ui->actionRemove_breakpoint);
          }
       }
-   
+
       menu.addSeparator();
       menu.addAction(ui->actionClear_marker);
       menu.addSeparator();
-   
+
       menu.addAction(ui->actionStart_marker_here);
       menu.addAction(ui->actionEnd_marker_here);
-   
+
       // Run the context menu...
       // CPTODO: Hokey trick to provide the breakpoint-of-interest to action handlers...
       m_breakpointIndex = bp;
-   
+
       menu.exec(e->globalPos());
-   
+
       emit breakpointsChanged();
    }
 }
@@ -168,7 +175,7 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
    int absAddr = 0;
 
    addr = nesGetAddressFromSLOC(index.row());
-   
+
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( addr != -1 )
@@ -184,14 +191,14 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
                                             eBreakpointDataNone,
                                             0,
                                             true );
-   
+
       if ( bpIdx < 0 )
       {
          QString str;
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
       }
-   
+
       emit breakpointsChanged();
    }
 }
@@ -203,7 +210,7 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
    int absAddr = 0;
 
    addr = nesGetAddressFromSLOC(index.row());
-   
+
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
    if ( addr != -1 )
@@ -295,7 +302,7 @@ void CodeBrowserDockWidget::on_tableView_clicked(QModelIndex index)
    if ( index.isValid() && index.column() == 0 )
    {
       addr = nesGetAddressFromSLOC(index.row());
-      
+
       absAddr = nesGetAbsoluteAddressFromAddress(addr);
 
       if ( addr != -1 )
@@ -310,7 +317,7 @@ void CodeBrowserDockWidget::on_tableView_clicked(QModelIndex index)
                                              0,
                                              eBreakpointDataNone,
                                              0 );
-   
+
          if ( bp < 0 )
          {
             on_actionBreak_on_CPU_execution_here_triggered();
@@ -326,7 +333,7 @@ void CodeBrowserDockWidget::on_tableView_clicked(QModelIndex index)
                pBreakpoints->SetEnabled(bp,false);
             }
          }
-   
+
          emit breakpointsChanged();
       }
    }

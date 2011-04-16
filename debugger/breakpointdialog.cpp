@@ -379,14 +379,13 @@ void BreakpointDialog::on_event_currentIndexChanged(int)
    }
 }
 
-void BreakpointDialog::on_addr1_textChanged(QString )
+void BreakpointDialog::on_addr1_textChanged(QString text)
 {
-   ui->addr2->setText(ui->addr1->text());
-   DisplayResolutions();
-
+   ui->addr2->setText(text);
+   DisplayResolutions(NULL);
 }
 
-void BreakpointDialog::DisplayResolutions ()
+void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
 {
    char buffer [ 16 ];
    uint32_t size = nesGetPRGROMSize();
@@ -428,11 +427,11 @@ void BreakpointDialog::DisplayResolutions ()
          else
          {
             nesGetDisassemblyAtAbsoluteAddress(maskedAddr,buffer);
-            item.sprintf("%02X:%04X:%s",nesGetPhysicalPRGROMBank(maskedAddr),maskedAddr&MASK_64KB,buffer);
+            item.sprintf("%04X(%02X:%04X) %s",originalAddr,nesGetPhysicalPRGROMBank(maskedAddr),maskedAddr&MASK_8KB,buffer);
             ui->resolutions->addItem(item);
             ui->resolutions->setItemData(ui->resolutions->count()-1,maskedAddr);
          }
-         if ( nesGetAbsoluteAddressFromAddress(originalAddr) == maskedAddr )
+         if ( pBreakpoint && pBreakpoint->item1Absolute == maskedAddr )
          {
             ui->resolutions->setCurrentIndex(ui->resolutions->count()-1);
          }
@@ -549,7 +548,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
       case eBreakpointDataNone:
          break;
    }
-   DisplayResolutions();
+   DisplayResolutions(pBreakpoint);
 }
 
 
@@ -643,5 +642,5 @@ void BreakpointDialog::on_resolutions_activated(int index)
 
 void BreakpointDialog::on_resolve_clicked()
 {
-    DisplayResolutions();
+    DisplayResolutions(NULL);
 }

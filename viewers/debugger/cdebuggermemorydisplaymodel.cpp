@@ -15,7 +15,7 @@
 #include <QRgb>
 
 static char modelStringBuffer [ 2048 ];
-   
+
 CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType display)
 {
    m_display = display;
@@ -184,7 +184,7 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
 
             if ( m_tblRegisters )
             {
-               sprintf ( modelStringBuffer, "$%04X", m_tblRegisters[section]->GetAddr());
+               sprintf ( modelStringBuffer, "%04X", m_tblRegisters[section]->GetAddr());
             }
 
             break;
@@ -195,14 +195,14 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
          case eMemory_cartCHRMEM:
          case eMemory_PPU:
          case eMemory_PPUregs:
-            sprintf ( modelStringBuffer, "$%04X", m_offset+(section<<4) );
+            sprintf ( modelStringBuffer, "%04X", m_offset+(section<<4) );
             break;
          case eMemory_PPUoam:
             sprintf ( modelStringBuffer, "%d", section );
             break;
          case eMemory_PPUpalette:
          case eMemory_IOregs:
-            sprintf ( modelStringBuffer, "$%04X", m_offset+(section<<2) );
+            sprintf ( modelStringBuffer, "%04X", m_offset+(section<<2) );
             break;
       }
    }

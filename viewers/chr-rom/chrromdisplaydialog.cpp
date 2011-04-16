@@ -9,9 +9,20 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* da
    QDialog(parent),
    ui(new Ui::CHRROMDisplayDialog)
 {
+   int i;
+
    ui->setupUi(this);
    imgData = new char[256*256*4];
-   memset(imgData,0xFF,256*256*4);
+
+   // Clear image...
+   for ( i = 0; i < 256*256*4; i+=4 )
+   {
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
+   }
+
    m_usePPU = usePPU;
 
    for (int i=0; i<NUM_PALETTES; i++)
@@ -44,7 +55,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* da
       CPPUDBG::SetCHRMEMInspectorColor(1,ui->col1PushButton->currentColor());
       CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
       CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
-//      QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+
       QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()));
       QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
@@ -86,14 +97,14 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
 
 void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 {
-   QDialog::showEvent(event);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    CPPUDBG::EnableCHRMEMInspector(true);
    renderData();
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
 {
-   QDialog::hideEvent(event);
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    CPPUDBG::EnableCHRMEMInspector(false);
 }
 

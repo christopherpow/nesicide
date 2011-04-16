@@ -12,13 +12,14 @@ namespace Ui {
 class CodeBrowserDockWidget : public QDockWidget
 {
    Q_OBJECT
-   
+
 public:
    explicit CodeBrowserDockWidget(QWidget *parent = 0);
    ~CodeBrowserDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);
+   void hideEvent(QHideEvent* e);
    void contextMenuEvent(QContextMenuEvent* e);
    void changeEvent(QEvent* e);
 
@@ -29,7 +30,7 @@ public slots:
 
 signals:
    void breakpointsChanged();
-   
+
 private:
    Ui::CodeBrowserDockWidget *ui;
    CCodeBrowserDisplayModel* assemblyViewModel;

@@ -122,6 +122,21 @@ void BreakpointDockWidget::updateData()
    ui->tableView->resizeColumnToContents(0);
 }
 
+void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
+{
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
+   // Check for left-click to "enable/disable"...
+   if ( QApplication::mouseButtons()&Qt::LeftButton )
+   {
+      if ( (index.row() >= 0) && (index.column() == 0) )
+      {
+         pBreakpoints->ToggleEnabled(index.row());
+         emit breakpointsChanged();
+      }
+   }
+}
+
 void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();

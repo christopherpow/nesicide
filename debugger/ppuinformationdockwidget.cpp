@@ -11,7 +11,7 @@ PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
     ui(new Ui::PPUInformationDockWidget)
 {
    ui->setupUi(this);
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
@@ -39,8 +39,13 @@ void PPUInformationDockWidget::changeEvent(QEvent* e)
 
 void PPUInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QDockWidget::showEvent(e);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
+}
+
+void PPUInformationDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 
 void PPUInformationDockWidget::updateInformation()
@@ -75,13 +80,13 @@ void PPUInformationDockWidget::updateInformation()
       sprintf ( buffer, "%d", CPPUDBG::_CYCLES()/PPU_CYCLES_PER_SCANLINE );
       ui->ppuY->setText(buffer);
 
-      sprintf ( buffer, "$%04X", CPPUDBG::_PPUADDR() );
+      sprintf ( buffer, "%04X", CPPUDBG::_PPUADDR() );
       ui->ppuAddr->setText(buffer);
 
-      sprintf ( buffer, "$%02X", CPPUDBG::_PPUREADLATCH() );
+      sprintf ( buffer, "%02X", CPPUDBG::_PPUREADLATCH() );
       ui->ppuLatch->setText(buffer);
 
-      sprintf ( buffer, "$%02X", CPPUDBG::_PPUADDRLATCH() );
+      sprintf ( buffer, "%02X", CPPUDBG::_PPUADDRLATCH() );
       ui->ppuAddrLatch->setText(buffer);
 
       ui->ppuFlipFlop->setText(ppuFlipFlopStr[CPPUDBG::_PPUFLIPFLOP()]);

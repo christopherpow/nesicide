@@ -9,13 +9,21 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::ExecutionVisualizerDockWidget)
 {
+   int i;
+
    ui->setupUi(this);
    imgData = new char[512*512*4];
-   memset ( imgData, 0xFF, 512*512*4 );
 
+   // Clear image...
+   for ( i = 0; i < 512*512*4; i+=4 )
+   {
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
+   }
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
@@ -48,13 +56,13 @@ void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
 
 void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 {
-   QDockWidget::showEvent(event);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    renderData();
 }
 
 void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDockWidget::hideEvent(event);
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
 }
 
 void ExecutionVisualizerDockWidget::renderData()

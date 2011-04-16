@@ -2575,7 +2575,7 @@ const char* OPCODEINFO(uint8_t op)
 const char* OPCODEINFO(const char* op)
 {
    int i;
-   
+
    for ( i = 0; i < 256; i++ )
    {
       if ( strncasecmp((m_6502opcode+i)->name,op,3) == 0 )
@@ -2583,7 +2583,7 @@ const char* OPCODEINFO(const char* op)
          return *(m_6502opcodeInfo+i);
       }
    }
-   
+
    return NULL;
 }
 
@@ -2593,7 +2593,7 @@ const char* OPCODECHECK(uint8_t idx, const char* op)
    {
       return (m_6502opcode+idx)->name;
    }
-   
+
    return NULL;
 }
 
@@ -2686,7 +2686,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       }
       else
       {
-         *pTV = 0x00;
+         *pTV = 0xFF;
          *(pTV+1) = 0xFF;
          *(pTV+2) = 0xFF;
       }

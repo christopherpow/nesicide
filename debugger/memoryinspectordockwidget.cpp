@@ -14,10 +14,10 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidge
     ui(new Ui::MemoryInspectorDockWidget)
 {
    ui->setupUi(this);
-    
+
    model = new CDebuggerMemoryDisplayModel(this,display);
    ui->tableView->setModel(model);
-   
+
    // Connect signals to the UI to have the UI update.
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 
@@ -38,7 +38,14 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
 
 void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
 {
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   model->update();
    ui->tableView->resizeColumnsToContents();
+}
+
+void MemoryInspectorDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
 }
 
 void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
@@ -61,7 +68,7 @@ void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
    }
 
    menu.exec(e->globalPos());
-   
+
    emit breakpointsChanged();
 }
 

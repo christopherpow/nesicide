@@ -42,6 +42,7 @@ public:
 
 signals:
    void emulatedFrame ();
+   void updateDebuggers ();
    void cartridgeLoaded ();
    void breakpointClear ();
    void emulatorPaused(bool show);
@@ -62,6 +63,7 @@ protected:
    bool          m_isTerminating;
    bool          m_isResetting;
    bool          m_isStarting;
+   int           m_debugFrame;
    uint8_t m_joy [ NUM_CONTROLLERS ];
 };
 

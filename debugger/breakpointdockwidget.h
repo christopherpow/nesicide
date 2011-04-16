@@ -14,7 +14,7 @@ namespace Ui {
 class BreakpointDockWidget : public QDockWidget
 {
    Q_OBJECT
-   
+
 public:
    explicit BreakpointDockWidget(QWidget *parent = 0);
    ~BreakpointDockWidget();
@@ -30,11 +30,13 @@ signals:
 
 private:
    Ui::BreakpointDockWidget *ui;
-   
+
 public slots:
    void updateData();
 
 private slots:
+    void on_tableView_pressed(QModelIndex index);
+    void on_tableView_doubleClicked(QModelIndex index);
     void on_actionDisable_All_Breakpoints_triggered();
     void on_actionEnable_All_Breakpoints_triggered();
     void on_actionDisable_Breakpoint_triggered();
@@ -42,7 +44,6 @@ private slots:
     void on_actionEdit_Breakpoint_triggered();
     void on_actionRemove_Breakpoint_triggered();
     void on_actionAdd_Breakpoint_triggered();
-    void on_tableView_doubleClicked(QModelIndex index);
 };
 
 #endif // BREAKPOINTDOCKWIDGET_H

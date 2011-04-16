@@ -24,20 +24,20 @@
   <tvsha1><![CDATA[75NVOeAT7/jVw73+CEdeKsb2Pic=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="60" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\dmc.nes" system="ntsc">
-  <tvsha1><![CDATA[QUcfOEyLh07giBgLA9QbLKoID30=]]></tvsha1>
+ <test runframes="780" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\dmc.nes" system="ntsc">
+  <tvsha1><![CDATA[dbPq1gWhVJbjPvi61pn/0dUVy/s=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="60" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\noise.nes" system="ntsc">
-  <tvsha1><![CDATA[KLFG8Mhs5x9OxRN0hQozE30yhcU=]]></tvsha1>
+ <test runframes="1260" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\noise.nes" system="ntsc">
+  <tvsha1><![CDATA[eZG7kHcDAzvFUFMXjZynRd3ZyRU=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="60" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\square.nes" system="ntsc">
-  <tvsha1><![CDATA[bls9QOeohBNGttL4J+O1rM/N0/g=]]></tvsha1>
+ <test runframes="1080" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\square.nes" system="ntsc">
+  <tvsha1><![CDATA[JXc9txqBccnWpiYoJcNv/D05uCA=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="60" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\triangle.nes" system="ntsc">
-  <tvsha1><![CDATA[5nHZT/xpU9wMVDFsJoYdb+Hnx1o=]]></tvsha1>
+ <test runframes="780" failcomment="" testnotes="" testresult="pass" filename="apu_mixer\triangle.nes" system="ntsc">
+  <tvsha1><![CDATA[CF8XZLs+e9CFTikZ1gHoVjTtWns=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="360" failcomment="" testnotes="" testresult="pass" filename="apu_test\apu_test.nes" system="ntsc">
@@ -584,11 +584,11 @@
   <tvsha1><![CDATA[6X5+GM6YQfB4enaqJlBrDa5Qtzo=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="60" failcomment="Not sure" testnotes="" testresult="fail" filename="read_joy3\count_errors.nes" system="ntsc">
+ <test runframes="60" failcomment="" testnotes="" testresult="pass" filename="read_joy3\count_errors.nes" system="ntsc">
   <tvsha1><![CDATA[Oy2BckAEtgf0l0AQaIIO8Stiub4=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
- <test runframes="60" failcomment="Not sure" testnotes="" testresult="fail" filename="read_joy3\count_errors_fast.nes" system="ntsc">
+ <test runframes="60" failcomment="" testnotes="" testresult="pass" filename="read_joy3\count_errors_fast.nes" system="ntsc">
   <tvsha1><![CDATA[sd7VneuCCKqatDBXH3asC02u+mk=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>

@@ -11,8 +11,7 @@ APUInformationDockWidget::APUInformationDockWidget(QWidget *parent) :
     ui(new Ui::APUInformationDockWidget)
 {
    ui->setupUi(this);
-   
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(updateInformation()) );
+
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
@@ -40,8 +39,13 @@ void APUInformationDockWidget::changeEvent(QEvent* e)
 
 void APUInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QDockWidget::showEvent(e);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
+}
+
+void APUInformationDockWidget::hideEvent(QHideEvent* e)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 
 void APUInformationDockWidget::updateInformation()
@@ -80,15 +84,15 @@ void APUInformationDockWidget::updateInformation()
    ui->irqAsserted5->setChecked ( tempb2 );
 
    CAPUDBG::SAMPLEINFO ( &tempus1, &tempus2, &tempus3 );
-   sprintf ( buffer, "$%04X", tempus1 );
+   sprintf ( buffer, "%04X", tempus1 );
    ui->sampleAddr5->setText ( buffer );
-   sprintf ( buffer, "$%04X", tempus2 );
+   sprintf ( buffer, "%04X", tempus2 );
    ui->sampleLength5->setText ( buffer );
-   sprintf ( buffer, "$%04X", tempus3 );
+   sprintf ( buffer, "%04X", tempus3 );
    ui->samplePos5->setText ( buffer );
 
    CAPUDBG::DMAINFO ( &temp1, &tempb1 );
-   sprintf ( buffer, "$%02X", temp1 );
+   sprintf ( buffer, "%02X", temp1 );
    ui->sampleBufferContents5->setText ( buffer );
    ui->sampleBufferFull5->setChecked ( tempb1 );
 

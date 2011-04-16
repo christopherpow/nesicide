@@ -28,7 +28,7 @@ private:
    CBitfieldData* m_pBitfield;
    CBreakpointEventInfo* m_pEvent;
    void DisplayBreakpoint ( int idx );
-   void DisplayResolutions ();
+   void DisplayResolutions(BreakpointInfo* pBreakpoint);
    BreakpointInfo m_breakpoint;
 
 private slots:
@@ -36,7 +36,7 @@ private slots:
    void on_resolutions_activated(int index);
    void on_addBreakpoint_clicked();
    void on_cancel_clicked();
-   void on_addr1_textChanged(QString );
+   void on_addr1_textChanged(QString text);
    void on_event_currentIndexChanged(int index);
    void on_bitfield_currentIndexChanged(int index);
    void on_reg_currentIndexChanged(int index);

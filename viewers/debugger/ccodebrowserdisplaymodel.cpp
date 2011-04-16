@@ -55,7 +55,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
             CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
             return QVariant(modelStringBuffer);
          }
-         else if ( index.column() > Column_Decoration )
+         else if ( index.column() > Column_Address )
          {
             opSize = OPCODESIZE ( nesGetMemory(addr) );
 
@@ -145,7 +145,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    switch ( index.column() )
    {
       case Column_Address:
-         sprintf ( modelStringBuffer, "%02X:%04X", nesGetPhysicalPRGROMBank(absAddr), addr );
+         nesGetPrintableAddress(modelStringBuffer,addr);
          return QVariant(modelStringBuffer);
          break;
       case Column_Decoration:
@@ -191,6 +191,30 @@ Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex&) const
 
 QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+   if (role == Qt::ToolTipRole)
+   {
+      switch ( section )
+      {
+         case Column_Address:
+            return "Address in 6502 memory space and (Mapper Bank:Offset)";
+            break;
+         case Column_Decoration:
+            return "Information such as Breakpoint status, Marker status, etc.";
+            break;
+         case Column_Opcode:
+            return "Opcode";
+            break;
+         case Column_Operand1:
+            return "Low byte";
+            break;
+         case Column_Operand2:
+            return "High byte";
+            break;
+         case Column_Disassembly:
+            return "Disassembly";
+            break;
+      }
+   }
    if (role != Qt::DisplayRole)
    {
       return QVariant();

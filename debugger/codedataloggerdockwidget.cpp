@@ -10,15 +10,27 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::CodeDataLoggerDockWidget)
 {
+   int i;
+
    ui->setupUi(this);
    cpuImgData = new char[256*256*4];
    ppuImgData = new char[256*256*4];
 
-   memset(cpuImgData,0xFF,256*256*4);
-   memset(ppuImgData,0xFF,256*256*4);
+   // Clear images...
+   for ( i = 0; i < 256*256*4; i+=4 )
+   {
+      cpuImgData[i] = 0;
+      cpuImgData[i+1] = 0;
+      cpuImgData[i+2] = 0;
+      cpuImgData[i+3] = 0xFF;
+      ppuImgData[i] = 0;
+      ppuImgData[i+1] = 0;
+      ppuImgData[i+2] = 0;
+      ppuImgData[i+3] = 0xFF;
+   }
    C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)cpuImgData );
    CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)ppuImgData );
-//   QObject::connect ( emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()) );
+
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()));
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
@@ -52,13 +64,13 @@ void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
 
 void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 {
-   QDockWidget::showEvent(event);
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    renderData();
 }
 
 void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDockWidget::hideEvent(event);
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
 }
 
 void CodeDataLoggerDockWidget::renderData()
@@ -72,7 +84,7 @@ void CodeDataLoggerDockWidget::renderData()
          CPPUDBG::RENDERCODEDATALOGGER();
          break;
    }
-   
+
    renderer->updateGL ();
 }
 

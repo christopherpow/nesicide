@@ -24,6 +24,7 @@ protected:
    void changeEvent(QEvent* e);
    void contextMenuEvent(QContextMenuEvent* e);
    void showEvent(QShowEvent* e);
+   void hideEvent(QHideEvent* e);
 
 public slots:
    void updateMemory();

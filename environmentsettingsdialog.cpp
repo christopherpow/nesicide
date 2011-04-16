@@ -5,26 +5,51 @@
 
 #include <QSettings>
 
+static const char* debuggerUpdateRateMsgs[] =
+{
+   "Update only on emulation pause.",
+   "Update at emulation framerate (50 times a second for PAL, 60 times a second for NTSC).",
+   "Update once a second during emulation.",
+};
+
 EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EnvironmentSettingsDialog)
 {
    QSettings settings;
    ui->setupUi(this);
-   
+
    ui->showWelcomeOnStart->setChecked(settings.value(ui->showWelcomeOnStart->objectName(),true).toBool());
    ui->saveAllOnCompile->setChecked(settings.value(ui->saveAllOnCompile->objectName(),true).toBool());
    ui->rememberWindowSettings->setChecked(settings.value(ui->rememberWindowSettings->objectName(),true).toBool());
    ui->trackRecentProjects->setChecked(settings.value(ui->trackRecentProjects->objectName(),true).toBool());
-   
+
    ui->useInternalDB->setChecked(settings.value(ui->useInternalDB->objectName(),true).toBool());
    ui->GameDatabasePathEdit->setText(settings.value("GameDatabase",QVariant("")).toString());
    ui->GameDatabasePathButton->setEnabled(!ui->useInternalDB->isChecked());
    ui->GameDatabasePathEdit->setEnabled(!ui->useInternalDB->isChecked());
-   
+
    ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
-   
+
    ui->ROMPath->setText(settings.value("ROMPath","").toString());
+
+
+   switch ( settings.value("debuggerUpdateRate",QVariant(0)).toInt() )
+   {
+      case 0:
+         ui->debuggerUpdateRate->setValue(0);
+      break;
+      case -1:
+         ui->debuggerUpdateRate->setValue(2);
+      break;
+      case 1:
+         ui->debuggerUpdateRate->setValue(1);
+      break;
+      default:
+         ui->debuggerUpdateRate->setValue(2);
+      break;
+   }
+   ui->debuggerUpdateRateMsg->setText(debuggerUpdateRateMsgs[ui->debuggerUpdateRate->value()]);
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -171,16 +196,29 @@ void EnvironmentSettingsDialog::on_PluginPathButton_clicked()
 void EnvironmentSettingsDialog::on_buttonBox_accepted()
 {
     QSettings settings;
-    
+
     settings.setValue(ui->showWelcomeOnStart->objectName(),ui->showWelcomeOnStart->isChecked());
     settings.setValue(ui->saveAllOnCompile->objectName(),ui->saveAllOnCompile->isChecked());
     settings.setValue(ui->rememberWindowSettings->objectName(),ui->rememberWindowSettings->isChecked());
     settings.setValue(ui->trackRecentProjects->objectName(),ui->trackRecentProjects->isChecked());
-    
+
     settings.setValue(ui->useInternalDB->objectName(),ui->useInternalDB->isChecked());
     settings.setValue("GameDatabase",ui->GameDatabasePathEdit->text());
-    
+
     settings.setValue("ROMPath",ui->ROMPath->text());
+
+    switch ( ui->debuggerUpdateRate->value() )
+    {
+       case 0:
+          settings.setValue("debuggerUpdateRate",0);
+       break;
+       case 1:
+          settings.setValue("debuggerUpdateRate",1);
+       break;
+       case 2:
+          settings.setValue("debuggerUpdateRate",-1);
+       break;
+    }
 }
 
 void EnvironmentSettingsDialog::on_useInternalDB_toggled(bool checked)
@@ -191,19 +229,19 @@ void EnvironmentSettingsDialog::on_useInternalDB_toggled(bool checked)
    if ( (!checked) && (!ui->GameDatabasePathEdit->text().isEmpty()) )
    {
       bool openedOk = gameDatabase.initialize(ui->GameDatabasePathEdit->text());
-      
+
       ui->GameDatabasePathButton->setEnabled(openedOk);
       ui->GameDatabasePathEdit->setEnabled(openedOk);
-      
+
       ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
    }
    else if ( checked )
    {
       bool openedOk = gameDatabase.initialize(":GameDatabase");
-      
+
       ui->GameDatabasePathButton->setEnabled(openedOk);
       ui->GameDatabasePathEdit->setEnabled(openedOk);
-      
+
       ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
    }
 }
@@ -215,13 +253,13 @@ void EnvironmentSettingsDialog::on_GameDatabasePathButton_clicked()
    if (!value.isEmpty())
    {
       ui->GameDatabasePathEdit->setText(value);
-         
+
       bool openedOk = gameDatabase.initialize(ui->GameDatabasePathEdit->text());
-      
+
       ui->useInternalDB->setChecked(!openedOk);
       ui->GameDatabasePathButton->setEnabled(openedOk);
       ui->GameDatabasePathEdit->setEnabled(openedOk);
-      
+
       ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
    }
 }
@@ -229,9 +267,19 @@ void EnvironmentSettingsDialog::on_GameDatabasePathButton_clicked()
 void EnvironmentSettingsDialog::on_ROMPathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"ROM Path",ui->ROMPath->text());
-   
+
    if ( !value.isEmpty() )
    {
       ui->ROMPath->setText(value);
    }
+}
+
+void EnvironmentSettingsDialog::on_debuggerUpdateRate_sliderMoved(int position)
+{
+   ui->debuggerUpdateRateMsg->setText(debuggerUpdateRateMsgs[position]);
+}
+
+void EnvironmentSettingsDialog::on_debuggerUpdateRate_valueChanged(int value)
+{
+   ui->debuggerUpdateRateMsg->setText(debuggerUpdateRateMsgs[value]);
 }
