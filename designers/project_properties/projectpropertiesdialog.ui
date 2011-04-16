@@ -224,9 +224,6 @@
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="definedSymbols">
-         <property name="placeholderText">
-          <string/>
-         </property>
         </widget>
        </item>
        <item row="1" column="0">
@@ -240,9 +237,6 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLineEdit" name="includePaths">
-           <property name="placeholderText">
-            <string/>
-           </property>
           </widget>
          </item>
          <item>
@@ -267,9 +261,6 @@
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="additionalOptions">
-         <property name="placeholderText">
-          <string/>
-         </property>
         </widget>
        </item>
       </layout>
@@ -285,9 +276,6 @@
           <widget class="QLineEdit" name="linkerConfigFile">
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string/>
            </property>
           </widget>
          </item>
