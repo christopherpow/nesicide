@@ -157,6 +157,7 @@ void TestSuiteExecutiveDialog::on_executeSelection_clicked()
 
 void TestSuiteExecutiveDialog::executeTests(int start,int end)
 {
+   QSettings settings;
    QString testSuiteFileName = ui->testSuiteFileName->text();
    QDir    testSuiteFolder(testSuiteFileName);
    QString testFileName;
@@ -244,8 +245,6 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
          nesSetInputPlayback(false);
       }
 
-      mainWindow->openROM(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
-
       if ( testSystem == "ntsc" )
       {
          nesSetSystemMode(MODE_NTSC);
@@ -253,6 +252,13 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
       else
       {
          nesSetSystemMode(MODE_PAL);
+      }
+
+      mainWindow->openROM(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
+
+      if ( !(settings.value("runRom").toBool()) )
+      {
+         emulator->startEmulation();
       }
 
       while ( emulator->isActive() )

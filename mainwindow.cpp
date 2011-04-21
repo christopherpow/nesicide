@@ -640,6 +640,8 @@ void MainWindow::on_actionNew_Project_triggered()
 
 void MainWindow::openROM(QString fileName)
 {
+   QSettings settings;
+
    output->showPane(OutputPaneDockWidget::Output_General);
 
    emulator->pauseEmulation(false);
@@ -660,7 +662,11 @@ void MainWindow::openROM(QString fileName)
 
    emulator->primeEmulator();
    emulator->resetEmulator();
-   emulator->startEmulation();
+
+   if ( settings.value("runRom").toBool() )
+   {
+      emulator->startEmulation();
+   }
 
    projectDataChangesEvent();
 

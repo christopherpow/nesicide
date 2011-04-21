@@ -32,7 +32,7 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
 
    ui->ROMPath->setText(settings.value("ROMPath","").toString());
-
+   ui->runRom->setChecked(settings.value("runRom",QVariant(true)).toBool());
 
    switch ( settings.value("debuggerUpdateRate",QVariant(0)).toInt() )
    {
@@ -206,6 +206,8 @@ void EnvironmentSettingsDialog::on_buttonBox_accepted()
     settings.setValue("GameDatabase",ui->GameDatabasePathEdit->text());
 
     settings.setValue("ROMPath",ui->ROMPath->text());
+
+    settings.setValue("runRom",ui->runRom->isChecked());
 
     switch ( ui->debuggerUpdateRate->value() )
     {

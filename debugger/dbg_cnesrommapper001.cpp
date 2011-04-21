@@ -16,41 +16,6 @@
 
 #include "dbg_cnesrommapper001.h"
 
-#include "cregisterdata.h"
-
-// Mapper 001 Registers
-static CBitfieldData* tbl8000_9FFFBitfields [] =
-{
-   new CBitfieldData("CHR Mode", 4, 1, "%X", 2, "8KB mapping", "4KB mapping"),
-   new CBitfieldData("PRG Size", 3, 1, "%X", 2, "32KB", "16KB"),
-   new CBitfieldData("Slot Select", 2, 1, "%X", 2, "$C000 swappable, $8000 fixed to page $00", "$8000 swappable, $C000 fixed to page $0F"),
-   new CBitfieldData("Mirroring", 0, 2, "%X", 4, "One-screen $2000", "One-screen $2400", "Vertical", "Horizontal")
-};
-
-static CBitfieldData* tblA000_BFFFBitfields [] =
-{
-   new CBitfieldData("CHR Bank 0", 0, 5, "%02X", 0)
-};
-
-static CBitfieldData* tblC000_DFFFBitfields [] =
-{
-   new CBitfieldData("CHR Bank 1", 0, 5, "%02X", 0)
-};
-
-static CBitfieldData* tblE000_FFFFBitfields [] =
-{
-   new CBitfieldData("WRAM State", 4, 1, "%X", 2, "Enabled", "Disabled"),
-   new CBitfieldData("PRG Bank", 0, 4, "%X", 0)
-};
-
-static CRegisterData* tblRegisters [] =
-{
-   new CRegisterData(0x8000, "Control", 4, tbl8000_9FFFBitfields),
-   new CRegisterData(0xA000, "CHR Mapping 1", 1, tblA000_BFFFBitfields),
-   new CRegisterData(0xC000, "CHR Mapping 2", 1, tblC000_DFFFBitfields),
-   new CRegisterData(0xE000, "PRG Mapping", 2, tblE000_FFFFBitfields)
-};
-
 CROMMapper001DBG::CROMMapper001DBG()
 {
 

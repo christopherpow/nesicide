@@ -217,6 +217,9 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTracer_ExtraInstructionFetch:
                   strcpy ( str, "Extra Fetch" );
                   break;
+               case eTracer_StolenCycle:
+                  strcpy ( str, "DMA Stolen Cycle" );
+                  break;
                case eTracer_DataRead:
                   strcpy ( str, "Memory Read" );
                   break;
@@ -341,6 +344,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                   (pSample->type == eTracer_NMI) ||
                   (pSample->type == eTracer_IRQ) ||
                   (pSample->type == eTracer_IRQRelease) ||
+                  (pSample->type == eTracer_StolenCycle) ||
                   (pSample->type == eTracer_Sprite0Hit) ||
                   (pSample->type == eTracer_StartPPUFrame) ||
                   (pSample->type == eTracer_VBLANKStart) ||
@@ -368,6 +372,7 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                   (pSample->type == eTracer_NMI) ||
                   (pSample->type == eTracer_IRQ) ||
                   (pSample->type == eTracer_IRQRelease) ||
+                  (pSample->type == eTracer_StolenCycle) ||
                   (pSample->type == eTracer_Sprite0Hit) ||
                   (pSample->type == eTracer_StartPPUFrame) ||
                   (pSample->type == eTracer_VBLANKStart) ||
