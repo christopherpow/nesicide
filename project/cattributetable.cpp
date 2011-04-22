@@ -39,7 +39,7 @@ bool CAttributeTable::deserialize(QDomDocument&, QDomNode& node, QString& errors
 
    if (!element.hasAttribute("name"))
    {
-      errors.append("Missing required attribute 'name' of element <source name='???'>\n");
+      errors.append("Missing required attribute 'name' of element <source name='?'>\n");
       return false;
    }
 

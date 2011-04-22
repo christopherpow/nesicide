@@ -148,15 +148,15 @@ void NESEmulatorThread::loadCartridge()
          nesLoadPRGROMBank ( b, (uint8_t*)m_pCartridge->getPrgRomBanks()->getPrgRomBanks().at(b)->getBankData() );
 
          // Update opcode masks to show proper disassembly...
-         for ( a = 0; a < MEM_16KB; a++ )
+         for ( a = 0; a < MEM_8KB; a++ )
          {
-            if ( pasm_check_for_instruction_at_absolute_addr((b*MEM_16KB)+a) )
+            if ( pasm_check_for_instruction_at_absolute_addr((b*MEM_8KB)+a) )
             {
-               nesSetOpcodeMask((b*MEM_16KB)+a,1);
+               nesSetOpcodeMask((b*MEM_8KB)+a,1);
             }
             else
             {
-               nesSetOpcodeMask((b*MEM_16KB)+a,0);
+               nesSetOpcodeMask((b*MEM_8KB)+a,0);
             }
          }
       }

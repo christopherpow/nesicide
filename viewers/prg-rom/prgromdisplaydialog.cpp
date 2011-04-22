@@ -37,7 +37,7 @@ void PRGROMDisplayDialog::showEvent(QShowEvent* e)
       QString rt;
       char    temp[4];
 
-      for (int i=0; i<MEM_16KB; i++)
+      for (int i=0; i<MEM_8KB; i++)
       {
          char l = (m_data[i]>>4)&0x0F;
          char r = m_data[i]&0x0F;

@@ -313,6 +313,9 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       qint8 numPrgRomBanks;
       fs >> numPrgRomBanks;
 
+      // Convert to 8 KB banks
+      numPrgRomBanks <<= 1;
+
       // Get the number of 8 KB CHR-ROM / VROM banks
       qint8 numChrRomBanks;
       fs >> numChrRomBanks;
@@ -417,7 +420,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
             curBank = prgRomBanks->getPrgRomBanks().at(bankIdx++);
          }
 
-         fs.readRawData((char*)curBank->getBankData(),MEM_16KB);
+         fs.readRawData((char*)curBank->getBankData(),MEM_8KB);
       }
 
       // Load the CHR-ROM banks (8KB each)

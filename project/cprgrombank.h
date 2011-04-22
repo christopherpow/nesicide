@@ -19,8 +19,8 @@ public:
 
    // Member Setters
    void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
-   void setBankData(uint8_t* bankData) { memcpy(m_bankData,bankData,MEM_16KB); }
-   void clearBankData() { memset(m_bankData,0,MEM_16KB); }
+   void setBankData(uint8_t* bankData) { memcpy(m_bankData,bankData,MEM_8KB); }
+   void clearBankData() { memset(m_bankData,0,MEM_8KB); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -53,7 +53,7 @@ public:
 private:
    // Attributes
    uint32_t m_bankIndex;
-   uint8_t  m_bankData [ MEM_16KB ];
+   uint8_t  m_bankData [ MEM_8KB ];
 
    // Designer
    PRGROMDisplayDialog* m_editor;

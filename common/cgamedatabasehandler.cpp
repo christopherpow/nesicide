@@ -68,7 +68,7 @@ bool CGameDatabaseHandler::find(CCartridge* pCartridge)
    // Pump ROM data into crypto to get SHA1...
    for ( i = 0; i < pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); i++ )
    {
-      sha1alg.addData((char*)pCartridge->getPrgRomBanks()->getPrgRomBanks().at(i)->getBankData(),MEM_16KB);
+      sha1alg.addData((char*)pCartridge->getPrgRomBanks()->getPrgRomBanks().at(i)->getBankData(),MEM_8KB);
    }
 
    for ( i = 0; i < pCartridge->getChrRomBanks()->getChrRomBanks().count(); i++ )
