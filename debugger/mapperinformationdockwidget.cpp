@@ -70,13 +70,13 @@ void MapperInformationDockWidget::updateInformation()
    nesMapper004Info mapper004Info;
 
    // Show PRG-ROM absolute addresses...
-   sprintf ( buffer, "%02X:%05X(%05X)", CROMDBG::ABSADDR(0x8000)>>14, CROMDBG::ABSADDR(0x8000)&MASK_32KB, CROMDBG::ABSADDR(0x8000) );
+   sprintf ( buffer, "%02X(%05X)", CROMDBG::ABSADDR(0x8000)>>13, CROMDBG::ABSADDR(0x8000) );
    ui->prg0->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", CROMDBG::ABSADDR(0xA000)>>14, CROMDBG::ABSADDR(0xA000)&MASK_32KB, CROMDBG::ABSADDR(0xA000) );
+   sprintf ( buffer, "%02X(%05X)", CROMDBG::ABSADDR(0xA000)>>13, CROMDBG::ABSADDR(0xA000) );
    ui->prg1->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", CROMDBG::ABSADDR(0xC000)>>14, CROMDBG::ABSADDR(0xC000)&MASK_32KB, CROMDBG::ABSADDR(0xC000) );
+   sprintf ( buffer, "%02X(%05X)", CROMDBG::ABSADDR(0xC000)>>13, CROMDBG::ABSADDR(0xC000) );
    ui->prg2->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", CROMDBG::ABSADDR(0xE000)>>14, CROMDBG::ABSADDR(0xE000)&MASK_32KB, CROMDBG::ABSADDR(0xE000) );
+   sprintf ( buffer, "%02X(%05X)", CROMDBG::ABSADDR(0xE000)>>13, CROMDBG::ABSADDR(0xE000) );
    ui->prg3->setText ( buffer );
 
    // Show CHR memory absolute addresses...
