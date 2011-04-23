@@ -181,7 +181,7 @@
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="120" failcomment="Incorrect timing" testnotes="" testresult="fail" filename="cpu_interrupts_v2\rom_singles\4-irq_and_dma.nes" system="ntsc">
-  <tvsha1><![CDATA[9yC2jqdpuhYzEu9c7p4WaNVPf90=]]></tvsha1>
+  <tvsha1><![CDATA[UJ2RQxlYNBA2sMDJktkKScnRjv8=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="420" failcomment="" testnotes="" testresult="pass" filename="cpu_interrupts_v2\rom_singles\5-branch_delays_irq.nes" system="ntsc">
@@ -345,7 +345,7 @@
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="2040" failcomment="" testnotes="" testresult="pass" filename="instr_test-v3\official_only.nes" system="ntsc">
-  <tvsha1><![CDATA[RBzdRMiDUkizcDzxfBgd+ahh1NM=]]></tvsha1>
+  <tvsha1><![CDATA[ZqkTHgTTAPpDRn9sqNad2yz5pYs=]]></tvsha1>
   <recordedinput><![CDATA[]]></recordedinput>
  </test>
  <test runframes="1320" failcomment="" testnotes="" testresult="pass" filename="instr_timing\instr_timing.nes" system="ntsc">
