@@ -60,10 +60,10 @@ bool CCC65Interface::assemble()
          invocationStr += " ";
          invocationStr += nesicideProject->getCompilerIncludePaths();
          invocationStr += " ";
-         invocationStr += sourceDir.toNativeSeparators(sourceDir.absoluteFilePath(source->path()));
+         invocationStr += "\""+sourceDir.toNativeSeparators(sourceDir.absoluteFilePath(source->path()))+"\"";
          invocationStr += " -o ";
          fileInfo.setFile(source->path());
-         objList << sourceDir.toNativeSeparators(outputDir.absoluteFilePath(fileInfo.completeBaseName()+".o"));
+         objList << "\""+sourceDir.toNativeSeparators(outputDir.absoluteFilePath(fileInfo.completeBaseName()+".o"))+"\"";
          invocationStr += objList.last();
 
          buildTextLogger->write(invocationStr);
@@ -95,15 +95,15 @@ bool CCC65Interface::assemble()
    invocationStr = "ld65.exe ";
    invocationStr += nesicideProject->getCompilerDefinedSymbols();
    invocationStr += " -V -o ";
-   invocationStr += outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"));
+   invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
    invocationStr += " -v";
    if ( !(nesicideProject->getLinkerConfigFile().isEmpty()) )
    {
       invocationStr += " -C ";
-      invocationStr += QDir::toNativeSeparators(nesicideProject->getLinkerConfigFile());
+      invocationStr += "\""+QDir::toNativeSeparators(nesicideProject->getLinkerConfigFile())+"\"";
    }
    invocationStr += " --dbgfile ";
-   invocationStr += outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"));
+   invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
    foreach ( const QString& str, objList )
    {
       invocationStr += " ";
@@ -132,27 +132,6 @@ bool CCC65Interface::assemble()
    {
       buildTextLogger->write("<font color='red'>ld65.exe: exited with code "+QString::number(exitCode)+"</font>");
       ok = false;
-   }
-
-   invocationStr = "C:/cygwin/bin/run.exe ls -wait C:/";
-
-   buildTextLogger->write(invocationStr);
-
-   cc65.execute(invocationStr);
-   cc65.waitForFinished();
-   cc65.waitForReadyRead();
-   exitCode = cc65.exitCode();
-   stdioStr = QString(cc65.readAllStandardError());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   foreach ( const QString& str, stdioList )
-   {
-      buildTextLogger->write("<font color='black'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
-   }
-   stdioStr = QString(cc65.readAllStandardOutput());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   foreach ( const QString& str, stdioList )
-   {
-      buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
    }
 
    if ( ok )
