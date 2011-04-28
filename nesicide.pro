@@ -108,12 +108,10 @@ mac {
 }
 
 unix:!mac {
-   PREFIX = $$(PREFIX)
    isEmpty (PREFIX) {
       PREFIX = /usr/local
    }
 
-   BINDIR = $$(BINDIR)
    isEmpty (BINDIR) {
                 BINDIR=$$PREFIX/bin
    }
