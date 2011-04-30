@@ -357,7 +357,8 @@ void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
 {
    action = action;
    // Try to get the selected item
-   QTableWidgetItem* item = ui->tableWidget->selectedItems().first();
+   QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
+   QTableWidgetItem* item = sel.isEmpty() ? 0 : sel.first();
 
    // Don't do anything if we changed to an invalid item
    if (!item)
@@ -380,7 +381,8 @@ void ProjectPropertiesDialog::on_greenHorizontalSlider_actionTriggered(int actio
 {
    action = action;
    // Try to get the selected item
-   QTableWidgetItem* item = ui->tableWidget->selectedItems().first();
+   QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
+   QTableWidgetItem* item = sel.isEmpty() ? 0 : sel.first();
 
    // Don't do anything if we changed to an invalid item
    if (!item)
@@ -402,7 +404,8 @@ void ProjectPropertiesDialog::on_greenHorizontalSlider_actionTriggered(int actio
 void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action)
 {
    // Try to get the selected item
-   QTableWidgetItem* item = ui->tableWidget->selectedItems().first();
+   QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
+   QTableWidgetItem* item = sel.isEmpty() ? 0 : sel.first();
 
    // Don't do anything if we changed to an invalid item
    if (!item)
