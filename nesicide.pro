@@ -10,49 +10,12 @@ system(make -C ./compiler)
 
 TARGET = "nesicide"
 
-# if the user didnt set cxxflags and libs then use defaults
-###########################################################
-
 isEmpty (NESICIDE_LIBS) {
    NESICIDE_LIBS = -lnesicide-emulator
 }
 
 isEmpty (SCINTILLA_LIBS) {
    SCINTILLA_LIBS = -lqscintilla2
-}
-
-isEmpty (SDL_CXXFLAGS) {
-   SDL_CXXFLAGS = $$system(sdl-config --cflags)
-}
-
-isEmpty (SDL_LIBS) {
-        SDL_LIBS = $$system(sdl-config --libs)
-}
-
-# lua provides lua.pc, but several distros renamed it for slotting ( installing multiple versions )
-
-isEmpty (LUA_CXXFLAGS) {
-        LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua)
-}
-
-isEmpty (LUA_CXXFLAGS) {
-        LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.1)
-}
-
-isEmpty (LUA_CXXFLAGS) {
-   LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
-}
-
-isEmpty (LUA_LIBS) {
-        LUA_LIBS = $$system(pkg-config --silence-errors --libs lua)
-}
-
-isEmpty (LUA_LIBS) {
-        LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.1)
-}
-
-isEmpty (LUA_LIBS) {
-   LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
 }
 
 isEmpty (PASM_CXXFLAGS) {
@@ -67,11 +30,17 @@ isEmpty (PASM_LIBS) {
 #########################################
 
 win32 {
+
    SDL_CXXFLAGS = -I../nesicide/libraries/SDL
    SDL_LIBS =  -L../nesicide/libraries/SDL/ -lsdl
 
    SCINTILLA_CXXFLAGS = -I../nesicide/libraries/Qscintilla
-   SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/release -lqscintilla2
+
+   CONFIG(release, debug|release) {
+      SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/release -lqscintilla2
+   } else {
+      SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/debug -lqscintilla2
+   }
 
    LUA_CXXFLAGS = -I../nesicide/libraries/Lua
    LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
@@ -108,6 +77,43 @@ mac {
 }
 
 unix:!mac {
+    # if the user didnt set cxxflags and libs then use defaults
+    ###########################################################
+
+    isEmpty (SDL_CXXFLAGS) {
+       SDL_CXXFLAGS = $$system(sdl-config --cflags)
+    }
+
+    isEmpty (SDL_LIBS) {
+            SDL_LIBS = $$system(sdl-config --libs)
+    }
+
+    # lua provides lua.pc, but several distros renamed it for slotting ( installing multiple versions )
+
+    isEmpty (LUA_CXXFLAGS) {
+            LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua)
+    }
+
+    isEmpty (LUA_CXXFLAGS) {
+            LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.1)
+    }
+
+    isEmpty (LUA_CXXFLAGS) {
+       LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
+    }
+
+    isEmpty (LUA_LIBS) {
+            LUA_LIBS = $$system(pkg-config --silence-errors --libs lua)
+    }
+
+    isEmpty (LUA_LIBS) {
+            LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.1)
+    }
+
+    isEmpty (LUA_LIBS) {
+       LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
+    }
+
    isEmpty (PREFIX) {
       PREFIX = /usr/local
    }

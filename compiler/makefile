@@ -6,7 +6,7 @@ ifeq ("$(OSTYPE)", "cygwin")
 	LIB_POSTFIX := .a
 	LIB_CREATE  := ar crvs
 else
-	CC := gcc-3
+	CC := gcc
 	CFLAGS_LIB       := -mno-cygwin 
    LIB_PREFIX   := lib
    LIB_POSTFIX  := .a
