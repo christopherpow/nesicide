@@ -53,7 +53,7 @@ bool CCC65Interface::assemble()
       source = dynamic_cast<CSourceItem*>(iter.current());
       if ( source )
       {
-         invocationStr = "ca65.exe -V -g -W 5 -v --debug-info ";
+         invocationStr = "ca65.exe -V -g -v --debug-info ";
          invocationStr += nesicideProject->getCompilerAdditionalOptions();
          invocationStr += " ";
          invocationStr += nesicideProject->getCompilerDefinedSymbols();

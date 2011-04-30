@@ -86,6 +86,8 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
 {
+   SDL_AudioSpec obtained;
+
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
    m_isRunning = false;
@@ -109,6 +111,19 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    SDL_Init ( SDL_INIT_AUDIO );
 
+   sdlAudioSpec.callback = SDL_GetMoreData;
+   sdlAudioSpec.userdata = NULL;
+   sdlAudioSpec.channels = 1;
+   sdlAudioSpec.format = AUDIO_S16SYS;
+   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
+
+   // Set up audio sample rate for video mode...
+   sdlAudioSpec.samples = APU_SAMPLES;
+
+   SDL_OpenAudio ( &sdlAudioSpec, &obtained );
+
+   SDL_PauseAudio ( 0 );
+
    coreMutexLock();
    nesClearAudioSamplesAvailable();
    coreMutexUnlock();
@@ -116,6 +131,10 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
 NESEmulatorThread::~NESEmulatorThread()
 {
+   SDL_PauseAudio ( 1 );
+
+   SDL_CloseAudio ();
+
    SDL_Quit();
 }
 
@@ -223,8 +242,6 @@ void NESEmulatorThread::primeEmulator()
 
 void NESEmulatorThread::resetEmulator()
 {
-   SDL_AudioSpec obtained;
-
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
 
@@ -233,21 +250,6 @@ void NESEmulatorThread::resetEmulator()
    {
       breakpointSemaphore.release();
    }
-
-   SDL_CloseAudio ();
-
-   sdlAudioSpec.callback = SDL_GetMoreData;
-   sdlAudioSpec.userdata = NULL;
-   sdlAudioSpec.channels = 1;
-   sdlAudioSpec.format = AUDIO_S16SYS;
-   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
-
-   // Set up audio sample rate for video mode...
-   sdlAudioSpec.samples = APU_SAMPLES;
-
-   SDL_OpenAudio ( &sdlAudioSpec, &obtained );
-
-   SDL_PauseAudio ( 0 );
 
    m_isResetting = true;
    m_isStarting = false;
