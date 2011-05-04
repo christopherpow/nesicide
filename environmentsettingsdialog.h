@@ -25,6 +25,8 @@ private:
    QColor getIdealTextColor(const QColor& rBackgroundColor) const;
 
 private slots:
+   void on_soundBufferDepth_valueChanged(int value);
+   void on_soundBufferDepth_sliderMoved(int position);
    void on_debuggerUpdateRate_valueChanged(int value);
    void on_debuggerUpdateRate_sliderMoved(int position);
    void on_ROMPathBrowse_clicked();

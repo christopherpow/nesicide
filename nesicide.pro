@@ -51,7 +51,11 @@ win32 {
 
    QMAKE_LFLAGS += -static-libgcc
 
-   LIBS += -L../nesicide-emulator-lib-build-desktop/release
+   CONFIG(release, debug|release) {
+      NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop/release -lnesicide-emulator
+   } else {
+      NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop/debug -lnesicide-emulator
+   }
 }
 
 mac {

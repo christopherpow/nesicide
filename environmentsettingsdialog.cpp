@@ -12,6 +12,18 @@ static const char* debuggerUpdateRateMsgs[] =
    "Update once a second during emulation.",
 };
 
+static const char* soundBufferDepthMsgs[] =
+{
+   "1024 samples",
+   "2048 samples",
+   "3072 samples",
+   "4096 samples",
+   "5120 samples",
+   "6144 samples",
+   "7168 samples",
+   "8192 samples"
+};
+
 EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EnvironmentSettingsDialog)
@@ -50,6 +62,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
       break;
    }
    ui->debuggerUpdateRateMsg->setText(debuggerUpdateRateMsgs[ui->debuggerUpdateRate->value()]);
+
+   ui->soundBufferDepth->setValue(settings.value("soundBufferDepth",QVariant(1024)).toInt() );;
+   ui->soundBufferDepthMsg->setText(soundBufferDepthMsgs[(ui->soundBufferDepth->value()/1024)-1]);
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -221,6 +236,8 @@ void EnvironmentSettingsDialog::on_buttonBox_accepted()
           settings.setValue("debuggerUpdateRate",-1);
        break;
     }
+
+    settings.setValue("soundBufferDepth",ui->soundBufferDepth->value());
 }
 
 void EnvironmentSettingsDialog::on_useInternalDB_toggled(bool checked)
@@ -284,4 +301,14 @@ void EnvironmentSettingsDialog::on_debuggerUpdateRate_sliderMoved(int position)
 void EnvironmentSettingsDialog::on_debuggerUpdateRate_valueChanged(int value)
 {
    ui->debuggerUpdateRateMsg->setText(debuggerUpdateRateMsgs[value]);
+}
+
+void EnvironmentSettingsDialog::on_soundBufferDepth_sliderMoved(int position)
+{
+   ui->soundBufferDepthMsg->setText(soundBufferDepthMsgs[(position/1024)-1]);
+}
+
+void EnvironmentSettingsDialog::on_soundBufferDepth_valueChanged(int value)
+{
+   ui->soundBufferDepthMsg->setText(soundBufferDepthMsgs[(value/1024)-1]);
 }
