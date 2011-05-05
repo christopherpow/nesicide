@@ -211,3 +211,35 @@ QStringList& CCC65Interface::getSymbolsForSourceFile(QString& sourceFile)
 {
 
 }
+
+QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+{
+   int  line;
+
+   dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+   for ( line = 0; line < dbgLines->count; line++ )
+   {
+      if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
+      {
+         return dbgLines->data[line].source_name;
+      }
+   }
+   return "";
+}
+
+int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+{
+   int line;
+
+   dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+   for ( line = 0; line < dbgLines->count; line++ )
+   {
+      if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
+      {
+         return dbgLines->data[line].source_line;
+      }
+   }
+   return -1;
+}

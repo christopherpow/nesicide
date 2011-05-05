@@ -151,6 +151,32 @@ void NESEmulatorThread::kill()
    breakpointSemaphore.release();
 }
 
+void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
+{
+   SDL_AudioSpec obtained;
+
+   SDL_PauseAudio ( 1 );
+
+   SDL_CloseAudio ();
+
+   sdlAudioSpec.callback = SDL_GetMoreData;
+   sdlAudioSpec.userdata = NULL;
+   sdlAudioSpec.channels = 1;
+   sdlAudioSpec.format = AUDIO_S16SYS;
+   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
+
+   // Set up audio sample rate for video mode...
+   sdlAudioSpec.samples = bufferDepth;
+
+   SDL_OpenAudio ( &sdlAudioSpec, &obtained );
+
+   SDL_PauseAudio ( 0 );
+
+   coreMutexLock();
+   nesClearAudioSamplesAvailable();
+   coreMutexUnlock();
+}
+
 void NESEmulatorThread::loadCartridge()
 {
    int32_t b;

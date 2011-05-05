@@ -26,6 +26,7 @@ public:
 
    void primeEmulator ();
    void resetEmulator ();
+   void adjustAudio ( int32_t bufferDepth );
    void startEmulation ();
    void pauseEmulation (bool show);
    void pauseEmulationAfter (int frames) { m_pauseAfterFrames = frames; }

@@ -18,6 +18,8 @@ public:
    static bool captureINESImage();
    static QStringList& getSourceFiles();
    static QStringList& getSymbolsForSourceFile(QString& sourceFile);
+   static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
 
 protected:
    static cc65_dbginfo        dbgInfo;

@@ -66,25 +66,27 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
-   char* file;
+   QString file;
    int   linenumber;
+   unsigned int addr;
    unsigned int absAddr;
 
    if ( show )
    {
       blockSignals(true);
-      absAddr = nesGetAbsoluteAddressFromAddress(nesGetCPUProgramCounterOfLastSync());
-      file = pasm_get_source_file_name_by_addr(absAddr);
-      if ( file )
+      addr = nesGetCPUProgramCounterOfLastSync();
+      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+      file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+      if ( !file.isEmpty() )
       {
-         linenumber = pasm_get_source_linenum_by_absolute_addr(absAddr);
-         on_files_activated(QString(file));
+         linenumber = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
+         on_files_activated(file);
 
          while ( iter.current() )
          {
             pSource = dynamic_cast<CSourceItem*>(iter.current());
             if ( pSource &&
-                 (pSource->caption() == file) )
+                 (pSource->absolutePath() == file) )
             {
                pSource->getEditor()->selectLine(linenumber);
             }
@@ -152,7 +154,7 @@ void SourceNavigator::on_files_activated(QString file)
       pSource = dynamic_cast<CSourceItem*>(iter.current());
       if ( pSource )
       {
-         if ( pSource->name() == file )
+         if ( pSource->absolutePath() == file )
          {
             pSource->openItemEvent(m_pTarget);
             updateSymbolsForFile(ui->files->currentIndex());

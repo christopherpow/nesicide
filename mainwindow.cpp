@@ -340,6 +340,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
    projectDataChangesEvent();
 
+   emulator->adjustAudio(settings.value("soundBufferDepth",1024).toInt());
+
    // Always call this last
    pluginManager->doInitScript();
    pluginManager->loadPlugins();

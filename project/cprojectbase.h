@@ -14,6 +14,7 @@ public:
 
    QString path() { return m_path; }
    void setPath(QString path) { m_path = path; }
+   QString absolutePath();
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const { return m_name; }
