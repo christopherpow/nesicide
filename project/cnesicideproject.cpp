@@ -24,7 +24,6 @@ CNesicideProject::CNesicideProject()
 
    m_isInitialized = false;
    m_projectTitle = "(No project loaded)";
-   m_compilerToolchain = compilers[0];
    m_projectBasePath = "";
    m_projectSourceBasePath = "";
    m_projectOutputBasePath = "";
@@ -129,11 +128,11 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("sourcebasepath",m_projectSourceBasePath);
    propertiesElement.setAttribute("outputbasepath",m_projectOutputBasePath);
    propertiesElement.setAttribute("outputname",m_projectOutputName);
-   propertiesElement.setAttribute("compilertoolchain",m_compilerToolchain);
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
    propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
    propertiesElement.setAttribute("compileradditionaloptions",m_compilerAdditionalOptions);
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
+   propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
 
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
@@ -212,11 +211,11 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_projectSourceBasePath = propertiesElement.attribute("sourcebasepath");
          m_projectOutputBasePath = propertiesElement.attribute("outputbasepath");
          m_projectOutputName = propertiesElement.attribute("outputname");
-         m_compilerToolchain = propertiesElement.attribute("compilertoolchain","External CC65 in PATH");
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
          m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
          m_compilerAdditionalOptions = propertiesElement.attribute("compileradditionaloptions");
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
+         m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
 
          // Loop through the properties nodes.
          QDomNode property = child.firstChild();

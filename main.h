@@ -19,7 +19,6 @@ extern NESEmulatorThread* emulator;
 extern BreakpointWatcherThread* breakpointWatcher;
 
 extern CompilerThread* compiler;
-extern const char* compilers[];
 
 extern TestSuiteExecutiveDialog* testSuiteExecutive;
 

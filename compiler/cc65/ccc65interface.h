@@ -20,6 +20,8 @@ public:
    static QStringList& getSymbolsForSourceFile(QString& sourceFile);
    static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int getAddressFromFileAndLine(QString file,int line);
+   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int line);
 
 protected:
    static cc65_dbginfo        dbgInfo;

@@ -240,7 +240,6 @@ SOURCES += mainwindow.cpp \
     debugger/breakpointdockwidget.cpp \
     emulator/nesemulatordockwidget.cpp \
     common/cdockwidgetregistry.cpp \
-    compiler/cpasminterface.cpp \
     compiler/cc65/ccc65interface.cpp \
     compiler/cc65/dbginfo.c \
     common/xmlhelpers.cpp \
@@ -337,7 +336,6 @@ HEADERS += mainwindow.h \
     debugger/breakpointdockwidget.h \
     emulator/nesemulatordockwidget.h \
     common/cdockwidgetregistry.h \
-    compiler/cpasminterface.h \
     compiler/cc65/ccc65interface.h \
     compiler/cc65/dbginfo.h \
     testsuiteexecutivedialog.h

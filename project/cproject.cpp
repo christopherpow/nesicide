@@ -6,11 +6,9 @@ CProject::CProject(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Initialize this node's attributes
-   m_mainSource = NULL;
 
    // Allocate children
    m_pProjectPrimitives = new CProjectPrimitives(this);
-   m_mainSource = (CSourceItem*)NULL;
    m_pSources = new CSources(this);
    m_pBinaryFiles = new CBinaryFiles(this);
    m_pGraphicsBanks = new CGraphicsBanks(this);
@@ -42,7 +40,6 @@ CProject::~CProject()
 void CProject::initializeProject()
 {
    // Initialize this node's attributes
-   m_mainSource = NULL;
 
    // Initialize child nodes
    m_pProjectPrimitives->initializeProject();
@@ -80,16 +77,6 @@ CProjectPrimitives* CProject::getProjectPrimitives()
 CGraphicsBanks* CProject::getGraphicsBanks()
 {
    return m_pGraphicsBanks;
-}
-
-CSourceItem* CProject::getMainSource()
-{
-   return m_mainSource;
-}
-
-void CProject::setMainSource(CSourceItem* newSource)
-{
-   m_mainSource = newSource;
 }
 
 CSources* CProject::getSources()
@@ -153,11 +140,6 @@ bool CProject::serialize(QDomDocument& doc, QDomNode& node)
    else
    {
       return false;
-   }
-
-   if (m_mainSource)
-   {
-      projectElement.setAttribute("mainsourceuuid", m_mainSource->uuid());
    }
 
    return true;
@@ -224,18 +206,6 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
       }
    }
    while (!(childNode = childNode.nextSibling()).isNull());
-
-   QString mainSource = node.toElement().attribute("mainsourceuuid");
-   m_mainSource = (CSourceItem*)NULL;
-
-   for (int sourceIdx = 0; sourceIdx < m_pSources->childCount(); sourceIdx++)
-   {
-      if (mainSource == (((CSourceItem*)m_pSources->child(sourceIdx))->uuid()))
-      {
-         m_mainSource = ((CSourceItem*)m_pSources->child(sourceIdx));
-         break;
-      }
-   }
 
    return true;
 }

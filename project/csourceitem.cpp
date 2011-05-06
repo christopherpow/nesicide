@@ -139,11 +139,6 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             return;
          }
 
-         if (nesicideProject->getProject()->getMainSource() == this)
-         {
-            nesicideProject->getProject()->setMainSource((CSourceItem*)NULL);
-         }
-
          if (m_editor)
          {
             QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
@@ -174,7 +169,7 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new CodeEditorForm(this->caption());
+      m_editor = new CodeEditorForm(this->absolutePath());
       m_editor->set_sourceCode(m_sourceCode);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);

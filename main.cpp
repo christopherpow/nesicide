@@ -24,12 +24,6 @@ TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
 
 // Interface to compiler.
 CompilerThread* compiler = NULL;
-const char* compilers[] =
-{
-   "Internal PASM",
-   "External CC65 in PATH",
-   NULL
-};
 
 // Thread for watching for breakpoints ejected by the NES
 // emulator thread.

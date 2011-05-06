@@ -53,7 +53,7 @@ bool CCC65Interface::assemble()
       source = dynamic_cast<CSourceItem*>(iter.current());
       if ( source )
       {
-         invocationStr = "ca65.exe -V -g -v --debug-info ";
+         invocationStr = "ca65 -V -g -v --debug-info ";
          invocationStr += nesicideProject->getCompilerAdditionalOptions();
          invocationStr += " ";
          invocationStr += nesicideProject->getCompilerDefinedSymbols();
@@ -86,17 +86,18 @@ bool CCC65Interface::assemble()
          }
          if ( exitCode )
          {
-            buildTextLogger->write("<font color='red'>ca65.exe: exited with code "+QString::number(exitCode)+"</font>");
+            buildTextLogger->write("<font color='red'>ca65: exited with code "+QString::number(exitCode)+"</font>");
             ok = false;
          }
       }
       iter.next();
    }
-   invocationStr = "ld65.exe ";
+   invocationStr = "ld65 ";
    invocationStr += nesicideProject->getCompilerDefinedSymbols();
+   invocationStr += nesicideProject->getLinkerAdditionalOptions();
+   invocationStr += " ";
    invocationStr += " -V -o ";
    invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
-   invocationStr += " -v";
    if ( !(nesicideProject->getLinkerConfigFile().isEmpty()) )
    {
       invocationStr += " -C ";
@@ -130,7 +131,7 @@ bool CCC65Interface::assemble()
    }
    if ( exitCode )
    {
-      buildTextLogger->write("<font color='red'>ld65.exe: exited with code "+QString::number(exitCode)+"</font>");
+      buildTextLogger->write("<font color='red'>ld65: exited with code "+QString::number(exitCode)+"</font>");
       ok = false;
    }
 
@@ -216,13 +217,19 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
 {
    int  line;
 
-   dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
-
-   for ( line = 0; line < dbgLines->count; line++ )
+   if ( dbgInfo )
    {
-      if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
+      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+      if ( dbgLines )
       {
-         return dbgLines->data[line].source_name;
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
+            {
+               return dbgLines->data[line].source_name;
+            }
+         }
       }
    }
    return "";
@@ -232,13 +239,59 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
 {
    int line;
 
-   dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
-
-   for ( line = 0; line < dbgLines->count; line++ )
+   if ( dbgInfo )
    {
-      if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
+      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+      if ( dbgLines )
       {
-         return dbgLines->data[line].source_line;
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
+            {
+               return dbgLines->data[line].source_line;
+            }
+         }
+      }
+   }
+   return -1;
+}
+
+unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int line)
+{
+   if ( dbgInfo )
+   {
+      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),line);
+
+      if ( dbgLines )
+      {
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            if ( (dbgLines->count == 1) || (dbgLines->data[line].source_line == line) )
+            {
+               return dbgLines->data[line].line_start;
+            }
+         }
+      }
+   }
+   return -1;
+}
+
+unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int line)
+{
+   if ( dbgInfo )
+   {
+      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),line);
+
+      if ( dbgLines )
+      {
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            if ( (dbgLines->count == 1) || (dbgLines->data[line].source_line == line) )
+            {
+               return dbgLines->data[line].output_offs-0x10;
+            }
+         }
       }
    }
    return -1;

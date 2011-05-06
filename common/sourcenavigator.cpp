@@ -4,7 +4,6 @@
 #include "main.h"
 
 #include "ccc65interface.h"
-#include "cpasminterface.h"
 
 #include "pasm_lib.h"
 

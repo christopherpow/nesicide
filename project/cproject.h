@@ -18,8 +18,6 @@ public:
    void terminateProject();
 
    CProjectPrimitives* getProjectPrimitives();
-   CSourceItem* getMainSource();
-   void setMainSource(CSourceItem* newSource);
    CSources* getSources();
    CBinaryFiles* getBinaryFiles();
    CGraphicsBanks* getGraphicsBanks();
@@ -53,7 +51,6 @@ public:
 
 private:
    // Attributes
-   CSourceItem* m_mainSource;
 
    // Contained children
    CProjectPrimitives* m_pProjectPrimitives;

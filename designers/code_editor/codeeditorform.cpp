@@ -8,6 +8,7 @@
 #include "main.h"
 
 #include "pasm_lib.h"
+#include "ccc65interface.h"
 
 #include "cdockwidgetregistry.h"
 
@@ -35,9 +36,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 {
    QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
    QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
-   
+
    ui->setupUi(this);
-   
+
    m_editor = new QsciScintilla();
 #ifdef Q_WS_MAC
    m_editor->setFont(QFont("Monaco", 11));
@@ -67,30 +68,30 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->setMarginMarkerMask(Margin_LineNumbers,0);
    m_editor->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
    m_editor->setMarginSensitivity(Margin_LineNumbers,true);
-   
+
    m_editor->setSelectionBackgroundColor(QColor(230,230,230));
    m_editor->setSelectionToEol(true);
-   
+
    m_editor->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
-   
+
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_editor,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
-   
+
    ui->gridLayout->addWidget(m_editor);
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
-   
+
    // Connect signals to the UI to have the UI update.
 //   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaint()) );
 //   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaint()) );
 //   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaint()) );
 //   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(repaint()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
-   
+
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
-   
+
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
 
    m_fileName = fileName;
@@ -125,22 +126,22 @@ void CodeEditorForm::external_breakpointsChanged()
    int line;
    int index;
    int idx;
-   
+
    m_editor->getCursorPosition(&line,&index);
-   
+
    m_editor->markerDeleteAll(Marker_Breakpoint);
    m_editor->markerDeleteAll(Marker_BreakpointDisabled);
 
    for ( line = 0; line < m_editor->lines(); line++ )
    {
-      addr = pasm_get_source_addr_by_linenum_and_file(line+1,m_fileName.toAscii().constData());
-      
-      absAddr = pasm_get_source_absolute_addr_by_linenum_and_file(line+1,m_fileName.toAscii().constData());
-      
+      addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+
+      absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+
       for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
       {
          pMarker = markers->GetMarker(idx);
-         
+
          if ( (pMarker->state == eMarkerSet_Started) ||
               (pMarker->state == eMarkerSet_Complete) )
          {
@@ -150,24 +151,22 @@ void CodeEditorForm::external_breakpointsChanged()
             }
          }
       }
-      
+
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {
          BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-      
+
          if ( (pBreakpoint->enabled) &&
               (pBreakpoint->type == eBreakOnCPUExecution) &&
               (pBreakpoint->item1 <= addr) &&
-              ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
-              (pBreakpoint->item2 >= addr) )
+              ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
          {
             m_editor->markerAdd(line,Marker_Breakpoint);
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
                    (pBreakpoint->item1 <= addr) &&
-                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
-                   (pBreakpoint->item2 >= addr) )
+                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
          {
             m_editor->markerAdd(line,Marker_BreakpointDisabled);
          }
@@ -177,15 +176,15 @@ void CodeEditorForm::external_breakpointsChanged()
 
 void CodeEditorForm::breakpointHit()
 {
-   
+
 }
 
 void CodeEditorForm::editor_linesChanged()
 {
    QString maxLineNum;
-   
+
    maxLineNum.sprintf("%d",m_editor->lines());
-   
+
    m_editor->setMarginWidth(Margin_LineNumbers,maxLineNum);
 }
 
@@ -195,12 +194,12 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
    int bp;
    int addr = 0;
    int absAddr = 0;
-   
-   m_editor->setCursorPosition(line,0);
-   
-   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   m_editor->setCursorPosition(line,0);
+
+   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+
+   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
 
    if ( addr != -1 )
    {
@@ -214,9 +213,9 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
                                           0,
                                           eBreakpointDataNone,
                                           0 );
-      
+
       m_breakpointIndex = bp;
-   
+
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
       {
@@ -227,18 +226,18 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
          if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
          {
             on_actionRemove_breakpoint_triggered();
-            
+
             m_editor->markerDelete(line,Marker_BreakpointDisabled);
          }
          else
          {
             on_actionDisable_breakpoint_triggered();
-            
+
             m_editor->markerDelete(line,Marker_Breakpoint);
             m_editor->markerAdd(line,Marker_BreakpointDisabled);
          }
       }
-      
+
       emit breakpointsChanged();
    }
 }
@@ -255,10 +254,10 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
    int absAddr = 0;
 
    m_editor->getCursorPosition(&line,&index);
-   
-   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+
+   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
 
    if ( addr != -1 )
    {
@@ -272,11 +271,11 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
                                           0,
                                           eBreakpointDataNone,
                                           0 );
-   
+
       // Build context menu...
       menu.addAction(ui->actionRun_to_here);
       menu.addSeparator();
-   
+
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
       {
@@ -295,27 +294,27 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
             menu.addAction(ui->actionRemove_breakpoint);
          }
       }
-   
+
       menu.addSeparator();
       menu.addAction(ui->actionClear_marker);
       menu.addSeparator();
-   
+
       menu.addAction(ui->actionStart_marker_here);
-      menu.addAction(ui->actionEnd_marker_here);   
+      menu.addAction(ui->actionEnd_marker_here);
       menu.addSeparator();
-      
+
 //      menu.addActions(pMenu->actions());
 
       m_breakpointIndex = bp;
    }
    else
-   {      
+   {
 //      menu.addActions(pMenu->actions());
    }
 
    // Run the context menu...
    menu.exec(e->globalPos());
-   
+
 //   delete pMenu;
 }
 
@@ -328,12 +327,12 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
    int index;
    int addr = 0;
    int absAddr = 0;
-   
+
    m_editor->getCursorPosition(&line,&index);
 
-   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
 
    if ( addr != -1 )
    {
@@ -348,7 +347,7 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
                                             eBreakpointDataNone,
                                             0,
                                             true );
-   
+
       if ( bpIdx < 0 )
       {
          QString str;
@@ -359,7 +358,7 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
       {
          m_editor->markerAdd(line,Marker_Breakpoint);
       }
-   
+
       emit breakpointsChanged();
    }
 }
@@ -422,9 +421,9 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
 
    m_editor->getCursorPosition(&line,&index);
 
-   addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
 
    if ( addr != -1 )
    {
@@ -443,12 +442,12 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
    int absAddr = 0;
 
    if ( marker >= 0 )
-   {   
+   {
       m_editor->getCursorPosition(&line,&index);
-   
-      addr = pasm_get_source_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
-   
-      absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( line+1, m_fileName.toAscii().constData() );
+
+      addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+
+      absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
 
       if ( addr != -1 )
       {

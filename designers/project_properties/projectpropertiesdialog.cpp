@@ -27,39 +27,13 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
-   ui->mainSourceComboBox->clear();
 
-   while ( compilers[i] )
-   {
-      ui->compilerToolchain->addItem(compilers[i]);
-      i++;
-   }
-   ui->compilerToolchain->setCurrentIndex(ui->compilerToolchain->findText(nesicideProject->getCompilerToolchain()));
    ui->definedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
    ui->includePaths->setText(nesicideProject->getCompilerIncludePaths());
-   ui->additionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
+   ui->assemblerAdditionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
+   ui->linkerAdditionalOptions->setText(nesicideProject->getLinkerAdditionalOptions());
    ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
    deserializeLinkerConfig();
-
-   while ( iter.current() )
-   {
-      CSourceItem* sourceItem = dynamic_cast<CSourceItem*>(iter.current());
-      if ( sourceItem )
-      {
-         ui->mainSourceComboBox->addItem(sourceItem->name());
-      }
-
-      iter.next();
-   }
-
-   if (nesicideProject->getProject()->getMainSource())
-   {
-      setMainSource(nesicideProject->getProject()->getMainSource()->name());
-   }
-   else
-   {
-      setMainSource("");
-   }
 
    // Link up the project palette to this dialog
    for (int paletteItemIndex=0; paletteItemIndex<pal->count(); paletteItemIndex++)
@@ -323,36 +297,6 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
    }
 }
 
-void ProjectPropertiesDialog::setMainSource(QString mainSource)
-{
-   if (mainSource.isEmpty())
-   {
-      ui->mainSourceComboBox->setCurrentIndex(-1);
-      return;
-   }
-
-   for (int idx = 0; idx < ui->mainSourceComboBox->count(); idx++)
-   {
-      if (ui->mainSourceComboBox->itemText(idx) == mainSource)
-      {
-         ui->mainSourceComboBox->setCurrentIndex(idx);
-         return;
-      }
-   }
-}
-
-QString ProjectPropertiesDialog::getMainSource()
-{
-   if (ui->mainSourceComboBox->currentIndex() == -1)
-   {
-      return "";
-   }
-   else
-   {
-      return ui->mainSourceComboBox->itemText(ui->mainSourceComboBox->currentIndex());
-   }
-}
-
 void ProjectPropertiesDialog::on_redHorizontalSlider_actionTriggered(int action)
 {
    action = action;
@@ -446,10 +390,10 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
    nesicideProject->setProjectOutputName(ui->outputName->text());
-   nesicideProject->setCompilerToolchain(ui->compilerToolchain->currentText());
    nesicideProject->setCompilerDefinedSymbols(ui->definedSymbols->text());
    nesicideProject->setCompilerIncludePaths(ui->includePaths->text());
-   nesicideProject->setCompilerAdditionalOptions(ui->additionalOptions->text());
+   nesicideProject->setCompilerAdditionalOptions(ui->assemblerAdditionalOptions->text());
+   nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
 
@@ -462,17 +406,6 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
 
    nesicideProject->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
    nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
-
-   while ( iter.current() )
-   {
-      CSourceItem* sourceItem = dynamic_cast<CSourceItem*>(iter.current());
-      if ( sourceItem && (sourceItem->name() == getMainSource()) )
-      {
-         nesicideProject->getProject()->setMainSource(sourceItem);
-      }
-
-      iter.next();
-   }
 }
 
 void ProjectPropertiesDialog::on_projectBasePathBrowse_clicked()

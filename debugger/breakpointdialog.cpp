@@ -9,6 +9,8 @@
 
 #include "main.h"
 
+#include "ccc65interface.h"
+
 #include "pasm_lib.h"
 
 BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
@@ -23,7 +25,7 @@ BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
 
    ui->enabled->setChecked(true);
 
-   ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
+   ui->resolverWidget->setCurrentIndex(1);//nesGetMapper()>0);
    ui->resolve->setChecked(false);
    ui->resolutions->addItem("N/A");
    ui->resolutions->setEnabled(false);
@@ -79,7 +81,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
-         ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
+         ui->resolverWidget->setCurrentIndex(1);//nesGetMapper()>0);
          ui->resolve->setChecked(false);
          ui->resolutions->addItem("N/A");
          ui->resolutions->setEnabled(false);
@@ -392,7 +394,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
    uint32_t originalAddr;
    uint32_t maskedAddr;
    int      linenum;
-   char*    source;
+   QString  source;
    QString  item;
    QString  text;
    QStringList textSplit;
@@ -409,15 +411,15 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
       {
          if ( compiler->assembledOk() )
          {
-            source = pasm_get_source_file_name_by_addr(maskedAddr);
-            if ( source )
+            source = CCC65Interface::getSourceFileFromAbsoluteAddress(originalAddr,maskedAddr);
+            if ( !source.isEmpty() )
             {
-               text = pasm_get_source_file_text_by_addr(maskedAddr);
-               linenum = pasm_get_source_linenum_by_absolute_addr(maskedAddr);
-               textSplit = text.split(QRegExp("[\r\n]"));
-               text = textSplit.at(linenum-1);
+               text = "put something";//pasm_get_source_file_text_by_addr(maskedAddr);
+               linenum = CCC65Interface::getSourceLineFromAbsoluteAddress(originalAddr,maskedAddr);
+//               textSplit = text.split(QRegExp("[\r\n]"));
+//               text = textSplit.at(linenum-1);
                item.sprintf("%s:%d:",
-                            source,
+                            source.toAscii().constData(),
                             linenum);
                item.append(text);
                ui->resolutions->addItem(item);

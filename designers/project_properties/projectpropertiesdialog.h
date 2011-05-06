@@ -31,8 +31,6 @@ protected:
 private:
    Ui::ProjectPropertiesDialog* ui;
    void updateUI(int colid = -1);
-   void setMainSource(QString mainSource);
-   QString getMainSource();
    QList<QColor> currentPalette;
    bool          linkerConfigChanged;
 
