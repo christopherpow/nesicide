@@ -102,8 +102,6 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
 
 void SourceNavigator::compiler_compileDone(bool bOk)
 {
-   QFileInfo fileInfo;
-
    blockSignals(true);
    ui->files->clear();
    ui->symbols->clear();
@@ -113,8 +111,7 @@ void SourceNavigator::compiler_compileDone(bool bOk)
       QStringList files = CCC65Interface::getSourceFiles();
       foreach ( const QString& str, files )
       {
-         fileInfo.setFile(str);
-         ui->files->addItem(fileInfo.fileName());
+         ui->files->addItem(str);
       }
       updateSymbolsForFile(0);
    }

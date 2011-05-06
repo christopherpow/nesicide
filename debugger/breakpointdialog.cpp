@@ -25,7 +25,7 @@ BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
 
    ui->enabled->setChecked(true);
 
-   ui->resolverWidget->setCurrentIndex(1);//nesGetMapper()>0);
+   ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
    ui->resolve->setChecked(false);
    ui->resolutions->addItem("N/A");
    ui->resolutions->setEnabled(false);
@@ -81,7 +81,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
-         ui->resolverWidget->setCurrentIndex(1);//nesGetMapper()>0);
+         ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
          ui->resolve->setChecked(false);
          ui->resolutions->addItem("N/A");
          ui->resolutions->setEnabled(false);
@@ -398,6 +398,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
    QString  item;
    QString  text;
    QStringList textSplit;
+   QFileInfo   fileInfo;
 
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);
@@ -414,6 +415,9 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
             source = CCC65Interface::getSourceFileFromAbsoluteAddress(originalAddr,maskedAddr);
             if ( !source.isEmpty() )
             {
+               fileInfo.setFile(source);
+               source = fileInfo.fileName();
+
                text = "put something";//pasm_get_source_file_text_by_addr(maskedAddr);
                linenum = CCC65Interface::getSourceLineFromAbsoluteAddress(originalAddr,maskedAddr);
 //               textSplit = text.split(QRegExp("[\r\n]"));
