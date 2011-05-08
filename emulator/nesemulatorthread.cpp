@@ -21,9 +21,9 @@
 #include "dbg_cnes.h"
 #include "dbg_cnesrom.h"
 
-#include "main.h"
+#include "ccc65interface.h"
 
-#include "pasm_lib.h"
+#include "main.h"
 
 #undef main
 #include <SDL.h>
@@ -195,7 +195,7 @@ void NESEmulatorThread::loadCartridge()
          // Update opcode masks to show proper disassembly...
          for ( a = 0; a < MEM_8KB; a++ )
          {
-            if ( pasm_check_for_instruction_at_absolute_addr((b*MEM_8KB)+a) )
+            if ( CCC65Interface::isAbsoluteAddressAnOpcode((b*MEM_8KB)+a) )
             {
                nesSetOpcodeMask((b*MEM_8KB)+a,1);
             }

@@ -328,3 +328,32 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
    }
    return -1;
 }
+
+bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
+{
+   uint32_t addr;
+   int      line;
+
+   if ( dbgInfo )
+   {
+      // Make addresses for where code might be in PRG-ROM space.
+      addr = (absAddr&MASK_8KB)+MEM_32KB;
+      for ( ; addr < MEM_64KB; addr += MEM_8KB )
+      {
+         dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+         if ( dbgLines )
+         {
+            for ( line = 0; line < dbgLines->count; line++ )
+            {
+               if ( (dbgLines->data[line].line_start == addr) &&
+                    (dbgLines->data[line].output_offs-0x10 == absAddr) )
+               {
+                  return true;
+               }
+            }
+         }
+      }
+   }
+   return false;
+}

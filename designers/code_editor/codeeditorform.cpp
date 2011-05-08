@@ -474,24 +474,30 @@ QString CodeEditorForm::get_sourceCode()
 
 void CodeEditorForm::set_sourceCode(QString source)
 {
-   m_editor->setText(source);
+   if ( m_editor )
+   {
+      m_editor->setText(source);
 
-   // Force repaint of breakpoints since the reason this API is
-   // called is usually when a CodeEditorForm is opened for the
-   // first time or subsequent times after being closed.  Any
-   // breakpoints set in this code module would otherwise disappear
-   // on subsequent opens.  (They're still in the breakpoint database
-   // they just wouldn't show up in the code editor).
-   external_breakpointsChanged();
+      // Force repaint of breakpoints since the reason this API is
+      // called is usually when a CodeEditorForm is opened for the
+      // first time or subsequent times after being closed.  Any
+      // breakpoints set in this code module would otherwise disappear
+      // on subsequent opens.  (They're still in the breakpoint database
+      // they just wouldn't show up in the code editor).
+      external_breakpointsChanged();
+   }
 }
 
 void CodeEditorForm::selectLine(int linenumber)
 {
-   m_editor->markerDeleteAll(Marker_Execution);
-   if ( linenumber >= 0 )
+   if ( m_editor )
    {
-      m_editor->ensureLineVisible(linenumber-1);
-      m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
-      m_editor->markerAdd(linenumber-1,Marker_Execution);
+      m_editor->markerDeleteAll(Marker_Execution);
+      if ( linenumber >= 0 )
+      {
+         m_editor->ensureLineVisible(linenumber-1);
+         m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
+         m_editor->markerAdd(linenumber-1,Marker_Execution);
+      }
    }
 }

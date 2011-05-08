@@ -1345,11 +1345,6 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
    if ( compiler->assembledOk() )
    {
-      emulator->primeEmulator();
-      emulator->resetEmulator();
-      emulator->pauseEmulation(true);
-//      emulator->startEmulation();
-
       buildTextLogger->write("<b>Loading ROM...</b>");
 
       if ( !(CCC65Interface::captureINESImage() && CCC65Interface::captureDebugInfo()) )
@@ -1357,6 +1352,11 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
          buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
          return;
       }
+
+      emulator->primeEmulator();
+      emulator->resetEmulator();
+      emulator->pauseEmulation(true);
+//      emulator->startEmulation();
 
       buildTextLogger->write("<b>Load complete.</b>");
 

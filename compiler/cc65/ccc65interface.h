@@ -22,6 +22,7 @@ public:
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static unsigned int getAddressFromFileAndLine(QString file,int line);
    static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int line);
+   static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
 
 protected:
    static cc65_dbginfo        dbgInfo;

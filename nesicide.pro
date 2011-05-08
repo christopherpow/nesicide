@@ -6,8 +6,6 @@ QT += network \
    webkit \
    xml
 
-system(make -C ./compiler)
-
 TARGET = "nesicide"
 
 isEmpty (NESICIDE_LIBS) {
@@ -16,14 +14,6 @@ isEmpty (NESICIDE_LIBS) {
 
 isEmpty (SCINTILLA_LIBS) {
    SCINTILLA_LIBS = -lqscintilla2
-}
-
-isEmpty (PASM_CXXFLAGS) {
-        PASM_CXXFLAGS = -Icompiler
-}
-
-isEmpty (PASM_LIBS) {
-   PASM_LIBS = -Lcompiler -lpasm
 }
 
 # set platform specific cxxflags and libs
@@ -44,8 +34,6 @@ win32 {
 
    LUA_CXXFLAGS = -I../nesicide/libraries/Lua
    LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
-
-   PASM_LIBS = ../nesicide/compiler/libpasm.a
 
    NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator -I../nesicide-emulator-lib/common
 
@@ -130,8 +118,8 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$PASM_CXXFLAGS $$SCINTILLA_CXXFLAGS
-LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$PASM_LIBS $$SCINTILLA_LIBS
+QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
+LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += common \
     compiler \
@@ -293,8 +281,6 @@ HEADERS += mainwindow.h \
     viewers/debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
-    compiler/pasm_types.h \
-    compiler/pasm_lib.h \
     aboutdialog.h \
     interfaces/ichrrombankitem.h \
     designers/graphics_bank_editor/graphicsbankadditemsdialog.h \
