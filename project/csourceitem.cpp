@@ -108,6 +108,7 @@ bool CSourceItem::deserializeContent()
    if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
    {
       set_sourceCode(QString(fileIn.readAll()));
+      fileIn.close();
    }
    else
    {

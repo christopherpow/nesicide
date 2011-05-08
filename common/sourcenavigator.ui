@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>406</width>
+    <width>409</width>
     <height>22</height>
    </rect>
   </property>
@@ -52,7 +52,7 @@
         </size>
        </property>
        <property name="editable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="maxVisibleItems">
         <number>30</number>

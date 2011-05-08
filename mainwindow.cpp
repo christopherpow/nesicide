@@ -9,6 +9,7 @@
 #include "main.h"
 
 #include "compilerthread.h"
+#include "ccc65interface.h"
 
 #include <QApplication>
 #include <QStringList>
@@ -659,6 +660,21 @@ void MainWindow::openROM(QString fileName)
    // Create new project from ROM
    nesicideProject->initializeProject();
    nesicideProject->createProjectFromRom(fileName);
+
+   // Set up some default stuff guessing from the path...
+   QFileInfo fileInfo(fileName);
+   QDir dir(fileInfo.absolutePath());
+   nesicideProject->setProjectTitle(fileInfo.baseName());
+   nesicideProject->setProjectBasePath(dir.toNativeSeparators(dir.absolutePath()));
+   nesicideProject->setProjectOutputBasePath(dir.toNativeSeparators(dir.absolutePath()));
+   nesicideProject->setProjectSourceBasePath(dir.toNativeSeparators(dir.absolutePath()));
+   nesicideProject->setProjectLinkerOutputName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.completeBaseName()+".prg")));
+   nesicideProject->setProjectCHRROMOutputName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.completeBaseName()+".chr")));
+   nesicideProject->setProjectCartridgeOutputName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.fileName())));
+   nesicideProject->setProjectDebugInfoName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.completeBaseName()+".dbg")));
+
+   // Load debugger info if we can find it.
+   CCC65Interface::captureDebugInfo();
 
    projectBrowser->enableNavigation();
 
@@ -1333,6 +1349,16 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       emulator->resetEmulator();
       emulator->pauseEmulation(true);
 //      emulator->startEmulation();
+
+      buildTextLogger->write("<b>Loading ROM...</b>");
+
+      if ( !(CCC65Interface::captureINESImage() && CCC65Interface::captureDebugInfo()) )
+      {
+         buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
+         return;
+      }
+
+      buildTextLogger->write("<b>Load complete.</b>");
 
       ui->actionEmulation_Window->setChecked(true);
       on_actionEmulation_Window_toggled(true);

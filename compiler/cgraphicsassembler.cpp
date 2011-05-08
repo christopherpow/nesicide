@@ -10,48 +10,46 @@ CGraphicsAssembler::CGraphicsAssembler()
 bool CGraphicsAssembler::assemble()
 {
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
-   CCHRROMBanks* chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
-   int oldChrRomBanks = chrRomBanks->getChrRomBanks().count();
+   QDir outputDir(nesicideProject->getProjectOutputBasePath());
+   QString outputName;
+   QFile chrRomFile;
 
-   buildTextLogger->write("<b>Building CHR-ROM Banks:</b>");
-   
-   for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
+   if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
    {
-      CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
-
-      bool appendBank = (--oldChrRomBanks < 0);
-      CCHRROMBank* chrRomBank;
-
-      if (appendBank)
-      {
-         chrRomBank = new CCHRROMBank(nesicideProject->getCartridge()->getChrRomBanks());
-         chrRomBank->setBankIndex(gfxBankIdx);
-         chrRomBanks->appendChild(chrRomBank);
-         chrRomBanks->getChrRomBanks().append(chrRomBank);
-      }
-      else
-      {
-         chrRomBank = chrRomBanks->getChrRomBanks().at(gfxBankIdx);
-      }
-
-      chrRomBank->clearBankData();
-      buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->name() + "':");
-
-      int dataOffset = 0;
-
-      for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
-      {
-         IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
-         IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-         buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                               ptvi->caption() + "...");
-
-         memcpy(chrRomBank->getBankData() + dataOffset, bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
-         dataOffset += bankItem->getChrRomBankItemSize();
-      }
-
-
+      outputName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".chr"));
+   }
+   else
+   {
+      outputName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectCHRROMOutputName()));
    }
 
-   return true;
+   buildTextLogger->write("<b>Building CHR-ROM Banks:</b>");
+
+   chrRomFile.setFileName(outputName);
+   chrRomFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
+   if ( chrRomFile.isOpen() )
+   {
+      for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
+      {
+         CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
+
+         buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->name() + "':");
+
+         for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
+         {
+            IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
+            IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
+            buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                                  ptvi->caption() + "...");
+
+            chrRomFile.write(bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
+         }
+      }
+
+      chrRomFile.close();
+
+      return true;
+   }
+
+   return false;
 }

@@ -35,6 +35,7 @@ private:
    bool          linkerConfigChanged;
 
 private slots:
+   void on_outputName_textEdited(QString );
    void on_linkerConfig_textChanged();
    void on_linkerConfigFileBrowse_clicked();
    void on_projectNameLineEdit_textEdited(QString );

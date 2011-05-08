@@ -11,9 +11,6 @@ cc65_segmentinfo*   CCC65Interface::dbgSegments = NULL;
 cc65_lineinfo*      CCC65Interface::dbgLines = NULL;
 cc65_symbolinfo*    CCC65Interface::dbgSymbols = NULL;
 
-QStringList         CCC65Interface::files;
-
-
 CCC65Interface::CCC65Interface()
 {
 }
@@ -97,14 +94,28 @@ bool CCC65Interface::assemble()
    invocationStr += nesicideProject->getLinkerAdditionalOptions();
    invocationStr += " ";
    invocationStr += " -V -o ";
-   invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
+   if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
+   {
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
+   }
+   else
+   {
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()))+"\"";
+   }
    if ( !(nesicideProject->getLinkerConfigFile().isEmpty()) )
    {
       invocationStr += " -C ";
       invocationStr += "\""+QDir::toNativeSeparators(nesicideProject->getLinkerConfigFile())+"\"";
    }
    invocationStr += " --dbgfile ";
-   invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
+   if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
+   {
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
+   }
+   else
+   {
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectDebugInfoName()))+"\"";
+   }
    foreach ( const QString& str, objList )
    {
       invocationStr += " ";
@@ -135,15 +146,6 @@ bool CCC65Interface::assemble()
       ok = false;
    }
 
-   if ( ok )
-   {
-      ok = captureDebugInfo();
-      if ( ok )
-      {
-         ok = captureINESImage();
-      }
-   }
-
    return ok;
 }
 
@@ -163,9 +165,16 @@ static void ErrorFunc (const struct cc65_parseerror* E)
 bool CCC65Interface::captureDebugInfo()
 {
    QDir dir(nesicideProject->getProjectOutputBasePath());
-   QString dbgInfoFile = dir.toNativeSeparators(dir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"));
-   int idx;
+   QString dbgInfoFile;
 
+   if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
+   {
+      dbgInfoFile = dir.toNativeSeparators(dir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"));
+   }
+   else
+   {
+      dbgInfoFile = dir.toNativeSeparators(dir.absoluteFilePath(nesicideProject->getProjectDebugInfoName()));
+   }
    buildTextLogger->write("<font color='black'><b>Reading debug information from: "+dbgInfoFile+"</b></font>");
 
    dbgInfo = cc65_read_dbginfo(dbgInfoFile.toAscii().constData(), ErrorFunc);
@@ -174,43 +183,66 @@ bool CCC65Interface::captureDebugInfo()
       return false;
    }
 
-   dbgSources = cc65_get_sourcelist(dbgInfo);
-   dbgSegments = cc65_get_segmentlist(dbgInfo);
-
-   files.clear();
-   for ( idx = 0; idx < dbgSources->count; idx++ )
-   {
-      files.append(dbgSources->data[idx].source_name);
-   }
-
    return true;
 }
 
 bool CCC65Interface::captureINESImage()
 {
-   QDir dir(nesicideProject->getProjectOutputBasePath());
-   QString inesFile = dir.toNativeSeparators(dir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"));
-   QFile ines(inesFile);
-   CPRGROMBanks* prgRomBanks = nesicideProject->getCartridge()->getPrgRomBanks();
-   QByteArray romData;
-   int romLength = 0;
-   int romOffset = 0;
-   int oldBanks = prgRomBanks->getPrgRomBanks().count();
-   int bankIdx = 0;
+   QDir outputDir(nesicideProject->getProjectOutputBasePath());
+   QString nesName;
 
-   buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+inesFile+"</b></font>");
+   if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
+   {
+      nesName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".nes"));
+   }
+   else
+   {
+      nesName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectCartridgeOutputName()));
+   }
 
-   return nesicideProject->createProjectFromRom(inesFile);
+   buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+nesName+"</b></font>");
+
+   return nesicideProject->createProjectFromRom(nesName);
 }
 
-QStringList& CCC65Interface::getSourceFiles()
+QStringList CCC65Interface::getSourceFiles()
 {
+   QStringList files;
+   int file;
+
+   if ( dbgInfo )
+   {
+      dbgSources = cc65_get_sourcelist(dbgInfo);
+
+      if ( dbgSources )
+      {
+         for ( file = 0; file < dbgSources->count; file++ )
+         {
+            files.append(dbgSources->data[file].source_name);
+         }
+      }
+   }
    return files;
 }
 
-QStringList& CCC65Interface::getSymbolsForSourceFile(QString& sourceFile)
+QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
 {
+   QStringList symbols;
+   int symbol;
 
+   if ( dbgInfo )
+   {
+      dbgSymbols = cc65_symbol_inrange(dbgInfo,0,0xFFFF);
+
+      if ( dbgSymbols )
+      {
+         for ( symbol = 0; symbol < dbgSymbols->count; symbol++ )
+         {
+            symbols.append(dbgSymbols->data[symbol].symbol_name);
+         }
+      }
+   }
+   return symbols;
 }
 
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)

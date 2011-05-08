@@ -12,6 +12,8 @@ CSourceAssembler::CSourceAssembler()
 
 bool CSourceAssembler::assemble()
 {
+   buildTextLogger->write("<b>Building PRG-ROM Banks:</b>");
+
    // External CC65 in PATH
    return CCC65Interface::assemble();
 }

@@ -27,6 +27,10 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
+   ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
+   ui->debugInfoName->setText(nesicideProject->getProjectDebugInfoName());
+   ui->chrromOutputName->setText(nesicideProject->getProjectCHRROMOutputName());
+   ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
 
    ui->definedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
    ui->includePaths->setText(nesicideProject->getCompilerIncludePaths());
@@ -390,6 +394,10 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
    nesicideProject->setProjectOutputName(ui->outputName->text());
+   nesicideProject->setProjectLinkerOutputName(ui->linkerOutputName->text());
+   nesicideProject->setProjectDebugInfoName(ui->debugInfoName->text());
+   nesicideProject->setProjectCHRROMOutputName(ui->chrromOutputName->text());
+   nesicideProject->setProjectCartridgeOutputName(ui->cartridgeOutputName->text());
    nesicideProject->setCompilerDefinedSymbols(ui->definedSymbols->text());
    nesicideProject->setCompilerIncludePaths(ui->includePaths->text());
    nesicideProject->setCompilerAdditionalOptions(ui->assemblerAdditionalOptions->text());
@@ -446,6 +454,10 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
     text.replace(" ","_");
 
     ui->outputName->setText(text);
+    ui->linkerOutputName->setText(text+".prg");
+    ui->debugInfoName->setText(text+".dbg");
+    ui->chrromOutputName->setText(text+".chr");
+    ui->cartridgeOutputName->setText(text+".nes");
 }
 
 void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
@@ -505,4 +517,14 @@ void ProjectPropertiesDialog::on_linkerConfig_textChanged()
 {
    // Trigger deserialization of linker config file on dialog close.
    linkerConfigChanged = true;
+}
+
+void ProjectPropertiesDialog::on_outputName_textEdited(QString )
+{
+   QString text = ui->outputName->text();
+
+   ui->linkerOutputName->setText(text+".prg");
+   ui->debugInfoName->setText(text+".dbg");
+   ui->chrromOutputName->setText(text+".chr");
+   ui->cartridgeOutputName->setText(text+".nes");
 }

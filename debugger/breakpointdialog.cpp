@@ -11,8 +11,6 @@
 
 #include "ccc65interface.h"
 
-#include "pasm_lib.h"
-
 BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
    QDialog(parent),
    ui(new Ui::BreakpointDialog)

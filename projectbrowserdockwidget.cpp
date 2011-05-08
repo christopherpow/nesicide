@@ -10,15 +10,15 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(QTabWidget* pTarget,SourceNav
     ui(new Ui::ProjectBrowserDockWidget)
 {
    ui->setupUi(this);
-   
+
    m_pTarget = pTarget;
    m_pSourceNavigator = pSourceNavigator;
-   
+
    m_pProjectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
    ui->projectTreeWidget->setModel(m_pProjectTreeviewModel);
    ui->projectTreeWidget->setTarget(m_pTarget);
 
-   QObject::connect(ui->projectTreeWidget,SIGNAL(projectTreeView_openItem(QString)),m_pSourceNavigator,SLOT(projectTreeView_openItem(QString)));
+   QObject::connect(ui->projectTreeWidget,SIGNAL(projectTreeView_openItem(IProjectTreeViewItem*)),m_pSourceNavigator,SLOT(projectTreeView_openItem(IProjectTreeViewItem*)));
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()

@@ -5,8 +5,6 @@
 
 #include "ccc65interface.h"
 
-#include "pasm_lib.h"
-
 SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SourceNavigator)
@@ -17,6 +15,7 @@ SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
     ui->symbols->setEnabled(false);
 
     QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
+    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(emulator_cartridgeLoaded()));
     QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),this,SLOT(emulator_emulatorPaused(bool)));
     QObject::connect(emulator,SIGNAL(emulatorReset()),this,SLOT(emulator_emulatorPaused()));
     QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(emulator_emulatorPaused()));
@@ -37,27 +36,47 @@ void SourceNavigator::shutdown()
    ui->symbols->setEnabled(false);
 }
 
-void SourceNavigator::updateSymbolsForFile(int file)
+void SourceNavigator::updateFiles(bool doIt)
 {
-   file_table*   pFile;
-   symbol_table* pSymbol;
-   int           symbol;
+   ui->files->clear();
+   ui->symbols->clear();
+
+   if ( doIt )
+   {
+      QStringList files = CCC65Interface::getSourceFiles();
+      ui->files->addItems(files);
+      if ( files.count() )
+      {
+         updateSymbolsForFile(files.at(0));
+      }
+   }
+   else
+   {
+      ui->files->clear();
+      ui->symbols->clear();
+   }
+
+   ui->files->setEnabled(doIt);
+   ui->symbols->setEnabled(doIt);
+}
+
+void SourceNavigator::updateSymbolsForFile(QString file)
+{
+   QStringList   symbols;
 
    blockSignals(true);
    ui->symbols->clear();
-   pFile = pasm_get_source_file_by_index(file);
-   for ( symbol = 0; symbol < pasm_get_num_symbols(); symbol++ )
-   {
-      if ( pasm_get_symbol_type_by_index(symbol) == symbol_label )
-      {
-         pSymbol = pasm_get_symbol_by_index(symbol);
-         if ( pSymbol->ir &&
-              (pSymbol->ir->file == pFile) )
-         {
-            ui->symbols->addItem(pasm_get_symbol_name_by_index(symbol));
-         }
-      }
-   }
+
+   symbols = CCC65Interface::getSymbolsForSourceFile(file);
+   ui->symbols->addItems(symbols);
+
+   blockSignals(false);
+}
+
+void SourceNavigator::emulator_cartridgeLoaded()
+{
+   blockSignals(true);
+   updateFiles(true);
    blockSignals(false);
 }
 
@@ -69,6 +88,7 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
    int   linenumber;
    unsigned int addr;
    unsigned int absAddr;
+   bool found = false;
 
    if ( show )
    {
@@ -79,6 +99,7 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
       if ( !file.isEmpty() )
       {
          linenumber = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
+         ui->files->setCurrentIndex(ui->files->findText(file));
          on_files_activated(file);
 
          while ( iter.current() )
@@ -88,12 +109,28 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
                  (pSource->absolutePath() == file) )
             {
                pSource->getEditor()->selectLine(linenumber);
+               found = true;
             }
             else if ( pSource && pSource->getEditor() )
             {
                pSource->getEditor()->selectLine(-1);
             }
             iter.next();
+         }
+      }
+
+      // Now search through open files that are not part of the project.
+      for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+      {
+         CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+         if ( editor &&
+              editor->fileName() == file )
+         {
+            editor->selectLine(linenumber);
+         }
+         else
+         {
+            editor->selectLine(-1);
          }
       }
       blockSignals(false);
@@ -103,47 +140,32 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
 void SourceNavigator::compiler_compileDone(bool bOk)
 {
    blockSignals(true);
-   ui->files->clear();
-   ui->symbols->clear();
-
-   if ( bOk )
-   {
-      QStringList files = CCC65Interface::getSourceFiles();
-      foreach ( const QString& str, files )
-      {
-         ui->files->addItem(str);
-      }
-      updateSymbolsForFile(0);
-   }
-   else
-   {
-      ui->files->clear();
-      ui->symbols->clear();
-   }
-
-   ui->files->setEnabled(bOk);
-   ui->symbols->setEnabled(bOk);
-
+   updateFiles(bOk);
    blockSignals(false);
 }
 
-void SourceNavigator::projectTreeView_openItem(QString item)
+void SourceNavigator::projectTreeView_openItem(IProjectTreeViewItem* item)
 {
-   int file = pasm_get_source_file_index_by_name(item.toAscii().constData());
-   blockSignals(true);
+   CProjectBase* pItem = dynamic_cast<CProjectBase*>(item);
 
-   ui->files->setCurrentIndex(file);
-   ui->symbols->clear();
+   if ( pItem )
+   {
+      blockSignals(true);
 
-   updateSymbolsForFile(file);
+      ui->files->setCurrentIndex(ui->files->findText(pItem->absolutePath()));
+      ui->symbols->clear();
 
-   blockSignals(false);
+      updateSymbolsForFile(pItem->absolutePath());
+
+      blockSignals(false);
+   }
 }
 
 void SourceNavigator::on_files_activated(QString file)
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
+   bool found = false;
 
    while ( iter.current() )
    {
@@ -153,17 +175,58 @@ void SourceNavigator::on_files_activated(QString file)
          if ( pSource->absolutePath() == file )
          {
             pSource->openItemEvent(m_pTarget);
-            updateSymbolsForFile(ui->files->currentIndex());
+            updateSymbolsForFile(file);
             emit fileNavigator_fileChanged(ui->files->currentText());
+            found = true;
             break;
          }
       }
       iter.next();
    }
+
+   if ( !found )
+   {
+      // If we got here the file is not part of the project...lets open it anyway,
+      // if it's not already open.
+      int foundIdx = -1;
+      for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+      {
+         CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+         if ( editor &&
+              editor->fileName() == file )
+         {
+            found = true;
+            foundIdx = tab;
+            emit fileNavigator_fileChanged(ui->files->currentText());
+            break;
+         }
+      }
+      if ( !found )
+      {
+         CodeEditorForm* editor = new CodeEditorForm(file);
+         m_pTarget->addTab(editor, file);
+         m_pTarget->setCurrentWidget(editor);
+
+         QFile fileIn(file);
+
+         if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+         {
+            editor->set_sourceCode(QString(fileIn.readAll()));
+            fileIn.close();
+         }
+         emit fileNavigator_fileChanged(ui->files->currentText());
+      }
+      else
+      {
+         m_pTarget->setCurrentIndex(foundIdx);
+         emit fileNavigator_fileChanged(ui->files->currentText());
+      }
+   }
 }
 
 void SourceNavigator::on_symbols_activated(QString symbol)
 {
+#if 0
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
    int          linenumber = pasm_get_symbol_linenum_by_name(symbol.toAscii().constData());
@@ -181,4 +244,5 @@ void SourceNavigator::on_symbols_activated(QString symbol)
       }
       iter.next();
    }
+#endif
 }

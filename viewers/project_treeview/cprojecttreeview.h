@@ -6,7 +6,6 @@
 #include <QContextMenuEvent>
 
 #include "cprojecttreeviewmodel.h"
-//#include "main.h"
 
 class CProjectTreeView : public QTreeView
 {
@@ -23,7 +22,7 @@ protected:
    void keyPressEvent ( QKeyEvent* e );
 
 signals:
-   void projectTreeView_openItem(QString item);
+   void projectTreeView_openItem(IProjectTreeViewItem* item);
 };
 
 #endif // CPROJECTTREEVIEW_H

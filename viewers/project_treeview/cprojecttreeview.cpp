@@ -22,7 +22,7 @@ void CProjectTreeView::mouseDoubleClickEvent (QMouseEvent* event)
    if (item)
    {
       item->openItemEvent(m_pTarget);
-      emit projectTreeView_openItem(item->caption());
+      emit projectTreeView_openItem(item);
    }
 }
 

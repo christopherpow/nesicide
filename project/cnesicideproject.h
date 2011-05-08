@@ -33,6 +33,10 @@ public:
    QString getProjectSourceBasePath() { return m_projectSourceBasePath; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
+   QString getProjectLinkerOutputName() { return m_projectLinkerOutputName; }
+   QString getProjectDebugInfoName() { return m_projectDebugInfoName; }
+   QString getProjectCHRROMOutputName() { return m_projectCHRROMOutputName; }
+   QString getProjectCartridgeOutputName() { return m_projectCartridgeOutputName; }
    QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
    QString getCompilerIncludePaths() { return m_compilerIncludePaths; }
    QString getCompilerAdditionalOptions() { return m_compilerAdditionalOptions; }
@@ -43,11 +47,23 @@ public:
    CProject* getProject() { return m_pProject; }
 
    // Member Setters
-   void setProjectTitle(QString value) { m_projectTitle = value; m_projectOutputName = m_projectTitle.toLower().replace(" ","_"); }
+   void setProjectTitle(QString value)
+   {
+      m_projectTitle = value;
+      m_projectOutputName = m_projectTitle.toLower().replace(" ","_");
+      m_projectLinkerOutputName = m_projectTitle.toLower().replace(" ","_")+".prg";
+      m_projectDebugInfoName = m_projectTitle.toLower().replace(" ","_")+".dbg";
+      m_projectCHRROMOutputName = m_projectTitle.toLower().replace(" ","_")+".chr";
+      m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
+   }
    void setProjectBasePath(QString value) { m_projectBasePath = value; }
    void setProjectSourceBasePath(QString value) { m_projectSourceBasePath = value; }
    void setProjectOutputBasePath(QString value) { m_projectOutputBasePath = value; }
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
+   void setProjectLinkerOutputName(QString value) { m_projectLinkerOutputName = value; }
+   void setProjectDebugInfoName(QString value) { m_projectDebugInfoName = value; }
+   void setProjectCHRROMOutputName(QString value) { m_projectCHRROMOutputName = value; }
+   void setProjectCartridgeOutputName(QString value) { m_projectCartridgeOutputName = value; }
    void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
    void setCompilerIncludePaths(QString value) { m_compilerIncludePaths = value; }
    void setCompilerAdditionalOptions(QString value) { m_compilerAdditionalOptions = value; }
@@ -93,6 +109,10 @@ private:
    QString m_projectSourceBasePath;
    QString m_projectOutputBasePath;
    QString m_projectOutputName;
+   QString m_projectLinkerOutputName;
+   QString m_projectDebugInfoName;
+   QString m_projectCHRROMOutputName;
+   QString m_projectCartridgeOutputName;
    // The toolchain argument strings
    QString m_compilerDefinedSymbols;
    QString m_compilerIncludePaths;

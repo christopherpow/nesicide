@@ -5,6 +5,7 @@
 #include <QTextCursor>
 
 #include <Qsci/qsciscintilla.h>
+#include "qscilexerca65.h"
 
 namespace Ui
 {
@@ -21,6 +22,7 @@ public:
    QString get_sourceCode();
    void set_sourceCode(QString source);
    void selectLine(int linenumber);
+   QString fileName() { return m_fileName; }
 
 protected:
    void changeEvent(QEvent* e);
@@ -30,6 +32,7 @@ private:
    Ui::CodeEditorForm* ui;
    QString m_fileName;
    QsciScintilla* m_editor;
+   QsciLexerCA65* m_lexer;
    int m_breakpointIndex;
    QTextCursor m_ctxtTextCursor;
 

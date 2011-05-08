@@ -4,6 +4,8 @@
 #include <QTabWidget>
 #include <QWidget>
 
+#include "iprojecttreeviewitem.h"
+
 namespace Ui {
     class SourceNavigator;
 }
@@ -20,9 +22,10 @@ public:
 
 private:
    Ui::SourceNavigator *ui;
-   void updateSymbolsForFile(int file);
+   void updateSymbolsForFile(QString file);
+   void updateFiles(bool doIt);
    QTabWidget* m_pTarget;
-    
+
 signals:
    void fileNavigator_fileChanged(QString file);
    void fileNavigator_symbolChanged(QString file, QString symbol, int linenumber);
@@ -34,7 +37,8 @@ private slots:
 public slots:
    void compiler_compileDone(bool bOk);
    void emulator_emulatorPaused(bool show = true);
-   void projectTreeView_openItem(QString item);
+   void emulator_cartridgeLoaded();
+   void projectTreeView_openItem(IProjectTreeViewItem* item);
 };
 
 #endif // SOURCENAVIGATOR_H

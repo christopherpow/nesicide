@@ -7,7 +7,6 @@
 
 #include "main.h"
 
-#include "pasm_lib.h"
 #include "ccc65interface.h"
 
 #include "cdockwidgetregistry.h"
@@ -76,6 +75,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
 
+   m_lexer = new QsciLexerCA65(m_editor);
+   m_editor->setLexer(m_lexer);
+
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_editor,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
 
@@ -100,6 +102,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 CodeEditorForm::~CodeEditorForm()
 {
    delete ui;
+
+   delete m_editor;
+   delete m_lexer;
 }
 
 void CodeEditorForm::changeEvent(QEvent* e)
@@ -470,6 +475,14 @@ QString CodeEditorForm::get_sourceCode()
 void CodeEditorForm::set_sourceCode(QString source)
 {
    m_editor->setText(source);
+
+   // Force repaint of breakpoints since the reason this API is
+   // called is usually when a CodeEditorForm is opened for the
+   // first time or subsequent times after being closed.  Any
+   // breakpoints set in this code module would otherwise disappear
+   // on subsequent opens.  (They're still in the breakpoint database
+   // they just wouldn't show up in the code editor).
+   external_breakpointsChanged();
 }
 
 void CodeEditorForm::selectLine(int linenumber)

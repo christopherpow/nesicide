@@ -16,8 +16,8 @@ public:
    static bool assemble();
    static bool captureDebugInfo();
    static bool captureINESImage();
-   static QStringList& getSourceFiles();
-   static QStringList& getSymbolsForSourceFile(QString& sourceFile);
+   static QStringList getSourceFiles();
+   static QStringList getSymbolsForSourceFile(QString sourceFile);
    static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static unsigned int getAddressFromFileAndLine(QString file,int line);
@@ -29,8 +29,6 @@ protected:
    static cc65_segmentinfo*   dbgSegments;
    static cc65_lineinfo*      dbgLines;
    static cc65_symbolinfo*    dbgSymbols;
-
-   static QStringList         files;
 };
 
 #endif // CCC65INTERFACE_H

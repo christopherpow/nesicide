@@ -3,16 +3,6 @@
 
 #include "cnessystempalette.h"
 
-extern "C" int PASM_include ( char* objname, char** objdata, int* size )
-{
-   if ( nesicideProject )
-   {
-      return nesicideProject->findSource ( objname, objdata, size );
-   }
-
-   return 0;
-}
-
 CNesicideProject::CNesicideProject()
 {
    // Add node to tree as root
@@ -128,6 +118,10 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("sourcebasepath",m_projectSourceBasePath);
    propertiesElement.setAttribute("outputbasepath",m_projectOutputBasePath);
    propertiesElement.setAttribute("outputname",m_projectOutputName);
+   propertiesElement.setAttribute("linkeroutputname",m_projectLinkerOutputName);
+   propertiesElement.setAttribute("debuginfoname",m_projectDebugInfoName);
+   propertiesElement.setAttribute("chrromoutputname",m_projectCHRROMOutputName);
+   propertiesElement.setAttribute("cartridgeoutputname",m_projectCartridgeOutputName);
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
    propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
    propertiesElement.setAttribute("compileradditionaloptions",m_compilerAdditionalOptions);
@@ -211,6 +205,10 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_projectSourceBasePath = propertiesElement.attribute("sourcebasepath");
          m_projectOutputBasePath = propertiesElement.attribute("outputbasepath");
          m_projectOutputName = propertiesElement.attribute("outputname");
+         m_projectLinkerOutputName = propertiesElement.attribute("linkeroutputname");
+         m_projectDebugInfoName = propertiesElement.attribute("debuginfoname");
+         m_projectCHRROMOutputName = propertiesElement.attribute("chrromoutputname");
+         m_projectCartridgeOutputName = propertiesElement.attribute("cartridgeoutputname");
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
          m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
          m_compilerAdditionalOptions = propertiesElement.attribute("compileradditionaloptions");
@@ -287,6 +285,10 @@ QString CNesicideProject::caption() const
 
 bool CNesicideProject::createProjectFromRom(QString fileName)
 {
+   CCHRROMBanks* chrRomBanks = getCartridge()->getChrRomBanks();
+   CPRGROMBanks* prgRomBanks = getCartridge()->getPrgRomBanks();
+   int oldBanks;
+   int bankIdx;
    QString str;
 
    QFile fileIn (fileName);
@@ -396,9 +398,8 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       }
 
       // Load the PRG-ROM banks (16KB each)
-      CPRGROMBanks* prgRomBanks = getCartridge()->getPrgRomBanks();
-      int oldBanks = prgRomBanks->getPrgRomBanks().count();
-      int bankIdx = 0;
+      oldBanks = prgRomBanks->getPrgRomBanks().count();
+      bankIdx = 0;
       for (int bank=0; bank<numPrgRomBanks; bank++)
       {
          // Grab either a previously used bank, or a new one
@@ -423,17 +424,29 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       }
 
       // Load the CHR-ROM banks (8KB each)
+      oldBanks = chrRomBanks->getChrRomBanks().count();
+      bankIdx = 0;
       for (int bank=0; bank<numChrRomBanks; bank++)
       {
-         // Create the ROM bank and load in the binary data
-         CCHRROMBank* romBank = new CCHRROMBank(nesicideProject->getCartridge()->getChrRomBanks());
-         romBank->setBankIndex(m_pCartridge->getChrRomBanks()->getChrRomBanks().count());
-         fs.readRawData((char*)romBank->getBankData(),MEM_8KB);
+         // Grab either a previously used bank, or a new one
+         CCHRROMBank* curBank;
+         bool doAppend = (--oldBanks < 0);
 
-         // Attach the rom bank to the rom banks object
-         m_pCartridge->getChrRomBanks()->appendChild(romBank);
-         m_pCartridge->getChrRomBanks()->getChrRomBanks().append(romBank);
+         // Initialize the bank into the project banks
+         if (doAppend)
+         {
+            curBank = new CCHRROMBank(nesicideProject->getCartridge()->getChrRomBanks());
+            // This is a new bank
+            curBank->setBankIndex(chrRomBanks->getChrRomBanks().count());
+            chrRomBanks->appendChild(curBank);
+            chrRomBanks->getChrRomBanks().append(curBank);
+         }
+         else
+         {
+            curBank = chrRomBanks->getChrRomBanks().at(bankIdx++);
+         }
 
+         fs.readRawData((char*)curBank->getBankData(),MEM_8KB);
       }
 
       str = "<b>Searcing internal game database: ";
@@ -485,7 +498,9 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       generalTextLogger->write(str);
 
       fileIn.close();
+
+      return true;
    }
 
-   return true;
+   return false;
 }

@@ -243,7 +243,8 @@ SOURCES += mainwindow.cpp \
     compiler/cc65/ccc65interface.cpp \
     compiler/cc65/dbginfo.c \
     common/xmlhelpers.cpp \
-    testsuiteexecutivedialog.cpp
+    testsuiteexecutivedialog.cpp \
+    designers/code_editor/qscilexerca65.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -338,7 +339,8 @@ HEADERS += mainwindow.h \
     common/cdockwidgetregistry.h \
     compiler/cc65/ccc65interface.h \
     compiler/cc65/dbginfo.h \
-    testsuiteexecutivedialog.h
+    testsuiteexecutivedialog.h \
+    designers/code_editor/qscilexerca65.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
