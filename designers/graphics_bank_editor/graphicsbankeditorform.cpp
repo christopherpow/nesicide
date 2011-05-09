@@ -42,7 +42,8 @@ void GraphicsBankEditorForm::on_AddItemPushButton_clicked()
 {
    GraphicsBankAddItemsDialog* dlg = new GraphicsBankAddItemsDialog(this);
 
-   if (dlg->exec() == QDialog::Accepted)
+   if ( (dlg->exec() == QDialog::Accepted) &&
+        (dlg->getSelectedBankItem()) )
    {
       chrRomBankItems.append(dlg->getSelectedBankItem());
       model->chrRomBankItems.append(dlg->getSelectedBankItem());

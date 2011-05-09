@@ -1,8 +1,8 @@
 #include "qscilexerca65.h"
 
-#include <QColor.h>
-#include <QFont.h>
-#include <QSettings.h>
+#include <QColor>
+#include <QFont>
+#include <QSettings>
 
 // Styles
 enum
@@ -56,13 +56,13 @@ QColor QsciLexerCA65::color(int style) const
    switch ( style )
    {
       case CA65_Default:
-         return QColor(0,255,0);
+         return QColor(0,0,0);
       break;
       case CA65_Opcode:
-         return QColor(255,0,0);
+         return QColor(0,0,0);
       break;
       default:
-         return QColor(100,100,100);
+         return QColor(255,255,255);
       break;
    }
 }
@@ -76,13 +76,13 @@ QColor QsciLexerCA65::paper(int style) const
    switch ( style )
    {
       case CA65_Default:
-         return QColor(255,0,0);
+         return QColor(225,225,225);
       break;
       case CA65_Opcode:
-         return QColor(0,255,0);
+         return QColor(225,225,225);
       break;
       default:
-         return QColor(100,100,100);
+         return QColor(255,255,255);
       break;
    }
 }

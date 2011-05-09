@@ -104,8 +104,8 @@ CodeEditorForm::~CodeEditorForm()
 {
    delete ui;
 
+   delete m_lexer;
    delete m_editor;
-   // m_lexer is owned/deleted by m_editor.
 }
 
 void CodeEditorForm::changeEvent(QEvent* e)
