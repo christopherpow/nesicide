@@ -3,7 +3,7 @@
 
 #include <QProcess>
 
-#include "iprojecttreeviewitem.h"
+#include "stdint.h"
 
 #include "dbginfo.h"
 

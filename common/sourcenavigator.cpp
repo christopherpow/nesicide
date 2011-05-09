@@ -117,20 +117,20 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
             }
             iter.next();
          }
-      }
 
-      // Now search through open files that are not part of the project.
-      for ( int tab = 0; tab < m_pTarget->count(); tab++ )
-      {
-         CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
-         if ( editor &&
-              editor->fileName() == file )
+         // Now search through open files that are not part of the project.
+         for ( int tab = 0; tab < m_pTarget->count(); tab++ )
          {
-            editor->selectLine(linenumber);
-         }
-         else
-         {
-            editor->selectLine(-1);
+            CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+            if ( editor &&
+                 (editor->fileName() == file) )
+            {
+               editor->selectLine(linenumber);
+            }
+            else if ( editor )
+            {
+               editor->selectLine(-1);
+            }
          }
       }
       blockSignals(false);

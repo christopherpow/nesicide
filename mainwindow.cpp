@@ -609,12 +609,7 @@ void MainWindow::on_actionProject_Properties_triggered()
 
    if (dlg.exec() == QDialog::Accepted)
    {
-      emulator->pauseEmulation(false);
-
-      emulator->primeEmulator();
-      emulator->resetEmulator();
-
-      projectDataChangesEvent();
+      on_actionLoad_In_Emulator_triggered();
    }
 }
 

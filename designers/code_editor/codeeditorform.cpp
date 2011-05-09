@@ -39,6 +39,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    ui->setupUi(this);
 
    m_editor = new QsciScintilla();
+
 #ifdef Q_WS_MAC
    m_editor->setFont(QFont("Monaco", 11));
 #endif
@@ -48,8 +49,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 #ifdef Q_WS_WIN
    m_editor->setFont(QFont("Consolas", 11));
 #endif
-   m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
+   m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
    m_editor->setMarginWidth(2,0);
    m_editor->setMarginMarkerMask(2,0);
    m_editor->setMarginWidth(3,0);
@@ -75,7 +76,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
 
-   m_lexer = new QsciLexerCA65(m_editor);
+   m_lexer = new QsciLexerCA65();
    m_editor->setLexer(m_lexer);
 
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
@@ -104,7 +105,7 @@ CodeEditorForm::~CodeEditorForm()
    delete ui;
 
    delete m_editor;
-   delete m_lexer;
+   // m_lexer is owned/deleted by m_editor.
 }
 
 void CodeEditorForm::changeEvent(QEvent* e)
