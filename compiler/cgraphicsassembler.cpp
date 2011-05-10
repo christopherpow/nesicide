@@ -16,11 +16,11 @@ bool CGraphicsAssembler::assemble()
 
    if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
    {
-      outputName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".chr"));
+      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
    }
    else
    {
-      outputName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectCHRROMOutputName()));
+      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
    }
 
    buildTextLogger->write("<b>Building CHR-ROM Banks:</b>");

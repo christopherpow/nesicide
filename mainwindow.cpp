@@ -532,7 +532,7 @@ void MainWindow::projectDataChangesEvent()
 
       if (projectItem)
       {
-         ui->actionSave_Active_Document->setEnabled(((IProjectTreeViewItem*)projectItem)->isDocumentSaveable());
+         ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
       }
       else
       {
@@ -662,8 +662,22 @@ void MainWindow::openROM(QString fileName)
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
    QDir dir(QDir::currentPath());
-   nesicideProject->setProjectOutputBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
-   nesicideProject->setProjectSourceBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
+   if ( settings.value("recentProjectSourceBasePath").toString().isEmpty() )
+   {
+      nesicideProject->setProjectSourceBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
+   }
+   else
+   {
+      nesicideProject->setProjectSourceBasePath(settings.value("recentProjectSourceBasePath").toString());
+   }
+   if ( settings.value("recentProjectSourceBasePath").toString().isEmpty() )
+   {
+      nesicideProject->setProjectOutputBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
+   }
+   else
+   {
+      nesicideProject->setProjectOutputBasePath(settings.value("recentProjectOutputBasePath").toString());
+   }
    nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
    nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
    nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
@@ -777,6 +791,7 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
 void MainWindow::openProject(QString fileName)
 {
+   QSettings settings;
    QString errors;
    bool    ok;
 
@@ -821,8 +836,29 @@ void MainWindow::openProject(QString fileName)
          nesicideProject->terminateProject();
       }
 
-      // Load debugger info if we can find it.
-      CCC65Interface::captureDebugInfo();
+      // Load ROM if it exists.
+      if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
+      {
+         QDir dir(nesicideProject->getProjectOutputBasePath());
+         QString romName;
+         romName = dir.toNativeSeparators(dir.filePath(nesicideProject->getProjectCartridgeOutputName()));
+
+         nesicideProject->createProjectFromRom(romName);
+
+         // Load debugger info if we can find it.
+         CCC65Interface::captureDebugInfo();
+
+         emulator->primeEmulator();
+         emulator->resetEmulator();
+
+         if ( settings.value("runRom").toBool() )
+         {
+            emulator->startEmulation();
+         }
+
+         ui->actionEmulation_Window->setChecked(true);
+         on_actionEmulation_Window_toggled(true);
+      }
 
       projectBrowser->enableNavigation();
 
@@ -1366,7 +1402,6 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       ui->actionEmulation_Window->setChecked(true);
       on_actionEmulation_Window_toggled(true);
    }
-
 }
 
 void MainWindow::on_actionRun_Test_Suite_triggered()

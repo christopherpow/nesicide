@@ -56,7 +56,7 @@ bool CSourceItem::serializeContent()
    if ( m_isModified )
    {
       QDir dir(nesicideProject->getProjectSourceBasePath());
-      QFile fileOut(dir.absoluteFilePath(m_path));
+      QFile fileOut(dir.relativeFilePath(m_path));
 
       if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
       {
@@ -106,7 +106,7 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 bool CSourceItem::deserializeContent()
 {
    QDir dir(nesicideProject->getProjectSourceBasePath());
-   QFile fileIn(dir.absoluteFilePath(m_path));
+   QFile fileIn(dir.relativeFilePath(m_path));
 
    if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
    {
@@ -167,15 +167,15 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
       }
       else
       {
-         tabWidget->addTab(m_editor, this->caption());
+         tabWidget->addTab(m_editor, caption());
          tabWidget->setCurrentWidget(m_editor);
       }
    }
    else
    {
-      m_editor = new CodeEditorForm(this->absolutePath());
+      m_editor = new CodeEditorForm(path());
       m_editor->set_sourceCode(m_sourceCode);
-      tabWidget->addTab(m_editor, this->caption());
+      tabWidget->addTab(m_editor, caption());
       tabWidget->setCurrentWidget(m_editor);
    }
 }
@@ -213,6 +213,7 @@ bool CSourceItem::isDocumentSaveable()
 void CSourceItem::onSaveDocument()
 {
    m_sourceCode = m_editor->get_sourceCode();
+   serializeContent();
 }
 
 bool CSourceItem::canChangeName()

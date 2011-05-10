@@ -170,11 +170,11 @@ bool CCC65Interface::captureDebugInfo()
 
    if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
    {
-      dbgInfoFile = dir.toNativeSeparators(dir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"));
+      dbgInfoFile = dir.toNativeSeparators(dir.filePath(nesicideProject->getProjectOutputName()+".dbg"));
    }
    else
    {
-      dbgInfoFile = dir.toNativeSeparators(dir.absoluteFilePath(nesicideProject->getProjectDebugInfoName()));
+      dbgInfoFile = dir.toNativeSeparators(dir.filePath(nesicideProject->getProjectDebugInfoName()));
    }
    buildTextLogger->write("<font color='black'><b>Reading debug information from: "+dbgInfoFile+"</b></font>");
 
@@ -194,11 +194,11 @@ bool CCC65Interface::captureINESImage()
 
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCartridgeOutputName()));
    }
 
    buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+nesName+"</b></font>");

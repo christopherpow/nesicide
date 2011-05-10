@@ -389,6 +389,7 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 void ProjectPropertiesDialog::on_buttonBox_accepted()
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   QSettings settings;
 
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
    nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
@@ -404,6 +405,10 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
+
+   // Remember set base paths so we can try to be smart next time.
+   settings.setValue("recentProjectSourceBasePath",ui->projectSourceBasePath->text());
+   settings.setValue("recentProjectOutputBasePath",ui->projectOutputBasePath->text());
 
    nesicideProject->getProjectPaletteEntries()->clear();
 
@@ -466,46 +471,53 @@ void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
 
 void ProjectPropertiesDialog::serializeLinkerConfig()
 {
-   if ( linkerConfigChanged )
+   if ( !ui->linkerConfigFile->text().isEmpty() )
    {
-      QDir dir(QDir::currentPath());
-      QFile fileOut(dir.absoluteFilePath(ui->linkerConfigFile->text()));
+      if ( linkerConfigChanged )
+      {
+         QDir dir(QDir::currentPath());
+         QFile fileOut(dir.filePath(ui->linkerConfigFile->text()));
 
-      fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
-      if ( fileOut.isOpen() )
-      {
-         fileOut.write(ui->linkerConfig->toPlainText().toAscii());
-         fileOut.close();
+         fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
+         if ( fileOut.isOpen() )
+         {
+            fileOut.write(ui->linkerConfig->toPlainText().toAscii());
+            fileOut.close();
+         }
+         else
+         {
+            QMessageBox::critical(0,"File I/O Error", "Could not write linker config file:\n"+ui->linkerConfigFile->text());
+         }
       }
-      else
-      {
-         QMessageBox::critical(0,"File I/O Error", "Could not write linker config file:\n"+ui->linkerConfigFile->text());
-      }
+
+      linkerConfigChanged = false;
    }
-
-   linkerConfigChanged = false;
 }
 
 void ProjectPropertiesDialog::deserializeLinkerConfig()
 {
    QDir dir(QDir::currentPath());
-   QFile fileIn(dir.absoluteFilePath(ui->linkerConfigFile->text()));
 
-   if ( fileIn.exists() )
+   if ( !ui->linkerConfigFile->text().isEmpty() )
    {
-      fileIn.open(QIODevice::ReadOnly|QIODevice::Text);
-      if ( fileIn.isOpen() )
-      {
-         ui->linkerConfig->setText(QString(fileIn.readAll()));
-         fileIn.close();
-      }
-      else
-      {
-         QMessageBox::critical(0,"File I/O Error", "Could not read linker config file:\n"+ui->linkerConfigFile->text());
-      }
-   }
+      QFile fileIn(dir.filePath(ui->linkerConfigFile->text()));
 
-   linkerConfigChanged = false;
+      if ( fileIn.exists() )
+      {
+         fileIn.open(QIODevice::ReadOnly|QIODevice::Text);
+         if ( fileIn.isOpen() )
+         {
+            ui->linkerConfig->setText(QString(fileIn.readAll()));
+            fileIn.close();
+         }
+         else
+         {
+            QMessageBox::critical(0,"File I/O Error", "Could not read linker config file:\n"+ui->linkerConfigFile->text());
+         }
+      }
+
+      linkerConfigChanged = false;
+   }
 }
 
 void ProjectPropertiesDialog::on_linkerConfig_textChanged()

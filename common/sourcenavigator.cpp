@@ -106,7 +106,7 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
          {
             pSource = dynamic_cast<CSourceItem*>(iter.current());
             if ( pSource &&
-                 (pSource->absolutePath() == file) )
+                 (pSource->path() == file) )
             {
                pSource->getEditor()->selectLine(linenumber);
                found = true;
@@ -152,10 +152,10 @@ void SourceNavigator::projectTreeView_openItem(IProjectTreeViewItem* item)
    {
       blockSignals(true);
 
-      ui->files->setCurrentIndex(ui->files->findText(pItem->absolutePath()));
+      ui->files->setCurrentIndex(ui->files->findText(pItem->path()));
       ui->symbols->clear();
 
-      updateSymbolsForFile(pItem->absolutePath());
+      updateSymbolsForFile(pItem->path());
 
       blockSignals(false);
    }
@@ -172,7 +172,7 @@ void SourceNavigator::on_files_activated(QString file)
       pSource = dynamic_cast<CSourceItem*>(iter.current());
       if ( pSource )
       {
-         if ( pSource->absolutePath() == file )
+         if ( pSource->path() == file )
          {
             pSource->openItemEvent(m_pTarget);
             updateSymbolsForFile(file);
@@ -204,17 +204,27 @@ void SourceNavigator::on_files_activated(QString file)
       if ( !found )
       {
          CodeEditorForm* editor = new CodeEditorForm(file);
-         m_pTarget->addTab(editor, file);
-         m_pTarget->setCurrentWidget(editor);
 
-         QFile fileIn(file);
+         QDir dir(nesicideProject->getProjectSourceBasePath());
+         QString fileName = dir.toNativeSeparators(dir.filePath(file));
+         QFile fileIn(fileName);
 
          if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
          {
             editor->set_sourceCode(QString(fileIn.readAll()));
             fileIn.close();
+
+            m_pTarget->addTab(editor, file);
+            m_pTarget->setCurrentWidget(editor);
+
+            emit fileNavigator_fileChanged(ui->files->currentText());
          }
-         emit fileNavigator_fileChanged(ui->files->currentText());
+         else
+         {
+            delete editor;
+
+            QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+file+"\n\nPlease set the \"Project Source Base Path\" in Project Properties to the base path from where this file can be reached.");
+         }
       }
       else
       {

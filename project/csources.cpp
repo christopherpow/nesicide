@@ -123,7 +123,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
             if ( !fileName.isEmpty() )
             {
-               QFile fileIn(dir.absoluteFilePath(dlg.getName()));
+               QFile fileIn(dir.relativeFilePath(dlg.getName()));
 
                if ( fileIn.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
                {
