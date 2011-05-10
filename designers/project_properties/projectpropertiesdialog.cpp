@@ -23,7 +23,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    // Initialize UI elements...
    ui->setupUi(this);
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
-   ui->projectBasePath->setText(QDir::currentPath());
+   ui->projectBasePath->setText(QDir::toNativeSeparators(QDir::currentPath()));
    ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
@@ -376,11 +376,12 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",QDir::currentPath());
    QString includes = ui->includePaths->text();
+   QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
    {
       includes.append(" -I ");
-      includes.append(value);
+      includes.append(dir.toNativeSeparators(dir.relativeFilePath(value)));
       ui->includePaths->setText(includes);
    }
 }
@@ -422,7 +423,7 @@ void ProjectPropertiesDialog::on_projectSourceBasePathBrowse_clicked()
 
    if ( !value.isEmpty() )
    {
-      ui->projectSourceBasePath->setText(dir.relativeFilePath(value));
+      ui->projectSourceBasePath->setText(dir.toNativeSeparators(dir.relativeFilePath(value)));
    }
 }
 
@@ -433,7 +434,7 @@ void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
 
    if ( !value.isEmpty() )
    {
-      ui->projectOutputBasePath->setText(dir.relativeFilePath(value));
+      ui->projectOutputBasePath->setText(dir.toNativeSeparators(dir.relativeFilePath(value)));
    }
 }
 
@@ -454,20 +455,22 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
 void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
 {
    QString value = QFileDialog::getOpenFileName(this,"Linker Config File",QDir::currentPath());
+   QDir dir(QDir::currentPath());
 
-   if (!value.isEmpty())
+   if ( !value.isEmpty() )
    {
-      ui->linkerConfigFile->setText(value);
+      ui->linkerConfigFile->setText(dir.toNativeSeparators(dir.relativeFilePath(value)));
    }
    deserializeLinkerConfig();
 }
 
 void ProjectPropertiesDialog::serializeLinkerConfig()
 {
-   QFile fileOut(ui->linkerConfigFile->text());
-
    if ( linkerConfigChanged )
    {
+      QDir dir(QDir::currentPath());
+      QFile fileOut(dir.absoluteFilePath(ui->linkerConfigFile->text()));
+
       fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
       if ( fileOut.isOpen() )
       {
@@ -485,7 +488,8 @@ void ProjectPropertiesDialog::serializeLinkerConfig()
 
 void ProjectPropertiesDialog::deserializeLinkerConfig()
 {
-   QFile fileIn(ui->linkerConfigFile->text());
+   QDir dir(QDir::currentPath());
+   QFile fileIn(dir.absoluteFilePath(ui->linkerConfigFile->text()));
 
    if ( fileIn.exists() )
    {

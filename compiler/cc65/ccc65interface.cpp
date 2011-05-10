@@ -43,6 +43,7 @@ bool CCC65Interface::assemble()
 
    // Copy the system environment to the child process.
    cc65.setProcessEnvironment(env);
+   cc65.setWorkingDirectory(QDir::currentPath());
 
    // For each source code object, compile it.
    while ( iter.current() )
@@ -57,10 +58,10 @@ bool CCC65Interface::assemble()
          invocationStr += " ";
          invocationStr += nesicideProject->getCompilerIncludePaths();
          invocationStr += " ";
-         invocationStr += "\""+sourceDir.toNativeSeparators(sourceDir.absoluteFilePath(source->path()))+"\"";
+         invocationStr += "\""+sourceDir.toNativeSeparators(sourceDir.filePath(source->path()))+"\"";
          invocationStr += " -o ";
          fileInfo.setFile(source->path());
-         objList << "\""+sourceDir.toNativeSeparators(outputDir.absoluteFilePath(fileInfo.completeBaseName()+".o"))+"\"";
+         objList << "\""+outputDir.toNativeSeparators(outputDir.filePath(fileInfo.completeBaseName()+".o"))+"\"";
          invocationStr += objList.last();
 
          buildTextLogger->write(invocationStr);
@@ -96,11 +97,11 @@ bool CCC65Interface::assemble()
    invocationStr += " -V -o ";
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
    }
    else
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()))+"\"";
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()))+"\"";
    }
    if ( !(nesicideProject->getLinkerConfigFile().isEmpty()) )
    {
@@ -110,11 +111,11 @@ bool CCC65Interface::assemble()
    invocationStr += " --dbgfile ";
    if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
    }
    else
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.absoluteFilePath(nesicideProject->getProjectDebugInfoName()))+"\"";
+      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectDebugInfoName()))+"\"";
    }
    foreach ( const QString& str, objList )
    {

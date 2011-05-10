@@ -130,7 +130,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
                   CSourceItem* pSourceItem = new CSourceItem(this);
                   pSourceItem->setName(dlg.getName());
 
-                  pSourceItem->setPath(dir.relativeFilePath(dlg.getName()));
+                  pSourceItem->setPath(dir.toNativeSeparators(dir.relativeFilePath(dlg.getName())));
 
                   pSourceItem->serializeContent();
 
@@ -151,7 +151,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             QStringList fileParts = fileName.split(QRegExp("[\\/]"));
             pSourceItem->setName(fileParts.at(fileParts.count()-1));
 
-            pSourceItem->setPath(dir.relativeFilePath(fileName));
+            pSourceItem->setPath(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
 
             pSourceItem->deserializeContent();
 

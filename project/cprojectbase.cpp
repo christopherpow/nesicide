@@ -37,7 +37,7 @@ QString CProjectBase::absolutePath()
 
 bool CProjectBase::onCloseQuery()
 {
-   if (m_isModified)
+   if ( m_isModified )
    {
       return (QMessageBox::question(0, QString("Confirm Close"),
                                     QString("This file has unsaved changes that\n"

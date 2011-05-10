@@ -625,8 +625,8 @@ void MainWindow::on_actionNew_Project_triggered()
 
       QDir::setCurrent(dlg.getPath());
 
-      nesicideProject->setProjectSourceBasePath(dlg.getPath());
-      nesicideProject->setProjectOutputBasePath(dlg.getPath());
+      nesicideProject->setProjectSourceBasePath("");
+      nesicideProject->setProjectOutputBasePath("");
       nesicideProject->initializeProject();
 
       ProjectPropertiesDialog dlg2;
@@ -662,8 +662,8 @@ void MainWindow::openROM(QString fileName)
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
    QDir dir(QDir::currentPath());
-   nesicideProject->setProjectOutputBasePath(dir.relativeFilePath(fileInfo.path()));
-   nesicideProject->setProjectSourceBasePath(dir.relativeFilePath(fileInfo.path()));
+   nesicideProject->setProjectOutputBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
+   nesicideProject->setProjectSourceBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
    nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
    nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
    nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
@@ -808,6 +808,10 @@ void MainWindow::openProject(QString fileName)
       output->clearAllPanes();
       output->show();
 
+      // Set up some default stuff guessing from the path...
+      QFileInfo fileInfo(fileName);
+      QDir::setCurrent(fileInfo.path());
+
       // Load new project content
       ok = nesicideProject->deserialize(doc,doc,errors);
       if ( !ok )
@@ -816,10 +820,6 @@ void MainWindow::openProject(QString fileName)
 
          nesicideProject->terminateProject();
       }
-
-      // Set up some default stuff guessing from the path...
-      QFileInfo fileInfo(fileName);
-      QDir::setCurrent(fileInfo.path());
 
       // Load debugger info if we can find it.
       CCC65Interface::captureDebugInfo();

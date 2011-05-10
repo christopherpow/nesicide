@@ -53,12 +53,15 @@ bool CSourceItem::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CSourceItem::serializeContent()
 {
-   QDir dir(nesicideProject->getProjectSourceBasePath());
-   QFile fileOut(dir.absoluteFilePath(m_path));
-
-   if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
+   if ( m_isModified )
    {
-      fileOut.write(get_sourceCode().toAscii());
+      QDir dir(nesicideProject->getProjectSourceBasePath());
+      QFile fileOut(dir.absoluteFilePath(m_path));
+
+      if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
+      {
+         fileOut.write(get_sourceCode().toAscii());
+      }
    }
 
    return true;
