@@ -658,15 +658,15 @@ void MainWindow::openROM(QString fileName)
 
    // Set up some default stuff guessing from the path...
    QFileInfo fileInfo(fileName);
-   QDir dir(fileInfo.absolutePath());
-   nesicideProject->setProjectTitle(fileInfo.baseName());
-   nesicideProject->setProjectBasePath(dir.toNativeSeparators(dir.absolutePath()));
-   nesicideProject->setProjectOutputBasePath(dir.toNativeSeparators(dir.absolutePath()));
-   nesicideProject->setProjectSourceBasePath(dir.toNativeSeparators(dir.absolutePath()));
-   nesicideProject->setProjectLinkerOutputName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.completeBaseName()+".prg")));
-   nesicideProject->setProjectCHRROMOutputName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.completeBaseName()+".chr")));
-   nesicideProject->setProjectCartridgeOutputName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.fileName())));
-   nesicideProject->setProjectDebugInfoName(dir.toNativeSeparators(dir.absoluteFilePath(fileInfo.completeBaseName()+".dbg")));
+   QDir::setCurrent(fileInfo.path());
+   QDir dir(QDir::currentPath());
+   nesicideProject->setProjectBasePath(dir.relativeFilePath(fileInfo.path()));
+   nesicideProject->setProjectOutputBasePath(dir.relativeFilePath(fileInfo.path()));
+   nesicideProject->setProjectSourceBasePath(dir.relativeFilePath(fileInfo.path()));
+   nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
+   nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
+   nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
+   nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
 
    // Load debugger info if we can find it.
    CCC65Interface::captureDebugInfo();
