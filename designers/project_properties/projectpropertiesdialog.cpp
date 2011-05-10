@@ -23,7 +23,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    // Initialize UI elements...
    ui->setupUi(this);
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
-   ui->projectBasePath->setText(nesicideProject->getProjectBasePath());
+   ui->projectBasePath->setText(QDir::currentPath());
    ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
@@ -182,7 +182,7 @@ void ProjectPropertiesDialog::on_exportPalettePushButton_clicked()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   QString fileName = QFileDialog::getSaveFileName(this, "Export Palette", nesicideProject->getProjectBasePath(),
+   QString fileName = QFileDialog::getSaveFileName(this, "Export Palette", QDir::currentPath(),
                                                    "NESICIDE Palette (*.npf)");
 
    if (!fileName.isEmpty())
@@ -233,7 +233,7 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   QString fileName = QFileDialog::getOpenFileName(this,"Import Palette",nesicideProject->getProjectBasePath(),
+   QString fileName = QFileDialog::getOpenFileName(this,"Import Palette",QDir::currentPath(),
                       "NESICIDE Palette (*.npf)");
 
    if (!fileName.isEmpty())
@@ -374,7 +374,7 @@ void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action
 
 void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 {
-   QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",ui->projectBasePath->text());
+   QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",QDir::currentPath());
    QString includes = ui->includePaths->text();
 
    if ( !value.isEmpty() )
@@ -390,7 +390,6 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
 
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
-   nesicideProject->setProjectBasePath(ui->projectBasePath->text());
    nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
    nesicideProject->setProjectOutputName(ui->outputName->text());
@@ -416,33 +415,25 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
 }
 
-void ProjectPropertiesDialog::on_projectBasePathBrowse_clicked()
-{
-   QString value = QFileDialog::getExistingDirectory(this,"Project Base Path");
-
-   if ( !value.isEmpty() )
-   {
-      ui->projectBasePath->setText(value);
-   }
-}
-
 void ProjectPropertiesDialog::on_projectSourceBasePathBrowse_clicked()
 {
-   QString value = QFileDialog::getExistingDirectory(this,"Project Source Base Path",ui->projectBasePath->text());
+   QString value = QFileDialog::getExistingDirectory(this,"Project Source Base Path",QDir::currentPath());
+   QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
    {
-      ui->projectSourceBasePath->setText(value);
+      ui->projectSourceBasePath->setText(dir.relativeFilePath(value));
    }
 }
 
 void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
 {
-   QString value = QFileDialog::getExistingDirectory(this,"Project Output Base Path",ui->projectBasePath->text());
+   QString value = QFileDialog::getExistingDirectory(this,"Project Output Base Path",QDir::currentPath());
+   QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
    {
-      ui->projectOutputBasePath->setText(value);
+      ui->projectOutputBasePath->setText(dir.relativeFilePath(value));
    }
 }
 
@@ -462,7 +453,7 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
 
 void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
 {
-   QString value = QFileDialog::getOpenFileName(this,"Linker Config File",nesicideProject->getProjectBasePath());
+   QString value = QFileDialog::getOpenFileName(this,"Linker Config File",QDir::currentPath());
 
    if (!value.isEmpty())
    {

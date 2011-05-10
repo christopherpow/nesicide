@@ -78,5 +78,4 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ne
 
    ui->progressBar->setValue(dataSize);
    model->layoutChangedEvent();
-
 }

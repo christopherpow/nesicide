@@ -76,10 +76,10 @@ QColor QsciLexerCA65::paper(int style) const
    switch ( style )
    {
       case CA65_Default:
-         return QColor(225,225,225);
+         return QColor(235,235,235);
       break;
       case CA65_Opcode:
-         return QColor(225,225,225);
+         return QColor(235,235,235);
       break;
       default:
          return QColor(255,255,255);

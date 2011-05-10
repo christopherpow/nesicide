@@ -81,6 +81,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_editor,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
+   QObject::connect(m_editor,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
 
    ui->gridLayout->addWidget(m_editor);
 
@@ -183,6 +184,14 @@ void CodeEditorForm::external_breakpointsChanged()
 void CodeEditorForm::breakpointHit()
 {
 
+}
+
+void CodeEditorForm::editor_modificationChanged(bool m)
+{
+   if ( m )
+   {
+      emit editor_isModified();
+   }
 }
 
 void CodeEditorForm::editor_linesChanged()

@@ -23,7 +23,6 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* tabWidget);
-   virtual bool onCloseQuery();
    virtual void onClose();
    virtual void onSaveDocument();
    virtual bool onNameChanged(QString newName);

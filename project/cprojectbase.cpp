@@ -6,6 +6,7 @@ CProjectBase::CProjectBase()
 {
    m_name = "";
    m_path = "";
+   m_isModified = false;
 }
 
 IProjectTreeViewItem* findProjectItem(QString uuid)
@@ -32,4 +33,19 @@ QString CProjectBase::absolutePath()
    QDir sourceDir(nesicideProject->getProjectSourceBasePath());
 
    return sourceDir.toNativeSeparators(sourceDir.absoluteFilePath(m_path));
+}
+
+bool CProjectBase::onCloseQuery()
+{
+   if (m_isModified)
+   {
+      return (QMessageBox::question(0, QString("Confirm Close"),
+                                    QString("This file has unsaved changes that\n"
+                                            "will be lost if closed. Close anyway?"),
+                                    QMessageBox::Yes, QMessageBox::Cancel) == QMessageBox::Yes);
+   }
+   else
+   {
+      return true;
+   }
 }

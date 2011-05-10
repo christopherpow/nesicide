@@ -18,6 +18,7 @@ public:
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const { return m_name; }
+   bool onCloseQuery();
 
 protected:
    // Attributes

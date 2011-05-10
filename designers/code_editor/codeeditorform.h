@@ -34,14 +34,15 @@ private:
    QsciScintilla* m_editor;
    QsciLexerCA65* m_lexer;
    int m_breakpointIndex;
-   QTextCursor m_ctxtTextCursor;
 
 signals:
    void breakpointsChanged();
+   void editor_isModified();
 
 private slots:
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
    void editor_linesChanged();
+   void editor_modificationChanged(bool m);
    void external_breakpointsChanged();
    void breakpointHit();
    void on_actionClear_marker_triggered();

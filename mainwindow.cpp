@@ -547,7 +547,7 @@ void MainWindow::on_actionSave_Project_triggered()
 {
    if (projectFileName.isEmpty())
    {
-      projectFileName = QFileDialog::getSaveFileName(this, "Save Project", nesicideProject->getProjectBasePath(),
+      projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
                                                      "NESICIDE Project (*.nesproject)");
    }
 
@@ -594,7 +594,7 @@ void MainWindow::on_actionSave_Project_As_triggered()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   projectFileName = QFileDialog::getSaveFileName(this, "Save Project", nesicideProject->getProjectBasePath(),
+   projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
                                                   "NESICIDE Project (*.nesproject)");
 
    if (!projectFileName.isEmpty())
@@ -622,7 +622,9 @@ void MainWindow::on_actionNew_Project_triggered()
       projectBrowser->disableNavigation();
 
       nesicideProject->setProjectTitle(dlg.getName());
-      nesicideProject->setProjectBasePath(dlg.getPath());
+
+      QDir::setCurrent(dlg.getPath());
+
       nesicideProject->setProjectSourceBasePath(dlg.getPath());
       nesicideProject->setProjectOutputBasePath(dlg.getPath());
       nesicideProject->initializeProject();
@@ -660,7 +662,6 @@ void MainWindow::openROM(QString fileName)
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
    QDir dir(QDir::currentPath());
-   nesicideProject->setProjectBasePath(dir.relativeFilePath(fileInfo.path()));
    nesicideProject->setProjectOutputBasePath(dir.relativeFilePath(fileInfo.path()));
    nesicideProject->setProjectSourceBasePath(dir.relativeFilePath(fileInfo.path()));
    nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
@@ -815,6 +816,13 @@ void MainWindow::openProject(QString fileName)
 
          nesicideProject->terminateProject();
       }
+
+      // Set up some default stuff guessing from the path...
+      QFileInfo fileInfo(fileName);
+      QDir::setCurrent(fileInfo.path());
+
+      // Load debugger info if we can find it.
+      CCC65Interface::captureDebugInfo();
 
       projectBrowser->enableNavigation();
 

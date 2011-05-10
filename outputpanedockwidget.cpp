@@ -12,10 +12,10 @@ OutputPaneDockWidget::OutputPaneDockWidget(QTabWidget* pTarget, QWidget *parent)
     QDockWidget(parent),
     ui(new Ui::OutputPaneDockWidget)
 {
-   ui->setupUi(this); 
-      
+   ui->setupUi(this);
+
    m_pTarget = pTarget;
-   
+
    ui->outputTabWidget->setCurrentIndex(Output_General);
 }
 
@@ -111,7 +111,7 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
 
    if ( chosen == &logToFile )
    {
-      QString fileName = QFileDialog::getSaveFileName(this, "Log Output", nesicideProject->getProjectBasePath(), "Text Document (*.txt)");
+      QString fileName = QFileDialog::getSaveFileName(this, "Log Output", QDir::currentPath(), "Text Document (*.txt)");
 
       if (fileName.isEmpty())
       {
@@ -140,21 +140,21 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
    QStringList errorParts;
-   
+
    if ( ui->compilerOutputTextEdit->blockCount() > 1 )
    {
       textCursor.select(QTextCursor::LineUnderCursor);
       selection = textCursor.selectedText();
       ui->compilerOutputTextEdit->setTextCursor(textCursor);
-      
+
       if ( selection.contains("error:") )
       {
          errorParts = selection.split(":");
-   
+
          while ( iter.current() )
          {
             pSource = dynamic_cast<CSourceItem*>(iter.current());
-            if ( pSource && 
+            if ( pSource &&
                  (pSource->caption() == errorParts.at(0)) )
             {
                pSource->openItemEvent(m_pTarget);

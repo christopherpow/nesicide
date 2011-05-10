@@ -9,7 +9,6 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Allocate attributes
-   m_isModified = false;
    m_editor = (GraphicsBankEditorForm*)NULL;
    m_bankItems.clear();
 }
@@ -148,21 +147,6 @@ void CGraphicsBank::openItemEvent(QTabWidget* tabWidget)
       tabWidget->addTab(m_editor, this->caption());
       m_editor->updateChrRomBankItemList(m_bankItems);
       tabWidget->setCurrentWidget(m_editor);
-   }
-}
-
-bool CGraphicsBank::onCloseQuery()
-{
-   if (m_isModified)
-   {
-      return (QMessageBox::question(0, QString("Confirm Close"),
-                                    QString("This file has unsaved changes that\n"
-                                            "will be lost if closed. Close anyway?"),
-                                    QMessageBox::Yes, QMessageBox::Cancel) == QMessageBox::Yes);
-   }
-   else
-   {
-      return true;
    }
 }
 

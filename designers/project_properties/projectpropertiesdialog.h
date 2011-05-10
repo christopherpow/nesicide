@@ -41,7 +41,6 @@ private slots:
    void on_projectNameLineEdit_textEdited(QString );
    void on_projectOutputBasePathBrowse_clicked();
    void on_projectSourceBasePathBrowse_clicked();
-   void on_projectBasePathBrowse_clicked();
    void on_buttonBox_accepted();
    void on_includePathBrowse_clicked();
    void on_blueHorizontalSlider_actionTriggered(int action);

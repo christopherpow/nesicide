@@ -56,17 +56,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="projectBasePathBrowse">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resource.qrc">
-              <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
