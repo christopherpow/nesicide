@@ -40,16 +40,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 
    m_editor = new QsciScintilla();
 
-#ifdef Q_WS_MAC
-   m_editor->setFont(QFont("Monaco", 11));
-#endif
-#ifdef Q_WS_X11
-   m_editor->setFont(QFont("Monospace", 10));
-#endif
-#ifdef Q_WS_WIN
-   m_editor->setFont(QFont("Consolas", 11));
-#endif
-
    m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
    m_editor->setMarginWidth(2,0);
    m_editor->setMarginMarkerMask(2,0);
@@ -76,7 +66,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
 
-   m_lexer = new QsciLexerCA65();
+   m_lexer = new QsciLexerCA65(m_editor);
    m_editor->setLexer(m_lexer);
 
    QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
@@ -96,7 +86,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
 
-   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(repaint()) );
+   QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
 
    m_fileName = fileName;
 }
@@ -508,6 +498,7 @@ void CodeEditorForm::selectLine(int linenumber)
          m_editor->ensureLineVisible(linenumber-1);
          m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
          m_editor->markerAdd(linenumber-1,Marker_Execution);
+         m_editor->setCursorPosition(linenumber-1,0);
       }
    }
 }

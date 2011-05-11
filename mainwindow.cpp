@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pGfxCHRMemoryInspector->hide();
    QObject::connect(m_pGfxCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxCHRMemoryInspector_close(bool)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
-   CDockWidgetRegistry::setFlags ("Breakpoints", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
+   CDockWidgetRegistry::setFlags ("CHR Memory Visualizer", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );

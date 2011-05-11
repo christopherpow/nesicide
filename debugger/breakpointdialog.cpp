@@ -623,6 +623,10 @@ void BreakpointDialog::on_addBreakpoint_clicked()
    {
       item1Absolute = ui->resolutions->itemData(ui->resolutions->currentIndex()).toInt();
    }
+   else
+   {
+      item1Absolute = item1%nesGetPRGROMSize();
+   }
    pBreakpoints->ConstructBreakpoint ( &m_breakpoint,
                                        (eBreakpointType)ui->type->currentIndex(),
                                        (eBreakpointItemType)ui->itemWidget->currentIndex(),

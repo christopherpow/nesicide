@@ -3,8 +3,9 @@
 
 #include <qobject.h>
 
-#include <Qsci/qsciglobal.h>
-#include <Qsci/qscilexercustom.h>
+#include "Qsci/qsciglobal.h"
+#include "Qsci/qsciscintilla.h"
+#include "Qsci/qscilexercustom.h"
 
 class QsciLexerCA65 : public QsciLexerCustom
 {
@@ -17,9 +18,21 @@ public:
    virtual QString description(int style) const;
    virtual void styleText(int start,int end);
 
-   virtual QColor color(int style) const;
-   virtual QColor paper(int style) const;
    virtual bool eolFill(int style) const { return true; }
+
+   virtual QColor defaultColor() const;
+   virtual QColor defaultColor(int style) const;
+   virtual QColor color(int style) const;
+
+   virtual QColor defaultPaper() const;
+   virtual QColor defaultPaper(int style) const;
+   virtual QColor paper(int style) const;
+
+   virtual QFont defaultFont() const;
+   virtual QFont defaultFont(int style) const;
+   virtual QFont font(int style) const;
+
+   virtual const char *wordCharacters() const;
 };
 
 #endif // QSCILEXERCA65_H
