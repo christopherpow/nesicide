@@ -65,14 +65,23 @@ void NewProjectDialog::on_name_textChanged(QString text)
 
 bool NewProjectDialog::checkValidity()
 {
-   QDir check(ui->path->text());
-
-   if ( (!ui->path->text().isEmpty()) && check.exists() && (!ui->name->text().isEmpty()) )
+   // Hackety hack (but then again so is using "new project dialog" for adding
+   // source files)
+   if( windowTitle() == "New Source" )
    {
-      return true;
+      return !ui->name->text().isEmpty();
    }
    else
    {
-      return false;
+      QDir check(ui->path->text());
+
+      if ( (!ui->path->text().isEmpty()) && check.exists() && (!ui->name->text().isEmpty()) )
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
    }
 }
