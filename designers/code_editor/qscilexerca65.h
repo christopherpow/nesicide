@@ -33,6 +33,12 @@ public:
    virtual QFont font(int style) const;
 
    virtual const char *wordCharacters() const;
+
+   virtual int styleBitsNeeded() const { return 6; }
+
+protected:
+   QRegExp opcodeRegex;
+   QRegExp keywordRegex;
 };
 
 #endif // QSCILEXERCA65_H

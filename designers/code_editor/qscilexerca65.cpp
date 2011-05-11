@@ -4,17 +4,62 @@
 #include <QFont>
 #include <QSettings>
 
+#include "cnes6502.h"
+
 // Styles
 enum
 {
    CA65_Default,
    CA65_Comment,
    CA65_Opcode,
-   CA65_HighlightedLine
+   CA65_Label,
+   CA65_Keyword,
+   CA65_QuotedString
+};
+
+static char* CA65_keyword[] =
+{
+   "segment",
+   "proc",
+   "endproc",
+   "include",
+   "define",
+   "byt",
+   NULL
 };
 
 QsciLexerCA65::QsciLexerCA65(QObject *parent)
 {
+   QString regex;
+   int rc;
+
+   regex = "\\b(";
+   for ( rc = 0; rc < 256; rc++ )
+   {
+      regex += OPCODENAME(rc);
+      if ( rc < 255 )
+      {
+         regex += '|';
+      }
+   }
+   regex += ")\\b";
+   opcodeRegex.setPattern(regex);
+   opcodeRegex.setCaseSensitivity(Qt::CaseInsensitive);
+
+   regex = "\\b(";
+   rc = 0;
+   while ( CA65_keyword[rc] )
+   {
+      regex += CA65_keyword[rc];
+      if ( CA65_keyword[rc+1] )
+      {
+         regex += '|';
+      }
+      rc++;
+   }
+   regex += ")\\b";
+   keywordRegex.setPattern(regex);
+   keywordRegex.setCaseSensitivity(Qt::CaseInsensitive);
 }
 
 QsciLexerCA65::~QsciLexerCA65()
@@ -34,8 +79,14 @@ QString QsciLexerCA65::description(int style) const
       case CA65_Opcode:
          return "Opcode";
       break;
-      case CA65_HighlightedLine:
-         return "Highlighted Line";
+      case CA65_Label:
+         return "Label";
+      break;
+      case CA65_Keyword:
+         return "Keyword";
+      break;
+      case CA65_QuotedString:
+         return "Quoted String";
       break;
       default:
          return QString();
@@ -43,51 +94,101 @@ QString QsciLexerCA65::description(int style) const
    }
 }
 
+#include "main.h"
+
 void QsciLexerCA65::styleText(int start, int end)
 {
-   QByteArray  chars;
-   QString     text;
-   QStringList lines;
-   int         textPos;
-   int         pos;
+   QByteArray   chars;
+   QString      text;
+   QStringList  lines;
+   QRegExp      labelRegex("([^; \t]+):");
+   int          pos;
+   int          lineLength;
+   int          lineNum;
+   int          index;
+
+   // Reset line styling.
+   startStyling(start,0x3F);
+   setStyling(end-start,CA65_Default);
 
    // Get the text that is being styled.
    chars.reserve((end-start)+1);
    editor()->SendScintilla(QsciScintilla::SCI_GETTEXTRANGE,start,end,chars.data());
 
-#if 0
+   // Get the starting line index from the position.
+   editor()->lineIndexFromPosition(start,&lineNum,&index);
+
    // Break the text into line chunks.
-   text = text.append(chars);
-   lines = text.split(QRegExp("[\r\n]"));
+   text = chars.constData();
+   lines = text.split(QRegExp("(\r\n|\n)"));
 
    // Style the lines.
-   startStyling(start);
-   textPos = start;
-   int num = lines.count();
-
-   setStyling(100,CA65_HighlightedLine);
    foreach ( const QString& line, lines )
    {
-      qDebug(QString::number(num++).toAscii().constData());
-      // Lastly, look for comments.
-      pos = line.indexOf(';');
-      if ( pos >= 0 )
+      // Get current line length.
+      lineLength = editor()->lineLength(lineNum);
+
+      if ( lineLength )
       {
-         qDebug(QString::number(pos).toAscii().constData());
-         qDebug(QString::number(textPos).toAscii().constData());
-//         setStyling(-(pos-line.length()),CA65_Default);
-         setStyling(line.length()-pos,CA65_Comment);
+         // Look for opcodes.
+         pos = line.indexOf(opcodeRegex);
+         if ( pos != -1 )
+         {
+            startStyling(start+pos,0x3F);
+            setStyling(3,CA65_Opcode);
+         }
+
+         // Look for labels.
+         pos = 0;
+         do
+         {
+            pos = line.indexOf(labelRegex,pos);
+            if ( pos != -1 )
+            {
+               startStyling(start+pos,0x3F);
+               setStyling(labelRegex.matchedLength()-1,CA65_Label);
+               pos = pos+labelRegex.matchedLength()+1;
+            }
+         } while ( pos != -1 );
+
+         // Look for keywords.
+         pos = line.indexOf(keywordRegex);
+         if ( pos != -1 )
+         {
+            startStyling(start+pos,0x3F);
+            setStyling(keywordRegex.matchedLength(),CA65_Keyword);
+         }
+
+         // Look for quoted strings.
+         pos = 0;
+         do
+         {
+            pos = line.indexOf(QRegExp("\\\".*\\\""),pos);
+            if ( pos != -1 )
+            {
+               startStyling(start+pos,0x3F);
+               setStyling(line.indexOf('\"',pos+1)-pos+1,CA65_QuotedString);
+               pos = line.indexOf('\"',pos+1)+1;
+            }
+         } while ( pos != -1 );
+
+         // Lastly, look for comments. (Wash styling of comment over any previously applied).
+         pos = line.indexOf(';');
+         if ( pos != -1 )
+         {
+            startStyling(start+pos,0x3F);
+            setStyling(lineLength-pos,CA65_Comment);
+         }
       }
+
+      start += lineLength;
+      lineNum++;
    }
-#endif
 }
 
 const char* QsciLexerCA65::wordCharacters() const
 {
    const char* chars = QsciLexerCustom::wordCharacters();
-   QString st = "wordCharacters";
-   qDebug(st.toAscii().constData());
-   qDebug(chars);
    return chars;
 }
 
@@ -107,10 +208,16 @@ QColor QsciLexerCA65::defaultColor(int style) const
          return QColor(0,255,45);
       break;
       case CA65_Opcode:
-         return QColor(0,0,0);
+         return QColor(0,45,255);
       break;
-      case CA65_HighlightedLine:
-         return QColor(0,0,0);
+      case CA65_Label:
+         return QColor(0,160,30);
+      break;
+      case CA65_Keyword:
+         return QColor(120,120,120);
+      break;
+      case CA65_QuotedString:
+         return QColor(255,120,30);
       break;
       default:
          return QColor(0,0,0);
@@ -120,11 +227,6 @@ QColor QsciLexerCA65::defaultColor(int style) const
 
 QColor QsciLexerCA65::color(int style) const
 {
-   QString st = "color(";
-   st += QString::number(style);
-   st += ")";
-   qDebug(st.toAscii().constData());
-
    return QsciLexerCA65::defaultColor(style);
 }
 
@@ -138,16 +240,22 @@ QColor QsciLexerCA65::defaultPaper(int style) const
    switch ( style )
    {
       case CA65_Default:
-         return QColor(245,245,245);
+         return QColor(255,255,255);
       break;
       case CA65_Comment:
-         return QColor(245,245,245);
+         return QColor(255,255,255);
       break;
       case CA65_Opcode:
-         return QColor(245,245,245);
+         return QColor(255,255,255);
       break;
-      case CA65_HighlightedLine:
-         return QColor(215,215,215);
+      case CA65_Label:
+         return QColor(255,255,255);
+      break;
+      case CA65_Keyword:
+         return QColor(255,255,255);
+      break;
+      case CA65_QuotedString:
+         return QColor(255,255,255);
       break;
       default:
          return QColor(255,255,255);
@@ -157,11 +265,6 @@ QColor QsciLexerCA65::defaultPaper(int style) const
 
 QColor QsciLexerCA65::paper(int style) const
 {
-   QString st = "paper(";
-   st += QString::number(style);
-   st += ")";
-   qDebug(st.toAscii().constData());
-
    return QsciLexerCA65::defaultPaper(style);
 }
 
@@ -187,6 +290,16 @@ QFont QsciLexerCA65::defaultFont(int style) const
       case CA65_Comment:
          font.setItalic(true);
       break;
+      case CA65_Opcode:
+         font.setBold(true);
+      break;
+      case CA65_Label:
+         font.setUnderline(true);
+      break;
+      case CA65_Keyword:
+         font.setBold(true);
+         font.setItalic(true);
+      break;
    }
 
    return font;
@@ -194,10 +307,5 @@ QFont QsciLexerCA65::defaultFont(int style) const
 
 QFont QsciLexerCA65::font(int style) const
 {
-   QString st = "font(";
-   st += QString::number(style);
-   st += ")";
-   qDebug(st.toAscii().constData());
-
    return QsciLexerCA65::defaultFont(style);
 }
