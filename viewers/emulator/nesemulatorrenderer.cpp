@@ -70,32 +70,27 @@ void CNESEmulatorRenderer::setBGColor(QColor clr)
 
 void CNESEmulatorRenderer::resizeGL(int width, int height)
 {
-   QRect actualSize;
+   QSize actualSize;
+   QPoint offset;
+
+   // Force integral scaling factors. TODO: Add to environment settings.
+   int iwidth  = width   / 256 * 256;
+   int iheight = height  / 240 * 240;
 
    if (width >= ((float)height * (256.0f / 240.0f)))
    {
-      // The top and bottom are known since it fills the screen
-      actualSize.setTop(0);
-      actualSize.setHeight(240); // We clip the last 16 pixels as they don't matter
-
-      // Determine the left offset
-      actualSize.setLeft(-(((240.0f * ((float)width / (float)height)) - 256.0f) / 2.0f));
-
-      // Scale up 256 by the ratio to get the correct aspect ratio
-      actualSize.setWidth(240.0f * ((float)width / (float)height));
+      actualSize.setHeight( iheight );
+      actualSize.setWidth( (float)iheight * (256.0f / 240.0f) );
    }
    else
    {
-      // The left and right are known since it fills the screen
-      actualSize.setLeft(0);
-      actualSize.setWidth(256);
-
-      // Determine the top offset
-      actualSize.setTop(-(((256.0f * ((float)height / (float)width)) - 240.0f) / 2.0f));
-
-      // Scale up 240 by the ratio to get the correct aspect ratio
-      actualSize.setHeight(256.0f * ((float)height / (float)width));
+      actualSize.setWidth( iwidth );
+      actualSize.setHeight( (float)iwidth * (240.0f / 256.0f) );
    }
+
+   // Calculate the offset so that the quad is centered
+   offset.setX( ( width  - actualSize.width() ) / 2 );
+   offset.setY( ( height - actualSize.height() ) / 2 );
 
    // Width cannot be 0 or the system will freak out
    if (width == 0)
@@ -112,12 +107,16 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    // Load the default settings for the matrix.
    glLoadIdentity();
 
-   // Set orthogonal mode (since we are doing 2D rendering) with the proper aspect ratio.
-   glOrtho(actualSize.left(), actualSize.right(), actualSize.bottom(), actualSize.top(), -1.0f, 1.0f);
+   // Set orthogonal mode (since we are doing 2D rendering).
+   glOrtho( 0, 1, 0, 1, -1.0f, 1.0f);
 
    // Select and reset the ModelView matrix.
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
+
+   // Translate for letter-/pillarboxing
+   glTranslatef( offset.x() / float( width ), offset.y() / float( height ), 0 );
+   glScalef( actualSize.width() / float( width ), actualSize.height() / float( height ), 1 );
 
    // Slightly offset the view to ensure proper pixel alignment
 //    glTranslatef(0.5,0.5,0);
@@ -133,14 +132,14 @@ void CNESEmulatorRenderer::paintGL()
    glBindTexture(GL_TEXTURE_2D, textureID);
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
-   glTexCoord2f (0.0, 0.0);
+   glTexCoord2f (0.0, 240.f/256);
    glVertex3f(x, y, 0.0f);
-   glTexCoord2f (1.0, 0.0);
-   glVertex3f(x+256.0f, y, 0.0f);
-   glTexCoord2f (1.0, 1.0);
-   glVertex3f(x+256.0f, y+256.0f, 0.0f);
-   glTexCoord2f (0.0, 1.0);
-   glVertex3f(x, y+256.0f, 0.0f);
+   glTexCoord2f (1.0, 240.f/256);
+   glVertex3f(x+1.0f, y, 0.0f);
+   glTexCoord2f (1.0, 0);
+   glVertex3f(x+1.0f, y+1.0f, 0.0f);
+   glTexCoord2f (0.0, 0);
+   glVertex3f(x, y+1.0f, 0.0f);
    glEnd();
 }
 
