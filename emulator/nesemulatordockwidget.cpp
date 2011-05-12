@@ -119,19 +119,19 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
    {
       m_joy [ CONTROLLER1 ] |= JOY_DOWN;
    }
-   else if ( (char)event->key() == '[' )
+   else if ( (char)event->key() == 'U' )
    {
       m_joy [ CONTROLLER1 ] |= JOY_SELECT;
    }
-   else if ( (char)event->key() == ']' )
+   else if ( (char)event->key() == 'I' )
    {
       m_joy [ CONTROLLER1 ] |= JOY_START;
    }
-   else if ( (char)event->key() == '.' )
+   else if ( (char)event->key() == 'O' )
    {
       m_joy [ CONTROLLER1 ] |= JOY_B;
    }
-   else if ( (char)event->key() == '/' )
+   else if ( (char)event->key() == 'P' )
    {
       m_joy [ CONTROLLER1 ] |= JOY_A;
    }
@@ -201,19 +201,19 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
    {
       m_joy [ CONTROLLER1 ] &= (~(JOY_DOWN));
    }
-   else if ( (char)event->key() == '[' )
+   else if ( (char)event->key() == 'U' )
    {
       m_joy [ CONTROLLER1 ] &= (~(JOY_SELECT));
    }
-   else if ( (char)event->key() == ']' )
+   else if ( (char)event->key() == 'I' )
    {
       m_joy [ CONTROLLER1 ] &= (~(JOY_START));
    }
-   else if ( (char)event->key() == '.' )
+   else if ( (char)event->key() == 'O' )
    {
       m_joy [ CONTROLLER1 ] &= (~(JOY_B));
    }
-   else if ( (char)event->key() == '/' )
+   else if ( (char)event->key() == 'P' )
    {
       m_joy [ CONTROLLER1 ] &= (~(JOY_A));
    }
