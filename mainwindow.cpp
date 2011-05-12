@@ -341,7 +341,10 @@ MainWindow::MainWindow(QWidget* parent) :
 
    projectDataChangesEvent();
 
-   emulator->adjustAudio(settings.value("soundBufferDepth",1024).toInt());
+   // For now don't use the value from the settings, because nesGetAudioSamples()
+   // always returns APU_SAMPLES samples
+   //emulator->adjustAudio(settings.value("soundBufferDepth",1024).toInt());
+   emulator->adjustAudio( APU_SAMPLES );
 
    // Always call this last
    pluginManager->doInitScript();
