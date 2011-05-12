@@ -5,10 +5,10 @@
 	domain="com.nesicide.paletteeditor"
 	version="20100727">
 	<desc>A Palette Designer.</desc>
-	<logic onLoad="sayHi">
+	<logic onLoad="sayHi"><![CDATA[
 		function sayHi ()
 			compiler_logger_print("Hello from after the script has been loaded!");
 		end
 		compiler_logger_print("Hello from palette editor lua script!");
-	</logic>
+	]]></logic>
 </plugin>

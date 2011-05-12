@@ -133,7 +133,7 @@ void CPluginManager::loadPlugins()
             QDomNode logicNode = logicNodeList.item(0);
             QDomNode logicScript = logicNode.firstChild();
 
-            if (logicScript.nodeType() == QDomNode::TextNode)
+            if (logicScript.nodeType() == QDomNode::CDATASectionNode)
             {
                QString luascript = logicScript.toText().data();
 
