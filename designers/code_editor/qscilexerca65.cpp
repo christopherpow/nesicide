@@ -16,8 +16,7 @@ enum
    CA65_Opcode,
    CA65_Label,
    CA65_Keyword,
-   CA65_QuotedString,
-   CA65_HighlightedLine
+   CA65_QuotedString
 };
 
 static const char* CA65_keyword[] =
@@ -176,9 +175,6 @@ QString QsciLexerCA65::description(int style) const
       case CA65_QuotedString:
          return "Quoted String";
       break;
-      case CA65_HighlightedLine:
-         return "Highlighted Line";
-      break;
       default:
          return QString();
       break;
@@ -196,19 +192,11 @@ void QsciLexerCA65::styleText(int start, int end)
    int          pos;
    int          lineLength;
    int          lineNum;
-   int          lineNumToHilight;
    int          index;
-   unsigned int addr;
-   unsigned int absAddr;
 
    // Reset line styling.
    startStyling(start,0x7F);
    setStyling(end-start,CA65_Default);
-
-   // Get NES info for line highlighting.
-   addr = nesGetCPUProgramCounterOfLastSync();
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
-   lineNumToHilight = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
 
    // Get the text that is being styled.
    chars.reserve((end-start)+1);
@@ -289,13 +277,6 @@ void QsciLexerCA65::styleText(int start, int end)
             startStyling(start+pos,0x7F);
             setStyling(lineLength-pos,CA65_Comment);
          }
-
-         // Do we need to hilight this line?
-         if ( lineNumToHilight == lineNum+1 )
-         {
-            startStyling(start,0x7F);
-            setStyling(lineLength,CA65_HighlightedLine);
-         }
       }
 
       start += lineLength;
@@ -336,9 +317,6 @@ QColor QsciLexerCA65::defaultColor(int style) const
       case CA65_QuotedString:
          return QColor(255,120,30);
       break;
-      case CA65_HighlightedLine:
-         return QColor(0,0,0);
-      break;
       default:
          return QColor(0,0,0);
       break;
@@ -376,9 +354,6 @@ QColor QsciLexerCA65::defaultPaper(int style) const
       break;
       case CA65_QuotedString:
          return QColor(255,255,255);
-      break;
-      case CA65_HighlightedLine:
-         return QColor(230,230,230);
       break;
       default:
          return QColor(255,255,255);
@@ -422,9 +397,6 @@ QFont QsciLexerCA65::defaultFont(int style) const
       case CA65_Keyword:
          font.setBold(true);
          font.setItalic(true);
-      break;
-      case CA65_HighlightedLine:
-         font.setWeight(99);
       break;
    }
 

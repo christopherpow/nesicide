@@ -21,14 +21,16 @@
 enum
 {
    Margin_Decorations = 0,
-   Margin_LineNumbers
+   Margin_LineNumbers,
+   Margin_Highlight
 };
 
 enum
 {
    Marker_Breakpoint = 0,
    Marker_BreakpointDisabled,
-   Marker_Execution
+   Marker_Execution,
+   Marker_Highlight
 };
 
 CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
@@ -43,15 +45,17 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor = new QsciScintilla();
 
    m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-   m_editor->setMarginWidth(2,0);
-   m_editor->setMarginMarkerMask(2,0);
    m_editor->setMarginWidth(3,0);
    m_editor->setMarginMarkerMask(3,0);
    m_editor->setMarginWidth(4,0);
    m_editor->setMarginMarkerMask(4,0);
 
+   m_editor->setMarginWidth(Margin_Highlight,0);
+   m_editor->setMarginType(Margin_Highlight,QsciScintilla::SymbolMargin);
+   m_editor->setMarginMarkerMask(Margin_Highlight,0x00000008);
+
    m_editor->setMarginWidth(Margin_Decorations,22);
-   m_editor->setMarginMarkerMask(Margin_Decorations,0xFFFFFF);
+   m_editor->setMarginMarkerMask(Margin_Decorations,0x00000007);
    m_editor->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
    m_editor->setMarginSensitivity(Margin_Decorations,true);
 
@@ -61,12 +65,16 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
    m_editor->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
    m_editor->setMarginSensitivity(Margin_LineNumbers,true);
 
-   m_editor->setSelectionBackgroundColor(QColor(230,230,230));
+   m_editor->setSelectionBackgroundColor(QColor(215,215,215));
    m_editor->setSelectionToEol(true);
 
    m_editor->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
+
+   QPixmap highlight(1,1);
+   m_editor->markerDefine(highlight,Marker_Highlight);
+   m_editor->setMarkerBackgroundColor(QColor(235,235,235));
 
    m_lexer = new QsciLexerCA65(m_editor);
    m_editor->setLexer(m_lexer);
@@ -495,13 +503,12 @@ void CodeEditorForm::selectLine(int linenumber)
    if ( m_editor )
    {
       m_editor->markerDeleteAll(Marker_Execution);
+      m_editor->markerDeleteAll(Marker_Highlight);
       if ( linenumber >= 0 )
       {
          m_editor->ensureLineVisible(linenumber-1);
          m_editor->markerAdd(linenumber-1,Marker_Execution);
+         m_editor->markerAdd(linenumber-1,Marker_Highlight);
       }
-
-      // Hacky, but works...can't get the SendScintilla(SCI_CHANGELEXERSTATE...) working.
-      dynamic_cast<QsciLexerCA65*>(m_editor->lexer())->styleText(0,m_editor->length());
    }
 }
