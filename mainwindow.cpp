@@ -625,7 +625,6 @@ void MainWindow::on_actionNew_Project_triggered()
 
       QDir::setCurrent(dlg.getPath());
 
-      nesicideProject->setProjectSourceBasePath("");
       nesicideProject->setProjectOutputBasePath("");
       nesicideProject->initializeProject();
 
@@ -661,23 +660,6 @@ void MainWindow::openROM(QString fileName)
    // Set up some default stuff guessing from the path...
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
-   QDir dir(QDir::currentPath());
-   if ( settings.value("recentProjectSourceBasePath").toString().isEmpty() )
-   {
-      nesicideProject->setProjectSourceBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
-   }
-   else
-   {
-      nesicideProject->setProjectSourceBasePath(settings.value("recentProjectSourceBasePath").toString());
-   }
-   if ( settings.value("recentProjectSourceBasePath").toString().isEmpty() )
-   {
-      nesicideProject->setProjectOutputBasePath(dir.toNativeSeparators(dir.relativeFilePath(fileInfo.path())));
-   }
-   else
-   {
-      nesicideProject->setProjectOutputBasePath(settings.value("recentProjectOutputBasePath").toString());
-   }
    nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
    nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
    nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
@@ -839,9 +821,9 @@ void MainWindow::openProject(QString fileName)
       // Load ROM if it exists.
       if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
       {
-         QDir dir(nesicideProject->getProjectOutputBasePath());
+         QDir dir(QDir::currentPath());
          QString romName;
-         romName = dir.toNativeSeparators(dir.filePath(nesicideProject->getProjectCartridgeOutputName()));
+         romName = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
 
          nesicideProject->createProjectFromRom(romName);
 

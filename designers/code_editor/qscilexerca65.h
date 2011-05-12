@@ -34,7 +34,7 @@ public:
 
    virtual const char *wordCharacters() const;
 
-   virtual int styleBitsNeeded() const { return 6; }
+   virtual int styleBitsNeeded() const { return 7; }
 
 protected:
    QRegExp opcodeRegex;

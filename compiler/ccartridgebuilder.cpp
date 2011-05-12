@@ -12,6 +12,7 @@ bool CCartridgeBuilder::build()
 {
    CSourceAssembler sourceAssembler;
    CGraphicsAssembler graphicsAssembler;
+   QDir baseDir(QDir::currentPath());
    QDir outputDir(nesicideProject->getProjectOutputBasePath());
    QString prgName;
    QString chrName;
@@ -38,11 +39,11 @@ bool CCartridgeBuilder::build()
    }
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = baseDir.toNativeSeparators(baseDir.filePath(nesicideProject->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = baseDir.toNativeSeparators(baseDir.filePath(nesicideProject->getProjectCartridgeOutputName()));
    }
 
    prgFile.setFileName(prgName);

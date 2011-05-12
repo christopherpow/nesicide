@@ -103,8 +103,6 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    // Project base directory (directory where the .nesproject file is)
    QDir dir( QDir::toNativeSeparators( QDir::currentPath() ) );
-   // Project source base directory
-   QDir src_dir( nesicideProject->getProjectSourceBasePath() );
 
    const QString NEW_SOURCE_MENU_TEXT    = "&New Source...";
    const QString IMPORT_SOURCE_MENU_TEXT = "&Add an Existing File...";
@@ -120,7 +118,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == NEW_SOURCE_MENU_TEXT)
       {
-         NewProjectDialog dlg(0,"New Source","",nesicideProject->getProjectSourceBasePath());
+         NewProjectDialog dlg(0,"New Source","",QDir::currentPath());
 
          int result = dlg.exec();
 
@@ -130,7 +128,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
             if ( !fileName.isEmpty() )
             {
-               QString fullPath = dir.relativeFilePath( src_dir.absoluteFilePath( dlg.getName() ) );
+               QString fullPath = dir.relativeFilePath( dir.absoluteFilePath( dlg.getName() ) );
                QFile fileIn( fullPath );
 
                if ( fileIn.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
@@ -151,7 +149,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
       }
       else if (ret->text() == IMPORT_SOURCE_MENU_TEXT)
       {
-         QString fileName = QFileDialog::getOpenFileName(NULL, "Add an Existing Source File", nesicideProject->getProjectSourceBasePath(), "All Files (*.*)");
+         QString fileName = QFileDialog::getOpenFileName(NULL, "Add an Existing Source File", QDir::currentPath(), "All Files (*.*)");
 
          if (!fileName.isEmpty())
          {

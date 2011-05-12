@@ -35,7 +35,7 @@ bool CCC65Interface::assemble()
    QStringList                  stdioList;
    QStringList                  objList;
    QFileInfo                    fileInfo;
-   QDir                         sourceDir(nesicideProject->getProjectSourceBasePath());
+   QDir                         baseDir(QDir::currentPath());
    QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
    QDir                         linkerConfigDir(nesicideProject->getLinkerConfigFile());
    int                          exitCode;
@@ -58,7 +58,7 @@ bool CCC65Interface::assemble()
          invocationStr += " ";
          invocationStr += nesicideProject->getCompilerIncludePaths();
          invocationStr += " ";
-         invocationStr += "\""+sourceDir.toNativeSeparators(sourceDir.filePath(source->path()))+"\"";
+         invocationStr += "\""+baseDir.toNativeSeparators(baseDir.relativeFilePath(source->path()))+"\"";
          invocationStr += " -o ";
          fileInfo.setFile(source->path());
          objList << "\""+outputDir.toNativeSeparators(outputDir.filePath(fileInfo.completeBaseName()+".o"))+"\"";
@@ -111,11 +111,11 @@ bool CCC65Interface::assemble()
    invocationStr += " --dbgfile ";
    if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
+      invocationStr += "\""+baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
    }
    else
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectDebugInfoName()))+"\"";
+      invocationStr += "\""+baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectDebugInfoName()))+"\"";
    }
    foreach ( const QString& str, objList )
    {
@@ -165,16 +165,16 @@ static void ErrorFunc (const struct cc65_parseerror* E)
 
 bool CCC65Interface::captureDebugInfo()
 {
-   QDir dir(nesicideProject->getProjectOutputBasePath());
+   QDir dir(QDir::currentPath());
    QString dbgInfoFile;
 
    if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
    {
-      dbgInfoFile = dir.toNativeSeparators(dir.filePath(nesicideProject->getProjectOutputName()+".dbg"));
+      dbgInfoFile = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".dbg"));
    }
    else
    {
-      dbgInfoFile = dir.toNativeSeparators(dir.filePath(nesicideProject->getProjectDebugInfoName()));
+      dbgInfoFile = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectDebugInfoName()));
    }
    buildTextLogger->write("<font color='black'><b>Reading debug information from: "+dbgInfoFile+"</b></font>");
 
@@ -189,16 +189,16 @@ bool CCC65Interface::captureDebugInfo()
 
 bool CCC65Interface::captureINESImage()
 {
-   QDir outputDir(nesicideProject->getProjectOutputBasePath());
+   QDir dir(QDir::currentPath());
    QString nesName;
 
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
    }
 
    buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+nesName+"</b></font>");

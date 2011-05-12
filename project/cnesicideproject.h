@@ -29,7 +29,6 @@ public:
    // Member Getters
    bool isInitialized();
    QString getProjectTitle() { return m_projectTitle; }
-   QString getProjectSourceBasePath() { return m_projectSourceBasePath; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
    QString getProjectLinkerOutputName() { return m_projectLinkerOutputName; }
@@ -55,7 +54,6 @@ public:
       m_projectCHRROMOutputName = m_projectTitle.toLower().replace(" ","_")+".chr";
       m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
    }
-   void setProjectSourceBasePath(QString value) { m_projectSourceBasePath = value; }
    void setProjectOutputBasePath(QString value) { m_projectOutputBasePath = value; }
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
    void setProjectLinkerOutputName(QString value) { m_projectLinkerOutputName = value; }
@@ -103,7 +101,6 @@ private:
    // Attributes
    // The visible title of the project
    QString m_projectTitle;
-   QString m_projectSourceBasePath;
    QString m_projectOutputBasePath;
    QString m_projectOutputName;
    QString m_projectLinkerOutputName;
