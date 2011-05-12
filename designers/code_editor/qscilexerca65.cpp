@@ -424,7 +424,7 @@ QFont QsciLexerCA65::defaultFont(int style) const
          font.setItalic(true);
       break;
       case CA65_HighlightedLine:
-         font.setWeight(100);
+         font.setWeight(99);
       break;
    }
 
