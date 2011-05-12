@@ -14,7 +14,6 @@ CNesicideProject::CNesicideProject()
 
    m_isInitialized = false;
    m_projectTitle = "(No project loaded)";
-   m_projectSourceBasePath = "";
    m_projectOutputBasePath = "";
 }
 
@@ -113,7 +112,6 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    // Create the project configuration node.
    QDomElement propertiesElement = addElement(doc,projectElement,"properties");
 
-   propertiesElement.setAttribute("sourcebasepath",m_projectSourceBasePath);
    propertiesElement.setAttribute("outputbasepath",m_projectOutputBasePath);
    propertiesElement.setAttribute("outputname",m_projectOutputName);
    propertiesElement.setAttribute("linkeroutputname",m_projectLinkerOutputName);
@@ -199,7 +197,6 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          // Get the properties that are just attributes of the main node.
          QDomElement propertiesElement = child.toElement();
 
-         m_projectSourceBasePath = propertiesElement.attribute("sourcebasepath");
          m_projectOutputBasePath = propertiesElement.attribute("outputbasepath");
          m_projectOutputName = propertiesElement.attribute("outputname");
          m_projectLinkerOutputName = propertiesElement.attribute("linkeroutputname");

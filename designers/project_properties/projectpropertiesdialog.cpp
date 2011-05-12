@@ -24,7 +24,6 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->setupUi(this);
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
    ui->projectBasePath->setText(QDir::toNativeSeparators(QDir::currentPath()));
-   ui->projectSourceBasePath->setText(nesicideProject->getProjectSourceBasePath());
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
    ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
@@ -392,7 +391,6 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    QSettings settings;
 
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
-   nesicideProject->setProjectSourceBasePath(ui->projectSourceBasePath->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
    nesicideProject->setProjectOutputName(ui->outputName->text());
    nesicideProject->setProjectLinkerOutputName(ui->linkerOutputName->text());
@@ -406,10 +404,6 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
 
-   // Remember set base paths so we can try to be smart next time.
-   settings.setValue("recentProjectSourceBasePath",ui->projectSourceBasePath->text());
-   settings.setValue("recentProjectOutputBasePath",ui->projectOutputBasePath->text());
-
    nesicideProject->getProjectPaletteEntries()->clear();
 
    for (int paletteItemIndex=0; paletteItemIndex<currentPalette.count(); paletteItemIndex++)
@@ -419,17 +413,6 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
 
    nesicideProject->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
    nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
-}
-
-void ProjectPropertiesDialog::on_projectSourceBasePathBrowse_clicked()
-{
-   QString value = QFileDialog::getExistingDirectory(this,"Project Source Base Path",QDir::currentPath());
-   QDir dir(QDir::currentPath());
-
-   if ( !value.isEmpty() )
-   {
-      ui->projectSourceBasePath->setText(dir.toNativeSeparators(dir.relativeFilePath(value)));
-   }
 }
 
 void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()

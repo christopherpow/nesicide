@@ -205,7 +205,7 @@ void SourceNavigator::on_files_activated(QString file)
       {
          CodeEditorForm* editor = new CodeEditorForm(file);
 
-         QDir dir(nesicideProject->getProjectSourceBasePath());
+         QDir dir(QDir::currentPath());
          QString fileName = dir.toNativeSeparators(dir.filePath(file));
          QFile fileIn(fileName);
 

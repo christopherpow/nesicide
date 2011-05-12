@@ -55,7 +55,7 @@ bool CSourceItem::serializeContent()
 {
    if ( m_isModified )
    {
-      QDir dir(nesicideProject->getProjectSourceBasePath());
+      QDir dir(QDir::currentPath());
       QFile fileOut(dir.relativeFilePath(m_path));
 
       if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
@@ -105,7 +105,7 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 
 bool CSourceItem::deserializeContent()
 {
-   QDir dir(nesicideProject->getProjectSourceBasePath());
+   QDir dir(QDir::currentPath());
    QFile fileIn(dir.relativeFilePath(m_path));
 
    if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )

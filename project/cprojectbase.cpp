@@ -28,13 +28,6 @@ IProjectTreeViewItem* findProjectItem(QString uuid)
    return NULL;
 }
 
-QString CProjectBase::absolutePath()
-{
-   QDir sourceDir(nesicideProject->getProjectSourceBasePath());
-
-   return sourceDir.toNativeSeparators(sourceDir.absoluteFilePath(m_path));
-}
-
 bool CProjectBase::onCloseQuery()
 {
    if ( m_isModified )

@@ -5,6 +5,8 @@
 #include <QMenu>
 #include <QPixmap>
 
+#include <Qsci/qsciscintillabase.h>
+
 #include "main.h"
 
 #include "ccc65interface.h"
@@ -496,9 +498,10 @@ void CodeEditorForm::selectLine(int linenumber)
       if ( linenumber >= 0 )
       {
          m_editor->ensureLineVisible(linenumber-1);
-         m_editor->setSelection(linenumber-1,0,linenumber-1,m_editor->lineLength(linenumber-1));
          m_editor->markerAdd(linenumber-1,Marker_Execution);
-         m_editor->setCursorPosition(linenumber-1,0);
       }
+
+      // Hacky, but works...can't get the SendScintilla(SCI_CHANGELEXERSTATE...) working.
+      dynamic_cast<QsciLexerCA65*>(m_editor->lexer())->styleText(0,m_editor->length());
    }
 }
