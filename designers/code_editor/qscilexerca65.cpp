@@ -4,7 +4,6 @@
 #include <QFont>
 #include <QSettings>
 
-#include "cnes6502.h"
 #include "emulator_core.h"
 #include "ccc65interface.h"
 
@@ -113,19 +112,105 @@ static const char* CA65_keyword[] =
    NULL
 };
 
+static const char* CA65_mnemonics[] =
+{
+   "BRK",
+   "ORA",
+   "KIL",
+   "ASO",
+   "DOP",
+   "ASL",
+   "PHP",
+   "ANC",
+   "TOP",
+   "BPL",
+   "CLC",
+   "NOP",
+   "JSR",
+   "AND",
+   "RLA",
+   "BIT",
+   "ROL",
+   "PLP",
+   "BMI",
+   "SEC",
+   "RTI",
+   "EOR",
+   "LSE",
+   "LSR",
+   "PHA",
+   "ALR",
+   "JMP",
+   "BVC",
+   "CLI",
+   "RTS",
+   "ADC",
+   "RRA",
+   "ROR",
+   "PLA",
+   "ARR",
+   "BVS",
+   "SEI",
+   "STA",
+   "AXS",
+   "STY",
+   "STX",
+   "DEY",
+   "TXA",
+   "XAA",
+   "BCC",
+   "AXA",
+   "TYA",
+   "TXS",
+   "TAS",
+   "SAY",
+   "XAS",
+   "LDY",
+   "LDA",
+   "LDX",
+   "LAX",
+   "TAY",
+   "TAX",
+   "OAL",
+   "BCS",
+   "CLV",
+   "TSX",
+   "LAS",
+   "CPY",
+   "CMP",
+   "DCM",
+   "DEC",
+   "INY",
+   "DEX",
+   "SAX",
+   "BNE",
+   "CLD",
+   "CPX",
+   "SBC",
+   "INS",
+   "INC",
+   "INX",
+   "BEQ",
+   "SED",
+   NULL
+};
+
 QsciLexerCA65::QsciLexerCA65(QObject *parent)
 {
    QString regex;
    int rc;
 
    regex = "\\b(";
-   for ( rc = 0; rc < 256; rc++ )
+
+   rc = 0;
+   while ( CA65_mnemonics[rc] )
    {
-      regex += OPCODENAME(rc);
-      if ( rc < 255 )
+      regex += CA65_mnemonics[rc];
+      if ( CA65_mnemonics[rc+1] )
       {
          regex += '|';
       }
+      rc++;
    }
    regex += ")\\b";
    opcodeRegex.setPattern(regex);
