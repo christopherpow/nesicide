@@ -56,7 +56,7 @@ public:
    // Retrieve a pointer to the whole memory.
    static uint8_t* _MEMPTR ( void )
    {
-      return nesGetCPUMemory();
+      return nesGetCPUMemoryPtr();
    }
 
    // Return whether or not the CPU is currently in the middle of

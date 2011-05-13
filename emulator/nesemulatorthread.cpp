@@ -240,7 +240,7 @@ void NESEmulatorThread::loadCartridge()
    #endif
 
       // Initialize NES...
-      nesReset(m_pCartridge->getMapperNumber());
+      nesResetInitial(m_pCartridge->getMapperNumber());
 
       emit cartridgeLoaded();
    }
