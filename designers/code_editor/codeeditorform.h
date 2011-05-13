@@ -1,8 +1,8 @@
 #ifndef CODEEDITORFORM_H
 #define CODEEDITORFORM_H
 
-#include <QWidget>
-#include <QTextCursor>
+#include "cdesignereditorbase.h"
+#include "iprojecttreeviewitem.h"
 
 #include <Qsci/qsciscintilla.h>
 #include "qscilexerca65.h"
@@ -12,17 +12,18 @@ namespace Ui
 class CodeEditorForm;
 }
 
-class CodeEditorForm : public QWidget
+class CodeEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   CodeEditorForm(QString fileName,QWidget* parent = 0);
+   CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~CodeEditorForm();
 
-   QString get_sourceCode();
-   void set_sourceCode(QString source);
+   QString sourceCode();
+   void setSourceCode(QString source);
    void selectLine(int linenumber);
    QString fileName() { return m_fileName; }
+   void setReadOnly(bool readOnly) { m_scintilla->setReadOnly(readOnly); }
 
 protected:
    void changeEvent(QEvent* e);
@@ -31,13 +32,12 @@ protected:
 private:
    Ui::CodeEditorForm* ui;
    QString m_fileName;
-   QsciScintilla* m_editor;
+   QsciScintilla* m_scintilla;
    QsciLexerCA65* m_lexer;
    int m_breakpointIndex;
 
 signals:
    void breakpointsChanged();
-   void editor_isModified();
 
 private slots:
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);

@@ -14,11 +14,12 @@ public:
    virtual ~CSourceItem();
 
    // Member Getters
-   QString get_sourceCode();
-   CodeEditorForm* getEditor() { return m_editor; }
+   QString sourceCode();
 
    // Member Setters
-   void set_sourceCode(QString sourceCode);
+   void setSourceCode(QString sourceCode);
+
+   CodeEditorForm* editor() { return dynamic_cast<CodeEditorForm*>(m_editor); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -30,20 +31,13 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* parent);
-   virtual bool onCloseQuery();
-   virtual void onClose();
-   virtual bool isDocumentSaveable();
    virtual void onSaveDocument();
    virtual bool canChangeName();
    virtual bool onNameChanged(QString newName);
-   virtual QWidget* tab() { return dynamic_cast<QWidget*>(m_editor); }
 
 private:
    // Attributes
    QString m_sourceCode;
-
-   // Designer
-   CodeEditorForm* m_editor;
 };
 
 #endif // CSOURCEITEM_H

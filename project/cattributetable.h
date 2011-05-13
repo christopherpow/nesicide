@@ -20,13 +20,10 @@ public:
    // IProjectTreeViewItem Interface Implmentation
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* parent);
-   virtual bool onCloseQuery();
-   virtual void onClose();
-   virtual bool isDocumentSaveable();
-   virtual void onSaveDocument();
    virtual bool canChangeName();
    virtual bool onNameChanged(QString newName);
-   virtual QWidget* tab() { return m_editor; }
+   virtual void onSaveDocument();
+
 private:
    // Designer
    AttributeTableEditorForm* m_editor;

@@ -1,0 +1,34 @@
+#ifndef CDESIGNEREDITORBASE_H
+#define CDESIGNEREDITORBASE_H
+
+#include <QWidget>
+
+#include "icenterwidgetitem.h"
+#include "iprojecttreeviewitem.h"
+
+class CDesignerEditorBase : public QWidget, public ICenterWidgetItem
+{
+    Q_OBJECT
+public:
+    explicit CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *parent = 0);
+    virtual ~CDesignerEditorBase() {};
+
+    virtual bool isModified() { return m_isModified; }
+    virtual void setModified(bool modified) { m_isModified = modified; }
+
+    // ICenterWidgetItem Interface Implmentation
+    virtual bool onCloseQuery();
+    virtual void onClose();
+    virtual bool isDocumentSaveable();
+    virtual void onSaveDocument();
+
+signals:
+
+public slots:
+
+protected:
+    bool m_isModified;
+
+};
+
+#endif // CDESIGNEREDITORBASE_H

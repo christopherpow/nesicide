@@ -5,7 +5,7 @@ CHRMEMInspector::CHRMEMInspector()
    frame = new QFrame ( this );
    frame->setFrameRect ( this->rect() );
 
-   dialog = new CHRROMDisplayDialog ( frame, true, NULL );
+   dialog = new CHRROMDisplayDialog ( true, NULL, NULL, frame );
    this->setWidget ( dialog );
 }
 

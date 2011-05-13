@@ -23,18 +23,12 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* tabWidget);
-   virtual void onClose();
    virtual void onSaveDocument();
    virtual bool onNameChanged(QString newName);
    virtual bool canChangeName()
    {
       return true;
    }
-   virtual bool isDocumentSaveable()
-   {
-      return true;
-   }
-   virtual QWidget* tab() { return dynamic_cast<QWidget*>(m_editor); }
 
 private:
    // Attributes

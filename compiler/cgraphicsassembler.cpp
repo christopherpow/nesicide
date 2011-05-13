@@ -23,7 +23,7 @@ bool CGraphicsAssembler::assemble()
       outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
    }
 
-   buildTextLogger->write("<b>Building CHR-ROM Banks:</b>");
+   buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
    chrRomFile.setFileName(outputName);
    chrRomFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
@@ -33,14 +33,13 @@ bool CGraphicsAssembler::assemble()
       {
          CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
 
-         buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructing '" + curGfxBank->name() + "':");
+         buildTextLogger->write("Constructing '" + curGfxBank->name() + "':");
 
          for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
          {
             IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
             IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-            buildTextLogger->write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                                  ptvi->caption() + "...");
+            buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
 
             chrRomFile.write(bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
          }

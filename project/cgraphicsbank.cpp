@@ -9,16 +9,11 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Allocate attributes
-   m_editor = (GraphicsBankEditorForm*)NULL;
    m_bankItems.clear();
 }
 
 CGraphicsBank::~CGraphicsBank()
 {
-   if (m_editor)
-   {
-      delete m_editor;
-   }
 }
 
 bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
@@ -143,16 +138,11 @@ void CGraphicsBank::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new GraphicsBankEditorForm();
+      m_editor = new GraphicsBankEditorForm(this);
       tabWidget->addTab(m_editor, this->caption());
       m_editor->updateChrRomBankItemList(m_bankItems);
       tabWidget->setCurrentWidget(m_editor);
    }
-}
-
-void CGraphicsBank::onClose()
-{
-   m_isModified = false;
 }
 
 void CGraphicsBank::onSaveDocument()
@@ -164,7 +154,10 @@ void CGraphicsBank::onSaveDocument()
       m_bankItems.append(m_editor->chrRomBankItems.at(i));
    }
 
-   m_isModified = false;
+   if ( m_editor )
+   {
+      m_editor->setModified(false);
+   }
 }
 
 bool CGraphicsBank::onNameChanged(QString newName)

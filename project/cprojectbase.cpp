@@ -6,7 +6,15 @@ CProjectBase::CProjectBase()
 {
    m_name = "";
    m_path = "";
-   m_isModified = false;
+   m_editor = NULL;
+}
+
+CProjectBase::~CProjectBase()
+{
+   if ( m_editor )
+   {
+      delete m_editor;
+   }
 }
 
 IProjectTreeViewItem* findProjectItem(QString uuid)
@@ -28,17 +36,11 @@ IProjectTreeViewItem* findProjectItem(QString uuid)
    return NULL;
 }
 
-bool CProjectBase::onCloseQuery()
+void CProjectBase::closeItemEvent()
 {
-   if ( m_isModified )
+   if ( m_editor )
    {
-      return (QMessageBox::question(0, QString("Confirm Close"),
-                                    QString("This file has unsaved changes that\n"
-                                            "will be lost if closed. Close anyway?"),
-                                    QMessageBox::Yes, QMessageBox::Cancel) == QMessageBox::Yes);
+      delete m_editor;
    }
-   else
-   {
-      return true;
-   }
+   m_editor = NULL;
 }

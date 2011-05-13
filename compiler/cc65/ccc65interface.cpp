@@ -37,9 +37,20 @@ bool CCC65Interface::assemble()
    QFileInfo                    fileInfo;
    QDir                         baseDir(QDir::currentPath());
    QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
+   QString                      outputName;
    QDir                         linkerConfigDir(nesicideProject->getLinkerConfigFile());
    int                          exitCode;
    bool                         ok = true;
+
+   if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
+   {
+      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
+   }
+   else
+   {
+      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
+   }
+   buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
    // Copy the system environment to the child process.
    cc65.setProcessEnvironment(env);
@@ -97,11 +108,11 @@ bool CCC65Interface::assemble()
    invocationStr += " -V -o ";
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"))+"\"";
+      invocationStr += "\""+outputName+"\"";
    }
    else
    {
-      invocationStr += "\""+outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()))+"\"";
+      invocationStr += "\""+outputName+"\"";
    }
    if ( !(nesicideProject->getLinkerConfigFile().isEmpty()) )
    {
@@ -155,7 +166,7 @@ static void ErrorFunc (const struct cc65_parseerror* E)
 {
    char errorBuffer[256];
    sprintf(errorBuffer,
-           "%s:%s(%lu): %s\n",
+           "<font color=red>%s:%s(%lu): %s</font>\n",
            E->type? "Error" : "Warning",
            E->name,
            (unsigned long) E->line,

@@ -1,18 +1,20 @@
 #ifndef ATTRIBUTETABLEEDITORFORM_H
 #define ATTRIBUTETABLEEDITORFORM_H
 
-#include <QWidget>
+#include "cdesignereditorbase.h"
+
+#include "iprojecttreeviewitem.h"
 
 namespace Ui
 {
 class AttributeTableEditorForm;
 }
 
-class AttributeTableEditorForm : public QWidget
+class AttributeTableEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   AttributeTableEditorForm(QWidget* parent = 0);
+   AttributeTableEditorForm(IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~AttributeTableEditorForm();
 
 protected:

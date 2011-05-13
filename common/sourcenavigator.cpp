@@ -108,12 +108,12 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
             if ( pSource &&
                  (pSource->path() == file) )
             {
-               pSource->getEditor()->selectLine(linenumber);
+               pSource->editor()->selectLine(linenumber);
                found = true;
             }
-            else if ( pSource && pSource->getEditor() )
+            else if ( pSource && pSource->editor() )
             {
-               pSource->getEditor()->selectLine(-1);
+               pSource->editor()->selectLine(-1);
             }
             iter.next();
          }
@@ -203,15 +203,14 @@ void SourceNavigator::on_files_activated(QString file)
       }
       if ( !found )
       {
-         CodeEditorForm* editor = new CodeEditorForm(file);
-
          QDir dir(QDir::currentPath());
          QString fileName = dir.toNativeSeparators(dir.filePath(file));
          QFile fileIn(fileName);
 
          if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
          {
-            editor->set_sourceCode(QString(fileIn.readAll()));
+            CodeEditorForm* editor = new CodeEditorForm(file,QString(fileIn.readAll()));
+
             fileIn.close();
 
             m_pTarget->addTab(editor, file);
@@ -221,9 +220,7 @@ void SourceNavigator::on_files_activated(QString file)
          }
          else
          {
-            delete editor;
-
-            QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+file+"\n\nPlease set the \"Project Source Base Path\" in Project Properties to the base path from where this file can be reached.");
+            QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+file+"\n\nThis typically occurs if the project output files (*.nes, *.dbg) are moved away from the folder containing their parent project file (*.nesproject).");
          }
       }
       else
@@ -248,7 +245,7 @@ void SourceNavigator::on_symbols_activated(QString symbol)
            (pSource->path() == ui->files->currentText()) )
       {
          pSource->openItemEvent(m_pTarget);
-         pSource->getEditor()->selectLine(linenumber);
+         pSource->editor()->selectLine(linenumber);
          emit fileNavigator_symbolChanged(ui->symbols->currentText(),ui->symbols->currentText(),linenumber);
          break;
       }

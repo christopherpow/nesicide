@@ -1,3 +1,5 @@
+#include <QFileDialog>
+
 #include "chrromdisplaydialog.h"
 #include "ui_chrromdisplaydialog.h"
 #include "cnessystempalette.h"
@@ -5,8 +7,8 @@
 
 #include "main.h"
 
-CHRROMDisplayDialog::CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* data) :
-   QDialog(parent),
+CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeViewItem* link,QWidget* parent) :
+   CDesignerEditorBase(link,parent),
    ui(new Ui::CHRROMDisplayDialog)
 {
    int i;
@@ -168,14 +170,14 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
 
 void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
 {
-   QDialog::resizeEvent(event);
+   QWidget::resizeEvent(event);
    updateScrollbars();
 }
 
 
 void CHRROMDisplayDialog::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QWidget::changeEvent(e);
 
    switch (e->type())
    {

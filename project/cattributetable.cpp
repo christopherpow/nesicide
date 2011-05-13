@@ -9,15 +9,10 @@ CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Allocate attributes
-   m_editor = (AttributeTableEditorForm*)NULL;
 }
 
 CAttributeTable::~CAttributeTable()
 {
-   if (m_editor)
-   {
-      delete m_editor;
-   }
 }
 
 bool CAttributeTable::serialize(QDomDocument& doc, QDomNode& node)
@@ -103,31 +98,11 @@ void CAttributeTable::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new AttributeTableEditorForm();
+      m_editor = new AttributeTableEditorForm(this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
 }
-
-bool CAttributeTable::onCloseQuery()
-{
-   return true;
-}
-
-void CAttributeTable::onClose()
-{
-   if (m_editor)
-   {
-      delete m_editor;
-      m_editor = (AttributeTableEditorForm*)NULL;
-   }
-}
-
-bool CAttributeTable::isDocumentSaveable()
-{
-   return true;
-}
-
 void CAttributeTable::onSaveDocument()
 {
 }

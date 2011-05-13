@@ -44,7 +44,7 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
          source = dynamic_cast<CSourceItem*>(iter.current());
          if ( source )
          {
-            (*objdata) = strdup(source->get_sourceCode().toAscii().constData());
+            (*objdata) = strdup(source->sourceCode().toAscii().constData());
             (*size) = strlen((*objdata));
          }
          break;

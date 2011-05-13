@@ -1,18 +1,19 @@
 #ifndef PRGROMDISPLAYDIALOG_H
 #define PRGROMDISPLAYDIALOG_H
 
-#include <QDialog>
+#include "cdesignereditorbase.h"
+#include "iprojecttreeviewitem.h"
 
 namespace Ui
 {
 class PRGROMDisplayDialog;
 }
 
-class PRGROMDisplayDialog : public QDialog
+class PRGROMDisplayDialog : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   PRGROMDisplayDialog(QWidget* parent = 0);
+   PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~PRGROMDisplayDialog();
    void setRomData(unsigned char* data)
    {

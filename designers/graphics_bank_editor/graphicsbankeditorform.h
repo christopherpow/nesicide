@@ -1,22 +1,24 @@
 #ifndef GRAPHICSBANKEDITORFORM_H
 #define GRAPHICSBANKEDITORFORM_H
 
-#include <QWidget>
 #include <QList>
+
+#include "cdesignereditorbase.h"
 #include "graphicsbankadditemsdialog.h"
 #include "cchrromitemlistdisplaymodel.h"
 #include "ichrrombankitem.h"
+#include "iprojecttreeviewitem.h"
 
 namespace Ui
 {
 class GraphicsBankEditorForm;
 }
 
-class GraphicsBankEditorForm : public QWidget
+class GraphicsBankEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   GraphicsBankEditorForm(QWidget* parent = 0);
+   GraphicsBankEditorForm(IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~GraphicsBankEditorForm();
    QList<IChrRomBankItem*> chrRomBankItems;
    void updateChrRomBankItemList(QList<IChrRomBankItem*> newList);

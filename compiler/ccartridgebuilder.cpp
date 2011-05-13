@@ -39,11 +39,11 @@ bool CCartridgeBuilder::build()
    }
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = baseDir.toNativeSeparators(baseDir.filePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = baseDir.toNativeSeparators(baseDir.filePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
    }
 
    prgFile.setFileName(prgName);
@@ -73,11 +73,16 @@ bool CCartridgeBuilder::build()
       nesFile.write(prgBytes);
       nesFile.write(chrBytes);
 
-      buildTextLogger->write("<b>Writing "+nesName+"</b>");
+      buildTextLogger->write("<b>Writing: "+nesName+"</b>");
 
       prgFile.close();
       chrFile.close();
       nesFile.close();
+   }
+   else
+   {
+      buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
+      return false;
    }
 
    buildTextLogger->write("<b>Build completed successfully.</b>");

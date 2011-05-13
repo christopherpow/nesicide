@@ -6,8 +6,8 @@
 
 #include <QToolTip>
 
-AttributeTableEditorForm::AttributeTableEditorForm(QWidget* parent) :
-   QWidget(parent),
+AttributeTableEditorForm::AttributeTableEditorForm(IProjectTreeViewItem* link,QWidget* parent) :
+   CDesignerEditorBase(link,parent),
    ui(new Ui::AttributeTableEditorForm)
 {
    ui->setupUi(this);
@@ -15,7 +15,7 @@ AttributeTableEditorForm::AttributeTableEditorForm(QWidget* parent) :
    for (int i=0; i<NUM_PALETTES; i++)
    {
       ui->bkgndcol->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-   
+
       ui->pal0col1->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
       ui->pal0col2->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
       ui->pal0col3->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);

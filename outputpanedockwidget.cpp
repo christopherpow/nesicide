@@ -158,7 +158,7 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
                  (pSource->caption() == errorParts.at(0)) )
             {
                pSource->openItemEvent(m_pTarget);
-               pSource->getEditor()->selectLine(errorParts.at(1).toInt(0,10));
+               pSource->editor()->selectLine(errorParts.at(1).toInt(0,10));
                break;
             }
             iter.next();

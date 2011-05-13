@@ -1,8 +1,8 @@
 #include "graphicsbankeditorform.h"
 #include "ui_graphicsbankeditorform.h"
 
-GraphicsBankEditorForm::GraphicsBankEditorForm(QWidget* parent) :
-   QWidget(parent),
+GraphicsBankEditorForm::GraphicsBankEditorForm(IProjectTreeViewItem* link,QWidget* parent) :
+   CDesignerEditorBase(link,parent),
    ui(new Ui::GraphicsBankEditorForm)
 {
    ui->setupUi(this);

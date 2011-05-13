@@ -3,12 +3,14 @@
 
 #include "main.h"
 
-PRGROMDisplayDialog::PRGROMDisplayDialog(QWidget* parent) :
-   QDialog(parent),
+PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem* link,QWidget* parent) :
+   CDesignerEditorBase(link,parent),
    m_data(0),
    ui(new Ui::PRGROMDisplayDialog)
 {
    ui->setupUi(this);
+
+   m_data = bankData;
 }
 
 PRGROMDisplayDialog::~PRGROMDisplayDialog()
@@ -18,7 +20,7 @@ PRGROMDisplayDialog::~PRGROMDisplayDialog()
 
 void PRGROMDisplayDialog::changeEvent(QEvent* e)
 {
-   QDialog::changeEvent(e);
+   QWidget::changeEvent(e);
 
    switch (e->type())
    {

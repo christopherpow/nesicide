@@ -125,6 +125,7 @@ INCLUDEPATH += common \
     compiler \
     compiler/cc65 \
     debugger \
+    designers/ \
     designers/attribute_table_editor \
     designers/cartridge_editor \
     designers/code_editor \
@@ -232,7 +233,8 @@ SOURCES += mainwindow.cpp \
     compiler/cc65/dbginfo.c \
     common/xmlhelpers.cpp \
     testsuiteexecutivedialog.cpp \
-    designers/code_editor/qscilexerca65.cpp
+    designers/code_editor/qscilexerca65.cpp \
+    designers/cdesignereditorbase.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -326,7 +328,9 @@ HEADERS += mainwindow.h \
     compiler/cc65/ccc65interface.h \
     compiler/cc65/dbginfo.h \
     testsuiteexecutivedialog.h \
-    designers/code_editor/qscilexerca65.h
+    designers/code_editor/qscilexerca65.h \
+    designers/cdesignereditorbase.h \
+    interfaces/icenterwidgetitem.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

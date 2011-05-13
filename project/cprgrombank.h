@@ -15,7 +15,7 @@ public:
    // Member Getters
    uint32_t getBankIndex() { return m_bankIndex; }
    uint8_t* getBankData() { return m_bankData; }
-   PRGROMDisplayDialog* getEditor();
+   PRGROMDisplayDialog* editor() { return dynamic_cast<PRGROMDisplayDialog*>(m_editor); }
 
    // Member Setters
    void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
@@ -30,15 +30,6 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* tabWidget);
-   virtual bool onCloseQuery()
-   {
-      return true;
-   }
-   virtual void onClose() {}
-   virtual bool isDocumentSaveable()
-   {
-      return false;
-   }
    virtual void onSaveDocument() {}
    virtual bool canChangeName()
    {
@@ -48,15 +39,11 @@ public:
    {
       return true;
    }
-   virtual QWidget* tab() { return m_editor; }
 
 private:
    // Attributes
    uint32_t m_bankIndex;
    uint8_t  m_bankData [ MEM_8KB ];
-
-   // Designer
-   PRGROMDisplayDialog* m_editor;
 };
 
 #endif // CPRGROMBANK_H

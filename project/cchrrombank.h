@@ -28,29 +28,20 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* tabWidget);
-   virtual bool onCloseQuery();
-   virtual void onClose();
-   virtual bool isDocumentSaveable()
-   {
-      return false;
-   };
    virtual void onSaveDocument();
    virtual bool canChangeName()
    {
       return false;
-   };
+   }
    virtual bool onNameChanged(QString)
    {
       return true;
-   };
+   }
 
 private:
    // Attributes
    uint32_t m_bankIndex;
    uint8_t  m_bankData [ MEM_8KB ];
-
-   // Designer
-   CHRROMDisplayDialog* m_editor;
 };
 
 #endif // CCHRROMBANK_H

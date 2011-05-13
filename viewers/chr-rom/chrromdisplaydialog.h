@@ -1,20 +1,21 @@
 #ifndef CHRROMDISPLAYDIALOG_H
 #define CHRROMDISPLAYDIALOG_H
 
-#include <QDialog>
-#include <QFileDialog>
+#include "cdesignereditorbase.h"
 #include "cchrrompreviewrenderer.h"
+
+#include "iprojecttreeviewitem.h"
 
 namespace Ui
 {
 class CHRROMDisplayDialog;
 }
 
-class CHRROMDisplayDialog : public QDialog
+class CHRROMDisplayDialog : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   CHRROMDisplayDialog(QWidget* parent, bool usePPU, qint8* data);
+   CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~CHRROMDisplayDialog();
    void updateScrollbars();
 

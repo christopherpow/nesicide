@@ -9,34 +9,29 @@ CSourceItem::CSourceItem(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Allocate attributes
-   m_editor = (CodeEditorForm*)NULL;
 }
 
 CSourceItem::~CSourceItem()
 {
-   if (m_editor)
-   {
-      delete m_editor;
-   }
 }
 
-QString CSourceItem::get_sourceCode()
+QString CSourceItem::sourceCode()
 {
    if (m_editor)
    {
-      m_sourceCode = m_editor->get_sourceCode();
+      m_sourceCode = editor()->sourceCode();
    }
 
    return m_sourceCode;
 }
 
-void CSourceItem::set_sourceCode(QString sourceCode)
+void CSourceItem::setSourceCode(QString sourceCode)
 {
    m_sourceCode = sourceCode;
 
    if (m_editor)
    {
-      m_editor->set_sourceCode(sourceCode);
+      editor()->setSourceCode(sourceCode);
    }
 }
 
@@ -53,15 +48,17 @@ bool CSourceItem::serialize(QDomDocument& doc, QDomNode& node)
 
 bool CSourceItem::serializeContent()
 {
-   if ( m_isModified )
+   if ( m_editor && m_editor->isModified() )
    {
       QDir dir(QDir::currentPath());
       QFile fileOut(dir.relativeFilePath(m_path));
 
       if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
       {
-         fileOut.write(get_sourceCode().toAscii());
+         fileOut.write(sourceCode().toAscii());
       }
+
+      m_editor->setModified(false);
    }
 
    return true;
@@ -110,7 +107,7 @@ bool CSourceItem::deserializeContent()
 
    if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
    {
-      set_sourceCode(QString(fileIn.readAll()));
+      setSourceCode(QString(fileIn.readAll()));
       fileIn.close();
    }
    else
@@ -175,46 +172,15 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new CodeEditorForm(path());
-      m_editor->set_sourceCode(m_sourceCode);
+      m_editor = new CodeEditorForm(path(),m_sourceCode,this);
       tabWidget->addTab(m_editor, caption());
       tabWidget->setCurrentWidget(m_editor);
    }
 }
 
-bool CSourceItem::onCloseQuery()
-{
-   if (m_sourceCode != m_editor->get_sourceCode())
-   {
-      return (QMessageBox::question(0, QString("Confirm Close"),
-                                    QString("This file has unsaved changes that\n"
-                                            "will be lost if closed. Close anyway?"),
-                                    QMessageBox::Yes, QMessageBox::Cancel) == QMessageBox::Yes);
-   }
-   else
-   {
-      return true;
-   }
-
-}
-
-void CSourceItem::onClose()
-{
-   if (m_editor)
-   {
-      delete m_editor;
-      m_editor = (CodeEditorForm*)NULL;
-   }
-}
-
-bool CSourceItem::isDocumentSaveable()
-{
-   return true;
-}
-
 void CSourceItem::onSaveDocument()
 {
-   m_sourceCode = m_editor->get_sourceCode();
+   m_sourceCode = editor()->sourceCode();
    serializeContent();
 }
 

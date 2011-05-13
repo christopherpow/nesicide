@@ -5,7 +5,7 @@
 #include <QMenu>
 #include <QPixmap>
 
-#include <Qsci/qsciscintillabase.h>
+#include "Qsci/qsciscintillabase.h"
 
 #include "main.h"
 
@@ -33,8 +33,8 @@ enum
    Marker_Highlight
 };
 
-CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
-   QWidget(parent),
+CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link,QWidget* parent) :
+   CDesignerEditorBase(link,parent),
    ui(new Ui::CodeEditorForm)
 {
    QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
@@ -42,48 +42,48 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 
    ui->setupUi(this);
 
-   m_editor = new QsciScintilla();
+   m_scintilla = new QsciScintilla();
 
-   m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-   m_editor->setMarginWidth(3,0);
-   m_editor->setMarginMarkerMask(3,0);
-   m_editor->setMarginWidth(4,0);
-   m_editor->setMarginMarkerMask(4,0);
+   m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   m_scintilla->setMarginWidth(3,0);
+   m_scintilla->setMarginMarkerMask(3,0);
+   m_scintilla->setMarginWidth(4,0);
+   m_scintilla->setMarginMarkerMask(4,0);
 
-   m_editor->setMarginWidth(Margin_Highlight,0);
-   m_editor->setMarginType(Margin_Highlight,QsciScintilla::SymbolMargin);
-   m_editor->setMarginMarkerMask(Margin_Highlight,0x00000008);
+   m_scintilla->setMarginWidth(Margin_Highlight,0);
+   m_scintilla->setMarginType(Margin_Highlight,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginMarkerMask(Margin_Highlight,0x00000008);
 
-   m_editor->setMarginWidth(Margin_Decorations,22);
-   m_editor->setMarginMarkerMask(Margin_Decorations,0x00000007);
-   m_editor->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
-   m_editor->setMarginSensitivity(Margin_Decorations,true);
+   m_scintilla->setMarginWidth(Margin_Decorations,22);
+   m_scintilla->setMarginMarkerMask(Margin_Decorations,0x00000007);
+   m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(Margin_Decorations,true);
 
-   m_editor->setMarginLineNumbers(Margin_LineNumbers,true);
-   m_editor->setMarginWidth(Margin_LineNumbers,0);
-   m_editor->setMarginMarkerMask(Margin_LineNumbers,0);
-   m_editor->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
-   m_editor->setMarginSensitivity(Margin_LineNumbers,true);
+   m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
+   m_scintilla->setMarginWidth(Margin_LineNumbers,0);
+   m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
+   m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
+   m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
 
-   m_editor->setSelectionBackgroundColor(QColor(215,215,215));
-   m_editor->setSelectionToEol(true);
+   m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
+   m_scintilla->setSelectionToEol(true);
 
-   m_editor->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
-   m_editor->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
-   m_editor->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
 
    QPixmap highlight(1,1);
-   m_editor->markerDefine(highlight,Marker_Highlight);
-   m_editor->setMarkerBackgroundColor(QColor(235,235,235));
+   m_scintilla->markerDefine(highlight,Marker_Highlight);
+   m_scintilla->setMarkerBackgroundColor(QColor(235,235,235));
 
-   m_lexer = new QsciLexerCA65(m_editor);
-   m_editor->setLexer(m_lexer);
+   m_lexer = new QsciLexerCA65(m_scintilla);
+   m_scintilla->setLexer(m_lexer);
 
-   QObject::connect(m_editor,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
-   QObject::connect(m_editor,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
-   QObject::connect(m_editor,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+   QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
+   QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
+   QObject::connect(m_scintilla,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
 
-   ui->gridLayout->addWidget(m_editor);
+   ui->gridLayout->addWidget(m_scintilla);
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
 
@@ -98,6 +98,13 @@ CodeEditorForm::CodeEditorForm(QString fileName,QWidget* parent) :
 
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
 
+   // Finally set the text in the Scintilla object.
+   m_scintilla->setText(sourceCode);
+
+   // Setting the text of the Scintilla object unfortunately marks
+   // it as "modified".  Reset our modified flag.
+   setModified(false);
+
    m_fileName = fileName;
 }
 
@@ -106,7 +113,7 @@ CodeEditorForm::~CodeEditorForm()
    delete ui;
 
    delete m_lexer;
-   delete m_editor;
+   delete m_scintilla;
 }
 
 void CodeEditorForm::changeEvent(QEvent* e)
@@ -134,12 +141,12 @@ void CodeEditorForm::external_breakpointsChanged()
    int index;
    int idx;
 
-   m_editor->getCursorPosition(&line,&index);
+   m_scintilla->getCursorPosition(&line,&index);
 
-   m_editor->markerDeleteAll(Marker_Breakpoint);
-   m_editor->markerDeleteAll(Marker_BreakpointDisabled);
+   m_scintilla->markerDeleteAll(Marker_Breakpoint);
+   m_scintilla->markerDeleteAll(Marker_BreakpointDisabled);
 
-   for ( line = 0; line < m_editor->lines(); line++ )
+   for ( line = 0; line < m_scintilla->lines(); line++ )
    {
       addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -168,14 +175,14 @@ void CodeEditorForm::external_breakpointsChanged()
               (pBreakpoint->item1 <= addr) &&
               ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
          {
-            m_editor->markerAdd(line,Marker_Breakpoint);
+            m_scintilla->markerAdd(line,Marker_Breakpoint);
          }
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
                    (pBreakpoint->item1 <= addr) &&
                    ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
          {
-            m_editor->markerAdd(line,Marker_BreakpointDisabled);
+            m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
          }
       }
    }
@@ -188,19 +195,16 @@ void CodeEditorForm::breakpointHit()
 
 void CodeEditorForm::editor_modificationChanged(bool m)
 {
-   if ( m )
-   {
-      emit editor_isModified();
-   }
+   setModified(m);
 }
 
 void CodeEditorForm::editor_linesChanged()
 {
    QString maxLineNum;
 
-   maxLineNum.sprintf("%d",m_editor->lines());
+   maxLineNum.sprintf("%d",m_scintilla->lines());
 
-   m_editor->setMarginWidth(Margin_LineNumbers,maxLineNum);
+   m_scintilla->setMarginWidth(Margin_LineNumbers,maxLineNum);
 }
 
 void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
@@ -210,7 +214,7 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
    int addr = 0;
    int absAddr = 0;
 
-   m_editor->setCursorPosition(line,0);
+   m_scintilla->setCursorPosition(line,0);
 
    addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -242,14 +246,14 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
          {
             on_actionRemove_breakpoint_triggered();
 
-            m_editor->markerDelete(line,Marker_BreakpointDisabled);
+            m_scintilla->markerDelete(line,Marker_BreakpointDisabled);
          }
          else
          {
             on_actionDisable_breakpoint_triggered();
 
-            m_editor->markerDelete(line,Marker_Breakpoint);
-            m_editor->markerAdd(line,Marker_BreakpointDisabled);
+            m_scintilla->markerDelete(line,Marker_Breakpoint);
+            m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
          }
       }
 
@@ -260,7 +264,7 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
 void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
 {
    QMenu menu;
-//   QMenu *pMenu = m_editor->createStandardContextMenu();
+//   QMenu *pMenu = m_scintilla->createStandardContextMenu();
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int line;
@@ -268,7 +272,7 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
    int addr = 0;
    int absAddr = 0;
 
-   m_editor->getCursorPosition(&line,&index);
+   m_scintilla->getCursorPosition(&line,&index);
 
    addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -343,7 +347,7 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   m_editor->getCursorPosition(&line,&index);
+   m_scintilla->getCursorPosition(&line,&index);
 
    addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -371,7 +375,7 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
       }
       else
       {
-         m_editor->markerAdd(line,Marker_Breakpoint);
+         m_scintilla->markerAdd(line,Marker_Breakpoint);
       }
 
       emit breakpointsChanged();
@@ -434,7 +438,7 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   m_editor->getCursorPosition(&line,&index);
+   m_scintilla->getCursorPosition(&line,&index);
 
    addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -458,7 +462,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
 
    if ( marker >= 0 )
    {
-      m_editor->getCursorPosition(&line,&index);
+      m_scintilla->getCursorPosition(&line,&index);
 
       addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -477,16 +481,16 @@ void CodeEditorForm::on_actionClear_marker_triggered()
    markers->ClearAllMarkers();
 }
 
-QString CodeEditorForm::get_sourceCode()
+QString CodeEditorForm::sourceCode()
 {
-   return m_editor->text();
+   return m_scintilla->text();
 }
 
-void CodeEditorForm::set_sourceCode(QString source)
+void CodeEditorForm::setSourceCode(QString source)
 {
-   if ( m_editor )
+   if ( m_scintilla )
    {
-      m_editor->setText(source);
+      m_scintilla->setText(source);
 
       // Force repaint of breakpoints since the reason this API is
       // called is usually when a CodeEditorForm is opened for the
@@ -495,20 +499,24 @@ void CodeEditorForm::set_sourceCode(QString source)
       // on subsequent opens.  (They're still in the breakpoint database
       // they just wouldn't show up in the code editor).
       external_breakpointsChanged();
+
+      // Setting the text of the Scintilla object unfortunately marks
+      // it as "modified".  Reset our modified flag.
+      setModified(false);
    }
 }
 
 void CodeEditorForm::selectLine(int linenumber)
 {
-   if ( m_editor )
+   if ( m_scintilla )
    {
-      m_editor->markerDeleteAll(Marker_Execution);
-      m_editor->markerDeleteAll(Marker_Highlight);
+      m_scintilla->markerDeleteAll(Marker_Execution);
+      m_scintilla->markerDeleteAll(Marker_Highlight);
       if ( linenumber >= 0 )
       {
-         m_editor->ensureLineVisible(linenumber-1);
-         m_editor->markerAdd(linenumber-1,Marker_Execution);
-         m_editor->markerAdd(linenumber-1,Marker_Highlight);
+         m_scintilla->ensureLineVisible(linenumber-1);
+         m_scintilla->markerAdd(linenumber-1,Marker_Execution);
+         m_scintilla->markerAdd(linenumber-1,Marker_Highlight);
       }
    }
 }

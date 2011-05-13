@@ -7,21 +7,10 @@ CPRGROMBank::CPRGROMBank(IProjectTreeViewItem* parent)
 
    // Allocate attributes
    m_bankIndex = -1;
-
-   m_editor = (PRGROMDisplayDialog*)0;
 }
 
 CPRGROMBank::~CPRGROMBank()
 {
-   if (m_editor)
-   {
-      delete m_editor;
-   }
-}
-
-PRGROMDisplayDialog* CPRGROMBank::getEditor()
-{
-   return m_editor;
 }
 
 bool CPRGROMBank::serialize(QDomDocument& doc, QDomNode& node)
@@ -54,7 +43,6 @@ void CPRGROMBank::contextMenuEvent(QContextMenuEvent*, QTreeView*)
 
 void CPRGROMBank::openItemEvent(QTabWidget* tabWidget)
 {
-
    if (m_editor)
    {
       if (m_editor->isVisible())
@@ -66,13 +54,10 @@ void CPRGROMBank::openItemEvent(QTabWidget* tabWidget)
          tabWidget->addTab(m_editor, this->caption());
          tabWidget->setCurrentWidget(m_editor);
       }
-
-      return;
    }
    else
    {
-      m_editor = new PRGROMDisplayDialog();
-      m_editor->setRomData(m_bankData);
+      m_editor = new PRGROMDisplayDialog(m_bankData,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }

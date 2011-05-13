@@ -407,6 +407,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
+   QFileInfo   fileInfo;
 
    if ( event->mimeData()->hasUrls() )
    {
@@ -414,8 +415,10 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 
       fileName = fileUrls.at(0).toLocalFile();
 
-      if ( ((!fileName.contains(".nesproject",Qt::CaseInsensitive)) && (fileName.contains(".nes",Qt::CaseInsensitive))) ||
-           (fileName.contains(".nesproject",Qt::CaseInsensitive)) )
+      fileInfo.setFile(fileName);
+
+      if ( (!fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive)) ||
+           (!fileInfo.suffix().compare("nes",Qt::CaseInsensitive)) )
       {
          event->acceptProposedAction();
       }
@@ -426,6 +429,7 @@ void MainWindow::dragMoveEvent(QDragMoveEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
+   QFileInfo   fileInfo;
 
    if ( event->mimeData()->hasUrls() )
    {
@@ -433,8 +437,10 @@ void MainWindow::dragMoveEvent(QDragMoveEvent* event)
 
       fileName = fileUrls.at(0).toLocalFile();
 
-      if ( ((!fileName.contains(".nesproject",Qt::CaseInsensitive)) && (fileName.contains(".nes",Qt::CaseInsensitive))) ||
-           (fileName.contains(".nesproject",Qt::CaseInsensitive)) )
+      fileInfo.setFile(fileName);
+
+      if ( (!fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive)) ||
+           (!fileInfo.suffix().compare("nes",Qt::CaseInsensitive)) )
       {
          event->acceptProposedAction();
       }
@@ -445,6 +451,7 @@ void MainWindow::dropEvent(QDropEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
+   QFileInfo   fileInfo;
 
    if ( event->mimeData()->hasUrls() )
    {
@@ -454,7 +461,9 @@ void MainWindow::dropEvent(QDropEvent* event)
 
       fileName = fileUrls.at(0).toLocalFile();
 
-      if ( fileName.contains(".nesproject",Qt::CaseInsensitive) )
+      fileInfo.setFile(fileName);
+
+      if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
       {
          if ( nesicideProject->isInitialized() )
          {
@@ -464,7 +473,7 @@ void MainWindow::dropEvent(QDropEvent* event)
 
          event->acceptProposedAction();
       }
-      else if ( fileName.contains(".nes",Qt::CaseInsensitive) )
+      else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
       {
          openROM(fileName);
 
@@ -531,9 +540,9 @@ void MainWindow::projectDataChangesEvent()
 
    if (ui->tabWidget->currentIndex() >= 0)
    {
-      IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentWidget());
+      ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->currentWidget());
 
-      if (projectItem)
+      if ( projectItem && projectItem->isModified() )
       {
          ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
       }
@@ -702,39 +711,21 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
    openROM(fileName);
 }
 
-IProjectTreeViewItem* MainWindow::matchTab(QWidget* pTab)
-{
-   IProjectTreeViewItemIterator iter(nesicideProject);
-   IProjectTreeViewItem*        item = NULL;
-
-   while ( iter.current() )
-   {
-      if ( iter.current()->tab() == pTab )
-      {
-         item = iter.current();
-         break;
-      }
-
-      iter.next();
-   }
-
-   return item;
-}
-
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
-   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->widget(index));
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
 
    if (projectItem)
    {
-      if (((IProjectTreeViewItem*)projectItem)->onCloseQuery())
+      if (projectItem->onCloseQuery())
       {
          ui->tabWidget->removeTab(index);
-         ((IProjectTreeViewItem*)projectItem)->onClose();
+         projectItem->onClose();
       }
    }
    else
    {
+      qDebug("projectItem==FAIL");
       ui->tabWidget->removeTab(index);
    }
 }
@@ -867,7 +858,7 @@ void MainWindow::on_actionOpen_Project_triggered()
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->widget(index));
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
 
    if (projectItem)
    {
@@ -881,11 +872,11 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_actionSave_Active_Document_triggered()
 {
-   IProjectTreeViewItem* projectItem = matchTab(ui->tabWidget->currentWidget());
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->currentWidget());
 
    if (projectItem)
    {
-      ((IProjectTreeViewItem*)projectItem)->onSaveDocument();
+      projectItem->onSaveDocument();
    }
 
 }

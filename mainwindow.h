@@ -54,7 +54,6 @@ protected:
 
 private:
    Ui::MainWindow* ui;
-   IProjectTreeViewItem* matchTab(QWidget* pTab);
    QString projectFileName;
    void openProject(QString fileName);
    void saveProject();

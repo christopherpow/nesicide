@@ -6,7 +6,6 @@ CCHRROMBank::CCHRROMBank(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Allocate attributes
-   m_editor = (CHRROMDisplayDialog*)NULL;
 }
 
 CCHRROMBank::~ CCHRROMBank()
@@ -56,24 +55,9 @@ void CCHRROMBank::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new CHRROMDisplayDialog(0, false, (qint8*)m_bankData);
+      m_editor = new CHRROMDisplayDialog(false, (qint8*)m_bankData,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
-//      m_editor->updateScrollbars();
-   }
-}
-
-bool CCHRROMBank::onCloseQuery()
-{
-   return true;
-}
-
-void CCHRROMBank::onClose()
-{
-   if (m_editor)
-   {
-      delete m_editor;
-      m_editor = (CHRROMDisplayDialog*)NULL;
    }
 }
 
