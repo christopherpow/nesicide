@@ -23,6 +23,8 @@ public:
    static unsigned int getAddressFromFileAndLine(QString file,int line);
    static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int line);
    static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
+   static QStringList getErrors() { return errors; }
+   static bool isErrorOnLineOfFile(QString file,int line);
 
 protected:
    static cc65_dbginfo        dbgInfo;
@@ -30,6 +32,7 @@ protected:
    static cc65_segmentinfo*   dbgSegments;
    static cc65_lineinfo*      dbgLines;
    static cc65_symbolinfo*    dbgSymbols;
+   static QStringList         errors;
 };
 
 #endif // CCC65INTERFACE_H

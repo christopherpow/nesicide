@@ -22,6 +22,7 @@ public:
    QString sourceCode();
    void setSourceCode(QString source);
    void selectLine(int linenumber);
+   void highlightLine(int linenumber);
    QString fileName() { return m_fileName; }
    void setReadOnly(bool readOnly) { m_scintilla->setReadOnly(readOnly); }
 
@@ -44,6 +45,9 @@ private slots:
    void editor_linesChanged();
    void editor_modificationChanged(bool m);
    void external_breakpointsChanged();
+   void compiler_compileStarted();
+   void compiler_compileDone(bool ok);
+   void emulator_emulatorStarted();
    void breakpointHit();
    void on_actionClear_marker_triggered();
    void on_actionEnd_marker_here_triggered();

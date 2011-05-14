@@ -21,8 +21,7 @@
 enum
 {
    Margin_Decorations = 0,
-   Margin_LineNumbers,
-   Margin_Highlight
+   Margin_LineNumbers
 };
 
 enum
@@ -30,6 +29,7 @@ enum
    Marker_Breakpoint = 0,
    Marker_BreakpointDisabled,
    Marker_Execution,
+   Marker_Error,
    Marker_Highlight
 };
 
@@ -45,17 +45,15 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla = new QsciScintilla();
 
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   m_scintilla->setMarginWidth(2,0);
+   m_scintilla->setMarginMarkerMask(2,0);
    m_scintilla->setMarginWidth(3,0);
    m_scintilla->setMarginMarkerMask(3,0);
    m_scintilla->setMarginWidth(4,0);
    m_scintilla->setMarginMarkerMask(4,0);
 
-   m_scintilla->setMarginWidth(Margin_Highlight,0);
-   m_scintilla->setMarginType(Margin_Highlight,QsciScintilla::SymbolMargin);
-   m_scintilla->setMarginMarkerMask(Margin_Highlight,0x00000008);
-
    m_scintilla->setMarginWidth(Margin_Decorations,22);
-   m_scintilla->setMarginMarkerMask(Margin_Decorations,0x00000007);
+   m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
    m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
    m_scintilla->setMarginSensitivity(Margin_Decorations,true);
 
@@ -71,10 +69,11 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
-
-   QPixmap highlight(1,1);
-   m_scintilla->markerDefine(highlight,Marker_Highlight);
-   m_scintilla->setMarkerBackgroundColor(QColor(235,235,235));
+   m_scintilla->markerDefine(QsciScintilla::CircledMinus,Marker_Error);
+   m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
+   m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
+   m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
+   m_scintilla->setMarkerBackgroundColor(QColor(235,235,235),Marker_Highlight);
 
    m_lexer = new QsciLexerCA65(m_scintilla);
    m_scintilla->setLexer(m_lexer);
@@ -97,6 +96,11 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
 
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
+
+   QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
+   QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
+
+   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
    // Finally set the text in the Scintilla object.
    m_scintilla->setText(sourceCode);
@@ -128,6 +132,30 @@ void CodeEditorForm::changeEvent(QEvent* e)
       default:
          break;
    }
+}
+
+void CodeEditorForm::compiler_compileStarted()
+{
+   m_scintilla->markerDeleteAll(Marker_Error);
+}
+
+void CodeEditorForm::compiler_compileDone(bool ok)
+{
+   int line;
+
+   for ( line = 0; line < m_scintilla->lines(); line++ )
+   {
+      if ( CCC65Interface::isErrorOnLineOfFile(m_fileName,line+1) )
+      {
+         m_scintilla->markerAdd(line,Marker_Error);
+      }
+   }
+}
+
+void CodeEditorForm::emulator_emulatorStarted()
+{
+   m_scintilla->markerDeleteAll(Marker_Execution);
+   m_scintilla->markerDeleteAll(Marker_Highlight);
 }
 
 void CodeEditorForm::external_breakpointsChanged()
@@ -488,22 +516,19 @@ QString CodeEditorForm::sourceCode()
 
 void CodeEditorForm::setSourceCode(QString source)
 {
-   if ( m_scintilla )
-   {
-      m_scintilla->setText(source);
+   m_scintilla->setText(source);
 
-      // Force repaint of breakpoints since the reason this API is
-      // called is usually when a CodeEditorForm is opened for the
-      // first time or subsequent times after being closed.  Any
-      // breakpoints set in this code module would otherwise disappear
-      // on subsequent opens.  (They're still in the breakpoint database
-      // they just wouldn't show up in the code editor).
-      external_breakpointsChanged();
+   // Force repaint of breakpoints since the reason this API is
+   // called is usually when a CodeEditorForm is opened for the
+   // first time or subsequent times after being closed.  Any
+   // breakpoints set in this code module would otherwise disappear
+   // on subsequent opens.  (They're still in the breakpoint database
+   // they just wouldn't show up in the code editor).
+   external_breakpointsChanged();
 
-      // Setting the text of the Scintilla object unfortunately marks
-      // it as "modified".  Reset our modified flag.
-      setModified(false);
-   }
+   // Setting the text of the Scintilla object unfortunately marks
+   // it as "modified".  Reset our modified flag.
+   setModified(false);
 }
 
 void CodeEditorForm::selectLine(int linenumber)
@@ -516,6 +541,19 @@ void CodeEditorForm::selectLine(int linenumber)
       {
          m_scintilla->ensureLineVisible(linenumber-1);
          m_scintilla->markerAdd(linenumber-1,Marker_Execution);
+         m_scintilla->markerAdd(linenumber-1,Marker_Highlight);
+      }
+   }
+}
+
+void CodeEditorForm::highlightLine(int linenumber)
+{
+   if ( m_scintilla )
+   {
+      m_scintilla->markerDeleteAll(Marker_Highlight);
+      if ( linenumber >= 0 )
+      {
+         m_scintilla->ensureLineVisible(linenumber-1);
          m_scintilla->markerAdd(linenumber-1,Marker_Highlight);
       }
    }

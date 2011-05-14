@@ -10,6 +10,7 @@ cc65_sourceinfo*    CCC65Interface::dbgSources = NULL;
 cc65_segmentinfo*   CCC65Interface::dbgSegments = NULL;
 cc65_lineinfo*      CCC65Interface::dbgLines = NULL;
 cc65_symbolinfo*    CCC65Interface::dbgSymbols = NULL;
+QStringList         CCC65Interface::errors;
 
 CCC65Interface::CCC65Interface()
 {
@@ -56,6 +57,9 @@ bool CCC65Interface::assemble()
    cc65.setProcessEnvironment(env);
    cc65.setWorkingDirectory(QDir::currentPath());
 
+   // Clear the error storage.
+   errors.clear();
+
    // For each source code object, compile it.
    while ( iter.current() )
    {
@@ -89,6 +93,7 @@ bool CCC65Interface::assemble()
          }
          stdioStr = QString(cc65.readAllStandardError());
          stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+         errors.append(stdioList);
          foreach ( const QString& str, stdioList )
          {
             buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
@@ -368,4 +373,22 @@ bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
       }
    }
    return false;
+}
+
+bool CCC65Interface::isErrorOnLineOfFile(QString file,int line)
+{
+   QString errorLookup;
+   bool    found = false;
+
+   // Form error string key.
+   errorLookup = file+'('+QString::number(line)+"):";
+   foreach ( const QString error, errors )
+   {
+      if ( error.contains(errorLookup) )
+      {
+         found = true;
+         break;
+      }
+   }
+   return found;
 }

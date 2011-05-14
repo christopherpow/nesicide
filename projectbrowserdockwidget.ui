@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>150</width>
-    <height>83</height>
+    <height>93</height>
    </size>
   </property>
   <property name="features">
@@ -52,6 +52,9 @@
       </property>
       <property name="autoExpandDelay">
        <number>1</number>
+      </property>
+      <property name="indentation">
+       <number>10</number>
       </property>
       <property name="animated">
        <bool>true</bool>

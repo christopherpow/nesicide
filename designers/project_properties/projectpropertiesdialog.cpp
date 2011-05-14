@@ -15,7 +15,6 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::ProjectPropertiesDialog)
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    QList<QColor> *pal = nesicideProject->getProjectPaletteEntries();
    int i = 0;
    char mapperTag [ 64 ];
@@ -387,7 +386,6 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 
 void ProjectPropertiesDialog::on_buttonBox_accepted()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    QSettings settings;
 
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());

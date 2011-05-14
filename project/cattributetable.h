@@ -25,8 +25,6 @@ public:
    virtual void onSaveDocument();
 
 private:
-   // Designer
-   AttributeTableEditorForm* m_editor;
 };
 
 #endif // CATTRIBUTETABLE_H

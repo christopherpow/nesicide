@@ -140,6 +140,8 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
    QStringList errorParts;
+   QString     errorFile;
+   QString     errorLine;
 
    if ( ui->compilerOutputTextEdit->blockCount() > 1 )
    {
@@ -147,18 +149,25 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
       selection = textCursor.selectedText();
       ui->compilerOutputTextEdit->setTextCursor(textCursor);
 
-      if ( selection.contains("error:") )
+      if ( selection.contains(": Error:") )
       {
+         // Parse the error file and line number.
          errorParts = selection.split(":");
+         errorFile = errorParts.at(0);
+         errorFile = errorFile.left(errorParts.at(0).indexOf('('));
+         errorLine = errorParts.at(0);
+         errorLine = errorLine.right(errorParts.at(0).length()-errorFile.length());
+         errorLine = errorLine.mid(1,errorLine.length()-2);
+         qDebug(errorFile.toAscii().constData());
 
          while ( iter.current() )
          {
             pSource = dynamic_cast<CSourceItem*>(iter.current());
             if ( pSource &&
-                 (pSource->caption() == errorParts.at(0)) )
+                 (errorFile.contains(pSource->path())) )
             {
                pSource->openItemEvent(m_pTarget);
-               pSource->editor()->selectLine(errorParts.at(1).toInt(0,10));
+               pSource->editor()->highlightLine(errorLine.toInt(0,10));
                break;
             }
             iter.next();
