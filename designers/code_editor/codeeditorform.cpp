@@ -103,11 +103,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
    // Finally set the text in the Scintilla object.
-   m_scintilla->setText(sourceCode);
-
-   // Setting the text of the Scintilla object unfortunately marks
-   // it as "modified".  Reset our modified flag.
-   setModified(false);
+   setSourceCode(sourceCode);
 
    m_fileName = fileName;
 }
@@ -524,6 +520,9 @@ void CodeEditorForm::setSourceCode(QString source)
    // on subsequent opens.  (They're still in the breakpoint database
    // they just wouldn't show up in the code editor).
    external_breakpointsChanged();
+
+   // Force repaint of error tags.
+   compiler_compileDone(true);
 
    // Setting the text of the Scintilla object unfortunately marks
    // it as "modified".  Reset our modified flag.
