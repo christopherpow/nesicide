@@ -26,6 +26,9 @@ public:
    QString fileName() { return m_fileName; }
    void setReadOnly(bool readOnly) { m_scintilla->setReadOnly(readOnly); }
 
+   virtual bool isModified() { return m_scintilla->isModified(); }
+   virtual void setModified(bool modified) { m_scintilla->setModified(modified); }
+
 protected:
    void changeEvent(QEvent* e);
    void contextMenuEvent(QContextMenuEvent* e);

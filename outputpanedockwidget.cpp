@@ -158,7 +158,6 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
          errorLine = errorParts.at(0);
          errorLine = errorLine.right(errorParts.at(0).length()-errorFile.length());
          errorLine = errorLine.mid(1,errorLine.length()-2);
-         qDebug(errorFile.toAscii().constData());
 
          while ( iter.current() )
          {

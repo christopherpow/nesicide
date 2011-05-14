@@ -223,7 +223,6 @@ void CodeEditorForm::breakpointHit()
 
 void CodeEditorForm::editor_modificationChanged(bool m)
 {
-   setModified(m);
 }
 
 void CodeEditorForm::editor_linesChanged()
