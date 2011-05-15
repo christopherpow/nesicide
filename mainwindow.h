@@ -28,6 +28,7 @@
 #include "outputpanedockwidget.h"
 #include "emulatorprefsdialog.h"
 #include "sourcenavigator.h"
+#include "emulatorcontrol.h"
 
 namespace Ui
 {
@@ -84,6 +85,8 @@ private:
    MapperInformationDockWidget* m_pMapperInformationInspector;
 
    SourceNavigator* m_pSourceNavigator;
+
+   EmulatorControl* m_pEmulatorControl;
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );

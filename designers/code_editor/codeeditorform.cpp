@@ -219,6 +219,7 @@ void CodeEditorForm::breakpointHit()
 
 void CodeEditorForm::editor_modificationChanged(bool m)
 {
+   emit editor_modified(m);
 }
 
 void CodeEditorForm::editor_linesChanged()

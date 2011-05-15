@@ -289,24 +289,11 @@ void NESEmulatorDockWidget::internalPauseWithoutShow()
 
 void NESEmulatorDockWidget::on_playButton_clicked()
 {
-#if 0
-   ui->playButton->setEnabled(false);
-   ui->pauseButton->setEnabled(true);
-   ui->stepCPUButton->setEnabled(false);
-   ui->stepPPUButton->setEnabled(false);
-#endif
    emulator->startEmulation();
 }
 
 void NESEmulatorDockWidget::on_pauseButton_clicked()
 {
-#if 0
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
-#endif
-
    emulator->pauseEmulation(true);
 }
 
@@ -322,13 +309,6 @@ void NESEmulatorDockWidget::on_stepPPUButton_clicked()
 
 void NESEmulatorDockWidget::on_resetButton_clicked()
 {
-#if 0
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
-#endif
-
    emulator->resetEmulator();
 }
 

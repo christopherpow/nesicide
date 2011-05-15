@@ -82,7 +82,7 @@
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Welcome Page</string>
+        <string/>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <property name="margin">

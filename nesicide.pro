@@ -234,7 +234,8 @@ SOURCES += mainwindow.cpp \
     common/xmlhelpers.cpp \
     testsuiteexecutivedialog.cpp \
     designers/code_editor/qscilexerca65.cpp \
-    designers/cdesignereditorbase.cpp
+    designers/cdesignereditorbase.cpp \
+    common/emulatorcontrol.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -330,7 +331,8 @@ HEADERS += mainwindow.h \
     testsuiteexecutivedialog.h \
     designers/code_editor/qscilexerca65.h \
     designers/cdesignereditorbase.h \
-    interfaces/icenterwidgetitem.h
+    interfaces/icenterwidgetitem.h \
+    common/emulatorcontrol.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -362,6 +364,7 @@ FORMS += mainwindow.ui \
     outputpanedockwidget.ui \
     debugger/breakpointdockwidget.ui \
     emulator/nesemulatordockwidget.ui \
-    testsuiteexecutivedialog.ui
+    testsuiteexecutivedialog.ui \
+    common/emulatorcontrol.ui
 
 RESOURCES += resource.qrc

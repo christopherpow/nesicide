@@ -173,7 +173,7 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    else
    {
       m_editor = new CodeEditorForm(path(),m_sourceCode,this);
-      tabWidget->addTab(m_editor, caption());
+      tabWidget->addTab(m_editor, path());
       tabWidget->setCurrentWidget(m_editor);
    }
 }

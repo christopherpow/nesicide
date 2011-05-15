@@ -14,7 +14,7 @@ public:
     virtual ~CDesignerEditorBase() {};
 
     virtual bool isModified() { return m_isModified; }
-    virtual void setModified(bool modified) { m_isModified = modified; }
+    virtual void setModified(bool modified) { m_isModified = modified; emit editor_modified(modified);}
 
     // ICenterWidgetItem Interface Implmentation
     virtual bool onCloseQuery();
@@ -23,6 +23,7 @@ public:
     virtual void onSaveDocument();
 
 signals:
+    void editor_modified(bool m);
 
 public slots:
 

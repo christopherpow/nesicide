@@ -56,6 +56,10 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
 
+   m_pEmulatorControl = new EmulatorControl();
+   ui->compilerToolbar->addSeparator();
+   ui->compilerToolbar->addWidget(m_pEmulatorControl);
+
    projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
    projectBrowser->hide();

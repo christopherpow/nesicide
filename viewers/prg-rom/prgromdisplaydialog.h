@@ -4,6 +4,8 @@
 #include "cdesignereditorbase.h"
 #include "iprojecttreeviewitem.h"
 
+#include "stdint.h"
+
 namespace Ui
 {
 class PRGROMDisplayDialog;
