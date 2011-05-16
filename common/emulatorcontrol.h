@@ -24,6 +24,8 @@ private slots:
     void on_stepCPUButton_clicked();
     void on_pauseButton_clicked();
     void on_playButton_clicked();
+    void internalPause();
+    void internalPlay();
 };
 
 #endif // EMULATORCONTROL_H

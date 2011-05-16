@@ -14,7 +14,6 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    imgData = new char[256*256*4];
 
    ui->setupUi(this);
-   ui->pauseButton->setEnabled(false);
 
    renderer = new CNESEmulatorRenderer(ui->frame, imgData);
    renderer->setMouseTracking(true);
@@ -22,10 +21,7 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    ui->frame->layout()->update();
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
-   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPauseWithoutShow()));
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
-   QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause(bool)));
-   QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -261,55 +257,6 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
    emulator->controllerInput ( m_joy );
 
    event->accept();
-}
-
-void NESEmulatorDockWidget::internalPlay()
-{
-   ui->playButton->setEnabled(false);
-   ui->pauseButton->setEnabled(true);
-   ui->stepCPUButton->setEnabled(false);
-   ui->stepPPUButton->setEnabled(false);
-}
-
-void NESEmulatorDockWidget::internalPause(bool)
-{
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
-}
-
-void NESEmulatorDockWidget::internalPauseWithoutShow()
-{
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
-}
-
-void NESEmulatorDockWidget::on_playButton_clicked()
-{
-   emulator->startEmulation();
-}
-
-void NESEmulatorDockWidget::on_pauseButton_clicked()
-{
-   emulator->pauseEmulation(true);
-}
-
-void NESEmulatorDockWidget::on_stepCPUButton_clicked()
-{
-   emulator->stepCPUEmulation();
-}
-
-void NESEmulatorDockWidget::on_stepPPUButton_clicked()
-{
-   emulator->stepPPUEmulation();
-}
-
-void NESEmulatorDockWidget::on_resetButton_clicked()
-{
-   emulator->resetEmulator();
 }
 
 void NESEmulatorDockWidget::renderData()

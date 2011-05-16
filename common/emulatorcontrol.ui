@@ -39,6 +39,9 @@
      </property>
      <item>
       <widget class="QToolButton" name="playButton">
+       <property name="toolTip">
+        <string>Run</string>
+       </property>
        <property name="text">
         <string>Run</string>
        </property>
@@ -65,6 +68,9 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="toolTip">
+        <string>Pause</string>
+       </property>
        <property name="text">
         <string>Pause</string>
        </property>
@@ -88,6 +94,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="stepCPUButton">
+       <property name="toolTip">
+        <string>Step CPU</string>
+       </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
@@ -120,6 +129,9 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="toolTip">
+        <string>Step PPU</string>
+       </property>
        <property name="text">
         <string>Step PPU</string>
        </property>
@@ -148,6 +160,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Reset</string>
        </property>
        <property name="text">
         <string>Reset</string>

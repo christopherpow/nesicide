@@ -34,14 +34,6 @@ private:
    unsigned char m_joy [ NUM_CONTROLLERS ];
 
 private slots:
-   void on_stepCPUButton_clicked();
-   void on_stepPPUButton_clicked();
-   void on_pauseButton_clicked();
-   void on_playButton_clicked();
-   void on_resetButton_clicked();
-   void internalPause(bool);
-   void internalPauseWithoutShow();
-   void internalPlay();
    void renderData();
 };
 
