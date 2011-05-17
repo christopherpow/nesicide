@@ -21,7 +21,7 @@ public:
 
    QString sourceCode();
    void setSourceCode(QString source);
-   void selectLine(int linenumber);
+   void showExecutionLine(int linenumber);
    void highlightLine(int linenumber);
    QString fileName() { return m_fileName; }
    void setReadOnly(bool readOnly) { m_scintilla->setReadOnly(readOnly); }

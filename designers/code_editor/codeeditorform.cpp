@@ -45,12 +45,16 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla = new QsciScintilla();
 
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-   m_scintilla->setMarginWidth(2,0);
-   m_scintilla->setMarginMarkerMask(2,0);
    m_scintilla->setMarginWidth(3,0);
    m_scintilla->setMarginMarkerMask(3,0);
    m_scintilla->setMarginWidth(4,0);
    m_scintilla->setMarginMarkerMask(4,0);
+
+   m_scintilla->setMarginWidth(2,22);
+   m_scintilla->setMarginMarkerMask(2,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(2,true);
+   m_scintilla->setMarginMarkerMask(2,0xFFFFFFF0);
+   m_scintilla->setFolding(QsciScintilla::BoxedTreeFoldStyle,2);
 
    m_scintilla->setMarginWidth(Margin_Decorations,22);
    m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
@@ -69,7 +73,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
-   m_scintilla->markerDefine(QsciScintilla::CircledMinus,Marker_Error);
+   m_scintilla->markerDefine(QPixmap(":/resources/error-mark.svg"),Marker_Error);
    m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
    m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
    m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
@@ -87,10 +91,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
 
    // Connect signals to the UI to have the UI update.
-//   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(repaint()) );
-//   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(repaint()) );
-//   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(repaint()) );
-//   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(repaint()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
 
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
@@ -102,10 +102,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
+   m_fileName = fileName;
+
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
-
-   m_fileName = fileName;
 }
 
 CodeEditorForm::~CodeEditorForm()
@@ -530,13 +530,16 @@ void CodeEditorForm::setSourceCode(QString source)
    setModified(false);
 }
 
-void CodeEditorForm::selectLine(int linenumber)
+void CodeEditorForm::showExecutionLine(int linenumber)
 {
+   QSettings settings;
+   bool      follow = settings.value("followExecution",QVariant(true)).toBool();
+
    if ( m_scintilla )
    {
       m_scintilla->markerDeleteAll(Marker_Execution);
       m_scintilla->markerDeleteAll(Marker_Highlight);
-      if ( linenumber >= 0 )
+      if ( (follow) && (linenumber >= 0) )
       {
          m_scintilla->ensureLineVisible(linenumber-1);
          m_scintilla->markerAdd(linenumber-1,Marker_Execution);

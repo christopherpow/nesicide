@@ -108,12 +108,12 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
             if ( pSource &&
                  (pSource->path() == file) )
             {
-               pSource->editor()->selectLine(linenumber);
+               pSource->editor()->showExecutionLine(linenumber);
                found = true;
             }
             else if ( pSource && pSource->editor() )
             {
-               pSource->editor()->selectLine(-1);
+               pSource->editor()->showExecutionLine(-1);
             }
             iter.next();
          }
@@ -125,11 +125,11 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
             if ( editor &&
                  (editor->fileName() == file) )
             {
-               editor->selectLine(linenumber);
+               editor->showExecutionLine(linenumber);
             }
             else if ( editor )
             {
-               editor->selectLine(-1);
+               editor->showExecutionLine(-1);
             }
          }
       }
@@ -245,7 +245,7 @@ void SourceNavigator::on_symbols_activated(QString symbol)
            (pSource->path() == ui->files->currentText()) )
       {
          pSource->openItemEvent(m_pTarget);
-         pSource->editor()->selectLine(linenumber);
+         pSource->editor()->showExecutionLine(linenumber);
          emit fileNavigator_symbolChanged(ui->symbols->currentText(),ui->symbols->currentText(),linenumber);
          break;
       }
