@@ -53,5 +53,8 @@
         <file>resources/gplv3.png</file>
         <file>resources/controller.svg</file>
         <file alias="GameDatabase">resources/NesCarts (2010-12-26).xml</file>
+        <file>resources/continue-icon-cpu.svg</file>
+        <file>resources/continue-icon-ppu.svg</file>
+        <file>resources/error-mark.svg</file>
     </qresource>
 </RCC>

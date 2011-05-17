@@ -15,20 +15,13 @@ CPRGROMBank::~CPRGROMBank()
 
 bool CPRGROMBank::serialize(QDomDocument& doc, QDomNode& node)
 {
-   // Create the root element for the CHR-ROM object
-   QDomElement prgromElement = addElement( doc, node, "prgrom" );
-   QDomCDATASection dataSect = doc.createCDATASection(QByteArray::fromRawData((const char*)m_bankData,
-                               MEM_8KB).toBase64());
-   prgromElement.appendChild(dataSect);
-
+   // Don't carry the ROM data around with the project.
    return true;
 }
 
 bool CPRGROMBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
-   // Read in the DOM element
-   QDomElement prgromElement = doc.documentElement();
-
+   // Don't carry the ROM data around with the project.
    return true;
 }
 

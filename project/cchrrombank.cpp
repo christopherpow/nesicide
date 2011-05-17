@@ -14,18 +14,13 @@ CCHRROMBank::~ CCHRROMBank()
 
 bool CCHRROMBank::serialize(QDomDocument& doc, QDomNode& node)
 {
-   // Create the root element for the CHR-ROM object
-   QDomElement chrromElement = addElement( doc, node, "chrrom" );
-   QDomCDATASection dataSect = doc.createCDATASection(QByteArray::fromRawData((const char*)m_bankData, MEM_8KB).toBase64());
-   chrromElement.appendChild(dataSect);
+   // Don't carry the ROM data around with the project.
    return true;
 }
 
 bool CCHRROMBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
-   // Read in the DOM element
-   QDomElement chrromElement = doc.documentElement();
-
+   // Don't carry the ROM data around with the project.
    return true;
 }
 

@@ -46,22 +46,13 @@ void CPRGROMBanks::terminateProject()
 
 bool CPRGROMBanks::serialize(QDomDocument& doc, QDomNode& node)
 {
-   // Create the root element for the PRG-ROM banks
-   QDomElement prgromElement = addElement( doc, node, "prgrombanks" );
-
-   for (int i = 0; i < m_prgRomBanks.count(); i++)
-   {
-      if (!m_prgRomBanks.at(i)->serialize(doc, prgromElement))
-      {
-         return false;
-      }
-   }
-
+   // Don't carry the ROM data around with the project.
    return true;
 }
 
 bool CPRGROMBanks::deserialize(QDomDocument&, QDomNode&, QString& errors)
 {
+   // Don't carry the ROM data around with the project.
    return true;
 }
 

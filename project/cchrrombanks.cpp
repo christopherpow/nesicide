@@ -47,22 +47,13 @@ void CCHRROMBanks::terminateProject()
 // IXMLSerializable Interface Implementation
 bool CCHRROMBanks::serialize(QDomDocument& doc, QDomNode& node)
 {
-   // Create the root element for the CHR-ROM banks
-   QDomElement chrromElement = addElement( doc, node, "chrrombanks" );
-
-   for (int i = 0; i < m_chrRomBanks.count(); i++)
-   {
-      if (!m_chrRomBanks.at(i)->serialize(doc, chrromElement))
-      {
-         return false;
-      }
-   }
-
+   // Don't carry the ROM data around with the project.
    return true;
 }
 
 bool CCHRROMBanks::deserialize(QDomDocument&, QDomNode&, QString& errors)
 {
+   // Don't carry the ROM data around with the project.
    return true;
 }
 

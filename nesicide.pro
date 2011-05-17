@@ -235,7 +235,8 @@ SOURCES += mainwindow.cpp \
     testsuiteexecutivedialog.cpp \
     designers/code_editor/qscilexerca65.cpp \
     designers/cdesignereditorbase.cpp \
-    common/emulatorcontrol.cpp
+    common/emulatorcontrol.cpp \
+    debugger/symbolwatchdockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -332,7 +333,8 @@ HEADERS += mainwindow.h \
     designers/code_editor/qscilexerca65.h \
     designers/cdesignereditorbase.h \
     interfaces/icenterwidgetitem.h \
-    common/emulatorcontrol.h
+    common/emulatorcontrol.h \
+    debugger/symbolwatchdockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -365,6 +367,7 @@ FORMS += mainwindow.ui \
     debugger/breakpointdockwidget.ui \
     emulator/nesemulatordockwidget.ui \
     testsuiteexecutivedialog.ui \
-    common/emulatorcontrol.ui
+    common/emulatorcontrol.ui \
+    debugger/symbolwatchdockwidget.ui
 
 RESOURCES += resource.qrc

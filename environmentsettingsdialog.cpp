@@ -45,6 +45,7 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
    ui->ROMPath->setText(settings.value("ROMPath","").toString());
    ui->runRom->setChecked(settings.value("runRom",QVariant(true)).toBool());
+   ui->followExecution->setChecked(settings.value("followExecution",QVariant(true)).toBool());
 
    switch ( settings.value("debuggerUpdateRate",QVariant(0)).toInt() )
    {
@@ -70,6 +71,39 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
 {
    delete ui;
+}
+
+void EnvironmentSettingsDialog::on_buttonBox_accepted()
+{
+    QSettings settings;
+
+    settings.setValue(ui->showWelcomeOnStart->objectName(),ui->showWelcomeOnStart->isChecked());
+    settings.setValue(ui->saveAllOnCompile->objectName(),ui->saveAllOnCompile->isChecked());
+    settings.setValue(ui->rememberWindowSettings->objectName(),ui->rememberWindowSettings->isChecked());
+    settings.setValue(ui->trackRecentProjects->objectName(),ui->trackRecentProjects->isChecked());
+
+    settings.setValue(ui->useInternalDB->objectName(),ui->useInternalDB->isChecked());
+    settings.setValue("GameDatabase",ui->GameDatabasePathEdit->text());
+
+    settings.setValue("ROMPath",ui->ROMPath->text());
+
+    settings.setValue("runRom",ui->runRom->isChecked());
+    settings.setValue("followExecution",ui->followExecution->isChecked());
+
+    switch ( ui->debuggerUpdateRate->value() )
+    {
+       case 0:
+          settings.setValue("debuggerUpdateRate",0);
+       break;
+       case 1:
+          settings.setValue("debuggerUpdateRate",1);
+       break;
+       case 2:
+          settings.setValue("debuggerUpdateRate",-1);
+       break;
+    }
+
+    settings.setValue("soundBufferDepth",ui->soundBufferDepth->value());
 }
 
 void EnvironmentSettingsDialog::changeEvent(QEvent* e)
@@ -206,38 +240,6 @@ void EnvironmentSettingsDialog::on_PluginPathButton_clicked()
    {
       ui->PluginPathEdit->setText(value);
    }
-}
-
-void EnvironmentSettingsDialog::on_buttonBox_accepted()
-{
-    QSettings settings;
-
-    settings.setValue(ui->showWelcomeOnStart->objectName(),ui->showWelcomeOnStart->isChecked());
-    settings.setValue(ui->saveAllOnCompile->objectName(),ui->saveAllOnCompile->isChecked());
-    settings.setValue(ui->rememberWindowSettings->objectName(),ui->rememberWindowSettings->isChecked());
-    settings.setValue(ui->trackRecentProjects->objectName(),ui->trackRecentProjects->isChecked());
-
-    settings.setValue(ui->useInternalDB->objectName(),ui->useInternalDB->isChecked());
-    settings.setValue("GameDatabase",ui->GameDatabasePathEdit->text());
-
-    settings.setValue("ROMPath",ui->ROMPath->text());
-
-    settings.setValue("runRom",ui->runRom->isChecked());
-
-    switch ( ui->debuggerUpdateRate->value() )
-    {
-       case 0:
-          settings.setValue("debuggerUpdateRate",0);
-       break;
-       case 1:
-          settings.setValue("debuggerUpdateRate",1);
-       break;
-       case 2:
-          settings.setValue("debuggerUpdateRate",-1);
-       break;
-    }
-
-    settings.setValue("soundBufferDepth",ui->soundBufferDepth->value());
 }
 
 void EnvironmentSettingsDialog::on_useInternalDB_toggled(bool checked)
