@@ -57,8 +57,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
 
    m_pEmulatorControl = new EmulatorControl();
-   ui->compilerToolbar->addSeparator();
-   ui->compilerToolbar->addWidget(m_pEmulatorControl);
+   ui->debuggerToolbar->addWidget(m_pEmulatorControl);
 
    projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
@@ -270,6 +269,13 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
    CDockWidgetRegistry::setFlags ("Cartridge Mapper Register Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
+
+   m_pSymbolInspector = new SymbolWatchDockWidget();
+   addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
+   m_pSymbolInspector->hide();
+   QObject::connect(m_pSymbolInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSymbol_Watch_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
+   CDockWidgetRegistry::setFlags ("Symbol Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    // Start in NTSC mode for now until we can have it configurable on app entry.
    int systemMode = settings.value("EmulatorPreferences/System",QVariant(MODE_NTSC)).toInt();
@@ -541,6 +547,7 @@ void MainWindow::projectDataChangesEvent()
 
    // Enable/Disable actions based on if we have a project loaded or not and a good compile
    ui->actionLoad_In_Emulator->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
+   ui->actionSymbol_Watch->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
 
    if (ui->tabWidget->currentIndex() >= 0)
    {
@@ -1159,6 +1166,16 @@ void MainWindow::on_actionMapperInformation_Inspector_toggled(bool value)
 void MainWindow::reflectedMapperInformationInspector_close ( bool toplevel )
 {
    ui->actionMapperInformation_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::on_actionSymbol_Watch_toggled(bool value)
+{
+   m_pSymbolInspector->setVisible(value);
+}
+
+void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
+{
+   ui->actionSymbol_Watch->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

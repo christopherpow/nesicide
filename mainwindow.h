@@ -23,6 +23,7 @@
 #include "ppuinformationdockwidget.h"
 #include "apuinformationdockwidget.h"
 #include "mapperinformationdockwidget.h"
+#include "symbolwatchdockwidget.h"
 #include "aboutdialog.h"
 #include "environmentsettingsdialog.h"
 #include "outputpanedockwidget.h"
@@ -83,6 +84,7 @@ private:
    PPUInformationDockWidget* m_pPPUInformationInspector;
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
+   SymbolWatchDockWidget* m_pSymbolInspector;
 
    SourceNavigator* m_pSourceNavigator;
 
@@ -134,6 +136,7 @@ private slots:
    void on_actionPPUInformation_Inspector_toggled(bool );
    void on_actionAPUInformation_Inspector_toggled(bool );
    void on_actionMapperInformation_Inspector_toggled(bool );
+   void on_actionSymbol_Watch_toggled(bool );
    void reflectedEmulator_close(bool toplevel);
    void reflectedCodeInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
@@ -158,6 +161,7 @@ private slots:
    void reflectedPPUInformationInspector_close(bool toplevel);
    void reflectedAPUInformationInspector_close(bool toplevel);
    void reflectedMapperInformationInspector_close(bool toplevel);
+   void reflectedSymbol_Watch_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
    void reflectedProjectBrowser_close(bool toplevel);
    void on_actionCompile_Project_triggered();

@@ -190,6 +190,7 @@
     <addaction name="actionExecution_Inspector"/>
     <addaction name="actionCode_Inspector"/>
     <addaction name="actionBreakpoint_Inspector"/>
+    <addaction name="actionSymbol_Watch"/>
     <addaction name="separator"/>
     <addaction name="actionExecution_Visualizer_Inspector"/>
     <addaction name="actionCodeDataLogger_Inspector"/>
@@ -299,7 +300,7 @@
   </widget>
   <widget class="QToolBar" name="toolToolbar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Project Tools</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -318,6 +319,17 @@
    <property name="sizeGripEnabled">
     <bool>true</bool>
    </property>
+  </widget>
+  <widget class="QToolBar" name="debuggerToolbar">
+   <property name="windowTitle">
+    <string>Emulator Controls</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
   </widget>
   <action name="actionE_xit">
    <property name="icon">
@@ -940,6 +952,11 @@
   <action name="actionRun_Test_Suite">
    <property name="text">
     <string>Run Test Suite</string>
+   </property>
+  </action>
+  <action name="actionSymbol_Watch">
+   <property name="text">
+    <string>Symbol Inspector</string>
    </property>
   </action>
  </widget>
