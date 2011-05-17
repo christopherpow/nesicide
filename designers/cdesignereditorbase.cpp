@@ -43,4 +43,8 @@ bool CDesignerEditorBase::isDocumentSaveable()
 
 void CDesignerEditorBase::onSaveDocument()
 {
+   if ( treeLink )
+   {
+      treeLink->saveItemEvent();
+   }
 }

@@ -1,11 +1,14 @@
 #include "graphicsbankeditorform.h"
 #include "ui_graphicsbankeditorform.h"
 
-GraphicsBankEditorForm::GraphicsBankEditorForm(IProjectTreeViewItem* link,QWidget* parent) :
+GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::GraphicsBankEditorForm)
 {
    ui->setupUi(this);
+
+   chrRomBankItems = bankItems;
+
    model = new CChrRomItemListDisplayModel(ui->tableView);
    model->chrRomBankItems.append(chrRomBankItems);
    ui->tableView->setModel(model);

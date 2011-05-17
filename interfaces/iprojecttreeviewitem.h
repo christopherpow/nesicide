@@ -85,6 +85,7 @@ public:
    virtual QString caption() const = 0;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent) = 0;
    virtual void openItemEvent(QTabWidget* tabWidget) = 0;
+   virtual void saveItemEvent() = 0;
    virtual void closeItemEvent() = 0;
    virtual bool canChangeName() = 0;
    virtual bool onNameChanged(QString newValue) = 0;

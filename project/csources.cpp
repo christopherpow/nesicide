@@ -154,8 +154,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          if (!fileName.isEmpty())
          {
             CSourceItem* pSourceItem = new CSourceItem(this);
-            QStringList fileParts = fileName.split(QRegExp("[\\/]"));
-            pSourceItem->setName(fileParts.at(fileParts.count()-1));
+            pSourceItem->setName(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
 
             pSourceItem->setPath(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
 

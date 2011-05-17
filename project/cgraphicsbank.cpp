@@ -138,20 +138,19 @@ void CGraphicsBank::openItemEvent(QTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new GraphicsBankEditorForm(this);
+      m_editor = new GraphicsBankEditorForm(m_bankItems,this);
       tabWidget->addTab(m_editor, this->caption());
-      m_editor->updateChrRomBankItemList(m_bankItems);
       tabWidget->setCurrentWidget(m_editor);
    }
 }
 
-void CGraphicsBank::onSaveDocument()
+void CGraphicsBank::saveItemEvent()
 {
    m_bankItems.clear();
 
-   for (int i=0; i < m_editor->chrRomBankItems.count(); i++)
+   for (int i=0; i < editor()->chrRomBankItems.count(); i++)
    {
-      m_bankItems.append(m_editor->chrRomBankItems.at(i));
+      m_bankItems.append(editor()->chrRomBankItems.at(i));
    }
 
    if ( m_editor )

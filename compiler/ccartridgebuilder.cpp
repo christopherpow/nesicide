@@ -12,6 +12,7 @@ bool CCartridgeBuilder::build()
 {
    CSourceAssembler sourceAssembler;
    CGraphicsAssembler graphicsAssembler;
+   CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
    QDir baseDir(QDir::currentPath());
    QDir outputDir(nesicideProject->getProjectOutputBasePath());
    QString prgName;
@@ -47,7 +48,10 @@ bool CCartridgeBuilder::build()
    }
 
    prgFile.setFileName(prgName);
-   chrFile.setFileName(chrName);
+   if ( gfxBanks->getGraphicsBanks().count() )
+   {
+      chrFile.setFileName(chrName);
+   }
    nesFile.setFileName(nesName);
 
    buildTextLogger->erase();
@@ -60,18 +64,31 @@ bool CCartridgeBuilder::build()
    }
 
    prgFile.open(QIODevice::ReadOnly);
-   chrFile.open(QIODevice::ReadOnly);
+   if ( gfxBanks->getGraphicsBanks().count() )
+   {
+      chrFile.open(QIODevice::ReadOnly);
+   }
    nesFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
 
    if ( prgFile.isOpen() &&
-        chrFile.isOpen() &&
+        (((gfxBanks->getGraphicsBanks().count()) && (chrFile.isOpen())) ||
+        (!(gfxBanks->getGraphicsBanks().count()))) &&
         nesFile.isOpen() )
    {
       QByteArray prgBytes = prgFile.readAll();
-      QByteArray chrBytes = chrFile.readAll();
+      QByteArray chrBytes;
+
+      if ( gfxBanks->getGraphicsBanks().count() )
+      {
+         chrBytes = chrFile.readAll();
+      }
 
       nesFile.write(prgBytes);
-      nesFile.write(chrBytes);
+
+      if ( gfxBanks->getGraphicsBanks().count() )
+      {
+         nesFile.write(chrBytes);
+      }
 
       buildTextLogger->write("<b>Writing: "+nesName+"</b>");
 

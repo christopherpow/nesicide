@@ -30,8 +30,9 @@ public:
    virtual void setModified(bool modified) { m_scintilla->setModified(modified); }
 
 protected:
-   void changeEvent(QEvent* e);
-   void contextMenuEvent(QContextMenuEvent* e);
+   void changeEvent(QEvent *e);
+   void contextMenuEvent(QContextMenuEvent *e);
+   bool eventFilter(QObject *obj, QEvent *event);
 
 private:
    Ui::CodeEditorForm* ui;

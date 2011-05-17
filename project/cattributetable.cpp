@@ -103,7 +103,7 @@ void CAttributeTable::openItemEvent(QTabWidget* tabWidget)
       tabWidget->setCurrentWidget(m_editor);
    }
 }
-void CAttributeTable::onSaveDocument()
+void CAttributeTable::saveItemEvent()
 {
 }
 

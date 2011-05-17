@@ -55,8 +55,3 @@ void CCHRROMBank::openItemEvent(QTabWidget* tabWidget)
       tabWidget->setCurrentWidget(m_editor);
    }
 }
-
-void CCHRROMBank::onSaveDocument()
-{
-
-}

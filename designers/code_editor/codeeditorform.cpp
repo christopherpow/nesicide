@@ -82,6 +82,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_lexer = new QsciLexerCA65(m_scintilla);
    m_scintilla->setLexer(m_lexer);
 
+   m_scintilla->installEventFilter(this);
+
    QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
    QObject::connect(m_scintilla,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
@@ -116,7 +118,38 @@ CodeEditorForm::~CodeEditorForm()
    delete m_scintilla;
 }
 
-void CodeEditorForm::changeEvent(QEvent* e)
+bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
+{
+   if (obj == m_scintilla)
+   {
+      // Capture Ctrl-S keypress since it's otherwise not handled.
+      if (event->type() == QEvent::KeyPress)
+      {
+         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+         if ( (keyEvent->modifiers() == Qt::ControlModifier) &&
+              (keyEvent->key() == Qt::Key_S) )
+         {
+            onSaveDocument();
+            return true;
+         }
+         else
+         {
+            return false;
+         }
+      }
+      else
+      {
+         return false;
+      }
+   }
+   else
+   {
+      // pass the event on to the parent class
+      return CDesignerEditorBase::eventFilter(obj, event);
+   }
+}
+
+void CodeEditorForm::changeEvent(QEvent *e)
 {
    QWidget::changeEvent(e);
 
@@ -128,6 +161,82 @@ void CodeEditorForm::changeEvent(QEvent* e)
       default:
          break;
    }
+}
+
+void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
+{
+   QMenu menu;
+//   QMenu *pMenu = m_scintilla->createStandardContextMenu();
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int bp;
+   int line;
+   int index;
+   int addr = 0;
+   int absAddr = 0;
+
+   m_scintilla->getCursorPosition(&line,&index);
+
+   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+
+   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+
+   if ( addr != -1 )
+   {
+      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                          eBreakpointItemAddress,
+                                          0,
+                                          addr,
+                                          absAddr,
+                                          addr,
+                                          eBreakpointConditionNone,
+                                          0,
+                                          eBreakpointDataNone,
+                                          0 );
+
+      // Build context menu...
+      menu.addAction(ui->actionRun_to_here);
+      menu.addSeparator();
+
+      // If breakpoint isn't set here, give menu options to set one...
+      if ( bp < 0 )
+      {
+         menu.addAction(ui->actionBreak_on_CPU_execution_here);
+      }
+      else
+      {
+         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+         {
+            menu.addAction(ui->actionEnable_breakpoint);
+            menu.addAction(ui->actionRemove_breakpoint);
+         }
+         else
+         {
+            menu.addAction(ui->actionDisable_breakpoint);
+            menu.addAction(ui->actionRemove_breakpoint);
+         }
+      }
+
+      menu.addSeparator();
+      menu.addAction(ui->actionClear_marker);
+      menu.addSeparator();
+
+      menu.addAction(ui->actionStart_marker_here);
+      menu.addAction(ui->actionEnd_marker_here);
+      menu.addSeparator();
+
+//      menu.addActions(pMenu->actions());
+
+      m_breakpointIndex = bp;
+   }
+   else
+   {
+//      menu.addActions(pMenu->actions());
+   }
+
+   // Run the context menu...
+   menu.exec(e->globalPos());
+
+//   delete pMenu;
 }
 
 void CodeEditorForm::compiler_compileStarted()
@@ -284,83 +393,6 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
       emit breakpointsChanged();
    }
 }
-
-void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
-{
-   QMenu menu;
-//   QMenu *pMenu = m_scintilla->createStandardContextMenu();
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int bp;
-   int line;
-   int index;
-   int addr = 0;
-   int absAddr = 0;
-
-   m_scintilla->getCursorPosition(&line,&index);
-
-   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-
-   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
-
-   if ( addr != -1 )
-   {
-      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                          eBreakpointItemAddress,
-                                          0,
-                                          addr,
-                                          absAddr,
-                                          addr,
-                                          eBreakpointConditionNone,
-                                          0,
-                                          eBreakpointDataNone,
-                                          0 );
-
-      // Build context menu...
-      menu.addAction(ui->actionRun_to_here);
-      menu.addSeparator();
-
-      // If breakpoint isn't set here, give menu options to set one...
-      if ( bp < 0 )
-      {
-         menu.addAction(ui->actionBreak_on_CPU_execution_here);
-      }
-      else
-      {
-         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
-         {
-            menu.addAction(ui->actionEnable_breakpoint);
-            menu.addAction(ui->actionRemove_breakpoint);
-         }
-         else
-         {
-            menu.addAction(ui->actionDisable_breakpoint);
-            menu.addAction(ui->actionRemove_breakpoint);
-         }
-      }
-
-      menu.addSeparator();
-      menu.addAction(ui->actionClear_marker);
-      menu.addSeparator();
-
-      menu.addAction(ui->actionStart_marker_here);
-      menu.addAction(ui->actionEnd_marker_here);
-      menu.addSeparator();
-
-//      menu.addActions(pMenu->actions());
-
-      m_breakpointIndex = bp;
-   }
-   else
-   {
-//      menu.addActions(pMenu->actions());
-   }
-
-   // Run the context menu...
-   menu.exec(e->globalPos());
-
-//   delete pMenu;
-}
-
 
 void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
 {

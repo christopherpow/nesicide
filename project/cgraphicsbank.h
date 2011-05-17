@@ -13,7 +13,10 @@ public:
    CGraphicsBank(IProjectTreeViewItem* parent);
    virtual ~CGraphicsBank();
 
+   // Member getters
    QList<IChrRomBankItem*>& getGraphics() { return m_bankItems; }
+
+   GraphicsBankEditorForm* editor() { return dynamic_cast<GraphicsBankEditorForm*>(m_editor); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -23,7 +26,7 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(QTabWidget* tabWidget);
-   virtual void onSaveDocument();
+   virtual void saveItemEvent();
    virtual bool onNameChanged(QString newName);
    virtual bool canChangeName()
    {
@@ -33,9 +36,6 @@ public:
 private:
    // Attributes
    QList<IChrRomBankItem*> m_bankItems;
-
-   // Designer
-   GraphicsBankEditorForm* m_editor;
 };
 
 #endif // CGRAPHICSBANK_H

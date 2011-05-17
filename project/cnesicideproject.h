@@ -84,7 +84,7 @@ public:
    {
       return false;
    }
-   virtual void onSaveDocument() {}
+   virtual void saveItemEvent() {}
    virtual bool canChangeName()
    {
       return false;

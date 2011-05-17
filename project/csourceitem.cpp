@@ -178,7 +178,7 @@ void CSourceItem::openItemEvent(QTabWidget* tabWidget)
    }
 }
 
-void CSourceItem::onSaveDocument()
+void CSourceItem::saveItemEvent()
 {
    m_sourceCode = editor()->sourceCode();
    serializeContent();

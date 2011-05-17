@@ -23,30 +23,37 @@ bool CGraphicsAssembler::assemble()
       outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
    }
 
-   buildTextLogger->write("<b>Building: "+outputName+"</b>");
-
-   chrRomFile.setFileName(outputName);
-   chrRomFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
-   if ( chrRomFile.isOpen() )
+   if ( gfxBanks->getGraphicsBanks().count() )
    {
-      for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
+      buildTextLogger->write("<b>Building: "+outputName+"</b>");
+
+      chrRomFile.setFileName(outputName);
+      chrRomFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
+      if ( chrRomFile.isOpen() )
       {
-         CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
-
-         buildTextLogger->write("Constructing '" + curGfxBank->name() + "':");
-
-         for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
+         for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
          {
-            IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
-            IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-            buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
+            CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
 
-            chrRomFile.write(bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
+            buildTextLogger->write("Constructing '" + curGfxBank->name() + "':");
+
+            for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
+            {
+               IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
+               IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
+               buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
+
+               chrRomFile.write(bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
+            }
          }
+
+         chrRomFile.close();
+
+         return true;
       }
-
-      chrRomFile.close();
-
+   }
+   else
+   {
       return true;
    }
 
