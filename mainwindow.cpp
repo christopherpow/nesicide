@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget* parent) :
       restoreState(settings.value("state").toByteArray());
    }
 
+   // Initialize preferences dialogs.
+   EmulatorPrefsDialog::readSettings();
+
    QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
 
    QObject::connect(compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()));
@@ -277,34 +280,30 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
    CDockWidgetRegistry::setFlags ("Symbol Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
-   // Start in NTSC mode for now until we can have it configurable on app entry.
-   int systemMode = settings.value("EmulatorPreferences/System",QVariant(MODE_NTSC)).toInt();
+   // Set TV standard to use.
+   int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
    ui->actionPAL->setChecked(systemMode==MODE_PAL);
-
    nesSetSystemMode(systemMode);
 
-   // Start with all sound channels enabled...
-   bool audioChan;
-   audioChan = settings.value("EmulatorPreferences/Audio/Square1",QVariant(true)).toBool();
-   ui->actionSquare_1->setChecked(audioChan);
-   audioChan = settings.value("EmulatorPreferences/Audio/Square2",QVariant(true)).toBool();
-   ui->actionSquare_2->setChecked(audioChan);
-   audioChan = settings.value("EmulatorPreferences/Audio/Triangle",QVariant(true)).toBool();
-   ui->actionTriangle->setChecked(audioChan);
-   audioChan = settings.value("EmulatorPreferences/Audio/Noise",QVariant(true)).toBool();
-   ui->actionNoise->setChecked(audioChan);
-   audioChan = settings.value("EmulatorPreferences/Audio/DMC",QVariant(true)).toBool();
-   ui->actionDelta_Modulation->setChecked(audioChan);
-   audioChan = settings.value("EmulatorPreferences/Audio/MuteAll",QVariant(false)).toBool();
-   ui->actionMute_All->setChecked(audioChan);
+   // Set up controllers.
+   nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
+   nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
 
-   // Set up controllers
-   int32_t controllerType;
-   controllerType = settings.value("EmulatorPreferences/ControllerConfig/Port0/Type",QVariant(IO_StandardJoypad)).toInt();
-   nesSetControllerType(0,controllerType);
-   controllerType = settings.value("EmulatorPreferences/ControllerConfig/Port1/Type",QVariant(IO_Zapper)).toInt();
-   nesSetControllerType(1,controllerType);
+   // Set sound channel enables.
+   bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
+   bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
+   bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
+   bool noise = EmulatorPrefsDialog::getNoiseEnabled();
+   bool dmc = EmulatorPrefsDialog::getDMCEnabled();
+   int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+
+   ui->actionSquare_1->setChecked(square1);
+   ui->actionSquare_2->setChecked(square2);
+   ui->actionTriangle->setChecked(triangle);
+   ui->actionNoise->setChecked(noise);
+   ui->actionDelta_Modulation->setChecked(dmc);
+   ui->actionMute_All->setChecked(!mask);
 
    if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
    {
@@ -1232,9 +1231,7 @@ void MainWindow::handle_MainWindow_destroyed()
 
 void MainWindow::on_actionNTSC_triggered()
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/System",QVariant(MODE_NTSC));
+   EmulatorPrefsDialog::setTVStandard(MODE_NTSC);
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
    nesSetSystemMode(MODE_NTSC);
@@ -1245,9 +1242,7 @@ void MainWindow::on_actionNTSC_triggered()
 
 void MainWindow::on_actionPAL_triggered()
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/System",QVariant(MODE_PAL));
+   EmulatorPrefsDialog::setTVStandard(MODE_PAL);
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
    nesSetSystemMode(MODE_PAL);
@@ -1258,11 +1253,10 @@ void MainWindow::on_actionPAL_triggered()
 
 void MainWindow::on_actionDelta_Modulation_toggled(bool value)
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/Audio/DMC",QVariant(value));
+   EmulatorPrefsDialog::setDMCEnabled(value);
    if ( value )
    {
+      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x10);
    }
    else
@@ -1273,11 +1267,10 @@ void MainWindow::on_actionDelta_Modulation_toggled(bool value)
 
 void MainWindow::on_actionNoise_toggled(bool value)
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/Audio/Noise",QVariant(value));
+   EmulatorPrefsDialog::setNoiseEnabled(value);
    if ( value )
    {
+      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x08);
    }
    else
@@ -1288,11 +1281,10 @@ void MainWindow::on_actionNoise_toggled(bool value)
 
 void MainWindow::on_actionTriangle_toggled(bool value)
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/Audio/Triangle",QVariant(value));
+   EmulatorPrefsDialog::setTriangleEnabled(value);
    if ( value )
    {
+      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x04);
    }
    else
@@ -1303,11 +1295,10 @@ void MainWindow::on_actionTriangle_toggled(bool value)
 
 void MainWindow::on_actionSquare_2_toggled(bool value)
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/Audio/Square2",QVariant(value));
+   EmulatorPrefsDialog::setSquare2Enabled(value);
    if ( value )
    {
+      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x02);
    }
    else
@@ -1318,11 +1309,10 @@ void MainWindow::on_actionSquare_2_toggled(bool value)
 
 void MainWindow::on_actionSquare_1_toggled(bool value)
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/Audio/Square1",QVariant(value));
+   EmulatorPrefsDialog::setSquare1Enabled(value);
    if ( value )
    {
+      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x01);
    }
    else
@@ -1333,19 +1323,16 @@ void MainWindow::on_actionSquare_1_toggled(bool value)
 
 void MainWindow::on_actionMute_All_toggled(bool value)
 {
-   QSettings settings;
-
-   settings.setValue("EmulatorPreferences/Audio/Square1",QVariant(!value));
+   EmulatorPrefsDialog::setSquare1Enabled(!value);
+   EmulatorPrefsDialog::setSquare2Enabled(!value);
+   EmulatorPrefsDialog::setTriangleEnabled(!value);
+   EmulatorPrefsDialog::setNoiseEnabled(!value);
+   EmulatorPrefsDialog::setDMCEnabled(!value);
    ui->actionSquare_1->setChecked(!value);
-   settings.setValue("EmulatorPreferences/Audio/Square2",QVariant(!value));
    ui->actionSquare_2->setChecked(!value);
-   settings.setValue("EmulatorPreferences/Audio/Triangle",QVariant(!value));
    ui->actionTriangle->setChecked(!value);
-   settings.setValue("EmulatorPreferences/Audio/Noise",QVariant(!value));
    ui->actionNoise->setChecked(!value);
-   settings.setValue("EmulatorPreferences/Audio/DMC",QVariant(!value));
    ui->actionDelta_Modulation->setChecked(!value);
-   settings.setValue("EmulatorPreferences/Audio/MuteAll",QVariant(value));
 
    if ( value )
    {
@@ -1369,6 +1356,40 @@ void MainWindow::on_actionPreferences_triggered()
    EmulatorPrefsDialog dlg;
 
    dlg.exec();
+
+   // Synchronize UI elements with changes.
+   // Set TV standard to use.
+   int systemMode = EmulatorPrefsDialog::getTVStandard();
+   ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
+   ui->actionPAL->setChecked(systemMode==MODE_PAL);
+   nesSetSystemMode(systemMode);
+
+   bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
+   bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
+   bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
+   bool noise = EmulatorPrefsDialog::getNoiseEnabled();
+   bool dmc = EmulatorPrefsDialog::getDMCEnabled();
+   int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+
+   if ( !(square1|square2|triangle|noise|dmc) )
+   {
+      ui->actionMute_All->setChecked(true);
+      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
+   }
+   else
+   {
+      ui->actionMute_All->setChecked(false);
+      nesSetAudioChannelMask(nesGetAudioChannelMask()|mask);
+   }
+   ui->actionSquare_1->setChecked(square1);
+   ui->actionSquare_2->setChecked(square2);
+   ui->actionTriangle->setChecked(triangle);
+   ui->actionNoise->setChecked(noise);
+   ui->actionDelta_Modulation->setChecked(dmc);
+
+   // Restart emulator to apply changes.
+   emulator->resetEmulator();
+   emulator->startEmulation();
 }
 
 void MainWindow::on_actionOnline_Help_triggered()

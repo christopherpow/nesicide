@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "emulator_core.h"
+
 namespace Ui
 {
 class EmulatorPrefsDialog;
@@ -16,13 +18,49 @@ public:
    explicit EmulatorPrefsDialog(QWidget* parent = 0);
    ~EmulatorPrefsDialog();
 
+   // Interface to retrieve values from QSettings and store them
+   // here locally.
+   static void readSettings();
+
+   // Accessors
+   static int getControllerType(int port);
+   static int getControllerKeyMap(int port,int function);
+   static int getTVStandard();
+   static bool getSquare1Enabled();
+   static bool getSquare2Enabled();
+   static bool getTriangleEnabled();
+   static bool getNoiseEnabled();
+   static bool getDMCEnabled();
+
+   // Modifiers (only provided for settings that are also found in menus not just in this dialog)
+   static void setTVStandard(int standard);
+   static void setSquare1Enabled(bool enabled);
+   static void setSquare2Enabled(bool enabled);
+   static void setTriangleEnabled(bool enabled);
+   static void setNoiseEnabled(bool enabled);
+   static void setDMCEnabled(bool enabled);
+
 private:
    Ui::EmulatorPrefsDialog* ui;
-   void readSettings();
+
+   // Interface to store values to QSettings from local storage.
    void writeSettings();
+
+   // Settings data structures.
+   static int controllerType[NUM_CONTROLLERS];
+   static int standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
+   static int tvStandard;
+   static bool square1Enabled;
+   static bool square2Enabled;
+   static bool triangleEnabled;
+   static bool noiseEnabled;
+   static bool dmcEnabled;
+
    void updateUi();
 
 private slots:
+   void on_controllerTypeComboBox_highlighted(int index);
+   void on_controllerPortComboBox_highlighted(int index);
    void on_buttonBox_accepted();
    void on_controllerPortComboBox_currentIndexChanged(int index);
    void on_controllerTypeComboBox_currentIndexChanged(int index );

@@ -224,11 +224,12 @@
      <addaction name="actionNoise"/>
      <addaction name="actionDelta_Modulation"/>
     </widget>
-    <addaction name="actionPreferences"/>
     <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
     <addaction name="separator"/>
     <addaction name="actionRun_Test_Suite"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menu_File">
     <property name="title">

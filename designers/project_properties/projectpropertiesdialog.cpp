@@ -386,8 +386,6 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
 
 void ProjectPropertiesDialog::on_buttonBox_accepted()
 {
-   QSettings settings;
-
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
    nesicideProject->setProjectOutputName(ui->outputName->text());

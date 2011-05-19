@@ -3,6 +3,8 @@
 
 #include "main.h"
 
+#include "emulatorprefsdialog.h"
+
 #include "emulator_core.h"
 
 NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
@@ -97,80 +99,71 @@ void NESEmulatorDockWidget::mouseMoveEvent(QMouseEvent* event)
 
 void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
 {
-// CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
-   if ( (char)event->key() == 'A' )
+   if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_LEFT) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_LEFT;
    }
-   else if ( (char)event->key() == 'D' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_RIGHT) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_RIGHT;
    }
-   else if ( (char)event->key() == 'W' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_UP) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_UP;
    }
-   else if ( (char)event->key() == 'S' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_DOWN) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_DOWN;
    }
-   else if ( (char)event->key() == 'U' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_SELECT) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_SELECT;
    }
-   else if ( (char)event->key() == 'I' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_START) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_START;
    }
-   else if ( (char)event->key() == 'O' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_B) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_B;
    }
-   else if ( (char)event->key() == 'P' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_A) )
    {
       m_joy [ CONTROLLER1 ] |= JOY_A;
    }
 
-// CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER2 );
-// CPTODO: only need one controller for now...(don't feel like picking keys)
-#if 0
-
-   if ( lChar == pControllerConfig[idxJOY_LEFT] )
+   if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_LEFT) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_LEFT;
    }
-   else if ( lChar == pControllerConfig[idxJOY_RIGHT] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_RIGHT) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_RIGHT;
    }
-   else if ( lChar == pControllerConfig[idxJOY_UP] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_UP) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_UP;
    }
-   else if ( lChar == pControllerConfig[idxJOY_DOWN] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_DOWN) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_DOWN;
    }
-   else if ( lChar == pControllerConfig[idxJOY_SELECT] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_SELECT) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_SELECT;
    }
-   else if ( lChar == pControllerConfig[idxJOY_START] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_START) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_START;
    }
-   else if ( lChar == pControllerConfig[idxJOY_B] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_B) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_B;
    }
-   else if ( lChar == pControllerConfig[idxJOY_A] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_A) )
    {
       m_joy [ CONTROLLER2 ] |= JOY_A;
    }
-
-#endif
 
    emulator->controllerInput ( m_joy );
 
@@ -179,80 +172,71 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
 
 void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 {
-// CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER1 );
-   if ( (char)event->key() == 'A' )
+   if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_LEFT) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_LEFT));
+      m_joy [ CONTROLLER1 ] &= (~JOY_LEFT);
    }
-   else if ( (char)event->key() == 'D' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_RIGHT) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_RIGHT));
+      m_joy [ CONTROLLER1 ] &= (~JOY_RIGHT);
    }
-   else if ( (char)event->key() == 'W' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_UP) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_UP));
+      m_joy [ CONTROLLER1 ] &= (~JOY_UP);
    }
-   else if ( (char)event->key() == 'S' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_DOWN) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_DOWN));
+      m_joy [ CONTROLLER1 ] &= (~JOY_DOWN);
    }
-   else if ( (char)event->key() == 'U' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_SELECT) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_SELECT));
+      m_joy [ CONTROLLER1 ] &= (~JOY_SELECT);
    }
-   else if ( (char)event->key() == 'I' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_START) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_START));
+      m_joy [ CONTROLLER1 ] &= (~JOY_START);
    }
-   else if ( (char)event->key() == 'O' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_B) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_B));
+      m_joy [ CONTROLLER1 ] &= (~JOY_B);
    }
-   else if ( (char)event->key() == 'P' )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_A) )
    {
-      m_joy [ CONTROLLER1 ] &= (~(JOY_A));
+      m_joy [ CONTROLLER1 ] &= (~JOY_A);
    }
 
-// CPTODO: get controller configuration...
-//   pControllerConfig = CONFIG.GetControllerConfig ( CONTROLLER2 );
-// CPTODO: only need one controller for now...(don't feel like picking keys)
-#if 0
-
-   if ( lChar == pControllerConfig[idxJOY_LEFT] )
+   if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_LEFT) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_LEFT));
+      m_joy [ CONTROLLER2 ] &= (~JOY_LEFT);
    }
-   else if ( lChar == pControllerConfig[idxJOY_RIGHT] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_RIGHT) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_RIGHT));
+      m_joy [ CONTROLLER2 ] &= (~JOY_RIGHT);
    }
-   else if ( lChar == pControllerConfig[idxJOY_UP] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_UP) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_UP));
+      m_joy [ CONTROLLER2 ] &= (~JOY_UP);
    }
-   else if ( lChar == pControllerConfig[idxJOY_DOWN] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_DOWN) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_DOWN));
+      m_joy [ CONTROLLER2 ] &= (~JOY_DOWN);
    }
-   else if ( lChar == pControllerConfig[idxJOY_SELECT] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_SELECT) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_SELECT));
+      m_joy [ CONTROLLER2 ] &= (~JOY_SELECT);
    }
-   else if ( lChar == pControllerConfig[idxJOY_START] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_START) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_START));
+      m_joy [ CONTROLLER2 ] &= (~JOY_START);
    }
-   else if ( lChar == pControllerConfig[idxJOY_B] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_B) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_B));
+      m_joy [ CONTROLLER2 ] &= (~JOY_B);
    }
-   else if ( lChar == pControllerConfig[idxJOY_A] )
+   else if ( (char)event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_A) )
    {
-      m_joy [ CONTROLLER2 ] &= (~(JOY_A));
+      m_joy [ CONTROLLER2 ] &= (~JOY_A);
    }
-
-#endif
 
    emulator->controllerInput ( m_joy );
 
