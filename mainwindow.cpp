@@ -25,12 +25,6 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QSettings settings;
 
-   if ( settings.value("rememberWindowSettings").toBool() )
-   {
-      restoreGeometry(settings.value("geometry").toByteArray());
-      restoreState(settings.value("state").toByteArray());
-   }
-
    // Initialize preferences dialogs.
    EmulatorPrefsDialog::readSettings();
 
@@ -358,6 +352,12 @@ MainWindow::MainWindow(QWidget* parent) :
    // Always call this last
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
+
+   if ( settings.value("rememberWindowSettings").toBool() )
+   {
+      restoreGeometry(settings.value("IDEGeometry").toByteArray());
+      restoreState(settings.value("IDEState").toByteArray());
+   }
 }
 
 MainWindow::~MainWindow()
@@ -768,8 +768,8 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings;
 
-   settings.setValue("geometry",saveGeometry());
-   settings.setValue("state",saveState());
+   settings.setValue("IDEGeometry",saveGeometry());
+   settings.setValue("IDEState",saveState());
 
    emulator->pauseEmulation(false);
    QMainWindow::closeEvent(event);
@@ -1425,4 +1425,9 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 void MainWindow::on_actionRun_Test_Suite_triggered()
 {
    testSuiteExecutive->show();
+}
+
+void MainWindow::on_actionE_xit_triggered()
+{
+    this->close();
 }

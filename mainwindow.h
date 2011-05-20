@@ -94,6 +94,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void on_actionE_xit_triggered();
    void on_actionRun_Test_Suite_triggered();
    void on_actionLoad_In_Emulator_triggered();
    void on_actionOnline_Help_triggered();
