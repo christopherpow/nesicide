@@ -22,19 +22,23 @@ public:
 
    virtual QColor defaultColor() const;
    virtual QColor defaultColor(int style) const;
-   virtual QColor color(int style) const;
 
    virtual QColor defaultPaper() const;
    virtual QColor defaultPaper(int style) const;
-   virtual QColor paper(int style) const;
 
    virtual QFont defaultFont() const;
    virtual QFont defaultFont(int style) const;
-   virtual QFont font(int style) const;
 
    virtual const char *wordCharacters() const;
 
    virtual int styleBitsNeeded() const { return 7; }
+
+   bool readSettings(QSettings &qs,const char *prefix = "/Scintilla");
+   bool writeSettings(QSettings &qs,const char *prefix = "/Scintilla");
+
+protected:
+   bool readProperties(QSettings &qs,const QString &prefix);
+   bool writeProperties(QSettings &qs,const QString &prefix) const;
 
 protected:
    QRegExp opcodeRegex;

@@ -7,6 +7,21 @@
 #include <Qsci/qsciscintilla.h>
 #include "qscilexerca65.h"
 
+enum
+{
+   Margin_Decorations = 0,
+   Margin_LineNumbers
+};
+
+enum
+{
+   Marker_Breakpoint = 0,
+   Marker_BreakpointDisabled,
+   Marker_Execution,
+   Marker_Error,
+   Marker_Highlight
+};
+
 namespace Ui
 {
 class CodeEditorForm;

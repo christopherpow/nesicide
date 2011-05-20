@@ -18,21 +18,6 @@
 #include "cbreakpointinfo.h"
 #include "cmarker.h"
 
-enum
-{
-   Margin_Decorations = 0,
-   Margin_LineNumbers
-};
-
-enum
-{
-   Marker_Breakpoint = 0,
-   Marker_BreakpointDisabled,
-   Marker_Execution,
-   Marker_Error,
-   Marker_Highlight
-};
-
 CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::CodeEditorForm)
@@ -105,6 +90,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
    m_fileName = fileName;
+
+   QSettings settings;
+
+   m_lexer->readSettings(settings,"CodeEditor");
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);

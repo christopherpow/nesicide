@@ -408,11 +408,6 @@ QColor QsciLexerCA65::defaultColor(int style) const
    }
 }
 
-QColor QsciLexerCA65::color(int style) const
-{
-   return QsciLexerCA65::defaultColor(style);
-}
-
 QColor QsciLexerCA65::defaultPaper() const
 {
    return QColor(255,255,255);
@@ -444,11 +439,6 @@ QColor QsciLexerCA65::defaultPaper(int style) const
          return QColor(255,255,255);
       break;
    }
-}
-
-QColor QsciLexerCA65::paper(int style) const
-{
-   return QsciLexerCA65::defaultPaper(style);
 }
 
 QFont QsciLexerCA65::defaultFont() const
@@ -488,7 +478,22 @@ QFont QsciLexerCA65::defaultFont(int style) const
    return font;
 }
 
-QFont QsciLexerCA65::font(int style) const
+bool QsciLexerCA65::readProperties(QSettings &qs,const QString &prefix)
 {
-   return QsciLexerCA65::defaultFont(style);
+   return QsciLexer::readProperties(qs,prefix);
+}
+
+bool QsciLexerCA65::writeProperties(QSettings &qs,const QString &prefix) const
+{
+   return QsciLexer::writeProperties(qs,prefix);
+}
+
+bool QsciLexerCA65::readSettings(QSettings &qs,const char *prefix)
+{
+   return QsciLexer::readSettings(qs,prefix);
+}
+
+bool QsciLexerCA65::writeSettings(QSettings &qs,const char *prefix)
+{
+   return QsciLexer::writeSettings(qs,prefix);
 }

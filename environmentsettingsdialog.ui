@@ -7,19 +7,29 @@
     <x>0</x>
     <y>0</y>
     <width>389</width>
-    <height>325</height>
+    <height>423</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Environment Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="general">
       <attribute name="title">
        <string>General Settings</string>
       </attribute>
@@ -143,98 +153,65 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="codeEditor">
       <attribute name="title">
        <string>Code Editor</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="5" column="0" colspan="2">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Editor Font</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QFontComboBox" name="CodeFontComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="fontFilters">
-             <set>QFontComboBox::MonospacedFonts</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
+       <item row="0" column="0" colspan="4">
         <widget class="QPushButton" name="CodeBackgroundButton">
          <property name="text">
-          <string>Background</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="CodeDefaultButton">
-         <property name="text">
-          <string>Default</string>
+          <string>Background Color</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QPushButton" name="CodeInstructionsButton">
+        <widget class="QLabel" name="label">
          <property name="text">
-          <string>Instructions</string>
+          <string>Style:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="CodeCommentsButton">
+       <item row="2" column="1" colspan="3">
+        <widget class="QComboBox" name="styleName"/>
+       </item>
+       <item row="3" column="1" colspan="3">
+        <widget class="QPushButton" name="CodeDefaultButton">
          <property name="text">
-          <string>Comments</string>
+          <string>Color</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QPushButton" name="CodePreprocessorButton">
+       <item row="4" column="1" colspan="3">
+        <widget class="QFontComboBox" name="styleFont"/>
+       </item>
+       <item row="5" column="1">
+        <widget class="QCheckBox" name="fontBold">
          <property name="text">
-          <string>Preprocessor</string>
+          <string>Bold</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QPushButton" name="CodeNumbersButton">
+       <item row="5" column="2">
+        <widget class="QCheckBox" name="fontItalic">
          <property name="text">
-          <string>Numbers</string>
+          <string>Italic</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="CodeStringsButton">
+       <item row="5" column="3">
+        <widget class="QCheckBox" name="fontUnderline">
          <property name="text">
-          <string>Strings</string>
+          <string>Underline</string>
          </property>
         </widget>
+       </item>
+       <item row="6" column="0" colspan="4">
+        <layout class="QGridLayout" name="example"/>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="emulation">
       <attribute name="title">
        <string>Emulation</string>
       </attribute>
@@ -404,16 +381,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
     </widget>
    </item>
   </layout>

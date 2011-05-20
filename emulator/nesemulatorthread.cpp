@@ -55,24 +55,15 @@ void breakpointHook ( void )
    breakpointSemaphore.acquire();
 }
 
-extern FILE* wavOut;
-
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
    int32_t samplesAvailable;
-#if defined ( OUTPUT_WAV )
-   uint16_t dead[3] = { 0, 0, 0 };
-#endif
 
    coreMutexLock();
    samplesAvailable = nesGetAudioSamplesAvailable();
    coreMutexUnlock();
    if (samplesAvailable < 0)
    {
-#if defined ( OUTPUT_WAV )
-      dead[2]=samplesAvailable;
-      fwrite(dead,1,6,wavOut);
-#endif
       return;
    }
 

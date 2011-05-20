@@ -24,12 +24,78 @@ static const char* soundBufferDepthMsgs[] =
    "8192 samples"
 };
 
+static const char* exampleText =
+   ".proc reset\n"
+   "\tsei\t\t; disable interrupts\n"
+   "\tcld\t\t; safety - disable missing 'decimal' mode\n"
+   "\tjmp start\t; skip this string\n"
+   "\t.asciiz \"This is a string\"\n"
+   "start:\n"
+   "  lda $2002\t\t; read PPU status to check for NMI\n";
+
 EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EnvironmentSettingsDialog)
 {
    QSettings settings;
+   int style;
+
    ui->setupUi(this);
+
+   m_scintilla = new QsciScintilla();
+
+   m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+   m_scintilla->setMarginWidth(3,0);
+   m_scintilla->setMarginMarkerMask(3,0);
+   m_scintilla->setMarginWidth(4,0);
+   m_scintilla->setMarginMarkerMask(4,0);
+
+   m_scintilla->setMarginWidth(2,22);
+   m_scintilla->setMarginMarkerMask(2,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(2,true);
+   m_scintilla->setMarginMarkerMask(2,0xFFFFFFF0);
+   m_scintilla->setFolding(QsciScintilla::BoxedTreeFoldStyle,2);
+
+   m_scintilla->setMarginWidth(Margin_Decorations,22);
+   m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
+   m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(Margin_Decorations,true);
+
+   m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
+   m_scintilla->setMarginWidth(Margin_LineNumbers,10);
+   m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
+   m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
+   m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
+
+   m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
+   m_scintilla->setSelectionToEol(true);
+
+   m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
+   m_scintilla->markerDefine(QPixmap(":/resources/error-mark.svg"),Marker_Error);
+   m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
+   m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
+   m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
+   m_scintilla->setMarkerBackgroundColor(QColor(235,235,235),Marker_Highlight);
+
+   m_lexer = new QsciLexerCA65(m_scintilla);
+   m_scintilla->setLexer(m_lexer);
+
+   m_lexer->readSettings(settings,"CodeEditor");
+
+   m_scintilla->setText(exampleText);
+
+   ui->example->addWidget(m_scintilla);
+
+   style = 0;
+   while ( !m_lexer->description(style).isEmpty() )
+   {
+      ui->styleName->addItem(m_lexer->description(style));
+      style++;
+   }
+   on_styleName_currentIndexChanged(ui->styleName->currentIndex());
 
    ui->showWelcomeOnStart->setChecked(settings.value(ui->showWelcomeOnStart->objectName(),true).toBool());
    ui->saveAllOnCompile->setChecked(settings.value(ui->saveAllOnCompile->objectName(),true).toBool());
@@ -70,6 +136,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
 {
+   delete m_scintilla;
+   delete m_lexer;
+
    delete ui;
 }
 
@@ -120,6 +189,7 @@ void EnvironmentSettingsDialog::changeEvent(QEvent* e)
    }
 }
 
+#if 0
 QColor EnvironmentSettingsDialog::getIdealTextColor(const QColor& rBackgroundColor) const
 {
    const int THRESHOLD = 105;
@@ -141,96 +211,7 @@ void EnvironmentSettingsDialog::on_CodeBackgroundButton_clicked()
 
    delete dlg;
 }
-
-void EnvironmentSettingsDialog::on_CodeDefaultButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodeDefaultButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
-
-void EnvironmentSettingsDialog::on_CodeInstructionsButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodeInstructionsButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
-
-void EnvironmentSettingsDialog::on_CodeCommentsButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodeCommentsButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
-
-void EnvironmentSettingsDialog::on_CodePreprocessorButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodePreprocessorButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
-
-void EnvironmentSettingsDialog::on_CodeNumbersButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodeNumbersButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
-
-void EnvironmentSettingsDialog::on_CodeStringsButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodeStringsButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
+#endif
 
 void EnvironmentSettingsDialog::on_PluginPathButton_clicked()
 {
@@ -313,4 +294,55 @@ void EnvironmentSettingsDialog::on_soundBufferDepth_sliderMoved(int position)
 void EnvironmentSettingsDialog::on_soundBufferDepth_valueChanged(int value)
 {
    ui->soundBufferDepthMsg->setText(soundBufferDepthMsgs[(value/1024)-1]);
+}
+
+void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
+{
+   QFont font = m_lexer->font(index);
+   ui->styleFont->setCurrentFont(font);
+   ui->fontBold->setChecked(font.bold());
+   ui->fontItalic->setChecked(font.italic());
+   ui->fontUnderline->setChecked(font.underline());
+}
+
+void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
+{
+   QSettings settings;
+   int style = ui->styleName->currentIndex();
+   QFont font = m_lexer->font(style);
+   font.setBold(checked);
+   m_lexer->setFont(font,style);
+   m_lexer->writeSettings(settings,"CodeEditor");
+}
+
+void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
+{
+   QSettings settings;
+   int style = ui->styleName->currentIndex();
+   QFont font = m_lexer->font(style);
+   font.setItalic(checked);
+   m_lexer->setFont(font,style);
+   m_lexer->writeSettings(settings,"CodeEditor");
+}
+
+void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
+{
+   QSettings settings;
+   int style = ui->styleName->currentIndex();
+   QFont font = m_lexer->font(style);
+   font.setUnderline(checked);
+   m_lexer->setFont(font,style);
+   m_lexer->writeSettings(settings,"CodeEditor");
+}
+
+void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
+{
+   QSettings settings;
+   int style = ui->styleName->currentIndex();
+   QFont font = ui->styleFont->currentFont();
+   font.setBold(ui->fontBold->isChecked());
+   font.setItalic(ui->fontItalic->isChecked());
+   font.setUnderline(ui->fontUnderline->isChecked());
+   m_lexer->setFont(font,style);
+   m_lexer->writeSettings(settings,"CodeEditor");
 }

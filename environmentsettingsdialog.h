@@ -5,6 +5,8 @@
 #include <QColorDialog>
 #include <QFileDialog>
 
+#include "qscilexerca65.h"
+
 namespace Ui
 {
 class EnvironmentSettingsDialog;
@@ -22,9 +24,19 @@ protected:
 
 private:
    Ui::EnvironmentSettingsDialog* ui;
+#if 0
    QColor getIdealTextColor(const QColor& rBackgroundColor) const;
+#endif
+
+   QsciScintilla* m_scintilla;
+   QsciLexerCA65* m_lexer;
 
 private slots:
+   void on_styleFont_currentIndexChanged(QString font);
+   void on_fontUnderline_toggled(bool checked);
+   void on_fontItalic_toggled(bool checked);
+   void on_fontBold_toggled(bool checked);
+   void on_styleName_currentIndexChanged(int index);
    void on_soundBufferDepth_valueChanged(int value);
    void on_soundBufferDepth_sliderMoved(int position);
    void on_debuggerUpdateRate_valueChanged(int value);
@@ -34,13 +46,6 @@ private slots:
    void on_useInternalDB_toggled(bool checked);
    void on_buttonBox_accepted();
    void on_PluginPathButton_clicked();
-   void on_CodeStringsButton_clicked();
-   void on_CodeNumbersButton_clicked();
-   void on_CodePreprocessorButton_clicked();
-   void on_CodeCommentsButton_clicked();
-   void on_CodeInstructionsButton_clicked();
-   void on_CodeDefaultButton_clicked();
-   void on_CodeBackgroundButton_clicked();
 };
 
 #endif // ENVIRONMENTSETTINGSDIALOG_H
