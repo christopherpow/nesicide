@@ -84,7 +84,7 @@ void EmulatorPrefsDialog::readSettings()
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/Video");
-   tvStandard = settings.value("ScalingFactor",0).toInt();
+   scalingFactor = settings.value("ScalingFactor",0).toInt();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/System");
