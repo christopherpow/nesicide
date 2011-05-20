@@ -5,6 +5,12 @@
 
 #include <QSettings>
 
+// Query flags.
+bool EmulatorPrefsDialog::controllersUpdated;
+bool EmulatorPrefsDialog::audioUpdated;
+bool EmulatorPrefsDialog::videoUpdated;
+bool EmulatorPrefsDialog::systemUpdated;
+
 // Settings data structures.
 int EmulatorPrefsDialog::controllerType[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
@@ -14,6 +20,7 @@ bool EmulatorPrefsDialog::square2Enabled;
 bool EmulatorPrefsDialog::triangleEnabled;
 bool EmulatorPrefsDialog::noiseEnabled;
 bool EmulatorPrefsDialog::dmcEnabled;
+int EmulatorPrefsDialog::scalingFactor;
 
 EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    QDialog(parent),
@@ -34,6 +41,8 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    ui->triangle->setChecked(triangleEnabled);
    ui->noise->setChecked(noiseEnabled);
    ui->dmc->setChecked(dmcEnabled);
+
+   ui->scalingFactor->setCurrentIndex(scalingFactor);
 }
 
 EmulatorPrefsDialog::~EmulatorPrefsDialog()
@@ -46,6 +55,12 @@ void EmulatorPrefsDialog::readSettings()
    QSettings settings;
    int       port;
    int       function;
+
+   // Nothing's been updated yet.
+   controllersUpdated = false;
+   audioUpdated = false;
+   videoUpdated = false;
+   systemUpdated = false;
 
    for ( port = 0; port < NUM_CONTROLLERS; port++ )
    {
@@ -68,6 +83,10 @@ void EmulatorPrefsDialog::readSettings()
    dmcEnabled = settings.value("DMC",QVariant(true)).toBool();
    settings.endGroup();
 
+   settings.beginGroup("EmulatorPreferences/Video");
+   tvStandard = settings.value("ScalingFactor",0).toInt();
+   settings.endGroup();
+
    settings.beginGroup("EmulatorPreferences/System");
    tvStandard = settings.value("TVStandard",QVariant(MODE_NTSC)).toInt();
    settings.endGroup();
@@ -78,6 +97,25 @@ void EmulatorPrefsDialog::writeSettings()
    QSettings settings;
    int       port;
    int       function;
+
+   // Set query flags.
+   if ( tvStandard != ui->tvStandard->currentIndex() )
+   {
+      systemUpdated = true;
+   }
+   if ( (square1Enabled != ui->square1->isChecked()) ||
+        (square2Enabled != ui->square2->isChecked()) ||
+        (triangleEnabled != ui->triangle->isChecked()) ||
+        (noiseEnabled != ui->noise->isChecked()) ||
+        (dmcEnabled != ui->dmc->isChecked()) )
+   {
+      audioUpdated = true;
+   }
+   if ( scalingFactor != ui->scalingFactor->currentIndex() )
+   {
+      videoUpdated = true;
+   }
+   controllersUpdated = true;
 
    // Save UI to locals first.
    switch ( ui->controllerTypeComboBox->currentIndex() )
@@ -106,6 +144,8 @@ void EmulatorPrefsDialog::writeSettings()
    noiseEnabled = ui->noise->isChecked();
    dmcEnabled = ui->dmc->isChecked();
 
+   scalingFactor = ui->scalingFactor->currentIndex();
+
    // Then save locals to QSettings.
    for ( port = 0; port < NUM_CONTROLLERS; port++ )
    {
@@ -126,6 +166,10 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("Triangle",triangleEnabled);
    settings.setValue("Noise",noiseEnabled);
    settings.setValue("DMC",dmcEnabled);
+   settings.endGroup();
+
+   settings.beginGroup("EmulatorPreferences/Video");
+   settings.setValue("ScalingFactor",scalingFactor);
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/System");
@@ -347,5 +391,23 @@ void EmulatorPrefsDialog::setDMCEnabled(bool enabled)
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/Audio");
    settings.setValue("DMC",dmcEnabled);
+   settings.endGroup();
+}
+
+int EmulatorPrefsDialog::getScalingFactor()
+{
+   return scalingFactor+1; // This is used as a multiplier but is zero-based.
+}
+
+void EmulatorPrefsDialog::setScalingFactor(int factor)
+{
+   QSettings settings;
+
+   // Update local storage first.
+   scalingFactor = factor;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/Video");
+   settings.setValue("ScalingFactor",scalingFactor);
    settings.endGroup();
 }

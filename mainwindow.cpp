@@ -1387,6 +1387,15 @@ void MainWindow::on_actionPreferences_triggered()
    ui->actionNoise->setChecked(noise);
    ui->actionDelta_Modulation->setChecked(dmc);
 
+   if ( EmulatorPrefsDialog::videoSettingsChanged() )
+   {
+      if ( EmulatorPrefsDialog::getScalingFactor() > 1 )
+      {
+         emulatorDlg->setFloating(true);
+      }
+      emulatorDlg->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
+   }
+
    // Restart emulator to apply changes.
    emulator->resetEmulator();
    emulator->startEmulation();

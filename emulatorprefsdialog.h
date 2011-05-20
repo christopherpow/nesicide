@@ -22,6 +22,12 @@ public:
    // here locally.
    static void readSettings();
 
+   // Query methods
+   static bool controllerSettingsChanged() { return controllersUpdated; }
+   static bool audioSettingsChanged() { return audioUpdated; }
+   static bool videoSettingsChanged() { return videoUpdated; }
+   static bool systemSettingsChanged() { return systemUpdated; }
+
    // Accessors
    static int getControllerType(int port);
    static int getControllerKeyMap(int port,int function);
@@ -31,6 +37,7 @@ public:
    static bool getTriangleEnabled();
    static bool getNoiseEnabled();
    static bool getDMCEnabled();
+   static int getScalingFactor();
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
    static void setTVStandard(int standard);
@@ -39,6 +46,7 @@ public:
    static void setTriangleEnabled(bool enabled);
    static void setNoiseEnabled(bool enabled);
    static void setDMCEnabled(bool enabled);
+   static void setScalingFactor(int factor);
 
 private:
    Ui::EmulatorPrefsDialog* ui;
@@ -55,6 +63,13 @@ private:
    static bool triangleEnabled;
    static bool noiseEnabled;
    static bool dmcEnabled;
+   static int scalingFactor;
+
+   // Query flags.
+   static bool controllersUpdated;
+   static bool audioUpdated;
+   static bool videoUpdated;
+   static bool systemUpdated;
 
    void updateUi();
 

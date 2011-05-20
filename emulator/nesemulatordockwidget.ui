@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>281</height>
+    <width>256</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>275</width>
-    <height>281</height>
+    <width>256</width>
+    <height>240</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -43,8 +43,8 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>257</width>
-        <height>241</height>
+        <width>256</width>
+        <height>240</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -66,7 +66,7 @@
        <enum>Qt::PreventContextMenu</enum>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Sunken</enum>

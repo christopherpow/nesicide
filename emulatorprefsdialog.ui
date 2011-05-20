@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
+    <width>372</width>
     <height>457</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="controllers">
       <attribute name="title">
@@ -543,6 +543,44 @@
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Video</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Window Integer Scaling Factor:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="scalingFactor">
+         <item>
+          <property name="text">
+           <string>1X (256x240)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2X (512x480)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>3X (768x720)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>4X (1024x960)</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>
