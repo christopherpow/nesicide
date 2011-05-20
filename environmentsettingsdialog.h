@@ -24,14 +24,14 @@ protected:
 
 private:
    Ui::EnvironmentSettingsDialog* ui;
-#if 0
    QColor getIdealTextColor(const QColor& rBackgroundColor) const;
-#endif
 
    QsciScintilla* m_scintilla;
    QsciLexerCA65* m_lexer;
 
 private slots:
+   void on_backgroundColor_clicked();
+   void on_styleColor_clicked();
    void on_styleFont_currentIndexChanged(QString font);
    void on_fontUnderline_toggled(bool checked);
    void on_fontItalic_toggled(bool checked);

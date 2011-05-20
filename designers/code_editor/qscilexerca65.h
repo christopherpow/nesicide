@@ -25,6 +25,7 @@ public:
 
    virtual QColor defaultPaper() const;
    virtual QColor defaultPaper(int style) const;
+   virtual QColor paper(int style) const;
 
    virtual QFont defaultFont() const;
    virtual QFont defaultFont(int style) const;

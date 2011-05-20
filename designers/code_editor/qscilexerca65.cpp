@@ -403,7 +403,7 @@ QColor QsciLexerCA65::defaultColor(int style) const
          return QColor(255,120,30);
       break;
       default:
-         return QColor(0,0,0);
+         return defaultColor();
       break;
    }
 }
@@ -415,30 +415,12 @@ QColor QsciLexerCA65::defaultPaper() const
 
 QColor QsciLexerCA65::defaultPaper(int style) const
 {
-   switch ( style )
-   {
-      case CA65_Default:
-         return QColor(255,255,255);
-      break;
-      case CA65_Comment:
-         return QColor(255,255,255);
-      break;
-      case CA65_Opcode:
-         return QColor(255,255,255);
-      break;
-      case CA65_Label:
-         return QColor(255,255,255);
-      break;
-      case CA65_Keyword:
-         return QColor(255,255,255);
-      break;
-      case CA65_QuotedString:
-         return QColor(255,255,255);
-      break;
-      default:
-         return QColor(255,255,255);
-      break;
-   }
+   return QsciLexer::defaultPaper();
+}
+
+QColor QsciLexerCA65::paper(int style) const
+{
+   return QsciLexer::defaultPaper();
 }
 
 QFont QsciLexerCA65::defaultFont() const

@@ -189,30 +189,6 @@ void EnvironmentSettingsDialog::changeEvent(QEvent* e)
    }
 }
 
-#if 0
-QColor EnvironmentSettingsDialog::getIdealTextColor(const QColor& rBackgroundColor) const
-{
-   const int THRESHOLD = 105;
-   int BackgroundDelta = (rBackgroundColor.red() * 0.299) + (rBackgroundColor.green() * 0.587) + (rBackgroundColor.blue() * 0.114);
-   return QColor((255- BackgroundDelta < THRESHOLD) ? Qt::black : Qt::white);
-}
-
-void EnvironmentSettingsDialog::on_CodeBackgroundButton_clicked()
-{
-   QColorDialog* dlg = new QColorDialog(this);
-
-   if (dlg->exec() == QColorDialog::Accepted)
-   {
-      QColor chosenColor= dlg->selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      this->ui->CodeBackgroundButton->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
-   }
-
-   delete dlg;
-}
-#endif
-
 void EnvironmentSettingsDialog::on_PluginPathButton_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this, "Plugin Path", ui->PluginPathEdit->text());
@@ -298,11 +274,22 @@ void EnvironmentSettingsDialog::on_soundBufferDepth_valueChanged(int value)
 
 void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 {
+   QSettings settings;
+   QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
+   QColor idealTextColor;
+   int style = ui->styleName->currentIndex();
    QFont font = m_lexer->font(index);
+
    ui->styleFont->setCurrentFont(font);
    ui->fontBold->setChecked(font.bold());
    ui->fontItalic->setChecked(font.italic());
    ui->fontUnderline->setChecked(font.underline());
+
+   idealTextColor = getIdealTextColor(m_lexer->paper(style));
+   ui->backgroundColor->setStyleSheet(COLOR_STYLE.arg(m_lexer->paper(style).name()).arg(idealTextColor.name()));
+
+   idealTextColor = getIdealTextColor(m_lexer->color(style));
+   ui->styleColor->setStyleSheet(COLOR_STYLE.arg(m_lexer->color(style).name()).arg(idealTextColor.name()));
 }
 
 void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
@@ -345,4 +332,49 @@ void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontNam
    font.setUnderline(ui->fontUnderline->isChecked());
    m_lexer->setFont(font,style);
    m_lexer->writeSettings(settings,"CodeEditor");
+}
+
+void EnvironmentSettingsDialog::on_styleColor_clicked()
+{
+   QSettings settings;
+   QColorDialog dlg;
+   int style = ui->styleName->currentIndex();
+
+   dlg.setCurrentColor(m_lexer->color(style));
+
+   if (dlg.exec() == QColorDialog::Accepted)
+   {
+      QColor chosenColor = dlg.selectedColor();
+      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
+      QColor idealTextColor = getIdealTextColor(chosenColor);
+      ui->styleColor->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
+      m_lexer->setColor(chosenColor,style);
+      m_lexer->writeSettings(settings,"CodeEditor");
+   }
+}
+
+void EnvironmentSettingsDialog::on_backgroundColor_clicked()
+{
+   QSettings settings;
+   QColorDialog dlg;
+
+   dlg.setCurrentColor(m_lexer->defaultPaper());
+
+   if (dlg.exec() == QColorDialog::Accepted)
+   {
+      QColor chosenColor = dlg.selectedColor();
+      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
+      QColor idealTextColor = getIdealTextColor(chosenColor);
+      ui->backgroundColor->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
+      m_lexer->setDefaultPaper(chosenColor);
+      m_lexer->setPaper(chosenColor,-1);
+      m_lexer->writeSettings(settings,"CodeEditor");
+   }
+}
+
+QColor EnvironmentSettingsDialog::getIdealTextColor(const QColor& rBackgroundColor) const
+{
+   const int THRESHOLD = 105;
+   int BackgroundDelta = (rBackgroundColor.red() * 0.299) + (rBackgroundColor.green() * 0.587) + (rBackgroundColor.blue() * 0.114);
+   return QColor((255- BackgroundDelta < THRESHOLD) ? Qt::black : Qt::white);
 }

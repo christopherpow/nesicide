@@ -159,7 +159,7 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0" colspan="4">
-        <widget class="QPushButton" name="CodeBackgroundButton">
+        <widget class="QPushButton" name="backgroundColor">
          <property name="text">
           <string>Background Color</string>
          </property>
@@ -176,7 +176,7 @@
         <widget class="QComboBox" name="styleName"/>
        </item>
        <item row="3" column="1" colspan="3">
-        <widget class="QPushButton" name="CodeDefaultButton">
+        <widget class="QPushButton" name="styleColor">
          <property name="text">
           <string>Color</string>
          </property>
