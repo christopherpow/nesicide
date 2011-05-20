@@ -348,6 +348,7 @@ MainWindow::MainWindow(QWidget* parent) :
    // always returns APU_SAMPLES samples
    //emulator->adjustAudio(settings.value("soundBufferDepth",1024).toInt());
    emulator->adjustAudio( APU_SAMPLES );
+   emulator->resetEmulator();
 
    // Always call this last
    pluginManager->doInitScript();
@@ -519,6 +520,7 @@ void MainWindow::projectDataChangesEvent()
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not and a cartridge loaded in the emulator
+#if 0
    ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
@@ -543,6 +545,7 @@ void MainWindow::projectDataChangesEvent()
    ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+#endif
 
    // Enable/Disable actions based on if we have a project loaded or not and a good compile
    ui->actionLoad_In_Emulator->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );

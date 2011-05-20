@@ -9,13 +9,6 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Disable buttons to start.
-    ui->playButton->setEnabled(false);
-    ui->pauseButton->setEnabled(false);
-    ui->stepCPUButton->setEnabled(false);
-    ui->stepPPUButton->setEnabled(false);
-    ui->resetButton->setEnabled(false);
-
     QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
     QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
     QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
