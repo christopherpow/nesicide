@@ -11,11 +11,11 @@
 enum
 {
    CA65_Default,
-   CA65_Comment,
    CA65_Opcode,
    CA65_Label,
    CA65_Keyword,
-   CA65_QuotedString
+   CA65_QuotedString,
+   CA65_Comment
 };
 
 static const char* CA65_keyword[] =
@@ -200,6 +200,16 @@ QsciLexerCA65::QsciLexerCA65(QObject *parent)
    QString regex;
    int rc;
 
+#ifdef Q_WS_MAC
+   setDefaultFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_WS_X11
+   setDefaultFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_WS_WIN
+   setDefaultFont(QFont("Consolas", 11));
+#endif
+
    regex = "\\b(";
 
    rc = 0;
@@ -246,19 +256,19 @@ QString QsciLexerCA65::description(int style) const
          return "Default";
       break;
       case CA65_Comment:
-         return "Comment";
+         return "Comments";
       break;
       case CA65_Opcode:
-         return "Opcode";
+         return "Instructions";
       break;
       case CA65_Label:
-         return "Label";
+         return "Labels";
       break;
       case CA65_Keyword:
-         return "Keyword";
+         return "Preprocessor keywords";
       break;
       case CA65_QuotedString:
-         return "Quoted String";
+         return "Quoted strings";
       break;
       default:
          return QString();
