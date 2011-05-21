@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include "cpluginmanager.h"
 #include "startupsplashdialog.h"
+#include "environmentsettingsdialog.h"
 
 #if defined ( QT_NO_DEBUG )
 static char __ide_version__ [] = "RELEASE";
@@ -50,10 +51,11 @@ int main(int argc, char* argv[])
    QCoreApplication::setOrganizationDomain("nesicide.com");
    QCoreApplication::setApplicationName("NESICIDE");
 
-   QSettings settings;
+   // Initialize Environment settings.
+   EnvironmentSettingsDialog::readSettings();
 
    // Initialize the game database object...
-   if ( settings.value("useInternalDB",QVariant(true)).toBool() )
+   if ( EnvironmentSettingsDialog::useInternalGameDatabase() )
    {
       // Use internal resource.
       gameDatabase.initialize(":GameDatabase");
@@ -61,7 +63,7 @@ int main(int argc, char* argv[])
    else
    {
       // Use named file resource.  Default to internal if it's not set.
-      gameDatabase.initialize(settings.value("GameDatabase",QVariant(":GameDatabase")).toString());
+      gameDatabase.initialize( EnvironmentSettingsDialog::getGameDatabase());
    }
 
    // Initialize the plugin manager

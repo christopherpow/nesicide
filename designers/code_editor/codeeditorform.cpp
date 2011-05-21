@@ -554,7 +554,7 @@ void CodeEditorForm::setSourceCode(QString source)
 void CodeEditorForm::showExecutionLine(int linenumber)
 {
    QSettings settings;
-   bool      follow = settings.value("followExecution",QVariant(true)).toBool();
+   bool      follow = EnvironmentSettingsDialog::followExecution();
 
    if ( m_scintilla )
    {

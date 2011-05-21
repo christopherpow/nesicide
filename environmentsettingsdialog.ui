@@ -7,23 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>389</width>
-    <height>423</height>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Environment Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -158,56 +148,102 @@
        <string>Code Editor</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="4">
-        <widget class="QPushButton" name="backgroundColor">
-         <property name="text">
-          <string>Background Color</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Style:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" colspan="3">
-        <widget class="QComboBox" name="styleName"/>
-       </item>
-       <item row="3" column="1" colspan="3">
-        <widget class="QPushButton" name="styleColor">
-         <property name="text">
-          <string>Color</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="3">
-        <widget class="QFontComboBox" name="styleFont"/>
-       </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="fontBold">
-         <property name="text">
-          <string>Bold</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="2">
-        <widget class="QCheckBox" name="fontItalic">
-         <property name="text">
-          <string>Italic</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="3">
-        <widget class="QCheckBox" name="fontUnderline">
-         <property name="text">
-          <string>Underline</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0" colspan="4">
+       <item row="5" column="0" colspan="4">
         <layout class="QGridLayout" name="example"/>
+       </item>
+       <item row="0" column="0" colspan="4">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>General Coloring</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="backgroundColor">
+            <property name="text">
+             <string>Background Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="highlightBarColor">
+            <property name="text">
+             <string>Highlight Bar Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="marginColor">
+            <property name="text">
+             <string>Margin Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="showHighlightBar">
+            <property name="text">
+             <string>Highlight Bar</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="showLineNumberMargin">
+            <property name="text">
+             <string>Line Numbers</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QCheckBox" name="showIndicatorMargin">
+            <property name="text">
+             <string>Indicators</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="4">
+        <widget class="QGroupBox" name="groupBox_12">
+         <property name="title">
+          <string>Text Styles</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_17">
+          <item row="0" column="0" colspan="4">
+           <widget class="QComboBox" name="styleName"/>
+          </item>
+          <item row="1" column="0" colspan="4">
+           <widget class="QPushButton" name="styleColor">
+            <property name="text">
+             <string>Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="4">
+           <widget class="QFontComboBox" name="styleFont"/>
+          </item>
+          <item row="4" column="2">
+           <widget class="QCheckBox" name="fontItalic">
+            <property name="text">
+             <string>Italic</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QCheckBox" name="fontBold">
+            <property name="text">
+             <string>Bold</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QCheckBox" name="fontUnderline">
+            <property name="text">
+             <string>Underline</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -381,6 +417,16 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
     </widget>
    </item>
   </layout>

@@ -19,6 +19,25 @@ public:
    EnvironmentSettingsDialog(QWidget* parent = 0);
    ~EnvironmentSettingsDialog();
 
+   // Interface to retrieve values from QSettings and store them
+   // here locally.
+   static void readSettings();
+
+   // Accessors
+   static bool useInternalGameDatabase() { return m_useInternalGameDatabase; }
+   static QString getGameDatabase() { return m_gameDatabase; }
+   static bool showWelcomeOnStart() { return m_showWelcomeOnStart; }
+   static bool saveAllOnCompile() { return m_saveAllOnCompile; }
+   static bool rememberWindowSettings() { return m_rememberWindowSettings; }
+   static bool trackRecentProjects() { return m_trackRecentProjects; }
+   static QString romPath() { return m_romPath; }
+   static bool runRomOnLoad() { return m_runRomOnLoad; }
+   static bool followExecution() { return m_followExecution; }
+   static int debuggerUpdateRate() { return m_debuggerUpdateRate; }
+   static int soundBufferDepth() { return m_soundBufferDepth; }
+
+   // Modifiers (only provided for settings that are also found in menus not just in this dialog)
+
 protected:
    void changeEvent(QEvent* e);
 
@@ -28,6 +47,19 @@ private:
 
    QsciScintilla* m_scintilla;
    QsciLexerCA65* m_lexer;
+
+   // Settings data structures.
+   static bool m_useInternalGameDatabase;
+   static QString m_gameDatabase;
+   static bool m_showWelcomeOnStart;
+   static bool m_saveAllOnCompile;
+   static bool m_rememberWindowSettings;
+   static bool m_trackRecentProjects;
+   static QString m_romPath;
+   static bool m_runRomOnLoad;
+   static bool m_followExecution;
+   static int m_debuggerUpdateRate;
+   static int m_soundBufferDepth;
 
 private slots:
    void on_backgroundColor_clicked();

@@ -256,7 +256,7 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
 
       mainWindow->openROM(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
 
-      if ( !(settings.value("runRom").toBool()) )
+      if ( !(EnvironmentSettingsDialog::runRomOnLoad()) )
       {
          emulator->startEmulation();
       }

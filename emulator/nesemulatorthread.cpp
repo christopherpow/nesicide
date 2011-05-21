@@ -331,9 +331,8 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::run ()
 {
-   QSettings settings;
    int32_t samplesAvailable;
-   int32_t debuggerUpdateRate = settings.value("debuggerUpdateRate").toInt();
+   int32_t debuggerUpdateRate = EnvironmentSettingsDialog::debuggerUpdateRate();
 
    // Special case for 1Hz debugger update to match system mode.
    if ( debuggerUpdateRate == -1 )

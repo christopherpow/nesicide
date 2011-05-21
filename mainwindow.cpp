@@ -299,7 +299,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->actionDelta_Modulation->setChecked(dmc);
    ui->actionMute_All->setChecked(!mask);
 
-   if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
+   if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
       ui->tabWidget->addTab(ui->tab,"Welcome Page");
       ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
@@ -346,7 +346,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    // For now don't use the value from the settings, because nesGetAudioSamples()
    // always returns APU_SAMPLES samples
-   //emulator->adjustAudio(settings.value("soundBufferDepth",1024).toInt());
+   //emulator->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
    emulator->adjustAudio( APU_SAMPLES );
    emulator->resetEmulator();
 
@@ -354,7 +354,7 @@ MainWindow::MainWindow(QWidget* parent) :
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
 
-   if ( settings.value("rememberWindowSettings").toBool() )
+   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
    {
       restoreGeometry(settings.value("IDEGeometry").toByteArray());
       restoreState(settings.value("IDEState").toByteArray());
@@ -664,8 +664,6 @@ void MainWindow::on_actionNew_Project_triggered()
 
 void MainWindow::openROM(QString fileName)
 {
-   QSettings settings;
-
    output->showPane(OutputPaneDockWidget::Output_General);
 
    emulator->pauseEmulation(false);
@@ -698,7 +696,7 @@ void MainWindow::openROM(QString fileName)
    emulator->primeEmulator();
    emulator->resetEmulator();
 
-   if ( settings.value("runRom").toBool() )
+   if ( EnvironmentSettingsDialog::runRomOnLoad() )
    {
       emulator->startEmulation();
    }
@@ -711,9 +709,7 @@ void MainWindow::openROM(QString fileName)
 
 void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 {
-   QSettings settings;
-
-   QString romPath = settings.value("ROMPath","").toString();
+   QString romPath = EnvironmentSettingsDialog::romPath();
    QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "iNES ROM (*.nes)");
 
    if (fileName.isEmpty())
@@ -780,7 +776,6 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
 void MainWindow::openProject(QString fileName)
 {
-   QSettings settings;
    QString errors;
    bool    ok;
 
@@ -840,7 +835,7 @@ void MainWindow::openProject(QString fileName)
          emulator->primeEmulator();
          emulator->resetEmulator();
 
-         if ( settings.value("runRom").toBool() )
+         if ( EnvironmentSettingsDialog::runRomOnLoad() )
          {
             emulator->startEmulation();
          }
@@ -911,11 +906,10 @@ void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-   QSettings settings;
    output->showPane(OutputPaneDockWidget::Output_Build);
    emulator->pauseEmulation(false);
 
-   if ( settings.value("saveAllOnCompile",QVariant(true)) == QVariant(true) )
+   if ( EnvironmentSettingsDialog::saveAllOnCompile() )
    {
       on_actionSave_Project_triggered();
    }
@@ -1189,8 +1183,6 @@ void MainWindow::on_action_About_Nesicide_triggered()
 
 void MainWindow::on_action_Close_Project_triggered()
 {
-   QSettings settings;
-
    // Stop the emulator if it is running
    emulator->pauseEmulation(false);
 
@@ -1207,7 +1199,7 @@ void MainWindow::on_action_Close_Project_triggered()
    // Remove any tabs
    ui->tabWidget->clear();
 
-   if ( settings.value("showWelcomeOnStart",QVariant(true)) == QVariant(true) )
+   if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
       ui->tabWidget->addTab(ui->tab,"Welcome Page");
       ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
