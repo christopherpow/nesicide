@@ -29,6 +29,13 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_scintilla = new QsciScintilla();
 
+   m_lexer = new QsciLexerCA65(m_scintilla);
+   m_scintilla->setLexer(m_lexer);
+
+   m_scintilla->installEventFilter(this);
+
+   m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginColor());
+
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
    m_scintilla->setMarginWidth(3,0);
    m_scintilla->setMarginMarkerMask(3,0);
@@ -62,12 +69,15 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
    m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
    m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
-   m_scintilla->setMarkerBackgroundColor(QColor(235,235,235),Marker_Highlight);
-
-   m_lexer = new QsciLexerCA65(m_scintilla);
-   m_scintilla->setLexer(m_lexer);
-
-   m_scintilla->installEventFilter(this);
+   if ( EnvironmentSettingsDialog::highlightBarEnabled() )
+   {
+      m_scintilla->setMarkerBackgroundColor(EnvironmentSettingsDialog::highlightBarColor(),Marker_Highlight);
+   }
+   else
+   {
+      // Set the highlight bar color to background to hide it =]
+      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
+   }
 
    QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
@@ -322,11 +332,18 @@ void CodeEditorForm::editor_modificationChanged(bool m)
 
 void CodeEditorForm::editor_linesChanged()
 {
-   QString maxLineNum;
+   if ( EnvironmentSettingsDialog::lineNumbersEnabled() )
+   {
+      QString maxLineNum;
 
-   maxLineNum.sprintf("%d",m_scintilla->lines());
+      maxLineNum.sprintf("%d",m_scintilla->lines());
 
-   m_scintilla->setMarginWidth(Margin_LineNumbers,maxLineNum);
+      m_scintilla->setMarginWidth(Margin_LineNumbers,maxLineNum);
+   }
+   else
+   {
+      m_scintilla->setMarginWidth(Margin_LineNumbers,0);
+   }
 }
 
 void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)

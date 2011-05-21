@@ -55,6 +55,7 @@ private:
    void writeSettings();
 
    // Settings data structures.
+   static int lastActiveTab;
    static int controllerType[NUM_CONTROLLERS];
    static int standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
    static int tvStandard;

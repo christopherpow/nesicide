@@ -35,6 +35,10 @@ public:
    static bool followExecution() { return m_followExecution; }
    static int debuggerUpdateRate() { return m_debuggerUpdateRate; }
    static int soundBufferDepth() { return m_soundBufferDepth; }
+   static QColor marginColor() { return m_marginColor; }
+   static bool lineNumbersEnabled() { return m_lineNumbersEnabled; }
+   static QColor highlightBarColor() { return m_highlightBarColor; }
+   static bool highlightBarEnabled() { return m_highlightBarEnabled; }
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
 
@@ -43,12 +47,15 @@ protected:
 
 private:
    Ui::EnvironmentSettingsDialog* ui;
-   QColor getIdealTextColor(const QColor& rBackgroundColor) const;
+
+   // Write settings from local to QSettings.
+   void writeSettings();
 
    QsciScintilla* m_scintilla;
    QsciLexerCA65* m_lexer;
 
    // Settings data structures.
+   static int  m_lastActiveTab;
    static bool m_useInternalGameDatabase;
    static QString m_gameDatabase;
    static bool m_showWelcomeOnStart;
@@ -60,8 +67,16 @@ private:
    static bool m_followExecution;
    static int m_debuggerUpdateRate;
    static int m_soundBufferDepth;
+   static QColor m_marginColor;
+   static bool m_lineNumbersEnabled;
+   static QColor m_highlightBarColor;
+   static bool m_highlightBarEnabled;
 
 private slots:
+   void on_showLineNumberMargin_toggled(bool checked);
+   void on_showHighlightBar_toggled(bool checked);
+   void on_highlightBarColor_clicked();
+   void on_marginColor_clicked();
    void on_backgroundColor_clicked();
    void on_styleColor_clicked();
    void on_styleFont_currentIndexChanged(QString font);

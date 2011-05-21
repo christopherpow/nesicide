@@ -6,6 +6,7 @@
 #include <QSettings>
 
 // Settings data structures.
+int EnvironmentSettingsDialog::m_lastActiveTab;
 bool EnvironmentSettingsDialog::m_useInternalGameDatabase;
 QString EnvironmentSettingsDialog::m_gameDatabase;
 bool EnvironmentSettingsDialog::m_showWelcomeOnStart;
@@ -17,6 +18,10 @@ bool EnvironmentSettingsDialog::m_runRomOnLoad;
 bool EnvironmentSettingsDialog::m_followExecution;
 int EnvironmentSettingsDialog::m_debuggerUpdateRate;
 int EnvironmentSettingsDialog::m_soundBufferDepth;
+QColor EnvironmentSettingsDialog::m_marginColor;
+bool EnvironmentSettingsDialog::m_lineNumbersEnabled;
+QColor EnvironmentSettingsDialog::m_highlightBarColor;
+bool EnvironmentSettingsDialog::m_highlightBarEnabled;
 
 static const char* debuggerUpdateRateMsgs[] =
 {
@@ -59,6 +64,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
    m_scintilla = new QsciScintilla();
 
+   m_lexer = new QsciLexerCA65(m_scintilla);
+   m_scintilla->setLexer(m_lexer);
+
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
    m_scintilla->setMarginWidth(3,0);
@@ -78,10 +86,17 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    m_scintilla->setMarginSensitivity(Margin_Decorations,true);
 
    m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
-   m_scintilla->setMarginWidth(Margin_LineNumbers,10);
    m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
    m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
    m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
+   if ( m_lineNumbersEnabled )
+   {
+      m_scintilla->setMarginWidth(Margin_LineNumbers,10);
+   }
+   else
+   {
+      m_scintilla->setMarginWidth(Margin_LineNumbers,0);
+   }
 
    m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
    m_scintilla->setSelectionToEol(true);
@@ -92,15 +107,26 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    m_scintilla->markerDefine(QPixmap(":/resources/error-mark.svg"),Marker_Error);
    m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
    m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
-   m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
-   m_scintilla->setMarkerBackgroundColor(QColor(235,235,235),Marker_Highlight);
 
-   m_lexer = new QsciLexerCA65(m_scintilla);
-   m_scintilla->setLexer(m_lexer);
+   m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
+   if ( m_highlightBarEnabled )
+   {
+      m_scintilla->setMarkerBackgroundColor(m_highlightBarColor,Marker_Highlight);
+   }
+   else
+   {
+      // Set the highlight bar color to background to hide it.
+      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
+   }
 
    m_lexer->readSettings(settings,"CodeEditor");
 
    m_scintilla->setText(exampleText);
+
+   m_scintilla->setMarginsBackgroundColor(m_marginColor);
+
+   m_scintilla->markerAdd(1,Marker_Execution);
+   m_scintilla->markerAdd(1,Marker_Highlight);
 
    ui->example->addWidget(m_scintilla);
 
@@ -147,6 +173,11 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
    ui->soundBufferDepth->setValue(m_soundBufferDepth);
    ui->soundBufferDepthMsg->setText(soundBufferDepthMsgs[(m_soundBufferDepth/1024)-1]);
+
+   ui->showHighlightBar->setChecked(m_highlightBarEnabled);
+   ui->showLineNumberMargin->setChecked(m_lineNumbersEnabled);
+
+   ui->tabWidget->setCurrentIndex(m_lastActiveTab);
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -173,56 +204,89 @@ void EnvironmentSettingsDialog::readSettings()
    m_followExecution = settings.value("followExecution",QVariant(true)).toBool();
    m_debuggerUpdateRate = settings.value("debuggerUpdateRate",QVariant(0)).toInt();
    m_soundBufferDepth = settings.value("soundBufferDepth",QVariant(1024)).toInt();
+   if ( settings.contains("marginColor") )
+   {
+      m_marginColor = settings.value("marginColor").value<QColor>();
+   }
+   else
+   {
+      m_marginColor = QColor(235,235,235);
+   }
+   if ( settings.contains("highlightBarColor") )
+   {
+      m_highlightBarColor = settings.value("highlightBarColor").value<QColor>();
+   }
+   else
+   {
+      m_highlightBarColor = QColor(240,240,240);
+   }
+   m_highlightBarEnabled = settings.value("highlightBarEnabled",QVariant(true)).toBool();
+   m_lineNumbersEnabled = settings.value("lineNumbersEnabled",QVariant(true)).toBool();
+   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
+   settings.endGroup();
+}
+
+void EnvironmentSettingsDialog::writeSettings()
+{
+   QSettings settings;
+
+   // First save to locals.
+   m_useInternalGameDatabase = ui->useInternalDB->isChecked();
+   m_gameDatabase = ui->GameDatabasePathEdit->text();
+   m_showWelcomeOnStart = ui->showWelcomeOnStart->isChecked();
+   m_saveAllOnCompile = ui->saveAllOnCompile->isChecked();
+   m_rememberWindowSettings = ui->rememberWindowSettings->isChecked();
+   m_trackRecentProjects = ui->trackRecentProjects->isChecked();
+   m_romPath = ui->ROMPath->text();
+   m_runRomOnLoad = ui->runRom->isChecked();
+   m_followExecution = ui->followExecution->isChecked();
+   switch ( ui->debuggerUpdateRate->value() )
+   {
+      case 0:
+         m_debuggerUpdateRate = 0;
+      break;
+      case 1:
+         m_debuggerUpdateRate = 1;
+      break;
+      case 2:
+         m_debuggerUpdateRate = -1;
+      break;
+   }
+   m_soundBufferDepth = ui->soundBufferDepth->value();
+   m_highlightBarEnabled = ui->showHighlightBar->isChecked();
+   m_lineNumbersEnabled = ui->showLineNumberMargin->isChecked();
+   m_lastActiveTab = ui->tabWidget->currentIndex();
+
+   // Then save to QSettings;
+   settings.beginGroup("Environment");
+   settings.setValue("showWelcomeOnStart",m_showWelcomeOnStart);
+   settings.setValue("saveAllOnCompile",m_saveAllOnCompile);
+   settings.setValue("rememberWindowSettings",m_rememberWindowSettings);
+   settings.setValue("trackRecentProjects",m_trackRecentProjects);
+
+   settings.setValue("useInternalGameDB",m_useInternalGameDatabase);
+   settings.setValue("GameDatabase",m_gameDatabase);
+
+   settings.setValue("romPath",m_romPath);
+
+   settings.setValue("runRomOnLoad",m_runRomOnLoad);
+   settings.setValue("followExecution",m_followExecution);
+
+   settings.setValue("debuggerUpdateRate",m_debuggerUpdateRate);
+
+   settings.setValue("soundBufferDepth",m_soundBufferDepth);
+
+   settings.setValue("marginColor",m_marginColor);
+   settings.setValue("highlightBarColor",m_highlightBarColor);
+   settings.setValue("highlightBarEnabled",m_highlightBarEnabled);
+   settings.setValue("lineNumbersEnabled",m_lineNumbersEnabled);
+   settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
 }
 
 void EnvironmentSettingsDialog::on_buttonBox_accepted()
 {
-    QSettings settings;
-
-    // First save to locals.
-    m_useInternalGameDatabase = ui->useInternalDB->isChecked();
-    m_gameDatabase = ui->GameDatabasePathEdit->text();
-    m_showWelcomeOnStart = ui->showWelcomeOnStart->isChecked();
-    m_saveAllOnCompile = ui->saveAllOnCompile->isChecked();
-    m_rememberWindowSettings = ui->rememberWindowSettings->isChecked();
-    m_trackRecentProjects = ui->trackRecentProjects->isChecked();
-    m_romPath = ui->ROMPath->text();
-    m_runRomOnLoad = ui->runRom->isChecked();
-    m_followExecution = ui->followExecution->isChecked();
-    switch ( ui->debuggerUpdateRate->value() )
-    {
-       case 0:
-          m_debuggerUpdateRate = 0;
-       break;
-       case 1:
-          m_debuggerUpdateRate = 1;
-       break;
-       case 2:
-          m_debuggerUpdateRate = -1;
-       break;
-    }
-    m_soundBufferDepth = ui->soundBufferDepth->value();
-
-    // Then save to QSettings;
-    settings.beginGroup("Environment");
-    settings.setValue("showWelcomeOnStart",m_showWelcomeOnStart);
-    settings.setValue("saveAllOnCompile",m_saveAllOnCompile);
-    settings.setValue("rememberWindowSettings",m_rememberWindowSettings);
-    settings.setValue("trackRecentProjects",m_trackRecentProjects);
-
-    settings.setValue("useInternalGameDB",m_useInternalGameDatabase);
-    settings.setValue("GameDatabase",m_gameDatabase);
-
-    settings.setValue("romPath",m_romPath);
-
-    settings.setValue("runRomOnLoad",m_runRomOnLoad);
-    settings.setValue("followExecution",m_followExecution);
-
-    settings.setValue("debuggerUpdateRate",m_debuggerUpdateRate);
-
-    settings.setValue("soundBufferDepth",m_soundBufferDepth);
-    settings.endGroup();
+   writeSettings();
 }
 
 void EnvironmentSettingsDialog::changeEvent(QEvent* e)
@@ -324,9 +388,6 @@ void EnvironmentSettingsDialog::on_soundBufferDepth_valueChanged(int value)
 
 void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 {
-   QSettings settings;
-   QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-   QColor idealTextColor;
    int style = ui->styleName->currentIndex();
    QFont font = m_lexer->font(index);
 
@@ -334,12 +395,6 @@ void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
    ui->fontBold->setChecked(font.bold());
    ui->fontItalic->setChecked(font.italic());
    ui->fontUnderline->setChecked(font.underline());
-
-   idealTextColor = getIdealTextColor(m_lexer->paper(style));
-   ui->backgroundColor->setStyleSheet(COLOR_STYLE.arg(m_lexer->paper(style).name()).arg(idealTextColor.name()));
-
-   idealTextColor = getIdealTextColor(m_lexer->color(style));
-   ui->styleColor->setStyleSheet(COLOR_STYLE.arg(m_lexer->color(style).name()).arg(idealTextColor.name()));
 }
 
 void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
@@ -395,9 +450,6 @@ void EnvironmentSettingsDialog::on_styleColor_clicked()
    if (dlg.exec() == QColorDialog::Accepted)
    {
       QColor chosenColor = dlg.selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      ui->styleColor->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
       m_lexer->setColor(chosenColor,style);
       m_lexer->writeSettings(settings,"CodeEditor");
    }
@@ -413,18 +465,69 @@ void EnvironmentSettingsDialog::on_backgroundColor_clicked()
    if (dlg.exec() == QColorDialog::Accepted)
    {
       QColor chosenColor = dlg.selectedColor();
-      QString COLOR_STYLE("QPushButton { background-color : %1; color : %2; }");
-      QColor idealTextColor = getIdealTextColor(chosenColor);
-      ui->backgroundColor->setStyleSheet(COLOR_STYLE.arg(chosenColor.name()).arg(idealTextColor.name()));
       m_lexer->setDefaultPaper(chosenColor);
       m_lexer->setPaper(chosenColor,-1);
       m_lexer->writeSettings(settings,"CodeEditor");
    }
 }
 
-QColor EnvironmentSettingsDialog::getIdealTextColor(const QColor& rBackgroundColor) const
+void EnvironmentSettingsDialog::on_marginColor_clicked()
 {
-   const int THRESHOLD = 105;
-   int BackgroundDelta = (rBackgroundColor.red() * 0.299) + (rBackgroundColor.green() * 0.587) + (rBackgroundColor.blue() * 0.114);
-   return QColor((255- BackgroundDelta < THRESHOLD) ? Qt::black : Qt::white);
+   QSettings settings;
+   QColorDialog dlg;
+
+   dlg.setCurrentColor(m_marginColor);
+
+   if (dlg.exec() == QColorDialog::Accepted)
+   {
+      m_marginColor = dlg.selectedColor();
+      m_scintilla->setMarginsBackgroundColor(m_marginColor);
+      writeSettings();
+   }
+}
+
+void EnvironmentSettingsDialog::on_highlightBarColor_clicked()
+{
+   QSettings settings;
+   QColorDialog dlg;
+
+   dlg.setCurrentColor(m_highlightBarColor);
+
+   if (dlg.exec() == QColorDialog::Accepted)
+   {
+      m_highlightBarColor = dlg.selectedColor();
+      m_scintilla->setMarkerBackgroundColor(m_highlightBarColor,Marker_Highlight);
+      writeSettings();
+   }
+}
+
+void EnvironmentSettingsDialog::on_showHighlightBar_toggled(bool checked)
+{
+   if ( checked )
+   {
+      m_scintilla->setMarkerBackgroundColor(m_highlightBarColor,Marker_Highlight);
+   }
+   else
+   {
+      // Set marker color to background to hide it.
+      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
+   }
+   writeSettings();
+}
+
+void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
+{
+   if ( checked )
+   {
+      m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
+      m_scintilla->setMarginWidth(Margin_LineNumbers,10);
+      m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
+      m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
+      m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
+   }
+   else
+   {
+      m_scintilla->setMarginWidth(Margin_LineNumbers,0);
+   }
+   writeSettings();
 }

@@ -12,6 +12,7 @@ bool EmulatorPrefsDialog::videoUpdated;
 bool EmulatorPrefsDialog::systemUpdated;
 
 // Settings data structures.
+int EmulatorPrefsDialog::lastActiveTab;
 int EmulatorPrefsDialog::controllerType[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
 int EmulatorPrefsDialog::tvStandard;
@@ -43,6 +44,8 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    ui->dmc->setChecked(dmcEnabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
+
+   ui->tabWidget->setCurrentIndex(lastActiveTab);
 }
 
 EmulatorPrefsDialog::~EmulatorPrefsDialog()
@@ -90,6 +93,10 @@ void EmulatorPrefsDialog::readSettings()
    settings.beginGroup("EmulatorPreferences/System");
    tvStandard = settings.value("TVStandard",QVariant(MODE_NTSC)).toInt();
    settings.endGroup();
+
+   settings.beginGroup("EmulatorPreferences");
+   lastActiveTab = settings.value("LastActiveTab",0).toInt();
+   settings.endGroup();
 }
 
 void EmulatorPrefsDialog::writeSettings()
@@ -116,6 +123,7 @@ void EmulatorPrefsDialog::writeSettings()
       videoUpdated = true;
    }
    controllersUpdated = true;
+   lastActiveTab = ui->tabWidget->currentIndex();
 
    // Save UI to locals first.
    switch ( ui->controllerTypeComboBox->currentIndex() )
@@ -174,6 +182,10 @@ void EmulatorPrefsDialog::writeSettings()
 
    settings.beginGroup("EmulatorPreferences/System");
    settings.setValue("TVStandard",tvStandard);
+   settings.endGroup();
+
+   settings.beginGroup("EmulatorPreferences");
+   settings.setValue("LastActiveTab",lastActiveTab);
    settings.endGroup();
 }
 
