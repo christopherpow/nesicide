@@ -32,7 +32,7 @@ public:
 
    virtual const char *wordCharacters() const;
 
-   virtual int styleBitsNeeded() const { return 7; }
+   virtual int styleBitsNeeded() const { return 8; }
 
    bool readSettings(QSettings &qs,const char *prefix = "/Scintilla");
    bool writeSettings(QSettings &qs,const char *prefix = "/Scintilla");
@@ -44,6 +44,8 @@ protected:
 protected:
    QRegExp opcodeRegex;
    QRegExp keywordRegex;
+   QRegExp labelRegex;
+   QRegExp numberRegex;
 };
 
 #endif // QSCILEXERCA65_H

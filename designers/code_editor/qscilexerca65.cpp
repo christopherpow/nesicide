@@ -15,7 +15,8 @@ enum
    CA65_Label,
    CA65_Keyword,
    CA65_QuotedString,
-   CA65_Comment
+   CA65_Comment,
+   CA65_Number
 };
 
 static const char* CA65_keyword[] =
@@ -210,6 +211,9 @@ QsciLexerCA65::QsciLexerCA65(QObject *parent)
    setDefaultFont(QFont("Consolas", 11));
 #endif
 
+   labelRegex = QRegExp("([^; \t]+):");
+   numberRegex = QRegExp("([$]([0-9A-f]+))|(([0-9A-f]+)[h])|([%]([0-1]+))|([0-9]+)");
+
    regex = "\\b(";
 
    rc = 0;
@@ -270,6 +274,9 @@ QString QsciLexerCA65::description(int style) const
       case CA65_QuotedString:
          return "Quoted strings";
       break;
+      case CA65_Number:
+         return "Number";
+      break;
       default:
          return QString();
       break;
@@ -283,14 +290,13 @@ void QsciLexerCA65::styleText(int start, int end)
    QByteArray   chars;
    QString      text;
    QStringList  lines;
-   QRegExp      labelRegex("([^; \t]+):");
    int          pos;
    int          lineLength;
    int          lineNum;
    int          index;
 
    // Reset line styling.
-   startStyling(start,0x7F);
+   startStyling(start,0xFF);
    setStyling(end-start,CA65_Default);
 
    // Get the text that is being styled.
@@ -316,7 +322,7 @@ void QsciLexerCA65::styleText(int start, int end)
          pos = line.indexOf(opcodeRegex);
          if ( pos != -1 )
          {
-            startStyling(start+pos,0x7F);
+            startStyling(start+pos,0xFF);
             setStyling(3,CA65_Opcode);
          }
 
@@ -327,9 +333,22 @@ void QsciLexerCA65::styleText(int start, int end)
             pos = line.indexOf(labelRegex,pos);
             if ( pos != -1 )
             {
-               startStyling(start+pos,0x7F);
+               startStyling(start+pos,0xFF);
                setStyling(labelRegex.matchedLength(),CA65_Label);
                pos = pos+labelRegex.matchedLength();
+            }
+         } while ( pos != -1 );
+
+         // Look for numbers.
+         pos = 0;
+         do
+         {
+            pos = line.indexOf(numberRegex,pos);
+            if ( pos != -1 )
+            {
+               startStyling(start+pos,0xFF);
+               setStyling(numberRegex.matchedLength(),CA65_Number);
+               pos = pos+numberRegex.matchedLength();
             }
          } while ( pos != -1 );
 
@@ -340,7 +359,7 @@ void QsciLexerCA65::styleText(int start, int end)
             pos = line.indexOf(QRegExp("\\\".*\\\""),pos);
             if ( pos != -1 )
             {
-               startStyling(start+pos,0x7F);
+               startStyling(start+pos,0xFF);
                setStyling(line.indexOf('\"',pos+1)-pos+1,CA65_QuotedString);
                pos = line.indexOf('\"',pos+1)+1;
             }
@@ -351,7 +370,7 @@ void QsciLexerCA65::styleText(int start, int end)
             pos = line.indexOf(QRegExp("\\\'.*\\\'"),pos);
             if ( pos != -1 )
             {
-               startStyling(start+pos,0x7F);
+               startStyling(start+pos,0xFF);
                setStyling(line.indexOf('\'',pos+1)-pos+1,CA65_QuotedString);
                pos = line.indexOf('\'',pos+1)+1;
             }
@@ -361,7 +380,7 @@ void QsciLexerCA65::styleText(int start, int end)
          pos = line.indexOf(keywordRegex);
          if ( pos != -1 )
          {
-            startStyling(start+pos,0x7F);
+            startStyling(start+pos,0xFF);
             setStyling(keywordRegex.matchedLength(),CA65_Keyword);
          }
 
@@ -369,7 +388,7 @@ void QsciLexerCA65::styleText(int start, int end)
          pos = line.indexOf(';');
          if ( pos != -1 )
          {
-            startStyling(start+pos,0x7F);
+            startStyling(start+pos,0xFF);
             setStyling(lineLength-pos,CA65_Comment);
          }
       }
@@ -411,6 +430,9 @@ QColor QsciLexerCA65::defaultColor(int style) const
       break;
       case CA65_QuotedString:
          return QColor(255,120,30);
+      break;
+      case CA65_Number:
+         return QColor(255,30,30);
       break;
       default:
          return defaultColor();
