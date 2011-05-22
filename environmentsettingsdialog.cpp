@@ -282,6 +282,8 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("lineNumbersEnabled",m_lineNumbersEnabled);
    settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
+
+   m_lexer->writeSettings(settings,"CodeEditor");
 }
 
 void EnvironmentSettingsDialog::on_buttonBox_accepted()
@@ -404,7 +406,6 @@ void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
    QFont font = m_lexer->font(style);
    font.setBold(checked);
    m_lexer->setFont(font,style);
-   m_lexer->writeSettings(settings,"CodeEditor");
 }
 
 void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
@@ -414,7 +415,6 @@ void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
    QFont font = m_lexer->font(style);
    font.setItalic(checked);
    m_lexer->setFont(font,style);
-   m_lexer->writeSettings(settings,"CodeEditor");
 }
 
 void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
@@ -424,7 +424,6 @@ void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
    QFont font = m_lexer->font(style);
    font.setUnderline(checked);
    m_lexer->setFont(font,style);
-   m_lexer->writeSettings(settings,"CodeEditor");
 }
 
 void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
@@ -436,7 +435,6 @@ void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontNam
    font.setItalic(ui->fontItalic->isChecked());
    font.setUnderline(ui->fontUnderline->isChecked());
    m_lexer->setFont(font,style);
-   m_lexer->writeSettings(settings,"CodeEditor");
 }
 
 void EnvironmentSettingsDialog::on_styleColor_clicked()
@@ -451,7 +449,6 @@ void EnvironmentSettingsDialog::on_styleColor_clicked()
    {
       QColor chosenColor = dlg.selectedColor();
       m_lexer->setColor(chosenColor,style);
-      m_lexer->writeSettings(settings,"CodeEditor");
    }
 }
 
@@ -467,7 +464,6 @@ void EnvironmentSettingsDialog::on_backgroundColor_clicked()
       QColor chosenColor = dlg.selectedColor();
       m_lexer->setDefaultPaper(chosenColor);
       m_lexer->setPaper(chosenColor,-1);
-      m_lexer->writeSettings(settings,"CodeEditor");
    }
 }
 
@@ -482,7 +478,6 @@ void EnvironmentSettingsDialog::on_marginColor_clicked()
    {
       m_marginColor = dlg.selectedColor();
       m_scintilla->setMarginsBackgroundColor(m_marginColor);
-      writeSettings();
    }
 }
 
@@ -497,7 +492,6 @@ void EnvironmentSettingsDialog::on_highlightBarColor_clicked()
    {
       m_highlightBarColor = dlg.selectedColor();
       m_scintilla->setMarkerBackgroundColor(m_highlightBarColor,Marker_Highlight);
-      writeSettings();
    }
 }
 
@@ -512,7 +506,6 @@ void EnvironmentSettingsDialog::on_showHighlightBar_toggled(bool checked)
       // Set marker color to background to hide it.
       m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
    }
-   writeSettings();
 }
 
 void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
@@ -529,5 +522,4 @@ void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
    {
       m_scintilla->setMarginWidth(Margin_LineNumbers,0);
    }
-   writeSettings();
 }
