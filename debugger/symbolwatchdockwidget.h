@@ -3,6 +3,8 @@
 
 #include <QDockWidget>
 
+#include "csymbolwatchmodel.h"
+
 namespace Ui {
     class SymbolWatchDockWidget;
 }
@@ -17,6 +19,7 @@ public:
 
 private:
     Ui::SymbolWatchDockWidget *ui;
+    CSymbolWatchModel* model;
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H

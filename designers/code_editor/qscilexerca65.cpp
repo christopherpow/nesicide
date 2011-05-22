@@ -226,7 +226,7 @@ QsciLexerCA65::QsciLexerCA65(QObject *parent)
    opcodeRegex.setPattern(regex);
    opcodeRegex.setCaseSensitivity(Qt::CaseInsensitive);
 
-   regex = "\\b(";
+   regex = "\\.(\\b(";
    rc = 0;
    while ( CA65_keyword[rc] )
    {
@@ -237,7 +237,7 @@ QsciLexerCA65::QsciLexerCA65(QObject *parent)
       }
       rc++;
    }
-   regex += ")\\b";
+   regex += ")\\b)";
    keywordRegex.setPattern(regex);
    keywordRegex.setCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -265,7 +265,7 @@ QString QsciLexerCA65::description(int style) const
          return "Labels";
       break;
       case CA65_Keyword:
-         return "Preprocessor keywords";
+         return "Control commands";
       break;
       case CA65_QuotedString:
          return "Quoted strings";
@@ -328,8 +328,8 @@ void QsciLexerCA65::styleText(int start, int end)
             if ( pos != -1 )
             {
                startStyling(start+pos,0x7F);
-               setStyling(labelRegex.matchedLength()-1,CA65_Label);
-               pos = pos+labelRegex.matchedLength()+1;
+               setStyling(labelRegex.matchedLength(),CA65_Label);
+               pos = pos+labelRegex.matchedLength();
             }
          } while ( pos != -1 );
 

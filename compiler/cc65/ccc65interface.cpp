@@ -66,7 +66,7 @@ bool CCC65Interface::assemble()
       source = dynamic_cast<CSourceItem*>(iter.current());
       if ( source )
       {
-         invocationStr = "ca65 -V -g -v --debug-info ";
+         invocationStr = "ca65 -g -v --debug-info ";
          invocationStr += nesicideProject->getCompilerAdditionalOptions();
          invocationStr += " ";
          invocationStr += nesicideProject->getCompilerDefinedSymbols();
@@ -110,7 +110,7 @@ bool CCC65Interface::assemble()
    invocationStr += nesicideProject->getCompilerDefinedSymbols();
    invocationStr += nesicideProject->getLinkerAdditionalOptions();
    invocationStr += " ";
-   invocationStr += " -V -o ";
+   invocationStr += " -o ";
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
       invocationStr += "\""+outputName+"\"";

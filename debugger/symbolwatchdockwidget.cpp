@@ -6,6 +6,9 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
     ui(new Ui::SymbolWatchDockWidget)
 {
     ui->setupUi(this);
+    model = new CSymbolWatchModel();
+
+    ui->tableView->setModel(model);
 }
 
 SymbolWatchDockWidget::~SymbolWatchDockWidget()

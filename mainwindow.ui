@@ -956,6 +956,13 @@
    </property>
   </action>
   <action name="actionSymbol_Watch">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/find.png</normaloff>:/resources/find.png</iconset>
+   </property>
    <property name="text">
     <string>Symbol Inspector</string>
    </property>

@@ -545,11 +545,11 @@ void MainWindow::projectDataChangesEvent()
    ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionSymbol_Watch->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
 #endif
 
    // Enable/Disable actions based on if we have a project loaded or not and a good compile
    ui->actionLoad_In_Emulator->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
-   ui->actionSymbol_Watch->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
 
    if (ui->tabWidget->currentIndex() >= 0)
    {
@@ -734,7 +734,6 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
    }
    else
    {
-      qDebug("projectItem==FAIL");
       ui->tabWidget->removeTab(index);
    }
 }

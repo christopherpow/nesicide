@@ -236,7 +236,8 @@ SOURCES += mainwindow.cpp \
     designers/code_editor/qscilexerca65.cpp \
     designers/cdesignereditorbase.cpp \
     common/emulatorcontrol.cpp \
-    debugger/symbolwatchdockwidget.cpp
+    debugger/symbolwatchdockwidget.cpp \
+    viewers/debugger/csymbolwatchmodel.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -334,7 +335,8 @@ HEADERS += mainwindow.h \
     designers/cdesignereditorbase.h \
     interfaces/icenterwidgetitem.h \
     common/emulatorcontrol.h \
-    debugger/symbolwatchdockwidget.h
+    debugger/symbolwatchdockwidget.h \
+    viewers/debugger/csymbolwatchmodel.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
