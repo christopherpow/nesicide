@@ -11,6 +11,18 @@ class QsciLexerCA65 : public QsciLexerCustom
 {
    Q_OBJECT
 public:
+   // Styles
+   enum
+   {
+      CA65_Default,
+      CA65_Opcode,
+      CA65_Label,
+      CA65_Keyword,
+      CA65_QuotedString,
+      CA65_Comment,
+      CA65_Number
+   };
+
    QsciLexerCA65(QObject *parent = 0);
    virtual ~QsciLexerCA65();
 

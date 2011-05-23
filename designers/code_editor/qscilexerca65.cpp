@@ -7,18 +7,6 @@
 #include "emulator_core.h"
 #include "ccc65interface.h"
 
-// Styles
-enum
-{
-   CA65_Default,
-   CA65_Opcode,
-   CA65_Label,
-   CA65_Keyword,
-   CA65_QuotedString,
-   CA65_Comment,
-   CA65_Number
-};
-
 static const char* CA65_keyword[] =
 {
    "addr",

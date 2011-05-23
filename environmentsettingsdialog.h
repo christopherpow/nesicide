@@ -35,7 +35,8 @@ public:
    static bool followExecution() { return m_followExecution; }
    static int debuggerUpdateRate() { return m_debuggerUpdateRate; }
    static int soundBufferDepth() { return m_soundBufferDepth; }
-   static QColor marginColor() { return m_marginColor; }
+   static QColor marginBackgroundColor() { return m_marginBackgroundColor; }
+   static QColor marginForegroundColor() { return m_marginForegroundColor; }
    static bool lineNumbersEnabled() { return m_lineNumbersEnabled; }
    static QColor highlightBarColor() { return m_highlightBarColor; }
    static bool highlightBarEnabled() { return m_highlightBarEnabled; }
@@ -67,16 +68,19 @@ private:
    static bool m_followExecution;
    static int m_debuggerUpdateRate;
    static int m_soundBufferDepth;
-   static QColor m_marginColor;
+   static QColor m_marginBackgroundColor;
+   static QColor m_marginForegroundColor;
    static bool m_lineNumbersEnabled;
    static QColor m_highlightBarColor;
    static bool m_highlightBarEnabled;
 
 private slots:
+   void on_fontSize_valueChanged(int value);
    void on_showLineNumberMargin_toggled(bool checked);
    void on_showHighlightBar_toggled(bool checked);
    void on_highlightBarColor_clicked();
-   void on_marginColor_clicked();
+   void on_marginBackgroundColor_clicked();
+   void on_marginForegroundColor_clicked();
    void on_backgroundColor_clicked();
    void on_styleColor_clicked();
    void on_styleFont_currentIndexChanged(QString font);

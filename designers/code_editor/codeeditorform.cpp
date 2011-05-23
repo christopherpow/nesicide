@@ -24,6 +24,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 {
    QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
    QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
+   QSettings settings;
 
    ui->setupUi(this);
 
@@ -32,9 +33,13 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_lexer = new QsciLexerCA65(m_scintilla);
    m_scintilla->setLexer(m_lexer);
 
+   m_lexer->readSettings(settings,"CodeEditor");
+
    m_scintilla->installEventFilter(this);
 
-   m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginColor());
+   m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
+   m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
+   m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
 
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
    m_scintilla->setMarginWidth(3,0);
@@ -100,10 +105,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
    m_fileName = fileName;
-
-   QSettings settings;
-
-   m_lexer->readSettings(settings,"CodeEditor");
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);

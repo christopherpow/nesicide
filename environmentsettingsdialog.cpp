@@ -18,7 +18,8 @@ bool EnvironmentSettingsDialog::m_runRomOnLoad;
 bool EnvironmentSettingsDialog::m_followExecution;
 int EnvironmentSettingsDialog::m_debuggerUpdateRate;
 int EnvironmentSettingsDialog::m_soundBufferDepth;
-QColor EnvironmentSettingsDialog::m_marginColor;
+QColor EnvironmentSettingsDialog::m_marginBackgroundColor;
+QColor EnvironmentSettingsDialog::m_marginForegroundColor;
 bool EnvironmentSettingsDialog::m_lineNumbersEnabled;
 QColor EnvironmentSettingsDialog::m_highlightBarColor;
 bool EnvironmentSettingsDialog::m_highlightBarEnabled;
@@ -66,6 +67,8 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
    m_lexer = new QsciLexerCA65(m_scintilla);
    m_scintilla->setLexer(m_lexer);
+
+   m_lexer->readSettings(settings,"CodeEditor");
 
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
@@ -119,11 +122,11 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
       m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
    }
 
-   m_lexer->readSettings(settings,"CodeEditor");
-
    m_scintilla->setText(exampleText);
 
-   m_scintilla->setMarginsBackgroundColor(m_marginColor);
+   m_scintilla->setMarginsBackgroundColor(m_marginBackgroundColor);
+   m_scintilla->setMarginsForegroundColor(m_marginForegroundColor);
+   m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
 
    m_scintilla->markerAdd(1,Marker_Execution);
    m_scintilla->markerAdd(1,Marker_Highlight);
@@ -204,13 +207,21 @@ void EnvironmentSettingsDialog::readSettings()
    m_followExecution = settings.value("followExecution",QVariant(true)).toBool();
    m_debuggerUpdateRate = settings.value("debuggerUpdateRate",QVariant(0)).toInt();
    m_soundBufferDepth = settings.value("soundBufferDepth",QVariant(1024)).toInt();
-   if ( settings.contains("marginColor") )
+   if ( settings.contains("marginBackgroundColor") )
    {
-      m_marginColor = settings.value("marginColor").value<QColor>();
+      m_marginBackgroundColor = settings.value("marginBackgroundColor").value<QColor>();
    }
    else
    {
-      m_marginColor = QColor(235,235,235);
+      m_marginBackgroundColor = QColor(235,235,235);
+   }
+   if ( settings.contains("marginForegroundColor") )
+   {
+      m_marginForegroundColor = settings.value("marginForegroundColor").value<QColor>();
+   }
+   else
+   {
+      m_marginForegroundColor = QColor(0,0,0);
    }
    if ( settings.contains("highlightBarColor") )
    {
@@ -276,7 +287,8 @@ void EnvironmentSettingsDialog::writeSettings()
 
    settings.setValue("soundBufferDepth",m_soundBufferDepth);
 
-   settings.setValue("marginColor",m_marginColor);
+   settings.setValue("marginBackgroundColor",m_marginBackgroundColor);
+   settings.setValue("marginForegroundColor",m_marginForegroundColor);
    settings.setValue("highlightBarColor",m_highlightBarColor);
    settings.setValue("highlightBarEnabled",m_highlightBarEnabled);
    settings.setValue("lineNumbersEnabled",m_lineNumbersEnabled);
@@ -397,6 +409,7 @@ void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
    ui->fontBold->setChecked(font.bold());
    ui->fontItalic->setChecked(font.italic());
    ui->fontUnderline->setChecked(font.underline());
+   ui->fontSize->setValue(font.pointSize());
 }
 
 void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
@@ -434,7 +447,12 @@ void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontNam
    font.setBold(ui->fontBold->isChecked());
    font.setItalic(ui->fontItalic->isChecked());
    font.setUnderline(ui->fontUnderline->isChecked());
+   font.setPointSize(ui->fontSize->value());
    m_lexer->setFont(font,style);
+   if ( style == QsciLexerCA65::CA65_Default )
+   {
+      m_scintilla->setMarginsFont(font);
+   }
 }
 
 void EnvironmentSettingsDialog::on_styleColor_clicked()
@@ -467,17 +485,31 @@ void EnvironmentSettingsDialog::on_backgroundColor_clicked()
    }
 }
 
-void EnvironmentSettingsDialog::on_marginColor_clicked()
+void EnvironmentSettingsDialog::on_marginBackgroundColor_clicked()
 {
    QSettings settings;
    QColorDialog dlg;
 
-   dlg.setCurrentColor(m_marginColor);
+   dlg.setCurrentColor(m_marginBackgroundColor);
 
    if (dlg.exec() == QColorDialog::Accepted)
    {
-      m_marginColor = dlg.selectedColor();
-      m_scintilla->setMarginsBackgroundColor(m_marginColor);
+      m_marginBackgroundColor = dlg.selectedColor();
+      m_scintilla->setMarginsBackgroundColor(m_marginBackgroundColor);
+   }
+}
+
+void EnvironmentSettingsDialog::on_marginForegroundColor_clicked()
+{
+   QSettings settings;
+   QColorDialog dlg;
+
+   dlg.setCurrentColor(m_marginForegroundColor);
+
+   if (dlg.exec() == QColorDialog::Accepted)
+   {
+      m_marginForegroundColor = dlg.selectedColor();
+      m_scintilla->setMarginsForegroundColor(m_marginForegroundColor);
    }
 }
 
@@ -521,5 +553,22 @@ void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
    else
    {
       m_scintilla->setMarginWidth(Margin_LineNumbers,0);
+   }
+}
+
+void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
+{
+   QSettings settings;
+   int style = 0;
+   while ( !m_lexer->description(style).isEmpty() )
+   {
+      QFont font = m_lexer->font(style);
+      font.setPointSize(value);
+      m_lexer->setFont(font,style);
+      if ( style == QsciLexerCA65::CA65_Default )
+      {
+         m_scintilla->setMarginsFont(font);
+      }
+      style++;
    }
 }
