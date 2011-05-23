@@ -4,6 +4,7 @@
 #include <QDockWidget>
 
 #include "csymbolwatchmodel.h"
+#include "cdebuggernumericitemdelegate.h"
 
 namespace Ui {
     class SymbolWatchDockWidget;
@@ -20,6 +21,7 @@ public:
 private:
     Ui::SymbolWatchDockWidget *ui;
     CSymbolWatchModel* model;
+    CDebuggerNumericItemDelegate* delegate;
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H

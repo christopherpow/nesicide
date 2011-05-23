@@ -16,7 +16,9 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QW
 {
    ui->setupUi(this);
    binaryModel = new CDebuggerMemoryDisplayModel(this,display);
+   binaryDelegate = new CDebuggerNumericItemDelegate();
    ui->binaryView->setModel(binaryModel);
+   ui->binaryView->setItemDelegate(binaryDelegate);
    bitfieldModel = new CDebuggerRegisterDisplayModel(this,display);
    bitfieldDelegate = new CDebuggerRegisterComboBoxDelegate();
    ui->bitfieldView->setModel(bitfieldModel);
@@ -74,8 +76,8 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QW
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
 
    // Connect inter-model signals so the models can update each other.
-   QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
-   QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMemory()) );
+   QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), binaryModel, SLOT(update()) );
+   QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), bitfieldModel, SLOT(update()) );
    QObject::connect ( ui->binaryView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(binaryView_currentChanged(QModelIndex,QModelIndex)) );
 }
 
@@ -83,6 +85,7 @@ RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
 {
    delete ui;
    delete binaryModel;
+   delete binaryDelegate;
    delete bitfieldModel;
    delete bitfieldDelegate;
 }
@@ -118,6 +121,12 @@ void RegisterInspectorDockWidget::changeEvent(QEvent* e)
       default:
          break;
    }
+}
+
+void RegisterInspectorDockWidget::updateDisplay ()
+{
+   ui->binaryView->repaint();
+   ui->bitfieldView->repaint();
 }
 
 void RegisterInspectorDockWidget::updateMemory ()

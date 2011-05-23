@@ -4,6 +4,7 @@
 #include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggerregisterdisplaymodel.h"
 #include "cdebuggerregistercomboboxdelegate.h"
+#include "cdebuggernumericitemdelegate.h"
 #include "cregisterdata.h"
 
 #include <QDockWidget>
@@ -28,12 +29,14 @@ protected:
 
 public slots:
    void updateMemory();
+   void updateDisplay();
 
 private:
    Ui::RegisterInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* binaryModel;
    CDebuggerRegisterDisplayModel* bitfieldModel;
    CDebuggerRegisterComboBoxDelegate* bitfieldDelegate;
+   CDebuggerNumericItemDelegate* binaryDelegate;
    CRegisterData** m_tblRegisters;
    eMemoryType m_display;
    int m_register;

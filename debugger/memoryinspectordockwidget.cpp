@@ -16,7 +16,9 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidge
    ui->setupUi(this);
 
    model = new CDebuggerMemoryDisplayModel(this,display);
+   delegate = new CDebuggerNumericItemDelegate();
    ui->tableView->setModel(model);
+   ui->tableView->setItemDelegate(delegate);
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
@@ -34,6 +36,7 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
 {
    delete ui;
    delete model;
+   delete delegate;
 }
 
 void MemoryInspectorDockWidget::showEvent(QShowEvent* e)

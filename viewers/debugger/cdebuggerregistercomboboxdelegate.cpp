@@ -69,7 +69,7 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget* editor,
    else
    {
       QLineEdit* edit = static_cast<QLineEdit*>(editor);
-      edit->setText(index.model()->data(index, Qt::EditRole).toString());
+      edit->setText(index.model()->data(index, Qt::DisplayRole).toString());
    }
 }
 

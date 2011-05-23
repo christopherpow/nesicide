@@ -2,6 +2,7 @@
 #define MEMORYINSPECTORDOCKWIDGET_H
 
 #include "cdebuggermemorydisplaymodel.h"
+#include "cdebuggernumericitemdelegate.h"
 #include "cregisterdata.h"
 
 #include <QDockWidget>
@@ -33,6 +34,7 @@ signals:
 private:
    Ui::MemoryInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* model;
+   CDebuggerNumericItemDelegate* delegate;
    eMemoryType m_display;
 
 private slots:

@@ -23,6 +23,9 @@
     </property>
     <item row="0" column="0">
      <widget class="QTableView" name="tableView">
+      <property name="editTriggers">
+       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
       <property name="dragEnabled">
        <bool>false</bool>
       </property>
