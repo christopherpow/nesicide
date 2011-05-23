@@ -867,7 +867,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 {
    ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
 
-   if (projectItem)
+   if ( projectItem && projectItem->isModified() )
    {
       ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
    }
@@ -885,7 +885,6 @@ void MainWindow::on_actionSave_Active_Document_triggered()
    {
       projectItem->onSaveDocument();
    }
-
 }
 
 void MainWindow::reflectedOutput_Window_close(bool toplevel)

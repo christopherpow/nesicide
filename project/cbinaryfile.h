@@ -13,12 +13,13 @@ public:
    CBinaryFile(IProjectTreeViewItem* parent);
    virtual ~CBinaryFile();
 
-   QByteArray* getBinaryData();
-   void setBinaryData(QByteArray* newBinaryData);
+   QByteArray getBinaryData();
+   void setBinaryData(const QByteArray& newBinaryData);
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+   virtual bool deserializeContent();
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
@@ -42,7 +43,7 @@ public:
 
    // IChrRomBankItem Interface Implementation
    virtual int getChrRomBankItemSize();
-   virtual QByteArray* getChrRomBankItemData();
+   virtual QByteArray getChrRomBankItemData();
    virtual QIcon getChrRomBankItemIcon();
    virtual QString getItemType()
    {
@@ -51,7 +52,7 @@ public:
 
 private:
    // Attributes
-   QByteArray* m_binaryData;
+   QByteArray m_binaryData;
 };
 
 #endif // CBINARYFILE_H

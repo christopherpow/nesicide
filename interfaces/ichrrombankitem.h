@@ -9,7 +9,7 @@ class IChrRomBankItem
 {
 public:
    virtual int getChrRomBankItemSize() = 0;
-   virtual QByteArray* getChrRomBankItemData() = 0;
+   virtual QByteArray getChrRomBankItemData() = 0;
    virtual QIcon getChrRomBankItemIcon() = 0;
    virtual QString getItemType() = 0;
 };

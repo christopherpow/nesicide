@@ -38,7 +38,8 @@ void GraphicsBankEditorForm::changeEvent(QEvent* e)
 
 void GraphicsBankEditorForm::on_removeItemPushButton_clicked()
 {
-
+   setModified(true);
+   emit editor_modified(true);
 }
 
 void GraphicsBankEditorForm::on_AddItemPushButton_clicked()
@@ -60,6 +61,10 @@ void GraphicsBankEditorForm::on_AddItemPushButton_clicked()
 
       ui->progressBar->setValue(dataSize);
       model->layoutChangedEvent();
+
+      setModified(true);
+
+      emit editor_modified(true);
    }
 
    delete dlg;

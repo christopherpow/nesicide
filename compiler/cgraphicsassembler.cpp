@@ -43,7 +43,7 @@ bool CGraphicsAssembler::assemble()
                IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
                buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
 
-               chrRomFile.write(bankItem->getChrRomBankItemData()->data(), bankItem->getChrRomBankItemSize());
+               chrRomFile.write(bankItem->getChrRomBankItemData().data(), bankItem->getChrRomBankItemSize());
             }
          }
 
