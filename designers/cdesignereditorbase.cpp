@@ -6,6 +6,7 @@ CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *par
     QWidget(parent)
 {
    InitTabItem(link);
+   setModified(false);
 }
 
 bool CDesignerEditorBase::onCloseQuery()

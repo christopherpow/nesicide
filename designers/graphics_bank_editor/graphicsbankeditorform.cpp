@@ -7,10 +7,10 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 {
    ui->setupUi(this);
 
-   chrRomBankItems = bankItems;
-
    model = new CChrRomItemListDisplayModel(ui->tableView);
-   model->chrRomBankItems.append(chrRomBankItems);
+
+   updateChrRomBankItemList(bankItems);
+
    ui->tableView->setModel(model);
 
    ui->tableView->setColumnWidth(0, 26);
