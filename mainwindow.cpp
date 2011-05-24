@@ -397,6 +397,7 @@ MainWindow::~MainWindow()
    delete m_pMapperInformationInspector;
    delete m_pBinMapperMemoryInspector;
    delete m_pSourceNavigator;
+   delete m_pSymbolInspector;
 }
 
 void MainWindow::changeEvent(QEvent* e)

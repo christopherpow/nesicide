@@ -16,7 +16,7 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
     delegate = new CDebuggerNumericItemDelegate();
 
     ui->tableView->setModel(model);
-    ui->tableView->setItemDelegateForColumn(SymbolWatchCol_Value,delegate);
+    ui->tableView->setItemDelegate(delegate);
 }
 
 SymbolWatchDockWidget::~SymbolWatchDockWidget()

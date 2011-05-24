@@ -17,26 +17,36 @@ Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex&) const
 
 QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
 {
-   if ((role == Qt::DecorationRole) && (index.column() == 0))
-   {
-   }
-
    if (role != Qt::DisplayRole)
    {
       return QVariant();
    }
 
    // Get data for columns...
-   switch ( index.column() )
+   if ( index.row() < symbols.count() )
    {
-      case 0:
-         return QVariant("symbol");
-         break;
-      case 1:
-         return QVariant("23f0");
-         break;
+      switch ( index.column() )
+      {
+         case 0:
+            return symbols.at(index.row());
+            break;
+         case 1:
+            return QVariant("23f0");
+            break;
+      }
    }
-
+   else
+   {
+      switch ( index.column() )
+      {
+         case 0:
+            return QVariant("<click to add>");
+            break;
+         case 1:
+            return QVariant();
+            break;
+      }
+   }
    return QVariant();
 }
 
@@ -44,11 +54,28 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
 {
    bool ok = false;
 
-   if ( index.column() == 1 )
+   switch ( index.column() )
    {
+   case 0:
+      if ( index.row() < symbols.count() )
+      {
+         symbols.replace(index.row(),value.toString());
+         emit layoutChanged();
+         ok = true;
+      }
+      else
+      {
+         symbols.append(value.toString());
+         emit layoutChanged();
+         ok = true;
+      }
+      break;
+   case 1:
       emit dataChanged(index,index);
       ok = true;
+      break;
    }
+
    return ok;
 }
 
@@ -75,7 +102,7 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
 
 int CSymbolWatchModel::rowCount(const QModelIndex&) const
 {
-   return 1;
+   return symbols.count()+1;
 }
 
 int CSymbolWatchModel::columnCount(const QModelIndex&) const

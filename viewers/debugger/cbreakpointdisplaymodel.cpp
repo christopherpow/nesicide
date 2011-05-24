@@ -5,7 +5,7 @@
 #include <QIcon>
 
 static char modelStringBuffer [ 2048 ];
-   
+
 CBreakpointDisplayModel::CBreakpointDisplayModel(QObject*)
 {
 }

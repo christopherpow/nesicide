@@ -2,6 +2,7 @@
 #define CSYMBOLWATCHMODEL_H
 
 #include <QAbstractTableModel>
+#include <QStringList>
 
 class CSymbolWatchModel : public QAbstractTableModel
 {
@@ -18,6 +19,9 @@ public:
 
 public slots:
    void update();
+
+private:
+   QStringList symbols;
 };
 
 #endif // CSYMBOLWATCHMODEL_H

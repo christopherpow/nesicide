@@ -29,7 +29,6 @@ protected:
 
 public slots:
    void updateMemory();
-   void updateDisplay();
 
 private:
    Ui::RegisterInspectorDockWidget *ui;

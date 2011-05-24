@@ -61,8 +61,8 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QW
    ui->label->setText ( "" );
 
    // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateMemory()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
 
    // Connect signals to the models to have the model update.
@@ -121,12 +121,6 @@ void RegisterInspectorDockWidget::changeEvent(QEvent* e)
       default:
          break;
    }
-}
-
-void RegisterInspectorDockWidget::updateDisplay ()
-{
-   ui->binaryView->repaint();
-   ui->bitfieldView->repaint();
 }
 
 void RegisterInspectorDockWidget::updateMemory ()

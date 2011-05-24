@@ -625,7 +625,15 @@ void BreakpointDialog::on_addBreakpoint_clicked()
    }
    else
    {
-      item1Absolute = item1%nesGetPRGROMSize();
+      if ( nesGetPRGROMSize() )
+      {
+         item1Absolute = item1%nesGetPRGROMSize();
+      }
+      else
+      {
+         // CPTODO: hacky, shouldn't have to do this...but ugh!
+         item1Absolute = item1%MEM_16KB;
+      }
    }
    pBreakpoints->ConstructBreakpoint ( &m_breakpoint,
                                        (eBreakpointType)ui->type->currentIndex(),

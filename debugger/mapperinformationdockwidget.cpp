@@ -19,6 +19,9 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+
+   // Force UI update so it doesn't look uninitialized completely.
+   cartridgeLoaded();
 }
 
 MapperInformationDockWidget::~MapperInformationDockWidget()

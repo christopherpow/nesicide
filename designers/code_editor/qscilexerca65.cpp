@@ -271,8 +271,6 @@ QString QsciLexerCA65::description(int style) const
    }
 }
 
-#include "main.h"
-
 void QsciLexerCA65::styleText(int start, int end)
 {
    QByteArray   chars;
