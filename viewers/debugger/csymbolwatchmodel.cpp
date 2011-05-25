@@ -113,6 +113,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
          {
             nesSetCPUMemory(addr,value.toString().toInt(&ok,16));
          }
+         emit dataChanged(index,index);
          break;
    }
 

@@ -2,7 +2,6 @@
 #define CDEBUGGERSYMBOLDELEGATE_H
 
 #include <QStyledItemDelegate>
-#include <QComboBox>
 
 class CDebuggerSymbolDelegate : public QStyledItemDelegate
 {

@@ -6,6 +6,7 @@
 enum
 {
    SymbolWatchCol_Name,
+   SymbolWatchCol_Address,
    SymbolWatchCol_Value
 };
 

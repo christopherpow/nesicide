@@ -1,19 +1,21 @@
 #include "cdebuggersymboldelegate.h"
 
+//#include <QComboBox>
+#include <QLineEdit>
+#include <QCompleter>
+
 #include "ccc65interface.h"
 
 CDebuggerSymbolDelegate::CDebuggerSymbolDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
 }
-#include <QCompleter>
+
 QWidget* CDebuggerSymbolDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
       const QModelIndex& /* index */) const
 {
-   QComboBox* editor = new QComboBox(parent);
-   editor->setEditable(true);
-   editor->completer()->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+   QLineEdit* editor = new QLineEdit(parent);
 
    return editor;
 }
@@ -21,19 +23,19 @@ QWidget* CDebuggerSymbolDelegate::createEditor(QWidget* parent,
 void CDebuggerSymbolDelegate::setEditorData(QWidget* editor,
       const QModelIndex& index) const
 {
-   QComboBox* edit = static_cast<QComboBox*>(editor);
+   QLineEdit* edit = static_cast<QLineEdit*>(editor);
    QStringList symbols = CCC65Interface::getSymbolsForSourceFile("<CPTODO:fixme>");
-
-   edit->addItems(symbols);
-   edit->completer()->setCompletionPrefix(edit->currentText());
+   QCompleter* completer = new QCompleter(symbols);
+   completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+   edit->setCompleter(completer);
 }
 
 void CDebuggerSymbolDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
       const QModelIndex& index) const
 {
-   QComboBox* edit = static_cast<QComboBox*>(editor);
+   QLineEdit* edit = static_cast<QLineEdit*>(editor);
 
-   model->setData(index, edit->currentText(), Qt::EditRole);
+   model->setData(index, edit->text(), Qt::EditRole);
 }
 
 void CDebuggerSymbolDelegate::updateEditorGeometry(QWidget* editor,
