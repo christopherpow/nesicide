@@ -20,7 +20,10 @@ public:
    ~SymbolWatchDockWidget();
 
 protected:
-   void keyPressEvent(QKeyEvent *e);
+   void keyPressEvent(QKeyEvent *event);
+   void dragEnterEvent(QDragEnterEvent *event);
+   void dragMoveEvent(QDragMoveEvent *event);
+   void dropEvent(QDropEvent *event);
 
 private:
    Ui::SymbolWatchDockWidget *ui;

@@ -38,11 +38,50 @@ SymbolWatchDockWidget::~SymbolWatchDockWidget()
    delete symbolDelegate;
 }
 
-void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *e)
+void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
 {
-   if ( (e->key() == Qt::Key_Delete) &&
+   if ( (event->key() == Qt::Key_Delete) &&
         (ui->tableView->currentIndex().row() >= 0) )
    {
       model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
+   }
+}
+
+void SymbolWatchDockWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+   QString text;
+
+   if ( event->mimeData()->hasText() )
+   {
+      text = event->mimeData()->text();
+
+      event->acceptProposedAction();
+   }
+}
+
+void SymbolWatchDockWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+   QString text;
+
+   if ( event->mimeData()->hasText() )
+   {
+      text = event->mimeData()->text();
+
+      event->acceptProposedAction();
+   }
+}
+
+void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
+{
+   QString text;
+
+   if ( event->mimeData()->hasText() )
+   {
+      text = event->mimeData()->text();
+
+      model->insertRow(text,QModelIndex());
+      model->update();
+
+      event->acceptProposedAction();
    }
 }

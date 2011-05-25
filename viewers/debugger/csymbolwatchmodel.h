@@ -17,6 +17,7 @@ public:
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    void removeRow(int row, const QModelIndex &parent);
+   void insertRow(QString text, const QModelIndex &parent);
 
 public slots:
    void update();
