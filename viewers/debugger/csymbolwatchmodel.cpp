@@ -14,9 +14,13 @@ CSymbolWatchModel::~CSymbolWatchModel()
 {
 }
 
-Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex&) const
+Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
 {
-   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   if ( index.column() != 1 )
+   {
+      flags |= Qt::ItemIsEditable;
+   }
    return flags;
 }
 
@@ -41,7 +45,19 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
             if ( addr != 0xFFFFFFFF )
             {
-               sprintf(modelStringBuffer,"%04X - %02X",addr,nesGetCPUMemory(addr));
+               sprintf(modelStringBuffer,"%04X",addr);
+               return QVariant(modelStringBuffer);
+            }
+            else
+            {
+               return QVariant("ERROR: Unresolved");
+            }
+            break;
+         case 2:
+            addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
+            if ( addr != 0xFFFFFFFF )
+            {
+               sprintf(modelStringBuffer,"%02X",nesGetCPUMemory(addr));
                return QVariant(modelStringBuffer);
             }
             else
@@ -69,27 +85,35 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
 bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
    bool ok = false;
+   unsigned int addr;
 
    switch ( index.column() )
    {
-   case 0:
-      if ( index.row() < symbols.count() )
-      {
-         symbols.replace(index.row(),value.toString());
-         emit layoutChanged();
+      case 0:
+         if ( index.row() < symbols.count() )
+         {
+            symbols.replace(index.row(),value.toString());
+            emit layoutChanged();
+            ok = true;
+         }
+         else
+         {
+            symbols.append(value.toString());
+            emit layoutChanged();
+            ok = true;
+         }
+         break;
+      case 1:
+         emit dataChanged(index,index);
          ok = true;
-      }
-      else
-      {
-         symbols.append(value.toString());
-         emit layoutChanged();
-         ok = true;
-      }
-      break;
-   case 1:
-      emit dataChanged(index,index);
-      ok = true;
-      break;
+         break;
+      case 2:
+         addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
+         if ( addr != 0xFFFFFFFF )
+         {
+            nesSetCPUMemory(addr,value.toString().toInt(&ok,16));
+         }
+         break;
    }
 
    return ok;
@@ -110,6 +134,9 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
          return QString("Symbol");
          break;
       case 1:
+         return QString("Address");
+         break;
+      case 2:
          return QString("Value");
          break;
       }
@@ -123,7 +150,7 @@ int CSymbolWatchModel::rowCount(const QModelIndex&) const
 
 int CSymbolWatchModel::columnCount(const QModelIndex&) const
 {
-   return 2;
+   return 3;
 }
 
 void CSymbolWatchModel::update()
