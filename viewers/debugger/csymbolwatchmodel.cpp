@@ -158,3 +158,13 @@ void CSymbolWatchModel::update()
 {
    emit layoutChanged();
 }
+
+void CSymbolWatchModel::removeRow(int row, const QModelIndex &parent)
+{
+   if ( row < symbols.count() )
+   {
+      beginRemoveRows(parent,row,row);
+      symbols.removeAt(row);
+      endRemoveRows();
+   }
+}

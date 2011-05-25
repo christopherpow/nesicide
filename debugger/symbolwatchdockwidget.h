@@ -19,8 +19,8 @@ public:
    explicit SymbolWatchDockWidget(QWidget *parent = 0);
    ~SymbolWatchDockWidget();
 
-public slots:
-   void updateSymbols();
+protected:
+   void keyPressEvent(QKeyEvent *e);
 
 private:
    Ui::SymbolWatchDockWidget *ui;

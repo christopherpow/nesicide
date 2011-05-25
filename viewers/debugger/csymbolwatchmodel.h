@@ -16,6 +16,7 @@ public:
    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
+   void removeRow(int row, const QModelIndex &parent);
 
 public slots:
    void update();
