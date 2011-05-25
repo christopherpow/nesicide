@@ -238,7 +238,8 @@ SOURCES += mainwindow.cpp \
     common/emulatorcontrol.cpp \
     debugger/symbolwatchdockwidget.cpp \
     viewers/debugger/csymbolwatchmodel.cpp \
-    viewers/debugger/cdebuggernumericitemdelegate.cpp
+    viewers/debugger/cdebuggernumericitemdelegate.cpp \
+    viewers/debugger/cdebuggersymboldelegate.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -338,7 +339,8 @@ HEADERS += mainwindow.h \
     common/emulatorcontrol.h \
     debugger/symbolwatchdockwidget.h \
     viewers/debugger/csymbolwatchmodel.h \
-    viewers/debugger/cdebuggernumericitemdelegate.h
+    viewers/debugger/cdebuggernumericitemdelegate.h \
+    viewers/debugger/cdebuggersymboldelegate.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

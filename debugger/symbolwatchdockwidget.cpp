@@ -13,13 +13,18 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     model = new CSymbolWatchModel();
-    delegate = new CDebuggerNumericItemDelegate();
+    symbolDelegate = new CDebuggerSymbolDelegate();
+    valueDelegate = new CDebuggerNumericItemDelegate();
 
     ui->tableView->setModel(model);
-    ui->tableView->setItemDelegate(delegate);
+    ui->tableView->setItemDelegateForColumn(0,symbolDelegate);
+    ui->tableView->setItemDelegateForColumn(1,valueDelegate);
 }
 
 SymbolWatchDockWidget::~SymbolWatchDockWidget()
 {
     delete ui;
+    delete model;
+    delete valueDelegate;
+    delete symbolDelegate;
 }

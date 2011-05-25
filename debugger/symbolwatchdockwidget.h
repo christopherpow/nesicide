@@ -5,6 +5,7 @@
 
 #include "csymbolwatchmodel.h"
 #include "cdebuggernumericitemdelegate.h"
+#include "cdebuggersymboldelegate.h"
 
 namespace Ui {
     class SymbolWatchDockWidget;
@@ -21,7 +22,8 @@ public:
 private:
     Ui::SymbolWatchDockWidget *ui;
     CSymbolWatchModel* model;
-    CDebuggerNumericItemDelegate* delegate;
+    CDebuggerSymbolDelegate* symbolDelegate;
+    CDebuggerNumericItemDelegate* valueDelegate;
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H
