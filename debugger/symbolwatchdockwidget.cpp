@@ -27,6 +27,7 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
 
    // CPTODO: might not need this
    QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateSymbols()));

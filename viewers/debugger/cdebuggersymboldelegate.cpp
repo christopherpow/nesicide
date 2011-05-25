@@ -26,8 +26,10 @@ void CDebuggerSymbolDelegate::setEditorData(QWidget* editor,
    QLineEdit* edit = static_cast<QLineEdit*>(editor);
    QStringList symbols = CCC65Interface::getSymbolsForSourceFile("<CPTODO:fixme>");
    QCompleter* completer = new QCompleter(symbols);
-   completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+   completer->setCompletionMode(QCompleter::PopupCompletion);
+   completer->setCompletionPrefix(index.data(Qt::DisplayRole).toString());
    edit->setCompleter(completer);
+   edit->setText(index.data(Qt::DisplayRole).toString());
 }
 
 void CDebuggerSymbolDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
@@ -35,7 +37,10 @@ void CDebuggerSymbolDelegate::setModelData(QWidget* editor, QAbstractItemModel* 
 {
    QLineEdit* edit = static_cast<QLineEdit*>(editor);
 
-   model->setData(index, edit->text(), Qt::EditRole);
+   if ( !edit->text().isEmpty() )
+   {
+      model->setData(index, edit->text(), Qt::EditRole);
+   }
 }
 
 void CDebuggerSymbolDelegate::updateEditorGeometry(QWidget* editor,
