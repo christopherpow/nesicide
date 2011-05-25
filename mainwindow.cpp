@@ -766,7 +766,7 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings;
-
+qDebug("saving settings");
    settings.setValue("IDEGeometry",saveGeometry());
    settings.setValue("IDEState",saveState());
 
@@ -1435,5 +1435,4 @@ void MainWindow::on_actionRun_Test_Suite_triggered()
 
 void MainWindow::on_actionE_xit_triggered()
 {
-    this->close();
 }
