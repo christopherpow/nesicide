@@ -5,6 +5,8 @@
 
 static char modelStringBuffer [ 2048 ];
 
+static const char* CLICK_TO_ADD = "<click to add>";
+
 CSymbolWatchModel::CSymbolWatchModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
@@ -72,7 +74,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
       switch ( index.column() )
       {
          case 0:
-            return QVariant("<click to add>");
+            return QVariant(CLICK_TO_ADD);
             break;
          case 1:
             return QVariant();
@@ -98,9 +100,13 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
          }
          else
          {
-            symbols.append(value.toString());
-            emit layoutChanged();
-            ok = true;
+            if ( (!value.toString().isEmpty()) &&
+                 (value != CLICK_TO_ADD) )
+            {
+               symbols.append(value.toString());
+               emit layoutChanged();
+               ok = true;
+            }
          }
          break;
       case 1:
