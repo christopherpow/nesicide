@@ -18,6 +18,7 @@ public:
    static bool captureINESImage();
    static QStringList getSourceFiles();
    static QStringList getSymbolsForSourceFile(QString sourceFile);
+   static unsigned int getSymbolAddress(QString symbol);
    static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static unsigned int getAddressFromFileAndLine(QString file,int line);

@@ -262,6 +262,26 @@ QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
    return symbols;
 }
 
+unsigned int CCC65Interface::getSymbolAddress(QString symbol)
+{
+   unsigned int addr = 0xFFFFFFFF;
+
+   if ( dbgInfo )
+   {
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         if ( (dbgSymbols->count == 1) &&
+              (dbgSymbols->data[0].symbol_type == CC65_SYM_LABEL) )
+         {
+            addr = dbgSymbols->data[0].symbol_value;
+         }
+      }
+   }
+   return addr;
+}
+
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int  line;

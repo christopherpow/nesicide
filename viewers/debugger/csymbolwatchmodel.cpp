@@ -1,5 +1,10 @@
 #include "csymbolwatchmodel.h"
 
+#include "ccc65interface.h"
+#include "emulator_core.h"
+
+static char modelStringBuffer [ 2048 ];
+
 CSymbolWatchModel::CSymbolWatchModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
@@ -17,6 +22,8 @@ Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex&) const
 
 QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
 {
+   unsigned int addr;
+
    if (role != Qt::DisplayRole)
    {
       return QVariant();
@@ -31,7 +38,16 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             return symbols.at(index.row());
             break;
          case 1:
-            return QVariant("23f0");
+            addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
+            if ( addr != 0xFFFFFFFF )
+            {
+               sprintf(modelStringBuffer,"%04X - %02X",addr,nesGetCPUMemory(addr));
+               return QVariant(modelStringBuffer);
+            }
+            else
+            {
+               return QVariant("ERROR: Unresolved");
+            }
             break;
       }
    }

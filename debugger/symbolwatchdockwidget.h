@@ -8,22 +8,25 @@
 #include "cdebuggersymboldelegate.h"
 
 namespace Ui {
-    class SymbolWatchDockWidget;
+   class SymbolWatchDockWidget;
 }
 
 class SymbolWatchDockWidget : public QDockWidget
 {
-    Q_OBJECT
+   Q_OBJECT
 
 public:
-    explicit SymbolWatchDockWidget(QWidget *parent = 0);
-    ~SymbolWatchDockWidget();
+   explicit SymbolWatchDockWidget(QWidget *parent = 0);
+   ~SymbolWatchDockWidget();
+
+public slots:
+   void updateSymbols();
 
 private:
-    Ui::SymbolWatchDockWidget *ui;
-    CSymbolWatchModel* model;
-    CDebuggerSymbolDelegate* symbolDelegate;
-    CDebuggerNumericItemDelegate* valueDelegate;
+   Ui::SymbolWatchDockWidget *ui;
+   CSymbolWatchModel* model;
+   CDebuggerSymbolDelegate* symbolDelegate;
+   CDebuggerNumericItemDelegate* valueDelegate;
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H
