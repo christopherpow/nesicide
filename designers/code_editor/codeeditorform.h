@@ -48,6 +48,7 @@ protected:
    void changeEvent(QEvent *e);
    void contextMenuEvent(QContextMenuEvent *e);
    bool eventFilter(QObject *obj, QEvent *event);
+   void timerEvent(QTimerEvent *e);
 
 private:
    Ui::CodeEditorForm* ui;
@@ -55,6 +56,7 @@ private:
    QsciScintilla* m_scintilla;
    QsciLexerCA65* m_lexer;
    int m_breakpointIndex;
+   int m_timer;
 
 signals:
    void breakpointsChanged();
@@ -63,6 +65,7 @@ private slots:
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
    void editor_linesChanged();
    void editor_modificationChanged(bool m);
+   void editor_copyAvailable(bool yes);
    void external_breakpointsChanged();
    void compiler_compileStarted();
    void compiler_compileDone(bool ok);

@@ -37,6 +37,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_scintilla->installEventFilter(this);
 
+   // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
+   m_timer = startTimer(500);
+
    m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
    m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
    m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
@@ -84,24 +87,21 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
       m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
    }
 
+   // Connect signals from Scintilla to update the UI.
    QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
    QObject::connect(m_scintilla,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+   QObject::connect(m_scintilla,SIGNAL(copyAvailable(bool)),this,SLOT(editor_copyAvailable(bool)));
 
    ui->gridLayout->addWidget(m_scintilla);
 
-   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
-
    // Connect signals to the UI to have the UI update.
+   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
-
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
-
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
-
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
-
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
    m_fileName = fileName;
@@ -237,6 +237,38 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
    menu.exec(e->globalPos());
 
 //   delete pMenu;
+}
+
+void CodeEditorForm::timerEvent(QTimerEvent *e)
+{
+   QString    symbol;
+   QString    toolTipText;
+   unsigned int addr;
+
+   if ( e->timerId() == m_timer )
+   {
+      // Figure out if there's anything useful we can ToolTip.
+      symbol = m_scintilla->wordAtPoint(mapFromGlobal(QCursor::pos()));
+
+      if ( !symbol.isEmpty() )
+      {
+         addr = CCC65Interface::getSymbolAddress(symbol);
+
+         if ( addr != 0xFFFFFFFF )
+         {
+            toolTipText = symbol + " @" + QString::number(addr,16) + ": " + QString::number(nesGetCPUMemory(addr),16);
+            setToolTip(toolTipText);
+         }
+         else
+         {
+            setToolTip("");
+         }
+      }
+      else
+      {
+         setToolTip("");
+      }
+   }
 }
 
 void CodeEditorForm::compiler_compileStarted()
@@ -398,6 +430,39 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
       }
 
       emit breakpointsChanged();
+   }
+}
+
+void CodeEditorForm::editor_copyAvailable(bool yes)
+{
+   QString    symbol;
+   QString    toolTipText;
+   int lineFrom;
+   int lineTo;
+   int indexFrom;
+   int indexTo;
+   unsigned int addr;
+
+   setToolTip("");
+
+   if ( yes )
+   {
+      // Figure out if there's anything useful we can ToolTip.
+      m_scintilla->getSelection(&lineFrom,&indexFrom,&lineTo,&indexTo);
+
+      // Only do this if only some characters of a single line are selected.
+      if ( lineFrom == lineTo )
+      {
+         symbol = m_scintilla->selectedText();
+
+         addr = CCC65Interface::getSymbolAddress(symbol);
+
+         if ( addr != 0xFFFFFFFF )
+         {
+            toolTipText = symbol + " @" + QString::number(addr,16) + ": " + QString::number(nesGetCPUMemory(addr),16);
+            setToolTip(toolTipText);
+         }
+      }
    }
 }
 
