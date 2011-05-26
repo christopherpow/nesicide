@@ -2576,11 +2576,14 @@ const char* OPCODEINFO(const char* op)
 {
    int i;
 
-   for ( i = 0; i < 256; i++ )
+   if ( strlen(op) == 3 )
    {
-      if ( strncasecmp((m_6502opcode+i)->name,op,3) == 0 )
+      for ( i = 0; i < 256; i++ )
       {
-         return *(m_6502opcodeInfo+i);
+         if ( strncasecmp((m_6502opcode+i)->name,op,3) == 0 )
+         {
+            return *(m_6502opcodeInfo+i);
+         }
       }
    }
 

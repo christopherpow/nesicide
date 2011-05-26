@@ -451,14 +451,31 @@ void CodeEditorForm::editor_copyAvailable(bool yes)
 void CodeEditorForm::updateToolTip(QString symbol)
 {
    const char* TOOLTIP = "<b>%s</b><br>Address: %04X<br>Value: %02X";
+   const char* opcodeToolTipText;
+   QString     opcodeToolTipForm;
    unsigned int addr;
 
-   addr = CCC65Interface::getSymbolAddress(symbol);
-
-   if ( addr != 0xFFFFFFFF )
+   // First check for opcode tooltips.
+   if ( EnvironmentSettingsDialog::showOpcodeTips() )
    {
-      sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetCPUMemory(addr));
-      setToolTip(toolTipText);
+      opcodeToolTipText = OPCODEINFO(symbol.toAscii().constData());
+      if ( opcodeToolTipText )
+      {
+         opcodeToolTipForm.sprintf("<pre>%s</pre>",opcodeToolTipText);
+         setToolTip(opcodeToolTipForm.toAscii().constData());
+      }
+   }
+
+   // Next check for symbol tooltips.
+   if ( EnvironmentSettingsDialog::showSymbolTips() )
+   {
+      addr = CCC65Interface::getSymbolAddress(symbol);
+
+      if ( addr != 0xFFFFFFFF )
+      {
+         sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetCPUMemory(addr));
+         setToolTip(toolTipText);
+      }
    }
 }
 

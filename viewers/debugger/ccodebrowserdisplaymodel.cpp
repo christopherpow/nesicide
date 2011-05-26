@@ -1,5 +1,7 @@
 #include "ccodebrowserdisplaymodel.h"
 
+#include "environmentsettingsdialog.h"
+
 #include "dbg_cnes.h"
 #include "dbg_cnesrom.h"
 #include "dbg_cnes6502.h"
@@ -48,21 +50,24 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
    if ( role == Qt::ToolTipRole )
    {
-      if ( addr != -1 )
+      if ( EnvironmentSettingsDialog::showOpcodeTips() )
       {
-         if ( index.column() == Column_Disassembly )
+         if ( addr != -1 )
          {
-            CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
-            return QVariant(modelStringBuffer);
-         }
-         else if ( index.column() > Column_Address )
-         {
-            opSize = OPCODESIZE ( nesGetMemory(addr) );
-
-            if ( opSize > (index.column()-Column_Opcode) )
+            if ( index.column() == Column_Disassembly )
             {
-               CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-Column_Opcode),modelStringBuffer);
+               CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
                return QVariant(modelStringBuffer);
+            }
+            else if ( index.column() > Column_Address )
+            {
+               opSize = OPCODESIZE ( nesGetMemory(addr) );
+
+               if ( opSize > (index.column()-Column_Opcode) )
+               {
+                  CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-Column_Opcode),modelStringBuffer);
+                  return QVariant(modelStringBuffer);
+               }
             }
          }
       }

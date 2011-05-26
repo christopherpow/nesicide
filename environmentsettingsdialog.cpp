@@ -23,6 +23,8 @@ QColor EnvironmentSettingsDialog::m_marginForegroundColor;
 bool EnvironmentSettingsDialog::m_lineNumbersEnabled;
 QColor EnvironmentSettingsDialog::m_highlightBarColor;
 bool EnvironmentSettingsDialog::m_highlightBarEnabled;
+bool EnvironmentSettingsDialog::m_showSymbolTips;
+bool EnvironmentSettingsDialog::m_showOpcodeTips;
 
 static const char* debuggerUpdateRateMsgs[] =
 {
@@ -180,6 +182,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->showHighlightBar->setChecked(m_highlightBarEnabled);
    ui->showLineNumberMargin->setChecked(m_lineNumbersEnabled);
 
+   ui->showSymbolTips->setChecked(m_showSymbolTips);
+   ui->showOpcodeTips->setChecked(m_showOpcodeTips);
+
    ui->tabWidget->setCurrentIndex(m_lastActiveTab);
 }
 
@@ -233,6 +238,8 @@ void EnvironmentSettingsDialog::readSettings()
    }
    m_highlightBarEnabled = settings.value("highlightBarEnabled",QVariant(true)).toBool();
    m_lineNumbersEnabled = settings.value("lineNumbersEnabled",QVariant(true)).toBool();
+   m_showSymbolTips = settings.value("showSymbolTips",QVariant(true)).toBool();
+   m_showOpcodeTips = settings.value("showOpcodeTips",QVariant(true)).toBool();
    m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    settings.endGroup();
 }
@@ -266,6 +273,8 @@ void EnvironmentSettingsDialog::writeSettings()
    m_soundBufferDepth = ui->soundBufferDepth->value();
    m_highlightBarEnabled = ui->showHighlightBar->isChecked();
    m_lineNumbersEnabled = ui->showLineNumberMargin->isChecked();
+   m_showSymbolTips = ui->showSymbolTips->isChecked();
+   m_showOpcodeTips = ui->showOpcodeTips->isChecked();
    m_lastActiveTab = ui->tabWidget->currentIndex();
 
    // Then save to QSettings;
@@ -292,6 +301,8 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("highlightBarColor",m_highlightBarColor);
    settings.setValue("highlightBarEnabled",m_highlightBarEnabled);
    settings.setValue("lineNumbersEnabled",m_lineNumbersEnabled);
+   settings.setValue("showSymbolTips",m_showSymbolTips);
+   settings.setValue("showOpcodeTips",m_showOpcodeTips);
    settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
 

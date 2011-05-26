@@ -40,6 +40,8 @@ public:
    static bool lineNumbersEnabled() { return m_lineNumbersEnabled; }
    static QColor highlightBarColor() { return m_highlightBarColor; }
    static bool highlightBarEnabled() { return m_highlightBarEnabled; }
+   static bool showSymbolTips() { return m_showSymbolTips; }
+   static bool showOpcodeTips() { return m_showOpcodeTips; }
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
 
@@ -73,6 +75,8 @@ private:
    static bool m_lineNumbersEnabled;
    static QColor m_highlightBarColor;
    static bool m_highlightBarEnabled;
+   static bool m_showSymbolTips;
+   static bool m_showOpcodeTips;
 
 private slots:
    void on_fontSize_valueChanged(int value);
