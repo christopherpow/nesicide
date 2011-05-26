@@ -63,7 +63,9 @@ bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node, QString& err
 {
    QDomNode childNode = node.firstChild();
 
-   if (!childNode.isNull()) do
+   if (!childNode.isNull())
+   {
+      do
       {
          if (childNode.nodeName() == "graphicsbank")
          {
@@ -81,8 +83,8 @@ bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node, QString& err
          {
             return false;
          }
-      }
-      while (!(childNode = childNode.nextSibling()).isNull());
+      } while (!(childNode = childNode.nextSibling()).isNull());
+   }
 
    return true;
 }

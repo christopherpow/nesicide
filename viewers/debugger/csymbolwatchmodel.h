@@ -19,11 +19,14 @@ public:
    void removeRow(int row, const QModelIndex &parent);
    void insertRow(QString text, const QModelIndex &parent);
 
+   QStringList getSymbols() { return m_symbols; }
+   void setSymbols(QStringList symbols) { m_symbols = symbols; }
+
 public slots:
    void update();
 
 private:
-   QStringList symbols;
+   QStringList m_symbols;
 };
 
 #endif // CSYMBOLWATCHMODEL_H

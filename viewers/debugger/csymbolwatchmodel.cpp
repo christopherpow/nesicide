@@ -36,15 +36,15 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    }
 
    // Get data for columns...
-   if ( index.row() < symbols.count() )
+   if ( index.row() < m_symbols.count() )
    {
       switch ( index.column() )
       {
          case 0:
-            return symbols.at(index.row());
+            return m_symbols.at(index.row());
             break;
          case 1:
-            addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
+            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()));
             if ( addr != 0xFFFFFFFF )
             {
                sprintf(modelStringBuffer,"%04X",addr);
@@ -56,7 +56,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             }
             break;
          case 2:
-            addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
+            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()));
             if ( addr != 0xFFFFFFFF )
             {
                sprintf(modelStringBuffer,"%02X",nesGetCPUMemory(addr));
@@ -95,9 +95,9 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
    switch ( index.column() )
    {
       case 0:
-         if ( index.row() < symbols.count() )
+         if ( index.row() < m_symbols.count() )
          {
-            symbols.replace(index.row(),value.toString());
+            m_symbols.replace(index.row(),value.toString());
             emit layoutChanged();
             ok = true;
          }
@@ -106,7 +106,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
             if ( (!value.toString().isEmpty()) &&
                  (value != CLICK_TO_ADD) )
             {
-               symbols.append(value.toString());
+               m_symbols.append(value.toString());
                emit layoutChanged();
                ok = true;
             }
@@ -116,9 +116,9 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
          ok = false;
          break;
       case 2:
-         if ( index.row() < symbols.count() )
+         if ( index.row() < m_symbols.count() )
          {
-            addr = CCC65Interface::getSymbolAddress(symbols.at(index.row()));
+            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()));
             if ( addr != 0xFFFFFFFF )
             {
                nesSetCPUMemory(addr,value.toString().toInt(&ok,16));
@@ -157,7 +157,7 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
 
 int CSymbolWatchModel::rowCount(const QModelIndex&) const
 {
-   return symbols.count()+1;
+   return m_symbols.count()+1;
 }
 
 int CSymbolWatchModel::columnCount(const QModelIndex&) const
@@ -172,17 +172,17 @@ void CSymbolWatchModel::update()
 
 void CSymbolWatchModel::removeRow(int row, const QModelIndex &parent)
 {
-   if ( row < symbols.count() )
+   if ( row < m_symbols.count() )
    {
       beginRemoveRows(parent,row,row);
-      symbols.removeAt(row);
+      m_symbols.removeAt(row);
       endRemoveRows();
    }
 }
 
 void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
 {
-   beginInsertRows(parent,symbols.count(),symbols.count());
-   symbols.append(text);
+   beginInsertRows(parent,m_symbols.count(),m_symbols.count());
+   m_symbols.append(text);
    endInsertRows();
 }

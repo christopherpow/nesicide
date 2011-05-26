@@ -2,6 +2,7 @@
 #include "main.h"
 
 #include "cnessystempalette.h"
+#include "cdockwidgetregistry.h"
 
 CNesicideProject::CNesicideProject()
 {
@@ -124,6 +125,11 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
 
+   QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
+
+   SymbolWatchDockWidget* pInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+   pInspector->serialize(doc,inspectorsElement);
+
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
 
@@ -192,7 +198,12 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 
    do
    {
-      if (child.nodeName() == "properties")
+      if (child.nodeName() == "inspectors")
+      {
+         SymbolWatchDockWidget* pInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+         pInspector->deserialize(doc,child,errors);
+      }
+      else if (child.nodeName() == "properties")
       {
          // Get the properties that are just attributes of the main node.
          QDomElement propertiesElement = child.toElement();

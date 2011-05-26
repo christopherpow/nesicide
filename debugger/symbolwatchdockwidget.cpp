@@ -80,8 +80,55 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
       text = event->mimeData()->text();
 
       model->insertRow(text,QModelIndex());
-      model->update();
 
       event->acceptProposedAction();
    }
+}
+
+bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
+{
+   QDomElement element = addElement( doc, node, "symbolinspector" );
+   QStringList symbols = model->getSymbols();
+
+   for (int i=0; i < symbols.count(); i++)
+   {
+      QDomElement symbolElement = addElement( doc, element, "symbol" );
+      symbolElement.setAttribute("name",symbols.at(i));
+   }
+
+   return true;
+}
+
+bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+{
+   QDomNode childNode = node.firstChild();
+   QDomNode symbolNode;
+   QStringList symbols;
+   QString symbol;
+
+   if (!childNode.isNull())
+   {
+      do
+      {
+         if (childNode.nodeName() == "symbolinspector")
+         {
+            symbolNode = childNode.firstChild();
+            do
+            {
+               QDomElement symbolElement = symbolNode.toElement();
+
+               symbol = symbolElement.attribute("name");
+               if ( !symbol.isEmpty() )
+               {
+                  symbols.append(symbol);
+               }
+            } while (!(symbolNode = symbolNode.nextSibling()).isNull());
+
+            model->setSymbols(symbols);
+            model->update();
+         }
+      } while (!(childNode = childNode.nextSibling()).isNull());
+   }
+
+   return true;
 }
