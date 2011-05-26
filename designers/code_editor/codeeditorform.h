@@ -57,6 +57,7 @@ private:
    QsciLexerCA65* m_lexer;
    int m_breakpointIndex;
    int m_timer;
+   void updateToolTip(QString symbol);
 
 signals:
    void breakpointsChanged();

@@ -18,6 +18,8 @@
 #include "cbreakpointinfo.h"
 #include "cmarker.h"
 
+static char toolTipText [ 2048 ];
+
 CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::CodeEditorForm)
@@ -242,8 +244,6 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
 void CodeEditorForm::timerEvent(QTimerEvent *e)
 {
    QString    symbol;
-   QString    toolTipText;
-   unsigned int addr;
 
    if ( e->timerId() == m_timer )
    {
@@ -252,17 +252,7 @@ void CodeEditorForm::timerEvent(QTimerEvent *e)
 
       if ( !symbol.isEmpty() )
       {
-         addr = CCC65Interface::getSymbolAddress(symbol);
-
-         if ( addr != 0xFFFFFFFF )
-         {
-            toolTipText = symbol + " @" + QString::number(addr,16) + ": " + QString::number(nesGetCPUMemory(addr),16);
-            setToolTip(toolTipText);
-         }
-         else
-         {
-            setToolTip("");
-         }
+         updateToolTip(symbol);
       }
       else
       {
@@ -436,12 +426,10 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
 void CodeEditorForm::editor_copyAvailable(bool yes)
 {
    QString    symbol;
-   QString    toolTipText;
    int lineFrom;
    int lineTo;
    int indexFrom;
    int indexTo;
-   unsigned int addr;
 
    setToolTip("");
 
@@ -455,14 +443,22 @@ void CodeEditorForm::editor_copyAvailable(bool yes)
       {
          symbol = m_scintilla->selectedText();
 
-         addr = CCC65Interface::getSymbolAddress(symbol);
-
-         if ( addr != 0xFFFFFFFF )
-         {
-            toolTipText = symbol + " @" + QString::number(addr,16) + ": " + QString::number(nesGetCPUMemory(addr),16);
-            setToolTip(toolTipText);
-         }
+         updateToolTip(symbol);
       }
+   }
+}
+
+void CodeEditorForm::updateToolTip(QString symbol)
+{
+   const char* TOOLTIP = "<b>%s</b><br>Address: %04X<br>Value: %02X";
+   unsigned int addr;
+
+   addr = CCC65Interface::getSymbolAddress(symbol);
+
+   if ( addr != 0xFFFFFFFF )
+   {
+      sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetCPUMemory(addr));
+      setToolTip(toolTipText);
    }
 }
 
