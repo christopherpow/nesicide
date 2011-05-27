@@ -127,8 +127,11 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
 
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
-   SymbolWatchDockWidget* pInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
-   pInspector->serialize(doc,inspectorsElement);
+   SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+   pSymbolInspector->serialize(doc,inspectorsElement);
+
+   BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+   pBreakpointInspector->serialize(doc,inspectorsElement);
 
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
@@ -200,8 +203,11 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
    {
       if (child.nodeName() == "inspectors")
       {
-         SymbolWatchDockWidget* pInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
-         pInspector->deserialize(doc,child,errors);
+         SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+         pSymbolInspector->deserialize(doc,child,errors);
+
+         BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+         pBreakpointInspector->deserialize(doc,child,errors);
       }
       else if (child.nodeName() == "properties")
       {

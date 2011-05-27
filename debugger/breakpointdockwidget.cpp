@@ -250,3 +250,70 @@ void BreakpointDockWidget::on_actionDisable_All_Breakpoints_triggered()
    }
    emit breakpointsChanged();
 }
+
+bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)
+{
+   QDomElement element = addElement( doc, node, "breakpoints" );
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int bp;
+
+   for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
+   {
+      QDomElement breakpointElement = addElement( doc, element, "breakpoint" );
+      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
+      breakpointElement.setAttribute("type",pBreakpoint->type);
+      breakpointElement.setAttribute("enabled",pBreakpoint->enabled);
+      breakpointElement.setAttribute("target",pBreakpoint->target);
+      breakpointElement.setAttribute("itemtype",pBreakpoint->itemType);
+      breakpointElement.setAttribute("event",pBreakpoint->event);
+      breakpointElement.setAttribute("item1",pBreakpoint->item1);
+      breakpointElement.setAttribute("item1absolute",pBreakpoint->item1Absolute);
+      breakpointElement.setAttribute("item2",pBreakpoint->item2);
+      breakpointElement.setAttribute("conditiontype",pBreakpoint->conditionType);
+      breakpointElement.setAttribute("condition",pBreakpoint->condition);
+      breakpointElement.setAttribute("datatype",pBreakpoint->dataType);
+      breakpointElement.setAttribute("data",pBreakpoint->data);
+   }
+
+   return true;
+}
+
+bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+{
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   QDomNode childNode = node.firstChild();
+   QDomNode breakpointNode;
+
+   if (!childNode.isNull())
+   {
+      do
+      {
+         if (childNode.nodeName() == "breakpoints")
+         {
+            breakpointNode = childNode.firstChild();
+            do
+            {
+               QDomElement element = breakpointNode.toElement();
+               BreakpointInfo breakpoint;
+               breakpoint.type = (eBreakpointType)element.attribute("type").toInt();
+               breakpoint.enabled = element.attribute("enabled").toInt();
+               breakpoint.target = (eBreakpointTarget)element.attribute("target").toInt();
+               breakpoint.itemType = (eBreakpointItemType)element.attribute("itemtype").toInt();
+               breakpoint.event = element.attribute("event").toInt();
+               breakpoint.item1 = element.attribute("item1").toInt();
+               breakpoint.item1Absolute = element.attribute("item1absolute").toInt();
+               breakpoint.item2 = element.attribute("item2").toInt();
+               breakpoint.conditionType = (eBreakpointConditionType)element.attribute("conditiontype").toInt();
+               breakpoint.condition = element.attribute("condition").toInt();
+               breakpoint.dataType = (eBreakpointDataType)element.attribute("datatype").toInt();
+               breakpoint.data = element.attribute("data").toInt();
+               pBreakpoints->AddBreakpoint(&breakpoint);
+            } while (!(breakpointNode = breakpointNode.nextSibling()).isNull());
+
+            model->update();
+         }
+      } while (!(childNode = childNode.nextSibling()).isNull());
+   }
+
+   return true;
+}
