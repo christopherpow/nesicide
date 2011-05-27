@@ -85,6 +85,23 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
    }
 }
 
+void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+   QModelIndex index = ui->tableView->currentIndex();
+   QMenu menu;
+
+   if ( index.isValid() )
+   {
+      menu.addAction(ui->actionBreak_on_CPU_access_here);
+      menu.addAction(ui->actionBreak_on_CPU_read_here);
+      menu.addAction(ui->actionBreak_on_CPU_write_here);
+
+      menu.exec(event->globalPos());
+
+      emit breakpointsChanged();
+   }
+}
+
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "symbolinspector" );
@@ -131,4 +148,100 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
    }
 
    return true;
+}
+
+void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int row = ui->tableView->currentIndex().row();
+   QModelIndex index = model->index(row,SymbolWatchCol_Address);
+   bool ok;
+   int addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+   int bpIdx;
+
+   if ( ok )
+   {
+      bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
+                                            eBreakpointItemAddress,
+                                            0,
+                                            addr,
+                                            addr,
+                                            addr,
+                                            eBreakpointConditionTest,
+                                            0,
+                                            eBreakpointDataPure,
+                                            0,
+                                            true );
+
+      if ( bpIdx < 0 )
+      {
+         QString str;
+         str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+         QMessageBox::information(0, "Error", str);
+      }
+   }
+}
+
+void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int row = ui->tableView->currentIndex().row();
+   QModelIndex index = model->index(row,SymbolWatchCol_Address);
+   bool ok;
+   int addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+   int bpIdx;
+
+   if ( ok )
+   {
+      bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
+                                            eBreakpointItemAddress,
+                                            0,
+                                            addr,
+                                            addr,
+                                            addr,
+                                            eBreakpointConditionTest,
+                                            0,
+                                            eBreakpointDataPure,
+                                            0,
+                                            true );
+
+      if ( bpIdx < 0 )
+      {
+         QString str;
+         str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+         QMessageBox::information(0, "Error", str);
+      }
+   }
+}
+
+void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
+{
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int row = ui->tableView->currentIndex().row();
+   QModelIndex index = model->index(row,SymbolWatchCol_Address);
+   bool ok;
+   int addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+   int bpIdx;
+
+   if ( ok )
+   {
+      bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+                                            eBreakpointItemAddress,
+                                            0,
+                                            addr,
+                                            addr,
+                                            addr,
+                                            eBreakpointConditionTest,
+                                            0,
+                                            eBreakpointDataPure,
+                                            0,
+                                            true );
+
+      if ( bpIdx < 0 )
+      {
+         QString str;
+         str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+         QMessageBox::information(0, "Error", str);
+      }
+   }
 }

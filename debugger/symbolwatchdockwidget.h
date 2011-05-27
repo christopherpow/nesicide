@@ -29,12 +29,21 @@ protected:
    void dragEnterEvent(QDragEnterEvent *event);
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
+   void contextMenuEvent(QContextMenuEvent *event);
 
 private:
    Ui::SymbolWatchDockWidget *ui;
    CSymbolWatchModel* model;
    CDebuggerSymbolDelegate* symbolDelegate;
    CDebuggerNumericItemDelegate* valueDelegate;
+
+signals:
+   void breakpointsChanged();
+
+private slots:
+    void on_actionBreak_on_CPU_access_here_triggered();
+    void on_actionBreak_on_CPU_read_here_triggered();
+    void on_actionBreak_on_CPU_write_here_triggered();
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H

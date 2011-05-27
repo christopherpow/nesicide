@@ -55,9 +55,11 @@ void BreakpointDockWidget::changeEvent(QEvent* e)
 void BreakpointDockWidget::showEvent(QShowEvent*)
 {
    QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
+   QDockWidget* symbolInspector = CDockWidgetRegistry::getWidget("Symbol Inspector");
    QDockWidget* memoryInspector;
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
 
    memoryInspector = CDockWidgetRegistry::getWidget("CPU RAM Inspector");
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );

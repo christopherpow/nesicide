@@ -63,6 +63,21 @@
     </item>
    </layout>
   </widget>
+  <action name="actionBreak_on_CPU_access_here">
+   <property name="text">
+    <string>Break on CPU access here</string>
+   </property>
+  </action>
+  <action name="actionBreak_on_CPU_read_here">
+   <property name="text">
+    <string>Break on CPU read here</string>
+   </property>
+  </action>
+  <action name="actionBreak_on_CPU_write_here">
+   <property name="text">
+    <string>Break on CPU write here</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
