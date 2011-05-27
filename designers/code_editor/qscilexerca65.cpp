@@ -312,19 +312,6 @@ void QsciLexerCA65::styleText(int start, int end)
             setStyling(3,CA65_Opcode);
          }
 
-         // Look for labels.
-         pos = 0;
-         do
-         {
-            pos = line.indexOf(labelRegex,pos);
-            if ( pos != -1 )
-            {
-               startStyling(start+pos,0xFF);
-               setStyling(labelRegex.matchedLength(),CA65_Label);
-               pos = pos+labelRegex.matchedLength();
-            }
-         } while ( pos != -1 );
-
          // Look for numbers.
          pos = 0;
          do
@@ -335,6 +322,19 @@ void QsciLexerCA65::styleText(int start, int end)
                startStyling(start+pos,0xFF);
                setStyling(numberRegex.matchedLength(),CA65_Number);
                pos = pos+numberRegex.matchedLength();
+            }
+         } while ( pos != -1 );
+
+         // Look for labels.
+         pos = 0;
+         do
+         {
+            pos = line.indexOf(labelRegex,pos);
+            if ( pos != -1 )
+            {
+               startStyling(start+pos,0xFF);
+               setStyling(labelRegex.matchedLength(),CA65_Label);
+               pos = pos+labelRegex.matchedLength();
             }
          } while ( pos != -1 );
 
