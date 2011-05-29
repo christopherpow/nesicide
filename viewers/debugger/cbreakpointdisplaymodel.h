@@ -9,10 +9,11 @@ class CBreakpointDisplayModel : public QAbstractTableModel
 public:
    CBreakpointDisplayModel(QObject* parent = 0);
    virtual ~CBreakpointDisplayModel();
+   Qt::ItemFlags flags(const QModelIndex& index) const;
    QVariant data(const QModelIndex& index, int role) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-   
+
 public slots:
    void update();
 };

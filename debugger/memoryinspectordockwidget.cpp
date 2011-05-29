@@ -161,7 +161,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
                                          addr,
                                          addr,
                                          eBreakpointConditionTest,
-                                         0,
+                                         eBreakIfAnything,
                                          eBreakpointDataPure,
                                          0,
                                          true );
@@ -190,7 +190,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
                                          addr,
                                          addr,
                                          eBreakpointConditionTest,
-                                         0,
+                                         eBreakIfAnything,
                                          eBreakpointDataPure,
                                          0,
                                          true );
@@ -219,7 +219,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
                                          addr,
                                          addr,
                                          eBreakpointConditionTest,
-                                         0,
+                                         eBreakIfAnything,
                                          eBreakpointDataPure,
                                          0,
                                          true );

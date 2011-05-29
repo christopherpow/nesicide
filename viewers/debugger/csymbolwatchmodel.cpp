@@ -23,6 +23,11 @@ Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
    {
       flags |= Qt::ItemIsEditable;
    }
+   if ( (index.column() == 0) &&
+        (index.row() < m_symbols.count()) )
+   {
+      flags |= Qt::ItemIsDragEnabled;
+   }
    return flags;
 }
 

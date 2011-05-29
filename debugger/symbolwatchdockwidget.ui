@@ -10,10 +10,16 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>Symbol Watch</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
+   <property name="acceptDrops">
+    <bool>false</bool>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
     <property name="margin">
      <number>0</number>
@@ -23,14 +29,17 @@
     </property>
     <item row="0" column="0">
      <widget class="QTableView" name="tableView">
+      <property name="acceptDrops">
+       <bool>true</bool>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
       </property>
       <property name="dragEnabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="dragDropMode">
-       <enum>QAbstractItemView::DropOnly</enum>
+       <enum>QAbstractItemView::DragDrop</enum>
       </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::SingleSelection</enum>

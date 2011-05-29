@@ -3,6 +3,7 @@
 #include "dbg_cnes.h"
 
 #include <QIcon>
+#include <QMimeData>
 
 static char modelStringBuffer [ 2048 ];
 
@@ -12,6 +13,13 @@ CBreakpointDisplayModel::CBreakpointDisplayModel(QObject*)
 
 CBreakpointDisplayModel::~CBreakpointDisplayModel()
 {
+}
+
+Qt::ItemFlags CBreakpointDisplayModel::flags(const QModelIndex& index) const
+{
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
+   return flags;
 }
 
 QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const

@@ -1,3 +1,5 @@
+#include <QStandardItemModel>
+
 #include "breakpointdockwidget.h"
 #include "ui_breakpointdockwidget.h"
 
@@ -10,6 +12,8 @@
 #include "breakpointdialog.h"
 
 #include "cdockwidgetregistry.h"
+
+#include "ccc65interface.h"
 
 #include "main.h"
 
@@ -105,6 +109,82 @@ void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
    }
 
    menu.exec(e->globalPos());
+}
+
+void BreakpointDockWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+   if ( event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist") )
+   {
+      event->acceptProposedAction();
+   }
+   else if ( event->mimeData()->hasText() )
+   {
+      event->acceptProposedAction();
+   }
+}
+
+void BreakpointDockWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+   if ( event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist") )
+   {
+      event->acceptProposedAction();
+   }
+   else if ( event->mimeData()->hasText() )
+   {
+      event->acceptProposedAction();
+   }
+}
+
+void BreakpointDockWidget::dropEvent(QDropEvent *event)
+{
+   QString text;
+   int     addr;
+   int     bpIdx;
+
+   if ( event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist") )
+   {
+      QStandardItemModel model;
+      model.dropMimeData(event->mimeData(), Qt::CopyAction, 0,0, QModelIndex());
+      text = model.item(0,0)->data(Qt::DisplayRole).toString();
+
+      event->acceptProposedAction();
+   }
+   else if ( event->mimeData()->hasText() )
+   {
+      text = event->mimeData()->text();
+
+      event->acceptProposedAction();
+   }
+
+   if ( event->isAccepted() )
+   {
+      addr = CCC65Interface::getSymbolAddress(text);
+      if ( addr != 0xFFFFFFFF )
+      {
+         CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
+         bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+                                               eBreakpointItemAddress,
+                                               0,
+                                               addr,
+                                               addr,
+                                               addr,
+                                               eBreakpointConditionTest,
+                                               eBreakIfAnything,
+                                               eBreakpointDataPure,
+                                               0,
+                                               true );
+
+         if ( bpIdx < 0 )
+         {
+            QString str;
+            str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
+            QMessageBox::information(0, "Error", str);
+         }
+
+         emit breakpointsChanged();
+      }
+   }
 }
 
 void BreakpointDockWidget::updateData()

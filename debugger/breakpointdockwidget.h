@@ -29,13 +29,16 @@ protected:
    void changeEvent(QEvent* e);
    void showEvent(QShowEvent* e);
    void contextMenuEvent(QContextMenuEvent* e);
-   CBreakpointDisplayModel* model;
+   void dragEnterEvent(QDragEnterEvent *event);
+   void dragMoveEvent(QDragMoveEvent *event);
+   void dropEvent(QDropEvent *event);
 
 signals:
    void breakpointsChanged();
 
 private:
    Ui::BreakpointDockWidget *ui;
+   CBreakpointDisplayModel* model;
 
 public slots:
    void updateData();
