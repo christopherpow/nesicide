@@ -1341,10 +1341,19 @@ void MainWindow::on_actionMute_All_toggled(bool value)
 void MainWindow::on_actionEnvironment_Settings_triggered()
 {
    EnvironmentSettingsDialog dlg;
+   int tab;
 
    dlg.exec();
 
    // Update any open document windows.
+   for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+   {
+      CodeEditorForm* codeEditor = dynamic_cast<CodeEditorForm*>(ui->tabWidget->widget(tab));
+      if ( codeEditor )
+      {
+         codeEditor->restyleText();
+      }
+   }
 }
 
 void MainWindow::on_actionPreferences_triggered()
