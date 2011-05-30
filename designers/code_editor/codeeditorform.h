@@ -62,6 +62,9 @@ private:
 signals:
    void breakpointsChanged();
 
+public slots:
+   void restyleText();
+
 private slots:
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
    void editor_linesChanged();

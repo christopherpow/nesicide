@@ -92,6 +92,8 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
    if ( index.isValid() )
    {
+      menu.addAction(ui->actionRemove_symbol);
+      menu.addSeparator();
       menu.addAction(ui->actionBreak_on_CPU_access_here);
       menu.addAction(ui->actionBreak_on_CPU_read_here);
       menu.addAction(ui->actionBreak_on_CPU_write_here);
@@ -100,6 +102,11 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
       emit breakpointsChanged();
    }
+}
+
+void SymbolWatchDockWidget::showEvent(QShowEvent*)
+{
+   model->update();
 }
 
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
@@ -243,5 +250,13 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
       }
+   }
+}
+
+void SymbolWatchDockWidget::on_actionRemove_symbol_triggered()
+{
+   if ( ui->tableView->currentIndex().isValid() )
+   {
+      model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
    }
 }

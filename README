@@ -9,9 +9,6 @@ SDL_LIBS
 LUA_CXXFLAGS
 LUA_LIBS
 
-PASM_CXXFLAGS
-PASM_LIBS
-
 PREFIX
 BINDIR
 
@@ -27,7 +24,7 @@ qmake PREFIX=/tmp/test-nesicide QMAKE_CXXFLAGS="-march=athlon64 -O2 -pipe" QMAKE
 # this should work, i havent tested this yet.
 qmake PREFIX=~/test-nesicide QMAKE_CXXFLAGS="-march=athlon64 -O2 -pipe" QMAKE_LFLAGS="-Wl,-rpath,~/test-nesicide/lib" LIBS="-L~/test-nesicide/lib"
 
-if you choose to use qtcreator, open nesicide.pro project and select projects from the left side, then select show details under build steps.  there you can add additional arguments for the variables above.  editing this tiny box is kinda dumb, i suggest adding 1 or 2 options,quiting qtcreator and then 
+if you choose to use qtcreator, open nesicide.pro project and select projects from the left side, then select show details under build steps.  there you can add additional arguments for the variables above.  editing this tiny box is kinda dumb, i suggest adding 1 or 2 options,quiting qtcreator and then
 editing nesicide.pro.user, look for:
    <valuelist key="qmakeArgs" type="QVariantList">
     <value type="QString">QMAKE_CXXFLAGS=-march=athlon64 -O2 -pipe</value>

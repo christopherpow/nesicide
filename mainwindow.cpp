@@ -1345,7 +1345,6 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
    dlg.exec();
 
    // Update any open document windows.
-   //CPTODO: how to do this?
 }
 
 void MainWindow::on_actionPreferences_triggered()

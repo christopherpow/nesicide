@@ -677,3 +677,8 @@ void CodeEditorForm::highlightLine(int linenumber)
       }
    }
 }
+
+void CodeEditorForm::restyleText()
+{
+   m_lexer->styleText(0,m_scintilla->length());
+}

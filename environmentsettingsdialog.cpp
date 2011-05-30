@@ -413,7 +413,6 @@ void EnvironmentSettingsDialog::on_soundBufferDepth_valueChanged(int value)
 
 void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 {
-   int style = ui->styleName->currentIndex();
    QFont font = m_lexer->font(index);
 
    ui->styleFont->setCurrentFont(font);

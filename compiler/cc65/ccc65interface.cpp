@@ -229,6 +229,7 @@ QStringList CCC65Interface::getSourceFiles()
 
    if ( dbgInfo )
    {
+      cc65_free_sourceinfo(dbgInfo,dbgSources);
       dbgSources = cc65_get_sourcelist(dbgInfo);
 
       if ( dbgSources )
@@ -249,6 +250,7 @@ QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
 
    if ( dbgInfo )
    {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
       dbgSymbols = cc65_symbol_inrange(dbgInfo,0,0xFFFF);
 
       if ( dbgSymbols )
@@ -268,6 +270,7 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol)
 
    if ( dbgInfo )
    {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
       dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
 
       if ( dbgSymbols )
@@ -288,6 +291,7 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
 
    if ( dbgInfo )
    {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
 
       if ( dbgLines )
@@ -310,6 +314,7 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
 
    if ( dbgInfo )
    {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
 
       if ( dbgLines )
@@ -330,6 +335,7 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int line)
 {
    if ( dbgInfo )
    {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),line);
 
       if ( dbgLines )
@@ -350,6 +356,7 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
 {
    if ( dbgInfo )
    {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),line);
 
       if ( dbgLines )
@@ -377,6 +384,7 @@ bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
       addr = (absAddr&MASK_8KB)+MEM_32KB;
       for ( ; addr < MEM_64KB; addr += MEM_8KB )
       {
+         cc65_free_lineinfo(dbgInfo,dbgLines);
          dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
 
          if ( dbgLines )
