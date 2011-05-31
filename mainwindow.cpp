@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
    CDockWidgetRegistry::addWidget ( "Output", output );
 
-   generalTextLogger->write("<strong>NESICIDE2</strong> Alpha Release");
+   generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
    generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
    m_pBreakpointInspector = new BreakpointDockWidget ();
@@ -774,6 +774,11 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QMainWindow::closeEvent(event);
 }
 
+void MainWindow::focusInEvent(QFocusEvent *event)
+{
+   qDebug("focusIn");
+}
+
 void MainWindow::openProject(QString fileName)
 {
    QString errors;
@@ -1182,18 +1187,20 @@ void MainWindow::on_action_About_Nesicide_triggered()
 
 void MainWindow::on_action_Close_Project_triggered()
 {
+   m_pSourceNavigator->shutdown();
+
    // Stop the emulator if it is running
    emulator->pauseEmulation(false);
 
    // Terminate the project and let the IDE know
    projectBrowser->disableNavigation();
 
+   CCC65Interface::clear();
+
    nesicideProject->terminateProject();
 
    emulator->primeEmulator();
    emulator->resetEmulator();
-
-   m_pSourceNavigator->shutdown();
 
    // Remove any tabs
    ui->tabWidget->clear();

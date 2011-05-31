@@ -5,6 +5,8 @@
 
 #include "ccc65interface.h"
 
+#include <QCompleter>
+
 SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SourceNavigator)
@@ -13,6 +15,7 @@ SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
 
     ui->files->setEnabled(false);
     ui->symbols->setEnabled(false);
+    ui->symbols->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
     QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
     QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(emulator_cartridgeLoaded()));

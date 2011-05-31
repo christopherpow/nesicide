@@ -13,6 +13,7 @@ class CCC65Interface : public QObject
 public:
    CCC65Interface();
    virtual ~CCC65Interface();
+   static void clear();
    static bool assemble();
    static bool captureDebugInfo();
    static bool captureINESImage();

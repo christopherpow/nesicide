@@ -186,7 +186,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>NESICIDE2</string>
+   <string>NESICIDE</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color:rgb(255, 255, 255);

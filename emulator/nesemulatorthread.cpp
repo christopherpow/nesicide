@@ -173,11 +173,11 @@ void NESEmulatorThread::loadCartridge()
    int32_t b;
    int32_t a;
 
+   // Clear emulator's cartridge ROMs...
+   nesUnloadROM();
+
    if ( m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count() )
    {
-      // Clear emulator's cartridge ROMs...
-      nesUnloadROM();
-
       // Load cartridge PRG-ROM banks into emulator...
       for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
       {

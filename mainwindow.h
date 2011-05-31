@@ -92,6 +92,7 @@ private:
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
+   virtual void focusInEvent ( QFocusEvent *event );
 
 private slots:
    void on_actionE_xit_triggered();

@@ -25,6 +25,20 @@ CCC65Interface::~CCC65Interface()
    cc65_free_dbginfo(dbgInfo);
 }
 
+void CCC65Interface::clear()
+{
+   cc65_free_sourceinfo(dbgInfo,dbgSources);
+   dbgSources = 0;
+   cc65_free_segmentinfo(dbgInfo,dbgSegments);
+   dbgSegments = 0;
+   cc65_free_lineinfo(dbgInfo,dbgLines);
+   dbgLines = 0;
+   cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+   dbgSymbols = 0;
+   cc65_free_dbginfo(dbgInfo);
+   dbgInfo = 0;
+}
+
 bool CCC65Interface::assemble()
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
