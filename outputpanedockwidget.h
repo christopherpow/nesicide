@@ -2,7 +2,8 @@
 #define OUTPUTPANEDOCKWIDGET_H
 
 #include <QDockWidget>
-#include <QTabWidget>
+
+#include "cprojecttabwidget.h"
 
 namespace Ui {
    class OutputPaneDockWidget;
@@ -19,7 +20,7 @@ public:
       Output_Build,
       Output_Debug
    };
-   explicit OutputPaneDockWidget(QTabWidget* pTarget, QWidget *parent = 0);
+   explicit OutputPaneDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
    ~OutputPaneDockWidget();
 
    void clearAllPanes();
@@ -39,7 +40,7 @@ protected:
 
 private:
    Ui::OutputPaneDockWidget *ui;
-   QTabWidget* m_pTarget;
+   CProjectTabWidget* m_pTarget;
 
 private slots:
     void on_compilerOutputTextEdit_selectionChanged();

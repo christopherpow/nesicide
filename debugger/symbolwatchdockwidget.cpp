@@ -137,7 +137,7 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
          if (childNode.nodeName() == "symbolinspector")
          {
             symbolNode = childNode.firstChild();
-            do
+            while ( !(symbolNode.isNull()) )
             {
                QDomElement symbolElement = symbolNode.toElement();
 
@@ -146,7 +146,8 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
                {
                   symbols.append(symbol);
                }
-            } while (!(symbolNode = symbolNode.nextSibling()).isNull());
+               symbolNode = symbolNode.nextSibling();
+            }
 
             model->setSymbols(symbols);
             model->update();

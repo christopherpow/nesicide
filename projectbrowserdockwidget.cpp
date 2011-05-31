@@ -5,7 +5,7 @@
 
 #include "main.h"
 
-ProjectBrowserDockWidget::ProjectBrowserDockWidget(QTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent) :
+ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::ProjectBrowserDockWidget)
 {

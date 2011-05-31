@@ -239,7 +239,8 @@ SOURCES += mainwindow.cpp \
     debugger/symbolwatchdockwidget.cpp \
     viewers/debugger/csymbolwatchmodel.cpp \
     viewers/debugger/cdebuggernumericitemdelegate.cpp \
-    viewers/debugger/cdebuggersymboldelegate.cpp
+    viewers/debugger/cdebuggersymboldelegate.cpp \
+    common/cprojecttabwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -340,7 +341,8 @@ HEADERS += mainwindow.h \
     debugger/symbolwatchdockwidget.h \
     viewers/debugger/csymbolwatchmodel.h \
     viewers/debugger/cdebuggernumericitemdelegate.h \
-    viewers/debugger/cdebuggersymboldelegate.h
+    viewers/debugger/cdebuggersymboldelegate.h \
+    common/cprojecttabwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

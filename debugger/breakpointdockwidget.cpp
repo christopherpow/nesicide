@@ -371,7 +371,7 @@ bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStrin
          if (childNode.nodeName() == "breakpoints")
          {
             breakpointNode = childNode.firstChild();
-            do
+            while ( !(breakpointNode.isNull()) )
             {
                QDomElement element = breakpointNode.toElement();
                BreakpointInfo breakpoint;
@@ -388,7 +388,8 @@ bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStrin
                breakpoint.dataType = (eBreakpointDataType)element.attribute("datatype").toInt();
                breakpoint.data = element.attribute("data").toInt();
                pBreakpoints->AddBreakpoint(&breakpoint);
-            } while (!(breakpointNode = breakpointNode.nextSibling()).isNull());
+               breakpointNode = breakpointNode.nextSibling();
+            }
 
             model->update();
          }

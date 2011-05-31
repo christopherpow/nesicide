@@ -82,7 +82,7 @@ void CAttributeTable::contextMenuEvent(QContextMenuEvent* event, QTreeView* pare
    }
 }
 
-void CAttributeTable::openItemEvent(QTabWidget* tabWidget)
+void CAttributeTable::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)
    {

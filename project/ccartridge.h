@@ -65,7 +65,7 @@ public:
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
-   virtual void openItemEvent(QTabWidget*) {}
+   virtual void openItemEvent(CProjectTabWidget*) {}
    virtual bool onCloseQuery()
    {
       return true;

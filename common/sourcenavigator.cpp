@@ -7,7 +7,7 @@
 
 #include <QCompleter>
 
-SourceNavigator::SourceNavigator(QTabWidget* pTarget,QWidget *parent) :
+SourceNavigator::SourceNavigator(CProjectTabWidget* pTarget,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SourceNavigator)
 {

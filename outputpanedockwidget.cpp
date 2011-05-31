@@ -8,7 +8,7 @@
 #include <QMenu>
 #include <QFileDialog>
 
-OutputPaneDockWidget::OutputPaneDockWidget(QTabWidget* pTarget, QWidget *parent) :
+OutputPaneDockWidget::OutputPaneDockWidget(CProjectTabWidget* pTarget, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::OutputPaneDockWidget)
 {

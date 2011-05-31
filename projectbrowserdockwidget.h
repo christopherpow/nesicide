@@ -1,8 +1,9 @@
 #ifndef PROJECTBROWSERDOCKWIDGET_H
 #define PROJECTBROWSERDOCKWIDGET_H
 
-#include <QTabWidget>
 #include <QDockWidget>
+
+#include "cprojecttabwidget.h"
 
 #include "cprojecttreeviewmodel.h"
 #include "cprojecttreeview.h"
@@ -15,18 +16,18 @@ namespace Ui {
 class ProjectBrowserDockWidget : public QDockWidget
 {
    Q_OBJECT
-   
+
 public:
-   explicit ProjectBrowserDockWidget(QTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent = 0);
+   explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent = 0);
    ~ProjectBrowserDockWidget();
 
    void layoutChangedEvent();
    void enableNavigation();
    void disableNavigation();
-   
+
 private:
    Ui::ProjectBrowserDockWidget *ui;
-   QTabWidget* m_pTarget;
+   CProjectTabWidget* m_pTarget;
    CProjectTreeViewModel* m_pProjectTreeviewModel;
    SourceNavigator* m_pSourceNavigator;
 };

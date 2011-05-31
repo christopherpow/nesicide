@@ -34,7 +34,7 @@ void CPRGROMBank::contextMenuEvent(QContextMenuEvent*, QTreeView*)
 {
 }
 
-void CPRGROMBank::openItemEvent(QTabWidget* tabWidget)
+void CPRGROMBank::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)
    {

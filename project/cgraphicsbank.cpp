@@ -122,7 +122,7 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
    }
 }
 
-void CGraphicsBank::openItemEvent(QTabWidget* tabWidget)
+void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)
    {

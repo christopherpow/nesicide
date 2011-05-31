@@ -1,10 +1,11 @@
 #ifndef SOURCENAVIGATOR_H
 #define SOURCENAVIGATOR_H
 
-#include <QTabWidget>
 #include <QWidget>
 
 #include "iprojecttreeviewitem.h"
+
+#include "cprojecttabwidget.h"
 
 namespace Ui {
     class SourceNavigator;
@@ -15,7 +16,7 @@ class SourceNavigator : public QWidget
    Q_OBJECT
 
 public:
-   explicit SourceNavigator(QTabWidget* pTarget,QWidget *parent = 0);
+   explicit SourceNavigator(CProjectTabWidget* pTarget,QWidget *parent = 0);
    ~SourceNavigator();
 
    void shutdown();
@@ -24,7 +25,7 @@ private:
    Ui::SourceNavigator *ui;
    void updateSymbolsForFile(QString file);
    void updateFiles(bool doIt);
-   QTabWidget* m_pTarget;
+   CProjectTabWidget* m_pTarget;
 
 signals:
    void fileNavigator_fileChanged(QString file);

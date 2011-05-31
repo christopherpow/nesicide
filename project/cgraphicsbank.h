@@ -25,7 +25,7 @@ public:
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
-   virtual void openItemEvent(QTabWidget* tabWidget);
+   virtual void openItemEvent(CProjectTabWidget* tabWidget);
    virtual void saveItemEvent();
    virtual bool onNameChanged(QString newName);
    virtual bool canChangeName()

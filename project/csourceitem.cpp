@@ -156,7 +156,7 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    }
 }
 
-void CSourceItem::openItemEvent(QTabWidget* tabWidget)
+void CSourceItem::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)
    {
