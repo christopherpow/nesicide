@@ -16,6 +16,16 @@ CGraphicsBank::~CGraphicsBank()
 {
 }
 
+QList<IChrRomBankItem*>& CGraphicsBank::getGraphics()
+{
+   if (m_editor)
+   {
+      m_bankItems = editor()->bankItems();
+   }
+
+   return m_bankItems;
+}
+
 bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "graphicsbank" );
@@ -148,9 +158,9 @@ void CGraphicsBank::saveItemEvent()
 {
    m_bankItems.clear();
 
-   for (int i=0; i < editor()->chrRomBankItems.count(); i++)
+   for (int i=0; i < editor()->bankItems().count(); i++)
    {
-      m_bankItems.append(editor()->chrRomBankItems.at(i));
+      m_bankItems.append(editor()->bankItems().at(i));
    }
 
    if ( m_editor )

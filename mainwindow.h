@@ -44,7 +44,6 @@ class MainWindow : public QMainWindow
 public:
    MainWindow(QWidget* parent = 0);
    ~MainWindow();
-   NESEmulatorDockWidget* emulatorDlg;
    void openROM(QString fileName);
 protected:
    void changeEvent(QEvent* e);
@@ -60,7 +59,8 @@ private:
    void openProject(QString fileName);
    void saveProject();
 
-   // Debugger inspector dockables
+   // Dock widgets
+   NESEmulatorDockWidget* m_pEmulator;
    ExecutionInspectorDockWidget* m_pExecutionInspector;
    ExecutionVisualizerDockWidget* m_pExecutionVisualizer;
    RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
@@ -92,7 +92,6 @@ private:
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
-   virtual void focusInEvent ( QFocusEvent *event );
 
 private slots:
    void on_actionE_xit_triggered();

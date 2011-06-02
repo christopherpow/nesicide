@@ -48,4 +48,5 @@ void CDesignerEditorBase::onSaveDocument()
    {
       treeLink->saveItemEvent();
    }
+   setModified(false);
 }

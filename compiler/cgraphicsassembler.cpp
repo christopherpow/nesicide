@@ -3,6 +3,8 @@
 
 #include "main.h"
 
+static const char emptyBank[] = { 0, };
+
 CGraphicsAssembler::CGraphicsAssembler()
 {
 }
@@ -37,13 +39,21 @@ bool CGraphicsAssembler::assemble()
 
             buildTextLogger->write("Constructing '" + curGfxBank->name() + "':");
 
-            for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
+            if ( curGfxBank->getGraphics().count() )
             {
-               IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
-               IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-               buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
+               for (int bankItemIdx = 0; bankItemIdx < curGfxBank->getGraphics().count(); bankItemIdx++)
+               {
+                  IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
+                  IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
+                  buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
 
-               chrRomFile.write(bankItem->getChrRomBankItemData().data(), bankItem->getChrRomBankItemSize());
+                  chrRomFile.write(bankItem->getChrRomBankItemData().data(), bankItem->getChrRomBankItemSize());
+               }
+            }
+            else
+            {
+               // 8KB of empty space
+               chrRomFile.write(emptyBank,MEM_8KB);
             }
          }
 

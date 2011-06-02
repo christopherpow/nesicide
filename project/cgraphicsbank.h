@@ -14,7 +14,7 @@ public:
    virtual ~CGraphicsBank();
 
    // Member getters
-   QList<IChrRomBankItem*>& getGraphics() { return m_bankItems; }
+   QList<IChrRomBankItem*>& getGraphics();
 
    GraphicsBankEditorForm* editor() { return dynamic_cast<GraphicsBankEditorForm*>(m_editor); }
 

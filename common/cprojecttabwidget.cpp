@@ -1,6 +1,6 @@
 #include "cprojecttabwidget.h"
 
-#include "codeeditorform.h"
+#include "cdesignereditorbase.h"
 
 CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
     QTabWidget(parent)
@@ -9,23 +9,22 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
 
 int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &label)
 {
-   CodeEditorForm* codeEditor = dynamic_cast<CodeEditorForm*>(widget);
-   qDebug("addTab1");
+   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
 
-   if ( codeEditor )
+   if ( editor )
    {
-      QObject::connect(codeEditor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
+      QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
    }
    return QTabWidget::addTab(widget,icon,label);
 }
 
 int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
 {
-   CodeEditorForm* codeEditor = dynamic_cast<CodeEditorForm*>(widget);
-qDebug("addTab2");
-   if ( codeEditor )
+   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
+
+   if ( editor )
    {
-      QObject::connect(codeEditor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
+      QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
    }
    return QTabWidget::addTab(widget,label);
 }
@@ -40,11 +39,17 @@ void CProjectTabWidget::tabModified(bool modified)
       {
          if ( modified )
          {
-            tabBar()->setTabText(tab,tabBar()->tabText(tab)+"*");
+            if ( tabBar()->tabText(tab).right(1) != "*" )
+            {
+               tabBar()->setTabText(tab,tabBar()->tabText(tab)+"*");
+            }
          }
          else
          {
-            tabBar()->setTabText(tab,tabBar()->tabText(tab).left(tabBar()->tabText(tab).length()-1));
+            if ( tabBar()->tabText(tab).right(1) == "*" )
+            {
+               tabBar()->setTabText(tab,tabBar()->tabText(tab).left(tabBar()->tabText(tab).length()-1));
+            }
          }
       }
    }

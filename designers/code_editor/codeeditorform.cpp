@@ -40,7 +40,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->installEventFilter(this);
 
    // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
-   m_timer = startTimer(100);
+   m_timer = startTimer(50);
 
    m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
    m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());

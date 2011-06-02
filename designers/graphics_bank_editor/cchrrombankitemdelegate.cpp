@@ -1,16 +1,18 @@
-#include "cdebuggersymboldelegate.h"
+#include "cchrrombankitemdelegate.h"
 
 #include <QLineEdit>
 #include <QCompleter>
 
-#include "ccc65interface.h"
+#include "iprojecttreeviewitem.h"
 
-CDebuggerSymbolDelegate::CDebuggerSymbolDelegate(QObject *parent) :
+#include "main.h"
+
+CChrRomBankItemDelegate::CChrRomBankItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
 }
 
-QWidget* CDebuggerSymbolDelegate::createEditor(QWidget* parent,
+QWidget* CChrRomBankItemDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
       const QModelIndex& /* index */) const
 {
@@ -19,19 +21,29 @@ QWidget* CDebuggerSymbolDelegate::createEditor(QWidget* parent,
    return editor;
 }
 
-void CDebuggerSymbolDelegate::setEditorData(QWidget* editor,
+void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
       const QModelIndex& index) const
 {
    QLineEdit* edit = static_cast<QLineEdit*>(editor);
-   QStringList symbols = CCC65Interface::getSymbolsForSourceFile("<CPTODO:fixme>");
-   QCompleter* completer = new QCompleter(symbols);
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   QStringList choices;
+   do
+   {
+      IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(iter.current());
+      if ( item )
+      {
+         choices.append(iter.current()->caption());
+      }
+      iter.next();
+   } while ( iter.current() );
+   QCompleter* completer = new QCompleter(choices);
    completer->setCompletionMode(QCompleter::PopupCompletion);
    completer->setCompletionPrefix(index.data(Qt::DisplayRole).toString());
    edit->setCompleter(completer);
    edit->setText(index.data(Qt::DisplayRole).toString());
 }
 
-void CDebuggerSymbolDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
+void CChrRomBankItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
       const QModelIndex& index) const
 {
    QLineEdit* edit = static_cast<QLineEdit*>(editor);
@@ -42,7 +54,7 @@ void CDebuggerSymbolDelegate::setModelData(QWidget* editor, QAbstractItemModel* 
    }
 }
 
-void CDebuggerSymbolDelegate::updateEditorGeometry(QWidget* editor,
+void CChrRomBankItemDelegate::updateEditorGeometry(QWidget* editor,
       const QStyleOptionViewItem& option, const QModelIndex& /* index */) const
 {
    editor->setGeometry(option.rect);

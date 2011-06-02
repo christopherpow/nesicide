@@ -1,11 +1,28 @@
 #include "cchrromitemlistdisplaymodel.h"
 
+#include "iprojecttreeviewitem.h"
+
+#include "main.h"
+
+static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
+
 CChrRomItemListDisplayModel::CChrRomItemListDisplayModel(QObject* parent)
 {
 }
 
 CChrRomItemListDisplayModel::~CChrRomItemListDisplayModel()
 {
+}
+
+Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& index) const
+{
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   if ( index.column() == ChrRomBankItemCol_Name )
+   {
+      flags |= Qt::ItemIsEditable;
+   }
+
+   return flags;
 }
 
 QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) const
@@ -15,54 +32,58 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) c
       return QVariant();
    }
 
-   IChrRomBankItem* item = chrRomBankItems.at(index.row());
-
-   if (!item)
+   if ( index.row() < chrRomBankItems.count() )
    {
-      return QVariant();
-   }
+      IChrRomBankItem* item = chrRomBankItems.at(index.row());
 
-   if ((role == Qt::DecorationRole) && (index.column() == 0))
-   {
-      return item->getChrRomBankItemIcon();
-   }
-
-   if (role != Qt::DisplayRole)
-   {
-      return QVariant();
-   }
-
-
-   switch (index.column())
-   {
-      case 1:
-         return QVariant(item->getItemType());
-      case 2:
+      if ((role == Qt::DecorationRole) && (index.column() == ChrRomBankItemCol_Icon))
       {
-         IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(item);
-
-         if (ptvi)
-         {
-            return QVariant(ptvi->caption());
-         }
-         else
-         {
-            return QVariant();
-         }
+         return item->getChrRomBankItemIcon();
       }
-      case 3:
-         return QVariant(item->getChrRomBankItemSize());
-      default:
-         return QVariant("");
+
+      if (role != Qt::DisplayRole)
+      {
+         return QVariant();
+      }
+
+      IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(item);
+
+      switch (index.column())
+      {
+         case ChrRomBankItemCol_Type:
+            return QVariant(item->getItemType());
+            break;
+         case ChrRomBankItemCol_Name:
+            if (ptvi)
+            {
+               return QVariant(ptvi->caption());
+            }
+            else
+            {
+               return QVariant();
+            }
+            break;
+         case ChrRomBankItemCol_Size:
+            return QVariant(item->getChrRomBankItemSize());
+            break;
+         default:
+            return QVariant("");
+            break;
+      }
    }
+   else
+   {
+      if (role != Qt::DisplayRole)
+      {
+         return QVariant();
+      }
 
-
-}
-
-Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& index) const
-{
-   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-   return flags;
+      if ( index.column() == ChrRomBankItemCol_Name )
+      {
+         return QVariant(CLICK_TO_ADD_OR_EDIT);
+      }
+   }
+   return QVariant();
 }
 
 QVariant CChrRomItemListDisplayModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -79,45 +100,98 @@ QVariant CChrRomItemListDisplayModel::headerData(int section, Qt::Orientation or
 
    switch (section)
    {
-      case 1:
+      case ChrRomBankItemCol_Type:
          return QVariant("Item Type");
-      case 2:
+         break;
+      case ChrRomBankItemCol_Name:
          return QVariant("Name");
-      case 3:
+         break;
+      case ChrRomBankItemCol_Size:
          return QVariant("Size");
+         break;
       default:
          return QVariant();
+         break;
    }
-}
-
-QModelIndex CChrRomItemListDisplayModel::index(int row, int column, const QModelIndex& parent) const
-{
-   if ((row >= 0) && (row < chrRomBankItems.count()))
-   {
-      return createIndex(row, column, chrRomBankItems.at(row));
-   }
-
-   return QModelIndex();
 }
 
 int CChrRomItemListDisplayModel::rowCount(const QModelIndex& parent) const
 {
-   return chrRomBankItems.count();
+   return chrRomBankItems.count()+1;
 }
 
 int CChrRomItemListDisplayModel::columnCount(const QModelIndex& parent) const
 {
-   return 4;
-}
-
-void CChrRomItemListDisplayModel::layoutChangedEvent()
-{
-   this->layoutChanged();
+   return ChrRomBankItemCol_MAX;
 }
 
 bool CChrRomItemListDisplayModel::setData ( const QModelIndex& index, const QVariant& value, int )
 {
-   return false;
+   bool ok = false;
+   IChrRomBankItem* item;
+
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   do
+   {
+      item = dynamic_cast<IChrRomBankItem*>(iter.current());
+      if ( item && (iter.current()->caption() == value.toString()) )
+      {
+         ok = true;
+         break;
+      }
+      iter.next();
+   } while ( iter.current() );
+
+   if ( ok )
+   {
+      switch ( index.column() )
+      {
+         case ChrRomBankItemCol_Name:
+            if ( index.row() < chrRomBankItems.count() )
+            {
+               chrRomBankItems.replace(index.row(),item);
+               emit layoutChanged();
+               ok = true;
+            }
+            else
+            {
+               if ( (!value.toString().isEmpty()) &&
+                    (value != CLICK_TO_ADD_OR_EDIT) )
+               {
+                  chrRomBankItems.append(item);
+                  emit layoutChanged();
+                  ok = true;
+               }
+            }
+            break;
+         default:
+            ok = false;
+            break;
+      }
+   }
+
+   return ok;
 }
 
+void CChrRomItemListDisplayModel::removeRow(int row, const QModelIndex &parent)
+{
+   if ( row < chrRomBankItems.count() )
+   {
+      beginRemoveRows(parent,row,row);
+      chrRomBankItems.removeAt(row);
+      endRemoveRows();
+   }
+}
+
+void CChrRomItemListDisplayModel::insertRow(IChrRomBankItem* item, const QModelIndex& parent)
+{
+   beginInsertRows(parent,chrRomBankItems.count(),chrRomBankItems.count());
+   chrRomBankItems.append(item);
+   endInsertRows();
+}
+
+void CChrRomItemListDisplayModel::update()
+{
+   emit layoutChanged();
+}
 

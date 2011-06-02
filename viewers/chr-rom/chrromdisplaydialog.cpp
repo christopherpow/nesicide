@@ -77,6 +77,45 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    ui->updateScanline->setText ( "0" );
 }
 
+CHRROMDisplayDialog::~CHRROMDisplayDialog()
+{
+   delete imgData;
+   delete ui;
+}
+
+void CHRROMDisplayDialog::showEvent(QShowEvent* event)
+{
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
+   CPPUDBG::EnableCHRMEMInspector(true);
+   renderData();
+}
+
+void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
+{
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
+   CPPUDBG::EnableCHRMEMInspector(false);
+}
+
+void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
+{
+   QWidget::resizeEvent(event);
+   updateScrollbars();
+}
+
+void CHRROMDisplayDialog::changeEvent(QEvent* e)
+{
+   QWidget::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
+}
+
 void CHRROMDisplayDialog::colorChanged (const QColor& color)
 {
    ui->col0PushButton->setText("");
@@ -95,19 +134,6 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
    renderData();
    renderer->setBGColor(ui->col0PushButton->currentColor());
    renderer->reloadData(imgData);
-}
-
-void CHRROMDisplayDialog::showEvent(QShowEvent* event)
-{
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   CPPUDBG::EnableCHRMEMInspector(true);
-   renderData();
-}
-
-void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
-{
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   CPPUDBG::EnableCHRMEMInspector(false);
 }
 
 void CHRROMDisplayDialog::renderData()
@@ -159,33 +185,6 @@ void CHRROMDisplayDialog::renderData()
             }
          }
       }
-   }
-}
-
-CHRROMDisplayDialog::~CHRROMDisplayDialog()
-{
-   delete imgData;
-   delete ui;
-}
-
-void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
-{
-   QWidget::resizeEvent(event);
-   updateScrollbars();
-}
-
-
-void CHRROMDisplayDialog::changeEvent(QEvent* e)
-{
-   QWidget::changeEvent(e);
-
-   switch (e->type())
-   {
-      case QEvent::LanguageChange:
-         ui->retranslateUi(this);
-         break;
-      default:
-         break;
    }
 }
 

@@ -41,11 +41,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
    ui->setupUi(this);
 
-   emulatorDlg = new NESEmulatorDockWidget();
-   addDockWidget(Qt::RightDockWidgetArea, emulatorDlg );
-   emulatorDlg->hide();
-   QObject::connect(emulatorDlg, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Emulator", emulatorDlg );
+   m_pEmulator = new NESEmulatorDockWidget();
+   addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
+   m_pEmulator->hide();
+   QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
    CDockWidgetRegistry::setFlags ("Emulator", CDockWidgetRegistry::DockWidgetDisabledOnCompileError);
 
    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
@@ -339,6 +339,13 @@ MainWindow::MainWindow(QWidget* parent) :
          QMessageBox::information ( 0, "Command Line Error", "Too many NESICIDE project files were specified on the command\n"
                                     "line.  Only the first NESICIDE project was opened, all others\n"
                                     "were ignored." );
+      }
+   }
+   else if ( EnvironmentSettingsDialog::trackRecentProjects() )
+   {
+      if ( !(settings.value("LastProject").toString().isEmpty()) )
+      {
+         openProject(settings.value("LastProject").toString());
       }
    }
 
@@ -755,11 +762,11 @@ void MainWindow::on_actionEmulation_Window_toggled(bool value)
 {
    if (value)
    {
-      emulatorDlg->show();
+      m_pEmulator->show();
    }
    else
    {
-      emulatorDlg->hide();
+      m_pEmulator->hide();
    }
 }
 
@@ -774,13 +781,9 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QMainWindow::closeEvent(event);
 }
 
-void MainWindow::focusInEvent(QFocusEvent *event)
-{
-   qDebug("focusIn");
-}
-
 void MainWindow::openProject(QString fileName)
 {
+   QSettings settings;
    QString errors;
    bool    ok;
 
@@ -850,6 +853,8 @@ void MainWindow::openProject(QString fileName)
       }
 
       projectBrowser->enableNavigation();
+
+      settings.setValue("LastProject",fileName);
 
       projectDataChangesEvent();
 
@@ -1403,9 +1408,9 @@ void MainWindow::on_actionPreferences_triggered()
    {
       if ( EmulatorPrefsDialog::getScalingFactor() > 1 )
       {
-         emulatorDlg->setFloating(true);
+         m_pEmulator->setFloating(true);
       }
-      emulatorDlg->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
+      m_pEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
    }
 
    // Restart emulator to apply changes.

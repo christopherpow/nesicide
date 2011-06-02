@@ -5,7 +5,7 @@
 
 static char modelStringBuffer [ 2048 ];
 
-static const char* CLICK_TO_ADD = "<click to add>";
+static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
 CSymbolWatchModel::CSymbolWatchModel(QObject *parent) :
     QAbstractTableModel(parent)
@@ -79,13 +79,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
       switch ( index.column() )
       {
          case 0:
-            return QVariant(CLICK_TO_ADD);
-            break;
-         case 1:
-            return QVariant();
-            break;
-         case 2:
-            return QVariant();
+            return QVariant(CLICK_TO_ADD_OR_EDIT);
             break;
       }
    }
@@ -109,7 +103,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
          else
          {
             if ( (!value.toString().isEmpty()) &&
-                 (value != CLICK_TO_ADD) )
+                 (value != CLICK_TO_ADD_OR_EDIT) )
             {
                m_symbols.append(value.toString());
                emit layoutChanged();

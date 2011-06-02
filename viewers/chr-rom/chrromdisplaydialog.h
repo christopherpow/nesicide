@@ -17,7 +17,6 @@ class CHRROMDisplayDialog : public CDesignerEditorBase
 public:
    CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~CHRROMDisplayDialog();
-   void updateScrollbars();
 
 protected:
    CCHRROMPreviewRenderer* renderer;
@@ -33,6 +32,7 @@ private:
    Ui::CHRROMDisplayDialog* ui;
    char* imgData;
    bool m_usePPU;
+   void updateScrollbars();
 
 public slots:
    void renderData();

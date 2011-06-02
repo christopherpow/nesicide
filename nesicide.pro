@@ -189,7 +189,6 @@ SOURCES += mainwindow.cpp \
     emulator/nesemulatorthread.cpp \
     viewers/debugger/ccodebrowserdisplaymodel.cpp \
     aboutdialog.cpp \
-    designers/graphics_bank_editor/graphicsbankadditemsdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
     debugger/ccodedataloggerrenderer.cpp \
     project/cattributetables.cpp \
@@ -240,7 +239,8 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/csymbolwatchmodel.cpp \
     viewers/debugger/cdebuggernumericitemdelegate.cpp \
     viewers/debugger/cdebuggersymboldelegate.cpp \
-    common/cprojecttabwidget.cpp
+    common/cprojecttabwidget.cpp \
+    designers/graphics_bank_editor/cchrrombankitemdelegate.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -291,7 +291,6 @@ HEADERS += mainwindow.h \
     viewers/debugger/ccodebrowserdisplaymodel.h \
     aboutdialog.h \
     interfaces/ichrrombankitem.h \
-    designers/graphics_bank_editor/graphicsbankadditemsdialog.h \
     viewers/chr-rom/cchrromitemlistdisplaymodel.h \
     debugger/ccodedataloggerrenderer.h \
     project/cattributetables.h \
@@ -342,7 +341,8 @@ HEADERS += mainwindow.h \
     viewers/debugger/csymbolwatchmodel.h \
     viewers/debugger/cdebuggernumericitemdelegate.h \
     viewers/debugger/cdebuggersymboldelegate.h \
-    common/cprojecttabwidget.h
+    common/cprojecttabwidget.h \
+    designers/graphics_bank_editor/cchrrombankitemdelegate.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -353,7 +353,6 @@ FORMS += mainwindow.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
     debugger/breakpointdialog.ui \
     aboutdialog.ui \
-    designers/graphics_bank_editor/graphicsbankadditemsdialog.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
     emulatorprefsdialog.ui \
