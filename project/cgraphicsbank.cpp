@@ -32,6 +32,13 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", uuid());
 
+   if ( m_editor && m_editor->isModified() )
+   {
+      m_bankItems = getGraphics();
+
+      m_editor->setModified(false);
+   }
+
    for (int i=0; i < m_bankItems.count(); i++)
    {
       QDomElement graphicsItemElement = addElement( doc, element, "graphicitem" );
