@@ -1253,6 +1253,10 @@ void MainWindow::closeProject()
 
 void MainWindow::on_action_Close_Project_triggered()
 {
+   QSettings settings;
+
+   settings.setValue("LastProject","");
+
    closeProject();
 }
 
