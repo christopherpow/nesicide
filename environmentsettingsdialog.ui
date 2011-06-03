@@ -17,7 +17,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -34,7 +34,7 @@
        <item row="0" column="1">
         <widget class="QCheckBox" name="trackRecentProjects">
          <property name="text">
-          <string>Auto-open last project</string>
+          <string>Auto-open last project or ROM</string>
          </property>
         </widget>
        </item>
