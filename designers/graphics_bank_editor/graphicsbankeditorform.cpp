@@ -52,7 +52,6 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 
    model = new CChrRomItemListDisplayModel();
 
-   QObject::connect(model,SIGNAL(dataChanged(QModelIndex,QModelIndex)),this,SLOT(updateUi()));
    delegate = new CChrRomBankItemDelegate();
 
    ui->tableView->setModel(model);
@@ -60,9 +59,12 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    ui->tableView->setColumnWidth(ChrRomBankItemCol_Icon, 26);
    ui->tableView->setColumnWidth(ChrRomBankItemCol_Name,400);
 
+   ui->progressBar->setMaximum(MEM_8KB);
+
    updateChrRomBankItemList(bankItems);
 
-   ui->progressBar->setMaximum(MEM_8KB);
+   // Do this last since we're hanging on layoutChanged to know when to set "modified"
+   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 }
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()

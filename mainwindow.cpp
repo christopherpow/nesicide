@@ -1203,10 +1203,7 @@ void MainWindow::on_action_About_Nesicide_triggered()
 
 void MainWindow::closeProject()
 {
-   QSettings settings;
    int tab;
-
-   settings.setValue("LastProject","");
 
    m_pSourceNavigator->shutdown();
 
