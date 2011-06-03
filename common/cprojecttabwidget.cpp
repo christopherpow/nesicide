@@ -51,6 +51,8 @@ void CProjectTabWidget::tabModified(bool modified)
                tabBar()->setTabText(tab,tabBar()->tabText(tab).left(tabBar()->tabText(tab).length()-1));
             }
          }
+
+         emit tabModified(tab,modified);
       }
    }
 }

@@ -19,8 +19,11 @@ public:
     // ICenterWidgetItem Interface Implmentation
     virtual bool onCloseQuery();
     virtual void onClose();
-    virtual bool isDocumentSaveable();
-    virtual void onSaveDocument();
+    virtual bool onSaveQuery();
+    virtual void onSave();
+
+protected:
+    void keyPressEvent(QKeyEvent *e);
 
 signals:
     void editor_modified(bool m);

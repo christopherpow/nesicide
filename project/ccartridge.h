@@ -71,10 +71,6 @@ public:
       return true;
    }
    virtual void onClose() {}
-   virtual bool isDocumentSaveable()
-   {
-      return false;
-   }
    virtual void saveItemEvent() {}
    virtual bool canChangeName()
    {

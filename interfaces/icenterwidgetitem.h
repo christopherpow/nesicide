@@ -16,8 +16,8 @@ public:
 
    virtual bool onCloseQuery() = 0;
    virtual void onClose() = 0;
-   virtual bool isDocumentSaveable() = 0;
-   virtual void onSaveDocument() = 0;
+   virtual bool onSaveQuery() = 0;
+   virtual void onSave() = 0;
 // CPTODO later:   virtual bool canChangeName() = 0;
 // CPTODO later:   virtual bool onNameChanged(QString newValue) = 0;
 

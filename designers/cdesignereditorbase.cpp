@@ -32,21 +32,36 @@ void CDesignerEditorBase::onClose()
    }
 }
 
-bool CDesignerEditorBase::isDocumentSaveable()
+bool CDesignerEditorBase::onSaveQuery()
 {
-   bool saveMe = false;
    if ( isModified() )
    {
-      saveMe = true;
+      return (QMessageBox::question(0, QString("Confirm Close"),
+                                    QString("This file has unsaved changes that\n"
+                                            "will be lost if closed without saving.\n"
+                                            "Do you want to save it?"),
+                                    QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
    }
-   return saveMe;
+   else
+   {
+      return false;
+   }
 }
 
-void CDesignerEditorBase::onSaveDocument()
+void CDesignerEditorBase::onSave()
 {
    if ( treeLink )
    {
       treeLink->saveItemEvent();
    }
    setModified(false);
+}
+
+void CDesignerEditorBase::keyPressEvent(QKeyEvent *e)
+{
+   if ( (e->modifiers() == Qt::ControlModifier) &&
+        (e->key() == Qt::Key_S) )
+   {
+      onSave();
+   }
 }

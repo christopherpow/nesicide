@@ -58,6 +58,7 @@ private:
    QString projectFileName;
    void openProject(QString fileName);
    void saveProject();
+   void closeProject();
 
    // Dock widgets
    NESEmulatorDockWidget* m_pEmulator;
@@ -94,6 +95,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void tabWidget_tabModified(int tab,bool modified);
    void on_actionE_xit_triggered();
    void on_actionRun_Test_Suite_triggered();
    void on_actionLoad_In_Emulator_triggered();
@@ -111,7 +113,6 @@ private slots:
    void on_actionDelta_Modulation_toggled(bool );
    void on_actionPAL_triggered();
    void on_actionNTSC_triggered();
-   void handle_MainWindow_destroyed();
    void on_action_Close_Project_triggered();
    void on_action_About_Nesicide_triggered();
    void on_actionCode_Inspector_toggled(bool );

@@ -131,7 +131,7 @@ bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
          if ( (keyEvent->modifiers() == Qt::ControlModifier) &&
               (keyEvent->key() == Qt::Key_S) )
          {
-            onSaveDocument();
+            onSave();
             return true;
          }
          else

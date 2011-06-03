@@ -97,7 +97,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
          if ( index.row() < m_symbols.count() )
          {
             m_symbols.replace(index.row(),value.toString());
-            emit layoutChanged();
+            emit dataChanged(index,index);
             ok = true;
          }
          else
@@ -106,7 +106,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
                  (value != CLICK_TO_ADD_OR_EDIT) )
             {
                m_symbols.append(value.toString());
-               emit layoutChanged();
+               emit dataChanged(index,index);
                ok = true;
             }
          }

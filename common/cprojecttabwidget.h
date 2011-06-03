@@ -13,6 +13,7 @@ public:
    int addTab(QWidget *widget, const QString &label);
 
 signals:
+   void tabModified(int tab,bool modified);
 
 public slots:
    void tabModified(bool modified);

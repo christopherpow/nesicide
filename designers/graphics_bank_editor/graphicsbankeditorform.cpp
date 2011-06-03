@@ -52,7 +52,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 
    model = new CChrRomItemListDisplayModel();
 
-   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
+   QObject::connect(model,SIGNAL(dataChanged(QModelIndex,QModelIndex)),this,SLOT(updateUi()));
    delegate = new CChrRomBankItemDelegate();
 
    ui->tableView->setModel(model);
@@ -121,12 +121,7 @@ void GraphicsBankEditorForm::resizeEvent(QResizeEvent* event)
 
 void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *e)
 {
-   if ( (e->modifiers() == Qt::ControlModifier) &&
-        (e->key() == Qt::Key_S) )
-   {
-      onSaveDocument();
-   }
-   else if ( e->key() == Qt::Key_Delete )
+   if ( e->key() == Qt::Key_Delete )
    {
       QModelIndex index = ui->tableView->currentIndex();
 
@@ -149,6 +144,7 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *e)
          emit editor_modified(true);
       }
    }
+   CDesignerEditorBase::keyPressEvent(e);
 }
 
 void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> newList)

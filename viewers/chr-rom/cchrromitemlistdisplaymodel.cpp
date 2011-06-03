@@ -150,7 +150,7 @@ bool CChrRomItemListDisplayModel::setData ( const QModelIndex& index, const QVar
             if ( index.row() < chrRomBankItems.count() )
             {
                chrRomBankItems.replace(index.row(),item);
-               emit layoutChanged();
+               emit dataChanged(index,index);
                ok = true;
             }
             else
@@ -159,7 +159,7 @@ bool CChrRomItemListDisplayModel::setData ( const QModelIndex& index, const QVar
                     (value != CLICK_TO_ADD_OR_EDIT) )
                {
                   chrRomBankItems.append(item);
-                  emit layoutChanged();
+                  emit dataChanged(index,index);
                   ok = true;
                }
             }

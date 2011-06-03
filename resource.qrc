@@ -57,5 +57,6 @@
         <file>resources/continue-icon-ppu.svg</file>
         <file>resources/error-mark.svg</file>
         <file>resources/find.png</file>
+        <file>resources/edit_delete.png</file>
     </qresource>
 </RCC>

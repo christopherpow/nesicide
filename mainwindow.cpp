@@ -28,8 +28,6 @@ MainWindow::MainWindow(QWidget* parent) :
    // Initialize preferences dialogs.
    EmulatorPrefsDialog::readSettings();
 
-   QObject::connect(this, SIGNAL(destroyed()), this, SLOT(handle_MainWindow_destroyed()));
-
    QObject::connect(compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()));
    QObject::connect(compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)));
 
@@ -40,6 +38,8 @@ MainWindow::MainWindow(QWidget* parent) :
    nesicideProject = new CNesicideProject();
 
    ui->setupUi(this);
+
+   QObject::connect(ui->tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
 
    m_pEmulator = new NESEmulatorDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
@@ -485,7 +485,7 @@ void MainWindow::dropEvent(QDropEvent* event)
       {
          if ( nesicideProject->isInitialized() )
          {
-            on_action_Close_Project_triggered();
+            closeProject();
          }
          openProject(fileName);
 
@@ -565,7 +565,7 @@ void MainWindow::projectDataChangesEvent()
 
       if ( projectItem && projectItem->isModified() )
       {
-         ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
+         ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
       }
       else
       {
@@ -728,6 +728,11 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
    openROM(fileName);
 }
 
+void MainWindow::tabWidget_tabModified(int tab, bool modified)
+{
+   ui->actionSave_Active_Document->setEnabled(modified);
+}
+
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
    ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
@@ -736,8 +741,8 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
    {
       if (projectItem->onCloseQuery())
       {
-         ui->tabWidget->removeTab(index);
          projectItem->onClose();
+         ui->tabWidget->removeTab(index);
       }
    }
    else
@@ -778,6 +783,12 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    settings.setValue("IDEState",saveState());
 
    emulator->pauseEmulation(false);
+
+   if (nesicideProject->isInitialized())
+   {
+      closeProject();
+   }
+
    QMainWindow::closeEvent(event);
 }
 
@@ -880,7 +891,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
    if ( projectItem && projectItem->isModified() )
    {
-      ui->actionSave_Active_Document->setEnabled(projectItem->isDocumentSaveable());
+      ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
    }
    else
    {
@@ -894,7 +905,7 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
    if (projectItem)
    {
-      projectItem->onSaveDocument();
+      projectItem->onSave();
    }
 }
 
@@ -1190,8 +1201,10 @@ void MainWindow::on_action_About_Nesicide_triggered()
    delete dlg;
 }
 
-void MainWindow::on_action_Close_Project_triggered()
+void MainWindow::closeProject()
 {
+   int tab;
+
    m_pSourceNavigator->shutdown();
 
    // Stop the emulator if it is running
@@ -1200,15 +1213,26 @@ void MainWindow::on_action_Close_Project_triggered()
    // Terminate the project and let the IDE know
    projectBrowser->disableNavigation();
 
+   // Try to close all opened editors
+   for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+   {
+      ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
+      if ( item )
+      {
+         ui->tabWidget->setCurrentWidget(ui->tabWidget->widget(tab));
+         if ( item->onSaveQuery() )
+         {
+            item->onSave();
+         }
+      }
+   }
+
    CCC65Interface::clear();
 
    nesicideProject->terminateProject();
 
    emulator->primeEmulator();
    emulator->resetEmulator();
-
-   // Remove any tabs
-   ui->tabWidget->clear();
 
    if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
@@ -1227,12 +1251,9 @@ void MainWindow::on_action_Close_Project_triggered()
    projectDataChangesEvent();
 }
 
-void MainWindow::handle_MainWindow_destroyed()
+void MainWindow::on_action_Close_Project_triggered()
 {
-   if (nesicideProject->isInitialized())
-   {
-      on_action_Close_Project_triggered();
-   }
+   closeProject();
 }
 
 void MainWindow::on_actionNTSC_triggered()

@@ -278,6 +278,7 @@
    <addaction name="actionOpen_Project"/>
    <addaction name="actionSave_Project"/>
    <addaction name="separator"/>
+   <addaction name="action_Close_Project"/>
   </widget>
   <widget class="QToolBar" name="compilerToolbar">
    <property name="sizePolicy">
@@ -792,6 +793,10 @@
    </property>
   </action>
   <action name="action_Close_Project">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/edit_delete.png</normaloff>:/resources/edit_delete.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Close Project</string>
    </property>

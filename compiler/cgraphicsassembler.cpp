@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-static const char emptyBank[] = { 0, };
+static const char emptyBank[MEM_8KB] = { 0, };
 
 CGraphicsAssembler::CGraphicsAssembler()
 {
