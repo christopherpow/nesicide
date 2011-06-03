@@ -343,9 +343,18 @@ MainWindow::MainWindow(QWidget* parent) :
    }
    else if ( EnvironmentSettingsDialog::trackRecentProjects() )
    {
-      if ( !(settings.value("LastProject").toString().isEmpty()) )
+      argv.clear();
+      argv.append(settings.value("LastProject").toString());
+      if ( !(argv.at(0).isEmpty()) )
       {
-         openProject(settings.value("LastProject").toString());
+         if ( argv.at(0).contains(".nesproject") )
+         {
+            openProject(argv.at(0));
+         }
+         else
+         {
+            openROM(argv.at(0));
+         }
       }
    }
 
@@ -672,6 +681,8 @@ void MainWindow::on_actionNew_Project_triggered()
 
 void MainWindow::openROM(QString fileName)
 {
+   QSettings settings;
+
    output->showPane(OutputPaneDockWidget::Output_General);
 
    emulator->pauseEmulation(false);
@@ -713,6 +724,8 @@ void MainWindow::openROM(QString fileName)
 
    ui->actionEmulation_Window->setChecked(true);
    on_actionEmulation_Window_toggled(true);
+
+   settings.setValue("LastProject",fileName);
 }
 
 void MainWindow::on_actionCreate_Project_from_ROM_triggered()
