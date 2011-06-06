@@ -18,25 +18,36 @@ CCC65Interface::CCC65Interface()
 
 CCC65Interface::~CCC65Interface()
 {
-   cc65_free_sourceinfo(dbgInfo,dbgSources);
-   cc65_free_segmentinfo(dbgInfo,dbgSegments);
-   cc65_free_lineinfo(dbgInfo,dbgLines);
-   cc65_free_symbolinfo(dbgInfo,dbgSymbols);
-   cc65_free_dbginfo(dbgInfo);
+   clear();
 }
 
 void CCC65Interface::clear()
 {
-   cc65_free_sourceinfo(dbgInfo,dbgSources);
-   dbgSources = 0;
-   cc65_free_segmentinfo(dbgInfo,dbgSegments);
-   dbgSegments = 0;
-   cc65_free_lineinfo(dbgInfo,dbgLines);
-   dbgLines = 0;
-   cc65_free_symbolinfo(dbgInfo,dbgSymbols);
-   dbgSymbols = 0;
-   cc65_free_dbginfo(dbgInfo);
-   dbgInfo = 0;
+   if ( dbgInfo )
+   {
+      if ( dbgSources )
+      {
+         cc65_free_sourceinfo(dbgInfo,dbgSources);
+         dbgSources = 0;
+      }
+      if (  dbgSegments )
+      {
+         cc65_free_segmentinfo(dbgInfo,dbgSegments);
+         dbgSegments = 0;
+      }
+      if ( dbgLines )
+      {
+         cc65_free_lineinfo(dbgInfo,dbgLines);
+         dbgLines = 0;
+      }
+      if ( dbgSymbols )
+      {
+         cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+         dbgSymbols = 0;
+      }
+      cc65_free_dbginfo(dbgInfo);
+      dbgInfo = 0;
+   }
 }
 
 bool CCC65Interface::assemble()
