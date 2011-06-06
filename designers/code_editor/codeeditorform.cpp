@@ -3,6 +3,7 @@
 
 #include <QToolTip>
 #include <QMenu>
+#include <QAction>
 #include <QPixmap>
 
 #include "Qsci/qsciscintillabase.h"
@@ -27,6 +28,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
    QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
    QSettings settings;
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   MarkerSetInfo* pMarker;
+   int marker;
 
    ui->setupUi(this);
 
@@ -38,6 +42,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_lexer->readSettings(settings,"CodeEditor");
 
    m_scintilla->installEventFilter(this);
+   m_scintilla->setContextMenuPolicy(Qt::CustomContextMenu);
+   QObject::connect(m_scintilla,SIGNAL(customContextMenuRequested(const QPoint&)),this,SLOT(customContextMenuRequested(const QPoint&)));
 
    // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
    m_timer = startTimer(50);
@@ -52,11 +58,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setMarginWidth(4,0);
    m_scintilla->setMarginMarkerMask(4,0);
 
-   m_scintilla->setMarginWidth(2,22);
+   m_scintilla->setMarginWidth(2,5);
    m_scintilla->setMarginMarkerMask(2,QsciScintilla::SymbolMargin);
    m_scintilla->setMarginSensitivity(2,true);
-   m_scintilla->setMarginMarkerMask(2,0xFFFFFFF0);
-   m_scintilla->setFolding(QsciScintilla::BoxedTreeFoldStyle,2);
+   m_scintilla->setMarginMarkerMask(2,0x00000FF0);
 
    m_scintilla->setMarginWidth(Margin_Decorations,22);
    m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
@@ -65,7 +70,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
    m_scintilla->setMarginWidth(Margin_LineNumbers,0);
-   m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
+   m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0x00000000);
    m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
    m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
 
@@ -76,6 +81,13 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
    m_scintilla->markerDefine(QPixmap(":/resources/error-mark.svg"),Marker_Error);
+   for ( marker = 0; marker < markers->GetNumMarkers(); marker++ )
+   {
+      pMarker = markers->GetMarker(marker);
+      m_scintilla->markerDefine('_',Marker_Marker1+marker);
+      m_scintilla->setMarkerBackgroundColor(QColor(pMarker->red,pMarker->green,pMarker->blue),Marker_Marker1+marker);
+      m_scintilla->setMarkerForegroundColor(QColor(pMarker->red,pMarker->green,pMarker->blue),Marker_Marker1+marker);
+   }
    m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
    m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
    m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
@@ -98,7 +110,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    ui->gridLayout->addWidget(m_scintilla);
 
    // Connect signals to the UI to have the UI update.
-   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
+   QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
@@ -120,63 +132,39 @@ CodeEditorForm::~CodeEditorForm()
    delete m_scintilla;
 }
 
-bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
-{
-   if (obj == m_scintilla)
-   {
-      // Capture Ctrl-S keypress since it's otherwise not handled.
-      if (event->type() == QEvent::KeyPress)
-      {
-         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-         if ( (keyEvent->modifiers() == Qt::ControlModifier) &&
-              (keyEvent->key() == Qt::Key_S) )
-         {
-            onSave();
-            return true;
-         }
-         else
-         {
-            return false;
-         }
-      }
-      else
-      {
-         return false;
-      }
-   }
-   else
-   {
-      // pass the event on to the parent class
-      return CDesignerEditorBase::eventFilter(obj, event);
-   }
-}
-
-void CodeEditorForm::changeEvent(QEvent *e)
-{
-   QWidget::changeEvent(e);
-
-   switch (e->type())
-   {
-      case QEvent::LanguageChange:
-         ui->retranslateUi(this);
-         break;
-      default:
-         break;
-   }
-}
-
-void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
+void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 {
    QMenu menu;
-//   QMenu *pMenu = m_scintilla->createStandardContextMenu();
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int line;
    int index;
    int addr = 0;
    int absAddr = 0;
+   QsciDocument doc = m_scintilla->document();
+   bool writable = m_scintilla->SendScintilla(QsciScintilla::SCI_GETREADONLY, (unsigned long)0, (long)0);
+   bool undoable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANUNDO, (unsigned long)0, (long)0);
+   bool redoable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANREDO, (unsigned long)0, (long)0);
+   bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
 
    m_scintilla->getCursorPosition(&line,&index);
+
+   QAction* action;
+   action = menu.addAction("Undo",this,SLOT(editor_undo()),QKeySequence(Qt::CTRL + Qt::Key_Z));
+   action->setEnabled(writable && undoable);
+   action = menu.addAction("Redo",this,SLOT(editor_redo()),QKeySequence(Qt::CTRL + Qt::Key_Y));
+   action->setEnabled(writable && redoable);
+   menu.addSeparator();
+   action = menu.addAction("Cut",this,SLOT(editor_cut()),QKeySequence(Qt::CTRL + Qt::Key_X));
+   action->setEnabled(writable && m_scintilla->hasSelectedText());
+   action = menu.addAction("Copy",this,SLOT(editor_copy()),QKeySequence(Qt::CTRL + Qt::Key_C));
+   action->setEnabled(m_scintilla->hasSelectedText());
+   action = menu.addAction("Paste",this,SLOT(editor_paste()),QKeySequence(Qt::CTRL + Qt::Key_V));
+   action->setEnabled(writable && pasteable);
+//   action = menu.addAction("Delete",this,SLOT(editor_delete()));
+//   action->setEnabled(writable && m_scintilla->hasSelectedText());
+   menu.addSeparator();
+   action = menu.addAction("Select All",this,SLOT(editor_selectAll()),QKeySequence(Qt::CTRL + Qt::Key_A));
 
    addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
 
@@ -226,19 +214,56 @@ void CodeEditorForm::contextMenuEvent(QContextMenuEvent *e)
       menu.addAction(ui->actionEnd_marker_here);
       menu.addSeparator();
 
-//      menu.addActions(pMenu->actions());
-
       m_breakpointIndex = bp;
-   }
-   else
-   {
-//      menu.addActions(pMenu->actions());
    }
 
    // Run the context menu...
-   menu.exec(e->globalPos());
+   menu.exec(QWidget::mapToGlobal(pos));
+}
 
-//   delete pMenu;
+bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
+{
+   if (obj == m_scintilla)
+   {
+      // Capture Ctrl-S keypress since it's otherwise not handled.
+      if (event->type() == QEvent::KeyPress)
+      {
+         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+         if ( (keyEvent->modifiers() == Qt::ControlModifier) &&
+              (keyEvent->key() == Qt::Key_S) )
+         {
+            onSave();
+            return true;
+         }
+         else
+         {
+            return false;
+         }
+      }
+      else
+      {
+         return false;
+      }
+   }
+   else
+   {
+      // pass the event on to the parent class
+      return CDesignerEditorBase::eventFilter(obj, event);
+   }
+}
+
+void CodeEditorForm::changeEvent(QEvent *e)
+{
+   QWidget::changeEvent(e);
+
+   switch (e->type())
+   {
+      case QEvent::LanguageChange:
+         ui->retranslateUi(this);
+         break;
+      default:
+         break;
+   }
 }
 
 void CodeEditorForm::timerEvent(QTimerEvent *e)
@@ -300,6 +325,10 @@ void CodeEditorForm::external_breakpointsChanged()
 
    m_scintilla->markerDeleteAll(Marker_Breakpoint);
    m_scintilla->markerDeleteAll(Marker_BreakpointDisabled);
+   for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
+   {
+      m_scintilla->markerDeleteAll(Marker_Marker1+idx);
+   }
 
    for ( line = 0; line < m_scintilla->lines(); line++ )
    {
@@ -317,6 +346,7 @@ void CodeEditorForm::external_breakpointsChanged()
             if ( (absAddr >= pMarker->startAbsAddr) &&
                  (absAddr <= pMarker->endAbsAddr) )
             {
+               m_scintilla->markerAdd(line,Marker_Marker1+idx);
             }
          }
       }
@@ -345,7 +375,41 @@ void CodeEditorForm::external_breakpointsChanged()
 
 void CodeEditorForm::breakpointHit()
 {
+}
 
+void CodeEditorForm::editor_undo()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_UNDO, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_redo()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_REDO, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_cut()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_CUT, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_copy()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_COPY, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_paste()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_PASTE, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_delete()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_CLEAR, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_selectAll()
+{
+   m_scintilla->SendScintilla(QsciScintilla::SCI_SELECTALL, (unsigned long)0, (long)0);
 }
 
 void CodeEditorForm::editor_modificationChanged(bool m)
@@ -549,6 +613,8 @@ void CodeEditorForm::on_actionDisable_breakpoint_triggered()
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -559,6 +625,8 @@ void CodeEditorForm::on_actionRemove_breakpoint_triggered()
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -569,6 +637,8 @@ void CodeEditorForm::on_actionEnable_breakpoint_triggered()
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -591,6 +661,8 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
    {
       // Find unused Marker entry...
       marker = markers->AddMarker(absAddr);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -614,6 +686,8 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
       if ( addr != -1 )
       {
          markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
+
+         emit breakpointsChanged();
       }
    }
 }
@@ -622,6 +696,8 @@ void CodeEditorForm::on_actionClear_marker_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
    markers->ClearAllMarkers();
+
+   emit breakpointsChanged();
 }
 
 QString CodeEditorForm::sourceCode()

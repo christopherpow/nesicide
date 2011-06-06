@@ -255,7 +255,7 @@
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="noInternals"/>
           <widget class="QWidget" name="mapper1">
@@ -294,10 +294,7 @@
           <widget class="QWidget" name="mapper3"/>
           <widget class="QWidget" name="mapper4">
            <layout class="QGridLayout" name="gridLayout_5">
-            <item row="1" column="3" colspan="3">
-             <widget class="QLineEdit" name="irqCounter"/>
-            </item>
-            <item row="2" column="0">
+            <item row="2" column="2">
              <widget class="QCheckBox" name="ppuAddrA12">
               <property name="text">
                <string>PPU Address A12 Set</string>
@@ -307,7 +304,7 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="1" column="2">
              <widget class="QCheckBox" name="irqEnabled">
               <property name="text">
                <string>IRQ Enabled</string>
@@ -317,41 +314,14 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>IRQ Counter:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLabel" name="label_20">
-              <property name="text">
-               <string>Last A12 transition:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="3" colspan="3">
-             <widget class="QLineEdit" name="lastA12Cycle"/>
-            </item>
-            <item row="0" column="0">
+            <item row="0" column="2">
              <widget class="QCheckBox" name="irqAsserted">
               <property name="text">
                <string>IRQ Asserted</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_19">
-              <property name="text">
-               <string>IRQ Reload Value:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3" colspan="3">
-             <widget class="QLineEdit" name="irqReload"/>
-            </item>
-            <item row="3" column="0" colspan="6">
+            <item row="3" column="2" colspan="6">
              <spacer name="verticalSpacer_3">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -363,6 +333,36 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_19">
+              <property name="text">
+               <string>IRQ Reload Value:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="irqReload"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>IRQ Counter:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>Last A12 transition:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="irqCounter"/>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="lastA12Cycle"/>
             </item>
            </layout>
           </widget>

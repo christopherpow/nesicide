@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>284</width>
-    <height>289</height>
+    <width>340</width>
+    <height>312</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>284</width>
-    <height>289</height>
+    <width>340</width>
+    <height>312</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -40,9 +40,6 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="apuCycle"/>
-    </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_17">
       <property name="text">
@@ -53,10 +50,13 @@
     <item row="1" column="1">
      <widget class="QLineEdit" name="apuSequencerMode"/>
     </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="apuCycle"/>
+    </item>
     <item row="2" column="0" colspan="2">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="square1">
        <attribute name="title">
@@ -412,17 +412,17 @@
         <item row="6" column="2">
          <widget class="QLineEdit" name="samplePos5"/>
         </item>
-        <item row="1" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_16">
           <property name="text">
            <string>Sample Buffer:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" colspan="2">
+        <item row="3" column="2">
          <widget class="QLineEdit" name="sampleBufferContents5"/>
         </item>
-        <item row="1" column="3">
+        <item row="3" column="3">
          <widget class="QCheckBox" name="sampleBufferFull5">
           <property name="text">
            <string>Full</string>

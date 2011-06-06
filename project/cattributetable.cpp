@@ -103,6 +103,7 @@ void CAttributeTable::openItemEvent(CProjectTabWidget* tabWidget)
       tabWidget->setCurrentWidget(m_editor);
    }
 }
+
 void CAttributeTable::saveItemEvent()
 {
 }

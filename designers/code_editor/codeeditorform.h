@@ -19,7 +19,16 @@ enum
    Marker_BreakpointDisabled,
    Marker_Execution,
    Marker_Error,
-   Marker_Highlight
+   Marker_Highlight,
+   Marker_Marker1,
+   Marker_Marker2,
+   Marker_Marker3,
+   Marker_Marker4,
+   Marker_Marker5,
+   Marker_Marker6,
+   Marker_Marker7,
+   Marker_Marker8,
+   Marker_MarkerMAX
 };
 
 namespace Ui
@@ -46,7 +55,6 @@ public:
 
 protected:
    void changeEvent(QEvent *e);
-   void contextMenuEvent(QContextMenuEvent *e);
    bool eventFilter(QObject *obj, QEvent *event);
    void timerEvent(QTimerEvent *e);
 
@@ -66,6 +74,13 @@ public slots:
    void restyleText();
 
 private slots:
+   void editor_undo();
+   void editor_redo();
+   void editor_cut();
+   void editor_copy();
+   void editor_paste();
+   void editor_delete();
+   void editor_selectAll();
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
    void editor_linesChanged();
    void editor_modificationChanged(bool m);
@@ -83,6 +98,7 @@ private slots:
    void on_actionDisable_breakpoint_triggered();
    void on_actionRun_to_here_triggered();
    void on_actionBreak_on_CPU_execution_here_triggered();
+   void customContextMenuRequested(const QPoint &pos);
 };
 
 #endif // CODEEDITORFORM_H

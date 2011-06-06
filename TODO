@@ -1,6 +1,6 @@
 The following items are being tracked here because otherwise they'd be forgotten:
 
-0. Files that have been modified need to have a modification indicator on the tab bar and/or project panel.
+**DONE** 0. Files that have been modified need to have a modification indicator on the tab bar and/or project panel.
 
 1. External modifications of files needs to be tracked and reacted to when NESICIDE gains focus.
 
@@ -9,7 +9,8 @@ The following items are being tracked here because otherwise they'd be forgotten
 3. Finish Code Editor lexer for syntax highlights.
    a) It's still a bit buggy with highlighting numbers in label references.
    b) It incorrectly comment-highlights ;'s in "'s.
-4. Finish implementation of Code Editor context menu to pull in breakpoint/marker setting and any other context-menu stuff.
+
+**DONE** 4. Finish implementation of Code Editor context menu to pull in breakpoint/marker setting and any other context-menu stuff.
 
 5. Customizations for cursor size/color in Code Editor.
 
@@ -27,4 +28,4 @@ The following items are being tracked here because otherwise they'd be forgotten
 
 12. GNU Make support as an option alongside direct CA65/LD65 invocation.
 
-13. ?
+13. Figure out why Code Browser doesn't snap to reset vector when project is loaded at application startup, but does when project is loaded after startup.

@@ -366,7 +366,7 @@ MainWindow::MainWindow(QWidget* parent) :
    emulator->adjustAudio( APU_SAMPLES );
    emulator->resetEmulator();
 
-   // Always call this last
+   // Always call this last CPTODO: WHY?
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
 
