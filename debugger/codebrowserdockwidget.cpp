@@ -51,11 +51,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 
    ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-   ui->tableView->resizeColumnToContents(0);
-   ui->tableView->resizeColumnToContents(1);
-   ui->tableView->resizeColumnToContents(2);
-   ui->tableView->resizeColumnToContents(3);
-   ui->tableView->resizeColumnToContents(4);
+   ui->tableView->scrollTo(ui->tableView->currentIndex());
 }
 
 void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
@@ -145,8 +141,10 @@ void CodeBrowserDockWidget::changeEvent(QEvent* e)
 
 void CodeBrowserDockWidget::breakpointHit()
 {
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    show();
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   ui->tableView->scrollTo(ui->tableView->currentIndex());
+   ui->tableView->resizeColumnsToContents();
 }
 
 void CodeBrowserDockWidget::cartridgeLoaded()
@@ -155,15 +153,19 @@ void CodeBrowserDockWidget::cartridgeLoaded()
    {
       show();
    }
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   ui->tableView->scrollTo(ui->tableView->currentIndex());
+   ui->tableView->resizeColumnsToContents();
 }
 
 void CodeBrowserDockWidget::updateDisassembly(bool showMe)
 {
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    if ( showMe )
    {
       show();
    }
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   ui->tableView->scrollTo(ui->tableView->currentIndex());
 }
 
 void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()

@@ -80,7 +80,7 @@ private:
    MemoryInspectorDockWidget* m_pBinPaletteMemoryInspector;
    RegisterInspectorDockWidget* m_pBinMapperMemoryInspector;
    BreakpointDockWidget* m_pBreakpointInspector;
-   CodeBrowserDockWidget* m_pCodeInspector;
+   CodeBrowserDockWidget* m_pAssemblyInspector;
    CodeDataLoggerDockWidget* m_pCodeDataLoggerInspector;
    PPUInformationDockWidget* m_pPPUInformationInspector;
    APUInformationDockWidget* m_pAPUInformationInspector;
@@ -115,7 +115,7 @@ private slots:
    void on_actionNTSC_triggered();
    void on_action_Close_Project_triggered();
    void on_action_About_Nesicide_triggered();
-   void on_actionCode_Inspector_toggled(bool );
+   void on_actionAssembly_Inspector_toggled(bool );
    void on_actionCodeDataLogger_Inspector_toggled(bool );
    void on_actionExecution_Inspector_toggled(bool );
    void on_actionExecution_Visualizer_Inspector_toggled(bool );
@@ -140,7 +140,7 @@ private slots:
    void on_actionMapperInformation_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
    void reflectedEmulator_close(bool toplevel);
-   void reflectedCodeInspector_close(bool toplevel);
+   void reflectedAssemblyInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
    void reflectedExecutionInspector_close(bool toplevel);
    void reflectedExecutionVisualizer_Inspector_close(bool toplevel);

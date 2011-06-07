@@ -188,7 +188,7 @@
      <addaction name="actionGfxCHRMemory_Inspector"/>
     </widget>
     <addaction name="actionExecution_Inspector"/>
-    <addaction name="actionCode_Inspector"/>
+    <addaction name="actionAssembly_Inspector"/>
     <addaction name="actionBreakpoint_Inspector"/>
     <addaction name="actionSymbol_Watch"/>
     <addaction name="separator"/>
@@ -757,7 +757,7 @@
     <string>Breakpoints</string>
    </property>
   </action>
-  <action name="actionCode_Inspector">
+  <action name="actionAssembly_Inspector">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -766,10 +766,10 @@
      <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
    </property>
    <property name="text">
-    <string>Code Browser</string>
+    <string>Assembly Browser</string>
    </property>
    <property name="toolTip">
-    <string>Code Browser</string>
+    <string>Assembly Browser</string>
    </property>
   </action>
   <action name="action_About_Nesicide">

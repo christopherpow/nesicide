@@ -58,7 +58,7 @@ void BreakpointDockWidget::changeEvent(QEvent* e)
 
 void BreakpointDockWidget::showEvent(QShowEvent*)
 {
-   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
+   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Assembly Browser");
    QDockWidget* symbolInspector = CDockWidgetRegistry::getWidget("Symbol Inspector");
    QDockWidget* memoryInspector;
 

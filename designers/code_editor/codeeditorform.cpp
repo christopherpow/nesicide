@@ -25,7 +25,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    CDesignerEditorBase(link,parent),
    ui(new Ui::CodeEditorForm)
 {
-   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Code Browser");
+   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Assembly Browser");
    QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();

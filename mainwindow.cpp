@@ -124,12 +124,12 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
    CDockWidgetRegistry::setFlags ("Execution Visualizer", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
-   m_pCodeInspector = new CodeBrowserDockWidget();
-   addDockWidget(Qt::RightDockWidgetArea, m_pCodeInspector );
-   m_pCodeInspector->hide();
-   QObject::connect(m_pCodeInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeInspector_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Code Browser", m_pCodeInspector );
-   CDockWidgetRegistry::setFlags ("Code Browser", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
+   m_pAssemblyInspector = new CodeBrowserDockWidget();
+   addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
+   m_pAssemblyInspector->hide();
+   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
+   CDockWidgetRegistry::setFlags ("Assembly Browser", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
@@ -395,7 +395,7 @@ MainWindow::~MainWindow()
    delete m_pGfxNameTableMemoryInspector;
    delete m_pExecutionInspector;
    delete m_pExecutionVisualizer;
-   delete m_pCodeInspector;
+   delete m_pAssemblyInspector;
    delete m_pCodeDataLoggerInspector;
    delete m_pBinCPURegisterInspector;
    delete m_pBinCPURAMInspector;
@@ -542,7 +542,7 @@ void MainWindow::projectDataChangesEvent()
    ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionCode_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
+   ui->actionAssembly_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
    ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
@@ -1142,9 +1142,9 @@ void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
    ui->actionBinMapperMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionCode_Inspector_toggled(bool value)
+void MainWindow::on_actionAssembly_Inspector_toggled(bool value)
 {
-   m_pCodeInspector->setVisible(value);
+   m_pAssemblyInspector->setVisible(value);
 }
 
 void MainWindow::reflectedEmulator_close ( bool toplevel )
@@ -1152,9 +1152,9 @@ void MainWindow::reflectedEmulator_close ( bool toplevel )
    ui->actionEmulation_Window->setChecked(toplevel);
 }
 
-void MainWindow::reflectedCodeInspector_close ( bool toplevel )
+void MainWindow::reflectedAssemblyInspector_close ( bool toplevel )
 {
-   ui->actionCode_Inspector->setChecked(toplevel);
+   ui->actionAssembly_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionCodeDataLogger_Inspector_toggled(bool value)
