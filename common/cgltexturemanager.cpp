@@ -8,7 +8,7 @@ bool         CGLTextureManager::m_inited = false;
 CGLTextureManager::CGLTextureManager()
 {
    int idx;
-   glGenTextures ( 10, m_textures );
+   glGenTextures ( 10, (GLuint*)m_textures );
 
    for ( idx = 0; idx < 10; idx++ )
    {
