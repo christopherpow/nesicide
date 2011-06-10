@@ -40,7 +40,14 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
    completer->setCompletionMode(QCompleter::PopupCompletion);
    completer->setCompletionPrefix(index.data(Qt::DisplayRole).toString());
    edit->setCompleter(completer);
-   edit->setText(index.data(Qt::DisplayRole).toString());
+   if ( index.data(Qt::DisplayRole).toString() == "<click to add or edit>" )
+   {
+      edit->setText("");
+   }
+   else
+   {
+      edit->setText(index.data(Qt::DisplayRole).toString());
+   }
 }
 
 void CChrRomBankItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,

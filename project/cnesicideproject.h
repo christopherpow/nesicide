@@ -24,7 +24,7 @@ public:
    // Helper functions
    void initializeProject();
    void terminateProject();
-   bool createProjectFromRom(QString fileName);
+   bool createProjectFromRom(QString fileName,bool silent=false);
 
    // Member Getters
    bool isInitialized();

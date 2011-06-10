@@ -74,6 +74,18 @@ void CNesicideProject::initializeProject()
    }
 
    // Notify the fact that the project data has been initialized properly
+   m_projectTitle = "(No project loaded)";
+   m_projectOutputBasePath = "";
+   m_projectOutputName = "";
+   m_projectLinkerOutputName = "";
+   m_projectDebugInfoName = "";
+   m_projectCHRROMOutputName = "";
+   m_projectCartridgeOutputName = "";
+   m_compilerDefinedSymbols = "";
+   m_compilerIncludePaths = "";
+   m_compilerAdditionalOptions = "";
+   m_linkerConfigFile = "";
+   m_linkerAdditionalOptions = "";
    m_isInitialized = true;
 
    // Initialize child nodes
@@ -97,6 +109,17 @@ void CNesicideProject::terminateProject()
 
    // Notify the fact that the project data is no longer valid
    m_projectTitle = "(No project loaded)";
+   m_projectOutputBasePath = "";
+   m_projectOutputName = "";
+   m_projectLinkerOutputName = "";
+   m_projectDebugInfoName = "";
+   m_projectCHRROMOutputName = "";
+   m_projectCartridgeOutputName = "";
+   m_compilerDefinedSymbols = "";
+   m_compilerIncludePaths = "";
+   m_compilerAdditionalOptions = "";
+   m_linkerConfigFile = "";
+   m_linkerAdditionalOptions = "";
    m_isInitialized = false;
 }
 
@@ -294,7 +317,7 @@ QString CNesicideProject::caption() const
    return QString("NESICIDE");
 }
 
-bool CNesicideProject::createProjectFromRom(QString fileName)
+bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
 {
    CCHRROMBanks* chrRomBanks = getCartridge()->getChrRomBanks();
    CPRGROMBanks* prgRomBanks = getCartridge()->getPrgRomBanks();
@@ -317,7 +340,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       {
          // Header check failed, quit
          fileIn.close();
-         QMessageBox::information(0, "Error", "Invalid ROM format.\nCannot create project.");
+         if (!silent)
+         {
+            QMessageBox::information(0, "Error", "Invalid ROM format.\nCannot create project.");
+         }
          return false;
       }
 
@@ -373,7 +399,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName)
       if ( romCB2&0x0F )
       {
          romCB2 = 0x00;
-         QMessageBox::information(0, "Warning", "Invalid iNES header format.\nSave the project to fix.");
+         if (!silent)
+         {
+            QMessageBox::information(0, "Warning", "Invalid iNES header format.\nSave the project to fix.");
+         }
       }
 
       // Extract the upper four bits of the mapper number

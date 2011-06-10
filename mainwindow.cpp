@@ -663,12 +663,10 @@ void MainWindow::on_actionNew_Project_triggered()
    {
       projectBrowser->disableNavigation();
 
-      nesicideProject->setProjectTitle(dlg.getName());
-
       QDir::setCurrent(dlg.getPath());
 
-      nesicideProject->setProjectOutputBasePath("");
       nesicideProject->initializeProject();
+      nesicideProject->setProjectTitle(dlg.getName());
 
       ProjectPropertiesDialog dlg2;
 
@@ -859,7 +857,7 @@ void MainWindow::openProject(QString fileName)
          QString romName;
          romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
 
-         nesicideProject->createProjectFromRom(romName);
+         nesicideProject->createProjectFromRom(romName,true);
 
          // Load debugger info if we can find it.
          CCC65Interface::captureDebugInfo();
