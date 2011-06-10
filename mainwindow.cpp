@@ -661,16 +661,14 @@ void MainWindow::on_actionNew_Project_triggered()
 
    if (dlg.exec() == QDialog::Accepted)
    {
+      projectFileName.clear();
+
       projectBrowser->disableNavigation();
 
       QDir::setCurrent(dlg.getPath());
 
       nesicideProject->initializeProject();
       nesicideProject->setProjectTitle(dlg.getName());
-
-      ProjectPropertiesDialog dlg2;
-
-      dlg2.exec();
 
       projectBrowser->enableNavigation();
       projectDataChangesEvent();
