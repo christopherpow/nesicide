@@ -18,11 +18,11 @@ bool CGraphicsAssembler::assemble()
 
    if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
    {
-      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
    }
    else
    {
-      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
    }
 
    if ( gfxBanks->getGraphicsBanks().count() )

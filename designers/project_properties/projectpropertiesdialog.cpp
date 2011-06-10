@@ -22,7 +22,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    // Initialize UI elements...
    ui->setupUi(this);
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
-   ui->projectBasePath->setText(QDir::toNativeSeparators(QDir::currentPath()));
+   ui->projectBasePath->setText(QDir::fromNativeSeparators(QDir::currentPath()));
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
    ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
@@ -379,7 +379,7 @@ void ProjectPropertiesDialog::on_includePathBrowse_clicked()
    if ( !value.isEmpty() )
    {
       includes.append(" -I ");
-      includes.append(dir.toNativeSeparators(dir.relativeFilePath(value)));
+      includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
       ui->includePaths->setText(includes);
    }
 }
@@ -418,7 +418,7 @@ void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
 
    if ( !value.isEmpty() )
    {
-      ui->projectOutputBasePath->setText(dir.toNativeSeparators(dir.relativeFilePath(value)));
+      ui->projectOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
    }
 }
 
@@ -443,7 +443,7 @@ void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
 
    if ( !value.isEmpty() )
    {
-      ui->linkerConfigFile->setText(dir.toNativeSeparators(dir.relativeFilePath(value)));
+      ui->linkerConfigFile->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
    }
    deserializeLinkerConfig();
 }

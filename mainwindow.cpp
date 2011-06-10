@@ -857,7 +857,7 @@ void MainWindow::openProject(QString fileName)
       {
          QDir dir(QDir::currentPath());
          QString romName;
-         romName = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+         romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
 
          nesicideProject->createProjectFromRom(romName);
 

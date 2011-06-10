@@ -58,5 +58,6 @@
         <file>resources/error-mark.svg</file>
         <file>resources/find.png</file>
         <file>resources/edit_delete.png</file>
+        <file alias="Makefile">resources/Makefile</file>
     </qresource>
 </RCC>

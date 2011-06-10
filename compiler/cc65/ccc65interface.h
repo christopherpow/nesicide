@@ -14,6 +14,7 @@ public:
    CCC65Interface();
    virtual ~CCC65Interface();
    static void clear();
+   static bool createMakefile();
    static bool assemble();
    static bool captureDebugInfo();
    static bool captureINESImage();
@@ -27,6 +28,8 @@ public:
    static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
    static QStringList getErrors() { return errors; }
    static bool isErrorOnLineOfFile(QString file,int line);
+
+   static QStringList getSourcesFromProject();
 
 protected:
    static cc65_dbginfo        dbgInfo;

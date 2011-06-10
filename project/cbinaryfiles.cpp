@@ -99,7 +99,7 @@ QString CBinaryFiles::caption() const
 void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    // Project base directory (directory where the .nesproject file is)
-   QDir dir( QDir::toNativeSeparators( QDir::currentPath() ) );
+   QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
 
    const QString IMPORT_SOURCE_MENU_TEXT = "&Add an Existing File...";
 
@@ -117,9 +117,9 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          if (!fileName.isEmpty())
          {
             CBinaryFile* pBinaryFile = new CBinaryFile(this);
-            pBinaryFile->setName(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
+            pBinaryFile->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
-            pBinaryFile->setPath(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
+            pBinaryFile->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
             pBinaryFile->deserializeContent();
 

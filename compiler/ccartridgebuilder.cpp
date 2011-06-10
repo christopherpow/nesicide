@@ -24,27 +24,27 @@ bool CCartridgeBuilder::build()
 
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
-      prgName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
+      prgName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
    }
    else
    {
-      prgName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
+      prgName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
    }
    if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
    {
-      chrName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
+      chrName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
    }
    else
    {
-      chrName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
+      chrName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
    }
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = baseDir.fromNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = baseDir.fromNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
    }
 
    prgFile.setFileName(prgName);

@@ -207,7 +207,7 @@ void SourceNavigator::on_files_activated(QString file)
       if ( !found )
       {
          QDir dir(QDir::currentPath());
-         QString fileName = dir.toNativeSeparators(dir.filePath(file));
+         QString fileName = dir.fromNativeSeparators(dir.filePath(file));
          QFile fileIn(fileName);
 
          if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )

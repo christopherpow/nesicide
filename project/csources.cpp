@@ -102,7 +102,7 @@ QString CSources::caption() const
 void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    // Project base directory (directory where the .nesproject file is)
-   QDir dir( QDir::toNativeSeparators( QDir::currentPath() ) );
+   QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
 
    const QString NEW_SOURCE_MENU_TEXT    = "&New Source...";
    const QString IMPORT_SOURCE_MENU_TEXT = "&Add an Existing File...";
@@ -136,7 +136,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
                   CSourceItem* pSourceItem = new CSourceItem(this);
                   pSourceItem->setName(dlg.getName());
 
-                  pSourceItem->setPath(dir.toNativeSeparators( fullPath ));
+                  pSourceItem->setPath(dir.fromNativeSeparators( fullPath ));
 
                   pSourceItem->serializeContent();
 
@@ -154,9 +154,9 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          if (!fileName.isEmpty())
          {
             CSourceItem* pSourceItem = new CSourceItem(this);
-            pSourceItem->setName(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
+            pSourceItem->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
-            pSourceItem->setPath(dir.toNativeSeparators(dir.relativeFilePath(fileName)));
+            pSourceItem->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
             pSourceItem->deserializeContent();
 

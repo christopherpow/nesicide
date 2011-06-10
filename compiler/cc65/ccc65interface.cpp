@@ -50,6 +50,74 @@ void CCC65Interface::clear()
    }
 }
 
+QStringList CCC65Interface::getSourcesFromProject()
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   QDir                         baseDir(QDir::currentPath());
+   CSourceItem*                 source;
+   QStringList                  sources;
+
+   // For each source code object, compile it.
+   while ( iter.current() )
+   {
+      source = dynamic_cast<CSourceItem*>(iter.current());
+      if ( source )
+      {
+         sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+      }
+      iter.next();
+   }
+
+   return sources;
+}
+
+bool CCC65Interface::createMakefile()
+{
+   QDir outputDir(QDir::currentPath());
+   QString outputName = outputDir.fromNativeSeparators(outputDir.filePath("Makefile"));
+   QFile res(":Makefile");
+   QFile makeFile(outputName);
+
+   // Get the embedded universal makefile...
+   res.open(QIODevice::ReadOnly);
+
+   // Create the project's makefile...
+   makeFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
+
+   if ( res.isOpen() && makeFile.isOpen() )
+   {
+      QString makeFileContent;
+
+      buildTextLogger->write("<b>Creating: "+outputName+"</b>");
+
+      // Read the embedded Makefile resource.
+      makeFileContent = res.readAll();
+
+      // Replace stuff that needs to be replaced...
+      makeFileContent.replace("<!project-name!>",nesicideProject->getProjectOutputName());
+      makeFileContent.replace("<!prg-rom-name!>",nesicideProject->getProjectLinkerOutputName());
+      makeFileContent.replace("<!linker-config!>",nesicideProject->getLinkerConfigFile());
+      makeFileContent.replace("<!compiler-flags!>","");
+      makeFileContent.replace("<!assembler-flags!>",nesicideProject->getCompilerAdditionalOptions());
+      makeFileContent.replace("<!debug-file!>",nesicideProject->getProjectDebugInfoName());
+      makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
+      makeFileContent.replace("<!source-dir!>",QDir::currentPath());
+      makeFileContent.replace("<!object-dir!>",nesicideProject->getProjectOutputBasePath());
+      makeFileContent.replace("<!clang-sources!>","");
+      makeFileContent.replace("<!asm-sources!>",getSourcesFromProject().join(" "));
+
+      // Write the file to disk.
+      makeFile.write(makeFileContent.toAscii());
+
+      makeFile.close();
+      res.close();
+
+      return true;
+   }
+
+   return false;
+}
+
 bool CCC65Interface::assemble()
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
@@ -70,11 +138,11 @@ bool CCC65Interface::assemble()
 
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
-      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
    }
    else
    {
-      outputName = outputDir.toNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
    }
    buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
@@ -85,84 +153,9 @@ bool CCC65Interface::assemble()
    // Clear the error storage.
    errors.clear();
 
-   // For each source code object, compile it.
-   while ( iter.current() )
-   {
-      source = dynamic_cast<CSourceItem*>(iter.current());
-      if ( source )
-      {
-         invocationStr = "ca65 -g -v --debug-info ";
-         invocationStr += nesicideProject->getCompilerAdditionalOptions();
-         invocationStr += " ";
-         invocationStr += nesicideProject->getCompilerDefinedSymbols();
-         invocationStr += " ";
-         invocationStr += nesicideProject->getCompilerIncludePaths();
-         invocationStr += " ";
-         invocationStr += "\""+baseDir.toNativeSeparators(baseDir.relativeFilePath(source->path()))+"\"";
-         invocationStr += " -o ";
-         fileInfo.setFile(source->path());
-         objList << "\""+outputDir.toNativeSeparators(outputDir.filePath(fileInfo.completeBaseName()+".o"))+"\"";
-         invocationStr += objList.last();
+   createMakefile();
 
-         buildTextLogger->write(invocationStr);
-
-         cc65.start(invocationStr);
-         cc65.waitForFinished();
-         cc65.waitForReadyRead();
-         exitCode = cc65.exitCode();
-         stdioStr = QString(cc65.readAllStandardOutput());
-         stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-         foreach ( const QString& str, stdioList )
-         {
-            buildTextLogger->write("<font color='blue'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
-         }
-         stdioStr = QString(cc65.readAllStandardError());
-         stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-         errors.append(stdioList);
-         foreach ( const QString& str, stdioList )
-         {
-            buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
-         }
-         if ( exitCode )
-         {
-            buildTextLogger->write("<font color='red'>ca65: exited with code "+QString::number(exitCode)+"</font>");
-            ok = false;
-         }
-      }
-      iter.next();
-   }
-   invocationStr = "ld65 ";
-   invocationStr += nesicideProject->getCompilerDefinedSymbols();
-   invocationStr += nesicideProject->getLinkerAdditionalOptions();
-   invocationStr += " ";
-   invocationStr += " -o ";
-   if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
-   {
-      invocationStr += "\""+outputName+"\"";
-   }
-   else
-   {
-      invocationStr += "\""+outputName+"\"";
-   }
-   if ( !(nesicideProject->getLinkerConfigFile().isEmpty()) )
-   {
-      invocationStr += " -C ";
-      invocationStr += "\""+QDir::toNativeSeparators(nesicideProject->getLinkerConfigFile())+"\"";
-   }
-   invocationStr += " --dbgfile ";
-   if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
-   {
-      invocationStr += "\""+baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectOutputName()+".dbg"))+"\"";
-   }
-   else
-   {
-      invocationStr += "\""+baseDir.toNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectDebugInfoName()))+"\"";
-   }
-   foreach ( const QString& str, objList )
-   {
-      invocationStr += " ";
-      invocationStr += str;
-   }
+   invocationStr = "make all";
 
    buildTextLogger->write(invocationStr);
 
@@ -178,14 +171,10 @@ bool CCC65Interface::assemble()
    }
    stdioStr = QString(cc65.readAllStandardError());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+   errors.append(stdioList);
    foreach ( const QString& str, stdioList )
    {
       buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
-   }
-   if ( exitCode )
-   {
-      buildTextLogger->write("<font color='red'>ld65: exited with code "+QString::number(exitCode)+"</font>");
-      ok = false;
    }
 
    return ok;
@@ -211,11 +200,11 @@ bool CCC65Interface::captureDebugInfo()
 
    if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
    {
-      dbgInfoFile = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".dbg"));
+      dbgInfoFile = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".dbg"));
    }
    else
    {
-      dbgInfoFile = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectDebugInfoName()));
+      dbgInfoFile = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectDebugInfoName()));
    }
    buildTextLogger->write("<font color='black'><b>Reading debug information from: "+dbgInfoFile+"</b></font>");
 
@@ -235,11 +224,11 @@ bool CCC65Interface::captureINESImage()
 
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = dir.toNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
    }
 
    buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+nesName+"</b></font>");
@@ -261,7 +250,7 @@ QStringList CCC65Interface::getSourceFiles()
       {
          for ( file = 0; file < dbgSources->count; file++ )
          {
-            files.append(dbgSources->data[file].source_name);
+            files.append(QDir::fromNativeSeparators(dbgSources->data[file].source_name));
          }
       }
    }
