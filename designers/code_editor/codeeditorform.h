@@ -53,6 +53,9 @@ public:
    virtual bool isModified() { return m_scintilla->isModified(); }
    virtual void setModified(bool modified) { m_scintilla->setModified(modified); }
 
+   // ICenterWidgetItem Interface Implmentation
+   virtual void onSave();
+
 protected:
    void changeEvent(QEvent *e);
    bool eventFilter(QObject *obj, QEvent *event);

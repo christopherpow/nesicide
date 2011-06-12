@@ -221,6 +221,31 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    menu.exec(QWidget::mapToGlobal(pos));
 }
 
+void CodeEditorForm::onSave()
+{
+   if ( treeLink )
+   {
+      // This editor is paired with a project item, use the normal
+      // project mechanics to do the saving.
+      CDesignerEditorBase::onSave();
+   }
+   else
+   {
+      // This editor does not live in the project, create a temporary
+      // unlinked project item and do the save through it.
+      QDir dir = QDir::currentPath();
+      CSourceItem sourceItem(NULL);
+
+      sourceItem.setEditor(this);
+      sourceItem.setName(dir.fromNativeSeparators(dir.relativeFilePath(m_fileName)));
+      sourceItem.setPath(dir.fromNativeSeparators(dir.relativeFilePath(m_fileName)));
+      sourceItem.serializeContent();
+      // Be sure to clear the editor otherwise the object gets deleted when
+      // the destructor for this temporary is called.
+      sourceItem.setEditor(NULL);
+   }
+}
+
 bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
 {
    if (obj == m_scintilla)
