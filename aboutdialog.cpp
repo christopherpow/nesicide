@@ -90,25 +90,6 @@ AboutDialog::AboutDialog(QWidget* parent) :
    }
    ui->versionsText->append("");
 
-   ui->versionsText->append("<b>lua</b>");
-   versioner.start("lua -v");
-   versioner.waitForFinished();
-   versioner.waitForReadyRead();
-   exitCode = versioner.exitCode();
-   stdioStr = QString(versioner.readAllStandardOutput());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   foreach ( const QString& str, stdioList )
-   {
-      ui->versionsText->append(str);
-   }
-   stdioStr = QString(versioner.readAllStandardError());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   foreach ( const QString& str, stdioList )
-   {
-      ui->versionsText->append(str);
-   }
-   ui->versionsText->append("");
-
    ui->versionsText->append("<b>make</b>");
    versioner.start("make -v");
    versioner.waitForFinished();

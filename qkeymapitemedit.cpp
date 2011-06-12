@@ -14,19 +14,9 @@ bool QKeymapItemEdit::event( QEvent* evt )
          (evt->type() == QEvent::KeyRelease))
    {
       QKeyEvent* ke = (QKeyEvent*)evt;
+      QKeySequence ks(ke->key());
 
-      if (!ke->text().trimmed().isEmpty())
-      {
-         this->setText(ke->text().toUpper());
-      }
-      else if (ke->key() != 0)
-      {
-         this->setText("$" + QString::number(ke->key(), 16));
-      }
-      else
-      {
-         this->setText("?");
-      }
+      setText(ks.toString());
 
       ke->accept();
       return true;
