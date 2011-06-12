@@ -88,8 +88,6 @@ bool CCC65Interface::createMakefile()
    {
       QString makeFileContent;
 
-      buildTextLogger->write("<b>Creating: "+outputName+"</b>");
-
       // Read the embedded Makefile resource.
       makeFileContent = res.readAll();
 
@@ -118,21 +116,61 @@ bool CCC65Interface::createMakefile()
    return false;
 }
 
-bool CCC65Interface::assemble()
+void CCC65Interface::clean()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   CSourceItem*                 source;
    QProcess                     cc65;
    QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
-   QStringList                  objList;
-   QFileInfo                    fileInfo;
-   QDir                         baseDir(QDir::currentPath());
    QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
    QString                      outputName;
-   QDir                         linkerConfigDir(nesicideProject->getLinkerConfigFile());
+   int                          exitCode;
+   bool                         ok = true;
+
+   // Copy the system environment to the child process.
+   cc65.setProcessEnvironment(env);
+   cc65.setWorkingDirectory(QDir::currentPath());
+
+   // Clear the error storage.
+   errors.clear();
+
+   createMakefile();
+
+   invocationStr = "make clean";
+
+   buildTextLogger->write(invocationStr);
+
+   cc65.start(invocationStr);
+   cc65.waitForFinished();
+   cc65.waitForReadyRead();
+   exitCode = cc65.exitCode();
+   stdioStr = QString(cc65.readAllStandardOutput());
+   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+   foreach ( const QString& str, stdioList )
+   {
+      buildTextLogger->write("<font color='blue'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
+   }
+   stdioStr = QString(cc65.readAllStandardError());
+   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+   errors.append(stdioList);
+   foreach ( const QString& str, stdioList )
+   {
+      buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
+   }
+
+   return;
+}
+
+bool CCC65Interface::assemble()
+{
+   QProcess                     cc65;
+   QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
+   QString                      invocationStr;
+   QString                      stdioStr;
+   QStringList                  stdioList;
+   QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
+   QString                      outputName;
    int                          exitCode;
    bool                         ok = true;
 

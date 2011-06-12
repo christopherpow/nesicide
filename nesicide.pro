@@ -240,7 +240,8 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cdebuggernumericitemdelegate.cpp \
     viewers/debugger/cdebuggersymboldelegate.cpp \
     common/cprojecttabwidget.cpp \
-    designers/graphics_bank_editor/cchrrombankitemdelegate.cpp
+    designers/graphics_bank_editor/cchrrombankitemdelegate.cpp \
+    version.cpp
 
 HEADERS += mainwindow.h \
     main.h \

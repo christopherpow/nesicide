@@ -6,17 +6,6 @@
 #include "startupsplashdialog.h"
 #include "environmentsettingsdialog.h"
 
-#if defined ( QT_NO_DEBUG )
-static char __ide_version__ [] = "RELEASE";
-#else
-static char __ide_version__ [] = "DEBUG";
-#endif
-
-char* ideGetVersion()
-{
-   return __ide_version__;
-}
-
 // Thread for NES emulator.  This thread runs the NES core.
 NESEmulatorThread* emulator = NULL;
 

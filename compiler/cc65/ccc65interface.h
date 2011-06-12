@@ -15,6 +15,7 @@ public:
    virtual ~CCC65Interface();
    static void clear();
    static bool createMakefile();
+   static void clean();
    static bool assemble();
    static bool captureDebugInfo();
    static bool captureINESImage();

@@ -43,6 +43,7 @@ ASFLAGS := $(subst \,/,$(ASFLAGS))
 # Additional linker flags and options.
 # Default: none
 LDFLAGS = -C $(CONFIG) --dbgfile <!debug-file!> <!linker-flags!>
+REMOVES += <!debug-file!>
 
 # Get rid of Windows path wonkiness.
 LDFLAGS := $(subst \,/,$(LDFLAGS))
@@ -95,7 +96,7 @@ $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
 	$(LINK) -o $@ $(LDFLAGS) $(OBJECTS) $(LIBS)
 
 clean:
-	$(RM) $(OBJECTS)
-	$(RM) $(DEPENDS)
-	$(RM) $(REMOVES)
-	$(RM) $(PROGRAM)
+	-$(RM) $(OBJECTS)
+	-$(RM) $(DEPENDS)
+	-$(RM) $(REMOVES)
+	-$(RM) $(PROGRAM)

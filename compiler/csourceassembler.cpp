@@ -10,6 +10,11 @@ CSourceAssembler::CSourceAssembler()
 {
 }
 
+void CSourceAssembler::clean()
+{
+   return CCC65Interface::clean();
+}
+
 bool CSourceAssembler::assemble()
 {
    // External CC65 in PATH

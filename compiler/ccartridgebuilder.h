@@ -10,6 +10,7 @@ class CCartridgeBuilder
 public:
    CCartridgeBuilder();
    bool build();
+   void clean();
 private:
 };
 

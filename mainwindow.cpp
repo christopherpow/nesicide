@@ -1490,3 +1490,9 @@ void MainWindow::on_actionRun_Test_Suite_triggered()
 void MainWindow::on_actionE_xit_triggered()
 {
 }
+
+void MainWindow::on_actionClean_Project_triggered()
+{
+   output->showPane(OutputPaneDockWidget::Output_Build);
+   compiler->clean();
+}

@@ -8,6 +8,20 @@ CCartridgeBuilder::CCartridgeBuilder()
 {
 }
 
+void CCartridgeBuilder::clean()
+{
+   CSourceAssembler sourceAssembler;
+   CGraphicsAssembler graphicsAssembler;
+
+   buildTextLogger->erase();
+   buildTextLogger->write("<b>Project build started.</b>");
+
+   sourceAssembler.clean();
+   graphicsAssembler.clean();
+
+   buildTextLogger->write("<b>Build completed successfully.</b>");
+}
+
 bool CCartridgeBuilder::build()
 {
    CSourceAssembler sourceAssembler;

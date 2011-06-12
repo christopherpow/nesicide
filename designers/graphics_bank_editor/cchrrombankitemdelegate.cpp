@@ -1,6 +1,6 @@
 #include "cchrrombankitemdelegate.h"
 
-#include <QLineEdit>
+#include <QComboBox>
 #include <QCompleter>
 
 #include "iprojecttreeviewitem.h"
@@ -16,7 +16,9 @@ QWidget* CChrRomBankItemDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
       const QModelIndex& /* index */) const
 {
-   QLineEdit* editor = new QLineEdit(parent);
+   QComboBox* editor = new QComboBox(parent);
+
+   editor->setEditable(true);
 
    return editor;
 }
@@ -24,7 +26,7 @@ QWidget* CChrRomBankItemDelegate::createEditor(QWidget* parent,
 void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
       const QModelIndex& index) const
 {
-   QLineEdit* edit = static_cast<QLineEdit*>(editor);
+   QComboBox* edit = static_cast<QComboBox*>(editor);
    IProjectTreeViewItemIterator iter(nesicideProject->getProject());
    QStringList choices;
    do
@@ -33,6 +35,7 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
       if ( item )
       {
          choices.append(iter.current()->caption());
+         edit->addItem(iter.current()->caption());
       }
       iter.next();
    } while ( iter.current() );
@@ -40,24 +43,25 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
    completer->setCompletionMode(QCompleter::PopupCompletion);
    completer->setCompletionPrefix(index.data(Qt::DisplayRole).toString());
    edit->setCompleter(completer);
+   edit->showPopup();
    if ( index.data(Qt::DisplayRole).toString() == "<click to add or edit>" )
    {
-      edit->setText("");
+      edit->setEditText("");
    }
    else
    {
-      edit->setText(index.data(Qt::DisplayRole).toString());
+      edit->setEditText(index.data(Qt::DisplayRole).toString());
    }
 }
 
 void CChrRomBankItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
       const QModelIndex& index) const
 {
-   QLineEdit* edit = static_cast<QLineEdit*>(editor);
+   QComboBox* edit = static_cast<QComboBox*>(editor);
 
-   if ( !edit->text().isEmpty() )
+   if ( !edit->currentText().isEmpty() )
    {
-      model->setData(index, edit->text(), Qt::EditRole);
+      model->setData(index, edit->currentText(), Qt::EditRole);
    }
 }
 

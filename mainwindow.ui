@@ -129,6 +129,7 @@
     <addaction name="separator"/>
     <addaction name="actionCompile_Project"/>
     <addaction name="actionLoad_In_Emulator"/>
+    <addaction name="actionClean_Project"/>
     <addaction name="separator"/>
     <addaction name="actionProject_Properties"/>
    </widget>
@@ -298,6 +299,7 @@
    </attribute>
    <addaction name="actionCompile_Project"/>
    <addaction name="actionLoad_In_Emulator"/>
+   <addaction name="actionClean_Project"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="toolToolbar">
@@ -970,6 +972,18 @@
    </property>
    <property name="text">
     <string>Symbol Inspector</string>
+   </property>
+  </action>
+  <action name="actionClean_Project">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_edit-clear.png</normaloff>:/resources/22_edit-clear.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clean Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Clean Project</string>
    </property>
   </action>
  </widget>

@@ -25,6 +25,13 @@ void CompilerThread::kill()
 
 void CompilerThread::assemble()
 {
+   m_operation = DoCompile;
+   compileSemaphore.release();
+}
+
+void CompilerThread::clean()
+{
+   m_operation = DoClean;
    compileSemaphore.release();
 }
 
@@ -36,17 +43,23 @@ void CompilerThread::run ()
    {
       // Acquire the compile semaphore to know when the main thread wants a compile done...
       compileSemaphore.acquire();
-      
+
       if ( m_isTerminating )
       {
          break;
       }
-      
-      emit compileStarted();
-      
-      m_assembledOk = cartridgeBuilder.build();
-      
-      emit compileDone(m_assembledOk);
+
+      switch ( m_operation )
+      {
+      case DoCompile:
+         emit compileStarted();
+         m_assembledOk = cartridgeBuilder.build();
+         emit compileDone(m_assembledOk);
+         break;
+      case DoClean:
+         cartridgeBuilder.clean();
+         break;
+      }
    }
 
    return;

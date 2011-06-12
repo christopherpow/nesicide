@@ -9,6 +9,11 @@ CGraphicsAssembler::CGraphicsAssembler()
 {
 }
 
+void CGraphicsAssembler::clean()
+{
+   return;
+}
+
 bool CGraphicsAssembler::assemble()
 {
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
@@ -45,7 +50,7 @@ bool CGraphicsAssembler::assemble()
                {
                   IChrRomBankItem* bankItem = curGfxBank->getGraphics().at(bankItemIdx);
                   IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
-                  buildTextLogger->write("&nbsp;&nbsp;&nbsp;Writing "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
+                  buildTextLogger->write("&nbsp;&nbsp;&nbsp;Adding: "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
 
                   chrRomFile.write(bankItem->getChrRomBankItemData().data(), bankItem->getChrRomBankItemSize());
                }
