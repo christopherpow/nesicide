@@ -1,0 +1,7 @@
+This is the list of changes per version for NESICIDE application.
+
+V1.001
+Fixed problem where non-ASCII keys used for controller configuration were not being mapped correctly.
+
+V1.000
+Initial release.
