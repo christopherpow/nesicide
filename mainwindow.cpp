@@ -823,15 +823,6 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
    emulator->pauseEmulation(false);
 
-   if (nesicideProject->isDirty())
-   {
-      int result = QMessageBox::question(this,"Save Project?","Your project settings, project content, or debugger content has changed, would you like to save the project?",QMessageBox::Yes,QMessageBox::No);
-      if ( result == QMessageBox::Yes )
-      {
-         on_actionSave_Project_triggered();
-      }
-   }
-
    if (nesicideProject->isInitialized())
    {
       closeProject();
@@ -1252,6 +1243,15 @@ void MainWindow::on_action_About_Nesicide_triggered()
 void MainWindow::closeProject()
 {
    int tab;
+
+   if (nesicideProject->isDirty())
+   {
+      int result = QMessageBox::question(this,"Save Project?","Your project settings, project content, or debugger content has changed, would you like to save the project?",QMessageBox::Yes,QMessageBox::No);
+      if ( result == QMessageBox::Yes )
+      {
+         on_actionSave_Project_triggered();
+      }
+   }
 
    m_pSourceNavigator->shutdown();
 
