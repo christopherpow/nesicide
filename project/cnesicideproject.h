@@ -25,9 +25,11 @@ public:
    void initializeProject();
    void terminateProject();
    bool createProjectFromRom(QString fileName,bool silent=false);
+   void setDirty(bool dirty) { m_isDirty = dirty; }
+   bool isDirty() const { return m_isDirty; }
 
    // Member Getters
-   bool isInitialized();
+   bool isInitialized() const { return m_isInitialized; }
    QString getProjectTitle() { return m_projectTitle; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
@@ -93,6 +95,7 @@ public:
 private:
    // Is the project initialized?
    bool m_isInitialized;
+   bool m_isDirty;
 
    // Attributes
    // The visible title of the project

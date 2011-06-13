@@ -45,7 +45,7 @@ void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
    {
       model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
 
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }
 
@@ -83,7 +83,7 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
 
       model->insertRow(text,QModelIndex());
 
-      emit saveProject();
+      emit markProjectDirty(true);
 
       event->acceptProposedAction();
    }
@@ -192,7 +192,7 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
       else
       {
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -229,7 +229,7 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
       else
       {
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -266,7 +266,7 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
       else
       {
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -277,6 +277,6 @@ void SymbolWatchDockWidget::on_actionRemove_symbol_triggered()
    {
       model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
 
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }

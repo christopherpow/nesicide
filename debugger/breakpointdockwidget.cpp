@@ -183,7 +183,7 @@ void BreakpointDockWidget::dropEvent(QDropEvent *event)
          }
 
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -227,7 +227,7 @@ void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
       {
          pBreakpoints->ToggleEnabled(index.row());
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -246,7 +246,7 @@ void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
       {
          pBreakpoints->ModifyBreakpoint(index.row(), bd.getBreakpoint());
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
    // Check for double-click to "enable/disable"...
@@ -254,7 +254,7 @@ void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
    {
       pBreakpoints->ToggleEnabled(index.row());
       emit breakpointsChanged();
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }
 
@@ -269,7 +269,7 @@ void BreakpointDockWidget::on_actionAdd_Breakpoint_triggered()
    {
       pBreakpoints->AddBreakpoint(bd.getBreakpoint());
       emit breakpointsChanged();
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }
 
@@ -281,7 +281,7 @@ void BreakpointDockWidget::on_actionRemove_Breakpoint_triggered()
    {
       pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
       emit breakpointsChanged();
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }
 
@@ -298,7 +298,7 @@ void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()
       {
          pBreakpoints->ModifyBreakpoint(ui->tableView->currentIndex().row(), bd.getBreakpoint());
          emit breakpointsChanged();
-         emit saveProject();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -311,7 +311,7 @@ void BreakpointDockWidget::on_actionEnable_Breakpoint_triggered()
    {
       pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), true);
       emit breakpointsChanged();
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }
 
@@ -323,7 +323,7 @@ void BreakpointDockWidget::on_actionDisable_Breakpoint_triggered()
    {
       pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), false);
       emit breakpointsChanged();
-      emit saveProject();
+      emit markProjectDirty(true);
    }
 }
 
@@ -337,7 +337,7 @@ void BreakpointDockWidget::on_actionEnable_All_Breakpoints_triggered()
       pBreakpoints->SetEnabled(bp,true);
    }
    emit breakpointsChanged();
-   emit saveProject();
+   emit markProjectDirty(true);
 }
 
 void BreakpointDockWidget::on_actionDisable_All_Breakpoints_triggered()
@@ -350,7 +350,7 @@ void BreakpointDockWidget::on_actionDisable_All_Breakpoints_triggered()
       pBreakpoints->SetEnabled(bp,false);
    }
    emit breakpointsChanged();
-   emit saveProject();
+   emit markProjectDirty(true);
 }
 
 bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)

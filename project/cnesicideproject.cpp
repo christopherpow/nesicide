@@ -14,6 +14,8 @@ CNesicideProject::CNesicideProject()
    m_pCartridge = new CCartridge(this);
 
    m_isInitialized = false;
+   m_isDirty = false;
+
    m_projectTitle = "(No project loaded)";
    m_projectOutputBasePath = "";
 }
@@ -56,11 +58,6 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
    return (*size);
 }
 
-bool CNesicideProject::isInitialized()
-{
-   return m_isInitialized;
-}
-
 void CNesicideProject::initializeProject()
 {
    // Initialize this node's attributes
@@ -87,6 +84,7 @@ void CNesicideProject::initializeProject()
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
    m_isInitialized = true;
+   m_isDirty = false;
 
    // Initialize child nodes
    m_pProject->initializeProject();
