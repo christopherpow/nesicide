@@ -1,15 +1,15 @@
 #ifndef NAMETABLEVISUALIZERDOCKWIDGET_H
 #define NAMETABLEVISUALIZERDOCKWIDGET_H
 
-#include "cnametablepreviewrenderer.h"
+#include "cdebuggerbase.h"
 
-#include <QDockWidget>
+#include "cnametablepreviewrenderer.h"
 
 namespace Ui {
    class NameTableVisualizerDockWidget;
 }
 
-class NameTableVisualizerDockWidget : public QDockWidget
+class NameTableVisualizerDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 
@@ -33,7 +33,7 @@ private slots:
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);
    void on_zoomSlider_valueChanged(int value);
-   
+
 private:
    Ui::NameTableVisualizerDockWidget *ui;
    char* imgData;

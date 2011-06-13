@@ -1,7 +1,7 @@
 #ifndef SYMBOLWATCHDOCKWIDGET_H
 #define SYMBOLWATCHDOCKWIDGET_H
 
-#include <QDockWidget>
+#include "cdebuggerbase.h"
 
 #include "csymbolwatchmodel.h"
 #include "cdebuggernumericitemdelegate.h"
@@ -12,7 +12,7 @@ namespace Ui {
    class SymbolWatchDockWidget;
 }
 
-class SymbolWatchDockWidget : public QDockWidget, public IXMLSerializable
+class SymbolWatchDockWidget : public CDebuggerBase, public IXMLSerializable
 {
    Q_OBJECT
 

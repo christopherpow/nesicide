@@ -11,7 +11,7 @@
 #include "main.h"
 
 RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::RegisterInspectorDockWidget)
 {
    ui->setupUi(this);
@@ -111,7 +111,7 @@ void RegisterInspectorDockWidget::contextMenuEvent(QContextMenuEvent*)
 
 void RegisterInspectorDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

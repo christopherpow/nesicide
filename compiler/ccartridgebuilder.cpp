@@ -16,8 +16,15 @@ void CCartridgeBuilder::clean()
    buildTextLogger->erase();
    buildTextLogger->write("<b>Project build started.</b>");
 
-   sourceAssembler.clean();
-   graphicsAssembler.clean();
+   if ( CCC65Interface::getSourcesFromProject().count() )
+   {
+      sourceAssembler.clean();
+      graphicsAssembler.clean();
+   }
+   else
+   {
+      buildTextLogger->write("<font color='red'>Nothing to clean.</font>");
+   }
 
    buildTextLogger->write("<b>Build completed successfully.</b>");
 }
@@ -71,51 +78,57 @@ bool CCartridgeBuilder::build()
    buildTextLogger->erase();
    buildTextLogger->write("<b>Project build started.</b>");
 
-   if (!(sourceAssembler.assemble() && graphicsAssembler.assemble()))
+   if ( CCC65Interface::getSourcesFromProject().count() )
    {
-      buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
-      return false;
-   }
-
-   prgFile.open(QIODevice::ReadOnly);
-   if ( gfxBanks->getGraphicsBanks().count() )
-   {
-      chrFile.open(QIODevice::ReadOnly);
-   }
-   nesFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
-
-   if ( prgFile.isOpen() &&
-        (((gfxBanks->getGraphicsBanks().count()) && (chrFile.isOpen())) ||
-        (!(gfxBanks->getGraphicsBanks().count()))) &&
-        nesFile.isOpen() )
-   {
-      QByteArray prgBytes = prgFile.readAll();
-      QByteArray chrBytes;
-
-      if ( gfxBanks->getGraphicsBanks().count() )
+      if (!(sourceAssembler.assemble() && graphicsAssembler.assemble()))
       {
-         chrBytes = chrFile.readAll();
+         buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
+         return false;
       }
 
-      nesFile.write(prgBytes);
-
+      prgFile.open(QIODevice::ReadOnly);
       if ( gfxBanks->getGraphicsBanks().count() )
       {
-         nesFile.write(chrBytes);
+         chrFile.open(QIODevice::ReadOnly);
       }
+      nesFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
 
-      buildTextLogger->write("<b>Writing: "+nesName+"</b>");
+      if ( prgFile.isOpen() &&
+           (((gfxBanks->getGraphicsBanks().count()) && (chrFile.isOpen())) ||
+           (!(gfxBanks->getGraphicsBanks().count()))) &&
+           nesFile.isOpen() )
+      {
+         QByteArray prgBytes = prgFile.readAll();
+         QByteArray chrBytes;
 
-      prgFile.close();
-      chrFile.close();
-      nesFile.close();
+         if ( gfxBanks->getGraphicsBanks().count() )
+         {
+            chrBytes = chrFile.readAll();
+         }
+
+         nesFile.write(prgBytes);
+
+         if ( gfxBanks->getGraphicsBanks().count() )
+         {
+            nesFile.write(chrBytes);
+         }
+
+         buildTextLogger->write("<b>Writing: "+nesName+"</b>");
+
+         prgFile.close();
+         chrFile.close();
+         nesFile.close();
+      }
+      else
+      {
+         buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
+         return false;
+      }
    }
    else
    {
-      buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
-      return false;
+      buildTextLogger->write("<font color='red'>Nothing to build.</font>");
    }
-
    buildTextLogger->write("<b>Build completed successfully.</b>");
    return true;
 }

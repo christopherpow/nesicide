@@ -1,17 +1,17 @@
 #ifndef MEMORYINSPECTORDOCKWIDGET_H
 #define MEMORYINSPECTORDOCKWIDGET_H
 
+#include "cdebuggerbase.h"
+
 #include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggernumericitemdelegate.h"
 #include "cregisterdata.h"
-
-#include <QDockWidget>
 
 namespace Ui {
     class MemoryInspectorDockWidget;
 }
 
-class MemoryInspectorDockWidget : public QDockWidget
+class MemoryInspectorDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 

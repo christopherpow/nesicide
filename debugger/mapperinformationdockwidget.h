@@ -1,13 +1,13 @@
 #ifndef MAPPERINFORMATIONDOCKWIDGET_H
 #define MAPPERINFORMATIONDOCKWIDGET_H
 
-#include <QDockWidget>
+#include "cdebuggerbase.h"
 
 namespace Ui {
     class MapperInformationDockWidget;
 }
 
-class MapperInformationDockWidget : public QDockWidget
+class MapperInformationDockWidget : public CDebuggerBase
 {
     Q_OBJECT
 

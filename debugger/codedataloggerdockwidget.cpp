@@ -7,7 +7,7 @@
 #include "main.h"
 
 CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::CodeDataLoggerDockWidget)
 {
    int i;
@@ -50,7 +50,7 @@ CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
 
 void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

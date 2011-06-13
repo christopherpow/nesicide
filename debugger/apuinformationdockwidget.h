@@ -1,13 +1,13 @@
 #ifndef APUINFORMATIONDOCKWIDGET_H
 #define APUINFORMATIONDOCKWIDGET_H
 
-#include <QDockWidget>
+#include "cdebuggerbase.h"
 
 namespace Ui {
    class APUInformationDockWidget;
 }
 
-class APUInformationDockWidget : public QDockWidget
+class APUInformationDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 

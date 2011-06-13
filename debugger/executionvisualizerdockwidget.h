@@ -1,18 +1,18 @@
 #ifndef EXECUTIONVISUALIZERDOCKWIDGET_H
 #define EXECUTIONVISUALIZERDOCKWIDGET_H
 
-#include "cexecutionvisualizerrenderer.h"
+#include "cdebuggerbase.h"
 
-#include <QDockWidget>
+#include "cexecutionvisualizerrenderer.h"
 
 namespace Ui {
    class ExecutionVisualizerDockWidget;
 }
 
-class ExecutionVisualizerDockWidget : public QDockWidget
+class ExecutionVisualizerDockWidget : public CDebuggerBase
 {
    Q_OBJECT
-   
+
 public:
    explicit ExecutionVisualizerDockWidget(QWidget *parent = 0);
    ~ExecutionVisualizerDockWidget();

@@ -10,7 +10,7 @@
 #include <QMessageBox>
 
 MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::MemoryInspectorDockWidget)
 {
    ui->setupUi(this);
@@ -77,7 +77,7 @@ void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
 
 void MemoryInspectorDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

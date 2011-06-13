@@ -7,7 +7,7 @@
 #include "main.h"
 
 OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::OAMVisualizerDockWidget)
 {
    int i;
@@ -46,7 +46,7 @@ OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
 
 void OAMVisualizerDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

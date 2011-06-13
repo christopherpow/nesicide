@@ -1,15 +1,15 @@
 #ifndef CODEBROWSERDOCKWIDGET_H
 #define CODEBROWSERDOCKWIDGET_H
 
-#include "ccodebrowserdisplaymodel.h"
+#include "cdebuggerbase.h"
 
-#include <QDockWidget>
+#include "ccodebrowserdisplaymodel.h"
 
 namespace Ui {
    class CodeBrowserDockWidget;
 }
 
-class CodeBrowserDockWidget : public QDockWidget
+class CodeBrowserDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 

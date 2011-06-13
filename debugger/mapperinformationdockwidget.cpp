@@ -10,7 +10,7 @@
 #include "main.h"
 
 MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::MapperInformationDockWidget)
 {
    ui->setupUi(this);
@@ -31,7 +31,7 @@ MapperInformationDockWidget::~MapperInformationDockWidget()
 
 void MapperInformationDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

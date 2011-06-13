@@ -1,7 +1,7 @@
 #ifndef BREAKPOINTDOCKWIDGET_H
 #define BREAKPOINTDOCKWIDGET_H
 
-#include <QDockWidget>
+#include "cdebuggerbase.h"
 
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
@@ -13,7 +13,7 @@ namespace Ui {
    class BreakpointDockWidget;
 }
 
-class BreakpointDockWidget : public QDockWidget, public IXMLSerializable
+class BreakpointDockWidget : public CDebuggerBase, public IXMLSerializable
 {
    Q_OBJECT
 
@@ -32,6 +32,7 @@ protected:
    void dragEnterEvent(QDragEnterEvent *event);
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
+   void keyPressEvent(QKeyEvent *event);
 
 signals:
    void breakpointsChanged();

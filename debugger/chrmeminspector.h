@@ -1,13 +1,14 @@
 #ifndef CHRMEMINSPECTOR_H
 #define CHRMEMINSPECTOR_H
 
-#include <QDockWidget>
+#include "cdebuggerbase.h"
+
 #include <QFrame>
 #include <QGridLayout>
 
 #include "chrromdisplaydialog.h"
 
-class CHRMEMInspector : public QDockWidget
+class CHRMEMInspector : public CDebuggerBase
 {
    Q_OBJECT
 public:

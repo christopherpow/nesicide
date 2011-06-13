@@ -1,15 +1,15 @@
 #ifndef EXECUTIONINSPECTORDOCKWIDGET_H
 #define EXECUTIONINSPECTORDOCKWIDGET_H
 
-#include "cdebuggerexecutiontracermodel.h"
+#include "cdebuggerbase.h"
 
-#include <QDockWidget>
+#include "cdebuggerexecutiontracermodel.h"
 
 namespace Ui {
    class ExecutionInspectorDockWidget;
 }
 
-class ExecutionInspectorDockWidget : public QDockWidget
+class ExecutionInspectorDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 

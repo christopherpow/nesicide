@@ -6,7 +6,7 @@
 #include "main.h"
 
 ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::ExecutionInspectorDockWidget)
 {
    ui->setupUi(this);
@@ -55,7 +55,7 @@ void ExecutionInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
 
 void ExecutionInspectorDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

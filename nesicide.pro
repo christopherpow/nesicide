@@ -241,7 +241,8 @@ SOURCES += mainwindow.cpp \
     viewers/debugger/cdebuggersymboldelegate.cpp \
     common/cprojecttabwidget.cpp \
     designers/graphics_bank_editor/cchrrombankitemdelegate.cpp \
-    version.cpp
+    version.cpp \
+    debugger/cdebuggerbase.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -343,7 +344,8 @@ HEADERS += mainwindow.h \
     viewers/debugger/cdebuggernumericitemdelegate.h \
     viewers/debugger/cdebuggersymboldelegate.h \
     common/cprojecttabwidget.h \
-    designers/graphics_bank_editor/cchrrombankitemdelegate.h
+    designers/graphics_bank_editor/cchrrombankitemdelegate.h \
+    debugger/cdebuggerbase.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

@@ -7,7 +7,7 @@
 #include "main.h"
 
 NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::NameTableVisualizerDockWidget)
 {
    int i;
@@ -58,7 +58,7 @@ void NameTableVisualizerDockWidget::hideEvent(QHideEvent* event)
 
 void NameTableVisualizerDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

@@ -15,7 +15,7 @@
 #include <QMessageBox>
 
 CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::CodeBrowserDockWidget)
 {
    ui->setupUi(this);
@@ -127,7 +127,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
 
 void CodeBrowserDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

@@ -1,19 +1,19 @@
 #ifndef REGISTERINSPECTORDOCKWIDGET_H
 #define REGISTERINSPECTORDOCKWIDGET_H
 
+#include "cdebuggerbase.h"
+
 #include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggerregisterdisplaymodel.h"
 #include "cdebuggerregistercomboboxdelegate.h"
 #include "cdebuggernumericitemdelegate.h"
 #include "cregisterdata.h"
 
-#include <QDockWidget>
-
 namespace Ui {
    class RegisterInspectorDockWidget;
 }
 
-class RegisterInspectorDockWidget : public QDockWidget
+class RegisterInspectorDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 

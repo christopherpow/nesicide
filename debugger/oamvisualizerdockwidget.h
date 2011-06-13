@@ -1,15 +1,15 @@
 #ifndef OAMVISUALIZERDOCKWIDGET_H
 #define OAMVISUALIZERDOCKWIDGET_H
 
-#include "coampreviewrenderer.h"
+#include "cdebuggerbase.h"
 
-#include <QDockWidget>
+#include "coampreviewrenderer.h"
 
 namespace Ui {
    class OAMVisualizerDockWidget;
 }
 
-class OAMVisualizerDockWidget : public QDockWidget
+class OAMVisualizerDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 

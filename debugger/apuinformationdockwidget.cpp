@@ -7,7 +7,7 @@
 #include "main.h"
 
 APUInformationDockWidget::APUInformationDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::APUInformationDockWidget)
 {
    ui->setupUi(this);
@@ -25,7 +25,7 @@ APUInformationDockWidget::~APUInformationDockWidget()
 
 void APUInformationDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

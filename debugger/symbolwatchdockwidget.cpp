@@ -11,7 +11,7 @@ enum
 };
 
 SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
-   QDockWidget(parent),
+   CDebuggerBase(parent),
    ui(new Ui::SymbolWatchDockWidget)
 {
    ui->setupUi(this);
@@ -44,6 +44,8 @@ void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
         (ui->tableView->currentIndex().row() >= 0) )
    {
       model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
+
+      emit saveProject();
    }
 }
 
@@ -81,6 +83,8 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
 
       model->insertRow(text,QModelIndex());
 
+      emit saveProject();
+
       event->acceptProposedAction();
    }
 }
@@ -99,8 +103,6 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
       menu.addAction(ui->actionBreak_on_CPU_write_here);
 
       menu.exec(event->globalPos());
-
-      emit breakpointsChanged();
    }
 }
 
@@ -187,6 +189,11 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
       }
+      else
+      {
+         emit breakpointsChanged();
+         emit saveProject();
+      }
    }
 }
 
@@ -218,6 +225,11 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
          QString str;
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
+      }
+      else
+      {
+         emit breakpointsChanged();
+         emit saveProject();
       }
    }
 }
@@ -251,6 +263,11 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
       }
+      else
+      {
+         emit breakpointsChanged();
+         emit saveProject();
+      }
    }
 }
 
@@ -259,5 +276,7 @@ void SymbolWatchDockWidget::on_actionRemove_symbol_triggered()
    if ( ui->tableView->currentIndex().isValid() )
    {
       model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
+
+      emit saveProject();
    }
 }

@@ -6,7 +6,7 @@
 #include "main.h"
 
 ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::ExecutionVisualizerDockWidget)
 {
    int i;
@@ -42,7 +42,7 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 
 void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

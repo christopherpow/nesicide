@@ -7,7 +7,7 @@
 #include "main.h"
 
 PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    CDebuggerBase(parent),
     ui(new Ui::PPUInformationDockWidget)
 {
    ui->setupUi(this);
@@ -25,7 +25,7 @@ PPUInformationDockWidget::~PPUInformationDockWidget()
 
 void PPUInformationDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   CDebuggerBase::changeEvent(e);
 
    switch (e->type())
    {

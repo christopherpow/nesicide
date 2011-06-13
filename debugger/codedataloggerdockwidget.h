@@ -1,15 +1,15 @@
 #ifndef CODEDATALOGGERDOCKWIDGET_H
 #define CODEDATALOGGERDOCKWIDGET_H
 
-#include "ccodedataloggerrenderer.h"
+#include "cdebuggerbase.h"
 
-#include <QDockWidget>
+#include "ccodedataloggerrenderer.h"
 
 namespace Ui {
    class CodeDataLoggerDockWidget;
 }
 
-class CodeDataLoggerDockWidget : public QDockWidget
+class CodeDataLoggerDockWidget : public CDebuggerBase
 {
    Q_OBJECT
 
@@ -24,12 +24,12 @@ protected:
    void resizeEvent(QResizeEvent* event);
    void updateScrollbars();
    CCodeDataLoggerRenderer* renderer;
-   
+
 private:
    Ui::CodeDataLoggerDockWidget *ui;
    char* cpuImgData;
    char* ppuImgData;
-   
+
 public slots:
    void renderData();
 
