@@ -1446,10 +1446,6 @@ void MainWindow::on_actionPreferences_triggered()
       }
       m_pEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
    }
-
-   // Restart emulator to apply changes.
-   emulator->resetEmulator();
-   emulator->startEmulation();
 }
 
 void MainWindow::on_actionOnline_Help_triggered()

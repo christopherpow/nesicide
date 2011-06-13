@@ -209,6 +209,14 @@ void EmulatorPrefsDialog::updateUi()
 {
    int port = ui->controllerPortComboBox->currentIndex();
    int type = ui->controllerTypeComboBox->currentIndex();
+   QKeySequence upKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_UP]);
+   QKeySequence downKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_DOWN]);
+   QKeySequence leftKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_LEFT]);
+   QKeySequence rightKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT]);
+   QKeySequence aKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_A]);
+   QKeySequence bKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_B]);
+   QKeySequence selectKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_SELECT]);
+   QKeySequence startKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_START]);
 
    if (type == IO_Disconnected)
    {
@@ -217,14 +225,14 @@ void EmulatorPrefsDialog::updateUi()
    else if (type == IO_StandardJoypad)
    {
       ui->controllerKeysStackedWidget->setCurrentIndex(1);
-      ui->upKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_UP]).toString());
-      ui->downKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_DOWN]).toString());
-      ui->leftKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_LEFT]).toString());
-      ui->rightKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT]).toString());
-      ui->aKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_A]).toString());
-      ui->bKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_B]).toString());
-      ui->selectKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_SELECT]).toString());
-      ui->startKey->setText(QKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_START]).toString());
+      ui->upKey->setText(upKeySequence.toString());
+      ui->downKey->setText(downKeySequence.toString());
+      ui->leftKey->setText(leftKeySequence.toString());
+      ui->rightKey->setText(rightKeySequence.toString());
+      ui->aKey->setText(aKeySequence.toString());
+      ui->bKey->setText(bKeySequence.toString());
+      ui->selectKey->setText(selectKeySequence.toString());
+      ui->startKey->setText(startKeySequence.toString());
    }
    else if (type == IO_Zapper)
    {
@@ -257,27 +265,27 @@ void EmulatorPrefsDialog::on_controllerPortComboBox_highlighted(int index)
       if ( ui->controllerTypeComboBox->currentIndex() == IO_StandardJoypad )
       {
          QKeySequence upKeySequence(ui->upKey->text());
+         QKeySequence downKeySequence(ui->downKey->text());
+         QKeySequence leftKeySequence(ui->leftKey->text());
+         QKeySequence rightKeySequence(ui->rightKey->text());
+         QKeySequence aKeySequence(ui->aKey->text());
+         QKeySequence bKeySequence(ui->bKey->text());
+         QKeySequence selectKeySequence(ui->selectKey->text());
+         QKeySequence startKeySequence(ui->startKey->text());
          upKeySequence.fromString(ui->upKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_UP] = upKeySequence[0];
-         QKeySequence downKeySequence(ui->upKey->text());
          downKeySequence.fromString(ui->downKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_DOWN] = downKeySequence[0];
-         QKeySequence leftKeySequence(ui->upKey->text());
          leftKeySequence.fromString(ui->leftKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_LEFT] = leftKeySequence[0];
-         QKeySequence rightKeySequence(ui->upKey->text());
          rightKeySequence.fromString(ui->rightKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT] = rightKeySequence[0];
-         QKeySequence aKeySequence(ui->upKey->text());
          aKeySequence.fromString(ui->aKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_A] = aKeySequence[0];
-         QKeySequence bKeySequence(ui->upKey->text());
          bKeySequence.fromString(ui->bKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_B] = bKeySequence[0];
-         QKeySequence selectKeySequence(ui->upKey->text());
          selectKeySequence.fromString(ui->selectKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_SELECT] = selectKeySequence[0];
-         QKeySequence startKeySequence(ui->upKey->text());
          startKeySequence.fromString(ui->startKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_START] = startKeySequence[0];
       }
@@ -293,27 +301,27 @@ void EmulatorPrefsDialog::on_controllerTypeComboBox_highlighted(int index)
       if ( ui->controllerTypeComboBox->currentIndex() == IO_StandardJoypad )
       {
          QKeySequence upKeySequence(ui->upKey->text());
+         QKeySequence downKeySequence(ui->downKey->text());
+         QKeySequence leftKeySequence(ui->leftKey->text());
+         QKeySequence rightKeySequence(ui->rightKey->text());
+         QKeySequence aKeySequence(ui->aKey->text());
+         QKeySequence bKeySequence(ui->bKey->text());
+         QKeySequence selectKeySequence(ui->selectKey->text());
+         QKeySequence startKeySequence(ui->startKey->text());
          upKeySequence.fromString(ui->upKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_UP] = upKeySequence[0];
-         QKeySequence downKeySequence(ui->upKey->text());
          downKeySequence.fromString(ui->downKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_DOWN] = downKeySequence[0];
-         QKeySequence leftKeySequence(ui->upKey->text());
          leftKeySequence.fromString(ui->leftKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_LEFT] = leftKeySequence[0];
-         QKeySequence rightKeySequence(ui->upKey->text());
          rightKeySequence.fromString(ui->rightKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT] = rightKeySequence[0];
-         QKeySequence aKeySequence(ui->upKey->text());
          aKeySequence.fromString(ui->aKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_A] = aKeySequence[0];
-         QKeySequence bKeySequence(ui->upKey->text());
          bKeySequence.fromString(ui->bKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_B] = bKeySequence[0];
-         QKeySequence selectKeySequence(ui->upKey->text());
          selectKeySequence.fromString(ui->selectKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_SELECT] = selectKeySequence[0];
-         QKeySequence startKeySequence(ui->upKey->text());
          startKeySequence.fromString(ui->startKey->text());
          standardJoypadKeyMap[port][IO_StandardJoypad_START] = startKeySequence[0];
       }

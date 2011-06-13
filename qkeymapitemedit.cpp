@@ -3,8 +3,8 @@
 QKeymapItemEdit::QKeymapItemEdit(QWidget* parent) :
    QLineEdit(parent)
 {
-   this->setReadOnly(true);
-   this->setFocusPolicy(Qt::ClickFocus);
+   setReadOnly(true);
+   setFocusPolicy(Qt::ClickFocus);
 }
 
 bool QKeymapItemEdit::event( QEvent* evt )
