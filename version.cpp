@@ -1,7 +1,8 @@
+static char __ide_version__ [] = "V1.002"
 #if defined ( QT_NO_DEBUG )
-static char __ide_version__ [] = "V1.001 RELEASE";
+" RELEASE";
 #else
-static char __ide_version__ [] = "V1.001 DEBUG";
+" DEBUG";
 #endif
 
 char* ideGetVersion()
