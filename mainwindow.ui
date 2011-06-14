@@ -194,6 +194,7 @@
     <addaction name="actionSymbol_Watch"/>
     <addaction name="separator"/>
     <addaction name="actionExecution_Visualizer_Inspector"/>
+    <addaction name="actionExecutionMarker_Watch"/>
     <addaction name="actionCodeDataLogger_Inspector"/>
     <addaction name="separator"/>
     <addaction name="menuCPU_Inspectors"/>
@@ -984,6 +985,17 @@
    </property>
    <property name="toolTip">
     <string>Clean Project</string>
+   </property>
+  </action>
+  <action name="actionExecutionMarker_Watch">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Execution Marker Inspector</string>
+   </property>
+   <property name="toolTip">
+    <string>Execution Marker Inspector</string>
    </property>
   </action>
  </widget>

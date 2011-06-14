@@ -37,7 +37,7 @@ private:
    int m_breakpointIndex;
 
 private slots:
-   void on_tableView_clicked(QModelIndex index);
+   void on_tableView_pressed(QModelIndex index);
    void on_actionEnable_breakpoint_triggered();
    void on_actionRemove_breakpoint_triggered();
    void on_actionDisable_breakpoint_triggered();

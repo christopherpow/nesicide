@@ -271,7 +271,7 @@ bool CCC65Interface::captureINESImage()
 
    buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+nesName+"</b></font>");
 
-   return nesicideProject->createProjectFromRom(nesName);
+   return nesicideProject->createProjectFromRom(nesName,true);
 }
 
 QStringList CCC65Interface::getSourceFiles()

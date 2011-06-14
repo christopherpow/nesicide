@@ -32,8 +32,8 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
    // Connect signals to the UI to have the UI update.
    QObject::connect ( assemblyViewModel, SIGNAL(layoutChanged()), this, SLOT(updateDisassembly()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateDisassembly()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateDisassembly(bool)) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(breakpointHit()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(breakpointHit()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
 }
 
@@ -164,8 +164,8 @@ void CodeBrowserDockWidget::updateDisassembly(bool showMe)
    {
       show();
    }
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-   ui->tableView->scrollTo(ui->tableView->currentIndex());
+//   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+//   ui->tableView->scrollTo(ui->tableView->currentIndex());
 }
 
 void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
@@ -228,6 +228,8 @@ void CodeBrowserDockWidget::on_actionDisable_breakpoint_triggered()
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -238,6 +240,8 @@ void CodeBrowserDockWidget::on_actionRemove_breakpoint_triggered()
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -248,6 +252,8 @@ void CodeBrowserDockWidget::on_actionEnable_breakpoint_triggered()
    if ( m_breakpointIndex >= 0 )
    {
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
+
+      emit breakpointsChanged();
    }
 }
 
@@ -265,7 +271,9 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
       if ( addr != -1 )
       {
          // Find unused Marker entry...
-         marker = markers->AddMarker(nesGetAbsoluteAddressFromAddress(addr));
+         marker = markers->AddMarker(addr,nesGetAbsoluteAddressFromAddress(addr));
+
+         emit breakpointsChanged();
       }
    }
 }
@@ -283,7 +291,9 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
 
       if ( addr != -1 )
       {
-         markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
+         markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
+
+         emit breakpointsChanged();
       }
    }
 }
@@ -292,51 +302,56 @@ void CodeBrowserDockWidget::on_actionClear_marker_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
    markers->ClearAllMarkers();
+
+   emit breakpointsChanged();
 }
 
-void CodeBrowserDockWidget::on_tableView_clicked(QModelIndex index)
+void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
    int absAddr = 0;
 
-   if ( index.isValid() && index.column() == 0 )
+   if ( QApplication::mouseButtons() == Qt::LeftButton )
    {
-      addr = nesGetAddressFromSLOC(index.row());
-
-      absAddr = nesGetAbsoluteAddressFromAddress(addr);
-
-      if ( addr != -1 )
+      if ( index.isValid() && index.column() == 0 )
       {
-         bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                             eBreakpointItemAddress,
-                                             0,
-                                             addr,
-                                             absAddr,
-                                             addr,
-                                             eBreakpointConditionNone,
-                                             0,
-                                             eBreakpointDataNone,
-                                             0 );
+         addr = nesGetAddressFromSLOC(index.row());
 
-         if ( bp < 0 )
+         absAddr = nesGetAbsoluteAddressFromAddress(addr);
+
+         if ( addr != -1 )
          {
-            on_actionBreak_on_CPU_execution_here_triggered();
-         }
-         else
-         {
-            if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+            bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                                eBreakpointItemAddress,
+                                                0,
+                                                addr,
+                                                absAddr,
+                                                addr,
+                                                eBreakpointConditionNone,
+                                                0,
+                                                eBreakpointDataNone,
+                                                0 );
+
+            if ( bp < 0 )
             {
-               pBreakpoints->RemoveBreakpoint(bp);
+               on_actionBreak_on_CPU_execution_here_triggered();
             }
             else
             {
-               pBreakpoints->SetEnabled(bp,false);
+               if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+               {
+                  pBreakpoints->RemoveBreakpoint(bp);
+               }
+               else
+               {
+                  pBreakpoints->SetEnabled(bp,false);
+               }
             }
-         }
 
-         emit breakpointsChanged();
+            emit breakpointsChanged();
+         }
       }
    }
 }

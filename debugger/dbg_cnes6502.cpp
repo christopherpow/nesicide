@@ -2948,18 +2948,18 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
             for ( marker = 0; marker < nesGetExecutionMarkerDatabase()->GetNumMarkers(); marker++ )
             {
                pMarker = nesGetExecutionMarkerDatabase()->GetMarker(marker);
-               frameDiff = pMarker->endFrame-pMarker->startFrame;
+               frameDiff = pMarker->endPpuFrame-pMarker->startPpuFrame;
 
                if ( ((pMarker->state == eMarkerSet_Started) ||
                      (pMarker->state == eMarkerSet_Complete)) &&
-                     (pMarker->endCycle != MARKER_NOT_MARKED) &&
+                     (pMarker->endPpuCycle != MARKER_NOT_MARKED) &&
                      (((frameDiff == 0) &&
-                       (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) &&
-                       (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)) ||
+                       (VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startPpuCycle) &&
+                       (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endPpuCycle)) ||
                       ((frameDiff == 1) &&
-                       ((pMarker->startCycle > pMarker->endCycle) &&
-                        ((VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startCycle) ||
-                         (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endCycle)))) ||
+                       ((pMarker->startPpuCycle > pMarker->endPpuCycle) &&
+                        ((VISY_VISX_TO_CYCLE(idxy,idxx) >= pMarker->startPpuCycle) ||
+                         (VISY_VISX_TO_CYCLE(idxy,idxx) <= pMarker->endPpuCycle)))) ||
                       (frameDiff > 1)) )
                {
                   // Marker color!

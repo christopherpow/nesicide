@@ -84,7 +84,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    for ( marker = 0; marker < markers->GetNumMarkers(); marker++ )
    {
       pMarker = markers->GetMarker(marker);
-      m_scintilla->markerDefine('_',Marker_Marker1+marker);
+      m_scintilla->markerDefine(QsciScintilla::FullRectangle,Marker_Marker1+marker);
       m_scintilla->setMarkerBackgroundColor(QColor(pMarker->red,pMarker->green,pMarker->blue),Marker_Marker1+marker);
       m_scintilla->setMarkerForegroundColor(QColor(pMarker->red,pMarker->green,pMarker->blue),Marker_Marker1+marker);
    }
@@ -137,8 +137,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    QMenu menu;
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
-   int line;
-   int index;
+   int line = m_scintilla->lineAt(pos);
    int addr = 0;
    int absAddr = 0;
    QsciDocument doc = m_scintilla->document();
@@ -147,7 +146,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    bool redoable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANREDO, (unsigned long)0, (long)0);
    bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
 
-   m_scintilla->getCursorPosition(&line,&index);
+   m_scintilla->setCursorPosition(line,0);
 
    QAction* action;
    action = menu.addAction("Undo",this,SLOT(editor_undo()),QKeySequence(Qt::CTRL + Qt::Key_Z));
@@ -685,7 +684,7 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
    if ( addr != -1 )
    {
       // Find unused Marker entry...
-      marker = markers->AddMarker(absAddr);
+      marker = markers->AddMarker(addr,absAddr);
 
       emit breakpointsChanged();
    }
@@ -710,7 +709,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
 
       if ( addr != -1 )
       {
-         markers->CompleteMarker(marker,nesGetAbsoluteAddressFromAddress(addr));
+         markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
 
          emit breakpointsChanged();
       }

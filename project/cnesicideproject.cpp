@@ -517,7 +517,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
          generalTextLogger->write(str);
 
          // Set project title...
-         m_projectTitle = gameDatabase.getName();
+         if ( !silent )
+         {
+            m_projectTitle = gameDatabase.getName();
+         }
 
          // Do NTSC/PAL autodetecting
 
@@ -529,7 +532,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
          generalTextLogger->write(str);
 
          // Set project title...
-         m_projectTitle = fileName;
+         if ( !silent )
+         {
+            m_projectTitle = fileName;
+         }
       }
 
       str = "<b>Game loaded.</b>";

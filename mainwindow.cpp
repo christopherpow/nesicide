@@ -298,6 +298,14 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
    CDockWidgetRegistry::setFlags ("Symbol Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
+   m_pExecutionMarkerInspector = new ExecutionMarkerDockWidget();
+   addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionMarkerInspector );
+   m_pExecutionMarkerInspector->hide();
+   QObject::connect(m_pExecutionMarkerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionMarker_Watch_close(bool)));
+   QObject::connect(m_pExecutionMarkerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Execution Marker Inspector", m_pExecutionMarkerInspector );
+   CDockWidgetRegistry::setFlags ("Execution Marker Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
+
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
@@ -438,6 +446,7 @@ MainWindow::~MainWindow()
    delete m_pBinMapperMemoryInspector;
    delete m_pSourceNavigator;
    delete m_pSymbolInspector;
+   delete m_pExecutionMarkerInspector;
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -559,35 +568,7 @@ void MainWindow::projectDataChangesEvent()
    ui->actionCompile_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
-
-   // Enabled/Disable actions based on if we have a project loaded or not and a cartridge loaded in the emulator
-#if 0
-   ui->actionEmulation_Window->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionExecution_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionExecution_Visualizer_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBreakpoint_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionAssembly_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionCodeDataLogger_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionGfxCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionGfxOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionGfxNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinCPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinCPURAM_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinROM_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinNameTableMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinCHRMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinOAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinPaletteMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinSRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinEXRAMMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinPPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinAPURegister_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionBinMapperMemory_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionPPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionAPUInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionMapperInformation_Inspector->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-   ui->actionSymbol_Watch->setEnabled ( nesicideProject->isInitialized() && nesROMIsLoaded() );
-#endif
+   ui->actionClean_Project->setEnabled(nesicideProject->isInitialized());
 
    // Enable/Disable actions based on if we have a project loaded or not and a good compile
    ui->actionLoad_In_Emulator->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
@@ -1233,6 +1214,16 @@ void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
    ui->actionSymbol_Watch->setChecked(toplevel);
 }
 
+void MainWindow::on_actionExecutionMarker_Watch_toggled(bool value)
+{
+   m_pExecutionMarkerInspector->setVisible(value);
+}
+
+void MainWindow::reflectedExecutionMarker_Watch_close ( bool toplevel )
+{
+   ui->actionExecutionMarker_Watch->setChecked(toplevel);
+}
+
 void MainWindow::on_action_About_Nesicide_triggered()
 {
    AboutDialog* dlg = new AboutDialog(this);
@@ -1508,7 +1499,6 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       emulator->primeEmulator();
       emulator->resetEmulator();
       emulator->pauseEmulation(true);
-//      emulator->startEmulation();
 
       buildTextLogger->write("<b>Load complete.</b>");
 

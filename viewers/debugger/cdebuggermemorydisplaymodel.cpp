@@ -121,12 +121,16 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) c
 
 Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex& index) const
 {
-   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled;
 
    if ( (m_display != eMemory_cartCHRMEM) ||
          (!(CROMDBG::IsWriteProtected())) )
    {
       flags |= Qt::ItemIsEditable;
+   }
+   if ( m_display != eMemory_PPUpalette )
+   {
+      flags |= Qt::ItemIsSelectable;
    }
 
    return flags;
