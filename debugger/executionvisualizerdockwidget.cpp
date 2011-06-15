@@ -1,7 +1,13 @@
 #include "executionvisualizerdockwidget.h"
 #include "ui_executionvisualizerdockwidget.h"
 
+#include "cdockwidgetregistry.h"
+
+#include "cmarker.h"
+
 #include "dbg_cnes6502.h"
+
+#include "emulator_core.h"
 
 #include "main.h"
 
@@ -12,6 +18,12 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    int i;
 
    ui->setupUi(this);
+
+   model = new CExecutionMarkerDisplayModel();
+
+   ui->tableView->setModel(model);
+   ui->tableView->resizeColumnsToContents();
+
    imgData = new char[512*512*4];
 
    // Clear image...
@@ -32,12 +44,17 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    renderer = new CExecutionVisualizerRenderer(ui->frame,imgData);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
+   QList<int> sizes;
+   sizes.append(400);
+   sizes.append(200);
+   ui->splitter->setSizes(sizes);
 }
 
 ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 {
    delete ui;
    delete imgData;
+   delete model;
 }
 
 void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
@@ -56,6 +73,13 @@ void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
 
 void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 {
+   QDockWidget* breakpointInspector = CDockWidgetRegistry::getWidget("Breakpoints");
+   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Assembly Browser");
+
+   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
+
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
    renderData();
 }
@@ -105,4 +129,94 @@ void ExecutionVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
    renderer->repaint();
+}
+
+bool ExecutionVisualizerDockWidget::serialize(QDomDocument& doc, QDomNode& node)
+{
+   QDomElement element = addElement( doc, node, "markers" );
+   CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+   int marker;
+
+   for ( marker = 0; marker < pMarkers->GetNumMarkers(); marker++ )
+   {
+      QDomElement breakpointElement = addElement( doc, element, "marker" );
+      MarkerSetInfo* pMarker = pMarkers->GetMarker(marker);
+      breakpointElement.setAttribute("index",marker);
+      breakpointElement.setAttribute("state",pMarker->state);
+      if ( pMarker->state == eMarkerSet_Started )
+      {
+         breakpointElement.setAttribute("startaddr",pMarker->startAddr);
+         breakpointElement.setAttribute("startabsaddr",pMarker->startAbsAddr);
+         breakpointElement.setAttribute("endaddr",0);
+         breakpointElement.setAttribute("endabsaddr",0);
+      }
+      else if ( pMarker->state == eMarkerSet_Complete )
+      {
+         breakpointElement.setAttribute("startaddr",pMarker->startAddr);
+         breakpointElement.setAttribute("startabsaddr",pMarker->startAbsAddr);
+         breakpointElement.setAttribute("endaddr",pMarker->endAddr);
+         breakpointElement.setAttribute("endabsaddr",pMarker->endAbsAddr);
+      }
+      else
+      {
+         breakpointElement.setAttribute("startaddr",0);
+         breakpointElement.setAttribute("startabsaddr",0);
+         breakpointElement.setAttribute("endaddr",0);
+         breakpointElement.setAttribute("endabsaddr",0);
+      }
+   }
+
+   return true;
+}
+
+bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+{
+   CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+   int marker;
+   eMarkerSet_State state;
+   uint32_t startAddr;
+   uint32_t startAbsAddr;
+   uint32_t endAddr;
+   uint32_t endAbsAddr;
+   QDomNode childNode = node.firstChild();
+   QDomNode markerNode;
+
+   if (!childNode.isNull())
+   {
+      do
+      {
+         if (childNode.nodeName() == "markers")
+         {
+            markerNode = childNode.firstChild();
+            while ( !(markerNode.isNull()) )
+            {
+               QDomElement element = markerNode.toElement();
+               marker = element.attribute("index").toInt();
+               if ( marker < pMarkers->GetNumMarkers() )
+               {
+                  state = (eMarkerSet_State)element.attribute("state").toInt();
+                  startAddr = element.attribute("startaddr").toInt();
+                  startAbsAddr = element.attribute("startabsaddr").toInt();
+                  endAddr = element.attribute("endaddr").toInt();
+                  endAbsAddr = element.attribute("endabsaddr").toInt();
+                  switch ( state )
+                  {
+                  case eMarkerSet_Started:
+                     pMarkers->AddSpecificMarker(marker,startAddr,startAbsAddr);
+                     break;
+                  case eMarkerSet_Complete:
+                     pMarkers->AddSpecificMarker(marker,startAddr,startAbsAddr);
+                     pMarkers->CompleteMarker(marker,endAddr,endAbsAddr);
+                     break;
+                  }
+               }
+               markerNode = markerNode.nextSibling();
+            }
+
+            model->update();
+         }
+      } while (!(childNode = childNode.nextSibling()).isNull());
+   }
+
+   return true;
 }

@@ -5,17 +5,25 @@
 
 #include "cexecutionvisualizerrenderer.h"
 
+#include "cexecutionmarkerdisplaymodel.h"
+
+#include "ixmlserializable.h"
+
 namespace Ui {
    class ExecutionVisualizerDockWidget;
 }
 
-class ExecutionVisualizerDockWidget : public CDebuggerBase
+class ExecutionVisualizerDockWidget : public CDebuggerBase, public IXMLSerializable
 {
    Q_OBJECT
 
 public:
    explicit ExecutionVisualizerDockWidget(QWidget *parent = 0);
    ~ExecutionVisualizerDockWidget();
+
+   // IXMLSerializable interface
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
 protected:
    void showEvent(QShowEvent* event);
@@ -35,6 +43,7 @@ private slots:
 
 private:
    Ui::ExecutionVisualizerDockWidget *ui;
+   CExecutionMarkerDisplayModel *model;
    char* imgData;
 };
 

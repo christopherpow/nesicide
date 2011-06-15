@@ -27,6 +27,7 @@ protected:
 
 signals:
     void editor_modified(bool m);
+    void markProjectDirty(bool dirty);
 
 public slots:
 

@@ -122,6 +122,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
       menu.exec(e->globalPos());
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -200,8 +201,11 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
          str.sprintf("Cannot add breakpoint, maximum of %d already used.", NUM_BREAKPOINTS);
          QMessageBox::information(0, "Error", str);
       }
-
-      emit breakpointsChanged();
+      else
+      {
+         emit breakpointsChanged();
+         emit markProjectDirty(true);
+      }
    }
 }
 
@@ -230,6 +234,7 @@ void CodeBrowserDockWidget::on_actionDisable_breakpoint_triggered()
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -242,6 +247,7 @@ void CodeBrowserDockWidget::on_actionRemove_breakpoint_triggered()
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -254,6 +260,7 @@ void CodeBrowserDockWidget::on_actionEnable_breakpoint_triggered()
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -274,6 +281,7 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
          marker = markers->AddMarker(addr,nesGetAbsoluteAddressFromAddress(addr));
 
          emit breakpointsChanged();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -294,6 +302,7 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
          markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
 
          emit breakpointsChanged();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -304,6 +313,7 @@ void CodeBrowserDockWidget::on_actionClear_marker_triggered()
    markers->ClearAllMarkers();
 
    emit breakpointsChanged();
+   emit markProjectDirty(true);
 }
 
 void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
@@ -351,6 +361,7 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
             }
 
             emit breakpointsChanged();
+            emit markProjectDirty(true);
          }
       }
    }

@@ -77,7 +77,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
             sprintf(modelStringBuffer,"%02X:%04X(%04X)",
                     nesGetPhysicalPRGROMBank(pMarker->startAbsAddr),
                     pMarker->startAbsAddr&MASK_8KB,
-                    0);
+                    pMarker->startAddr);
             return QVariant(modelStringBuffer);
          }
          else
@@ -91,7 +91,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
             sprintf(modelStringBuffer,"%02X:%04X(%04X)",
                     nesGetPhysicalPRGROMBank(pMarker->endAbsAddr),
                     pMarker->endAbsAddr&MASK_8KB,
-                    0);
+                    pMarker->endAddr);
             return QVariant(modelStringBuffer);
          }
          else

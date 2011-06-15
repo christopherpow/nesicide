@@ -24,7 +24,6 @@
 #include "apuinformationdockwidget.h"
 #include "mapperinformationdockwidget.h"
 #include "symbolwatchdockwidget.h"
-#include "executionmarkerdockwidget.h"
 #include "aboutdialog.h"
 #include "environmentsettingsdialog.h"
 #include "outputpanedockwidget.h"
@@ -87,7 +86,6 @@ private:
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
    SymbolWatchDockWidget* m_pSymbolInspector;
-   ExecutionMarkerDockWidget* m_pExecutionMarkerInspector;
    SourceNavigator* m_pSourceNavigator;
 
    EmulatorControl* m_pEmulatorControl;
@@ -142,7 +140,6 @@ private slots:
    void on_actionAPUInformation_Inspector_toggled(bool );
    void on_actionMapperInformation_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
-   void on_actionExecutionMarker_Watch_toggled(bool );
    void reflectedEmulator_close(bool toplevel);
    void reflectedAssemblyInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
@@ -168,7 +165,6 @@ private slots:
    void reflectedAPUInformationInspector_close(bool toplevel);
    void reflectedMapperInformationInspector_close(bool toplevel);
    void reflectedSymbol_Watch_close(bool toplevel);
-   void reflectedExecutionMarker_Watch_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
    void reflectedProjectBrowser_close(bool toplevel);
    void on_actionCompile_Project_triggered();

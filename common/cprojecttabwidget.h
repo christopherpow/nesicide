@@ -17,6 +17,7 @@ signals:
 
 public slots:
    void tabModified(bool modified);
+   void projectDirtied(bool dirtied);
 };
 
 #endif // CPROJECTTABWIDGET_H

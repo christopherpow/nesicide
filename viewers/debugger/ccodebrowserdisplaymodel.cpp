@@ -188,9 +188,13 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    return QVariant();
 }
 
-Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex&) const
+Qt::ItemFlags CCodeBrowserDisplayModel::flags(const QModelIndex& index) const
 {
-   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled;
+   if ( index.column() > 0 )
+   {
+      flags |= Qt::ItemIsSelectable;
+   }
    return flags;
 }
 

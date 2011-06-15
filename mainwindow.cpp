@@ -298,14 +298,6 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
    CDockWidgetRegistry::setFlags ("Symbol Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
-   m_pExecutionMarkerInspector = new ExecutionMarkerDockWidget();
-   addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionMarkerInspector );
-   m_pExecutionMarkerInspector->hide();
-   QObject::connect(m_pExecutionMarkerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionMarker_Watch_close(bool)));
-   QObject::connect(m_pExecutionMarkerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::addWidget ( "Execution Marker Inspector", m_pExecutionMarkerInspector );
-   CDockWidgetRegistry::setFlags ("Execution Marker Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
-
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
@@ -446,7 +438,6 @@ MainWindow::~MainWindow()
    delete m_pBinMapperMemoryInspector;
    delete m_pSourceNavigator;
    delete m_pSymbolInspector;
-   delete m_pExecutionMarkerInspector;
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -1212,16 +1203,6 @@ void MainWindow::on_actionSymbol_Watch_toggled(bool value)
 void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
 {
    ui->actionSymbol_Watch->setChecked(toplevel);
-}
-
-void MainWindow::on_actionExecutionMarker_Watch_toggled(bool value)
-{
-   m_pExecutionMarkerInspector->setVisible(value);
-}
-
-void MainWindow::reflectedExecutionMarker_Watch_close ( bool toplevel )
-{
-   ui->actionExecutionMarker_Watch->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

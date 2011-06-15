@@ -154,6 +154,9 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    pBreakpointInspector->serialize(doc,inspectorsElement);
 
+   ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+   pExecutionVisualizer->serialize(doc,inspectorsElement);
+
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
 
@@ -229,6 +232,9 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 
          BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
          pBreakpointInspector->deserialize(doc,child,errors);
+
+         ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+         pExecutionVisualizer->deserialize(doc,child,errors);
       }
       else if (child.nodeName() == "properties")
       {

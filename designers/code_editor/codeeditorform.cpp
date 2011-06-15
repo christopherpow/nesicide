@@ -508,6 +508,7 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
       }
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -607,9 +608,10 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
       else
       {
          m_scintilla->markerAdd(line,Marker_Breakpoint);
-      }
 
-      emit breakpointsChanged();
+         emit breakpointsChanged();
+         emit markProjectDirty(true);
+      }
    }
 }
 
@@ -639,6 +641,7 @@ void CodeEditorForm::on_actionDisable_breakpoint_triggered()
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -651,6 +654,7 @@ void CodeEditorForm::on_actionRemove_breakpoint_triggered()
       pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -663,6 +667,7 @@ void CodeEditorForm::on_actionEnable_breakpoint_triggered()
       pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -687,6 +692,7 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
       marker = markers->AddMarker(addr,absAddr);
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }
 
@@ -712,6 +718,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
          markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
 
          emit breakpointsChanged();
+         emit markProjectDirty(true);
       }
    }
 }
@@ -722,6 +729,7 @@ void CodeEditorForm::on_actionClear_marker_triggered()
    markers->ClearAllMarkers();
 
    emit breakpointsChanged();
+   emit markProjectDirty(true);
 }
 
 QString CodeEditorForm::sourceCode()

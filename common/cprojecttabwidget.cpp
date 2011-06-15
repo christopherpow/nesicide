@@ -2,6 +2,8 @@
 
 #include "cdesignereditorbase.h"
 
+#include "main.h"
+
 CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
     QTabWidget(parent)
 {
@@ -14,6 +16,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
    if ( editor )
    {
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
+      QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
    }
    return QTabWidget::addTab(widget,icon,label);
 }
@@ -25,6 +28,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
    if ( editor )
    {
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
+      QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
    }
    return QTabWidget::addTab(widget,label);
 }
@@ -55,4 +59,9 @@ void CProjectTabWidget::tabModified(bool modified)
          emit tabModified(tab,modified);
       }
    }
+}
+
+void CProjectTabWidget::projectDirtied(bool dirtied)
+{
+   nesicideProject->setDirty(dirtied);
 }
