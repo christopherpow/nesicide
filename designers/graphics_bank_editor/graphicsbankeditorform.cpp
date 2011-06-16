@@ -96,7 +96,7 @@ void GraphicsBankEditorForm::updateUi()
    renderData();
 
    setModified(true);
-   emit editor_modified(true);
+   emit markProjectDirty(true);
 }
 
 void GraphicsBankEditorForm::setBankItems(QList<IChrRomBankItem*> items)
@@ -145,7 +145,7 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *e)
          renderData();
 
          setModified(true);
-         emit editor_modified(true);
+         emit markProjectDirty(true);
       }
    }
    CDesignerEditorBase::keyPressEvent(e);

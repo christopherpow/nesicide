@@ -34,7 +34,7 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
 
    if ( m_editor && m_editor->isModified() )
    {
-      m_bankItems = getGraphics();
+      getGraphics();
 
       m_editor->setModified(false);
    }
@@ -78,7 +78,9 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& erro
 
    QDomNode childNode = node.firstChild();
 
-   if (!childNode.isNull()) do
+   if (!childNode.isNull())
+   {
+      do
       {
          if (childNode.nodeName() == "graphicitem")
          {
@@ -97,8 +99,8 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& erro
          {
             return false;
          }
-      }
-      while (!(childNode = childNode.nextSibling()).isNull());
+      } while (!(childNode = childNode.nextSibling()).isNull());
+   }
 
    return true;
 }

@@ -14,16 +14,20 @@ class AttributeTableEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   AttributeTableEditorForm(IProjectTreeViewItem* link = 0,QWidget* parent = 0);
+   AttributeTableEditorForm(QList<uint8_t> palette,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    ~AttributeTableEditorForm();
+
+   QList<uint8_t> attributeTable() { return m_palette; }
 
 protected:
    void changeEvent(QEvent* e);
 
 private:
    Ui::AttributeTableEditorForm* ui;
+   QList<uint8_t> m_palette;
 
 private slots:
+   void colorChanged(QColor color);
 };
 
 #endif // ATTRIBUTETABLEEDITORFORM_H

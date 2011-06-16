@@ -13,6 +13,12 @@ public:
    CAttributeTable(IProjectTreeViewItem* parent);
    virtual ~CAttributeTable();
 
+   // Member getters
+   QList<uint8_t>& getPalette();
+
+   AttributeTableEditorForm* editor() { return dynamic_cast<AttributeTableEditorForm*>(m_editor); }
+
+
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
@@ -25,6 +31,7 @@ public:
    virtual bool onNameChanged(QString newName);
 
 private:
+   QList<uint8_t> m_palette;
 };
 
 #endif // CATTRIBUTETABLE_H

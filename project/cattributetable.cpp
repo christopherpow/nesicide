@@ -9,10 +9,36 @@ CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
    InitTreeItem(parent);
 
    // Allocate attributes
+   m_palette.append(0x0D);
+   m_palette.append(0x10);
+   m_palette.append(0x20);
+   m_palette.append(0x30);
+   m_palette.append(0x0D);
+   m_palette.append(0x10);
+   m_palette.append(0x20);
+   m_palette.append(0x30);
+   m_palette.append(0x0D);
+   m_palette.append(0x10);
+   m_palette.append(0x20);
+   m_palette.append(0x30);
+   m_palette.append(0x0D);
+   m_palette.append(0x10);
+   m_palette.append(0x20);
+   m_palette.append(0x30);
 }
 
 CAttributeTable::~CAttributeTable()
 {
+}
+
+QList<uint8_t>& CAttributeTable::getPalette()
+{
+   if (m_editor)
+   {
+      m_palette = editor()->attributeTable();
+   }
+
+   return m_palette;
 }
 
 bool CAttributeTable::serialize(QDomDocument& doc, QDomNode& node)
@@ -20,6 +46,20 @@ bool CAttributeTable::serialize(QDomDocument& doc, QDomNode& node)
    QDomElement element = addElement( doc, node, "attributetable" );
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", uuid());
+
+   if ( m_editor && m_editor->isModified() )
+   {
+      getPalette();
+
+      m_editor->setModified(false);
+   }
+
+   for (int i=0; i < m_palette.count(); i++)
+   {
+      QDomElement paletteItemElement = addElement( doc, element, "palette" );
+      paletteItemElement.setAttribute("color",m_palette.at(i));
+   }
+
    return true;
 }
 
@@ -47,6 +87,28 @@ bool CAttributeTable::deserialize(QDomDocument&, QDomNode& node, QString& errors
    m_name = element.attribute("name");
 
    setUuid(element.attribute("uuid"));
+
+   m_palette.clear();
+
+   QDomNode childNode = node.firstChild();
+
+   if (!childNode.isNull())
+   {
+      do
+      {
+         if (childNode.nodeName() == "palette")
+         {
+            QDomElement paletteItem = childNode.toElement();
+            uint8_t color = paletteItem.attribute("color","0").toInt();
+
+            m_palette.append(color);
+         }
+         else
+         {
+            return false;
+         }
+      } while (!(childNode = childNode.nextSibling()).isNull());
+   }
 
    return true;
 }
@@ -98,7 +160,7 @@ void CAttributeTable::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new AttributeTableEditorForm(this);
+      m_editor = new AttributeTableEditorForm(m_palette,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
@@ -106,6 +168,17 @@ void CAttributeTable::openItemEvent(CProjectTabWidget* tabWidget)
 
 void CAttributeTable::saveItemEvent()
 {
+   m_palette.clear();
+
+   for (int i=0; i < editor()->attributeTable().count(); i++)
+   {
+      m_palette.append(editor()->attributeTable().at(i));
+   }
+
+   if ( m_editor )
+   {
+      m_editor->setModified(false);
+   }
 }
 
 bool CAttributeTable::canChangeName()
