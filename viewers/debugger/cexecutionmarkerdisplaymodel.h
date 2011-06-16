@@ -3,6 +3,15 @@
 
 #include <QAbstractTableModel>
 
+enum
+{
+   ExecutionVisualizerCol_Color = 0,
+   ExecutionVisualizerCol_Cycles,
+   ExecutionVisualizerCol_StartAddr,
+   ExecutionVisualizerCol_EndAddr,
+   ExecutionVisualizerCol_MAX
+};
+
 class CExecutionMarkerDisplayModel : public QAbstractTableModel
 {
    Q_OBJECT

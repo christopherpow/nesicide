@@ -37,6 +37,7 @@ private:
    int m_breakpointIndex;
 
 private slots:
+   void snapTo(QString item);
    void on_tableView_pressed(QModelIndex index);
    void on_actionEnable_breakpoint_triggered();
    void on_actionRemove_breakpoint_triggered();

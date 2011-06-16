@@ -46,9 +46,12 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
    QDockWidget* breakpointInspector = CDockWidgetRegistry::getWidget("Breakpoints");
+   QDockWidget* executionVisualizer = CDockWidgetRegistry::getWidget("Execution Visualizer");
 
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
+
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
+   QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    ui->tableView->scrollTo(ui->tableView->currentIndex());
@@ -137,6 +140,26 @@ void CodeBrowserDockWidget::changeEvent(QEvent* e)
          break;
       default:
          break;
+   }
+}
+
+void CodeBrowserDockWidget::snapTo(QString item)
+{
+   uint32_t addr;
+
+   // Make sure item is an address
+   if ( item.startsWith("Address:") )
+   {
+      QStringList splits;
+      splits = item.split(QRegExp("[:()]"));
+      if ( splits.count() == 5 )
+      {
+         addr = splits.at(3).toInt(NULL,16);
+
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(addr),0));
+         ui->tableView->scrollTo(ui->tableView->currentIndex());
+         ui->tableView->resizeColumnsToContents();
+      }
    }
 }
 

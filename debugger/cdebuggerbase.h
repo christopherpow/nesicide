@@ -11,6 +11,7 @@ public:
 
 signals:
    void markProjectDirty(bool dirty);
+   void snapTo(QString item);
 
 public slots:
 

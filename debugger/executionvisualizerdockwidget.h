@@ -37,6 +37,10 @@ public slots:
    void renderData();
 
 private slots:
+   void on_tableView_activated(QModelIndex index);
+   void on_tableView_clicked(QModelIndex index);
+   void on_tableView_entered(QModelIndex index);
+   void on_tableView_pressed(QModelIndex index);
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);
    void on_zoomSlider_valueChanged(int value);

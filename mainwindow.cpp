@@ -588,6 +588,8 @@ void MainWindow::markProjectDirty(bool dirty)
 
 void MainWindow::on_actionSave_Project_triggered()
 {
+   QSettings settings;
+
    if (projectFileName.isEmpty())
    {
       projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
@@ -598,6 +600,8 @@ void MainWindow::on_actionSave_Project_triggered()
    {
       saveProject();
    }
+
+   settings.setValue("LastProject",projectFileName);
 }
 
 void MainWindow::saveProject()

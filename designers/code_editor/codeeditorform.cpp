@@ -27,6 +27,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 {
    QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Assembly Browser");
    QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
+   QDockWidget* executionVisualizer = CDockWidgetRegistry::getWidget("Execution Visualizer");
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -111,6 +112,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
+   QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
@@ -715,7 +717,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
 
       if ( addr != -1 )
       {
-         markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
+         markers->CompleteMarker(marker,addr,absAddr);
 
          emit breakpointsChanged();
          emit markProjectDirty(true);
@@ -793,4 +795,31 @@ void CodeEditorForm::restyleText()
    QSettings settings;
 
    m_lexer->readSettings(settings,"CodeEditor");
+}
+
+void CodeEditorForm::snapTo(QString item)
+{
+   QString  fileName;
+   uint32_t addr;
+   uint32_t absAddr;
+   int      line;
+
+   // Make sure item is an address
+   if ( item.startsWith("Address:") )
+   {
+      QStringList splits;
+      splits = item.split(QRegExp("[:()]"));
+      if ( splits.count() == 5 )
+      {
+         addr = splits.at(3).toInt(NULL,16);
+         absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
+
+         fileName = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+         if ( fileName == m_fileName )
+         {
+            line = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
+            highlightLine(line);
+         }
+      }
+   }
 }

@@ -75,6 +75,7 @@ signals:
 
 public slots:
    void restyleText();
+   void snapTo(QString item);
 
 private slots:
    void editor_undo();

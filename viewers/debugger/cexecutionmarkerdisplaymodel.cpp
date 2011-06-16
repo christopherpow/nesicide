@@ -23,7 +23,7 @@ CExecutionMarkerDisplayModel::~CExecutionMarkerDisplayModel()
 Qt::ItemFlags CExecutionMarkerDisplayModel::flags(const QModelIndex& index) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled;
-   if ( index.column() > 0 )
+   if ( index.column() > ExecutionVisualizerCol_Color )
    {
       flags |= Qt::ItemIsSelectable;
    }
@@ -34,7 +34,6 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
 {
    CMarker* pMarkers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
-   unsigned int addr;
 
    if ( !index.isValid() )
    {
@@ -44,7 +43,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    pMarker = pMarkers->GetMarker(index.row());
    if (role == Qt::BackgroundColorRole)
    {
-      if ( index.column() == 0 )
+      if ( index.column() == ExecutionVisualizerCol_Color )
       {
          return QColor(pMarker->red,pMarker->green,pMarker->blue);
       }
@@ -57,10 +56,10 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    // Get data for columns...
    switch ( index.column() )
    {
-      case 0:
+      case ExecutionVisualizerCol_Color:
          return QVariant();
          break;
-      case 1:
+      case ExecutionVisualizerCol_Cycles:
          if ( pMarker->state >= eMarkerSet_Complete )
          {
             sprintf(modelStringBuffer,"%d",pMarker->endCpuCycle-pMarker->startCpuCycle);
@@ -71,7 +70,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
             return QVariant(MARKER_NO_DATA);
          }
          break;
-      case 2:
+      case ExecutionVisualizerCol_StartAddr:
          if ( pMarker->state >= eMarkerSet_Started )
          {
             sprintf(modelStringBuffer,"%02X:%04X(%04X)",
@@ -85,7 +84,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
             return QVariant(MARKER_NOT_STARTED);
          }
          break;
-      case 3:
+      case ExecutionVisualizerCol_EndAddr:
          if ( pMarker->state >= eMarkerSet_Complete )
          {
             sprintf(modelStringBuffer,"%02X:%04X(%04X)",
@@ -114,16 +113,16 @@ QVariant CExecutionMarkerDisplayModel::headerData(int section, Qt::Orientation o
    {
       switch ( section )
       {
-      case 0:
+      case ExecutionVisualizerCol_Color:
          return QString("Color");
          break;
-      case 1:
+      case ExecutionVisualizerCol_Cycles:
          return QString("Cycles");
          break;
-      case 2:
+      case ExecutionVisualizerCol_StartAddr:
          return QString("Start");
          break;
-      case 3:
+      case ExecutionVisualizerCol_EndAddr:
          return QString("End");
          break;
       }
@@ -132,12 +131,13 @@ QVariant CExecutionMarkerDisplayModel::headerData(int section, Qt::Orientation o
 
 int CExecutionMarkerDisplayModel::rowCount(const QModelIndex&) const
 {
-   return 8;
+   CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+   return pMarkers->GetNumMarkers();
 }
 
 int CExecutionMarkerDisplayModel::columnCount(const QModelIndex&) const
 {
-   return 4;
+   return ExecutionVisualizerCol_MAX;
 }
 
 void CExecutionMarkerDisplayModel::update()

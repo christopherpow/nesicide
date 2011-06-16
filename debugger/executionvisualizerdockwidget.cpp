@@ -208,6 +208,8 @@ bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& doc, QDomNode& nod
                      pMarkers->AddSpecificMarker(marker,startAddr,startAbsAddr);
                      pMarkers->CompleteMarker(marker,endAddr,endAbsAddr);
                      break;
+                  default:
+                     break;
                   }
                }
                markerNode = markerNode.nextSibling();
@@ -219,4 +221,29 @@ bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& doc, QDomNode& nod
    }
 
    return true;
+}
+
+void ExecutionVisualizerDockWidget::on_tableView_pressed(QModelIndex index)
+{
+   // If the user clicked on the start or end address cells, take them there.
+   if ( (index.column() == ExecutionVisualizerCol_StartAddr) ||
+        (index.column() == ExecutionVisualizerCol_EndAddr) )
+   {
+      emit snapTo("Address:"+index.data(Qt::DisplayRole).toString());
+   }
+}
+
+void ExecutionVisualizerDockWidget::on_tableView_entered(QModelIndex index)
+{
+   on_tableView_pressed(index);
+}
+
+void ExecutionVisualizerDockWidget::on_tableView_clicked(QModelIndex index)
+{
+   on_tableView_pressed(index);
+}
+
+void ExecutionVisualizerDockWidget::on_tableView_activated(QModelIndex index)
+{
+   on_tableView_pressed(index);
 }
