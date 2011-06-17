@@ -125,18 +125,19 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          if ( result )
          {
             QString fileName = dlg.getName();
+            QDir newDir(dlg.getPath());
 
             if ( !fileName.isEmpty() )
             {
-               QString fullPath = dir.relativeFilePath( dir.absoluteFilePath( dlg.getName() ) );
+               QString fullPath = dir.relativeFilePath( newDir.absoluteFilePath( fileName ) );
                QFile fileIn( fullPath );
 
                if ( fileIn.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
                {
                   CSourceItem* pSourceItem = new CSourceItem(this);
-                  pSourceItem->setName(dlg.getName());
+                  pSourceItem->setName(fullPath);
 
-                  pSourceItem->setPath(dir.fromNativeSeparators( fullPath ));
+                  pSourceItem->setPath(fullPath);
 
                   pSourceItem->serializeContent();
 
