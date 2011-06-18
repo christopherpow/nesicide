@@ -385,6 +385,15 @@ bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStrin
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QDomNode childNode = node.firstChild();
    QDomNode breakpointNode;
+   int bp;
+
+   if ( pBreakpoints->GetNumBreakpoints() )
+   {
+      for ( bp = pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
+      {
+         pBreakpoints->RemoveBreakpoint(bp);
+      }
+   }
 
    if (!childNode.isNull())
    {

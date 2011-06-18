@@ -3,7 +3,7 @@ Dependencies
 You'll need to install the following in order to build and run NESICIDE.
 1. Git
 2. Qt Creator (version 4.7 or later)
-3. CC65 toolchain
+3. CC65 toolchain (snapshot version 2.13.9.20110615-1 or later)
 4. make (if on Windows)
 5. Lua
 6. Qscintilla

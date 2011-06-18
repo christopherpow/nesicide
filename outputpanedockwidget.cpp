@@ -34,21 +34,25 @@ void OutputPaneDockWidget::clearAllPanes()
    ui->generalOutputTextEdit->clear();
    ui->compilerOutputTextEdit->clear();
    ui->debuggerOutputTextEdit->clear();
+   ui->searchOutputTextEdit->clear();
 }
 
 void OutputPaneDockWidget::clearPane(int tab)
 {
    switch ( tab )
    {
-      case Output_General:
-         ui->generalOutputTextEdit->clear();
-         break;
-      case Output_Build:
-         ui->compilerOutputTextEdit->clear();
-         break;
-      case Output_Debug:
-         ui->debuggerOutputTextEdit->clear();
-         break;
+   case Output_General:
+      ui->generalOutputTextEdit->clear();
+      break;
+   case Output_Build:
+      ui->compilerOutputTextEdit->clear();
+      break;
+   case Output_Debug:
+      ui->debuggerOutputTextEdit->clear();
+      break;
+   case Output_Search:
+      ui->searchOutputTextEdit->clear();
+      break;
    }
 }
 
@@ -67,6 +71,11 @@ void OutputPaneDockWidget::updateDebugPane(QString text)
    ui->debuggerOutputTextEdit->appendHtml(text);
 }
 
+void OutputPaneDockWidget::updateSearchPane(QString text)
+{
+   ui->searchOutputTextEdit->appendHtml(text);
+}
+
 void OutputPaneDockWidget::eraseGeneralPane()
 {
    ui->generalOutputTextEdit->clear();
@@ -80,6 +89,11 @@ void OutputPaneDockWidget::eraseBuildPane()
 void OutputPaneDockWidget::eraseDebugPane()
 {
    ui->debuggerOutputTextEdit->clear();
+}
+
+void OutputPaneDockWidget::eraseSearchPane()
+{
+   ui->searchOutputTextEdit->clear();
 }
 
 void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
@@ -97,15 +111,18 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
    {
       switch ( ui->outputTabWidget->currentIndex() )
       {
-         case Output_General:
-            ui->generalOutputTextEdit->clear();
-            break;
-         case Output_Build:
-            ui->compilerOutputTextEdit->clear();
-            break;
-         case Output_Debug:
-            ui->debuggerOutputTextEdit->clear();
-            break;
+      case Output_General:
+         ui->generalOutputTextEdit->clear();
+         break;
+      case Output_Build:
+         ui->compilerOutputTextEdit->clear();
+         break;
+      case Output_Debug:
+         ui->debuggerOutputTextEdit->clear();
+         break;
+      case Output_Search:
+         ui->searchOutputTextEdit->clear();
+         break;
       }
    }
 
@@ -120,15 +137,18 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
 
       switch ( ui->outputTabWidget->currentIndex() )
       {
-         case Output_General:
-            ui->generalOutputTextEdit->clear();
-            break;
-         case Output_Build:
-            ui->compilerOutputTextEdit->clear();
-            break;
-         case Output_Debug:
-            ui->debuggerOutputTextEdit->clear();
-            break;
+      case Output_General:
+         ui->generalOutputTextEdit->clear();
+         break;
+      case Output_Build:
+         ui->compilerOutputTextEdit->clear();
+         break;
+      case Output_Debug:
+         ui->debuggerOutputTextEdit->clear();
+         break;
+      case Output_Search:
+         ui->searchOutputTextEdit->clear();
+         break;
       }
    }
 }
@@ -142,6 +162,7 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
    QStringList errorParts;
    QString     errorFile;
    QString     errorLine;
+   bool        found = false;
 
    if ( ui->compilerOutputTextEdit->blockCount() > 1 )
    {
@@ -166,10 +187,147 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
                  (errorFile.contains(pSource->path())) )
             {
                pSource->openItemEvent(m_pTarget);
-               pSource->editor()->highlightLine(errorLine.toInt(0,10));
+               pSource->editor()->highlightLine(errorLine.toInt());
+               found = true;
                break;
             }
             iter.next();
+         }
+
+         if ( !found )
+         {
+            // If we got here the file is not part of the project...lets open it anyway,
+            // if it's not already open.
+            int foundIdx = -1;
+            for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+            {
+               CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+               if ( editor &&
+                    editor->fileName() == errorFile )
+               {
+                  found = true;
+                  foundIdx = tab;
+                  editor->highlightLine(errorLine.toInt());
+//                  emit fileNavigator_fileChanged(ui->files->currentText());
+                  break;
+               }
+            }
+            if ( !found )
+            {
+               QDir dir(QDir::currentPath());
+               QString fileName = dir.fromNativeSeparators(dir.filePath(errorFile));
+               QFile fileIn(fileName);
+qDebug(fileName.toAscii().constData());
+               if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+               {
+                  CodeEditorForm* editor = new CodeEditorForm(errorFile,QString(fileIn.readAll()));
+
+                  fileIn.close();
+
+                  m_pTarget->addTab(editor, errorFile);
+                  m_pTarget->setCurrentWidget(editor);
+                  editor->highlightLine(errorLine.toInt());
+//                  emit fileNavigator_fileChanged(ui->files->currentText());
+               }
+               else
+               {
+                  QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+errorFile+"\n\nThis typically occurs if the project output files (*.nes, *.dbg) are moved away from the folder containing their parent project file (*.nesproject).");
+               }
+            }
+            else
+            {
+               m_pTarget->setCurrentIndex(foundIdx);
+//               emit fileNavigator_fileChanged(ui->files->currentText());
+            }
+         }
+      }
+   }
+}
+
+void OutputPaneDockWidget::on_searchOutputTextEdit_selectionChanged()
+{
+   QTextCursor textCursor = ui->searchOutputTextEdit->textCursor();
+   QString     selection;
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   QStringList searchParts;
+   QString     searchFile;
+   QString     searchLine;
+   bool        found = false;
+
+   if ( ui->searchOutputTextEdit->blockCount() > 1 )
+   {
+      textCursor.select(QTextCursor::LineUnderCursor);
+      selection = textCursor.selectedText();
+      ui->searchOutputTextEdit->setTextCursor(textCursor);
+
+      if ( selection.contains(QRegExp(":([1-9][0-9]*):")) )
+      {
+         // Parse the search file and line number.
+         searchParts = selection.split(":");
+         searchFile = searchParts.at(0);
+         searchLine = searchParts.at(1);
+
+         while ( iter.current() )
+         {
+            pSource = dynamic_cast<CSourceItem*>(iter.current());
+            if ( pSource &&
+                 (searchFile.contains(pSource->path())) )
+            {
+               pSource->openItemEvent(m_pTarget);
+               pSource->editor()->highlightLine(searchLine.toInt());
+               found = true;
+               break;
+            }
+            iter.next();
+         }
+
+         if ( !found )
+         {
+            // If we got here the file is not part of the project...lets open it anyway,
+            // if it's not already open.
+            int foundIdx = -1;
+            for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+            {
+               CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+               if ( editor &&
+                    editor->fileName() == searchFile )
+               {
+                  found = true;
+                  foundIdx = tab;
+                  editor->highlightLine(searchLine.toInt());
+//                  emit fileNavigator_fileChanged(ui->files->currentText());
+                  break;
+               }
+            }
+            if ( !found )
+            {
+               QDir dir(QDir::currentPath());
+               QString fileName = dir.fromNativeSeparators(dir.filePath(searchFile));
+               QFile fileIn(fileName);
+
+               if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+               {
+                  CodeEditorForm* editor = new CodeEditorForm(searchFile,QString(fileIn.readAll()));
+
+                  fileIn.close();
+
+                  m_pTarget->addTab(editor, searchFile);
+                  m_pTarget->setCurrentWidget(editor);
+                  editor->highlightLine(searchLine.toInt());
+
+//                  emit fileNavigator_fileChanged(ui->files->currentText());
+               }
+               else
+               {
+                  QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+searchFile+"\n\nThis typically occurs if the project output files (*.nes, *.dbg) are moved away from the folder containing their parent project file (*.nesproject).");
+               }
+            }
+            else
+            {
+               m_pTarget->setCurrentIndex(foundIdx);
+//               emit fileNavigator_fileChanged(ui->files->currentText());
+            }
          }
       }
    }

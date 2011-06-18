@@ -243,7 +243,8 @@ SOURCES += mainwindow.cpp \
     designers/graphics_bank_editor/cchrrombankitemdelegate.cpp \
     version.cpp \
     debugger/cdebuggerbase.cpp \
-    viewers/debugger/cexecutionmarkerdisplaymodel.cpp
+    viewers/debugger/cexecutionmarkerdisplaymodel.cpp \
+    common/findinfilesdockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -347,7 +348,8 @@ HEADERS += mainwindow.h \
     common/cprojecttabwidget.h \
     designers/graphics_bank_editor/cchrrombankitemdelegate.h \
     debugger/cdebuggerbase.h \
-    viewers/debugger/cexecutionmarkerdisplaymodel.h
+    viewers/debugger/cexecutionmarkerdisplaymodel.h \
+    common/findinfilesdockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -380,6 +382,7 @@ FORMS += mainwindow.ui \
     emulator/nesemulatordockwidget.ui \
     testsuiteexecutivedialog.ui \
     common/emulatorcontrol.ui \
-    debugger/symbolwatchdockwidget.ui
+    debugger/symbolwatchdockwidget.ui \
+    common/findinfilesdockwidget.ui
 
 RESOURCES += resource.qrc

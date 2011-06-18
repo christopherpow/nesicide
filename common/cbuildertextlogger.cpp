@@ -3,6 +3,7 @@
 CTextLogger* generalTextLogger;
 CTextLogger* buildTextLogger;
 CTextLogger* debugTextLogger;
+CTextLogger* searchTextLogger;
 
 CTextLogger::CTextLogger()
 {

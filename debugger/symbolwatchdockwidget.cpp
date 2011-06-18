@@ -22,6 +22,7 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    ui->tableView->setModel(model);
    ui->tableView->setItemDelegateForColumn(SymbolWatchCol_Name,symbolDelegate);
    ui->tableView->setItemDelegateForColumn(SymbolWatchCol_Value,valueDelegate);
+   ui->tableView->resizeColumnsToContents();
 
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
@@ -36,6 +37,11 @@ SymbolWatchDockWidget::~SymbolWatchDockWidget()
    delete model;
    delete valueDelegate;
    delete symbolDelegate;
+}
+
+void SymbolWatchDockWidget::updateUi()
+{
+   emit markProjectDirty(true);
 }
 
 void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
@@ -109,6 +115,10 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
    model->update();
+}
+
+void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
+{
 }
 
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)

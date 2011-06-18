@@ -31,6 +31,7 @@ protected:
    void dropEvent(QDropEvent *event);
    void contextMenuEvent(QContextMenuEvent *event);
    void showEvent(QShowEvent *event);
+   void hideEvent(QHideEvent *event);
 
 private:
    Ui::SymbolWatchDockWidget *ui;
@@ -42,10 +43,11 @@ signals:
    void breakpointsChanged();
 
 private slots:
-    void on_actionRemove_symbol_triggered();
-    void on_actionBreak_on_CPU_access_here_triggered();
-    void on_actionBreak_on_CPU_read_here_triggered();
-    void on_actionBreak_on_CPU_write_here_triggered();
+   void updateUi();
+   void on_actionRemove_symbol_triggered();
+   void on_actionBreak_on_CPU_access_here_triggered();
+   void on_actionBreak_on_CPU_read_here_triggered();
+   void on_actionBreak_on_CPU_write_here_triggered();
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H

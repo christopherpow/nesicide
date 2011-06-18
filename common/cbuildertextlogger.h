@@ -19,5 +19,6 @@ signals:
 extern CTextLogger* generalTextLogger;
 extern CTextLogger* buildTextLogger;
 extern CTextLogger* debugTextLogger;
+extern CTextLogger* searchTextLogger;
 
 #endif // CBUILDERTEXTLOGGER_H

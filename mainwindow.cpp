@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget* parent) :
    generalTextLogger = new CTextLogger();
    buildTextLogger = new CTextLogger();
    debugTextLogger = new CTextLogger();
+   searchTextLogger = new CTextLogger();
 
    nesicideProject = new CNesicideProject();
 
@@ -56,6 +57,11 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pEmulatorControl = new EmulatorControl();
    ui->debuggerToolbar->addWidget(m_pEmulatorControl);
 
+   m_pFindInFiles = new FindInFilesDockWidget();
+   addDockWidget(Qt::LeftDockWidgetArea, m_pFindInFiles );
+   m_pFindInFiles->hide();
+   QObject::connect(m_pFindInFiles, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedFind_in_Files_close(bool)));
+
    projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
    projectBrowser->hide();
@@ -69,9 +75,11 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(generalTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateGeneralPane(QString)));
    QObject::connect(buildTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateBuildPane(QString)));
    QObject::connect(debugTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateDebugPane(QString)));
+   QObject::connect(searchTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateSearchPane(QString)));
    QObject::connect(generalTextLogger,SIGNAL(eraseText()),output,SLOT(eraseGeneralPane()));
    QObject::connect(buildTextLogger,SIGNAL(eraseText()),output,SLOT(eraseBuildPane()));
    QObject::connect(debugTextLogger,SIGNAL(eraseText()),output,SLOT(eraseDebugPane()));
+   QObject::connect(searchTextLogger,SIGNAL(eraseText()),output,SLOT(eraseSearchPane()));
    QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
    CDockWidgetRegistry::addWidget ( "Output", output );
 
@@ -408,6 +416,7 @@ MainWindow::~MainWindow()
    delete generalTextLogger;
    delete buildTextLogger;
    delete debugTextLogger;
+   delete searchTextLogger;
 
    delete nesicideProject;
    delete pluginManager;
@@ -438,6 +447,7 @@ MainWindow::~MainWindow()
    delete m_pBinMapperMemoryInspector;
    delete m_pSourceNavigator;
    delete m_pSymbolInspector;
+   delete m_pFindInFiles;
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -526,6 +536,10 @@ void MainWindow::dropEvent(QDropEvent* event)
       }
       else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
       {
+         if ( nesicideProject->isInitialized() )
+         {
+            closeProject();
+         }
          openROM(fileName);
 
          event->acceptProposedAction();
@@ -656,7 +670,7 @@ void MainWindow::on_actionProject_Properties_triggered()
 
    if (dlg.exec() == QDialog::Accepted)
    {
-      on_actionLoad_In_Emulator_triggered();
+      nesicideProject->setDirty(true);
    }
 }
 
@@ -1207,6 +1221,17 @@ void MainWindow::on_actionSymbol_Watch_toggled(bool value)
 void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
 {
    ui->actionSymbol_Watch->setChecked(toplevel);
+}
+
+void MainWindow::on_actionFind_in_Files_toggled(bool value)
+{
+   output->showPane(OutputPaneDockWidget::Output_Search);
+   m_pFindInFiles->setVisible(value);
+}
+
+void MainWindow::reflectedFind_in_Files_close ( bool toplevel )
+{
+   ui->actionFind_in_Files->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

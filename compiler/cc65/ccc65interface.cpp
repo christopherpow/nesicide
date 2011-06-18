@@ -149,14 +149,14 @@ void CCC65Interface::clean()
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    foreach ( const QString& str, stdioList )
    {
-      buildTextLogger->write("<font color='blue'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
+      buildTextLogger->write("<font color='blue'>"+str+"</font>");
    }
    stdioStr = QString(cc65.readAllStandardError());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    errors.append(stdioList);
    foreach ( const QString& str, stdioList )
    {
-      buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
+      buildTextLogger->write("<font color='red'>"+str+"</font>");
    }
 
    return;
@@ -205,14 +205,14 @@ bool CCC65Interface::assemble()
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    foreach ( const QString& str, stdioList )
    {
-      buildTextLogger->write("<font color='blue'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
+      buildTextLogger->write("<font color='blue'>"+str+"</font>");
    }
    stdioStr = QString(cc65.readAllStandardError());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    errors.append(stdioList);
    foreach ( const QString& str, stdioList )
    {
-      buildTextLogger->write("<font color='red'>&nbsp;&nbsp;&nbsp;"+str+"</font>");
+      buildTextLogger->write("<font color='red'>"+str+"</font>");
    }
 
    return ok;

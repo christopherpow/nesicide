@@ -335,6 +335,18 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <widget class="QToolBar" name="searchToolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionFind_in_Files"/>
+  </widget>
   <action name="actionE_xit">
    <property name="icon">
     <iconset resource="resource.qrc">
@@ -984,6 +996,21 @@
    </property>
    <property name="toolTip">
     <string>Clean Project</string>
+   </property>
+  </action>
+  <action name="actionFind_in_Files">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
+   </property>
+   <property name="text">
+    <string>Find in Files</string>
+   </property>
+   <property name="toolTip">
+    <string>Find in Files</string>
    </property>
   </action>
  </widget>

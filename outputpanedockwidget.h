@@ -18,7 +18,8 @@ public:
    {
       Output_General = 0,
       Output_Build,
-      Output_Debug
+      Output_Debug,
+      Output_Search
    };
    explicit OutputPaneDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
    ~OutputPaneDockWidget();
@@ -31,9 +32,11 @@ public slots:
    void updateGeneralPane(QString text);
    void updateBuildPane(QString text);
    void updateDebugPane(QString text);
+   void updateSearchPane(QString text);
    void eraseGeneralPane();
    void eraseBuildPane();
    void eraseDebugPane();
+   void eraseSearchPane();
 
 protected:
    virtual void contextMenuEvent ( QContextMenuEvent* event );
@@ -43,7 +46,8 @@ private:
    CProjectTabWidget* m_pTarget;
 
 private slots:
-    void on_compilerOutputTextEdit_selectionChanged();
+   void on_compilerOutputTextEdit_selectionChanged();
+   void on_searchOutputTextEdit_selectionChanged();
 };
 
 #endif // OUTPUTPANEDOCKWIDGET_H
