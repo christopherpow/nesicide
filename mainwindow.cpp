@@ -955,12 +955,27 @@ void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
+   int tab;
+
    output->showPane(OutputPaneDockWidget::Output_Build);
    emulator->pauseEmulation(false);
 
    if ( EnvironmentSettingsDialog::saveAllOnCompile() )
    {
       on_actionSave_Project_triggered();
+
+      // Try to close all opened editors
+      for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+      {
+         ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
+         if ( item )
+         {
+            if ( item->isModified() )
+            {
+               item->onSave();
+            }
+         }
+      }
    }
    compiler->assemble();
 }
