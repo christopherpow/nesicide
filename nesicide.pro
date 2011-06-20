@@ -244,7 +244,8 @@ SOURCES += mainwindow.cpp \
     version.cpp \
     debugger/cdebuggerbase.cpp \
     viewers/debugger/cexecutionmarkerdisplaymodel.cpp \
-    common/findinfilesdockwidget.cpp
+    common/findinfilesdockwidget.cpp \
+    common/searcherthread.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -349,7 +350,8 @@ HEADERS += mainwindow.h \
     designers/graphics_bank_editor/cchrrombankitemdelegate.h \
     debugger/cdebuggerbase.h \
     viewers/debugger/cexecutionmarkerdisplaymodel.h \
-    common/findinfilesdockwidget.h
+    common/findinfilesdockwidget.h \
+    common/searcherthread.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

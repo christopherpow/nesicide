@@ -6,6 +6,7 @@
 #include "nesemulatorthread.h"
 #include "breakpointwatcherthread.h"
 #include "compilerthread.h"
+#include "searcherthread.h"
 #include "testsuiteexecutivedialog.h"
 
 #include "cgamedatabasehandler.h"
@@ -19,6 +20,8 @@ extern NESEmulatorThread* emulator;
 extern BreakpointWatcherThread* breakpointWatcher;
 
 extern CompilerThread* compiler;
+
+extern SearcherThread* searcher;
 
 extern TestSuiteExecutiveDialog* testSuiteExecutive;
 

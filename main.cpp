@@ -15,6 +15,9 @@ TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
 // Interface to compiler.
 CompilerThread* compiler = NULL;
 
+// Interface to search engine.
+SearcherThread* searcher = NULL;
+
 // Thread for watching for breakpoints ejected by the NES
 // emulator thread.
 BreakpointWatcherThread* breakpointWatcher = NULL;
@@ -78,11 +81,17 @@ int main(int argc, char* argv[])
    // Create the compiler thread...
    compiler = new CompilerThread ();
 
+   // Create the searcher thread...
+   searcher = new SearcherThread ();
+
    // Start breakpoint-watcher thread...
    breakpointWatcher->start();
 
    // Start compiler thread...
    compiler->start();
+
+   // Start searcher thread...
+   searcher->start();
 
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();
@@ -98,6 +107,8 @@ int main(int argc, char* argv[])
    breakpointWatcher->wait();
    compiler->kill();
    compiler->wait();
+   searcher->kill();
+   searcher->wait();
    emulator->kill();
    emulator->wait();
 
@@ -105,6 +116,8 @@ int main(int argc, char* argv[])
    breakpointWatcher = NULL;
    delete compiler;
    compiler = NULL;
+   delete searcher;
+   searcher = NULL;
    delete emulator;
    emulator = NULL;
 

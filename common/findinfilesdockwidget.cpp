@@ -20,6 +20,8 @@ FindInFilesDockWidget::FindInFilesDockWidget(QWidget *parent) :
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
    settings.endGroup();
+
+   QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
 }
 
 FindInFilesDockWidget::~FindInFilesDockWidget()
@@ -105,64 +107,12 @@ void FindInFilesDockWidget::on_find_clicked()
       }
       searchTextLogger->erase();
       searchTextLogger->write("<b>Searching for \""+ui->searchText->currentText()+"\"...</b>");
-      search(ui->location->currentText(),ui->type->currentText(),&found);
-      searchTextLogger->write("<b>"+QString::number(found)+" found.</b>");
+      searcher->search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
    }
    settings.endGroup();
 }
 
-void FindInFilesDockWidget::search(QDir dir,QString pattern,int* finds)
+void FindInFilesDockWidget::searcher_searchDone(int found)
 {
-   QDir          base(QDir::currentPath());
-   QFileInfoList entries = dir.entryInfoList(QDir::AllDirs|QDir::NoDotAndDotDot|QDir::NoSymLinks|QDir::Files);
-   QFile         file;
-   QString       content;
-   QStringList   contentLines;
-   QString       foundText;
-   bool          found;
-   int           entry;
-   int           line;
-   Qt::CaseSensitivity caseSensitivity = (ui->caseSensitive->isChecked())?Qt::CaseSensitive:Qt::CaseInsensitive;
-   QRegExp       regex;
-
-   regex = QRegExp(ui->searchText->currentText());
-   regex.setCaseSensitivity(caseSensitivity);
-
-   for ( entry = 0; entry < entries.count(); entry++ )
-   {
-      if ( entries.at(entry).isDir() )
-      {
-         search(QDir(entries.at(entry).filePath()),pattern,finds);
-      }
-      else if ( entries.at(entry).isFile() )
-      {
-         file.setFileName(entries.at(entry).filePath());
-         if ( file.open(QIODevice::ReadOnly) )
-         {
-            content.clear();
-            content = file.readAll();
-            contentLines.clear();
-            contentLines = content.split(QRegExp("[\n]"));
-
-            for ( line = 0; line < contentLines.count(); line++ )
-            {
-               if ( ui->regex->isChecked() )
-               {
-                  found = contentLines.at(line).contains(regex);
-               }
-               else
-               {
-                  found = contentLines.at(line).contains(ui->searchText->currentText(),caseSensitivity);
-               }
-               if ( found )
-               {
-                  foundText.sprintf("%s:%d:%s",base.relativeFilePath(entries.at(entry).filePath()).toAscii().constData(),line+1,contentLines.at(line).toAscii().constData());
-                  searchTextLogger->write(foundText);
-                  (*finds)++;
-               }
-            }
-            file.close();
-         }
-      }
-   }
+   searchTextLogger->write("<b>"+QString::number(found)+" found.</b>");
 }

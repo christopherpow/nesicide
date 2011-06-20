@@ -252,8 +252,16 @@
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionFind_in_Files"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuEmulator"/>
    <addaction name="menuDebugger"/>
    <addaction name="menu_Help"/>

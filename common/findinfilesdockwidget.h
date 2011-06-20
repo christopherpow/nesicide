@@ -24,6 +24,7 @@ private:
    void search(QDir dir,QString pattern,int* finds);
 
 private slots:
+   void searcher_searchDone(int found);
    void on_find_clicked();
    void on_browse_clicked();
 };
