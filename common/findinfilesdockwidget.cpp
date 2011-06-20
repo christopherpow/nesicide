@@ -17,9 +17,13 @@ FindInFilesDockWidget::FindInFilesDockWidget(QWidget *parent) :
    ui->searchText->addItems(settings.value("SearchTextHistory").toStringList());
    ui->location->addItems(settings.value("SearchLocationHistory").toStringList());
    ui->type->addItems(settings.value("FileTypeHistory").toStringList());
+   ui->subfolders->setChecked(settings.value("IncludeSubfolders",QVariant(true)).toBool());
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
+   ui->projectFolder->setChecked(settings.value("UseProjectFolder",QVariant(true)).toBool());
    settings.endGroup();
+
+   on_projectFolder_clicked(ui->projectFolder->isChecked());
 
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
 }
@@ -38,6 +42,7 @@ void FindInFilesDockWidget::showEvent(QShowEvent *event)
    if ( !ui->type->count() )
    {
       ui->type->addItem("*");
+      ui->type->addItem("*.s");
    }
 }
 
@@ -61,8 +66,10 @@ void FindInFilesDockWidget::on_find_clicked()
 
    if ( !ui->searchText->currentText().isEmpty() )
    {
+      settings.setValue("IncludeSubfolders",QVariant(ui->subfolders->isChecked()));
       settings.setValue("CaseSensitive",QVariant(ui->caseSensitive->isChecked()));
       settings.setValue("RegularExpression",QVariant(ui->regex->isChecked()));
+      settings.setValue("UseProjectFolder",QVariant(ui->projectFolder->isChecked()));
       if ( (!ui->location->currentText().isEmpty()) && (ui->location->findText(ui->location->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
       {
          ui->location->addItem(ui->location->currentText());
@@ -107,7 +114,14 @@ void FindInFilesDockWidget::on_find_clicked()
       }
       searchTextLogger->erase();
       searchTextLogger->write("<b>Searching for \""+ui->searchText->currentText()+"\"...</b>");
-      searcher->search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+      if ( ui->projectFolder->isChecked() )
+      {
+         searcher->search(QDir::currentPath(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+      }
+      else
+      {
+         searcher->search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+      }
    }
    settings.endGroup();
 }
@@ -115,4 +129,10 @@ void FindInFilesDockWidget::on_find_clicked()
 void FindInFilesDockWidget::searcher_searchDone(int found)
 {
    searchTextLogger->write("<b>"+QString::number(found)+" found.</b>");
+}
+
+void FindInFilesDockWidget::on_projectFolder_clicked(bool checked)
+{
+   ui->location->setEnabled(!checked);
+   ui->browse->setEnabled(!checked);
 }
