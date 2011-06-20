@@ -21,7 +21,7 @@ class ProjectPropertiesDialog : public QDialog
    Q_OBJECT
 public:
    ProjectPropertiesDialog(QWidget* parent = 0);
-   ~ProjectPropertiesDialog();
+   virtual ~ProjectPropertiesDialog();
 
 protected:
    void changeEvent(QEvent* e);

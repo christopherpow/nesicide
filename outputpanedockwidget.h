@@ -22,7 +22,7 @@ public:
       Output_Search
    };
    explicit OutputPaneDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
-   ~OutputPaneDockWidget();
+   virtual ~OutputPaneDockWidget();
 
    void clearAllPanes();
    void clearPane(int tab);

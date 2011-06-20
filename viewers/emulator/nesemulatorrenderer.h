@@ -14,7 +14,7 @@ class CNESEmulatorRenderer : public QGLWidget
 {
 public:
    CNESEmulatorRenderer(QWidget* parent, char* imgData);
-   ~CNESEmulatorRenderer();
+   virtual ~CNESEmulatorRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();

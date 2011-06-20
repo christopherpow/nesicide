@@ -17,7 +17,7 @@ class CPluginManager
 {
 public:
    CPluginManager();
-   ~CPluginManager();
+   virtual ~CPluginManager();
    QString getVersionInfo();
    void doInitScript();
    void loadPlugins();

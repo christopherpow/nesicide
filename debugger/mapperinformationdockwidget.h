@@ -13,7 +13,7 @@ class MapperInformationDockWidget : public CDebuggerBase
 
 public:
     explicit MapperInformationDockWidget(QWidget *parent = 0);
-    ~MapperInformationDockWidget();
+    virtual ~MapperInformationDockWidget();
 
 protected:
     void showEvent(QShowEvent* e);

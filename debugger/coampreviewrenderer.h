@@ -14,7 +14,7 @@ class COAMPreviewRenderer : public QGLWidget
 {
 public:
    COAMPreviewRenderer(QWidget* parent, char* data);
-   ~COAMPreviewRenderer();
+   virtual ~COAMPreviewRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();

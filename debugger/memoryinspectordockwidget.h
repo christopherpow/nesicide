@@ -17,7 +17,7 @@ class MemoryInspectorDockWidget : public CDebuggerBase
 
 public:
    explicit MemoryInspectorDockWidget(eMemoryType display = eMemory_CPU, QWidget *parent = 0);
-   ~MemoryInspectorDockWidget();
+   virtual ~MemoryInspectorDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);

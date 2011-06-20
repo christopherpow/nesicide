@@ -217,7 +217,7 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
                QDir dir(QDir::currentPath());
                QString fileName = dir.fromNativeSeparators(dir.filePath(errorFile));
                QFile fileIn(fileName);
-qDebug(fileName.toAscii().constData());
+
                if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
                {
                   CodeEditorForm* editor = new CodeEditorForm(errorFile,QString(fileIn.readAll()));

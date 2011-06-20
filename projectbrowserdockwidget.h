@@ -19,7 +19,7 @@ class ProjectBrowserDockWidget : public QDockWidget
 
 public:
    explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent = 0);
-   ~ProjectBrowserDockWidget();
+   virtual ~ProjectBrowserDockWidget();
 
    void layoutChangedEvent();
    void enableNavigation();

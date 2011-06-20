@@ -15,7 +15,7 @@ class AttributeTableEditorForm : public CDesignerEditorBase
    Q_OBJECT
 public:
    AttributeTableEditorForm(QList<uint8_t> palette,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
-   ~AttributeTableEditorForm();
+   virtual ~AttributeTableEditorForm();
 
    QList<uint8_t> attributeTable() { return m_palette; }
 

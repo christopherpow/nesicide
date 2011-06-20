@@ -14,7 +14,7 @@ class AboutDialog : public QDialog
 
 public:
    explicit AboutDialog(QWidget* parent = 0);
-   ~AboutDialog();
+   virtual ~AboutDialog();
 
 private:
    Ui::AboutDialog* ui;

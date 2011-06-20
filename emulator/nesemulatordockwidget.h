@@ -17,7 +17,7 @@ class NESEmulatorDockWidget : public QDockWidget
 
 public:
    explicit NESEmulatorDockWidget(QWidget *parent = 0);
-   ~NESEmulatorDockWidget();
+   virtual ~NESEmulatorDockWidget();
 
 protected:
    void changeEvent(QEvent* e);

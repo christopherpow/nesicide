@@ -18,7 +18,7 @@ class SymbolWatchDockWidget : public CDebuggerBase, public IXMLSerializable
 
 public:
    explicit SymbolWatchDockWidget(QWidget *parent = 0);
-   ~SymbolWatchDockWidget();
+   virtual ~SymbolWatchDockWidget();
 
    // IXMLSerializable interface
    virtual bool serialize(QDomDocument& doc, QDomNode& node);

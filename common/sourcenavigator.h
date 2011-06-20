@@ -17,7 +17,7 @@ class SourceNavigator : public QWidget
 
 public:
    explicit SourceNavigator(CProjectTabWidget* pTarget,QWidget *parent = 0);
-   ~SourceNavigator();
+   virtual ~SourceNavigator();
 
    void shutdown();
 

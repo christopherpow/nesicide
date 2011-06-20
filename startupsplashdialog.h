@@ -14,7 +14,7 @@ class StartupSplashDialog : public QDialog
 
 public:
    explicit StartupSplashDialog(QWidget* parent = 0);
-   ~StartupSplashDialog();
+   virtual ~StartupSplashDialog();
 
 private:
    Ui::StartupSplashDialog* ui;

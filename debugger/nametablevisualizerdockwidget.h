@@ -15,7 +15,7 @@ class NameTableVisualizerDockWidget : public CDebuggerBase
 
 public:
    explicit NameTableVisualizerDockWidget(QWidget *parent = 0);
-   ~NameTableVisualizerDockWidget();
+   virtual ~NameTableVisualizerDockWidget();
 
 protected:
    void showEvent(QShowEvent* event);

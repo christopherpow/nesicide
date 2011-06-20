@@ -15,7 +15,7 @@ class ExecutionInspectorDockWidget : public CDebuggerBase
 
 public:
    explicit ExecutionInspectorDockWidget(QWidget *parent = 0);
-   ~ExecutionInspectorDockWidget();
+   virtual ~ExecutionInspectorDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);

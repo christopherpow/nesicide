@@ -19,7 +19,7 @@ class BreakpointDockWidget : public CDebuggerBase, public IXMLSerializable
 
 public:
    explicit BreakpointDockWidget(QWidget *parent = 0);
-   ~BreakpointDockWidget();
+   virtual ~BreakpointDockWidget();
 
    // IXMLSerializable interface
    virtual bool serialize(QDomDocument& doc, QDomNode& node);

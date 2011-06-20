@@ -13,7 +13,7 @@ class PPUInformationDockWidget : public CDebuggerBase
 
 public:
    explicit PPUInformationDockWidget(QWidget *parent = 0);
-   ~PPUInformationDockWidget();
+   virtual ~PPUInformationDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);

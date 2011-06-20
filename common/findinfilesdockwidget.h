@@ -2,7 +2,7 @@
 #define FINDINFILESDOCKWIDGET_H
 
 #include <QDockWidget>
-#include <QFileSystemModel>
+#include <QDir>
 
 namespace Ui {
    class FindInFilesDockWidget;
@@ -14,11 +14,14 @@ class FindInFilesDockWidget : public QDockWidget
 
 public:
    explicit FindInFilesDockWidget(QWidget *parent = 0);
-   ~FindInFilesDockWidget();
+   virtual ~FindInFilesDockWidget();
+
+protected:
+   void showEvent(QShowEvent *event);
 
 private:
    Ui::FindInFilesDockWidget *ui;
-   QFileSystemModel* model;
+   void search(QDir dir,QString pattern,int* finds);
 
 private slots:
    void on_find_clicked();

@@ -14,7 +14,7 @@ class CExecutionVisualizerRenderer : public QGLWidget
 {
 public:
    CExecutionVisualizerRenderer(QWidget* parent, char* data);
-   ~CExecutionVisualizerRenderer();
+   virtual ~CExecutionVisualizerRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();

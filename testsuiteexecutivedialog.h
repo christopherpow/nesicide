@@ -15,7 +15,7 @@ class TestSuiteExecutiveDialog : public QDialog
 
 public:
     explicit TestSuiteExecutiveDialog(QWidget *parent = 0);
-    ~TestSuiteExecutiveDialog();
+    virtual ~TestSuiteExecutiveDialog();
 
 private:
     Ui::TestSuiteExecutiveDialog *ui;

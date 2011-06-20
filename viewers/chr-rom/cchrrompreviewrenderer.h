@@ -14,7 +14,7 @@ class CCHRROMPreviewRenderer : public QGLWidget
 {
 public:
    CCHRROMPreviewRenderer(QWidget* parent, char* imgData);
-   ~CCHRROMPreviewRenderer();
+   virtual ~CCHRROMPreviewRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();

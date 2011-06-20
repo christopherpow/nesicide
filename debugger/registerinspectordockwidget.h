@@ -19,7 +19,7 @@ class RegisterInspectorDockWidget : public CDebuggerBase
 
 public:
    explicit RegisterInspectorDockWidget(eMemoryType display = eMemory_IOregs, QWidget *parent = 0);
-   ~RegisterInspectorDockWidget();
+   virtual ~RegisterInspectorDockWidget();
 
 protected:
    void changeEvent(QEvent* e);

@@ -14,7 +14,7 @@ class CNameTablePreviewRenderer : public QGLWidget
 {
 public:
    CNameTablePreviewRenderer(QWidget* parent, char* data);
-   ~CNameTablePreviewRenderer();
+   virtual ~CNameTablePreviewRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();

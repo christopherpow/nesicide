@@ -41,7 +41,7 @@ class CodeEditorForm : public CDesignerEditorBase
    Q_OBJECT
 public:
    CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
-   ~CodeEditorForm();
+   virtual ~CodeEditorForm();
 
    QString sourceCode();
    void setSourceCode(QString source);

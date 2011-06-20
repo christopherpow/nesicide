@@ -14,7 +14,7 @@ class CCodeDataLoggerRenderer : public QGLWidget
 {
 public:
    CCodeDataLoggerRenderer(QWidget* parent, char* data);
-   ~CCodeDataLoggerRenderer();
+   virtual ~CCodeDataLoggerRenderer();
    void initializeGL();
    void resizeGL(int width, int height);
    void paintGL();

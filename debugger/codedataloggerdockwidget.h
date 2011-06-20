@@ -15,7 +15,7 @@ class CodeDataLoggerDockWidget : public CDebuggerBase
 
 public:
    explicit CodeDataLoggerDockWidget(QWidget *parent = 0);
-   ~CodeDataLoggerDockWidget();
+   virtual ~CodeDataLoggerDockWidget();
 
 protected:
    void showEvent(QShowEvent* event);

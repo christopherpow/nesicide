@@ -17,7 +17,7 @@ class EnvironmentSettingsDialog : public QDialog
    Q_OBJECT
 public:
    EnvironmentSettingsDialog(QWidget* parent = 0);
-   ~EnvironmentSettingsDialog();
+   virtual ~EnvironmentSettingsDialog();
 
    // Interface to retrieve values from QSettings and store them
    // here locally.

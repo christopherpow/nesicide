@@ -15,7 +15,7 @@ class CodeBrowserDockWidget : public CDebuggerBase
 
 public:
    explicit CodeBrowserDockWidget(QWidget *parent = 0);
-   ~CodeBrowserDockWidget();
+   virtual ~CodeBrowserDockWidget();
 
 protected:
    void showEvent(QShowEvent* e);

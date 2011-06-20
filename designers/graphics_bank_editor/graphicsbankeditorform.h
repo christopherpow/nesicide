@@ -21,7 +21,7 @@ class GraphicsBankEditorForm : public CDesignerEditorBase
    Q_OBJECT
 public:
    GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
-   ~GraphicsBankEditorForm();
+   virtual ~GraphicsBankEditorForm();
    void updateChrRomBankItemList(QList<IChrRomBankItem*> newList);
    QList<IChrRomBankItem*> bankItems();
    void setBankItems(QList<IChrRomBankItem*> items);

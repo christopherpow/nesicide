@@ -13,7 +13,7 @@ class EmulatorControl : public QWidget
 
 public:
     explicit EmulatorControl(QWidget *parent = 0);
-    ~EmulatorControl();
+    virtual ~EmulatorControl();
 
 private:
     Ui::EmulatorControl *ui;

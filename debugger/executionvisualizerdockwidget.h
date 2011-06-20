@@ -19,7 +19,7 @@ class ExecutionVisualizerDockWidget : public CDebuggerBase, public IXMLSerializa
 
 public:
    explicit ExecutionVisualizerDockWidget(QWidget *parent = 0);
-   ~ExecutionVisualizerDockWidget();
+   virtual ~ExecutionVisualizerDockWidget();
 
    // IXMLSerializable interface
    virtual bool serialize(QDomDocument& doc, QDomNode& node);

@@ -15,7 +15,7 @@ class OAMVisualizerDockWidget : public CDebuggerBase
 
 public:
    explicit OAMVisualizerDockWidget(QWidget *parent = 0);
-   ~OAMVisualizerDockWidget();
+   virtual ~OAMVisualizerDockWidget();
 
 protected:
    void showEvent(QShowEvent* event);

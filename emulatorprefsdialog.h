@@ -16,7 +16,7 @@ class EmulatorPrefsDialog : public QDialog
 
 public:
    explicit EmulatorPrefsDialog(QWidget* parent = 0);
-   ~EmulatorPrefsDialog();
+   virtual ~EmulatorPrefsDialog();
 
    // Interface to retrieve values from QSettings and store them
    // here locally.

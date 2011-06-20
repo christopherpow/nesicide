@@ -82,7 +82,7 @@ public:
    QtColorPicker(QWidget* parent = 0,
                  int columns = 16, bool enableColorDialog = false);
 
-   ~QtColorPicker();
+   virtual ~QtColorPicker();
 
    void insertColor(const QColor& color, const QString& text = QString::null, int index = -1);
 
