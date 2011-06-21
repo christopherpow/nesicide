@@ -766,9 +766,17 @@ void MainWindow::tabWidget_tabModified(int tab, bool modified)
 void MainWindow::windowMenu_triggered()
 {
    QAction* action = dynamic_cast<QAction*>(sender());
+   int tab;
+
    if ( action )
    {
-      qDebug(action->text().toAscii().constData());
+      for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+      {
+         if ( ui->tabWidget->tabText(tab) == action->text() )
+         {
+            ui->tabWidget->setCurrentIndex(tab);
+         }
+      }
    }
 }
 
