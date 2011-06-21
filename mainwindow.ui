@@ -259,11 +259,17 @@
     <addaction name="actionFind_in_Files"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
    <addaction name="menuEdit"/>
    <addaction name="menuEmulator"/>
    <addaction name="menuDebugger"/>
+   <addaction name="menuWindow"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QToolBar" name="projectToolBar">
@@ -345,7 +351,7 @@
   </widget>
   <widget class="QToolBar" name="searchToolBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Search</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

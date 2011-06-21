@@ -24,8 +24,8 @@ protected:
    void changeEvent(QEvent* e);
 
 public slots:
-   void updateDisassembly(bool showMe = false);
    void breakpointHit();
+   void emulatorPaused(bool showMe);
    void cartridgeLoaded();
 
 signals:

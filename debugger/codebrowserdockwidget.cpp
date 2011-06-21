@@ -30,10 +30,9 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
    QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 
    // Connect signals to the UI to have the UI update.
-   QObject::connect ( assemblyViewModel, SIGNAL(layoutChanged()), this, SLOT(updateDisassembly()) );
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(breakpointHit()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(breakpointHit()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
 }
 
@@ -171,6 +170,17 @@ void CodeBrowserDockWidget::breakpointHit()
    ui->tableView->resizeColumnsToContents();
 }
 
+void CodeBrowserDockWidget::emulatorPaused(bool showMe)
+{
+   if ( showMe )
+   {
+      show();
+   }
+   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   ui->tableView->scrollTo(ui->tableView->currentIndex());
+   ui->tableView->resizeColumnsToContents();
+}
+
 void CodeBrowserDockWidget::cartridgeLoaded()
 {
    if ( nesROMIsLoaded() )
@@ -180,16 +190,6 @@ void CodeBrowserDockWidget::cartridgeLoaded()
    ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    ui->tableView->scrollTo(ui->tableView->currentIndex());
    ui->tableView->resizeColumnsToContents();
-}
-
-void CodeBrowserDockWidget::updateDisassembly(bool showMe)
-{
-   if ( showMe )
-   {
-      show();
-   }
-//   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-//   ui->tableView->scrollTo(ui->tableView->currentIndex());
 }
 
 void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()

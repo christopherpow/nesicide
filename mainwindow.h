@@ -96,8 +96,10 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void windowMenu_triggered();
    void markProjectDirty(bool dirty);
    void on_actionClean_Project_triggered();
+   void tabWidget_tabAdded(int tab);
    void tabWidget_tabModified(int tab,bool modified);
    void on_actionE_xit_triggered();
    void on_actionRun_Test_Suite_triggered();

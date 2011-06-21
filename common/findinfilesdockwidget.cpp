@@ -60,7 +60,6 @@ void FindInFilesDockWidget::on_find_clicked()
 {
    QSettings settings;
    QStringList items;
-   int found = 0;
 
    settings.beginGroup("FindInFiles");
 

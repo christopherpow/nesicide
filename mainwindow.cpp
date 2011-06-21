@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->setupUi(this);
 
    QObject::connect(ui->tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
+   QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
 
    m_pEmulator = new NESEmulatorDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
@@ -762,16 +763,58 @@ void MainWindow::tabWidget_tabModified(int tab, bool modified)
    ui->actionSave_Active_Document->setEnabled(modified);
 }
 
+void MainWindow::windowMenu_triggered()
+{
+   QAction* action = dynamic_cast<QAction*>(sender());
+   if ( action )
+   {
+      qDebug(action->text().toAscii().constData());
+   }
+}
+
+void MainWindow::tabWidget_tabAdded(int tab)
+{
+   QList<QAction*> actions = ui->menuWindow->actions();
+   QString label = ui->tabWidget->tabText(tab);
+   QAction* action;
+   bool found = false;
+
+   foreach ( action, actions )
+   {
+      if ( label == action->text() )
+      {
+         found = true;
+      }
+   }
+   if ( !found )
+   {
+      action = ui->menuWindow->addAction(label);
+      QObject::connect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
+   }
+}
+
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
    ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
+   QList<QAction*> actions = ui->menuWindow->actions();
+   QString label = ui->tabWidget->tabText(index);
+   QAction* action;
+
+   foreach ( action, actions )
+   {
+      if ( label == action->text() )
+      {
+         QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
+         ui->menuWindow->removeAction(action);
+      }
+   }
 
    if (projectItem)
    {
       if (projectItem->onCloseQuery())
       {
-         projectItem->onClose();
          ui->tabWidget->removeTab(index);
+         projectItem->onClose();
       }
    }
    else

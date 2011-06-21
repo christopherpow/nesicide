@@ -11,9 +11,12 @@ public:
 
    int addTab(QWidget *widget, const QIcon &icon, const QString &label);
    int addTab(QWidget *widget, const QString &label);
+   void removeTab(int index);
 
 signals:
    void tabModified(int tab,bool modified);
+   void tabAdded(int tab);
+   void tabRemoved(int index);
 
 public slots:
    void tabModified(bool modified);

@@ -12,25 +12,42 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
 int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &label)
 {
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
+   int tabIdx;
 
    if ( editor )
    {
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
    }
-   return QTabWidget::addTab(widget,icon,label);
+
+   tabIdx = QTabWidget::addTab(widget,icon,label);
+
+   emit tabAdded(tabIdx);
+
+   return tabIdx;
 }
 
 int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
 {
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
+   int tabIdx;
 
    if ( editor )
    {
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
    }
-   return QTabWidget::addTab(widget,label);
+
+   tabIdx = QTabWidget::addTab(widget,label);
+
+   emit tabAdded(tabIdx);
+
+   return tabIdx;
+}
+
+void CProjectTabWidget::removeTab(int index)
+{
+   QTabWidget::removeTab(index);
 }
 
 void CProjectTabWidget::tabModified(bool modified)
