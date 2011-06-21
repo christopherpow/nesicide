@@ -50,7 +50,7 @@ void CCC65Interface::clear()
    }
 }
 
-QStringList CCC65Interface::getSourcesFromProject()
+QStringList CCC65Interface::getAssemblerSourcesFromProject()
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    QDir                         baseDir(QDir::currentPath());
@@ -61,7 +61,28 @@ QStringList CCC65Interface::getSourcesFromProject()
    while ( iter.current() )
    {
       source = dynamic_cast<CSourceItem*>(iter.current());
-      if ( source )
+      if ( source && source->path().endsWith(".s") ) // CPTODO: make this configurable
+      {
+         sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+      }
+      iter.next();
+   }
+
+   return sources;
+}
+
+QStringList CCC65Interface::getCLanguageSourcesFromProject()
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   QDir                         baseDir(QDir::currentPath());
+   CSourceItem*                 source;
+   QStringList                  sources;
+
+   // For each source code object, compile it.
+   while ( iter.current() )
+   {
+      source = dynamic_cast<CSourceItem*>(iter.current());
+      if ( source && source->path().endsWith(".c") ) // CPTODO: make this configurable
       {
          sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
       }
@@ -101,8 +122,8 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
       makeFileContent.replace("<!source-dir!>",QDir::currentPath());
       makeFileContent.replace("<!object-dir!>",nesicideProject->getProjectOutputBasePath());
-      makeFileContent.replace("<!clang-sources!>","");
-      makeFileContent.replace("<!asm-sources!>",getSourcesFromProject().join(" "));
+      makeFileContent.replace("<!clang-sources!>",getCLanguageSourcesFromProject().join(" "));
+      makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
 
       // Write the file to disk.
       makeFile.write(makeFileContent.toAscii());

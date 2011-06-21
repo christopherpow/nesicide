@@ -16,7 +16,8 @@ void CCartridgeBuilder::clean()
    buildTextLogger->erase();
    buildTextLogger->write("<b>Project build started.</b>");
 
-   if ( CCC65Interface::getSourcesFromProject().count() )
+   if ( (CCC65Interface::getCLanguageSourcesFromProject().count()) ||
+        (CCC65Interface::getAssemblerSourcesFromProject().count()) )
    {
       sourceAssembler.clean();
       graphicsAssembler.clean();
@@ -78,7 +79,8 @@ bool CCartridgeBuilder::build()
    buildTextLogger->erase();
    buildTextLogger->write("<b>Project build started.</b>");
 
-   if ( CCC65Interface::getSourcesFromProject().count() )
+   if ( (CCC65Interface::getCLanguageSourcesFromProject().count()) ||
+        (CCC65Interface::getAssemblerSourcesFromProject().count()) )
    {
       if (!(sourceAssembler.assemble() && graphicsAssembler.assemble()))
       {

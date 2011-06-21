@@ -760,6 +760,33 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
 
 void MainWindow::tabWidget_tabModified(int tab, bool modified)
 {
+   QList<QAction*> actions = ui->menuWindow->actions();
+   QString match;
+
+   match = ui->tabWidget->tabText(tab);
+   if ( modified )
+   {
+      match = match.left(match.length()-1);
+   }
+   else
+   {
+      match = match + "*";
+   }
+   foreach ( QAction* action, actions )
+   {
+      if ( match == action->text() )
+      {
+         if ( modified )
+         {
+            match = match + "*";
+         }
+         else
+         {
+            match = match.left(match.length()-1);
+         }
+         action->setText(match);
+      }
+   }
    ui->actionSave_Active_Document->setEnabled(modified);
 }
 

@@ -30,7 +30,8 @@ public:
    static QStringList getErrors() { return errors; }
    static bool isErrorOnLineOfFile(QString file,int line);
 
-   static QStringList getSourcesFromProject();
+   static QStringList getCLanguageSourcesFromProject();
+   static QStringList getAssemblerSourcesFromProject();
 
 protected:
    static cc65_dbginfo        dbgInfo;
