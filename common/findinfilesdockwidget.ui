@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>368</width>
-    <height>199</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -80,7 +80,11 @@
       <item row="1" column="2">
        <widget class="QPushButton" name="browse">
         <property name="text">
-         <string>Browse</string>
+         <string>Browse...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resource.qrc">
+          <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
         </property>
        </widget>
       </item>
@@ -141,6 +145,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

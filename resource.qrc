@@ -1,27 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/stock_exit.svg</file>
-        <file>resources/stock_save.svg</file>
-        <file>resources/stock_save-as.svg</file>
-        <file>resources/window_new.svg</file>
-        <file>resources/document-open.svg</file>
-        <file>resources/applications-utilities.svg</file>
-        <file>resources/folder-system.svg</file>
-        <file>resources/style.svg</file>
-        <file>resources/document-export.svg</file>
-        <file>resources/document-import.svg</file>
-        <file>resources/document-properties.svg</file>
-        <file>resources/chardevice.svg</file>
-        <file>resources/drive-harddisk.svg</file>
-        <file>resources/applications-system.svg</file>
-        <file>resources/system-run.svg</file>
-        <file>resources/stock_media-pause.svg</file>
-        <file>resources/stock_media-play.svg</file>
-        <file>resources/stock_media-rec.svg</file>
-        <file>resources/stock_media-stop.svg</file>
-        <file>resources/stock_right.svg</file>
-        <file>resources/bash.svg</file>
-        <file>resources/compile_16.svg</file>
         <file>resources/22_preferences-other.png</file>
         <file>resources/22_preferences-desktop-gaming.png</file>
         <file>resources/22_document-new.png</file>
@@ -51,14 +29,34 @@
         <file>resources/bomb.png</file>
         <file>resources/logo.png</file>
         <file>resources/gplv3.png</file>
-        <file>resources/controller.svg</file>
         <file alias="GameDatabase">resources/NesCarts (2010-12-26).xml</file>
-        <file>resources/continue-icon-cpu.svg</file>
-        <file>resources/continue-icon-ppu.svg</file>
-        <file>resources/error-mark.svg</file>
         <file>resources/find.png</file>
         <file>resources/edit_delete.png</file>
         <file>resources/22_edit-clear.png</file>
         <file alias="Makefile">resources/Makefile</file>
+        <file>resources/applications-system.png</file>
+        <file>resources/applications-utilities.png</file>
+        <file>resources/bash.png</file>
+        <file>resources/chardevice.png</file>
+        <file>resources/compile_16.png</file>
+        <file>resources/continue-icon-cpu.png</file>
+        <file>resources/continue-icon-ppu.png</file>
+        <file>resources/controller.png</file>
+        <file>resources/document-export.png</file>
+        <file>resources/document-import.png</file>
+        <file>resources/document-open.png</file>
+        <file>resources/error-mark.png</file>
+        <file>resources/stock_exit.png</file>
+        <file>resources/stock_media-pause.png</file>
+        <file>resources/stock_media-play.png</file>
+        <file>resources/stock_media-rec.png</file>
+        <file>resources/stock_media-stop.png</file>
+        <file>resources/stock_right.png</file>
+        <file>resources/stock_save.png</file>
+        <file>resources/stock_save-as.png</file>
+        <file>resources/style.png</file>
+        <file>resources/system-run.png</file>
+        <file>resources/window_new.png</file>
+        <file>resources/folder-system.png</file>
     </qresource>
 </RCC>

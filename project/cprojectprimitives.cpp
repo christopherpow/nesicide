@@ -3,7 +3,7 @@
 CProjectPrimitives::CProjectPrimitives(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 
    // Allocate children
    m_pAttributeTables = new CAttributeTables(this);

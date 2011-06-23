@@ -47,7 +47,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
-         <normaloff>:/resources/stock_media-play.svg</normaloff>:/resources/stock_media-play.svg</iconset>
+         <normaloff>:/resources/stock_media-play.png</normaloff>:/resources/stock_media-play.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -76,7 +76,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
-         <normaloff>:/resources/stock_media-pause.svg</normaloff>:/resources/stock_media-pause.svg</iconset>
+         <normaloff>:/resources/stock_media-pause.png</normaloff>:/resources/stock_media-pause.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -105,7 +105,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
-         <normaloff>:/resources/continue-icon-cpu.svg</normaloff>:/resources/continue-icon-cpu.svg</iconset>
+         <normaloff>:/resources/continue-icon-cpu.png</normaloff>:/resources/continue-icon-cpu.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -137,7 +137,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
-         <normaloff>:/resources/continue-icon-ppu.svg</normaloff>:/resources/continue-icon-ppu.svg</iconset>
+         <normaloff>:/resources/continue-icon-ppu.png</normaloff>:/resources/continue-icon-ppu.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -169,7 +169,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
-         <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
+         <normaloff>:/resources/stock_exit.png</normaloff>:/resources/stock_exit.png</iconset>
        </property>
        <property name="iconSize">
         <size>

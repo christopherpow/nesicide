@@ -3,7 +3,7 @@
 CPRGROMBank::CPRGROMBank(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 
    // Allocate attributes
    m_bankIndex = -1;

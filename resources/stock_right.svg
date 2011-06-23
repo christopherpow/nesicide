@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,9 +14,13 @@
    height="16px"
    id="svg2507"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
-   sodipodi:docname="go-next.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:version="0.48.1 "
+   sodipodi:docname="stock_right.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1"
+   inkscape:export-filename="C:\Users\Christopher\Projects\NES\nesicide\resources\stock_right.png"
+   inkscape:export-xdpi="123.74999"
+   inkscape:export-ydpi="123.74999">
   <defs
      id="defs2509">
     <linearGradient
@@ -102,7 +107,8 @@
      inkscape:window-width="640"
      inkscape:window-height="679"
      inkscape:window-x="0"
-     inkscape:window-y="132" />
+     inkscape:window-y="132"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata2512">
     <rdf:RDF>
@@ -111,6 +117,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

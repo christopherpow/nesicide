@@ -3,7 +3,7 @@
 CCartridge::CCartridge(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 
    // Initialize this node's attributes
    m_mirrorMode = HorizontalMirroring;

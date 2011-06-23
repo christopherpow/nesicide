@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
+    <width>391</width>
     <height>558</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -85,7 +85,7 @@
             </property>
             <property name="icon">
              <iconset resource="resource.qrc">
-              <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
+              <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
           </item>
@@ -114,7 +114,7 @@
               </property>
               <property name="icon">
                <iconset resource="resource.qrc">
-                <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
+                <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
               </property>
              </widget>
             </item>
@@ -405,7 +405,7 @@
             </property>
             <property name="icon">
              <iconset resource="resource.qrc">
-              <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
+              <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
           </item>

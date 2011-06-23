@@ -3,7 +3,7 @@
 CAttributeTables::CAttributeTables(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 }
 
 CAttributeTables::~CAttributeTables()

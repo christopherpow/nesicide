@@ -10,7 +10,7 @@
 CSources::CSources(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 }
 
 CSources::~CSources()

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,10 +14,13 @@
    height="16"
    id="svg2829"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.48.1 "
    version="1.0"
-   sodipodi:docname="media-playback-pause.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   sodipodi:docname="stock_media-pause.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="C:\Users\Christopher\Projects\NES\nesicide\resources\stock_media-pause.png"
+   inkscape:export-xdpi="123.74999"
+   inkscape:export-ydpi="123.74999">
   <defs
      id="defs2831">
     <linearGradient
@@ -99,7 +103,8 @@
      inkscape:window-width="640"
      inkscape:window-height="720"
      inkscape:window-x="800"
-     inkscape:window-y="88" />
+     inkscape:window-y="88"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata2834">
     <rdf:RDF>
@@ -108,6 +113,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

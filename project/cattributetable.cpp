@@ -6,7 +6,7 @@
 CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 
    // Allocate attributes
    m_palette.append(0x0D);

@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(ui->tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
    QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
 
+   ui->menuWindow->setEnabled(false);
+
    m_pEmulator = new NESEmulatorDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
    m_pEmulator->hide();
@@ -826,6 +828,7 @@ void MainWindow::tabWidget_tabAdded(int tab)
       action = ui->menuWindow->addAction(label);
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
    }
+   ui->menuWindow->setEnabled(ui->menuWindow->actions().count()>0);
 }
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
@@ -843,6 +846,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
          ui->menuWindow->removeAction(action);
       }
    }
+   ui->menuWindow->setEnabled(ui->menuWindow->actions().count()>0);
 
    if (projectItem)
    {
@@ -1362,10 +1366,11 @@ void MainWindow::closeProject()
       if ( item )
       {
          ui->tabWidget->setCurrentWidget(ui->tabWidget->widget(tab));
-         if ( item->onSaveQuery() )
+         if ( item->onSaveQuery() == QMessageBox::Yes )
          {
             item->onSave();
          }
+         ui->tabWidget->removeTab(tab);
       }
    }
 

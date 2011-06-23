@@ -5,7 +5,7 @@
 CBinaryFiles::CBinaryFiles(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 }
 
 CBinaryFiles::~CBinaryFiles()

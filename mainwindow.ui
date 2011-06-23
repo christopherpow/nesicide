@@ -364,7 +364,7 @@
   <action name="actionE_xit">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/stock_exit.svg</normaloff>:/resources/stock_exit.svg</iconset>
+     <normaloff>:/resources/stock_exit.png</normaloff>:/resources/stock_exit.png</iconset>
    </property>
    <property name="text">
     <string>E&amp;xit</string>
@@ -391,7 +391,7 @@
   <action name="actionOpen_Project">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/document-open.svg</normaloff>:/resources/document-open.svg</iconset>
+     <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
    </property>
    <property name="text">
     <string>Open &amp;Project...</string>
@@ -429,7 +429,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/folder-system.svg</normaloff>:/resources/folder-system.svg</iconset>
+     <normaloff>:/resources/folder-system.png</normaloff>:/resources/folder-system.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Project Browser</string>
@@ -438,7 +438,7 @@
   <action name="actionNew_Palette">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/style.svg</normaloff>:/resources/style.svg</iconset>
+     <normaloff>:/resources/style.png</normaloff>:/resources/style.png</iconset>
    </property>
    <property name="text">
     <string>New Palette</string>
@@ -476,7 +476,7 @@
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/controller.svg</normaloff>:/resources/controller.svg</iconset>
+     <normaloff>:/resources/controller.png</normaloff>:/resources/controller.png</iconset>
    </property>
    <property name="text">
     <string>Emulator</string>
@@ -491,7 +491,7 @@
   <action name="actionSave_Active_Document">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/resources/stock_save.svg</normaloff>:/resources/stock_save.svg</iconset>
+     <normaloff>:/resources/stock_save.png</normaloff>:/resources/stock_save.png</iconset>
    </property>
    <property name="text">
     <string>Save Active Document</string>

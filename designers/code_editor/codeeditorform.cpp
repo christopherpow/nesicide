@@ -81,7 +81,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
    m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
-   m_scintilla->markerDefine(QPixmap(":/resources/error-mark.svg"),Marker_Error);
+   m_scintilla->markerDefine(QPixmap(":/resources/error-mark.png"),Marker_Error);
    for ( marker = 0; marker < markers->GetNumMarkers(); marker++ )
    {
       pMarker = markers->GetMarker(marker);

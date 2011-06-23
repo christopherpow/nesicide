@@ -16,11 +16,17 @@
 class IProjectTreeViewItem
 {
 public:
-   void InitTreeItem(IProjectTreeViewItem* parent = 0)
+   void InitTreeItem(QString iconResource,IProjectTreeViewItem* parent = 0)
    {
       parentItem = parent;
       ident = new QUuid();
       (*ident) = QUuid::createUuid();
+      _icon =QIcon(iconResource);
+   }
+
+   QIcon icon()
+   {
+      return _icon;
    }
 
    QString uuid()
@@ -96,6 +102,7 @@ private:
    QList<IProjectTreeViewItem*> childItems;
    IProjectTreeViewItem* parentItem;
    QUuid* ident;
+   QIcon _icon;
 };
 
 // Iterator class for walking through a project, starting from either a specific trunk

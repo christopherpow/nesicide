@@ -6,7 +6,7 @@
 CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 
    // Allocate attributes
    m_bankItems.clear();

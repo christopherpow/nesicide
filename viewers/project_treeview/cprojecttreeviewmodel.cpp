@@ -13,12 +13,17 @@ QVariant CProjectTreeViewModel::data(const QModelIndex& index, int role) const
       return QVariant();
    }
 
+   IProjectTreeViewItem* item = static_cast<IProjectTreeViewItem*>(index.internalPointer());
+
+   if (role == Qt::DecorationRole)
+   {
+      return item->icon();
+   }
+
    if (role != Qt::DisplayRole)
    {
       return QVariant();
    }
-
-   IProjectTreeViewItem* item = static_cast<IProjectTreeViewItem*>(index.internalPointer());
 
    return item->caption();
 }

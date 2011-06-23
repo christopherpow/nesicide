@@ -3,7 +3,7 @@
 CCHRROMBanks::CCHRROMBanks(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(parent);
+   InitTreeItem("",parent);
 }
 
 CCHRROMBanks::~CCHRROMBanks()
