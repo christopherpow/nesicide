@@ -245,7 +245,8 @@ SOURCES += mainwindow.cpp \
     debugger/cdebuggerbase.cpp \
     viewers/debugger/cexecutionmarkerdisplaymodel.cpp \
     common/findinfilesdockwidget.cpp \
-    common/searcherthread.cpp
+    common/searcherthread.cpp \
+    common/searchbar.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -351,7 +352,8 @@ HEADERS += mainwindow.h \
     debugger/cdebuggerbase.h \
     viewers/debugger/cexecutionmarkerdisplaymodel.h \
     common/findinfilesdockwidget.h \
-    common/searcherthread.h
+    common/searcherthread.h \
+    common/searchbar.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -385,6 +387,7 @@ FORMS += mainwindow.ui \
     testsuiteexecutivedialog.ui \
     common/emulatorcontrol.ui \
     debugger/symbolwatchdockwidget.ui \
-    common/findinfilesdockwidget.ui
+    common/findinfilesdockwidget.ui \
+    common/searchbar.ui
 
 RESOURCES += resource.qrc

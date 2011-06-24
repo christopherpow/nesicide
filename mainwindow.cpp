@@ -50,12 +50,16 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pEmulator->hide();
    QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
    CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
-   CDockWidgetRegistry::setFlags ("Emulator", CDockWidgetRegistry::DockWidgetDisabledOnCompileError);
 
    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
 
    m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
+   CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
+
+   m_pSearchBar = new SearchBar();
+   ui->searchToolBar->addWidget(m_pSearchBar);
+   CDockWidgetRegistry::addWidget ( "Search Bar", m_pSearchBar );
 
    m_pEmulatorControl = new EmulatorControl();
    ui->debuggerToolbar->addWidget(m_pEmulatorControl);
@@ -64,6 +68,7 @@ MainWindow::MainWindow(QWidget* parent) :
    addDockWidget(Qt::LeftDockWidgetArea, m_pFindInFiles );
    m_pFindInFiles->hide();
    QObject::connect(m_pFindInFiles, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedFind_in_Files_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Find in Files", m_pFindInFiles );
 
    projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
@@ -95,7 +100,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
-   CDockWidgetRegistry::setFlags ("Breakpoints", CDockWidgetRegistry::DockWidgetDisabledOnCompileError);
 
    m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
    m_pGfxCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -107,7 +111,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pGfxCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxCHRMemoryInspector_close(bool)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
-   CDockWidgetRegistry::setFlags ("CHR Memory Visualizer", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
@@ -115,7 +118,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pGfxOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxOAMMemoryInspector_close(bool)));
    QObject::connect(m_pGfxOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
-   CDockWidgetRegistry::setFlags ("OAM Memory Visualizer", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pGfxNameTableMemoryInspector = new NameTableVisualizerDockWidget ();
    addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
@@ -123,7 +125,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pGfxNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxNameTableMemoryInspector_close(bool)));
    QObject::connect(m_pGfxNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
-   CDockWidgetRegistry::setFlags ("Name Table Visualizer", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pExecutionInspector = new ExecutionInspectorDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
@@ -131,7 +132,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
    QObject::connect(m_pExecutionInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Execution Inspector", m_pExecutionInspector );
-   CDockWidgetRegistry::setFlags ("Execution Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
@@ -139,7 +139,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pExecutionVisualizer, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionVisualizer_Inspector_close(bool)));
    QObject::connect(m_pExecutionVisualizer,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
-   CDockWidgetRegistry::setFlags ("Execution Visualizer", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pAssemblyInspector = new CodeBrowserDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
@@ -147,7 +146,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
-   CDockWidgetRegistry::setFlags ("Assembly Browser", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
@@ -155,7 +153,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pCodeDataLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeDataLoggerInspector_close(bool)));
    QObject::connect(m_pCodeDataLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
-   CDockWidgetRegistry::setFlags ("Code/Data Logger Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(eMemory_CPUregs);
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
@@ -165,7 +162,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
-   CDockWidgetRegistry::setFlags ("CPU Register Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(eMemory_CPU);
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
@@ -175,7 +171,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
-   CDockWidgetRegistry::setFlags ("CPU RAM Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinROMInspector = new MemoryInspectorDockWidget(eMemory_cartROM);
    m_pBinROMInspector->setObjectName("cartPRGROMMemoryInspector");
@@ -185,7 +180,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinROMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinROMInspector_close(bool)));
    QObject::connect(m_pBinROMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
-   CDockWidgetRegistry::setFlags ("PRG-ROM Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(eMemory_PPU);
    m_pBinNameTableMemoryInspector->setObjectName("ppuNameTableMemoryInspector");
@@ -195,7 +189,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinNameTableMemoryInspector_close(bool)));
    QObject::connect(m_pBinNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
-   CDockWidgetRegistry::setFlags ("NameTable Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(eMemory_PPUregs);
    m_pBinPPURegisterInspector->setObjectName("ppuRegisterInspector");
@@ -205,7 +198,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPURegisterInspector_close(bool)));
    QObject::connect(m_pBinPPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PPU Register Inspector", m_pBinPPURegisterInspector );
-   CDockWidgetRegistry::setFlags ("PPU Register Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pPPUInformationInspector = new PPUInformationDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
@@ -213,7 +205,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pPPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedPPUInformationInspector_close(bool)));
    QObject::connect(m_pPPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PPU Information", m_pPPUInformationInspector );
-   CDockWidgetRegistry::setFlags ("PPU Information", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(eMemory_IOregs);
    m_pBinAPURegisterInspector->setObjectName("apuRegisterInspector");
@@ -223,7 +214,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinAPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinAPURegisterInspector_close(bool)));
    QObject::connect(m_pBinAPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "APU Register Inspector", m_pBinAPURegisterInspector );
-   CDockWidgetRegistry::setFlags ("APU Register Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pAPUInformationInspector = new APUInformationDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pAPUInformationInspector );
@@ -231,7 +221,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pAPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAPUInformationInspector_close(bool)));
    QObject::connect(m_pAPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "APU Information", m_pAPUInformationInspector );
-   CDockWidgetRegistry::setFlags ("APU Information", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartCHRMEM);
    m_pBinCHRMemoryInspector->setObjectName("chrMemoryInspector");
@@ -241,7 +230,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCHRMemoryInspector_close(bool)));
    QObject::connect(m_pBinCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
-   CDockWidgetRegistry::setFlags ("CHR Memory Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(eMemory_PPUoam);
    m_pBinOAMMemoryInspector->setObjectName("oamMemoryInspector");
@@ -251,7 +239,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinOAMMemoryInspector_close(bool)));
    QObject::connect(m_pBinOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
-   CDockWidgetRegistry::setFlags ("OAM Memory Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(eMemory_PPUpalette);
    m_pBinPaletteMemoryInspector->setObjectName("ppuPaletteMemoryInspector");
@@ -261,7 +248,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinPaletteMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPaletteMemoryInspector_close(bool)));
    QObject::connect(m_pBinPaletteMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
-   CDockWidgetRegistry::setFlags ("Palette Memory Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartSRAM);
    m_pBinSRAMMemoryInspector->setObjectName("cartSRAMMemoryInspector");
@@ -271,7 +257,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinSRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinSRAMMemoryInspector_close(bool)));
    QObject::connect(m_pBinSRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
-   CDockWidgetRegistry::setFlags ("Cartridge SRAM Memory Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartEXRAM);
    m_pBinEXRAMMemoryInspector->setObjectName("cartEXRAMMemoryInspector");
@@ -281,7 +266,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinEXRAMMemoryInspector_close(bool)));
    QObject::connect(m_pBinEXRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
-   CDockWidgetRegistry::setFlags ("Cartridge EXRAM Memory Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pMapperInformationInspector = new MapperInformationDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
@@ -289,7 +273,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pMapperInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedMapperInformationInspector_close(bool)));
    QObject::connect(m_pMapperInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
-   CDockWidgetRegistry::setFlags ("Cartridge Mapper Information", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(eMemory_cartMapper);
    m_pBinMapperMemoryInspector->setObjectName("cartMapperRegisterInspector");
@@ -299,7 +282,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
    QObject::connect(m_pBinMapperMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
-   CDockWidgetRegistry::setFlags ("Cartridge Mapper Register Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    m_pSymbolInspector = new SymbolWatchDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
@@ -307,7 +289,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pSymbolInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSymbol_Watch_close(bool)));
    QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
-   CDockWidgetRegistry::setFlags ("Symbol Inspector", CDockWidgetRegistry::DockWidgetDisabledOnCompileError|CDockWidgetRegistry::DockWidgetDisabledOnEmulatorRun);
 
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();

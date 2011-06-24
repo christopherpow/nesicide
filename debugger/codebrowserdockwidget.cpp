@@ -44,8 +44,8 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 
 void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
-   QDockWidget* breakpointInspector = CDockWidgetRegistry::getWidget("Breakpoints");
-   QDockWidget* executionVisualizer = CDockWidgetRegistry::getWidget("Execution Visualizer");
+   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
 
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
 

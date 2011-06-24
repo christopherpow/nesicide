@@ -58,20 +58,20 @@ void BreakpointDockWidget::changeEvent(QEvent* e)
 
 void BreakpointDockWidget::showEvent(QShowEvent*)
 {
-   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Assembly Browser");
-   QDockWidget* symbolInspector = CDockWidgetRegistry::getWidget("Symbol Inspector");
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
+   QDockWidget* symbolInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
    QDockWidget* memoryInspector;
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
 
-   memoryInspector = CDockWidgetRegistry::getWidget("CPU RAM Inspector");
+   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("CPU RAM Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   memoryInspector = CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector");
+   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   memoryInspector = CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector");
+   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   memoryInspector = CDockWidgetRegistry::getWidget("PRG-ROM Inspector");
+   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("PRG-ROM Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    model->update();
    updateData();

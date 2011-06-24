@@ -25,9 +25,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    CDesignerEditorBase(link,parent),
    ui(new Ui::CodeEditorForm)
 {
-   QDockWidget* codeBrowser = CDockWidgetRegistry::getWidget("Assembly Browser");
-   QDockWidget* breakpoints = CDockWidgetRegistry::getWidget("Breakpoints");
-   QDockWidget* executionVisualizer = CDockWidgetRegistry::getWidget("Execution Visualizer");
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
+   QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+   QWidget*     searchBar = CDockWidgetRegistry::getWidget("Search Bar");
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -119,6 +120,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
+   QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    m_fileName = fileName;
 
@@ -799,15 +801,16 @@ void CodeEditorForm::restyleText()
 
 void CodeEditorForm::snapTo(QString item)
 {
+   QStringList splits;
    QString  fileName;
    uint32_t addr;
    uint32_t absAddr;
    int      line;
+   int      index;
 
    // Make sure item is an address
    if ( item.startsWith("Address:") )
    {
-      QStringList splits;
       splits = item.split(QRegExp("[:()]"));
       if ( splits.count() == 5 )
       {
@@ -821,5 +824,14 @@ void CodeEditorForm::snapTo(QString item)
             highlightLine(line);
          }
       }
+   }
+   else if ( item.startsWith("SearchBar:") )
+   {
+      splits = item.split(QRegExp("[:]"));
+      m_scintilla->getCursorPosition(&line,&index);
+      m_scintilla->findFirst(splits.at(1),false,false,false,true,true,line,index,true);
+//            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
+//                    bool wrap, bool forward = true, int line = -1, int index = -1,
+//                    bool show = true);
    }
 }

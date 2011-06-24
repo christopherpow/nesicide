@@ -2,7 +2,7 @@
 
 QHash<QString,CDockWidgetRegistry::CDockWidgetManager*> CDockWidgetRegistry::widgets;
 
-QDockWidget* CDockWidgetRegistry::getWidget(const QString& name)
+QWidget* CDockWidgetRegistry::getWidget(const QString& name)
 {
    if ( widgets.contains(name) )
    {
@@ -12,39 +12,14 @@ QDockWidget* CDockWidgetRegistry::getWidget(const QString& name)
    return 0;
 }
 
-void CDockWidgetRegistry::addWidget(const QString& name, QDockWidget* widget, bool visible)
+void CDockWidgetRegistry::addWidget(const QString& name, QWidget* widget, bool visible)
 {
    CDockWidgetManager* pDockWidgetManager = new CDockWidgetManager;
    pDockWidgetManager->widget = widget;
    pDockWidgetManager->visible = visible;
    pDockWidgetManager->enabled = false;
-   pDockWidgetManager->flags = 0;
-   
+
    widgets.insert ( name, pDockWidgetManager );
-}
-
-void CDockWidgetRegistry::enable()
-{
-   QHash<QString,CDockWidgetManager*>::const_iterator i;
-
-   for (i = widgets.begin(); i != widgets.end(); ++i)
-   {
-      i.value()->widget->setEnabled(true);
-   }
-}
-
-void CDockWidgetRegistry::disable(DisableReason reason)
-{
-   QHash<QString,CDockWidgetManager*>::const_iterator i;
-
-   for (i = widgets.begin(); i != widgets.end(); ++i)
-   {
-      if ( ((reason == DockWidgetDisableForEmulatorRun) && (i.value()->flags&DockWidgetDisabledOnEmulatorRun)) ||
-           ((reason == DockWidgetDisableForCompileError) && (i.value()->flags&DockWidgetDisabledOnCompileError)) )
-      {
-         i.value()->widget->setEnabled(false);
-      }
-   }
 }
 
 void CDockWidgetRegistry::hideAll()
@@ -80,15 +55,6 @@ void CDockWidgetRegistry::restoreVisibility()
       }
    }
 }
-
-void CDockWidgetRegistry::setFlags(const QString& name,
-                                   Flags flags)
-{
-   QHash<QString,CDockWidgetManager*>::const_iterator i;
-   i = widgets.find(name);
-   
-   i.value()->flags = flags;
-}                                 
 
 bool CDockWidgetRegistry::visible(const QString& name)
 {

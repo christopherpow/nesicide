@@ -29,6 +29,7 @@
 #include "outputpanedockwidget.h"
 #include "emulatorprefsdialog.h"
 #include "sourcenavigator.h"
+#include "searchbar.h"
 #include "emulatorcontrol.h"
 #include "findinfilesdockwidget.h"
 
@@ -89,6 +90,7 @@ private:
    SymbolWatchDockWidget* m_pSymbolInspector;
 
    SourceNavigator* m_pSourceNavigator;
+   SearchBar* m_pSearchBar;
    EmulatorControl* m_pEmulatorControl;
    FindInFilesDockWidget* m_pFindInFiles;
 

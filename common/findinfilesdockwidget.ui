@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>368</width>
+    <width>384</width>
     <height>200</height>
    </rect>
   </property>
@@ -47,6 +47,9 @@
         <property name="editable">
          <bool>true</bool>
         </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::NoInsert</enum>
+        </property>
         <property name="sizeAdjustPolicy">
          <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
         </property>
@@ -63,6 +66,9 @@
        <widget class="QComboBox" name="location">
         <property name="editable">
          <bool>true</bool>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::NoInsert</enum>
         </property>
        </widget>
       </item>
@@ -91,7 +97,7 @@
       <item row="1" column="0">
        <widget class="QCheckBox" name="projectFolder">
         <property name="text">
-         <string>Use Project folder as base</string>
+         <string>Limit search to Project folders</string>
         </property>
        </widget>
       </item>
@@ -124,6 +130,9 @@
        <widget class="QComboBox" name="type">
         <property name="editable">
          <bool>true</bool>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::NoInsert</enum>
         </property>
        </widget>
       </item>
