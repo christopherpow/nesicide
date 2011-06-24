@@ -829,9 +829,10 @@ void CodeEditorForm::snapTo(QString item)
    {
       if ( isVisible() )
       {
-         splits = item.split(QRegExp("[:]"));
          m_scintilla->getCursorPosition(&line,&index);
-         m_scintilla->findFirst(splits.at(3),splits.at(2).toInt(),splits.at(1).toInt(),false,true,true,line,index,true);
+         m_scintilla->setSelection(-1,-1,-1,-1);
+         splits = item.split(QRegExp("[:]"));
+         m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index-1);
 //            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
 //                    bool wrap, bool forward = true, int line = -1, int index = -1,
 //                    bool show = true);

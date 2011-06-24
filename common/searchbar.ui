@@ -70,6 +70,21 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="3">
+    <widget class="QToolButton" name="direction">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resource.qrc">
+       <normaloff>:/resources/view_sort_ascending.png</normaloff>
+       <normalon>:/resources/view_sort_descending.png</normalon>:/resources/view_sort_ascending.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>
