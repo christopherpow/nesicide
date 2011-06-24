@@ -827,11 +827,14 @@ void CodeEditorForm::snapTo(QString item)
    }
    else if ( item.startsWith("SearchBar:") )
    {
-      splits = item.split(QRegExp("[:]"));
-      m_scintilla->getCursorPosition(&line,&index);
-      m_scintilla->findFirst(splits.at(1),false,false,false,true,true,line,index,true);
+      if ( isVisible() )
+      {
+         splits = item.split(QRegExp("[:]"));
+         m_scintilla->getCursorPosition(&line,&index);
+         m_scintilla->findFirst(splits.at(1),false,false,false,true,true,line,index,true);
 //            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
 //                    bool wrap, bool forward = true, int line = -1, int index = -1,
 //                    bool show = true);
+      }
    }
 }
