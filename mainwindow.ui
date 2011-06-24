@@ -1026,6 +1026,9 @@
    <property name="toolTip">
     <string>Find in Files</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+F</string>
+   </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

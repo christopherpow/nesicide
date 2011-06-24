@@ -54,6 +54,7 @@ protected:
    void dropEvent ( QDropEvent* event );
    void hideEvent(QHideEvent* event);
    void showEvent(QShowEvent* event);
+   void keyPressEvent(QKeyEvent *event);
 
 private:
    Ui::MainWindow* ui;

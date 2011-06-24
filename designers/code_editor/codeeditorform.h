@@ -72,6 +72,7 @@ private:
 
 signals:
    void breakpointsChanged();
+   void activateSearchBar();
 
 public slots:
    void restyleText();

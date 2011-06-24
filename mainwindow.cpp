@@ -531,6 +531,15 @@ void MainWindow::dropEvent(QDropEvent* event)
    }
 }
 
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+   if ( (event->key() == Qt::Key_F) &&
+        (event->modifiers() == Qt::ControlModifier) )
+   {
+      m_pSearchBar->setFocus();
+   }
+}
+
 void MainWindow::hideEvent(QHideEvent *event)
 {
    CDockWidgetRegistry::saveVisibility();

@@ -31,6 +31,11 @@ SearchBar::~SearchBar()
    delete ui;
 }
 
+void SearchBar::focusInEvent(QFocusEvent *event)
+{
+   ui->searchText->setFocus();
+}
+
 void SearchBar::on_searchText_activated(QString search)
 {
    QSettings settings;

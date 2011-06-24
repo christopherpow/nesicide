@@ -15,6 +15,9 @@ public:
    explicit SearchBar(QWidget *parent = 0);
    virtual ~SearchBar();
 
+protected:
+   void focusInEvent(QFocusEvent *event);
+
 private:
    Ui::SearchBar *ui;
 

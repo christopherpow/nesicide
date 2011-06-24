@@ -121,6 +121,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
    QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( this, SIGNAL(activateSearchBar()), searchBar, SLOT(setFocus()) );
 
    m_fileName = fileName;
 
@@ -261,6 +262,12 @@ bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
               (keyEvent->key() == Qt::Key_S) )
          {
             onSave();
+            return true;
+         }
+         else if ( (keyEvent->modifiers() == Qt::ControlModifier) &&
+                   (keyEvent->key() == Qt::Key_F) )
+         {
+            emit activateSearchBar();
             return true;
          }
          else
