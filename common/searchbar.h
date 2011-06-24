@@ -22,6 +22,9 @@ signals:
    void snapTo(QString item);
 
 private slots:
+    void on_direction_toggled(bool checked);
+    void on_regex_toggled(bool checked);
+    void on_caseSensitive_toggled(bool checked);
     void on_searchText_editTextChanged(QString );
     void on_searchText_activated(QString search);
 };

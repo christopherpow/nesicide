@@ -1,5 +1,12 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.002
+Added Find-in-Files dockable window.
+Added current-file search widget to toolbar.
+Fixed SVG icon problems--moved to PNG.
+Project now accepts any file types and only passes .c or .s files to compiler.
+Clicking on marker start/end cells in the Execution Visualizer will show that location in the Assemby Inspector or in the Code Editor if the appropriate source file is open.
+
 V1.001
 Fixed problem where non-ASCII keys used for controller configuration were not being mapped correctly.
 

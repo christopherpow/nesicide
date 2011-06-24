@@ -77,11 +77,14 @@
      </property>
      <property name="icon">
       <iconset resource="../resource.qrc">
-       <normaloff>:/resources/view_sort_ascending.png</normaloff>
-       <normalon>:/resources/view_sort_descending.png</normalon>:/resources/view_sort_ascending.png</iconset>
+       <normaloff>:/resources/view_sort_descending.png</normaloff>
+       <normalon>:/resources/view_sort_ascending.png</normalon>:/resources/view_sort_descending.png</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+     <property name="autoRaise">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
