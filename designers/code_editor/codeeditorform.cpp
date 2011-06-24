@@ -29,6 +29,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
    QWidget*     searchBar = CDockWidgetRegistry::getWidget("Search Bar");
+   QWidget*     sourceNavigator = CDockWidgetRegistry::getWidget("Source Navigator");
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -122,6 +123,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
    QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
    QObject::connect ( this, SIGNAL(activateSearchBar()), searchBar, SLOT(setFocus()) );
+   QObject::connect ( sourceNavigator, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    m_fileName = fileName;
 
@@ -843,6 +845,23 @@ void CodeEditorForm::snapTo(QString item)
 //            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
 //                    bool wrap, bool forward = true, int line = -1, int index = -1,
 //                    bool show = true);
+      }
+   }
+   else if ( item.startsWith("SourceNavigatorFile:") )
+   {
+      splits = item.split(QRegExp("[:]"));
+      if ( m_fileName == splits.at(1) )
+      {
+         show();
+      }
+   }
+   else if ( item.startsWith("SourceNavigatorSymbol:") )
+   {
+      splits = item.split(QRegExp("[:]"));
+      line = CCC65Interface::getSourceLineFromFileAndSymbol(m_fileName,splits.at(1));
+      if ( line >= 0 )
+      {
+         highlightLine(line);
       }
    }
 }

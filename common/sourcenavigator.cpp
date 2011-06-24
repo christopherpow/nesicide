@@ -158,8 +158,6 @@ void SourceNavigator::projectTreeView_openItem(IProjectTreeViewItem* item)
       ui->files->setCurrentIndex(ui->files->findText(pItem->path()));
       ui->symbols->clear();
 
-      updateSymbolsForFile(pItem->path());
-
       blockSignals(false);
    }
 }
@@ -178,8 +176,7 @@ void SourceNavigator::on_files_activated(QString file)
          if ( pSource->path() == file )
          {
             pSource->openItemEvent(m_pTarget);
-            updateSymbolsForFile(file);
-            emit fileNavigator_fileChanged(ui->files->currentText());
+            emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
             found = true;
             break;
          }
@@ -200,7 +197,7 @@ void SourceNavigator::on_files_activated(QString file)
          {
             found = true;
             foundIdx = tab;
-            emit fileNavigator_fileChanged(ui->files->currentText());
+            emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
             break;
          }
       }
@@ -217,9 +214,8 @@ void SourceNavigator::on_files_activated(QString file)
             fileIn.close();
 
             m_pTarget->addTab(editor, file);
-            m_pTarget->setCurrentWidget(editor);
 
-            emit fileNavigator_fileChanged(ui->files->currentText());
+            emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
          }
          else
          {
@@ -228,31 +224,14 @@ void SourceNavigator::on_files_activated(QString file)
       }
       else
       {
-         m_pTarget->setCurrentIndex(foundIdx);
-         emit fileNavigator_fileChanged(ui->files->currentText());
+         emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
       }
    }
 }
 
 void SourceNavigator::on_symbols_activated(QString symbol)
 {
-#if 0
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   CSourceItem* pSource;
-   int          linenumber = pasm_get_symbol_linenum_by_name(symbol.toAscii().constData());
-
-   while ( iter.current() )
-   {
-      pSource = dynamic_cast<CSourceItem*>(iter.current());
-      if ( pSource &&
-           (pSource->path() == ui->files->currentText()) )
-      {
-         pSource->openItemEvent(m_pTarget);
-         pSource->editor()->showExecutionLine(linenumber);
-         emit fileNavigator_symbolChanged(ui->symbols->currentText(),ui->symbols->currentText(),linenumber);
-         break;
-      }
-      iter.next();
-   }
-#endif
+   QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
+   on_files_activated(file);
+   emit snapTo("SourceNavigatorSymbol:"+symbol);
 }

@@ -358,6 +358,27 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol)
    return addr;
 }
 
+unsigned int CCC65Interface::getSymbolSegment(QString symbol)
+{
+   unsigned int seg = 0;
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         if ( (dbgSymbols->count == 1) &&
+              (dbgSymbols->data[0].symbol_type == CC65_SYM_LABEL) )
+         {
+            seg = dbgSymbols->data[0].symbol_segment;
+         }
+      }
+   }
+   return seg;
+}
+
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int  line;
@@ -402,6 +423,54 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
       }
    }
    return -1;
+}
+
+int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
+{
+   unsigned int addr = getSymbolAddress(symbol);
+   int line;
+
+   if ( dbgInfo )
+   {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
+      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+      if ( dbgLines )
+      {
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            if ( dbgLines->data[line].source_name == file )
+            {
+               return dbgLines->data[line].source_line;
+            }
+         }
+      }
+   }
+   return -1;
+}
+
+QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
+{
+   int addr = getSymbolAddress(symbol);
+   int line;
+
+   if ( dbgInfo )
+   {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
+      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+      if ( dbgLines )
+      {
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            if ( dbgLines->data[line].line_start == addr )
+            {
+               return dbgLines->data[line].source_name;
+            }
+         }
+      }
+   }
+   return "";
 }
 
 unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int line)

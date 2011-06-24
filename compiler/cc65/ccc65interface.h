@@ -22,6 +22,9 @@ public:
    static QStringList getSourceFiles();
    static QStringList getSymbolsForSourceFile(QString sourceFile);
    static unsigned int getSymbolAddress(QString symbol);
+   static unsigned int getSymbolSegment(QString symbol);
+   static int getSourceLineFromFileAndSymbol(QString file,QString symbol);
+   static QString getSourceFileFromSymbol(QString symbol);
    static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static unsigned int getAddressFromFileAndLine(QString file,int line);

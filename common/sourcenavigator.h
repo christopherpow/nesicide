@@ -28,8 +28,7 @@ private:
    CProjectTabWidget* m_pTarget;
 
 signals:
-   void fileNavigator_fileChanged(QString file);
-   void fileNavigator_symbolChanged(QString file, QString symbol, int linenumber);
+   void snapTo(QString item);
 
 private slots:
    void on_symbols_activated(QString );
