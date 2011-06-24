@@ -58,5 +58,7 @@
         <file>resources/system-run.png</file>
         <file>resources/window_new.png</file>
         <file>resources/folder-system.png</file>
+        <file>resources/case-sensitive.png</file>
+        <file>resources/regular-expression.png</file>
     </qresource>
 </RCC>

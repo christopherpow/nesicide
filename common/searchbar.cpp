@@ -42,7 +42,7 @@ void SearchBar::on_searchText_activated(QString search)
       }
       settings.setValue("SearchBarHistory",QVariant(items));
 
-      emit snapTo("SearchBar:"+search);
+      emit snapTo("SearchBar:"+QString::number(ui->caseSensitive->isChecked())+":"+QString::number(ui->regex->isChecked())+":"+search);
    }
 }
 
@@ -50,6 +50,6 @@ void SearchBar::on_searchText_editTextChanged(QString search)
 {
    if ( !search.isEmpty() )
    {
-      emit snapTo("SearchBar:"+search);
+      emit snapTo("SearchBar:"+QString::number(ui->caseSensitive->isChecked())+":"+QString::number(ui->regex->isChecked())+":"+search);
    }
 }
