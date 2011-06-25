@@ -146,7 +146,7 @@ void CodeBrowserDockWidget::snapTo(QString item)
 {
    uint32_t addr;
 
-   // Make sure item is an address
+   // Make sure item is something we care about
    if ( item.startsWith("Address:") )
    {
       QStringList splits;

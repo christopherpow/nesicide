@@ -2,6 +2,7 @@
 #include "ui_searchbar.h"
 
 #include <QSettings>
+#include <QCompleter>
 
 SearchBar::SearchBar(QWidget *parent) :
     QWidget(parent),
@@ -24,6 +25,7 @@ SearchBar::SearchBar(QWidget *parent) :
    {
       ui->searchText->addItem(search);
    }
+   ui->searchText->completer()->setCompletionMode(QCompleter::PopupCompletion);
 }
 
 SearchBar::~SearchBar()
@@ -53,7 +55,7 @@ void SearchBar::on_searchText_activated(QString search)
          }
          items.append(search);
       }
-      settings.setValue("SearchBarHistory",QVariant(items));
+      settings.setValue("SearchTextHistory",QVariant(items));
 
       emit snapTo("SearchBar:"
                   +QString::number(ui->caseSensitive->isChecked())+":"

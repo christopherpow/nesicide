@@ -50,6 +50,7 @@ private slots:
    void on_zoomSlider_actionTriggered(int action);
    void on_zoomSlider_sliderMoved(int position);
    void colorChanged (const QColor& color);
+   void snapTo(QString item);
 };
 
 #endif // GRAPHICSBANKEDITORFORM_H

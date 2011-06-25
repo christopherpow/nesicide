@@ -24,6 +24,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
    versioner.setProcessEnvironment(env);
    versioner.setWorkingDirectory(QDir::currentPath());
 
+   ui->versionsText->append("<a href=\"#top\"/>");
    ui->versionsText->append("<b>NESICIDE Application version:</b>");
    ui->versionsText->append(ideGetVersion());
    ui->versionsText->append("");
@@ -108,6 +109,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
       ui->versionsText->append(str);
    }
    ui->versionsText->append("");
+   ui->versionsText->scrollToAnchor("top");
 }
 
 AboutDialog::~AboutDialog()

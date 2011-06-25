@@ -2,6 +2,7 @@
 #include "ui_findinfilesdockwidget.h"
 
 #include <QFileDialog>
+#include <QCompleter>
 
 #include "main.h"
 
@@ -24,6 +25,10 @@ FindInFilesDockWidget::FindInFilesDockWidget(QWidget *parent) :
    settings.endGroup();
 
    on_projectFolder_clicked(ui->projectFolder->isChecked());
+
+   ui->searchText->completer()->setCompletionMode(QCompleter::PopupCompletion);
+   ui->location->completer()->setCompletionMode(QCompleter::PopupCompletion);
+   ui->type->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
 }

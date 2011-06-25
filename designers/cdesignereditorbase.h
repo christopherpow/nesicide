@@ -8,32 +8,34 @@
 
 class CDesignerEditorBase : public QWidget, public ICenterWidgetItem
 {
-    Q_OBJECT
+   Q_OBJECT
 public:
-    explicit CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *parent = 0);
-    virtual ~CDesignerEditorBase() {};
+   explicit CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *parent = 0);
+   virtual ~CDesignerEditorBase() {};
 
-    virtual bool isModified() { return m_isModified; }
-    virtual void setModified(bool modified) { m_isModified = modified; emit editor_modified(modified);}
+   virtual bool isModified() { return m_isModified; }
+   virtual void setModified(bool modified) { m_isModified = modified; emit editor_modified(modified);}
 
-    // ICenterWidgetItem Interface Implmentation
-    virtual bool onCloseQuery();
-    virtual void onClose();
-    virtual bool onSaveQuery();
-    virtual void onSave();
+   // ICenterWidgetItem Interface Implmentation
+   virtual bool onCloseQuery();
+   virtual void onClose();
+   virtual bool onSaveQuery();
+   virtual void onSave();
 
 protected:
-    void keyPressEvent(QKeyEvent *e);
-
-signals:
-    void editor_modified(bool m);
-    void markProjectDirty(bool dirty);
+   void keyPressEvent(QKeyEvent *e);
 
 public slots:
+   virtual void snapTo(QString item) {}
+
+signals:
+   void editor_modified(bool m);
+   void markProjectDirty(bool dirty);
+   void breakpointsChanged();
+   void activateSearchBar();
 
 protected:
-    bool m_isModified;
-
+   bool m_isModified;
 };
 
 #endif // CDESIGNEREDITORBASE_H

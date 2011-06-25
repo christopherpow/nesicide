@@ -148,6 +148,11 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *e)
          emit markProjectDirty(true);
       }
    }
+   else if ( (e->key() == Qt::Key_F) &&
+             (e->modifiers() == Qt::ControlModifier) )
+   {
+      emit activateSearchBar();
+   }
    CDesignerEditorBase::keyPressEvent(e);
 }
 
@@ -291,4 +296,24 @@ void GraphicsBankEditorForm::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
    renderer->repaint();
+}
+
+void GraphicsBankEditorForm::snapTo(QString item)
+{
+   QStringList splits;
+   QModelIndexList list;
+
+   // Make sure item is something we care about
+   if ( item.startsWith("SearchBar:") )
+   {
+      if ( isVisible() )
+      {
+         splits = item.split(QRegExp("[:]"));
+         list = model->match(model->index(ui->tableView->currentIndex().row()+1,ChrRomBankItemCol_Name),Qt::DisplayRole,splits.at(4),1,Qt::MatchFixedString|Qt::MatchContains|Qt::MatchWrap);
+         if ( list.count() )
+         {
+            ui->tableView->setCurrentIndex(list.at(0));
+         }
+      }
+   }
 }

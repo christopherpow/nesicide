@@ -28,7 +28,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-   QWidget*     searchBar = CDockWidgetRegistry::getWidget("Search Bar");
    QWidget*     sourceNavigator = CDockWidgetRegistry::getWidget("Source Navigator");
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
@@ -121,8 +120,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
-   QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
-   QObject::connect ( this, SIGNAL(activateSearchBar()), searchBar, SLOT(setFocus()) );
    QObject::connect ( sourceNavigator, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    m_fileName = fileName;
@@ -817,7 +814,7 @@ void CodeEditorForm::snapTo(QString item)
    int      line;
    int      index;
 
-   // Make sure item is an address
+   // Make sure item is something we care about
    if ( item.startsWith("Address:") )
    {
       splits = item.split(QRegExp("[:()]"));

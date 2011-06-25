@@ -70,10 +70,6 @@ private:
    int m_timer;
    void updateToolTip(QString symbol);
 
-signals:
-   void breakpointsChanged();
-   void activateSearchBar();
-
 public slots:
    void restyleText();
    void snapTo(QString item);

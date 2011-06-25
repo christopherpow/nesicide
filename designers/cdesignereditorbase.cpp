@@ -1,11 +1,18 @@
 #include "cdesignereditorbase.h"
+#include "cdockwidgetregistry.h"
 
 #include <QMessageBox>
 
 CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *parent) :
     QWidget(parent)
 {
+   QWidget* searchBar = CDockWidgetRegistry::getWidget("Search Bar");
+
    InitTabItem(link);
+
+   QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( this, SIGNAL(activateSearchBar()), searchBar, SLOT(setFocus()) );
+
    setModified(false);
 }
 

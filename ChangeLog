@@ -1,5 +1,14 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.004
+Added search bar hooks to Graphics Bank editor.
+Changed auto-completion style of search bar combobox and Find-in-Files combo boxes to popup instead of inline (nicer).
+
+V1.003
+Added persistence to options for search widget in toolbar.
+Fixed source navigator toolbar widget so symbol selector works--opens file where symbol is found and goes to that line.
+Added Ctrl+F hotkey for search toolbar activation, and Ctrl+Shift+F hotkey for Find-in-Files dialog activation.
+
 V1.002
 Added Find-in-Files dockable window.
 Added current-file search widget to toolbar.
