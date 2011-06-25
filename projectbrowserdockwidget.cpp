@@ -5,20 +5,17 @@
 
 #include "main.h"
 
-ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent) :
+ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget,QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::ProjectBrowserDockWidget)
 {
    ui->setupUi(this);
 
    m_pTarget = pTarget;
-   m_pSourceNavigator = pSourceNavigator;
 
    m_pProjectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
    ui->projectTreeWidget->setModel(m_pProjectTreeviewModel);
    ui->projectTreeWidget->setTarget(m_pTarget);
-
-   QObject::connect(ui->projectTreeWidget,SIGNAL(projectTreeView_openItem(IProjectTreeViewItem*)),m_pSourceNavigator,SLOT(projectTreeView_openItem(IProjectTreeViewItem*)));
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()

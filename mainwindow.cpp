@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pFindInFiles, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedFind_in_Files_close(bool)));
    CDockWidgetRegistry::addWidget ( "Find in Files", m_pFindInFiles );
 
-   projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget,m_pSourceNavigator);
+   projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
    projectBrowser->hide();
    QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));

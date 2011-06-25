@@ -147,21 +147,6 @@ void SourceNavigator::compiler_compileDone(bool bOk)
    blockSignals(false);
 }
 
-void SourceNavigator::projectTreeView_openItem(IProjectTreeViewItem* item)
-{
-   CProjectBase* pItem = dynamic_cast<CProjectBase*>(item);
-
-   if ( pItem )
-   {
-      blockSignals(true);
-
-      ui->files->setCurrentIndex(ui->files->findText(pItem->path()));
-      ui->symbols->clear();
-
-      blockSignals(false);
-   }
-}
-
 void SourceNavigator::on_files_activated(QString file)
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());

@@ -7,7 +7,6 @@
 
 #include "cprojecttreeviewmodel.h"
 #include "cprojecttreeview.h"
-#include "sourcenavigator.h"
 
 namespace Ui {
     class ProjectBrowserDockWidget;
@@ -18,7 +17,7 @@ class ProjectBrowserDockWidget : public QDockWidget
    Q_OBJECT
 
 public:
-   explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget,SourceNavigator* pSourceNavigator,QWidget *parent = 0);
+   explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget,QWidget *parent = 0);
    virtual ~ProjectBrowserDockWidget();
 
    void layoutChangedEvent();
@@ -29,7 +28,6 @@ private:
    Ui::ProjectBrowserDockWidget *ui;
    CProjectTabWidget* m_pTarget;
    CProjectTreeViewModel* m_pProjectTreeviewModel;
-   SourceNavigator* m_pSourceNavigator;
 };
 
 #endif // PROJECTBROWSERDOCKWIDGET_H

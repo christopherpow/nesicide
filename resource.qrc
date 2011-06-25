@@ -45,7 +45,6 @@
         <file>resources/document-export.png</file>
         <file>resources/document-import.png</file>
         <file>resources/document-open.png</file>
-        <file>resources/error-mark.png</file>
         <file>resources/stock_exit.png</file>
         <file>resources/stock_media-pause.png</file>
         <file>resources/stock_media-play.png</file>
@@ -62,5 +61,6 @@
         <file>resources/regular-expression.png</file>
         <file>resources/view_sort_ascending.png</file>
         <file>resources/view_sort_descending.png</file>
+        <file>resources/error-mark.png</file>
     </qresource>
 </RCC>

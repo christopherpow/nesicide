@@ -38,7 +38,6 @@ public slots:
    void compiler_compileDone(bool bOk);
    void emulator_emulatorPaused(bool show = true);
    void emulator_cartridgeLoaded();
-   void projectTreeView_openItem(IProjectTreeViewItem* item);
 };
 
 #endif // SOURCENAVIGATOR_H
