@@ -86,7 +86,7 @@ bool CBinaryFile::deserializeContent()
    QDir dir(QDir::currentPath());
    QFile fileIn(dir.relativeFilePath(m_path));
 
-   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly) )
    {
       setBinaryData(fileIn.readAll());
       fileIn.close();
