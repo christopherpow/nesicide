@@ -16,6 +16,10 @@
   <property name="windowTitle">
    <string>NESICIDE</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/resources/appicon.png</normaloff>:/resources/appicon.png</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
@@ -980,7 +984,7 @@
     <string>Load In Emulator</string>
    </property>
    <property name="shortcut">
-    <string>F7</string>
+    <string>F6</string>
    </property>
   </action>
   <action name="actionRun_Test_Suite">

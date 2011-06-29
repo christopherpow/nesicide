@@ -16,6 +16,8 @@
 
 #include <QSettings>
 
+#include <cdockwidgetregistry.h>
+
 #include "nesemulatorthread.h"
 
 #include "dbg_cnes.h"
@@ -62,6 +64,7 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
    coreMutexLock();
    samplesAvailable = nesGetAudioSamplesAvailable();
    coreMutexUnlock();
+
    if (samplesAvailable < 0)
    {
       return;
@@ -331,6 +334,7 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::run ()
 {
+   QWidget* emulator = CDockWidgetRegistry::getWidget("Emulator");
    int32_t samplesAvailable;
    int32_t debuggerUpdateRate = EnvironmentSettingsDialog::debuggerUpdateRate();
 
@@ -431,6 +435,23 @@ void NESEmulatorThread::run ()
 
          // Run emulator for one frame...
          SDL_LockAudio();
+         if ( emulator )
+         {
+            // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
+            // controlled if one of them is.
+            if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper) ||
+                 ((EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus) &&
+                 (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER1,IO_Vaus_CCW))) )
+            {
+               nesSetControllerScreenPosition(CONTROLLER1,emulator->mapFromGlobal(QCursor::pos()).x(),emulator->mapFromGlobal(QCursor::pos()).y());
+            }
+            if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper) ||
+                 ((EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus) &&
+                 (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER2,IO_Vaus_CCW))) )
+            {
+               nesSetControllerScreenPosition(CONTROLLER2,emulator->mapFromGlobal(QCursor::pos()).x(),emulator->mapFromGlobal(QCursor::pos()).y());
+            }
+         }
          nesRun(m_joy);
          SDL_UnlockAudio();
 

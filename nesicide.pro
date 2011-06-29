@@ -139,8 +139,6 @@ INCLUDEPATH += common \
     resources \
     viewers \
     viewers/chr-rom \
-    viewers/debugger \
-    viewers/emulator \
     viewers/prg-rom \
     viewers/project_treeview
 
@@ -167,44 +165,21 @@ SOURCES += mainwindow.cpp \
     project/cbinaryfiles.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
     viewers/chr-rom/cchrrompreviewrenderer.cpp \
-    viewers/emulator/nesemulatorrenderer.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
     common/cbuildertextlogger.cpp \
-    debugger/chrmeminspector.cpp \
-    debugger/coampreviewrenderer.cpp \
-    debugger/cnametablepreviewrenderer.cpp \
     project/cbinaryfile.cpp \
     project/cgraphicsbanks.cpp \
     project/cgraphicsbank.cpp \
     designers/graphics_bank_editor/graphicsbankeditorform.cpp \
-    viewers/debugger/cdebuggerexecutiontracermodel.cpp \
-    viewers/debugger/cdebuggermemorydisplaymodel.cpp \
-    viewers/debugger/cdebuggerregisterdisplaymodel.cpp \
-    viewers/debugger/cdebuggerregistercomboboxdelegate.cpp \
-    debugger/breakpointdialog.cpp \
-    viewers/debugger/cbreakpointdisplaymodel.cpp \
-    debugger/breakpointwatcherthread.cpp \
-    emulator/nesemulatorthread.cpp \
-    viewers/debugger/ccodebrowserdisplaymodel.cpp \
     aboutdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
-    debugger/ccodedataloggerrenderer.cpp \
     project/cattributetables.cpp \
-    debugger/cexecutionvisualizerrenderer.cpp \
     common/cgamedatabasehandler.cpp \
     environmentsettingsdialog.cpp \
     plugins/cpluginmanager.cpp \
     startupsplashdialog.cpp \
-    debugger/dbg_cnes6502.cpp \
-    debugger/dbg_cnesmappers.cpp \
-    debugger/dbg_cnesppu.cpp \
-    debugger/dbg_cnes.cpp \
-    debugger/dbg_cnesapu.cpp \
-    debugger/dbg_cnesrom.cpp \
-    debugger/dbg_cnesrommapper004.cpp \
-    debugger/dbg_cnesrommapper001.cpp \
     compiler/compilerthread.cpp \
     emulatorprefsdialog.cpp \
     qkeymapitemedit.cpp \
@@ -213,20 +188,7 @@ SOURCES += mainwindow.cpp \
     project/cattributetable.cpp \
     common/sourcenavigator.cpp \
     projectbrowserdockwidget.cpp \
-    debugger/memoryinspectordockwidget.cpp \
-    debugger/registerinspectordockwidget.cpp \
-    debugger/executioninspectordockwidget.cpp \
-    debugger/codebrowserdockwidget.cpp \
-    debugger/codedataloggerdockwidget.cpp \
-    debugger/apuinformationdockwidget.cpp \
-    debugger/ppuinformationdockwidget.cpp \
-    debugger/executionvisualizerdockwidget.cpp \
-    debugger/mapperinformationdockwidget.cpp \
-    debugger/nametablevisualizerdockwidget.cpp \
-    debugger/oamvisualizerdockwidget.cpp \
     outputpanedockwidget.cpp \
-    debugger/breakpointdockwidget.cpp \
-    emulator/nesemulatordockwidget.cpp \
     common/cdockwidgetregistry.cpp \
     compiler/cc65/ccc65interface.cpp \
     compiler/cc65/dbginfo.c \
@@ -235,18 +197,63 @@ SOURCES += mainwindow.cpp \
     designers/code_editor/qscilexerca65.cpp \
     designers/cdesignereditorbase.cpp \
     common/emulatorcontrol.cpp \
-    debugger/symbolwatchdockwidget.cpp \
-    viewers/debugger/csymbolwatchmodel.cpp \
-    viewers/debugger/cdebuggernumericitemdelegate.cpp \
-    viewers/debugger/cdebuggersymboldelegate.cpp \
     common/cprojecttabwidget.cpp \
     designers/graphics_bank_editor/cchrrombankitemdelegate.cpp \
     version.cpp \
-    debugger/cdebuggerbase.cpp \
-    viewers/debugger/cexecutionmarkerdisplaymodel.cpp \
     common/findinfilesdockwidget.cpp \
     common/searcherthread.cpp \
-    common/searchbar.cpp
+    common/searchbar.cpp \
+    debugger/symbolwatchdockwidget.cpp \
+    debugger/registerinspectordockwidget.cpp \
+    debugger/ppuinformationdockwidget.cpp \
+    debugger/oamvisualizerdockwidget.cpp \
+    debugger/nametablevisualizerdockwidget.cpp \
+    debugger/memoryinspectordockwidget.cpp \
+    debugger/mapperinformationdockwidget.cpp \
+    debugger/executionvisualizerdockwidget.cpp \
+    debugger/executioninspectordockwidget.cpp \
+    debugger/dbg_cnesrommapper068.cpp \
+    debugger/dbg_cnesrommapper065.cpp \
+    debugger/dbg_cnesrommapper011.cpp \
+    debugger/dbg_cnesrommapper010.cpp \
+    debugger/dbg_cnesrommapper009.cpp \
+    debugger/dbg_cnesrommapper007.cpp \
+    debugger/dbg_cnesrommapper005.cpp \
+    debugger/dbg_cnesrommapper004.cpp \
+    debugger/dbg_cnesrommapper003.cpp \
+    debugger/dbg_cnesrommapper002.cpp \
+    debugger/dbg_cnesrommapper001.cpp \
+    debugger/dbg_cnesrom.cpp \
+    debugger/dbg_cnesppu.cpp \
+    debugger/dbg_cnesmappers.cpp \
+    debugger/dbg_cnesapu.cpp \
+    debugger/dbg_cnes6502.cpp \
+    debugger/dbg_cnes.cpp \
+    debugger/csymbolwatchmodel.cpp \
+    debugger/codedataloggerdockwidget.cpp \
+    debugger/codebrowserdockwidget.cpp \
+    debugger/coampreviewrenderer.cpp \
+    debugger/cnametablepreviewrenderer.cpp \
+    debugger/chrmeminspector.cpp \
+    debugger/cexecutionvisualizerrenderer.cpp \
+    debugger/cexecutionmarkerdisplaymodel.cpp \
+    debugger/cdebuggersymboldelegate.cpp \
+    debugger/cdebuggerregisterdisplaymodel.cpp \
+    debugger/cdebuggerregistercomboboxdelegate.cpp \
+    debugger/cdebuggernumericitemdelegate.cpp \
+    debugger/cdebuggermemorydisplaymodel.cpp \
+    debugger/cdebuggerexecutiontracermodel.cpp \
+    debugger/cdebuggerbase.cpp \
+    debugger/ccodedataloggerrenderer.cpp \
+    debugger/ccodebrowserdisplaymodel.cpp \
+    debugger/cbreakpointdisplaymodel.cpp \
+    debugger/breakpointwatcherthread.cpp \
+    debugger/breakpointdockwidget.cpp \
+    debugger/breakpointdialog.cpp \
+    debugger/apuinformationdockwidget.cpp \
+    emulator/nesemulatorthread.cpp \
+    emulator/nesemulatorrenderer.cpp \
+    emulator/nesemulatordockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -274,45 +281,22 @@ HEADERS += mainwindow.h \
     project/cbinaryfiles.h \
     viewers/chr-rom/chrromdisplaydialog.h \
     viewers/chr-rom/cchrrompreviewrenderer.h \
-    viewers/emulator/nesemulatorrenderer.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
     viewers/project_treeview/cprojecttreeview.h \
     common/cbuildertextlogger.h \
-    debugger/chrmeminspector.h \
-    debugger/coampreviewrenderer.h \
-    debugger/cnametablepreviewrenderer.h \
-    emulator/nesemulatorthread.h \
     project/cbinaryfile.h \
     project/cgraphicsbanks.h \
     project/cgraphicsbank.h \
     designers/graphics_bank_editor/graphicsbankeditorform.h \
-    viewers/debugger/cdebuggerexecutiontracermodel.h \
-    viewers/debugger/cdebuggermemorydisplaymodel.h \
-    viewers/debugger/cdebuggerregisterdisplaymodel.h \
-    viewers/debugger/cdebuggerregistercomboboxdelegate.h \
-    debugger/breakpointdialog.h \
-    viewers/debugger/cbreakpointdisplaymodel.h \
-    debugger/breakpointwatcherthread.h \
-    viewers/debugger/ccodebrowserdisplaymodel.h \
     aboutdialog.h \
     interfaces/ichrrombankitem.h \
     viewers/chr-rom/cchrromitemlistdisplaymodel.h \
-    debugger/ccodedataloggerrenderer.h \
     project/cattributetables.h \
-    debugger/cexecutionvisualizerrenderer.h \
     common/cgamedatabasehandler.h \
     environmentsettingsdialog.h \
     plugins/cpluginmanager.h \
     startupsplashdialog.h \
-    debugger/dbg_cnes6502.h \
-    debugger/dbg_cnesmappers.h \
-    debugger/dbg_cnesppu.h \
-    debugger/dbg_cnes.h \
-    debugger/dbg_cnesrom.h \
-    debugger/dbg_cnesapu.h \
-    debugger/dbg_cnesrommapper001.h \
-    debugger/dbg_cnesrommapper004.h \
     compiler/compilerthread.h \
     emulatorprefsdialog.h \
     qkeymapitemedit.h \
@@ -321,20 +305,7 @@ HEADERS += mainwindow.h \
     project/cattributetable.h \
     common/sourcenavigator.h \
     projectbrowserdockwidget.h \
-    debugger/memoryinspectordockwidget.h \
-    debugger/registerinspectordockwidget.h \
-    debugger/executioninspectordockwidget.h \
-    debugger/codebrowserdockwidget.h \
-    debugger/codedataloggerdockwidget.h \
-    debugger/apuinformationdockwidget.h \
-    debugger/ppuinformationdockwidget.h \
-    debugger/executionvisualizerdockwidget.h \
-    debugger/mapperinformationdockwidget.h \
-    debugger/nametablevisualizerdockwidget.h \
-    debugger/oamvisualizerdockwidget.h \
     outputpanedockwidget.h \
-    debugger/breakpointdockwidget.h \
-    emulator/nesemulatordockwidget.h \
     common/cdockwidgetregistry.h \
     compiler/cc65/ccc65interface.h \
     compiler/cc65/dbginfo.h \
@@ -343,17 +314,62 @@ HEADERS += mainwindow.h \
     designers/cdesignereditorbase.h \
     interfaces/icenterwidgetitem.h \
     common/emulatorcontrol.h \
-    debugger/symbolwatchdockwidget.h \
-    viewers/debugger/csymbolwatchmodel.h \
-    viewers/debugger/cdebuggernumericitemdelegate.h \
-    viewers/debugger/cdebuggersymboldelegate.h \
     common/cprojecttabwidget.h \
     designers/graphics_bank_editor/cchrrombankitemdelegate.h \
-    debugger/cdebuggerbase.h \
-    viewers/debugger/cexecutionmarkerdisplaymodel.h \
     common/findinfilesdockwidget.h \
     common/searcherthread.h \
-    common/searchbar.h
+    common/searchbar.h \
+    debugger/symbolwatchdockwidget.h \
+    debugger/registerinspectordockwidget.h \
+    debugger/ppuinformationdockwidget.h \
+    debugger/oamvisualizerdockwidget.h \
+    debugger/nametablevisualizerdockwidget.h \
+    debugger/memoryinspectordockwidget.h \
+    debugger/mapperinformationdockwidget.h \
+    debugger/executionvisualizerdockwidget.h \
+    debugger/executioninspectordockwidget.h \
+    debugger/dbg_cnesrommapper068.h \
+    debugger/dbg_cnesrommapper065.h \
+    debugger/dbg_cnesrommapper011.h \
+    debugger/dbg_cnesrommapper010.h \
+    debugger/dbg_cnesrommapper009.h \
+    debugger/dbg_cnesrommapper007.h \
+    debugger/dbg_cnesrommapper005.h \
+    debugger/dbg_cnesrommapper004.h \
+    debugger/dbg_cnesrommapper003.h \
+    debugger/dbg_cnesrommapper002.h \
+    debugger/dbg_cnesrommapper001.h \
+    debugger/dbg_cnesrom.h \
+    debugger/dbg_cnesppu.h \
+    debugger/dbg_cnesmappers.h \
+    debugger/dbg_cnesapu.h \
+    debugger/dbg_cnes6502.h \
+    debugger/dbg_cnes.h \
+    debugger/csymbolwatchmodel.h \
+    debugger/codedataloggerdockwidget.h \
+    debugger/codebrowserdockwidget.h \
+    debugger/coampreviewrenderer.h \
+    debugger/cnametablepreviewrenderer.h \
+    debugger/chrmeminspector.h \
+    debugger/cexecutionvisualizerrenderer.h \
+    debugger/cexecutionmarkerdisplaymodel.h \
+    debugger/cdebuggersymboldelegate.h \
+    debugger/cdebuggerregisterdisplaymodel.h \
+    debugger/cdebuggerregistercomboboxdelegate.h \
+    debugger/cdebuggernumericitemdelegate.h \
+    debugger/cdebuggermemorydisplaymodel.h \
+    debugger/cdebuggerexecutiontracermodel.h \
+    debugger/cdebuggerbase.h \
+    debugger/ccodedataloggerrenderer.h \
+    debugger/ccodebrowserdisplaymodel.h \
+    debugger/cbreakpointdisplaymodel.h \
+    debugger/breakpointwatcherthread.h \
+    debugger/breakpointdockwidget.h \
+    debugger/breakpointdialog.h \
+    debugger/apuinformationdockwidget.h \
+    emulator/nesemulatorthread.h \
+    emulator/nesemulatorrenderer.h \
+    emulator/nesemulatordockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -362,7 +378,6 @@ FORMS += mainwindow.ui \
     viewers/chr-rom/chrromdisplaydialog.ui \
     viewers/prg-rom/prgromdisplaydialog.ui \
     designers/graphics_bank_editor/graphicsbankeditorform.ui \
-    debugger/breakpointdialog.ui \
     aboutdialog.ui \
     environmentsettingsdialog.ui \
     startupsplashdialog.ui \
@@ -370,24 +385,25 @@ FORMS += mainwindow.ui \
     designers/attribute_table_editor/attributetableeditorform.ui \
     common/sourcenavigator.ui \
     projectbrowserdockwidget.ui \
-    debugger/memoryinspectordockwidget.ui \
-    debugger/registerinspectordockwidget.ui \
-    debugger/executioninspectordockwidget.ui \
-    debugger/codebrowserdockwidget.ui \
-    debugger/codedataloggerdockwidget.ui \
-    debugger/apuinformationdockwidget.ui \
-    debugger/ppuinformationdockwidget.ui \
-    debugger/executionvisualizerdockwidget.ui \
-    debugger/mapperinformationdockwidget.ui \
-    debugger/nametablevisualizerdockwidget.ui \
-    debugger/oamvisualizerdockwidget.ui \
     outputpanedockwidget.ui \
-    debugger/breakpointdockwidget.ui \
-    emulator/nesemulatordockwidget.ui \
     testsuiteexecutivedialog.ui \
     common/emulatorcontrol.ui \
-    debugger/symbolwatchdockwidget.ui \
     common/findinfilesdockwidget.ui \
-    common/searchbar.ui
+    common/searchbar.ui \
+    debugger/symbolwatchdockwidget.ui \
+    debugger/registerinspectordockwidget.ui \
+    debugger/ppuinformationdockwidget.ui \
+    debugger/oamvisualizerdockwidget.ui \
+    debugger/nametablevisualizerdockwidget.ui \
+    debugger/memoryinspectordockwidget.ui \
+    debugger/mapperinformationdockwidget.ui \
+    debugger/executionvisualizerdockwidget.ui \
+    debugger/executioninspectordockwidget.ui \
+    debugger/codedataloggerdockwidget.ui \
+    debugger/codebrowserdockwidget.ui \
+    debugger/breakpointdockwidget.ui \
+    debugger/breakpointdialog.ui \
+    debugger/apuinformationdockwidget.ui \
+    emulator/nesemulatordockwidget.ui
 
 RESOURCES += resource.qrc

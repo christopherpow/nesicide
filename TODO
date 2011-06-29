@@ -4,7 +4,7 @@ The following items are being tracked here because otherwise they'd be forgotten
 
 1. External modifications of files needs to be tracked and reacted to when NESICIDE gains focus.
 
-2. Add folders to project panel and support loading different file types (headers, etc.)
+**DONE** 2. Add folders to project panel and support loading different file types (headers, etc.)
 
 3. Finish Code Editor lexer for syntax highlights.
    a) It's still a bit buggy with highlighting numbers in label references.
@@ -29,3 +29,12 @@ The following items are being tracked here because otherwise they'd be forgotten
 **DONE** 12. GNU Make support as an option alongside direct CA65/LD65 invocation.
 
 **DONE** 13. Figure out why Code Browser doesn't snap to reset vector when project is loaded at application startup, but does when project is loaded after startup.
+
+14. Make clean does not remove .nes or .chr files.
+
+15. Add icons to source navigator and add files to list from project so that files can be shown whether or not they are in the list because they were in the project
+or because they were pulled in by the build.
+
+16. Figure out how to adjust lines of errors, breakpoints, and symbol lookups...probably have to do background compilation.
+
+17. Adding multiple files to a project at once.

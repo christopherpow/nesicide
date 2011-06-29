@@ -4,22 +4,40 @@
 #include "main.h"
 
 EmulatorControl::EmulatorControl(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::EmulatorControl)
+   QWidget(parent),
+   ui(new Ui::EmulatorControl)
 {
-    ui->setupUi(this);
+   ui->setupUi(this);
 
-    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
-    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
-    QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
+   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
+   QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
+   QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
 
-    // Buttons are disabled until a cartridge is loaded...then they go to the "pause-just-happened" state.
-    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(internalPause()));
+   // Buttons are disabled until a cartridge is loaded...then they go to the "pause-just-happened" state.
+   QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(internalPause()));
+
+   // Connect menu actions to slots.
+   QObject::connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(on_playButton_clicked()));
+   QObject::connect(ui->actionPause, SIGNAL(triggered()), this, SLOT(on_pauseButton_clicked()));
+   QObject::connect(ui->actionStep_CPU, SIGNAL(triggered()), this, SLOT(on_stepCPUButton_clicked()));
+   QObject::connect(ui->actionStep_PPU, SIGNAL(triggered()), this, SLOT(on_stepPPUButton_clicked()));
+   QObject::connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(on_resetButton_clicked()));
 }
 
 EmulatorControl::~EmulatorControl()
 {
-    delete ui;
+   delete ui;
+}
+
+QList<QAction*> EmulatorControl::menu()
+{
+   QList<QAction*> items;
+   items.append(ui->actionRun);
+   items.append(ui->actionPause);
+   items.append(ui->actionStep_CPU);
+   items.append(ui->actionStep_PPU);
+   items.append(ui->actionReset);
+   return items;
 }
 
 void EmulatorControl::internalPlay()
@@ -28,7 +46,10 @@ void EmulatorControl::internalPlay()
    ui->pauseButton->setEnabled(true);
    ui->stepCPUButton->setEnabled(false);
    ui->stepPPUButton->setEnabled(false);
-   ui->resetButton->setEnabled(true);
+   ui->actionRun->setEnabled(false);
+   ui->actionPause->setEnabled(true);
+   ui->actionStep_CPU->setEnabled(false);
+   ui->actionStep_PPU->setEnabled(false);
 }
 
 void EmulatorControl::internalPause()
@@ -37,7 +58,10 @@ void EmulatorControl::internalPause()
    ui->pauseButton->setEnabled(false);
    ui->stepCPUButton->setEnabled(true);
    ui->stepPPUButton->setEnabled(true);
-   ui->resetButton->setEnabled(true);
+   ui->actionRun->setEnabled(true);
+   ui->actionPause->setEnabled(false);
+   ui->actionStep_CPU->setEnabled(true);
+   ui->actionStep_PPU->setEnabled(true);
 }
 
 void EmulatorControl::on_playButton_clicked()

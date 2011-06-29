@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
 
    QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
+   QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(projectDataChangesEvent()));
+   QObject::connect(emulator, SIGNAL(emulatorReset()), this, SLOT(projectDataChangesEvent()));
+   QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(projectDataChangesEvent()));
 
    m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
@@ -63,6 +66,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
    m_pEmulatorControl = new EmulatorControl();
    ui->debuggerToolbar->addWidget(m_pEmulatorControl);
+
+   // Add menu for emulator control.  The emulator control provides menu for itself!  =]
+   QAction* firstEmuMenuAction = ui->menuEmulator->actions().at(0);
+   ui->menuEmulator->insertActions(firstEmuMenuAction,m_pEmulatorControl->menu());
+   ui->menuEmulator->insertSeparator(firstEmuMenuAction);
 
    m_pFindInFiles = new FindInFilesDockWidget();
    addDockWidget(Qt::LeftDockWidgetArea, m_pFindInFiles );
