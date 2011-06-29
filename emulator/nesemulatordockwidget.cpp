@@ -28,7 +28,7 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
 
-   // Clear image...
+   // Clear image to set alpha channel...
    for ( i = 0; i < 256*256*4; i+=4 )
    {
       imgData[i] = 0;
