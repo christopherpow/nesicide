@@ -2,7 +2,11 @@ This is the list of changes per version for NESICIDE application.
 
 V1.004
 Added search bar hooks to Graphics Bank editor.
-Changed auto-completion style of search bar combobox and Find-in-Files combo boxes to popup instead of inline (nicer).
+Changed auto-completion style of search bar combobox and Search combo boxes to popup instead of inline (nicer).
+Added search-and-replace functionality, renamed Find-in-Files to Search since it encompases more than just "find in files" now.
+Added support for Vaus Arkanoid controller.
+Added function-key shortcuts and menu options for emulator control (play, pause, step cpu, step ppu, reset).
+Fixed empty-path problem when creating a new project.
 
 V1.003
 Added persistence to options for search widget in toolbar.

@@ -165,6 +165,13 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
          m_joy [ CONTROLLER1 ] |= JOY_A;
       }
    }
+   else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_Zapper_FIRE) )
+      {
+         m_joy [ CONTROLLER1 ] |= ZAPPER_TRIGGER;
+      }
+   }
    else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus )
    {
       if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_Vaus_FIRE) )
@@ -206,6 +213,13 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
       else if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_A) )
       {
          m_joy [ CONTROLLER2 ] |= JOY_A;
+      }
+   }
+   else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_Zapper_FIRE) )
+      {
+         m_joy [ CONTROLLER2 ] |= ZAPPER_TRIGGER;
       }
    }
    else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus )
@@ -258,6 +272,13 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
          m_joy [ CONTROLLER1 ] &= (~JOY_A);
       }
    }
+   else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_Zapper_FIRE) )
+      {
+         m_joy [ CONTROLLER1 ] &= (~ZAPPER_TRIGGER);
+      }
+   }
    else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus )
    {
       if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_Vaus_FIRE) )
@@ -299,6 +320,13 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
       else if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_A) )
       {
          m_joy [ CONTROLLER2 ] &= (~JOY_A);
+      }
+   }
+   else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_Zapper_FIRE) )
+      {
+         m_joy [ CONTROLLER2 ] &= (~ZAPPER_TRIGGER);
       }
    }
    else if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus )
