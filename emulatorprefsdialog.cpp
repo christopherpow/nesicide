@@ -19,6 +19,7 @@ int EmulatorPrefsDialog::zapperKeyMap[NUM_CONTROLLERS][IO_Zapper_MAX];
 bool EmulatorPrefsDialog::zapperMouseMap[NUM_CONTROLLERS][IO_Zapper_MAX];
 int EmulatorPrefsDialog::vausArkanoidKeyMap[NUM_CONTROLLERS][IO_Vaus_MAX];
 bool EmulatorPrefsDialog::vausArkanoidMouseMap[NUM_CONTROLLERS][IO_Vaus_MAX];
+int EmulatorPrefsDialog::vausArkanoidTrimPot[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::tvStandard;
 bool EmulatorPrefsDialog::square1Enabled;
 bool EmulatorPrefsDialog::square2Enabled;
@@ -84,15 +85,16 @@ void EmulatorPrefsDialog::readSettings()
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
          zapperKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
-         zapperMouseMap[port][function] = settings.value("MouseMap"+QString::number(function)).toBool();
+         zapperMouseMap[port][function] = settings.value("MouseMap"+QString::number(function),QVariant(true)).toBool();
       }
       settings.endGroup();
       settings.beginGroup("EmulatorPreferences/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
       for ( function = 0; function < IO_Vaus_MAX; function++ )
       {
          vausArkanoidKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
-         vausArkanoidMouseMap[port][function] = settings.value("MouseMap"+QString::number(function)).toBool();
+         vausArkanoidMouseMap[port][function] = settings.value("MouseMap"+QString::number(function),QVariant(true)).toBool();
       }
+      vausArkanoidTrimPot[port] = settings.value("TrimPot",QVariant(0x54)).toInt();
       settings.endGroup();
    }
 
@@ -196,6 +198,7 @@ void EmulatorPrefsDialog::writeSettings()
          triggerVausKeySequence.fromString(ui->triggerKeyVaus->text());
          vausArkanoidKeyMap[port][IO_Vaus_FIRE] = triggerVausKeySequence[0];
          vausArkanoidMouseMap[port][IO_Vaus_FIRE] = ui->mouseFiresVaus->isChecked();
+         vausArkanoidTrimPot[port] = ui->trimPotVaus->value();
       break;
    }
    tvStandard = ui->tvStandard->currentIndex();
@@ -233,6 +236,7 @@ void EmulatorPrefsDialog::writeSettings()
          settings.setValue("KeyMap"+QString::number(function),vausArkanoidKeyMap[port][function]);
          settings.setValue("MouseMap"+QString::number(function),vausArkanoidMouseMap[port][function]);
       }
+      settings.setValue("TrimPot",vausArkanoidTrimPot[port]);
       settings.endGroup();
    }
 
@@ -305,6 +309,8 @@ void EmulatorPrefsDialog::updateUi()
       ui->mouseMovesVaus->setChecked(vausArkanoidMouseMap[port][IO_Vaus_CCW]);
       ui->triggerKeyVaus->setText(triggerVausKeySequence.toString());
       ui->mouseFiresVaus->setChecked(vausArkanoidMouseMap[port][IO_Vaus_FIRE]);
+      ui->trimPotVaus->setValue(vausArkanoidTrimPot[port]);
+      on_trimPotVaus_dialMoved(vausArkanoidTrimPot[port]);
    }
 }
 
@@ -361,6 +367,7 @@ void EmulatorPrefsDialog::updateDb()
       triggerVausKeySequence.fromString(ui->triggerKeyVaus->text());
       vausArkanoidKeyMap[port][IO_Vaus_FIRE] = triggerVausKeySequence[0];
       vausArkanoidMouseMap[port][IO_Vaus_FIRE] = ui->mouseFiresVaus->isChecked();
+      vausArkanoidTrimPot[port] = ui->trimPotVaus->value();
    }
 }
 
@@ -392,8 +399,6 @@ void EmulatorPrefsDialog::on_controllerPortComboBox_highlighted(int index)
 
 void EmulatorPrefsDialog::on_controllerTypeComboBox_highlighted(int index)
 {
-   int port = ui->controllerPortComboBox->currentIndex();
-
    if ( index != ui->controllerTypeComboBox->currentIndex() )
    {
       updateDb();
@@ -447,6 +452,24 @@ bool EmulatorPrefsDialog::getControllerMouseMap(int port,int function)
       break;
    }
    return mouseMap;
+}
+
+int EmulatorPrefsDialog::getControllerSpecial(int port)
+{
+   int special = -1;
+   switch ( controllerType[port] )
+   {
+      case IO_Disconnected:
+      break;
+      case IO_StandardJoypad:
+      break;
+      case IO_Zapper:
+      break;
+      case IO_Vaus:
+         special = vausArkanoidTrimPot[port];
+      break;
+   }
+   return special;
 }
 
 int EmulatorPrefsDialog::getTVStandard()
@@ -573,4 +596,11 @@ void EmulatorPrefsDialog::setScalingFactor(int factor)
    settings.beginGroup("EmulatorPreferences/Video");
    settings.setValue("ScalingFactor",scalingFactor);
    settings.endGroup();
+}
+
+void EmulatorPrefsDialog::on_trimPotVaus_dialMoved(int value)
+{
+   QString str;
+   str.sprintf("$%02X-$%02X",value,value+0xA0);
+   ui->trimPotValueVaus->setText(str);
 }

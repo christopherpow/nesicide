@@ -147,7 +147,6 @@ void CCC65Interface::clean()
    QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
    QString                      outputName;
    int                          exitCode;
-   bool                         ok = true;
 
    // Copy the system environment to the child process.
    cc65.setProcessEnvironment(env);

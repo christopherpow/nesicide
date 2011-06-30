@@ -15,6 +15,8 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSettings>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include <cdockwidgetregistry.h>
 
@@ -335,6 +337,8 @@ void NESEmulatorThread::pauseEmulation (bool show)
 void NESEmulatorThread::run ()
 {
    QWidget* emulator = CDockWidgetRegistry::getWidget("Emulator");
+   QDesktopWidget* desktop = QApplication::desktop();
+   int screenNumber;
    int32_t samplesAvailable;
    int32_t debuggerUpdateRate = EnvironmentSettingsDialog::debuggerUpdateRate();
 
@@ -437,19 +441,35 @@ void NESEmulatorThread::run ()
          SDL_LockAudio();
          if ( emulator )
          {
-            // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
-            // controlled if one of them is.
-            if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper) ||
-                 ((EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus) &&
-                 (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER1,IO_Vaus_CCW))) )
+            screenNumber = desktop->screenNumber(emulator);
+            if ( screenNumber >= 0 )
             {
-               nesSetControllerScreenPosition(CONTROLLER1,emulator->mapFromGlobal(QCursor::pos()).x(),emulator->mapFromGlobal(QCursor::pos()).y());
-            }
-            if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper) ||
-                 ((EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus) &&
-                 (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER2,IO_Vaus_CCW))) )
-            {
-               nesSetControllerScreenPosition(CONTROLLER2,emulator->mapFromGlobal(QCursor::pos()).x(),emulator->mapFromGlobal(QCursor::pos()).y());
+               // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
+               // controlled if one of them is.
+               if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper) ||
+                    ((EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus) &&
+                    (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER1,IO_Vaus_CCW))) )
+               {
+                  nesSetControllerScreenPosition(CONTROLLER1,
+                                                 QCursor::pos().x(),
+                                                 QCursor::pos().y(),
+                                                 emulator->geometry().x(),
+                                                 emulator->geometry().y(),
+                                                 emulator->geometry().x()+emulator->geometry().width(),
+                                                 emulator->geometry().y()+emulator->geometry().height());
+               }
+               if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper) ||
+                    ((EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus) &&
+                    (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER2,IO_Vaus_CCW))) )
+               {
+                  nesSetControllerScreenPosition(CONTROLLER2,
+                                                 QCursor::pos().x(),
+                                                 QCursor::pos().y(),
+                                                 emulator->geometry().x(),
+                                                 emulator->geometry().y(),
+                                                 emulator->geometry().x()+emulator->geometry().width(),
+                                                 emulator->geometry().y()+emulator->geometry().height());
+               }
             }
          }
          nesRun(m_joy);

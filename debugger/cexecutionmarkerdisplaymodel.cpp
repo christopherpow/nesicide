@@ -127,6 +127,7 @@ QVariant CExecutionMarkerDisplayModel::headerData(int section, Qt::Orientation o
          break;
       }
    }
+   return QVariant();
 }
 
 int CExecutionMarkerDisplayModel::rowCount(const QModelIndex&) const

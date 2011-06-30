@@ -32,6 +32,7 @@ public:
    static int getControllerType(int port);
    static int getControllerKeyMap(int port,int function);
    static bool getControllerMouseMap(int port,int function);
+   static int getControllerSpecial(int port);
    static int getTVStandard();
    static bool getSquare1Enabled();
    static bool getSquare2Enabled();
@@ -63,6 +64,7 @@ private:
    static bool zapperMouseMap[NUM_CONTROLLERS][IO_Zapper_MAX];
    static int vausArkanoidKeyMap[NUM_CONTROLLERS][IO_Vaus_MAX];
    static bool vausArkanoidMouseMap[NUM_CONTROLLERS][IO_Vaus_MAX];
+   static int vausArkanoidTrimPot[NUM_CONTROLLERS];
    static int tvStandard;
    static bool square1Enabled;
    static bool square2Enabled;
@@ -81,6 +83,7 @@ private:
    void updateDb();
 
 private slots:
+   void on_trimPotVaus_dialMoved(int value);
    void on_controllerTypeComboBox_highlighted(int index);
    void on_controllerPortComboBox_highlighted(int index);
    void on_buttonBox_accepted();

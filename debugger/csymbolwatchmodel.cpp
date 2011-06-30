@@ -153,6 +153,7 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
          break;
       }
    }
+   return QVariant();
 }
 
 int CSymbolWatchModel::rowCount(const QModelIndex&) const

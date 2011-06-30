@@ -306,7 +306,9 @@ MainWindow::MainWindow(QWidget* parent) :
 
    // Set up controllers.
    nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
+   nesSetControllerSpecial(0,EmulatorPrefsDialog::getControllerSpecial(0));
    nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
+   nesSetControllerSpecial(1,EmulatorPrefsDialog::getControllerSpecial(1));
 
    // Set sound channel enables.
    bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
@@ -1581,6 +1583,15 @@ void MainWindow::on_actionPreferences_triggered()
          m_pEmulator->setFloating(true);
       }
       m_pEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
+   }
+
+   if ( EmulatorPrefsDialog::controllerSettingsChanged() )
+   {
+      // Set up controllers.
+      nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
+      nesSetControllerSpecial(0,EmulatorPrefsDialog::getControllerSpecial(0));
+      nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
+      nesSetControllerSpecial(1,EmulatorPrefsDialog::getControllerSpecial(1));
    }
 }
 
