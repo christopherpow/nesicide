@@ -17,7 +17,7 @@ CNesicideProject::CNesicideProject()
    m_isDirty = false;
 
    m_projectTitle = "(No project loaded)";
-   m_projectOutputBasePath = "";
+   m_projectOutputBasePath = ".";
 }
 
 CNesicideProject::~CNesicideProject()
@@ -72,7 +72,7 @@ void CNesicideProject::initializeProject()
 
    // Notify the fact that the project data has been initialized properly
    m_projectTitle = "(No project loaded)";
-   m_projectOutputBasePath = "";
+   m_projectOutputBasePath = ".";
    m_projectOutputName = "";
    m_projectLinkerOutputName = "";
    m_projectDebugInfoName = "";
@@ -107,7 +107,7 @@ void CNesicideProject::terminateProject()
 
    // Notify the fact that the project data is no longer valid
    m_projectTitle = "(No project loaded)";
-   m_projectOutputBasePath = "";
+   m_projectOutputBasePath = ".";
    m_projectOutputName = "";
    m_projectLinkerOutputName = "";
    m_projectDebugInfoName = "";

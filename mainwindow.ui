@@ -260,7 +260,7 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionFind_in_Files"/>
+    <addaction name="actionSearch"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
@@ -363,7 +363,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionFind_in_Files"/>
+   <addaction name="actionSearch"/>
   </widget>
   <action name="actionE_xit">
    <property name="icon">
@@ -1016,7 +1016,7 @@
     <string>Clean Project</string>
    </property>
   </action>
-  <action name="actionFind_in_Files">
+  <action name="actionSearch">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1025,10 +1025,10 @@
      <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
    </property>
    <property name="text">
-    <string>Find in Files</string>
+    <string>Search</string>
    </property>
    <property name="toolTip">
-    <string>Find in Files</string>
+    <string>Search</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+F</string>

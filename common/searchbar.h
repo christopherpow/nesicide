@@ -12,14 +12,21 @@ class SearchBar : public QWidget
    Q_OBJECT
 
 public:
-   explicit SearchBar(QWidget *parent = 0);
+   explicit SearchBar(QString settingsPrefix,QWidget *parent = 0);
    virtual ~SearchBar();
+
+   QString currentSearchText();
+   bool    isCaseSensitive();
+   bool    isRegularExpression();
+   bool    searchIsDown();
+   QString snapTo();
 
 protected:
    void focusInEvent(QFocusEvent *event);
 
 private:
    Ui::SearchBar *ui;
+   QString m_settingsPrefix;
 
 signals:
    void snapTo(QString item);

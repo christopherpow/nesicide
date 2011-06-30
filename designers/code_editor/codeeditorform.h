@@ -68,11 +68,13 @@ private:
    QsciLexerCA65* m_lexer;
    int m_breakpointIndex;
    int m_timer;
+   QString m_searchText;
    void updateToolTip(QString symbol);
 
 public slots:
    void restyleText();
    void snapTo(QString item);
+   void replaceText(QString from, QString to, bool replaceAll);
 
 private slots:
    void editor_undo();

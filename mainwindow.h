@@ -31,7 +31,7 @@
 #include "sourcenavigator.h"
 #include "searchbar.h"
 #include "emulatorcontrol.h"
-#include "findinfilesdockwidget.h"
+#include "searchdockwidget.h"
 
 namespace Ui
 {
@@ -93,7 +93,7 @@ private:
    SourceNavigator* m_pSourceNavigator;
    SearchBar* m_pSearchBar;
    EmulatorControl* m_pEmulatorControl;
-   FindInFilesDockWidget* m_pFindInFiles;
+   SearchDockWidget* m_pSearch;
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
@@ -147,7 +147,7 @@ private slots:
    void on_actionAPUInformation_Inspector_toggled(bool );
    void on_actionMapperInformation_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
-   void on_actionFind_in_Files_toggled(bool value);
+   void on_actionSearch_toggled(bool value);
    void reflectedEmulator_close(bool toplevel);
    void reflectedAssemblyInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
@@ -173,7 +173,7 @@ private slots:
    void reflectedAPUInformationInspector_close(bool toplevel);
    void reflectedMapperInformationInspector_close(bool toplevel);
    void reflectedSymbol_Watch_close(bool toplevel);
-   void reflectedFind_in_Files_close(bool toplevel);
+   void reflectedSearch_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
    void reflectedProjectBrowser_close(bool toplevel);
    void on_actionCompile_Project_triggered();

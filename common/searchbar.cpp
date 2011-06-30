@@ -4,7 +4,7 @@
 #include <QSettings>
 #include <QCompleter>
 
-SearchBar::SearchBar(QWidget *parent) :
+SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SearchBar)
 {
@@ -13,7 +13,9 @@ SearchBar::SearchBar(QWidget *parent) :
 
    ui->setupUi(this);
 
-   settings.beginGroup("SearchBar");
+   m_settingsPrefix = settingsPrefix;
+
+   settings.beginGroup(m_settingsPrefix);
    searches = settings.value("SearchTextHistory").toStringList();
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
@@ -38,12 +40,41 @@ void SearchBar::focusInEvent(QFocusEvent *event)
    ui->searchText->setFocus();
 }
 
+QString SearchBar::currentSearchText()
+{
+   return ui->searchText->currentText();
+}
+
+bool    SearchBar::isCaseSensitive()
+{
+   return ui->caseSensitive->isChecked();
+}
+
+bool    SearchBar::isRegularExpression()
+{
+   return ui->regex->isChecked();
+}
+
+bool    SearchBar::searchIsDown()
+{
+   return ui->direction->isChecked();
+}
+
+QString SearchBar::snapTo()
+{
+   return QString("SearchBar:"
+               +QString::number(ui->caseSensitive->isChecked())+":"
+               +QString::number(ui->regex->isChecked())+":"
+               +QString::number(ui->direction->isChecked())+":"
+               +ui->searchText->currentText());
+}
+
 void SearchBar::on_searchText_activated(QString search)
 {
    QSettings settings;
    QStringList items;
 
-   settings.beginGroup("SearchBar");
+   settings.beginGroup(m_settingsPrefix);
    if ( !search.isEmpty() )
    {
       items = settings.value("SearchTextHistory").toStringList();
@@ -82,7 +113,7 @@ void SearchBar::on_caseSensitive_toggled(bool checked)
 {
    QSettings settings;
 
-   settings.beginGroup("SearchBar");
+   settings.beginGroup(m_settingsPrefix);
    settings.setValue("CaseSensitive",QVariant(checked));
    settings.endGroup();
 }
@@ -91,7 +122,7 @@ void SearchBar::on_regex_toggled(bool checked)
 {
    QSettings settings;
 
-   settings.beginGroup("SearchBar");
+   settings.beginGroup(m_settingsPrefix);
    settings.setValue("RegularExpression",QVariant(checked));
    settings.endGroup();
 }
@@ -100,7 +131,7 @@ void SearchBar::on_direction_toggled(bool checked)
 {
    QSettings settings;
 
-   settings.beginGroup("SearchBar");
+   settings.beginGroup(m_settingsPrefix);
    settings.setValue("Direction",QVariant(checked));
    settings.endGroup();
 }

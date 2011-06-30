@@ -90,6 +90,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>searchText</tabstop>
+  <tabstop>caseSensitive</tabstop>
+  <tabstop>regex</tabstop>
+  <tabstop>direction</tabstop>
+ </tabstops>
  <resources>
   <include location="../resource.qrc"/>
  </resources>

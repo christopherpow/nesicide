@@ -27,6 +27,7 @@ protected:
 
 public slots:
    virtual void snapTo(QString item) {}
+   virtual void replaceText(QString from,QString to,bool replaceAll) {}
 
 signals:
    void editor_modified(bool m);

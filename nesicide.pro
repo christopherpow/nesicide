@@ -200,7 +200,6 @@ SOURCES += mainwindow.cpp \
     common/cprojecttabwidget.cpp \
     designers/graphics_bank_editor/cchrrombankitemdelegate.cpp \
     version.cpp \
-    common/findinfilesdockwidget.cpp \
     common/searcherthread.cpp \
     common/searchbar.cpp \
     debugger/symbolwatchdockwidget.cpp \
@@ -253,7 +252,8 @@ SOURCES += mainwindow.cpp \
     debugger/apuinformationdockwidget.cpp \
     emulator/nesemulatorthread.cpp \
     emulator/nesemulatorrenderer.cpp \
-    emulator/nesemulatordockwidget.cpp
+    emulator/nesemulatordockwidget.cpp \
+    common/searchdockwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -316,7 +316,6 @@ HEADERS += mainwindow.h \
     common/emulatorcontrol.h \
     common/cprojecttabwidget.h \
     designers/graphics_bank_editor/cchrrombankitemdelegate.h \
-    common/findinfilesdockwidget.h \
     common/searcherthread.h \
     common/searchbar.h \
     debugger/symbolwatchdockwidget.h \
@@ -369,7 +368,9 @@ HEADERS += mainwindow.h \
     debugger/apuinformationdockwidget.h \
     emulator/nesemulatorthread.h \
     emulator/nesemulatorrenderer.h \
-    emulator/nesemulatordockwidget.h
+    emulator/nesemulatordockwidget.h \
+    common/cexternaltooldependencychecker.h \
+    common/searchdockwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -388,7 +389,6 @@ FORMS += mainwindow.ui \
     outputpanedockwidget.ui \
     testsuiteexecutivedialog.ui \
     common/emulatorcontrol.ui \
-    common/findinfilesdockwidget.ui \
     common/searchbar.ui \
     debugger/symbolwatchdockwidget.ui \
     debugger/registerinspectordockwidget.ui \
@@ -404,6 +404,7 @@ FORMS += mainwindow.ui \
     debugger/breakpointdockwidget.ui \
     debugger/breakpointdialog.ui \
     debugger/apuinformationdockwidget.ui \
-    emulator/nesemulatordockwidget.ui
+    emulator/nesemulatordockwidget.ui \
+    common/searchdockwidget.ui
 
 RESOURCES += resource.qrc

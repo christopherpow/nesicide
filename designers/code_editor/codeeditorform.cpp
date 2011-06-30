@@ -123,6 +123,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( sourceNavigator, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    m_fileName = fileName;
+   m_searchText = "";
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
@@ -805,6 +806,64 @@ void CodeEditorForm::restyleText()
    m_lexer->readSettings(settings,"CodeEditor");
 }
 
+void CodeEditorForm::replaceText(QString from, QString to, bool replaceAll)
+{
+   QStringList splits;
+   int      lineStart;
+   int      indexStart;
+   int      lineEnd;
+   int      indexEnd;
+   int      line;
+   int      index;
+   bool     found = false;
+
+   if ( from.startsWith("SearchBar:") )
+   {
+      if ( isVisible() )
+      {
+         m_scintilla->getSelection(&lineStart,&indexStart,&lineEnd,&indexEnd);
+         m_scintilla->setSelection(-1,-1,-1,-1);
+
+         splits = from.split(QRegExp("[:]"));
+         if ( splits.at(3) == "0" )
+         {
+            line = lineEnd;
+            index = indexEnd;
+         }
+         else
+         {
+            line = lineStart;
+            index = indexStart;
+         }
+
+         if ( (from != m_searchText) ||
+              (splits.at(4) != m_scintilla->selectedText()) )
+         {
+            m_searchText = from; // Capture entire search configuration.
+            found = m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index);
+         }
+         else if ( (from == m_searchText) &&
+                   (splits.at(4) != m_scintilla->selectedText()) )
+         {
+            found = m_scintilla->findNext();
+         }
+         else if ( from == m_searchText )
+         {
+            found = true;
+         }
+
+         do
+         {
+            if ( found )
+            {
+               m_scintilla->replaceSelectedText(to);
+            }
+            found = m_scintilla->findNext();
+         } while ( replaceAll && found );
+      }
+   }
+}
+
 void CodeEditorForm::snapTo(QString item)
 {
    QStringList splits;
@@ -838,10 +897,15 @@ void CodeEditorForm::snapTo(QString item)
          m_scintilla->getCursorPosition(&line,&index);
          m_scintilla->setSelection(-1,-1,-1,-1);
          splits = item.split(QRegExp("[:]"));
-         m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index-1);
-//            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
-//                    bool wrap, bool forward = true, int line = -1, int index = -1,
-//                    bool show = true);
+         if ( item != m_searchText )
+         {
+            m_searchText = item; // Capture entire search configuration.
+            m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index);
+         }
+         else
+         {
+            m_scintilla->findNext();
+         }
       }
    }
    else if ( item.startsWith("SourceNavigatorFile:") )

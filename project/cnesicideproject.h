@@ -56,7 +56,7 @@ public:
       m_projectCHRROMOutputName = m_projectTitle.toLower().replace(" ","_")+".chr";
       m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
    }
-   void setProjectOutputBasePath(QString value) { m_projectOutputBasePath = value; }
+   void setProjectOutputBasePath(QString value) { if (!value.isEmpty()) m_projectOutputBasePath = value; else m_projectOutputBasePath="."; }
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
    void setProjectLinkerOutputName(QString value) { m_projectLinkerOutputName = value; }
    void setProjectDebugInfoName(QString value) { m_projectDebugInfoName = value; }

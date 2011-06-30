@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QSettings settings;
 
+
    // Initialize preferences dialogs.
    EmulatorPrefsDialog::readSettings();
 
@@ -60,7 +61,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
    CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
 
-   m_pSearchBar = new SearchBar();
+   m_pSearchBar = new SearchBar("SearchBar");
    ui->searchToolBar->addWidget(m_pSearchBar);
    CDockWidgetRegistry::addWidget ( "Search Bar", m_pSearchBar );
 
@@ -72,11 +73,11 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->menuEmulator->insertActions(firstEmuMenuAction,m_pEmulatorControl->menu());
    ui->menuEmulator->insertSeparator(firstEmuMenuAction);
 
-   m_pFindInFiles = new FindInFilesDockWidget();
-   addDockWidget(Qt::LeftDockWidgetArea, m_pFindInFiles );
-   m_pFindInFiles->hide();
-   QObject::connect(m_pFindInFiles, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedFind_in_Files_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Find in Files", m_pFindInFiles );
+   m_pSearch = new SearchDockWidget();
+   addDockWidget(Qt::LeftDockWidgetArea, m_pSearch );
+   m_pSearch->hide();
+   QObject::connect(m_pSearch, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSearch_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
    projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget);
    addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
@@ -441,7 +442,7 @@ MainWindow::~MainWindow()
    delete m_pBinMapperMemoryInspector;
    delete m_pSourceNavigator;
    delete m_pSymbolInspector;
-   delete m_pFindInFiles;
+   delete m_pSearch;
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -1320,15 +1321,15 @@ void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
    ui->actionSymbol_Watch->setChecked(toplevel);
 }
 
-void MainWindow::on_actionFind_in_Files_toggled(bool value)
+void MainWindow::on_actionSearch_toggled(bool value)
 {
    output->showPane(OutputPaneDockWidget::Output_Search);
-   m_pFindInFiles->setVisible(value);
+   m_pSearch->setVisible(value);
 }
 
-void MainWindow::reflectedFind_in_Files_close ( bool toplevel )
+void MainWindow::reflectedSearch_close ( bool toplevel )
 {
-   ui->actionFind_in_Files->setChecked(toplevel);
+   ui->actionSearch->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

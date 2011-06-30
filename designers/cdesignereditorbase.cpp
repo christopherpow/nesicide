@@ -7,10 +7,13 @@ CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *par
     QWidget(parent)
 {
    QWidget* searchBar = CDockWidgetRegistry::getWidget("Search Bar");
+   QWidget* search = CDockWidgetRegistry::getWidget("Search");
 
    InitTabItem(link);
 
    QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( search, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( search, SIGNAL(replaceText(QString,QString,bool)), this, SLOT(replaceText(QString,QString,bool)));
    QObject::connect ( this, SIGNAL(activateSearchBar()), searchBar, SLOT(setFocus()) );
 
    setModified(false);

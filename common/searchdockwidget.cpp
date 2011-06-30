@@ -1,20 +1,22 @@
-#include "findinfilesdockwidget.h"
-#include "ui_findinfilesdockwidget.h"
+#include "searchdockwidget.h"
+#include "ui_searchdockwidget.h"
 
 #include <QFileDialog>
 #include <QCompleter>
 
 #include "main.h"
 
-FindInFilesDockWidget::FindInFilesDockWidget(QWidget *parent) :
+SearchDockWidget::SearchDockWidget(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::FindInFilesDockWidget)
+    ui(new Ui::SearchDockWidget)
 {
    QSettings settings;
 
    ui->setupUi(this);
 
-   settings.beginGroup("FindInFiles");
+   ui->replaceText->addItem("");
+
+   settings.beginGroup("Search");
    ui->searchText->addItems(settings.value("SearchTextHistory").toStringList());
    ui->location->addItems(settings.value("SearchLocationHistory").toStringList());
    ui->type->addItems(settings.value("FileTypeHistory").toStringList());
@@ -22,6 +24,7 @@ FindInFilesDockWidget::FindInFilesDockWidget(QWidget *parent) :
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
    ui->projectFolder->setChecked(settings.value("UseProjectFolder",QVariant(true)).toBool());
+   ui->replaceText->addItems(settings.value("ReplaceTextHistory").toStringList());
    settings.endGroup();
 
    on_projectFolder_clicked(ui->projectFolder->isChecked());
@@ -30,15 +33,23 @@ FindInFilesDockWidget::FindInFilesDockWidget(QWidget *parent) :
    ui->location->completer()->setCompletionMode(QCompleter::PopupCompletion);
    ui->type->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
+   searchBar = new SearchBar("SearchReplaceBar");
+   ui->searchBarLayout->addWidget(searchBar);
+
+   QObject::connect(searchBar,SIGNAL(snapTo(QString)),this,SIGNAL(snapTo(QString)));
+
+   ui->replaceText->completer()->setCompletionMode(QCompleter::PopupCompletion);
+
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
 }
 
-FindInFilesDockWidget::~FindInFilesDockWidget()
+SearchDockWidget::~SearchDockWidget()
 {
    delete ui;
+   delete searchBar;
 }
 
-void FindInFilesDockWidget::showEvent(QShowEvent *event)
+void SearchDockWidget::showEvent(QShowEvent *event)
 {
    if ( !ui->location->count() )
    {
@@ -51,9 +62,9 @@ void FindInFilesDockWidget::showEvent(QShowEvent *event)
    }
 }
 
-void FindInFilesDockWidget::on_browse_clicked()
+void SearchDockWidget::on_browse_clicked()
 {
-   QString dir = QFileDialog::getExistingDirectory(this,"Find in...",QDir::currentPath());
+   QString dir = QFileDialog::getExistingDirectory(this,"Search in...",QDir::currentPath());
    if ( !dir.isEmpty() )
    {
       ui->location->addItem(dir);
@@ -61,12 +72,12 @@ void FindInFilesDockWidget::on_browse_clicked()
    }
 }
 
-void FindInFilesDockWidget::on_find_clicked()
+void SearchDockWidget::on_find_clicked()
 {
    QSettings settings;
    QStringList items;
 
-   settings.beginGroup("FindInFiles");
+   settings.beginGroup("Search");
 
    if ( !ui->searchText->currentText().isEmpty() )
    {
@@ -130,13 +141,76 @@ void FindInFilesDockWidget::on_find_clicked()
    settings.endGroup();
 }
 
-void FindInFilesDockWidget::searcher_searchDone(int found)
+void SearchDockWidget::searcher_searchDone(int found)
 {
    searchTextLogger->write("<b>"+QString::number(found)+" found.</b>");
 }
 
-void FindInFilesDockWidget::on_projectFolder_clicked(bool checked)
+void SearchDockWidget::on_projectFolder_clicked(bool checked)
 {
    ui->location->setEnabled(!checked);
    ui->browse->setEnabled(!checked);
+}
+
+void SearchDockWidget::on_findForReplace_clicked()
+{
+   emit snapTo("SearchBar:"
+               +QString::number(searchBar->isCaseSensitive())+":"
+               +QString::number(searchBar->isRegularExpression())+":"
+               +QString::number(searchBar->searchIsDown())+":"
+               +searchBar->currentSearchText());
+}
+
+void SearchDockWidget::on_replace_clicked()
+{
+   QSettings   settings;
+   QStringList items;
+
+   settings.beginGroup("Search");
+
+   if ( (!ui->replaceText->currentText().isEmpty()) && (ui->replaceText->findText(ui->replaceText->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
+   {
+      ui->replaceText->addItem(ui->replaceText->currentText());
+      items = settings.value("ReplaceTextHistory").toStringList();
+      if ( !items.contains(ui->replaceText->currentText()) )
+      {
+         if ( items.count() >= 100 ) // CPTODO: arbitrary limit, consider propertyizing?
+         {
+            items.removeAt(0);
+         }
+         items.append(ui->replaceText->currentText());
+      }
+      settings.setValue("ReplaceTextHistory",QVariant(items));
+   }
+
+   settings.endGroup();
+
+   emit replaceText(searchBar->snapTo(),ui->replaceText->currentText(),false);
+}
+
+void SearchDockWidget::on_replaceAll_clicked()
+{
+   QSettings   settings;
+   QStringList items;
+
+   settings.beginGroup("Search");
+
+   if ( (!ui->replaceText->currentText().isEmpty()) && (ui->replaceText->findText(ui->replaceText->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
+   {
+      ui->replaceText->addItem(ui->replaceText->currentText());
+      items = settings.value("ReplaceTextHistory").toStringList();
+      if ( !items.contains(ui->replaceText->currentText()) )
+      {
+         if ( items.count() >= 100 ) // CPTODO: arbitrary limit, consider propertyizing?
+         {
+            items.removeAt(0);
+         }
+         items.append(ui->replaceText->currentText());
+      }
+      settings.setValue("ReplaceTextHistory",QVariant(items));
+   }
+
+   settings.endGroup();
+
+   emit replaceText(searchBar->snapTo(),ui->replaceText->currentText(),true);
 }
