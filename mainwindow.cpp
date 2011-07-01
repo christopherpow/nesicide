@@ -52,11 +52,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
    CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
 
-   QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(projectDataChangesEvent()));
-   QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(projectDataChangesEvent()));
-   QObject::connect(emulator, SIGNAL(emulatorReset()), this, SLOT(projectDataChangesEvent()));
-   QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(projectDataChangesEvent()));
-
    m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
    CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
