@@ -101,7 +101,7 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    // Project base directory (directory where the .nesproject file is)
    QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
 
-   const QString IMPORT_SOURCE_MENU_TEXT = "&Add an Existing File...";
+   const QString IMPORT_SOURCE_MENU_TEXT = "&Add Existing File(s)...";
 
    QMenu menu(parent);
    menu.addAction( IMPORT_SOURCE_MENU_TEXT );
@@ -112,20 +112,23 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == IMPORT_SOURCE_MENU_TEXT)
       {
-         QString fileName = QFileDialog::getOpenFileName(NULL, "Add an Existing Binary File", QDir::currentPath(), "All Files (*.*)");
+         QStringList fileNames = QFileDialog::getOpenFileNames(NULL, IMPORT_SOURCE_MENU_TEXT, QDir::currentPath(), "All Files (*.*)");
 
-         if (!fileName.isEmpty())
+         foreach ( QString fileName, fileNames )
          {
-            CBinaryFile* pBinaryFile = new CBinaryFile(this);
-            pBinaryFile->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+            if (!fileName.isEmpty())
+            {
+               CBinaryFile* pBinaryFile = new CBinaryFile(this);
+               pBinaryFile->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
-            pBinaryFile->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+               pBinaryFile->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
-            pBinaryFile->deserializeContent();
+               pBinaryFile->deserializeContent();
 
-            m_binaryFiles.append(pBinaryFile);
-            appendChild(pBinaryFile);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+               m_binaryFiles.append(pBinaryFile);
+               appendChild(pBinaryFile);
+               ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            }
          }
       }
    }

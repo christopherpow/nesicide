@@ -33,7 +33,6 @@
         <file>resources/find.png</file>
         <file>resources/edit_delete.png</file>
         <file>resources/22_edit-clear.png</file>
-        <file alias="Makefile">resources/Makefile</file>
         <file>resources/applications-system.png</file>
         <file>resources/applications-utilities.png</file>
         <file>resources/bash.png</file>
@@ -64,5 +63,6 @@
         <file>resources/error-mark.png</file>
         <file>resources/vaus.png</file>
         <file>resources/appicon.png</file>
+        <file alias="Makefile">resources/Makefile</file>
     </qresource>
 </RCC>

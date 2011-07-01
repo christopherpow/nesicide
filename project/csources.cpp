@@ -105,7 +105,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
 
    const QString NEW_SOURCE_MENU_TEXT    = "&New Source...";
-   const QString IMPORT_SOURCE_MENU_TEXT = "&Add an Existing File...";
+   const QString IMPORT_SOURCE_MENU_TEXT = "&Add Existing File(s)...";
 
    QMenu menu(parent);
    menu.addAction( NEW_SOURCE_MENU_TEXT );
@@ -118,7 +118,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == NEW_SOURCE_MENU_TEXT)
       {
-         NewProjectDialog dlg(0,"New Source","",QDir::currentPath());
+         NewProjectDialog dlg(0,NEW_SOURCE_MENU_TEXT,"",QDir::currentPath());
 
          int result = dlg.exec();
 
@@ -150,20 +150,23 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
       }
       else if (ret->text() == IMPORT_SOURCE_MENU_TEXT)
       {
-         QString fileName = QFileDialog::getOpenFileName(NULL, "Add an Existing Source File", QDir::currentPath(), "All Files (*.*)");
+         QStringList fileNames = QFileDialog::getOpenFileNames(NULL, IMPORT_SOURCE_MENU_TEXT, QDir::currentPath(), "All Files (*.*)");
 
-         if (!fileName.isEmpty())
+         foreach ( QString fileName, fileNames )
          {
-            CSourceItem* pSourceItem = new CSourceItem(this);
-            pSourceItem->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+            if (!fileName.isEmpty())
+            {
+               CSourceItem* pSourceItem = new CSourceItem(this);
+               pSourceItem->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
-            pSourceItem->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+               pSourceItem->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
 
-            pSourceItem->deserializeContent();
+               pSourceItem->deserializeContent();
 
-            m_sourceItems.append(pSourceItem);
-            appendChild(pSourceItem);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+               m_sourceItems.append(pSourceItem);
+               appendChild(pSourceItem);
+               ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            }
          }
       }
    }
