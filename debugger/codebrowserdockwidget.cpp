@@ -31,8 +31,7 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(breakpointHit()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(cartridgeLoaded()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
 }
 
@@ -48,6 +47,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
 
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
 
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
    QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
@@ -59,6 +59,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
 {
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
+   QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
 }
 
 void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)

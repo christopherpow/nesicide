@@ -1347,6 +1347,9 @@ void MainWindow::closeProject()
       }
    }
 
+   // Close all inspectors
+   CDockWidgetRegistry::hideAll();
+
    m_pSourceNavigator->shutdown();
 
    // Stop the emulator if it is running
@@ -1386,9 +1389,6 @@ void MainWindow::closeProject()
    // Clear output
    output->clearAllPanes();
    output->hide();
-
-   // Close all inspectors
-   CDockWidgetRegistry::hideAll();
 
    // Let the UI know what's up
    projectDataChangesEvent();
