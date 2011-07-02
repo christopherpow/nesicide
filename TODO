@@ -37,4 +37,4 @@ or because they were pulled in by the build.
 
 16. Figure out how to adjust lines of errors, breakpoints, and symbol lookups...probably have to do background compilation.
 
-17. Adding multiple files to a project at once.
+**DONE** 17. Adding multiple files to a project at once.

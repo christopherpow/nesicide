@@ -82,15 +82,9 @@ all: $(PROGRAM)
 $(OBJDIR):
 	mkdir -p $@
 
-vpath %c $(foreach c,$(SOURCES),$(dir $c))
+vpath %file $(foreach file,$(SOURCES),$(dir $file))
 
-$(OBJDIR)/%.o: %.c
-	$(COMPILE) --create-dep $(@:.o=.d) $(CFLAGS) -o $@ $<
-
-vpath %s $(foreach s,$(SOURCES),$(dir $s))
-
-$(OBJDIR)/%.o: %.s | $(OBJDIR)
-	$(ASSEMBLE) --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<
+<!target-rules!>
 
 $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
 	$(LINK) -o $@ $(LDFLAGS) $(OBJECTS) $(LIBS)

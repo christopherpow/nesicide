@@ -42,6 +42,8 @@ public:
    static bool highlightBarEnabled() { return m_highlightBarEnabled; }
    static bool showSymbolTips() { return m_showSymbolTips; }
    static bool showOpcodeTips() { return m_showOpcodeTips; }
+   static QString sourceExtensionsForC() { return m_cSourceExtensions; }
+   static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
 
@@ -77,6 +79,8 @@ private:
    static bool m_highlightBarEnabled;
    static bool m_showSymbolTips;
    static bool m_showOpcodeTips;
+   static QString m_cSourceExtensions;
+   static QString m_asmSourceExtensions;
 
 private slots:
    void on_fontSize_valueChanged(int value);

@@ -12,6 +12,14 @@ cc65_lineinfo*      CCC65Interface::dbgLines = NULL;
 cc65_symbolinfo*    CCC65Interface::dbgSymbols = NULL;
 QStringList         CCC65Interface::errors;
 
+static const char* clangTargetRuleFmt =
+      "$(OBJDIR)/%.o: %<!extension!>\r\n"
+      "\t$(COMPILE) --create-dep $(@:.o=.d) $(CFLAGS) -o $@ $<\r\n\r\n";
+
+static const char* asmTargetRuleFmt =
+      "$(OBJDIR)/%.o: %<!extension!>\r\n"
+      "\t$(ASSEMBLE) --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<\r\n\r\n";
+
 CCC65Interface::CCC65Interface()
 {
 }
@@ -56,14 +64,18 @@ QStringList CCC65Interface::getAssemblerSourcesFromProject()
    QDir                         baseDir(QDir::currentPath());
    CSourceItem*                 source;
    QStringList                  sources;
+   QStringList                  extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ", QString::SkipEmptyParts);
 
    // For each source code object, compile it.
    while ( iter.current() )
    {
       source = dynamic_cast<CSourceItem*>(iter.current());
-      if ( source && source->path().endsWith(".s") ) // CPTODO: make this configurable
+      foreach ( QString extension, extensions )
       {
-         sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+         if ( source && source->path().endsWith(extension) )
+         {
+            sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+         }
       }
       iter.next();
    }
@@ -77,14 +89,18 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
    QDir                         baseDir(QDir::currentPath());
    CSourceItem*                 source;
    QStringList                  sources;
+   QStringList                  extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ", QString::SkipEmptyParts);
 
    // For each source code object, compile it.
    while ( iter.current() )
    {
       source = dynamic_cast<CSourceItem*>(iter.current());
-      if ( source && source->path().endsWith(".c") ) // CPTODO: make this configurable
+      foreach ( QString extension, extensions )
       {
-         sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+         if ( source && source->path().endsWith(extension) )
+         {
+            sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+         }
       }
       iter.next();
    }
@@ -98,9 +114,29 @@ bool CCC65Interface::createMakefile()
    QString outputName = outputDir.fromNativeSeparators(outputDir.filePath("Makefile"));
    QFile res(":Makefile");
    QFile makeFile(outputName);
+   QString targetRules;
+   QString targetRule;
+   QStringList extensions;
 
    // Get the embedded universal makefile...
    res.open(QIODevice::ReadOnly);
+
+   // Create target rules section (based on user-specified extensions so it needs
+   // to be configured it can't just be specified in the Makefile resource template.
+   extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
+   foreach ( QString extension, extensions )
+   {
+      targetRule = clangTargetRuleFmt;
+      targetRule.replace("<!extension!>",extension);
+      targetRules += targetRule;
+   }
+   extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts);
+   foreach ( QString extension, extensions )
+   {
+      targetRule = asmTargetRuleFmt;
+      targetRule.replace("<!extension!>",extension);
+      targetRules += targetRule;
+   }
 
    // Create the project's makefile...
    makeFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
@@ -124,6 +160,7 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!object-dir!>",nesicideProject->getProjectOutputBasePath());
       makeFileContent.replace("<!clang-sources!>",getCLanguageSourcesFromProject().join(" "));
       makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
+      makeFileContent.replace("<!target-rules!>",targetRules);
 
       // Write the file to disk.
       makeFile.write(makeFileContent.toAscii());

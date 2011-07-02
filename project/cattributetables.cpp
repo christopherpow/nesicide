@@ -96,14 +96,17 @@ QString CAttributeTables::caption() const
 
 void CAttributeTables::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
+   const QString NEW_ATBL_MENU_TEXT    = "&New Attribute Table...";
+
    QMenu menu(parent);
-   menu.addAction("&New Attribute Table...");
+
+   menu.addAction(NEW_ATBL_MENU_TEXT);
 
    QAction* ret = menu.exec(event->globalPos());
 
    if (ret)
    {
-      if (ret->text() == "&New Attribute Table...")
+      if (ret->text() == NEW_ATBL_MENU_TEXT)
       {
          QString name = QInputDialog::getText(parent, "New Attribute Table",
                                               "What name would you like to use to identify this Attribute Table?");

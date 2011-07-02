@@ -25,6 +25,11 @@ QColor EnvironmentSettingsDialog::m_highlightBarColor;
 bool EnvironmentSettingsDialog::m_highlightBarEnabled;
 bool EnvironmentSettingsDialog::m_showSymbolTips;
 bool EnvironmentSettingsDialog::m_showOpcodeTips;
+QString EnvironmentSettingsDialog::m_cSourceExtensions;
+QString EnvironmentSettingsDialog::m_asmSourceExtensions;
+
+static const char* sourceExtensionListC = ".c .c65";
+static const char* sourceExtensionListAsm = ".a .asm .a65 .s .s65";
 
 static const char* debuggerUpdateRateMsgs[] =
 {
@@ -185,6 +190,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->showSymbolTips->setChecked(m_showSymbolTips);
    ui->showOpcodeTips->setChecked(m_showOpcodeTips);
 
+   ui->sourceExtensionsC->setText(m_cSourceExtensions);
+   ui->sourceExtensionsAsm->setText(m_asmSourceExtensions);
+
    ui->tabWidget->setCurrentIndex(m_lastActiveTab);
 }
 
@@ -241,6 +249,8 @@ void EnvironmentSettingsDialog::readSettings()
    m_showSymbolTips = settings.value("showSymbolTips",QVariant(true)).toBool();
    m_showOpcodeTips = settings.value("showOpcodeTips",QVariant(true)).toBool();
    m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
+   m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
+   m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
    settings.endGroup();
 }
 
@@ -275,6 +285,8 @@ void EnvironmentSettingsDialog::writeSettings()
    m_lineNumbersEnabled = ui->showLineNumberMargin->isChecked();
    m_showSymbolTips = ui->showSymbolTips->isChecked();
    m_showOpcodeTips = ui->showOpcodeTips->isChecked();
+   m_cSourceExtensions = ui->sourceExtensionsC->text();
+   m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
    m_lastActiveTab = ui->tabWidget->currentIndex();
 
    // Then save to QSettings;
@@ -303,6 +315,10 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("lineNumbersEnabled",m_lineNumbersEnabled);
    settings.setValue("showSymbolTips",m_showSymbolTips);
    settings.setValue("showOpcodeTips",m_showOpcodeTips);
+
+   settings.setValue("SourceExtensionsC",m_cSourceExtensions);
+   settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
+
    settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
 
