@@ -189,6 +189,9 @@ private slots:
    void on_actionProject_Properties_triggered();
    void on_actionSave_Project_As_triggered();
    void on_actionSave_Project_triggered();
+
+public slots:
+   void openFile(QString file);
 };
 
 #endif // MAINWINDOW_H

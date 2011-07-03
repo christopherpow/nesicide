@@ -274,6 +274,10 @@ bool CCC65Interface::assemble()
    {
       buildTextLogger->write("<font color='red'>"+str+"</font>");
    }
+   if ( exitCode )
+   {
+      ok = false;
+   }
 
    return ok;
 }

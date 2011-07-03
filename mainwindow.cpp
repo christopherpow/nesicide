@@ -509,23 +509,11 @@ void MainWindow::dropEvent(QDropEvent* event)
 
             event->acceptProposedAction();
          }
-
-         extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
-         foreach ( QString extension, extensions )
+         else
          {
-            if ( (!fileInfo.suffix().compare(extension.right(extension.length()-1),Qt::CaseInsensitive)) )
-            {
-               event->acceptProposedAction();
-            }
-         }
+            openFile(fileName);
 
-         extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts);
-         foreach ( QString extension, extensions )
-         {
-            if ( (!fileInfo.suffix().compare(extension.right(extension.length()-1),Qt::CaseInsensitive)) )
-            {
-               event->acceptProposedAction();
-            }
+            event->acceptProposedAction();
          }
       }
    }
@@ -1629,4 +1617,25 @@ void MainWindow::on_actionClean_Project_triggered()
 {
    output->showPane(OutputPaneDockWidget::Output_Build);
    compiler->clean();
+}
+
+void MainWindow::openFile(QString file)
+{
+   QDir dir(QDir::currentPath());
+   QString fileName = dir.fromNativeSeparators(dir.filePath(file));
+   QFile fileIn(fileName);
+
+   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+   {
+      CodeEditorForm* editor = new CodeEditorForm(fileName,QString(fileIn.readAll()));
+
+      fileIn.close();
+
+      ui->tabWidget->addTab(editor, fileName);
+      ui->tabWidget->setCurrentWidget(editor);
+   }
+   else
+   {
+      // CPTODO: fail silently?
+   }
 }
