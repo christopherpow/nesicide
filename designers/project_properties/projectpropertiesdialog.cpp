@@ -30,9 +30,12 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->chrromOutputName->setText(nesicideProject->getProjectCHRROMOutputName());
    ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
 
-   ui->definedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
-   ui->includePaths->setText(nesicideProject->getCompilerIncludePaths());
-   ui->assemblerAdditionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
+   ui->compilerDefinedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
+   ui->compilerIncludePaths->setText(nesicideProject->getCompilerIncludePaths());
+   ui->compilerAdditionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
+   ui->assemblerDefinedSymbols->setText(nesicideProject->getAssemblerDefinedSymbols());
+   ui->assemblerIncludePaths->setText(nesicideProject->getAssemblerIncludePaths());
+   ui->assemblerAdditionalOptions->setText(nesicideProject->getAssemblerAdditionalOptions());
    ui->linkerAdditionalOptions->setText(nesicideProject->getLinkerAdditionalOptions());
    ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
    deserializeLinkerConfig();
@@ -370,17 +373,31 @@ void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action
    updateUI(3);
 }
 
-void ProjectPropertiesDialog::on_includePathBrowse_clicked()
+void ProjectPropertiesDialog::on_compilerIncludePathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",QDir::currentPath());
-   QString includes = ui->includePaths->text();
+   QString includes = ui->compilerIncludePaths->text();
    QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
    {
       includes.append(" -I ");
       includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
-      ui->includePaths->setText(includes);
+      ui->compilerIncludePaths->setText(includes);
+   }
+}
+
+void ProjectPropertiesDialog::on_assemblerIncludePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"Additional Include Path",QDir::currentPath());
+   QString includes = ui->assemblerIncludePaths->text();
+   QDir dir(QDir::currentPath());
+
+   if ( !value.isEmpty() )
+   {
+      includes.append(" -I ");
+      includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->assemblerIncludePaths->setText(includes);
    }
 }
 
@@ -393,9 +410,12 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectDebugInfoName(ui->debugInfoName->text());
    nesicideProject->setProjectCHRROMOutputName(ui->chrromOutputName->text());
    nesicideProject->setProjectCartridgeOutputName(ui->cartridgeOutputName->text());
-   nesicideProject->setCompilerDefinedSymbols(ui->definedSymbols->text());
-   nesicideProject->setCompilerIncludePaths(ui->includePaths->text());
-   nesicideProject->setCompilerAdditionalOptions(ui->assemblerAdditionalOptions->text());
+   nesicideProject->setCompilerDefinedSymbols(ui->compilerDefinedSymbols->text());
+   nesicideProject->setCompilerIncludePaths(ui->compilerIncludePaths->text());
+   nesicideProject->setCompilerAdditionalOptions(ui->compilerAdditionalOptions->text());
+   nesicideProject->setAssemblerDefinedSymbols(ui->assemblerDefinedSymbols->text());
+   nesicideProject->setAssemblerIncludePaths(ui->assemblerIncludePaths->text());
+   nesicideProject->setAssemblerAdditionalOptions(ui->assemblerAdditionalOptions->text());
    nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();

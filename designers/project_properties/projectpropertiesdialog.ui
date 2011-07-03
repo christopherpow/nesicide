@@ -20,10 +20,20 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="usesScrollButtons">
       <bool>true</bool>
@@ -121,9 +131,61 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="compilerTab">
+      <attribute name="title">
+       <string>Compiler</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>DEFINEd symbols:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="compilerDefinedSymbols"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_23">
+         <property name="text">
+          <string>Additional INCLUDE paths:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="compilerIncludePaths"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="compilerIncludePathBrowse">
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resource.qrc">
+             <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_24">
+         <property name="text">
+          <string>Additional options:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="compilerAdditionalOptions"/>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="assemblerTab">
       <attribute name="title">
-       <string>Assembler Info</string>
+       <string>Assembler</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout_3">
        <property name="fieldGrowthPolicy">
@@ -137,7 +199,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="definedSymbols"/>
+        <widget class="QLineEdit" name="assemblerDefinedSymbols"/>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_13">
@@ -149,10 +211,10 @@
        <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLineEdit" name="includePaths"/>
+          <widget class="QLineEdit" name="assemblerIncludePaths"/>
          </item>
          <item>
-          <widget class="QPushButton" name="includePathBrowse">
+          <widget class="QPushButton" name="assemblerIncludePathBrowse">
            <property name="text">
             <string>Browse...</string>
            </property>
@@ -178,7 +240,7 @@
      </widget>
      <widget class="QWidget" name="linkerTab">
       <attribute name="title">
-       <string>Linker Info</string>
+       <string>Linker</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
@@ -270,7 +332,7 @@
      </widget>
      <widget class="QWidget" name="graphicsBuilderTab">
       <attribute name="title">
-       <string>Graphics Builder Info</string>
+       <string>Graphics Builder</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout_2">
        <item row="0" column="0">
@@ -287,7 +349,7 @@
      </widget>
      <widget class="QWidget" name="cartridgeTab">
       <attribute name="title">
-       <string>Cartridge Info</string>
+       <string>Cartridge</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <item row="1" column="0">
@@ -711,16 +773,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
     </widget>
    </item>
   </layout>

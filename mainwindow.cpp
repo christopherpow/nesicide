@@ -456,45 +456,17 @@ void MainWindow::changeEvent(QEvent* e)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
-   QList<QUrl> fileUrls;
-   QString     fileName;
-   QFileInfo   fileInfo;
-
    if ( event->mimeData()->hasUrls() )
    {
-      fileUrls = event->mimeData()->urls();
-
-      fileName = fileUrls.at(0).toLocalFile();
-
-      fileInfo.setFile(fileName);
-
-      if ( (!fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive)) ||
-           (!fileInfo.suffix().compare("nes",Qt::CaseInsensitive)) )
-      {
-         event->acceptProposedAction();
-      }
+      event->acceptProposedAction();
    }
 }
 
 void MainWindow::dragMoveEvent(QDragMoveEvent* event)
 {
-   QList<QUrl> fileUrls;
-   QString     fileName;
-   QFileInfo   fileInfo;
-
    if ( event->mimeData()->hasUrls() )
    {
-      fileUrls = event->mimeData()->urls();
-
-      fileName = fileUrls.at(0).toLocalFile();
-
-      fileInfo.setFile(fileName);
-
-      if ( (!fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive)) ||
-           (!fileInfo.suffix().compare("nes",Qt::CaseInsensitive)) )
-      {
-         event->acceptProposedAction();
-      }
+      event->acceptProposedAction();
    }
 }
 
@@ -503,6 +475,7 @@ void MainWindow::dropEvent(QDropEvent* event)
    QList<QUrl> fileUrls;
    QString     fileName;
    QFileInfo   fileInfo;
+   QStringList extensions;
 
    if ( event->mimeData()->hasUrls() )
    {
@@ -510,29 +483,50 @@ void MainWindow::dropEvent(QDropEvent* event)
 
       fileUrls = event->mimeData()->urls();
 
-      fileName = fileUrls.at(0).toLocalFile();
-
-      fileInfo.setFile(fileName);
-
-      if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+      foreach ( QUrl fileUrl, fileUrls )
       {
-         if ( nesicideProject->isInitialized() )
-         {
-            closeProject();
-         }
-         openProject(fileName);
+         fileName = fileUrl.toLocalFile();
 
-         event->acceptProposedAction();
-      }
-      else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
-      {
-         if ( nesicideProject->isInitialized() )
-         {
-            closeProject();
-         }
-         openROM(fileName);
+         fileInfo.setFile(fileName);
 
-         event->acceptProposedAction();
+         if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+         {
+            if ( nesicideProject->isInitialized() )
+            {
+               closeProject();
+            }
+            openProject(fileName);
+
+            event->acceptProposedAction();
+         }
+         else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
+         {
+            if ( nesicideProject->isInitialized() )
+            {
+               closeProject();
+            }
+            openROM(fileName);
+
+            event->acceptProposedAction();
+         }
+
+         extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
+         foreach ( QString extension, extensions )
+         {
+            if ( (!fileInfo.suffix().compare(extension.right(extension.length()-1),Qt::CaseInsensitive)) )
+            {
+               event->acceptProposedAction();
+            }
+         }
+
+         extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts);
+         foreach ( QString extension, extensions )
+         {
+            if ( (!fileInfo.suffix().compare(extension.right(extension.length()-1),Qt::CaseInsensitive)) )
+            {
+               event->acceptProposedAction();
+            }
+         }
       }
    }
 }
@@ -1389,6 +1383,8 @@ void MainWindow::closeProject()
    // Clear output
    output->clearAllPanes();
    output->hide();
+
+   projectFileName = "";
 
    // Let the UI know what's up
    projectDataChangesEvent();

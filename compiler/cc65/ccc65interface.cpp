@@ -13,12 +13,15 @@ cc65_symbolinfo*    CCC65Interface::dbgSymbols = NULL;
 QStringList         CCC65Interface::errors;
 
 static const char* clangTargetRuleFmt =
-      "$(OBJDIR)/%.o: %<!extension!>\r\n"
+      "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
+      "$(OBJDIR)/%.o: %.<!extension!>\r\n"
       "\t$(COMPILE) --create-dep $(@:.o=.d) $(CFLAGS) -o $@ $<\r\n\r\n";
 
 static const char* asmTargetRuleFmt =
-      "$(OBJDIR)/%.o: %<!extension!>\r\n"
+      "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
+      "$(OBJDIR)/%.o: %.<!extension!>\r\n"
       "\t$(ASSEMBLE) --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<\r\n\r\n";
+
 
 CCC65Interface::CCC65Interface()
 {
@@ -112,7 +115,7 @@ bool CCC65Interface::createMakefile()
 {
    QDir outputDir(QDir::currentPath());
    QString outputName = outputDir.fromNativeSeparators(outputDir.filePath("Makefile"));
-   QFile res(":Makefile");
+   QFile res(":/resources/Makefile");
    QFile makeFile(outputName);
    QString targetRules;
    QString targetRule;
@@ -127,14 +130,14 @@ bool CCC65Interface::createMakefile()
    foreach ( QString extension, extensions )
    {
       targetRule = clangTargetRuleFmt;
-      targetRule.replace("<!extension!>",extension);
+      targetRule.replace("<!extension!>",extension.right(extension.length()-1)); // Chop off the '.'
       targetRules += targetRule;
    }
    extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts);
    foreach ( QString extension, extensions )
    {
       targetRule = asmTargetRuleFmt;
-      targetRule.replace("<!extension!>",extension);
+      targetRule.replace("<!extension!>",extension.right(extension.length()-1)); // Chop off the '.'
       targetRules += targetRule;
    }
 
@@ -152,8 +155,8 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!project-name!>",nesicideProject->getProjectOutputName());
       makeFileContent.replace("<!prg-rom-name!>",nesicideProject->getProjectLinkerOutputName());
       makeFileContent.replace("<!linker-config!>",nesicideProject->getLinkerConfigFile());
-      makeFileContent.replace("<!compiler-flags!>","");
-      makeFileContent.replace("<!assembler-flags!>",nesicideProject->getCompilerAdditionalOptions());
+      makeFileContent.replace("<!compiler-flags!>",nesicideProject->getCompilerAdditionalOptions());
+      makeFileContent.replace("<!assembler-flags!>",nesicideProject->getAssemblerAdditionalOptions());
       makeFileContent.replace("<!debug-file!>",nesicideProject->getProjectDebugInfoName());
       makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
       makeFileContent.replace("<!source-dir!>",QDir::currentPath());

@@ -41,7 +41,8 @@ private slots:
    void on_projectNameLineEdit_textEdited(QString );
    void on_projectOutputBasePathBrowse_clicked();
    void on_buttonBox_accepted();
-   void on_includePathBrowse_clicked();
+   void on_compilerIncludePathBrowse_clicked();
+   void on_assemblerIncludePathBrowse_clicked();
    void on_blueHorizontalSlider_actionTriggered(int action);
    void on_greenHorizontalSlider_actionTriggered(int action);
    void on_redHorizontalSlider_actionTriggered(int action);

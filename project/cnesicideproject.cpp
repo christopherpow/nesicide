@@ -81,6 +81,9 @@ void CNesicideProject::initializeProject()
    m_compilerDefinedSymbols = "";
    m_compilerIncludePaths = "";
    m_compilerAdditionalOptions = "";
+   m_assemblerDefinedSymbols = "";
+   m_assemblerIncludePaths = "";
+   m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
    m_isInitialized = true;
@@ -116,6 +119,9 @@ void CNesicideProject::terminateProject()
    m_compilerDefinedSymbols = "";
    m_compilerIncludePaths = "";
    m_compilerAdditionalOptions = "";
+   m_assemblerDefinedSymbols = "";
+   m_assemblerIncludePaths = "";
+   m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
    m_isInitialized = false;
@@ -143,6 +149,9 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
    propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
    propertiesElement.setAttribute("compileradditionaloptions",m_compilerAdditionalOptions);
+   propertiesElement.setAttribute("assemblerdefinedsymbols",m_assemblerDefinedSymbols);
+   propertiesElement.setAttribute("assemblerincludepaths",m_assemblerIncludePaths);
+   propertiesElement.setAttribute("assembleradditionaloptions",m_assemblerAdditionalOptions);
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
 
@@ -250,6 +259,9 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
          m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
          m_compilerAdditionalOptions = propertiesElement.attribute("compileradditionaloptions");
+         m_assemblerDefinedSymbols = propertiesElement.attribute("assemblerdefinedsymbols");
+         m_assemblerIncludePaths = propertiesElement.attribute("assemblerincludepaths");
+         m_assemblerAdditionalOptions = propertiesElement.attribute("assembleradditionaloptions");
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
 

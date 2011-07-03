@@ -40,6 +40,9 @@ public:
    QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
    QString getCompilerIncludePaths() { return m_compilerIncludePaths; }
    QString getCompilerAdditionalOptions() { return m_compilerAdditionalOptions; }
+   QString getAssemblerDefinedSymbols() { return m_assemblerDefinedSymbols; }
+   QString getAssemblerIncludePaths() { return m_assemblerIncludePaths; }
+   QString getAssemblerAdditionalOptions() { return m_assemblerAdditionalOptions; }
    QString getLinkerConfigFile() { return m_linkerConfigFile; }
    QString getLinkerAdditionalOptions() { return m_linkerAdditionalOptions; }
    QList<CPaletteEntry> *getProjectPaletteEntries() { return &m_projectPaletteEntries; }
@@ -65,6 +68,9 @@ public:
    void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
    void setCompilerIncludePaths(QString value) { m_compilerIncludePaths = value; }
    void setCompilerAdditionalOptions(QString value) { m_compilerAdditionalOptions = value; }
+   void setAssemblerDefinedSymbols(QString value) { m_assemblerDefinedSymbols = value; }
+   void setAssemblerIncludePaths(QString value) { m_assemblerIncludePaths = value; }
+   void setAssemblerAdditionalOptions(QString value) { m_assemblerAdditionalOptions = value; }
    void setLinkerConfigFile(QString value) { m_linkerConfigFile = value; }
    void setLinkerAdditionalOptions(QString value) { m_linkerAdditionalOptions = value; }
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
@@ -110,6 +116,9 @@ private:
    QString m_compilerDefinedSymbols;
    QString m_compilerIncludePaths;
    QString m_compilerAdditionalOptions;
+   QString m_assemblerDefinedSymbols;
+   QString m_assemblerIncludePaths;
+   QString m_assemblerAdditionalOptions;
    QString m_linkerConfigFile;
    QString m_linkerAdditionalOptions;
 

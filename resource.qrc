@@ -63,6 +63,6 @@
         <file>resources/error-mark.png</file>
         <file>resources/vaus.png</file>
         <file>resources/appicon.png</file>
-        <file alias="Makefile">resources/Makefile</file>
+        <file>resources/Makefile</file>
     </qresource>
 </RCC>

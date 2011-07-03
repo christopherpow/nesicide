@@ -82,8 +82,6 @@ all: $(PROGRAM)
 $(OBJDIR):
 	mkdir -p $@
 
-vpath %file $(foreach file,$(SOURCES),$(dir $file))
-
 <!target-rules!>
 
 $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
