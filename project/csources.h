@@ -10,6 +10,7 @@
 
 class CSources : public CProjectBase
 {
+   Q_OBJECT
 public:
    CSources(IProjectTreeViewItem* parent);
    virtual ~CSources();

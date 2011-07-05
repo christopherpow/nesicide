@@ -9,6 +9,7 @@
 
 class CSourceItem : public CProjectBase
 {
+   Q_OBJECT
 public:
    CSourceItem(IProjectTreeViewItem* parent);
    virtual ~CSourceItem();

@@ -11,6 +11,7 @@
 
 class CBinaryFiles : public CProjectBase
 {
+   Q_OBJECT
 public:
    CBinaryFiles(IProjectTreeViewItem* parent);
    virtual ~CBinaryFiles();

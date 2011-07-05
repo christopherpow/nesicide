@@ -8,6 +8,7 @@
 
 class CPRGROMBank : public CProjectBase
 {
+   Q_OBJECT
 public:
    CPRGROMBank(IProjectTreeViewItem* parent);
    virtual ~CPRGROMBank();

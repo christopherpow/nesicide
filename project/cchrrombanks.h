@@ -8,6 +8,7 @@
 
 class CCHRROMBanks : public CProjectBase
 {
+   Q_OBJECT
 public:
    CCHRROMBanks(IProjectTreeViewItem* parent);
    virtual ~CCHRROMBanks();

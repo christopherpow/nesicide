@@ -9,6 +9,7 @@
 
 class CGraphicsBank : public CProjectBase
 {
+   Q_OBJECT
 public:
    CGraphicsBank(IProjectTreeViewItem* parent);
    virtual ~CGraphicsBank();

@@ -8,6 +8,7 @@
 
 class CProjectPrimitives : public CProjectBase
 {
+   Q_OBJECT
 public:
    CProjectPrimitives(IProjectTreeViewItem* parent);
    virtual ~CProjectPrimitives();

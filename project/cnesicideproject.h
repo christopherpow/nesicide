@@ -12,7 +12,7 @@ typedef QColor CPaletteEntry;
 
 class CNesicideProject : public CProjectBase
 {
-
+   Q_OBJECT
 public:
    // Global Constructor / Destructors
    CNesicideProject();

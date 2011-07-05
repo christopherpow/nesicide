@@ -9,6 +9,7 @@
 
 class CAttributeTable : public CProjectBase
 {
+   Q_OBJECT
 public:
    CAttributeTable(IProjectTreeViewItem* parent);
    virtual ~CAttributeTable();

@@ -14,6 +14,7 @@ typedef enum
 
 class CCartridge : public CProjectBase
 {
+   Q_OBJECT
 public:
    CCartridge(IProjectTreeViewItem* parent);
    virtual ~CCartridge();

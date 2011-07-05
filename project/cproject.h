@@ -9,6 +9,7 @@
 
 class CProject : public CProjectBase
 {
+   Q_OBJECT
 public:
    CProject(IProjectTreeViewItem* parent);
    virtual ~CProject();

@@ -65,6 +65,7 @@ private:
 
    // Dock widgets
    NESEmulatorDockWidget* m_pEmulator;
+   bool m_bEmulatorFloating;
    ExecutionInspectorDockWidget* m_pExecutionInspector;
    ExecutionVisualizerDockWidget* m_pExecutionVisualizer;
    RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
@@ -99,6 +100,8 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void on_actionFullscreen_toggled(bool value);
+   void on_actionAdd_Existing_Files_triggered();
    void windowMenu_triggered();
    void markProjectDirty(bool dirty);
    void on_actionClean_Project_triggered();

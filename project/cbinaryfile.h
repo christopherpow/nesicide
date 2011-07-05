@@ -9,6 +9,7 @@
 class CBinaryFile : public CProjectBase,
    public IChrRomBankItem
 {
+   Q_OBJECT
 public:
    CBinaryFile(IProjectTreeViewItem* parent);
    virtual ~CBinaryFile();

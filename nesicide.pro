@@ -369,7 +369,6 @@ HEADERS += mainwindow.h \
     emulator/nesemulatorthread.h \
     emulator/nesemulatorrenderer.h \
     emulator/nesemulatordockwidget.h \
-    common/cexternaltooldependencychecker.h \
     common/searchdockwidget.h
 
 FORMS += mainwindow.ui \

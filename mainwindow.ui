@@ -126,10 +126,7 @@
     <property name="title">
      <string>Project</string>
     </property>
-    <addaction name="action_Project_Browser"/>
-    <addaction name="separator"/>
-    <addaction name="actionOutput_Window"/>
-    <addaction name="actionEmulation_Window"/>
+    <addaction name="actionAdd_Existing_Files"/>
     <addaction name="separator"/>
     <addaction name="actionCompile_Project"/>
     <addaction name="actionLoad_In_Emulator"/>
@@ -231,6 +228,7 @@
     </widget>
     <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
+    <addaction name="actionFullscreen"/>
     <addaction name="separator"/>
     <addaction name="actionRun_Test_Suite"/>
     <addaction name="separator"/>
@@ -268,8 +266,18 @@
      <string>Window</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="action_Project_Browser"/>
+    <addaction name="separator"/>
+    <addaction name="actionOutput_Window"/>
+    <addaction name="actionEmulation_Window"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menuView"/>
    <addaction name="menuEdit"/>
    <addaction name="menuEmulator"/>
    <addaction name="menuDebugger"/>
@@ -1032,6 +1040,28 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+F</string>
+   </property>
+  </action>
+  <action name="actionAdd_Existing_Files">
+   <property name="text">
+    <string>Add Existing File(s)...</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Existing Files</string>
+   </property>
+  </action>
+  <action name="actionFullscreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fullscreen</string>
+   </property>
+   <property name="toolTip">
+    <string>Enter fullscreen mode</string>
+   </property>
+   <property name="shortcut">
+    <string>F12</string>
    </property>
   </action>
  </widget>

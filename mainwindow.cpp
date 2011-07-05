@@ -1639,3 +1639,23 @@ void MainWindow::openFile(QString file)
       // CPTODO: fail silently?
    }
 }
+
+void MainWindow::on_actionAdd_Existing_Files_triggered()
+{
+    // CPTODO: complete this
+}
+
+void MainWindow::on_actionFullscreen_toggled(bool value)
+{
+   if ( value )
+   {
+      m_bEmulatorFloating = m_pEmulator->isFloating();
+      m_pEmulator->setFloating(true);
+      m_pEmulator->showFullScreen();
+   }
+   else
+   {
+      m_pEmulator->showNormal();
+      m_pEmulator->setFloating(m_bEmulatorFloating);
+   }
+}

@@ -6,8 +6,9 @@
 
 #include "cdesignereditorbase.h"
 
-class CProjectBase : public IXMLSerializable, public IProjectTreeViewItem
+class CProjectBase : public QObject, public IXMLSerializable, public IProjectTreeViewItem
 {
+   Q_OBJECT
 public:
    CProjectBase();
    virtual ~CProjectBase();
