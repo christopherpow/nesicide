@@ -335,6 +335,11 @@ void NESEmulatorThread::pauseEmulation (bool show)
 void NESEmulatorThread::run ()
 {
    QWidget* emulator = CDockWidgetRegistry::getWidget("Emulator");
+   int scaleX;
+   int scaleY;
+   int scale;
+   int emuX;
+   int emuY;
    int32_t samplesAvailable;
    int32_t debuggerUpdateRate = EnvironmentSettingsDialog::debuggerUpdateRate();
 
@@ -437,6 +442,16 @@ void NESEmulatorThread::run ()
          SDL_LockAudio();
          if ( emulator )
          {
+            // Figure out where in the window the actual emulator display is.
+            scaleX = emulator->geometry().width()/256;
+            scaleY = emulator->geometry().height()/240;
+            scale = (scaleX<scaleY)?scaleX:scaleY;
+            if ( scale == 0 ) scale = 1;
+            emuX = (emulator->geometry().x()+(emulator->geometry().width()/2))-(128*scale);
+            if ( emuX < 0 ) emuX = 0;
+            emuY = (emulator->geometry().y()+(emulator->geometry().height()/2))-(120*scale);
+            if ( emuY < 0 ) emuY = 0;
+
             // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
             // controlled if one of them is.
             if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper) ||
@@ -446,10 +461,10 @@ void NESEmulatorThread::run ()
                nesSetControllerScreenPosition(CONTROLLER1,
                                               QCursor::pos().x(),
                                               QCursor::pos().y(),
-                                              emulator->geometry().x(),
-                                              emulator->geometry().y(),
-                                              emulator->geometry().x()+emulator->geometry().width(),
-                                              emulator->geometry().y()+emulator->geometry().height());
+                                              emuX,
+                                              emuY,
+                                              emuX+(256*scale),
+                                              emuY+(240*scale));
             }
             if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper) ||
                  ((EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus) &&
@@ -458,10 +473,10 @@ void NESEmulatorThread::run ()
                nesSetControllerScreenPosition(CONTROLLER2,
                                               QCursor::pos().x(),
                                               QCursor::pos().y(),
-                                              emulator->geometry().x(),
-                                              emulator->geometry().y(),
-                                              emulator->geometry().x()+emulator->geometry().width(),
-                                              emulator->geometry().y()+emulator->geometry().height());
+                                              emuX,
+                                              emuY,
+                                              emuX+(256*scale),
+                                              emuY+(240*scale));
             }
          }
          nesRun(m_joy);
