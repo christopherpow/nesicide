@@ -68,28 +68,28 @@ void PPUInformationDockWidget::updateInformation()
       sprintf ( buffer, "%d", y );
       ui->pixelY->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPUDBG::_FRAME() );
+      sprintf ( buffer, "%d", nesGetPPUFrame() );
       ui->frameNumber->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPUDBG::_CYCLES() );
+      sprintf ( buffer, "%d", nesGetPPUCycle() );
       ui->cycleNumber->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPUDBG::_CYCLES()%PPU_CYCLES_PER_SCANLINE );
+      sprintf ( buffer, "%d", nesGetPPUCycle()%PPU_CYCLES_PER_SCANLINE );
       ui->ppuX->setText(buffer);
 
-      sprintf ( buffer, "%d", CPPUDBG::_CYCLES()/PPU_CYCLES_PER_SCANLINE );
+      sprintf ( buffer, "%d", nesGetPPUCycle()/PPU_CYCLES_PER_SCANLINE );
       ui->ppuY->setText(buffer);
 
-      sprintf ( buffer, "%04X", CPPUDBG::_PPUADDR() );
+      sprintf ( buffer, "%04X", nesGetPPUAddress() );
       ui->ppuAddr->setText(buffer);
 
-      sprintf ( buffer, "%02X", CPPUDBG::_PPUREADLATCH() );
+      sprintf ( buffer, "%02X", nesGetPPUReadLatch() );
       ui->ppuLatch->setText(buffer);
 
-      sprintf ( buffer, "%02X", CPPUDBG::_PPUADDRLATCH() );
+      sprintf ( buffer, "%02X", nesGetPPUAddressLatch() );
       ui->ppuAddrLatch->setText(buffer);
 
-      ui->ppuFlipFlop->setText(ppuFlipFlopStr[CPPUDBG::_PPUFLIPFLOP()]);
+      ui->ppuFlipFlop->setText(ppuFlipFlopStr[nesGetPPUFlipFlop()]);
    }
 
    // Check breakpoints for hits and highlight if necessary...

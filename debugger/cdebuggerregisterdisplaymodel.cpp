@@ -1,13 +1,9 @@
 #include "cdebuggerregisterdisplaymodel.h"
 
-#include "dbg_cnesmappers.h"
-#include "dbg_cnes6502.h"
-#include "dbg_cnesppu.h"
-#include "dbg_cnesapu.h"
-#include "dbg_cnesrom.h"
+#include "emulator_core.h"
 
 static char modelStringBuffer [ 2048 ];
-   
+
 CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(QObject*, eMemoryType display)
 {
    m_display = display;
@@ -187,25 +183,23 @@ bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex& index, const QV
 
                break;
             case eMemory_PPUregs:
-               CPPUDBG::_PPU(addr, data);
+               nesSetPPURegister(addr, data);
                break;
             case eMemory_IOregs:
-               CAPUDBG::_APU(addr, data);
+               nesSetAPURegister(addr, data);
                break;
             case eMemory_PPUoam:
-               CPPUDBG::_OAM(addr%OAM_SIZE,addr/OAM_SIZE, data);
+               nesSetPPUOAM(addr%OAM_SIZE,addr/OAM_SIZE, data);
                break;
             case eMemory_cartMapper:
-
                if ( addr < MEM_32KB )
                {
-                  CROMDBG::LOWWRITE(addr,data);
+                  nesMapperLowWrite(addr,data);
                }
                else
                {
-                  CROMDBG::HIGHWRITE(addr, data);
+                  nesMapperHighWrite(addr, data);
                }
-
                break;
             default:
                break;
@@ -256,32 +250,30 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
 
                break;
             case eMemory_PPUregs:
-               return createIndex(row, column, (int)CPPUDBG::_PPU(addr));
+               return createIndex(row, column, (int)nesGetPPURegister(addr));
                break;
             case eMemory_IOregs:
-               return createIndex(row, column, (int)CAPUDBG::_APU(addr));
+               return createIndex(row, column, (int)nesGetAPURegister(addr));
                break;
             case eMemory_PPUoam:
-               return createIndex(row, column, (int)CPPUDBG::_OAM(addr%OAM_SIZE,addr/OAM_SIZE));
+               return createIndex(row, column, (int)nesGetPPUOAM(addr%OAM_SIZE,addr/OAM_SIZE));
                break;
             case eMemory_cartMapper:
-
                if ( m_tblRegisters )
                {
                   if ( addr < MEM_32KB )
                   {
-                     return createIndex(row, column, (int)CROMDBG::LOWREAD(addr));
+                     return createIndex(row, column, (int)nesMapperLowRead(addr));
                   }
                   else
                   {
-                     return createIndex(row, column, (int)CROMDBG::HIGHREAD(addr));
+                     return createIndex(row, column, (int)nesMapperHighRead(addr));
                   }
                }
                else
                {
                   return QModelIndex();
                }
-
                break;
             default:
                return QModelIndex();

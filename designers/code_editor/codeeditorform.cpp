@@ -638,7 +638,7 @@ void CodeEditorForm::on_actionRun_to_here_triggered()
 
    if ( addr != -1 )
    {
-//      C6502DBG::GOTO(addr);
+      nesSetGotoAddress(addr);
    }// CPTODO: fix the goto for absolute
 #endif
 }

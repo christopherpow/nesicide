@@ -1,11 +1,8 @@
 #include "registerinspectordockwidget.h"
 #include "ui_registerinspectordockwidget.h"
 
-#include "dbg_cnes.h"
-#include "dbg_cnesrom.h"
-#include "dbg_cnes6502.h"
-#include "dbg_cnesppu.h"
-#include "dbg_cnesapu.h"
+#include "emulator_core.h"
+
 #include "dbg_cnesmappers.h"
 
 #include "main.h"
@@ -136,7 +133,7 @@ void RegisterInspectorDockWidget::updateMemory ()
    if ( m_display == eMemory_cartMapper )
    {
       m_tblRegisters = nesGetCartridgeRegisterDatabase();
-      sprintf ( buffer, "Mapper %d: %s", CROMDBG::MAPPER(), mapperNameFromID(CROMDBG::MAPPER()) );
+      sprintf ( buffer, "Mapper %d: %s", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
       ui->info->setText ( buffer );
    }
 

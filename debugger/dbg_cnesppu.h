@@ -31,148 +31,6 @@ public:
       return nesGetSystemMode()==MODE_NTSC?SCANLINES_TOTAL_NTSC:SCANLINES_TOTAL_PAL;
    }
 
-   // Return the current cycle index of the PPU core.
-   // The cycle index is a counter of executed PPU cycles.
-   // It will reset to 0 at the end of the current PPU frame.
-   // PPU frames are different lengths for NTSC and for PAL.
-   // For NTSC, it gets tricky.  If background rendering is ON
-   // then all PPU frames are exactly 89,342 cycles long.  If
-   // background rendering is OFF then every odd frame is one
-   // cycle shorter, or 89,341 cycles long.
-   // For PAL, every frame is always 106,392 cycles long.
-   // The NES object aligns the PPU frame boundary such that the
-   // last cycle of a 'frame' is the last cycle of the pre-render
-   // scanline.  This makes it visually appealing for such things
-   // as the Execution Visualizer (the emulated image appears in the
-   // top left corner always).  For NTSC, also, the missing cycle
-   // is at the very bottom of the Execution Visualizer display
-   // and thus does not cause the emulated image to shake due to
-   // its presence or lack thereof.
-   static inline uint32_t _CYCLES ( void )
-   {
-      return nesGetPPUCycle();
-   }
-
-   // Read a PPU register without changing the PPU's internal state.
-   // This routine is used by the debugger in order to retrieve information
-   // about the internal state of the PPU without affecting said internal state.
-   // It is also used by the emulation to determine what steps to perform as
-   // part of the emulation process (ie. generate an NMI to the CPU core or not?)
-   static inline uint32_t _PPU ( uint32_t addr )
-   {
-      return nesGetPPURegister(addr);
-   }
-
-   // Write a PPU register.
-   // This routine is used by the emuation in order to change the internal state
-   // of the PPU from the perspective of the emulated machine, not because any
-   // emulated code made it change.  For example, setting or clearing the VBLANK
-   // flag are not necessarily dependent on executed code.
-   static inline void _PPU ( uint32_t addr, uint8_t data )
-   {
-      return nesSetPPURegister(addr,data);
-   }
-
-   // Read a byte from the PPU's internal OAM memory.
-   static inline uint32_t _OAM ( uint32_t oam, uint32_t sprite )
-   {
-      return nesGetPPUOAM(oam,sprite);
-   }
-
-   // Write a byte to the PPU's internal OAM memory.
-   static inline void _OAM ( uint32_t oam, uint32_t sprite, uint8_t data )
-   {
-      nesSetPPUOAM(oam,sprite,data);
-   }
-
-   // Silently read from a memory location visible to the PPU.
-   // This routine is used by the debuggers to gather PPU information without
-   // impacting the state of the emulation or the visual aspect of any inspectors.
-   static inline uint32_t _MEM ( uint32_t addr )
-   {
-      return nesGetPPUMemory(addr);
-   }
-
-   // Silently write to a memory location visible to the PPU.
-   // This routine is used by the debuggers to change PPU information without
-   // impacting the state of the emulation or the visual aspect of any inspectors.
-   static inline void _MEM ( uint32_t addr, uint8_t data )
-   {
-      nesSetPPUMemory(addr,data);
-   }
-
-   // Silently read from memory locations visible to the PPU.
-   // These routines are used by the debuggers to gather PPU information without
-   // impacting the state of the emulation.
-   static inline uint8_t _NAMETABLE ( uint16_t addr )
-   {
-      return nesGetPPUNameTableData(addr);
-   }
-   static inline uint8_t _ATTRTABLE ( uint16_t addr )
-   {
-      return nesGetPPUAttributeTableData(addr);
-   }
-   static inline uint8_t _PATTERNDATA ( uint16_t addr )
-   {
-      return nesGetPPUPatternData(addr);
-   }
-   static inline uint8_t _PALETTE ( uint8_t addr )
-   {
-      return nesGetPPUPaletteData(addr);
-   }
-
-   // Return the internal state of the PPU's hardware such as the OAM address latch, the PPU
-   // address latch, and the read-buffer.
-   static inline uint16_t _OAMADDR ( void )
-   {
-      return nesGetPPUOAMAddress();
-   }
-   static inline uint16_t _PPUADDR ( void )
-   {
-      return nesGetPPUAddress();
-   }
-   static inline uint8_t _PPUREADLATCH ( void )
-   {
-      return nesGetPPUReadLatch();
-   }
-   static inline uint16_t _PPUADDRLATCH ( void )
-   {
-      return nesGetPPUAddressLatch();
-   }
-   static inline int32_t _PPUFLIPFLOP ( void )
-   {
-      return nesGetPPUFlipFlop();
-   }
-
-   // Accessor functions for the database of scroll values indexed by pixel
-   // location.  At each PPU cycle that is rendering a visible pixel the scroll
-   // register values are stored so that a representation of the visible portions
-   // of the nametable may be overlaid upon the actual nametable in the nametable visual
-   // inspector.
-   static inline uint16_t _SCROLLX ( int32_t x, int32_t y )
-   {
-      return nesGetScrollXAtXY(x,y);
-   }
-   static inline uint16_t _SCROLLY ( int32_t x, int32_t y )
-   {
-      return nesGetScrollYAtXY(x,y);
-   }
-
-   // Accessor functions for the pixel coordinate of the last sprite-0 hit.
-   static inline void _SPRITE0HIT ( uint8_t* x, uint8_t* y )
-   {
-      nesGetLastSprite0Hit(x,y);
-   }
-
-   // Returns a running counter of the number of frames that have elapsed
-   // during emulation.  At 60Hz this counter will not roll-over until
-   // approximately 828 days of emulation have passed.  Note, however, that
-   // even then, roll-over of this counter is not a significant event.
-   static inline uint32_t _FRAME ( void )
-   {
-      return nesGetPPUFrame();
-   }
-
    // The CHR memory rendering is performed by the PPU.  The CHR
    // memory is maintained by the ROM object (see CROM).  However,
    // the PPU is the portal through which access to this memory is made.
@@ -188,9 +46,9 @@ public:
    {
       m_pCHRMEMInspectorTV = pTV;
    }
-   static inline void SetCHRMEMInspectorColor ( int32_t idx, QColor color ) 
-   { 
-      m_chrMemColor[idx] = color; 
+   static inline void SetCHRMEMInspectorColor ( int32_t idx, QColor color )
+   {
+      m_chrMemColor[idx] = color;
    }
 
    // The OAM memory rendering is performed by the PPU.  The OAM
@@ -280,7 +138,7 @@ public:
    static bool           m_bCHRMEMInspector;
    static bool           m_bOAMInspector;
    static bool           m_bNameTableInspector;
-   
+
    static QColor         m_chrMemColor [ 4 ];
 
    // These are the rendering surfaces on which the PPU draws
@@ -301,6 +159,9 @@ public:
 
    // Flag indicating whether or not to decorate invisible TV region(s).
    static bool           m_bPPUViewerShowVisible;
+
+   static PpuSnapshotBuffer m_ppuState;
+   static PpuScrollSnapshotBuffer m_ppuScrollState;
 };
 
 #endif

@@ -30,7 +30,6 @@ CNESDBG::CNESDBG()
 
 CNESDBG::~CNESDBG()
 {
-
 }
 
 void CNESDBG::CODEBROWSERTOOLTIP ( int32_t tipType, uint32_t addr, char* tooltipBuffer )

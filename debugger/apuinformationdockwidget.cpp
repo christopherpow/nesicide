@@ -1,8 +1,7 @@
 #include "apuinformationdockwidget.h"
 #include "ui_apuinformationdockwidget.h"
 
-#include "dbg_cnes.h"
-#include "dbg_cnesapu.h"
+#include "emulator_core.h"
 
 #include "main.h"
 
@@ -57,33 +56,33 @@ void APUInformationDockWidget::updateInformation()
    bool tempb1, tempb2;
    unsigned short tempus1, tempus2, tempus3, tempus4, tempus5;
 
-   sprintf ( buffer, "%d", CAPUDBG::CYCLES() );
+   sprintf ( buffer, "%d", nesGetAPUCycle() );
    ui->apuCycle->setText ( buffer );
 
-   ui->apuSequencerMode->setText ( CAPUDBG::SEQUENCERMODE()==0?"4-step":"5-step" );
+   ui->apuSequencerMode->setText ( nesGetAPUSequencerMode()==0?"4-step":"5-step" );
 
-   CAPUDBG::LENGTHCOUNTERS ( &tempus1, &tempus2, &tempus3, &tempus4, &tempus5 );
+   nesGetAPULengthCounters ( &tempus1, &tempus2, &tempus3, &tempus4, &tempus5 );
    ui->lengthCounter1->setValue ( tempus1 );
    ui->lengthCounter2->setValue ( tempus2 );
    ui->lengthCounter3->setValue ( tempus3 );
    ui->lengthCounter4->setValue ( tempus4 );
    ui->lengthCounter5->setValue ( tempus5 );
 
-   CAPUDBG::LINEARCOUNTER ( &temp3 );
+   nesGetAPUTriangleLinearCounter ( &temp3 );
    ui->linearCounter3->setValue ( temp3 );
 
-   CAPUDBG::GETDACS ( &temp1, &temp2, &temp3, &temp4, &temp5 );
+   nesGetAPUDACs ( &temp1, &temp2, &temp3, &temp4, &temp5 );
    ui->dac1->setValue ( temp1 );
    ui->dac2->setValue ( temp2 );
    ui->dac3->setValue ( temp3 );
    ui->dac4->setValue ( temp4 );
    ui->dac5->setValue ( temp5 );
 
-   CAPUDBG::DMCIRQ ( &tempb1, &tempb2 );
+   nesGetAPUDMCIRQ ( &tempb1, &tempb2 );
    ui->irqEnabled5->setChecked ( tempb1 );
    ui->irqAsserted5->setChecked ( tempb2 );
 
-   CAPUDBG::SAMPLEINFO ( &tempus1, &tempus2, &tempus3 );
+   nesGetAPUDMCSampleInfo ( &tempus1, &tempus2, &tempus3 );
    sprintf ( buffer, "%04X", tempus1 );
    ui->sampleAddr5->setText ( buffer );
    sprintf ( buffer, "%04X", tempus2 );
@@ -91,7 +90,7 @@ void APUInformationDockWidget::updateInformation()
    sprintf ( buffer, "%04X", tempus3 );
    ui->samplePos5->setText ( buffer );
 
-   CAPUDBG::DMAINFO ( &temp1, &tempb1 );
+   nesGetAPUDMCDMAInfo ( &temp1, &tempb1 );
    sprintf ( buffer, "%02X", temp1 );
    ui->sampleBufferContents5->setText ( buffer );
    ui->sampleBufferFull5->setChecked ( tempb1 );

@@ -2,12 +2,6 @@
 
 #include "emulator_core.h"
 
-#include "dbg_cnes.h"
-#include "dbg_cnes6502.h"
-#include "dbg_cnesrom.h"
-#include "dbg_cnesapu.h"
-#include "dbg_cnesppu.h"
-
 #include "cnessystempalette.h"
 
 #include <QColor>
@@ -124,7 +118,7 @@ Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex& index) const
    Qt::ItemFlags flags = Qt::ItemIsEnabled;
 
    if ( (m_display != eMemory_cartCHRMEM) ||
-         (!(CROMDBG::IsWriteProtected())) )
+         (!(nesIsCHRROM())) )
    {
       flags |= Qt::ItemIsEditable;
    }
@@ -251,46 +245,44 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVar
 
             break;
          case eMemory_CPU:
-            C6502DBG::_MEM(m_offset+(index.row()<<4)+index.column(), data);
+            nesSetCPUMemory(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_PPUregs:
-            CPPUDBG::_PPU(m_offset+index.column(), data);
+            nesSetPPURegister(m_offset+index.column(), data);
             break;
          case eMemory_IOregs:
-            CAPUDBG::_APU(m_offset+(index.row()<<2)+index.column(), data);
+            nesSetAPURegister(m_offset+(index.row()<<2)+index.column(), data);
             break;
          case eMemory_cartROM:
-            CROMDBG::HIGHWRITE(m_offset+(index.row()<<4)+index.column(), data);
+            nesMapperHighWrite(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartSRAM:
-            CROMDBG::SRAM(m_offset+(index.row()<<4)+index.column(), data);
+            nesSetSRAMData(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartEXRAM:
-            CROMDBG::EXRAM(m_offset+(index.row()<<4)+index.column(), data);
+            nesSetEXRAMData(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartCHRMEM:
-            CROMDBG::CHRMEM(m_offset+(index.row()<<4)+index.column(), data);
+            nesSetCHRMEMData(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartMapper:
-
             if ( m_tblRegisters[index.row()]->GetAddr() < MEM_32KB )
             {
-               CROMDBG::LOWWRITE(m_tblRegisters[index.row()]->GetAddr(), data);
+               nesMapperLowWrite(m_tblRegisters[index.row()]->GetAddr(), data);
             }
             else
             {
-               CROMDBG::HIGHWRITE(m_tblRegisters[index.row()]->GetAddr(), data);
+               nesMapperHighWrite(m_tblRegisters[index.row()]->GetAddr(), data);
             }
-
             break;
          case eMemory_PPU:
-            CPPUDBG::_MEM(m_offset+(index.row()<<4)+index.column(), data);
+            nesSetPPUMemory(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_PPUpalette:
-            CPPUDBG::_MEM(m_offset+(index.row()<<2)+index.column(), data);
+            nesSetPPUMemory(m_offset+(index.row()<<2)+index.column(), data);
             break;
          case eMemory_PPUoam:
-            CPPUDBG::_OAM(index.column(), index.row(), data);
+            nesSetPPUOAM(index.column(), index.row(), data);
             break;
       }
 
@@ -332,53 +324,51 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
 
             break;
          case eMemory_CPU:
-            return createIndex(row, column, (int)C6502DBG::_MEM(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetCPUMemory(m_offset+(row<<4)+column));
             break;
          case eMemory_PPUregs:
-            return createIndex(row, column, (int)CPPUDBG::_PPU(m_offset+column));
+            return createIndex(row, column, (int)nesGetPPURegister(m_offset+column));
             break;
          case eMemory_IOregs:
-            return createIndex(row, column, (int)CAPUDBG::_APU(m_offset+(row<<2)+column));
+            return createIndex(row, column, (int)nesGetAPURegister(m_offset+(row<<2)+column));
             break;
          case eMemory_cartROM:
-            return createIndex(row, column, (int)CROMDBG::PRGROM(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetPRGROMData(m_offset+(row<<4)+column));
             break;
          case eMemory_cartSRAM:
-            return createIndex(row, column, (int)CROMDBG::SRAM(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetSRAMData(m_offset+(row<<4)+column));
             break;
          case eMemory_cartEXRAM:
-            return createIndex(row, column, (int)CROMDBG::EXRAM(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetEXRAMData(m_offset+(row<<4)+column));
             break;
          case eMemory_cartCHRMEM:
-            return createIndex(row, column, (int)CROMDBG::CHRMEM(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetCHRMEMData(m_offset+(row<<4)+column));
             break;
          case eMemory_cartMapper:
-
             if ( m_tblRegisters )
             {
                if ( m_tblRegisters[row]->GetAddr() < MEM_32KB )
                {
-                  return createIndex(row, column, (int)CROMDBG::LOWREAD(m_tblRegisters[row]->GetAddr()));
+                  return createIndex(row, column, (int)nesMapperLowRead(m_tblRegisters[row]->GetAddr()));
                }
                else
                {
-                  return createIndex(row, column, (int)CROMDBG::HIGHREAD(m_tblRegisters[row]->GetAddr()));
+                  return createIndex(row, column, (int)nesMapperHighRead(m_tblRegisters[row]->GetAddr()));
                }
             }
             else
             {
                return QModelIndex();
             }
-
             break;
          case eMemory_PPU:
-            return createIndex(row, column, (int)CPPUDBG::_MEM(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetPPUMemory(m_offset+(row<<4)+column));
             break;
          case eMemory_PPUpalette:
-            return createIndex(row, column, (int)CPPUDBG::_MEM(m_offset+(row<<2)+column));
+            return createIndex(row, column, (int)nesGetPPUMemory(m_offset+(row<<2)+column));
             break;
          case eMemory_PPUoam:
-            return createIndex(row, column, (int)CPPUDBG::_OAM(column,row));
+            return createIndex(row, column, (int)nesGetPPUOAM(column,row));
             break;
       }
    }

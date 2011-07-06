@@ -1,10 +1,6 @@
 #include "codebrowserdockwidget.h"
 #include "ui_codebrowserdockwidget.h"
 
-#include "dbg_cnes.h"
-#include "dbg_cnes6502.h"
-#include "dbg_cnesrom.h"
-
 #include "emulator_core.h"
 
 #include "cmarker.h"
@@ -245,7 +241,7 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
 
    if ( addr != -1 )
    {
-      C6502DBG::GOTO(addr);
+      nesSetGotoAddress(addr);
    }// CPTODO: fix the goto for absolute
 }
 
