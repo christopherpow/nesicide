@@ -2928,6 +2928,7 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
    int8_t marked;
    uint32_t numScanlines = CPPUDBG::SCANLINES();
    int8_t* pTV = (int8_t*)m_pExecutionVisualizerInspectorTV;
+   int8_t* pNESTV = nesGetTVOut();
 
    for ( idxy = 0; idxy < 512; idxy++ )
    {
@@ -2975,9 +2976,9 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
                if ( (idxx < 256) && (idxy < 240) )
                {
                   // Screen...
-                  *pTV = nesGetTVOut()[((idxy<<8)<<2) + (idxx<<2) + 0];
-                  *(pTV+1) = nesGetTVOut()[((idxy<<8)<<2) + (idxx<<2) + 1];
-                  *(pTV+2) = nesGetTVOut()[((idxy<<8)<<2) + (idxx<<2) + 2];
+                  *pTV = *(pNESTV+(((idxy<<8)<<2) + (idxx<<2) + 0));
+                  *(pTV+1) = *(pNESTV+(((idxy<<8)<<2) + (idxx<<2) + 1));
+                  *(pTV+2) = *(pNESTV+(((idxy<<8)<<2) + (idxx<<2) + 2));
                }
                else
                {
