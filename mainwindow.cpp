@@ -1640,11 +1640,6 @@ void MainWindow::openFile(QString file)
    }
 }
 
-void MainWindow::on_actionAdd_Existing_Files_triggered()
-{
-    // CPTODO: complete this
-}
-
 void MainWindow::on_actionFullscreen_toggled(bool value)
 {
    if ( value )

@@ -126,8 +126,6 @@
     <property name="title">
      <string>Project</string>
     </property>
-    <addaction name="actionAdd_Existing_Files"/>
-    <addaction name="separator"/>
     <addaction name="actionCompile_Project"/>
     <addaction name="actionLoad_In_Emulator"/>
     <addaction name="actionClean_Project"/>
@@ -1042,14 +1040,6 @@
     <string>Ctrl+Shift+F</string>
    </property>
   </action>
-  <action name="actionAdd_Existing_Files">
-   <property name="text">
-    <string>Add Existing File(s)...</string>
-   </property>
-   <property name="toolTip">
-    <string>Add Existing Files</string>
-   </property>
-  </action>
   <action name="actionFullscreen">
    <property name="checkable">
     <bool>true</bool>
@@ -1061,7 +1051,7 @@
     <string>Enter fullscreen mode</string>
    </property>
    <property name="shortcut">
-    <string>F12</string>
+    <string>F11</string>
    </property>
   </action>
  </widget>

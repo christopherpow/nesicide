@@ -105,8 +105,9 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
             if ( (!value.toString().isEmpty()) &&
                  (value != CLICK_TO_ADD_OR_EDIT) )
             {
+               beginInsertRows(QModelIndex(),m_symbols.count()+1,m_symbols.count()+1);
                m_symbols.append(value.toString());
-               emit layoutChanged();
+               endInsertRows();
 
                ok = true;
             }

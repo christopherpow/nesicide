@@ -82,7 +82,7 @@ void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QMenu menu;
 
-   if ( ui->tableView->currentIndex().row() >= 0 )
+   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
    {
       menu.addAction(ui->actionEdit_Breakpoint);
 
@@ -190,9 +190,11 @@ void BreakpointDockWidget::dropEvent(QDropEvent *event)
 
 void BreakpointDockWidget::keyPressEvent(QKeyEvent *event)
 {
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+
    if ( event->key() == Qt::Key_Delete )
    {
-      if ( ui->tableView->currentIndex().isValid() )
+      if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
       {
          on_actionRemove_Breakpoint_triggered();
       }
@@ -223,7 +225,7 @@ void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
    // Check for left-click to "enable/disable"...
    if ( QApplication::mouseButtons()&Qt::LeftButton )
    {
-      if ( (index.row() >= 0) && (index.column() == 0) )
+      if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
       {
          pBreakpoints->ToggleEnabled(index.row());
          emit breakpointsChanged();
@@ -238,7 +240,7 @@ void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
    int result;
 
    // Check for double-click to "edit"...
-   if ( (index.row() >= 0) && (index.column() > 0) )
+   if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() > 0) )
    {
       BreakpointDialog bd(index.row(),this);
       result = bd.exec();
@@ -249,8 +251,20 @@ void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
          emit markProjectDirty(true);
       }
    }
+   // Check for double-click to "add"...
+   if ( index.row() == pBreakpoints->GetNumBreakpoints() )
+   {
+      BreakpointDialog bd(-1,this);
+      result = bd.exec();
+      if ( result )
+      {
+         pBreakpoints->AddBreakpoint(bd.getBreakpoint());
+         emit breakpointsChanged();
+         emit markProjectDirty(true);
+      }
+   }
    // Check for double-click to "enable/disable"...
-   if ( (index.row() >= 0) && (index.column() == 0) )
+   if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
    {
       pBreakpoints->ToggleEnabled(index.row());
       emit breakpointsChanged();
@@ -277,7 +291,7 @@ void BreakpointDockWidget::on_actionRemove_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
 
-   if ( ui->tableView->currentIndex().row() >= 0 )
+   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
    {
       pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
       emit breakpointsChanged();
@@ -290,7 +304,7 @@ void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
 
-   if ( ui->tableView->currentIndex().row() >= 0 )
+   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
    {
       BreakpointDialog bd(ui->tableView->currentIndex().row(),this);
       result = bd.exec();
@@ -307,7 +321,7 @@ void BreakpointDockWidget::on_actionEnable_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
 
-   if ( ui->tableView->currentIndex().row() >= 0 )
+   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
    {
       pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), true);
       emit breakpointsChanged();
@@ -319,7 +333,7 @@ void BreakpointDockWidget::on_actionDisable_Breakpoint_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
 
-   if ( ui->tableView->currentIndex().row() >= 0 )
+   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
    {
       pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), false);
       emit breakpointsChanged();

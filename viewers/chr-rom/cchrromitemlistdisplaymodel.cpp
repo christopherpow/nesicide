@@ -158,8 +158,9 @@ bool CChrRomItemListDisplayModel::setData ( const QModelIndex& index, const QVar
                if ( (!value.toString().isEmpty()) &&
                     (value != CLICK_TO_ADD_OR_EDIT) )
                {
+                  beginInsertRows(QModelIndex(),chrRomBankItems.count()+1,chrRomBankItems.count()+1);
                   chrRomBankItems.append(item);
-                  emit layoutChanged();
+                  endInsertRows();
                   ok = true;
                }
             }

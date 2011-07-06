@@ -63,10 +63,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 
    updateChrRomBankItemList(bankItems);
 
-   // Do this last since we're hanging on layoutChanged to know when to set "modified"
-   // but the layoutChanged event comes at us early if we put it before the call to
-   // updateChrRomBankItemList().
-   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
+   QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
 }
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()
