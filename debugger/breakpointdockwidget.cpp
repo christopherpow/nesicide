@@ -29,7 +29,6 @@ BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
 
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(breakpointClear()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
