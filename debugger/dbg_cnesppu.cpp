@@ -37,8 +37,7 @@ uint32_t CPPUDBG::m_iOAMViewerScanline = 0;
 bool CPPUDBG::m_bPPUViewerShowVisible = true;
 bool CPPUDBG::m_bOAMViewerShowVisible = false;
 
-PpuSnapshotBuffer CPPUDBG::m_ppuState;
-PpuScrollSnapshotBuffer CPPUDBG::m_ppuScrollState;
+PpuStateSnapshot CPPUDBG::m_ppuState;
 
 CPPUDBG::CPPUDBG()
 {
@@ -168,8 +167,8 @@ void CPPUDBG::RENDERCHRMEM ( void )
                ppuAddr += 0x1000;
             }
 
-            patternData1 = m_ppuState.ppuMemory[ppuAddr];
-            patternData2 = m_ppuState.ppuMemory[ppuAddr+8];
+            patternData1 = m_ppuState.memory[ppuAddr];
+            patternData2 = m_ppuState.memory[ppuAddr+8];
 
             for ( int32_t xf = 0; xf < 8; xf++ )
             {
@@ -220,11 +219,11 @@ void CPPUDBG::RENDEROAM ( void )
       color[2] = CBasePalette::GetPalette ( 0x20 );
       color[3] = CBasePalette::GetPalette ( 0x30 );
 
-      spriteSize = ((!!(m_ppuState.ppuRegs[PPUCTRL_REG]&PPUCTRL_SPRITE_SIZE))+1)<<3;
+      spriteSize = ((!!(m_ppuState.reg[PPUCTRL_REG]&PPUCTRL_SPRITE_SIZE))+1)<<3;
 
       if ( spriteSize == 8 )
       {
-         spritePatBase = (!!(m_ppuState.ppuRegs[PPUCTRL_REG]&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
+         spritePatBase = (!!(m_ppuState.reg[PPUCTRL_REG]&PPUCTRL_SPRITE_PAT_TBL_ADDR))<<12;
       }
 
       for ( y = 0; y < spriteSize<<1; y++ )
@@ -233,12 +232,12 @@ void CPPUDBG::RENDEROAM ( void )
          {
             sprite = (spriteSize==8)?((y>>3)<<5)+(x>>3):
                      ((y>>4)<<5)+(x>>3);
-            spriteY = m_ppuState.ppuOamMemory[(sprite<<2)+SPRITEY];
+            spriteY = m_ppuState.oamMemory[(sprite<<2)+SPRITEY];
 
             if ( ((m_bOAMViewerShowVisible) && ((spriteY+1) < SPRITE_YMAX)) ||
                   (!m_bOAMViewerShowVisible) )
             {
-               patternIdx = m_ppuState.ppuOamMemory[(sprite<<2)+SPRITEPAT];
+               patternIdx = m_ppuState.oamMemory[(sprite<<2)+SPRITEPAT];
 
                if ( spriteSize == 16 )
                {
@@ -246,7 +245,7 @@ void CPPUDBG::RENDEROAM ( void )
                   patternIdx &= 0xFE;
                }
 
-               spriteAttr = m_ppuState.ppuOamMemory[(sprite<<2)+SPRITEATT];
+               spriteAttr = m_ppuState.oamMemory[(sprite<<2)+SPRITEATT];
                spriteFlipVert = !!(spriteAttr&SPRITE_FLIP_VERT);
                spriteFlipHoriz = !!(spriteAttr&SPRITE_FLIP_HORIZ);
                attribData = (spriteAttr&SPRITE_PALETTE_IDX_MSK)<<2;
@@ -266,8 +265,8 @@ void CPPUDBG::RENDEROAM ( void )
                   yf = (7-yf);
                }
 
-               patternData1 = m_ppuState.ppuMemory[spritePatBase+(patternIdx<<4)+(yf)];
-               patternData2 = m_ppuState.ppuMemory[spritePatBase+(patternIdx<<4)+(yf)+PATTERN_SIZE];
+               patternData1 = m_ppuState.memory[spritePatBase+(patternIdx<<4)+(yf)];
+               patternData2 = m_ppuState.memory[spritePatBase+(patternIdx<<4)+(yf)+PATTERN_SIZE];
 
                for ( xf = 0; xf < PATTERN_SIZE; xf++ )
                {
@@ -283,9 +282,9 @@ void CPPUDBG::RENDEROAM ( void )
                   }
 
                   colorIdx = (attribData|bit1|(bit2<<1));
-                  *pTV = CBasePalette::GetPaletteB(m_ppuState.ppuPaletteMemory[0x10+colorIdx]);
-                  *(pTV+1) = CBasePalette::GetPaletteG(m_ppuState.ppuPaletteMemory[0x10+colorIdx]);
-                  *(pTV+2) = CBasePalette::GetPaletteR(m_ppuState.ppuPaletteMemory[0x10+colorIdx]);
+                  *pTV = CBasePalette::GetPaletteB(m_ppuState.paletteMemory[0x10+colorIdx]);
+                  *(pTV+1) = CBasePalette::GetPaletteG(m_ppuState.paletteMemory[0x10+colorIdx]);
+                  *(pTV+2) = CBasePalette::GetPaletteR(m_ppuState.paletteMemory[0x10+colorIdx]);
 
                   pTV += 4;
                }
@@ -342,12 +341,12 @@ void CPPUDBG::RENDERNAMETABLE ( void )
             tileY = (ppuAddr&0x03E0)>>5;
             nameAddr = 0x2000 + (ppuAddr&0x0FFF);
             attribAddr = 0x2000 + (ppuAddr&0x0C00) + 0x03C0 + ((tileY&0xFFFC)<<1) + (tileX>>2);
-            bkgndPatBase = (!!(m_ppuState.ppuRegs[PPUCTRL_REG]&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
+            bkgndPatBase = (!!(m_ppuState.reg[PPUCTRL_REG]&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
 
-            patternIdx = bkgndPatBase+(m_ppuState.ppuMemory[nameAddr]<<4)+((ppuAddr&0x7000)>>12);
-            attribData = m_ppuState.ppuMemory[attribAddr];
-            patternData1 = m_ppuState.ppuMemory[patternIdx];
-            patternData2 = m_ppuState.ppuMemory[patternIdx+PATTERN_SIZE];
+            patternIdx = bkgndPatBase+(m_ppuState.memory[nameAddr]<<4)+((ppuAddr&0x7000)>>12);
+            attribData = m_ppuState.memory[attribAddr];
+            patternData1 = m_ppuState.memory[patternIdx];
+            patternData2 = m_ppuState.memory[patternIdx+PATTERN_SIZE];
 
             if ( (tileY&0x0002) == 0 )
             {
@@ -377,9 +376,9 @@ void CPPUDBG::RENDERNAMETABLE ( void )
                bit1 = (patternData1>>(7-(xf)))&0x1;
                bit2 = (patternData2>>(7-(xf)))&0x1;
                colorIdx = (attribData|bit1|(bit2<<1));
-               *pTV = CBasePalette::GetPaletteB(m_ppuState.ppuPaletteMemory[colorIdx]);
-               *(pTV+1) = CBasePalette::GetPaletteG(m_ppuState.ppuPaletteMemory[colorIdx]);
-               *(pTV+2) = CBasePalette::GetPaletteR(m_ppuState.ppuPaletteMemory[colorIdx]);
+               *pTV = CBasePalette::GetPaletteB(m_ppuState.paletteMemory[colorIdx]);
+               *(pTV+1) = CBasePalette::GetPaletteG(m_ppuState.paletteMemory[colorIdx]);
+               *(pTV+2) = CBasePalette::GetPaletteR(m_ppuState.paletteMemory[colorIdx]);
 
                pTV += 4;
             }
@@ -424,18 +423,18 @@ void CPPUDBG::RENDERNAMETABLE ( void )
       {
          pTV = (int8_t*)m_pNameTableInspectorTV;
 
-         if ( nesGetPPUFrame() != m_ppuScrollState.frame )
+         if ( nesGetPPUFrame() != m_ppuState.frame )
          {
-            nesGetPpuScrollSnapshot(&m_ppuScrollState);
+            nesGetPpuSnapshot(&m_ppuState);
          }
 
          for ( y = 0; y < 480; y++ )
          {
             for ( x = 0; x < 512; x++ )
             {
-               lbx = *(*(m_ppuScrollState.xOffset+(x&0xFF))+(y%240));
+               lbx = *(*(m_ppuState.xOffset+(x&0xFF))+(y%240));
                ubx = lbx>>8?lbx&0xFF:lbx+255;
-               lby = *(*(m_ppuScrollState.yOffset+(x&0xFF))+(y%240));
+               lby = *(*(m_ppuState.yOffset+(x&0xFF))+(y%240));
                uby = lby/240?lby%240:lby+239;
 
                if ( !( (((lbx <= ubx) && (x >= lbx) && (x <= ubx)) ||

@@ -160,8 +160,7 @@ public:
    // Flag indicating whether or not to decorate invisible TV region(s).
    static bool           m_bPPUViewerShowVisible;
 
-   static PpuSnapshotBuffer m_ppuState;
-   static PpuScrollSnapshotBuffer m_ppuScrollState;
+   static PpuStateSnapshot m_ppuState;
 };
 
 #endif
