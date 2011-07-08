@@ -236,6 +236,11 @@ void NESEmulatorThread::loadCartridge()
       // Initialize NES...
       nesResetInitial(m_pCartridge->getMapperNumber());
 
+      // Trigger inspector updates...
+      nesDisassemble();
+      emit updateDebuggers();
+
+      // Trigger UI updates...
       emit cartridgeLoaded();
    }
 }
@@ -371,10 +376,7 @@ void NESEmulatorThread::run ()
          m_isRunning = true;
          m_isPaused = false;
 
-         // Trigger Breakpoint dialog redraw...
-         emit breakpointClear();
-
-         // Trigger emulator UI button update...
+         // Trigger UI updates...
          emit emulatorStarted();
       }
 
@@ -400,6 +402,11 @@ void NESEmulatorThread::run ()
             m_pCartridge = NULL;
          }
 
+         // Trigger inspector updates...
+         nesDisassemble();
+         emit updateDebuggers();
+
+         // Trigger UI updates...
          emit emulatorReset();
 
          // Don't *keep* resetting...
@@ -409,8 +416,13 @@ void NESEmulatorThread::run ()
       // Pause?
       if ( m_isPaused || (m_pauseAfterFrames == 0) )
       {
-         // Trigger inspectors to update on a pause also...
+         // Trigger inspector updates...
+         nesDisassemble();
+         emit updateDebuggers();
+
+         // Trigger UI updates...
          emit emulatorPaused(m_showOnPause);
+
          m_isPaused = false;
          m_isRunning = false;
          if ( m_pauseAfterFrames == 0 )
@@ -496,6 +508,7 @@ void NESEmulatorThread::run ()
          if ( (!m_debugFrame) && (debuggerUpdateRate) )
          {
             m_debugFrame = debuggerUpdateRate;
+            nesDisassemble();
             emit updateDebuggers();
          }
       }

@@ -45,7 +45,6 @@ signals:
    void emulatedFrame ();
    void updateDebuggers ();
    void cartridgeLoaded ();
-   void breakpointClear ();
    void emulatorPaused(bool show);
    void emulatorReset();
    void emulatorStarted();
