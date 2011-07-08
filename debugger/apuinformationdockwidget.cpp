@@ -11,9 +11,6 @@ APUInformationDockWidget::APUInformationDockWidget(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
@@ -52,48 +49,41 @@ void APUInformationDockWidget::updateInformation()
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
    char buffer[16];
-   unsigned char temp1, temp2, temp3, temp4, temp5;
-   bool tempb1, tempb2;
-   unsigned short tempus1, tempus2, tempus3, tempus4, tempus5;
 
-   sprintf ( buffer, "%d", nesGetAPUCycle() );
+   nesGetNesSnapshot(&m_nesState);
+
+   sprintf ( buffer, "%d", m_nesState.apu.cycle );
    ui->apuCycle->setText ( buffer );
 
-   ui->apuSequencerMode->setText ( nesGetAPUSequencerMode()==0?"4-step":"5-step" );
+   ui->apuSequencerMode->setText ( m_nesState.apu.sequencerMode==0?"4-step":"5-step" );
 
-   nesGetAPULengthCounters ( &tempus1, &tempus2, &tempus3, &tempus4, &tempus5 );
-   ui->lengthCounter1->setValue ( tempus1 );
-   ui->lengthCounter2->setValue ( tempus2 );
-   ui->lengthCounter3->setValue ( tempus3 );
-   ui->lengthCounter4->setValue ( tempus4 );
-   ui->lengthCounter5->setValue ( tempus5 );
+   ui->lengthCounter1->setValue ( m_nesState.apu.lengthCounter[0] );
+   ui->lengthCounter2->setValue ( m_nesState.apu.lengthCounter[1] );
+   ui->lengthCounter3->setValue ( m_nesState.apu.lengthCounter[2] );
+   ui->lengthCounter4->setValue ( m_nesState.apu.lengthCounter[3] );
+   ui->lengthCounter5->setValue ( m_nesState.apu.lengthCounter[4] );
 
-   nesGetAPUTriangleLinearCounter ( &temp3 );
-   ui->linearCounter3->setValue ( temp3 );
+   ui->linearCounter3->setValue ( m_nesState.apu.triangleLinearCounter );
 
-   nesGetAPUDACs ( &temp1, &temp2, &temp3, &temp4, &temp5 );
-   ui->dac1->setValue ( temp1 );
-   ui->dac2->setValue ( temp2 );
-   ui->dac3->setValue ( temp3 );
-   ui->dac4->setValue ( temp4 );
-   ui->dac5->setValue ( temp5 );
+   ui->dac1->setValue ( m_nesState.apu.dac[0] );
+   ui->dac2->setValue ( m_nesState.apu.dac[1] );
+   ui->dac3->setValue ( m_nesState.apu.dac[2] );
+   ui->dac4->setValue ( m_nesState.apu.dac[3] );
+   ui->dac5->setValue ( m_nesState.apu.dac[4] );
 
-   nesGetAPUDMCIRQ ( &tempb1, &tempb2 );
-   ui->irqEnabled5->setChecked ( tempb1 );
-   ui->irqAsserted5->setChecked ( tempb2 );
+   ui->irqEnabled5->setChecked ( m_nesState.apu.dmcIrqEnabled );
+   ui->irqAsserted5->setChecked ( m_nesState.apu.dmcIrqAsserted );
 
-   nesGetAPUDMCSampleInfo ( &tempus1, &tempus2, &tempus3 );
-   sprintf ( buffer, "%04X", tempus1 );
+   sprintf ( buffer, "%04X", m_nesState.apu.dmaSampleAddress );
    ui->sampleAddr5->setText ( buffer );
-   sprintf ( buffer, "%04X", tempus2 );
+   sprintf ( buffer, "%04X", m_nesState.apu.dmaSampleLength );
    ui->sampleLength5->setText ( buffer );
-   sprintf ( buffer, "%04X", tempus3 );
+   sprintf ( buffer, "%04X", m_nesState.apu.dmaSamplePosition );
    ui->samplePos5->setText ( buffer );
 
-   nesGetAPUDMCDMAInfo ( &temp1, &tempb1 );
-   sprintf ( buffer, "%02X", temp1 );
+   sprintf ( buffer, "%02X", m_nesState.apu.dmcDmaBuffer );
    ui->sampleBufferContents5->setText ( buffer );
-   ui->sampleBufferFull5->setChecked ( tempb1 );
+   ui->sampleBufferFull5->setChecked ( m_nesState.apu.dmcDmaFull );
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
