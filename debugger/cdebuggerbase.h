@@ -3,11 +3,14 @@
 
 #include <QDockWidget>
 
+#include "emulator_core.h"
+
 class CDebuggerBase : public QDockWidget
 {
    Q_OBJECT
 public:
    explicit CDebuggerBase(QWidget *parent = 0);
+   virtual ~CDebuggerBase();
 
 signals:
    void markProjectDirty(bool dirty);
@@ -15,6 +18,8 @@ signals:
 
 public slots:
 
+protected:
+   NesStateSnapshot m_nesState;
 };
 
 #endif // CDEBUGGERBASE_H
