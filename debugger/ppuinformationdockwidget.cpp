@@ -80,6 +80,12 @@ void PPUInformationDockWidget::updateInformation()
       sprintf ( buffer, "%d", nesGetPPUCycle()/PPU_CYCLES_PER_SCANLINE );
       ui->ppuY->setText(buffer);
 
+      sprintf ( buffer, "%02X", nesGetPPUOAMAddress() );
+      ui->oamAddress->setText(buffer);
+
+      sprintf ( buffer, "%02X", nesGetPPUOAM(nesGetPPUOAMAddress()&3,nesGetPPUOAMAddress()>>2) );
+      ui->oamData->setText(buffer);
+
       sprintf ( buffer, "%04X", nesGetPPUAddress() );
       ui->ppuAddr->setText(buffer);
 
