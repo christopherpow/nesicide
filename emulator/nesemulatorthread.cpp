@@ -328,6 +328,22 @@ void NESEmulatorThread::stepPPUEmulation ()
    emulator->start();
 }
 
+void NESEmulatorThread::advanceFrame ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   // But ensure we come right back...
+   nesStepPpuFrame();
+
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
+   m_isStarting = true;
+   m_isPaused = false;
+   emulator->start();
+}
+
 void NESEmulatorThread::pauseEmulation (bool show)
 {
    m_isStarting = false;

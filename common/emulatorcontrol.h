@@ -20,6 +20,7 @@ private:
    Ui::EmulatorControl *ui;
 
 private slots:
+   void on_frameAdvance_clicked();
    void on_resetButton_clicked();
    void on_stepPPUButton_clicked();
    void on_stepCPUButton_clicked();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>147</width>
+    <width>172</width>
     <height>30</height>
    </rect>
   </property>
@@ -154,6 +154,20 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="frameAdvance">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="resetButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -244,6 +258,17 @@
    </property>
    <property name="shortcut">
     <string>F10</string>
+   </property>
+  </action>
+  <action name="actionFrame_Advance">
+   <property name="text">
+    <string>Frame Advance</string>
+   </property>
+   <property name="toolTip">
+    <string>Advance Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>F12</string>
    </property>
   </action>
  </widget>

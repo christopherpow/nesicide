@@ -32,6 +32,7 @@ public:
    void pauseEmulationAfter (int frames) { m_pauseAfterFrames = frames; }
    void stepCPUEmulation ();
    void stepPPUEmulation ();
+   void advanceFrame ();
    void controllerInput ( uint8_t* joy )
    {
       coreMutexLock();
