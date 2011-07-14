@@ -228,6 +228,15 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
 
                switch ( m_register )
                {
+                  case CPU_IRQ:
+                     return createIndex(row, column, (int)nesGetCPUVector(VECTOR_IRQ));
+                     break;
+                  case CPU_NMI:
+                     return createIndex(row, column, (int)nesGetCPUVector(VECTOR_NMI));
+                     break;
+                  case CPU_RESET:
+                     return createIndex(row, column, (int)nesGetCPUVector(VECTOR_RESET));
+                     break;
                   case CPU_PC:
                      return createIndex(row, column, (int)nesGetCPUProgramCounter());
                      break;

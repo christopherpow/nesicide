@@ -1,5 +1,11 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.005
+Fixed PPU state-change breakpoints so breakpoints can be set on when the PPU changes state internally (ie. not due to program flow).
+Added OAM address/data information to PPU inspector.
+Implemented frame step which steps an entire PPU frame.
+Added CPU vectors to CPU register inspector.
+
 V1.004
 Added search bar hooks to Graphics Bank editor.
 Changed auto-completion style of search bar combobox and Search combo boxes to popup instead of inline (nicer).

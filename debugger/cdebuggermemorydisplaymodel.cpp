@@ -145,22 +145,31 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
 
             switch ( section )
             {
-               case 0:
+               case CPU_IRQ:
+                  sprintf ( modelStringBuffer, "IRQ" );
+                  break;
+               case CPU_NMI:
+                  sprintf ( modelStringBuffer, "NMI" );
+                  break;
+               case CPU_RESET:
+                  sprintf ( modelStringBuffer, "RESET" );
+                  break;
+               case CPU_PC:
                   sprintf ( modelStringBuffer, "PC" );
                   break;
-               case 1:
+               case CPU_A:
                   sprintf ( modelStringBuffer, "A" );
                   break;
-               case 2:
+               case CPU_X:
                   sprintf ( modelStringBuffer, "X" );
                   break;
-               case 3:
+               case CPU_Y:
                   sprintf ( modelStringBuffer, "Y" );
                   break;
-               case 4:
+               case CPU_SP:
                   sprintf ( modelStringBuffer, "SP" );
                   break;
-               case 5:
+               case CPU_F:
                   sprintf ( modelStringBuffer, "Flags" );
                   break;
             }
@@ -302,6 +311,15 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
 
             switch ( column )
             {
+               case CPU_IRQ:
+                  return createIndex(row, column, (int)nesGetCPUVector(VECTOR_IRQ));
+                  break;
+               case CPU_NMI:
+                  return createIndex(row, column, (int)nesGetCPUVector(VECTOR_NMI));
+                  break;
+               case CPU_RESET:
+                  return createIndex(row, column, (int)nesGetCPUVector(VECTOR_RESET));
+                  break;
                case CPU_PC:
                   return createIndex(row, column, (int)nesGetCPUProgramCounter());
                   break;
