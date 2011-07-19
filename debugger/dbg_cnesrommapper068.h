@@ -3,7 +3,7 @@
 
 #include "dbg_cnesrom.h"
 
-class CROMMapper068 : public CROM
+class CROMMapper068 : public CROMDBG
 {
 public:
    CROMMapper068();
