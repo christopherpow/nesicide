@@ -61,6 +61,7 @@ private:
    QString projectFileName;
    void openProject(QString fileName);
    void saveProject();
+   void saveEmulatorState(QString fileName);
    void closeProject();
 
    // Dock widgets

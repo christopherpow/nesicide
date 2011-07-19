@@ -37,6 +37,7 @@ public:
    QString getProjectDebugInfoName() { return m_projectDebugInfoName; }
    QString getProjectCHRROMOutputName() { return m_projectCHRROMOutputName; }
    QString getProjectCartridgeOutputName() { return m_projectCartridgeOutputName; }
+   QString getProjectCartridgeSaveStateName() { return m_projectCartridgeSaveStateName; }
    QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
    QString getCompilerIncludePaths() { return m_compilerIncludePaths; }
    QString getCompilerAdditionalOptions() { return m_compilerAdditionalOptions; }
@@ -58,6 +59,7 @@ public:
       m_projectDebugInfoName = m_projectTitle.toLower().replace(" ","_")+".dbg";
       m_projectCHRROMOutputName = m_projectTitle.toLower().replace(" ","_")+".chr";
       m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
+      m_projectCartridgeSaveStateName = m_projectTitle.toLower().replace(" ","_")+".sav";
    }
    void setProjectOutputBasePath(QString value) { if (!value.isEmpty()) m_projectOutputBasePath = value; else m_projectOutputBasePath="."; }
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
@@ -65,6 +67,7 @@ public:
    void setProjectDebugInfoName(QString value) { m_projectDebugInfoName = value; }
    void setProjectCHRROMOutputName(QString value) { m_projectCHRROMOutputName = value; }
    void setProjectCartridgeOutputName(QString value) { m_projectCartridgeOutputName = value; }
+   void setProjectCartridgeSaveStateName(QString value) { m_projectCartridgeSaveStateName = value; }
    void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
    void setCompilerIncludePaths(QString value) { m_compilerIncludePaths = value; }
    void setCompilerAdditionalOptions(QString value) { m_compilerAdditionalOptions = value; }
@@ -112,6 +115,7 @@ private:
    QString m_projectDebugInfoName;
    QString m_projectCHRROMOutputName;
    QString m_projectCartridgeOutputName;
+   QString m_projectCartridgeSaveStateName;
    // The toolchain argument strings
    QString m_compilerDefinedSymbols;
    QString m_compilerIncludePaths;

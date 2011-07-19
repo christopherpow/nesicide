@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QSemaphore>
 
+#include "ixmlserializable.h"
+
 #include "emulator_core.h"
 
 #include "ccartridge.h"
@@ -16,7 +18,7 @@ extern QMutex doFrameMutex;
 void coreMutexLock ( void );
 void coreMutexUnlock ( void );
 
-class NESEmulatorThread : public QThread
+class NESEmulatorThread : public QThread, public IXMLSerializable
 {
    Q_OBJECT
 public:
@@ -41,6 +43,10 @@ public:
       coreMutexUnlock();
    }
    bool isActive () { return (m_isStarting||m_isRunning); }
+
+   // IXMLSerializable Interface Implementation
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
 signals:
    void emulatedFrame ();

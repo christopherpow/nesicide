@@ -532,3 +532,174 @@ void NESEmulatorThread::run ()
 
    return;
 }
+
+bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
+{
+   QString cartMem;
+   char byte[3];
+   int  idx;
+
+   // Save state.
+   QDomElement saveElement = addElement ( doc, node, "save" );
+   // Serialize the CPU state.
+   QDomElement cpuElement = addElement( doc, saveElement, "cpu" );
+
+   // Serialize the CPU registers.
+   QDomElement cpuRegsElement = addElement(doc,cpuElement,"registers");
+
+   cpuRegsElement.setAttribute("pc",nesGetCPUProgramCounter());
+   cpuRegsElement.setAttribute("sp",nesGetCPUStackPointer());
+   cpuRegsElement.setAttribute("a",nesGetCPUAccumulator());
+   cpuRegsElement.setAttribute("x",nesGetCPUIndexX());
+   cpuRegsElement.setAttribute("y",nesGetCPUIndexY());
+   cpuRegsElement.setAttribute("f",nesGetCPUFlags());
+
+   // Serialize the CPU memory.
+   QDomElement cpuMemElement = addElement(doc,cpuElement,"memory");
+   QDomCDATASection cpuMemDataSect;
+   QString cpuMem;
+
+   for ( idx = 0; idx < MEM_2KB; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetCPUMemory(idx));
+      cpuMem += byte;
+   }
+   cpuMemDataSect = doc.createCDATASection(cpuMem);
+   cpuMemElement.appendChild(cpuMemDataSect);
+
+   // Serialize the PPU state.
+   QDomElement ppuElement = addElement( doc, saveElement, "ppu" );
+
+   // Serialize the PPU registers.
+   QDomElement ppuRegsElement = addElement(doc,ppuElement,"registers");
+
+   QDomCDATASection ppuRegsDataSect;
+   QString ppuRegs;
+
+   for ( idx = 0; idx < MEM_8B; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetPPURegister(0x2000+idx));
+      ppuRegs += byte;
+   }
+   ppuRegsDataSect = doc.createCDATASection(ppuRegs);
+   ppuRegsElement.appendChild(ppuRegsDataSect);
+
+   // Serialize the PPU memory.
+   QDomElement ppuMemElement = addElement(doc,ppuElement,"memory");
+   QDomCDATASection ppuMemDataSect;
+   QString ppuMem;
+
+   for ( idx = 0; idx < MEM_8KB; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetPPUMemory(0x2000+idx));
+      ppuMem += byte;
+   }
+   ppuMemDataSect = doc.createCDATASection(ppuMem);
+   ppuMemElement.appendChild(ppuMemDataSect);
+
+   // Serialize the APU state.
+   QDomElement apuElement = addElement( doc, saveElement, "apu" );
+
+   // Serialize the APU registers.
+   QDomElement apuRegsElement = addElement(doc,apuElement,"registers");
+
+   QDomCDATASection apuRegsDataSect;
+   QString apuRegs;
+
+   for ( idx = 0; idx < MEM_32B; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetAPURegister(0x4000+idx));
+      apuRegs += byte;
+   }
+   apuRegsDataSect = doc.createCDATASection(apuRegs);
+   apuRegsElement.appendChild(apuRegsDataSect);
+
+   // Serialize the Cartridge state.
+   QDomElement cartElement = addElement( doc, saveElement, "cartridge" );
+
+   // Serialize the Cartridge SRAM memory.
+   QDomElement cartSramMemElement = addElement( doc, cartElement, "sram" );
+   QDomCDATASection cartSramMemDataSect;
+
+   cartMem.clear();
+   for ( idx = 0; idx < MEM_8KB; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetSRAMData(0x6000+idx));
+      cartMem += byte;
+   }
+   cartSramMemDataSect = doc.createCDATASection(cartMem);
+   cartSramMemElement.appendChild(cartSramMemDataSect);
+
+   // Serialize the Cartridge EXRAM memory.
+   QDomElement cartExramMemElement = addElement( doc, cartElement, "exram" );
+   QDomCDATASection cartExramMemDataSect;
+
+   cartMem.clear();
+   for ( idx = 0; idx < MEM_1KB; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetEXRAMData(0x5C00+idx));
+      cartMem += byte;
+   }
+   cartExramMemDataSect = doc.createCDATASection(cartMem);
+   cartExramMemElement.appendChild(cartExramMemDataSect);
+
+   return true;
+}
+
+bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+{
+   // Loop through the child elements and process the ones we find
+   QDomElement saveStateElement = doc.documentElement();
+   QDomNode child = saveStateElement.firstChild();
+   QDomNode childsChild;
+   QDomNode cdataNode;
+   QDomElement childsElement;
+   QDomCDATASection cdataSection;
+   QString cdataString;
+   int idx;
+   char byte;
+
+   do
+   {
+      if (child.nodeName() == "cpu")
+      {
+         childsChild = child.firstChild();
+         do
+         {
+            if ( childsChild.nodeName() == "registers" )
+            {
+               childsElement = childsChild.toElement();
+               nesSetCPUProgramCounter(childsElement.attribute("pc").toInt());
+               nesSetCPUStackPointer(childsElement.attribute("sp").toInt());
+               nesSetCPUAccumulator(childsElement.attribute("a").toInt());
+               nesSetCPUIndexX(childsElement.attribute("x").toInt());
+               nesSetCPUIndexY(childsElement.attribute("y").toInt());
+               nesSetCPUFlags(childsElement.attribute("f").toInt());
+            }
+            else if ( childsChild.nodeName() == "memory" )
+            {
+               cdataNode = childsChild.firstChild();
+               cdataSection = cdataNode.toCDATASection();
+               for ( idx = 0; idx < MEM_2KB; idx++ )
+               {
+               }
+            }
+         }
+         while (!(childsChild = childsChild.nextSibling()).isNull());
+      }
+      else if (child.nodeName() == "ppu")
+      {
+      }
+      else if (child.nodeName() == "apu")
+      {
+      }
+      else if (child.nodeName() == "cartridge")
+      {
+      }
+   }
+   while (!(child = child.nextSibling()).isNull());
+
+   emit updateDebuggers();
+
+   return true;
+}

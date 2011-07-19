@@ -33,7 +33,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>5</number>
      </property>
      <property name="usesScrollButtons">
       <bool>true</bool>
@@ -352,28 +352,28 @@
        <string>Cartridge</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
           <string>Mapper:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="1">
         <widget class="QComboBox" name="mapperComboBox">
          <property name="maxVisibleItems">
           <number>20</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_8">
          <property name="text">
           <string>Type:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QComboBox" name="romTypeComboBox">
          <item>
           <property name="text">
@@ -392,14 +392,14 @@
          </item>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>Mirroring:</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="4" column="1">
         <widget class="QComboBox" name="mirroringComboBox">
          <item>
           <property name="text">
@@ -413,21 +413,21 @@
          </item>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <widget class="QCheckBox" name="trainerPresent">
          <property name="text">
           <string>512-byte Trainer Present</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="6" column="1">
         <widget class="QCheckBox" name="saveRAMPresent">
          <property name="text">
           <string>Save RAM Present</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QCheckBox" name="extraVRAMPresent">
          <property name="text">
           <string>Extra VRAM Present</string>
@@ -443,6 +443,16 @@
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="cartridgeOutputName"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Cartridge Save State Name:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="cartridgeSaveStateName"/>
        </item>
       </layout>
      </widget>

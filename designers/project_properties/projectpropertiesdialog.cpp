@@ -29,6 +29,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->debugInfoName->setText(nesicideProject->getProjectDebugInfoName());
    ui->chrromOutputName->setText(nesicideProject->getProjectCHRROMOutputName());
    ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
+   ui->cartridgeSaveStateName->setText(nesicideProject->getProjectCartridgeSaveStateName());
 
    ui->compilerDefinedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
    ui->compilerIncludePaths->setText(nesicideProject->getCompilerIncludePaths());
@@ -410,6 +411,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectDebugInfoName(ui->debugInfoName->text());
    nesicideProject->setProjectCHRROMOutputName(ui->chrromOutputName->text());
    nesicideProject->setProjectCartridgeOutputName(ui->cartridgeOutputName->text());
+   nesicideProject->setProjectCartridgeSaveStateName(ui->cartridgeSaveStateName->text());
    nesicideProject->setCompilerDefinedSymbols(ui->compilerDefinedSymbols->text());
    nesicideProject->setCompilerIncludePaths(ui->compilerIncludePaths->text());
    nesicideProject->setCompilerAdditionalOptions(ui->compilerAdditionalOptions->text());

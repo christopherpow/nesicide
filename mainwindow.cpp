@@ -599,6 +599,37 @@ void MainWindow::on_actionSave_Project_triggered()
    settings.setValue("LastProject",projectFileName);
 }
 
+void MainWindow::saveEmulatorState(QString fileName)
+{
+   QFile file(fileName);
+
+   if ( !file.open( QFile::WriteOnly) )
+   {
+      QMessageBox::critical(this, "Error", "An error occured while trying to open the save state file for writing.");
+      return;
+   }
+
+   QDomDocument doc;
+   QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
+   doc.appendChild(instr);
+
+   if (!emulator->serialize(doc, doc))
+   {
+      QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
+      file.close();
+   }
+
+   // Create a text stream so we can stream the XML data to the file easily.
+   QTextStream ts( &file );
+
+   // Use the standard C++ stream function for streaming the string representation of our XML to
+   // our file stream.
+   ts << doc.toString();
+
+   // And finally close the file.
+   file.close();
+}
+
 void MainWindow::saveProject()
 {
    QFile file(projectFileName);
@@ -630,6 +661,12 @@ void MainWindow::saveProject()
 
    // And finally close the file.
    file.close();
+
+   // Now save the emulator state if a save state file is specified.
+   if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+   {
+      saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+   }
 }
 
 void MainWindow::on_actionSave_Project_As_triggered()
@@ -942,6 +979,23 @@ void MainWindow::openProject(QString fileName)
 
          emulator->primeEmulator();
          emulator->resetEmulator();
+
+         if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+         {
+            QDomDocument saveDoc;
+            QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
+
+            if (saveFile.open(QFile::ReadOnly))
+            {
+               saveDoc.setContent(saveFile.readAll());
+            }
+            saveFile.close();
+
+            if (!emulator->deserialize(saveDoc, saveDoc, errors))
+            {
+               QMessageBox::critical(this, "Error", "An error occured while trying to deserialize the save state data.");
+            }
+         }
 
          if ( EnvironmentSettingsDialog::runRomOnLoad() )
          {

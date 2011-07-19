@@ -115,4 +115,5 @@ void NameTableVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 void NameTableVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
    CPPUDBG::SetPPUViewerShowVisible ( checked );
+   renderData();
 }

@@ -78,6 +78,7 @@ void CNesicideProject::initializeProject()
    m_projectDebugInfoName = "";
    m_projectCHRROMOutputName = "";
    m_projectCartridgeOutputName = "";
+   m_projectCartridgeSaveStateName = "";
    m_compilerDefinedSymbols = "";
    m_compilerIncludePaths = "";
    m_compilerAdditionalOptions = "";
@@ -116,6 +117,7 @@ void CNesicideProject::terminateProject()
    m_projectDebugInfoName = "";
    m_projectCHRROMOutputName = "";
    m_projectCartridgeOutputName = "";
+   m_projectCartridgeSaveStateName = "";
    m_compilerDefinedSymbols = "";
    m_compilerIncludePaths = "";
    m_compilerAdditionalOptions = "";
@@ -146,6 +148,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("debuginfoname",m_projectDebugInfoName);
    propertiesElement.setAttribute("chrromoutputname",m_projectCHRROMOutputName);
    propertiesElement.setAttribute("cartridgeoutputname",m_projectCartridgeOutputName);
+   propertiesElement.setAttribute("cartridgesavestatename",m_projectCartridgeSaveStateName);
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
    propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
    propertiesElement.setAttribute("compileradditionaloptions",m_compilerAdditionalOptions);
@@ -190,9 +193,6 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    {
       return false;
    }
-
-   // CPTODO: implement this
-   // CNES::serialize(doc, projectElement);
 
    return true;
 }
@@ -256,6 +256,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_projectDebugInfoName = propertiesElement.attribute("debuginfoname");
          m_projectCHRROMOutputName = propertiesElement.attribute("chrromoutputname");
          m_projectCartridgeOutputName = propertiesElement.attribute("cartridgeoutputname");
+         m_projectCartridgeSaveStateName = propertiesElement.attribute("cartridgesavestatename");
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
          m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
          m_compilerAdditionalOptions = propertiesElement.attribute("compileradditionaloptions");

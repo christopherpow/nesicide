@@ -138,10 +138,7 @@ void CPPUDBG::RENDERCHRMEM ( void )
    {
       pTV = (int8_t*)m_pCHRMEMInspectorTV;
 
-      if ( nesGetPPUFrame() != m_ppuState.frame )
-      {
-         nesGetPpuSnapshot(&m_ppuState);
-      }
+      nesGetPpuSnapshot(&m_ppuState);
 
       color[0][0] = m_chrMemColor[0].red();
       color[0][1] = m_chrMemColor[0].green();
@@ -209,10 +206,7 @@ void CPPUDBG::RENDEROAM ( void )
    {
       pTV = (int8_t*)m_pOAMInspectorTV;
 
-      if ( nesGetPPUFrame() != m_ppuState.frame )
-      {
-         nesGetPpuSnapshot(&m_ppuState);
-      }
+      nesGetPpuSnapshot(&m_ppuState);
 
       color[0] = CBasePalette::GetPalette ( 0x0D );
       color[1] = CBasePalette::GetPalette ( 0x10 );
@@ -328,10 +322,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
    {
       pTV = (int8_t*)m_pNameTableInspectorTV;
 
-      if ( nesGetPPUFrame() != m_ppuState.frame )
-      {
-         nesGetPpuSnapshot(&m_ppuState);
-      }
+      nesGetPpuSnapshot(&m_ppuState);
 
       for ( y = 0; y < 480; y++ )
       {
@@ -422,11 +413,6 @@ void CPPUDBG::RENDERNAMETABLE ( void )
       if ( m_bPPUViewerShowVisible )
       {
          pTV = (int8_t*)m_pNameTableInspectorTV;
-
-         if ( nesGetPPUFrame() != m_ppuState.frame )
-         {
-            nesGetPpuSnapshot(&m_ppuState);
-         }
 
          for ( y = 0; y < 480; y++ )
          {
