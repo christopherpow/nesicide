@@ -680,8 +680,12 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
             {
                cdataNode = childsChild.firstChild();
                cdataSection = cdataNode.toCDATASection();
+               cdataString = cdataSection.data();
                for ( idx = 0; idx < MEM_2KB; idx++ )
                {
+                  byte = cdataString.left(2).toInt();
+                  cdataString = cdataString.right(cdataString.length()-2);
+                  nesSetCPUMemory(idx,byte);
                }
             }
          }

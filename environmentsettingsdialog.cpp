@@ -585,16 +585,12 @@ void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
 void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
 {
    QSettings settings;
-   int style = 0;
-   while ( !m_lexer->description(style).isEmpty() )
+   int style = ui->styleName->currentIndex();
+   QFont font = m_lexer->font(style);
+   font.setPointSize(value);
+   m_lexer->setFont(font,style);
+   if ( style == QsciLexerCA65::CA65_Default )
    {
-      QFont font = m_lexer->font(style);
-      font.setPointSize(value);
-      m_lexer->setFont(font,style);
-      if ( style == QsciLexerCA65::CA65_Default )
-      {
-         m_scintilla->setMarginsFont(font);
-      }
-      style++;
+      m_scintilla->setMarginsFont(font);
    }
 }
