@@ -16,9 +16,9 @@
 
 #include <stdint.h>
 
-#include "cnesrommapper068.h"
+#include "debugger/dbg_cnesrommapper068.h"
 
-#include "cnesppu.h"
+#include "debugger/dbg_cnesppu.h"
 
 // Sunsoft Mapper #4 stuff
 uint8_t  CROMMapper068::m_reg [] = { 0x00, 0x00, 0x00, 0x00 };

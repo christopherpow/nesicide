@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-#include "cnesrommapper065.h"
+#include "debugger/dbg_cnesrommapper065.h"
 
 #include "cnes6502.h"
 #include "cnesppu.h"

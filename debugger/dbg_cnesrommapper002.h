@@ -1,7 +1,7 @@
 #if !defined ( ROM_MAPPER002_H )
 #define ROM_MAPPER002_H
 
-#include "cnesrom.h"
+#include "dbg_cnesrom.h"
 
 class CROMMapper002 : public CROM
 {
