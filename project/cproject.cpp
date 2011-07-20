@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "cproject.h"
 
 CProject::CProject(IProjectTreeViewItem* parent)

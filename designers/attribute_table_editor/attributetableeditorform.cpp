@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "attributetableeditorform.h"
 #include "ui_attributetableeditorform.h"
 
