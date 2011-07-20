@@ -199,8 +199,8 @@ QsciLexerCA65::QsciLexerCA65(QObject *parent)
    setDefaultFont(QFont("Consolas", 11));
 #endif
 
-   labelRegex = QRegExp("([^; \t]+):");
-   numberRegex = QRegExp("([$]([0-9A-f]+))|(([0-9A-f]+)[h])|([%]([0-1]+))|([0-9]+)");
+   labelRegex = QRegExp("^(\\s*)((\\.|@)?\\w+\\b:)");
+   numberRegex = QRegExp("(\\b\\d+\\b)|(\\$\\b[0-9A-Fa-f]+\\b)|(\\b[0-9][0-9A-Fa-f]*h\\b)|(%\\b[01]+\\b)");
 
    regex = "\\b(";
 
@@ -332,9 +332,12 @@ void QsciLexerCA65::styleText(int start, int end)
             pos = line.indexOf(labelRegex,pos);
             if ( pos != -1 )
             {
-               startStyling(start+pos,0xFF);
-               setStyling(labelRegex.matchedLength(),CA65_Label);
+               QString leading_space = labelRegex.cap( 1 );
+               QString label         = labelRegex.cap( 2 );
+               startStyling(start+pos+leading_space.length(),0xFF);
+               setStyling(label.length(),CA65_Label);
                pos = pos+labelRegex.matchedLength();
+
             }
          } while ( pos != -1 );
 
