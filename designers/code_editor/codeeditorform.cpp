@@ -103,6 +103,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
       m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
    }
 
+   m_scintilla->setAutoIndent( true );
+   m_scintilla->setTabWidth( 4 );
+   m_scintilla->setIndentationsUseTabs( false );
+
    // Connect signals from Scintilla to update the UI.
    QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
