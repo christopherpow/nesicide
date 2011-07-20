@@ -1404,7 +1404,7 @@ void MainWindow::closeProject()
       if ( item )
       {
          ui->tabWidget->setCurrentWidget(ui->tabWidget->widget(tab));
-         if ( item->onSaveQuery() == QMessageBox::Yes )
+         if ( item->onSaveQuery() )
          {
             item->onSave();
          }
