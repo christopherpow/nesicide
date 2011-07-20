@@ -34,7 +34,7 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
          m_length = 0x18; // this should perhaps be MEM_4KB or something else...mirroring?
          break;
       case eMemory_cartSRAM:
-         m_offset = 0x6000;
+         m_offset = 0;
          m_length = MEM_8KB;
          break;
       case eMemory_cartROM:
@@ -266,7 +266,7 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVar
             nesMapperHighWrite(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartSRAM:
-            nesSetSRAMData(m_offset+(index.row()<<4)+index.column(), data);
+            nesSetSRAMDataPhysical(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartEXRAM:
             nesSetEXRAMData(m_offset+(index.row()<<4)+index.column(), data);
@@ -354,7 +354,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
             return createIndex(row, column, (int)nesGetPRGROMData(m_offset+(row<<4)+column));
             break;
          case eMemory_cartSRAM:
-            return createIndex(row, column, (int)nesGetSRAMData(m_offset+(row<<4)+column));
+            return createIndex(row, column, (int)nesGetSRAMDataPhysical(m_offset+(row<<4)+column));
             break;
          case eMemory_cartEXRAM:
             return createIndex(row, column, (int)nesGetEXRAMData(m_offset+(row<<4)+column));
@@ -414,7 +414,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex&) const
          return (MEM_32KB>>4);
          break;
       case eMemory_cartSRAM:
-         return (MEM_8KB>>4);
+         return (MEM_64KB>>4);
          break;
       case eMemory_cartEXRAM:
          return (MEM_1KB>>4);

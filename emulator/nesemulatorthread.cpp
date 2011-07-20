@@ -173,6 +173,7 @@ void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
 
 void NESEmulatorThread::loadCartridge()
 {
+   QString errors;
    int32_t b;
    int32_t a;
 
@@ -235,6 +236,8 @@ void NESEmulatorThread::loadCartridge()
 
       // Initialize NES...
       nesResetInitial(m_pCartridge->getMapperNumber());
+
+      deserialize(nesicideProject->getSaveStateDoc(),nesicideProject->getSaveStateDoc(),errors);
 
       // Trigger inspector updates...
       nesDisassemble();
@@ -536,6 +539,7 @@ void NESEmulatorThread::run ()
 bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
 {
    QString cartMem;
+   QString ppuMem;
    char byte[3];
    int  idx;
 
@@ -587,8 +591,8 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    // Serialize the PPU memory.
    QDomElement ppuMemElement = addElement(doc,ppuElement,"memory");
    QDomCDATASection ppuMemDataSect;
-   QString ppuMem;
 
+   ppuMem.clear();
    for ( idx = 0; idx < MEM_8KB; idx++ )
    {
       sprintf(byte,"%02X",nesGetPPUMemory(0x2000+idx));
@@ -596,6 +600,19 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    }
    ppuMemDataSect = doc.createCDATASection(ppuMem);
    ppuMemElement.appendChild(ppuMemDataSect);
+
+   // Serialize the PPU OAM memory.
+   QDomElement ppuOamMemElement = addElement(doc,ppuElement,"oam");
+   QDomCDATASection ppuOamMemDataSect;
+
+   ppuMem.clear();
+   for ( idx = 0; idx < MEM_256B; idx++ )
+   {
+      sprintf(byte,"%02X",nesGetPPUOAM(idx&3,idx>>2));
+      ppuMem += byte;
+   }
+   ppuOamMemDataSect = doc.createCDATASection(ppuMem);
+   ppuOamMemElement.appendChild(ppuOamMemDataSect);
 
    // Serialize the APU state.
    QDomElement apuElement = addElement( doc, saveElement, "apu" );
@@ -622,9 +639,9 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    QDomCDATASection cartSramMemDataSect;
 
    cartMem.clear();
-   for ( idx = 0; idx < MEM_8KB; idx++ )
+   for ( idx = 0; idx < MEM_64KB; idx++ )
    {
-      sprintf(byte,"%02X",nesGetSRAMData(0x6000+idx));
+      sprintf(byte,"%02X",nesGetSRAMDataPhysical(idx));
       cartMem += byte;
    }
    cartSramMemDataSect = doc.createCDATASection(cartMem);
@@ -661,6 +678,7 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
 
    do
    {
+#if 0
       if (child.nodeName() == "cpu")
       {
          childsChild = child.firstChild();
@@ -683,7 +701,7 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
                cdataString = cdataSection.data();
                for ( idx = 0; idx < MEM_2KB; idx++ )
                {
-                  byte = cdataString.left(2).toInt();
+                  byte = cdataString.left(2).toInt(0,16);
                   cdataString = cdataString.right(cdataString.length()-2);
                   nesSetCPUMemory(idx,byte);
                }
@@ -693,12 +711,75 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
       }
       else if (child.nodeName() == "ppu")
       {
+         childsChild = child.firstChild();
+         do
+         {
+            if ( childsChild.nodeName() == "registers" )
+            {
+               cdataNode = childsChild.firstChild();
+               cdataSection = cdataNode.toCDATASection();
+               cdataString = cdataSection.data();
+               for ( idx = 0; idx < MEM_8B; idx++ )
+               {
+                  byte = cdataString.left(2).toInt(0,16);
+                  qDebug(QString::number(byte).toAscii().constData());
+                  cdataString = cdataString.right(cdataString.length()-2);
+                  nesSetPPURegister(0x2000+idx,byte);
+               }
+            }
+            else if ( childsChild.nodeName() == "memory" )
+            {
+               cdataNode = childsChild.firstChild();
+               cdataSection = cdataNode.toCDATASection();
+               cdataString = cdataSection.data();
+               for ( idx = 0; idx < MEM_8KB; idx++ )
+               {
+                  byte = cdataString.left(2).toInt(0,16);
+                  cdataString = cdataString.right(cdataString.length()-2);
+                  nesSetPPUMemory(0x2000+idx,byte);
+               }
+            }
+            else if ( childsChild.nodeName() == "oam" )
+            {
+               cdataNode = childsChild.firstChild();
+               cdataSection = cdataNode.toCDATASection();
+               cdataString = cdataSection.data();
+               for ( idx = 0; idx < MEM_256B; idx++ )
+               {
+                  byte = cdataString.left(2).toInt(0,16);
+                  cdataString = cdataString.right(cdataString.length()-2);
+                  nesSetPPUOAM(idx&3,idx>>2,byte);
+               }
+            }
+         }
+         while (!(childsChild = childsChild.nextSibling()).isNull());
       }
       else if (child.nodeName() == "apu")
       {
       }
       else if (child.nodeName() == "cartridge")
       {
+      }
+#endif
+      if (child.nodeName() == "cartridge")
+      {
+         childsChild = child.firstChild();
+         do
+         {
+            if ( childsChild.nodeName() == "sram" )
+            {
+               cdataNode = childsChild.firstChild();
+               cdataSection = cdataNode.toCDATASection();
+               cdataString = cdataSection.data();
+               for ( idx = 0; idx < MEM_64KB; idx++ )
+               {
+                  byte = cdataString.left(2).toInt(0,16);
+                  cdataString = cdataString.right(cdataString.length()-2);
+                  nesSetSRAMDataPhysical(idx,byte);
+               }
+            }
+         }
+         while (!(childsChild = childsChild.nextSibling()).isNull());
       }
    }
    while (!(child = child.nextSibling()).isNull());

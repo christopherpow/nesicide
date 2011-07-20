@@ -87,6 +87,9 @@ void CNesicideProject::initializeProject()
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
+
+   m_saveStateDoc.clear();
+
    m_isInitialized = true;
    m_isDirty = false;
 
@@ -126,7 +129,11 @@ void CNesicideProject::terminateProject()
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
+
+   m_saveStateDoc.clear();
+
    m_isInitialized = false;
+   m_isDirty = false;
 }
 
 bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)

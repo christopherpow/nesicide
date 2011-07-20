@@ -456,6 +456,7 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
     ui->debugInfoName->setText(text+".dbg");
     ui->chrromOutputName->setText(text+".chr");
     ui->cartridgeOutputName->setText(text+".nes");
+    ui->cartridgeSaveStateName->setText(text+".sav");
 }
 
 void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()

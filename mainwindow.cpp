@@ -739,6 +739,7 @@ void MainWindow::openROM(QString fileName)
    nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
    nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
    nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
+   nesicideProject->setProjectCartridgeSaveStateName(fileInfo.completeBaseName()+".sav");
    nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
 
    // Load debugger info if we can find it.
@@ -977,9 +978,6 @@ void MainWindow::openProject(QString fileName)
          // Load debugger info if we can find it.
          CCC65Interface::captureDebugInfo();
 
-         emulator->primeEmulator();
-         emulator->resetEmulator();
-
          if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
          {
             QDomDocument saveDoc;
@@ -988,14 +986,13 @@ void MainWindow::openProject(QString fileName)
             if (saveFile.open(QFile::ReadOnly))
             {
                saveDoc.setContent(saveFile.readAll());
+               nesicideProject->setSaveStateDoc(saveDoc);
             }
             saveFile.close();
-
-            if (!emulator->deserialize(saveDoc, saveDoc, errors))
-            {
-               QMessageBox::critical(this, "Error", "An error occured while trying to deserialize the save state data.");
-            }
          }
+
+         emulator->primeEmulator();
+//         emulator->resetEmulator();
 
          if ( EnvironmentSettingsDialog::runRomOnLoad() )
          {
@@ -1390,6 +1387,12 @@ void MainWindow::closeProject()
 
    // Stop the emulator if it is running
    emulator->pauseEmulation(false);
+
+   // Now save the emulator state if a save state file is specified.
+   if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+   {
+      saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+   }
 
    // Terminate the project and let the IDE know
    projectBrowser->disableNavigation();

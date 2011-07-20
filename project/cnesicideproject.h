@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QMessageBox>
+#include <QDomDocument>
 
 typedef QColor CPaletteEntry;
 
@@ -46,6 +47,9 @@ public:
    QString getAssemblerAdditionalOptions() { return m_assemblerAdditionalOptions; }
    QString getLinkerConfigFile() { return m_linkerConfigFile; }
    QString getLinkerAdditionalOptions() { return m_linkerAdditionalOptions; }
+
+   QDomDocument& getSaveStateDoc() { return m_saveStateDoc; }
+
    QList<CPaletteEntry> *getProjectPaletteEntries() { return &m_projectPaletteEntries; }
    CCartridge* getCartridge() { return m_pCartridge; }
    CProject* getProject() { return m_pProject; }
@@ -77,6 +81,8 @@ public:
    void setLinkerConfigFile(QString value) { m_linkerConfigFile = value; }
    void setLinkerAdditionalOptions(QString value) { m_linkerAdditionalOptions = value; }
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
+
+   void setSaveStateDoc(QDomDocument doc) { m_saveStateDoc = doc; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -125,6 +131,9 @@ private:
    QString m_assemblerAdditionalOptions;
    QString m_linkerConfigFile;
    QString m_linkerAdditionalOptions;
+
+   // Save state information
+   QDomDocument m_saveStateDoc;
 
    // Contained children
    QList<CPaletteEntry> m_projectPaletteEntries;                 // List of palette entries for the emulator.

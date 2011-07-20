@@ -211,17 +211,6 @@ SOURCES += mainwindow.cpp \
     debugger/mapperinformationdockwidget.cpp \
     debugger/executionvisualizerdockwidget.cpp \
     debugger/executioninspectordockwidget.cpp \
-    debugger/dbg_cnesrommapper068.cpp \
-    debugger/dbg_cnesrommapper065.cpp \
-    debugger/dbg_cnesrommapper011.cpp \
-    debugger/dbg_cnesrommapper010.cpp \
-    debugger/dbg_cnesrommapper009.cpp \
-    debugger/dbg_cnesrommapper007.cpp \
-    debugger/dbg_cnesrommapper005.cpp \
-    debugger/dbg_cnesrommapper004.cpp \
-    debugger/dbg_cnesrommapper003.cpp \
-    debugger/dbg_cnesrommapper002.cpp \
-    debugger/dbg_cnesrommapper001.cpp \
     debugger/dbg_cnesrom.cpp \
     debugger/dbg_cnesppu.cpp \
     debugger/dbg_cnesmappers.cpp \
@@ -327,17 +316,6 @@ HEADERS += mainwindow.h \
     debugger/mapperinformationdockwidget.h \
     debugger/executionvisualizerdockwidget.h \
     debugger/executioninspectordockwidget.h \
-    debugger/dbg_cnesrommapper068.h \
-    debugger/dbg_cnesrommapper065.h \
-    debugger/dbg_cnesrommapper011.h \
-    debugger/dbg_cnesrommapper010.h \
-    debugger/dbg_cnesrommapper009.h \
-    debugger/dbg_cnesrommapper007.h \
-    debugger/dbg_cnesrommapper005.h \
-    debugger/dbg_cnesrommapper004.h \
-    debugger/dbg_cnesrommapper003.h \
-    debugger/dbg_cnesrommapper002.h \
-    debugger/dbg_cnesrommapper001.h \
     debugger/dbg_cnesrom.h \
     debugger/dbg_cnesppu.h \
     debugger/dbg_cnesmappers.h \

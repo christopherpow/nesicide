@@ -162,6 +162,12 @@
         <iconset resource="../resource.qrc">
          <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
        </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
        <property name="autoRaise">
         <bool>true</bool>
        </property>
