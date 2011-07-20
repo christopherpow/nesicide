@@ -747,8 +747,21 @@ void MainWindow::openROM(QString fileName)
 
    projectBrowser->enableNavigation();
 
+   if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+   {
+      QDomDocument saveDoc;
+      QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
+
+      if (saveFile.open(QFile::ReadOnly))
+      {
+         saveDoc.setContent(saveFile.readAll());
+         nesicideProject->setSaveStateDoc(saveDoc);
+      }
+      saveFile.close();
+   }
+
    emulator->primeEmulator();
-   emulator->resetEmulator();
+//   emulator->resetEmulator();
 
    if ( EnvironmentSettingsDialog::runRomOnLoad() )
    {

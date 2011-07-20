@@ -679,6 +679,11 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
    do
    {
 #if 0
+// CPTODO: For now we save lots of crap in serialize but only
+//         restore the SRAM content on deserialize.  Having a
+//         cycle-perfect "pick up where i left off" option just
+//         isn't very feasible and not really necessary with the
+//         IDE.  The standalone emulator may do it differently.
       if (child.nodeName() == "cpu")
       {
          childsChild = child.firstChild();
