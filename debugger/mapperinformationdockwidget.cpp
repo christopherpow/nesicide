@@ -59,7 +59,15 @@ void MapperInformationDockWidget::cartridgeLoaded()
    ui->info->setText ( buffer );
    ui->tabWidget->setTabEnabled(0, nesMapperRemapsPRGROM());
    ui->tabWidget->setTabEnabled(1, nesMapperRemapsCHRMEM());
-   ui->internalInfo->setCurrentIndex(nesGetMapper());
+   ui->internalInfo->setCurrentIndex(mapperInspectorPageFromID(nesGetMapper()));
+   if ( ui->internalInfo->currentIndex() )
+   {
+      ui->tabWidget->setTabEnabled(2, true);
+   }
+   else
+   {
+      ui->tabWidget->setTabEnabled(2, false);
+   }
 }
 
 void MapperInformationDockWidget::updateInformation()
@@ -69,6 +77,7 @@ void MapperInformationDockWidget::updateInformation()
    char buffer [ 16 ];
    nesMapper001Info mapper001Info;
    nesMapper004Info mapper004Info;
+   nesMapper069Info mapper069Info;
 
    // Show PRG-ROM absolute addresses...
    sprintf ( buffer, "%02X(%05X)", nesGetPRGROMAbsoluteAddress(0x8000)>>13, nesGetPRGROMAbsoluteAddress(0x8000) );
@@ -103,22 +112,32 @@ void MapperInformationDockWidget::updateInformation()
       case 1:
          nesMapper001GetInformation(&mapper001Info);
          sprintf ( buffer, "%02X", mapper001Info.shiftRegister );
-         ui->shiftRegister->setText ( buffer );
+         ui->shiftRegister1->setText ( buffer );
          sprintf ( buffer, "%d", mapper001Info.shiftRegisterBit );
-         ui->shiftRegisterBit->setText ( buffer );
+         ui->shiftRegisterBit1->setText ( buffer );
          break;
 
       case 4:
          nesMapper004GetInformation(&mapper004Info);
-         ui->irqEnabled->setChecked ( mapper004Info.irqEnabled );
-         ui->irqAsserted->setChecked ( mapper004Info.irqAsserted );
-         ui->ppuAddrA12->setChecked ( mapper004Info.ppuAddrA12 );
-         sprintf ( buffer, "%02X", mapper004Info.irqReload );
-         ui->irqReload->setText ( buffer );
+         ui->irqEnabled4->setChecked ( mapper004Info.irqEnabled );
+         ui->irqAsserted4->setChecked ( mapper004Info.irqAsserted );
+         ui->ppuAddrA124->setChecked ( mapper004Info.ppuAddrA12 );
+         sprintf ( buffer, "%02X", mapper004Info.irqLatch );
+         ui->irqLatch4->setText ( buffer );
          sprintf ( buffer, "%02X", mapper004Info.irqCounter );
-         ui->irqCounter->setText ( buffer );
+         ui->irqCounter4->setText ( buffer );
          sprintf ( buffer, "%d", mapper004Info.ppuCycle );
-         ui->lastA12Cycle->setText ( buffer );
+         ui->lastA12Cycle4->setText ( buffer );
+         ui->irqReload4->setChecked ( mapper004Info.irqReload );
+         break;
+
+      case 69:
+         nesMapper069GetInformation(&mapper069Info);
+         ui->irqEnabled69->setChecked ( mapper069Info.irqEnabled );
+         ui->irqCounterEnabled69->setChecked ( mapper069Info.irqCountEnabled );
+         ui->irqAsserted69->setChecked ( mapper069Info.irqAsserted );
+         sprintf ( buffer, "%04X", mapper069Info.irqCounter );
+         ui->irqCounter69->setText ( buffer );
          break;
    }
 

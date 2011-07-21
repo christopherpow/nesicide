@@ -760,8 +760,8 @@ void MainWindow::openROM(QString fileName)
       saveFile.close();
    }
 
+   emulator->resetEmulator();
    emulator->primeEmulator();
-//   emulator->resetEmulator();
 
    if ( EnvironmentSettingsDialog::runRomOnLoad() )
    {

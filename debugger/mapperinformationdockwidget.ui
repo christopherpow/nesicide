@@ -255,7 +255,7 @@
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="currentIndex">
-           <number>4</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="noInternals"/>
           <widget class="QWidget" name="mapper1">
@@ -268,7 +268,7 @@
              </widget>
             </item>
             <item row="0" column="1" colspan="2">
-             <widget class="QLineEdit" name="shiftRegister">
+             <widget class="QLineEdit" name="shiftRegister1">
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -282,30 +282,31 @@
              </widget>
             </item>
             <item row="0" column="4">
-             <widget class="QLineEdit" name="shiftRegisterBit">
+             <widget class="QLineEdit" name="shiftRegisterBit1">
               <property name="readOnly">
                <bool>true</bool>
               </property>
              </widget>
             </item>
+            <item row="1" column="0" colspan="5">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="mapper2"/>
-          <widget class="QWidget" name="mapper3"/>
           <widget class="QWidget" name="mapper4">
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="2" column="2">
-             <widget class="QCheckBox" name="ppuAddrA12">
-              <property name="text">
-               <string>PPU Address A12 Set</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QCheckBox" name="irqEnabled">
+             <widget class="QCheckBox" name="irqEnabled4">
               <property name="text">
                <string>IRQ Enabled</string>
               </property>
@@ -314,14 +315,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QCheckBox" name="irqAsserted">
-              <property name="text">
-               <string>IRQ Asserted</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2" colspan="6">
+            <item row="6" column="2" colspan="6">
              <spacer name="verticalSpacer_3">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -342,16 +336,33 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="irqReload"/>
+             <widget class="QLineEdit" name="irqLatch4"/>
             </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="label_18">
               <property name="text">
                <string>IRQ Counter:</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="irqCounter4"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QCheckBox" name="irqReload4">
+              <property name="text">
+               <string>Reload Tripped</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QCheckBox" name="irqAsserted4">
+              <property name="text">
+               <string>IRQ Asserted</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QLabel" name="label_20">
               <property name="text">
                <string>Last A12 transition:</string>
@@ -359,20 +370,71 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="irqCounter"/>
+             <widget class="QLineEdit" name="lastA12Cycle4"/>
             </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lastA12Cycle"/>
+            <item row="1" column="2">
+             <widget class="QCheckBox" name="ppuAddrA124">
+              <property name="text">
+               <string>PPU Address A12 Set</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="mapper5"/>
-          <widget class="QWidget" name="mapper6"/>
-          <widget class="QWidget" name="mapper7"/>
-          <widget class="QWidget" name="mapper8"/>
-          <widget class="QWidget" name="mapper9"/>
-          <widget class="QWidget" name="mapper10"/>
-          <widget class="QWidget" name="mapper11"/>
+          <widget class="QWidget" name="mapper69">
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_21">
+              <property name="text">
+               <string>IRQ Counter:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="irqCounter69"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QCheckBox" name="irqEnabled69">
+              <property name="text">
+               <string>IRQ Enabled</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="2">
+             <widget class="QCheckBox" name="irqAsserted69">
+              <property name="text">
+               <string>IRQ Asserted</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="irqCounterEnabled69">
+              <property name="text">
+               <string>IRQ Counter Enabled</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>

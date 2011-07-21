@@ -265,6 +265,7 @@ void NESEmulatorThread::primeEmulator()
       {
          breakpointSemaphore.release();
       }
+      emulator->start();
    }
 }
 

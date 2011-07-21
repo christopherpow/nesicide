@@ -3,8 +3,14 @@ This is the list of changes per version for NESICIDE application.
 V1.005
 Fixed PPU state-change breakpoints so breakpoints can be set on when the PPU changes state internally (ie. not due to program flow).
 Added OAM address/data information to PPU inspector.
+Added scroll x/y information to PPU inspector.
 Implemented frame step which steps an entire PPU frame.
 Added CPU vectors to CPU register inspector.
+Enhanced Code Editor syntax highlight and enabled configurable tab spacing, tab/space replacement, and auto-indent (thanks thefox!)
+Implemented <ROM>.sav save-state files for saving emulator state.  Right now only the SRAM is restored on a ROM load.
+Implemented full-screen mode (F11).
+Added support for C files, and C compiler configuration options in Project Preferences.
+Initial implementation of FME-7 mapper (69) for thefox.
 
 V1.004
 Added search bar hooks to Graphics Bank editor.
