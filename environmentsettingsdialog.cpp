@@ -25,6 +25,9 @@ QColor EnvironmentSettingsDialog::m_highlightBarColor;
 bool EnvironmentSettingsDialog::m_highlightBarEnabled;
 bool EnvironmentSettingsDialog::m_showSymbolTips;
 bool EnvironmentSettingsDialog::m_showOpcodeTips;
+bool EnvironmentSettingsDialog::m_autoIndentEnabled;
+bool EnvironmentSettingsDialog::m_tabReplacementEnabled;
+int EnvironmentSettingsDialog::m_spacesForTabs;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
 
@@ -57,7 +60,7 @@ static const char* exampleText =
    "\tjmp start\t; skip this string\n"
    "\t.asciiz \"This is a string\"\n"
    "start:\n"
-   "  lda $2002\t\t; read PPU status to check for NMI\n";
+   "  lda $2002\t\t; read PPU status to check for NMI";
 
 EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QDialog(parent),
@@ -187,6 +190,10 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->showHighlightBar->setChecked(m_highlightBarEnabled);
    ui->showLineNumberMargin->setChecked(m_lineNumbersEnabled);
 
+   ui->autoIndent->setChecked(m_autoIndentEnabled);
+   ui->replaceTabs->setChecked(m_tabReplacementEnabled);
+   ui->spacesForTab->setValue(m_spacesForTabs);
+
    ui->showSymbolTips->setChecked(m_showSymbolTips);
    ui->showOpcodeTips->setChecked(m_showOpcodeTips);
 
@@ -248,6 +255,9 @@ void EnvironmentSettingsDialog::readSettings()
    m_lineNumbersEnabled = settings.value("lineNumbersEnabled",QVariant(true)).toBool();
    m_showSymbolTips = settings.value("showSymbolTips",QVariant(true)).toBool();
    m_showOpcodeTips = settings.value("showOpcodeTips",QVariant(true)).toBool();
+   m_autoIndentEnabled = settings.value("autoIndent",QVariant(true)).toBool();
+   m_tabReplacementEnabled = settings.value("tabReplacement",QVariant(true)).toBool();
+   m_spacesForTabs = settings.value("spacesPerTab",QVariant(3)).toInt();
    m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
@@ -285,6 +295,9 @@ void EnvironmentSettingsDialog::writeSettings()
    m_lineNumbersEnabled = ui->showLineNumberMargin->isChecked();
    m_showSymbolTips = ui->showSymbolTips->isChecked();
    m_showOpcodeTips = ui->showOpcodeTips->isChecked();
+   m_autoIndentEnabled = ui->autoIndent->isChecked();
+   m_tabReplacementEnabled = ui->replaceTabs->isChecked();
+   m_spacesForTabs = ui->spacesForTab->value();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
    m_lastActiveTab = ui->tabWidget->currentIndex();
@@ -315,6 +328,9 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("lineNumbersEnabled",m_lineNumbersEnabled);
    settings.setValue("showSymbolTips",m_showSymbolTips);
    settings.setValue("showOpcodeTips",m_showOpcodeTips);
+   settings.setValue("autoIndent",m_autoIndentEnabled);
+   settings.setValue("tabReplacement",m_tabReplacementEnabled);
+   settings.setValue("spacesPerTab",m_spacesForTabs);
 
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
