@@ -305,6 +305,7 @@ void NESEmulatorThread::stepCPUEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepCpu();
+   nesEnableBreakpoints(true);
 
    if ( !(breakpointSemaphore.available()) )
    {
@@ -321,6 +322,7 @@ void NESEmulatorThread::stepPPUEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepPpu();
+   nesEnableBreakpoints(true);
 
    if ( !(breakpointSemaphore.available()) )
    {
@@ -337,6 +339,7 @@ void NESEmulatorThread::advanceFrame ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepPpuFrame();
+   nesEnableBreakpoints(true);
 
    if ( !(breakpointSemaphore.available()) )
    {
