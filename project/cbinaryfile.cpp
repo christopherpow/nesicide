@@ -3,6 +3,8 @@
 
 #include "main.h"
 
+#include "cimageconverters.h"
+
 CBinaryFile::CBinaryFile(IProjectTreeViewItem* parent)
 {
    // Add node to tree
@@ -28,7 +30,20 @@ bool CBinaryFile::onNameChanged(QString newName)
 
 void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
 {
-   m_binaryData = newBinaryData;
+   QImage image;
+
+   // CPTODO: do image recognition here and convert from popular formats to CHR format.
+   image.loadFromData(newBinaryData);
+
+   switch ( image.format() )
+   {
+   case QImage::Format_Indexed8:
+      m_binaryData = CImageConverters::fromIndexed8(image);
+      break;
+   case QImage::Format_Invalid:
+      m_binaryData = newBinaryData;
+      break;
+   }
 }
 
 bool CBinaryFile::serialize(QDomDocument& doc, QDomNode& node)

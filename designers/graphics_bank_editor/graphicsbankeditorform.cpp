@@ -210,7 +210,6 @@ void GraphicsBankEditorForm::renderData()
             ppuAddr += 0x1000;
          }
 
-         // CPTODO: find the appropriate chr-rom bank item for this byte
          for ( itemIdx = 0, offset = 0; offset <= ppuAddr; )
          {
             if ( itemIdx < model->bankItems().count() )

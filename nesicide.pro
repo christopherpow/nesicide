@@ -242,7 +242,8 @@ SOURCES += mainwindow.cpp \
     emulator/nesemulatorthread.cpp \
     emulator/nesemulatorrenderer.cpp \
     emulator/nesemulatordockwidget.cpp \
-    common/searchdockwidget.cpp
+    common/searchdockwidget.cpp \
+    common/cimageconverters.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -347,7 +348,8 @@ HEADERS += mainwindow.h \
     emulator/nesemulatorthread.h \
     emulator/nesemulatorrenderer.h \
     emulator/nesemulatordockwidget.h \
-    common/searchdockwidget.h
+    common/searchdockwidget.h \
+    common/cimageconverters.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
