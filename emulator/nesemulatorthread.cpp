@@ -305,7 +305,6 @@ void NESEmulatorThread::stepCPUEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepCpu();
-   nesEnableBreakpoints(true);
 
    if ( !(breakpointSemaphore.available()) )
    {
@@ -322,7 +321,6 @@ void NESEmulatorThread::stepPPUEmulation ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepPpu();
-   nesEnableBreakpoints(true);
 
    if ( !(breakpointSemaphore.available()) )
    {
@@ -339,7 +337,6 @@ void NESEmulatorThread::advanceFrame ()
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
    nesStepPpuFrame();
-   nesEnableBreakpoints(true);
 
    if ( !(breakpointSemaphore.available()) )
    {
@@ -398,6 +395,9 @@ void NESEmulatorThread::run ()
          m_isStarting = false;
          m_isRunning = true;
          m_isPaused = false;
+
+         // Re-enable breakpoints that were previously enabled...
+         nesEnableBreakpoints(true);
 
          // Trigger UI updates...
          emit emulatorStarted();
@@ -469,6 +469,9 @@ void NESEmulatorThread::run ()
          {
             break;
          }
+
+         // Re-enable breakpoints that were previously enabled...
+         nesEnableBreakpoints(true);
 
          // Make sure breakpoint semaphore is on the precipice...
          breakpointSemaphore.tryAcquire();
@@ -731,7 +734,6 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
                for ( idx = 0; idx < MEM_8B; idx++ )
                {
                   byte = cdataString.left(2).toInt(0,16);
-                  qDebug(QString::number(byte).toAscii().constData());
                   cdataString = cdataString.right(cdataString.length()-2);
                   nesSetPPURegister(0x2000+idx,byte);
                }

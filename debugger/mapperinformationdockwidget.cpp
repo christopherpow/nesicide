@@ -7,6 +7,14 @@
 
 #include "main.h"
 
+enum
+{
+   CPUToPRGPage = 0,
+   PPUToCHRPage,
+   PPUMirroringPage,
+   InternalsPage
+};
+
 MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::MapperInformationDockWidget)
@@ -17,6 +25,8 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+
+   ui->tabWidget->setCurrentIndex(InternalsPage);
 
    // Force UI update so it doesn't look uninitialized completely.
    cartridgeLoaded();
@@ -57,16 +67,16 @@ void MapperInformationDockWidget::cartridgeLoaded()
    char buffer [ 128 ];
    sprintf ( buffer, "Mapper %d: %s", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
    ui->info->setText ( buffer );
-   ui->tabWidget->setTabEnabled(0, nesMapperRemapsPRGROM());
-   ui->tabWidget->setTabEnabled(1, nesMapperRemapsCHRMEM());
+   ui->tabWidget->setTabEnabled(CPUToPRGPage, nesMapperRemapsPRGROM());
+   ui->tabWidget->setTabEnabled(PPUToCHRPage, nesMapperRemapsCHRMEM());
    ui->internalInfo->setCurrentIndex(mapperInspectorPageFromID(nesGetMapper()));
    if ( ui->internalInfo->currentIndex() )
    {
-      ui->tabWidget->setTabEnabled(2, true);
+      ui->tabWidget->setTabEnabled(InternalsPage, true);
    }
    else
    {
-      ui->tabWidget->setTabEnabled(2, false);
+      ui->tabWidget->setTabEnabled(InternalsPage, false);
    }
 }
 
@@ -74,10 +84,22 @@ void MapperInformationDockWidget::updateInformation()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
-   char buffer [ 16 ];
+   char buffer [ 32 ];
    nesMapper001Info mapper001Info;
    nesMapper004Info mapper004Info;
    nesMapper069Info mapper069Info;
+   uint16_t mirroring[4];
+
+   // Show mirroring...
+   nesGetMirroring(&(mirroring[0]),&(mirroring[1]),&(mirroring[2]),&(mirroring[3]));
+   sprintf ( buffer, "%04X", mirroring[0] );
+   ui->nt0->setText ( buffer );
+   sprintf ( buffer, "%04X", mirroring[1] );
+   ui->nt1->setText ( buffer );
+   sprintf ( buffer, "%04X", mirroring[2] );
+   ui->nt2->setText ( buffer );
+   sprintf ( buffer, "%04X", mirroring[3] );
+   ui->nt3->setText ( buffer );
 
    // Show PRG-ROM absolute addresses...
    sprintf ( buffer, "%02X(%05X)", nesGetPRGROMAbsoluteAddress(0x8000)>>13, nesGetPRGROMAbsoluteAddress(0x8000) );
@@ -138,6 +160,25 @@ void MapperInformationDockWidget::updateInformation()
          ui->irqAsserted69->setChecked ( mapper069Info.irqAsserted );
          sprintf ( buffer, "%04X", mapper069Info.irqCounter );
          ui->irqCounter69->setText ( buffer );
+         if ( mapper069Info.sramIsSram )
+         {
+            sprintf ( buffer, "%02X:%04X(6000)",
+                      nesGetPhysicalSRAMBank(mapper069Info.sramOrPrgBank*MEM_8KB),
+                      mapper069Info.sramOrPrgBank*MEM_8KB );
+         }
+         else
+         {
+            sprintf ( buffer, "%02X:%04X(6000)",
+                      nesGetPhysicalPRGROMBank(mapper069Info.sramOrPrgBank*MEM_8KB),
+                      mapper069Info.sramOrPrgBank*MEM_8KB );
+         }
+         ui->sramOrPrgBank69->setText(buffer);
+         ui->sramEnabled69->setChecked(mapper069Info.sramEnabled);
+         ui->sramIsSram69->setChecked(mapper069Info.sramIsSram);
+         sprintf ( buffer, "%X", mapper069Info.regSelected );
+         ui->regSelected69->setText(buffer);
+         sprintf ( buffer, "%02X", mapper069Info.regValue );
+         ui->regValue69->setText(buffer);
          break;
    }
 
