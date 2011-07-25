@@ -15,12 +15,14 @@ QStringList         CCC65Interface::errors;
 static const char* clangTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(COMPILE) --create-dep $(@:.o=.d) $(CFLAGS) -o $@ $<\r\n\r\n";
+      "\t$(COMPILE) --create-dep $(@:.o=.d) $(CFLAGS) -o $@ $<\r\n\r\n"
+      ;
 
 static const char* asmTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(ASSEMBLE) --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<\r\n\r\n";
+      "\t$(ASSEMBLE) --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<\r\n\r\n"
+      ;
 
 
 CCC65Interface::CCC65Interface()
@@ -435,6 +437,11 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
+            // Inject preference for finding .c file instead of .s...
+            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            {
+               continue;
+            }
             if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
             {
                return dbgLines->data[line].source_name;
@@ -458,6 +465,11 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
+            // Inject preference for finding .c file instead of .s...
+            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            {
+               continue;
+            }
             if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
             {
                return dbgLines->data[line].source_line;
@@ -527,6 +539,11 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int line)
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
+            // Inject preference for finding .c file instead of .s...
+            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            {
+               continue;
+            }
             if ( (dbgLines->count == 1) || (dbgLines->data[line].source_line == line) )
             {
                return dbgLines->data[line].line_start;
@@ -548,6 +565,11 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
+            // Inject preference for finding .c file instead of .s...
+            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            {
+               continue;
+            }
             if ( (dbgLines->count == 1) || (dbgLines->data[line].source_line == line) )
             {
                return dbgLines->data[line].output_offs-0x10;

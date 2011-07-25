@@ -1,5 +1,10 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.006
+Added PNG file import capability to Binary Files.  Both online examples updated to use the raw PNG files instead of pre-converted CHR.
+Added mirroring setup display to Mapper Inspector.
+Added more FME-7 display to Mapper Inspector.
+
 V1.005
 Fixed PPU state-change breakpoints so breakpoints can be set on when the PPU changes state internally (ie. not due to program flow).
 Added OAM address/data information to PPU inspector.

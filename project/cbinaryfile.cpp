@@ -32,15 +32,15 @@ void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
 {
    QImage image;
 
-   // CPTODO: do image recognition here and convert from popular formats to CHR format.
    image.loadFromData(newBinaryData);
 
    switch ( image.format() )
    {
    case QImage::Format_Indexed8:
+      image.setColorCount(4);
       m_binaryData = CImageConverters::fromIndexed8(image);
       break;
-   case QImage::Format_Invalid:
+   default:
       m_binaryData = newBinaryData;
       break;
    }

@@ -64,6 +64,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    updateChrRomBankItemList(bankItems);
 
    QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
+   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 }
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()

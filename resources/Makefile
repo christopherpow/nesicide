@@ -3,9 +3,9 @@
 ### <!project-name!>
 
 # Toolchain stuff.
-COMPILE  := cc65
-ASSEMBLE := ca65
-LINK     := ld65
+COMPILE  := cl65 -c
+ASSEMBLE := cl65 -c
+LINK     := cl65
 
 # Environment stuff.
 RM       := rm
@@ -28,21 +28,21 @@ CONFIG := $(subst \,/,$(CONFIG))
 
 # Additional C compiler flags and options.
 # Default: none
-CFLAGS  = <!compiler-flags!>
+CFLAGS  = -g --debug-info <!compiler-flags!>
 
 # Get rid of Windows path wonkiness.
 CFLAGS := $(subst \,/,$(CFLAGS))
 
 # Additional assembler flags and options.
 # Default: none
-ASFLAGS = -g -v --debug-info <!assembler-flags!>
+ASFLAGS = -g --debug-info <!assembler-flags!>
 
 # Get rid of Windows path wonkiness.
 ASFLAGS := $(subst \,/,$(ASFLAGS))
 
 # Additional linker flags and options.
 # Default: none
-LDFLAGS = -C $(CONFIG) --dbgfile <!debug-file!> <!linker-flags!>
+LDFLAGS = -C $(CONFIG) <!linker-flags!> -Wl --dbgfile,<!debug-file!>
 REMOVES += <!debug-file!>
 
 # Get rid of Windows path wonkiness.

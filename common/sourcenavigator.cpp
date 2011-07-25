@@ -202,10 +202,6 @@ void SourceNavigator::on_files_activated(QString file)
 
             emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
          }
-         else
-         {
-            QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+file+"\n\nThis typically occurs if the project output files (*.nes, *.dbg) are moved away from the folder containing their parent project file (*.nesproject).");
-         }
       }
       else
       {

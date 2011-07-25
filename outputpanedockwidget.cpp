@@ -208,7 +208,6 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
                   found = true;
                   foundIdx = tab;
                   editor->highlightLine(errorLine.toInt());
-//                  emit fileNavigator_fileChanged(ui->files->currentText());
                   break;
                }
             }
@@ -227,17 +226,11 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
                   m_pTarget->addTab(editor, errorFile);
                   m_pTarget->setCurrentWidget(editor);
                   editor->highlightLine(errorLine.toInt());
-//                  emit fileNavigator_fileChanged(ui->files->currentText());
-               }
-               else
-               {
-                  QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+errorFile+"\n\nThis typically occurs if the project output files (*.nes, *.dbg) are moved away from the folder containing their parent project file (*.nesproject).");
                }
             }
             else
             {
                m_pTarget->setCurrentIndex(foundIdx);
-//               emit fileNavigator_fileChanged(ui->files->currentText());
             }
          }
       }
@@ -296,7 +289,6 @@ void OutputPaneDockWidget::on_searchOutputTextEdit_selectionChanged()
                   found = true;
                   foundIdx = tab;
                   editor->highlightLine(searchLine.toInt());
-//                  emit fileNavigator_fileChanged(ui->files->currentText());
                   break;
                }
             }
@@ -315,18 +307,11 @@ void OutputPaneDockWidget::on_searchOutputTextEdit_selectionChanged()
                   m_pTarget->addTab(editor, searchFile);
                   m_pTarget->setCurrentWidget(editor);
                   editor->highlightLine(searchLine.toInt());
-
-//                  emit fileNavigator_fileChanged(ui->files->currentText());
-               }
-               else
-               {
-                  QMessageBox::information(0,"Locate Source","I am unable to find:\n\n"+searchFile+"\n\nThis typically occurs if the project output files (*.nes, *.dbg) are moved away from the folder containing their parent project file (*.nesproject).");
                }
             }
             else
             {
                m_pTarget->setCurrentIndex(foundIdx);
-//               emit fileNavigator_fileChanged(ui->files->currentText());
             }
          }
       }
