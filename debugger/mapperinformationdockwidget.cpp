@@ -112,21 +112,21 @@ void MapperInformationDockWidget::updateInformation()
    ui->prg3->setText ( buffer );
 
    // Show CHR memory absolute addresses...
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0000)>>13, nesGetCHRMEMAbsoluteAddress(0x0000)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0000) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0000)>>13, nesGetCHRMEMAbsoluteAddress(0x0000)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0000) );
    ui->chr0->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0400)>>13, nesGetCHRMEMAbsoluteAddress(0x0400)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0400) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0400)>>13, nesGetCHRMEMAbsoluteAddress(0x0400)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0400) );
    ui->chr1->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0800)>>13, nesGetCHRMEMAbsoluteAddress(0x0800)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0800) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0800)>>13, nesGetCHRMEMAbsoluteAddress(0x0800)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0800) );
    ui->chr2->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0C00)>>13, nesGetCHRMEMAbsoluteAddress(0x0C00)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0C00) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x0C00)>>13, nesGetCHRMEMAbsoluteAddress(0x0C00)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x0C00) );
    ui->chr3->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1000)>>13, nesGetCHRMEMAbsoluteAddress(0x1000)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1000) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1000)>>13, nesGetCHRMEMAbsoluteAddress(0x1000)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1000) );
    ui->chr4->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1400)>>13, nesGetCHRMEMAbsoluteAddress(0x1400)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1400) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1400)>>13, nesGetCHRMEMAbsoluteAddress(0x1400)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1400) );
    ui->chr5->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1800)>>13, nesGetCHRMEMAbsoluteAddress(0x1800)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1800) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1800)>>13, nesGetCHRMEMAbsoluteAddress(0x1800)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1800) );
    ui->chr6->setText ( buffer );
-   sprintf ( buffer, "%02X:%05X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1C00)>>13, nesGetCHRMEMAbsoluteAddress(0x1C00)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1C00) );
+   sprintf ( buffer, "%02X:%04X(%05X)", nesGetCHRMEMAbsoluteAddress(0x1C00)>>13, nesGetCHRMEMAbsoluteAddress(0x1C00)&MASK_8KB, nesGetCHRMEMAbsoluteAddress(0x1C00) );
    ui->chr7->setText ( buffer );
 
    switch ( nesGetMapper() )

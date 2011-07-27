@@ -7,6 +7,7 @@
 #include <QPixmap>
 
 #include "Qsci/qsciscintillabase.h"
+#include "Qsci/qscilexercpp.h"
 
 #include "main.h"
 
@@ -33,12 +34,28 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int marker;
+   bool clang = false;
 
    ui->setupUi(this);
 
    m_scintilla = new QsciScintilla();
 
-   m_lexer = new QsciLexerCA65(m_scintilla);
+   foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForC().split(" ") )
+   {
+      if ( m_fileName.endsWith(ext) )
+      {
+         clang = true;
+      }
+   }
+
+   if ( clang )
+   {
+      m_lexer = new QsciLexerCPP(m_scintilla);
+   }
+   else
+   {
+      m_lexer = new QsciLexerCA65(m_scintilla);
+   }
    m_scintilla->setLexer(m_lexer);
 
    m_lexer->readSettings(settings,"CodeEditor");

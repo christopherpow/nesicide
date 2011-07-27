@@ -5,6 +5,7 @@
 #include "iprojecttreeviewitem.h"
 
 #include <Qsci/qsciscintilla.h>
+#include <Qsci/qscilexercpp.h>
 #include "qscilexerca65.h"
 
 enum
@@ -65,7 +66,7 @@ private:
    Ui::CodeEditorForm* ui;
    QString m_fileName;
    QsciScintilla* m_scintilla;
-   QsciLexerCA65* m_lexer;
+   QsciLexer* m_lexer;
    int m_breakpointIndex;
    int m_timer;
    QString m_searchText;

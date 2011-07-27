@@ -302,18 +302,44 @@ void NESEmulatorThread::startEmulation ()
 
 void NESEmulatorThread::stepCPUEmulation ()
 {
-   // If during the last run we were stopped at a breakpoint, clear it...
-   // But ensure we come right back...
-   nesStepCpu();
+   uint32_t endAddr;
+   uint32_t addr;
+   uint32_t absAddr;
 
-   if ( !(breakpointSemaphore.available()) )
+   // Check if we have an end address to stop at from a debug information file.
+   // If we do, it'll be the valid end of a C statement or an assembly instruction.
+   addr = nesGetCPUProgramCounter();
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+   if ( endAddr != 0xFFFFFFFF )
    {
-      breakpointSemaphore.release();
-   }
+      nesSetGotoAddress(endAddr);
 
-   m_isStarting = true;
-   m_isPaused = false;
-   emulator->start();
+      // If during the last run we were stopped at a breakpoint, clear it...
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+
+      m_isStarting = true;
+      m_isPaused = false;
+      emulator->start();
+   }
+   else
+   {
+      // If during the last run we were stopped at a breakpoint, clear it...
+      // But ensure we come right back...
+      nesStepCpu();
+
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+
+      m_isStarting = true;
+      m_isPaused = false;
+      emulator->start();
+   }
 }
 
 void NESEmulatorThread::stepPPUEmulation ()
@@ -455,7 +481,7 @@ void NESEmulatorThread::run ()
 
          nesClearAudioSamplesAvailable();
 
-         break;
+         nesBreak();
       }
 
       // Run the NES...

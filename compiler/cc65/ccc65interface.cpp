@@ -528,6 +528,35 @@ QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
    return "";
 }
 
+unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+{
+   int line;
+
+   if ( dbgInfo )
+   {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
+      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+
+      if ( dbgLines )
+      {
+         for ( line = 0; line < dbgLines->count; line++ )
+         {
+            // Inject preference for finding .c file instead of .s...
+            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            {
+               continue;
+            }
+            if ( (dbgLines->data[line].line_start == addr) &&
+                 (dbgLines->data[line].output_offs-0x10 == absAddr) )
+            {
+               return dbgLines->data[line].line_end;
+            }
+         }
+      }
+   }
+   return 0xFFFFFFFF;
+}
+
 unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int line)
 {
    if ( dbgInfo )
