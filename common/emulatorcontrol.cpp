@@ -99,3 +99,8 @@ void EmulatorControl::on_frameAdvance_clicked()
 {
    emulator->advanceFrame();
 }
+
+void EmulatorControl::on_stepCPUOverButton_clicked()
+{
+   emulator->stepOverCPUEmulation();
+}

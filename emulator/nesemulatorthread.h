@@ -33,6 +33,7 @@ public:
    void pauseEmulation (bool show);
    void pauseEmulationAfter (int frames) { m_pauseAfterFrames = frames; }
    void stepCPUEmulation ();
+   void stepOverCPUEmulation ();
    void stepPPUEmulation ();
    void advanceFrame ();
    void controllerInput ( uint8_t* joy )

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>172</width>
+    <width>201</width>
     <height>30</height>
    </rect>
   </property>
@@ -121,6 +121,26 @@
        </property>
        <property name="arrowType">
         <enum>Qt::NoArrow</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="stepCPUOverButton">
+       <property name="text">
+        <string>Step CPU Over</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/stepover_6.png</normaloff>:/resources/stepover_6.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

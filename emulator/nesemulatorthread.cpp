@@ -342,6 +342,53 @@ void NESEmulatorThread::stepCPUEmulation ()
    }
 }
 
+void NESEmulatorThread::stepOverCPUEmulation ()
+{
+   uint32_t endAddr;
+   uint32_t addr;
+   uint32_t absAddr;
+   uint8_t instr;
+
+   // Check if we have an end address to stop at from a debug information file.
+   // If we do, it'll be the valid end of a C statement or an assembly instruction.
+   addr = nesGetCPUProgramCounter();
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+
+   if ( endAddr != 0xFFFFFFFF )
+   {
+      // Hacky check if last instruction on line is JSR...
+      // This is fairly typical of if conditions with function calls on the same line.
+      instr = nesGetPRGROMData(endAddr-2);
+   }
+   else
+   {
+      // Check if the current instruction is a JSR...
+      instr = nesGetPRGROMData(addr);
+   }
+
+   if ( instr == JSR_ABSOLUTE )
+   {
+      // Go to next opcode point in ROM.
+      // This *should* be where the JSR will vector back to on RTS.
+      nesSetGotoAddress(endAddr+1);
+
+      // If during the last run we were stopped at a breakpoint, clear it...
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+
+      m_isStarting = true;
+      m_isPaused = false;
+      emulator->start();
+   }
+   else
+   {
+      stepCPUEmulation();
+   }
+}
+
 void NESEmulatorThread::stepPPUEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
