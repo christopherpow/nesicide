@@ -73,6 +73,8 @@ void EmulatorControl::internalPause()
 void EmulatorControl::on_playButton_clicked()
 {
    emulator->startEmulation();
+
+   emit focusEmulator();
 }
 
 void EmulatorControl::on_pauseButton_clicked()

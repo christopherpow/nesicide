@@ -19,6 +19,9 @@ public:
 private:
    Ui::EmulatorControl *ui;
 
+signals:
+   void focusEmulator();
+
 private slots:
    void on_stepCPUOverButton_clicked();
    void on_frameAdvance_clicked();

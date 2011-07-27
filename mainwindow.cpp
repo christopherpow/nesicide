@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    m_pEmulatorControl = new EmulatorControl();
    ui->debuggerToolbar->addWidget(m_pEmulatorControl);
+   QObject::connect(m_pEmulatorControl,SIGNAL(focusEmulator()),this,SLOT(focusEmulator()));
 
    // Add menu for emulator control.  The emulator control provides menu for itself!  =]
    QAction* firstEmuMenuAction = ui->menuEmulator->actions().at(0);
@@ -1723,4 +1724,9 @@ void MainWindow::on_actionFullscreen_toggled(bool value)
       m_pEmulator->showNormal();
       m_pEmulator->setFloating(m_bEmulatorFloating);
    }
+}
+
+void MainWindow::focusEmulator()
+{
+   m_pEmulator->setFocus();
 }

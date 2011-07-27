@@ -101,6 +101,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void focusEmulator();
    void on_actionFullscreen_toggled(bool value);
    void windowMenu_triggered();
    void markProjectDirty(bool dirty);
