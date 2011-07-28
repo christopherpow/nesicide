@@ -347,6 +347,8 @@ void NESEmulatorThread::stepOverCPUEmulation ()
    uint32_t endAddr;
    uint32_t addr;
    uint32_t absAddr;
+   uint32_t instAbsAddr;
+   bool    isInstr;
    uint8_t instr;
 
    // Check if we have an end address to stop at from a debug information file.
@@ -357,9 +359,23 @@ void NESEmulatorThread::stepOverCPUEmulation ()
 
    if ( endAddr != 0xFFFFFFFF )
    {
-      // Hacky check if last instruction on line is JSR...
-      // This is fairly typical of if conditions with function calls on the same line.
-      instr = nesGetPRGROMData(endAddr-2);
+      // If the line has enough of an assembly-stream associated with it...
+      if ( endAddr-addr >= 2 )
+      {
+         // Check if last instruction on line is JSR...
+         // This is fairly typical of if conditions with function calls on the same line.
+         instr = nesGetPRGROMData(endAddr-2);
+         instAbsAddr = nesGetAbsoluteAddressFromAddress(endAddr-2);
+         isInstr = CCC65Interface::isAbsoluteAddressAnOpcode(instAbsAddr);
+         if ( !isInstr )
+         {
+            instr = nesGetPRGROMData(addr);
+         }
+      }
+      else
+      {
+         instr = nesGetPRGROMData(addr);
+      }
    }
    else
    {
@@ -367,6 +383,8 @@ void NESEmulatorThread::stepOverCPUEmulation ()
       instr = nesGetPRGROMData(addr);
    }
 
+   // If the current instruction is a JSR we need to tell the emulator to
+   // go to the PC one past the JSR to 'step over' the JSR.
    if ( instr == JSR_ABSOLUTE )
    {
       // Go to next opcode point in ROM.
