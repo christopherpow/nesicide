@@ -41,4 +41,4 @@ or because they were pulled in by the build.
 
 18. Extend drag-drop capability to allow adding source files (use specified extensions to check) to a project.
 
-19. Project still does not get cleared out properly when a ROM is loaded after a project has been loaded.  Saving the "project" overwrites it with crap.
+**DONE** 19. Project still does not get cleared out properly when a ROM is loaded after a project has been loaded.  Saving the "project" overwrites it with crap.

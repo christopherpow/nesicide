@@ -125,7 +125,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="stepCPUOverButton">
+      <widget class="QToolButton" name="stepOverButton">
        <property name="text">
         <string>Step CPU Over</string>
        </property>
@@ -295,6 +295,14 @@
    </property>
    <property name="shortcut">
     <string>F12</string>
+   </property>
+  </action>
+  <action name="actionStep_Over">
+   <property name="text">
+    <string>Step Over</string>
+   </property>
+   <property name="toolTip">
+    <string>Step Over</string>
    </property>
   </action>
  </widget>

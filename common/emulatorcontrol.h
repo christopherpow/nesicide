@@ -23,7 +23,7 @@ signals:
    void focusEmulator();
 
 private slots:
-   void on_stepCPUOverButton_clicked();
+   void on_stepOverButton_clicked();
    void on_frameAdvance_clicked();
    void on_resetButton_clicked();
    void on_stepPPUButton_clicked();

@@ -20,6 +20,7 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
    QObject::connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(on_playButton_clicked()));
    QObject::connect(ui->actionPause, SIGNAL(triggered()), this, SLOT(on_pauseButton_clicked()));
    QObject::connect(ui->actionStep_CPU, SIGNAL(triggered()), this, SLOT(on_stepCPUButton_clicked()));
+   QObject::connect(ui->actionStep_Over, SIGNAL(triggered()), this, SLOT(on_stepOverButton_clicked()));
    QObject::connect(ui->actionStep_PPU, SIGNAL(triggered()), this, SLOT(on_stepPPUButton_clicked()));
    QObject::connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(on_resetButton_clicked()));
    QObject::connect(ui->actionFrame_Advance, SIGNAL(triggered()), this, SLOT(on_frameAdvance_clicked()));
@@ -36,6 +37,7 @@ QList<QAction*> EmulatorControl::menu()
    items.append(ui->actionRun);
    items.append(ui->actionPause);
    items.append(ui->actionStep_CPU);
+   items.append(ui->actionStep_Over);
    items.append(ui->actionStep_PPU);
    items.append(ui->actionReset);
    items.append(ui->actionFrame_Advance);
@@ -47,6 +49,7 @@ void EmulatorControl::internalPlay()
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
    ui->stepCPUButton->setEnabled(false);
+   ui->stepOverButton->setEnabled(false);
    ui->stepPPUButton->setEnabled(false);
    ui->frameAdvance->setEnabled(false);
    ui->actionRun->setEnabled(false);
@@ -61,6 +64,7 @@ void EmulatorControl::internalPause()
    ui->playButton->setEnabled(true);
    ui->pauseButton->setEnabled(false);
    ui->stepCPUButton->setEnabled(true);
+   ui->stepOverButton->setEnabled(true);
    ui->stepPPUButton->setEnabled(true);
    ui->frameAdvance->setEnabled(true);
    ui->actionRun->setEnabled(true);
@@ -102,7 +106,7 @@ void EmulatorControl::on_frameAdvance_clicked()
    emulator->advanceFrame();
 }
 
-void EmulatorControl::on_stepCPUOverButton_clicked()
+void EmulatorControl::on_stepOverButton_clicked()
 {
    emulator->stepOverCPUEmulation();
 }
