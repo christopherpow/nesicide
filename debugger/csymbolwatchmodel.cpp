@@ -64,7 +64,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()));
             if ( addr != 0xFFFFFFFF )
             {
-               sprintf(modelStringBuffer,"%02X",nesGetCPUMemory(addr));
+               sprintf(modelStringBuffer,"%02X",nesGetMemory(addr));
                return QVariant(modelStringBuffer);
             }
             else

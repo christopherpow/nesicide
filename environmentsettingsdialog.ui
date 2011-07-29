@@ -17,7 +17,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -151,7 +151,7 @@
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -201,7 +201,7 @@
            <string>Styles</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_10">
-           <item row="0" column="0" colspan="2">
+           <item row="2" column="0" colspan="3">
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
               <string>Coloring</string>
@@ -273,7 +273,7 @@
              </layout>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2">
+           <item row="3" column="0" colspan="3">
             <widget class="QGroupBox" name="groupBox_12">
              <property name="title">
               <string>Text Styles</string>
@@ -308,7 +308,14 @@
                </widget>
               </item>
               <item row="1" column="1" colspan="3">
-               <widget class="QComboBox" name="styleName"/>
+               <widget class="QComboBox" name="styleName">
+                <property name="currentIndex">
+                 <number>-1</number>
+                </property>
+                <property name="maxVisibleItems">
+                 <number>200</number>
+                </property>
+               </widget>
               </item>
               <item row="2" column="1" colspan="3">
                <widget class="QPushButton" name="styleColor">
@@ -338,6 +345,36 @@
               </item>
              </layout>
             </widget>
+           </item>
+           <item row="0" column="0" colspan="3">
+            <layout class="QFormLayout" name="formLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Language:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="language">
+               <item>
+                <property name="text">
+                 <string>Default</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Assembly</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>C</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>

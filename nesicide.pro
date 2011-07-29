@@ -243,7 +243,10 @@ SOURCES += mainwindow.cpp \
     emulator/nesemulatorrenderer.cpp \
     emulator/nesemulatordockwidget.cpp \
     common/searchdockwidget.cpp \
-    common/cimageconverters.cpp
+    common/cimageconverters.cpp \
+    debugger/codeprofilerdockwidget.cpp \
+    debugger/cdebuggercodeprofilermodel.cpp \
+    designers/code_editor/qscilexerdefault.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -349,7 +352,10 @@ HEADERS += mainwindow.h \
     emulator/nesemulatorrenderer.h \
     emulator/nesemulatordockwidget.h \
     common/searchdockwidget.h \
-    common/cimageconverters.h
+    common/cimageconverters.h \
+    debugger/codeprofilerdockwidget.h \
+    debugger/cdebuggercodeprofilermodel.h \
+    designers/code_editor/qscilexerdefault.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -384,6 +390,7 @@ FORMS += mainwindow.ui \
     debugger/breakpointdialog.ui \
     debugger/apuinformationdockwidget.ui \
     emulator/nesemulatordockwidget.ui \
-    common/searchdockwidget.ui
+    common/searchdockwidget.ui \
+    debugger/codeprofilerdockwidget.ui
 
 RESOURCES += resource.qrc

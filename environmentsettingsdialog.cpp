@@ -66,90 +66,19 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EnvironmentSettingsDialog)
 {
-   QSettings settings;
-   int style;
-
    ui->setupUi(this);
 
    readSettings();
 
    m_scintilla = new QsciScintilla();
+   m_defaultLexer = new QsciLexerDefault();
+   m_ca65Lexer = new QsciLexerCA65();
+   m_cppLexer = new QsciLexerCPP();
+   m_lexer = m_defaultLexer;
 
-   m_lexer = new QsciLexerCA65(m_scintilla);
-   m_scintilla->setLexer(m_lexer);
-
-   m_lexer->readSettings(settings,"CodeEditor");
-
-   m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-   m_scintilla->setMarginWidth(3,0);
-   m_scintilla->setMarginMarkerMask(3,0);
-   m_scintilla->setMarginWidth(4,0);
-   m_scintilla->setMarginMarkerMask(4,0);
-
-   m_scintilla->setMarginWidth(2,22);
-   m_scintilla->setMarginMarkerMask(2,QsciScintilla::SymbolMargin);
-   m_scintilla->setMarginSensitivity(2,true);
-   m_scintilla->setMarginMarkerMask(2,0xFFFFFFF0);
-   m_scintilla->setFolding(QsciScintilla::BoxedTreeFoldStyle,2);
-
-   m_scintilla->setMarginWidth(Margin_Decorations,22);
-   m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
-   m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
-   m_scintilla->setMarginSensitivity(Margin_Decorations,true);
-
-   m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
-   m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
-   m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
-   m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
-   if ( m_lineNumbersEnabled )
-   {
-      m_scintilla->setMarginWidth(Margin_LineNumbers,10);
-   }
-   else
-   {
-      m_scintilla->setMarginWidth(Margin_LineNumbers,0);
-   }
-
-   m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
-   m_scintilla->setSelectionToEol(true);
-
-   m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
-   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
-   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
-   m_scintilla->markerDefine(QPixmap(":/resources/error-mark.png"),Marker_Error);
-   m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
-   m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
-
-   m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
-   if ( m_highlightBarEnabled )
-   {
-      m_scintilla->setMarkerBackgroundColor(m_highlightBarColor,Marker_Highlight);
-   }
-   else
-   {
-      // Set the highlight bar color to background to hide it.
-      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
-   }
-
-   m_scintilla->setText(exampleText);
-
-   m_scintilla->setMarginsBackgroundColor(m_marginBackgroundColor);
-   m_scintilla->setMarginsForegroundColor(m_marginForegroundColor);
-   m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
-
-   m_scintilla->markerAdd(1,Marker_Execution);
-   m_scintilla->markerAdd(1,Marker_Highlight);
+   setupCodeEditor(0);
 
    ui->example->addWidget(m_scintilla);
-
-   style = 0;
-   while ( !m_lexer->description(style).isEmpty() )
-   {
-      ui->styleName->addItem(m_lexer->description(style));
-      style++;
-   }
-   on_styleName_currentIndexChanged(ui->styleName->currentIndex());
 
    ui->showWelcomeOnStart->setChecked(m_showWelcomeOnStart);
    ui->saveAllOnCompile->setChecked(m_saveAllOnCompile);
@@ -205,8 +134,11 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
 {
+   m_lexer = NULL;
    delete m_scintilla;
-   delete m_lexer;
+   delete m_defaultLexer;
+   delete m_ca65Lexer;
+   delete m_cppLexer;
 
    delete ui;
 }
@@ -338,7 +270,109 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
 
-   m_lexer->writeSettings(settings,"CodeEditor");
+   m_defaultLexer->writeSettings(settings,"CodeEditor");
+   m_ca65Lexer->writeSettings(settings,"CodeEditor");
+   m_cppLexer->writeSettings(settings,"CodeEditor");
+}
+
+void EnvironmentSettingsDialog::setupCodeEditor(int index)
+{
+   QSettings settings;
+   int style = 0;
+
+   ui->styleName->clear();
+
+   // Clear current lexer first!
+   m_scintilla->setLexer(NULL);
+
+   switch ( index )
+   {
+   case 0:
+      m_lexer = m_defaultLexer;
+
+      m_scintilla->setLexer(m_lexer);
+      break;
+   case 1:
+      m_lexer = m_ca65Lexer;
+
+      m_scintilla->setLexer(m_lexer);
+      break;
+   case 2:
+      m_lexer = m_cppLexer;
+
+      m_scintilla->setLexer(m_lexer);
+      break;
+   }
+
+   m_lexer->readSettings(settings,"CodeEditor");
+
+   while ( !m_lexer->description(style).isEmpty() )
+   {
+      ui->styleName->addItem(m_lexer->description(style));
+      style++;
+   }
+   on_styleName_currentIndexChanged(ui->styleName->currentIndex());
+
+   m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+   m_scintilla->setMarginWidth(3,0);
+   m_scintilla->setMarginMarkerMask(3,0);
+   m_scintilla->setMarginWidth(4,0);
+   m_scintilla->setMarginMarkerMask(4,0);
+
+   m_scintilla->setMarginWidth(2,22);
+   m_scintilla->setMarginMarkerMask(2,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(2,true);
+   m_scintilla->setMarginMarkerMask(2,0xFFFFFFF0);
+   m_scintilla->setFolding(QsciScintilla::BoxedTreeFoldStyle,2);
+
+   m_scintilla->setMarginWidth(Margin_Decorations,22);
+   m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
+   m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(Margin_Decorations,true);
+
+   m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
+   m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0);
+   m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
+   m_scintilla->setMarginSensitivity(Margin_LineNumbers,true);
+   if ( m_lineNumbersEnabled )
+   {
+      m_scintilla->setMarginWidth(Margin_LineNumbers,10);
+   }
+   else
+   {
+      m_scintilla->setMarginWidth(Margin_LineNumbers,0);
+   }
+
+   m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
+   m_scintilla->setSelectionToEol(true);
+
+   m_scintilla->markerDefine(QPixmap(":/resources/22_execution_pointer.png"),Marker_Execution);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint.png"),Marker_Breakpoint);
+   m_scintilla->markerDefine(QPixmap(":/resources/22_breakpoint_disabled.png"),Marker_BreakpointDisabled);
+   m_scintilla->markerDefine(QPixmap(":/resources/error-mark.png"),Marker_Error);
+   m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
+   m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
+
+   m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
+   if ( m_highlightBarEnabled )
+   {
+      m_scintilla->setMarkerBackgroundColor(m_highlightBarColor,Marker_Highlight);
+   }
+   else
+   {
+      // Set the highlight bar color to background to hide it.
+      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
+   }
+
+   m_scintilla->setText(exampleText);
+
+   m_scintilla->setMarginsBackgroundColor(m_marginBackgroundColor);
+   m_scintilla->setMarginsForegroundColor(m_marginForegroundColor);
+   m_scintilla->setMarginsFont(m_lexer->font(0)); // Always pick default font.
+
+   m_scintilla->markerAdd(1,Marker_Execution);
+   m_scintilla->markerAdd(1,Marker_Highlight);
 }
 
 void EnvironmentSettingsDialog::on_buttonBox_accepted()
@@ -609,4 +643,9 @@ void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
    {
       m_scintilla->setMarginsFont(font);
    }
+}
+
+void EnvironmentSettingsDialog::on_language_currentIndexChanged(int index)
+{
+   setupCodeEditor(index);
 }

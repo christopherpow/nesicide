@@ -7,7 +7,6 @@
 #include <QPixmap>
 
 #include "Qsci/qsciscintillabase.h"
-#include "Qsci/qscilexercpp.h"
 
 #include "main.h"
 
@@ -34,29 +33,51 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int marker;
-   bool clang = false;
 
    ui->setupUi(this);
 
    m_scintilla = new QsciScintilla();
 
+   m_fileName = fileName;
+   m_searchText = "";
+   m_language = Language_Default;
+
    foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForC().split(" ") )
    {
       if ( m_fileName.endsWith(ext) )
       {
-         clang = true;
+         m_language = Language_C;
+      }
+   }
+   if ( m_language == Language_Default )
+   {
+      foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ") )
+      {
+         if ( m_fileName.endsWith(ext) )
+         {
+            m_language = Language_Assembly;
+         }
       }
    }
 
-   if ( clang )
+   if ( m_language == Language_C )
    {
       m_lexer = new QsciLexerCPP(m_scintilla);
+
+      m_scintilla->setLexer(m_lexer);
+   }
+   else if ( m_language == Language_Assembly )
+   {
+      m_lexer = new QsciLexerCA65(m_scintilla);
+
+      m_scintilla->setLexer(m_lexer);
    }
    else
    {
-      m_lexer = new QsciLexerCA65(m_scintilla);
+      m_lexer = new QsciLexerDefault(m_scintilla);
+
+      m_scintilla->setLexer(m_lexer);
    }
-   m_scintilla->setLexer(m_lexer);
 
    m_lexer->readSettings(settings,"CodeEditor");
 
@@ -142,9 +163,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
    QObject::connect ( sourceNavigator, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
-
-   m_fileName = fileName;
-   m_searchText = "";
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
@@ -575,6 +593,7 @@ void CodeEditorForm::updateToolTip(QString symbol)
    const char* opcodeToolTipText;
    QString     opcodeToolTipForm;
    unsigned int addr;
+   QString clangSymbol = "_"+symbol;
 
    setToolTip("");
 
@@ -596,8 +615,18 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
       if ( addr != 0xFFFFFFFF )
       {
-         sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetCPUMemory(addr));
+         sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetMemory(addr));
          setToolTip(toolTipText);
+      }
+      else
+      {
+         addr = CCC65Interface::getSymbolAddress(clangSymbol);
+
+         if ( addr != 0xFFFFFFFF )
+         {
+            sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetMemory(addr));
+            setToolTip(toolTipText);
+         }
       }
    }
 }

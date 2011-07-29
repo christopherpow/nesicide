@@ -5,7 +5,9 @@
 #include <QColorDialog>
 #include <QFileDialog>
 
+#include <Qsci/qscilexercpp.h>
 #include "qscilexerca65.h"
+#include "qscilexerdefault.h"
 
 namespace Ui
 {
@@ -59,8 +61,13 @@ private:
    // Write settings from local to QSettings.
    void writeSettings();
 
+   void setupCodeEditor(int index);
+
    QsciScintilla* m_scintilla;
-   QsciLexerCA65* m_lexer;
+   QsciLexerDefault* m_defaultLexer;
+   QsciLexerCA65* m_ca65Lexer;
+   QsciLexerCPP* m_cppLexer;
+   QsciLexer* m_lexer;
 
    // Settings data structures.
    static int  m_lastActiveTab;
@@ -89,6 +96,7 @@ private:
    static QString m_asmSourceExtensions;
 
 private slots:
+   void on_language_currentIndexChanged(int index);
    void on_fontSize_valueChanged(int value);
    void on_showLineNumberMargin_toggled(bool checked);
    void on_showHighlightBar_toggled(bool checked);

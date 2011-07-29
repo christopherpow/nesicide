@@ -7,6 +7,7 @@
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexercpp.h>
 #include "qscilexerca65.h"
+#include "qscilexerdefault.h"
 
 enum
 {
@@ -30,6 +31,13 @@ enum
    Marker_Marker7,
    Marker_Marker8,
    Marker_MarkerMAX
+};
+
+enum
+{
+   Language_Default,
+   Language_Assembly,
+   Language_C
 };
 
 namespace Ui
@@ -70,6 +78,7 @@ private:
    int m_breakpointIndex;
    int m_timer;
    QString m_searchText;
+   int m_language;
    void updateToolTip(QString symbol);
 
 public slots:

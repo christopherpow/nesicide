@@ -295,6 +295,12 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
 
+   m_pCodeProfiler = new CodeProfilerDockWidget();
+   addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
+   m_pCodeProfiler->hide();
+   QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Code Profiler", m_pCodeProfiler );
+
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
@@ -1361,6 +1367,16 @@ void MainWindow::on_actionSymbol_Watch_toggled(bool value)
 void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
 {
    ui->actionSymbol_Watch->setChecked(toplevel);
+}
+
+void MainWindow::on_actionCode_Profiler_toggled(bool value)
+{
+   m_pCodeProfiler->setVisible(value);
+}
+
+void MainWindow::reflectedCode_Profiler_close ( bool toplevel )
+{
+   ui->actionCode_Profiler->setChecked(toplevel);
 }
 
 void MainWindow::on_actionSearch_toggled(bool value)

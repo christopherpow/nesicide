@@ -190,6 +190,7 @@
     <addaction name="actionExecution_Inspector"/>
     <addaction name="actionAssembly_Inspector"/>
     <addaction name="actionBreakpoint_Inspector"/>
+    <addaction name="actionCode_Profiler"/>
     <addaction name="actionSymbol_Watch"/>
     <addaction name="separator"/>
     <addaction name="actionExecution_Visualizer_Inspector"/>
@@ -1052,6 +1053,17 @@
    </property>
    <property name="shortcut">
     <string>F11</string>
+   </property>
+  </action>
+  <action name="actionCode_Profiler">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Code Profiler</string>
+   </property>
+   <property name="toolTip">
+    <string>Code Profiler</string>
    </property>
   </action>
  </widget>

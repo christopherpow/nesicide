@@ -29,6 +29,7 @@
 #include "outputpanedockwidget.h"
 #include "emulatorprefsdialog.h"
 #include "sourcenavigator.h"
+#include "codeprofilerdockwidget.h"
 #include "searchbar.h"
 #include "emulatorcontrol.h"
 #include "searchdockwidget.h"
@@ -91,6 +92,7 @@ private:
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
    SymbolWatchDockWidget* m_pSymbolInspector;
+   CodeProfilerDockWidget* m_pCodeProfiler;
 
    SourceNavigator* m_pSourceNavigator;
    SearchBar* m_pSearchBar;
@@ -151,6 +153,7 @@ private slots:
    void on_actionAPUInformation_Inspector_toggled(bool );
    void on_actionMapperInformation_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
+   void on_actionCode_Profiler_toggled(bool );
    void on_actionSearch_toggled(bool value);
    void reflectedEmulator_close(bool toplevel);
    void reflectedAssemblyInspector_close(bool toplevel);
@@ -177,6 +180,7 @@ private slots:
    void reflectedAPUInformationInspector_close(bool toplevel);
    void reflectedMapperInformationInspector_close(bool toplevel);
    void reflectedSymbol_Watch_close(bool toplevel);
+   void reflectedCode_Profiler_close(bool toplevel);
    void reflectedSearch_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
    void reflectedProjectBrowser_close(bool toplevel);
