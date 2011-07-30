@@ -63,9 +63,9 @@
         <file>resources/error-mark.png</file>
         <file>resources/vaus.png</file>
         <file>resources/appicon.png</file>
-        <file>resources/Makefile</file>
         <file>resources/stepinto_6.png</file>
         <file>resources/stepover_6.png</file>
         <file>resources/stepreturn_6.png</file>
+        <file>resources/Makefile</file>
     </qresource>
 </RCC>

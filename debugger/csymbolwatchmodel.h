@@ -22,11 +22,17 @@ public:
    QStringList getSymbols() { return m_symbols; }
    void setSymbols(QStringList symbols) { m_symbols = symbols; }
 
+   QList<int> getSegments() { return m_segments; }
+   void setSegments(QList<int> segments) { m_segments = segments; }
+
+   int resolveSymbol(QString text);
+
 public slots:
    void update();
 
 private:
    QStringList m_symbols;
+   QList<int> m_segments;
 };
 
 #endif // CSYMBOLWATCHMODEL_H

@@ -26,9 +26,32 @@ Qt::ItemFlags CDebuggerCodeProfilerModel::flags(const QModelIndex& index) const
    return flags;
 }
 
+QModelIndex CDebuggerCodeProfilerModel::index(int row, int column, const QModelIndex &parent) const
+{
+   if ( (row >= 0) && (row < m_symbols.count()) )
+   {
+      CCodeDataLogger* pLogger;
+      unsigned int addr;
+      unsigned int absAddr;
+
+      addr = CCC65Interface::getSymbolAddress(m_symbols.at(row));
+      absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_symbols.at(row));
+
+      if ( addr >= MEM_32KB )
+      {
+         pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
+         return createIndex(row,column,pLogger);
+      }
+      return QModelIndex();
+   }
+   return QModelIndex();
+}
+
 QVariant CDebuggerCodeProfilerModel::data(const QModelIndex& index, int role) const
 {
+   CCodeDataLogger* pLogger = reinterpret_cast<CCodeDataLogger*>(index.internalPointer());
    unsigned int addr;
+   unsigned int absAddr;
 
    if (role != Qt::DisplayRole)
    {
@@ -42,7 +65,25 @@ QVariant CDebuggerCodeProfilerModel::data(const QModelIndex& index, int role) co
          return m_symbols.at(index.row());
          break;
       case 1:
-         return "bwahaha";
+         // Get symbol's information based on its name and index.
+         // CPTODO: fix segmenting stuff later!
+         addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()),0/*idx*/);
+         absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_symbols.at(index.row()),0/*idx*/);
+         if ( addr != 0xFFFFFFFF )
+         {
+            nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+            return QVariant(modelStringBuffer);
+         }
+         else
+         {
+            return QVariant("ERROR: Unresolved");
+         }
+         break;
+      case 2:
+         // Get symbol's information based on its name and index.
+         // CPTODO: fix segmenting stuff later!
+         addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()),0/*idx*/);
+         return QVariant(pLogger->GetCount(addr&MASK_8KB));
          break;
    }
    return QVariant();
@@ -63,6 +104,9 @@ QVariant CDebuggerCodeProfilerModel::headerData(int section, Qt::Orientation ori
          return QString("Symbol");
          break;
       case 1:
+         return QString("Address");
+         break;
+      case 2:
          return QString("# Calls");
          break;
       }
@@ -72,33 +116,37 @@ QVariant CDebuggerCodeProfilerModel::headerData(int section, Qt::Orientation ori
 
 int CDebuggerCodeProfilerModel::rowCount(const QModelIndex&) const
 {
-   int rows = 0;
-   unsigned int addr;
-   unsigned int absAddr;
-
-   foreach ( QString symbol, m_symbols )
-   {
-      addr = CCC65Interface::getSymbolAddress(symbol);
-//      absAddr = CCC65Interface::...figure out how to get the absolute address of a symbol
-
-   }
-
-   // Loops:
-   // For symbol in symbols list
-   //   Get symbol absolute address
-   //   Get log information from logger for address
-   //   If logged count > 0 and it was executed not read/written, rows += 1
    return m_symbols.count();
 }
 
 int CDebuggerCodeProfilerModel::columnCount(const QModelIndex&) const
 {
-   return 2;
+   return 3;
 }
 
 void CDebuggerCodeProfilerModel::update()
 {
-   m_symbols = CCC65Interface::getSymbolsForSourceFile(""); // CPTODO: File doesn't matter (yet).
+   QStringList symbols = CCC65Interface::getSymbolsForSourceFile(""); // CPTODO: File doesn't matter (yet).
+   CCodeDataLogger* pLogger;
+   unsigned int addr;
+   unsigned int absAddr;
+
+   m_symbols.clear();
+   foreach ( QString symbol, symbols )
+   {
+      addr = CCC65Interface::getSymbolAddress(symbol);
+      absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
+
+      if ( addr >= MEM_32KB )
+      {
+         pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
+         if ( (pLogger->GetCount(addr&MASK_8KB)) &&
+              (pLogger->GetType(addr&MASK_8KB) == eLogger_InstructionFetch) )
+         {
+            m_symbols.append(symbol);
+         }
+      }
+   }
 
    emit layoutChanged();
 }

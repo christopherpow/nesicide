@@ -1,3 +1,5 @@
+#include <QInputDialog>
+
 #include "csymbolwatchmodel.h"
 
 #include "ccc65interface.h"
@@ -34,6 +36,10 @@ Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
 QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
 {
    unsigned int addr;
+   unsigned int absAddr;
+   QString data;
+   int count;
+   int idx;
 
    if (role != Qt::DisplayRole)
    {
@@ -43,16 +49,28 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    // Get data for columns...
    if ( index.row() < m_symbols.count() )
    {
+      // Get symbol's index in debug information from its segment.
+      count = CCC65Interface::getSymbolMatchCount(m_symbols.at(index.row()));
+      for ( idx = 0; idx < count; idx++ )
+      {
+         if ( m_segments.at(index.row()) == CCC65Interface::getSymbolSegment(m_symbols.at(index.row()),idx) )
+         {
+            break;
+         }
+      }
+
       switch ( index.column() )
       {
          case 0:
             return m_symbols.at(index.row());
             break;
          case 1:
-            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()));
+            // Get symbol's information based on its name and index.
+            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()),idx);
+            absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_symbols.at(index.row()),idx);
             if ( addr != 0xFFFFFFFF )
             {
-               sprintf(modelStringBuffer,"%04X",addr);
+               nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
                return QVariant(modelStringBuffer);
             }
             else
@@ -61,7 +79,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             }
             break;
          case 2:
-            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()));
+            addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()),idx);
             if ( addr != 0xFFFFFFFF )
             {
                sprintf(modelStringBuffer,"%02X",nesGetMemory(addr));
@@ -90,6 +108,13 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
 {
    bool ok = false;
    unsigned int addr;
+   unsigned int absAddr;
+   int count;
+   int idx;
+   QString symbol;
+   QStringList symbols;
+   QString selStr;
+   int selIdx = 0;
 
    switch ( index.column() )
    {
@@ -97,6 +122,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
          if ( index.row() < m_symbols.count() )
          {
             m_symbols.replace(index.row(),value.toString());
+            m_segments.replace(index.row(),resolveSymbol(value.toString()));
             emit layoutChanged();
             ok = true;
          }
@@ -107,6 +133,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
             {
                beginInsertRows(QModelIndex(),m_symbols.count()+1,m_symbols.count()+1);
                m_symbols.append(value.toString());
+               m_segments.append(resolveSymbol(value.toString()));
                endInsertRows();
 
                ok = true;
@@ -186,5 +213,43 @@ void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
 {
    beginInsertRows(parent,m_symbols.count(),m_symbols.count());
    m_symbols.append(text);
+   m_segments.append(resolveSymbol(text));
    endInsertRows();
+}
+
+int CSymbolWatchModel::resolveSymbol(QString text)
+{
+   unsigned int addr;
+   unsigned int absAddr;
+   int count;
+   int idx;
+   QString symbol;
+   QStringList symbols;
+   QString selStr;
+   int selIdx = 0;
+
+   count = CCC65Interface::getSymbolMatchCount(text);
+   if ( count > 1 )
+   {
+      for ( idx = 0; idx < count; idx++ )
+      {
+         addr = CCC65Interface::getSymbolAddress(text,idx);
+         absAddr = CCC65Interface::getSymbolAbsoluteAddress(text,idx);
+
+         symbol = text;
+         symbol += " @";
+         nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+         symbol += modelStringBuffer;
+         symbols.append(symbol);
+      }
+      selStr = QInputDialog::getItem(0,"Help!","Symbol has multiple possible matches, pick one:",symbols,0,false);
+      for ( selIdx = 0; selIdx < count; selIdx++ )
+      {
+         if ( symbols.at(selIdx) == selStr )
+         {
+            break;
+         }
+      }
+   }
+   return CCC65Interface::getSymbolSegment(text,selIdx);
 }

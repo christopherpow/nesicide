@@ -382,7 +382,7 @@ QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
    return symbols;
 }
 
-unsigned int CCC65Interface::getSymbolAddress(QString symbol)
+unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
 {
    unsigned int addr = 0xFFFFFFFF;
 
@@ -393,17 +393,50 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count == 1) &&
-              (dbgSymbols->data[0].symbol_type == CC65_SYM_LABEL) )
+         if ( (dbgSymbols->count > index) &&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
          {
-            addr = dbgSymbols->data[0].symbol_value;
+            addr = dbgSymbols->data[index].symbol_value;
          }
       }
    }
    return addr;
 }
 
-unsigned int CCC65Interface::getSymbolSegment(QString symbol)
+unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
+{
+   unsigned int addr;
+   unsigned int absAddr = 0xFFFFFFFF;
+   unsigned int addrOffset;
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         if ( (dbgSymbols->count > index) &&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
+         {
+            addr = dbgSymbols->data[index].symbol_value;
+            dbgSegments = cc65_segmentinfo_byid(dbgInfo,dbgSymbols->data[index].symbol_segment);
+            if ( dbgSegments )
+            {
+               if ( dbgSegments->count == 1 )
+               {
+                  addrOffset = addr-dbgSegments->data[0].segment_start;
+
+                  absAddr = dbgSegments->data[0].output_offs-0x10+addrOffset;
+               }
+            }
+         }
+      }
+   }
+   return absAddr;
+}
+
+unsigned int CCC65Interface::getSymbolSegment(QString symbol, int index)
 {
    unsigned int seg = 0;
 
@@ -414,14 +447,51 @@ unsigned int CCC65Interface::getSymbolSegment(QString symbol)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count == 1) &&
-              (dbgSymbols->data[0].symbol_type == CC65_SYM_LABEL) )
+         if ( (dbgSymbols->count > index) &&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
          {
-            seg = dbgSymbols->data[0].symbol_segment;
+            seg = dbgSymbols->data[index].symbol_segment;
          }
       }
    }
    return seg;
+}
+
+unsigned int CCC65Interface::getSymbolSize(QString symbol, int index)
+{
+   unsigned int size = 0;
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         if ( dbgSymbols->count > index )
+         {
+            size = dbgSymbols->data[index].symbol_size;
+         }
+      }
+   }
+   return size;
+}
+
+int CCC65Interface::getSymbolMatchCount(QString symbol)
+{
+   int count = 0;
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         count = dbgSymbols->count;
+      }
+   }
+   return count;
 }
 
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
@@ -531,6 +601,7 @@ QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
 unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int line;
+   uint32_t addrOffset;
 
    if ( dbgInfo )
    {
@@ -546,8 +617,14 @@ unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint
             {
                continue;
             }
-            if ( (dbgLines->data[line].line_start == addr) &&
-                 (dbgLines->data[line].output_offs-0x10 == absAddr) )
+
+            // Calculate offset within lineinfo of current address to get to the
+            // beginning of it and make sure it is actually the right line.
+            addrOffset = addr-dbgLines->data[line].line_start;
+
+            if ( (dbgLines->data[line].line_start <= addr) &&
+                 (dbgLines->data[line].line_end >= addr) &&
+                 (dbgLines->data[line].output_offs-0x10 == (absAddr-addrOffset)) )
             {
                return dbgLines->data[line].line_end;
             }

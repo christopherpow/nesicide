@@ -127,11 +127,13 @@ bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "symbolinspector" );
    QStringList symbols = model->getSymbols();
+   QList<int> segments = model->getSegments();
 
    for (int i=0; i < symbols.count(); i++)
    {
       QDomElement symbolElement = addElement( doc, element, "symbol" );
       symbolElement.setAttribute("name",symbols.at(i));
+      symbolElement.setAttribute("segment",segments.at(i));
    }
 
    return true;
@@ -142,6 +144,7 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
    QDomNode childNode = node.firstChild();
    QDomNode symbolNode;
    QStringList symbols;
+   QList<int> segments;
    QString symbol;
 
    if (!childNode.isNull())
@@ -160,10 +163,12 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
                {
                   symbols.append(symbol);
                }
+               segments.append(symbolElement.attribute("segment","0").toInt());
                symbolNode = symbolNode.nextSibling();
             }
 
             model->setSymbols(symbols);
+            model->setSegments(segments);
             model->update();
          }
       } while (!(childNode = childNode.nextSibling()).isNull());

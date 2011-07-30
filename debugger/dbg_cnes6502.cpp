@@ -2619,6 +2619,7 @@ C6502DBG::~C6502DBG()
 static QColor color [] =
 {
    QColor(255,0,0),
+   QColor(0,0,0),
    QColor(0,255,0),
    QColor(0,0,255),
    QColor(255,255,0)
@@ -2810,7 +2811,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
    for ( idxx = 0; idxx < MEM_8KB; idxx++ )
    {
-      pLogger = nesGetSRAMCodeDataLoggerDatabase(0x6000);
+      pLogger = nesGetVirtualSRAMCodeDataLoggerDatabase(0x6000);
 
       pLogEntry = pLogger->GetLogEntry(idxx);
       cycleDiff = (curCycle-pLogEntry->cycle)/17800;
@@ -2867,7 +2868,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    {
       for ( idxx = 0; idxx < MEM_8KB; idxx++ )
       {
-         pLogger = nesGetPRGROMCodeDataLoggerDatabase(MEM_32KB+(idxy*MEM_8KB)+idxx);
+         pLogger = nesGetVirtualPRGROMCodeDataLoggerDatabase(MEM_32KB+(idxy*MEM_8KB)+idxx);
 
          pLogEntry = pLogger->GetLogEntry(idxx);
          cycleDiff = (curCycle-pLogEntry->cycle)/17800;

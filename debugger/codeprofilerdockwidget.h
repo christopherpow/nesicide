@@ -21,6 +21,9 @@ public:
 private:
     Ui::CodeProfilerDockWidget *ui;
     CDebuggerCodeProfilerModel *model;
+
+private slots:
+   void updateUi();
 };
 
 #endif // CODEPROFILERDOCKWIDGET_H

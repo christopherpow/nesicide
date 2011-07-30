@@ -381,6 +381,9 @@ void NESEmulatorThread::stepOverCPUEmulation ()
    {
       // Check if the current instruction is a JSR...
       instr = nesGetPRGROMData(addr);
+
+      // Assume the instruction is JSR for loop below.
+      endAddr = addr+2;
    }
 
    // If the current instruction is a JSR we need to tell the emulator to

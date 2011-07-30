@@ -278,7 +278,7 @@ void EnvironmentSettingsDialog::writeSettings()
 void EnvironmentSettingsDialog::setupCodeEditor(int index)
 {
    QSettings settings;
-   int style = 0;
+   int style;
 
    ui->styleName->clear();
 
@@ -306,10 +306,12 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
 
    m_lexer->readSettings(settings,"CodeEditor");
 
-   while ( !m_lexer->description(style).isEmpty() )
+   for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
    {
-      ui->styleName->addItem(m_lexer->description(style));
-      style++;
+      if ( !m_lexer->description(style).isEmpty() )
+      {
+         ui->styleName->addItem(m_lexer->description(style),style);
+      }
    }
    on_styleName_currentIndexChanged(ui->styleName->currentIndex());
 
@@ -479,7 +481,8 @@ void EnvironmentSettingsDialog::on_soundBufferDepth_valueChanged(int value)
 
 void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 {
-   QFont font = m_lexer->font(index);
+   int style = ui->styleName->itemData(index).toInt();
+   QFont font = m_lexer->font(style);
 
    ui->styleFont->setCurrentFont(font);
    ui->fontBold->setChecked(font.bold());
@@ -491,7 +494,7 @@ void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
 {
    QSettings settings;
-   int style = ui->styleName->currentIndex();
+   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
    QFont font = m_lexer->font(style);
    font.setBold(checked);
    m_lexer->setFont(font,style);
@@ -500,7 +503,7 @@ void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
 void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
 {
    QSettings settings;
-   int style = ui->styleName->currentIndex();
+   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
    QFont font = m_lexer->font(style);
    font.setItalic(checked);
    m_lexer->setFont(font,style);
@@ -509,7 +512,7 @@ void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
 void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
 {
    QSettings settings;
-   int style = ui->styleName->currentIndex();
+   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
    QFont font = m_lexer->font(style);
    font.setUnderline(checked);
    m_lexer->setFont(font,style);
@@ -518,7 +521,7 @@ void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
 void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
 {
    QSettings settings;
-   int style = ui->styleName->currentIndex();
+   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
    QFont font = ui->styleFont->currentFont();
    font.setBold(ui->fontBold->isChecked());
    font.setItalic(ui->fontItalic->isChecked());
@@ -535,7 +538,7 @@ void EnvironmentSettingsDialog::on_styleColor_clicked()
 {
    QSettings settings;
    QColorDialog dlg;
-   int style = ui->styleName->currentIndex();
+   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
 
    dlg.setCurrentColor(m_lexer->color(style));
 
@@ -635,7 +638,7 @@ void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
 void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
 {
    QSettings settings;
-   int style = ui->styleName->currentIndex();
+   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
    QFont font = m_lexer->font(style);
    font.setPointSize(value);
    m_lexer->setFont(font,style);

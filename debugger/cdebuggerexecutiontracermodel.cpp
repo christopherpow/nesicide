@@ -208,8 +208,8 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTracer_Unknown:
                   str[0] = 0;
                   break;
-               case eTracer_OpcodeFetch:
-                  strcpy ( str, "Opcode Fetch" );
+               case eTracer_OperandFetch:
+                  strcpy ( str, "Operand Fetch" );
                   break;
                case eTracer_InstructionFetch:
                   strcpy ( str, "Instruction Fetch" );

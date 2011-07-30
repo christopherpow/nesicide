@@ -18,9 +18,16 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
+
+   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 }
 
 CodeProfilerDockWidget::~CodeProfilerDockWidget()
 {
     delete ui;
+}
+
+void CodeProfilerDockWidget::updateUi()
+{
+   ui->symbolsProfiled->setText(QString::number(model->getSymbols().count()));
 }
