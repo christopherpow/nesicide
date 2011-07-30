@@ -4,7 +4,7 @@
 
 # Toolchain stuff.
 COMPILE  := cl65 -c
-ASSEMBLE := ca65
+ASSEMBLE := cl65 -c 
 LINK     := cl65
 
 # Environment stuff.
@@ -85,7 +85,7 @@ $(OBJDIR):
 <!target-rules!>
 
 $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
-	$(LINK) -o $@ -t none $(LDFLAGS) $(OBJECTS) $(LIBS)
+	$(LINK) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 
 clean:
 	-$(RM) $(OBJECTS)
