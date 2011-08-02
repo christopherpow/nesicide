@@ -47,6 +47,7 @@ public:
    static bool autoIndent() { return m_autoIndentEnabled; }
    static bool replaceTabs() { return m_tabReplacementEnabled; }
    static int spacesPerTab() { return m_spacesForTabs; }
+   static bool annotateSource() { return m_annotateSource; }
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
 
@@ -92,6 +93,7 @@ private:
    static bool m_autoIndentEnabled;
    static bool m_tabReplacementEnabled;
    static int m_spacesForTabs;
+   static bool m_annotateSource;
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
 

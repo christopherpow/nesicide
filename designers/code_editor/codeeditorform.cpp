@@ -20,6 +20,7 @@
 #include "cmarker.h"
 
 static char toolTipText [ 2048 ];
+static char annotationBuffer [ 2048 ];
 
 CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
@@ -29,6 +30,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
    QWidget*     sourceNavigator = CDockWidgetRegistry::getWidget("Source Navigator");
+   QDockWidget* codeProfiler = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Code Profiler"));
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -145,6 +147,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setTabWidth( EnvironmentSettingsDialog::spacesPerTab() );
    m_scintilla->setIndentationsUseTabs( !EnvironmentSettingsDialog::replaceTabs() );
 
+   m_scintilla->setAnnotationDisplay ( QsciScintilla::AnnotationBoxed );
+
    // Connect signals from Scintilla to update the UI.
    QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));
    QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
@@ -163,6 +167,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
    QObject::connect ( sourceNavigator, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( codeProfiler, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
@@ -798,9 +803,62 @@ QString CodeEditorForm::sourceCode()
    return m_scintilla->text();
 }
 
+static QsciStyle astyle(-1,"MyAnnotation",QColor(255,0,0),QColor(255,150,150),QFont("Courier New",-1,-1,true),true);
+
 void CodeEditorForm::setSourceCode(QString source)
 {
+   int line;
+   int addr;
+   int absAddr;
+   int endAddr;
+   char disassembly[32];
+   char address[32];
+   char* pAnnotationBuffer;
+   bool first;
+
    m_scintilla->setText(source);
+
+   // Annotate C-language source with assembly if desired.
+   if ( (EnvironmentSettingsDialog::annotateSource()) && (m_language == Language_C) )
+   {
+      for ( line = 0; line < m_scintilla->lines(); line++ )
+      {
+         annotationBuffer[0] = 0;
+         pAnnotationBuffer = annotationBuffer;
+         first = true;
+
+         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+         endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+
+         if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
+         {
+            for ( ; addr <= endAddr; addr++, absAddr++ )
+            {
+               if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
+               {
+                  nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                  if ( disassembly[0] )
+                  {
+                     if ( !first )
+                     {
+                        pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n");
+                     }
+                     first = false;
+
+                     nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+                     pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
+                     pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s",disassembly);
+                  }
+               }
+            }
+            if ( annotationBuffer[0] )
+            {
+               m_scintilla->annotate(line,annotationBuffer,astyle);
+            }
+         }
+      }
+   }
 
    // Force repaint of breakpoints since the reason this API is
    // called is usually when a CodeEditorForm is opened for the

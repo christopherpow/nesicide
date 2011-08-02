@@ -2,7 +2,13 @@
 #define CDEBUGGERCODEPROFILERMODEL_H
 
 #include <QAbstractTableModel>
-#include <QStringList>
+#include <QList>
+
+struct ProfiledItem
+{
+   QString file;
+   QString symbol;
+};
 
 class CDebuggerCodeProfilerModel : public QAbstractTableModel
 {
@@ -17,7 +23,7 @@ public:
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
-   QStringList getSymbols() { return m_symbols; }
+   QList<ProfiledItem> getItems() { return m_items; }
 
 signals:
 
@@ -25,7 +31,7 @@ public slots:
    void update();
 
 private:
-   QStringList m_symbols;
+   QList<ProfiledItem> m_items;
 };
 
 #endif // CDEBUGGERCODEPROFILERMODEL_H

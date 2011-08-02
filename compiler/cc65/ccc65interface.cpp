@@ -565,6 +565,7 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
 int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
 {
    unsigned int addr = getSymbolAddress(symbol);
+   unsigned int absAddr = getSymbolAbsoluteAddress(symbol,0); // CPTODO: doesn't work yet for same-name-different-segment symbols.
    int line;
 
    if ( dbgInfo )
@@ -576,7 +577,8 @@ int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            if ( dbgLines->data[line].source_name == file )
+            if ( (dbgLines->data[line].source_name == file) &&
+                 (dbgLines->data[line].output_offs-0x10 == absAddr) )
             {
                return dbgLines->data[line].source_line;
             }

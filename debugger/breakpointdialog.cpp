@@ -387,7 +387,8 @@ void BreakpointDialog::on_addr1_textChanged(QString text)
 
 void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
 {
-   char buffer [ 16 ];
+   char address[32];
+   char disassembly[32];
    uint32_t size = nesGetPRGROMSize();
    uint32_t originalAddr;
    uint32_t maskedAddr;
@@ -430,8 +431,9 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
          }
          else
          {
-            nesGetDisassemblyAtAbsoluteAddress(maskedAddr,buffer);
-            item.sprintf("%04X(%02X:%04X) %s",originalAddr,nesGetPhysicalPRGROMBank(maskedAddr),maskedAddr&MASK_8KB,buffer);
+            nesGetDisassemblyAtAbsoluteAddress(maskedAddr,disassembly);
+            nesGetPrintableAddressWithAbsolute(address,originalAddr,maskedAddr);
+            item.sprintf("%s:%s",address,disassembly);
             ui->resolutions->addItem(item);
             ui->resolutions->setItemData(ui->resolutions->count()-1,maskedAddr);
          }

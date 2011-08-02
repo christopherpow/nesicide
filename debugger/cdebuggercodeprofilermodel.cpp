@@ -1,3 +1,5 @@
+#include <QFileInfo>
+
 #include "cdebuggercodeprofilermodel.h"
 
 #include "ccc65interface.h"
@@ -28,14 +30,14 @@ Qt::ItemFlags CDebuggerCodeProfilerModel::flags(const QModelIndex& index) const
 
 QModelIndex CDebuggerCodeProfilerModel::index(int row, int column, const QModelIndex &parent) const
 {
-   if ( (row >= 0) && (row < m_symbols.count()) )
+   if ( (row >= 0) && (row < m_items.count()) )
    {
       CCodeDataLogger* pLogger;
       unsigned int addr;
       unsigned int absAddr;
 
-      addr = CCC65Interface::getSymbolAddress(m_symbols.at(row));
-      absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_symbols.at(row));
+      addr = CCC65Interface::getSymbolAddress(m_items.at(row).symbol);
+      absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(row).symbol);
 
       if ( addr >= MEM_32KB )
       {
@@ -62,13 +64,13 @@ QVariant CDebuggerCodeProfilerModel::data(const QModelIndex& index, int role) co
    switch ( index.column() )
    {
       case 0:
-         return m_symbols.at(index.row());
+         return m_items.at(index.row()).symbol;
          break;
       case 1:
          // Get symbol's information based on its name and index.
          // CPTODO: fix segmenting stuff later!
-         addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()),0/*idx*/);
-         absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_symbols.at(index.row()),0/*idx*/);
+         addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,0/*idx*/);
+         absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,0/*idx*/);
          if ( addr != 0xFFFFFFFF )
          {
             nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
@@ -81,9 +83,12 @@ QVariant CDebuggerCodeProfilerModel::data(const QModelIndex& index, int role) co
          break;
       case 2:
          // Get symbol's information based on its name and index.
-         // CPTODO: fix segmenting stuff later!
-         addr = CCC65Interface::getSymbolAddress(m_symbols.at(index.row()),0/*idx*/);
+         // CPTODO: fix segmenting stuff later! (meaning, fix the fact that the profiler doesn't yet check for multiply-defined symbols in separate segments)
+         addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,0/*idx*/);
          return QVariant(pLogger->GetCount(addr&MASK_8KB));
+         break;
+      case 3:
+         return m_items.at(index.row()).file;
          break;
    }
    return QVariant();
@@ -109,6 +114,9 @@ QVariant CDebuggerCodeProfilerModel::headerData(int section, Qt::Orientation ori
       case 2:
          return QString("# Calls");
          break;
+      case 3:
+         return QString("File");
+         break;
       }
    }
    return QVariant();
@@ -116,12 +124,12 @@ QVariant CDebuggerCodeProfilerModel::headerData(int section, Qt::Orientation ori
 
 int CDebuggerCodeProfilerModel::rowCount(const QModelIndex&) const
 {
-   return m_symbols.count();
+   return m_items.count();
 }
 
 int CDebuggerCodeProfilerModel::columnCount(const QModelIndex&) const
 {
-   return 3;
+   return 4;
 }
 
 void CDebuggerCodeProfilerModel::update()
@@ -130,8 +138,10 @@ void CDebuggerCodeProfilerModel::update()
    CCodeDataLogger* pLogger;
    unsigned int addr;
    unsigned int absAddr;
+   ProfiledItem item;
+   QFileInfo fileInfo;
 
-   m_symbols.clear();
+   m_items.clear();
    foreach ( QString symbol, symbols )
    {
       addr = CCC65Interface::getSymbolAddress(symbol);
@@ -143,7 +153,14 @@ void CDebuggerCodeProfilerModel::update()
          if ( (pLogger->GetCount(addr&MASK_8KB)) &&
               (pLogger->GetType(addr&MASK_8KB) == eLogger_InstructionFetch) )
          {
-            m_symbols.append(symbol);
+            item.symbol = symbol;
+            item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
+            fileInfo.setFile(item.file);
+            if ( !fileInfo.exists() )
+            {
+               item.file += "[not found]";
+            }
+            m_items.append(item);
          }
       }
    }

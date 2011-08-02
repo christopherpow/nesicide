@@ -295,7 +295,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
 
-   m_pCodeProfiler = new CodeProfilerDockWidget();
+   m_pCodeProfiler = new CodeProfilerDockWidget(ui->tabWidget);
    addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
    m_pCodeProfiler->hide();
    QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));

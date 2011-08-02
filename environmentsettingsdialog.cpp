@@ -28,6 +28,7 @@ bool EnvironmentSettingsDialog::m_showOpcodeTips;
 bool EnvironmentSettingsDialog::m_autoIndentEnabled;
 bool EnvironmentSettingsDialog::m_tabReplacementEnabled;
 int EnvironmentSettingsDialog::m_spacesForTabs;
+bool EnvironmentSettingsDialog::m_annotateSource;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
 
@@ -123,6 +124,8 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->replaceTabs->setChecked(m_tabReplacementEnabled);
    ui->spacesForTab->setValue(m_spacesForTabs);
 
+   ui->annotate->setChecked(m_annotateSource);
+
    ui->showSymbolTips->setChecked(m_showSymbolTips);
    ui->showOpcodeTips->setChecked(m_showOpcodeTips);
 
@@ -190,9 +193,10 @@ void EnvironmentSettingsDialog::readSettings()
    m_autoIndentEnabled = settings.value("autoIndent",QVariant(true)).toBool();
    m_tabReplacementEnabled = settings.value("tabReplacement",QVariant(true)).toBool();
    m_spacesForTabs = settings.value("spacesPerTab",QVariant(3)).toInt();
-   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
+   m_annotateSource = settings.value("annotateSource",QVariant(true)).toBool();
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
+   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    settings.endGroup();
 }
 
@@ -230,6 +234,7 @@ void EnvironmentSettingsDialog::writeSettings()
    m_autoIndentEnabled = ui->autoIndent->isChecked();
    m_tabReplacementEnabled = ui->replaceTabs->isChecked();
    m_spacesForTabs = ui->spacesForTab->value();
+   m_annotateSource = ui->annotate->isChecked();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
    m_lastActiveTab = ui->tabWidget->currentIndex();
@@ -263,6 +268,7 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("autoIndent",m_autoIndentEnabled);
    settings.setValue("tabReplacement",m_tabReplacementEnabled);
    settings.setValue("spacesPerTab",m_spacesForTabs);
+   settings.setValue("annotateSource",m_annotateSource);
 
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
