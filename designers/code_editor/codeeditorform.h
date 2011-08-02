@@ -84,6 +84,7 @@ private:
 
 public slots:
    void restyleText();
+   void annotateText();
    void snapTo(QString item);
    void replaceText(QString from, QString to, bool replaceAll);
 

@@ -1603,6 +1603,7 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
       if ( codeEditor )
       {
          codeEditor->restyleText();
+         codeEditor->annotateText();
       }
    }
 }

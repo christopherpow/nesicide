@@ -368,6 +368,8 @@ void CodeEditorForm::timerEvent(QTimerEvent *e)
 void CodeEditorForm::compiler_compileStarted()
 {
    m_scintilla->markerDeleteAll(Marker_Error);
+
+   m_scintilla->clearAnnotations();
 }
 
 void CodeEditorForm::compiler_compileDone(bool ok)
@@ -381,6 +383,8 @@ void CodeEditorForm::compiler_compileDone(bool ok)
          m_scintilla->markerAdd(line,Marker_Error);
       }
    }
+
+   annotateText();
 }
 
 void CodeEditorForm::emulator_emulatorStarted()
@@ -807,58 +811,10 @@ static QsciStyle astyle(-1,"MyAnnotation",QColor(255,0,0),QColor(255,150,150),QF
 
 void CodeEditorForm::setSourceCode(QString source)
 {
-   int line;
-   int addr;
-   int absAddr;
-   int endAddr;
-   char disassembly[32];
-   char address[32];
-   char* pAnnotationBuffer;
-   bool first;
-
    m_scintilla->setText(source);
 
-   // Annotate C-language source with assembly if desired.
-   if ( (EnvironmentSettingsDialog::annotateSource()) && (m_language == Language_C) )
-   {
-      for ( line = 0; line < m_scintilla->lines(); line++ )
-      {
-         annotationBuffer[0] = 0;
-         pAnnotationBuffer = annotationBuffer;
-         first = true;
-
-         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
-         endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
-
-         if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
-         {
-            for ( ; addr <= endAddr; addr++, absAddr++ )
-            {
-               if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
-               {
-                  nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
-                  if ( disassembly[0] )
-                  {
-                     if ( !first )
-                     {
-                        pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n");
-                     }
-                     first = false;
-
-                     nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
-                     pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
-                     pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s",disassembly);
-                  }
-               }
-            }
-            if ( annotationBuffer[0] )
-            {
-               m_scintilla->annotate(line,annotationBuffer,astyle);
-            }
-         }
-      }
-   }
+   // Force re-do of annotations.
+   annotateText();
 
    // Force repaint of breakpoints since the reason this API is
    // called is usually when a CodeEditorForm is opened for the
@@ -903,6 +859,63 @@ void CodeEditorForm::highlightLine(int linenumber)
       {
          m_scintilla->ensureLineVisible(linenumber-1);
          m_scintilla->markerAdd(linenumber-1,Marker_Highlight);
+      }
+   }
+}
+
+void CodeEditorForm::annotateText()
+{
+   int line;
+   int addr;
+   int absAddr;
+   int endAddr;
+   char disassembly[32];
+   char address[32];
+   char* pAnnotationBuffer;
+   bool first;
+
+   // Clear annotations.
+   m_scintilla->clearAnnotations();
+
+   // Annotate C-language source with assembly if desired.
+   if ( (EnvironmentSettingsDialog::annotateSource()) && (m_language == Language_C) )
+   {
+      for ( line = 0; line < m_scintilla->lines(); line++ )
+      {
+         annotationBuffer[0] = 0;
+         pAnnotationBuffer = annotationBuffer;
+         first = true;
+
+         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+         endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+
+         if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
+         {
+            for ( ; addr <= endAddr; addr++, absAddr++ )
+            {
+               if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
+               {
+                  nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                  if ( disassembly[0] )
+                  {
+                     if ( !first )
+                     {
+                        pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n");
+                     }
+                     first = false;
+
+                     nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+                     pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
+                     pAnnotationBuffer += sprintf(pAnnotationBuffer,disassembly);
+                  }
+               }
+            }
+            if ( annotationBuffer[0] )
+            {
+               m_scintilla->annotate(line,annotationBuffer,astyle);
+            }
+         }
       }
    }
 }
