@@ -1,6 +1,8 @@
 #ifndef CATTRIBUTETABLE_H
 #define CATTRIBUTETABLE_H
 
+#include <stdint.h>
+
 #include "cprojectbase.h"
 #include "attributetableeditorform.h"
 
