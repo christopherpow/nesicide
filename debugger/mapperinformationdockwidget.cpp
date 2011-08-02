@@ -65,8 +65,8 @@ void MapperInformationDockWidget::hideEvent(QHideEvent* e)
 void MapperInformationDockWidget::cartridgeLoaded()
 {
    char buffer [ 128 ];
-   sprintf ( buffer, "Mapper %d: %s", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
-   ui->info->setText ( buffer );
+   sprintf ( buffer, "Mapper %d: %s Information", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
+   setWindowTitle(buffer);
    ui->tabWidget->setTabEnabled(CPUToPRGPage, nesMapperRemapsPRGROM());
    ui->tabWidget->setTabEnabled(PPUToCHRPage, nesMapperRemapsCHRMEM());
    ui->internalInfo->setCurrentIndex(mapperInspectorPageFromID(nesGetMapper()));
@@ -100,6 +100,12 @@ void MapperInformationDockWidget::updateInformation()
    ui->nt2->setText ( buffer );
    sprintf ( buffer, "%04X", mirroring[3] );
    ui->nt3->setText ( buffer );
+
+   // Show Bank information...
+   sprintf ( buffer, "%d (%dKB)", nesGetNumPRGROMBanks(), nesGetNumPRGROMBanks()*MEM_8KB  );
+   ui->numPrgBanks->setText ( buffer );
+   sprintf ( buffer, "%d (%dKB)", nesGetNumCHRROMBanks(), nesGetNumCHRROMBanks()*MEM_8KB );
+   ui->numChrBanks->setText ( buffer );
 
    // Show PRG-ROM absolute addresses...
    sprintf ( buffer, "%02X(%05X)", nesGetPRGROMAbsoluteAddress(0x8000)>>13, nesGetPRGROMAbsoluteAddress(0x8000) );

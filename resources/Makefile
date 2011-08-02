@@ -3,8 +3,8 @@
 ### <!project-name!>
 
 # Toolchain stuff.
-COMPILE  := cl65 -c
-ASSEMBLE := cl65 -c 
+COMPILE  := cl65
+ASSEMBLE := ca65 
 LINK     := cl65
 
 # Environment stuff.
@@ -28,7 +28,7 @@ CONFIG := $(subst \,/,$(CONFIG))
 
 # Additional C compiler flags and options.
 # Default: none
-CFLAGS  = -g --debug-info <!compiler-flags!>
+CFLAGS  = -c -g --debug-info <!compiler-flags!>
 
 # Get rid of Windows path wonkiness.
 CFLAGS := $(subst \,/,$(CFLAGS))
@@ -48,15 +48,20 @@ REMOVES += <!debug-file!>
 # Get rid of Windows path wonkiness.
 LDFLAGS := $(subst \,/,$(LDFLAGS))
 
-# Path to the directory where object files are to be stored (inside respective target subdirectories).
-# Default: obj
+# Path to the directory where object files are to be stored.
 OBJDIR := <!object-dir!>
 
 # Get rid of Windows path wonkiness.
 OBJDIR := $(subst \,/,$(OBJDIR))
 
+# Path to the directory where PRG files are to be stored.
+PRGDIR := <!prg-dir!>
+
+# Get rid of Windows path wonkiness.
+PRGDIR := $(subst \,/,$(PRGDIR))
+
 # Program ROM file name (game code goes here).
-PROGRAM = $(OBJDIR)/<!prg-rom-name!>
+PROGRAM = $(PRGDIR)/<!prg-rom-name!>
 
 # Set SOURCES to something like 'src/foo.c src/bar.s'.
 SOURCES := <!clang-sources!>

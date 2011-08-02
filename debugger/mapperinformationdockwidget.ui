@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>386</width>
-    <height>286</height>
+    <height>293</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,88 +16,72 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QLabel" name="info">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="lineWidth">
-       <number>1</number>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="prgBanking">
        <attribute name="title">
         <string>CPU-to-PRG Mapping</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>8000 - 9FFF:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>A000 - BFFF:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLineEdit" name="prg0">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QLineEdit" name="prg1">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>C000 - DFFF:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>E000 - FFFF:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLineEdit" name="prg2">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QLineEdit" name="prg3">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -110,6 +94,24 @@
           </property>
          </spacer>
         </item>
+        <item row="0" column="0" colspan="2">
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>Number of 8KB PRG-ROM Banks:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="numPrgBanks">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="chrBanking">
@@ -117,35 +119,35 @@
         <string>PPU-to-CHR Mapping</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QLineEdit" name="chr0">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QLineEdit" name="chr2">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="QLabel" name="label_8">
           <property name="text">
            <string>0000 - 03FF:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>0800 - 0BFF</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="1" colspan="3">
+        <item row="11" column="1" colspan="3">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -158,89 +160,107 @@
           </property>
          </spacer>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QLabel" name="label_7">
           <property name="text">
            <string>0400 - 07FF:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QLineEdit" name="chr1">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
+        <item row="1" column="3">
          <widget class="QLabel" name="label_9">
           <property name="text">
            <string>1000 - 13FF:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="3">
+        <item row="2" column="3">
          <widget class="QLineEdit" name="chr4">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="QLabel" name="label_6">
           <property name="text">
            <string>0C00 - 0FFF:</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="QLineEdit" name="chr3">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
+        <item row="3" column="3">
          <widget class="QLabel" name="label_10">
           <property name="text">
            <string>1400 - 17FF:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="3">
+        <item row="4" column="3">
          <widget class="QLineEdit" name="chr5">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="4" column="3">
+        <item row="5" column="3">
          <widget class="QLabel" name="label_11">
           <property name="text">
            <string>1800 - 1BFF:</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="3">
+        <item row="6" column="3">
          <widget class="QLineEdit" name="chr6">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="6" column="3">
+        <item row="7" column="3">
          <widget class="QLabel" name="label_12">
           <property name="text">
            <string>1C00 - 1FFF:</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="3">
+        <item row="8" column="3">
          <widget class="QLineEdit" name="chr7">
           <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
+        </item>
+        <item row="0" column="1" colspan="3">
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_27">
+            <property name="text">
+             <string>Number of 8KB CHR-ROM Banks:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="numChrBanks">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

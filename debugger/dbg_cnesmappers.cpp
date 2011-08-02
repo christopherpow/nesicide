@@ -21,7 +21,6 @@
 
 MapperInfo mapper[] =
 {
-   { "NONE", 0, 0 },
    { "NES-NROM", 0, 0 },
    { "NROM", 0, 0 },
    { "MMC1", 1, 1 },

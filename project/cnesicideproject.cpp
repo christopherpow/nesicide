@@ -17,7 +17,9 @@ CNesicideProject::CNesicideProject()
    m_isDirty = false;
 
    m_projectTitle = "(No project loaded)";
-   m_projectOutputBasePath = ".";
+   setProjectOutputBasePath(".");
+   setProjectOutputName("");
+   m_projectUsesCHRROM = true;
 }
 
 CNesicideProject::~CNesicideProject()
@@ -72,13 +74,8 @@ void CNesicideProject::initializeProject()
 
    // Notify the fact that the project data has been initialized properly
    m_projectTitle = "(No project loaded)";
-   m_projectOutputBasePath = ".";
-   m_projectOutputName = "";
-   m_projectLinkerOutputName = "";
-   m_projectDebugInfoName = "";
-   m_projectCHRROMOutputName = "";
-   m_projectCartridgeOutputName = "";
-   m_projectCartridgeSaveStateName = "";
+   setProjectOutputBasePath(".");
+   setProjectOutputName("");
    m_compilerDefinedSymbols = "";
    m_compilerIncludePaths = "";
    m_compilerAdditionalOptions = "";
@@ -114,13 +111,8 @@ void CNesicideProject::terminateProject()
 
    // Notify the fact that the project data is no longer valid
    m_projectTitle = "(No project loaded)";
-   m_projectOutputBasePath = ".";
-   m_projectOutputName = "";
-   m_projectLinkerOutputName = "";
-   m_projectDebugInfoName = "";
-   m_projectCHRROMOutputName = "";
-   m_projectCartridgeOutputName = "";
-   m_projectCartridgeSaveStateName = "";
+   setProjectOutputBasePath(".");
+   setProjectOutputName("");
    m_compilerDefinedSymbols = "";
    m_compilerIncludePaths = "";
    m_compilerAdditionalOptions = "";
@@ -151,9 +143,12 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
 
    propertiesElement.setAttribute("outputbasepath",m_projectOutputBasePath);
    propertiesElement.setAttribute("outputname",m_projectOutputName);
+   propertiesElement.setAttribute("linkeroutputbasepath",m_projectLinkerOutputBasePath);
    propertiesElement.setAttribute("linkeroutputname",m_projectLinkerOutputName);
    propertiesElement.setAttribute("debuginfoname",m_projectDebugInfoName);
+   propertiesElement.setAttribute("chrromoutputbasepath",m_projectCHRROMOutputBasePath);
    propertiesElement.setAttribute("chrromoutputname",m_projectCHRROMOutputName);
+   propertiesElement.setAttribute("chrrom",m_projectUsesCHRROM);
    propertiesElement.setAttribute("cartridgeoutputname",m_projectCartridgeOutputName);
    propertiesElement.setAttribute("cartridgesavestatename",m_projectCartridgeSaveStateName);
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
@@ -259,9 +254,12 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 
          m_projectOutputBasePath = propertiesElement.attribute("outputbasepath");
          m_projectOutputName = propertiesElement.attribute("outputname");
+         m_projectLinkerOutputBasePath = propertiesElement.attribute("linkeroutputbasepath");
          m_projectLinkerOutputName = propertiesElement.attribute("linkeroutputname");
          m_projectDebugInfoName = propertiesElement.attribute("debuginfoname");
+         m_projectCHRROMOutputBasePath = propertiesElement.attribute("chrromoutputbasepath");
          m_projectCHRROMOutputName = propertiesElement.attribute("chrromoutputname");
+         m_projectUsesCHRROM = propertiesElement.attribute("chrrom").toInt();
          m_projectCartridgeOutputName = propertiesElement.attribute("cartridgeoutputname");
          m_projectCartridgeSaveStateName = propertiesElement.attribute("cartridgesavestatename");
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");

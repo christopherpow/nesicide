@@ -25,9 +25,13 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->projectBasePath->setText(QDir::fromNativeSeparators(QDir::currentPath()));
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
+   ui->prgromOutputBasePath->setText(nesicideProject->getProjectLinkerOutputBasePath());
    ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
    ui->debugInfoName->setText(nesicideProject->getProjectDebugInfoName());
+   ui->chrromOutputBasePath->setText(nesicideProject->getProjectCHRROMOutputBasePath());
    ui->chrromOutputName->setText(nesicideProject->getProjectCHRROMOutputName());
+   ui->chrRom->setChecked(nesicideProject->getProjectUsesCHRROM());
+   ui->chrRam->setChecked(!nesicideProject->getProjectUsesCHRROM());
    ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
    ui->cartridgeSaveStateName->setText(nesicideProject->getProjectCartridgeSaveStateName());
 
@@ -409,7 +413,9 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectOutputName(ui->outputName->text());
    nesicideProject->setProjectLinkerOutputName(ui->linkerOutputName->text());
    nesicideProject->setProjectDebugInfoName(ui->debugInfoName->text());
+   nesicideProject->setProjectCHRROMOutputBasePath(ui->chrromOutputBasePath->text());
    nesicideProject->setProjectCHRROMOutputName(ui->chrromOutputName->text());
+   nesicideProject->setProjectUsesCHRROM(ui->chrRom->isChecked());
    nesicideProject->setProjectCartridgeOutputName(ui->cartridgeOutputName->text());
    nesicideProject->setProjectCartridgeSaveStateName(ui->cartridgeSaveStateName->text());
    nesicideProject->setCompilerDefinedSymbols(ui->compilerDefinedSymbols->text());
@@ -418,6 +424,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setAssemblerDefinedSymbols(ui->assemblerDefinedSymbols->text());
    nesicideProject->setAssemblerIncludePaths(ui->assemblerIncludePaths->text());
    nesicideProject->setAssemblerAdditionalOptions(ui->assemblerAdditionalOptions->text());
+   nesicideProject->setProjectLinkerOutputBasePath(ui->prgromOutputBasePath->text());
    nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
@@ -438,9 +445,16 @@ void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
    QString value = QFileDialog::getExistingDirectory(this,"Project Output Base Path",QDir::currentPath());
    QDir dir(QDir::currentPath());
 
+   if ( dir.fromNativeSeparators(dir.relativeFilePath(value)).isEmpty() )
+   {
+      value = ".";
+   }
+
    if ( !value.isEmpty() )
    {
       ui->projectOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->prgromOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->chrromOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
    }
 }
 
@@ -536,4 +550,36 @@ void ProjectPropertiesDialog::on_outputName_textEdited(QString )
    ui->debugInfoName->setText(text+".dbg");
    ui->chrromOutputName->setText(text+".chr");
    ui->cartridgeOutputName->setText(text+".nes");
+}
+
+void ProjectPropertiesDialog::on_prgromOutputBasePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"PRG Data Output Base Path",QDir::currentPath());
+   QDir dir(QDir::currentPath());
+
+   if ( dir.fromNativeSeparators(dir.relativeFilePath(value)).isEmpty() )
+   {
+      value = ".";
+   }
+
+   if ( !value.isEmpty() )
+   {
+      ui->prgromOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+   }
+}
+
+void ProjectPropertiesDialog::on_chrromOutputBasePathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"CHR Data Output Base Path",QDir::currentPath());
+   QDir dir(QDir::currentPath());
+
+   if ( dir.fromNativeSeparators(dir.relativeFilePath(value)).isEmpty() )
+   {
+      value = ".";
+   }
+
+   if ( !value.isEmpty() )
+   {
+      ui->chrromOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+   }
 }

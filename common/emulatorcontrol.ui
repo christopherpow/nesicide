@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>201</width>
+    <width>230</width>
     <height>30</height>
    </rect>
   </property>
@@ -105,7 +105,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
-         <normaloff>:/resources/continue-icon-cpu.png</normaloff>:/resources/continue-icon-cpu.png</iconset>
+         <normaloff>:/resources/stepinto_6.png</normaloff>:/resources/stepinto_6.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -132,6 +132,26 @@
        <property name="icon">
         <iconset resource="../resource.qrc">
          <normaloff>:/resources/stepover_6.png</normaloff>:/resources/stepover_6.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="stepOutButton">
+       <property name="text">
+        <string>Step CPU Out</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/stepreturn_6.png</normaloff>:/resources/stepreturn_6.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -176,7 +196,7 @@
      <item>
       <widget class="QToolButton" name="frameAdvance">
        <property name="text">
-        <string>...</string>
+        <string>PPU Frame Advance</string>
        </property>
        <property name="icon">
         <iconset resource="../resource.qrc">
@@ -303,6 +323,14 @@
    </property>
    <property name="toolTip">
     <string>Step Over</string>
+   </property>
+  </action>
+  <action name="actionStep_Out">
+   <property name="text">
+    <string>Step Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Step Out</string>
    </property>
   </action>
  </widget>

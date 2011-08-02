@@ -30,12 +30,12 @@ public:
    static QString getSourceFileFromSymbol(QString symbol);
    static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static unsigned int getAddressFromFileAndLine(QString file,int line);
-   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int line);
+   static unsigned int getAddressFromFileAndLine(QString file,int source_line);
+   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line);
    static unsigned int getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
    static QStringList getErrors() { return errors; }
-   static bool isErrorOnLineOfFile(QString file,int line);
+   static bool isErrorOnLineOfFile(QString file,int source_line);
 
    static QStringList getCLanguageSourcesFromProject();
    static QStringList getAssemblerSourcesFromProject();

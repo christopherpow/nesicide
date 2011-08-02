@@ -34,9 +34,12 @@ public:
    QString getProjectTitle() { return m_projectTitle; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
+   QString getProjectLinkerOutputBasePath() { return m_projectLinkerOutputBasePath; }
    QString getProjectLinkerOutputName() { return m_projectLinkerOutputName; }
    QString getProjectDebugInfoName() { return m_projectDebugInfoName; }
+   QString getProjectCHRROMOutputBasePath() { return m_projectCHRROMOutputBasePath; }
    QString getProjectCHRROMOutputName() { return m_projectCHRROMOutputName; }
+   bool    getProjectUsesCHRROM() { return m_projectUsesCHRROM; }
    QString getProjectCartridgeOutputName() { return m_projectCartridgeOutputName; }
    QString getProjectCartridgeSaveStateName() { return m_projectCartridgeSaveStateName; }
    QString getCompilerDefinedSymbols() { return m_compilerDefinedSymbols; }
@@ -65,11 +68,19 @@ public:
       m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
       m_projectCartridgeSaveStateName = m_projectTitle.toLower().replace(" ","_")+".sav";
    }
-   void setProjectOutputBasePath(QString value) { if (!value.isEmpty()) m_projectOutputBasePath = value; else m_projectOutputBasePath="."; }
+   void setProjectOutputBasePath(QString value)
+   {
+      if (!value.isEmpty()) m_projectOutputBasePath = value; else m_projectOutputBasePath=".";
+      m_projectLinkerOutputBasePath = m_projectOutputBasePath;
+      m_projectCHRROMOutputBasePath = m_projectOutputBasePath;
+   }
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
+   void setProjectLinkerOutputBasePath(QString value) { m_projectLinkerOutputBasePath = value; }
    void setProjectLinkerOutputName(QString value) { m_projectLinkerOutputName = value; }
    void setProjectDebugInfoName(QString value) { m_projectDebugInfoName = value; }
+   void setProjectCHRROMOutputBasePath(QString value) { m_projectCHRROMOutputBasePath = value; }
    void setProjectCHRROMOutputName(QString value) { m_projectCHRROMOutputName = value; }
+   void setProjectUsesCHRROM(bool value) { m_projectUsesCHRROM = value; }
    void setProjectCartridgeOutputName(QString value) { m_projectCartridgeOutputName = value; }
    void setProjectCartridgeSaveStateName(QString value) { m_projectCartridgeSaveStateName = value; }
    void setCompilerDefinedSymbols(QString value) { m_compilerDefinedSymbols = value; }
@@ -117,9 +128,12 @@ private:
    QString m_projectTitle;
    QString m_projectOutputBasePath;
    QString m_projectOutputName;
+   QString m_projectLinkerOutputBasePath;
    QString m_projectLinkerOutputName;
    QString m_projectDebugInfoName;
+   QString m_projectCHRROMOutputBasePath;
    QString m_projectCHRROMOutputName;
+   bool    m_projectUsesCHRROM;
    QString m_projectCartridgeOutputName;
    QString m_projectCartridgeSaveStateName;
    // The toolchain argument strings

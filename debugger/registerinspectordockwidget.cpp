@@ -46,15 +46,6 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(eMemoryType display, QW
 
    m_register = 0;
 
-   if ( m_display == eMemory_cartMapper )
-   {
-      ui->info->setVisible(true);
-   }
-   else
-   {
-      ui->info->setVisible(false);
-   }
-
    ui->label->setText ( "" );
 
    // Connect signals to the UI to have the UI update.
@@ -133,8 +124,8 @@ void RegisterInspectorDockWidget::updateMemory ()
    if ( m_display == eMemory_cartMapper )
    {
       m_tblRegisters = nesGetCartridgeRegisterDatabase();
-      sprintf ( buffer, "Mapper %d: %s", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
-      ui->info->setText ( buffer );
+      sprintf ( buffer, "Mapper %d: %s Register Inspector", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
+      setWindowTitle ( buffer );
    }
 
    if ( m_tblRegisters )

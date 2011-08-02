@@ -36,7 +36,8 @@ bool CCartridgeBuilder::build()
    CGraphicsAssembler graphicsAssembler;
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
    QDir baseDir(QDir::currentPath());
-   QDir outputDir(nesicideProject->getProjectOutputBasePath());
+   QDir outputPRGDir(nesicideProject->getProjectLinkerOutputBasePath());
+   QDir outputCHRDir(nesicideProject->getProjectCHRROMOutputBasePath());
    QString prgName;
    QString chrName;
    QString nesName;
@@ -46,19 +47,19 @@ bool CCartridgeBuilder::build()
 
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
-      prgName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
+      prgName = outputPRGDir.fromNativeSeparators(outputPRGDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
    }
    else
    {
-      prgName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
+      prgName = outputPRGDir.fromNativeSeparators(outputPRGDir.filePath(nesicideProject->getProjectLinkerOutputName()));
    }
    if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
    {
-      chrName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
+      chrName = outputCHRDir.fromNativeSeparators(outputCHRDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
    }
    else
    {
-      chrName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
+      chrName = outputCHRDir.fromNativeSeparators(outputCHRDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
    }
    if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
    {
@@ -84,7 +85,7 @@ bool CCartridgeBuilder::build()
    {
       if ( !nesicideProject->getLinkerConfigFile().isEmpty() )
       {
-         if (!(sourceAssembler.assemble() && graphicsAssembler.assemble()))
+         if (!(graphicsAssembler.assemble() && sourceAssembler.assemble()))
          {
             buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
             return false;
@@ -112,7 +113,8 @@ bool CCartridgeBuilder::build()
 
             nesFile.write(prgBytes);
 
-            if ( gfxBanks->getGraphicsBanks().count() )
+            if ( (nesicideProject->getProjectUsesCHRROM()) &&
+                 (gfxBanks->getGraphicsBanks().count()) )
             {
                nesFile.write(chrBytes);
             }

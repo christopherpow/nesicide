@@ -17,7 +17,7 @@ void CGraphicsAssembler::clean()
 bool CGraphicsAssembler::assemble()
 {
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
-   QDir outputDir(nesicideProject->getProjectOutputBasePath());
+   QDir outputDir(nesicideProject->getProjectCHRROMOutputBasePath());
    QString outputName;
    QFile chrRomFile;
 

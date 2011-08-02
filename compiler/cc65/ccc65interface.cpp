@@ -163,6 +163,8 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
       makeFileContent.replace("<!source-dir!>",QDir::currentPath());
       makeFileContent.replace("<!object-dir!>",nesicideProject->getProjectOutputBasePath());
+      makeFileContent.replace("<!prg-dir!>",nesicideProject->getProjectLinkerOutputBasePath());
+      makeFileContent.replace("<!chr-dir!>",nesicideProject->getProjectCHRROMOutputBasePath());
       makeFileContent.replace("<!clang-sources!>",getCLanguageSourcesFromProject().join(" "));
       makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
       makeFileContent.replace("<!target-rules!>",targetRules);
@@ -186,8 +188,6 @@ void CCC65Interface::clean()
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
-   QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
-   QString                      outputName;
    int                          exitCode;
 
    // Copy the system environment to the child process.
@@ -231,7 +231,7 @@ bool CCC65Interface::assemble()
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
-   QDir                         outputDir(nesicideProject->getProjectOutputBasePath());
+   QDir                         outputDir(nesicideProject->getProjectLinkerOutputBasePath());
    QString                      outputName;
    int                          exitCode;
    bool                         ok = true;
@@ -496,7 +496,9 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
 
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
-   int  line;
+   int line;
+   int highestTypeMatch = 0;
+   int indexOfHighestTypeMatch = -1;
 
    if ( dbgInfo )
    {
@@ -507,15 +509,19 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            // Inject preference for finding .c file instead of .s...
-            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            if ( dbgLines->data[line].output_offs-0x10 == absAddr )
             {
-               continue;
+               // Inject preference for MACRO expansions over C language over assembly...
+               if ( dbgLines->data[line].line_type >= highestTypeMatch )
+               {
+                  highestTypeMatch = dbgLines->data[line].line_type;
+                  indexOfHighestTypeMatch = line;
+               }
             }
-            if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
-            {
-               return dbgLines->data[line].source_name;
-            }
+         }
+         if ( indexOfHighestTypeMatch >= 0 )
+         {
+            return dbgLines->data[indexOfHighestTypeMatch].source_name;
          }
       }
    }
@@ -525,6 +531,8 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
 int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int line;
+   int highestTypeMatch = 0;
+   int indexOfHighestTypeMatch = -1;
 
    if ( dbgInfo )
    {
@@ -535,15 +543,19 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            // Inject preference for finding .c file instead of .s...
-            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            if ( dbgLines->data[line].output_offs-0x10 == absAddr )
             {
-               continue;
+               // Inject preference for MACRO expansions over C language over assembly...
+               if ( dbgLines->data[line].line_type >= highestTypeMatch )
+               {
+                  highestTypeMatch = dbgLines->data[line].line_type;
+                  indexOfHighestTypeMatch = line;
+               }
             }
-            if ( (dbgLines->count == 1) || (dbgLines->data[line].output_offs-0x10 == absAddr) )
-            {
-               return dbgLines->data[line].source_line;
-            }
+         }
+         if ( indexOfHighestTypeMatch >= 0 )
+         {
+            return dbgLines->data[indexOfHighestTypeMatch].source_line;
          }
       }
    }
@@ -601,6 +613,8 @@ QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
 unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int line;
+   int highestTypeMatch = 0;
+   int indexOfHighestTypeMatch = -1;
    uint32_t addrOffset;
 
    if ( dbgInfo )
@@ -612,12 +626,6 @@ unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            // Inject preference for finding .c file instead of .s...
-            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
-            {
-               continue;
-            }
-
             // Calculate offset within lineinfo of current address to get to the
             // beginning of it and make sure it is actually the right line.
             addrOffset = addr-dbgLines->data[line].line_start;
@@ -626,60 +634,85 @@ unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint
                  (dbgLines->data[line].line_end >= addr) &&
                  (dbgLines->data[line].output_offs-0x10 == (absAddr-addrOffset)) )
             {
-               return dbgLines->data[line].line_end;
+               // Inject preference for MACRO expansions over C language over assembly...
+               if ( dbgLines->data[line].line_type >= highestTypeMatch )
+               {
+                  highestTypeMatch = dbgLines->data[line].line_type;
+                  indexOfHighestTypeMatch = line;
+               }
             }
+         }
+         if ( indexOfHighestTypeMatch >= 0 )
+         {
+            return dbgLines->data[indexOfHighestTypeMatch].line_end;
          }
       }
    }
    return 0xFFFFFFFF;
 }
 
-unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int line)
+unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_line)
 {
+   int highestTypeMatch = 0;
+   int indexOfHighestTypeMatch = -1;
+   int idx;
+
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),line);
+      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
 
       if ( dbgLines )
       {
-         for ( line = 0; line < dbgLines->count; line++ )
+         for ( idx = 0; idx < dbgLines->count; idx++ )
          {
-            // Inject preference for finding .c file instead of .s...
-            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            if ( dbgLines->data[idx].source_line == source_line )
             {
-               continue;
+               // Inject preference for MACRO expansions over C language over assembly...
+               if ( dbgLines->data[idx].line_type >= highestTypeMatch )
+               {
+                  highestTypeMatch = dbgLines->data[idx].line_type;
+                  indexOfHighestTypeMatch = idx;
+               }
             }
-            if ( (dbgLines->count == 1) || (dbgLines->data[line].source_line == line) )
-            {
-               return dbgLines->data[line].line_start;
-            }
+         }
+         if ( indexOfHighestTypeMatch >= 0 )
+         {
+            return dbgLines->data[indexOfHighestTypeMatch].line_start;
          }
       }
    }
    return -1;
 }
 
-unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int line)
+unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int source_line)
 {
+   int highestTypeMatch = 0;
+   int indexOfHighestTypeMatch = -1;
+   int idx;
+
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),line);
+      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
 
       if ( dbgLines )
       {
-         for ( line = 0; line < dbgLines->count; line++ )
+         for ( idx = 0; idx < dbgLines->count; idx++ )
          {
-            // Inject preference for finding .c file instead of .s...
-            if ( (dbgLines->count > 1) && (dbgLines->data[line].source_name[strlen(dbgLines->data[line].source_name)-1] != 'c') )
+            if ( dbgLines->data[idx].source_line == source_line )
             {
-               continue;
+               // Inject preference for MACRO expansions over C language over assembly...
+               if ( dbgLines->data[idx].line_type >= highestTypeMatch )
+               {
+                  highestTypeMatch = dbgLines->data[idx].line_type;
+                  indexOfHighestTypeMatch = idx;
+               }
             }
-            if ( (dbgLines->count == 1) || (dbgLines->data[line].source_line == line) )
-            {
-               return dbgLines->data[line].output_offs-0x10;
-            }
+         }
+         if ( indexOfHighestTypeMatch >= 0 )
+         {
+            return dbgLines->data[indexOfHighestTypeMatch].output_offs-0x10;
          }
       }
    }
@@ -716,13 +749,13 @@ bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
    return false;
 }
 
-bool CCC65Interface::isErrorOnLineOfFile(QString file,int line)
+bool CCC65Interface::isErrorOnLineOfFile(QString file,int source_line)
 {
    QString errorLookup;
    bool    found = false;
 
    // Form error string key.
-   errorLookup = file+'('+QString::number(line)+"):";
+   errorLookup = file+'('+QString::number(source_line)+"):";
    foreach ( const QString error, errors )
    {
       if ( error.contains(errorLookup) )

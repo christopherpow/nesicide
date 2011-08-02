@@ -255,9 +255,10 @@ void NESEmulatorThread::primeEmulator()
    {
       m_pCartridge = nesicideProject->getCartridge();
 
+      nesClearOpcodeMasks();
+#if 0
       // Force hard-reset of the machine...
       nesEnableBreakpoints(false);
-      nesClearOpcodeMasks();
 
       // If we were stopped at a breakpoint, release...
       // Breakpoints have been deleted.
@@ -266,6 +267,7 @@ void NESEmulatorThread::primeEmulator()
          breakpointSemaphore.release();
       }
       emulator->start();
+#endif
    }
 }
 
@@ -311,6 +313,7 @@ void NESEmulatorThread::stepCPUEmulation ()
    addr = nesGetCPUProgramCounter();
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
    endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+
    if ( endAddr != 0xFFFFFFFF )
    {
       nesSetGotoAddress(endAddr);
@@ -408,6 +411,19 @@ void NESEmulatorThread::stepOverCPUEmulation ()
    {
       stepCPUEmulation();
    }
+}
+
+void NESEmulatorThread::stepOutCPUEmulation ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+//CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   m_isStarting = true;
+   m_isPaused = false;
+   emulator->start();
 }
 
 void NESEmulatorThread::stepPPUEmulation ()

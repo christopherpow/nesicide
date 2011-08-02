@@ -1012,7 +1012,7 @@ void MainWindow::openProject(QString fileName)
          }
 
          emulator->primeEmulator();
-//         emulator->resetEmulator();
+         emulator->resetEmulator();
 
          if ( EnvironmentSettingsDialog::runRomOnLoad() )
          {
