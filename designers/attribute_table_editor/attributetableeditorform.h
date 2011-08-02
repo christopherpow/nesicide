@@ -1,6 +1,8 @@
 #ifndef ATTRIBUTETABLEEDITORFORM_H
 #define ATTRIBUTETABLEEDITORFORM_H
 
+#include <stdint.h>
+
 #include "cdesignereditorbase.h"
 
 #include "iprojecttreeviewitem.h"

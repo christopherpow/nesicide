@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #include "cattributetable.h"
 #include "cnesicideproject.h"
 
