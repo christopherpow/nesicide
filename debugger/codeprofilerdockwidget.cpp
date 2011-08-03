@@ -1,6 +1,10 @@
 #include "codeprofilerdockwidget.h"
 #include "ui_codeprofilerdockwidget.h"
 
+#include "emulator_core.h"
+
+#include "ccodedatalogger.h"
+
 #include "main.h"
 
 CodeProfilerDockWidget::CodeProfilerDockWidget(CProjectTabWidget* pTarget, QWidget *parent) :
@@ -15,11 +19,14 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(CProjectTabWidget* pTarget, QWidg
    ui->tableView->setModel(model);
    ui->tableView->resizeColumnsToContents();
 
+   ui->tableView->sortByColumn(2,Qt::DescendingOrder);
+
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
+   QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
 
    QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 }
@@ -99,4 +106,11 @@ void CodeProfilerDockWidget::on_tableView_doubleClicked(QModelIndex index)
    }
 
    emit snapTo("SourceNavigatorSymbol:"+symbol);
+}
+
+void CodeProfilerDockWidget::on_clear_clicked()
+{
+   nesClearCodeDataLoggerDatabases();
+
+   model->update();
 }

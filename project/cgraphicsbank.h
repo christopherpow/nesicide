@@ -18,6 +18,7 @@ public:
    QList<IChrRomBankItem*>& getGraphics();
 
    GraphicsBankEditorForm* editor() { return dynamic_cast<GraphicsBankEditorForm*>(m_editor); }
+   void exportAsPNG();
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);

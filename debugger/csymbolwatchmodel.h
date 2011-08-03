@@ -2,7 +2,13 @@
 #define CSYMBOLWATCHMODEL_H
 
 #include <QAbstractTableModel>
-#include <QStringList>
+#include <QList>
+
+struct WatchedItem
+{
+   QString symbol;
+   int     segment;
+};
 
 class CSymbolWatchModel : public QAbstractTableModel
 {
@@ -19,20 +25,19 @@ public:
    void removeRow(int row, const QModelIndex &parent);
    void insertRow(QString text, const QModelIndex &parent);
 
-   QStringList getSymbols() { return m_symbols; }
-   void setSymbols(QStringList symbols) { m_symbols = symbols; }
-
-   QList<int> getSegments() { return m_segments; }
-   void setSegments(QList<int> segments) { m_segments = segments; }
+   QList<WatchedItem> getItems() { return m_items; }
+   void setItems(QList<WatchedItem> items) { m_items = items; }
 
    int resolveSymbol(QString text);
 
 public slots:
    void update();
+   void sort(int column, Qt::SortOrder order);
 
 private:
-   QStringList m_symbols;
-   QList<int> m_segments;
+   QList<WatchedItem> m_items;
+   int m_currentSortColumn;
+   Qt::SortOrder m_currentSortOrder;
 };
 
 #endif // CSYMBOLWATCHMODEL_H

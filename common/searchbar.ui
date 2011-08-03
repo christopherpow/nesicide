@@ -28,6 +28,9 @@
    </property>
    <item row="0" column="2">
     <widget class="QToolButton" name="regex">
+     <property name="toolTip">
+      <string>Regular Expression</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -42,6 +45,9 @@
    </item>
    <item row="0" column="3">
     <widget class="QToolButton" name="direction">
+     <property name="toolTip">
+      <string>Search Direction</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -76,6 +82,9 @@
    </item>
    <item row="0" column="1">
     <widget class="QToolButton" name="caseSensitive">
+     <property name="toolTip">
+      <string>Case Sensitive</string>
+     </property>
      <property name="text">
       <string/>
      </property>

@@ -1,5 +1,9 @@
+#include <QFileDialog>
+
 #include "cgraphicsbank.h"
 #include "cnesicideproject.h"
+
+#include "cimageconverters.h"
 
 #include "main.h"
 
@@ -47,6 +51,30 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
    }
 
    return true;
+}
+
+void CGraphicsBank::exportAsPNG()
+{
+   QString fileName = QFileDialog::getSaveFileName(NULL,"Export Graphics Bank as PNG...",QDir::currentPath());
+   QByteArray chrData;
+   QByteArray imgData;
+   int idx;
+   QImage imgOut;
+
+   if ( !fileName.isEmpty() )
+   {
+      for ( idx = 0; idx < m_bankItems.count(); idx++ )
+      {
+         IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(m_bankItems.at(idx));
+         if ( item )
+         {
+            chrData += item->getChrRomBankItemData();
+         }
+      }
+      imgOut = CImageConverters::toIndexed8(chrData);
+
+      imgOut.save(fileName,"png");
+   }
 }
 
 bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
@@ -112,14 +140,19 @@ QString CGraphicsBank::caption() const
 
 void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
+   const QString EXPORT_PNG_TEXT    = "Export as PNG...";
+   const QString DELETE_TEXT        = "&Delete";
+
    QMenu menu(parent);
-   menu.addAction("&Delete");
+   menu.addAction(EXPORT_PNG_TEXT);
+   menu.addSeparator();
+   menu.addAction(DELETE_TEXT);
 
    QAction* ret = menu.exec(event->globalPos());
 
    if (ret)
    {
-      if (ret->text() == "&Delete")
+      if (ret->text() == DELETE_TEXT)
       {
          if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + name(),
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
@@ -137,6 +170,10 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
          nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
          nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
          ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+      }
+      else if (ret->text() == EXPORT_PNG_TEXT)
+      {
+         exportAsPNG();
       }
    }
 }

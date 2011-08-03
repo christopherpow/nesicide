@@ -29,6 +29,7 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
+   QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
 
    QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
 }
@@ -126,14 +127,13 @@ void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "symbolinspector" );
-   QStringList symbols = model->getSymbols();
-   QList<int> segments = model->getSegments();
+   QList<WatchedItem> items = model->getItems();
 
-   for (int i=0; i < symbols.count(); i++)
+   for (int i=0; i < items.count(); i++)
    {
       QDomElement symbolElement = addElement( doc, element, "symbol" );
-      symbolElement.setAttribute("name",symbols.at(i));
-      symbolElement.setAttribute("segment",segments.at(i));
+      symbolElement.setAttribute("name",items.at(i).symbol);
+      symbolElement.setAttribute("segment",items.at(i).segment);
    }
 
    return true;
@@ -143,9 +143,8 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
 {
    QDomNode childNode = node.firstChild();
    QDomNode symbolNode;
-   QStringList symbols;
-   QList<int> segments;
-   QString symbol;
+   QList<WatchedItem> items;
+   WatchedItem item;
 
    if (!childNode.isNull())
    {
@@ -158,17 +157,16 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
             {
                QDomElement symbolElement = symbolNode.toElement();
 
-               symbol = symbolElement.attribute("name");
-               if ( !symbol.isEmpty() )
+               item.symbol = symbolElement.attribute("name");
+               item.segment = symbolElement.attribute("segment","0").toInt();
+               if ( !item.symbol.isEmpty() )
                {
-                  symbols.append(symbol);
+                  items.append(item);
                }
-               segments.append(symbolElement.attribute("segment","0").toInt());
                symbolNode = symbolNode.nextSibling();
             }
 
-            model->setSymbols(symbols);
-            model->setSegments(segments);
+            model->setItems(items);
             model->update();
          }
       } while (!(childNode = childNode.nextSibling()).isNull());

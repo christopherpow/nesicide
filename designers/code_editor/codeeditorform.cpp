@@ -874,6 +874,7 @@ void CodeEditorForm::highlightLine(int linenumber)
 void CodeEditorForm::annotateText()
 {
    int line;
+   int startAddr;
    int addr;
    int absAddr;
    int endAddr;
@@ -893,37 +894,46 @@ void CodeEditorForm::annotateText()
          annotationBuffer[0] = 0;
          pAnnotationBuffer = annotationBuffer;
          first = true;
+         startAddr = 0;
 
-         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
-         endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
-
-         if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
+         do
          {
-            for ( ; addr <= endAddr; addr++, absAddr++ )
-            {
-               if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
-               {
-                  nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
-                  if ( disassembly[0] )
-                  {
-                     if ( !first )
-                     {
-                        pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n");
-                     }
-                     first = false;
+            addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,startAddr);
+            absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,startAddr);
+            endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
 
-                     nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
-                     pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
-                     pAnnotationBuffer += sprintf(pAnnotationBuffer,disassembly);
-                     (*pAnnotationBuffer) = 0;
+            // Move to next clump of assembly for this line if there is more than one.
+            startAddr = addr;
+
+            if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
+            {
+               for ( ; addr <= endAddr; addr++, absAddr++ )
+               {
+                  if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
+                  {
+                     nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                     if ( disassembly[0] )
+                     {
+                        if ( !first )
+                        {
+                           pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n");
+                        }
+                        first = false;
+
+                        nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+                        pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
+                        pAnnotationBuffer += sprintf(pAnnotationBuffer,disassembly);
+                     }
                   }
                }
             }
-            if ( annotationBuffer[0] )
-            {
-               m_scintilla->annotate(line,annotationBuffer,astyle);
-            }
+         } while ( addr != -1 );
+
+         (*pAnnotationBuffer) = 0;
+
+         if ( annotationBuffer[0] )
+         {
+            m_scintilla->annotate(line,annotationBuffer,astyle);
          }
       }
    }

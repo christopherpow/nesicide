@@ -95,7 +95,7 @@
      <item>
       <widget class="QToolButton" name="stepCPUButton">
        <property name="toolTip">
-        <string>Step CPU</string>
+        <string>Step Into</string>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
@@ -126,6 +126,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="stepOverButton">
+       <property name="toolTip">
+        <string>Step Over</string>
+       </property>
        <property name="text">
         <string>Step CPU Over</string>
        </property>
@@ -146,6 +149,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="stepOutButton">
+       <property name="toolTip">
+        <string>Step Return</string>
+       </property>
        <property name="text">
         <string>Step CPU Out</string>
        </property>
@@ -195,6 +201,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="frameAdvance">
+       <property name="toolTip">
+        <string>PPU Frame Advance</string>
+       </property>
        <property name="text">
         <string>PPU Frame Advance</string>
        </property>

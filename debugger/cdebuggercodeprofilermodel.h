@@ -8,6 +8,9 @@ struct ProfiledItem
 {
    QString file;
    QString symbol;
+   QString address;
+   QString calls;
+   unsigned int count;
 };
 
 class CDebuggerCodeProfilerModel : public QAbstractTableModel
@@ -29,9 +32,12 @@ signals:
 
 public slots:
    void update();
+   void sort(int column, Qt::SortOrder order);
 
 private:
    QList<ProfiledItem> m_items;
+   int m_currentSortColumn;
+   Qt::SortOrder m_currentSortOrder;
 };
 
 #endif // CDEBUGGERCODEPROFILERMODEL_H

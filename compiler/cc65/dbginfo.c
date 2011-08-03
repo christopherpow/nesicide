@@ -367,12 +367,12 @@ static void SB_Realloc (StrBuf* B, unsigned NewSize)
     /* Get the current size, use a minimum of 8 bytes */
     unsigned NewAllocated = B->Allocated;
     if (NewAllocated == 0) {
-       	NewAllocated = 8;
+         NewAllocated = 8;
     }
 
     /* Round up to the next power of two */
     while (NewAllocated < NewSize) {
-       	NewAllocated *= 2;
+         NewAllocated *= 2;
     }
 
     /* Reallocate the buffer. Beware: The allocated size may be zero while the
@@ -402,12 +402,12 @@ static void SB_CheapRealloc (StrBuf* B, unsigned NewSize)
     /* Get the current size, use a minimum of 8 bytes */
     unsigned NewAllocated = B->Allocated;
     if (NewAllocated == 0) {
-     	NewAllocated = 8;
+      NewAllocated = 8;
     }
 
     /* Round up to the next power of two */
     while (NewAllocated < NewSize) {
-     	NewAllocated *= 2;
+      NewAllocated *= 2;
     }
 
     /* Free the old buffer if there is one */
@@ -447,7 +447,7 @@ static void SB_Terminate (StrBuf* B)
 {
     unsigned NewLen = B->Len + 1;
     if (NewLen > B->Allocated) {
-       	SB_Realloc (B, NewLen);
+         SB_Realloc (B, NewLen);
     }
     B->Buf[B->Len] = '\0';
 }
@@ -489,7 +489,7 @@ static void SB_AppendChar (StrBuf* B, int C)
 {
     unsigned NewLen = B->Len + 1;
     if (NewLen > B->Allocated) {
-       	SB_Realloc (B, NewLen);
+         SB_Realloc (B, NewLen);
     }
     B->Buf[B->Len] = (char) C;
     B->Len = NewLen;
@@ -594,13 +594,13 @@ static void CollInsert (Collection* C, void* Item, unsigned Index)
 
     /* Grow the array if necessary */
     if (C->Count >= C->Size) {
-       	/* Must grow */
+         /* Must grow */
         CollGrow (C, (C->Size == 0)? 8 : C->Size * 2);
     }
 
     /* Move the existing elements if needed */
     if (C->Count != Index) {
-       	memmove (C->Items+Index+1, C->Items+Index, (C->Count-Index) * sizeof (void*));
+         memmove (C->Items+Index+1, C->Items+Index, (C->Count-Index) * sizeof (void*));
     }
     ++C->Count;
 
@@ -660,7 +660,7 @@ static void CollDelete (Collection* C, unsigned Index)
 
 
 static void CollQuickSort (Collection* C, int Lo, int Hi,
-   	                   int (*Compare) (const void*, const void*))
+                         int (*Compare) (const void*, const void*))
 /* Internal recursive sort function. */
 {
     /* Get a pointer to the items */
@@ -668,37 +668,37 @@ static void CollQuickSort (Collection* C, int Lo, int Hi,
 
     /* Quicksort */
     while (Hi > Lo) {
-   	int I = Lo + 1;
-   	int J = Hi;
-   	while (I <= J) {
-   	    while (I <= J && Compare (Items[Lo], Items[I]) >= 0) {
-   	     	++I;
-   	    }
-   	    while (I <= J && Compare (Items[Lo], Items[J]) < 0) {
-   	     	--J;
-   	    }
-   	    if (I <= J) {
-		/* Swap I and J */
-	    	void* Tmp = Items[I];
-		Items[I]  = Items[J];
-		Items[J]  = Tmp;
-   	     	++I;
-   	     	--J;
-   	    }
-      	}
-   	if (J != Lo) {
-	    /* Swap J and Lo */
-	    void* Tmp = Items[J];
-	    Items[J]  = Items[Lo];
-	    Items[Lo] = Tmp;
-   	}
-	if (J > (Hi + Lo) / 2) {
-	    CollQuickSort (C, J + 1, Hi, Compare);
-	    Hi = J - 1;
-	} else {
-	    CollQuickSort (C, Lo, J - 1, Compare);
-	    Lo = J + 1;
-	}
+      int I = Lo + 1;
+      int J = Hi;
+      while (I <= J) {
+          while (I <= J && Compare (Items[Lo], Items[I]) >= 0) {
+            ++I;
+          }
+          while (I <= J && Compare (Items[Lo], Items[J]) < 0) {
+            --J;
+          }
+          if (I <= J) {
+      /* Swap I and J */
+         void* Tmp = Items[I];
+      Items[I]  = Items[J];
+      Items[J]  = Tmp;
+            ++I;
+            --J;
+          }
+         }
+      if (J != Lo) {
+       /* Swap J and Lo */
+       void* Tmp = Items[J];
+       Items[J]  = Items[Lo];
+       Items[Lo] = Tmp;
+      }
+   if (J > (Hi + Lo) / 2) {
+       CollQuickSort (C, J + 1, Hi, Compare);
+       Hi = J - 1;
+   } else {
+       CollQuickSort (C, Lo, J - 1, Compare);
+       Lo = J + 1;
+   }
     }
 }
 
@@ -1039,7 +1039,7 @@ static int CompareFileInfoById (const void* L, const void* R)
 
 
 
-static SymInfo* NewSymInfo (const StrBuf* Name, long Val, 
+static SymInfo* NewSymInfo (const StrBuf* Name, long Val,
                             cc65_symbol_type Type, cc65_size Size,
                             unsigned Segment)
 /* Create a new SymInfo struct, intialize and return it */
@@ -1483,7 +1483,7 @@ static void UnknownKeyword (InputData* D)
     /* Output a warning */
     ParseError (D, CC65_WARNING, "Unknown keyword \"%s\" - skipping",
                 SB_GetConstBuf (&D->SVal));
-                            
+
     /* Skip the identifier */
     NextToken (D);
 
@@ -1513,9 +1513,9 @@ static int DigitVal (int C)
 /* Return the value for a numeric digit. Return -1 if C is invalid */
 {
     if (isdigit (C)) {
-	return C - '0';
+   return C - '0';
     } else if (isxdigit (C)) {
-	return toupper (C) - 'A' + 10;
+   return toupper (C) - 'A' + 10;
     } else {
         return -1;
     }
@@ -1579,7 +1579,7 @@ static void NextToken (InputData* D)
 
     /* Skip whitespace */
     while (D->C == ' ' || D->C == '\t' || D->C == '\r') {
-     	NextChar (D);
+      NextChar (D);
     }
 
     /* Remember the current position as start of the next token */
@@ -1591,13 +1591,13 @@ static void NextToken (InputData* D)
 
         const struct KeywordEntry* Entry;
 
-	/* Read the identifier */
+   /* Read the identifier */
         SB_Clear (&D->SVal);
-	while (D->C == '_' || isalnum (D->C)) {
+   while (D->C == '_' || isalnum (D->C)) {
             SB_AppendChar (&D->SVal, D->C);
-	    NextChar (D);
-     	}
-       	SB_Terminate (&D->SVal);
+       NextChar (D);
+      }
+         SB_Terminate (&D->SVal);
 
         /* Search the identifier in the keyword table */
         Entry = bsearch (SB_GetConstBuf (&D->SVal),
@@ -1610,7 +1610,7 @@ static void NextToken (InputData* D)
         } else {
             D->Tok = Entry->Tok;
         }
-	return;
+   return;
     }
 
     /* Number? */
@@ -1628,13 +1628,13 @@ static void NextToken (InputData* D)
         } else {
             Base = 10;
         }
-       	D->IVal = 0;
+         D->IVal = 0;
         while ((Val = DigitVal (D->C)) >= 0 && Val < Base) {
-       	    D->IVal = D->IVal * Base + Val;
-	    NextChar (D);
-	}
-	D->Tok = TOK_INTCON;
-	return;
+             D->IVal = D->IVal * Base + Val;
+       NextChar (D);
+   }
+   D->Tok = TOK_INTCON;
+   return;
     }
 
     /* Other characters */
@@ -1650,15 +1650,15 @@ static void NextToken (InputData* D)
             D->Tok = TOK_PLUS;
             break;
 
-	case ',':
-	    NextChar (D);
-	    D->Tok = TOK_COMMA;
-	    break;
+   case ',':
+       NextChar (D);
+       D->Tok = TOK_COMMA;
+       break;
 
-	case '=':
-	    NextChar (D);
-	    D->Tok = TOK_EQUAL;
-	    break;
+   case '=':
+       NextChar (D);
+       D->Tok = TOK_EQUAL;
+       break;
 
         case '\"':
             SB_Clear (&D->SVal);
@@ -1677,7 +1677,7 @@ static void NextToken (InputData* D)
             }
             SB_Terminate (&D->SVal);
             D->Tok = TOK_STRCON;
-       	    break;
+             break;
 
         case '\n':
             NextChar (D);
@@ -1685,11 +1685,11 @@ static void NextToken (InputData* D)
             break;
 
         case EOF:
-       	    D->Tok = TOK_EOF;
-	    break;
+             D->Tok = TOK_EOF;
+       break;
 
-	default:
-       	    ParseError (D, CC65_ERROR, "Invalid input character `%c'", D->C);
+   default:
+             ParseError (D, CC65_ERROR, "Invalid input character `%c'", D->C);
 
     }
 }
@@ -2774,8 +2774,46 @@ static LineInfoListEntry* FindLineInfoByAddr (const LineInfoList* L, cc65_addr A
     return 0;
 }
 
+#if 1
+static int FindLineInfoByLine (Collection* LineInfos, cc65_line Line,
+                               unsigned* Index)
+/* Find the LineInfo for a given line number. The function returns true if the
+ * line was found. In this case, Index contains the index of the first item
+ * that matches. If the item wasn't found, the function returns false and
+ * Index contains the insert position for the line.
+ */
+{
+    /* Do a binary search */
+    int Lo = 0;
+    int Hi = (int) CollCount (LineInfos) - 1;
+    int Found = 0;
+    while (Lo <= Hi) {
 
+        /* Mid of range */
+        int Cur = (Lo + Hi) / 2;
 
+        /* Get item */
+        const LineInfo* CurItem = CollAt (LineInfos, Cur);
+
+        /* Found? */
+        if (Line > CurItem->Line) {
+            Lo = Cur + 1;
+        } else {
+            Hi = Cur - 1;
+            /* Since we may have duplicates, repeat the search until we've
+             * the first item that has a match.
+             */
+            if (Line == CurItem->Line) {
+                Found = 1;
+            }
+        }
+    }
+
+    /* Pass back the index. This is also the insert position */
+    *Index = Lo;
+    return Found;
+}
+#else
 static LineInfo* FindLineInfoByLine (FileInfo* F, cc65_line Line)
 /* Find the LineInfo for a given line number */
 {
@@ -2811,7 +2849,7 @@ static LineInfo* FindLineInfoByLine (FileInfo* F, cc65_line Line)
     /* Not found */
     return 0;
 }
-
+#endif
 
 
 static void ProcessSymInfo (InputData* D)
@@ -3134,8 +3172,96 @@ cc65_lineinfo* cc65_lineinfo_byaddr (cc65_dbginfo Handle, unsigned long Addr)
     return D;
 }
 
+#if 1
+cc65_lineinfo* cc65_lineinfo_byname (cc65_dbginfo Handle, const char* FileName,
+                                     cc65_line Line)
+/* Return line information for a file/line number combination. The function
+ * returns NULL if no line information was found.
+ */
+{
+    DbgInfo*        Info;
+    FileInfo*       F;
+    cc65_lineinfo*  D;
+    int             Found;
+    unsigned        FileIndex;
+    unsigned        I;
+    Collection      LineInfoList = COLLECTION_INITIALIZER;
 
+    /* Check the parameter */
+    assert (Handle != 0);
 
+    /* The handle is actually a pointer to a debug info struct */
+    Info = (DbgInfo*) Handle;
+
+    /* Search for the first file with this name */
+    Found = FindFileInfoByName (&Info->FileInfoByName, FileName, &FileIndex);
+    if (!Found) {
+        return 0;
+    }
+
+    /* Loop over all files with this name */
+    F = CollAt (&Info->FileInfoByName, FileIndex);
+    while (Found) {
+
+        unsigned LineIndex;
+        LineInfo* L = 0;
+
+        /* Search in the file for the given line */
+        Found = FindLineInfoByLine (&F->LineInfoByLine, Line, &LineIndex);
+        if (Found) {
+            L = CollAt (&F->LineInfoByLine, LineIndex);
+        }
+
+        /* Add all line infos for this line */
+        while (Found) {
+            /* Add next */
+            CollAppend (&LineInfoList, L);
+
+            /* Check if the next one is also a match */
+            if (++LineIndex >= CollCount (&F->LineInfoByLine)) {
+                break;
+            }
+            L = CollAt (&F->LineInfoByLine, LineIndex);
+            if (L->Line != Line) {
+                Found = 0;
+            }
+        }
+
+        /* Next entry */
+        ++FileIndex;
+
+        /* If the index is valid, check if the next entry is a file with the
+         * same name.
+         */
+        if (FileIndex < CollCount (&Info->FileInfoByName)) {
+            F = CollAt (&Info->FileInfoByName, FileIndex);
+            Found = (strcmp (F->FileName, FileName) == 0);
+        } else {
+            Found = 0;
+        }
+    }
+
+    /* Check if we have entries */
+    if (CollCount (&LineInfoList) == 0) {
+        /* Nope */
+        return 0;
+    }
+
+    /* Prepare the struct we will return to the caller */
+    D = new_cc65_lineinfo (CollCount (&LineInfoList));
+
+    /* Copy the data */
+    for (I = 0; I < CollCount (&LineInfoList); ++I) {
+        CopyLineInfo (D->data + I, CollAt (&LineInfoList, I));
+    }
+
+    /* Delete the temporary data collection */
+    DoneCollection (&LineInfoList);
+
+    /* Return the allocated struct */
+    return D;
+}
+#else
 cc65_lineinfo* cc65_lineinfo_byname (cc65_dbginfo Handle, const char* FileName,
                                      cc65_line Line)
 /* Return line information for a file/line number combination. The function
@@ -3206,7 +3332,7 @@ cc65_lineinfo* cc65_lineinfo_byname (cc65_dbginfo Handle, const char* FileName,
     /* Return the allocated struct */
     return D;
 }
-
+#endif
 
 
 void cc65_free_lineinfo (cc65_dbginfo Handle, cc65_lineinfo* Info)

@@ -12,6 +12,8 @@ static char modelStringBuffer [ 2048 ];
 CDebuggerCodeProfilerModel::CDebuggerCodeProfilerModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
+   m_currentSortColumn = 0;
+   m_currentSortOrder = Qt::DescendingOrder;
 }
 
 CDebuggerCodeProfilerModel::~CDebuggerCodeProfilerModel()
@@ -67,25 +69,10 @@ QVariant CDebuggerCodeProfilerModel::data(const QModelIndex& index, int role) co
          return m_items.at(index.row()).symbol;
          break;
       case 1:
-         // Get symbol's information based on its name and index.
-         // CPTODO: fix segmenting stuff later!
-         addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,0/*idx*/);
-         absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,0/*idx*/);
-         if ( addr != 0xFFFFFFFF )
-         {
-            nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
-            return QVariant(modelStringBuffer);
-         }
-         else
-         {
-            return QVariant("ERROR: Unresolved");
-         }
+         return m_items.at(index.row()).address;
          break;
       case 2:
-         // Get symbol's information based on its name and index.
-         // CPTODO: fix segmenting stuff later! (meaning, fix the fact that the profiler doesn't yet check for multiply-defined symbols in separate segments)
-         addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,0/*idx*/);
-         return QVariant(pLogger->GetCount(addr&MASK_8KB));
+         return QVariant(m_items.at(index.row()).count);
          break;
       case 3:
          return m_items.at(index.row()).file;
@@ -160,7 +147,103 @@ void CDebuggerCodeProfilerModel::update()
             {
                item.file += "[not found]";
             }
+            nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+            item.address = modelStringBuffer;
+            item.count = pLogger->GetCount(addr&MASK_8KB);
             m_items.append(item);
+         }
+      }
+   }
+
+   sort(m_currentSortColumn,m_currentSortOrder);
+}
+
+void CDebuggerCodeProfilerModel::sort(int column, Qt::SortOrder order)
+{
+   int idx1;
+   int idx2;
+   ProfiledItem item1;
+   ProfiledItem item2;
+
+   m_currentSortColumn = column;
+   m_currentSortOrder = order;
+
+   for ( idx1 = 0; idx1 < m_items.count(); idx1++ )
+   {
+      for ( idx2 = idx1; idx2 < m_items.count(); idx2++ )
+      {
+         item1 = m_items.at(idx1);
+         item2 = m_items.at(idx2);
+         switch ( column )
+         {
+         case 0:
+            switch ( order )
+            {
+            case Qt::AscendingOrder:
+               if ( item1.symbol > item2.symbol )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            case Qt::DescendingOrder:
+               if ( item2.symbol > item1.symbol )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            }
+            break;
+         case 1:
+            switch ( order )
+            {
+            case Qt::AscendingOrder:
+               if ( item1.address > item2.address )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            case Qt::DescendingOrder:
+               if ( item2.address > item1.address )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            }
+            break;
+         case 2:
+            switch ( order )
+            {
+            case Qt::AscendingOrder:
+               if ( item1.count > item2.count )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            case Qt::DescendingOrder:
+               if ( item2.count > item1.count )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            }
+            break;
+         case 3:
+            switch ( order )
+            {
+            case Qt::AscendingOrder:
+               if ( item1.file > item2.file )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            case Qt::DescendingOrder:
+               if ( item2.file > item1.file )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            }
+            break;
          }
       }
    }

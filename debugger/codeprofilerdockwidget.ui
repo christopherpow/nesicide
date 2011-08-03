@@ -10,6 +10,9 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="floating">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>Code Profiler</string>
   </property>
@@ -83,7 +86,7 @@
      </widget>
     </item>
     <item row="1" column="0">
-     <layout class="QFormLayout" name="formLayout">
+     <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -98,11 +101,30 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="clear">
+        <property name="toolTip">
+         <string>Clear Profile</string>
+        </property>
+        <property name="text">
+         <string>Clear</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resource.qrc">
+          <normaloff>:/resources/22_edit-clear.png</normaloff>:/resources/22_edit-clear.png</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resource.qrc"/>
+ </resources>
  <connections/>
 </ui>
