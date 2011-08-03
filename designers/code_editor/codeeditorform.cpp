@@ -598,10 +598,12 @@ void CodeEditorForm::editor_copyAvailable(bool yes)
 
 void CodeEditorForm::updateToolTip(QString symbol)
 {
-   const char* TOOLTIP = "<b>%s</b><br>Address: %04X<br>Value: %02X";
+   const char* TOOLTIP = "<b>%s</b><br>Address: %s<br>Value: %02X";
    const char* opcodeToolTipText;
+   char        address[32];
    QString     opcodeToolTipForm;
    unsigned int addr;
+   unsigned int absAddr;
    QString clangSymbol = "_"+symbol;
 
    setToolTip("");
@@ -624,7 +626,10 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
       if ( addr != 0xFFFFFFFF )
       {
-         sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetMemory(addr));
+         absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
+         nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+
+         sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),address,nesGetMemory(addr));
          setToolTip(toolTipText);
       }
       else
@@ -633,7 +638,10 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
          if ( addr != 0xFFFFFFFF )
          {
-            sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),addr,nesGetMemory(addr));
+            absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
+            nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+
+            sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),address,nesGetMemory(addr));
             setToolTip(toolTipText);
          }
       }
@@ -908,6 +916,7 @@ void CodeEditorForm::annotateText()
                      nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
                      pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
                      pAnnotationBuffer += sprintf(pAnnotationBuffer,disassembly);
+                     (*pAnnotationBuffer) = 0;
                   }
                }
             }
