@@ -667,10 +667,25 @@ unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint
    return 0xFFFFFFFF;
 }
 
+int CCC65Interface::getLineMatchCount(QString file, int source_line)
+{
+   if ( dbgInfo )
+   {
+      cc65_free_lineinfo(dbgInfo,dbgLines);
+      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
+      if ( dbgLines )
+      {
+         return dbgLines->count;
+      }
+   }
+   return 0;
+}
+
 unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_line,uint32_t startAddr)
 {
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
+   uint32_t findAddr = 0;
    int idx;
 
    if ( dbgInfo )
@@ -681,16 +696,15 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_l
       {
          for ( idx = 0; idx < dbgLines->count; idx++ )
          {
-            QString str;
-            str.sprintf("idx %d line %d count %d startAddr %x line_start %x",idx,source_line,dbgLines->count,startAddr,dbgLines->data[idx].line_start);
-            qDebug(str.toAscii().constData());
             if ( dbgLines->data[idx].source_line == source_line )
             {
-               if ( dbgLines->data[idx].line_start > startAddr )
+               if ( ((findAddr == 0) && (dbgLines->data[idx].line_start > startAddr)) ||
+                    ((findAddr != 0) && (dbgLines->data[idx].line_start == startAddr)) )
                {
                   // Inject preference for MACRO expansions over C language over assembly...
                   if ( dbgLines->data[idx].line_type >= highestTypeMatch )
                   {
+                     findAddr = dbgLines->data[idx].line_start;
                      highestTypeMatch = dbgLines->data[idx].line_type;
                      indexOfHighestTypeMatch = idx;
                   }
@@ -710,6 +724,7 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
 {
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
+   uint32_t findAddr = 0;
    int idx;
 
    if ( dbgInfo )
@@ -723,11 +738,13 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
          {
             if ( dbgLines->data[idx].source_line == source_line )
             {
-               if ( dbgLines->data[idx].line_start > startAddr )
+               if ( ((findAddr == 0) && (dbgLines->data[idx].line_start > startAddr)) ||
+                    ((findAddr != 0) && (dbgLines->data[idx].line_start == startAddr)) )
                {
                   // Inject preference for MACRO expansions over C language over assembly...
                   if ( dbgLines->data[idx].line_type >= highestTypeMatch )
                   {
+                     findAddr = dbgLines->data[idx].line_start;
                      highestTypeMatch = dbgLines->data[idx].line_type;
                      indexOfHighestTypeMatch = idx;
                   }

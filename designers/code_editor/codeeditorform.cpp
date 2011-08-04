@@ -21,6 +21,7 @@
 
 static char toolTipText [ 2048 ];
 static char annotationBuffer [ 2048 ];
+static char resolutionBuffer [ 2048 ];
 
 CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
@@ -400,6 +401,7 @@ void CodeEditorForm::external_breakpointsChanged()
    MarkerSetInfo* pMarker;
    int addr;
    int absAddr;
+   int startAddr;
    int line;
    int index;
    int idx;
@@ -415,44 +417,54 @@ void CodeEditorForm::external_breakpointsChanged()
 
    for ( line = 0; line < m_scintilla->lines(); line++ )
    {
-      addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+      startAddr = 0;
 
-      absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
-
-      for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
+      do
       {
-         pMarker = markers->GetMarker(idx);
+         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,startAddr);
+         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,startAddr);
 
-         if ( (pMarker->state == eMarkerSet_Started) ||
-              (pMarker->state == eMarkerSet_Complete) )
+         // Move to next clump of assembly for this line if there is more than one.
+         startAddr = addr;
+
+         if ( addr != -1 )
          {
-            if ( (absAddr >= pMarker->startAbsAddr) &&
-                 (absAddr <= pMarker->endAbsAddr) )
+            for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
             {
-               m_scintilla->markerAdd(line,Marker_Marker1+idx);
+               pMarker = markers->GetMarker(idx);
+
+               if ( (pMarker->state == eMarkerSet_Started) ||
+                    (pMarker->state == eMarkerSet_Complete) )
+               {
+                  if ( (absAddr >= pMarker->startAbsAddr) &&
+                       (absAddr <= pMarker->endAbsAddr) )
+                  {
+                     m_scintilla->markerAdd(line,Marker_Marker1+idx);
+                  }
+               }
+            }
+
+            for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+            {
+               BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
+               if ( (pBreakpoint->enabled) &&
+                    (pBreakpoint->type == eBreakOnCPUExecution) &&
+                    (pBreakpoint->item1 <= addr) &&
+                    ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
+               {
+                  m_scintilla->markerAdd(line,Marker_Breakpoint);
+               }
+               else if ( (!pBreakpoint->enabled) &&
+                         (pBreakpoint->type == eBreakOnCPUExecution) &&
+                         (pBreakpoint->item1 <= addr) &&
+                         ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
+               {
+                  m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+               }
             }
          }
-      }
-
-      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
-      {
-         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-
-         if ( (pBreakpoint->enabled) &&
-              (pBreakpoint->type == eBreakOnCPUExecution) &&
-              (pBreakpoint->item1 <= addr) &&
-              ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
-         {
-            m_scintilla->markerAdd(line,Marker_Breakpoint);
-         }
-         else if ( (!pBreakpoint->enabled) &&
-                   (pBreakpoint->type == eBreakOnCPUExecution) &&
-                   (pBreakpoint->item1 <= addr) &&
-                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
-         {
-            m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
-         }
-      }
+      } while ( addr != -1 );
    }
 }
 
@@ -519,15 +531,68 @@ void CodeEditorForm::editor_linesChanged()
 void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   QStringList asmChunks;
+   QString asmChunk;
+   QList<int> asmAddrs;
+   QList<int> asmAbsAddrs;
+   QString selStr;
+   int selIdx;
    int bp;
    int addr = 0;
    int absAddr = 0;
+   int startAddr = 0;
+   int count;
+   int idx;
+   bool ok;
 
    m_scintilla->setCursorPosition(line,0);
 
-   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+   if ( m_language == Language_C )
+   {
+      count = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+      if ( count > 1 )
+      {
+         for ( idx = 0; idx < count; idx++ )
+         {
+            addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,startAddr);
+            absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,startAddr);
+            startAddr = addr;
 
-   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+            nesGetPrintableAddressWithAbsolute(resolutionBuffer,addr,absAddr);
+            asmChunk = resolutionBuffer;
+            nesGetDisassemblyAtAbsoluteAddress(absAddr,resolutionBuffer);
+            asmChunk += ":";
+            asmChunk += resolutionBuffer;
+            asmChunks.append(asmChunk);
+            asmAddrs.append(addr);
+            asmAbsAddrs.append(absAddr);
+         }
+         selStr = QInputDialog::getItem(0,"Help!","Line has multiple possible matches, pick one:",asmChunks,0,false,&ok);
+         if ( !ok )
+         {
+            return;
+         }
+         for ( selIdx = 0; selIdx < count; selIdx++ )
+         {
+            if ( asmChunks.at(selIdx) == selStr )
+            {
+               break;
+            }
+         }
+         addr = asmAddrs.at(selIdx);
+         absAddr = asmAbsAddrs.at(selIdx);
+      }
+      else
+      {
+         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+      }
+   }
+   else
+   {
+      addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+      absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+   }
 
    if ( addr != -1 )
    {
@@ -880,6 +945,7 @@ void CodeEditorForm::annotateText()
    char address[32];
    char* pAnnotationBuffer;
    bool first;
+   bool firstBlock;
 
    // Clear annotations.
    m_scintilla->clearAnnotations();
@@ -892,6 +958,7 @@ void CodeEditorForm::annotateText()
          annotationBuffer[0] = 0;
          pAnnotationBuffer = annotationBuffer;
          first = true;
+         firstBlock = true;
          startAddr = 0;
 
          do
@@ -905,6 +972,12 @@ void CodeEditorForm::annotateText()
 
             if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
             {
+               if ( !firstBlock )
+               {
+                  pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n...");
+               }
+               firstBlock = false;
+
                for ( ; addr <= endAddr; addr++, absAddr++ )
                {
                   if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )

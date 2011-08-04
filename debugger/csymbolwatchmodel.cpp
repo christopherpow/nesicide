@@ -235,6 +235,7 @@ int CSymbolWatchModel::resolveSymbol(QString text)
    QStringList symbols;
    QString selStr;
    int selIdx = 0;
+   bool ok;
 
    count = CCC65Interface::getSymbolMatchCount(text);
    if ( count > 1 )
@@ -250,13 +251,20 @@ int CSymbolWatchModel::resolveSymbol(QString text)
          symbol += modelStringBuffer;
          symbols.append(symbol);
       }
-      selStr = QInputDialog::getItem(0,"Help!","Symbol has multiple possible matches, pick one:",symbols,0,false);
-      for ( selIdx = 0; selIdx < count; selIdx++ )
+      selStr = QInputDialog::getItem(0,"Help!","Symbol has multiple possible matches, pick one:",symbols,0,false,&ok);
+      if ( ok )
       {
-         if ( symbols.at(selIdx) == selStr )
+         for ( selIdx = 0; selIdx < count; selIdx++ )
          {
-            break;
+            if ( symbols.at(selIdx) == selStr )
+            {
+               break;
+            }
          }
+      }
+      else
+      {
+         selIdx = 0;
       }
    }
    return CCC65Interface::getSymbolSegment(text,selIdx);
