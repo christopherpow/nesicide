@@ -815,8 +815,6 @@ QString CodeEditorForm::sourceCode()
    return m_scintilla->text();
 }
 
-static QsciStyle astyle(-1,"MyAnnotation",QColor(255,0,0),QColor(255,150,150),QFont("Courier New",-1,-1,true),true);
-
 void CodeEditorForm::setSourceCode(QString source)
 {
    m_scintilla->setText(source);
@@ -933,7 +931,7 @@ void CodeEditorForm::annotateText()
 
          if ( annotationBuffer[0] )
          {
-            m_scintilla->annotate(line,annotationBuffer,astyle);
+            m_scintilla->annotate(line,annotationBuffer,0);
          }
       }
    }

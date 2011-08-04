@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
    else
    {
       // Use named file resource.  Default to internal if it's not set.
-      gameDatabase.initialize( EnvironmentSettingsDialog::getGameDatabase());
+      gameDatabase.initialize(EnvironmentSettingsDialog::getGameDatabase());
    }
 
    // Initialize the plugin manager
@@ -75,14 +75,14 @@ int main(int argc, char* argv[])
    QGLFormat::setDefaultFormat(fmt);
 
    // Create the NES emulator and breakpoint watcher threads...
-   emulator = new NESEmulatorThread ();
-   breakpointWatcher = new BreakpointWatcherThread ();
+   emulator = new NESEmulatorThread();
+   breakpointWatcher = new BreakpointWatcherThread();
 
    // Create the compiler thread...
-   compiler = new CompilerThread ();
+   compiler = new CompilerThread();
 
    // Create the searcher thread...
-   searcher = new SearcherThread ();
+   searcher = new SearcherThread();
 
    // Start breakpoint-watcher thread...
    breakpointWatcher->start();
