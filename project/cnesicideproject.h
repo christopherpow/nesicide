@@ -50,6 +50,7 @@ public:
    QString getAssemblerAdditionalOptions() { return m_assemblerAdditionalOptions; }
    QString getLinkerConfigFile() { return m_linkerConfigFile; }
    QString getLinkerAdditionalOptions() { return m_linkerAdditionalOptions; }
+   QString getLinkerAdditionalDependencies() { return m_linkerAdditionalDependencies; }
 
    QDomDocument& getSaveStateDoc() { return m_saveStateDoc; }
 
@@ -91,6 +92,7 @@ public:
    void setAssemblerAdditionalOptions(QString value) { m_assemblerAdditionalOptions = value; }
    void setLinkerConfigFile(QString value) { m_linkerConfigFile = value; }
    void setLinkerAdditionalOptions(QString value) { m_linkerAdditionalOptions = value; }
+   void setLinkerAdditionalDependencies(QString value) { m_linkerAdditionalDependencies = value; }
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
 
    void setSaveStateDoc(QDomDocument doc) { m_saveStateDoc = doc; }
@@ -145,6 +147,7 @@ private:
    QString m_assemblerAdditionalOptions;
    QString m_linkerConfigFile;
    QString m_linkerAdditionalOptions;
+   QString m_linkerAdditionalDependencies;
 
    // Save state information
    QDomDocument m_saveStateDoc;

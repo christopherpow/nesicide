@@ -1,5 +1,11 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.007
+Added PNG file export capability to Graphics Banks.
+Added initial stab at a Code Profiler that has limited information in it at the moment.
+Added configurable C-language syntax highlighting using QScintilla's standard "C++ lexer".  Eventually I'll strip out the useless style tags.
+
+
 V1.006
 Added PNG file import capability to Binary Files.  Both online examples updated to use the raw PNG files instead of pre-converted CHR.
 Added mirroring setup display to Mapper Inspector.

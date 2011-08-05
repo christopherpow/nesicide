@@ -90,7 +90,7 @@ $(OBJDIR):
 <!target-rules!>
 
 $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
-	$(LINK) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
+	$(LINK) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@ <!linker-dependencies!>
 
 clean:
 	-$(RM) $(OBJECTS)

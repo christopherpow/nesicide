@@ -84,6 +84,7 @@ void CNesicideProject::initializeProject()
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
+   m_linkerAdditionalDependencies = "";
 
    m_saveStateDoc.clear();
 
@@ -121,6 +122,7 @@ void CNesicideProject::terminateProject()
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
+   m_linkerAdditionalDependencies = "";
 
    m_saveStateDoc.clear();
 
@@ -159,6 +161,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("assembleradditionaloptions",m_assemblerAdditionalOptions);
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
+   propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
 
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
@@ -270,6 +273,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_assemblerAdditionalOptions = propertiesElement.attribute("assembleradditionaloptions");
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
+         m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
 
          // Loop through the properties nodes.
          QDomNode property = child.firstChild();

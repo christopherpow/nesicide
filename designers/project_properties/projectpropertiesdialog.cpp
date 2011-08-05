@@ -42,6 +42,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->assemblerIncludePaths->setText(nesicideProject->getAssemblerIncludePaths());
    ui->assemblerAdditionalOptions->setText(nesicideProject->getAssemblerAdditionalOptions());
    ui->linkerAdditionalOptions->setText(nesicideProject->getLinkerAdditionalOptions());
+   ui->linkerAdditionalDependencies->setText(nesicideProject->getLinkerAdditionalDependencies());
    ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
    deserializeLinkerConfig();
 
@@ -426,6 +427,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setAssemblerAdditionalOptions(ui->assemblerAdditionalOptions->text());
    nesicideProject->setProjectLinkerOutputBasePath(ui->prgromOutputBasePath->text());
    nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
+   nesicideProject->setLinkerAdditionalDependencies(ui->linkerAdditionalDependencies->text());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
 

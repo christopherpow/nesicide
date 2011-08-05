@@ -33,7 +33,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <property name="usesScrollButtons">
       <bool>true</bool>
@@ -302,14 +302,14 @@
          </item>
         </layout>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_17">
          <property name="text">
           <string>Linker configuration:</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <widget class="QTextEdit" name="linkerConfig">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -364,6 +364,16 @@
        </item>
        <item row="4" column="1">
         <widget class="QLineEdit" name="linkerAdditionalOptions"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_26">
+         <property name="text">
+          <string>Additional dependencies:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="linkerAdditionalDependencies"/>
        </item>
       </layout>
      </widget>

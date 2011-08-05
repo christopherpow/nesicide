@@ -232,6 +232,7 @@ int CSymbolWatchModel::resolveSymbol(QString text)
    int count;
    int idx;
    QString symbol;
+   QString symbolFile;
    QStringList symbols;
    QString selStr;
    int selIdx = 0;
@@ -244,11 +245,14 @@ int CSymbolWatchModel::resolveSymbol(QString text)
       {
          addr = CCC65Interface::getSymbolAddress(text,idx);
          absAddr = CCC65Interface::getSymbolAbsoluteAddress(text,idx);
+         symbolFile = CCC65Interface::getSourceFileFromSymbol(text);
 
          symbol = text;
          symbol += " @";
          nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
          symbol += modelStringBuffer;
+         symbol += " in ";
+         symbol += symbolFile;
          symbols.append(symbol);
       }
       selStr = QInputDialog::getItem(0,"Help!","Symbol has multiple possible matches, pick one:",symbols,0,false,&ok);
