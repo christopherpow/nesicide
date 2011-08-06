@@ -149,65 +149,7 @@ void SourceNavigator::compiler_compileDone(bool bOk)
 
 void SourceNavigator::on_files_activated(QString file)
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   CSourceItem* pSource;
-   bool found = false;
-
-   while ( iter.current() )
-   {
-      pSource = dynamic_cast<CSourceItem*>(iter.current());
-      if ( pSource )
-      {
-         if ( pSource->path() == file )
-         {
-            pSource->openItemEvent(m_pTarget);
-            emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
-            found = true;
-            break;
-         }
-      }
-      iter.next();
-   }
-
-   if ( !found )
-   {
-      // If we got here the file is not part of the project...lets open it anyway,
-      // if it's not already open.
-      int foundIdx = -1;
-      for ( int tab = 0; tab < m_pTarget->count(); tab++ )
-      {
-         CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
-         if ( editor &&
-              editor->fileName() == file )
-         {
-            found = true;
-            foundIdx = tab;
-            emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
-            break;
-         }
-      }
-      if ( !found )
-      {
-         QDir dir(QDir::currentPath());
-         QString fileName = dir.fromNativeSeparators(dir.filePath(file));
-         QFile fileIn(fileName);
-
-         if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
-         {
-            CodeEditorForm* editor = new CodeEditorForm(file,QString(fileIn.readAll()));
-
-            fileIn.close();
-
-            m_pTarget->addTab(editor, file);
-
-            emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
-         }
-      }
-      else
-      {
-         emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
-      }
-   }
+   on_files_currentIndexChanged(file);
 }
 
 void SourceNavigator::on_symbols_activated(QString symbol)
@@ -215,4 +157,124 @@ void SourceNavigator::on_symbols_activated(QString symbol)
    QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
    on_files_activated(file);
    emit snapTo("SourceNavigatorSymbol:"+symbol);
+}
+
+void SourceNavigator::on_files_currentIndexChanged(QString file)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   bool found = false;
+   QDir dir;
+   QString fileName;
+   QFile fileIn;
+
+   // First check if the file is already open.
+   int foundIdx = -1;
+   for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+   {
+      CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+      if ( editor &&
+           editor->fileName() == file )
+      {
+         found = true;
+         foundIdx = tab;
+         emit snapTo("SourceNavigatorFile:"+file);
+         break;
+      }
+   }
+
+   // File is not open, search the project.
+   if ( !found )
+   {
+      while ( iter.current() )
+      {
+         pSource = dynamic_cast<CSourceItem*>(iter.current());
+         if ( pSource )
+         {
+            if ( pSource->path() == file )
+            {
+               pSource->openItemEvent(m_pTarget);
+               emit snapTo("SourceNavigatorFile:"+file);
+               found = true;
+               break;
+            }
+         }
+         iter.next();
+      }
+   }
+
+   if ( found )
+   {
+      // Nothing more to do, get outta here...
+      return;
+   }
+
+   // If we got here we can't find the file in the project, search the project
+   // directory.
+   if ( !found )
+   {
+      dir.setPath(QDir::currentPath());
+      fileName = dir.fromNativeSeparators(dir.filePath(file));
+      fileIn.setFileName(fileName);
+
+      if ( fileIn.exists() )
+      {
+         found = true;
+      }
+   }
+
+   // If we got here we might be looking for a source file that's part of a library.
+   // Search the source paths...
+   if ( !found )
+   {
+      QStringList sourcePaths = nesicideProject->getSourceSearchPaths();
+
+      foreach ( QString searchDir, sourcePaths )
+      {
+         dir.setPath(searchDir);
+         fileName = dir.fromNativeSeparators(dir.filePath(file));
+         fileIn.setFileName(fileName);
+
+         if ( fileIn.exists() )
+         {
+            found = true;
+            break;
+         }
+      }
+   }
+
+#if 0
+   CPTODO: NOT WORKING YET
+   // If we got here we can't find the damn thing, ask the user to help.
+   if ( !found )
+   {
+      QString str;
+      str.sprintf("Locate %s...",file.toAscii().constData());
+      QString newDir = QFileDialog::getOpenFileName(0,str,QDir::currentPath());
+      qDebug(newDir.toAscii().constData());
+      if ( !newDir.isEmpty() )
+      {
+         dir.setPath(newDir);
+         nesicideProject->addSourceSearchPath(dir.currentPath());
+         fileName = dir.fromNativeSeparators(dir.filePath(file));
+         fileIn.setFileName(fileName);
+
+         if ( fileIn.exists() )
+         {
+            found = true;
+         }
+      }
+   }
+#endif
+   // Try to open the file.
+   if ( found && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+   {
+      CodeEditorForm* editor = new CodeEditorForm(file,QString(fileIn.readAll()));
+
+      fileIn.close();
+
+      m_pTarget->addTab(editor, file);
+
+      emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
+   }
 }

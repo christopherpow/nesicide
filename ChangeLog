@@ -4,7 +4,10 @@ V1.007
 Added PNG file export capability to Graphics Banks.
 Added initial stab at a Code Profiler that has limited information in it at the moment.
 Added configurable C-language syntax highlighting using QScintilla's standard "C++ lexer".  Eventually I'll strip out the useless style tags.
-
+Added mixed-mode debug capability in C-language source files.
+Added source stepping capability in C-language source files.
+Added step-over capability.
+Step-return capability is planned but not working yet.
 
 V1.006
 Added PNG file import capability to Binary Files.  Both online examples updated to use the raw PNG files instead of pre-converted CHR.

@@ -6,6 +6,7 @@
 #include "cproject.h"
 
 #include <QString>
+#include <QStringList>
 #include <QMessageBox>
 #include <QDomDocument>
 
@@ -51,6 +52,7 @@ public:
    QString getLinkerConfigFile() { return m_linkerConfigFile; }
    QString getLinkerAdditionalOptions() { return m_linkerAdditionalOptions; }
    QString getLinkerAdditionalDependencies() { return m_linkerAdditionalDependencies; }
+   QStringList getSourceSearchPaths() { return m_sourceSearchPaths; }
 
    QDomDocument& getSaveStateDoc() { return m_saveStateDoc; }
 
@@ -93,6 +95,7 @@ public:
    void setLinkerConfigFile(QString value) { m_linkerConfigFile = value; }
    void setLinkerAdditionalOptions(QString value) { m_linkerAdditionalOptions = value; }
    void setLinkerAdditionalDependencies(QString value) { m_linkerAdditionalDependencies = value; }
+   void addSourceSearchPath(QString value);
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
 
    void setSaveStateDoc(QDomDocument doc) { m_saveStateDoc = doc; }
@@ -148,6 +151,7 @@ private:
    QString m_linkerConfigFile;
    QString m_linkerAdditionalOptions;
    QString m_linkerAdditionalDependencies;
+   QStringList m_sourceSearchPaths;
 
    // Save state information
    QDomDocument m_saveStateDoc;

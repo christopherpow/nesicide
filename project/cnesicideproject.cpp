@@ -85,6 +85,7 @@ void CNesicideProject::initializeProject()
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
+   m_sourceSearchPaths.clear();
 
    m_saveStateDoc.clear();
 
@@ -123,7 +124,7 @@ void CNesicideProject::terminateProject()
    m_linkerConfigFile = "";
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
-
+   m_sourceSearchPaths.clear();
    m_saveStateDoc.clear();
 
    m_isInitialized = false;
@@ -162,6 +163,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
    propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
+   propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(" "));
 
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
@@ -274,6 +276,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
+         m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(" ",QString::SkipEmptyParts);
 
          // Loop through the properties nodes.
          QDomNode property = child.firstChild();
@@ -341,6 +344,14 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 QString CNesicideProject::caption() const
 {
    return QString("NESICIDE");
+}
+
+void CNesicideProject::addSourceSearchPath(QString value)
+{
+   if ( !m_sourceSearchPaths.contains(value,Qt::CaseInsensitive) )
+   {
+      m_sourceSearchPaths.append(value);
+   }
 }
 
 bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
