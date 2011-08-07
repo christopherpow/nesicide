@@ -202,7 +202,7 @@ void SourceNavigator::on_files_activated(QString file)
    if ( !found )
    {
       dir = QDir::currentPath();
-      fileName = dir.filePath(file);
+      fileName = dir.relativeFilePath(file);
       fileIn.setFileName(fileName);
 
       if ( fileIn.exists() )

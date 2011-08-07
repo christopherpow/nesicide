@@ -265,7 +265,7 @@ void OutputPaneDockWidget::openFileSelectLine(QString file,int line)
    if ( !found )
    {
       dir.setPath(QDir::currentPath());
-      fileName = dir.filePath(file);
+      fileName = dir.relativeFilePath(file);
       fileIn.setFileName(fileName);
 
       if ( fileIn.exists() )
