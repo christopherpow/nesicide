@@ -132,6 +132,7 @@ void CodeProfilerDockWidget::on_tableView_doubleClicked(QModelIndex index)
                found = true;
                foundIdx = tab;
                m_pTarget->setCurrentWidget(editor);
+               emit snapTo("SourceNavigatorSymbol:"+symbol);
                return;
             }
          }
