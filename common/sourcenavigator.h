@@ -31,7 +31,6 @@ signals:
    void snapTo(QString item);
 
 private slots:
-   void on_files_currentIndexChanged(QString );
    void on_symbols_activated(QString );
    void on_files_activated(QString );
 

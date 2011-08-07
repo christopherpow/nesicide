@@ -163,7 +163,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
    propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
-   propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(" "));
+   propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(";"));
 
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
@@ -276,7 +276,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
-         m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(" ",QString::SkipEmptyParts);
+         m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts);
 
          // Loop through the properties nodes.
          QDomNode property = child.firstChild();

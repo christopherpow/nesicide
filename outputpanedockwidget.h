@@ -44,6 +44,7 @@ protected:
 private:
    Ui::OutputPaneDockWidget *ui;
    CProjectTabWidget* m_pTarget;
+   void openFileSelectLine(QString file,int line);
 
 private slots:
    void on_compilerOutputTextEdit_selectionChanged();

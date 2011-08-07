@@ -157,12 +157,9 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
 {
    QTextCursor textCursor = ui->compilerOutputTextEdit->textCursor();
    QString     selection;
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   CSourceItem* pSource;
    QStringList errorParts;
-   QString     errorFile;
-   QString     errorLine;
-   bool        found = false;
+   QString     file;
+   QString     line;
 
    if ( ui->compilerOutputTextEdit->blockCount() > 1 )
    {
@@ -174,65 +171,13 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
       {
          // Parse the error file and line number.
          errorParts = selection.split(":");
-         errorFile = errorParts.at(0);
-         errorFile = errorFile.left(errorParts.at(0).indexOf('('));
-         errorLine = errorParts.at(0);
-         errorLine = errorLine.right(errorParts.at(0).length()-errorFile.length());
-         errorLine = errorLine.mid(1,errorLine.length()-2);
+         file = errorParts.at(0);
+         file = file.left(errorParts.at(0).indexOf('('));
+         line = errorParts.at(0);
+         line = line.right(errorParts.at(0).length()-file.length());
+         line = line.mid(1,line.length()-2);
 
-         while ( iter.current() )
-         {
-            pSource = dynamic_cast<CSourceItem*>(iter.current());
-            if ( pSource &&
-                 (errorFile.contains(pSource->path())) )
-            {
-               pSource->openItemEvent(m_pTarget);
-               pSource->editor()->highlightLine(errorLine.toInt());
-               found = true;
-               break;
-            }
-            iter.next();
-         }
-
-         if ( !found )
-         {
-            // If we got here the file is not part of the project...lets open it anyway,
-            // if it's not already open.
-            int foundIdx = -1;
-            for ( int tab = 0; tab < m_pTarget->count(); tab++ )
-            {
-               CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
-               if ( editor &&
-                    editor->fileName() == errorFile )
-               {
-                  found = true;
-                  foundIdx = tab;
-                  editor->highlightLine(errorLine.toInt());
-                  break;
-               }
-            }
-            if ( !found )
-            {
-               QDir dir(QDir::currentPath());
-               QString fileName = dir.fromNativeSeparators(dir.filePath(errorFile));
-               QFile fileIn(fileName);
-
-               if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
-               {
-                  CodeEditorForm* editor = new CodeEditorForm(errorFile,QString(fileIn.readAll()));
-
-                  fileIn.close();
-
-                  m_pTarget->addTab(editor, errorFile);
-                  m_pTarget->setCurrentWidget(editor);
-                  editor->highlightLine(errorLine.toInt());
-               }
-            }
-            else
-            {
-               m_pTarget->setCurrentIndex(foundIdx);
-            }
-         }
+         openFileSelectLine(file,line.toInt());
       }
    }
 }
@@ -241,12 +186,9 @@ void OutputPaneDockWidget::on_searchOutputTextEdit_selectionChanged()
 {
    QTextCursor textCursor = ui->searchOutputTextEdit->textCursor();
    QString     selection;
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   CSourceItem* pSource;
    QStringList searchParts;
-   QString     searchFile;
-   QString     searchLine;
-   bool        found = false;
+   QString     file;
+   QString     line;
 
    if ( ui->searchOutputTextEdit->blockCount() > 1 )
    {
@@ -258,62 +200,130 @@ void OutputPaneDockWidget::on_searchOutputTextEdit_selectionChanged()
       {
          // Parse the search file and line number.
          searchParts = selection.split(":");
-         searchFile = searchParts.at(0);
-         searchLine = searchParts.at(1);
+         file = searchParts.at(0);
+         line = searchParts.at(1);
 
-         while ( iter.current() )
+         openFileSelectLine(file,line.toInt());
+      }
+   }
+}
+
+void OutputPaneDockWidget::openFileSelectLine(QString file,int line)
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   QDir dir;
+   QDir projectDir = QDir::currentPath();
+   QString fileName;
+   QFile fileIn;
+   bool        found = false;
+
+   // First check if the file is already open.
+   int foundIdx = -1;
+   for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+   {
+      CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+      if ( editor &&
+           editor->fileName() == file )
+      {
+         found = true;
+         foundIdx = tab;
+         m_pTarget->setCurrentWidget(editor);
+         editor->highlightLine(line);
+         break;
+      }
+   }
+
+   // File is not open, search the project.
+   if ( !found )
+   {
+      while ( iter.current() )
+      {
+         pSource = dynamic_cast<CSourceItem*>(iter.current());
+         if ( pSource )
          {
-            pSource = dynamic_cast<CSourceItem*>(iter.current());
-            if ( pSource &&
-                 (searchFile.contains(pSource->path())) )
+            if ( pSource->path() == file )
             {
                pSource->openItemEvent(m_pTarget);
-               pSource->editor()->highlightLine(searchLine.toInt());
+               pSource->editor()->highlightLine(line);
                found = true;
                break;
             }
-            iter.next();
          }
+         iter.next();
+      }
+   }
 
-         if ( !found )
+   if ( found )
+   {
+      // Nothing more to do, get outta here...
+      return;
+   }
+
+   // If we got here we can't find the file in the project, search the project
+   // directory.
+   if ( !found )
+   {
+      dir.setPath(QDir::currentPath());
+      fileName = dir.filePath(file);
+      fileIn.setFileName(fileName);
+
+      if ( fileIn.exists() )
+      {
+         found = true;
+      }
+   }
+
+   // If we got here we might be looking for a source file that's part of a library.
+   // Search the source paths...
+   if ( !found )
+   {
+      QStringList sourcePaths = nesicideProject->getSourceSearchPaths();
+
+      foreach ( QString searchDir, sourcePaths )
+      {
+         dir.setPath(searchDir);
+         fileName = dir.filePath(file);
+         fileIn.setFileName(fileName);
+
+         if ( fileIn.exists() )
          {
-            // If we got here the file is not part of the project...lets open it anyway,
-            // if it's not already open.
-            int foundIdx = -1;
-            for ( int tab = 0; tab < m_pTarget->count(); tab++ )
-            {
-               CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
-               if ( editor &&
-                    editor->fileName() == searchFile )
-               {
-                  found = true;
-                  foundIdx = tab;
-                  editor->highlightLine(searchLine.toInt());
-                  break;
-               }
-            }
-            if ( !found )
-            {
-               QDir dir(QDir::currentPath());
-               QString fileName = dir.fromNativeSeparators(dir.filePath(searchFile));
-               QFile fileIn(fileName);
-
-               if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
-               {
-                  CodeEditorForm* editor = new CodeEditorForm(searchFile,QString(fileIn.readAll()));
-
-                  fileIn.close();
-
-                  m_pTarget->addTab(editor, searchFile);
-                  m_pTarget->setCurrentWidget(editor);
-                  editor->highlightLine(searchLine.toInt());
-               }
-            }
-            else
-            {
-               m_pTarget->setCurrentIndex(foundIdx);
-            }
+            found = true;
+            break;
          }
       }
+   }
+
+   // If we got here we can't find the damn thing, ask the user to help.
+   if ( !found )
+   {
+      QString str;
+      str.sprintf("Locate %s...",file.toAscii().constData());
+      QString newDir = QFileDialog::getOpenFileName(0,str,QDir::currentPath());
+      if ( !newDir.isEmpty() )
+      {
+         QFileInfo fileInfo(newDir);
+         dir = projectDir.relativeFilePath(fileInfo.path());
+         nesicideProject->addSourceSearchPath(dir.path());
+         fileName = dir.filePath(file);
+         fileIn.setFileName(fileName);
+
+         if ( fileIn.exists() )
+         {
+            found = true;
+         }
+      }
+   }
+
+   // Try to open the file.
+   if ( found && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+   {
+      CodeEditorForm* editor = new CodeEditorForm(fileIn.fileName(),QString(fileIn.readAll()));
+
+      fileIn.close();
+
+      m_pTarget->addTab(editor, fileIn.fileName());
+      m_pTarget->setCurrentWidget(editor);
+      editor->highlightLine(line);
    }
 }

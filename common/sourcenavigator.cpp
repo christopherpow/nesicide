@@ -149,21 +149,10 @@ void SourceNavigator::compiler_compileDone(bool bOk)
 
 void SourceNavigator::on_files_activated(QString file)
 {
-   on_files_currentIndexChanged(file);
-}
-
-void SourceNavigator::on_symbols_activated(QString symbol)
-{
-   QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
-   on_files_activated(file);
-   emit snapTo("SourceNavigatorSymbol:"+symbol);
-}
-
-void SourceNavigator::on_files_currentIndexChanged(QString file)
-{
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
    bool found = false;
+   QDir projectDir = QDir::currentPath();
    QDir dir;
    QString fileName;
    QFile fileIn;
@@ -178,7 +167,7 @@ void SourceNavigator::on_files_currentIndexChanged(QString file)
       {
          found = true;
          foundIdx = tab;
-         emit snapTo("SourceNavigatorFile:"+file);
+         m_pTarget->setCurrentWidget(editor);
          break;
       }
    }
@@ -194,7 +183,6 @@ void SourceNavigator::on_files_currentIndexChanged(QString file)
             if ( pSource->path() == file )
             {
                pSource->openItemEvent(m_pTarget);
-               emit snapTo("SourceNavigatorFile:"+file);
                found = true;
                break;
             }
@@ -213,8 +201,8 @@ void SourceNavigator::on_files_currentIndexChanged(QString file)
    // directory.
    if ( !found )
    {
-      dir.setPath(QDir::currentPath());
-      fileName = dir.fromNativeSeparators(dir.filePath(file));
+      dir = QDir::currentPath();
+      fileName = dir.filePath(file);
       fileIn.setFileName(fileName);
 
       if ( fileIn.exists() )
@@ -231,8 +219,8 @@ void SourceNavigator::on_files_currentIndexChanged(QString file)
 
       foreach ( QString searchDir, sourcePaths )
       {
-         dir.setPath(searchDir);
-         fileName = dir.fromNativeSeparators(dir.filePath(file));
+         dir = searchDir;
+         fileName = dir.filePath(file);
          fileIn.setFileName(fileName);
 
          if ( fileIn.exists() )
@@ -243,20 +231,18 @@ void SourceNavigator::on_files_currentIndexChanged(QString file)
       }
    }
 
-#if 0
-   CPTODO: NOT WORKING YET
    // If we got here we can't find the damn thing, ask the user to help.
    if ( !found )
    {
       QString str;
       str.sprintf("Locate %s...",file.toAscii().constData());
       QString newDir = QFileDialog::getOpenFileName(0,str,QDir::currentPath());
-      qDebug(newDir.toAscii().constData());
       if ( !newDir.isEmpty() )
       {
-         dir.setPath(newDir);
-         nesicideProject->addSourceSearchPath(dir.currentPath());
-         fileName = dir.fromNativeSeparators(dir.filePath(file));
+         QFileInfo fileInfo(newDir);
+         dir = projectDir.relativeFilePath(fileInfo.path());
+         nesicideProject->addSourceSearchPath(dir.path());
+         fileName = dir.filePath(file);
          fileIn.setFileName(fileName);
 
          if ( fileIn.exists() )
@@ -265,16 +251,22 @@ void SourceNavigator::on_files_currentIndexChanged(QString file)
          }
       }
    }
-#endif
+
    // Try to open the file.
    if ( found && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
    {
-      CodeEditorForm* editor = new CodeEditorForm(file,QString(fileIn.readAll()));
+      CodeEditorForm* editor = new CodeEditorForm(fileIn.fileName(),QString(fileIn.readAll()));
 
       fileIn.close();
 
-      m_pTarget->addTab(editor, file);
-
-      emit snapTo("SourceNavigatorFile:"+ui->files->currentText());
+      m_pTarget->addTab(editor, fileIn.fileName());
+      m_pTarget->setCurrentWidget(editor);
    }
+}
+
+void SourceNavigator::on_symbols_activated(QString symbol)
+{
+   QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
+   on_files_activated(file);
+   emit snapTo("SourceNavigatorSymbol:"+symbol);
 }

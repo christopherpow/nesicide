@@ -12,7 +12,7 @@ public:
    virtual ~SearcherThread ();
    void kill();
 
-   void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool useRegex, bool caseSensitive);
+   void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive);
 
 signals:
    void searchDone(int found);
@@ -25,6 +25,7 @@ protected:
    QString m_searchText;
    QString m_pattern;
    bool m_subfolders;
+   bool m_sourceSearchPaths;
    bool m_useRegex;
    bool m_caseSensitive;
    int m_found;

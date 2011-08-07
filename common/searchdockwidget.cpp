@@ -21,6 +21,7 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
    ui->location->addItems(settings.value("SearchLocationHistory").toStringList());
    ui->type->addItems(settings.value("FileTypeHistory").toStringList());
    ui->subfolders->setChecked(settings.value("IncludeSubfolders",QVariant(true)).toBool());
+   ui->sourceSearchPaths->setChecked(settings.value("IncludeSourceSearchPaths",QVariant(false)).toBool());
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
    ui->projectFolder->setChecked(settings.value("UseProjectFolder",QVariant(true)).toBool());
@@ -82,6 +83,7 @@ void SearchDockWidget::on_find_clicked()
    if ( !ui->searchText->currentText().isEmpty() )
    {
       settings.setValue("IncludeSubfolders",QVariant(ui->subfolders->isChecked()));
+      settings.setValue("IncludeSourceSearchPaths",QVariant(ui->sourceSearchPaths->isChecked()));
       settings.setValue("CaseSensitive",QVariant(ui->caseSensitive->isChecked()));
       settings.setValue("RegularExpression",QVariant(ui->regex->isChecked()));
       settings.setValue("UseProjectFolder",QVariant(ui->projectFolder->isChecked()));
@@ -131,11 +133,11 @@ void SearchDockWidget::on_find_clicked()
       searchTextLogger->write("<b>Searching for \""+ui->searchText->currentText()+"\"...</b>");
       if ( ui->projectFolder->isChecked() )
       {
-         searcher->search(QDir::currentPath(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+         searcher->search(QDir::currentPath(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
       }
       else
       {
-         searcher->search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+         searcher->search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
       }
    }
    settings.endGroup();

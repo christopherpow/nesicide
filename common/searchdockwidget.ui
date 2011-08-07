@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>408</width>
-    <height>245</height>
+    <width>352</width>
+    <height>289</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -43,7 +43,59 @@
         <string>Find in Files</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0" colspan="2">
+        <item row="3" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="projectFolder">
+            <property name="text">
+             <string>Limit search to Project folders</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="subfolders">
+            <property name="text">
+             <string>Include Subfolders</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="sourceSearchPaths">
+            <property name="text">
+             <string>Include Source Search Paths</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="caseSensitive">
+          <property name="text">
+           <string>Match Case</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QCheckBox" name="regex">
+          <property name="text">
+           <string>Regular Expression</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QPushButton" name="find">
+          <property name="text">
+           <string>Find...</string>
+          </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
          <layout class="QFormLayout" name="formLayout">
           <property name="fieldGrowthPolicy">
            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -85,25 +137,24 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="subfolders">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Include Subfolders</string>
+             <string>Files of type:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="projectFolder">
-            <property name="text">
-             <string>Limit search to Project folders</string>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="type">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="insertPolicy">
+             <enum>QComboBox::NoInsert</enum>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item row="2" column="1">
            <widget class="QPushButton" name="browse">
             <property name="text">
              <string>Browse...</string>
@@ -115,60 +166,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item row="2" column="0">
-         <widget class="QCheckBox" name="caseSensitive">
-          <property name="text">
-           <string>Match Case</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QCheckBox" name="regex">
-          <property name="text">
-           <string>Regular Expression</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <layout class="QFormLayout" name="formLayout_2">
-          <property name="horizontalSpacing">
-           <number>6</number>
-          </property>
-          <property name="verticalSpacing">
-           <number>0</number>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Files of type:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="type">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-            <property name="insertPolicy">
-             <enum>QComboBox::NoInsert</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="4" column="1">
-         <widget class="QPushButton" name="find">
-          <property name="text">
-           <string>Find...</string>
-          </property>
-          <property name="autoDefault">
-           <bool>true</bool>
-          </property>
-          <property name="default">
-           <bool>true</bool>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>
@@ -248,12 +245,8 @@
  <tabstops>
   <tabstop>searchText</tabstop>
   <tabstop>location</tabstop>
-  <tabstop>browse</tabstop>
-  <tabstop>projectFolder</tabstop>
-  <tabstop>subfolders</tabstop>
   <tabstop>caseSensitive</tabstop>
   <tabstop>regex</tabstop>
-  <tabstop>type</tabstop>
   <tabstop>find</tabstop>
   <tabstop>replaceText</tabstop>
   <tabstop>findForReplace</tabstop>

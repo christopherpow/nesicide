@@ -20,12 +20,13 @@ void SearcherThread::kill()
    searchSemaphore.release();
 }
 
-void SearcherThread::search(QDir dir, QString searchText, QString pattern, bool subfolders, bool useRegex, bool caseSensitive)
+void SearcherThread::search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive)
 {
    m_dir = dir;
    m_searchText = searchText;
    m_pattern = pattern;
    m_subfolders = subfolders;
+   m_sourceSearchPaths = sourceSearchPaths;
    m_useRegex = useRegex;
    m_caseSensitive = caseSensitive;
    searchSemaphore.release();
@@ -45,6 +46,14 @@ void SearcherThread::run ()
 
       m_found = 0;
       doSearch(m_dir,&m_found);
+      if ( m_sourceSearchPaths )
+      {
+         foreach ( QString searchPath, nesicideProject->getSourceSearchPaths() )
+         {
+            m_dir = searchPath;
+            doSearch(m_dir,&m_found);
+         }
+      }
       emit searchDone(m_found);
    }
 
