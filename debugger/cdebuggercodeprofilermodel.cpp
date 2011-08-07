@@ -143,10 +143,7 @@ void CDebuggerCodeProfilerModel::update()
             item.symbol = symbol;
             item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
             fileInfo.setFile(item.file);
-            if ( !fileInfo.exists() )
-            {
-               item.file += "[not found]";
-            }
+
             nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
             item.address = modelStringBuffer;
             item.count = pLogger->GetCount(addr&MASK_8KB);

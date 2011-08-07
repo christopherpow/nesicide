@@ -282,7 +282,7 @@ void OutputPaneDockWidget::openFileSelectLine(QString file,int line)
 
       foreach ( QString searchDir, sourcePaths )
       {
-         dir.setPath(searchDir);
+         dir = searchDir;
          fileName = dir.filePath(file);
          fileIn.setFileName(fileName);
 
