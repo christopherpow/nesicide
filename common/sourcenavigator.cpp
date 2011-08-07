@@ -156,9 +156,10 @@ void SourceNavigator::on_files_activated(QString file)
    QDir dir;
    QString fileName;
    QFile fileIn;
+   int foundIdx;
 
    // First check if the file is already open.
-   int foundIdx = -1;
+   foundIdx = -1;
    for ( int tab = 0; tab < m_pTarget->count(); tab++ )
    {
       CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
@@ -222,6 +223,20 @@ void SourceNavigator::on_files_activated(QString file)
          dir = searchDir;
          fileName = dir.filePath(file);
          fileIn.setFileName(fileName);
+
+         foundIdx = -1;
+         for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+         {
+            CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+            if ( editor &&
+                 editor->fileName() == fileName )
+            {
+               found = true;
+               foundIdx = tab;
+               m_pTarget->setCurrentWidget(editor);
+               return;
+            }
+         }
 
          if ( fileIn.exists() )
          {

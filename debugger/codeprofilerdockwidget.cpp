@@ -52,9 +52,10 @@ void CodeProfilerDockWidget::on_tableView_doubleClicked(QModelIndex index)
    QFile fileIn;
    QString symbol = model->getItems().at(index.row()).symbol;
    QString file = model->getItems().at(index.row()).file;
+   int foundIdx;
 
    // First check if the file is already open.
-   int foundIdx = -1;
+   foundIdx = -1;
    for ( int tab = 0; tab < m_pTarget->count(); tab++ )
    {
       CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
@@ -120,6 +121,20 @@ void CodeProfilerDockWidget::on_tableView_doubleClicked(QModelIndex index)
          dir = searchDir;
          fileName = dir.filePath(file);
          fileIn.setFileName(fileName);
+
+         foundIdx = -1;
+         for ( int tab = 0; tab < m_pTarget->count(); tab++ )
+         {
+            CodeEditorForm* editor = dynamic_cast<CodeEditorForm*>(m_pTarget->widget(tab));
+            if ( editor &&
+                 editor->fileName() == fileName )
+            {
+               found = true;
+               foundIdx = tab;
+               m_pTarget->setCurrentWidget(editor);
+               return;
+            }
+         }
 
          if ( fileIn.exists() )
          {
