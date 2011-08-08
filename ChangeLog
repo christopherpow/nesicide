@@ -1,5 +1,21 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.008
+Added "Symbols in RAM" tab to Symbol Watch that shows what symbols are in CPU address range 0x000-0x7FF.  This tab is not editable
+-- the list of symbols is updated on a new compile.
+Added file name to Symbol Watch to show what file the symbol came from.
+Added feature request from thefox where "source search paths" are captured and stored in the project file whenever the IDE
+attempts to open a file it can't find in the project's folder or existing source search paths.  This is useful when trying to
+look at or set breakpoints in library source code.  Currently the source search paths are captured by the IDE asking the user
+to help it locate the source file it's trying to open...so it'll only ask once unless you're moving stuff around.  The source search
+paths are stored relative to the .nesproject location.
+Fixed breakpoint engine so breakpoints can again be set on execution of code in RAM, SRAM, and EXRAM.
+Updated all example projects and made sure they build/run ok.
+Projects can now either:
+a)Use Binary File and Graphics Banks objects to create a CHR-ROM (as in the russian_roulette example), or
+b)Use Binary File and Graphics Banks objects to create a CHR-RAM file (that is .incbin'd as in Tepples-SNROM example), or
+c)Not use either of the above if there's already a CHR format file that is just going to be .incbin'd for either CHR-RAM or CHR-ROM (as in the Alterego example).
+
 V1.007
 Added PNG file export capability to Graphics Banks.
 Added initial stab at a Code Profiler that has limited information in it at the moment.

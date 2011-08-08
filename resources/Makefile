@@ -8,7 +8,17 @@ ASSEMBLE := ca65
 LINK     := cl65
 
 # Environment stuff.
-RM       := rm
+RM = rm
+
+ifeq ($(shell echo),)
+  MKDIR = mkdir -p $1
+  RMDIR = rmdir $1
+  RMFILES = $(RM) $1
+else
+  MKDIR = mkdir $(subst /,\,$1)
+  RMDIR = rmdir $(subst /,\,$1)
+  RMFILES = $(if $1,del /f $(subst /,\,$1))
+endif
 
 # Path(s) to additional libraries required for linking the program
 # Use only if you don't want to place copies of the libraries in SRCDIR
@@ -85,7 +95,7 @@ all: $(PROGRAM)
 
 # The remaining targets.
 $(OBJDIR):
-	mkdir -p $@
+	$(call MKDIR,@)
 
 <!target-rules!>
 
@@ -93,7 +103,7 @@ $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
 	$(LINK) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@ <!linker-dependencies!>
 
 clean:
-	-$(RM) $(OBJECTS)
-	-$(RM) $(DEPENDS)
-	-$(RM) $(REMOVES)
-	-$(RM) $(PROGRAM)
+	-$(call RMFILES,$(OBJECTS))
+	-$(call RMFILES,$(DEPENDS))
+	-$(call RMFILES,$(REMOVES))
+	-$(call RMFILES,$(PROGRAM))
