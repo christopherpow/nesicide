@@ -608,33 +608,37 @@ void MainWindow::on_actionSave_Project_triggered()
 
 void MainWindow::saveEmulatorState(QString fileName)
 {
-   QFile file(fileName);
-
-   if ( !file.open( QFile::WriteOnly) )
+   // Only save the emulator state if the SRAM is dirty.
+   if ( nesIsSRAMDirty() )
    {
-      QMessageBox::critical(this, "Error", "An error occured while trying to open the save state file for writing.");
-      return;
-   }
+      QFile file(fileName);
 
-   QDomDocument doc;
-   QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
-   doc.appendChild(instr);
+      if ( !file.open( QFile::WriteOnly) )
+      {
+         QMessageBox::critical(this, "Error", "An error occured while trying to open the save state file for writing.");
+         return;
+      }
 
-   if (!emulator->serialize(doc, doc))
-   {
-      QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
+      QDomDocument doc;
+      QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
+      doc.appendChild(instr);
+
+      if (!emulator->serialize(doc, doc))
+      {
+         QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
+         file.close();
+      }
+
+      // Create a text stream so we can stream the XML data to the file easily.
+      QTextStream ts( &file );
+
+      // Use the standard C++ stream function for streaming the string representation of our XML to
+      // our file stream.
+      ts << doc.toString();
+
+      // And finally close the file.
       file.close();
    }
-
-   // Create a text stream so we can stream the XML data to the file easily.
-   QTextStream ts( &file );
-
-   // Use the standard C++ stream function for streaming the string representation of our XML to
-   // our file stream.
-   ts << doc.toString();
-
-   // And finally close the file.
-   file.close();
 }
 
 void MainWindow::saveProject()

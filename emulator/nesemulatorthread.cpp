@@ -896,7 +896,7 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
                {
                   byte = cdataString.left(2).toInt(0,16);
                   cdataString = cdataString.right(cdataString.length()-2);
-                  nesSetSRAMDataPhysical(idx,byte);
+                  nesLoadSRAMDataPhysical(idx,byte);
                }
             }
          }
