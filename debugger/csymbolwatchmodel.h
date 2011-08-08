@@ -7,6 +7,7 @@
 struct WatchedItem
 {
    QString symbol;
+   QString file;
    int     segment;
 };
 
@@ -14,7 +15,7 @@ class CSymbolWatchModel : public QAbstractTableModel
 {
    Q_OBJECT
 public:
-   explicit CSymbolWatchModel(QObject *parent = 0);
+   explicit CSymbolWatchModel(bool editable,QObject *parent = 0);
    virtual ~CSymbolWatchModel();
    Qt::ItemFlags flags(const QModelIndex& index) const;
    QVariant data(const QModelIndex& index, int role) const;
@@ -22,8 +23,9 @@ public:
    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-   void removeRow(int row, const QModelIndex &parent);
-   void insertRow(QString text, const QModelIndex &parent);
+   void removeRow(int row, const QModelIndex &parent = QModelIndex());
+   bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+   void insertRow(QString text, const QModelIndex &parent = QModelIndex());
 
    QList<WatchedItem> getItems() { return m_items; }
    void setItems(QList<WatchedItem> items) { m_items = items; }
@@ -38,6 +40,7 @@ private:
    QList<WatchedItem> m_items;
    int m_currentSortColumn;
    Qt::SortOrder m_currentSortOrder;
+   bool m_editable;
 };
 
 #endif // CSYMBOLWATCHMODEL_H

@@ -3,11 +3,20 @@
 
 #include "main.h"
 
+#include "ccc65interface.h"
+
 enum
 {
    SymbolWatchCol_Name,
    SymbolWatchCol_Address,
-   SymbolWatchCol_Value
+   SymbolWatchCol_Value,
+   SymbolWatchCol_File
+};
+
+enum
+{
+   Symbol_Watch_Window,
+   Symbol_RAM_Window
 };
 
 SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
@@ -15,31 +24,50 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    ui(new Ui::SymbolWatchDockWidget)
 {
    ui->setupUi(this);
-   model = new CSymbolWatchModel();
-   symbolDelegate = new CDebuggerSymbolDelegate();
-   valueDelegate = new CDebuggerNumericItemDelegate();
 
-   ui->tableView->setModel(model);
-   ui->tableView->setItemDelegateForColumn(SymbolWatchCol_Name,symbolDelegate);
-   ui->tableView->setItemDelegateForColumn(SymbolWatchCol_Value,valueDelegate);
-   ui->tableView->resizeColumnsToContents();
+   watchModel = new CSymbolWatchModel(true);
+   watchSymbolDelegate = new CDebuggerSymbolDelegate();
+   watchValueDelegate = new CDebuggerNumericItemDelegate();
 
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
-   QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
+   ramModel = new CSymbolWatchModel(false);
+   ramValueDelegate = new CDebuggerNumericItemDelegate();
 
-   QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
+   ui->watch->setModel(watchModel);
+   ui->watch->setItemDelegateForColumn(SymbolWatchCol_Name,watchSymbolDelegate);
+   ui->watch->setItemDelegateForColumn(SymbolWatchCol_Value,watchValueDelegate);
+   ui->watch->resizeColumnsToContents();
+
+   ui->ram->setModel(ramModel);
+   ui->ram->setItemDelegateForColumn(SymbolWatchCol_Value,ramValueDelegate);
+   ui->ram->resizeColumnsToContents();
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),watchModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),watchModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),watchModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),watchModel,SLOT(update()));
+   QObject::connect(ui->watch->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),watchModel,SLOT(sort(int,Qt::SortOrder)));
+   QObject::connect(watchModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),ramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),ramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),ramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
+   QObject::connect(ui->ram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),ramModel,SLOT(sort(int,Qt::SortOrder)));
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(updateVariables()));
+   QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(updateVariables()));
 }
 
 SymbolWatchDockWidget::~SymbolWatchDockWidget()
 {
    delete ui;
-   delete model;
-   delete valueDelegate;
-   delete symbolDelegate;
+   delete watchModel;
+   delete watchValueDelegate;
+   delete watchSymbolDelegate;
+   delete ramModel;
+   delete ramValueDelegate;
 }
 
 void SymbolWatchDockWidget::updateUi()
@@ -47,14 +75,37 @@ void SymbolWatchDockWidget::updateUi()
    emit markProjectDirty(true);
 }
 
+void SymbolWatchDockWidget::updateVariables()
+{
+   QStringList symbols = CCC65Interface::getSymbolsForSourceFile("");
+   int addr;
+
+   ramModel->removeRows(0,ramModel->rowCount());
+
+   foreach ( QString symbol,symbols )
+   {
+      addr = CCC65Interface::getSymbolAddress(symbol);
+      if ( addr < MEM_2KB )
+      {
+         // Symbol is in RAM...
+         ramModel->insertRow(symbol);
+      }
+   }
+
+   ramModel->update();
+}
+
 void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
 {
-   if ( (event->key() == Qt::Key_Delete) &&
-        (ui->tableView->currentIndex().row() >= 0) )
+   if ( ui->tabWidget->currentIndex() == Symbol_Watch_Window )
    {
-      model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
+      if ( (event->key() == Qt::Key_Delete) &&
+           (ui->watch->currentIndex().row() >= 0) )
+      {
+         watchModel->removeRow(ui->watch->currentIndex().row());
 
-      emit markProjectDirty(true);
+         emit markProjectDirty(true);
+      }
    }
 }
 
@@ -90,7 +141,9 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
    {
       text = event->mimeData()->text();
 
-      model->insertRow(text,QModelIndex());
+      ui->tabWidget->setCurrentIndex(Symbol_Watch_Window);
+
+      watchModel->insertRow(text);
 
       emit markProjectDirty(true);
 
@@ -100,13 +153,16 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
 
 void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-   QModelIndex index = ui->tableView->currentIndex();
+   QModelIndex index = ui->watch->currentIndex();
    QMenu menu;
 
    if ( index.isValid() )
    {
-      menu.addAction(ui->actionRemove_symbol);
-      menu.addSeparator();
+      if ( ui->tabWidget->currentIndex() == Symbol_Watch_Window )
+      {
+         menu.addAction(ui->actionRemove_symbol);
+         menu.addSeparator();
+      }
       menu.addAction(ui->actionBreak_on_CPU_access_here);
       menu.addAction(ui->actionBreak_on_CPU_read_here);
       menu.addAction(ui->actionBreak_on_CPU_write_here);
@@ -117,7 +173,8 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
-   model->update();
+   watchModel->update();
+   ramModel->update();
 }
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
@@ -127,7 +184,7 @@ void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "symbolinspector" );
-   QList<WatchedItem> items = model->getItems();
+   QList<WatchedItem> items = watchModel->getItems();
 
    for (int i=0; i < items.count(); i++)
    {
@@ -159,6 +216,7 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
 
                item.symbol = symbolElement.attribute("name");
                item.segment = symbolElement.attribute("segment","0").toInt();
+
                if ( !item.symbol.isEmpty() )
                {
                   items.append(item);
@@ -166,8 +224,8 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
                symbolNode = symbolNode.nextSibling();
             }
 
-            model->setItems(items);
-            model->update();
+            watchModel->setItems(items);
+            watchModel->update();
          }
       } while (!(childNode = childNode.nextSibling()).isNull());
    }
@@ -178,11 +236,25 @@ bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStri
 void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int row = ui->tableView->currentIndex().row();
-   QModelIndex index = model->index(row,SymbolWatchCol_Address);
-   bool ok;
-   int addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+   int row;
+   QModelIndex index;
+   int addr;
    int bpIdx;
+   bool ok;
+
+   switch ( ui->tabWidget->currentIndex() )
+   {
+   case Symbol_Watch_Window:
+      row = ui->watch->currentIndex().row();
+      index = watchModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_RAM_Window:
+      row = ui->ram->currentIndex().row();
+      index = ramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   }
 
    if ( ok )
    {
@@ -215,11 +287,25 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
 void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int row = ui->tableView->currentIndex().row();
-   QModelIndex index = model->index(row,SymbolWatchCol_Address);
-   bool ok;
-   int addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+   int row;
+   QModelIndex index;
+   int addr;
    int bpIdx;
+   bool ok;
+
+   switch ( ui->tabWidget->currentIndex() )
+   {
+   case Symbol_Watch_Window:
+      row = ui->watch->currentIndex().row();
+      index = watchModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_RAM_Window:
+      row = ui->ram->currentIndex().row();
+      index = ramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   }
 
    if ( ok )
    {
@@ -252,11 +338,25 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
 void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int row = ui->tableView->currentIndex().row();
-   QModelIndex index = model->index(row,SymbolWatchCol_Address);
-   bool ok;
-   int addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+   int row;
+   QModelIndex index;
+   int addr;
    int bpIdx;
+   bool ok;
+
+   switch ( ui->tabWidget->currentIndex() )
+   {
+   case Symbol_Watch_Window:
+      row = ui->watch->currentIndex().row();
+      index = watchModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_RAM_Window:
+      row = ui->ram->currentIndex().row();
+      index = ramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   }
 
    if ( ok )
    {
@@ -288,9 +388,9 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
 
 void SymbolWatchDockWidget::on_actionRemove_symbol_triggered()
 {
-   if ( ui->tableView->currentIndex().isValid() )
+   if ( ui->watch->currentIndex().isValid() )
    {
-      model->removeRow(ui->tableView->currentIndex().row(),QModelIndex());
+      watchModel->removeRow(ui->watch->currentIndex().row());
 
       emit markProjectDirty(true);
    }

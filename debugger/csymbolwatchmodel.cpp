@@ -9,11 +9,12 @@ static char modelStringBuffer [ 2048 ];
 
 static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
-CSymbolWatchModel::CSymbolWatchModel(QObject *parent) :
+CSymbolWatchModel::CSymbolWatchModel(bool editable,QObject *parent) :
     QAbstractTableModel(parent)
 {
    m_currentSortColumn = 0;
    m_currentSortOrder = Qt::DescendingOrder;
+   m_editable = editable;
 }
 
 CSymbolWatchModel::~CSymbolWatchModel()
@@ -23,7 +24,9 @@ CSymbolWatchModel::~CSymbolWatchModel()
 Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-   if ( index.column() != 1 )
+   if ( (m_editable) &&
+        (index.column() != 1) &&
+        (index.column() != 3) )
    {
       flags |= Qt::ItemIsEditable;
    }
@@ -92,6 +95,9 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
                return QVariant("ERROR: Unresolved");
             }
             break;
+         case 3:
+            return CCC65Interface::getSourceFileFromSymbol(m_items.at(index.row()).symbol);
+            break;
       }
    }
    else
@@ -122,30 +128,34 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
    switch ( index.column() )
    {
       case 0:
-         if ( index.row() < m_items.count() )
+         if ( m_editable )
          {
-            item.symbol = value.toString();
-            item.segment = resolveSymbol(value.toString());
-            m_items.replace(index.row(),item);
-            emit layoutChanged();
-            ok = true;
-         }
-         else
-         {
-            if ( (!value.toString().isEmpty()) &&
-                 (value != CLICK_TO_ADD_OR_EDIT) )
+            if ( index.row() < m_items.count() )
             {
-               beginInsertRows(QModelIndex(),m_items.count()+1,m_items.count()+1);
                item.symbol = value.toString();
                item.segment = resolveSymbol(value.toString());
-               m_items.append(item);
-               endInsertRows();
-
+               m_items.replace(index.row(),item);
+               emit layoutChanged();
                ok = true;
+            }
+            else
+            {
+               if ( (!value.toString().isEmpty()) &&
+                    (value != CLICK_TO_ADD_OR_EDIT) )
+               {
+                  beginInsertRows(QModelIndex(),m_items.count()+1,m_items.count()+1);
+                  item.symbol = value.toString();
+                  item.segment = resolveSymbol(value.toString());
+                  m_items.append(item);
+                  endInsertRows();
+
+                  ok = true;
+               }
             }
          }
          break;
       case 1:
+      case 3:
          ok = false;
          break;
       case 2:
@@ -184,6 +194,9 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
       case 2:
          return QString("Value");
          break;
+      case 3:
+         return QString("File");
+         break;
       }
    }
    return QVariant();
@@ -191,12 +204,19 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
 
 int CSymbolWatchModel::rowCount(const QModelIndex&) const
 {
-   return m_items.count()+1;
+   if ( m_editable )
+   {
+      return m_items.count()+1;
+   }
+   else
+   {
+      return m_items.count();
+   }
 }
 
 int CSymbolWatchModel::columnCount(const QModelIndex&) const
 {
-   return 3;
+   return 4;
 }
 
 void CSymbolWatchModel::update()
@@ -212,6 +232,23 @@ void CSymbolWatchModel::removeRow(int row, const QModelIndex &parent)
       m_items.removeAt(row);
       endRemoveRows();
    }
+}
+
+bool CSymbolWatchModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+   int idx;
+
+   if ( row < m_items.count() )
+   {
+      beginRemoveRows(parent,row,row);
+      for ( idx = 0; idx < count; idx++ )
+      {
+         m_items.removeAt(row);
+      }
+      endRemoveRows();
+      return true;
+   }
+   return false;
 }
 
 void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
@@ -303,6 +340,23 @@ void CSymbolWatchModel::sort(int column, Qt::SortOrder order)
                break;
             case Qt::DescendingOrder:
                if ( item2.symbol > item1.symbol )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            }
+            break;
+         case 3:
+            switch ( order )
+            {
+            case Qt::AscendingOrder:
+               if ( item1.file > item2.file )
+               {
+                  m_items.swap(idx1,idx2);
+               }
+               break;
+            case Qt::DescendingOrder:
+               if ( item2.file > item1.file )
                {
                   m_items.swap(idx1,idx2);
                }

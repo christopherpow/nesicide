@@ -35,15 +35,18 @@ protected:
 
 private:
    Ui::SymbolWatchDockWidget *ui;
-   CSymbolWatchModel* model;
-   CDebuggerSymbolDelegate* symbolDelegate;
-   CDebuggerNumericItemDelegate* valueDelegate;
+   CSymbolWatchModel* watchModel;
+   CDebuggerSymbolDelegate* watchSymbolDelegate;
+   CDebuggerNumericItemDelegate* watchValueDelegate;
+   CSymbolWatchModel* ramModel;
+   CDebuggerNumericItemDelegate* ramValueDelegate;
 
 signals:
    void breakpointsChanged();
 
 private slots:
    void updateUi();
+   void updateVariables();
    void on_actionRemove_symbol_triggered();
    void on_actionBreak_on_CPU_access_here_triggered();
    void on_actionBreak_on_CPU_read_here_triggered();
