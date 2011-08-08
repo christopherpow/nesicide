@@ -401,6 +401,13 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
 
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);
+
+   // Only display resolutions for addresses in PRG-ROM space.
+   if ( originalAddr < MEM_32KB )
+   {
+      ui->resolve->setChecked(false);
+   }
+
    // Mask to get all available potential absolute addresses
    maskedAddr = originalAddr&MASK_8KB;
 
@@ -627,16 +634,28 @@ void BreakpointDialog::on_addBreakpoint_clicked()
    }
    else
    {
-      if ( nesGetPRGROMSize() )
+      // If the virtual address is in PRG-ROM space, convert it to physical for
+      // the absolute address.  Otherwise, the virtual *is* the physical address.
+      // CPTODO: This may need to be revisited for mappers that can put PRG-ROM in
+      // SRAM space.
+      if ( item1 >= MEM_32KB )
       {
-         item1Absolute = item1%nesGetPRGROMSize();
+         // If there's more than 16KB of PRG-ROM then the
+         // physical address is simply the offset into the PRG-ROM.
+         item1Absolute = (item1-MEM_32KB)%nesGetPRGROMSize();
+      }
+      else if ( item1 >= 0x6000 )
+      {
+         // CPTODO: For now assume identity mapped SRAM.
+         item1Absolute = (item1-0x6000);
       }
       else
       {
-         // CPTODO: hacky, shouldn't have to do this...but ugh!
-         item1Absolute = item1%MEM_16KB;
+         // Virtual is physical if address is less than $8000.
+         item1Absolute = item1;
       }
    }
+
    pBreakpoints->ConstructBreakpoint ( &m_breakpoint,
                                        (eBreakpointType)ui->type->currentIndex(),
                                        (eBreakpointItemType)ui->itemWidget->currentIndex(),
@@ -651,11 +670,6 @@ void BreakpointDialog::on_addBreakpoint_clicked()
                                        ui->enabled->isChecked() );
 
    accept();
-}
-
-void BreakpointDialog::on_resolutions_activated(int index)
-{
-
 }
 
 void BreakpointDialog::on_resolve_clicked()

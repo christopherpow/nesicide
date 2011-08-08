@@ -33,7 +33,6 @@ private:
 
 private slots:
    void on_resolve_clicked();
-   void on_resolutions_activated(int index);
    void on_addBreakpoint_clicked();
    void on_cancel_clicked();
    void on_addr1_textChanged(QString text);
