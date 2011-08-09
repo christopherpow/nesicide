@@ -60,6 +60,7 @@ private:
    QList<ProfiledItem> m_items;
    int m_currentSortColumn;
    Qt::SortOrder m_currentSortOrder;
+   int m_currentItemCount;
 };
 
 #endif // CDEBUGGERCODEPROFILERMODEL_H

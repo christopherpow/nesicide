@@ -7,14 +7,6 @@
 
 enum
 {
-   SymbolWatchCol_Name,
-   SymbolWatchCol_Address,
-   SymbolWatchCol_Value,
-   SymbolWatchCol_File
-};
-
-enum
-{
    Symbol_Watch_Window,
    Symbol_RAM_Window,
    Symbol_SRAM_Window,
@@ -41,7 +33,7 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    exramValueDelegate = new CDebuggerNumericItemDelegate();
 
    ui->watch->setModel(watchModel);
-   ui->watch->setItemDelegateForColumn(SymbolWatchCol_Name,watchSymbolDelegate);
+   ui->watch->setItemDelegateForColumn(SymbolWatchCol_Symbol,watchSymbolDelegate);
    ui->watch->setItemDelegateForColumn(SymbolWatchCol_Value,watchValueDelegate);
    ui->watch->resizeColumnsToContents();
 

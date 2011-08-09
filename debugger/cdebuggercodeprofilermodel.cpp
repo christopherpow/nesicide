@@ -14,6 +14,7 @@ CDebuggerCodeProfilerModel::CDebuggerCodeProfilerModel(QObject *parent) :
 {
    m_currentSortColumn = CodeProfilerCol_Symbol;
    m_currentSortOrder = Qt::DescendingOrder;
+   m_currentItemCount = 0;
 }
 
 CDebuggerCodeProfilerModel::~CDebuggerCodeProfilerModel()
@@ -182,7 +183,8 @@ void CDebuggerCodeProfilerModel::sort(int column, Qt::SortOrder order)
    unsigned int uiData2;
 
    if ( (column != m_currentSortColumn) ||
-        (order != m_currentSortOrder) )
+        (order != m_currentSortOrder) ||
+        (m_items.count() != m_currentItemCount) )
    {
       for ( idx1 = 0; idx1 < m_items.count(); idx1++ )
       {
@@ -192,7 +194,7 @@ void CDebuggerCodeProfilerModel::sort(int column, Qt::SortOrder order)
             {
             case CodeProfilerCol_Size:
             case CodeProfilerCol_Calls:
-               // The count column requires integer sorting.
+               // These columns require integer sorting.
                uiData1 = data(index(idx1,column),Qt::DisplayRole).toInt();
                uiData2 = data(index(idx2,column),Qt::DisplayRole).toInt();
                switch ( order )
@@ -238,6 +240,7 @@ void CDebuggerCodeProfilerModel::sort(int column, Qt::SortOrder order)
 
    m_currentSortColumn = column;
    m_currentSortOrder = order;
+   m_currentItemCount = m_items.count();
 
    emit layoutChanged();
 }

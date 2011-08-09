@@ -12,8 +12,9 @@ static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 CSymbolWatchModel::CSymbolWatchModel(bool editable,QObject *parent) :
     QAbstractTableModel(parent)
 {
-   m_currentSortColumn = 0;
+   m_currentSortColumn = SymbolWatchCol_Symbol;
    m_currentSortOrder = Qt::DescendingOrder;
+   m_currentItemCount = 0;
    m_editable = editable;
 }
 
@@ -24,13 +25,13 @@ CSymbolWatchModel::~CSymbolWatchModel()
 Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-   if ( (m_editable) &&
-        (index.column() != 1) &&
-        (index.column() != 3) )
+   if ( ((m_editable) &&
+        (index.column() == SymbolWatchCol_Symbol)) ||
+        (index.column() == SymbolWatchCol_Value) )
    {
       flags |= Qt::ItemIsEditable;
    }
-   if ( (index.column() == 0) &&
+   if ( (index.column() == SymbolWatchCol_Symbol) &&
         (index.row() < m_items.count()) )
    {
       flags |= Qt::ItemIsDragEnabled;
@@ -66,10 +67,10 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
 
       switch ( index.column() )
       {
-         case 0:
+         case SymbolWatchCol_Symbol:
             return m_items.at(index.row()).symbol;
             break;
-         case 1:
+         case SymbolWatchCol_Address:
             // Get symbol's information based on its name and index.
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,idx);
             absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,idx);
@@ -83,7 +84,10 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
                return QVariant("ERROR: Unresolved");
             }
             break;
-         case 2:
+         case SymbolWatchCol_Size:
+            return QVariant(m_items.at(index.row()).size);
+            break;
+         case SymbolWatchCol_Value:
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,idx);
             if ( addr != -1 )
             {
@@ -95,7 +99,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
                return QVariant("ERROR: Unresolved");
             }
             break;
-         case 3:
+         case SymbolWatchCol_File:
             return CCC65Interface::getSourceFileFromSymbol(m_items.at(index.row()).symbol);
             break;
       }
@@ -104,7 +108,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    {
       switch ( index.column() )
       {
-         case 0:
+         case SymbolWatchCol_Symbol:
             return QVariant(CLICK_TO_ADD_OR_EDIT);
             break;
       }
@@ -127,13 +131,14 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
 
    switch ( index.column() )
    {
-      case 0:
+      case SymbolWatchCol_Symbol:
          if ( m_editable )
          {
             if ( index.row() < m_items.count() )
             {
                item.symbol = value.toString();
                item.segment = resolveSymbol(value.toString());
+               item.size = CCC65Interface::getSymbolSize(value.toString());
                m_items.replace(index.row(),item);
                emit layoutChanged();
                ok = true;
@@ -146,6 +151,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
                   beginInsertRows(QModelIndex(),m_items.count()+1,m_items.count()+1);
                   item.symbol = value.toString();
                   item.segment = resolveSymbol(value.toString());
+                  item.size = CCC65Interface::getSymbolSize(value.toString());
                   m_items.append(item);
                   endInsertRows();
 
@@ -154,11 +160,10 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
             }
          }
          break;
-      case 1:
-      case 3:
+      default:
          ok = false;
          break;
-      case 2:
+      case SymbolWatchCol_Value:
          if ( index.row() < m_items.count() )
          {
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol);
@@ -185,16 +190,19 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
    {
       switch ( section )
       {
-      case 0:
+      case SymbolWatchCol_Symbol:
          return QString("Symbol");
          break;
-      case 1:
+      case SymbolWatchCol_Address:
          return QString("Address");
          break;
-      case 2:
+      case SymbolWatchCol_Size:
+         return QString("Size");
+         break;
+      case SymbolWatchCol_Value:
          return QString("Value");
          break;
-      case 3:
+      case SymbolWatchCol_File:
          return QString("File");
          break;
       }
@@ -216,7 +224,7 @@ int CSymbolWatchModel::rowCount(const QModelIndex&) const
 
 int CSymbolWatchModel::columnCount(const QModelIndex&) const
 {
-   return 4;
+   return SymbolWatchCol_MAX;
 }
 
 void CSymbolWatchModel::update()
@@ -258,6 +266,7 @@ void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
    beginInsertRows(parent,m_items.count(),m_items.count());
    item.symbol = text;
    item.segment = resolveSymbol(text);
+   item.size = CCC65Interface::getSymbolSize(text);
    m_items.append(item);
    endInsertRows();
 }
@@ -320,58 +329,65 @@ void CSymbolWatchModel::sort(int column, Qt::SortOrder order)
    unsigned int uiData1;
    unsigned int uiData2;
 
-   m_currentSortColumn = column;
-   m_currentSortOrder = order;
-
-   for ( idx1 = 0; idx1 < m_items.count(); idx1++ )
+   if ( (m_currentSortColumn != column) ||
+        (m_currentSortOrder != order) ||
+        (m_currentItemCount != m_items.count()) )
    {
-      for ( idx2 = idx1; idx2 < m_items.count(); idx2++ )
+      for ( idx1 = 0; idx1 < m_items.count(); idx1++ )
       {
-         switch ( column )
+         for ( idx2 = idx1; idx2 < m_items.count(); idx2++ )
          {
-         case 2:
-            // The count column requires integer sorting.
-            uiData1 = data(index(idx1,column),Qt::DisplayRole).toString().toInt(NULL,16);
-            uiData2 = data(index(idx2,column),Qt::DisplayRole).toString().toInt(NULL,16);
-            switch ( order )
+            switch ( column )
             {
-            case Qt::AscendingOrder:
-               if ( uiData1 > uiData2 )
+            case SymbolWatchCol_Size:
+            case SymbolWatchCol_Value:
+               // These columns require integer sort.
+               uiData1 = data(index(idx1,column),Qt::DisplayRole).toString().toInt(NULL,16);
+               uiData2 = data(index(idx2,column),Qt::DisplayRole).toString().toInt(NULL,16);
+               switch ( order )
                {
-                  m_items.swap(idx1,idx2);
+               case Qt::AscendingOrder:
+                  if ( uiData1 > uiData2 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
+               case Qt::DescendingOrder:
+                  if ( uiData2 > uiData1 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
                }
                break;
-            case Qt::DescendingOrder:
-               if ( uiData2 > uiData1 )
+            default:
+               // Every other column can use string sorting.
+               strData1 = data(index(idx1,column),Qt::DisplayRole).toString();
+               strData2 = data(index(idx2,column),Qt::DisplayRole).toString();
+               switch ( order )
                {
-                  m_items.swap(idx1,idx2);
+               case Qt::AscendingOrder:
+                  if ( strData1 > strData2 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
+               case Qt::DescendingOrder:
+                  if ( strData2 > strData1 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
                }
                break;
             }
-            break;
-         default:
-            // Every other column can use string sorting.
-            strData1 = data(index(idx1,column),Qt::DisplayRole).toString();
-            strData2 = data(index(idx2,column),Qt::DisplayRole).toString();
-            switch ( order )
-            {
-            case Qt::AscendingOrder:
-               if ( strData1 > strData2 )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            case Qt::DescendingOrder:
-               if ( strData2 > strData1 )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            }
-            break;
          }
       }
    }
+
+   m_currentSortColumn = column;
+   m_currentSortOrder = order;
+   m_currentItemCount = m_items.count();
 
    emit layoutChanged();
 }

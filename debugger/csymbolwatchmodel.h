@@ -4,11 +4,22 @@
 #include <QAbstractTableModel>
 #include <QList>
 
+enum
+{
+   SymbolWatchCol_Symbol = 0,
+   SymbolWatchCol_Address,
+   SymbolWatchCol_Size,
+   SymbolWatchCol_Value,
+   SymbolWatchCol_File,
+   SymbolWatchCol_MAX
+};
+
 struct WatchedItem
 {
    QString symbol;
    QString file;
    int     segment;
+   int     size;
 };
 
 class CSymbolWatchModel : public QAbstractTableModel
@@ -40,6 +51,7 @@ private:
    QList<WatchedItem> m_items;
    int m_currentSortColumn;
    Qt::SortOrder m_currentSortOrder;
+   int m_currentItemCount;
    bool m_editable;
 };
 
