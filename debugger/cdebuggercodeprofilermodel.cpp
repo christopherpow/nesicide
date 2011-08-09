@@ -12,7 +12,7 @@ static char modelStringBuffer [ 2048 ];
 CDebuggerCodeProfilerModel::CDebuggerCodeProfilerModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
-   m_currentSortColumn = 0;
+   m_currentSortColumn = CodeProfilerCol_Symbol;
    m_currentSortOrder = Qt::DescendingOrder;
 }
 
@@ -23,7 +23,7 @@ CDebuggerCodeProfilerModel::~CDebuggerCodeProfilerModel()
 Qt::ItemFlags CDebuggerCodeProfilerModel::flags(const QModelIndex& index) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-   if ( index.column() == 0 )
+   if ( index.column() == CodeProfilerCol_Symbol )
    {
       flags |= Qt::ItemIsDragEnabled;
    }
@@ -65,18 +65,21 @@ QVariant CDebuggerCodeProfilerModel::data(const QModelIndex& index, int role) co
    // Get data for columns...
    switch ( index.column() )
    {
-      case 0:
-         return m_items.at(index.row()).symbol;
-         break;
-      case 1:
-         return m_items.at(index.row()).address;
-         break;
-      case 2:
-         return QVariant(m_items.at(index.row()).count);
-         break;
-      case 3:
-         return m_items.at(index.row()).file;
-         break;
+   case CodeProfilerCol_Symbol:
+      return m_items.at(index.row()).symbol;
+      break;
+   case CodeProfilerCol_Address:
+      return m_items.at(index.row()).address;
+      break;
+   case CodeProfilerCol_Size:
+      return QVariant(m_items.at(index.row()).size);
+      break;
+   case CodeProfilerCol_Calls:
+      return QVariant(m_items.at(index.row()).count);
+      break;
+   case CodeProfilerCol_File:
+      return m_items.at(index.row()).file;
+      break;
    }
    return QVariant();
 }
@@ -92,16 +95,19 @@ QVariant CDebuggerCodeProfilerModel::headerData(int section, Qt::Orientation ori
    {
       switch ( section )
       {
-      case 0:
+      case CodeProfilerCol_Symbol:
          return QString("Symbol");
          break;
-      case 1:
+      case CodeProfilerCol_Address:
          return QString("Address");
          break;
-      case 2:
+      case CodeProfilerCol_Size:
+         return QString("Size");
+         break;
+      case CodeProfilerCol_Calls:
          return QString("# Calls");
          break;
-      case 3:
+      case CodeProfilerCol_File:
          return QString("File");
          break;
       }
@@ -116,7 +122,7 @@ int CDebuggerCodeProfilerModel::rowCount(const QModelIndex&) const
 
 int CDebuggerCodeProfilerModel::columnCount(const QModelIndex&) const
 {
-   return 4;
+   return CodeProfilerCol_MAX;
 }
 
 void CDebuggerCodeProfilerModel::update()
@@ -128,26 +134,37 @@ void CDebuggerCodeProfilerModel::update()
    ProfiledItem item;
    QFileInfo fileInfo;
 
-   m_items.clear();
    foreach ( QString symbol, symbols )
    {
-      addr = CCC65Interface::getSymbolAddress(symbol);
-      absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
-
-      if ( addr >= MEM_32KB )
+      // CPTODO: Temporary hack to get around temporary labels.
+      if ( !symbol.startsWith('@') )
       {
-         pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
-         if ( (pLogger->GetCount(addr&MASK_8KB)) &&
-              (pLogger->GetType(addr&MASK_8KB) == eLogger_InstructionFetch) )
-         {
-            item.symbol = symbol;
-            item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
-            fileInfo.setFile(item.file);
+         addr = CCC65Interface::getSymbolAddress(symbol);
+         absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
 
-            nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
-            item.address = modelStringBuffer;
-            item.count = pLogger->GetCount(addr&MASK_8KB);
-            m_items.append(item);
+         if ( (absAddr != -1) && (addr >= MEM_32KB) )
+         {
+            pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
+            if ( (pLogger->GetCount(addr&MASK_8KB)) &&
+                 (pLogger->GetType(addr&MASK_8KB) == eLogger_InstructionFetch) )
+            {
+               item.symbol = symbol;
+               item.size = CCC65Interface::getSymbolSize(symbol);
+               item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
+               fileInfo.setFile(item.file);
+
+               nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+               item.address = modelStringBuffer;
+               item.count = pLogger->GetCount(addr&MASK_8KB);
+               if ( !m_items.contains(item) )
+               {
+                  m_items.append(item);
+               }
+               else
+               {
+                  m_items.replace(m_items.indexOf(item),item);
+               }
+            }
          }
       }
    }
@@ -159,91 +176,68 @@ void CDebuggerCodeProfilerModel::sort(int column, Qt::SortOrder order)
 {
    int idx1;
    int idx2;
-   ProfiledItem item1;
-   ProfiledItem item2;
+   QString strData1;
+   QString strData2;
+   unsigned int uiData1;
+   unsigned int uiData2;
 
-   m_currentSortColumn = column;
-   m_currentSortOrder = order;
-
-   for ( idx1 = 0; idx1 < m_items.count(); idx1++ )
+   if ( (column != m_currentSortColumn) ||
+        (order != m_currentSortOrder) )
    {
-      for ( idx2 = idx1; idx2 < m_items.count(); idx2++ )
+      for ( idx1 = 0; idx1 < m_items.count(); idx1++ )
       {
-         item1 = m_items.at(idx1);
-         item2 = m_items.at(idx2);
-         switch ( column )
+         for ( idx2 = idx1; idx2 < m_items.count(); idx2++ )
          {
-         case 0:
-            switch ( order )
+            switch ( column )
             {
-            case Qt::AscendingOrder:
-               if ( item1.symbol > item2.symbol )
+            case CodeProfilerCol_Size:
+            case CodeProfilerCol_Calls:
+               // The count column requires integer sorting.
+               uiData1 = data(index(idx1,column),Qt::DisplayRole).toInt();
+               uiData2 = data(index(idx2,column),Qt::DisplayRole).toInt();
+               switch ( order )
                {
-                  m_items.swap(idx1,idx2);
+               case Qt::AscendingOrder:
+                  if ( uiData1 > uiData2 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
+               case Qt::DescendingOrder:
+                  if ( uiData2 > uiData1 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
                }
                break;
-            case Qt::DescendingOrder:
-               if ( item2.symbol > item1.symbol )
+            default:
+               // Every other column can use string sorting.
+               strData1 = data(index(idx1,column),Qt::DisplayRole).toString();
+               strData2 = data(index(idx2,column),Qt::DisplayRole).toString();
+               switch ( order )
                {
-                  m_items.swap(idx1,idx2);
+               case Qt::AscendingOrder:
+                  if ( strData1 > strData2 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
+               case Qt::DescendingOrder:
+                  if ( strData2 > strData1 )
+                  {
+                     m_items.swap(idx1,idx2);
+                  }
+                  break;
                }
                break;
             }
-            break;
-         case 1:
-            switch ( order )
-            {
-            case Qt::AscendingOrder:
-               if ( item1.address > item2.address )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            case Qt::DescendingOrder:
-               if ( item2.address > item1.address )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            }
-            break;
-         case 2:
-            switch ( order )
-            {
-            case Qt::AscendingOrder:
-               if ( item1.count > item2.count )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            case Qt::DescendingOrder:
-               if ( item2.count > item1.count )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            }
-            break;
-         case 3:
-            switch ( order )
-            {
-            case Qt::AscendingOrder:
-               if ( item1.file > item2.file )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            case Qt::DescendingOrder:
-               if ( item2.file > item1.file )
-               {
-                  m_items.swap(idx1,idx2);
-               }
-               break;
-            }
-            break;
          }
       }
    }
+
+   m_currentSortColumn = column;
+   m_currentSortOrder = order;
 
    emit layoutChanged();
 }

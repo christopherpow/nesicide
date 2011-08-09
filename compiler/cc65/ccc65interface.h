@@ -20,6 +20,7 @@ public:
    static bool captureDebugInfo();
    static bool captureINESImage();
    static QStringList getSourceFiles();
+   static unsigned int getSourceFileModificationTime(QString sourceFile);
    static QStringList getSymbolsForSourceFile(QString sourceFile);
    static int getSymbolMatchCount(QString symbol);
    static unsigned int getSymbolAddress(QString symbol,int index = 0);

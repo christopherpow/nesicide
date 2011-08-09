@@ -58,6 +58,9 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="movable">
+       <bool>false</bool>
+      </property>
       <widget class="QWidget" name="square1">
        <attribute name="title">
         <string>Square1</string>

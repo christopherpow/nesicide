@@ -40,8 +40,8 @@ Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
 
 QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
 {
-   unsigned int addr;
-   unsigned int absAddr;
+   int addr;
+   int absAddr;
    QString data;
    int count;
    int idx;
@@ -73,7 +73,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             // Get symbol's information based on its name and index.
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,idx);
             absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,idx);
-            if ( addr != 0xFFFFFFFF )
+            if ( addr != -1 )
             {
                nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
                return QVariant(modelStringBuffer);
@@ -85,7 +85,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             break;
          case 2:
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,idx);
-            if ( addr != 0xFFFFFFFF )
+            if ( addr != -1 )
             {
                sprintf(modelStringBuffer,"%02X",nesGetMemory(addr));
                return QVariant(modelStringBuffer);
@@ -315,8 +315,10 @@ void CSymbolWatchModel::sort(int column, Qt::SortOrder order)
 {
    int idx1;
    int idx2;
-   WatchedItem item1;
-   WatchedItem item2;
+   QString strData1;
+   QString strData2;
+   unsigned int uiData1;
+   unsigned int uiData2;
 
    m_currentSortColumn = column;
    m_currentSortOrder = order;
@@ -325,38 +327,42 @@ void CSymbolWatchModel::sort(int column, Qt::SortOrder order)
    {
       for ( idx2 = idx1; idx2 < m_items.count(); idx2++ )
       {
-         item1 = m_items.at(idx1);
-         item2 = m_items.at(idx2);
          switch ( column )
          {
-         case 0:
+         case 2:
+            // The count column requires integer sorting.
+            uiData1 = data(index(idx1,column),Qt::DisplayRole).toString().toInt(NULL,16);
+            uiData2 = data(index(idx2,column),Qt::DisplayRole).toString().toInt(NULL,16);
             switch ( order )
             {
             case Qt::AscendingOrder:
-               if ( item1.symbol > item2.symbol )
+               if ( uiData1 > uiData2 )
                {
                   m_items.swap(idx1,idx2);
                }
                break;
             case Qt::DescendingOrder:
-               if ( item2.symbol > item1.symbol )
+               if ( uiData2 > uiData1 )
                {
                   m_items.swap(idx1,idx2);
                }
                break;
             }
             break;
-         case 3:
+         default:
+            // Every other column can use string sorting.
+            strData1 = data(index(idx1,column),Qt::DisplayRole).toString();
+            strData2 = data(index(idx2,column),Qt::DisplayRole).toString();
             switch ( order )
             {
             case Qt::AscendingOrder:
-               if ( item1.file > item2.file )
+               if ( strData1 > strData2 )
                {
                   m_items.swap(idx1,idx2);
                }
                break;
             case Qt::DescendingOrder:
-               if ( item2.file > item1.file )
+               if ( strData2 > strData1 )
                {
                   m_items.swap(idx1,idx2);
                }

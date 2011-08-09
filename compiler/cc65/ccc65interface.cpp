@@ -15,15 +15,17 @@ QStringList         CCC65Interface::errors;
 static const char* clangTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(COMPILE) --create-dep $(@:.o=.d) $(CFLAGS) -o $@ $<\r\n\r\n"
+      "\t$(COMPILE) --create-dep $(@:.o=.d) -c $(CFLAGS) -o $@ $<\r\n\r\n"
       ;
+// CPTODO: This compiles a .s from a .c but not sure I want it yet:
+// "\t$(COMPILE) -S $(CFLAGS) $<\r\n\r\n"
+// (otherwise the .s from a .c is thrown away by cl65)
 
 static const char* asmTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
       "\t$(ASSEMBLE) --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<\r\n\r\n"
       ;
-
 
 CCC65Interface::CCC65Interface()
 {
@@ -362,6 +364,31 @@ QStringList CCC65Interface::getSourceFiles()
    return files;
 }
 
+unsigned int CCC65Interface::getSourceFileModificationTime(QString sourceFile)
+{
+   unsigned int mtime = -1;
+   int file;
+
+   if ( dbgInfo )
+   {
+      cc65_free_sourceinfo(dbgInfo,dbgSources);
+      dbgSources = cc65_get_sourcelist(dbgInfo);
+
+      if ( dbgSources )
+      {
+         for ( file = 0; file < dbgSources->count; file++ )
+         {
+            if ( sourceFile == dbgSources->data[file].source_name )
+            {
+               mtime = dbgSources->data[file].source_mtime;
+               break;
+            }
+         }
+      }
+   }
+   return mtime;
+}
+
 QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
 {
    QStringList symbols;
@@ -422,6 +449,7 @@ unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
          {
             addr = dbgSymbols->data[index].symbol_value;
             dbgSegments = cc65_segmentinfo_byid(dbgInfo,dbgSymbols->data[index].symbol_segment);
+
             if ( dbgSegments )
             {
                if ( dbgSegments->count == 1 )

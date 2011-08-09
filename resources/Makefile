@@ -38,7 +38,7 @@ CONFIG := $(subst \,/,$(CONFIG))
 
 # Additional C compiler flags and options.
 # Default: none
-CFLAGS  = -c -g --debug-info <!compiler-flags!>
+CFLAGS  = -g --debug-info <!compiler-flags!>
 
 # Get rid of Windows path wonkiness.
 CFLAGS := $(subst \,/,$(CFLAGS))

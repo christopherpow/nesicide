@@ -16,7 +16,9 @@ enum
 enum
 {
    Symbol_Watch_Window,
-   Symbol_RAM_Window
+   Symbol_RAM_Window,
+   Symbol_SRAM_Window,
+   Symbol_EXRAM_Window
 };
 
 SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
@@ -32,6 +34,12 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    ramModel = new CSymbolWatchModel(false);
    ramValueDelegate = new CDebuggerNumericItemDelegate();
 
+   sramModel = new CSymbolWatchModel(false);
+   sramValueDelegate = new CDebuggerNumericItemDelegate();
+
+   exramModel = new CSymbolWatchModel(false);
+   exramValueDelegate = new CDebuggerNumericItemDelegate();
+
    ui->watch->setModel(watchModel);
    ui->watch->setItemDelegateForColumn(SymbolWatchCol_Name,watchSymbolDelegate);
    ui->watch->setItemDelegateForColumn(SymbolWatchCol_Value,watchValueDelegate);
@@ -40,6 +48,14 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    ui->ram->setModel(ramModel);
    ui->ram->setItemDelegateForColumn(SymbolWatchCol_Value,ramValueDelegate);
    ui->ram->resizeColumnsToContents();
+
+   ui->sram->setModel(sramModel);
+   ui->sram->setItemDelegateForColumn(SymbolWatchCol_Value,sramValueDelegate);
+   ui->sram->resizeColumnsToContents();
+
+   ui->exram->setModel(exramModel);
+   ui->exram->setItemDelegateForColumn(SymbolWatchCol_Value,exramValueDelegate);
+   ui->exram->resizeColumnsToContents();
 
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),watchModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),watchModel,SLOT(update()));
@@ -56,6 +72,20 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
    QObject::connect(ui->ram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),ramModel,SLOT(sort(int,Qt::SortOrder)));
 
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),sramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),sramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),sramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),sramModel,SLOT(update()));
+   QObject::connect(ui->sram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),sramModel,SLOT(sort(int,Qt::SortOrder)));
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),exramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),exramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),exramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),exramModel,SLOT(update()));
+   QObject::connect(ui->exram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),exramModel,SLOT(sort(int,Qt::SortOrder)));
+
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(updateVariables()));
    QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(updateVariables()));
 }
@@ -68,6 +98,10 @@ SymbolWatchDockWidget::~SymbolWatchDockWidget()
    delete watchSymbolDelegate;
    delete ramModel;
    delete ramValueDelegate;
+   delete sramModel;
+   delete sramValueDelegate;
+   delete exramModel;
+   delete exramValueDelegate;
 }
 
 void SymbolWatchDockWidget::updateUi()
@@ -81,7 +115,8 @@ void SymbolWatchDockWidget::updateVariables()
    int addr;
 
    ramModel->removeRows(0,ramModel->rowCount());
-
+   sramModel->removeRows(0,sramModel->rowCount());
+   exramModel->removeRows(0,exramModel->rowCount());
    foreach ( QString symbol,symbols )
    {
       addr = CCC65Interface::getSymbolAddress(symbol);
@@ -90,9 +125,20 @@ void SymbolWatchDockWidget::updateVariables()
          // Symbol is in RAM...
          ramModel->insertRow(symbol);
       }
+      else if ( (addr >= 0x5C00) && (addr < 0x6000) )
+      {
+         // Symbol is in EXRAM...
+         exramModel->insertRow(symbol);
+      }
+      else if ( (addr >= 0x6000) && (addr < 0x8000) )
+      {
+         // Symbol is in SRAM...
+         sramModel->insertRow(symbol);
+      }
    }
-
    ramModel->update();
+   sramModel->update();
+   exramModel->update();
 }
 
 void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
@@ -153,8 +199,24 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
 
 void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-   QModelIndex index = ui->watch->currentIndex();
+   QModelIndex index;
    QMenu menu;
+
+   switch ( ui->tabWidget->currentIndex() )
+   {
+   case Symbol_Watch_Window:
+      index = ui->watch->currentIndex();
+      break;
+   case Symbol_RAM_Window:
+      index = ui->ram->currentIndex();
+      break;
+   case Symbol_SRAM_Window:
+      index = ui->sram->currentIndex();
+      break;
+   case Symbol_EXRAM_Window:
+      index = ui->exram->currentIndex();
+      break;
+   }
 
    if ( index.isValid() )
    {
@@ -175,6 +237,8 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
    watchModel->update();
    ramModel->update();
+   sramModel->update();
+   exramModel->update();
 }
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
@@ -254,6 +318,16 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
       index = ramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
+   case Symbol_SRAM_Window:
+      row = ui->sram->currentIndex().row();
+      index = sramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_EXRAM_Window:
+      row = ui->exram->currentIndex().row();
+      index = exramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
    }
 
    if ( ok )
@@ -305,6 +379,16 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
       index = ramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
+   case Symbol_SRAM_Window:
+      row = ui->sram->currentIndex().row();
+      index = sramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_EXRAM_Window:
+      row = ui->exram->currentIndex().row();
+      index = exramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
    }
 
    if ( ok )
@@ -354,6 +438,16 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
    case Symbol_RAM_Window:
       row = ui->ram->currentIndex().row();
       index = ramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_SRAM_Window:
+      row = ui->sram->currentIndex().row();
+      index = sramModel->index(row,SymbolWatchCol_Address);
+      addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   case Symbol_EXRAM_Window:
+      row = ui->exram->currentIndex().row();
+      index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    }

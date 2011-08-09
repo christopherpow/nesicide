@@ -21,7 +21,7 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(CProjectTabWidget* pTarget, QWidg
 
    ui->tableView->sortByColumn(2,Qt::DescendingOrder);
 
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(on_clear_clicked()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
@@ -184,5 +184,6 @@ void CodeProfilerDockWidget::on_clear_clicked()
 {
    nesClearCodeDataLoggerDatabases();
 
+   model->clear();
    model->update();
 }

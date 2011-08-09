@@ -40,6 +40,10 @@ private:
    CDebuggerNumericItemDelegate* watchValueDelegate;
    CSymbolWatchModel* ramModel;
    CDebuggerNumericItemDelegate* ramValueDelegate;
+   CSymbolWatchModel* sramModel;
+   CDebuggerNumericItemDelegate* sramValueDelegate;
+   CSymbolWatchModel* exramModel;
+   CDebuggerNumericItemDelegate* exramValueDelegate;
 
 signals:
    void breakpointsChanged();

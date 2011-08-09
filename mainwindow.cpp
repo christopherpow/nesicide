@@ -562,9 +562,7 @@ void MainWindow::projectDataChangesEvent()
    ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
    ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
    ui->actionClean_Project->setEnabled(nesicideProject->isInitialized());
-
-   // Enable/Disable actions based on if we have a project loaded or not and a good compile
-   ui->actionLoad_In_Emulator->setEnabled ( nesicideProject->isInitialized() && compiler->assembledOk() );
+   ui->actionLoad_In_Emulator->setEnabled(nesicideProject->isInitialized());
 
    if (ui->tabWidget->currentIndex() >= 0)
    {
@@ -1675,6 +1673,28 @@ void MainWindow::on_actionOnline_Help_triggered()
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
+   // Check for newer files than debug info.
+   QStringList files = CCC65Interface::getSourceFiles();
+   QDateTime mtimeInDbginfo;
+   QDateTime mtimeOfFile;
+   QFileInfo fileInfo;
+   unsigned int mtimeRaw;
+
+   foreach ( QString file, files )
+   {
+      fileInfo.setFile(file);
+      mtimeOfFile = fileInfo.lastModified();
+      mtimeRaw = CCC65Interface::getSourceFileModificationTime(file);
+      mtimeInDbginfo.setTime(QTime(0,0,0,mtimeRaw));
+      qDebug(file.toAscii().constData());
+      qDebug(mtimeOfFile.toString().toAscii().constData());
+      qDebug(mtimeInDbginfo.toString().toAscii().constData());
+      if ( mtimeOfFile > mtimeInDbginfo )
+      {
+         qDebug("NEWER");
+      }
+   }
+
    if ( compiler->assembledOk() )
    {
       buildTextLogger->write("<b>Loading ROM...</b>");
