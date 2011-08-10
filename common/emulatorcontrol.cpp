@@ -1,6 +1,8 @@
 #include "emulatorcontrol.h"
 #include "ui_emulatorcontrol.h"
 
+#include "ccc65interface.h"
+
 #include "main.h"
 
 EmulatorControl::EmulatorControl(QWidget *parent) :
@@ -48,6 +50,8 @@ QList<QAction*> EmulatorControl::menu()
 
 void EmulatorControl::internalPlay()
 {
+   CCC65Interface::checkDebugInfo();
+
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
    ui->stepCPUButton->setEnabled(false);

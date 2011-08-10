@@ -1097,7 +1097,7 @@ void MainWindow::on_actionCompile_Project_triggered()
    {
       on_actionSave_Project_triggered();
 
-      // Try to close all opened editors
+      // Try to save all opened editors
       for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
       {
          ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
@@ -1673,28 +1673,6 @@ void MainWindow::on_actionOnline_Help_triggered()
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
-   // Check for newer files than debug info.
-   QStringList files = CCC65Interface::getSourceFiles();
-   QDateTime mtimeInDbginfo;
-   QDateTime mtimeOfFile;
-   QFileInfo fileInfo;
-   unsigned int mtimeRaw;
-
-   foreach ( QString file, files )
-   {
-      fileInfo.setFile(file);
-      mtimeOfFile = fileInfo.lastModified();
-      mtimeRaw = CCC65Interface::getSourceFileModificationTime(file);
-      mtimeInDbginfo.setTime(QTime(0,0,0,mtimeRaw));
-      qDebug(file.toAscii().constData());
-      qDebug(mtimeOfFile.toString().toAscii().constData());
-      qDebug(mtimeInDbginfo.toString().toAscii().constData());
-      if ( mtimeOfFile > mtimeInDbginfo )
-      {
-         qDebug("NEWER");
-      }
-   }
-
    if ( compiler->assembledOk() )
    {
       buildTextLogger->write("<b>Loading ROM...</b>");

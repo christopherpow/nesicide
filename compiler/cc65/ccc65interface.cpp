@@ -316,12 +316,52 @@ bool CCC65Interface::captureDebugInfo()
    buildTextLogger->write("<font color='black'><b>Reading debug information from: "+dbgInfoFile+"</b></font>");
 
    dbgInfo = cc65_read_dbginfo(dbgInfoFile.toAscii().constData(), ErrorFunc);
+
    if (dbgInfo == 0)
    {
       return false;
    }
 
+   // Check consistency of debug information when it's loaded.
+   CCC65Interface::checkDebugInfo();
+
    return true;
+}
+
+int CCC65Interface::checkDebugInfo()
+{
+   // Check for newer files than debug info.
+   QStringList files;
+   QDateTime mtimeInDbginfo;
+   QDateTime mtimeOfFile;
+   QFileInfo fileInfo;
+   unsigned int mtimeRaw;
+   QString outdated = "The following files have been modified since the last build\n"
+                      "and may not display correct information in the debuggers.\n\n";
+   int outdatedCount = 0;
+
+   // Get the file list to do a consistency check.
+   files = CCC65Interface::getSourceFiles();
+
+   foreach ( QString file, files )
+   {
+      fileInfo.setFile(file);
+      mtimeOfFile = fileInfo.lastModified();
+      mtimeRaw = CCC65Interface::getSourceFileModificationTime(file);
+      mtimeInDbginfo = QDateTime::fromTime_t(mtimeRaw);
+      if ( mtimeOfFile > mtimeInDbginfo )
+      {
+         outdated += file;
+         outdatedCount++;
+      }
+   }
+
+   if ( outdatedCount )
+   {
+      QMessageBox::warning(NULL,"Consistency problem...",outdated);
+   }
+
+   return outdatedCount;
 }
 
 bool CCC65Interface::captureINESImage()

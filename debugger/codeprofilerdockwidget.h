@@ -25,7 +25,6 @@ private:
    CProjectTabWidget* m_pTarget;
 
 signals:
-   void snapTo(QString item);
 
 private slots:
    void on_clear_clicked();

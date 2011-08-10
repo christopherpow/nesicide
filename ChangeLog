@@ -1,9 +1,11 @@
 This is the list of changes per version for NESICIDE application.
 
 V1.008
-Added "Symbols in RAM" tab to Symbol Watch that shows what symbols are in CPU address range 0x000-0x7FF.  This tab is not editable
+Added "Symbols in RAM", "Symbols in SRAM", and "Symbols in EXRAM" tabs to Symbol Watch that shows what symbols are
+in CPU address range 0x000-0x7FF, 0x6000-0x7FFF, and 0x5C00-0x5FFF respectively.  These tabs are not editable
 -- the list of symbols is updated on a new compile.
-Added file name to Symbol Watch to show what file the symbol came from.
+Added symbol size information to Code Profiler and Symbol Watch.
+Added file name to Symbol Watch and Code Profiler to show what file the symbol came from.
 Added feature request from thefox where "source search paths" are captured and stored in the project file whenever the IDE
 attempts to open a file it can't find in the project's folder or existing source search paths.  This is useful when trying to
 look at or set breakpoints in library source code.  Currently the source search paths are captured by the IDE asking the user
@@ -11,10 +13,13 @@ to help it locate the source file it's trying to open...so it'll only ask once u
 paths are stored relative to the .nesproject location.
 Fixed breakpoint engine so breakpoints can again be set on execution of code in RAM, SRAM, and EXRAM.
 Updated all example projects and made sure they build/run ok.
+Added an example project based on Chris Covell's MMC5 EXRAM demo, rebuilt with CC65 that shows the
+capability of the "Symbols in EXRAM" viewer.  (I moved some zeropage stuff to EXRAM).
 Projects can now either:
 a)Use Binary File and Graphics Banks objects to create a CHR-ROM (as in the russian_roulette example), or
 b)Use Binary File and Graphics Banks objects to create a CHR-RAM file (that is .incbin'd as in Tepples-SNROM example), or
 c)Not use either of the above if there's already a CHR format file that is just going to be .incbin'd for either CHR-RAM or CHR-ROM (as in the Alterego example).
+Fixed Windows "Clean Project" so it uses cmd.exe del (just like the universal makefile now does)
 
 V1.007
 Added PNG file export capability to Graphics Banks.
