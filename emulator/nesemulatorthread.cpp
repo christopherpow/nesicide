@@ -137,7 +137,7 @@ void NESEmulatorThread::kill()
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
 
-   m_isRunning = true;
+   m_isRunning = false;
    m_isPaused = false;
    m_showOnPause = false;
    m_isTerminating = true;

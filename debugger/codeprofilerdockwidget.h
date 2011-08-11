@@ -2,7 +2,6 @@
 #define CODEPROFILERDOCKWIDGET_H
 
 #include "cdebuggerbase.h"
-#include "cprojecttabwidget.h"
 
 #include "cdebuggercodeprofilermodel.h"
 #include "ixmlserializable.h"
@@ -16,13 +15,12 @@ class CodeProfilerDockWidget : public CDebuggerBase
    Q_OBJECT
 
 public:
-   explicit CodeProfilerDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
+   explicit CodeProfilerDockWidget(QWidget *parent = 0);
    ~CodeProfilerDockWidget();
 
 private:
    Ui::CodeProfilerDockWidget *ui;
    CDebuggerCodeProfilerModel *model;
-   CProjectTabWidget* m_pTarget;
 
 signals:
 

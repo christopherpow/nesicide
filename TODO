@@ -35,10 +35,15 @@ The following items are being tracked here because otherwise they'd be forgotten
 15. Add icons to source navigator and add files to list from project so that files can be shown whether or not they are in the list because they were in the project
 or because they were pulled in by the build.
 
-16. Figure out how to adjust lines of errors, breakpoints, and symbol lookups...probably have to do background compilation.
+**DONE** 16. Figure out how to adjust lines of errors, breakpoints, and symbol lookups...probably have to do background compilation.
+(This is done because the IDE now puts up a message if a file is newer than the running ROM).
 
 **DONE** 17. Adding multiple files to a project at once.
 
 18. Extend drag-drop capability to allow adding source files (use specified extensions to check) to a project.
 
 **DONE** 19. Project still does not get cleared out properly when a ROM is loaded after a project has been loaded.  Saving the "project" overwrites it with crap.
+
+**DONE** 20. Execution Visualizer doesn't open file for address that's clicked on and doesn't bring that file to view in the project.
+
+21. Somehow tabs aren't being removed from the Window menu.

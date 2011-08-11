@@ -29,9 +29,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 {
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
-   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-   QWidget*     sourceNavigator = CDockWidgetRegistry::getWidget("Source Navigator");
-   QDockWidget* codeProfiler = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Code Profiler"));
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -160,15 +157,12 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
-   QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
    QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
-   QObject::connect ( sourceNavigator, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
-   QObject::connect ( codeProfiler, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
@@ -1125,10 +1119,40 @@ void CodeEditorForm::snapTo(QString item)
    }
    else if ( item.startsWith("SourceNavigatorFile:") )
    {
-      splits = item.split(QRegExp("[:]"));
-      if ( m_fileName == splits.at(1) )
+      splits = item.split(QRegExp("[:,]"));
+      if ( splits.at(1) == m_fileName )
       {
-         show();
+         if ( splits.count() == 3 )
+         {
+            showExecutionLine(splits.at(2).toInt());
+         }
+         else
+         {
+            showExecutionLine(-1);
+         }
+      }
+      else
+      {
+         showExecutionLine(-1);
+      }
+   }
+   else if ( item.startsWith("OutputPaneFile:") )
+   {
+      splits = item.split(QRegExp("[:,]"));
+      if ( splits.at(1) == m_fileName )
+      {
+         if ( splits.count() == 3 )
+         {
+            highlightLine(splits.at(2).toInt());
+         }
+         else
+         {
+            highlightLine(-1);
+         }
+      }
+      else
+      {
+         highlightLine(-1);
       }
    }
    else if ( item.startsWith("SourceNavigatorSymbol:") )

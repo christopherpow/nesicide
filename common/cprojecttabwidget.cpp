@@ -1,6 +1,8 @@
 #include "cprojecttabwidget.h"
 
 #include "cdesignereditorbase.h"
+#include "cdockwidgetregistry.h"
+#include "ccc65interface.h"
 
 #include "main.h"
 
@@ -18,6 +20,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
    {
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
+      QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
    }
 
    tabIdx = QTabWidget::addTab(widget,icon,label);
@@ -29,20 +32,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
 
 int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
 {
-   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
-   int tabIdx;
-
-   if ( editor )
-   {
-      QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
-      QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
-   }
-
-   tabIdx = QTabWidget::addTab(widget,label);
-
-   emit tabAdded(tabIdx);
-
-   return tabIdx;
+   addTab(widget,QIcon(),label);
 }
 
 void CProjectTabWidget::removeTab(int index)
@@ -81,4 +71,180 @@ void CProjectTabWidget::tabModified(bool modified)
 void CProjectTabWidget::projectDirtied(bool dirtied)
 {
    nesicideProject->setDirty(dirtied);
+}
+
+void CProjectTabWidget::snapToTab(QString item)
+{
+   int tab;
+   QStringList splits;
+   uint32_t addr;
+   uint32_t absAddr;
+   int      line;
+   int      index;
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   CSourceItem* pSource;
+   bool found = false;
+   bool open = false;
+   QDir dir;
+   QDir projectDir = QDir::currentPath();
+   QFile fileIn;
+   QString file;
+   QString filePath;
+   QString symbol;
+   CDesignerEditorBase* editor = NULL;
+
+   // Make sure item is something we care about
+   if ( item.startsWith("Address:") )
+   {
+      splits = item.split(QRegExp("[:()]"));
+      if ( splits.count() == 5 )
+      {
+         addr = splits.at(3).toInt(NULL,16);
+         absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
+
+         file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+      }
+   }
+   else if ( item.startsWith("SourceNavigatorFile:") )
+   {
+      splits = item.split(QRegExp("[:,]"));
+      file = splits.at(1);
+   }
+   else if ( item.startsWith("OutputPaneFile:") )
+   {
+      splits = item.split(QRegExp("[:,]"));
+      file = splits.at(1);
+   }
+
+   if ( !file.isEmpty() )
+   {
+      for ( tab = 0; tab < count(); tab++ )
+      {
+         if ( file == tabBar()->tabText(tab) )
+         {
+            setCurrentIndex(tab);
+            found = true;
+            open = true;
+            break;
+         }
+      }
+
+      // File is not open, search the project.
+      if ( !found )
+      {
+         while ( iter.current() )
+         {
+            pSource = dynamic_cast<CSourceItem*>(iter.current());
+            if ( pSource )
+            {
+               if ( pSource->path() == file )
+               {
+                  pSource->openItemEvent(this);
+                  found = true;
+                  open = true;
+                  break;
+               }
+            }
+            iter.next();
+         }
+      }
+
+      // If we got here we can't find the file in the project, search the project
+      // directory.
+      if ( !found )
+      {
+         dir.setPath(QDir::currentPath());
+         filePath = dir.relativeFilePath(file);
+         fileIn.setFileName(filePath);
+
+         if ( fileIn.exists() )
+         {
+            found = true;
+         }
+      }
+
+      // If we got here we might be looking for a source file that's part of a library.
+      // Search the source paths...
+      if ( !found )
+      {
+         QStringList sourcePaths = nesicideProject->getSourceSearchPaths();
+
+         foreach ( QString searchDir, sourcePaths )
+         {
+            dir = searchDir;
+            filePath = dir.filePath(file);
+            fileIn.setFileName(filePath);
+
+            for ( int tab = 0; tab < count(); tab++ )
+            {
+               if ( tabBar()->tabText(tab) == filePath )
+               {
+                  setCurrentWidget(widget(tab));
+                  found = true;
+                  open = true;
+               }
+            }
+
+            if ( fileIn.exists() )
+            {
+               found = true;
+               break;
+            }
+         }
+      }
+
+      // If we got here we can't find the damn thing, ask the user to help.
+      if ( !found )
+      {
+         QString str;
+         str.sprintf("Locate %s...",file.toAscii().constData());
+         QString newDir = QFileDialog::getOpenFileName(0,str,QDir::currentPath());
+         if ( !newDir.isEmpty() )
+         {
+            QFileInfo fileInfo(newDir);
+            dir = projectDir.relativeFilePath(fileInfo.path());
+            nesicideProject->addSourceSearchPath(dir.path());
+            filePath = dir.filePath(file);
+            fileIn.setFileName(filePath);
+
+            if ( fileIn.exists() )
+            {
+               found = true;
+            }
+         }
+      }
+
+      // Try to open the file.
+      if ( found && (!open) &&
+           fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+      {
+         QStringList extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
+         extensions.append(EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts));
+         foreach ( QString ext, extensions )
+         {
+            if ( fileIn.fileName().endsWith(ext,Qt::CaseInsensitive) )
+            {
+               editor = new CodeEditorForm(fileIn.fileName(),QString(fileIn.readAll()));
+               break;
+            }
+         }
+         if ( !editor )
+         {
+            if ( fileIn.fileName().endsWith(".chr",Qt::CaseInsensitive) )
+            {
+               editor = new CHRROMDisplayDialog(false,(qint8*)fileIn.readAll().constData());
+            }
+         }
+
+         fileIn.close();
+
+         if ( editor )
+         {
+            addTab(editor, fileIn.fileName());
+            setCurrentWidget(editor);
+         }
+      }
+   }
+
+   emit snapTo(item);
 }

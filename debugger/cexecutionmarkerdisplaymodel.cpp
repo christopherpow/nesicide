@@ -73,10 +73,9 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
       case ExecutionVisualizerCol_StartAddr:
          if ( pMarker->state >= eMarkerSet_Started )
          {
-            sprintf(modelStringBuffer,"%02X:%04X(%04X)",
-                    nesGetPhysicalPRGROMBank(pMarker->startAbsAddr),
-                    pMarker->startAbsAddr&MASK_8KB,
-                    pMarker->startAddr);
+            nesGetPrintableAddressWithAbsolute(modelStringBuffer,
+                                               pMarker->startAddr,
+                                               pMarker->startAbsAddr);
             return QVariant(modelStringBuffer);
          }
          else
@@ -87,10 +86,9 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
       case ExecutionVisualizerCol_EndAddr:
          if ( pMarker->state >= eMarkerSet_Complete )
          {
-            sprintf(modelStringBuffer,"%02X:%04X(%04X)",
-                    nesGetPhysicalPRGROMBank(pMarker->endAbsAddr),
-                    pMarker->endAbsAddr&MASK_8KB,
-                    pMarker->endAddr);
+            nesGetPrintableAddressWithAbsolute(modelStringBuffer,
+                                               pMarker->endAddr,
+                                               pMarker->endAbsAddr);
             return QVariant(modelStringBuffer);
          }
          else

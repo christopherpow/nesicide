@@ -3,8 +3,6 @@
 
 #include <QDockWidget>
 
-#include "cprojecttabwidget.h"
-
 namespace Ui {
    class OutputPaneDockWidget;
 }
@@ -21,7 +19,7 @@ public:
       Output_Debug,
       Output_Search
    };
-   explicit OutputPaneDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
+   explicit OutputPaneDockWidget(QWidget *parent = 0);
    virtual ~OutputPaneDockWidget();
 
    void clearAllPanes();
@@ -38,13 +36,14 @@ public slots:
    void eraseDebugPane();
    void eraseSearchPane();
 
+signals:
+   void snapTo(QString item);
+
 protected:
    virtual void contextMenuEvent ( QContextMenuEvent* event );
 
 private:
    Ui::OutputPaneDockWidget *ui;
-   CProjectTabWidget* m_pTarget;
-   void openFileSelectLine(QString file,int line);
 
 private slots:
    void on_compilerOutputTextEdit_selectionChanged();

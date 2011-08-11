@@ -42,7 +42,8 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
 
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
+   // Specifically not connecting to updateDebuggers signal here since it doesn't make much sense to
+   // update the code position until a pause/breakpoint.
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
 
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );

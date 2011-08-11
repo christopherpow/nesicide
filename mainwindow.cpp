@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QSettings settings;
 
-
    // Initialize preferences dialogs.
    EmulatorPrefsDialog::readSettings();
 
@@ -52,7 +51,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
    CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
 
-   m_pSourceNavigator = new SourceNavigator(ui->tabWidget);
+   m_pSourceNavigator = new SourceNavigator();
    ui->compilerToolbar->addWidget(m_pSourceNavigator);
    CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
 
@@ -81,7 +80,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
    CDockWidgetRegistry::addWidget ( "Project", projectBrowser );
 
-   output = new OutputPaneDockWidget(ui->tabWidget);
+   output = new OutputPaneDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, output );
    output->hide();
    QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
@@ -295,11 +294,17 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
 
-   m_pCodeProfiler = new CodeProfilerDockWidget(ui->tabWidget);
+   m_pCodeProfiler = new CodeProfilerDockWidget();
    addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
    m_pCodeProfiler->hide();
    QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));
    CDockWidgetRegistry::addWidget ( "Code Profiler", m_pCodeProfiler );
+
+   // Connect snapTo's from various debuggers to the central widget.
+   QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pSourceNavigator, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pCodeProfiler, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( output, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
 
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();

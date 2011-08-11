@@ -166,18 +166,8 @@ void MapperInformationDockWidget::updateInformation()
          ui->irqAsserted69->setChecked ( mapper069Info.irqAsserted );
          sprintf ( buffer, "%04X", mapper069Info.irqCounter );
          ui->irqCounter69->setText ( buffer );
-         if ( mapper069Info.sramIsSram )
-         {
-            sprintf ( buffer, "%02X:%04X(6000)",
-                      nesGetPhysicalSRAMBank(mapper069Info.sramOrPrgBank*MEM_8KB),
-                      mapper069Info.sramOrPrgBank*MEM_8KB );
-         }
-         else
-         {
-            sprintf ( buffer, "%02X:%04X(6000)",
-                      nesGetPhysicalPRGROMBank(mapper069Info.sramOrPrgBank*MEM_8KB),
-                      mapper069Info.sramOrPrgBank*MEM_8KB );
-         }
+         sprintf ( buffer, "%02X(6000)",
+                   mapper069Info.sramOrPrgBank );
          ui->sramOrPrgBank69->setText(buffer);
          ui->sramEnabled69->setChecked(mapper069Info.sramEnabled);
          ui->sramIsSram69->setChecked(mapper069Info.sramIsSram);

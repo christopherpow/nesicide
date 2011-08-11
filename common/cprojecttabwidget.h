@@ -17,10 +17,12 @@ signals:
    void tabModified(int tab,bool modified);
    void tabAdded(int tab);
    void tabRemoved(int index);
+   void snapTo(QString item);
 
 public slots:
    void tabModified(bool modified);
    void projectDirtied(bool dirtied);
+   void snapToTab(QString item);
 };
 
 #endif // CPROJECTTABWIDGET_H
