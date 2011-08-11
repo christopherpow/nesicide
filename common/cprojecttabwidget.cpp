@@ -218,6 +218,7 @@ void CProjectTabWidget::snapToTab(QString item)
       if ( found && (!open) &&
            fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
       {
+         // If the file is a source file, open it using the CodeEditorForm.
          QStringList extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
          extensions.append(EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts));
          foreach ( QString ext, extensions )
@@ -228,12 +229,20 @@ void CProjectTabWidget::snapToTab(QString item)
                break;
             }
          }
+         // If the file isn't opened by the above, check if it's a CHR file and
+         // if so, open it using the GraphicsBankEditorForm.
          if ( !editor )
          {
             if ( fileIn.fileName().endsWith(".chr",Qt::CaseInsensitive) )
             {
                editor = new CHRROMDisplayDialog(false,(qint8*)fileIn.readAll().constData());
             }
+         }
+         // If we still haven't opened the damn thing, throw it at a CodeEditorForm
+         // to see what we get.
+         if ( !editor )
+         {
+            editor = new CodeEditorForm(fileIn.fileName(),QString(fileIn.readAll()));
          }
 
          fileIn.close();
