@@ -88,6 +88,7 @@ public slots:
    void resolveLineAddress(int line, int* addr, int* absAddr);
    void snapTo(QString item);
    void replaceText(QString from, QString to, bool replaceAll);
+   void setBreakpoint(int line, int addr, int absAddr);
 
 private slots:
    void editor_undo();
@@ -113,7 +114,7 @@ private slots:
    void on_actionRemove_breakpoint_triggered();
    void on_actionDisable_breakpoint_triggered();
    void on_actionRun_to_here_triggered();
-   void on_actionBreak_on_CPU_execution_here_triggered(int addr = -1, int absAddr = -1);
+   void on_actionBreak_on_CPU_execution_here_triggered();
    void customContextMenuRequested(const QPoint &pos);
 };
 

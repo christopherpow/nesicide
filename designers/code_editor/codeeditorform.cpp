@@ -546,8 +546,7 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
       {
-         // Hint to this API that we've already resolved the addresses...
-         on_actionBreak_on_CPU_execution_here_triggered(addr,absAddr);
+         setBreakpoint(line,addr,absAddr);
       }
       else
       {
@@ -648,19 +647,11 @@ void CodeEditorForm::updateToolTip(QString symbol)
    }
 }
 
-void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered(int addr,int absAddr)
+void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bpIdx;
-   int line;
    int index;
-
-   m_scintilla->getCursorPosition(&line,&index);
-
-   if ( addr == -1 )
-   {
-      resolveLineAddress(line,&addr,&absAddr);
-   }
 
    if ( addr != -1 )
    {
@@ -690,6 +681,20 @@ void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered(int addr,int
          emit markProjectDirty(true);
       }
    }
+}
+
+void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
+{
+   int line;
+   int index;
+   int addr = 0;
+   int absAddr = 0;
+
+   m_scintilla->getCursorPosition(&line,&index);
+
+   resolveLineAddress(line,&addr,&absAddr);
+
+   setBreakpoint(line,addr,absAddr);
 }
 
 void CodeEditorForm::on_actionRun_to_here_triggered()
