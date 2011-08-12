@@ -39,6 +39,7 @@ public:
    static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
    static QStringList getErrors() { return errors; }
    static bool isErrorOnLineOfFile(QString file,int source_line);
+   static bool isStringASymbol(QString string);
 
    static QStringList getCLanguageSourcesFromProject();
    static QStringList getAssemblerSourcesFromProject();

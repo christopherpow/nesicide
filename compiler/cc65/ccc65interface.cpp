@@ -896,3 +896,16 @@ bool CCC65Interface::isErrorOnLineOfFile(QString file,int source_line)
    }
    return found;
 }
+
+bool CCC65Interface::isStringASymbol(QString string)
+{
+   if ( dbgInfo )
+   {
+      dbgSymbols = cc65_symbol_byname(dbgInfo,string.toAscii().constData());
+      if ( dbgSymbols )
+      {
+         return true;
+      }
+   }
+   return false;
+}

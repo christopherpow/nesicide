@@ -1,4 +1,4 @@
-static char __ide_version__ [] = "V1.008"
+static char __ide_version__ [] = "V1.009"
 #if defined ( QT_NO_DEBUG )
 " RELEASE";
 #else

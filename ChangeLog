@@ -1,5 +1,13 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.009
+If a CHR file is .incbin'd into the source it'll show up in the Source Navigator toolbar; selecting it now opens it in a
+CHR viewer.
+"Go to Definition" menu option now available in Symbol Watch.
+IDE now asks for help resolving addresses if it needs it when breakpoints/markers are set on source lines that resolve to multiple
+assembly statements.
+Various robustness enhancements with regard to the usage of debug information available from CC65.
+
 V1.008
 Added "Symbols in RAM", "Symbols in SRAM", and "Symbols in EXRAM" tabs to Symbol Watch that shows what symbols are
 in CPU address range 0x000-0x7FF, 0x6000-0x7FFF, and 0x5C00-0x5FFF respectively.  These tabs are not editable

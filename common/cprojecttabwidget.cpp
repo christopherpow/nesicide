@@ -20,6 +20,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
    {
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
+      QObject::connect(editor,SIGNAL(snapToTab(QString)),this,SLOT(snapToTab(QString)));
       QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
    }
 

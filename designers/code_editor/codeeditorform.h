@@ -82,6 +82,9 @@ private:
    int m_language;
    void updateToolTip(QString symbol);
 
+signals:
+   void snapToTab(QString item);
+
 public slots:
    void restyleText();
    void annotateText();

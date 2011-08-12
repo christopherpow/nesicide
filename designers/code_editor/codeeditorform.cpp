@@ -178,6 +178,8 @@ CodeEditorForm::~CodeEditorForm()
 
 void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 {
+   const QString GO_TO_DEFINITION_TEXT = "Go to Definition...";
+
    QMenu menu;
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
@@ -189,6 +191,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    bool undoable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANUNDO, (unsigned long)0, (long)0);
    bool redoable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANREDO, (unsigned long)0, (long)0);
    bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
+   QString symbol = m_scintilla->wordAtPoint(pos);
 
    m_scintilla->setCursorPosition(line,0);
 
@@ -258,8 +261,21 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
       m_breakpointIndex = bp;
    }
 
+   if ( (!symbol.isEmpty()) &&
+        (CCC65Interface::isStringASymbol(symbol)) )
+   {
+      menu.addAction(GO_TO_DEFINITION_TEXT);
+   }
+
    // Run the context menu...
-   menu.exec(QWidget::mapToGlobal(pos));
+   action = menu.exec(QWidget::mapToGlobal(pos));
+
+   if ( (action) && (action->text() == GO_TO_DEFINITION_TEXT) )
+   {
+      QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
+      emit snapToTab("SourceNavigatorFile:"+file);
+      emit snapToTab("SourceNavigatorSymbol:"+symbol);
+   }
 }
 
 void CodeEditorForm::onSave()
