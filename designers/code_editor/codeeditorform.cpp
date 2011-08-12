@@ -209,9 +209,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    menu.addSeparator();
    action = menu.addAction("Select All",this,SLOT(editor_selectAll()),QKeySequence(Qt::CTRL + Qt::Key_A));
 
-   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-
-   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+   resolveLineAddress(line,&addr,&absAddr);
 
    if ( addr != -1 )
    {
@@ -522,58 +520,13 @@ void CodeEditorForm::editor_linesChanged()
 void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   QStringList asmChunks;
-   QString asmChunk;
-   QList<int> asmAddrs;
-   QList<int> asmAbsAddrs;
-   QString selStr;
-   int selIdx;
    int bp;
    int addr = 0;
    int absAddr = 0;
-   int asmcount;
-   int asmline;
-   bool ok;
 
    m_scintilla->setCursorPosition(line,0);
 
-   asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
-   if ( asmcount > 1 )
-   {
-      for ( asmline = 0; asmline < asmcount; asmline++ )
-      {
-         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
-
-         nesGetPrintableAddressWithAbsolute(resolutionBuffer,addr,absAddr);
-         asmChunk = resolutionBuffer;
-         nesGetDisassemblyAtAbsoluteAddress(absAddr,resolutionBuffer);
-         asmChunk += ":";
-         asmChunk += resolutionBuffer;
-         asmChunks.append(asmChunk);
-         asmAddrs.append(addr);
-         asmAbsAddrs.append(absAddr);
-      }
-      selStr = QInputDialog::getItem(0,"Help!","Line has multiple possible matches, pick one:",asmChunks,0,false,&ok);
-      if ( !ok )
-      {
-         return;
-      }
-      for ( selIdx = 0; selIdx < asmcount; selIdx++ )
-      {
-         if ( asmChunks.at(selIdx) == selStr )
-         {
-            break;
-         }
-      }
-      addr = asmAddrs.at(selIdx);
-      absAddr = asmAbsAddrs.at(selIdx);
-   }
-   else
-   {
-      addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-      absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
-   }
+   resolveLineAddress(line,&addr,&absAddr);
 
    if ( addr != -1 )
    {
@@ -593,7 +546,8 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
       // If breakpoint isn't set here, give menu options to set one...
       if ( bp < 0 )
       {
-         on_actionBreak_on_CPU_execution_here_triggered();
+         // Hint to this API that we've already resolved the addresses...
+         on_actionBreak_on_CPU_execution_here_triggered(addr,absAddr);
       }
       else
       {
@@ -694,20 +648,19 @@ void CodeEditorForm::updateToolTip(QString symbol)
    }
 }
 
-void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered()
+void CodeEditorForm::on_actionBreak_on_CPU_execution_here_triggered(int addr,int absAddr)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bpIdx;
    int line;
    int index;
-   int addr = 0;
-   int absAddr = 0;
 
    m_scintilla->getCursorPosition(&line,&index);
 
-   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-
-   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+   if ( addr == -1 )
+   {
+      resolveLineAddress(line,&addr,&absAddr);
+   }
 
    if ( addr != -1 )
    {
@@ -806,9 +759,7 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
 
    m_scintilla->getCursorPosition(&line,&index);
 
-   addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-
-   absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+   resolveLineAddress(line,&addr,&absAddr);
 
    if ( addr != -1 )
    {
@@ -833,9 +784,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
    {
       m_scintilla->getCursorPosition(&line,&index);
 
-      addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-
-      absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+      resolveLineAddress(line,&addr,&absAddr);
 
       if ( addr != -1 )
       {
@@ -912,6 +861,57 @@ void CodeEditorForm::highlightLine(int linenumber)
          m_scintilla->ensureLineVisible(linenumber-1);
          m_scintilla->markerAdd(linenumber-1,Marker_Highlight);
       }
+   }
+}
+
+void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
+{
+   QStringList asmChunks;
+   QString asmChunk;
+   QList<int> asmAddrs;
+   QList<int> asmAbsAddrs;
+   QString selStr;
+   int selIdx;
+   int asmcount;
+   int asmline;
+   bool ok;
+
+   asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+   if ( asmcount > 1 )
+   {
+      for ( asmline = 0; asmline < asmcount; asmline++ )
+      {
+         (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
+         (*absAddr) = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
+
+         nesGetPrintableAddressWithAbsolute(resolutionBuffer,(*addr),(*absAddr));
+         asmChunk = resolutionBuffer;
+         nesGetDisassemblyAtAbsoluteAddress((*absAddr),resolutionBuffer);
+         asmChunk += ":";
+         asmChunk += resolutionBuffer;
+         asmChunks.append(asmChunk);
+         asmAddrs.append((*addr));
+         asmAbsAddrs.append((*absAddr));
+      }
+      selStr = QInputDialog::getItem(0,"Help!","Line has multiple possible matches, pick one:",asmChunks,0,false,&ok);
+      if ( !ok )
+      {
+         return;
+      }
+      for ( selIdx = 0; selIdx < asmcount; selIdx++ )
+      {
+         if ( asmChunks.at(selIdx) == selStr )
+         {
+            break;
+         }
+      }
+      (*addr) = asmAddrs.at(selIdx);
+      (*absAddr) = asmAbsAddrs.at(selIdx);
+   }
+   else
+   {
+      (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
+      (*absAddr) = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
    }
 }
 

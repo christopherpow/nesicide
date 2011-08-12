@@ -85,6 +85,7 @@ private:
 public slots:
    void restyleText();
    void annotateText();
+   void resolveLineAddress(int line, int* addr, int* absAddr);
    void snapTo(QString item);
    void replaceText(QString from, QString to, bool replaceAll);
 
@@ -112,7 +113,7 @@ private slots:
    void on_actionRemove_breakpoint_triggered();
    void on_actionDisable_breakpoint_triggered();
    void on_actionRun_to_here_triggered();
-   void on_actionBreak_on_CPU_execution_here_triggered();
+   void on_actionBreak_on_CPU_execution_here_triggered(int addr = -1, int absAddr = -1);
    void customContextMenuRequested(const QPoint &pos);
 };
 
