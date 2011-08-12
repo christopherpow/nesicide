@@ -79,7 +79,7 @@ QStringList CCC65Interface::getAssemblerSourcesFromProject()
       source = dynamic_cast<CSourceItem*>(iter.current());
       foreach ( QString extension, extensions )
       {
-         if ( source && source->path().endsWith(extension) )
+         if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
          {
             sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
          }
@@ -104,7 +104,7 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
       source = dynamic_cast<CSourceItem*>(iter.current());
       foreach ( QString extension, extensions )
       {
-         if ( source && source->path().endsWith(extension) )
+         if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
          {
             sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
          }
@@ -495,8 +495,7 @@ unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
                if ( dbgSegments->count == 1 )
                {
                   addrOffset = addr-dbgSegments->data[0].segment_start;
-
-                  absAddr = dbgSegments->data[0].output_offs-0x10+addrOffset;
+                  absAddr = dbgSegments->data[0].output_offs+addrOffset;
                }
             }
          }
@@ -566,32 +565,33 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int line;
+   int seg;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   uint32_t addrOffset;
 
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
 
-      if ( dbgLines )
+      cc65_free_segmentinfo(dbgInfo,dbgSegments);
+      dbgSegments = cc65_get_segmentlist(dbgInfo);
+
+      if ( dbgLines && dbgSegments )
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            // Calculate offset within lineinfo of current address to get to the
-            // beginning of it and make sure it is actually the right line.
-            addrOffset = addr-dbgLines->data[line].line_start;
-
-            if ( (dbgLines->data[line].line_start <= addr) &&
-                 (dbgLines->data[line].line_end >= addr) &&
-                 (dbgLines->data[line].output_offs-0x10 == (absAddr-addrOffset)) )
+            // Find the segment containing this absolute address.
+            for ( seg = 0; seg < dbgSegments->count; seg++ )
             {
-               // Inject preference for MACRO expansions over C language over assembly...
-               if ( dbgLines->data[line].line_type >= highestTypeMatch )
+               if ( (dbgLines->data[line].output_offs >= dbgSegments->data[seg].output_offs) &&
+                    (dbgLines->data[line].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
                {
-                  highestTypeMatch = dbgLines->data[line].line_type;
-                  indexOfHighestTypeMatch = line;
+                  if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                  {
+                     highestTypeMatch = dbgLines->data[line].line_type;
+                     indexOfHighestTypeMatch = line;
+                  }
                }
             }
          }
@@ -607,32 +607,33 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
 int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int line;
+   int seg;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   uint32_t addrOffset;
 
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
 
-      if ( dbgLines )
+      cc65_free_segmentinfo(dbgInfo,dbgSegments);
+      dbgSegments = cc65_get_segmentlist(dbgInfo);
+
+      if ( dbgLines && dbgSegments )
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            // Calculate offset within lineinfo of current address to get to the
-            // beginning of it and make sure it is actually the right line.
-            addrOffset = addr-dbgLines->data[line].line_start;
-
-            if ( (dbgLines->data[line].line_start <= addr) &&
-                 (dbgLines->data[line].line_end >= addr) &&
-                 (dbgLines->data[line].output_offs-0x10 == (absAddr-addrOffset)) )
+            // Find the segment containing this absolute address.
+            for ( seg = 0; seg < dbgSegments->count; seg++ )
             {
-               // Inject preference for MACRO expansions over C language over assembly...
-               if ( dbgLines->data[line].line_type >= highestTypeMatch )
+               if ( (dbgLines->data[line].output_offs >= dbgSegments->data[seg].output_offs) &&
+                    (dbgLines->data[line].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
                {
-                  highestTypeMatch = dbgLines->data[line].line_type;
-                  indexOfHighestTypeMatch = line;
+                  if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                  {
+                     highestTypeMatch = dbgLines->data[line].line_type;
+                     indexOfHighestTypeMatch = line;
+                  }
                }
             }
          }
@@ -647,8 +648,7 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
 
 int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
 {
-   unsigned int addr = getSymbolAddress(symbol);
-   unsigned int absAddr = getSymbolAbsoluteAddress(symbol,0); // CPTODO: doesn't work yet for same-name-different-segment symbols.
+   unsigned int addr = getSymbolAddress(symbol); // CPTODO: doesn't work yet for multiple-defined symbols in different segments
    int line;
 
    if ( dbgInfo )
@@ -660,8 +660,7 @@ int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            if ( (dbgLines->data[line].source_name == file) &&
-                 (dbgLines->data[line].output_offs-0x10 == absAddr) )
+            if ( dbgLines->data[line].source_name == file )
             {
                return dbgLines->data[line].source_line;
             }
@@ -698,32 +697,33 @@ QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
 unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int line;
+   int seg;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   uint32_t addrOffset;
 
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
 
-      if ( dbgLines )
+      cc65_free_segmentinfo(dbgInfo,dbgSegments);
+      dbgSegments = cc65_get_segmentlist(dbgInfo);
+
+      if ( dbgLines && dbgSegments )
       {
          for ( line = 0; line < dbgLines->count; line++ )
          {
-            // Calculate offset within lineinfo of current address to get to the
-            // beginning of it and make sure it is actually the right line.
-            addrOffset = addr-dbgLines->data[line].line_start;
-
-            if ( (dbgLines->data[line].line_start <= addr) &&
-                 (dbgLines->data[line].line_end >= addr) &&
-                 (dbgLines->data[line].output_offs-0x10 == (absAddr-addrOffset)) )
+            // Find the segment containing this absolute address.
+            for ( seg = 0; seg < dbgSegments->count; seg++ )
             {
-               // Inject preference for MACRO expansions over C language over assembly...
-               if ( dbgLines->data[line].line_type >= highestTypeMatch )
+               if ( (dbgLines->data[line].output_offs >= dbgSegments->data[seg].output_offs) &&
+                    (dbgLines->data[line].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
                {
-                  highestTypeMatch = dbgLines->data[line].line_type;
-                  indexOfHighestTypeMatch = line;
+                  if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                  {
+                     highestTypeMatch = dbgLines->data[line].line_type;
+                     indexOfHighestTypeMatch = line;
+                  }
                }
             }
          }
@@ -750,36 +750,33 @@ int CCC65Interface::getLineMatchCount(QString file, int source_line)
    return 0;
 }
 
-unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_line,uint32_t startAddr)
+unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_line,int entry)
 {
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   uint32_t findAddr = 0;
    int idx;
 
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
+
       if ( dbgLines )
       {
          for ( idx = 0; idx < dbgLines->count; idx++ )
          {
-            if ( dbgLines->data[idx].source_line == source_line )
+            // Inject preference for MACRO expansions over C language over assembly...
+            if ( dbgLines->data[idx].line_type >= highestTypeMatch )
             {
-               if ( ((findAddr == 0) && (dbgLines->data[idx].line_start > startAddr)) ||
-                    ((findAddr != 0) && (dbgLines->data[idx].line_start == startAddr)) )
-               {
-                  // Inject preference for MACRO expansions over C language over assembly...
-                  if ( dbgLines->data[idx].line_type >= highestTypeMatch )
-                  {
-                     findAddr = dbgLines->data[idx].line_start;
-                     highestTypeMatch = dbgLines->data[idx].line_type;
-                     indexOfHighestTypeMatch = idx;
-                  }
-               }
+               highestTypeMatch = dbgLines->data[idx].line_type;
+               indexOfHighestTypeMatch = idx;
+            }
+            if ( idx == entry )
+            {
+               return dbgLines->data[idx].line_start;
             }
          }
+
          if ( indexOfHighestTypeMatch >= 0 )
          {
             return dbgLines->data[indexOfHighestTypeMatch].line_start;
@@ -789,40 +786,63 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_l
    return -1;
 }
 
-unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int source_line,uint32_t startAddr)
+unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry)
 {
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   uint32_t findAddr = 0;
    int idx;
+   int seg;
 
    if ( dbgInfo )
    {
       cc65_free_lineinfo(dbgInfo,dbgLines);
       dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
 
-      if ( dbgLines )
+      cc65_free_segmentinfo(dbgInfo,dbgSegments);
+      dbgSegments = cc65_get_segmentlist(dbgInfo);
+
+      if ( dbgLines && dbgSegments )
       {
          for ( idx = 0; idx < dbgLines->count; idx++ )
          {
-            if ( dbgLines->data[idx].source_line == source_line )
+            // Find the segment containing this absolute address.
+            for ( seg = 0; seg < dbgSegments->count; seg++ )
             {
-               if ( ((findAddr == 0) && (dbgLines->data[idx].line_start > startAddr)) ||
-                    ((findAddr != 0) && (dbgLines->data[idx].line_start == startAddr)) )
+               if ( (dbgLines->data[idx].output_offs >= dbgSegments->data[seg].output_offs) &&
+                    (dbgLines->data[idx].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
                {
-                  // Inject preference for MACRO expansions over C language over assembly...
                   if ( dbgLines->data[idx].line_type >= highestTypeMatch )
                   {
-                     findAddr = dbgLines->data[idx].line_start;
                      highestTypeMatch = dbgLines->data[idx].line_type;
                      indexOfHighestTypeMatch = idx;
+                  }
+                  if ( idx == entry )
+                  {
+                     if ( dbgLines->data[idx].output_name )
+                     {
+                        // Assume there's an iNES header in the way if this line goes to an output file.
+                        return dbgLines->data[idx].output_offs-0x10;
+                     }
+                     else
+                     {
+                        return dbgLines->data[idx].output_offs;
+                     }
                   }
                }
             }
          }
+
          if ( indexOfHighestTypeMatch >= 0 )
          {
-            return dbgLines->data[indexOfHighestTypeMatch].output_offs-0x10;
+            if ( dbgLines->data[indexOfHighestTypeMatch].output_name )
+            {
+               // Assume there's an iNES header in the way if this line goes to an output file.
+               return dbgLines->data[indexOfHighestTypeMatch].output_offs-0x10;
+            }
+            else
+            {
+               return dbgLines->data[indexOfHighestTypeMatch].output_offs;
+            }
          }
       }
    }

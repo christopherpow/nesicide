@@ -217,6 +217,8 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
          menu.addAction(ui->actionRemove_symbol);
          menu.addSeparator();
       }
+      menu.addAction(ui->actionGo_to_Definition);
+      menu.addSeparator();
       menu.addAction(ui->actionBreak_on_CPU_access_here);
       menu.addAction(ui->actionBreak_on_CPU_read_here);
       menu.addAction(ui->actionBreak_on_CPU_write_here);
@@ -480,4 +482,38 @@ void SymbolWatchDockWidget::on_actionRemove_symbol_triggered()
 
       emit markProjectDirty(true);
    }
+}
+
+void SymbolWatchDockWidget::on_actionGo_to_Definition_triggered()
+{
+   int row;
+   QModelIndex index;
+   QString symbol;
+   QString file;
+
+   switch ( ui->tabWidget->currentIndex() )
+   {
+   case Symbol_Watch_Window:
+      row = ui->watch->currentIndex().row();
+      index = watchModel->index(row,SymbolWatchCol_Symbol);
+      break;
+   case Symbol_RAM_Window:
+      row = ui->ram->currentIndex().row();
+      index = ramModel->index(row,SymbolWatchCol_Symbol);
+      break;
+   case Symbol_SRAM_Window:
+      row = ui->sram->currentIndex().row();
+      index = sramModel->index(row,SymbolWatchCol_Symbol);
+      break;
+   case Symbol_EXRAM_Window:
+      row = ui->exram->currentIndex().row();
+      index = exramModel->index(row,SymbolWatchCol_Symbol);
+      break;
+   }
+
+   symbol = index.data(Qt::DisplayRole).toString();
+   file = CCC65Interface::getSourceFileFromSymbol(symbol);
+
+   emit snapTo("SourceNavigatorFile:"+file);
+   emit snapTo("SourceNavigatorSymbol:"+symbol);
 }

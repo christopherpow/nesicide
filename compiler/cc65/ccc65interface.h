@@ -33,8 +33,8 @@ public:
    static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getLineMatchCount(QString file,int source_line);
-   static unsigned int getAddressFromFileAndLine(QString file,int source_line,uint32_t startAddr = 0);
-   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line,uint32_t startAddr = 0);
+   static unsigned int getAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
    static unsigned int getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
    static QStringList getErrors() { return errors; }

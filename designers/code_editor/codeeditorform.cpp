@@ -44,7 +44,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForC().split(" ") )
    {
-      if ( m_fileName.endsWith(ext) )
+      if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
       {
          m_language = Language_C;
       }
@@ -53,7 +53,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    {
       foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ") )
       {
-         if ( m_fileName.endsWith(ext) )
+         if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
          {
             m_language = Language_Assembly;
          }
@@ -395,10 +395,11 @@ void CodeEditorForm::external_breakpointsChanged()
    MarkerSetInfo* pMarker;
    int addr;
    int absAddr;
-   int startAddr;
    int line;
    int index;
    int idx;
+   int asmcount;
+   int asmline;
 
    m_scintilla->getCursorPosition(&line,&index);
 
@@ -411,15 +412,11 @@ void CodeEditorForm::external_breakpointsChanged()
 
    for ( line = 0; line < m_scintilla->lines(); line++ )
    {
-      startAddr = 0;
-
-      do
+      asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+      for ( asmline = 0; asmline < asmcount; asmline++ )
       {
-         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,startAddr);
-         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,startAddr);
-
-         // Move to next clump of assembly for this line if there is more than one.
-         startAddr = addr;
+         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
+         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
 
          if ( addr != -1 )
          {
@@ -458,7 +455,7 @@ void CodeEditorForm::external_breakpointsChanged()
                }
             }
          }
-      } while ( addr != -1 );
+      }
    }
 }
 
@@ -534,53 +531,43 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
    int bp;
    int addr = 0;
    int absAddr = 0;
-   int startAddr = 0;
-   int count;
-   int idx;
+   int asmcount;
+   int asmline;
    bool ok;
 
    m_scintilla->setCursorPosition(line,0);
 
-   if ( m_language == Language_C )
+   asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+   if ( asmcount > 1 )
    {
-      count = CCC65Interface::getLineMatchCount(m_fileName,line+1);
-      if ( count > 1 )
+      for ( asmline = 0; asmline < asmcount; asmline++ )
       {
-         for ( idx = 0; idx < count; idx++ )
-         {
-            addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,startAddr);
-            absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,startAddr);
-            startAddr = addr;
+         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
+         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
 
-            nesGetPrintableAddressWithAbsolute(resolutionBuffer,addr,absAddr);
-            asmChunk = resolutionBuffer;
-            nesGetDisassemblyAtAbsoluteAddress(absAddr,resolutionBuffer);
-            asmChunk += ":";
-            asmChunk += resolutionBuffer;
-            asmChunks.append(asmChunk);
-            asmAddrs.append(addr);
-            asmAbsAddrs.append(absAddr);
-         }
-         selStr = QInputDialog::getItem(0,"Help!","Line has multiple possible matches, pick one:",asmChunks,0,false,&ok);
-         if ( !ok )
-         {
-            return;
-         }
-         for ( selIdx = 0; selIdx < count; selIdx++ )
-         {
-            if ( asmChunks.at(selIdx) == selStr )
-            {
-               break;
-            }
-         }
-         addr = asmAddrs.at(selIdx);
-         absAddr = asmAbsAddrs.at(selIdx);
+         nesGetPrintableAddressWithAbsolute(resolutionBuffer,addr,absAddr);
+         asmChunk = resolutionBuffer;
+         nesGetDisassemblyAtAbsoluteAddress(absAddr,resolutionBuffer);
+         asmChunk += ":";
+         asmChunk += resolutionBuffer;
+         asmChunks.append(asmChunk);
+         asmAddrs.append(addr);
+         asmAbsAddrs.append(absAddr);
       }
-      else
+      selStr = QInputDialog::getItem(0,"Help!","Line has multiple possible matches, pick one:",asmChunks,0,false,&ok);
+      if ( !ok )
       {
-         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+         return;
       }
+      for ( selIdx = 0; selIdx < asmcount; selIdx++ )
+      {
+         if ( asmChunks.at(selIdx) == selStr )
+         {
+            break;
+         }
+      }
+      addr = asmAddrs.at(selIdx);
+      absAddr = asmAbsAddrs.at(selIdx);
    }
    else
    {
@@ -931,7 +918,6 @@ void CodeEditorForm::highlightLine(int linenumber)
 void CodeEditorForm::annotateText()
 {
    int line;
-   int startAddr;
    int addr;
    int absAddr;
    int endAddr;
@@ -940,6 +926,8 @@ void CodeEditorForm::annotateText()
    char* pAnnotationBuffer;
    bool first;
    bool firstBlock;
+   int asmcount;
+   int asmline;
 
    // Clear annotations.
    m_scintilla->clearAnnotations();
@@ -953,16 +941,13 @@ void CodeEditorForm::annotateText()
          pAnnotationBuffer = annotationBuffer;
          first = true;
          firstBlock = true;
-         startAddr = 0;
 
-         do
+         asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+         for ( asmline = 0; asmline < asmcount; asmline++ )
          {
-            addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,startAddr);
-            absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,startAddr);
+            addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
+            absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
             endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
-
-            // Move to next clump of assembly for this line if there is more than one.
-            startAddr = addr;
 
             if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
             {
@@ -992,7 +977,7 @@ void CodeEditorForm::annotateText()
                   }
                }
             }
-         } while ( addr != -1 );
+         }
 
          (*pAnnotationBuffer) = 0;
 

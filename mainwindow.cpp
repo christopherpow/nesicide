@@ -304,6 +304,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pSourceNavigator, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pCodeProfiler, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( output, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
 
    // Set TV standard to use.

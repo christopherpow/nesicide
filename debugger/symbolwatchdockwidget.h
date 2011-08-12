@@ -49,6 +49,7 @@ signals:
    void breakpointsChanged();
 
 private slots:
+   void on_actionGo_to_Definition_triggered();
    void updateUi();
    void updateVariables();
    void on_actionRemove_symbol_triggered();

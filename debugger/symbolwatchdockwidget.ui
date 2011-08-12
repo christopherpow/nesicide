@@ -298,6 +298,14 @@
     <string>Remove symbol</string>
    </property>
   </action>
+  <action name="actionGo_to_Definition">
+   <property name="text">
+    <string>Go to Definition...</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to Definition...</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

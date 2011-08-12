@@ -116,6 +116,6 @@ void SourceNavigator::on_files_activated(QString file)
 void SourceNavigator::on_symbols_activated(QString symbol)
 {
    QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
-   emit snapTo("SourceNavigatorFile"+file);
+   emit snapTo("SourceNavigatorFile:"+file);
    emit snapTo("SourceNavigatorSymbol:"+symbol);
 }

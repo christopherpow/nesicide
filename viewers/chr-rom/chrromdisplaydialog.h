@@ -6,6 +6,8 @@
 
 #include "iprojecttreeviewitem.h"
 
+#include "emulator_core.h"
+
 namespace Ui
 {
 class CHRROMDisplayDialog;
@@ -20,7 +22,7 @@ public:
 
 protected:
    CCHRROMPreviewRenderer* renderer;
-   qint8* chrrom;
+   qint8 chrrom[MEM_8KB];
 
 protected:
    void showEvent(QShowEvent* event);

@@ -66,7 +66,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    else
    {
       // show CHR-ROM bank data...
-      chrrom = data;
+      memcpy(chrrom,data,MEM_8KB);
       renderData();
    }
 

@@ -248,10 +248,10 @@ bool CSymbolWatchModel::removeRows(int row, int count, const QModelIndex &parent
 
    if ( row < m_items.count() )
    {
-      beginRemoveRows(parent,row,row);
-      for ( idx = 0; idx < count; idx++ )
+      beginRemoveRows(parent,row,row+count-1);
+      for ( idx = row+count-1; idx >= row; idx-- )
       {
-         m_items.removeAt(row);
+         m_items.removeAt(idx);
       }
       endRemoveRows();
       return true;
