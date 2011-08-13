@@ -10,6 +10,7 @@ enum
    SymbolWatchCol_Address,
    SymbolWatchCol_Size,
    SymbolWatchCol_Value,
+   SymbolWatchCol_Segment,
    SymbolWatchCol_File,
    SymbolWatchCol_MAX
 };

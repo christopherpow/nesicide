@@ -27,6 +27,8 @@ public:
    static unsigned int getSymbolAddress(QString symbol,int index = 0);
    static unsigned int getSymbolAbsoluteAddress(QString symbol,int index = 0);
    static unsigned int getSymbolSegment(QString symbol,int index = 0);
+   static QString getSymbolSegmentName(QString symbol, int index = 0);
+   static unsigned int getSymbolIndexFromSegment(QString symbol,int segment);
    static unsigned int getSymbolSize(QString symbol,int index = 0);
    static int getSourceLineFromFileAndSymbol(QString file,QString symbol);
    static QString getSourceFileFromSymbol(QString symbol);

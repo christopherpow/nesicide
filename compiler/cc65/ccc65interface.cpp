@@ -525,6 +525,59 @@ unsigned int CCC65Interface::getSymbolSegment(QString symbol, int index)
    return seg;
 }
 
+QString CCC65Interface::getSymbolSegmentName(QString symbol, int index)
+{
+   QString seg = "?";
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         if ( (dbgSymbols->count > index) &&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
+         {
+            if ( dbgSymbols->data[index].symbol_segment >= 0 )
+            {
+               dbgSegments = cc65_segmentinfo_byid(dbgInfo,dbgSymbols->data[index].symbol_segment);
+               if ( dbgSegments )
+               {
+                  seg = dbgSegments->data[0].segment_name;
+               }
+            }
+         }
+      }
+   }
+   return seg;
+}
+
+unsigned int CCC65Interface::getSymbolIndexFromSegment(QString symbol, int segment)
+{
+   unsigned int index = 0;
+   unsigned int idx;
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         for ( idx = 0; idx < dbgSymbols->count; idx++ )
+         {
+            if ( dbgSymbols->data[idx].symbol_segment == segment )
+            {
+               index = idx;
+               break;
+            }
+         }
+      }
+   }
+   return index;
+}
+
 unsigned int CCC65Interface::getSymbolSize(QString symbol, int index)
 {
    unsigned int size = 0;

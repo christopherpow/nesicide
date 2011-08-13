@@ -44,8 +44,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    int addr;
    int absAddr;
    QString data;
-   int count;
-   int idx;
+   int symbolIdx;
 
    if (role != Qt::DisplayRole)
    {
@@ -56,14 +55,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    if ( index.row() < m_items.count() )
    {
       // Get symbol's index in debug information from its segment.
-      count = CCC65Interface::getSymbolMatchCount(m_items.at(index.row()).symbol);
-      for ( idx = 0; idx < count; idx++ )
-      {
-         if ( m_items.at(index.row()).segment == CCC65Interface::getSymbolSegment(m_items.at(index.row()).symbol,idx) )
-         {
-            break;
-         }
-      }
+      symbolIdx = CCC65Interface::getSymbolIndexFromSegment(m_items.at(index.row()).symbol,m_items.at(index.row()).segment);
 
       switch ( index.column() )
       {
@@ -72,8 +64,8 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             break;
          case SymbolWatchCol_Address:
             // Get symbol's information based on its name and index.
-            addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,idx);
-            absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,idx);
+            addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,symbolIdx);
+            absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,symbolIdx);
             if ( addr != -1 )
             {
                nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
@@ -88,7 +80,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             return QVariant(m_items.at(index.row()).size);
             break;
          case SymbolWatchCol_Value:
-            addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,idx);
+            addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,symbolIdx);
             if ( addr != -1 )
             {
                sprintf(modelStringBuffer,"%02X",nesGetMemory(addr));
@@ -98,6 +90,9 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             {
                return QVariant("ERROR: Unresolved");
             }
+            break;
+         case SymbolWatchCol_Segment:
+            return CCC65Interface::getSymbolSegmentName(m_items.at(index.row()).symbol,symbolIdx);
             break;
          case SymbolWatchCol_File:
             return CCC65Interface::getSourceFileFromSymbol(m_items.at(index.row()).symbol);
@@ -125,8 +120,6 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
    int idx;
    QString symbol;
    QStringList symbols;
-   QString selStr;
-   int selIdx = 0;
    WatchedItem item;
 
    switch ( index.column() )
@@ -138,7 +131,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
             {
                item.symbol = value.toString();
                item.segment = resolveSymbol(value.toString());
-               item.size = CCC65Interface::getSymbolSize(value.toString());
+               item.size = CCC65Interface::getSymbolSize(value.toString(),CCC65Interface::getSymbolIndexFromSegment(value.toString(),item.segment));
                m_items.replace(index.row(),item);
                emit layoutChanged();
                ok = true;
@@ -151,7 +144,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
                   beginInsertRows(QModelIndex(),m_items.count()+1,m_items.count()+1);
                   item.symbol = value.toString();
                   item.segment = resolveSymbol(value.toString());
-                  item.size = CCC65Interface::getSymbolSize(value.toString());
+                  item.size = CCC65Interface::getSymbolSize(value.toString(),CCC65Interface::getSymbolIndexFromSegment(value.toString(),item.segment));
                   m_items.append(item);
                   endInsertRows();
 
@@ -166,7 +159,7 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
       case SymbolWatchCol_Value:
          if ( index.row() < m_items.count() )
          {
-            addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol);
+            addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,CCC65Interface::getSymbolIndexFromSegment(value.toString(),m_items.at(index.row()).segment));
             if ( addr != 0xFFFFFFFF )
             {
                nesSetCPUMemory(addr,value.toString().toInt(&ok,16));
@@ -201,6 +194,9 @@ QVariant CSymbolWatchModel::headerData(int section, Qt::Orientation orientation,
          break;
       case SymbolWatchCol_Value:
          return QString("Value");
+         break;
+      case SymbolWatchCol_Segment:
+         return QString("Segment");
          break;
       case SymbolWatchCol_File:
          return QString("File");
@@ -266,7 +262,7 @@ void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
    beginInsertRows(parent,m_items.count(),m_items.count());
    item.symbol = text;
    item.segment = resolveSymbol(text);
-   item.size = CCC65Interface::getSymbolSize(text);
+   item.size = CCC65Interface::getSymbolSize(text,CCC65Interface::getSymbolIndexFromSegment(text,item.segment));
    m_items.append(item);
    endInsertRows();
 }
