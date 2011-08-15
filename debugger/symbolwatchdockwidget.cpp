@@ -133,6 +133,17 @@ void SymbolWatchDockWidget::updateVariables()
    exramModel->update();
 }
 
+void SymbolWatchDockWidget::addWatchedItem(QString item)
+{
+   show();
+
+   ui->tabWidget->setCurrentIndex(Symbol_Watch_Window);
+
+   watchModel->insertRow(item);
+
+   emit markProjectDirty(true);
+}
+
 void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
 {
    if ( ui->tabWidget->currentIndex() == Symbol_Watch_Window )

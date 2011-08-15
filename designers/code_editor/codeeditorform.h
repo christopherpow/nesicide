@@ -84,6 +84,7 @@ private:
 
 signals:
    void snapToTab(QString item);
+   void addWatchedItem(QString item);
 
 public slots:
    void restyleText();

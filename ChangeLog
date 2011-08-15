@@ -1,5 +1,11 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.010
+Added source file and line information of declaration location of symbol to symbol tooltips in Code Editor.
+Added 'equate' relations to tooltips in Code Editor.
+Added symbol segment name display to Symbol Watch.
+"Go to Definition" menu option now available in Code Editor context menu if a symbol is under the pointer.
+
 V1.009
 If a CHR file is .incbin'd into the source it'll show up in the Source Navigator toolbar; selecting it now opens it in a
 CHR viewer.

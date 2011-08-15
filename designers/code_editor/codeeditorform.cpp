@@ -29,6 +29,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 {
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+   QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -158,6 +159,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
+   QObject::connect ( this, SIGNAL(addWatchedItem(QString)), symbolWatch, SLOT(addWatchedItem(QString)) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
@@ -179,6 +181,7 @@ CodeEditorForm::~CodeEditorForm()
 void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 {
    const QString GO_TO_DEFINITION_TEXT = "Go to Definition...";
+   const QString ADD_TO_WATCH_TEXT = "Watch...";
 
    QMenu menu;
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -265,6 +268,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
         (CCC65Interface::isStringASymbol(symbol)) )
    {
       menu.addAction(GO_TO_DEFINITION_TEXT);
+      menu.addAction(ADD_TO_WATCH_TEXT);
    }
 
    // Run the context menu...
@@ -275,6 +279,10 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
       QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
       emit snapToTab("SourceNavigatorFile,"+file);
       emit snapToTab("SourceNavigatorSymbol,"+symbol);
+   }
+   else if ( (action) && (action->text() == ADD_TO_WATCH_TEXT) )
+   {
+      emit addWatchedItem(symbol);
    }
 }
 
