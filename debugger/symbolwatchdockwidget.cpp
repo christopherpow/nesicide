@@ -514,6 +514,6 @@ void SymbolWatchDockWidget::on_actionGo_to_Definition_triggered()
    symbol = index.data(Qt::DisplayRole).toString();
    file = CCC65Interface::getSourceFileFromSymbol(symbol);
 
-   emit snapTo("SourceNavigatorFile:"+file);
-   emit snapTo("SourceNavigatorSymbol:"+symbol);
+   emit snapTo("SourceNavigatorFile,"+file);
+   emit snapTo("SourceNavigatorSymbol,"+symbol);
 }

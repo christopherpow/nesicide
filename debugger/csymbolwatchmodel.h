@@ -20,7 +20,6 @@ struct WatchedItem
    QString symbol;
    QString file;
    int     segment;
-   int     size;
 };
 
 class CSymbolWatchModel : public QAbstractTableModel

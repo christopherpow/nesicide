@@ -17,7 +17,7 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
    ui->tableView->setModel(model);
    ui->tableView->resizeColumnsToContents();
 
-   ui->tableView->sortByColumn(2,Qt::DescendingOrder);
+   ui->tableView->sortByColumn(CodeProfilerCol_Calls,Qt::DescendingOrder);
 
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(on_clear_clicked()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
@@ -44,8 +44,8 @@ void CodeProfilerDockWidget::on_tableView_doubleClicked(QModelIndex index)
    QString symbol = model->getItems().at(index.row()).symbol;
    QString file = model->getItems().at(index.row()).file;
 
-   emit snapTo("SourceNavigatorFile:"+file);
-   emit snapTo("SourceNavigatorSymbol:"+symbol);
+   emit snapTo("SourceNavigatorFile,"+file);
+   emit snapTo("SourceNavigatorSymbol,"+symbol);
 }
 
 void CodeProfilerDockWidget::on_clear_clicked()

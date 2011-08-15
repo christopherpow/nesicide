@@ -273,8 +273,8 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    if ( (action) && (action->text() == GO_TO_DEFINITION_TEXT) )
    {
       QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
-      emit snapToTab("SourceNavigatorFile:"+file);
-      emit snapToTab("SourceNavigatorSymbol:"+symbol);
+      emit snapToTab("SourceNavigatorFile,"+file);
+      emit snapToTab("SourceNavigatorSymbol,"+symbol);
    }
 }
 
@@ -613,12 +613,15 @@ void CodeEditorForm::editor_copyAvailable(bool yes)
 
 void CodeEditorForm::updateToolTip(QString symbol)
 {
-   const char* TOOLTIP = "<b>%s</b><br>Address: %s<br>Value: %02X";
+   const char* TOOLTIP_LABEL = "<b>%s</b><br>Location: %s(%d)<br>Address: %s<br>Value: %02X";
+   const char* TOOLTIP_EQUATE = "<b>%s</b>(%X)";
    const char* opcodeToolTipText;
    char        address[32];
    QString     opcodeToolTipForm;
    unsigned int addr;
    unsigned int absAddr;
+   QString      file;
+   int          line;
    QString clangSymbol = "_"+symbol;
 
    setToolTip("");
@@ -637,28 +640,44 @@ void CodeEditorForm::updateToolTip(QString symbol)
    // Next check for symbol tooltips.
    if ( EnvironmentSettingsDialog::showSymbolTips() )
    {
-      addr = CCC65Interface::getSymbolAddress(symbol);
-
-      if ( addr != 0xFFFFFFFF )
+      if ( CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL )
       {
-         absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
-         nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
-
-         sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),address,nesGetMemory(addr));
-         setToolTip(toolTipText);
-      }
-      else
-      {
-         addr = CCC65Interface::getSymbolAddress(clangSymbol);
+         addr = CCC65Interface::getSymbolAddress(symbol);
 
          if ( addr != 0xFFFFFFFF )
          {
-            absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
+            absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
             nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
 
-            sprintf(toolTipText,TOOLTIP,symbol.toAscii().constData(),address,nesGetMemory(addr));
+            file = CCC65Interface::getSourceFileFromSymbol(symbol);
+            line = CCC65Interface::getSourceLineFromFileAndSymbol(file,symbol);
+
+            sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
             setToolTip(toolTipText);
          }
+         else
+         {
+            addr = CCC65Interface::getSymbolAddress(clangSymbol);
+
+            if ( addr != 0xFFFFFFFF )
+            {
+               absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
+               nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+
+               file = CCC65Interface::getSourceFileFromSymbol(symbol);
+               line = CCC65Interface::getSourceLineFromFileAndSymbol(file,symbol);
+
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+               setToolTip(toolTipText);
+            }
+         }
+      }
+      else if ( CCC65Interface::getSymbolType(symbol) == CC65_SYM_EQUATE )
+      {
+         addr = CCC65Interface::getSymbolAddress(symbol);
+
+         sprintf(toolTipText,TOOLTIP_EQUATE,symbol.toAscii().constData(),addr);
+         setToolTip(toolTipText);
       }
    }
 }
@@ -1089,9 +1108,9 @@ void CodeEditorForm::snapTo(QString item)
    int      index;
 
    // Make sure item is something we care about
-   if ( item.startsWith("Address:") )
+   if ( item.startsWith("Address,") )
    {
-      splits = item.split(QRegExp("[:()]"));
+      splits = item.split(QRegExp("[,()]"));
       if ( splits.count() == 5 )
       {
          addr = splits.at(3).toInt(NULL,16);
@@ -1105,13 +1124,13 @@ void CodeEditorForm::snapTo(QString item)
          }
       }
    }
-   else if ( item.startsWith("SearchBar:") )
+   else if ( item.startsWith("SearchBar,") )
    {
       if ( isVisible() )
       {
          m_scintilla->getCursorPosition(&line,&index);
          m_scintilla->setSelection(-1,-1,-1,-1);
-         splits = item.split(QRegExp("[:]"));
+         splits = item.split(QRegExp("[,]"));
          if ( item != m_searchText )
          {
             m_searchText = item; // Capture entire search configuration.
@@ -1123,9 +1142,9 @@ void CodeEditorForm::snapTo(QString item)
          }
       }
    }
-   else if ( item.startsWith("SourceNavigatorFile:") )
+   else if ( item.startsWith("SourceNavigatorFile,") )
    {
-      splits = item.split(QRegExp("[:,]"));
+      splits = item.split(QRegExp("[,]"));
       if ( splits.at(1) == m_fileName )
       {
          if ( splits.count() == 3 )
@@ -1142,9 +1161,9 @@ void CodeEditorForm::snapTo(QString item)
          showExecutionLine(-1);
       }
    }
-   else if ( item.startsWith("OutputPaneFile:") )
+   else if ( item.startsWith("OutputPaneFile,") )
    {
-      splits = item.split(QRegExp("[:,]"));
+      splits = item.split(QRegExp("[,]"));
       if ( splits.at(1) == m_fileName )
       {
          if ( splits.count() == 3 )
@@ -1161,9 +1180,9 @@ void CodeEditorForm::snapTo(QString item)
          highlightLine(-1);
       }
    }
-   else if ( item.startsWith("SourceNavigatorSymbol:") )
+   else if ( item.startsWith("SourceNavigatorSymbol,") )
    {
-      splits = item.split(QRegExp("[:]"));
+      splits = item.split(QRegExp("[,]"));
       line = CCC65Interface::getSourceLineFromFileAndSymbol(m_fileName,splits.at(1));
       if ( line >= 0 )
       {

@@ -156,10 +156,10 @@ void SearchDockWidget::on_projectFolder_clicked(bool checked)
 
 void SearchDockWidget::on_findForReplace_clicked()
 {
-   emit snapTo("SearchBar:"
-               +QString::number(searchBar->isCaseSensitive())+":"
-               +QString::number(searchBar->isRegularExpression())+":"
-               +QString::number(searchBar->searchIsDown())+":"
+   emit snapTo("SearchBar,"
+               +QString::number(searchBar->isCaseSensitive())+","
+               +QString::number(searchBar->isRegularExpression())+","
+               +QString::number(searchBar->searchIsDown())+","
                +searchBar->currentSearchText());
 }
 

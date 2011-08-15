@@ -301,11 +301,11 @@ void GraphicsBankEditorForm::snapTo(QString item)
    QModelIndexList list;
 
    // Make sure item is something we care about
-   if ( item.startsWith("SearchBar:") )
+   if ( item.startsWith("SearchBar,") )
    {
       if ( isVisible() )
       {
-         splits = item.split(QRegExp("[:]"));
+         splits = item.split(QRegExp("[,]"));
          list = model->match(model->index(ui->tableView->currentIndex().row()+1,ChrRomBankItemCol_Name),Qt::DisplayRole,splits.at(4),1,Qt::MatchFixedString|Qt::MatchContains|Qt::MatchWrap);
          if ( list.count() )
          {

@@ -175,7 +175,7 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
          line = line.right(errorParts.at(0).length()-file.length());
          line = line.mid(1,line.length()-2);
 
-         emit snapTo("OutputPaneFile:"+file+","+line);
+         emit snapTo("OutputPaneFile,"+file+","+line);
       }
    }
 }
@@ -201,7 +201,7 @@ void OutputPaneDockWidget::on_searchOutputTextEdit_selectionChanged()
          file = searchParts.at(0);
          line = searchParts.at(1);
 
-         emit snapTo("OutputPaneFile:"+file+","+line);
+         emit snapTo("OutputPaneFile,"+file+","+line);
       }
    }
 }

@@ -96,7 +96,7 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
       if ( !file.isEmpty() )
       {
          linenumber = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
-         emit snapTo("SourceNavigatorFile:"+file+","+QString::number(linenumber));
+         emit snapTo("SourceNavigatorFile,"+file+","+QString::number(linenumber));
       }
    }
 }
@@ -110,12 +110,12 @@ void SourceNavigator::compiler_compileDone(bool bOk)
 
 void SourceNavigator::on_files_activated(QString file)
 {
-   emit snapTo("SourceNavigatorFile:"+file);
+   emit snapTo("SourceNavigatorFile,"+file);
 }
 
 void SourceNavigator::on_symbols_activated(QString symbol)
 {
    QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
-   emit snapTo("SourceNavigatorFile:"+file);
-   emit snapTo("SourceNavigatorSymbol:"+symbol);
+   emit snapTo("SourceNavigatorFile,"+file);
+   emit snapTo("SourceNavigatorSymbol,"+symbol);
 }

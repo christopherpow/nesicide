@@ -450,6 +450,26 @@ QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
    return symbols;
 }
 
+cc65_symbol_type CCC65Interface::getSymbolType(QString symbol, int index)
+{
+   cc65_symbol_type type = (cc65_symbol_type)CC65_INV_ID;
+
+   if ( dbgInfo )
+   {
+      cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         if ( dbgSymbols->count > index )
+         {
+            type = dbgSymbols->data[index].symbol_type;
+         }
+      }
+   }
+   return type;
+}
+
 unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
 {
    unsigned int addr = 0xFFFFFFFF;
@@ -461,8 +481,8 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count > index) &&
-              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
+         if ( (dbgSymbols->count > index) /*&&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
             addr = dbgSymbols->data[index].symbol_value;
          }
@@ -484,8 +504,8 @@ unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count > index) &&
-              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
+         if ( (dbgSymbols->count > index) /*&&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
             addr = dbgSymbols->data[index].symbol_value;
             dbgSegments = cc65_segmentinfo_byid(dbgInfo,dbgSymbols->data[index].symbol_segment);
@@ -515,8 +535,8 @@ unsigned int CCC65Interface::getSymbolSegment(QString symbol, int index)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count > index) &&
-              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
+         if ( (dbgSymbols->count > index) /*&&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
             seg = dbgSymbols->data[index].symbol_segment;
          }
@@ -536,8 +556,8 @@ QString CCC65Interface::getSymbolSegmentName(QString symbol, int index)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count > index) &&
-              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL) )
+         if ( (dbgSymbols->count > index) /*&&
+              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
             if ( dbgSymbols->data[index].symbol_segment >= 0 )
             {

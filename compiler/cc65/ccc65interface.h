@@ -24,6 +24,7 @@ public:
    static unsigned int getSourceFileModificationTime(QString sourceFile);
    static QStringList getSymbolsForSourceFile(QString sourceFile);
    static int getSymbolMatchCount(QString symbol);
+   static cc65_symbol_type getSymbolType(QString symbol,int index = 0);
    static unsigned int getSymbolAddress(QString symbol,int index = 0);
    static unsigned int getSymbolAbsoluteAddress(QString symbol,int index = 0);
    static unsigned int getSymbolSegment(QString symbol,int index = 0);

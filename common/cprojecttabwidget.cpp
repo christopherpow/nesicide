@@ -95,9 +95,9 @@ void CProjectTabWidget::snapToTab(QString item)
    CDesignerEditorBase* editor = NULL;
 
    // Make sure item is something we care about
-   if ( item.startsWith("Address:") )
+   if ( item.startsWith("Address,") )
    {
-      splits = item.split(QRegExp("[:()]"));
+      splits = item.split(QRegExp("[,()]"));
       if ( splits.count() == 5 )
       {
          addr = splits.at(3).toInt(NULL,16);
@@ -106,14 +106,14 @@ void CProjectTabWidget::snapToTab(QString item)
          file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
       }
    }
-   else if ( item.startsWith("SourceNavigatorFile:") )
+   else if ( item.startsWith("SourceNavigatorFile,") )
    {
-      splits = item.split(QRegExp("[:,]"));
+      splits = item.split(QRegExp("[,]"));
       file = splits.at(1);
    }
-   else if ( item.startsWith("OutputPaneFile:") )
+   else if ( item.startsWith("OutputPaneFile,") )
    {
-      splits = item.split(QRegExp("[:,]"));
+      splits = item.split(QRegExp("[,]"));
       file = splits.at(1);
    }
 

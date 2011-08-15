@@ -145,10 +145,10 @@ void CodeBrowserDockWidget::snapTo(QString item)
    uint32_t addr;
 
    // Make sure item is something we care about
-   if ( item.startsWith("Address:") )
+   if ( item.startsWith("Address,") )
    {
       QStringList splits;
-      splits = item.split(QRegExp("[:()]"));
+      splits = item.split(QRegExp("[,()]"));
       if ( splits.count() == 5 )
       {
          addr = splits.at(3).toInt(NULL,16);

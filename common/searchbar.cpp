@@ -62,10 +62,10 @@ bool    SearchBar::searchIsDown()
 
 QString SearchBar::snapTo()
 {
-   return QString("SearchBar:"
-               +QString::number(ui->caseSensitive->isChecked())+":"
-               +QString::number(ui->regex->isChecked())+":"
-               +QString::number(ui->direction->isChecked())+":"
+   return QString("SearchBar,"
+               +QString::number(ui->caseSensitive->isChecked())+","
+               +QString::number(ui->regex->isChecked())+","
+               +QString::number(ui->direction->isChecked())+","
                +ui->searchText->currentText());
 }
 
@@ -88,10 +88,10 @@ void SearchBar::on_searchText_activated(QString search)
       }
       settings.setValue("SearchTextHistory",QVariant(items));
 
-      emit snapTo("SearchBar:"
-                  +QString::number(ui->caseSensitive->isChecked())+":"
-                  +QString::number(ui->regex->isChecked())+":"
-                  +QString::number(ui->direction->isChecked())+":"
+      emit snapTo("SearchBar,"
+                  +QString::number(ui->caseSensitive->isChecked())+","
+                  +QString::number(ui->regex->isChecked())+","
+                  +QString::number(ui->direction->isChecked())+","
                   +search);
    }
    settings.endGroup();
@@ -101,10 +101,10 @@ void SearchBar::on_searchText_editTextChanged(QString search)
 {
    if ( !search.isEmpty() )
    {
-      emit snapTo("SearchBar:"
-                  +QString::number(ui->caseSensitive->isChecked())+":"
-                  +QString::number(ui->regex->isChecked())+":"
-                  +QString::number(ui->direction->isChecked())+":"
+      emit snapTo("SearchBar,"
+                  +QString::number(ui->caseSensitive->isChecked())+","
+                  +QString::number(ui->regex->isChecked())+","
+                  +QString::number(ui->direction->isChecked())+","
                   +search);
    }
 }

@@ -45,6 +45,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    int absAddr;
    QString data;
    int symbolIdx;
+   int size;
 
    if (role != Qt::DisplayRole)
    {
@@ -77,7 +78,15 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             }
             break;
          case SymbolWatchCol_Size:
-            return QVariant(m_items.at(index.row()).size);
+            size = CCC65Interface::getSymbolSize(m_items.at(index.row()).symbol,symbolIdx);
+            if ( size )
+            {
+               return QVariant(size);
+            }
+            else
+            {
+               return QVariant("?");
+            }
             break;
          case SymbolWatchCol_Value:
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,symbolIdx);
@@ -131,7 +140,6 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
             {
                item.symbol = value.toString();
                item.segment = resolveSymbol(value.toString());
-               item.size = CCC65Interface::getSymbolSize(value.toString(),CCC65Interface::getSymbolIndexFromSegment(value.toString(),item.segment));
                m_items.replace(index.row(),item);
                emit layoutChanged();
                ok = true;
@@ -144,7 +152,6 @@ bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value,
                   beginInsertRows(QModelIndex(),m_items.count()+1,m_items.count()+1);
                   item.symbol = value.toString();
                   item.segment = resolveSymbol(value.toString());
-                  item.size = CCC65Interface::getSymbolSize(value.toString(),CCC65Interface::getSymbolIndexFromSegment(value.toString(),item.segment));
                   m_items.append(item);
                   endInsertRows();
 
@@ -262,7 +269,6 @@ void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
    beginInsertRows(parent,m_items.count(),m_items.count());
    item.symbol = text;
    item.segment = resolveSymbol(text);
-   item.size = CCC65Interface::getSymbolSize(text,CCC65Interface::getSymbolIndexFromSegment(text,item.segment));
    m_items.append(item);
    endInsertRows();
 }

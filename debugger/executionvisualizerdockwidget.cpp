@@ -229,7 +229,7 @@ void ExecutionVisualizerDockWidget::on_tableView_pressed(QModelIndex index)
    if ( (index.column() == ExecutionVisualizerCol_StartAddr) ||
         (index.column() == ExecutionVisualizerCol_EndAddr) )
    {
-      emit snapTo("Address:"+index.data(Qt::DisplayRole).toString());
+      emit snapTo("Address,"+index.data(Qt::DisplayRole).toString());
    }
 }
 
