@@ -429,6 +429,7 @@ bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStrin
    QDomNode breakpointNode;
    int bp;
 
+   // Clear out existing breakpoints...
    if ( pBreakpoints->GetNumBreakpoints() )
    {
       for ( bp = pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
@@ -437,6 +438,7 @@ bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStrin
       }
    }
 
+   // Load new breakpoints...
    if (!childNode.isNull())
    {
       do

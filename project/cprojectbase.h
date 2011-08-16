@@ -25,6 +25,7 @@ public:
    // IProjectTreeViewItem Interface Implmentation
    virtual QString caption() const { return m_name; }
    virtual void closeItemEvent();
+   virtual bool exportData() { return true; }
 
 protected:
    // Attributes

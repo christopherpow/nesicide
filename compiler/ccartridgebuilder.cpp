@@ -44,6 +44,7 @@ bool CCartridgeBuilder::build()
    QFile prgFile;
    QFile chrFile;
    QFile nesFile;
+   bool ok;
 
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
@@ -85,9 +86,19 @@ bool CCartridgeBuilder::build()
    {
       if ( !nesicideProject->getLinkerConfigFile().isEmpty() )
       {
-         if (!(graphicsAssembler.assemble() && sourceAssembler.assemble()))
+         ok = graphicsAssembler.assemble();
+         if ( ok )
          {
-            buildTextLogger->write("<font color='red'><b>Build failed.</b></font>");
+            ok = sourceAssembler.assemble();
+            if ( !ok )
+            {
+               buildTextLogger->write("<font color='red'><b>Build failed while processing Source.</b></font>");
+               return false;
+            }
+         }
+         else
+         {
+            buildTextLogger->write("<font color='red'><b>Build failed while processing Graphics Banks.</b></font>");
             return false;
          }
 

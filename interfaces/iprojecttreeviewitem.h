@@ -97,6 +97,7 @@ public:
    virtual void closeItemEvent() = 0;
    virtual bool canChangeName() = 0;
    virtual bool onNameChanged(QString newValue) = 0;
+   virtual bool exportData() = 0;
 
 private:
    QList<IProjectTreeViewItem*> childItems;

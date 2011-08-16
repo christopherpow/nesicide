@@ -103,6 +103,18 @@ void CNesicideProject::initializeProject()
 
 void CNesicideProject::terminateProject()
 {
+   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   int bp;
+
+   // Clear out existing breakpoints...
+   if ( pBreakpoints->GetNumBreakpoints() )
+   {
+      for ( bp = pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
+      {
+         pBreakpoints->RemoveBreakpoint(bp);
+      }
+   }
+
    // Terminate child nodes
    m_pProject->terminateProject();
    m_pCartridge->terminateProject();

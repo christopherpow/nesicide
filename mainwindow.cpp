@@ -607,6 +607,8 @@ void MainWindow::on_actionSave_Project_triggered()
       saveProject();
    }
 
+   nesicideProject->setDirty(false);
+
    settings.setValue("LastProject",projectFileName);
 }
 
