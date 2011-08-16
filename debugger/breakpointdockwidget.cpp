@@ -25,6 +25,8 @@ BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
 
    model = new CBreakpointDisplayModel();
    ui->tableView->setModel ( model );
+   ui->tableView->installEventFilter(this);
+   ui->tableView->viewport()->installEventFilter(this);
 
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
 
@@ -32,6 +34,7 @@ BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(emulatorStarted()),model,SLOT(update()));
    QObject::connect(this,SIGNAL(breakpointsChanged()),model,SLOT(update()));
 }
 
@@ -39,6 +42,32 @@ BreakpointDockWidget::~BreakpointDockWidget()
 {
    delete ui;
    delete model;
+}
+
+bool BreakpointDockWidget::eventFilter(QObject *obj, QEvent *event)
+{
+   if ( obj == ui->tableView || obj == ui->tableView->viewport() )
+   {
+      if ( event->type() == QEvent::DragEnter )
+      {
+         QDragEnterEvent* newEvent = static_cast<QDragEnterEvent*>(event);
+         dragEnterEvent(newEvent);
+         return true;
+      }
+      if ( event->type() == QEvent::DragMove )
+      {
+         QDragMoveEvent* newEvent = static_cast<QDragMoveEvent*>(event);
+         dragMoveEvent(newEvent);
+         return true;
+      }
+      if ( event->type() == QEvent::Drop )
+      {
+         QDropEvent* newEvent = static_cast<QDropEvent*>(event);
+         dropEvent(newEvent);
+         return true;
+      }
+   }
+   return false;
 }
 
 void BreakpointDockWidget::changeEvent(QEvent* e)

@@ -40,6 +40,7 @@ signals:
 private:
    Ui::BreakpointDockWidget *ui;
    CBreakpointDisplayModel* model;
+   bool eventFilter(QObject *obj, QEvent *event);
 
 public slots:
    void updateData();
