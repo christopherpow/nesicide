@@ -38,33 +38,6 @@
       <property name="textElideMode">
        <enum>Qt::ElideNone</enum>
       </property>
-      <property name="showGrid">
-       <bool>false</bool>
-      </property>
-      <property name="gridStyle">
-       <enum>Qt::NoPen</enum>
-      </property>
-      <property name="cornerButtonEnabled">
-       <bool>false</bool>
-      </property>
-      <attribute name="horizontalHeaderCascadingSectionResizes">
-       <bool>false</bool>
-      </attribute>
-      <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>26</number>
-      </attribute>
-      <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>26</number>
-      </attribute>
-      <attribute name="verticalHeaderVisible">
-       <bool>true</bool>
-      </attribute>
-      <attribute name="verticalHeaderDefaultSectionSize">
-       <number>23</number>
-      </attribute>
-      <attribute name="verticalHeaderMinimumSectionSize">
-       <number>23</number>
-      </attribute>
      </widget>
     </item>
    </layout>

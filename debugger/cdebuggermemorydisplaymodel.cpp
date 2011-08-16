@@ -34,8 +34,8 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
          m_length = 0x18; // this should perhaps be MEM_4KB or something else...mirroring?
          break;
       case eMemory_cartSRAM:
-         m_offset = 0;
-         m_length = MEM_8KB;
+         m_offset = 0x6000;
+         m_length = MEM_64KB;
          break;
       case eMemory_cartROM:
          m_offset = 0x8000;
@@ -195,10 +195,16 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
             }
 
             break;
-         case eMemory_CPU:
          case eMemory_cartROM:
+            nesGetPrintableAddress(modelStringBuffer,0x8000+((section&0x7FFF)<<4));
+            break;
          case eMemory_cartSRAM:
+            nesGetPrintableAddress(modelStringBuffer,0x6000+((section&0x1FFF)<<4));
+            break;
          case eMemory_cartEXRAM:
+            nesGetPrintableAddress(modelStringBuffer,0x5C00+((section&0x3FF)<<4));
+            break;
+         case eMemory_CPU:
          case eMemory_cartCHRMEM:
          case eMemory_PPU:
          case eMemory_PPUregs:
