@@ -1059,14 +1059,14 @@ void CodeEditorForm::replaceText(QString from, QString to, bool replaceAll)
    int      index;
    bool     found = false;
 
-   if ( from.startsWith("SearchBar:") )
+   if ( from.startsWith("SearchBar,") )
    {
       if ( isVisible() )
       {
          m_scintilla->getSelection(&lineStart,&indexStart,&lineEnd,&indexEnd);
          m_scintilla->setSelection(-1,-1,-1,-1);
 
-         splits = from.split(QRegExp("[:]"));
+         splits = from.split(QRegExp("[,]"));
          if ( splits.at(3) == "0" )
          {
             line = lineEnd;
@@ -1114,6 +1114,8 @@ void CodeEditorForm::snapTo(QString item)
    uint32_t absAddr;
    int      line;
    int      index;
+   int      throwAway1;
+   int      throwAway2;
 
    // Make sure item is something we care about
    if ( item.startsWith("Address,") )
@@ -1136,13 +1138,25 @@ void CodeEditorForm::snapTo(QString item)
    {
       if ( isVisible() )
       {
-         m_scintilla->getCursorPosition(&line,&index);
-         m_scintilla->setSelection(-1,-1,-1,-1);
          splits = item.split(QRegExp("[,]"));
+         if ( splits.at(3).toInt() )
+         {
+            // If searching forward, search from the beginning of the selection.
+            m_scintilla->getSelection(&line,&index,&throwAway1,&throwAway2);
+         }
+         else
+         {
+            // If searching backward, search from the end of the selection.
+            m_scintilla->getSelection(&throwAway1,&throwAway2,&line,&index);
+            index += 1;
+         }
          if ( item != m_searchText )
          {
             m_searchText = item; // Capture entire search configuration.
             m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index);
+//            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
+//                    bool wrap, bool forward = true, int line = -1, int index = -1,
+//                    bool show = true);
          }
          else
          {

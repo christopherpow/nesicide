@@ -371,6 +371,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSearch"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionE_xit">
    <property name="icon">

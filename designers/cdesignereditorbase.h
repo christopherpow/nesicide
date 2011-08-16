@@ -34,6 +34,8 @@ signals:
    void markProjectDirty(bool dirty);
    void breakpointsChanged();
    void activateSearchBar();
+   void snapToTab(QString item);
+   void addWatchedItem(QString item);
 
 protected:
    bool m_isModified;
