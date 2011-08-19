@@ -21,6 +21,7 @@ int EmulatorPrefsDialog::vausArkanoidKeyMap[NUM_CONTROLLERS][IO_Vaus_MAX];
 bool EmulatorPrefsDialog::vausArkanoidMouseMap[NUM_CONTROLLERS][IO_Vaus_MAX];
 int EmulatorPrefsDialog::vausArkanoidTrimPot[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::tvStandard;
+bool EmulatorPrefsDialog::pauseOnKIL;
 bool EmulatorPrefsDialog::square1Enabled;
 bool EmulatorPrefsDialog::square2Enabled;
 bool EmulatorPrefsDialog::triangleEnabled;
@@ -41,6 +42,7 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    on_controllerPortComboBox_currentIndexChanged(0);
 
    ui->tvStandard->setCurrentIndex(tvStandard);
+   ui->pauseOnKIL->setChecked(pauseOnKIL);
 
    ui->square1->setChecked(square1Enabled);
    ui->square2->setChecked(square2Enabled);
@@ -112,6 +114,7 @@ void EmulatorPrefsDialog::readSettings()
 
    settings.beginGroup("EmulatorPreferences/System");
    tvStandard = settings.value("TVStandard",QVariant(MODE_NTSC)).toInt();
+   pauseOnKIL = settings.value("PauseOnKIL",QVariant(true)).toBool();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences");
@@ -138,7 +141,8 @@ void EmulatorPrefsDialog::writeSettings()
    int       function;
 
    // Set query flags.
-   if ( tvStandard != ui->tvStandard->currentIndex() )
+   if ( (tvStandard != ui->tvStandard->currentIndex()) ||
+        (pauseOnKIL != ui->pauseOnKIL->isChecked()) )
    {
       systemUpdated = true;
    }
@@ -202,6 +206,7 @@ void EmulatorPrefsDialog::writeSettings()
       break;
    }
    tvStandard = ui->tvStandard->currentIndex();
+   pauseOnKIL = ui->pauseOnKIL->isChecked();
 
    square1Enabled = ui->square1->isChecked();
    square2Enabled = ui->square2->isChecked();
@@ -254,6 +259,7 @@ void EmulatorPrefsDialog::writeSettings()
 
    settings.beginGroup("EmulatorPreferences/System");
    settings.setValue("TVStandard",tvStandard);
+   settings.setValue("PauseOnKIL",pauseOnKIL);
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences");
@@ -475,6 +481,11 @@ int EmulatorPrefsDialog::getControllerSpecial(int port)
 int EmulatorPrefsDialog::getTVStandard()
 {
    return tvStandard;
+}
+
+bool EmulatorPrefsDialog::getPauseOnKIL()
+{
+   return pauseOnKIL;
 }
 
 void EmulatorPrefsDialog::setTVStandard(int standard)

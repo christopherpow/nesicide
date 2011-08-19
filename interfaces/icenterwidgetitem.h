@@ -8,7 +8,7 @@ class ICenterWidgetItem
 public:
    void InitTabItem(IProjectTreeViewItem* link = 0)
    {
-      treeLink = link;
+      _treeLink = link;
    }
 
    virtual bool isModified() = 0;
@@ -18,11 +18,13 @@ public:
    virtual void onClose() = 0;
    virtual bool onSaveQuery() = 0;
    virtual void onSave() = 0;
+
+   virtual IProjectTreeViewItem* treeLink() { return _treeLink; }
 // CPTODO later:   virtual bool canChangeName() = 0;
 // CPTODO later:   virtual bool onNameChanged(QString newValue) = 0;
 
 protected:
-   IProjectTreeViewItem* treeLink;
+   IProjectTreeViewItem* _treeLink;
 };
 
 #endif // ICENTERWIDGETITEM_H

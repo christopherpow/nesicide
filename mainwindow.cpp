@@ -313,6 +313,9 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->actionPAL->setChecked(systemMode==MODE_PAL);
    nesSetSystemMode(systemMode);
 
+   bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
+   nesSetBreakOnKIL(breakOnKIL);
+
    // Set up controllers.
    nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
    nesSetControllerSpecial(0,EmulatorPrefsDialog::getControllerSpecial(0));
@@ -343,6 +346,10 @@ MainWindow::MainWindow(QWidget* parent) :
    {
       ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tab));
    }
+
+   // Load all plugins.
+   pluginManager->doInitScript();
+   pluginManager->loadPlugins();
 
    QStringList argv = QApplication::arguments();
    QStringList argv_nes = argv.filter ( QRegExp("*.nes",Qt::CaseInsensitive,QRegExp::Wildcard) );
@@ -400,10 +407,6 @@ MainWindow::MainWindow(QWidget* parent) :
    //emulator->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
    emulator->adjustAudio( APU_SAMPLES );
    emulator->resetEmulator();
-
-   // Always call this last CPTODO: WHY?
-   pluginManager->doInitScript();
-   pluginManager->loadPlugins();
 
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
    {
@@ -1630,6 +1633,9 @@ void MainWindow::on_actionPreferences_triggered()
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
    ui->actionPAL->setChecked(systemMode==MODE_PAL);
    nesSetSystemMode(systemMode);
+
+   bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
+   nesSetBreakOnKIL(breakOnKIL);
 
    bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
    bool square2 = EmulatorPrefsDialog::getSquare2Enabled();

@@ -39,6 +39,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_scintilla = new QsciScintilla();
 
+   m_scintilla->setFrameShape(QFrame::NoFrame);
+
    m_fileName = fileName;
    m_searchText = "";
    m_language = Language_Default;
@@ -288,7 +290,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 
 void CodeEditorForm::onSave()
 {
-   if ( treeLink )
+   if ( treeLink() )
    {
       // This editor is paired with a project item, use the normal
       // project mechanics to do the saving.

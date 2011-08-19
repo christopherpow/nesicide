@@ -36,9 +36,9 @@ bool CDesignerEditorBase::onCloseQuery()
 
 void CDesignerEditorBase::onClose()
 {
-   if ( treeLink )
+   if ( _treeLink )
    {
-      treeLink->closeItemEvent();
+      _treeLink->closeItemEvent();
    }
 }
 
@@ -60,9 +60,9 @@ bool CDesignerEditorBase::onSaveQuery()
 
 void CDesignerEditorBase::onSave()
 {
-   if ( treeLink )
+   if ( _treeLink )
    {
-      treeLink->saveItemEvent();
+      _treeLink->saveItemEvent();
    }
    setModified(false);
 }

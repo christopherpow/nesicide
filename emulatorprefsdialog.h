@@ -34,6 +34,7 @@ public:
    static bool getControllerMouseMap(int port,int function);
    static int getControllerSpecial(int port);
    static int getTVStandard();
+   static bool getPauseOnKIL();
    static bool getSquare1Enabled();
    static bool getSquare2Enabled();
    static bool getTriangleEnabled();
@@ -66,6 +67,7 @@ private:
    static bool vausArkanoidMouseMap[NUM_CONTROLLERS][IO_Vaus_MAX];
    static int vausArkanoidTrimPot[NUM_CONTROLLERS];
    static int tvStandard;
+   static bool pauseOnKIL;
    static bool square1Enabled;
    static bool square2Enabled;
    static bool triangleEnabled;

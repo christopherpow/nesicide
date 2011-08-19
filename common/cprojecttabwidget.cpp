@@ -11,9 +11,62 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
 {
 }
 
+void CProjectTabWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+   // Make sure tab under pointer is current...
+   setCurrentWidget(widget(this->tabBar()->tabAt(event->pos())));
+
+   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget(currentIndex()));
+   QMenu menu;
+
+   QString addToProjectText = "Add to ";
+   addToProjectText += nesicideProject->getProjectTitle();
+   addToProjectText += " project...";
+
+   QString removeFromProjectText = "Remove from ";
+   removeFromProjectText += nesicideProject->getProjectTitle();
+   removeFromProjectText += " project...";
+
+   QStringList extensions;
+   extensions += EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
+   extensions += EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts);
+
+   if ( (editor) &&
+        (!editor->treeLink()) )
+   {
+      menu.addAction(addToProjectText);
+   }
+   else if ( (editor) &&
+             (editor->treeLink()) )
+   {
+      menu.addAction(removeFromProjectText);
+   }
+
+   QAction* action = menu.exec(event->globalPos());
+   QString fileName = tabBar()->tabText(currentIndex());
+   QDir dir(QDir::currentPath());
+
+   if ( action && (action->text() == addToProjectText) )
+   {
+      foreach ( QString ext, extensions )
+      {
+         if ( fileName.endsWith(ext) )
+         {
+            qDebug(dir.fromNativeSeparators(dir.relativeFilePath(fileName)).toAscii().constData());
+            break;
+         }
+      }
+   }
+   else if ( action && (action->text() == removeFromProjectText) )
+   {
+
+   }
+}
+
 int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &label)
 {
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
+   QIcon myIcon;
    int tabIdx;
 
    if ( editor )
@@ -24,7 +77,15 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
    }
 
-   tabIdx = QTabWidget::addTab(widget,icon,label);
+   if ( editor && editor->treeLink() )
+   {
+      myIcon = editor->treeLink()->icon();
+   }
+   else
+   {
+      myIcon = QIcon(":/resources/add_file.png");
+   }
+   tabIdx = QTabWidget::addTab(widget,myIcon,label);
 
    emit tabAdded(tabIdx);
 

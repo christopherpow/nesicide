@@ -73,6 +73,9 @@ public:
    int addTab(QWidget *widget, const QString &label);
    void removeTab(int index);
 
+protected:
+   void contextMenuEvent(QContextMenuEvent *event);
+
 signals:
    void tabModified(int tab,bool modified);
    void tabAdded(int tab);

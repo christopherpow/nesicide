@@ -21,7 +21,14 @@ public:
       parentItem = parent;
       ident = new QUuid();
       (*ident) = QUuid::createUuid();
-      _icon =QIcon(iconResource);
+      if ( iconResource.isEmpty() )
+      {
+         _icon = QIcon(":/resources/document.png");
+      }
+      else
+      {
+         _icon = QIcon(iconResource);
+      }
    }
 
    QIcon icon()

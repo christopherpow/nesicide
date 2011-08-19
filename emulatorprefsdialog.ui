@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="controllers">
       <attribute name="title">
@@ -621,6 +621,13 @@
            <string>PAL</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="pauseOnKIL">
+         <property name="text">
+          <string>Pause emulator on KIL opcodes</string>
+         </property>
         </widget>
        </item>
       </layout>

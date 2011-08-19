@@ -67,5 +67,8 @@
         <file>resources/stepreturn_6.png</file>
         <file>resources/stepover_6.png</file>
         <file>resources/Makefile</file>
+        <file>resources/add_file.png</file>
+        <file>resources/document.png</file>
+        <file>resources/folder.png</file>
     </qresource>
 </RCC>
