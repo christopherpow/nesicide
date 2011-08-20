@@ -5,7 +5,7 @@
 CProjectPrimitives::CProjectPrimitives(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(":/resources/folder.png",parent);
+   InitTreeItem(":/resources/folder_closed.png",parent);
 
    // Allocate children
    m_pAttributeTables = new CAttributeTables(this);

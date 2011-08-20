@@ -69,6 +69,7 @@
         <file>resources/Makefile</file>
         <file>resources/add_file.png</file>
         <file>resources/document.png</file>
-        <file>resources/folder.png</file>
+        <file>resources/folder_closed.png</file>
+        <file>resources/folder_open.png</file>
     </qresource>
 </RCC>

@@ -38,3 +38,15 @@ void ProjectBrowserDockWidget::disableNavigation()
 {
    ui->projectTreeWidget->setModel(NULL);
 }
+
+void ProjectBrowserDockWidget::on_projectTreeWidget_collapsed(QModelIndex index)
+{
+}
+
+void ProjectBrowserDockWidget::on_projectTreeWidget_doubleClicked(QModelIndex index)
+{
+}
+
+void ProjectBrowserDockWidget::on_projectTreeWidget_expanded(QModelIndex index)
+{
+}

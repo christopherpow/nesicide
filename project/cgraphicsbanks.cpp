@@ -3,7 +3,7 @@
 CGraphicsBanks::CGraphicsBanks(IProjectTreeViewItem* parent)
 {
    // Add node to tree
-   InitTreeItem(":/resources/folder.png",parent);
+   InitTreeItem(":/resources/folder_closed.png",parent);
 }
 
 CGraphicsBanks::~CGraphicsBanks()

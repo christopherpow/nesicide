@@ -7,7 +7,7 @@
 CNesicideProject::CNesicideProject()
 {
    // Add node to tree as root
-   InitTreeItem(":/resources/folder.png");
+   InitTreeItem(":/resources/folder_closed.png");
 
    // Allocate children
    m_pProject = new CProject(this);
