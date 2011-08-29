@@ -1441,7 +1441,7 @@ void MainWindow::closeProject()
    projectBrowser->disableNavigation();
 
    // Try to close all opened editors
-   for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+   for ( tab = ui->tabWidget->count()-1; tab >= 0; tab-- )
    {
       ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
       if ( item )
@@ -1451,6 +1451,7 @@ void MainWindow::closeProject()
          {
             item->onSave();
          }
+         on_tabWidget_tabCloseRequested(tab);
          ui->tabWidget->removeTab(tab);
       }
    }

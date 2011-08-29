@@ -52,7 +52,7 @@ void CProjectTabWidget::contextMenuEvent(QContextMenuEvent *event)
       {
          if ( fileName.endsWith(ext) )
          {
-            qDebug(dir.fromNativeSeparators(dir.relativeFilePath(fileName)).toAscii().constData());
+            nesicideProject->getProject()->getSources()->addSourceFile(fileName);
             break;
          }
       }

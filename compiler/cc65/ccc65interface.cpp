@@ -6,10 +6,14 @@
 #include "main.h"
 
 cc65_dbginfo        CCC65Interface::dbgInfo = NULL;
-cc65_sourceinfo*    CCC65Interface::dbgSources = NULL;
-cc65_segmentinfo*   CCC65Interface::dbgSegments = NULL;
-cc65_lineinfo*      CCC65Interface::dbgLines = NULL;
-cc65_symbolinfo*    CCC65Interface::dbgSymbols = NULL;
+const cc65_libraryinfo*   CCC65Interface::dbgLibraries = NULL;
+const cc65_moduleinfo*    CCC65Interface::dbgModules = NULL;
+const cc65_scopeinfo*     CCC65Interface::dbgScopes = NULL;
+const cc65_spaninfo*      CCC65Interface::dbgSpans = NULL;
+const cc65_sourceinfo*    CCC65Interface::dbgSources = NULL;
+const cc65_segmentinfo*   CCC65Interface::dbgSegments = NULL;
+const cc65_lineinfo*      CCC65Interface::dbgLines = NULL;
+const cc65_symbolinfo*    CCC65Interface::dbgSymbols = NULL;
 QStringList         CCC65Interface::errors;
 
 static const char* clangTargetRuleFmt =
@@ -40,6 +44,26 @@ void CCC65Interface::clear()
 {
    if ( dbgInfo )
    {
+      if ( dbgLibraries )
+      {
+         cc65_free_libraryinfo(dbgInfo,dbgLibraries);
+         dbgLibraries = 0;
+      }
+      if ( dbgModules )
+      {
+         cc65_free_moduleinfo(dbgInfo,dbgModules);
+         dbgModules = 0;
+      }
+      if ( dbgScopes )
+      {
+         cc65_free_scopeinfo(dbgInfo,dbgScopes);
+         dbgScopes = 0;
+      }
+      if ( dbgSpans )
+      {
+         cc65_free_spaninfo(dbgInfo,dbgSpans);
+         dbgSpans = 0;
+      }
       if ( dbgSources )
       {
          cc65_free_sourceinfo(dbgInfo,dbgSources);
@@ -481,8 +505,7 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
 
       if ( dbgSymbols )
       {
-         if ( (dbgSymbols->count > index) /*&&
-              (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
+         if ( dbgSymbols->count > index )
          {
             addr = dbgSymbols->data[index].symbol_value;
          }
@@ -508,7 +531,7 @@ unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
               (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
             addr = dbgSymbols->data[index].symbol_value;
-            dbgSegments = cc65_segmentinfo_byid(dbgInfo,dbgSymbols->data[index].symbol_segment);
+            dbgSegments = cc65_segment_byid(dbgInfo,dbgSymbols->data[index].segment_id);
 
             if ( dbgSegments )
             {
@@ -538,7 +561,7 @@ unsigned int CCC65Interface::getSymbolSegment(QString symbol, int index)
          if ( (dbgSymbols->count > index) /*&&
               (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
-            seg = dbgSymbols->data[index].symbol_segment;
+            seg = dbgSymbols->data[index].segment_id;
          }
       }
    }
@@ -559,9 +582,9 @@ QString CCC65Interface::getSymbolSegmentName(QString symbol, int index)
          if ( (dbgSymbols->count > index) /*&&
               (dbgSymbols->data[index].symbol_type == CC65_SYM_LABEL)*/ )
          {
-            if ( dbgSymbols->data[index].symbol_segment >= 0 )
+            if ( dbgSymbols->data[index].segment_id >= 0 )
             {
-               dbgSegments = cc65_segmentinfo_byid(dbgInfo,dbgSymbols->data[index].symbol_segment);
+               dbgSegments = cc65_segment_byid(dbgInfo,dbgSymbols->data[index].segment_id);
                if ( dbgSegments )
                {
                   seg = dbgSegments->data[0].segment_name;
@@ -587,7 +610,7 @@ unsigned int CCC65Interface::getSymbolIndexFromSegment(QString symbol, int segme
       {
          for ( idx = 0; idx < dbgSymbols->count; idx++ )
          {
-            if ( dbgSymbols->data[idx].symbol_segment == segment )
+            if ( dbgSymbols->data[idx].segment_id == segment )
             {
                index = idx;
                break;
@@ -620,6 +643,7 @@ unsigned int CCC65Interface::getSymbolSize(QString symbol, int index)
 
 int CCC65Interface::getSymbolMatchCount(QString symbol)
 {
+   int sym;
    int count = 0;
 
    if ( dbgInfo )
@@ -629,7 +653,13 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
 
       if ( dbgSymbols )
       {
-         count = dbgSymbols->count;
+         for ( sym = 0; sym < dbgSymbols->count; sym++ )
+         {
+            if ( dbgSymbols->data[sym].export_id == CC65_INV_ID )
+            {
+               count++;
+            }
+         }
       }
    }
    return count;
@@ -637,40 +667,55 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
 
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
-   int line;
-   int seg;
+   int span;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
 
    if ( dbgInfo )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+      // Get the span containing this virtual address.
+      cc65_free_spaninfo(dbgInfo,dbgSpans);
+      dbgSpans = cc65_span_byaddr(dbgInfo,addr);
 
-      cc65_free_segmentinfo(dbgInfo,dbgSegments);
-      dbgSegments = cc65_get_segmentlist(dbgInfo);
-
-      if ( dbgLines && dbgSegments )
+      if ( dbgSpans )
       {
-         for ( line = 0; line < dbgLines->count; line++ )
+         for ( span = 0; span < dbgSpans->count; span++ )
          {
-            // Find the segment containing this absolute address.
-            for ( seg = 0; seg < dbgSegments->count; seg++ )
+            if ( dbgSpans->data[span].line_count )
             {
-               if ( (dbgLines->data[line].output_offs >= dbgSegments->data[seg].output_offs) &&
-                    (dbgLines->data[line].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
+               // Get the segment potentially containing this absolute address.
+               cc65_free_segmentinfo(dbgInfo,dbgSegments);
+               dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[span].segment_id);
+
+               // Get the line potentially containing this absolute address.
+               cc65_free_lineinfo(dbgInfo,dbgLines);
+               dbgLines = cc65_line_byspan(dbgInfo,dbgSpans->data[span].span_id);
+
+               if ( dbgSegments && (dbgSegments->count == 1) &&
+                    dbgLines && (dbgLines->count > 0) )
                {
-                  if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                  if ( (absAddr >= dbgSegments->data[0].output_offs-0x10) &&
+                       (absAddr < (dbgSegments->data[0].output_offs-0x19+dbgSegments->data[0].segment_size)) )
                   {
-                     highestTypeMatch = dbgLines->data[line].line_type;
-                     indexOfHighestTypeMatch = line;
+                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     {
+                        highestTypeMatch = dbgLines->data[0].line_type;
+                        indexOfHighestTypeMatch = dbgLines->data[0].line_id;
+                     }
                   }
                }
             }
          }
          if ( indexOfHighestTypeMatch >= 0 )
          {
-            return dbgLines->data[indexOfHighestTypeMatch].source_name;
+            // Get the picked line.
+            cc65_free_lineinfo(dbgInfo,dbgLines);
+            dbgLines = cc65_line_byid(dbgInfo,indexOfHighestTypeMatch);
+
+            // Get the source file of the picked line.
+            cc65_free_sourceinfo(dbgInfo,dbgSources);
+            dbgSources = cc65_source_byid(dbgInfo,dbgLines->data[0].source_id);
+            return dbgSources->data[0].source_name;
          }
       }
    }
@@ -679,64 +724,51 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
 
 int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
-   int line;
-   int seg;
+   int span;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
 
    if ( dbgInfo )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+      // Get the span containing this virtual address.
+      cc65_free_spaninfo(dbgInfo,dbgSpans);
+      dbgSpans = cc65_span_byaddr(dbgInfo,addr);
 
-      cc65_free_segmentinfo(dbgInfo,dbgSegments);
-      dbgSegments = cc65_get_segmentlist(dbgInfo);
-
-      if ( dbgLines && dbgSegments )
+      if ( dbgSpans )
       {
-         for ( line = 0; line < dbgLines->count; line++ )
+         for ( span = 0; span < dbgSpans->count; span++ )
          {
-            // Find the segment containing this absolute address.
-            for ( seg = 0; seg < dbgSegments->count; seg++ )
+            if ( dbgSpans->data[span].line_count )
             {
-               if ( (dbgLines->data[line].output_offs >= dbgSegments->data[seg].output_offs) &&
-                    (dbgLines->data[line].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
+               // Get the segment potentially containing this absolute address.
+               cc65_free_segmentinfo(dbgInfo,dbgSegments);
+               dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[span].segment_id);
+
+               // Get the line potentially containing this absolute address.
+               cc65_free_lineinfo(dbgInfo,dbgLines);
+               dbgLines = cc65_line_byspan(dbgInfo,dbgSpans->data[span].span_id);
+
+               if ( dbgSegments && (dbgSegments->count == 1) &&
+                    dbgLines && (dbgLines->count > 0) )
                {
-                  if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                  if ( (absAddr >= dbgSegments->data[0].output_offs-0x10) &&
+                       (absAddr < (dbgSegments->data[0].output_offs-0x19+dbgSegments->data[0].segment_size)) )
                   {
-                     highestTypeMatch = dbgLines->data[line].line_type;
-                     indexOfHighestTypeMatch = line;
+                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     {
+                        highestTypeMatch = dbgLines->data[0].line_type;
+                        indexOfHighestTypeMatch = dbgLines->data[0].line_id;
+                     }
                   }
                }
             }
          }
          if ( indexOfHighestTypeMatch >= 0 )
          {
-            return dbgLines->data[indexOfHighestTypeMatch].source_line;
-         }
-      }
-   }
-   return -1;
-}
-
-int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
-{
-   unsigned int addr = getSymbolAddress(symbol); // CPTODO: doesn't work yet for multiple-defined symbols in different segments
-   int line;
-
-   if ( dbgInfo )
-   {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
-
-      if ( dbgLines )
-      {
-         for ( line = 0; line < dbgLines->count; line++ )
-         {
-            if ( dbgLines->data[line].source_name == file )
-            {
-               return dbgLines->data[line].source_line;
-            }
+            // Get the picked line.
+            cc65_free_lineinfo(dbgInfo,dbgLines);
+            dbgLines = cc65_line_byid(dbgInfo,indexOfHighestTypeMatch);
+            return dbgLines->data[0].source_line;
          }
       }
    }
@@ -745,81 +777,119 @@ int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
 
 QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
 {
-   int addr = getSymbolAddress(symbol);
-   int line;
+   int sym;
 
-   if ( dbgInfo )
+   cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+   dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+   // Getting a symbol by name gets all the def and ref entries for the symbol, so
+   // we need to ignore the symbol count.  Move the 'sym' reference variable to the
+   // proper symbol in the returned pile.
+   if ( dbgSymbols )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
-
-      if ( dbgLines )
+      for ( sym = 0; sym < dbgSymbols->count; sym++ )
       {
-         for ( line = 0; line < dbgLines->count; line++ )
+         if ( dbgSymbols->data[sym].export_id == CC65_INV_ID )
          {
-            if ( dbgLines->data[line].line_start == addr )
+            break;
+         }
+      }
+      if ( sym < dbgSymbols->count )
+      {
+         cc65_free_lineinfo(dbgInfo,dbgLines);
+         dbgLines = cc65_line_bysymdef(dbgInfo,dbgSymbols->data[sym].symbol_id);
+
+         if ( dbgLines && (dbgLines->count == 1) )
+         {
+            cc65_free_sourceinfo(dbgInfo,dbgSources);
+            dbgSources = cc65_source_byid(dbgInfo,dbgLines->data[0].source_id);
+
+            if ( dbgSources && (dbgSources->count == 1) )
             {
-               return dbgLines->data[line].source_name;
+               return dbgSources->data[0].source_name;
             }
          }
       }
    }
+
    return "";
 }
 
-unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
 {
-   int line;
-   int seg;
-   int highestTypeMatch = 0;
-   int indexOfHighestTypeMatch = -1;
+   int sym;
 
-   if ( dbgInfo )
+   cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+   dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+   // Getting a symbol by name gets all the def and ref entries for the symbol, so
+   // we need to ignore the symbol count.  Move the 'sym' reference variable to the
+   // proper symbol in the returned pile.
+   if ( dbgSymbols )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
-
-      cc65_free_segmentinfo(dbgInfo,dbgSegments);
-      dbgSegments = cc65_get_segmentlist(dbgInfo);
-
-      if ( dbgLines && dbgSegments )
+      for ( sym = 0; sym < dbgSymbols->count; sym++ )
       {
-         for ( line = 0; line < dbgLines->count; line++ )
+         if ( dbgSymbols->data[sym].export_id == CC65_INV_ID )
          {
-            // Find the segment containing this absolute address.
-            for ( seg = 0; seg < dbgSegments->count; seg++ )
+            break;
+         }
+      }
+      if ( sym < dbgSymbols->count )
+      {
+         cc65_free_lineinfo(dbgInfo,dbgLines);
+         dbgLines = cc65_line_bysymdef(dbgInfo,dbgSymbols->data[sym].symbol_id);
+
+         if ( dbgLines && (dbgLines->count == 1) )
+         {
+            cc65_free_sourceinfo(dbgInfo,dbgSources);
+            dbgSources = cc65_source_byid(dbgInfo,dbgLines->data[0].source_id);
+
+            if ( dbgSources && (dbgSources->count == 1) )
             {
-               if ( (dbgLines->data[line].output_offs >= dbgSegments->data[seg].output_offs) &&
-                    (dbgLines->data[line].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
+               if ( dbgSources->data[0].source_name == file )
                {
-                  if ( dbgLines->data[line].line_type >= highestTypeMatch )
-                  {
-                     highestTypeMatch = dbgLines->data[line].line_type;
-                     indexOfHighestTypeMatch = line;
-                  }
+                  return dbgLines->data[0].source_line;
                }
             }
          }
-         if ( indexOfHighestTypeMatch >= 0 )
-         {
-            return dbgLines->data[indexOfHighestTypeMatch].line_end;
-         }
       }
    }
-   return 0xFFFFFFFF;
+
+   return -1;
 }
 
 int CCC65Interface::getLineMatchCount(QString file, int source_line)
 {
+   int fidx;
+   int span;
+
    if ( dbgInfo )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
-      if ( dbgLines )
+      // Get source ID from file.
+      cc65_free_sourceinfo(dbgInfo,dbgSources);
+      dbgSources = cc65_get_sourcelist(dbgInfo);
+
+      for ( fidx = 0; fidx < dbgSources->count; fidx++ )
       {
-         return dbgLines->count;
+         if ( dbgSources->data[fidx].source_name == file )
+         {
+            cc65_free_lineinfo(dbgInfo,dbgLines);
+            dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
+            if ( dbgLines && (dbgLines->count == 1) )
+            {
+               // Get the spans for this line.
+               cc65_free_spaninfo(dbgInfo,dbgSpans);
+               dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
+
+               if ( dbgSpans )
+               {
+                  return dbgSpans->count;
+               }
+            }
+         }
       }
    }
+
    return 0;
 }
 
@@ -827,32 +897,60 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_l
 {
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   int idx;
+   int span;
+   int fidx;
+   int count = 0;
 
    if ( dbgInfo )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
+      cc65_free_sourceinfo(dbgInfo,dbgSources);
+      dbgSources = cc65_get_sourcelist(dbgInfo);
 
-      if ( dbgLines )
+      if ( dbgSources )
       {
-         for ( idx = 0; idx < dbgLines->count; idx++ )
+         for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
-            // Inject preference for MACRO expansions over C language over assembly...
-            if ( dbgLines->data[idx].line_type >= highestTypeMatch )
+            if ( dbgSources->data[fidx].source_name == file )
             {
-               highestTypeMatch = dbgLines->data[idx].line_type;
-               indexOfHighestTypeMatch = idx;
-            }
-            if ( idx == entry )
-            {
-               return dbgLines->data[idx].line_start;
+               // Get line information from source file.
+               cc65_free_lineinfo(dbgInfo,dbgLines);
+               dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
+
+               if ( dbgLines && (dbgLines->count == 1) )
+               {
+                  // Get the spans for this line.
+                  cc65_free_spaninfo(dbgInfo,dbgSpans);
+                  dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
+
+                  if ( dbgSpans )
+                  {
+                     for ( span = 0; span < dbgSpans->count; span++ )
+                     {
+                        // Inject preference for MACRO expansions over C language over assembly...
+                        if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                        {
+                           highestTypeMatch = dbgLines->data[0].line_type;
+                           indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                        }
+                        if ( count == entry )
+                        {
+                           return dbgSpans->data[span].span_start;
+                        }
+
+                        // Keep track of when to return data if asked to break early.
+                        count++;
+                     }
+                  }
+               }
             }
          }
 
          if ( indexOfHighestTypeMatch >= 0 )
          {
-            return dbgLines->data[indexOfHighestTypeMatch].line_start;
+            // Get span information to return.
+            cc65_free_spaninfo(dbgInfo,dbgSpans);
+            dbgSpans = cc65_span_byid(dbgInfo,indexOfHighestTypeMatch);
+            return dbgSpans->data[0].span_start;
          }
       }
    }
@@ -863,42 +961,58 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
 {
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
-   int idx;
-   int seg;
+   int span;
+   int fidx;
+   int count = 0;
 
    if ( dbgInfo )
    {
-      cc65_free_lineinfo(dbgInfo,dbgLines);
-      dbgLines = cc65_lineinfo_byname(dbgInfo,file.toAscii().constData(),source_line);
+      cc65_free_sourceinfo(dbgInfo,dbgSources);
+      dbgSources = cc65_get_sourcelist(dbgInfo);
 
-      cc65_free_segmentinfo(dbgInfo,dbgSegments);
-      dbgSegments = cc65_get_segmentlist(dbgInfo);
-
-      if ( dbgLines && dbgSegments )
+      if ( dbgSources )
       {
-         for ( idx = 0; idx < dbgLines->count; idx++ )
+         for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
-            // Find the segment containing this absolute address.
-            for ( seg = 0; seg < dbgSegments->count; seg++ )
+            if ( dbgSources->data[fidx].source_name == file )
             {
-               if ( (dbgLines->data[idx].output_offs >= dbgSegments->data[seg].output_offs) &&
-                    (dbgLines->data[idx].output_offs < (dbgSegments->data[seg].output_offs+dbgSegments->data[seg].segment_size)) )
+               // Get line information from source file.
+               cc65_free_lineinfo(dbgInfo,dbgLines);
+               dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
+
+               if ( dbgLines && (dbgLines->count == 1) )
                {
-                  if ( dbgLines->data[idx].line_type >= highestTypeMatch )
+                  // Get the spans for this line.
+                  cc65_free_spaninfo(dbgInfo,dbgSpans);
+                  dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
+
+                  if ( dbgSpans )
                   {
-                     highestTypeMatch = dbgLines->data[idx].line_type;
-                     indexOfHighestTypeMatch = idx;
-                  }
-                  if ( idx == entry )
-                  {
-                     if ( dbgLines->data[idx].output_name )
+                     for ( span = 0; span < dbgSpans->count; span++ )
                      {
-                        // Assume there's an iNES header in the way if this line goes to an output file.
-                        return dbgLines->data[idx].output_offs-0x10;
-                     }
-                     else
-                     {
-                        return dbgLines->data[idx].output_offs;
+                        // Inject preference for MACRO expansions over C language over assembly...
+                        if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                        {
+                           highestTypeMatch = dbgLines->data[0].line_type;
+                           indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                        }
+                        if ( count == entry )
+                        {
+                           // Get segment information from span.
+                           cc65_free_segmentinfo(dbgInfo,dbgSegments);
+                           dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[0].segment_id);
+                           if ( dbgSegments->data[0].output_name )
+                           {
+                              return dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)-0x10;
+                           }
+                           else
+                           {
+                              return dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start);
+                           }
+
+                           // Keep track of when to return data if asked to break early.
+                           count++;
+                        }
                      }
                   }
                }
@@ -907,14 +1021,20 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
 
          if ( indexOfHighestTypeMatch >= 0 )
          {
-            if ( dbgLines->data[indexOfHighestTypeMatch].output_name )
+            // Get span information.
+            cc65_free_spaninfo(dbgInfo,dbgSpans);
+            dbgSpans = cc65_span_byid(dbgInfo,indexOfHighestTypeMatch);
+
+            // Get segment information from span.
+            cc65_free_segmentinfo(dbgInfo,dbgSegments);
+            dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[0].segment_id);
+            if ( dbgSegments->data[0].output_name )
             {
-               // Assume there's an iNES header in the way if this line goes to an output file.
-               return dbgLines->data[indexOfHighestTypeMatch].output_offs-0x10;
+               return dbgSegments->data[0].output_offs+(dbgSpans->data[0].span_start-dbgSegments->data[0].segment_start)-0x10;
             }
             else
             {
-               return dbgLines->data[indexOfHighestTypeMatch].output_offs;
+               return dbgSegments->data[0].output_offs+(dbgSpans->data[0].span_start-dbgSegments->data[0].segment_start);
             }
          }
       }
@@ -922,10 +1042,73 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
    return -1;
 }
 
+
+unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+{
+   int      span;
+   int highestTypeMatch = 0;
+   int indexOfHighestTypeMatch = -1;
+
+   if ( dbgInfo )
+   {
+      cc65_free_spaninfo(dbgInfo,dbgSpans);
+      dbgSpans = cc65_span_byaddr(dbgInfo,addr);
+
+      if ( dbgSpans )
+      {
+         for ( span = 0; span < dbgSpans->count; span++ )
+         {
+            cc65_free_segmentinfo(dbgInfo,dbgSegments);
+            dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[span].segment_id);
+
+            cc65_free_lineinfo(dbgInfo,dbgLines);
+            dbgLines = cc65_line_byspan(dbgInfo,dbgSpans->data[span].span_id);
+
+            if ( dbgSegments && (dbgSegments->count == 1) &&
+                 dbgLines && (dbgLines->count > 0) )
+            {
+               if ( dbgSegments->data[0].output_name )
+               {
+                  if ( (absAddr >= dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)-0x10) &&
+                       (absAddr < dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_end-dbgSegments->data[0].segment_start)-0x10) )
+                  {
+                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     {
+                        highestTypeMatch = dbgLines->data[0].line_type;
+                        indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                     }
+                  }
+               }
+               else
+               {
+                  if ( (absAddr >= dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)) &&
+                       (absAddr < dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_end-dbgSegments->data[0].segment_start)) )
+                  {
+                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     {
+                        highestTypeMatch = dbgLines->data[0].line_type;
+                        indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                     }
+                  }
+               }
+            }
+         }
+         if ( indexOfHighestTypeMatch >= 0 )
+         {
+            cc65_free_spaninfo(dbgInfo,dbgSpans);
+            dbgSpans = cc65_span_byid(dbgInfo,indexOfHighestTypeMatch);
+            return dbgSpans->data[0].span_end;
+         }
+      }
+   }
+
+   return 0xFFFFFFFF;
+}
+
 bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
 {
    uint32_t addr;
-   int      line;
+   int      span;
 
    if ( dbgInfo )
    {
@@ -933,22 +1116,38 @@ bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
       addr = (absAddr&MASK_8KB)+MEM_32KB;
       for ( ; addr < MEM_64KB; addr += MEM_8KB )
       {
-         cc65_free_lineinfo(dbgInfo,dbgLines);
-         dbgLines = cc65_lineinfo_byaddr(dbgInfo,addr);
+         cc65_free_spaninfo(dbgInfo,dbgSpans);
+         dbgSpans = cc65_span_byaddr(dbgInfo,addr);
 
-         if ( dbgLines )
+         if ( dbgSpans )
          {
-            for ( line = 0; line < dbgLines->count; line++ )
+            for ( span = 0; span < dbgSpans->count; span++ )
             {
-               if ( (dbgLines->data[line].line_start == addr) &&
-                    (dbgLines->data[line].output_offs-0x10 == absAddr) )
+               cc65_free_segmentinfo(dbgInfo,dbgSegments);
+               dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[span].segment_id);
+
+               if ( dbgSegments && (dbgSegments->count == 1) )
                {
-                  return true;
+                  if ( dbgSegments->data[0].output_name )
+                  {
+                     if ( absAddr == dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)-0x10 )
+                     {
+                        return true;
+                     }
+                  }
+                  else
+                  {
+                     if ( absAddr == dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start) )
+                     {
+                        return true;
+                     }
+                  }
                }
             }
          }
       }
    }
+
    return false;
 }
 

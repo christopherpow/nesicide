@@ -28,11 +28,6 @@ private:
    Ui::ProjectBrowserDockWidget *ui;
    CProjectTabWidget* m_pTarget;
    CProjectTreeViewModel* m_pProjectTreeviewModel;
-
-private slots:
-    void on_projectTreeWidget_expanded(QModelIndex index);
-    void on_projectTreeWidget_doubleClicked(QModelIndex index);
-    void on_projectTreeWidget_collapsed(QModelIndex index);
 };
 
 #endif // PROJECTBROWSERDOCKWIDGET_H

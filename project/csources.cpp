@@ -99,6 +99,21 @@ QString CSources::caption() const
    return "Source Code";
 }
 
+void CSources::addSourceFile(QString fileName)
+{
+   QDir dir(QDir::currentPath());
+   CSourceItem* pSourceItem = new CSourceItem(this);
+   pSourceItem->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+
+   pSourceItem->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+
+   pSourceItem->deserializeContent();
+
+   m_sourceItems.append(pSourceItem);
+   appendChild(pSourceItem);
+   //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+}
+
 void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    // Project base directory (directory where the .nesproject file is)

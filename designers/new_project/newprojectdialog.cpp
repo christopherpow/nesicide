@@ -45,7 +45,7 @@ QString NewProjectDialog::getPath()
 
 void NewProjectDialog::on_pathBrowse_clicked()
 {
-   QString value = QFileDialog::getExistingDirectory(this,"Path");
+   QString value = QFileDialog::getExistingDirectory(this,"Path",QDir::currentPath());
 
    if ( !value.isEmpty() )
    {

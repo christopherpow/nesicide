@@ -34,6 +34,7 @@ public slots:
    void renderData();
 
 private slots:
+   void on_exportData_clicked();
    void on_displaySelect_currentIndexChanged(int index);
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);

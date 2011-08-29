@@ -650,7 +650,8 @@ void CodeEditorForm::updateToolTip(QString symbol)
    // Next check for symbol tooltips.
    if ( EnvironmentSettingsDialog::showSymbolTips() )
    {
-      if ( CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL )
+      if ( (CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::getSymbolType(symbol) == CC65_SYM_IMPORT) )
       {
          addr = CCC65Interface::getSymbolAddress(symbol);
 

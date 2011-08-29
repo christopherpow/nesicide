@@ -138,3 +138,73 @@ void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
 
    renderer->repaint();
 }
+
+//CDL FORMAT
+//xPdcAADC
+//C  = Whether it was accessed as code.
+//D  = Whether it was accessed as data.
+//AA = Into which ROM bank it was mapped when last accessed:
+//        00 = $8000-$9FFF        01 = $A000-$BFFF
+//        10 = $C000-$DFFF        11 = $E000-$FFFF
+//c  = Whether indirectly accessed as code.
+//        (e.g. as the destination of a JMP ($nnnn) instruction)
+//d  = Whether indirectly accessed as data.
+//        (e.g. as the destination of an LDA ($nn),Y instruction)
+//P  = If logged as PCM audio data.
+//x  = unused.
+
+void CodeDataLoggerDockWidget::on_exportData_clicked()
+{
+   QString fileName = QFileDialog::getSaveFileName(NULL,"Export Code/Data Log",QDir::currentPath(),"Code+Data Log File (*.cdl)");
+   int addr;
+   int size = nesGetPRGROMSize();
+   int byte;
+   QByteArray cdls;
+
+   if ( !fileName.isEmpty() )
+   {
+      QFile file(fileName);
+
+      if ( file.open(QIODevice::ReadWrite|QIODevice::Truncate) )
+      {
+         for ( addr = 0; addr < size; addr += MEM_8KB )
+         {
+            CCodeDataLogger* pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(addr);
+            LoggerInfo* pEntry;
+            unsigned char cdl;
+
+            cdls.clear();
+            for ( byte = 0; byte < MEM_8KB; byte++ )
+            {
+               cdl = 0x00;
+               pEntry = pLogger->GetLogEntry(byte);
+               if ( pEntry->count )
+               {
+                  if ( (pEntry->type == eLogger_InstructionFetch) ||
+                       (pEntry->type == eLogger_OperandFetch) )
+                  {
+                     cdl |= 0x01;
+                  }
+                  else if ( (pEntry->type == eLogger_DataRead) ||
+                            (pEntry->type == eLogger_DataWrite) ||
+                            (pEntry->type == eLogger_DMA) )
+                  {
+                     cdl |= 0x02;
+                  }
+                  cdl |= ((pEntry->cpuAddr>>SHIFT_64KB_8KB)&0x3)<<2;
+                  // No information available (yet) to fill in the indirect code use bit.
+                  // No information available (yet) to fill in the indirect data use bit.
+                  if ( (pEntry->type == eLogger_DMA) &&
+                       (pEntry->source == eSource_APU) )
+                  {
+                     cdl |= 0x40;
+                  }
+               }
+               cdls.append(cdl);
+            }
+            file.write(cdls);
+         }
+         file.close();
+      }
+   }
+}
