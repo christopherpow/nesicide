@@ -668,6 +668,7 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
 QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int span;
+   int line;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
 
@@ -694,13 +695,34 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
                if ( dbgSegments && (dbgSegments->count == 1) &&
                     dbgLines && (dbgLines->count > 0) )
                {
-                  if ( (absAddr >= dbgSegments->data[0].output_offs-0x10) &&
-                       (absAddr < (dbgSegments->data[0].output_offs-0x19+dbgSegments->data[0].segment_size)) )
+                  if ( dbgSegments->data[0].output_name )
                   {
-                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     if ( (absAddr >= dbgSegments->data[0].output_offs-0x10) &&
+                          (absAddr < (dbgSegments->data[0].output_offs-0x10+dbgSegments->data[0].segment_size)) )
                      {
-                        highestTypeMatch = dbgLines->data[0].line_type;
-                        indexOfHighestTypeMatch = dbgLines->data[0].line_id;
+                        for ( line = 0; line < dbgLines->count; line++ )
+                        {
+                           if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                           {
+                              highestTypeMatch = dbgLines->data[line].line_type;
+                              indexOfHighestTypeMatch = dbgLines->data[line].line_id;
+                           }
+                        }
+                     }
+                  }
+                  else
+                  {
+                     if ( (absAddr >= dbgSegments->data[0].output_offs) &&
+                          (absAddr < (dbgSegments->data[0].output_offs+dbgSegments->data[0].segment_size)) )
+                     {
+                        for ( line = 0; line < dbgLines->count; line++ )
+                        {
+                           if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                           {
+                              highestTypeMatch = dbgLines->data[line].line_type;
+                              indexOfHighestTypeMatch = dbgLines->data[line].line_id;
+                           }
+                        }
                      }
                   }
                }
@@ -725,6 +747,7 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
 int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int span;
+   int line;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
 
@@ -751,13 +774,34 @@ int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absA
                if ( dbgSegments && (dbgSegments->count == 1) &&
                     dbgLines && (dbgLines->count > 0) )
                {
-                  if ( (absAddr >= dbgSegments->data[0].output_offs-0x10) &&
-                       (absAddr < (dbgSegments->data[0].output_offs-0x19+dbgSegments->data[0].segment_size)) )
+                  if ( dbgSegments->data[0].output_name )
                   {
-                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     if ( (absAddr >= dbgSegments->data[0].output_offs-0x10) &&
+                          (absAddr < (dbgSegments->data[0].output_offs-0x10+dbgSegments->data[0].segment_size)) )
                      {
-                        highestTypeMatch = dbgLines->data[0].line_type;
-                        indexOfHighestTypeMatch = dbgLines->data[0].line_id;
+                        for ( line = 0; line < dbgLines->count; line++ )
+                        {
+                           if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                           {
+                              highestTypeMatch = dbgLines->data[line].line_type;
+                              indexOfHighestTypeMatch = dbgLines->data[line].line_id;
+                           }
+                        }
+                     }
+                  }
+                  else
+                  {
+                     if ( (absAddr >= dbgSegments->data[0].output_offs) &&
+                          (absAddr < (dbgSegments->data[0].output_offs+dbgSegments->data[0].segment_size)) )
+                     {
+                        for ( line = 0; line < dbgLines->count; line++ )
+                        {
+                           if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                           {
+                              highestTypeMatch = dbgLines->data[line].line_type;
+                              indexOfHighestTypeMatch = dbgLines->data[line].line_id;
+                           }
+                        }
                      }
                   }
                }
@@ -1046,6 +1090,7 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
 unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
 {
    int      span;
+   int      line;
    int highestTypeMatch = 0;
    int indexOfHighestTypeMatch = -1;
 
@@ -1070,24 +1115,30 @@ unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint
                if ( dbgSegments->data[0].output_name )
                {
                   if ( (absAddr >= dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)-0x10) &&
-                       (absAddr < dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_end-dbgSegments->data[0].segment_start)-0x10) )
+                       (absAddr <= dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_end-dbgSegments->data[0].segment_start)-0x10) )
                   {
-                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     for ( line = 0; line < dbgLines->count; line++ )
                      {
-                        highestTypeMatch = dbgLines->data[0].line_type;
-                        indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                        if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                        {
+                           highestTypeMatch = dbgLines->data[line].line_type;
+                           indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                        }
                      }
                   }
                }
                else
                {
                   if ( (absAddr >= dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)) &&
-                       (absAddr < dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_end-dbgSegments->data[0].segment_start)) )
+                       (absAddr <= dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_end-dbgSegments->data[0].segment_start)) )
                   {
-                     if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                     for ( line = 0; line < dbgLines->count; line++ )
                      {
-                        highestTypeMatch = dbgLines->data[0].line_type;
-                        indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                        if ( dbgLines->data[line].line_type >= highestTypeMatch )
+                        {
+                           highestTypeMatch = dbgLines->data[line].line_type;
+                           indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                        }
                      }
                   }
                }

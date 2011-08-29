@@ -134,6 +134,7 @@ void CDebuggerCodeProfilerModel::update()
    unsigned int absAddr;
    ProfiledItem item;
    QFileInfo fileInfo;
+   unsigned int mask;
 
    foreach ( QString symbol, symbols )
    {
@@ -145,9 +146,25 @@ void CDebuggerCodeProfilerModel::update()
 
          if ( (absAddr != -1) && (addr >= MEM_32KB) )
          {
-            pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
-            if ( (pLogger->GetCount(addr&MASK_8KB)) &&
-                 (pLogger->GetType(addr&MASK_8KB) == eLogger_InstructionFetch) )
+            if ( addr >= 0x8000 )
+            {
+               pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
+            }
+            else if ( addr >= 0x6000 )
+            {
+               pLogger = nesGetPhysicalSRAMCodeDataLoggerDatabase(absAddr);
+            }
+            else if ( addr >= 0x5C00 )
+            {
+               pLogger = nesGetEXRAMCodeDataLoggerDatabase();
+            }
+            else if ( addr < 0x800 )
+            {
+               pLogger = nesGetCpuCodeDataLoggerDatabase();
+            }
+            mask = pLogger->GetMask();
+            if ( (pLogger->GetCount(addr&mask)) &&
+                 (pLogger->GetType(addr&mask) == eLogger_InstructionFetch) )
             {
                item.symbol = symbol;
                item.size = CCC65Interface::getSymbolSize(symbol);
@@ -156,7 +173,7 @@ void CDebuggerCodeProfilerModel::update()
 
                nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
                item.address = modelStringBuffer;
-               item.count = pLogger->GetCount(addr&MASK_8KB);
+               item.count = pLogger->GetCount(addr&mask);
                if ( !m_items.contains(item) )
                {
                   m_items.append(item);
