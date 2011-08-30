@@ -945,8 +945,11 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
          asmAbsAddrs.append((*absAddr));
       }
       selStr = QInputDialog::getItem(0,"Help!","Line has multiple possible matches, pick one:",asmChunks,0,false,&ok);
+
       if ( !ok )
       {
+         (*addr) = -1;
+         (*absAddr) = -1;
          return;
       }
       for ( selIdx = 0; selIdx < asmcount; selIdx++ )

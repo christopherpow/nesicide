@@ -1030,29 +1030,32 @@ int CCC65Interface::getLineMatchCount(QString file, int source_line)
       // Get source ID from file.
       dbgSources = cc65_get_sourcelist(dbgInfo);
 
+      // Get the appropriate file.
       for ( fidx = 0; fidx < dbgSources->count; fidx++ )
       {
          if ( dbgSources->data[fidx].source_name == file )
          {
-            dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
-            if ( dbgLines && (dbgLines->count == 1) )
-            {
-               // Get the spans for this line.
-               dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
-
-               if ( dbgSpans )
-               {
-                  count = dbgSpans->count;
-
-                  cc65_free_spaninfo(dbgInfo,dbgSpans);
-               }
-            }
-
-            if ( dbgLines )
-            {
-               cc65_free_lineinfo(dbgInfo,dbgLines);
-            }
+            break;
          }
+      }
+
+      dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
+      if ( dbgLines && (dbgLines->count == 1) )
+      {
+         // Get the spans for this line.
+         dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
+
+         if ( dbgSpans )
+         {
+            count = dbgSpans->count;
+
+            cc65_free_spaninfo(dbgInfo,dbgSpans);
+         }
+      }
+
+      if ( dbgLines )
+      {
+         cc65_free_lineinfo(dbgInfo,dbgLines);
       }
 
       cc65_free_sourceinfo(dbgInfo,dbgSources);
@@ -1079,46 +1082,52 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_l
 
       if ( dbgSources )
       {
+         // Get the appropriate file.
          for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
             if ( dbgSources->data[fidx].source_name == file )
             {
-               // Get line information from source file.
-               dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
-
-               if ( dbgLines && (dbgLines->count == 1) )
-               {
-                  // Get the spans for this line.
-                  dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
-
-                  if ( dbgSpans )
-                  {
-                     for ( span = 0; span < dbgSpans->count; span++ )
-                     {
-                        // Inject preference for MACRO expansions over C language over assembly...
-                        if ( dbgLines->data[0].line_type >= highestTypeMatch )
-                        {
-                           highestTypeMatch = dbgLines->data[0].line_type;
-                           indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
-                        }
-                        if ( count == entry )
-                        {
-                           addr = dbgSpans->data[span].span_start;
-                        }
-
-                        // Keep track of when to return data if asked to break early.
-                        count++;
-                     }
-
-                     cc65_free_spaninfo(dbgInfo,dbgSpans);
-                  }
-               }
-
-               if ( dbgLines )
-               {
-                  cc65_free_lineinfo(dbgInfo,dbgLines);
-               }
+               break;
             }
+         }
+
+         // Get line information from source file.
+         dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
+
+         if ( dbgLines && (dbgLines->count == 1) )
+         {
+            // Get the spans for this line.
+            dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
+
+            if ( dbgSpans )
+            {
+               for ( span = 0; span < dbgSpans->count; span++ )
+               {
+                  // Inject preference for MACRO expansions over C language over assembly...
+                  if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                  {
+                     highestTypeMatch = dbgLines->data[0].line_type;
+                     indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                  }
+
+                  if ( count == entry )
+                  {
+                     highestTypeMatch = dbgLines->data[0].line_type;
+                     indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                     break;
+                  }
+
+                  // Keep track of when to return data if asked to break early.
+                  count++;
+               }
+
+               cc65_free_spaninfo(dbgInfo,dbgSpans);
+            }
+         }
+
+         if ( dbgLines )
+         {
+            cc65_free_lineinfo(dbgInfo,dbgLines);
          }
 
          cc65_free_sourceinfo(dbgInfo,dbgSources);
@@ -1156,57 +1165,52 @@ unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int 
 
       if ( dbgSources )
       {
+         // Get the appropriate file.
          for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
             if ( dbgSources->data[fidx].source_name == file )
             {
-               // Get line information from source file.
-               dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
-
-               if ( dbgLines && (dbgLines->count == 1) )
-               {
-                  // Get the spans for this line.
-                  dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
-
-                  if ( dbgSpans )
-                  {
-                     for ( span = 0; span < dbgSpans->count; span++ )
-                     {
-                        // Inject preference for MACRO expansions over C language over assembly...
-                        if ( dbgLines->data[0].line_type >= highestTypeMatch )
-                        {
-                           highestTypeMatch = dbgLines->data[0].line_type;
-                           indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
-                        }
-                        if ( count == entry )
-                        {
-                           // Get segment information from span.
-                           dbgSegments = cc65_segment_byid(dbgInfo,dbgSpans->data[0].segment_id);
-                           if ( dbgSegments->data[0].output_name )
-                           {
-                              absAddr = dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start)-0x10;
-                           }
-                           else
-                           {
-                              absAddr = dbgSegments->data[0].output_offs+(dbgSpans->data[span].span_start-dbgSegments->data[0].segment_start);
-                           }
-
-                           cc65_free_segmentinfo(dbgInfo,dbgSegments);
-
-                           // Keep track of when to return data if asked to break early.
-                           count++;
-                        }
-                     }
-
-                     cc65_free_spaninfo(dbgInfo,dbgSpans);
-                  }
-               }
-
-               if ( dbgLines )
-               {
-                  cc65_free_lineinfo(dbgInfo,dbgLines);
-               }
+               break;
             }
+         }
+
+         // Get line information from source file.
+         dbgLines = cc65_line_bynumber(dbgInfo,dbgSources->data[fidx].source_id,source_line);
+
+         if ( dbgLines && (dbgLines->count == 1) )
+         {
+            // Get the spans for this line.
+            dbgSpans = cc65_span_byline(dbgInfo,dbgLines->data[0].line_id);
+
+            if ( dbgSpans )
+            {
+               for ( span = 0; span < dbgSpans->count; span++ )
+               {
+                  // Inject preference for MACRO expansions over C language over assembly...
+                  if ( dbgLines->data[0].line_type >= highestTypeMatch )
+                  {
+                     highestTypeMatch = dbgLines->data[0].line_type;
+                     indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                  }
+
+                  if ( count == entry )
+                  {
+                     highestTypeMatch = dbgLines->data[0].line_type;
+                     indexOfHighestTypeMatch = dbgSpans->data[span].span_id;
+                     break;
+                  }
+
+                  // Keep track of when to return data if asked to break early.
+                  count++;
+               }
+
+               cc65_free_spaninfo(dbgInfo,dbgSpans);
+            }
+         }
+
+         if ( dbgLines )
+         {
+            cc65_free_lineinfo(dbgInfo,dbgLines);
          }
 
          cc65_free_sourceinfo(dbgInfo,dbgSources);
