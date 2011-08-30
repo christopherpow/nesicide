@@ -144,8 +144,9 @@ void CDebuggerCodeProfilerModel::update()
          addr = CCC65Interface::getSymbolAddress(symbol);
          absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
 
-         if ( (absAddr != -1) && (addr >= MEM_32KB) )
+         if ( absAddr != -1 )
          {
+            pLogger = NULL;
             if ( addr >= 0x8000 )
             {
                pLogger = nesGetPhysicalPRGROMCodeDataLoggerDatabase(absAddr);
@@ -162,25 +163,28 @@ void CDebuggerCodeProfilerModel::update()
             {
                pLogger = nesGetCpuCodeDataLoggerDatabase();
             }
-            mask = pLogger->GetMask();
-            if ( (pLogger->GetCount(addr&mask)) &&
-                 (pLogger->GetType(addr&mask) == eLogger_InstructionFetch) )
+            if ( pLogger )
             {
-               item.symbol = symbol;
-               item.size = CCC65Interface::getSymbolSize(symbol);
-               item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
-               fileInfo.setFile(item.file);
+               mask = pLogger->GetMask();
+               if ( (pLogger->GetCount(addr&mask)) &&
+                    (pLogger->GetType(addr&mask) == eLogger_InstructionFetch) )
+               {
+                  item.symbol = symbol;
+                  item.size = CCC65Interface::getSymbolSize(symbol);
+                  item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
+                  fileInfo.setFile(item.file);
 
-               nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
-               item.address = modelStringBuffer;
-               item.count = pLogger->GetCount(addr&mask);
-               if ( !m_items.contains(item) )
-               {
-                  m_items.append(item);
-               }
-               else
-               {
-                  m_items.replace(m_items.indexOf(item),item);
+                  nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+                  item.address = modelStringBuffer;
+                  item.count = pLogger->GetCount(addr&mask);
+                  if ( !m_items.contains(item) )
+                  {
+                     m_items.append(item);
+                  }
+                  else
+                  {
+                     m_items.replace(m_items.indexOf(item),item);
+                  }
                }
             }
          }

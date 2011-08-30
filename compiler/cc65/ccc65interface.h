@@ -49,14 +49,6 @@ public:
 
 protected:
    static cc65_dbginfo        dbgInfo;
-   static const cc65_libraryinfo*   dbgLibraries;
-   static const cc65_moduleinfo*    dbgModules;
-   static const cc65_scopeinfo*     dbgScopes;
-   static const cc65_spaninfo*      dbgSpans;
-   static const cc65_sourceinfo*    dbgSources;
-   static const cc65_segmentinfo*   dbgSegments;
-   static const cc65_lineinfo*      dbgLines;
-   static const cc65_symbolinfo*    dbgSymbols;
    static QStringList         errors;
 };
 
