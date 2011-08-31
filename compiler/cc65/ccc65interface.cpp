@@ -412,7 +412,7 @@ QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
 {
    const cc65_symbolinfo* dbgSymbols;
    QStringList symbols;
-   int symbol;
+   int sym;
 
    if ( dbgInfo )
    {
@@ -420,9 +420,12 @@ QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
 
       if ( dbgSymbols )
       {
-         for ( symbol = 0; symbol < dbgSymbols->count; symbol++ )
+         for ( sym = 0; sym < dbgSymbols->count; sym++ )
          {
-            symbols.append(dbgSymbols->data[symbol].symbol_name);
+            if ( dbgSymbols->data[sym].export_id == CC65_INV_ID )
+            {
+               symbols.append(dbgSymbols->data[sym].symbol_name);
+            }
          }
 
          cc65_free_symbolinfo(dbgInfo,dbgSymbols);

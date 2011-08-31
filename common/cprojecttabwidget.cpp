@@ -278,7 +278,7 @@ void CProjectTabWidget::snapToTab(QString item)
 
       // Try to open the file.
       if ( found && (!open) &&
-           fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+           fileIn.open(QIODevice::ReadOnly) )
       {
          // If the file is a source file, open it using the CodeEditorForm.
          QStringList extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
