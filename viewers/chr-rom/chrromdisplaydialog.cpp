@@ -27,23 +27,10 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    m_usePPU = usePPU;
 
-   for (int i=0; i<NUM_PALETTES; i++)
-   {
-      ui->col0PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->col1PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->col2PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->col3PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-   }
-
    ui->col0PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x0D),nesGetPaletteGreenComponent(0x0D),nesGetPaletteBlueComponent(0x0D)));
    ui->col1PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x00),nesGetPaletteGreenComponent(0x00),nesGetPaletteBlueComponent(0x00)));
    ui->col2PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x10),nesGetPaletteGreenComponent(0x10),nesGetPaletteBlueComponent(0x10)));
    ui->col3PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x20),nesGetPaletteGreenComponent(0x20),nesGetPaletteBlueComponent(0x20)));
-
-   ui->col0PushButton->setText("");
-   ui->col1PushButton->setText("");
-   ui->col2PushButton->setText("");
-   ui->col3PushButton->setText("");
 
    connect(ui->col0PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
    connect(ui->col1PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
@@ -102,11 +89,11 @@ void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
    updateScrollbars();
 }
 
-void CHRROMDisplayDialog::changeEvent(QEvent* e)
+void CHRROMDisplayDialog::changeEvent(QEvent* event)
 {
-   QWidget::changeEvent(e);
+   QWidget::changeEvent(event);
 
-   switch (e->type())
+   switch (event->type())
    {
       case QEvent::LanguageChange:
          ui->retranslateUi(this);
@@ -114,6 +101,10 @@ void CHRROMDisplayDialog::changeEvent(QEvent* e)
       default:
          break;
    }
+}
+
+void CHRROMDisplayDialog::contextMenuEvent(QContextMenuEvent *event)
+{
 }
 
 void CHRROMDisplayDialog::colorChanged (const QColor& color)
@@ -188,16 +179,10 @@ void CHRROMDisplayDialog::renderData()
    }
 }
 
-void CHRROMDisplayDialog::on_zoomSlider_sliderMoved(int position)
-{
-}
-
-void CHRROMDisplayDialog::on_zoomSlider_actionTriggered(int action)
-{
-}
-
 void CHRROMDisplayDialog::on_zoomSlider_valueChanged(int value)
 {
+   value = value-(value%100);
+   ui->zoomSlider->setValue(value);
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
@@ -206,20 +191,13 @@ void CHRROMDisplayDialog::on_zoomSlider_valueChanged(int value)
 void CHRROMDisplayDialog::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
+   value = value-(value%100);
    int viewWidth = (float)256 * ((float)value / 100.0f);
    int viewHeight = (float)128 * ((float)value / 100.0f);
    ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
    ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
    renderer->scrollX = ui->horizontalScrollBar->value();
    renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void CHRROMDisplayDialog::on_verticalScrollBar_actionTriggered(int action)
-{
-}
-
-void CHRROMDisplayDialog::on_horizontalScrollBar_actionTriggered(int action)
-{
 }
 
 void CHRROMDisplayDialog::on_horizontalScrollBar_valueChanged(int value)

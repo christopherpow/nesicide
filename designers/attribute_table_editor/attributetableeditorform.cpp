@@ -14,27 +14,6 @@ AttributeTableEditorForm::AttributeTableEditorForm(QList<uint8_t> palette,IProje
 {
    ui->setupUi(this);
 
-   for (int i=0; i<NUM_PALETTES; i++)
-   {
-      ui->bkgndcol->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-
-      ui->pal0col1->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal0col2->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal0col3->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-
-      ui->pal1col1->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal1col2->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal1col3->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-
-      ui->pal2col1->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal2col2->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal2col3->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-
-      ui->pal3col1->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal3col2->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->pal3col3->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-   }
-
    m_palette = palette;
 
    ui->bkgndcol->setCurrentColor(QColor(nesGetPaletteRedComponent(m_palette.at(0)),nesGetPaletteGreenComponent(m_palette.at(0)),nesGetPaletteBlueComponent(m_palette.at(0))));
@@ -74,11 +53,11 @@ AttributeTableEditorForm::~AttributeTableEditorForm()
    delete ui;
 }
 
-void AttributeTableEditorForm::changeEvent(QEvent* e)
+void AttributeTableEditorForm::changeEvent(QEvent* event)
 {
-   QWidget::changeEvent(e);
+   QWidget::changeEvent(event);
 
-   switch (e->type())
+   switch (event->type())
    {
       case QEvent::LanguageChange:
          ui->retranslateUi(this);
@@ -86,6 +65,10 @@ void AttributeTableEditorForm::changeEvent(QEvent* e)
       default:
          break;
    }
+}
+
+void AttributeTableEditorForm::contextMenuEvent(QContextMenuEvent *event)
+{
 }
 
 void AttributeTableEditorForm::colorChanged(QColor color)

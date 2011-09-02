@@ -14,7 +14,7 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
 void CProjectTabWidget::contextMenuEvent(QContextMenuEvent *event)
 {
    // Make sure tab under pointer is current...
-   setCurrentWidget(widget(this->tabBar()->tabAt(event->pos())));
+   setCurrentWidget(widget(tabBar()->tabAt(event->pos())));
 
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget(currentIndex()));
    QMenu menu;

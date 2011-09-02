@@ -22,7 +22,8 @@ public:
    QList<uint8_t> attributeTable() { return m_palette; }
 
 protected:
-   void changeEvent(QEvent* e);
+   void changeEvent(QEvent* event);
+   void contextMenuEvent(QContextMenuEvent *event);
 
 private:
    Ui::AttributeTableEditorForm* ui;

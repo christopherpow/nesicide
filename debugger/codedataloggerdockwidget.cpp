@@ -96,6 +96,8 @@ void CodeDataLoggerDockWidget::resizeEvent(QResizeEvent* event)
 
 void CodeDataLoggerDockWidget::on_zoomSlider_valueChanged(int value)
 {
+   value = value-(value%100);
+   ui->zoomSlider->setValue(value);
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
@@ -104,6 +106,7 @@ void CodeDataLoggerDockWidget::on_zoomSlider_valueChanged(int value)
 void CodeDataLoggerDockWidget::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
+   value = value-(value%100);
    int viewWidth = (float)256 * ((float)value / 100.0f);
    int viewHeight = (float)256 * ((float)value / 100.0f);
    ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);

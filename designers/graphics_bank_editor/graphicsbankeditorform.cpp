@@ -23,23 +23,10 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
       imgData[i+3] = 0xFF;
    }
 
-   for (int i=0; i<NUM_PALETTES; i++)
-   {
-      ui->col0PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->col1PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->col2PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-      ui->col3PushButton->insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
-   }
-
    ui->col0PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x0D),nesGetPaletteGreenComponent(0x0D),nesGetPaletteBlueComponent(0x0D)));
    ui->col1PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x00),nesGetPaletteGreenComponent(0x00),nesGetPaletteBlueComponent(0x00)));
    ui->col2PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x10),nesGetPaletteGreenComponent(0x10),nesGetPaletteBlueComponent(0x10)));
    ui->col3PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x20),nesGetPaletteGreenComponent(0x20),nesGetPaletteBlueComponent(0x20)));
-
-   ui->col0PushButton->setText("");
-   ui->col1PushButton->setText("");
-   ui->col2PushButton->setText("");
-   ui->col3PushButton->setText("");
 
    connect(ui->col0PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
    connect(ui->col1PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
@@ -102,11 +89,11 @@ void GraphicsBankEditorForm::setBankItems(QList<IChrRomBankItem*> items)
    updateChrRomBankItemList(items);
 }
 
-void GraphicsBankEditorForm::changeEvent(QEvent* e)
+void GraphicsBankEditorForm::changeEvent(QEvent* event)
 {
-   QWidget::changeEvent(e);
+   QWidget::changeEvent(event);
 
-   switch (e->type())
+   switch (event->type())
    {
       case QEvent::LanguageChange:
          ui->retranslateUi(this);
@@ -116,14 +103,18 @@ void GraphicsBankEditorForm::changeEvent(QEvent* e)
    }
 }
 
+void GraphicsBankEditorForm::contextMenuEvent(QContextMenuEvent *event)
+{
+}
+
 void GraphicsBankEditorForm::resizeEvent(QResizeEvent* event)
 {
    updateScrollbars();
 }
 
-void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *e)
+void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
 {
-   if ( e->key() == Qt::Key_Delete )
+   if ( event->key() == Qt::Key_Delete )
    {
       QModelIndex index = ui->tableView->currentIndex();
 
@@ -146,12 +137,12 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *e)
          emit markProjectDirty(true);
       }
    }
-   else if ( (e->key() == Qt::Key_F) &&
-             (e->modifiers() == Qt::ControlModifier) )
+   else if ( (event->key() == Qt::Key_F) &&
+             (event->modifiers() == Qt::ControlModifier) )
    {
       emit activateSearchBar();
    }
-   CDesignerEditorBase::keyPressEvent(e);
+   CDesignerEditorBase::keyPressEvent(event);
 }
 
 void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> newList)
@@ -249,16 +240,10 @@ void GraphicsBankEditorForm::renderData()
    renderer->reloadData(imgData);
 }
 
-void GraphicsBankEditorForm::on_zoomSlider_sliderMoved(int position)
-{
-}
-
-void GraphicsBankEditorForm::on_zoomSlider_actionTriggered(int action)
-{
-}
-
 void GraphicsBankEditorForm::on_zoomSlider_valueChanged(int value)
 {
+   value = value-(value%100);
+   ui->zoomSlider->setValue(value);
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
@@ -267,6 +252,7 @@ void GraphicsBankEditorForm::on_zoomSlider_valueChanged(int value)
 void GraphicsBankEditorForm::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
+   value = value-(value%100);
    int viewWidth = (float)256 * ((float)value / 100.0f);
    int viewHeight = (float)128 * ((float)value / 100.0f);
    ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);

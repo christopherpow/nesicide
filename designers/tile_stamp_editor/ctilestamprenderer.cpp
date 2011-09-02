@@ -1,19 +1,21 @@
-#include "ccodedataloggerrenderer.h"
+#include "CTileStamprenderer.h"
 
-CCodeDataLoggerRenderer::CCodeDataLoggerRenderer(QWidget* parent, char* data)
+CTileStampRenderer::CTileStampRenderer(QWidget* parent, char* data)
    : QGLWidget(parent)
 {
    imageData = data;
    scrollX = 0;
    scrollY = 0;
+   xSize = 8;
+   ySize = 8;
 }
 
-CCodeDataLoggerRenderer::~CCodeDataLoggerRenderer()
+CTileStampRenderer::~CTileStampRenderer()
 {
    CGLTextureManager::freeTextureID(textureID);
 }
 
-void CCodeDataLoggerRenderer::initializeGL()
+void CTileStampRenderer::initializeGL()
 {
    textureID = CGLTextureManager::getNewTextureID();
    zoom = 100;
@@ -57,12 +59,12 @@ void CCodeDataLoggerRenderer::initializeGL()
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
 }
 
-void CCodeDataLoggerRenderer::setBGColor(QColor clr)
+void CTileStampRenderer::setBGColor(QColor clr)
 {
    glClearColor((float)clr.red() / 255.0f, (float)clr.green() / 255.0f, (float)clr.blue() / 255.0f, 0.5f);
 }
 
-void CCodeDataLoggerRenderer::resizeGL(int width, int height)
+void CTileStampRenderer::resizeGL(int width, int height)
 {
    QSize actualSize;
 
@@ -102,7 +104,7 @@ void CCodeDataLoggerRenderer::resizeGL(int width, int height)
 }
 
 
-void CCodeDataLoggerRenderer::paintGL()
+void CTileStampRenderer::paintGL()
 {
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
@@ -119,10 +121,21 @@ void CCodeDataLoggerRenderer::paintGL()
    glEnd();
 }
 
-void CCodeDataLoggerRenderer::changeZoom(int newZoom)
+void CTileStampRenderer::changeZoom(int newZoom)
 {
    makeCurrent();
    zoom = newZoom;
    resizeGL(this->width(), this->height());
    this->repaint();
+}
+
+void CTileStampRenderer::pointToPixel(int ptx,int pty,int* pixx,int* pixy)
+{
+   int zf = zoom/100;
+   ptx /= zf;
+   pty /= zf;
+   (*pixx) = ptx;
+   (*pixy) = pty;
+   (*pixx) += scrollX;
+   (*pixy) += scrollY;
 }

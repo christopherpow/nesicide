@@ -132,6 +132,7 @@ INCLUDEPATH += common \
     designers/new_project \
     designers/project_properties \
     designers/graphics_bank_editor \
+    designers/tile_stamp_editor \
     emulator \
     interfaces \
     project \
@@ -246,7 +247,11 @@ SOURCES += mainwindow.cpp \
     common/cimageconverters.cpp \
     debugger/codeprofilerdockwidget.cpp \
     debugger/cdebuggercodeprofilermodel.cpp \
-    designers/code_editor/qscilexerdefault.cpp
+    designers/code_editor/qscilexerdefault.cpp \
+    designers/tile_stamp_editor/ctilestamprenderer.cpp \
+    designers/tile_stamp_editor/tilestampeditorform.cpp \
+    project/ctilestamps.cpp \
+    project/ctilestamp.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -355,7 +360,11 @@ HEADERS += mainwindow.h \
     common/cimageconverters.h \
     debugger/codeprofilerdockwidget.h \
     debugger/cdebuggercodeprofilermodel.h \
-    designers/code_editor/qscilexerdefault.h
+    designers/code_editor/qscilexerdefault.h \
+    designers/tile_stamp_editor/ctilestamprenderer.h \
+    designers/tile_stamp_editor/tilestampeditorform.h \
+    project/ctilestamps.h \
+    project/ctilestamp.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -391,6 +400,7 @@ FORMS += mainwindow.ui \
     debugger/apuinformationdockwidget.ui \
     emulator/nesemulatordockwidget.ui \
     common/searchdockwidget.ui \
-    debugger/codeprofilerdockwidget.ui
+    debugger/codeprofilerdockwidget.ui \
+    designers/tile_stamp_editor/tilestampeditorform.ui
 
 RESOURCES += resource.qrc

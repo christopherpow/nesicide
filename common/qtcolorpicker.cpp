@@ -66,6 +66,8 @@
 
 #include "qtcolorpicker.h"
 
+#include "cnessystempalette.h"
+
 /*! \class QtColorPicker
 
     \brief The QtColorPicker class provides a widget for selecting
@@ -267,7 +269,7 @@ private:
 */
 QtColorPicker::QtColorPicker(QWidget* parent,
                              int cols, bool enableColorDialog)
-   : QPushButton(parent), popup(0), withColorDialog(enableColorDialog)
+   : QPushButton(parent), popup(0), withColorDialog(enableColorDialog), withColorPopup(true)
 {
    setFocusPolicy(Qt::StrongFocus);
    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -291,6 +293,11 @@ QtColorPicker::QtColorPicker(QWidget* parent,
 
    // Connect this push button's pressed() signal.
    connect(this, SIGNAL(toggled(bool)), SLOT(buttonPressed(bool)));
+
+   for (int i=0; i<NUM_PALETTES; i++)
+   {
+      insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
+   }
 }
 
 /*!
@@ -312,49 +319,52 @@ void QtColorPicker::buttonPressed(bool toggled)
       return;
    }
 
-   const QRect desktop = QApplication::desktop()->geometry();
-
-   // Make sure the popup is inside the desktop.
-   QPoint pos = mapToGlobal(rect().bottomLeft());
-
-   if (pos.x() < desktop.left())
+   if ( withColorPopup )
    {
-      pos.setX(desktop.left());
+      const QRect desktop = QApplication::desktop()->geometry();
+
+      // Make sure the popup is inside the desktop.
+      QPoint pos = mapToGlobal(rect().bottomLeft());
+
+      if (pos.x() < desktop.left())
+      {
+         pos.setX(desktop.left());
+      }
+
+      if (pos.y() < desktop.top())
+      {
+         pos.setY(desktop.top());
+      }
+
+      if ((pos.x() + popup->sizeHint().width()) > desktop.width())
+      {
+         pos.setX(desktop.width() - popup->sizeHint().width());
+      }
+
+      if ((pos.y() + popup->sizeHint().height()) > desktop.bottom())
+      {
+         pos.setY(desktop.bottom() - popup->sizeHint().height());
+      }
+
+      popup->move(pos);
+
+      if (ColorPickerItem* item = popup->find(col))
+      {
+         item->setSelected(true);
+      }
+
+      // Remove focus from this widget, preventing the focus rect
+      // from showing when the popup is shown. Order an update to
+      // make sure the focus rect is cleared.
+      clearFocus();
+      update();
+
+      // Allow keyboard navigation as soon as the popup shows.
+      popup->setFocus();
+
+      // Execute the popup. The popup will enter the event loop.
+      popup->show();
    }
-
-   if (pos.y() < desktop.top())
-   {
-      pos.setY(desktop.top());
-   }
-
-   if ((pos.x() + popup->sizeHint().width()) > desktop.width())
-   {
-      pos.setX(desktop.width() - popup->sizeHint().width());
-   }
-
-   if ((pos.y() + popup->sizeHint().height()) > desktop.bottom())
-   {
-      pos.setY(desktop.bottom() - popup->sizeHint().height());
-   }
-
-   popup->move(pos);
-
-   if (ColorPickerItem* item = popup->find(col))
-   {
-      item->setSelected(true);
-   }
-
-   // Remove focus from this widget, preventing the focus rect
-   // from showing when the popup is shown. Order an update to
-   // make sure the focus rect is cleared.
-   clearFocus();
-   update();
-
-   // Allow keyboard navigation as soon as the popup shows.
-   popup->setFocus();
-
-   // Execute the popup. The popup will enter the event loop.
-   popup->show();
 }
 
 /*!
@@ -504,6 +514,21 @@ void QtColorPicker::setColorDialogEnabled(bool enabled)
 bool QtColorPicker::colorDialogEnabled() const
 {
    return withColorDialog;
+}
+
+/*! \property QtColorPicker::colorPopup
+    \brief Whether the color picker popup is available.
+
+    If this property is set to TRUE, the color grid popup will be shown
+    when the user clicks on the button.
+*/
+void QtColorPicker::setColorPopupEnabled(bool enabled)
+{
+   withColorPopup = enabled;
+}
+bool QtColorPicker::colorPopupEnabled() const
+{
+   return withColorPopup;
 }
 
 /*!

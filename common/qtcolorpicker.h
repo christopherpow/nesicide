@@ -93,6 +93,9 @@ public:
    void setColorDialogEnabled(bool enabled);
    bool colorDialogEnabled() const;
 
+   void setColorPopupEnabled(bool enabled);
+   bool colorPopupEnabled() const;
+
    void setStandardColors();
 
    static QColor getColor(const QPoint& pos, bool allowCustomColors = true);
@@ -114,6 +117,7 @@ private:
    ColorPickerPopup* popup;
    QColor col;
    bool withColorDialog;
+   bool withColorPopup;
    bool dirty;
    bool firstInserted;
 };

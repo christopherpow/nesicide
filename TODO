@@ -47,3 +47,5 @@ or because they were pulled in by the build.
 **DONE** 20. Execution Visualizer doesn't open file for address that's clicked on and doesn't bring that file to view in the project.
 
 **DONE** 21. Somehow tabs aren't being removed from the Window menu.
+
+22. Add option to automatically assign names of new elements added to a project based on what they are instead of asking all the time.

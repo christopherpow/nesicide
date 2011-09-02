@@ -84,6 +84,8 @@ void NameTableVisualizerDockWidget::resizeEvent(QResizeEvent* event)
 
 void NameTableVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
 {
+   value = value-(value%100);
+   ui->zoomSlider->setValue(value);
    renderer->changeZoom(value);
    ui->zoomValueLabel->setText(QString::number(value).append("%"));
    updateScrollbars();
@@ -92,6 +94,7 @@ void NameTableVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
 void NameTableVisualizerDockWidget::updateScrollbars()
 {
    int value = ui->zoomSlider->value();
+   value = value-(value%100);
    int viewWidth = (float)512 * ((float)value / 100.0f);
    int viewHeight = (float)480 * ((float)value / 100.0f);
    ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);

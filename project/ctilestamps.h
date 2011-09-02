@@ -1,22 +1,23 @@
-#ifndef CPROJECTPRIMITIVES_H
-#define CPROJECTPRIMITIVES_H
+#ifndef CTILESTAMPS_H
+#define CTILESTAMPS_H
 
-#include "cprojectbase.h"
-#include "cattributetables.h"
-#include "ctilestamps.h"
+#include "ctilestamp.h"
+#include "cprojecttreeviewmodel.h"
 
-#include <QString>
+#include <QList>
 
-class CProjectPrimitives : public CProjectBase
+class CTileStamps : public CProjectBase
 {
    Q_OBJECT
 public:
-   CProjectPrimitives(IProjectTreeViewItem* parent);
-   virtual ~CProjectPrimitives();
+   CTileStamps(IProjectTreeViewItem* parent);
+   virtual ~CTileStamps();
 
    // Helper functions
    void initializeProject();
    void terminateProject();
+
+   QList<CTileStamp*>& getTileStampList() { return m_tileStamps; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -43,8 +44,7 @@ public:
 
 private:
    // Contained children
-   CAttributeTables* m_pAttributeTables;
-   CTileStamps* m_pTileStamps;
+   QList<CTileStamp*> m_tileStamps;
 };
 
-#endif // CPROJECTPRIMITIVES_H
+#endif // CTILESTAMPS_H

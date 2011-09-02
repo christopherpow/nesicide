@@ -9,6 +9,7 @@ CProjectPrimitives::CProjectPrimitives(IProjectTreeViewItem* parent)
 
    // Allocate children
    m_pAttributeTables = new CAttributeTables(this);
+   m_pTileStamps = new CTileStamps(this);
 }
 
 CProjectPrimitives::~CProjectPrimitives()
@@ -17,24 +18,32 @@ CProjectPrimitives::~CProjectPrimitives()
    {
       delete m_pAttributeTables;
    }
+   if (m_pTileStamps)
+   {
+      delete m_pTileStamps;
+   }
 }
 
 void CProjectPrimitives::initializeProject()
 {
    // Initialize child nodes
    m_pAttributeTables->initializeProject();
+   m_pTileStamps->initializeProject();
 
    // Add child nodes to tree
    appendChild(m_pAttributeTables);
+   appendChild(m_pTileStamps);
 }
 
 void CProjectPrimitives::terminateProject()
 {
    // Terminate child nodes
    m_pAttributeTables->terminateProject();
+   m_pTileStamps->terminateProject();
 
    // Remove child nodes from tree
    removeChild(m_pAttributeTables);
+   removeChild(m_pTileStamps);
 }
 
 bool CProjectPrimitives::serialize(QDomDocument& doc, QDomNode& node)
@@ -49,9 +58,12 @@ bool CProjectPrimitives::serialize(QDomDocument& doc, QDomNode& node)
          return false;
       }
    }
-   else
+   if (m_pTileStamps)
    {
-      return false;
+      if (!m_pTileStamps->serialize(doc, projectPrimitivesElement))
+      {
+         return false;
+      }
    }
 
    return true;
@@ -70,6 +82,13 @@ bool CProjectPrimitives::deserialize(QDomDocument& doc, QDomNode& node, QString&
       if (childNode.nodeName() == "attributetables")
       {
          if (!m_pAttributeTables->deserialize(doc,childNode,errors))
+         {
+            return false;
+         }
+      }
+      if (childNode.nodeName() == "tiles")
+      {
+         if (!m_pTileStamps->deserialize(doc,childNode,errors))
          {
             return false;
          }

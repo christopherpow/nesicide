@@ -64,12 +64,15 @@ void CExecutionVisualizerRenderer::setBGColor(QColor clr)
 
 void CExecutionVisualizerRenderer::resizeGL(int width, int height)
 {
-   // Zoom the width and height based on our view zoom. If zoom is 200% and our width is 100
-   // then the renderer's width will be 50.
-   int newWidth = (int)((float)width / ((float)zoom / 100.0f));
-   int newHeight = (int)((float)height / ((float)zoom / 100.0f));
+   QSize actualSize;
 
-   // Width cannot be 0
+   // Force integral scaling factors. TODO: Add to environment settings.
+   int zf  = zoom / 100;
+
+   actualSize.setWidth( 512*zf );
+   actualSize.setHeight( 512*zf );
+
+   // Width cannot be 0 or the system will freak out
    if (width == 0)
    {
       width = 1;
@@ -84,15 +87,18 @@ void CExecutionVisualizerRenderer::resizeGL(int width, int height)
    // Load the default settings for the matrix.
    glLoadIdentity();
 
-   // Set orthogonal mode (since we are doing 2D rendering) with the proper aspect ratio.
-   glOrtho(0.0f, newWidth, newHeight, 0.0f, -1.0f, 1.0f);
+   // Set orthogonal mode (since we are doing 2D rendering).
+   glOrtho( 0, 1, 1, 0.0f, -1.0f, 1.0f);
 
    // Select and reset the ModelView matrix.
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
+   // Translate for letter-/pillarboxing
+   glScalef( actualSize.width() / float( width )/512, actualSize.height() / float( height )/512, 1 );
+
    // Slightly offset the view to ensure proper pixel alignment
-   //glTranslatef(0.375,0.375,0);
+//    glTranslatef(0.5,0.5,0);
 }
 
 
