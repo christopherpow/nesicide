@@ -9,6 +9,8 @@ CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
    InitTreeItem("",parent);
 
    // Allocate attributes
+   m_xSize = 8;
+   m_ySize = 8;
 }
 
 CTileStamp::~CTileStamp()
@@ -28,15 +30,21 @@ QByteArray CTileStamp::getTile()
 bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "tile" );
+   int xSize;
+   int ySize;
+
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", uuid());
 
    if ( m_editor && m_editor->isModified() )
    {
       getTile();
-
+      editor()->currentSize(&xSize,&ySize);
       m_editor->setModified(false);
    }
+
+   element.setAttribute("x",xSize);
+   element.setAttribute("y",ySize);
 
    return true;
 }
@@ -62,9 +70,24 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
       return false;
    }
 
+   if (!element.hasAttribute("x"))
+   {
+      errors.append("Missing required attribute 'x' of element <source name='"+element.attribute("name")+"'>\n");
+      return false;
+   }
+
+   if (!element.hasAttribute("y"))
+   {
+      errors.append("Missing required attribute 'x' of element <source name='"+element.attribute("name")+"'>\n");
+      return false;
+   }
+
    m_name = element.attribute("name");
 
    setUuid(element.attribute("uuid"));
+
+   m_xSize = element.attribute("x").toInt();
+   m_ySize = element.attribute("y").toInt();
 
    return true;
 }
@@ -116,7 +139,7 @@ void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new TileStampEditorForm(m_tile,this);
+      m_editor = new TileStampEditorForm(m_tile,m_xSize,m_ySize,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }

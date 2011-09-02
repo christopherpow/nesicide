@@ -14,11 +14,11 @@ class TileStampEditorForm : public CDesignerEditorBase
    Q_OBJECT
 
 public:
-   explicit TileStampEditorForm(IProjectTreeViewItem* link,QWidget *parent = 0);
-   explicit TileStampEditorForm(QByteArray data,IProjectTreeViewItem* link,QWidget *parent = 0);
+   explicit TileStampEditorForm(QByteArray data,int xSize,int ySize,IProjectTreeViewItem* link,QWidget *parent = 0);
    virtual ~TileStampEditorForm();
 
    QByteArray tile() { return m_tile; }
+   void currentSize(int* xSize,int* ySize);
 
 protected:
    void changeEvent(QEvent *event);
@@ -30,8 +30,8 @@ protected:
    bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
-   void on_ySize_currentIndexChanged(int index);
-   void on_xSize_currentIndexChanged(int index);
+   void ySize_currentIndexChanged(int index);
+   void xSize_currentIndexChanged(int index);
    void colorPicked();
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);
@@ -41,6 +41,8 @@ private:
    Ui::TileStampEditorForm *ui;
    CTileStampRenderer* renderer;
    QByteArray m_tile;
+   int m_xSize;
+   int m_ySize;
    char* imgData;
    void updateScrollbars();
 

@@ -19,7 +19,7 @@ public:
    void resizeGL(int width, int height);
    void paintGL();
    void changeZoom(int newZoom);
-   void setSize(int newX,int newY) { xSize = newX; ySize = newY; }
+   void setSize(int newX,int newY);
    void pointToPixel(int ptx,int pty,int* pixx,int* pixy);
    void changeImage(char* data)
    {

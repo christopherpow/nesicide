@@ -40,7 +40,7 @@ void CTileStampRenderer::initializeGL()
    // Enable textures
    glEnable(GL_TEXTURE_2D);
 
-   resizeGL(this->width(), this->height());
+   resizeGL(width(),height());
 
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, textureID);
@@ -70,6 +70,7 @@ void CTileStampRenderer::resizeGL(int width, int height)
 
    // Force integral scaling factors. TODO: Add to environment settings.
    int zf  = zoom / 100;
+   int size = (xSize>ySize)?xSize:ySize;
 
    actualSize.setWidth( 256*zf );
    actualSize.setHeight( 256*zf );
@@ -90,14 +91,14 @@ void CTileStampRenderer::resizeGL(int width, int height)
    glLoadIdentity();
 
    // Set orthogonal mode (since we are doing 2D rendering).
-   glOrtho( 0, 1, 1, 0.0f, -1.0f, 1.0f);
+   glOrtho( 0.0, (float)size, (float)size, 0.0f, -1.0f, 1.0f);
 
    // Select and reset the ModelView matrix.
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   // Translate for letter-/pillarboxing
-   glScalef( actualSize.width() / float( width )/256, actualSize.height() / float( height )/256, 1 );
+   // Scale.
+   glScalef( actualSize.width() / 256, actualSize.height() / 256, 1 );
 
    // Slightly offset the view to ensure proper pixel alignment
 //    glTranslatef(0.5,0.5,0);
@@ -112,12 +113,12 @@ void CTileStampRenderer::paintGL()
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
-   glTexCoord2f (1.0, 0.0);
-   glVertex3f(256.0f - scrollX, 000.0f - scrollY, 0.0f);
-   glTexCoord2f (1.0, 1.0);
-   glVertex3f(256.0f - scrollX, 256.0f - scrollY, 0.0f);
-   glTexCoord2f (0.0, 1.0);
-   glVertex3f(000.0f - scrollX, 256.0f - scrollY, 0.0f);
+   glTexCoord2f ((float)xSize/256.0, 0.0);
+   glVertex3f((float)xSize - scrollX, 000.0f - scrollY, 0.0f);
+   glTexCoord2f ((float)xSize/256.0, (float)ySize/256.0);
+   glVertex3f((float)xSize - scrollX, (float)ySize - scrollY, 0.0f);
+   glTexCoord2f (0.0, (float)ySize/256.0);
+   glVertex3f(000.0f - scrollX, (float)ySize - scrollY, 0.0f);
    glEnd();
 }
 
@@ -125,13 +126,25 @@ void CTileStampRenderer::changeZoom(int newZoom)
 {
    makeCurrent();
    zoom = newZoom;
-   resizeGL(this->width(), this->height());
-   this->repaint();
+   resizeGL(width(), height());
+   repaint();
 }
 
+void CTileStampRenderer::setSize(int newX,int newY)
+{
+   xSize = newX;
+   ySize = newY;
+   resizeGL(width(),height());
+   repaint();
+}
 void CTileStampRenderer::pointToPixel(int ptx,int pty,int* pixx,int* pixy)
 {
+   int size = (xSize>ySize)?xSize:ySize;
+   float xpixSize = (float)width()/(float)size;
+   float ypixSize = (float)height()/(float)size;
    int zf = zoom/100;
+   ptx /= xpixSize;
+   pty /= ypixSize;
    ptx /= zf;
    pty /= zf;
    (*pixx) = ptx;

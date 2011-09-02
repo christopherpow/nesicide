@@ -22,6 +22,12 @@
    </property>
    <item row="3" column="0" colspan="4">
     <layout class="QGridLayout" name="gridLayout_3">
+     <property name="horizontalSpacing">
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>0</number>
+     </property>
      <property name="topMargin">
       <number>0</number>
      </property>
@@ -44,6 +50,9 @@
      </item>
      <item row="0" column="0" colspan="3">
       <layout class="QGridLayout" name="gridLayout_5">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item row="0" column="0" colspan="3">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
@@ -163,6 +172,37 @@
           </widget>
          </item>
          <item>
+          <widget class="QSlider" name="zoomSlider">
+           <property name="minimum">
+            <number>100</number>
+           </property>
+           <property name="maximum">
+            <number>2000</number>
+           </property>
+           <property name="singleStep">
+            <number>100</number>
+           </property>
+           <property name="pageStep">
+            <number>100</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="invertedAppearance">
+            <bool>false</bool>
+           </property>
+           <property name="invertedControls">
+            <bool>false</bool>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="zoomValueLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -192,7 +232,7 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0">
+       <item row="1" column="0" colspan="2">
         <widget class="QFrame" name="frame">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -216,48 +256,17 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="2" column="0" colspan="2">
         <widget class="QScrollBar" name="horizontalScrollBar">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="2">
         <widget class="QScrollBar" name="verticalScrollBar">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QSlider" name="zoomSlider">
-         <property name="minimum">
-          <number>100</number>
-         </property>
-         <property name="maximum">
-          <number>2000</number>
-         </property>
-         <property name="singleStep">
-          <number>100</number>
-         </property>
-         <property name="pageStep">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="invertedControls">
-          <bool>false</bool>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksBothSides</enum>
-         </property>
-         <property name="tickInterval">
-          <number>100</number>
          </property>
         </widget>
        </item>
