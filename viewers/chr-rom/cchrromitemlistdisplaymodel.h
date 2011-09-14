@@ -20,7 +20,7 @@ class CChrRomItemListDisplayModel : public QAbstractTableModel
 {
    Q_OBJECT
 public:
-   CChrRomItemListDisplayModel(QObject* parent = 0);
+   CChrRomItemListDisplayModel(bool editable,QObject* parent = 0);
    virtual ~CChrRomItemListDisplayModel();
    QVariant data(const QModelIndex& index, int role) const;
    Qt::ItemFlags flags(const QModelIndex& index) const;
@@ -39,6 +39,7 @@ public slots:
 
 private:
    QList<IChrRomBankItem*> chrRomBankItems;
+   bool m_editable;
 };
 
 #endif // CCHRROMITEMLISTDISPLAYMODEL_H

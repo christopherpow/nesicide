@@ -6,8 +6,9 @@
 
 static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
-CChrRomItemListDisplayModel::CChrRomItemListDisplayModel(QObject* parent)
+CChrRomItemListDisplayModel::CChrRomItemListDisplayModel(bool editable,QObject* parent)
 {
+   m_editable = editable;
 }
 
 CChrRomItemListDisplayModel::~CChrRomItemListDisplayModel()
@@ -17,7 +18,7 @@ CChrRomItemListDisplayModel::~CChrRomItemListDisplayModel()
 Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& index) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-   if ( index.column() == ChrRomBankItemCol_Name )
+   if ( (m_editable) && (index.column() == ChrRomBankItemCol_Name) )
    {
       flags |= Qt::ItemIsEditable;
    }
@@ -125,7 +126,12 @@ QVariant CChrRomItemListDisplayModel::headerData(int section, Qt::Orientation or
 
 int CChrRomItemListDisplayModel::rowCount(const QModelIndex& parent) const
 {
-   return chrRomBankItems.count()+1;
+   int rows = chrRomBankItems.count();
+   if ( m_editable )
+   {
+      rows += 1;
+   }
+   return rows;
 }
 
 int CChrRomItemListDisplayModel::columnCount(const QModelIndex& parent) const

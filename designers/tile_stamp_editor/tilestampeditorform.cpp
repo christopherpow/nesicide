@@ -38,7 +38,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QString attrTblUUID,int
       // Move through tree.
       iter.next();
    }
-   tileListModel = new CChrRomItemListDisplayModel();
+   tileListModel = new CChrRomItemListDisplayModel(false);
    tileListModel->setBankItems(tileList);
    ui->tileList->setModel(tileListModel);
    ui->tileList->setModelColumn(ChrRomBankItemCol_Image);

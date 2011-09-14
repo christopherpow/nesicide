@@ -37,7 +37,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   model = new CChrRomItemListDisplayModel();
+   model = new CChrRomItemListDisplayModel(true);
 
    delegate = new CChrRomBankItemDelegate();
 
