@@ -1,4 +1,5 @@
 #include "cimageconverters.h"
+#include "cnessystempalette.h"
 
 CImageConverters::CImageConverters()
 {
@@ -16,7 +17,7 @@ QByteArray CImageConverters::fromIndexed8(QImage imgIn)
    int tileHeight = height/8;
    int tileX;
    int tileY;
-   int numTiles = (width/8)*(height/8);
+   int numTiles = (tileWidth*tileHeight);
    char plane1[8];
    char plane2[8];
    const uchar* bits = imgIn.bits();
@@ -30,11 +31,11 @@ QByteArray CImageConverters::fromIndexed8(QImage imgIn)
       {
          for ( x = 0; x < 8; x++ )
          {
-            plane1[y%8] <<= 1;
-            plane2[y%8] <<= 1;
+            plane1[y] <<= 1;
+            plane2[y] <<= 1;
 
-            plane1[y%8] |= bits[((tileY+y)*width)+tileX+x]&0x01;
-            plane2[y%8] |= ((bits[((tileY+y)*width)+tileX+x]&0x02)>>1);
+            plane1[y] |= bits[((tileY+y)*width)+tileX+x]&0x01;
+            plane2[y] |= ((bits[((tileY+y)*width)+tileX+x]&0x02)>>1);
          }
       }
       chrOut.append(plane1,8);
@@ -44,23 +45,25 @@ QByteArray CImageConverters::fromIndexed8(QImage imgIn)
    return chrOut;
 }
 
-QImage CImageConverters::toIndexed8(QByteArray chrIn)
+QImage CImageConverters::toIndexed8(QByteArray chrIn, int xSize, int ySize)
 {
-   QImage imgOut(256,128,QImage::Format_Indexed8);
+   QImage imgOut(xSize,ySize,QImage::Format_Indexed8);
 
    int x;
    int y;
    int tile;
    int tileX;
    int tileY;
+   int xTiles = xSize/8;
+   int yTiles = ySize/8;
    int numTiles = chrIn.count()/0x10;
    char plane1;
    char plane2;
    char pixel;
    uchar* bits = imgOut.bits();
 
-   imgOut.setNumColors(4);
-   imgOut.setColorCount(4);
+   imgOut.setNumColors(16);
+   imgOut.setColorCount(16);
    imgOut.setColor(0,qRgb(0x00,0x00,0x00));
    imgOut.setColor(1,qRgb(0x40,0x40,0x40));
    imgOut.setColor(2,qRgb(0x80,0x80,0x80));
@@ -68,8 +71,63 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn)
 
    for ( tile = 0; tile < numTiles; tile++ )
    {
-      tileX = (tile%16)*8;
-      tileY = (tile/16)*8;
+      tileX = (tile%xTiles)*8;
+      tileY = (tile/xTiles)*8;
+
+      if ( tile >= 256 )
+      {
+         tileX += 128;
+         tileY -= 128;
+      }
+
+      for ( y = 0; y < 8; y++ )
+      {
+         plane1 = chrIn.at((tile<<4)+y);
+         plane2 = chrIn.at((tile<<4)+y+8);
+
+         for ( x = 0; x < 8; x++ )
+         {
+            pixel = (!!(plane1&0x80))
+                  | ((!!(plane2&0x80))<<1);
+            imgOut.setPixel(tileX+x,tileY+y,pixel);
+            plane1 <<= 1;
+            plane2 <<= 1;
+         }
+      }
+   }
+
+   return imgOut;
+}
+
+QImage CImageConverters::toIndexed8(QByteArray chrIn, QList<int> colorTable, int xSize, int ySize)
+{
+   QImage imgOut(xSize,ySize,QImage::Format_Indexed8);
+
+   int x;
+   int y;
+   int tile;
+   int tileX;
+   int tileY;
+   int xTiles = xSize/8;
+   int yTiles = ySize/8;
+   int numTiles = chrIn.count()/0x10;
+   char plane1;
+   char plane2;
+   char pixel;
+   int idx;
+   uchar* bits = imgOut.bits();
+
+   imgOut.setNumColors(16);
+   imgOut.setColorCount(16);
+   for ( idx = 0; idx < colorTable.count(); idx++ )
+   {
+      imgOut.setColor(idx,qRgb(CBasePalette::GetPaletteR(colorTable.at(idx)),CBasePalette::GetPaletteG(colorTable.at(idx)),CBasePalette::GetPaletteB(colorTable.at(idx))));
+   }
+
+   for ( tile = 0; tile < numTiles; tile++ )
+   {
+      tileX = (tile%xTiles)*8;
+      tileY = (tile/xTiles)*8;
 
       if ( tile >= 256 )
       {

@@ -74,7 +74,9 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
       QObject::connect(editor,SIGNAL(snapToTab(QString)),this,SLOT(snapToTab(QString)));
+      QObject::connect(editor,SIGNAL(applyChanges(QString)),this,SLOT(applyChanges(QString)));
       QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
+      QObject::connect(this,SIGNAL(applyChangesToTab(QString)),editor,SLOT(applyChangesToTab(QString)));
    }
 
    if ( editor && editor->treeLink() )
@@ -132,7 +134,7 @@ void CProjectTabWidget::tabModified(bool modified)
 
 void CProjectTabWidget::projectDirtied(bool dirtied)
 {
-   nesicideProject->setDirty(dirtied);
+   emit markProjectDirty(dirtied);
 }
 
 void CProjectTabWidget::snapToTab(QString item)
@@ -318,4 +320,17 @@ void CProjectTabWidget::snapToTab(QString item)
    }
 
    emit snapTo(item);
+}
+
+void CProjectTabWidget::applyChanges(QString uuid)
+{
+   int tab;
+
+   for ( tab = 0; tab < count(); tab++ )
+   {
+      if ( widget(tab) != sender() )
+      {
+         emit applyChangesToTab(uuid);
+      }
+   }
 }

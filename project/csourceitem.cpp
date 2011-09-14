@@ -19,6 +19,11 @@ QString CSourceItem::sourceCode()
 {
    if (m_editor)
    {
+      // We need to get the source code from the editor
+      // for source files because, for now, source files
+      // are the only files stored external to the project.
+      // We don't want to rely on the filesystem to give us
+      // the latest copy of the file we *just* saved.
       m_sourceCode = editor()->sourceCode();
    }
 
@@ -136,7 +141,7 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == REMOVE_FROM_PROJECT )
       {
-         if (QMessageBox::question(parent, "Remove from Project", "Are you sure you want to remove " + name() + " from the project?",
+         if (QMessageBox::question(parent, "Remove from Project", "Are you sure you want to remove " + caption() + " from the project?",
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
          {
             return;

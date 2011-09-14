@@ -10,21 +10,21 @@ CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
 
    // Allocate attributes
    m_palette.append(0x0D);
+   m_palette.append(0x00);
    m_palette.append(0x10);
    m_palette.append(0x20);
-   m_palette.append(0x30);
    m_palette.append(0x0D);
+   m_palette.append(0x00);
    m_palette.append(0x10);
    m_palette.append(0x20);
-   m_palette.append(0x30);
    m_palette.append(0x0D);
+   m_palette.append(0x00);
    m_palette.append(0x10);
    m_palette.append(0x20);
-   m_palette.append(0x30);
    m_palette.append(0x0D);
+   m_palette.append(0x00);
    m_palette.append(0x10);
    m_palette.append(0x20);
-   m_palette.append(0x30);
 }
 
 CAttributeTable::~CAttributeTable()
@@ -33,11 +33,6 @@ CAttributeTable::~CAttributeTable()
 
 QList<uint8_t>& CAttributeTable::getPalette()
 {
-   if (m_editor)
-   {
-      m_palette = editor()->attributeTable();
-   }
-
    return m_palette;
 }
 
@@ -49,9 +44,7 @@ bool CAttributeTable::serialize(QDomDocument& doc, QDomNode& node)
 
    if ( m_editor && m_editor->isModified() )
    {
-      getPalette();
-
-      m_editor->setModified(false);
+      editor()->onSave();
    }
 
    for (int i=0; i < m_palette.count(); i++)
@@ -124,7 +117,7 @@ void CAttributeTable::contextMenuEvent(QContextMenuEvent* event, QTreeView* pare
    {
       if (ret->text() == "&Delete")
       {
-         if (QMessageBox::question(parent, "Delete Attribute Table", "Are you sure you want to delete " + name(),
+         if (QMessageBox::question(parent, "Delete Attribute Table", "Are you sure you want to delete " + caption(),
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
          {
             return;
@@ -168,12 +161,7 @@ void CAttributeTable::openItemEvent(CProjectTabWidget* tabWidget)
 
 void CAttributeTable::saveItemEvent()
 {
-   m_palette.clear();
-
-   for (int i=0; i < editor()->attributeTable().count(); i++)
-   {
-      m_palette.append(editor()->attributeTable().at(i));
-   }
+   m_palette = editor()->attributeTable();
 
    if ( m_editor )
    {

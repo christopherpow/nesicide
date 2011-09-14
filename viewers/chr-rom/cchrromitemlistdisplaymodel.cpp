@@ -41,6 +41,11 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) c
          return item->getChrRomBankItemIcon();
       }
 
+      if ((role == Qt::DecorationRole) && (index.column() == ChrRomBankItemCol_Image))
+      {
+         return item->getChrRomBankItemImage();
+      }
+
       if (role != Qt::DisplayRole)
       {
          return QVariant();
@@ -50,25 +55,25 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) c
 
       switch (index.column())
       {
-         case ChrRomBankItemCol_Type:
-            return QVariant(item->getItemType());
-            break;
-         case ChrRomBankItemCol_Name:
-            if (ptvi)
-            {
-               return QVariant(ptvi->caption());
-            }
-            else
-            {
-               return QVariant();
-            }
-            break;
-         case ChrRomBankItemCol_Size:
-            return QVariant(item->getChrRomBankItemSize());
-            break;
-         default:
-            return QVariant("");
-            break;
+      case ChrRomBankItemCol_Type:
+         return QVariant(item->getItemType());
+         break;
+      case ChrRomBankItemCol_Name:
+         if (ptvi)
+         {
+            return QVariant(ptvi->caption());
+         }
+         else
+         {
+            return QVariant();
+         }
+         break;
+      case ChrRomBankItemCol_Size:
+         return QVariant(item->getChrRomBankItemSize());
+         break;
+      default:
+         return QVariant("");
+         break;
       }
    }
    else
@@ -100,18 +105,21 @@ QVariant CChrRomItemListDisplayModel::headerData(int section, Qt::Orientation or
 
    switch (section)
    {
-      case ChrRomBankItemCol_Type:
-         return QVariant("Item Type");
-         break;
-      case ChrRomBankItemCol_Name:
-         return QVariant("Name");
-         break;
-      case ChrRomBankItemCol_Size:
-         return QVariant("Size");
-         break;
-      default:
-         return QVariant();
-         break;
+   case ChrRomBankItemCol_Type:
+      return QVariant("Item Type");
+      break;
+   case ChrRomBankItemCol_Name:
+      return QVariant("Name");
+      break;
+   case ChrRomBankItemCol_Size:
+      return QVariant("Size");
+      break;
+   case ChrRomBankItemCol_Image:
+      return QVariant("Image");
+      break;
+   default:
+      return QVariant();
+      break;
    }
 }
 

@@ -84,11 +84,6 @@ void GraphicsBankEditorForm::updateUi()
    emit markProjectDirty(true);
 }
 
-void GraphicsBankEditorForm::setBankItems(QList<IChrRomBankItem*> items)
-{
-   updateChrRomBankItemList(items);
-}
-
 void GraphicsBankEditorForm::changeEvent(QEvent* event)
 {
    QWidget::changeEvent(event);
@@ -261,14 +256,6 @@ void GraphicsBankEditorForm::updateScrollbars()
    renderer->scrollY = ui->verticalScrollBar->value();
 }
 
-void GraphicsBankEditorForm::on_verticalScrollBar_actionTriggered(int action)
-{
-}
-
-void GraphicsBankEditorForm::on_horizontalScrollBar_actionTriggered(int action)
-{
-}
-
 void GraphicsBankEditorForm::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
@@ -299,4 +286,10 @@ void GraphicsBankEditorForm::snapTo(QString item)
          }
       }
    }
+}
+
+void GraphicsBankEditorForm::applyChangesToTab(QString uuid)
+{
+   // Force an update...
+   updateChrRomBankItemList(bankItems());
 }

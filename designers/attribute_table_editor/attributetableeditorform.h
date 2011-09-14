@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #include "cdesignereditorbase.h"
-
 #include "iprojecttreeviewitem.h"
+#include "qtcolorpicker.h"
 
 namespace Ui
 {
@@ -28,6 +28,7 @@ protected:
 private:
    Ui::AttributeTableEditorForm* ui;
    QList<uint8_t> m_palette;
+   QList<QtColorPicker*> m_colors;
 
 private slots:
    void colorChanged(QColor color);

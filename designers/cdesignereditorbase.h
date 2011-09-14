@@ -14,7 +14,7 @@ public:
    virtual ~CDesignerEditorBase() {};
 
    virtual bool isModified() { return m_isModified; }
-   virtual void setModified(bool modified) { m_isModified = modified; emit editor_modified(modified);}
+   virtual void setModified(bool modified) { m_isModified = modified; emit editor_modified(modified); }
 
    // ICenterWidgetItem Interface Implmentation
    virtual bool onCloseQuery();
@@ -28,6 +28,7 @@ protected:
 public slots:
    virtual void snapTo(QString item) {}
    virtual void replaceText(QString from,QString to,bool replaceAll) {}
+   virtual void applyChangesToTab(QString uuid) {}
 
 signals:
    void editor_modified(bool m);
@@ -36,6 +37,7 @@ signals:
    void activateSearchBar();
    void snapToTab(QString item);
    void addWatchedItem(QString item);
+   void applyChanges(QString uuid);
 
 protected:
    bool m_isModified;

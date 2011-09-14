@@ -63,6 +63,7 @@ void CDesignerEditorBase::onSave()
    if ( _treeLink )
    {
       _treeLink->saveItemEvent();
+      emit applyChanges(_treeLink->uuid());
    }
    setModified(false);
 }

@@ -22,11 +22,6 @@ CGraphicsBank::~CGraphicsBank()
 
 QList<IChrRomBankItem*>& CGraphicsBank::getGraphics()
 {
-   if (m_editor)
-   {
-      m_bankItems = editor()->bankItems();
-   }
-
    return m_bankItems;
 }
 
@@ -38,9 +33,7 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
 
    if ( m_editor && m_editor->isModified() )
    {
-      getGraphics();
-
-      m_editor->setModified(false);
+      editor()->onSave();
    }
 
    for (int i=0; i < m_bankItems.count(); i++)
@@ -154,7 +147,7 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
    {
       if (ret->text() == DELETE_TEXT)
       {
-         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + name(),
+         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + caption(),
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
          {
             return;
@@ -202,12 +195,7 @@ void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
 
 void CGraphicsBank::saveItemEvent()
 {
-   m_bankItems.clear();
-
-   for (int i=0; i < editor()->bankItems().count(); i++)
-   {
-      m_bankItems.append(editor()->bankItems().at(i));
-   }
+   m_bankItems = editor()->bankItems();
 
    if ( m_editor )
    {

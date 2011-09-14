@@ -149,6 +149,19 @@ public:
       m_nodeIndex = 0;
    }
 
+   void reset()
+   {
+      m_pAt = m_pBase;
+      m_nodeIndex = 0;
+   }
+
+   void reset(IProjectTreeViewItem* pTVI)
+   {
+      m_pBase = pTVI;
+      m_pAt = pTVI;
+      m_nodeIndex = 0;
+   }
+
    void next()
    {
       IProjectTreeViewItem* pNode = m_pBase;

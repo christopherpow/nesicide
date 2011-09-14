@@ -10,12 +10,13 @@ CCHRROMPreviewRenderer::CCHRROMPreviewRenderer(QWidget* parent, char* imgData)
 
 CCHRROMPreviewRenderer::~CCHRROMPreviewRenderer()
 {
-   CGLTextureManager::freeTextureID(textureID);
+   glDeleteTextures(1,(GLuint*)&textureID);
 }
 
 void CCHRROMPreviewRenderer::initializeGL()
 {
-   textureID = CGLTextureManager::getNewTextureID();
+   glGenTextures(1,(GLuint*)&textureID);
+
    zoom = 100;
 
    // Enable flat shading

@@ -5,11 +5,12 @@
 
 #include "cprojectbase.h"
 #include "tilestampeditorform.h"
+#include "ichrrombankitem.h"
 
 #include <QMessageBox>
 #include <QTabWidget>
 
-class CTileStamp : public CProjectBase
+class CTileStamp : public CProjectBase, public IChrRomBankItem
 {
    Q_OBJECT
 public:
@@ -17,14 +18,12 @@ public:
    virtual ~CTileStamp();
 
    // Member getters
-   QByteArray getTile();
+   QByteArray getTileData();
    void getSize(int* xSize,int* ySize) { (*xSize) = m_xSize; (*ySize) = m_ySize; }
-
-   // Member setters
-   void setSize(int xSize,int ySize) { m_xSize = xSize; m_ySize = ySize; }
+   QString getAttrTbl() { return m_attrTblUUID; }
+   QImage getTileImage();
 
    TileStampEditorForm* editor() { return dynamic_cast<TileStampEditorForm*>(m_editor); }
-
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -37,10 +36,22 @@ public:
    virtual bool canChangeName();
    virtual bool onNameChanged(QString newName);
 
+   // IChrRomBankItem Interface Implementation
+   virtual int getChrRomBankItemSize();
+   virtual QByteArray getChrRomBankItemData();
+   virtual QIcon getChrRomBankItemIcon();
+   virtual QImage getChrRomBankItemImage();
+   virtual QString getItemType()
+   {
+      return "Tile";
+   }
+
 private:
    QByteArray m_tile;
    int        m_xSize;
    int        m_ySize;
+   QString    m_attrTblUUID;
+   bool       m_grid;
 };
 
 #endif // CTILESTAMP_H

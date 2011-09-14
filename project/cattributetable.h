@@ -21,7 +21,6 @@ public:
 
    AttributeTableEditorForm* editor() { return dynamic_cast<AttributeTableEditorForm*>(m_editor); }
 
-
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);

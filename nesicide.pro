@@ -251,7 +251,8 @@ SOURCES += mainwindow.cpp \
     designers/tile_stamp_editor/ctilestamprenderer.cpp \
     designers/tile_stamp_editor/tilestampeditorform.cpp \
     project/ctilestamps.cpp \
-    project/ctilestamp.cpp
+    project/ctilestamp.cpp \
+    common/colorpushbutton.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -364,7 +365,9 @@ HEADERS += mainwindow.h \
     designers/tile_stamp_editor/ctilestamprenderer.h \
     designers/tile_stamp_editor/tilestampeditorform.h \
     project/ctilestamps.h \
-    project/ctilestamp.h
+    project/ctilestamp.h \
+    common/colorpushbutton.h \
+    common/cdesignercommon.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

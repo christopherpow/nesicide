@@ -11,6 +11,7 @@ public:
    virtual int getChrRomBankItemSize() = 0;
    virtual QByteArray getChrRomBankItemData() = 0;
    virtual QIcon getChrRomBankItemIcon() = 0;
+   virtual QImage getChrRomBankItemImage() { return QImage(); }
    virtual QString getItemType() = 0;
 };
 

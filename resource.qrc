@@ -71,5 +71,6 @@
         <file>resources/document.png</file>
         <file>resources/folder_closed.png</file>
         <file>resources/folder_open.png</file>
+        <file>resources/paintcan.png</file>
     </qresource>
 </RCC>

@@ -20,15 +20,13 @@ public:
    void paintGL();
    void changeZoom(int newZoom);
    void setSize(int newX,int newY);
-   void pointToPixel(int ptx,int pty,int* pixx,int* pixy);
-   void changeImage(char* data)
-   {
-      imageData = data;
-   }
+   bool pointToPixel(int ptx,int pty,int* pixx,int* pixy);
    void setBGColor(QColor clr);
    void setScrollX(int newScrollX) { scrollX = newScrollX; }
    void setScrollY(int newScrollY) { scrollY = newScrollY; }
-
+   void setGrid(bool enabled) { gridEnabled = enabled; }
+   void setBox(int x1=-1,int y1=-1,int x2=-1,int y2=-1) { boxX1 = x1; boxY1 = y1; boxX2 = x2; boxY2 = y2; }
+   void getBox(int* x1,int* y1,int* x2,int* y2) { (*x1) = boxX1; (*y1) = boxY1; (*x2) = boxX2; (*y2) = boxY2; }
 protected:
    int xSize;
    int ySize;
@@ -37,6 +35,13 @@ protected:
    int scrollY;
    char* imageData;
    int textureID;
+
+   // Properties.
+   bool gridEnabled;
+   int boxX1;
+   int boxY1;
+   int boxX2;
+   int boxY2;
 };
 
 #endif // CTILESTAMPRENDERER_H

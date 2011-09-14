@@ -23,8 +23,9 @@ public:
    GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    virtual ~GraphicsBankEditorForm();
    void updateChrRomBankItemList(QList<IChrRomBankItem*> newList);
+
+   // Member getters.
    QList<IChrRomBankItem*> bankItems();
-   void setBankItems(QList<IChrRomBankItem*> items);
 
 protected:
    void changeEvent(QEvent* event);
@@ -45,11 +46,10 @@ private slots:
    void updateUi();
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);
-   void on_horizontalScrollBar_actionTriggered(int action);
-   void on_verticalScrollBar_actionTriggered(int action);
    void on_zoomSlider_valueChanged(int value);
    void colorChanged (const QColor& color);
    void snapTo(QString item);
+   void applyChangesToTab(QString uuid);
 };
 
 #endif // GRAPHICSBANKEDITORFORM_H

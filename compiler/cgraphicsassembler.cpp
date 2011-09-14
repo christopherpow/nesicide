@@ -42,7 +42,7 @@ bool CGraphicsAssembler::assemble()
          {
             CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
 
-            buildTextLogger->write("Constructing '" + curGfxBank->name() + "':");
+            buildTextLogger->write("Constructing '" + curGfxBank->caption() + "':");
 
             if ( curGfxBank->getGraphics().count() )
             {

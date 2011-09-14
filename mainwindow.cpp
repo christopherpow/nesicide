@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    QObject::connect(ui->tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
    QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
+   QObject::connect(ui->tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
 
    ui->menuWindow->setEnabled(false);
 
@@ -587,12 +588,13 @@ void MainWindow::projectDataChangesEvent()
       }
    }
 
-   setWindowTitle(nesicideProject->getProjectTitle().prepend("NESICIDE - "));
+   setWindowTitle(nesicideProject->getProjectTitle().append("[*] - NESICIDE"));
 }
 
 void MainWindow::markProjectDirty(bool dirty)
 {
    nesicideProject->setDirty(dirty);
+   setWindowModified(dirty);
 }
 
 void MainWindow::on_actionSave_Project_triggered()
@@ -687,6 +689,9 @@ void MainWindow::saveProject()
    {
       saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
    }
+
+   // Mark the project as not dirty...
+   markProjectDirty(false);
 }
 
 void MainWindow::on_actionSave_Project_As_triggered()
@@ -941,8 +946,6 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
    settings.setValue("IDEGeometry",saveGeometry());
    settings.setValue("IDEState",saveState());
-
-   emulator->pauseEmulation(false);
 
    if (nesicideProject->isInitialized())
    {
@@ -1412,7 +1415,24 @@ void MainWindow::on_action_About_Nesicide_triggered()
 
 void MainWindow::closeProject()
 {
+   QList<QAction*> actions = ui->menuWindow->actions();
+   QAction* action;
    int tab;
+
+   // Try to close all opened editors
+   for ( tab = ui->tabWidget->count()-1; tab >= 0; tab-- )
+   {
+      ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
+      if ( item )
+      {
+         ui->tabWidget->setCurrentWidget(ui->tabWidget->widget(tab));
+         if ( item->onSaveQuery() )
+         {
+            item->onSave();
+         }
+         ui->tabWidget->removeTab(tab);
+      }
+   }
 
    if (nesicideProject->isDirty())
    {
@@ -1440,21 +1460,12 @@ void MainWindow::closeProject()
    // Terminate the project and let the IDE know
    projectBrowser->disableNavigation();
 
-   // Try to close all opened editors
-   for ( tab = ui->tabWidget->count()-1; tab >= 0; tab-- )
+   foreach ( action, actions )
    {
-      ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
-      if ( item )
-      {
-         ui->tabWidget->setCurrentWidget(ui->tabWidget->widget(tab));
-         if ( item->onSaveQuery() )
-         {
-            item->onSave();
-         }
-         on_tabWidget_tabCloseRequested(tab);
-         ui->tabWidget->removeTab(tab);
-      }
+      QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
+      ui->menuWindow->removeAction(action);
    }
+   ui->menuWindow->setEnabled(ui->menuWindow->actions().count()>0);
 
    CCC65Interface::clear();
 

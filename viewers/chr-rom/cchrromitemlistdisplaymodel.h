@@ -12,6 +12,7 @@ enum
    ChrRomBankItemCol_Name,
    ChrRomBankItemCol_Type,
    ChrRomBankItemCol_Size,
+   ChrRomBankItemCol_Image,
    ChrRomBankItemCol_MAX
 };
 

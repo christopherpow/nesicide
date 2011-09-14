@@ -1,6 +1,8 @@
 #include "ctilestamp.h"
 #include "cnesicideproject.h"
 
+#include "cimageconverters.h"
+
 #include "main.h"
 
 CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
@@ -11,40 +13,61 @@ CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
    // Allocate attributes
    m_xSize = 8;
    m_ySize = 8;
+   m_attrTblUUID = "";
+   m_grid = true;
 }
 
 CTileStamp::~CTileStamp()
 {
 }
 
-QByteArray CTileStamp::getTile()
+QByteArray CTileStamp::getTileData()
 {
    if (m_editor)
    {
-      m_tile = editor()->tile();
+//      m_tile = editor()->tileData();
    }
 
    return m_tile;
 }
 
+QImage CTileStamp::getTileImage()
+{
+   return CImageConverters::toIndexed8(getTileData(),m_xSize,m_ySize);
+}
+
 bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "tile" );
-   int xSize;
-   int ySize;
 
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", uuid());
 
    if ( m_editor && m_editor->isModified() )
    {
-      getTile();
-      editor()->currentSize(&xSize,&ySize);
-      m_editor->setModified(false);
+      editor()->onSave();
+//      saveItemEvent();
    }
 
-   element.setAttribute("x",xSize);
-   element.setAttribute("y",ySize);
+   element.setAttribute("x",m_xSize);
+   element.setAttribute("y",m_ySize);
+   element.setAttribute("attrtbl",m_attrTblUUID);
+   element.setAttribute("grid",m_grid);
+
+   // Serialize the tile data.
+   QDomElement tileElement = addElement(doc,element,"tile");
+   QDomCDATASection tileDataSect;
+   QString tileDataMem;
+   char byte[3];
+   int idx;
+
+   for ( idx = 0; idx < m_tile.count(); idx++ )
+   {
+      sprintf(byte,"%02X",(unsigned char)m_tile.at(idx));
+      tileDataMem += byte;
+   }
+   tileDataSect = doc.createCDATASection(tileDataMem);
+   tileElement.appendChild(tileDataSect);
 
    return true;
 }
@@ -52,6 +75,13 @@ bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
 bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 {
    QDomElement element = node.toElement();
+   QDomNode child = element.firstChild();
+   QDomNode cdataNode;
+   QDomElement childsElement;
+   QDomCDATASection cdataSection;
+   QString cdataString;
+   int idx;
+   char byte;
 
    if (element.isNull())
    {
@@ -88,6 +118,25 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 
    m_xSize = element.attribute("x").toInt();
    m_ySize = element.attribute("y").toInt();
+   m_attrTblUUID = element.attribute("attrtbl","");
+   m_grid = element.attribute("grid","1").toInt();
+
+   do
+   {
+      if ( child.nodeName() == "tile" )
+      {
+         cdataNode = child.firstChild();
+         cdataSection = cdataNode.toCDATASection();
+         cdataString = cdataSection.data();
+         while ( cdataString.length() )
+         {
+            byte = cdataString.left(2).toInt(0,16);
+            cdataString = cdataString.right(cdataString.length()-2);
+            m_tile.append(byte);
+         }
+      }
+   }
+   while (!(child = child.nextSibling()).isNull());
 
    return true;
 }
@@ -103,7 +152,7 @@ void CTileStamp::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    {
       if (ret->text() == "&Delete")
       {
-         if (QMessageBox::question(parent, "Delete Tile", "Are you sure you want to delete " + name(),
+         if (QMessageBox::question(parent, "Delete Tile", "Are you sure you want to delete " + caption(),
                                    QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
          {
             return;
@@ -139,7 +188,7 @@ void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new TileStampEditorForm(m_tile,m_xSize,m_ySize,this);
+      m_editor = new TileStampEditorForm(m_tile,m_attrTblUUID,m_xSize,m_ySize,m_grid,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
@@ -147,7 +196,11 @@ void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
 
 void CTileStamp::saveItemEvent()
 {
-   m_tile = editor()->tile();
+   m_tile = editor()->tileData();
+
+   editor()->currentSize(&m_xSize,&m_ySize);
+   m_attrTblUUID = editor()->currentAttributeTable();
+   m_grid = editor()->isGridEnabled();
 
    if ( m_editor )
    {
@@ -174,4 +227,24 @@ bool CTileStamp::onNameChanged(QString newName)
    }
 
    return true;
+}
+
+int CTileStamp::getChrRomBankItemSize()
+{
+   return getTileData().size();
+}
+
+QByteArray CTileStamp::getChrRomBankItemData()
+{
+   return getTileData();
+}
+
+QIcon CTileStamp::getChrRomBankItemIcon()
+{
+   return QIcon(":/resources/22_binary_file.png");
+}
+
+QImage CTileStamp::getChrRomBankItemImage()
+{
+   return getTileImage();
 }

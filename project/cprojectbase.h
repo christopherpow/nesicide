@@ -13,7 +13,6 @@ public:
    CProjectBase();
    virtual ~CProjectBase();
 
-   QString name() { return m_name; }
    void setName(QString name) { m_name = name; }
 
    QString path() { return m_path; }

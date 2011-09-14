@@ -128,10 +128,12 @@ typedef enum {
     TOK_ADDRSIZE,                       /* ADDRSIZE keyword */
     TOK_AUTO,                           /* AUTO keyword */
     TOK_COUNT,                          /* COUNT keyword */
+    TOK_CSYM,                           /* CSYM keyword */
     TOK_DEF,                            /* DEF keyword */
     TOK_ENUM,                           /* ENUM keyword */
     TOK_EQUATE,                         /* EQUATE keyword */
     TOK_EXPORT,                         /* EXPORT keyword */
+    TOK_EXTERN,                         /* EXTERN keyword */
     TOK_FILE,                           /* FILE keyword */
     TOK_FUNC,                           /* FUNC keyword */
     TOK_GLOBAL,                         /* GLOBAL keyword */
@@ -147,12 +149,15 @@ typedef enum {
     TOK_MODULE,                         /* MODULE keyword */
     TOK_MTIME,                          /* MTIME keyword */
     TOK_NAME,                           /* NAME keyword */
+    TOK_OFFS,                           /* OFFS keyword */
     TOK_OUTPUTNAME,                     /* OUTPUTNAME keyword */
     TOK_OUTPUTOFFS,                     /* OUTPUTOFFS keyword */
     TOK_PARENT,                         /* PARENT keyword */
     TOK_REF,                            /* REF keyword */
+    TOK_REGISTER,                       /* REGISTER keyword */
     TOK_RO,                             /* RO keyword */
     TOK_RW,                             /* RW keyword */
+    TOK_SC,                             /* SC keyword */
     TOK_SCOPE,                          /* SCOPE keyword */
     TOK_SEGMENT,                        /* SEGMENT keyword */
     TOK_SIZE,                           /* SIZE keyword */
@@ -182,6 +187,7 @@ struct DbgInfo {
      * The collections are also used when the objects are deleted, so they're
      * actually the ones that "own" the items.
      */
+    Collection          CSymInfoById;   /* C symbol infos sorted by id */
     Collection          FileInfoById;   /* File infos sorted by id */
     Collection          LibInfoById;    /* Library infos sorted by id */
     Collection          LineInfoById;   /* Line infos sorted by id */
@@ -193,6 +199,7 @@ struct DbgInfo {
     Collection          TypeInfoById;   /* Type infos sorted by id */
 
     /* Collections with other sort criteria */
+    Collection          CSymFuncByName; /* C functions sorted by name */
     Collection          FileInfoByName; /* File infos sorted by name */
     Collection		ModInfoByName;	/* Module info sorted by name */
     Collection          ScopeInfoByName;/* Scope infos sorted by name */
@@ -229,6 +236,7 @@ struct InputData {
 };
 
 /* Typedefs for the item structures. Do also serve as forwards */
+typedef struct CSymInfo CSymInfo;
 typedef struct FileInfo FileInfo;
 typedef struct LibInfo LibInfo;
 typedef struct LineInfo LineInfo;
@@ -238,6 +246,27 @@ typedef struct SegInfo SegInfo;
 typedef struct SpanInfo SpanInfo;
 typedef struct SymInfo SymInfo;
 typedef struct TypeInfo TypeInfo;
+
+/* Internally used c symbol info struct */
+struct CSymInfo {
+    unsigned            Id;             /* Id of file */
+    unsigned short      Kind;           /* Kind of C symbol */
+    unsigned short      SC;             /* Storage class of C symbol */
+    int                 Offs;           /* Offset */
+    union {
+        unsigned        Id;             /* Id of attached asm symbol */
+        SymInfo*        Info;           /* Pointer to attached asm symbol */
+    } Sym;
+    union {
+        unsigned        Id;             /* Id of type */
+        TypeInfo*       Info;           /* Pointer to type */
+    } Type;
+    union {
+        unsigned        Id;             /* Id of scope */
+        ScopeInfo*      Info;           /* Pointer to scope */
+    } Scope;
+    char                Name[1];        /* Name of file with full path */
+};
 
 /* Internally used file info struct */
 struct FileInfo {
@@ -280,6 +309,7 @@ struct ModInfo {
         LibInfo*        Info;           /* Pointer to library info */
     } Lib;
     ScopeInfo*          MainScope;      /* Pointer to main scope */
+    Collection          CSymFuncByName; /* C functions by name */
     Collection          FileInfoByName; /* Files for this module */
     Collection          ScopeInfoByName;/* Scopes for this module */
     char                Name[1];        /* Name of module with path */
@@ -302,8 +332,10 @@ struct ScopeInfo {
         unsigned        Id;             /* Id of label symbol */
         SymInfo*        Info;           /* Pointer to label symbol */
     } Label;
+    CSymInfo*           CSymFunc;       /* C function for this scope */
     Collection		SpanInfoList;	/* List of spans for this scope */
     Collection          SymInfoByName;  /* Symbols in this scope */
+    Collection*         CSymInfoByName; /* C symbols for this scope */
     Collection*         ChildScopeList; /* Child scopes of this scope */
     char                Name[1];        /* Name of scope */
 };
@@ -357,6 +389,7 @@ struct SymInfo {
         unsigned        Id;             /* Parent symbol if any */
         SymInfo*        Info;           /* Pointer to parent symbol if any */
     } Parent;
+    CSymInfo*           CSym;           /* Corresponding C symbol */
     Collection*         ImportList;     /* List of imports if this is an export */
     Collection*         CheapLocals;    /* List of cheap local symbols */
     Collection          DefLineInfoList;/* Line info of symbol definition */
@@ -697,9 +730,9 @@ static void CollFree (Collection* C)
 
 
 static unsigned CollCount (const Collection* C)
-/* Return the number of items in the collection */
+/* Return the number of items in the collection. Return 0 if C is NULL. */
 {
-    return C->Count;
+    return C? C->Count : 0;
 }
 
 
@@ -1035,6 +1068,21 @@ static void DBGPRINT(const char* format, ...) {}
 
 
 
+static unsigned GetId (const void* Data)
+/* Return the id of one of the info structures. All structures have the Id
+ * field as first member, and the C standard allows converting a union pointer
+ * to the data type of the first member, so this is safe and portable.
+ */
+{
+    if (Data) {
+        return *(const unsigned*)Data;
+    } else {
+        return CC65_INV_ID;
+    }
+}
+
+
+
 static unsigned HexValue (char C)
 /* Convert the ascii representation of a hex nibble into the hex nibble */
 {
@@ -1131,6 +1179,77 @@ static void UnknownKeyword (InputData* D)
     } else if (D->Tok != TOK_COMMA && D->Tok != TOK_EOL && D->Tok != TOK_EOF) {
         SkipLine (D);
     }
+}
+
+
+
+/*****************************************************************************/
+/*                               C symbol info                               */
+/*****************************************************************************/
+
+
+
+static CSymInfo* NewCSymInfo (const StrBuf* Name)
+/* Create a new CSymInfo struct and return it */
+{
+    /* Allocate memory */
+    CSymInfo* S = xmalloc (sizeof (CSymInfo) + SB_GetLen (Name));
+
+    /* Initialize it */
+    memcpy (S->Name, SB_GetConstBuf (Name), SB_GetLen (Name) + 1);
+
+    /* Return it */
+    return S;
+}
+
+
+
+static void FreeCSymInfo (CSymInfo* S)
+/* Free a CSymInfo struct */
+{
+    /* Free the structure itself */
+    xfree (S);
+}
+
+
+
+static cc65_csyminfo* new_cc65_csyminfo (unsigned Count)
+/* Allocate and return a cc65_csyminfo struct that is able to hold Count
+ * entries. Initialize the count field of the returned struct.
+ */
+{
+    cc65_csyminfo* S = xmalloc (sizeof (*S) - sizeof (S->data[0]) +
+                                Count * sizeof (S->data[0]));
+    S->count = Count;
+    return S;
+}
+
+
+
+static void CopyCSymInfo (cc65_csymdata* D, const CSymInfo* S)
+/* Copy data from a CSymInfo struct to a cc65_csymdata struct */
+{
+    D->csym_id      = S->Id;
+    D->csym_kind    = S->Kind;
+    D->csym_sc      = S->SC;
+    D->csym_offs    = S->Offs;
+    D->type_id      = GetId (S->Type.Info);
+    D->symbol_id    = GetId (S->Sym.Info);
+    D->scope_id     = GetId (S->Scope.Info);
+    D->csym_name    = S->Name;
+}
+
+
+
+static int CompareCSymInfoByName (const void* L, const void* R)
+/* Helper function to sort c symbol infos in a collection by name */
+{
+    /* Sort by symbol name, then by id */
+    int Res = strcmp (((const CSymInfo*) L)->Name, ((const CSymInfo*) R)->Name);
+    if (Res == 0) {
+        Res = (int)((const CSymInfo*) L)->Id - (int)((const CSymInfo*) R)->Id;
+    }
+    return Res;
 }
 
 
@@ -1351,6 +1470,7 @@ static ModInfo* NewModInfo (const StrBuf* Name)
 
     /* Initialize it */
     M->MainScope = 0;
+    CollInit (&M->CSymFuncByName);
     CollInit (&M->FileInfoByName);
     CollInit (&M->ScopeInfoByName);
     memcpy (M->Name, SB_GetConstBuf (Name), SB_GetLen (Name) + 1);
@@ -1365,6 +1485,7 @@ static void FreeModInfo (ModInfo* M)
 /* Free a ModInfo struct */
 {
     /* Free the collections */
+    CollDone (&M->CSymFuncByName);
     CollDone (&M->FileInfoByName);
     CollDone (&M->ScopeInfoByName);
 
@@ -1390,19 +1511,11 @@ static cc65_moduleinfo* new_cc65_moduleinfo (unsigned Count)
 static void CopyModInfo (cc65_moduledata* D, const ModInfo* M)
 /* Copy data from a ModInfo struct to a cc65_moduledata struct */
 {
-    D->module_id      = M->Id;
-    D->module_name    = M->Name;
-    D->source_id      = M->File.Info->Id;
-    if (M->Lib.Info) {
-        D->library_id = M->Lib.Info->Id;
-    } else {
-        D->library_id = CC65_INV_ID;
-    }
-    if (M->MainScope) {
-        D->scope_id   = M->MainScope->Id;
-    } else {
-        D->scope_id   = CC65_INV_ID;
-    }
+    D->module_id    = M->Id;
+    D->module_name  = M->Name;
+    D->source_id    = M->File.Info->Id;
+    D->library_id   = GetId (M->Lib.Info);
+    D->scope_id     = GetId (M->MainScope);
 }
 
 
@@ -1429,8 +1542,10 @@ static ScopeInfo* NewScopeInfo (const StrBuf* Name)
     ScopeInfo* S = xmalloc (sizeof (ScopeInfo) + SB_GetLen (Name));
 
     /* Initialize the fields as necessary */
+    S->CSymFunc = 0;
     CollInit (&S->SpanInfoList);
     CollInit (&S->SymInfoByName);
+    S->CSymInfoByName = 0;
     S->ChildScopeList = 0;
     memcpy (S->Name, SB_GetConstBuf (Name), SB_GetLen (Name) + 1);
 
@@ -1445,6 +1560,7 @@ static void FreeScopeInfo (ScopeInfo* S)
 {
     CollDone (&S->SpanInfoList);
     CollDone (&S->SymInfoByName);
+    CollFree (S->CSymInfoByName);
     CollFree (S->ChildScopeList);
     xfree (S);
 }
@@ -1467,21 +1583,13 @@ static cc65_scopeinfo* new_cc65_scopeinfo (unsigned Count)
 static void CopyScopeInfo (cc65_scopedata* D, const ScopeInfo* S)
 /* Copy data from a ScopeInfo struct to a cc65_scopedata struct */
 {
-    D->scope_id         = S->Id;
-    D->scope_name       = S->Name;
-    D->scope_type       = S->Type;
-    D->scope_size       = S->Size;
-    if (S->Parent.Info) {
-        D->parent_id    = S->Parent.Info->Id;
-    } else {
-        D->parent_id    = CC65_INV_ID;
-    }
-    if (S->Label.Info) {
-        D->symbol_id    = S->Label.Info->Id;
-    } else {
-        D->symbol_id    = CC65_INV_ID;
-    }
-    D->module_id        = S->Mod.Info->Id;
+    D->scope_id     = S->Id;
+    D->scope_name   = S->Name;
+    D->scope_type   = S->Type;
+    D->scope_size   = S->Size;
+    D->parent_id    = GetId (S->Parent.Info);
+    D->symbol_id    = GetId (S->Label.Info);
+    D->module_id    = S->Mod.Info->Id;
 }
 
 
@@ -1628,25 +1736,13 @@ static cc65_spaninfo* new_cc65_spaninfo (unsigned Count)
 static void CopySpanInfo (cc65_spandata* D, const SpanInfo* S)
 /* Copy data from a SpanInfo struct to a cc65_spandata struct */
 {
-    D->span_id          = S->Id;
-    D->span_start       = S->Start;
-    D->span_end         = S->End;
-    D->segment_id       = S->Seg.Info->Id;
-    if (S->Type.Info) {
-        D->type_id      = S->Type.Info->Id;
-    } else {
-        D->type_id      = CC65_INV_ID;
-    }
-    if (S->ScopeInfoList) {
-        D->scope_count  = CollCount (S->ScopeInfoList);
-    } else {
-        D->scope_count  = 0;
-    }
-    if (S->LineInfoList) {
-        D->line_count   = CollCount (S->LineInfoList);
-    } else {
-        D->line_count   = 0;
-    }
+    D->span_id      = S->Id;
+    D->span_start   = S->Start;
+    D->span_end     = S->End;
+    D->segment_id   = S->Seg.Info->Id;
+    D->type_id      = GetId (S->Type.Info);
+    D->scope_count  = CollCount (S->ScopeInfoList);
+    D->line_count   = CollCount (S->LineInfoList);
 }
 
 
@@ -1689,7 +1785,8 @@ static SymInfo* NewSymInfo (const StrBuf* Name)
     SymInfo* S = xmalloc (sizeof (SymInfo) + SB_GetLen (Name));
 
     /* Initialize it as necessary */
-    S->ImportList = 0;
+    S->CSym        = 0;
+    S->ImportList  = 0;
     S->CheapLocals = 0;
     CollInit (&S->DefLineInfoList);
     CollInit (&S->RefLineInfoList);
@@ -2286,6 +2383,7 @@ static DbgInfo* NewDbgInfo (const char* FileName)
     DbgInfo* Info = xmalloc (sizeof (DbgInfo) + Len);
 
     /* Initialize it */
+    CollInit (&Info->CSymInfoById);
     CollInit (&Info->FileInfoById);
     CollInit (&Info->LibInfoById);
     CollInit (&Info->LineInfoById);
@@ -2296,6 +2394,7 @@ static DbgInfo* NewDbgInfo (const char* FileName)
     CollInit (&Info->SymInfoById);
     CollInit (&Info->TypeInfoById);
 
+    CollInit (&Info->CSymFuncByName);
     CollInit (&Info->FileInfoByName);
     CollInit (&Info->ModInfoByName);
     CollInit (&Info->ScopeInfoByName);
@@ -2322,6 +2421,9 @@ static void FreeDbgInfo (DbgInfo* Info)
     unsigned I;
 
     /* First, free the items in the collections */
+    for (I = 0; I < CollCount (&Info->CSymInfoById); ++I) {
+        FreeCSymInfo (CollAt (&Info->CSymInfoById, I));
+    }
     for (I = 0; I < CollCount (&Info->FileInfoById); ++I) {
         FreeFileInfo (CollAt (&Info->FileInfoById, I));
     }
@@ -2351,6 +2453,7 @@ static void FreeDbgInfo (DbgInfo* Info)
     }
 
     /* Free the memory used by the id collections */
+    CollDone (&Info->CSymInfoById);
     CollDone (&Info->FileInfoById);
     CollDone (&Info->LibInfoById);
     CollDone (&Info->LineInfoById);
@@ -2362,6 +2465,7 @@ static void FreeDbgInfo (DbgInfo* Info)
     CollDone (&Info->TypeInfoById);
 
     /* Free the memory used by the other collections */
+    CollDone (&Info->CSymFuncByName);
     CollDone (&Info->FileInfoByName);
     CollDone (&Info->ModInfoByName);
     CollDone (&Info->ScopeInfoByName);
@@ -2425,10 +2529,12 @@ static void NextToken (InputData* D)
         { "addrsize",   TOK_ADDRSIZE    },
         { "auto",       TOK_AUTO        },
         { "count",      TOK_COUNT       },
+        { "csym",       TOK_CSYM        },
         { "def",        TOK_DEF         },
         { "enum",       TOK_ENUM        },
         { "equ",        TOK_EQUATE      },
         { "exp",        TOK_EXPORT      },
+        { "ext",        TOK_EXTERN      },
         { "file",       TOK_FILE        },
         { "func",       TOK_FUNC        },
         { "global",     TOK_GLOBAL      },
@@ -2444,12 +2550,15 @@ static void NextToken (InputData* D)
         { "mod",        TOK_MODULE      },
         { "mtime",      TOK_MTIME       },
         { "name",       TOK_NAME        },
+        { "offs",       TOK_OFFS        },
         { "oname",      TOK_OUTPUTNAME  },
         { "ooffs",      TOK_OUTPUTOFFS  },
         { "parent",     TOK_PARENT      },
         { "ref",        TOK_REF         },
+        { "reg",        TOK_REGISTER    },
         { "ro",         TOK_RO          },
         { "rw",         TOK_RW          },
+        { "sc",         TOK_SC          },
         { "scope",      TOK_SCOPE       },
         { "seg",        TOK_SEGMENT     },
         { "size",       TOK_SIZE        },
@@ -2660,6 +2769,196 @@ static void ConsumeEOL (InputData* D)
 
 
 
+static void ParseCSym (InputData* D)
+/* Parse a CSYM line */
+{
+    /* Most of the following variables are initialized with a value that is
+     * overwritten later. This is just to avoid compiler warnings.
+     */
+    unsigned            Id = 0;
+    StrBuf              Name = STRBUF_INITIALIZER;
+    int                 Offs = 0;
+    cc65_csym_sc        SC = CC65_CSYM_AUTO;
+    unsigned            ScopeId = 0;
+    unsigned            SymId = CC65_INV_ID;
+    unsigned            TypeId = CC65_INV_ID;
+    CSymInfo*           S;
+    enum {
+        ibNone          = 0x0000,
+
+        ibId            = 0x0001,
+        ibOffs          = 0x0002,
+        ibName          = 0x0004,
+        ibSC            = 0x0008,
+        ibScopeId       = 0x0010,
+        ibSymId         = 0x0020,
+        ibType          = 0x0040,
+
+        ibRequired      = ibId | ibName | ibSC | ibScopeId | ibType,
+    } InfoBits = ibNone;
+
+    /* Skip the CSYM token */
+    NextToken (D);
+
+    /* More stuff follows */
+    while (1) {
+
+        Token Tok;
+
+        /* Something we know? */
+        if (D->Tok != TOK_ID            && D->Tok != TOK_NAME           &&
+            D->Tok != TOK_OFFS          && D->Tok != TOK_SC             &&
+            D->Tok != TOK_SCOPE         && D->Tok != TOK_SYM            &&
+            D->Tok != TOK_TYPE) {
+
+            /* Try smart error recovery */
+            if (D->Tok == TOK_IDENT || TokenIsKeyword (D->Tok)) {
+                UnknownKeyword (D);
+                continue;
+            }
+
+            /* Done */
+            break;
+        }
+
+        /* Remember the token, skip it, check for equal */
+        Tok = D->Tok;
+        NextToken (D);
+        if (!ConsumeEqual (D)) {
+            goto ErrorExit;
+        }
+
+        /* Check what the token was */
+        switch (Tok) {
+
+            case TOK_ID:
+                if (!IntConstFollows (D)) {
+                    goto ErrorExit;
+                }
+                Id = D->IVal;
+                NextToken (D);
+                InfoBits |= ibId;
+                break;
+
+            case TOK_NAME:
+                if (!StrConstFollows (D)) {
+                    goto ErrorExit;
+                }
+                SB_Copy (&Name, &D->SVal);
+                SB_Terminate (&Name);
+                InfoBits |= ibName;
+                NextToken (D);
+                break;
+
+            case TOK_OFFS:
+                Offs = 1;
+                if (D->Tok == TOK_MINUS) {
+                    Offs = -1;
+                    NextToken (D);
+                }
+                if (!IntConstFollows (D)) {
+                    goto ErrorExit;
+                }
+                Offs *= (int) D->IVal;
+                InfoBits |= ibOffs;
+                NextToken (D);
+                break;
+
+            case TOK_SC:
+                switch (D->Tok) {
+                    case TOK_AUTO:      SC = CC65_CSYM_AUTO;    break;
+                    case TOK_EXTERN:    SC = CC65_CSYM_EXTERN;  break;
+                    case TOK_REGISTER:  SC = CC65_CSYM_REG;     break;
+                    case TOK_STATIC:    SC = CC65_CSYM_STATIC;  break;
+                    default:
+                        ParseError (D, CC65_ERROR, "Invalid storage class token");
+                        break;
+                }
+                InfoBits |= ibSC;
+                NextToken (D);
+                break;
+
+            case TOK_SCOPE:
+                if (!IntConstFollows (D)) {
+                    goto ErrorExit;
+                }
+                ScopeId = D->IVal;
+                NextToken (D);
+                InfoBits |= ibScopeId;
+                break;
+
+            case TOK_SYM:
+                if (!IntConstFollows (D)) {
+                    goto ErrorExit;
+                }
+                SymId = D->IVal;
+                NextToken (D);
+                InfoBits |= ibSymId;
+                break;
+
+            case TOK_TYPE:
+                if (!IntConstFollows (D)) {
+                    goto ErrorExit;
+                }
+                TypeId = D->IVal;
+                NextToken (D);
+                InfoBits |= ibType;
+                break;
+
+            default:
+                /* NOTREACHED */
+                UnexpectedToken (D);
+                goto ErrorExit;
+
+        }
+
+        /* Comma or done */
+        if (D->Tok != TOK_COMMA) {
+            break;
+        }
+        NextToken (D);
+    }
+
+    /* Check for end of line */
+    if (D->Tok != TOK_EOL && D->Tok != TOK_EOF) {
+        UnexpectedToken (D);
+        SkipLine (D);
+        goto ErrorExit;
+    }
+
+    /* Check for required and/or matched information */
+    if ((InfoBits & ibRequired) != ibRequired) {
+        ParseError (D, CC65_ERROR, "Required attributes missing");
+        goto ErrorExit;
+    }
+
+    /* Symbol only valid if storage class not auto */
+    if (((InfoBits & ibSymId) != 0) != (SC != CC65_CSYM_AUTO)) {
+        ParseError (D, CC65_ERROR, "Only non auto symbols can have a symbol attached");
+        goto ErrorExit;
+    }
+
+    /* Create the symbol info */
+    S = NewCSymInfo (&Name);
+    S->Id         = Id;
+    S->Kind       = CC65_CSYM_VAR;
+    S->SC         = SC;
+    S->Offs       = Offs;
+    S->Sym.Id     = SymId;
+    S->Type.Id    = TypeId;
+    S->Scope.Id   = ScopeId;
+
+    /* Remember it */
+    CollReplaceExpand (&D->Info->CSymInfoById, S, Id);
+
+ErrorExit:
+    /* Entry point in case of errors */
+    SB_Done (&Name);
+    return;
+}
+
+
+
 static void ParseFile (InputData* D)
 /* Parse a FILE line */
 {
@@ -2821,11 +3120,11 @@ static void ParseInfo (InputData* D)
         Token Tok;
 
         /* Something we know? */
-        if (D->Tok != TOK_FILE  && D->Tok != TOK_LIBRARY        &&
-            D->Tok != TOK_LINE  && D->Tok != TOK_MODULE         &&
-            D->Tok != TOK_SCOPE && D->Tok != TOK_SEGMENT        &&
-            D->Tok != TOK_SPAN  && D->Tok != TOK_SYM            &&
-            D->Tok != TOK_TYPE) {
+        if (D->Tok != TOK_CSYM          && D->Tok != TOK_FILE           &&
+            D->Tok != TOK_LIBRARY       && D->Tok != TOK_LINE           &&
+            D->Tok != TOK_MODULE        && D->Tok != TOK_SCOPE          &&
+            D->Tok != TOK_SEGMENT       && D->Tok != TOK_SPAN           &&
+            D->Tok != TOK_SYM           && D->Tok != TOK_TYPE) {
 
             /* Try smart error recovery */
             if (D->Tok == TOK_IDENT || TokenIsKeyword (D->Tok)) {
@@ -2852,9 +3151,13 @@ static void ParseInfo (InputData* D)
         /* Check what the token was */
         switch (Tok) {
 
+            case TOK_CSYM:
+                CollGrow (&D->Info->CSymInfoById,  D->IVal);
+                break;
+
             case TOK_FILE:
                 CollGrow (&D->Info->FileInfoById,   D->IVal);
-		CollGrow (&D->Info->FileInfoByName, D->IVal);
+	    	CollGrow (&D->Info->FileInfoByName, D->IVal);
                 break;
 
             case TOK_LIBRARY:
@@ -4312,7 +4615,51 @@ ErrorExit:
 
 
 
-static int FindFileInfoByName (Collection* FileInfos, const char* Name,
+static int FindCSymInfoByName (const Collection* CSymInfos, const char* Name,
+                               unsigned* Index)
+/* Find the C symbol info with a given file name. The function returns true if
+ * the name was found. In this case, Index contains the index of the first item
+ * that matches. If the item wasn't found, the function returns false and
+ * Index contains the insert position for Name.
+ */
+{
+    /* Do a binary search */
+    int Lo = 0;
+    int Hi = (int) CollCount (CSymInfos) - 1;
+    int Found = 0;
+    while (Lo <= Hi) {
+
+        /* Mid of range */
+        int Cur = (Lo + Hi) / 2;
+
+        /* Get item */
+        const CSymInfo* CurItem = CollAt (CSymInfos, Cur);
+
+        /* Compare */
+        int Res = strcmp (CurItem->Name, Name);
+
+        /* Found? */
+        if (Res < 0) {
+            Lo = Cur + 1;
+        } else {
+            Hi = Cur - 1;
+            /* Since we may have duplicates, repeat the search until we've
+             * the first item that has a match.
+             */
+            if (Res == 0) {
+                Found = 1;
+            }
+        }
+    }
+
+    /* Pass back the index. This is also the insert position */
+    *Index = Lo;
+    return Found;
+}
+
+
+
+static int FindFileInfoByName (const Collection* FileInfos, const char* Name,
                                unsigned* Index)
 /* Find the FileInfo for a given file name. The function returns true if the
  * name was found. In this case, Index contains the index of the first item
@@ -4330,7 +4677,7 @@ static int FindFileInfoByName (Collection* FileInfos, const char* Name,
         int Cur = (Lo + Hi) / 2;
 
         /* Get item */
-        FileInfo* CurItem = CollAt (FileInfos, Cur);
+        const FileInfo* CurItem = CollAt (FileInfos, Cur);
 
         /* Compare */
         int Res = strcmp (CurItem->Name, Name);
@@ -4587,6 +4934,110 @@ static int FindSymInfoByValue (const Collection* SymInfos, long Value,
 
 
 
+static void ProcessCSymInfo (InputData* D)
+/* Postprocess c symbol infos */
+{
+    unsigned I;
+
+    /* Walk over all c symbols. Resolve the ids and add the c symbols to the
+     * corresponding asm symbols.
+     */
+    for (I = 0; I < CollCount (&D->Info->CSymInfoById); ++I) {
+
+        /* Get this c symbol info */
+        CSymInfo* S = CollAt (&D->Info->CSymInfoById, I);
+
+        /* Resolve the asm symbol */
+        if (S->Sym.Id == CC65_INV_ID) {
+            S->Sym.Info = 0;
+        } else if (S->Sym.Id >= CollCount (&D->Info->SymInfoById)) {
+            ParseError (D,
+                        CC65_ERROR,
+                        "Invalid symbol id %u for c symbol with id %u",
+                        S->Sym.Id, S->Id);
+            S->Sym.Info = 0;
+        } else {
+            S->Sym.Info = CollAt (&D->Info->SymInfoById, S->Sym.Id);
+
+            /* For normal (=static) symbols, add a backlink to the symbol but
+             * check that there is not more than one.
+             */
+            if (S->SC != CC65_CSYM_AUTO && S->SC != CC65_CSYM_REG) {
+                if (S->Sym.Info->CSym) {
+                    ParseError (D,
+                                CC65_ERROR,
+                                "Asm symbol id %u has more than one C symbol attached",
+                                S->Sym.Info->Id);
+                    S->Sym.Info = 0;
+                } else {
+                    S->Sym.Info->CSym = S;
+                }
+            }
+        }
+
+        /* Resolve the type */
+        if (S->Type.Id >= CollCount (&D->Info->TypeInfoById)) {
+            ParseError (D,
+                        CC65_ERROR,
+                        "Invalid type id %u for c symbol with id %u",
+                        S->Type.Id, S->Id);
+            S->Type.Info = 0;
+        } else {
+            S->Type.Info = CollAt (&D->Info->TypeInfoById, S->Type.Id);
+        }
+
+        /* Resolve the scope */
+        if (S->Scope.Id >= CollCount (&D->Info->ScopeInfoById)) {
+            ParseError (D,
+                        CC65_ERROR,
+                        "Invalid scope id %u for c symbol with id %u",
+                        S->Scope.Id, S->Id);
+            S->Scope.Info = 0;
+        } else {
+            S->Scope.Info = CollAt (&D->Info->ScopeInfoById, S->Scope.Id);
+
+            /* Add the c symbol to the list of all c symbols for this scope */
+            if (S->Scope.Info->CSymInfoByName == 0) {
+                S->Scope.Info->CSymInfoByName = CollNew ();
+            }
+            CollAppend (S->Scope.Info->CSymInfoByName, S);
+
+            /* If the scope has an owner symbol, it's a .PROC scope. If this
+             * symbol is identical to the one attached to the C symbol, this
+             * is actuallay a C function and the scope is the matching scope.
+             * Remember the C symbol in the scope in this case.
+             * Beware: Scopes haven't been postprocessed, so we don't have a
+             * pointer but just an id.
+             */
+            if (S->Sym.Info && S->Scope.Info->Label.Id == S->Sym.Info->Id) {
+                /* This scope is our function scope */
+                S->Scope.Info->CSymFunc = S;
+                /* Add it to the list of all c functions */
+                CollAppend (&D->Info->CSymFuncByName, S);
+            }
+
+        }
+    }
+
+    /* Walk over all scopes and sort the c symbols by name. */
+    for (I = 0; I < CollCount (&D->Info->ScopeInfoById); ++I) {
+
+        /* Get this scope */
+        ScopeInfo* S = CollAt (&D->Info->ScopeInfoById, I);
+
+        /* Ignore scopes without C symbols */
+        if (CollCount (S->CSymInfoByName) > 1) {
+            /* Sort the c symbols for this scope by name */
+            CollSort (S->CSymInfoByName, CompareCSymInfoByName);
+        }
+    }
+
+    /* Sort the main list of all C functions by name */
+    CollSort (&D->Info->CSymFuncByName, CompareCSymInfoByName);
+}
+
+
+
 static void ProcessFileInfo (InputData* D)
 /* Postprocess file infos */
 {
@@ -4795,6 +5246,13 @@ static void ProcessScopeInfo (InputData* D)
                 /* No parent means main scope */
                 S->Mod.Info->MainScope = S;
             }
+
+            /* If this is the scope that implements a C function, add the
+             * function to the list of all functions in this module.
+             */
+            if (S->CSymFunc) {
+                CollAppend (&S->Mod.Info->CSymFuncByName, S->CSymFunc);
+            }
         }
 
         /* Resolve the parent scope */
@@ -4859,7 +5317,8 @@ static void ProcessScopeInfo (InputData* D)
 
     /* Walk over all modules. If a module doesn't have scopes, it wasn't
      * compiled with debug info which is ok. If it has debug info, it must
-     * also have a main scope. If there are scopes, sort them by name.
+     * also have a main scope. If there are scopes, sort them by name. Do
+     * also sort C functions in this module by name.
      */
     for (I = 0; I < CollCount (&D->Info->ModInfoById); ++I) {
 
@@ -4881,6 +5340,9 @@ static void ProcessScopeInfo (InputData* D)
 
         /* Sort the scopes for this module by name */
         CollSort (&M->ScopeInfoByName, CompareScopeInfoByName);
+
+        /* Sort the C functions in this module by name */
+        CollSort (&M->CSymFuncByName, CompareCSymInfoByName);
     }
 
     /* Sort the scope infos */
@@ -5219,6 +5681,10 @@ cc65_dbginfo cc65_read_dbginfo (const char* FileName, cc65_errorfunc ErrFunc)
 
         switch (D.Tok) {
 
+            case TOK_CSYM:
+                ParseCSym (&D);
+                break;
+
             case TOK_FILE:
                 ParseFile (&D);
                 break;
@@ -5296,8 +5762,10 @@ CloseAndExit:
     }
 
     /* We do now have all the information from the input file. Do
-     * postprocessing.
+     * postprocessing. Beware: Some of the following postprocessing
+     * depends on the order of the calls.
      */
+    ProcessCSymInfo (&D);
     ProcessFileInfo (&D);
     ProcessLineInfo (&D);
     ProcessModInfo (&D);
@@ -5323,6 +5791,217 @@ void cc65_free_dbginfo (cc65_dbginfo Handle)
     if (Handle) {
         FreeDbgInfo ((DbgInfo*) Handle);
     }
+}
+
+
+
+/*****************************************************************************/
+/*                                 C symbols                                 */
+/*****************************************************************************/
+
+
+
+const cc65_csyminfo* cc65_get_csymlist (cc65_dbginfo Handle)
+/* Return a list of all c symbols */
+{
+    const DbgInfo*      Info;
+    cc65_csyminfo*      S;
+    unsigned            I;
+
+    /* Check the parameter */
+    assert (Handle != 0);
+
+    /* The handle is actually a pointer to a debug info struct */
+    Info = Handle;
+
+    /* Allocate memory for the data structure returned to the caller */
+    S = new_cc65_csyminfo (CollCount (&Info->CSymInfoById));
+
+    /* Fill in the data */
+    for (I = 0; I < CollCount (&Info->CSymInfoById); ++I) {
+        /* Copy the data */
+        CopyCSymInfo (S->data + I, CollAt (&Info->CSymInfoById, I));
+    }
+
+    /* Return the result */
+    return S;
+}
+
+
+
+const cc65_csyminfo* cc65_csym_byid (cc65_dbginfo Handle, unsigned Id)
+/* Return information about a c symbol with a specific id. The function
+ * returns NULL if the id is invalid (no such c symbol) and otherwise a
+ * cc65_csyminfo structure with one entry that contains the requested
+ * symbol information.
+ */
+{
+    const DbgInfo*      Info;
+    cc65_csyminfo*      S;
+
+    /* Check the parameter */
+    assert (Handle != 0);
+
+    /* The handle is actually a pointer to a debug info struct */
+    Info = Handle;
+
+    /* Check if the id is valid */
+    if (Id >= CollCount (&Info->CSymInfoById)) {
+        return 0;
+    }
+
+    /* Allocate memory for the data structure returned to the caller */
+    S = new_cc65_csyminfo (1);
+
+    /* Fill in the data */
+    CopyCSymInfo (S->data, CollAt (&Info->CSymInfoById, Id));
+
+    /* Return the result */
+    return S;
+}
+
+
+
+const cc65_csyminfo* cc65_cfunc_bymodule (cc65_dbginfo Handle, unsigned ModId)
+/* Return the list of C functions (not symbols!) for a specific module. If
+ * the module id is invalid, the function will return NULL, otherwise a
+ * (possibly empty) c symbol list.
+ */
+{
+    const DbgInfo*      Info;
+    const ModInfo*      M;
+    cc65_csyminfo*      D;
+    unsigned            I;
+
+
+    /* Check the parameter */
+    assert (Handle != 0);
+
+    /* The handle is actually a pointer to a debug info struct */
+    Info = Handle;
+
+    /* Check if the module id is valid */
+    if (ModId >= CollCount (&Info->ModInfoById)) {
+        return 0;
+    }
+
+    /* Get a pointer to the module info */
+    M = CollAt (&Info->ModInfoById, ModId);
+
+    /* Allocate memory for the data structure returned to the caller */
+    D = new_cc65_csyminfo (CollCount (&M->CSymFuncByName));
+
+    /* Fill in the data */
+    for (I = 0; I < CollCount (&M->CSymFuncByName); ++I) {
+        CopyCSymInfo (D->data + I, CollAt (&M->CSymFuncByName, I));
+    }
+
+    /* Return the result */
+    return D;
+}
+
+
+
+const cc65_csyminfo* cc65_cfunc_byname (cc65_dbginfo Handle, const char* Name)
+/* Return a list of all C functions with the given name that have a
+ * definition.
+ */
+{
+    const DbgInfo*      Info;
+    unsigned            Index;
+    unsigned            Count;
+    const CSymInfo*     S;
+    cc65_csyminfo*      D;
+    unsigned            I;
+
+
+    /* Check the parameter */
+    assert (Handle != 0);
+
+    /* The handle is actually a pointer to a debug info struct */
+    Info = Handle;
+
+    /* Search for a function with the given name */
+    if (!FindCSymInfoByName (&Info->CSymFuncByName, Name, &Index)) {
+        return 0;
+    }
+
+    /* Count functions with this name */
+    Count = 1;
+    I = Index;
+    while (1) {
+        if (++I >= CollCount (&Info->CSymFuncByName)) {
+            break;
+        }
+        S = CollAt (&Info->CSymFuncByName, I);
+        if (strcmp (S->Name, Name) != 0) {
+            /* Next symbol has another name */
+            break;
+        }
+        ++Count;
+    }
+
+    /* Allocate memory for the data structure returned to the caller */
+    D = new_cc65_csyminfo (Count);
+
+    /* Fill in the data */
+    for (I = 0; I < Count; ++I, ++Index) {
+        CopyCSymInfo (D->data + I, CollAt (&Info->CSymFuncByName, Index));
+    }
+
+    /* Return the result */
+    return D;
+}
+
+
+
+const cc65_csyminfo* cc65_csym_byscope (cc65_dbginfo Handle, unsigned ScopeId)
+/* Return all C symbols for a scope. The function will return NULL if the
+ * given id is invalid.
+ */
+{
+    const DbgInfo*      Info;
+    const ScopeInfo*    S;
+    cc65_csyminfo*      D;
+    unsigned            I;
+
+
+    /* Check the parameter */
+    assert (Handle != 0);
+
+    /* The handle is actually a pointer to a debug info struct */
+    Info = Handle;
+
+    /* Check if the scope id is valid */
+    if (ScopeId >= CollCount (&Info->ScopeInfoById)) {
+        return 0;
+    }
+
+    /* Get a pointer to the scope */
+    S = CollAt (&Info->ScopeInfoById, ScopeId);
+
+    /* Allocate memory for the data structure returned to the caller */
+    D = new_cc65_csyminfo (CollCount (S->CSymInfoByName));
+
+    /* Fill in the data */
+    for (I = 0; I < CollCount (S->CSymInfoByName); ++I) {
+        CopyCSymInfo (D->data + I, CollAt (S->CSymInfoByName, I));
+    }
+
+    /* Return the result */
+    return D;
+}
+
+
+
+void cc65_free_csyminfo (cc65_dbginfo Handle, const cc65_csyminfo* Info)
+/* Free a c symbol info record */
+{
+    /* Just for completeness, check the handle */
+    assert (Handle != 0);
+
+    /* Just free the memory */
+    xfree ((cc65_csyminfo*) Info);
 }
 
 
@@ -5632,9 +6311,9 @@ const cc65_lineinfo* cc65_line_byspan (cc65_dbginfo Handle, unsigned SpanId)
     S = CollAt (&Info->SpanInfoById, SpanId);
 
     /* Prepare the struct we will return to the caller */
-    D = new_cc65_lineinfo (S->LineInfoList? CollCount (S->LineInfoList) : 0);
+    D = new_cc65_lineinfo (CollCount (S->LineInfoList));
 
-    /* Fill in the data. Since D->LineInfoList may be NULL, we will use the
+    /* Fill in the data. Since S->LineInfoList may be NULL, we will use the
      * count field of the returned data struct instead.
      */
     for (I = 0; I < D->count; ++I) {
@@ -6238,7 +6917,7 @@ const cc65_scopeinfo* cc65_scope_byspan (cc65_dbginfo Handle, unsigned SpanId)
     S = CollAt (&Info->SpanInfoById, SpanId);
 
     /* Prepare the struct we will return to the caller */
-    D = new_cc65_scopeinfo (S->ScopeInfoList? CollCount (S->ScopeInfoList) : 0);
+    D = new_cc65_scopeinfo (CollCount (S->ScopeInfoList));
 
     /* Fill in the data. Since D->ScopeInfoList may be NULL, we will use the
      * count field of the returned data struct instead.
@@ -6280,7 +6959,7 @@ const cc65_scopeinfo* cc65_childscopes_byid (cc65_dbginfo Handle, unsigned Id)
     S = CollAt (&Info->ScopeInfoById, Id);
 
     /* Allocate memory for the data structure returned to the caller */
-    D = new_cc65_scopeinfo (S->ChildScopeList? CollCount (S->ChildScopeList) : 0);
+    D = new_cc65_scopeinfo (CollCount (S->ChildScopeList));
 
     /* Fill in the data */
     for (I = 0; I < D->count; ++I) {

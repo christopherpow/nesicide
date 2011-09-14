@@ -45,7 +45,7 @@ public:
    virtual QString getItemType()
    {
       return "Binary File";
-   };
+   }
 
 private:
    // Attributes

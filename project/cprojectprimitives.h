@@ -18,6 +18,9 @@ public:
    void initializeProject();
    void terminateProject();
 
+   CAttributeTables* getAttributeTables() { return m_pAttributeTables; }
+   CTileStamps* getTileStamps() { return m_pTileStamps; }
+
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
