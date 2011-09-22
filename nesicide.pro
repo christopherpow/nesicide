@@ -176,6 +176,7 @@ SOURCES += mainwindow.cpp \
     designers/graphics_bank_editor/graphicsbankeditorform.cpp \
     aboutdialog.cpp \
     viewers/chr-rom/cchrromitemlistdisplaymodel.cpp \
+    viewers/chr-rom/cchrromitemtabledisplaymodel.cpp \
     project/cattributetables.cpp \
     common/cgamedatabasehandler.cpp \
     environmentsettingsdialog.cpp \
@@ -291,6 +292,7 @@ HEADERS += mainwindow.h \
     aboutdialog.h \
     interfaces/ichrrombankitem.h \
     viewers/chr-rom/cchrromitemlistdisplaymodel.h \
+    viewers/chr-rom/cchrromitemtabledisplaymodel.h \
     project/cattributetables.h \
     common/cgamedatabasehandler.h \
     environmentsettingsdialog.h \

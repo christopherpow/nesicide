@@ -37,7 +37,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   model = new CChrRomItemListDisplayModel(true);
+   model = new CChrRomItemTableDisplayModel(true);
 
    delegate = new CChrRomBankItemDelegate();
 
@@ -71,11 +71,12 @@ void GraphicsBankEditorForm::updateUi()
 {
    int dataSize = 0;
 
+   ui->tableView->resizeRowsToContents();
+
    for (int i=0; i<model->bankItems().count(); i++)
    {
       dataSize += model->bankItems().at(i)->getChrRomBankItemSize();
    }
-
    ui->progressBar->setValue(dataSize);
 
    renderData();
@@ -144,6 +145,7 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ne
 {
    model->setBankItems(newList);
    model->update();
+   ui->tableView->resizeRowsToContents();
 
    int dataSize = 0;
 
@@ -159,11 +161,6 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ne
 
 void GraphicsBankEditorForm::colorChanged (const QColor& color)
 {
-   ui->col0PushButton->setText("");
-   ui->col1PushButton->setText("");
-   ui->col2PushButton->setText("");
-   ui->col3PushButton->setText("");
-
    renderData();
    renderer->setBGColor(ui->col0PushButton->currentColor());
    renderer->reloadData(imgData);
@@ -290,6 +287,8 @@ void GraphicsBankEditorForm::snapTo(QString item)
 
 void GraphicsBankEditorForm::applyChangesToTab(QString uuid)
 {
-   // Force an update...
+   // Force an update...but block signals so we don't set modified to true.
+   model->blockSignals(true);
    updateChrRomBankItemList(bankItems());
+   model->blockSignals(false);
 }

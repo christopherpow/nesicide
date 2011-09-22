@@ -4,7 +4,7 @@
 #include <QList>
 
 #include "cdesignereditorbase.h"
-#include "cchrromitemlistdisplaymodel.h"
+#include "cchrromitemtabledisplaymodel.h"
 #include "cchrrombankitemdelegate.h"
 #include "ichrrombankitem.h"
 #include "iprojecttreeviewitem.h"
@@ -35,7 +35,7 @@ protected:
 
 private:
    Ui::GraphicsBankEditorForm* ui;
-   CChrRomItemListDisplayModel* model;
+   CChrRomItemTableDisplayModel* model;
    CCHRROMPreviewRenderer* renderer;
    CChrRomBankItemDelegate* delegate;
    char* imgData;

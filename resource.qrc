@@ -26,7 +26,6 @@
         <file>resources/22_execution_break_disabled.png</file>
         <file>resources/22_breakpoint_disabled.png</file>
         <file>resources/22_breakpoint.png</file>
-        <file>resources/bomb.png</file>
         <file>resources/logo.png</file>
         <file>resources/gplv3.png</file>
         <file alias="GameDatabase">resources/NesCarts (2010-12-26).xml</file>
@@ -67,10 +66,34 @@
         <file>resources/stepreturn_6.png</file>
         <file>resources/stepover_6.png</file>
         <file>resources/Makefile</file>
-        <file>resources/add_file.png</file>
-        <file>resources/document.png</file>
         <file>resources/folder_closed.png</file>
         <file>resources/folder_open.png</file>
-        <file>resources/paintcan.png</file>
+        <file>resources/RR_cursor.png</file>
+        <file>resources/RR_cut_red.png</file>
+        <file>resources/RR_film.png</file>
+        <file>resources/RR_film_add.png</file>
+        <file>resources/RR_film_delete.png</file>
+        <file>resources/RR_font.png</file>
+        <file>resources/RR_magifier_zoom_out.png</file>
+        <file>resources/RR_magnifier.png</file>
+        <file>resources/RR_magnifier_zoom_in.png</file>
+        <file>resources/RR_page_white_add.png</file>
+        <file>resources/RR_page_white_delete.png</file>
+        <file>resources/RR_page_white_paint.png</file>
+        <file>resources/RR_paintcan.png</file>
+        <file>resources/RR_pencil.png</file>
+        <file>resources/RR_shape_rotate_anticlockwise.png</file>
+        <file>resources/RR_shape_rotate_clockwise.png</file>
+        <file>resources/RR_page_white.png</file>
+        <file>resources/RR_music.png</file>
+        <file>resources/RR_bomb.png</file>
+        <file>resources/RR_bug.png</file>
+        <file>resources/RR_shape_square_filled.png</file>
+        <file>resources/RR_shape_line.png</file>
+        <file>resources/RR_shape_square_hollow.png</file>
+        <file>resources/RR_shape_flip_horizontal.png</file>
+        <file>resources/RR_shape_flip_vertical.png</file>
+        <file>resources/select_tool.png</file>
+        <file>resources/selection_all_tool.png</file>
     </qresource>
 </RCC>

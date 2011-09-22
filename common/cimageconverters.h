@@ -7,8 +7,6 @@
 class CImageConverters
 {
 public:
-    CImageConverters();
-
     // Create a byte stream from an image of any dimension.
     static QByteArray fromIndexed8(QImage imgIn);
 

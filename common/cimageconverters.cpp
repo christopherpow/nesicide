@@ -1,10 +1,6 @@
 #include "cimageconverters.h"
 #include "cnessystempalette.h"
 
-CImageConverters::CImageConverters()
-{
-}
-
 QByteArray CImageConverters::fromIndexed8(QImage imgIn)
 {
    QByteArray chrOut;

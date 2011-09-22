@@ -23,7 +23,7 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>6</number>
@@ -243,33 +243,9 @@
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <item>
-      <widget class="QToolButton" name="clear">
-       <property name="toolTip">
-        <string>Clear</string>
-       </property>
+      <widget class="QLabel" name="info">
        <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../resource.qrc">
-         <normaloff>:/resources/22_edit-clear.png</normaloff>:/resources/22_edit-clear.png</iconset>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="paint">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../resource.qrc">
-         <normaloff>:/resources/paintcan.png</normaloff>:/resources/paintcan.png</iconset>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
+        <string>TextLabel</string>
        </property>
       </widget>
      </item>
@@ -324,6 +300,9 @@
          <property name="mouseTracking">
           <bool>true</bool>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -373,7 +352,7 @@
           <bool>true</bool>
          </property>
          <property name="dragDropMode">
-          <enum>QAbstractItemView::DragOnly</enum>
+          <enum>QAbstractItemView::NoDragDrop</enum>
          </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::SingleSelection</enum>
@@ -386,6 +365,9 @@
          </property>
          <property name="movement">
           <enum>QListView::Static</enum>
+         </property>
+         <property name="viewMode">
+          <enum>QListView::ListMode</enum>
          </property>
          <property name="selectionRectVisible">
           <bool>true</bool>
@@ -472,7 +454,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="1" column="2">
       <widget class="ColorPushButton" name="pal0col1">
        <property name="text">
         <string/>
@@ -488,7 +470,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="1" column="3">
       <widget class="ColorPushButton" name="pal0col2">
        <property name="text">
         <string/>
@@ -504,7 +486,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
+     <item row="1" column="4">
       <widget class="ColorPushButton" name="pal0col3">
        <property name="text">
         <string/>
@@ -520,7 +502,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="2" column="3">
       <widget class="ColorPushButton" name="pal1col2">
        <property name="text">
         <string/>
@@ -536,7 +518,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="2" column="2">
       <widget class="ColorPushButton" name="pal1col1">
        <property name="text">
         <string/>
@@ -552,7 +534,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
+     <item row="2" column="4">
       <widget class="ColorPushButton" name="pal1col3">
        <property name="text">
         <string/>
@@ -568,7 +550,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="3" column="2">
       <widget class="ColorPushButton" name="pal2col1">
        <property name="text">
         <string/>
@@ -584,7 +566,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
+     <item row="3" column="3">
       <widget class="ColorPushButton" name="pal2col2">
        <property name="text">
         <string/>
@@ -600,7 +582,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="3">
+     <item row="3" column="4">
       <widget class="ColorPushButton" name="pal2col3">
        <property name="text">
         <string/>
@@ -616,7 +598,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="4" column="2">
       <widget class="ColorPushButton" name="pal3col1">
        <property name="text">
         <string/>
@@ -632,7 +614,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
+     <item row="4" column="3">
       <widget class="ColorPushButton" name="pal3col2">
        <property name="text">
         <string/>
@@ -648,7 +630,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="3">
+     <item row="4" column="4">
       <widget class="ColorPushButton" name="pal3col3">
        <property name="text">
         <string/>
@@ -664,13 +646,241 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0" colspan="4">
+     <item row="0" column="0" colspan="5">
       <widget class="QComboBox" name="attributeTable"/>
      </item>
-     <item row="5" column="0" colspan="4">
+     <item row="5" column="0" colspan="5">
       <widget class="QCheckBox" name="paintAttr">
        <property name="text">
         <string>Paint Attributes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QToolButton" name="cwRotate">
+       <property name="toolTip">
+        <string>Rotate Clockwise</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_rotate_clockwise.png</normaloff>:/resources/RR_shape_rotate_clockwise.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QToolButton" name="ccwRotate">
+       <property name="toolTip">
+        <string>Rotate Counterclockwise</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_rotate_anticlockwise.png</normaloff>:/resources/RR_shape_rotate_anticlockwise.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3">
+      <widget class="QToolButton" name="areaTool">
+       <property name="toolTip">
+        <string>Area Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_square_filled.png</normaloff>:/resources/RR_shape_square_filled.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QToolButton" name="pencilTool">
+       <property name="toolTip">
+        <string>Drawing Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_pencil.png</normaloff>:/resources/RR_pencil.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QToolButton" name="boxTool">
+       <property name="toolTip">
+        <string>Box Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_square_hollow.png</normaloff>:/resources/RR_shape_square_hollow.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QToolButton" name="paintTool">
+       <property name="toolTip">
+        <string>Paint Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_paintcan.png</normaloff>:/resources/RR_paintcan.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QToolButton" name="textTool">
+       <property name="toolTip">
+        <string>Text Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_font.png</normaloff>:/resources/RR_font.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="4">
+      <widget class="QToolButton" name="lineTool">
+       <property name="toolTip">
+        <string>Line Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_line.png</normaloff>:/resources/RR_shape_line.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="3">
+      <widget class="QToolButton" name="flipHorizontal">
+       <property name="toolTip">
+        <string>Flip Horizontal</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_flip_horizontal.png</normaloff>:/resources/RR_shape_flip_horizontal.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="4">
+      <widget class="QToolButton" name="clear">
+       <property name="toolTip">
+        <string>Clear</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/22_edit-clear.png</normaloff>:/resources/22_edit-clear.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="4">
+      <widget class="QToolButton" name="flipVertical">
+       <property name="toolTip">
+        <string>Flip Vertical</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/RR_shape_flip_vertical.png</normaloff>:/resources/RR_shape_flip_vertical.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="3">
+      <widget class="QToolButton" name="selectionTool">
+       <property name="toolTip">
+        <string>Selection Tool</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/select_tool.png</normaloff>:/resources/select_tool.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

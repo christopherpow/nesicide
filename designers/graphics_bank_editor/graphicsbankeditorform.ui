@@ -19,7 +19,7 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QProgressBar" name="progressBar">
@@ -39,6 +39,9 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <property name="textElideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
          <property name="showGrid">
           <bool>false</bool>
          </property>
@@ -51,11 +54,17 @@
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
          </attribute>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>14</number>
+         </attribute>
+         <attribute name="verticalHeaderMinimumSectionSize">
+          <number>14</number>
+         </attribute>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout_3">
        <property name="spacing">
         <number>0</number>

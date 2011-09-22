@@ -19,6 +19,7 @@ public:
 
    // Member getters
    QByteArray getTileData();
+   QByteArray getAttributeData();
    void getSize(int* xSize,int* ySize) { (*xSize) = m_xSize; (*ySize) = m_ySize; }
    QString getAttrTbl() { return m_attrTblUUID; }
    QImage getTileImage();
@@ -48,6 +49,7 @@ public:
 
 private:
    QByteArray m_tile;
+   QByteArray m_attr;
    int        m_xSize;
    int        m_ySize;
    QString    m_attrTblUUID;

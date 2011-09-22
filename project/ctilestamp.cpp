@@ -7,6 +7,8 @@
 
 CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
 {
+   int idx;
+
    // Add node to tree
    InitTreeItem("",parent);
 
@@ -14,6 +16,19 @@ CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
    m_xSize = 8;
    m_ySize = 8;
    m_attrTblUUID = "";
+
+   // Initialize tile data.
+   for ( idx = 0; idx < 16; idx++ )
+   {
+      m_tile.append((char)0x00);
+   }
+
+   // Initialize attribute data.
+   for ( idx = 0; idx < 1; idx++ )
+   {
+      m_attr.append((char)0x00);
+   }
+
    m_grid = true;
 }
 
@@ -23,12 +38,12 @@ CTileStamp::~CTileStamp()
 
 QByteArray CTileStamp::getTileData()
 {
-   if (m_editor)
-   {
-//      m_tile = editor()->tileData();
-   }
-
    return m_tile;
+}
+
+QByteArray CTileStamp::getAttributeData()
+{
+   return m_attr;
 }
 
 QImage CTileStamp::getTileImage()
@@ -39,6 +54,8 @@ QImage CTileStamp::getTileImage()
 bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "tile" );
+   char byte[3];
+   int idx;
 
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", uuid());
@@ -46,7 +63,6 @@ bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
    if ( m_editor && m_editor->isModified() )
    {
       editor()->onSave();
-//      saveItemEvent();
    }
 
    element.setAttribute("x",m_xSize);
@@ -58,8 +74,6 @@ bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
    QDomElement tileElement = addElement(doc,element,"tile");
    QDomCDATASection tileDataSect;
    QString tileDataMem;
-   char byte[3];
-   int idx;
 
    for ( idx = 0; idx < m_tile.count(); idx++ )
    {
@@ -68,6 +82,19 @@ bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
    }
    tileDataSect = doc.createCDATASection(tileDataMem);
    tileElement.appendChild(tileDataSect);
+
+   // Serialize the attribute data.
+   QDomElement attrElement = addElement(doc,element,"attr");
+   QDomCDATASection attrDataSect;
+   QString attrDataMem;
+
+   for ( idx = 0; idx < m_attr.count(); idx++ )
+   {
+      sprintf(byte,"%02X",(unsigned char)m_attr.at(idx));
+      attrDataMem += byte;
+   }
+   attrDataSect = doc.createCDATASection(attrDataMem);
+   attrElement.appendChild(attrDataSect);
 
    return true;
 }
@@ -80,7 +107,6 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
    QDomElement childsElement;
    QDomCDATASection cdataSection;
    QString cdataString;
-   int idx;
    char byte;
 
    if (element.isNull())
@@ -128,11 +154,25 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
          cdataNode = child.firstChild();
          cdataSection = cdataNode.toCDATASection();
          cdataString = cdataSection.data();
+         m_tile.clear();
          while ( cdataString.length() )
          {
             byte = cdataString.left(2).toInt(0,16);
             cdataString = cdataString.right(cdataString.length()-2);
             m_tile.append(byte);
+         }
+      }
+      else if ( child.nodeName() == "attr" )
+      {
+         cdataNode = child.firstChild();
+         cdataSection = cdataNode.toCDATASection();
+         cdataString = cdataSection.data();
+         m_attr.clear();
+         while ( cdataString.length() )
+         {
+            byte = cdataString.left(2).toInt(0,16);
+            cdataString = cdataString.right(cdataString.length()-2);
+            m_attr.append(byte);
          }
       }
    }
@@ -188,7 +228,7 @@ void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new TileStampEditorForm(m_tile,m_attrTblUUID,m_xSize,m_ySize,m_grid,this);
+      m_editor = new TileStampEditorForm(m_tile,m_attr,m_attrTblUUID,m_xSize,m_ySize,m_grid,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
@@ -197,6 +237,7 @@ void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
 void CTileStamp::saveItemEvent()
 {
    m_tile = editor()->tileData();
+   m_attr = editor()->attributeData();
 
    editor()->currentSize(&m_xSize,&m_ySize);
    m_attrTblUUID = editor()->currentAttributeTable();

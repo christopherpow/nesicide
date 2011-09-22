@@ -23,7 +23,7 @@ public:
       (*ident) = QUuid::createUuid();
       if ( iconResource.isEmpty() )
       {
-         _icon = QIcon(":/resources/document.png");
+         _icon = QIcon(":/resources/RR_page_white.png");
       }
       else
       {

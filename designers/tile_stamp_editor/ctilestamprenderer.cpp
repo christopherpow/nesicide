@@ -74,13 +74,6 @@ void CTileStampRenderer::resizeGL(int width, int height)
 {
    QSize actualSize;
 
-   // Force integral scaling factors. TODO: Add to environment settings.
-   int zf  = zoom / 100;
-   int size = (xSize>ySize)?xSize:ySize;
-
-   actualSize.setWidth( 128*zf );
-   actualSize.setHeight( 128*zf );
-
    // Width cannot be 0 or the system will freak out
    if (width == 0)
    {
@@ -89,52 +82,24 @@ void CTileStampRenderer::resizeGL(int width, int height)
 
    // Initialize our viewpoint using the actual size so 1 point should = 1 pixel.
    glViewport(0, 0, width, height);
+}
 
-   // We are using a projection matrix.
+void CTileStampRenderer::paintGL()
+{
+   int idxx;
+   int idxy;
+   QSize actualSize;
+
+   // Force integral scaling factors. TODO: Add to environment settings.
+   int zf  = zoom / 100;
+   int size = (xSize>ySize)?xSize:ySize;
+
+   actualSize.setWidth( 128*zf );
+   actualSize.setHeight( 128*zf );
+
+   // Select and reset the Projection matrix.
    glMatrixMode(GL_PROJECTION);
-
-   // Load the default settings for the matrix.
    glLoadIdentity();
-
-#if 0
-   implementation from ReaperSMS for square tiles.
-   For projection:
-   float waspect = (float)width / (float)height
-   float saspect = (float)xSize / (float)ySize
-   float shift;
-
-   if (waspect > saspect)
-   {
-         shift = (waspect - saspect) * 0.5f;
-         glOrtho(-shift*xSize, (1.0 + shift) * xSize, ySize, 0.0, -1.0, 1.0);
-   }
-   else
-   {
-         shift = (saspect - waspect) * 0.5f;
-         glOrtho(0.0, xSize, (1.0+shift)*ySize, -shift*ySize, -1.0, 1.0);
-   }
-
-   For rendering, ignore scroll until you know how it's supposed to work on the QT side:
-   Main box:
-   glVertex3f(0.0f, 0.0f, 0.0f);
-   glVertex3f(xSize, 0.0f, 0.0f);
-   glVertex3f(xSize, ySize, 0.0f);
-   glVertex3f(0.0f, ySize, 0.0f);
-
-   Grid:
-   Either set glPointSize() to something reasonable, and render with
-
-   glBegin(GL_POINTS);
-   glColor3f(1.0,1.0,0.0);
-   for (i = 0; i < xSize; i++)
-      for (j = 0; j < ySize; j++)
-         glVertex3f(i, j, 0.0f);
-   glEnd();
-
-   Or use the current loop, with idxx/idxy as your coordinates, +/- a percentage of a texel size.
-#endif
-//   <ReaperSMS> glOrtho(0.0, (1.0 + 2 * shift) * xSize, ySize, 0.0, -1.0, 1.0);
-//   <ReaperSMS> for the other one, glOrtho(0.0, xSize, (1.0 + 2 * shift) * ySize, 0.0, -1.0, 1.0)
 
    // Set orthogonal mode (since we are doing 2D rendering).
    glOrtho( 0.0f, (float)size, (float)size, 0.0f, -1.0f, 1.0f);
@@ -143,37 +108,30 @@ void CTileStampRenderer::resizeGL(int width, int height)
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   // Scale.
+   // Translate/scale.
+   glTranslatef(-(scrollX*zf),-(scrollY*zf),0.0f);
    glScalef( actualSize.width() / 128, actualSize.height() / 128, 1 );
 
-   // Slightly offset the view to ensure proper pixel alignment
-//    glTranslatef(0.5,0.5,0);
-}
-
-void CTileStampRenderer::paintGL()
-{
-   int idxx;
-   int idxy;
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 128, 128, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
-   glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);
+   glVertex3f(000.0f, 000.0f, 0.0f);
    glTexCoord2f ((float)xSize/128.0, 0.0);
-   glVertex3f((float)xSize - scrollX, 000.0f - scrollY, 0.0f);
+   glVertex3f((float)xSize, 000.0f, 0.0f);
    glTexCoord2f ((float)xSize/128.0, (float)ySize/128.0);
-   glVertex3f((float)xSize - scrollX, (float)ySize - scrollY, 0.0f);
+   glVertex3f((float)xSize, (float)ySize, 0.0f);
    glTexCoord2f (0.0, (float)ySize/128.0);
-   glVertex3f(000.0f - scrollX, (float)ySize - scrollY, 0.0f);
+   glVertex3f(000.0f, (float)ySize, 0.0f);
    glEnd();
    if ( gridEnabled )
    {
       glDisable(GL_TEXTURE_2D);
       glColor3f(1.0,1.0,0.0);
-      for (idxy = -scrollY; idxy <= ySize-scrollY; idxy++)
+      for (idxy = 0; idxy <= ySize; idxy++)
       {
-         for (idxx = -scrollX; idxx <= xSize-scrollX; idxx++)
+         for (idxx = 0; idxx <= xSize; idxx++)
          {
             if ( (!(idxx%16)) && (!(idxy%16)) )
             {
@@ -232,17 +190,26 @@ bool CTileStampRenderer::pointToPixel(int ptx,int pty,int* pixx,int* pixy)
    float xpixSize = (float)width()/(float)size;
    float ypixSize = (float)height()/(float)size;
    int zf = zoom/100;
-   ptx /= xpixSize;
-   pty /= ypixSize;
-   ptx /= zf;
-   pty /= zf;
-   (*pixx) = ptx;
-   (*pixy) = pty;
-   (*pixx) += scrollX;
-   (*pixy) += scrollY;
-   if ( ((*pixx) < xSize) && ((*pixy) < ySize) )
+
+   if ( (ptx >= 0) &&
+        (pty >= 0) )
    {
-      return true;
+      ptx /= xpixSize;
+      pty /= ypixSize;
+      ptx /= zf;
+      pty /= zf;
+      (*pixx) = ptx;
+      (*pixy) = pty;
+      (*pixx) += scrollX;
+      (*pixy) += scrollY;
+      if ( ((*pixx) < xSize) && ((*pixy) < ySize) )
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
    }
    else
    {

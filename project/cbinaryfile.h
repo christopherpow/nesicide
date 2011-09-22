@@ -14,7 +14,12 @@ public:
    CBinaryFile(IProjectTreeViewItem* parent);
    virtual ~CBinaryFile();
 
+   // Member getters.
    QByteArray getBinaryData();
+   QImage getBinaryImage();
+   void getSize(int* xSize,int* ySize) { (*xSize) = m_xSize; (*ySize) = m_ySize; }
+
+   // Member setters.
    void setBinaryData(const QByteArray& newBinaryData);
 
    // IXMLSerializable Interface Implementation
@@ -42,6 +47,7 @@ public:
    virtual int getChrRomBankItemSize();
    virtual QByteArray getChrRomBankItemData();
    virtual QIcon getChrRomBankItemIcon();
+   virtual QImage getChrRomBankItemImage();
    virtual QString getItemType()
    {
       return "Binary File";
@@ -50,6 +56,8 @@ public:
 private:
    // Attributes
    QByteArray m_binaryData;
+   int m_xSize;
+   int m_ySize;
 };
 
 #endif // CBINARYFILE_H

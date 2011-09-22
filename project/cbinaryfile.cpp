@@ -11,6 +11,8 @@ CBinaryFile::CBinaryFile(IProjectTreeViewItem* parent)
    InitTreeItem("",parent);
 
    // Allocate attributes
+   m_xSize = -1;
+   m_ySize = -1;
 }
 
 CBinaryFile::~CBinaryFile()
@@ -20,6 +22,11 @@ CBinaryFile::~CBinaryFile()
 QByteArray CBinaryFile::getBinaryData()
 {
    return m_binaryData;
+}
+
+QImage CBinaryFile::getBinaryImage()
+{
+   return CImageConverters::toIndexed8(getBinaryData(),m_xSize,m_ySize);
 }
 
 bool CBinaryFile::onNameChanged(QString newName)
@@ -44,6 +51,8 @@ void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
       m_binaryData = newBinaryData;
       break;
    }
+   m_xSize = image.width();
+   m_ySize = image.height();
 }
 
 bool CBinaryFile::serialize(QDomDocument& doc, QDomNode& node)
@@ -157,4 +166,9 @@ QByteArray CBinaryFile::getChrRomBankItemData()
 QIcon CBinaryFile::getChrRomBankItemIcon()
 {
    return QIcon(":/resources/22_binary_file.png");
+}
+
+QImage CBinaryFile::getChrRomBankItemImage()
+{
+   return getBinaryImage();
 }
