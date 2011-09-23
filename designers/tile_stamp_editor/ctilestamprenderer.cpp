@@ -191,25 +191,35 @@ bool CTileStampRenderer::pointToPixel(int ptx,int pty,int* pixx,int* pixy)
    float ypixSize = (float)height()/(float)size;
    int zf = zoom/100;
 
-   if ( (ptx >= 0) &&
-        (pty >= 0) )
+   // Clip edges.
+   if ( ptx < 0 )
    {
-      ptx /= xpixSize;
-      pty /= ypixSize;
-      ptx /= zf;
-      pty /= zf;
-      (*pixx) = ptx;
-      (*pixy) = pty;
-      (*pixx) += scrollX;
-      (*pixy) += scrollY;
-      if ( ((*pixx) < xSize) && ((*pixy) < ySize) )
-      {
-         return true;
-      }
-      else
-      {
-         return false;
-      }
+      ptx = 0;
+   }
+   if ( ptx > width()-1 )
+   {
+      ptx = width()-1;
+   }
+   if ( pty < 0 )
+   {
+      pty = 0;
+   }
+   if ( pty > height()-1 )
+   {
+      pty = height()-1;
+   }
+
+   ptx /= xpixSize;
+   pty /= ypixSize;
+   ptx /= zf;
+   pty /= zf;
+   (*pixx) = ptx;
+   (*pixy) = pty;
+   (*pixx) += scrollX;
+   (*pixy) += scrollY;
+   if ( ((*pixx) < xSize) && ((*pixy) < ySize) )
+   {
+      return true;
    }
    else
    {

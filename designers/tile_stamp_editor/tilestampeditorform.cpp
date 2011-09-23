@@ -129,6 +129,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    {
       colorData[idx] = 0;
       colorDataOverlay[idx] = 0;
+      colorDataClipboard[idx] = 0;
    }
    initializeTile(data,attr);
    paintNormal();
@@ -395,11 +396,16 @@ void TileStampEditorForm::renderer_enterEvent(QEvent *event)
 
 void TileStampEditorForm::renderer_leaveEvent(QEvent *event)
 {
-   if ( m_activeTool == ui->pencilTool )
+   if ( (m_activeTool == ui->pencilTool) ||
+        (m_activeTool == ui->paintAttr) )
    {
       renderer->setBox();
       renderer->repaint();
    }
+
+   QMouseEvent mouseEvent(QEvent::MouseButtonRelease,QCursor::pos(),Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+   renderer_mouseReleaseEvent(&mouseEvent);
+
    updateInfoText();
 }
 
@@ -419,7 +425,8 @@ void TileStampEditorForm::renderer_mousePressEvent(QMouseEvent *event)
    {
       updateInfoText(pixx,pixy);
 
-      if ( ui->pencilTool->isChecked() )
+      if ( (ui->pencilTool->isChecked()) ||
+           (ui->paintAttr->isChecked()) )
       {
          pencilTool(event);
       }
@@ -433,11 +440,11 @@ void TileStampEditorForm::renderer_mousePressEvent(QMouseEvent *event)
       }
       else if ( ui->boxTool->isChecked() )
       {
-         boxTool(event,false);
+         hollowBoxTool(event);
       }
       else if ( ui->areaTool->isChecked() )
       {
-         boxTool(event,true);
+         filledBoxTool(event);
       }
       else if ( ui->lineTool->isChecked() )
       {
@@ -458,46 +465,43 @@ void TileStampEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
 {
    int pixx;
    int pixy;
-   bool visible;
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   updateInfoText(pixx,pixy);
+
+   if ( (ui->pencilTool->isChecked()) ||
+        (ui->paintAttr->isChecked()) )
    {
-      updateInfoText(pixx,pixy);
-
-      if ( ui->pencilTool->isChecked() )
-      {
-         pencilTool(event);
-      }
-      else if ( ui->paintTool->isChecked() )
-      {
-         paintTool(event);
-      }
-      else if ( ui->textTool->isChecked() )
-      {
-         textTool(event);
-      }
-      else if ( ui->boxTool->isChecked() )
-      {
-         boxTool(event,false);
-      }
-      else if ( ui->areaTool->isChecked() )
-      {
-         boxTool(event,true);
-      }
-      else if ( ui->lineTool->isChecked() )
-      {
-         lineTool(event);
-      }
-      else if ( ui->selectionTool->isChecked() )
-      {
-         selectionTool(event);
-      }
-      else if ( ui->tileList->currentIndex().isValid() )
-      {
-         tileTool(event);
-      }
+      pencilTool(event);
+   }
+   else if ( ui->paintTool->isChecked() )
+   {
+      paintTool(event);
+   }
+   else if ( ui->textTool->isChecked() )
+   {
+      textTool(event);
+   }
+   else if ( ui->boxTool->isChecked() )
+   {
+      hollowBoxTool(event);
+   }
+   else if ( ui->areaTool->isChecked() )
+   {
+      filledBoxTool(event);
+   }
+   else if ( ui->lineTool->isChecked() )
+   {
+      lineTool(event);
+   }
+   else if ( ui->selectionTool->isChecked() )
+   {
+      selectionTool(event);
+   }
+   else if ( ui->tileList->currentIndex().isValid() )
+   {
+      tileTool(event);
    }
 }
 
@@ -507,44 +511,42 @@ void TileStampEditorForm::renderer_mouseReleaseEvent(QMouseEvent *event)
    int pixy;
    bool visible;
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   updateInfoText(pixx,pixy);
+
+   if ( (ui->pencilTool->isChecked()) ||
+        (ui->paintAttr->isChecked()) )
    {
-      updateInfoText(pixx,pixy);
-
-      if ( ui->pencilTool->isChecked() )
-      {
-         pencilTool(event);
-      }
-      else if ( ui->paintTool->isChecked() )
-      {
-         paintTool(event);
-      }
-      else if ( ui->textTool->isChecked() )
-      {
-         textTool(event);
-      }
-      else if ( ui->boxTool->isChecked() )
-      {
-         boxTool(event,false);
-      }
-      else if ( ui->areaTool->isChecked() )
-      {
-         boxTool(event,true);
-      }
-      else if ( ui->lineTool->isChecked() )
-      {
-         lineTool(event);
-      }
-      else if ( ui->selectionTool->isChecked() )
-      {
-         selectionTool(event);
-      }
-      else if ( ui->tileList->currentIndex().isValid() )
-      {
-         tileTool(event);
-      }
+      pencilTool(event);
+   }
+   else if ( ui->paintTool->isChecked() )
+   {
+      paintTool(event);
+   }
+   else if ( ui->textTool->isChecked() )
+   {
+      textTool(event);
+   }
+   else if ( ui->boxTool->isChecked() )
+   {
+      hollowBoxTool(event);
+   }
+   else if ( ui->areaTool->isChecked() )
+   {
+      filledBoxTool(event);
+   }
+   else if ( ui->lineTool->isChecked() )
+   {
+      lineTool(event);
+   }
+   else if ( ui->selectionTool->isChecked() )
+   {
+      selectionTool(event);
+   }
+   else if ( ui->tileList->currentIndex().isValid() )
+   {
+      tileTool(event);
    }
 }
 
@@ -553,6 +555,557 @@ void TileStampEditorForm::on_zoomSlider_valueChanged(int value)
    renderer->changeZoom(pow(2.0,value)*100.0);
    ui->zoomValueLabel->setText(QString::number(pow(2.0,value)*100.0).append("%"));
    updateScrollbars();
+}
+void TileStampEditorForm::on_horizontalScrollBar_valueChanged(int value)
+{
+   renderer->setScrollX(ui->horizontalScrollBar->value());
+   renderer->repaint();
+}
+
+void TileStampEditorForm::on_verticalScrollBar_valueChanged(int value)
+{
+   renderer->setScrollY(ui->verticalScrollBar->value());
+   renderer->repaint();
+}
+
+void TileStampEditorForm::xSize_currentIndexChanged(int index)
+{
+   m_xSize = ui->xSize->itemData(ui->xSize->currentIndex()).toInt();
+   m_ySize = ui->ySize->itemData(ui->ySize->currentIndex()).toInt();
+   renderer->setSize(m_xSize,m_ySize);
+   renderer->repaint();
+   previewer->setSize(m_xSize,m_ySize);
+   previewer->repaint();
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::ySize_currentIndexChanged(int index)
+{
+   m_xSize = ui->xSize->itemData(ui->xSize->currentIndex()).toInt();
+   m_ySize = ui->ySize->itemData(ui->ySize->currentIndex()).toInt();
+   renderer->setSize(m_xSize,m_ySize);
+   renderer->repaint();
+   previewer->setSize(m_xSize,m_ySize);
+   previewer->repaint();
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
+{
+   IProjectTreeViewItem* item;
+   CAttributeTable* pAttrTbl;
+   QColor color;
+   int idx;
+
+   m_attrTblUUID = ui->attributeTable->itemData(index).toString();
+
+   item = findProjectItem(m_attrTblUUID);
+   if ( item )
+   {
+      pAttrTbl = dynamic_cast<CAttributeTable*>(item);
+      if ( pAttrTbl )
+      {
+         QList<uint8_t> palette = pAttrTbl->getPalette();
+         for ( idx = 0; idx < m_colors.count(); idx++ )
+         {
+            m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
+            m_colors.at(idx)->repaint();
+         }
+      }
+   }
+
+   // Re-color image.
+   for ( idx = 0; idx < 128*128*4; idx += 4 )
+   {
+      color = m_colors.at(colorData[idx>>2])->currentColor();
+      imgData[idx+0] = color.blue();
+      imgData[idx+1] = color.green();
+      imgData[idx+2] = color.red();
+   }
+   renderer->repaint();
+   previewer->repaint();
+
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::grid_toggled(bool checked)
+{
+   m_gridEnabled = checked;
+   renderer->setGrid(m_gridEnabled);
+   renderer->repaint();
+
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::on_clear_clicked()
+{
+   int idx;
+   QColor color;
+
+   // Set up image...
+   for ( idx = 0; idx < 128*128; idx++ )
+   {
+      colorData[idx] = 0;
+      colorDataOverlay[idx] = 0;
+   }
+   for ( idx = 0; idx < 128*128*4; idx +=4 )
+   {
+      color = m_colors.at(colorData[idx>>2])->currentColor();
+      imgData[idx+0] = color.blue();
+      imgData[idx+1] = color.green();
+      imgData[idx+2] = color.red();
+      imgData[idx+3] = 0xFF;
+   }
+   renderer->repaint();
+   previewer->repaint();
+
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::on_selectionTool_clicked()
+{
+   m_activeTool = ui->selectionTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->pencilTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->paintTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->selectionTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_paintTool_clicked()
+{
+   m_activeTool = ui->paintTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->pencilTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->paintTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_pencilTool_clicked()
+{
+   m_activeTool = ui->pencilTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->paintTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->pencilTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_textTool_clicked()
+{
+   m_activeTool = ui->textTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->textTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_boxTool_clicked()
+{
+   m_activeTool = ui->boxTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->boxTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_areaTool_clicked()
+{
+   m_activeTool = ui->areaTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->areaTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_lineTool_clicked()
+{
+   m_activeTool = ui->lineTool;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+   ui->lineTool->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_paintAttr_clicked()
+{
+   m_activeTool = ui->paintAttr;
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->textTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->paintAttr->setChecked(true);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_tileList_activated(QModelIndex index)
+{
+   if ( ui->textTool->isChecked() )
+   {
+      m_activeTool = ui->textTool;
+   }
+   else if ( ui->paintTool->isChecked() )
+   {
+      m_activeTool = ui->paintTool;
+   }
+   else if ( ui->pencilTool->isChecked() )
+   {
+      m_activeTool = ui->pencilTool;
+   }
+   else if ( ui->boxTool->isChecked() )
+   {
+      m_activeTool = ui->boxTool;
+   }
+   else if ( ui->lineTool->isChecked() )
+   {
+      m_activeTool = ui->lineTool;
+   }
+   else if ( ui->selectionTool->isChecked() )
+   {
+      m_activeTool = ui->selectionTool;
+   }
+   else if ( ui->paintAttr->isChecked() )
+   {
+      m_activeTool = ui->paintAttr;
+   }
+   ui->textTool->setChecked(false);
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_tileList_clicked(QModelIndex index)
+{
+   if ( ui->textTool->isChecked() )
+   {
+      m_activeTool = ui->textTool;
+   }
+   else if ( ui->paintTool->isChecked() )
+   {
+      m_activeTool = ui->paintTool;
+   }
+   else if ( ui->pencilTool->isChecked() )
+   {
+      m_activeTool = ui->pencilTool;
+   }
+   else if ( ui->boxTool->isChecked() )
+   {
+      m_activeTool = ui->boxTool;
+   }
+   else if ( ui->lineTool->isChecked() )
+   {
+      m_activeTool = ui->lineTool;
+   }
+   else if ( ui->selectionTool->isChecked() )
+   {
+      m_activeTool = ui->selectionTool;
+   }
+   else if ( ui->paintAttr->isChecked() )
+   {
+      m_activeTool = ui->paintAttr;
+   }
+   ui->textTool->setChecked(false);
+   ui->paintTool->setChecked(false);
+   ui->pencilTool->setChecked(false);
+   ui->boxTool->setChecked(false);
+   ui->areaTool->setChecked(false);
+   ui->lineTool->setChecked(false);
+   ui->selectionTool->setChecked(false);
+   ui->paintAttr->setChecked(false);
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::colorPicked(bool value)
+{
+   int idx;
+
+   for ( idx = 0; idx < m_colors.count(); idx++ )
+   {
+      if ( sender() != m_colors.at(idx) )
+      {
+         m_colors.at(idx)->setChecked(false);
+      }
+      else
+      {
+         m_colors.at(idx)->setChecked(true);
+      }
+   }
+
+   // Clear selected tile if any.
+   ui->tileList->setCurrentIndex(QModelIndex());
+
+   // Re-enable the last-selected tool.
+   if ( m_activeTool )
+   {
+      m_activeTool->setChecked(true);
+   }
+
+   // Haven't selected anything yet.
+   m_selection = false;
+
+   // Clipboard is not valid.
+   m_clipboard = false;
+}
+
+void TileStampEditorForm::on_cwRotate_clicked()
+{
+   int xSrc;
+   int ySrc;
+   int xDest;
+   int yDest;
+   int swap;
+
+   // Use the overlay area to rotate.
+   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
+   {
+      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
+      {
+         yDest = xSrc;
+         xDest = m_ySize-ySrc-1;
+         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
+      }
+   }
+
+   // Swap the overlay.
+   copyOverlayToNormal();
+   paintNormal();
+   renderer->setBox();
+   renderer->repaint();
+   previewer->repaint();
+   emit markProjectDirty(true);
+   setModified(true);
+
+   // Lastly, swap the x/y sizes.
+   swap = ui->ySize->currentIndex();
+   ui->ySize->blockSignals(true);
+   ui->ySize->setCurrentIndex(ui->xSize->currentIndex());
+   ui->ySize->blockSignals(false);
+   ui->xSize->setCurrentIndex(swap);
+}
+
+void TileStampEditorForm::on_ccwRotate_clicked()
+{
+   int xSrc;
+   int ySrc;
+   int xDest;
+   int yDest;
+   int swap;
+
+   // Use the overlay area to rotate.
+   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
+   {
+      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
+      {
+         xDest = ySrc;
+         yDest = m_xSize-xSrc-1;
+         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
+      }
+   }
+
+   // Swap the overlay.
+   copyOverlayToNormal();
+   paintNormal();
+   renderer->setBox();
+   renderer->repaint();
+   previewer->repaint();
+   emit markProjectDirty(true);
+   setModified(true);
+
+   // Lastly, swap the x/y sizes.
+   swap = ui->ySize->currentIndex();
+   ui->ySize->blockSignals(true);
+   ui->ySize->setCurrentIndex(ui->xSize->currentIndex());
+   ui->ySize->blockSignals(false);
+   ui->xSize->setCurrentIndex(swap);
+}
+
+void TileStampEditorForm::on_flipHorizontal_clicked()
+{
+   int xSrc;
+   int ySrc;
+   int xDest;
+   int yDest;
+   int swap;
+
+   // Use the overlay area to rotate.
+   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
+   {
+      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
+      {
+         xDest = m_xSize-xSrc-1;
+         yDest = ySrc;
+         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
+      }
+   }
+
+   // Swap the overlay.
+   copyOverlayToNormal();
+   paintNormal();
+   renderer->setBox();
+   renderer->repaint();
+   previewer->repaint();
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::on_flipVertical_clicked()
+{
+   int xSrc;
+   int ySrc;
+   int xDest;
+   int yDest;
+   int swap;
+
+   // Use the overlay area to rotate.
+   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
+   {
+      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
+      {
+         xDest = xSrc;
+         yDest = m_ySize-ySrc-1;
+         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
+      }
+   }
+
+   // Swap the overlay.
+   copyOverlayToNormal();
+   paintNormal();
+   renderer->setBox();
+   renderer->repaint();
+   previewer->repaint();
+   emit markProjectDirty(true);
+   setModified(true);
+}
+
+void TileStampEditorForm::updateScrollbars()
+{
+   int value = ui->zoomSlider->value();
+   int zf = pow(2.0,value);
+
+   ui->horizontalScrollBar->setMaximum(m_xSize-(m_xSize/zf));
+   ui->verticalScrollBar->setMaximum(m_ySize-(m_ySize/zf));
+   renderer->setScrollX(ui->horizontalScrollBar->value());
+   renderer->setScrollY(ui->verticalScrollBar->value());
 }
 
 void TileStampEditorForm::renderData()
@@ -602,6 +1155,8 @@ void TileStampEditorForm::paintOverlay(QByteArray overlayData,QByteArray overlay
    int attrQuadX;
    int attrQuadY;
    int attrQuad;
+   QList<QPoint> recolorPointQueue;
+   QList<int> recolorColorQueue;
 
    tileWidth = width/8;
    tileHeight = height/8;
@@ -661,12 +1216,10 @@ void TileStampEditorForm::paintOverlay(QByteArray overlayData,QByteArray overlay
                   plane2 <<= 1;
 
                   // Recolor edge tiles if necessary.
-                  if ( ((posX+tileX+x) == boxX1) ||
-                       ((posY+tileY+y) == boxY1) ||
-                       ((posX+tileX+x) == (boxX2-1)) ||
-                       ((posY+tileY+y) == (boxY2-1)) )
+                  if ( !recolorPointQueue.contains(QPoint(posX+tileX+x-((posX+tileX+x)%16),posY+tileY+y-((posY+tileY+y)%16))) )
                   {
-                     recolorTiles(posX+tileX+x,posY+tileY+y,plane34/4);
+                     recolorPointQueue.append(QPoint(posX+tileX+x-((posX+tileX+x)%16),posY+tileY+y-((posY+tileY+y)%16)));
+                     recolorColorQueue.append(plane34/4);
                   }
                }
             }
@@ -679,6 +1232,10 @@ void TileStampEditorForm::paintOverlay(QByteArray overlayData,QByteArray overlay
          posX = boxX1;
          posY += height;
       }
+   }
+   for ( idx = 0; idx < recolorPointQueue.count(); idx++ )
+   {
+      recolorTiles(recolorPointQueue.at(idx).x(),recolorPointQueue.at(idx).y(),recolorColorQueue.at(idx));
    }
 
    for ( idx = 0; idx < 128*128*4; idx +=4 )
@@ -706,6 +1263,10 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
    int sY;
    int err;
    int err2;
+   QList<QPoint> fillQueue;
+   QList<QPoint> recolorQueue;
+   QPoint point;
+   int targetColor;
 
    for ( idx = 0; idx < 128*128; idx++ )
    {
@@ -740,7 +1301,10 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
       while ( 1 )
       {
          colorDataOverlay[(boxY1*128)+boxX1] = selectedColor;
-         recolorTiles(boxX1,boxY1,selectedColor/4);
+         if ( !recolorQueue.contains(QPoint(boxX1-(boxX1%16),boxY1-(boxY1%16))) )
+         {
+            recolorQueue.append(QPoint(boxX1-(boxX1%16),boxY1-(boxY1%16)));
+         }
          if ( (boxX1 == (boxX2-1)) &&
               (boxY1 == (boxY2-1)) )
          {
@@ -757,6 +1321,84 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
             err = err + dX;
             boxY1 = boxY1 + sY;
          }
+      }
+      foreach ( QPoint point, recolorQueue )
+      {
+         recolorTiles(point.x(),point.y(),selectedColor/4);
+      }
+      break;
+   case Overlay_FloodFill:
+//Flood-fill (node, target-color, replacement-color):
+      targetColor = colorDataOverlay[(boxY1*128)+boxX1];
+//1. Set Q to the empty queue.
+//2. If the color of node is not equal to target-color, return.
+//3. Add node to the end of Q.
+      fillQueue.append(QPoint(boxX1,boxY1));
+//4. While Q is not empty:
+      while ( !fillQueue.isEmpty() )
+      {
+//5.     Set n equal to the first element of Q
+         point = fillQueue.takeFirst();
+//6.     If the color of n is equal to target-color, set the color of n to replacement-color.
+         colorDataOverlay[(point.y()*128)+point.x()] = selectedColor;
+         if ( !recolorQueue.contains(QPoint(point.x()-(point.x()%16),point.y()-(point.y()%16))) )
+         {
+            recolorQueue.append(QPoint(point.x()-(point.x()%16),point.y()-(point.y()%16)));
+         }
+//7.     Remove first element from Q
+//8.     If the color of the node to the west of n is target-color:
+         if ( ((point.x()-1) >= 0) &&
+              (colorDataOverlay[(point.y()*128)+point.x()-1] == targetColor) )
+         {
+//9.         Add that node to the end of Q
+            fillQueue.append(QPoint(point.x()-1,point.y()));
+            colorDataOverlay[(point.y()*128)+point.x()-1] = selectedColor;
+            if ( !recolorQueue.contains(QPoint((point.x()-1)-((point.x()-1)%16),point.y()-(point.y()%16))) )
+            {
+               recolorQueue.append(QPoint((point.x()-1)-((point.x()-1)%16),point.y()-(point.y()%16)));
+            }
+         }
+//10.     If the color of the node to the east of n is target-color:
+         if ( ((point.x()+1) < m_xSize) &&
+              (colorDataOverlay[(point.y()*128)+point.x()+1] == targetColor) )
+         {
+//11.         Add that node to the end of Q
+            fillQueue.append(QPoint(point.x()+1,point.y()));
+            colorDataOverlay[(point.y()*128)+point.x()+1] = selectedColor;
+            if ( !recolorQueue.contains(QPoint((point.x()+1)-((point.x()+1)%16),point.y()-(point.y()%16))) )
+            {
+               recolorQueue.append(QPoint((point.x()+1)-((point.x()+1)%16),point.y()-(point.y()%16)));
+            }
+         }
+//12.     If the color of the node to the north of n is target-color:
+         if ( ((point.y()-1) >= 0) &&
+              (colorDataOverlay[((point.y()-1)*128)+point.x()] == targetColor) )
+         {
+//13.         Add that node to the end of Q
+            fillQueue.append(QPoint(point.x(),point.y()-1));
+            colorDataOverlay[((point.y()-1)*128)+point.x()] = selectedColor;
+            if ( !recolorQueue.contains(QPoint(point.x()-(point.x()%16),(point.y()-1)-((point.y()-1)%16))) )
+            {
+               recolorQueue.append(QPoint(point.x()-(point.x()%16),(point.y()-1)-((point.y()-1)%16)));
+            }
+         }
+//14.     If the color of the node to the south of n is target-color:
+         if ( ((point.y()+1) < m_ySize) &&
+              (colorDataOverlay[((point.y()+1)*128)+point.x()] == targetColor) )
+         {
+//15.         Add that node to the end of Q
+            fillQueue.append(QPoint(point.x(),point.y()+1));
+            colorDataOverlay[((point.y()+1)*128)+point.x()] = selectedColor;
+            if ( !recolorQueue.contains(QPoint(point.x()-(point.x()%16),(point.y()+1)-((point.y()+1)%16))) )
+            {
+               recolorQueue.append(QPoint(point.x()-(point.x()%16),(point.y()+1)-((point.y()+1)%16)));
+            }
+         }
+      }
+      //16. Return.
+      foreach ( QPoint point, recolorQueue )
+      {
+         recolorTiles(point.x(),point.y(),selectedColor/4);
       }
       break;
    case Overlay_HollowBox:
@@ -775,28 +1417,36 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
       }
       // Draw a hollow box...
       // Draw the horizontals.
-      for ( idx = boxX1, idxcx = 0; idx < boxX2; idx++ )
+      for ( idx = boxX1; idx < boxX2; idx++ )
       {
          colorDataOverlay[(boxY1*128)+idx] = selectedColor;
-         colorDataOverlay[((boxY2-1)*128)+idx] = selectedColor;
-         if ( (!(idxcx%16)) || (!(idx%16)) )
+         if ( !recolorQueue.contains(QPoint(idx-(idx%16),boxY1-(boxY1%16))) )
          {
-            recolorTiles(idx,boxY1,selectedColor/4);
-            recolorTiles(idx,boxY2-1,selectedColor/4);
+            recolorQueue.append(QPoint(idx-(idx%16),boxY1-(boxY1%16)));
          }
-         idxcx++;
+         colorDataOverlay[((boxY2-1)*128)+idx] = selectedColor;
+         if ( !recolorQueue.contains(QPoint(idx-(idx%16),(boxY2-1)-((boxY2-1)%16))) )
+         {
+            recolorQueue.append(QPoint(idx-(idx%16),(boxY2-1)-((boxY2-1)%16)));
+         }
       }
       // Draw the verticals.
-      for ( idx = boxY1, idxcy = 0; idx < boxY2; idx++ )
+      for ( idx = boxY1; idx < boxY2; idx++ )
       {
          colorDataOverlay[(idx*128)+boxX1] = selectedColor;
-         colorDataOverlay[(idx*128)+(boxX2-1)] = selectedColor;
-         if ( (!(idxcy%16)) || (!(idx%16)) )
+         if ( !recolorQueue.contains(QPoint(boxX1-(boxX1%16),idx-(idx%16))) )
          {
-            recolorTiles(boxX1,idx,selectedColor/4);
-            recolorTiles(boxX2-1,idx,selectedColor/4);
+            recolorQueue.append(QPoint(boxX1-(boxX1%16),idx-(idx%16)));
          }
-         idxcy++;
+         colorDataOverlay[(idx*128)+(boxX2-1)] = selectedColor;
+         if ( !recolorQueue.contains(QPoint((boxX2-1)-((boxX2-1)%16),idx-(idx%16))) )
+         {
+            recolorQueue.append(QPoint((boxX2-1)-((boxX2-1)%16),idx-(idx%16)));
+         }
+      }
+      foreach ( QPoint point, recolorQueue )
+      {
+         recolorTiles(point.x(),point.y(),selectedColor/4);
       }
       break;
    case Overlay_SolidBox:
@@ -815,28 +1465,32 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
       }
       // Draw a hollow box...
       // Draw the horizontals.
-      for ( idx = boxX1, idxcx = 0; idx < boxX2; idx++ )
+      for ( idx = boxX1; idx < boxX2; idx++ )
       {
          colorDataOverlay[(boxY1*128)+idx] = selectedColor;
-         colorDataOverlay[((boxY2-1)*128)+idx] = selectedColor;
-         if ( (!(idxcx%16)) || (!(idx%16)) )
+         if ( !recolorQueue.contains(QPoint(idx-(idx%16),boxY1-(boxY1%16))) )
          {
-            recolorTiles(idx,boxY1,selectedColor/4);
-            recolorTiles(idx,boxY2-1,selectedColor/4);
+            recolorQueue.append(QPoint(idx-(idx%16),boxY1-(boxY1%16)));
          }
-         idxcx++;
+         colorDataOverlay[((boxY2-1)*128)+idx] = selectedColor;
+         if ( !recolorQueue.contains(QPoint(idx-(idx%16),(boxY2-1)-((boxY2-1)%16))) )
+         {
+            recolorQueue.append(QPoint(idx-(idx%16),(boxY2-1)-((boxY2-1)%16)));
+         }
       }
       // Draw the verticals.
-      for ( idx = boxY1, idxcy = 0; idx < boxY2; idx++ )
+      for ( idx = boxY1; idx < boxY2; idx++ )
       {
          colorDataOverlay[(idx*128)+boxX1] = selectedColor;
-         colorDataOverlay[(idx*128)+(boxX2-1)] = selectedColor;
-         if ( (!(idxcy%16)) || (!(idx%16)) )
+         if ( !recolorQueue.contains(QPoint(boxX1-(boxX1%16),idx-(idx%16))) )
          {
-            recolorTiles(boxX1,idx,selectedColor/4);
-            recolorTiles(boxX2-1,idx,selectedColor/4);
+            recolorQueue.append(QPoint(boxX1-(boxX1%16),idx-(idx%16)));
          }
-         idxcy++;
+         colorDataOverlay[(idx*128)+(boxX2-1)] = selectedColor;
+         if ( !recolorQueue.contains(QPoint((boxX2-1)-((boxX2-1)%16),idx-(idx%16))) )
+         {
+            recolorQueue.append(QPoint((boxX2-1)-((boxX2-1)%16),idx-(idx%16)));
+         }
       }
       // Draw a solid box...
       for ( idxy = boxY1+1; idxy < boxY2-1; idxy++ )
@@ -845,6 +1499,10 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
          {
             colorDataOverlay[(idxy*128)+idxx] = selectedColor;
          }
+      }
+      foreach ( QPoint point, recolorQueue )
+      {
+         recolorTiles(point.x(),point.y(),selectedColor/4);
       }
       break;
    case Overlay_Erase:
@@ -884,7 +1542,7 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
          boxY1 = boxY2;
          boxY2 = swap;
       }
-      // Draw a solid box...
+      // Draw the clipboard...
       for ( idxy = boxY1, idxcy = 0; idxy < boxY2; idxy++, idxcy++ )
       {
          for ( idxx = boxX1, idxcx = 0; idxx < boxX2; idxx++, idxcx++ )
@@ -971,90 +1629,21 @@ void TileStampEditorForm::copyClipboardToOverlay()
    }
 }
 
-void TileStampEditorForm::updateScrollbars()
+void TileStampEditorForm::recolorClipboard(int boxX1, int boxY1, int boxX2, int boxY2)
 {
-   int value = ui->zoomSlider->value();
-   int zf = pow(2.0,value);
+   int idxx;
+   int idxy;
+   int idxcx;
+   int idxcy;
 
-   ui->horizontalScrollBar->setMaximum(m_xSize-(m_xSize/zf));
-   ui->verticalScrollBar->setMaximum(m_ySize-(m_ySize/zf));
-   renderer->setScrollX(ui->horizontalScrollBar->value());
-   renderer->setScrollY(ui->verticalScrollBar->value());
-}
-
-void TileStampEditorForm::on_horizontalScrollBar_valueChanged(int value)
-{
-   renderer->setScrollX(ui->horizontalScrollBar->value());
-   renderer->repaint();
-}
-
-void TileStampEditorForm::on_verticalScrollBar_valueChanged(int value)
-{
-   renderer->setScrollY(ui->verticalScrollBar->value());
-   renderer->repaint();
-}
-
-void TileStampEditorForm::xSize_currentIndexChanged(int index)
-{
-   m_xSize = ui->xSize->itemData(ui->xSize->currentIndex()).toInt();
-   m_ySize = ui->ySize->itemData(ui->ySize->currentIndex()).toInt();
-   renderer->setSize(m_xSize,m_ySize);
-   renderer->repaint();
-   previewer->setSize(m_xSize,m_ySize);
-   previewer->repaint();
-   emit markProjectDirty(true);
-   setModified(true);
-}
-
-void TileStampEditorForm::ySize_currentIndexChanged(int index)
-{
-   m_xSize = ui->xSize->itemData(ui->xSize->currentIndex()).toInt();
-   m_ySize = ui->ySize->itemData(ui->ySize->currentIndex()).toInt();
-   renderer->setSize(m_xSize,m_ySize);
-   renderer->repaint();
-   previewer->setSize(m_xSize,m_ySize);
-   previewer->repaint();
-   emit markProjectDirty(true);
-   setModified(true);
-}
-
-void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
-{
-   IProjectTreeViewItem* item;
-   CAttributeTable* pAttrTbl;
-   QColor color;
-   int idx;
-
-   m_attrTblUUID = ui->attributeTable->itemData(index).toString();
-
-   item = findProjectItem(m_attrTblUUID);
-   if ( item )
+   for ( idxy = boxY1, idxcy = 0; idxy < boxY2; idxy++, idxcy++ )
    {
-      pAttrTbl = dynamic_cast<CAttributeTable*>(item);
-      if ( pAttrTbl )
+      for ( idxx = boxX1, idxcx = 0; idxx < boxX2; idxx++, idxcx++ )
       {
-         QList<uint8_t> palette = pAttrTbl->getPalette();
-         for ( idx = 0; idx < m_colors.count(); idx++ )
-         {
-            m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
-            m_colors.at(idx)->repaint();
-         }
+         colorDataClipboard[(idxcy*128)+idxcx] &= 0x03;
+         colorDataClipboard[(idxcy*128)+idxcx] |= (colorDataOverlay[(idxy*128)+idxx]&0xFC);
       }
    }
-
-   // Re-color image.
-   for ( idx = 0; idx < 128*128*4; idx += 4 )
-   {
-      color = m_colors.at(colorData[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
-      imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
-   }
-   renderer->repaint();
-   previewer->repaint();
-
-   emit markProjectDirty(true);
-   setModified(true);
 }
 
 void TileStampEditorForm::recolorTiles(int pixx,int pixy,int newColorTable)
@@ -1174,16 +1763,6 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
    }
    tileListModel->setBankItems(tileList);
    tileListModel->update();
-}
-
-void TileStampEditorForm::grid_toggled(bool checked)
-{
-   m_gridEnabled = checked;
-   renderer->setGrid(m_gridEnabled);
-   renderer->repaint();
-
-   emit markProjectDirty(true);
-   setModified(true);
 }
 
 void TileStampEditorForm::initializeTile(QByteArray tileData,QByteArray attrData)
@@ -1347,32 +1926,6 @@ QByteArray TileStampEditorForm::attributeData()
    return attrOut;
 }
 
-void TileStampEditorForm::on_clear_clicked()
-{
-   int idx;
-   QColor color;
-
-   // Set up image...
-   for ( idx = 0; idx < 128*128; idx++ )
-   {
-      colorData[idx] = 0;
-      colorDataOverlay[idx] = 0;
-   }
-   for ( idx = 0; idx < 128*128*4; idx +=4 )
-   {
-      color = m_colors.at(colorData[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
-      imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
-      imgData[idx+3] = 0xFF;
-   }
-   renderer->repaint();
-   previewer->repaint();
-
-   emit markProjectDirty(true);
-   setModified(true);
-}
-
 void TileStampEditorForm::selectionTool(QMouseEvent *event)
 {
    int pixx;
@@ -1382,218 +1935,145 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
    int boxY1;
    int boxX2;
    int boxY2;
-   bool visible;
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   // Where's the box in the renderer?
+   renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
+
+   switch ( event->type() )
    {
-      // Where's the box in the renderer?
-      renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
-
-      switch ( event->type() )
+   case QEvent::MouseButtonPress:
+      if ( !m_selectionRect.contains(pixx,pixy) )
       {
-      case QEvent::MouseButtonPress:
-         if ( !m_selectionRect.contains(pixx,pixy) )
-         {
-            if ( m_selection && m_clipboard )
-            {
-               m_selectionRect = QRect(QPoint(boxX1,boxY1),QPoint(boxX2,boxY2));
-               paintOverlay(Overlay_PasteClipboard,0,boxX1,boxY1,boxX2,boxY2);
-               copyOverlayToNormal();
-               renderer->repaint();
-               previewer->repaint();
-               emit markProjectDirty(true);
-               setModified(true);
-            }
-
-            m_selection = false;
-            m_clipboard = false;
-
-            m_anchor = QPoint(pixx,pixy);
-            renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-         }
-         else
-         {
-            m_anchor = QPoint(pixx,pixy);
-            if ( (m_selection) &&
-                 (!m_clipboard) )
-            {
-               copyNormalToClipboard(boxX1,boxY1,boxX2,boxY2);
-               paintOverlay(Overlay_Erase,0,boxX1,boxY1,boxX2,boxY2);
-               copyOverlayToNormal();
-               renderer->repaint();
-               previewer->repaint();
-               emit markProjectDirty(true);
-               setModified(true);
-            }
-         }
-         break;
-      case QEvent::MouseMove:
-         if ( event->buttons() == Qt::LeftButton )
-         {
-            if ( m_selection && m_clipboard )
-            {
-               m_selectionRect = m_selectionRect.translated(pixx-m_anchor.x(),pixy-m_anchor.y());
-               m_anchor = QPoint(pixx,pixy);
-               renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-               paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-               renderer->repaint();
-               previewer->repaint();
-               emit markProjectDirty(true);
-               setModified(true);
-            }
-            else
-            {
-               renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-               renderer->repaint();
-               previewer->repaint();
-            }
-         }
-         break;
-      case QEvent::MouseButtonRelease:
-         if ( (!m_selection) &&
-              (boxX1 >= 0) &&
-              (boxY1 >= 0) &&
-              (boxX2 >= 0) &&
-              (boxY2 >= 0) )
-         {
-            m_selection = true;
-         }
-         if ( m_selection )
+         if ( m_selection && m_clipboard )
          {
             m_selectionRect = QRect(QPoint(boxX1,boxY1),QPoint(boxX2,boxY2));
+            m_selectionRect = m_selectionRect.normalized();
+            paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            copyOverlayToNormal();
+            renderer->repaint();
+            previewer->repaint();
+            emit markProjectDirty(true);
+            setModified(true);
+         }
+
+         m_selection = false;
+         m_clipboard = false;
+
+         m_anchor = QPoint(pixx,pixy);
+         renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
+         renderer->repaint();
+      }
+      else
+      {
+         m_anchor = QPoint(pixx,pixy);
+         if ( (m_selection) &&
+              (!m_clipboard) )
+         {
+            copyNormalToClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            paintOverlay(Overlay_Erase,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            copyOverlayToNormal();
+            renderer->repaint();
+            previewer->repaint();
+            emit markProjectDirty(true);
+            setModified(true);
+         }
+      }
+      break;
+   case QEvent::MouseMove:
+      if ( event->buttons() == Qt::LeftButton )
+      {
+         if ( m_selection && m_clipboard )
+         {
+            m_selectionRect = m_selectionRect.translated(pixx-m_anchor.x(),pixy-m_anchor.y());
+            m_selectionRect = m_selectionRect.normalized();
+            m_anchor = QPoint(pixx,pixy);
+            renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            recolorClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            renderer->repaint();
+            previewer->repaint();
+            emit markProjectDirty(true);
+            setModified(true);
          }
          else
          {
-            m_selectionRect = QRect(-1,-1,-1,-1);
-            m_clipboard = false;
+            renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
+            renderer->repaint();
+            previewer->repaint();
          }
-         renderer->repaint();
-         previewer->repaint();
-         break;
-      default:
-         // Stupid warnings.
-         break;
       }
+      break;
+   case QEvent::MouseButtonRelease:
+      if ( (!m_selection) &&
+           (boxX1 >= 0) &&
+           (boxY1 >= 0) &&
+           (boxX2 >= 0) &&
+           (boxY2 >= 0) )
+      {
+         m_selection = true;
+      }
+      if ( m_selection )
+      {
+         m_selectionRect = QRect(QPoint(boxX1,boxY1),QPoint(boxX2,boxY2));
+         m_selectionRect = m_selectionRect.normalized();
+      }
+      else
+      {
+         m_selectionRect = QRect(-1,-1,-1,-1);
+         m_clipboard = false;
+      }
+      renderer->repaint();
+      previewer->repaint();
+      break;
+   default:
+      // Stupid warnings.
+      break;
    }
 }
 
 void TileStampEditorForm::paintTool(QMouseEvent *event)
 {
    int idx;
-   QColor color;
    int pixx;
    int pixy;
    int selectedColor = -1;
-   int colorAtCursor;
-   int boxXUL;
-   int boxYUL;
-   int boxXUR;
-   int boxYUR;
-   int boxXLL;
-   int boxYLL;
-   int boxXLR;
-   int boxYLR;
-   bool visible;
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   // Find the selected color.
+   for ( idx = 0; idx < m_colors.count(); idx++ )
    {
-      // Find the selected color.
-      for ( idx = 0; idx < m_colors.count(); idx++ )
+      if ( m_colors.at(idx)->isChecked() )
       {
-         if ( m_colors.at(idx)->isChecked() )
-         {
-            selectedColor = idx;
-         }
+         selectedColor = idx;
       }
+   }
 
-      // Get the color we're painting over.
-      colorAtCursor = colorData[(pixy*m_xSize)+pixx];
-
-      // Set up the initial box.
-      boxXUL = pixx-1;
-      boxYUL = pixy-1;
-      boxXUR = pixx+1;
-      boxYUR = pixy-1;
-      boxXLL = pixx+1;
-      boxYLL = pixy-1;
-      boxXLR = pixx+1;
-      boxYLR = pixy+1;
-
-      if ( selectedColor != -1 )
+   if ( selectedColor != -1 )
+   {
+      switch ( event->type() )
       {
-         switch ( event->type() )
-         {
-         case QEvent::MouseButtonPress:
-            colorData[(pixy*m_xSize)+pixx] = selectedColor;
-            colorDataOverlay[(pixy*m_xSize)+pixx] = selectedColor;
-
-            while ( (boxXUL >= 0) &&
-                    (boxYUL >= 0) &&
-                    (boxXUR < m_xSize) &&
-                    (boxYUR >= 0) &&
-                    (boxXLL >= 0) &&
-                    (boxYLL < m_ySize) &&
-                    (boxXLR < m_xSize) &&
-                    (boxYLR < m_ySize) )
-            {
-               for ( idx = boxXUL; idx <= boxXUR; idx++ )
-               {
-                  if ( boxYUL >= 0 )
-                  {
-                     if ( colorData[(boxYUL*m_xSize)+idx] == colorAtCursor )
-                     {
-                        colorData[(boxYUL*m_xSize)+idx] = selectedColor;
-                     }
-                  }
-                  if ( boxYLL < m_ySize )
-                  {
-                     if ( colorData[(boxYLL*m_xSize)+idx] == colorAtCursor )
-                     {
-                        colorData[(boxYLL*m_xSize)+idx] = selectedColor;
-                     }
-                  }
-               }
-               for ( idx = boxYUL; idx <= boxYLL; idx++ )
-               {
-                  if ( colorData[(idx*m_xSize)+boxXUL] == colorAtCursor )
-                  {
-                     colorData[(idx*m_xSize)+boxXUL] = selectedColor;
-                  }
-                  if ( colorData[(idx*m_xSize)+boxXUR] == colorAtCursor )
-                  {
-                     colorData[(idx*m_xSize)+boxXUR] = selectedColor;
-                  }
-               }
-            }
-            break;
-         case QEvent::MouseMove:
-            break;
-         case QEvent::MouseButtonRelease:
-            break;
-         default:
-            // Stupid warnings.
-            break;
-         }
+      case QEvent::MouseButtonPress:
+         paintOverlay(Overlay_FloodFill,selectedColor,pixx,pixy,0,0);
+         renderer->repaint();
+         previewer->repaint();
+         break;
+      case QEvent::MouseMove:
+         break;
+      case QEvent::MouseButtonRelease:
+         copyOverlayToNormal();
+         paintNormal();
+         renderer->repaint();
+         previewer->repaint();
+         emit markProjectDirty(true);
+         setModified(true);
+         break;
+      default:
+         // Stupid warnings.
+         break;
       }
-
-      for ( idx = 0; idx < 128*128*4; idx +=4 )
-      {
-         color = m_colors.at(colorData[idx>>2])->currentColor();
-         imgData[idx+0] = color.blue();
-         imgData[idx+1] = color.green();
-         imgData[idx+2] = color.red();
-         imgData[idx+3] = 0xFF;
-      }
-      renderer->repaint();
-      previewer->repaint();
-
-      emit markProjectDirty(true);
-      setModified(true);
    }
 }
 
@@ -1606,12 +2086,55 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
    int boxX2;
    int boxY2;
    int idx;
-   bool visible;
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   boxX1 = pixx-(pixx%16);
+   boxY1 = pixy-(pixy%16);
+   boxX2 = boxX1+16;
+   boxY2 = boxY1+16;
+   renderer->setBox(boxX1,boxY1,boxX2,boxY2);
+   renderer->repaint();
+
+   switch ( event->type() )
    {
+   case QEvent::MouseButtonPress:
+      if ( event->buttons() == Qt::LeftButton )
+      {
+         for ( idx = 0; idx < m_colors.count(); idx++ )
+         {
+            if ( m_colors.at(idx)->isChecked() )
+            {
+               if ( ui->paintAttr->isChecked() )
+               {
+                  recolorTiles(pixx,pixy,idx/4);
+               }
+               else
+               {
+                  if ( (idx%4) && (colorData[(pixy*128)+pixx] != idx) )
+                  {
+                     recolorTiles(pixx,pixy,idx/4);
+                  }
+                  paintOverlay(idx,pixx,pixy);
+               }
+               renderer->repaint();
+               previewer->repaint();
+               emit markProjectDirty(true);
+               setModified(true);
+               break;
+            }
+         }
+      }
+      else if ( event->buttons() == Qt::RightButton )
+      {
+         paintOverlay(0,pixx,pixy);
+         renderer->repaint();
+         previewer->repaint();
+         emit markProjectDirty(true);
+         setModified(true);
+      }
+      break;
+   case QEvent::MouseMove:
       boxX1 = pixx-(pixx%16);
       boxY1 = pixy-(pixy%16);
       boxX2 = boxX1+16;
@@ -1619,142 +2142,100 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
       renderer->setBox(boxX1,boxY1,boxX2,boxY2);
       renderer->repaint();
 
-      switch ( event->type() )
+      if ( event->buttons() == Qt::LeftButton )
       {
-      case QEvent::MouseButtonPress:
-         if ( event->buttons() == Qt::LeftButton )
+         for ( idx = 0; idx < m_colors.count(); idx++ )
          {
-            for ( idx = 0; idx < m_colors.count(); idx++ )
+            if ( m_colors.at(idx)->isChecked() )
             {
-               if ( m_colors.at(idx)->isChecked() )
+               if ( ui->paintAttr->isChecked() )
                {
-                  if ( ui->paintAttr->isChecked() )
+                  recolorTiles(pixx,pixy,idx/4);
+               }
+               else
+               {
+                  if ( (idx%4) && (colorData[(pixy*128)+pixx] != idx) )
                   {
                      recolorTiles(pixx,pixy,idx/4);
                   }
-                  else
-                  {
-                     if ( (idx%4) && (colorData[(pixy*128)+pixx] != idx) )
-                     {
-                        recolorTiles(pixx,pixy,idx/4);
-                     }
-                     paintOverlay(idx,pixx,pixy);
-                  }
-                  renderer->repaint();
-                  previewer->repaint();
-                  emit markProjectDirty(true);
-                  setModified(true);
-                  break;
+                  paintOverlay(idx,pixx,pixy);
                }
+               renderer->repaint();
+               previewer->repaint();
+               emit markProjectDirty(true);
+               setModified(true);
+               break;
             }
          }
-         else if ( event->buttons() == Qt::RightButton )
-         {
-            paintOverlay(0,pixx,pixy);
-            renderer->repaint();
-            previewer->repaint();
-            emit markProjectDirty(true);
-            setModified(true);
-         }
-         break;
-      case QEvent::MouseMove:
-         boxX1 = pixx-(pixx%16);
-         boxY1 = pixy-(pixy%16);
-         boxX2 = boxX1+16;
-         boxY2 = boxY1+16;
-         renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-         renderer->repaint();
-
-         if ( event->buttons() == Qt::LeftButton )
-         {
-            for ( idx = 0; idx < m_colors.count(); idx++ )
-            {
-               if ( m_colors.at(idx)->isChecked() )
-               {
-                  if ( ui->paintAttr->isChecked() )
-                  {
-                     recolorTiles(pixx,pixy,idx/4);
-                  }
-                  else
-                  {
-                     if ( (idx%4) && (colorData[(pixy*128)+pixx] != idx) )
-                     {
-                        recolorTiles(pixx,pixy,idx/4);
-                     }
-                     paintOverlay(idx,pixx,pixy);
-                  }
-                  renderer->repaint();
-                  previewer->repaint();
-                  emit markProjectDirty(true);
-                  setModified(true);
-                  break;
-               }
-            }
-         }
-         else if ( event->buttons() == Qt::RightButton )
-         {
-            paintOverlay(0,pixx,pixy);
-            renderer->repaint();
-            previewer->repaint();
-            emit markProjectDirty(true);
-            setModified(true);
-         }
-         break;
-      case QEvent::MouseButtonRelease:
-         if ( event->buttons() == Qt::LeftButton )
-         {
-            for ( idx = 0; idx < m_colors.count(); idx++ )
-            {
-               if ( m_colors.at(idx)->isChecked() )
-               {
-                  if ( ui->paintAttr->isChecked() )
-                  {
-                     recolorTiles(pixx,pixy,idx/4);
-                  }
-                  else
-                  {
-                     if ( (idx%4) && (colorData[(pixy*128)+pixx] != idx) )
-                     {
-                        recolorTiles(pixx,pixy,idx/4);
-                     }
-                     paintOverlay(idx,pixx,pixy);
-                  }
-                  renderer->repaint();
-                  previewer->repaint();
-                  emit markProjectDirty(true);
-                  setModified(true);
-                  break;
-               }
-            }
-         }
-         else if ( event->buttons() == Qt::RightButton )
-         {
-            paintOverlay(0,pixx,pixy);
-            renderer->repaint();
-            previewer->repaint();
-            emit markProjectDirty(true);
-            setModified(true);
-         }
-
-         copyOverlayToNormal();
-
-         paintNormal();
-         renderer->setBox();
+      }
+      else if ( event->buttons() == Qt::RightButton )
+      {
+         paintOverlay(0,pixx,pixy);
          renderer->repaint();
          previewer->repaint();
          emit markProjectDirty(true);
          setModified(true);
-         break;
-      default:
-         // Stupid warnings.
-         break;
       }
-   }
-   else
-   {
+      break;
+   case QEvent::MouseButtonRelease:
+      if ( event->buttons() == Qt::LeftButton )
+      {
+         for ( idx = 0; idx < m_colors.count(); idx++ )
+         {
+            if ( m_colors.at(idx)->isChecked() )
+            {
+               if ( ui->paintAttr->isChecked() )
+               {
+                  recolorTiles(pixx,pixy,idx/4);
+               }
+               else
+               {
+                  if ( (idx%4) && (colorData[(pixy*128)+pixx] != idx) )
+                  {
+                     recolorTiles(pixx,pixy,idx/4);
+                  }
+                  paintOverlay(idx,pixx,pixy);
+               }
+               renderer->repaint();
+               previewer->repaint();
+               emit markProjectDirty(true);
+               setModified(true);
+               break;
+            }
+         }
+      }
+      else if ( event->buttons() == Qt::RightButton )
+      {
+         paintOverlay(0,pixx,pixy);
+         renderer->repaint();
+         previewer->repaint();
+         emit markProjectDirty(true);
+         setModified(true);
+      }
+
+      copyOverlayToNormal();
+
+      paintNormal();
       renderer->setBox();
       renderer->repaint();
+      previewer->repaint();
+      emit markProjectDirty(true);
+      setModified(true);
+      break;
+   default:
+      // Stupid warnings.
+      break;
    }
+}
+
+void TileStampEditorForm::filledBoxTool(QMouseEvent *event)
+{
+   boxTool(event,true);
+}
+
+void TileStampEditorForm::hollowBoxTool(QMouseEvent *event)
+{
+   boxTool(event,false);
 }
 
 void TileStampEditorForm::boxTool(QMouseEvent *event,bool filled)
@@ -1763,7 +2244,6 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,bool filled)
    int pixx;
    int pixy;
    int idx;
-   bool visible;
    OverlayType overlayType;
 
    // Filled or hollow?
@@ -1776,58 +2256,50 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,bool filled)
       overlayType = Overlay_HollowBox;
    }
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   // Find the selected color.
+   for ( idx = 0; idx < m_colors.count(); idx++ )
    {
-      // Find the selected color.
-      for ( idx = 0; idx < m_colors.count(); idx++ )
+      if ( m_colors.at(idx)->isChecked() )
       {
-         if ( m_colors.at(idx)->isChecked() )
-         {
-            selectedColor = idx;
-         }
+         selectedColor = idx;
+         break;
       }
+   }
 
-      if ( selectedColor >= 0 )
+   if ( selectedColor >= 0 )
+   {
+      switch ( event->type() )
       {
-         switch ( event->type() )
+      case QEvent::MouseButtonPress:
+         m_anchor = QPoint(pixx,pixy);
+         paintOverlay(overlayType,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
+         renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
+         renderer->repaint();
+         previewer->repaint();
+         break;
+      case QEvent::MouseMove:
+         if ( event->buttons() == Qt::LeftButton )
          {
-         case QEvent::MouseButtonPress:
-            m_anchor = QPoint(pixx,pixy);
             paintOverlay(overlayType,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->repaint();
             previewer->repaint();
-            break;
-         case QEvent::MouseMove:
-            if ( event->buttons() == Qt::LeftButton )
-            {
-               paintOverlay(overlayType,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-               renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-               renderer->repaint();
-               previewer->repaint();
-            }
-            else
-            {
-               renderer->setBox();
-               renderer->repaint();
-            }
-            break;
-         case QEvent::MouseButtonRelease:
-            copyOverlayToNormal();
-
-            paintNormal();
-            renderer->setBox();
-            renderer->repaint();
-            previewer->repaint();
-            emit markProjectDirty(true);
-            setModified(true);
-            break;
-         default:
-            // Stupid warnings.
-            break;
          }
+         break;
+      case QEvent::MouseButtonRelease:
+         copyOverlayToNormal();
+         paintNormal();
+         renderer->setBox();
+         renderer->repaint();
+         previewer->repaint();
+         emit markProjectDirty(true);
+         setModified(true);
+         break;
+      default:
+         // Stupid warnings.
+         break;
       }
    }
 }
@@ -1838,61 +2310,54 @@ void TileStampEditorForm::lineTool(QMouseEvent *event)
    int pixx;
    int pixy;
    int idx;
-   bool visible;
 
-   // This tool doesn't require a box outline.
-   renderer->setBox();
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
-
-   if ( visible )
+   // Find the selected color.
+   for ( idx = 0; idx < m_colors.count(); idx++ )
    {
-      // Find the selected color.
-      for ( idx = 0; idx < m_colors.count(); idx++ )
+      if ( m_colors.at(idx)->isChecked() )
       {
-         if ( m_colors.at(idx)->isChecked() )
-         {
-            selectedColor = idx;
-         }
+         selectedColor = idx;
       }
+   }
 
-      if ( selectedColor >= 0 )
+   if ( selectedColor >= 0 )
+   {
+      switch ( event->type() )
       {
-         switch ( event->type() )
+      case QEvent::MouseButtonPress:
+         // Set anchor.
+         m_anchor = QPoint(pixx,pixy);
+         paintOverlay(Overlay_Line,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
+         renderer->repaint();
+         previewer->repaint();
+         break;
+      case QEvent::MouseMove:
+         if ( event->buttons() == Qt::LeftButton )
          {
-         case QEvent::MouseButtonPress:
-            // Set anchor.
-            m_anchor = QPoint(pixx,pixy);
             paintOverlay(Overlay_Line,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->repaint();
             previewer->repaint();
-            break;
-         case QEvent::MouseMove:
-            if ( event->buttons() == Qt::LeftButton )
-            {
-               paintOverlay(Overlay_Line,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-               renderer->repaint();
-               previewer->repaint();
-            }
-            else
-            {
-               renderer->setBox();
-               renderer->repaint();
-            }
-            break;
-         case QEvent::MouseButtonRelease:
-            copyOverlayToNormal();
-
-            paintNormal();
-            renderer->repaint();
-            previewer->repaint();
-            emit markProjectDirty(true);
-            setModified(true);
-            break;
-         default:
-            // Stupid warnings.
-            break;
          }
+         else
+         {
+            renderer->setBox();
+            renderer->repaint();
+         }
+         break;
+      case QEvent::MouseButtonRelease:
+         copyOverlayToNormal();
+
+         paintNormal();
+         renderer->repaint();
+         previewer->repaint();
+         emit markProjectDirty(true);
+         setModified(true);
+         break;
+      default:
+         // Stupid warnings.
+         break;
       }
    }
 }
@@ -1910,125 +2375,121 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
    int boxY1;
    int boxX2;
    int boxY2;
-   bool visible;
    IChrRomBankItem* pChrItem = reinterpret_cast<IChrRomBankItem*>(ui->tileList->currentIndex().internalPointer());
    CTileStamp* pSelectedTile = dynamic_cast<CTileStamp*>(pChrItem);
    CBinaryFile* pSelectedBinary = dynamic_cast<CBinaryFile*>(pChrItem);
    int xSize;
    int ySize;
 
-   visible = renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
+   renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   if ( visible )
+   switch ( event->type() )
    {
-      switch ( event->type() )
+   case QEvent::MouseButtonPress:
+      if ( pSelectedTile )
       {
-      case QEvent::MouseButtonPress:
+         pSelectedTile->getSize(&xSize,&ySize);
+         boxX1 = pixx-(pixx%8);
+         boxY1 = pixy-(pixy%8);
+         if ( (boxX1+xSize) < m_xSize )
+         {
+            boxX2 = boxX1+xSize;
+         }
+         else
+         {
+            boxX2 = m_xSize;
+         }
+         if ( (boxY1+ySize) < m_ySize )
+         {
+            boxY2 = boxY1+ySize;
+         }
+         else
+         {
+            boxY2 = m_ySize;
+         }
+         paintOverlay(pSelectedTile->getTileData(),pSelectedTile->getAttributeData(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
+         renderer->setBox(boxX1,boxY1,boxX2,boxY2);
+         renderer->repaint();
+         previewer->repaint();
+      }
+      else if ( pSelectedBinary )
+      {
+         pSelectedBinary->getSize(&xSize,&ySize);
+         boxX1 = pixx-(pixx%8);
+         boxY1 = pixy-(pixy%8);
+         if ( (boxX1+xSize) < m_xSize )
+         {
+            boxX2 = boxX1+xSize;
+         }
+         else
+         {
+            boxX2 = m_xSize;
+         }
+         if ( (boxY1+ySize) < m_ySize )
+         {
+            boxY2 = boxY1+ySize;
+         }
+         else
+         {
+            boxY2 = m_ySize;
+         }
+         paintOverlay(pSelectedBinary->getBinaryData(),QByteArray(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
+         renderer->setBox(boxX1,boxY1,boxX2,boxY2);
+         renderer->repaint();
+         previewer->repaint();
+      }
+      break;
+   case QEvent::MouseMove:
+      if ( event->buttons() == Qt::LeftButton )
+      {
          if ( pSelectedTile )
          {
             pSelectedTile->getSize(&xSize,&ySize);
-            boxX1 = pixx-(pixx%8);
-            boxY1 = pixy-(pixy%8);
-            if ( (boxX1+xSize) < m_xSize )
+            renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
+            boxX2 = pixx+(8-(pixx%8));
+            boxY2 = pixy+(8-(pixy%8));
+            if ( (boxY2 > boxY1) && (boxX2 > boxX1) )
             {
-               boxX2 = boxX1+xSize;
+               paintOverlay(pSelectedTile->getTileData(),pSelectedTile->getAttributeData(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
+               renderer->setBox(boxX1,boxY1,boxX2,boxY2);
+               renderer->repaint();
+               previewer->repaint();
             }
-            else
-            {
-               boxX2 = m_xSize;
-            }
-            if ( (boxY1+ySize) < m_ySize )
-            {
-               boxY2 = boxY1+ySize;
-            }
-            else
-            {
-               boxY2 = m_ySize;
-            }
-            paintOverlay(pSelectedTile->getTileData(),pSelectedTile->getAttributeData(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
-            renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-            renderer->repaint();
-            previewer->repaint();
          }
          else if ( pSelectedBinary )
          {
             pSelectedBinary->getSize(&xSize,&ySize);
-            boxX1 = pixx-(pixx%8);
-            boxY1 = pixy-(pixy%8);
-            if ( (boxX1+xSize) < m_xSize )
+            renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
+            boxX2 = pixx+(8-(pixx%8));
+            boxY2 = pixy+(8-(pixy%8));
+            if ( (boxY2 > boxY1) && (boxX2 > boxX1) )
             {
-               boxX2 = boxX1+xSize;
-            }
-            else
-            {
-               boxX2 = m_xSize;
-            }
-            if ( (boxY1+ySize) < m_ySize )
-            {
-               boxY2 = boxY1+ySize;
-            }
-            else
-            {
-               boxY2 = m_ySize;
-            }
-            paintOverlay(pSelectedBinary->getBinaryData(),QByteArray(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
-            renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-            renderer->repaint();
-            previewer->repaint();
-         }
-         break;
-      case QEvent::MouseMove:
-         if ( event->buttons() == Qt::LeftButton )
-         {
-            if ( pSelectedTile )
-            {
-               pSelectedTile->getSize(&xSize,&ySize);
-               renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
-               boxX2 = pixx+(8-(pixx%8));
-               boxY2 = pixy+(8-(pixy%8));
-               if ( (boxY2 > boxY1) && (boxX2 > boxX1) )
-               {
-                  paintOverlay(pSelectedTile->getTileData(),pSelectedTile->getAttributeData(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
-                  renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-                  renderer->repaint();
-                  previewer->repaint();
-               }
-            }
-            else if ( pSelectedBinary )
-            {
-               pSelectedBinary->getSize(&xSize,&ySize);
-               renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
-               boxX2 = pixx+(8-(pixx%8));
-               boxY2 = pixy+(8-(pixy%8));
-               if ( (boxY2 > boxY1) && (boxX2 > boxX1) )
-               {
-                  paintOverlay(pSelectedBinary->getBinaryData(),QByteArray(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
-                  renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-                  renderer->repaint();
-                  previewer->repaint();
-               }
+               paintOverlay(pSelectedBinary->getBinaryData(),QByteArray(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
+               renderer->setBox(boxX1,boxY1,boxX2,boxY2);
+               renderer->repaint();
+               previewer->repaint();
             }
          }
-         else
-         {
-            renderer->setBox();
-            renderer->repaint();
-         }
-         break;
-      case QEvent::MouseButtonRelease:
-         copyOverlayToNormal();
-
-         paintNormal();
+      }
+      else
+      {
          renderer->setBox();
          renderer->repaint();
-         previewer->repaint();
-         emit markProjectDirty(true);
-         setModified(true);
-         break;
-      default:
-         // Stupid warnings.
-         break;
       }
+      break;
+   case QEvent::MouseButtonRelease:
+      copyOverlayToNormal();
+
+      paintNormal();
+      renderer->setBox();
+      renderer->repaint();
+      previewer->repaint();
+      emit markProjectDirty(true);
+      setModified(true);
+      break;
+   default:
+      // Stupid warnings.
+      break;
    }
 }
 
@@ -2050,391 +2511,4 @@ void TileStampEditorForm::updateInfoText(int x,int y)
    {
       ui->info->clear();
    }
-}
-
-void TileStampEditorForm::on_selectionTool_clicked()
-{
-   m_activeTool = ui->selectionTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->paintTool->setChecked(false);
-   ui->selectionTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_paintTool_clicked()
-{
-   m_activeTool = ui->paintTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->paintTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_pencilTool_clicked()
-{
-   m_activeTool = ui->pencilTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->paintTool->setChecked(false);
-   ui->textTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->pencilTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_textTool_clicked()
-{
-   m_activeTool = ui->textTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->textTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_boxTool_clicked()
-{
-   m_activeTool = ui->boxTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->boxTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_areaTool_clicked()
-{
-   m_activeTool = ui->areaTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->areaTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_lineTool_clicked()
-{
-   m_activeTool = ui->lineTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->lineTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_tileList_activated(QModelIndex index)
-{
-   if ( ui->textTool->isChecked() )
-   {
-      m_activeTool = ui->textTool;
-   }
-   else if ( ui->paintTool->isChecked() )
-   {
-      m_activeTool = ui->paintTool;
-   }
-   else if ( ui->pencilTool->isChecked() )
-   {
-      m_activeTool = ui->pencilTool;
-   }
-   else if ( ui->boxTool->isChecked() )
-   {
-      m_activeTool = ui->boxTool;
-   }
-   else if ( ui->lineTool->isChecked() )
-   {
-      m_activeTool = ui->lineTool;
-   }
-   else if ( ui->selectionTool->isChecked() )
-   {
-      m_activeTool = ui->selectionTool;
-   }
-   ui->textTool->setChecked(false);
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_tileList_clicked(QModelIndex index)
-{
-   if ( ui->textTool->isChecked() )
-   {
-      m_activeTool = ui->textTool;
-   }
-   else if ( ui->paintTool->isChecked() )
-   {
-      m_activeTool = ui->paintTool;
-   }
-   else if ( ui->pencilTool->isChecked() )
-   {
-      m_activeTool = ui->pencilTool;
-   }
-   else if ( ui->boxTool->isChecked() )
-   {
-      m_activeTool = ui->boxTool;
-   }
-   else if ( ui->lineTool->isChecked() )
-   {
-      m_activeTool = ui->lineTool;
-   }
-   else if ( ui->selectionTool->isChecked() )
-   {
-      m_activeTool = ui->selectionTool;
-   }
-   ui->textTool->setChecked(false);
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->boxTool->setChecked(false);
-   ui->areaTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::colorPicked(bool value)
-{
-   int idx;
-
-   for ( idx = 0; idx < m_colors.count(); idx++ )
-   {
-      if ( sender() != m_colors.at(idx) )
-      {
-         m_colors.at(idx)->setChecked(false);
-      }
-      else
-      {
-         m_colors.at(idx)->setChecked(true);
-      }
-   }
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-
-   // Re-enable the last-selected tool.
-   if ( m_activeTool )
-   {
-      m_activeTool->setChecked(true);
-   }
-
-   // Haven't selected anything yet.
-   m_selection = false;
-
-   // Clipboard is not valid.
-   m_clipboard = false;
-}
-
-void TileStampEditorForm::on_cwRotate_clicked()
-{
-   int xSrc;
-   int ySrc;
-   int xDest;
-   int yDest;
-   int swap;
-
-   // Use the overlay area to rotate.
-   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
-   {
-      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
-      {
-         yDest = xSrc;
-         xDest = m_ySize-ySrc-1;
-         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
-      }
-   }
-
-   // Swap the overlay.
-   copyOverlayToNormal();
-   paintNormal();
-   renderer->repaint();
-   previewer->repaint();
-   emit markProjectDirty(true);
-   setModified(true);
-
-   // Lastly, swap the x/y sizes.
-   swap = ui->ySize->currentIndex();
-   ui->ySize->blockSignals(true);
-   ui->ySize->setCurrentIndex(ui->xSize->currentIndex());
-   ui->ySize->blockSignals(false);
-   ui->xSize->setCurrentIndex(swap);
-}
-
-void TileStampEditorForm::on_ccwRotate_clicked()
-{
-   int xSrc;
-   int ySrc;
-   int xDest;
-   int yDest;
-   int swap;
-
-   // Use the overlay area to rotate.
-   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
-   {
-      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
-      {
-         xDest = ySrc;
-         yDest = m_xSize-xSrc-1;
-         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
-      }
-   }
-
-   // Swap the overlay.
-   copyOverlayToNormal();
-   paintNormal();
-   renderer->repaint();
-   previewer->repaint();
-   emit markProjectDirty(true);
-   setModified(true);
-
-   // Lastly, swap the x/y sizes.
-   swap = ui->ySize->currentIndex();
-   ui->ySize->blockSignals(true);
-   ui->ySize->setCurrentIndex(ui->xSize->currentIndex());
-   ui->ySize->blockSignals(false);
-   ui->xSize->setCurrentIndex(swap);
-}
-
-void TileStampEditorForm::on_flipHorizontal_clicked()
-{
-   int xSrc;
-   int ySrc;
-   int xDest;
-   int yDest;
-   int swap;
-
-   // Use the overlay area to rotate.
-   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
-   {
-      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
-      {
-         xDest = m_xSize-xSrc-1;
-         yDest = ySrc;
-         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
-      }
-   }
-
-   // Swap the overlay.
-   copyOverlayToNormal();
-   paintNormal();
-   renderer->repaint();
-   previewer->repaint();
-   emit markProjectDirty(true);
-   setModified(true);
-}
-
-void TileStampEditorForm::on_flipVertical_clicked()
-{
-   int xSrc;
-   int ySrc;
-   int xDest;
-   int yDest;
-   int swap;
-
-   // Use the overlay area to rotate.
-   for ( ySrc = 0; ySrc < m_ySize; ySrc++ )
-   {
-      for ( xSrc = 0; xSrc < m_xSize; xSrc++ )
-      {
-         xDest = xSrc;
-         yDest = m_ySize-ySrc-1;
-         colorDataOverlay[(yDest*128)+xDest] = colorData[(ySrc*128)+xSrc];
-      }
-   }
-
-   // Swap the overlay.
-   copyOverlayToNormal();
-   paintNormal();
-   renderer->repaint();
-   previewer->repaint();
-   emit markProjectDirty(true);
-   setModified(true);
 }

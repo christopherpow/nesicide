@@ -14,7 +14,8 @@ typedef enum
    Overlay_SolidBox,
    Overlay_Line,
    Overlay_Erase,
-   Overlay_PasteClipboard
+   Overlay_PasteClipboard,
+   Overlay_FloodFill
 } OverlayType;
 
 namespace Ui {
@@ -52,6 +53,7 @@ protected:
    void updateScrollbars();
    void initializeTile(QByteArray tileData,QByteArray attrData);
    void recolorTiles(int pixx,int pixy,int newColorTable);
+   void recolorClipboard(int boxX1,int boxY1,int boxX2,int boxY2);
    void paintNormal();
    void paintOverlay(QByteArray overlayData,QByteArray overlayAttr,int overlayXSize,int overlayYSize,int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(OverlayType type,int selectedColor,int boxX1,int boxY1,int boxX2,int boxY2);
@@ -64,11 +66,14 @@ protected:
    void pencilTool(QMouseEvent* event);
    void textTool(QMouseEvent* event);
    void tileTool(QMouseEvent* event);
+   void filledBoxTool(QMouseEvent* event);
+   void hollowBoxTool(QMouseEvent* event);
    void boxTool(QMouseEvent* event,bool filled);
    void lineTool(QMouseEvent* event);
    void selectionTool(QMouseEvent* event);
 
 private slots:
+   void on_paintAttr_clicked();
    void on_selectionTool_clicked();
    void on_flipVertical_clicked();
    void on_flipHorizontal_clicked();

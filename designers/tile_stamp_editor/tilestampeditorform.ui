@@ -10,6 +10,9 @@
     <height>482</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
@@ -649,13 +652,6 @@
      <item row="0" column="0" colspan="5">
       <widget class="QComboBox" name="attributeTable"/>
      </item>
-     <item row="5" column="0" colspan="5">
-      <widget class="QCheckBox" name="paintAttr">
-       <property name="text">
-        <string>Paint Attributes</string>
-       </property>
-      </widget>
-     </item>
      <item row="8" column="0">
       <widget class="QToolButton" name="cwRotate">
        <property name="toolTip">
@@ -881,6 +877,25 @@
        </property>
        <property name="autoRaise">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="5">
+      <widget class="QToolButton" name="paintAttr">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Paint Attributes Only</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
