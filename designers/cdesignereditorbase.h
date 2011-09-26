@@ -2,6 +2,7 @@
 #define CDESIGNEREDITORBASE_H
 
 #include <QWidget>
+#include <QUndoStack>
 
 #include "icenterwidgetitem.h"
 #include "iprojecttreeviewitem.h"
@@ -40,6 +41,7 @@ signals:
    void applyChanges(QString uuid);
 
 protected:
+   QUndoStack m_undoStack;
    bool m_isModified;
 };
 

@@ -5,6 +5,7 @@
 
 #include "colorpushbutton.h"
 #include "cdesignereditorbase.h"
+#include "cdesignercommon.h"
 #include "ctilestamprenderer.h"
 #include "cchrromitemlistdisplaymodel.h"
 
@@ -38,6 +39,10 @@ public:
    QUuid currentAttributeTable() { return m_attrTblUUID; }
    bool isGridEnabled() { return m_gridEnabled; }
 
+   void initializeTile(QByteArray tileData,QByteArray attrData);
+   void paintNormal();
+   void setCurrentSize(int xSize,int ySize) { m_xSize = xSize; m_ySize = ySize; }
+
 protected:
    void changeEvent(QEvent *event);
    void contextMenuEvent(QContextMenuEvent *event);
@@ -51,10 +56,8 @@ protected:
    void renderer_mouseDoubleClickEvent(QMouseEvent *event);
    bool eventFilter(QObject *obj, QEvent *event);
    void updateScrollbars();
-   void initializeTile(QByteArray tileData,QByteArray attrData);
-   void recolorTiles(int pixx,int pixy,int newColorTable);
+   void recolorTiles(int pixx,int pixy,int newColor);
    void recolorClipboard(int boxX1,int boxY1,int boxX2,int boxY2);
-   void paintNormal();
    void paintOverlay(QByteArray overlayData,QByteArray overlayAttr,int overlayXSize,int overlayYSize,int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(OverlayType type,int selectedColor,int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(int selectedColor,int pixx,int pixy);
@@ -120,6 +123,46 @@ private:
 
 public slots:
    void renderData();
+};
+
+class TileStampPaintCommand : public QUndoCommand
+{
+public:
+   TileStampPaintCommand(TileStampEditorForm* pEditor,
+                         QByteArray oldTileData,
+                         QByteArray oldAttributeData,
+                         QUndoCommand* parent = 0);
+   virtual int id() const { return TILE_STAMP_PAINT_COMMAND; }
+   virtual bool mergeWith(const QUndoCommand* command);
+   virtual void redo();
+   virtual void undo();
+
+private:
+   TileStampEditorForm* m_pEditor;
+   QByteArray m_oldTileData;
+   QByteArray m_oldAttributeData;
+   QByteArray m_newTileData;
+   QByteArray m_newAttributeData;
+};
+
+class TileStampResizeCommand : public QUndoCommand
+{
+public:
+   TileStampResizeCommand(TileStampEditorForm* pEditor,
+                         int oldXSize,
+                         int oldYSize,
+                         QUndoCommand* parent = 0);
+   virtual int id() const { return TILE_STAMP_RESIZE_COMMAND; }
+   virtual bool mergeWith(const QUndoCommand* command);
+   virtual void redo();
+   virtual void undo();
+
+private:
+   TileStampEditorForm* m_pEditor;
+   int m_oldXSize;
+   int m_oldYSize;
+   int m_newXSize;
+   int m_newYSize;
 };
 
 #endif // TILESTAMPEDITORFORM_H
