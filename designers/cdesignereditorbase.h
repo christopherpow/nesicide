@@ -22,6 +22,7 @@ public:
    virtual void onClose();
    virtual bool onSaveQuery();
    virtual void onSave();
+   virtual QList<QAction*> editorMenu();
 
 protected:
    void keyPressEvent(QKeyEvent *e);

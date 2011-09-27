@@ -1067,6 +1067,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
    if ( projectItem && projectItem->isModified() )
    {
+      ui->menuEdit->addActions(projectItem->editorMenu());
       ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
    }
    else

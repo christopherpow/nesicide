@@ -19,9 +19,9 @@ public:
    virtual bool onSaveQuery() = 0;
    virtual void onSave() = 0;
 
+   virtual QList<QAction*> editorMenu() = 0;
+
    virtual IProjectTreeViewItem* treeLink() { return _treeLink; }
-// CPTODO later:   virtual bool canChangeName() = 0;
-// CPTODO later:   virtual bool onNameChanged(QString newValue) = 0;
 
 protected:
    IProjectTreeViewItem* _treeLink;

@@ -76,3 +76,22 @@ void CDesignerEditorBase::keyPressEvent(QKeyEvent *e)
       onSave();
    }
 }
+
+QList<QAction*> CDesignerEditorBase::editorMenu()
+{
+   QList<QAction*> actions;
+   QString str;
+
+   if ( _treeLink )
+   {
+      str.sprintf("Undo '%s'",_treeLink->caption().toAscii().constData());
+   }
+   actions.append(m_undoStack.createUndoAction(this,str));
+   if ( _treeLink )
+   {
+      str.sprintf("Redo '%s'",_treeLink->caption().toAscii().constData());
+   }
+   actions.append(m_undoStack.createRedoAction(this,str));
+
+   return actions;
+}

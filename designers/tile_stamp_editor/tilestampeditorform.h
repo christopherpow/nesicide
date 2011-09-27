@@ -12,7 +12,9 @@
 typedef enum
 {
    Overlay_HollowBox,
-   Overlay_SolidBox,
+   Overlay_FilledBox,
+   Overlay_HollowCircle,
+   Overlay_FilledCircle,
    Overlay_Line,
    Overlay_Erase,
    Overlay_PasteClipboard,
@@ -56,7 +58,7 @@ protected:
    void renderer_mouseDoubleClickEvent(QMouseEvent *event);
    bool eventFilter(QObject *obj, QEvent *event);
    void updateScrollbars();
-   void recolorTiles(int pixx,int pixy,int newColor);
+   void recolorTiles(int pixx,int pixy,int newColor,bool force=false);
    void recolorClipboard(int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(QByteArray overlayData,QByteArray overlayAttr,int overlayXSize,int overlayYSize,int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(OverlayType type,int selectedColor,int boxX1,int boxY1,int boxX2,int boxY2);
@@ -64,6 +66,7 @@ protected:
    void copyOverlayToNormal();
    void copyNormalToClipboard(int boxX1,int boxY1,int boxX2,int boxY2);
    void copyClipboardToOverlay();
+   void clearSelection();
    void updateInfoText(int x=-1,int y=-1);
    void paintTool(QMouseEvent* event);
    void pencilTool(QMouseEvent* event);
@@ -71,19 +74,24 @@ protected:
    void tileTool(QMouseEvent* event);
    void filledBoxTool(QMouseEvent* event);
    void hollowBoxTool(QMouseEvent* event);
-   void boxTool(QMouseEvent* event,bool filled);
+   void boxTool(QMouseEvent* event,OverlayType overlayType);
+   void filledCircleTool(QMouseEvent* event);
+   void hollowCircleTool(QMouseEvent* event);
+   void circleTool(QMouseEvent* event,bool filled);
    void lineTool(QMouseEvent* event);
    void selectionTool(QMouseEvent* event);
 
 private slots:
+   void on_filledCircleTool_clicked();
+   void on_hollowCircleTool_clicked();
+   void on_hollowBoxTool_clicked();
+   void on_filledBoxTool_clicked();
    void on_paintAttr_clicked();
    void on_selectionTool_clicked();
    void on_flipVertical_clicked();
    void on_flipHorizontal_clicked();
-   void on_areaTool_clicked();
    void on_cwRotate_clicked();
    void on_ccwRotate_clicked();
-   void on_boxTool_clicked();
    void on_textTool_clicked();
    void on_lineTool_clicked();
    void on_pencilTool_clicked();
