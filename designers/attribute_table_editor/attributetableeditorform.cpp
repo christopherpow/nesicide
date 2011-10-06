@@ -65,9 +65,41 @@ void AttributeTableEditorForm::contextMenuEvent(QContextMenuEvent *event)
 {
 }
 
+void AttributeTableEditorForm::keyPressEvent(QKeyEvent *event)
+{
+   int idx;
+
+   if ( event->modifiers() == Qt::ControlModifier )
+   {
+      if ( event->key() == Qt::Key_Z )
+      {
+         m_undoStack.undo();
+         if ( m_undoStack.isClean() )
+         {
+            setModified(false);
+         }
+         for ( idx = 0; idx < m_colors.count(); idx++ )
+         {
+            m_colors.at(idx)->repaint();
+         }
+      }
+      else if ( event->key() == Qt::Key_Y )
+      {
+         m_undoStack.redo();
+         for ( idx = 0; idx < m_colors.count(); idx++ )
+         {
+            m_colors.at(idx)->repaint();
+         }
+         setModified(true);
+         emit markProjectDirty(true);
+      }
+   }
+}
+
 void AttributeTableEditorForm::colorChanged(QColor color)
 {
    int idx;
+   uint8_t oldColor;
 
    for ( idx = 0; idx < m_colors.count(); idx++ )
    {
@@ -82,10 +114,40 @@ void AttributeTableEditorForm::colorChanged(QColor color)
          }
          else
          {
+            oldColor = CBasePalette::GetPaletteIndex(color.red(),color.green(),color.blue());
             m_palette.replace(idx,CBasePalette::GetPaletteIndex(color.red(),color.green(),color.blue()));
+            m_undoStack.push(new AttributeTableChangeColorCommand(this,idx,oldColor));
          }
       }
    }
    setModified(true);
    emit markProjectDirty(true);
+}
+
+AttributeTableChangeColorCommand::AttributeTableChangeColorCommand(AttributeTableEditorForm *pEditor,
+                                             int colorIdx,
+                                             uint8_t oldColor,
+                                             QUndoCommand *parent)
+   : QUndoCommand(parent),
+     m_pEditor(pEditor),
+     m_colorIdx(colorIdx),
+     m_oldColor(oldColor)
+{
+   setText("change");
+   m_newColor = pEditor->attributeTable().at(m_colorIdx);
+}
+
+bool AttributeTableChangeColorCommand::mergeWith(const QUndoCommand* command)
+{
+   return false;
+}
+
+void AttributeTableChangeColorCommand::redo()
+{
+   m_pEditor->setPalette(m_colorIdx,m_newColor);
+}
+
+void AttributeTableChangeColorCommand::undo()
+{
+   m_pEditor->setPalette(m_colorIdx,m_oldColor);
 }

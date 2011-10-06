@@ -18,8 +18,22 @@ typedef enum
    Overlay_Line,
    Overlay_Erase,
    Overlay_PasteClipboard,
+   Overlay_PasteSelection,
    Overlay_FloodFill
 } OverlayType;
+
+typedef enum
+{
+   Resize_None,
+   Resize_Top,
+   Resize_Bottom,
+   Resize_Left,
+   Resize_Right,
+   Resize_TopLeft,
+   Resize_TopRight,
+   Resize_BottomLeft,
+   Resize_BottomRight
+} SelectionResizeMode;
 
 namespace Ui {
    class TileStampEditorForm;
@@ -35,8 +49,8 @@ public:
    explicit TileStampEditorForm(QByteArray data,QByteArray attr,QString attrTblUUID,int xSize,int ySize,bool grid,IProjectTreeViewItem* link,QWidget *parent = 0);
    virtual ~TileStampEditorForm();
 
-   QByteArray tileData();
-   QByteArray attributeData();
+   QByteArray tileData(bool useOverlay=false);
+   QByteArray attributeData(bool useOverlay=false);
    void currentSize(int* xSize,int* ySize) { (*xSize) = m_xSize; (*ySize) = m_ySize; }
    QUuid currentAttributeTable() { return m_attrTblUUID; }
    bool isGridEnabled() { return m_gridEnabled; }
@@ -44,6 +58,9 @@ public:
    void initializeTile(QByteArray tileData,QByteArray attrData);
    void paintNormal();
    void setCurrentSize(int xSize,int ySize) { m_xSize = xSize; m_ySize = ySize; }
+
+   // ICenterWidgetItem interface
+   void onSave();
 
 protected:
    void changeEvent(QEvent *event);
@@ -63,9 +80,9 @@ protected:
    void paintOverlay(QByteArray overlayData,QByteArray overlayAttr,int overlayXSize,int overlayYSize,int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(OverlayType type,int selectedColor,int boxX1,int boxY1,int boxX2,int boxY2);
    void paintOverlay(int selectedColor,int pixx,int pixy);
+   void copySelectionToClipboard(int boxX1,int boxY1,int boxX2,int boxY2);
+   void copyNormalToSelection(int boxX1,int boxY1,int boxX2,int boxY2);
    void copyOverlayToNormal();
-   void copyNormalToClipboard(int boxX1,int boxY1,int boxX2,int boxY2);
-   void copyClipboardToOverlay();
    void clearSelection();
    void updateInfoText(int x=-1,int y=-1);
    void paintTool(QMouseEvent* event);
@@ -115,6 +132,7 @@ private:
    CTileStampRenderer* previewer;
    CChrRomItemListDisplayModel* tileListModel;
    QList<ColorPushButton*> m_colors;
+   QList<uint8_t> m_colorIndexes;
    int m_xSize;
    int m_ySize;
    QString m_attrTblUUID;
@@ -122,12 +140,15 @@ private:
    char* imgData;
    char* colorData;
    char* colorDataOverlay;
-   char* colorDataClipboard;
+   char* colorDataSelection;
    QToolButton* m_activeTool;
    QPoint m_anchor;
    bool m_selection;
    QRect m_selectionRect;
-   bool m_clipboard;
+   bool m_selectionCaptured;
+   SelectionResizeMode m_resizeMode;
+   QByteArray m_oldTileData;
+   QByteArray m_oldAttributeData;
 
 public slots:
    void renderData();

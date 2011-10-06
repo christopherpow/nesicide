@@ -77,7 +77,7 @@ void CDesignerEditorBase::keyPressEvent(QKeyEvent *e)
    }
 }
 
-QList<QAction*> CDesignerEditorBase::editorMenu()
+QMenu& CDesignerEditorBase::editorMenu()
 {
    QList<QAction*> actions;
    QString str;
@@ -93,5 +93,8 @@ QList<QAction*> CDesignerEditorBase::editorMenu()
    }
    actions.append(m_undoStack.createRedoAction(this,str));
 
-   return actions;
+   m_menu.clear();
+   m_menu.addActions(actions);
+
+   return m_menu;
 }

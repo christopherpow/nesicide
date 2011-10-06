@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
    QObject::connect(ui->tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
 
+   QObject::connect(ui->menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
+
    ui->menuWindow->setEnabled(false);
 
    m_pEmulator = new NESEmulatorDockWidget();
@@ -1064,15 +1066,24 @@ void MainWindow::on_actionOpen_Project_triggered()
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
    ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
+   int idx;
 
-   if ( projectItem && projectItem->isModified() )
+   if ( projectItem )
    {
-      ui->menuEdit->addActions(projectItem->editorMenu());
-      ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
-   }
-   else
-   {
-      ui->actionSave_Active_Document->setEnabled(false);
+      QList<QAction*> actions = ui->menuEdit->actions();
+      for ( idx = actions.count()-1; idx >= 2; idx-- )
+      {
+         ui->menuEdit->removeAction(actions.at(idx));
+      }
+      ui->menuEdit->addActions(projectItem->editorMenu().actions());
+      if ( projectItem->isModified() )
+      {
+         ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
+      }
+      else
+      {
+         ui->actionSave_Active_Document->setEnabled(false);
+      }
    }
 }
 
@@ -1775,4 +1786,20 @@ void MainWindow::on_actionFullscreen_toggled(bool value)
 void MainWindow::focusEmulator()
 {
    m_pEmulator->setFocus();
+}
+
+void MainWindow::menuEdit_aboutToShow()
+{
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->currentWidget());
+   int idx;
+
+   if ( projectItem )
+   {
+      QList<QAction*> actions = ui->menuEdit->actions();
+      for ( idx = actions.count()-1; idx >= 2; idx-- )
+      {
+         ui->menuEdit->removeAction(actions.at(idx));
+      }
+      ui->menuEdit->addActions(projectItem->editorMenu().actions());
+   }
 }

@@ -19,7 +19,7 @@ public:
    virtual bool onSaveQuery() = 0;
    virtual void onSave() = 0;
 
-   virtual QList<QAction*> editorMenu() = 0;
+   virtual QMenu& editorMenu() = 0;
 
    virtual IProjectTreeViewItem* treeLink() { return _treeLink; }
 

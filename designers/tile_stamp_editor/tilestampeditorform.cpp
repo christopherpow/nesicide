@@ -5,10 +5,12 @@
 
 #include "cattributetable.h"
 #include "cdesignercommon.h"
+#include "cimageconverters.h"
 
 #include "main.h"
 
 #include <QUndoView>
+#include <QClipboard>
 
 TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString attrTblUUID,int xSize,int ySize,bool grid,IProjectTreeViewItem* link,QWidget *parent) :
     CDesignerEditorBase(link,parent),
@@ -36,9 +38,10 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
 
    // No part of the image is selected.
    m_selection = false;
+   m_selectionCaptured = false;
 
-   // Nothing is on the clipboard.
-   m_clipboard = false;
+   // Not currently resizing the selection rectangle.
+   m_resizeMode = Resize_None;
 
    // Set up default color selected.
    ui->pal0col1->setChecked(true);
@@ -64,7 +67,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    imgData = new char[128*128*4];
    colorData = new char[128*128];
    colorDataOverlay = new char[128*128];
-   colorDataClipboard = new char[128*128];
+   colorDataSelection = new char[128*128];
 
    m_xSize = xSize;
    m_ySize = ySize;
@@ -109,6 +112,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
       if ( pAttrTbl )
       {
          QList<uint8_t> palette = pAttrTbl->getPalette();
+         m_colorIndexes = palette;
          for ( idx = 0; idx < m_colors.count(); idx++ )
          {
             m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
@@ -131,7 +135,6 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    {
       colorData[idx] = 0;
       colorDataOverlay[idx] = 0;
-      colorDataClipboard[idx] = 0;
    }
    initializeTile(data,attr);
    paintNormal();
@@ -305,6 +308,12 @@ bool TileStampEditorForm::eventFilter(QObject* obj,QEvent* event)
          renderer_leaveEvent(leaveEvent);
          return true;
       }
+      else if ( event->type() == QEvent::KeyPress )
+      {
+         QKeyEvent* keyEvent = dynamic_cast<QKeyEvent*>(event);
+         keyPressEvent(keyEvent);
+         return true;
+      }
    }
    return false;
 }
@@ -338,25 +347,37 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
    int boxY1;
    int boxX2;
    int boxY2;
+   QByteArray oldTileData;
+   QByteArray oldAttributeData;
+   QClipboard* clipboard = QApplication::clipboard();
+   QImage image;
 
    if ( event->modifiers() == Qt::ControlModifier )
    {
       if ( event->key() == Qt::Key_C )
       {
-         if ( (m_activeTool == ui->selectionTool) &&
-              (m_selection) && (!m_clipboard) )
+         if ( m_selection && m_selectionCaptured )
          {
-            copyNormalToClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            copyOverlayToNormal();
+            renderer->repaint();
+            previewer->repaint();
+            copySelectionToClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
          }
       }
       else if ( event->key() == Qt::Key_V )
       {
-         if ( (m_activeTool == ui->selectionTool) &&
-              (m_clipboard) )
+         if ( m_selection )
          {
+            clearSelection();
+         }
+         if ( !(clipboard->image().isNull()) )
+         {
+            image = clipboard->image();
+            paintOverlay(Overlay_PasteClipboard,0,0,0,0,0);
+            m_selectionRect = QRect(image.rect().left(),image.rect().top(),image.rect().width()+1,image.rect().height()+1);
             renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-            paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-            copyOverlayToNormal();
+            m_selection = true;
             renderer->repaint();
             previewer->repaint();
             emit markProjectDirty(true);
@@ -365,13 +386,16 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
       }
       else if ( event->key() == Qt::Key_X )
       {
-         if ( (m_activeTool == ui->selectionTool) &&
-              (m_selection) )
+         if ( m_selection && m_selectionCaptured )
          {
-            renderer->getBox(&boxX1,&boxY1,&boxX2,&boxY2);
-            copyNormalToClipboard(boxX1,boxY1,boxX2,boxY2);
-            paintOverlay(Overlay_Erase,0,boxX1,boxY1,boxX2,boxY2);
+            oldTileData = tileData(true);
+            oldAttributeData = attributeData(true);
+            copySelectionToClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            paintOverlay(Overlay_Erase,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
             copyOverlayToNormal();
+            m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
+            m_selection = false;
+            renderer->setBox();
             renderer->repaint();
             previewer->repaint();
             emit markProjectDirty(true);
@@ -380,23 +404,37 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
       }
       else if ( event->key() == Qt::Key_Z )
       {
+         clearSelection();
          m_undoStack.undo();
          renderer->repaint();
          previewer->repaint();
          if ( m_undoStack.isClean() )
          {
             setModified(false);
-            emit markProjectDirty(false);
          }
       }
       else if ( event->key() == Qt::Key_Y )
       {
+         clearSelection();
          m_undoStack.redo();
          renderer->repaint();
          previewer->repaint();
+         setModified(true);
+         emit markProjectDirty(true);
       }
    }
    CDesignerEditorBase::keyPressEvent(event);
+}
+
+void TileStampEditorForm::onSave()
+{
+   clearSelection();
+   if ( treeLink() )
+   {
+      // This editor is paired with a project item, use the normal
+      // project mechanics to do the saving.
+      CDesignerEditorBase::onSave();
+   }
 }
 
 void TileStampEditorForm::renderer_enterEvent(QEvent *event)
@@ -439,8 +477,6 @@ void TileStampEditorForm::renderer_mousePressEvent(QMouseEvent *event)
 
    if ( visible )
    {
-      updateInfoText(pixx,pixy);
-
       if ( (ui->pencilTool->isChecked()) ||
            (ui->paintAttr->isChecked()) )
       {
@@ -482,6 +518,8 @@ void TileStampEditorForm::renderer_mousePressEvent(QMouseEvent *event)
       {
          tileTool(event);
       }
+
+      updateInfoText(pixx,pixy);
    }
 }
 
@@ -492,8 +530,6 @@ void TileStampEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
 
    renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   updateInfoText(pixx,pixy);
-
    if ( (ui->pencilTool->isChecked()) ||
         (ui->paintAttr->isChecked()) )
    {
@@ -535,6 +571,8 @@ void TileStampEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
    {
       tileTool(event);
    }
+
+   updateInfoText(pixx,pixy);
 }
 
 void TileStampEditorForm::renderer_mouseReleaseEvent(QMouseEvent *event)
@@ -544,8 +582,6 @@ void TileStampEditorForm::renderer_mouseReleaseEvent(QMouseEvent *event)
 
    renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
-   updateInfoText(pixx,pixy);
-
    if ( (ui->pencilTool->isChecked()) ||
         (ui->paintAttr->isChecked()) )
    {
@@ -587,6 +623,8 @@ void TileStampEditorForm::renderer_mouseReleaseEvent(QMouseEvent *event)
    {
       tileTool(event);
    }
+
+   updateInfoText(pixx,pixy);
 }
 
 void TileStampEditorForm::on_zoomSlider_valueChanged(int value)
@@ -653,6 +691,7 @@ void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
       if ( pAttrTbl )
       {
          QList<uint8_t> palette = pAttrTbl->getPalette();
+         m_colorIndexes = palette;
          for ( idx = 0; idx < m_colors.count(); idx++ )
          {
             m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
@@ -1267,9 +1306,8 @@ void TileStampEditorForm::paintNormal()
 
 void TileStampEditorForm::clearSelection()
 {
-   if ( m_selection && m_clipboard )
+   if ( m_selection )
    {
-      paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
       copyOverlayToNormal();
       paintNormal();
    }
@@ -1278,7 +1316,10 @@ void TileStampEditorForm::clearSelection()
    previewer->repaint();
 
    m_selection = false;
-   m_clipboard = false;
+   m_selectionCaptured = false;
+
+   // Create "empty" rect.
+   m_selectionRect = QRect(QPoint(0,0),QPoint(-1,-1));
 }
 
 void TileStampEditorForm::paintOverlay(QByteArray overlayData,QByteArray overlayAttr,int overlayXSize,int overlayYSize,int boxX1,int boxY1,int boxX2,int boxY2)
@@ -1426,6 +1467,9 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
    QList<QPoint> fillQueue;
    QList<QPoint> recolorQueue;
    QPoint point;
+   QClipboard* clipboard = QApplication::clipboard();
+   QImage image;
+   const uchar* bits;
    int targetColor;
 
    for ( idx = 0; idx < 128*128; idx++ )
@@ -2037,30 +2081,38 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
       }
       break;
    case Overlay_PasteClipboard:
-      // Normalize...
-      if ( boxX1 > boxX2 )
+      image = clipboard->image();
+      if ( !(image.isNull()) )
       {
-         swap = boxX1;
-         boxX1 = boxX2;
-         boxX2 = swap;
+         bits = image.bits();
+         for ( idxy = boxY1, idxcy = 0; idxy < (boxY1+image.height()); idxy++, idxcy++ )
+         {
+            for ( idxx = boxX1, idxcx = 0; idxx < (boxX1+image.width()); idxx++, idxcx++ )
+            {
+               if ( (idxx >= 0) &&
+                    (idxx < m_xSize) &&
+                    (idxy >= 0) &&
+                    (idxy < m_ySize) )
+               {
+                  colorDataOverlay[(idxy*128)+idxx] &= 0xFC;
+                  colorDataOverlay[(idxy*128)+idxx] |= (bits[(idxcy*image.bytesPerLine())+idxcx]&0x03);
+               }
+            }
+         }
       }
-      if ( boxY1 > boxY2 )
-      {
-         swap = boxY1;
-         boxY1 = boxY2;
-         boxY2 = swap;
-      }
-      // Draw the clipboard...
+      break;
+   case Overlay_PasteSelection:
       for ( idxy = boxY1, idxcy = 0; idxy < boxY2; idxy++, idxcy++ )
       {
          for ( idxx = boxX1, idxcx = 0; idxx < boxX2; idxx++, idxcx++ )
          {
             if ( (idxx >= 0) &&
-                 (idxy >= 0) &&
                  (idxx < m_xSize) &&
+                 (idxy >= 0) &&
                  (idxy < m_ySize) )
             {
-               colorDataOverlay[(idxy*128)+idxx] = colorDataClipboard[(idxcy*128)+idxcx];
+               colorDataOverlay[(idxy*128)+idxx] &= 0xFC;
+               colorDataOverlay[(idxy*128)+idxx] |= (colorDataSelection[(idxcy*128)+idxcx]&0x03);
             }
          }
       }
@@ -2114,38 +2166,17 @@ void TileStampEditorForm::copyOverlayToNormal()
    }
 }
 
-void TileStampEditorForm::copyNormalToClipboard(int boxX1,int boxY1,int boxX2,int boxY2)
+void TileStampEditorForm::copySelectionToClipboard(int boxX1,int boxY1,int boxX2,int boxY2)
 {
-   int idxx;
-   int idxy;
-   int idxcx;
-   int idxcy;
-   QColor color;
+   QClipboard* clipboard = QApplication::clipboard();
+   QImage image;
 
-   for ( idxy = boxY1, idxcy = 0; idxy < boxY2; idxy++, idxcy++ )
-   {
-      for ( idxx = boxX1, idxcx = 0; idxx < boxX2; idxx++, idxcx++ )
-      {
-         colorDataClipboard[(idxcy*128)+idxcx] = colorData[(idxy*128)+idxx];
-      }
-   }
-
-   // Clipboard is valid.
-   m_clipboard = true;
+   image = CImageConverters::toIndexed8(tileData(true),attributeData(true),m_colorIndexes,m_xSize,m_ySize);
+   image = image.copy(boxX1,boxY1,boxX2-boxX1,boxY2-boxY1);
+   clipboard->setImage(image);
 }
 
-void TileStampEditorForm::copyClipboardToOverlay()
-{
-   int idx;
-   QColor color;
-
-   for ( idx = 0; idx < 128*128; idx++ )
-   {
-      colorDataOverlay[idx] = colorDataClipboard[idx];
-   }
-}
-
-void TileStampEditorForm::recolorClipboard(int boxX1, int boxY1, int boxX2, int boxY2)
+void TileStampEditorForm::copyNormalToSelection(int boxX1, int boxY1, int boxX2, int boxY2)
 {
    int idxx;
    int idxy;
@@ -2156,8 +2187,7 @@ void TileStampEditorForm::recolorClipboard(int boxX1, int boxY1, int boxX2, int 
    {
       for ( idxx = boxX1, idxcx = 0; idxx < boxX2; idxx++, idxcx++ )
       {
-         colorDataClipboard[(idxcy*128)+idxcx] &= 0x03;
-         colorDataClipboard[(idxcy*128)+idxcx] |= (colorDataOverlay[(idxy*128)+idxx]&0xFC);
+         colorDataSelection[(idxcy*128)+idxcx] = colorData[(idxy*128)+idxx];
       }
    }
 }
@@ -2249,6 +2279,7 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
          if ( pAttrTbl )
          {
             QList<uint8_t> palette = pAttrTbl->getPalette();
+            m_colorIndexes = palette;
             for ( idx = 0; idx < m_colors.count(); idx++ )
             {
                m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
@@ -2353,7 +2384,7 @@ void TileStampEditorForm::initializeTile(QByteArray tileData,QByteArray attrData
    }
 }
 
-QByteArray TileStampEditorForm::tileData()
+QByteArray TileStampEditorForm::tileData(bool useOverlay)
 {
    QByteArray chrOut;
    int x = 0;
@@ -2379,8 +2410,16 @@ QByteArray TileStampEditorForm::tileData()
             plane1[y] <<= 1;
             plane2[y] <<= 1;
 
-            plane1[y] |= colorData[((tileY+y)*128)+tileX+x]&0x01;
-            plane2[y] |= ((colorData[((tileY+y)*128)+tileX+x]&0x02)>>1);
+            if ( useOverlay )
+            {
+               plane1[y] |= colorDataOverlay[((tileY+y)*128)+tileX+x]&0x01;
+               plane2[y] |= ((colorDataOverlay[((tileY+y)*128)+tileX+x]&0x02)>>1);
+            }
+            else
+            {
+               plane1[y] |= colorData[((tileY+y)*128)+tileX+x]&0x01;
+               plane2[y] |= ((colorData[((tileY+y)*128)+tileX+x]&0x02)>>1);
+            }
          }
       }
       chrOut.append(plane1,8);
@@ -2389,7 +2428,7 @@ QByteArray TileStampEditorForm::tileData()
    return chrOut;
 }
 
-QByteArray TileStampEditorForm::attributeData()
+QByteArray TileStampEditorForm::attributeData(bool useOverlay)
 {
    QByteArray attrOut;
    unsigned char attrTable [ 256 ];
@@ -2420,7 +2459,14 @@ QByteArray TileStampEditorForm::attributeData()
          // find palette in attribute table...only do this for 2x2 8x8's...
          if ( ((tileX&0x1) == 0) && ((tileY&0x1) == 0) )
          {
-            attrTable [ ((tileY>>1)*(tileWidth>>1))+(tileX>>1) ] = colorData[(tileY*8*128)+(tileX*8)]>>2;
+            if ( useOverlay )
+            {
+               attrTable [ ((tileY>>1)*(tileWidth>>1))+(tileX>>1) ] = colorDataOverlay[(tileY*8*128)+(tileX*8)]>>2;
+            }
+            else
+            {
+               attrTable [ ((tileY>>1)*(tileWidth>>1))+(tileX>>1) ] = colorData[(tileY*8*128)+(tileX*8)]>>2;
+            }
          }
       }
    }
@@ -2456,6 +2502,7 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
    int boxY1;
    int boxX2;
    int boxY2;
+   QCursor cursor;
 
    renderer->pointToPixel(event->pos().x(),event->pos().y(),&pixx,&pixy);
 
@@ -2467,9 +2514,7 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
    case QEvent::MouseButtonPress:
       if ( !m_selectionRect.contains(pixx,pixy) )
       {
-         m_selection = false;
-         m_clipboard = false;
-         copyOverlayToNormal();
+         clearSelection();
          renderer->repaint();
          previewer->repaint();
       }
@@ -2479,36 +2524,166 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
       }
       if ( m_selection )
       {
+         if ( (boxX1 == pixx) && (boxY1 == pixy) )
+         {
+            m_resizeMode = Resize_TopLeft;
+         }
+         else if ( (boxX2 == pixx) && (boxY1 == pixy) )
+         {
+            m_resizeMode = Resize_TopRight;
+         }
+         else if ( (boxX1 == pixx) && (boxY2 == pixy) )
+         {
+            m_resizeMode = Resize_BottomLeft;
+         }
+         else if ( (boxX2 == pixx) && (boxY2 == pixy) )
+         {
+            m_resizeMode = Resize_BottomRight;
+         }
+         else if ( boxX1 == pixx )
+         {
+            m_resizeMode = Resize_Left;
+         }
+         else if ( boxX2 == pixx )
+         {
+            m_resizeMode = Resize_Right;
+         }
+         else if ( boxY1 == pixy )
+         {
+            m_resizeMode = Resize_Top;
+         }
+         else if ( boxY2 == pixy )
+         {
+            m_resizeMode = Resize_Bottom;
+         }
+         else
+         {
+            m_resizeMode = Resize_None;
+         }
+
+         // Put the selected image portion back on the table if we're
+         // resizing the selection.
+         if ( m_resizeMode != Resize_None )
+         {
+            paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            copyOverlayToNormal();
+         }
       }
       else
       {
+         m_resizeMode = Resize_None;
          m_anchor = QPoint(pixx,pixy);
+         m_selectionRect = QRect(QPoint(m_anchor.x(),m_anchor.y()),QPoint(pixx+1,pixy+1));
          renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
          renderer->repaint();
       }
       break;
    case QEvent::MouseMove:
+      if ( m_selection )
+      {
+         if ( (boxX1 == pixx) && (boxY1 == pixy) )
+         {
+            renderer->setCursor(QCursor(Qt::SizeFDiagCursor));
+         }
+         else if ( (boxX2 == pixx) && (boxY1 == pixy) )
+         {
+            renderer->setCursor(QCursor(Qt::SizeBDiagCursor));
+         }
+         else if ( (boxX1 == pixx) && (boxY2 == pixy) )
+         {
+            renderer->setCursor(QCursor(Qt::SizeBDiagCursor));
+         }
+         else if ( (boxX2 == pixx) && (boxY2 == pixy) )
+         {
+            renderer->setCursor(QCursor(Qt::SizeFDiagCursor));
+         }
+         else if ( boxX1 == pixx )
+         {
+            renderer->setCursor(QCursor(Qt::SizeHorCursor));
+         }
+         else if ( boxX2 == pixx )
+         {
+            renderer->setCursor(QCursor(Qt::SizeHorCursor));
+         }
+         else if ( boxY1 == pixy )
+         {
+            renderer->setCursor(QCursor(Qt::SizeVerCursor));
+         }
+         else if ( boxY2 == pixy )
+         {
+            renderer->setCursor(QCursor(Qt::SizeVerCursor));
+         }
+         else if ( m_selectionRect.contains(pixx,pixy,true) )
+         {
+            renderer->setCursor(QCursor(Qt::SizeAllCursor));
+         }
+         else
+         {
+            renderer->setCursor(QCursor(Qt::CrossCursor));
+         }
+      }
+      else
+      {
+         renderer->setCursor(QCursor(Qt::CrossCursor));
+      }
       if ( event->buttons() == Qt::LeftButton )
       {
          if ( m_selection )
          {
-            if ( !m_clipboard )
+            if ( m_resizeMode != Resize_None )
             {
-               copyNormalToClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-               paintOverlay(Overlay_Erase,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-               copyOverlayToNormal();
-               paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+               switch ( m_resizeMode )
+               {
+               case Resize_TopLeft:
+                  m_selectionRect.setTopLeft(QPoint(pixx,pixy));
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_TopRight:
+                  m_selectionRect.setTopRight(QPoint(pixx,pixy));
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_BottomLeft:
+                  m_selectionRect.setBottomLeft(QPoint(pixx,pixy));
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_BottomRight:
+                  m_selectionRect.setBottomRight(QPoint(pixx,pixy));
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_Left:
+                  m_selectionRect.setLeft(pixx);
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_Right:
+                  m_selectionRect.setRight(pixx);
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_Top:
+                  m_selectionRect.setTop(pixy);
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               case Resize_Bottom:
+                  m_selectionRect.setBottom(pixy);
+                  m_selectionRect = m_selectionRect.normalized();
+                  break;
+               }
+               renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+               renderer->repaint();
             }
-            m_selectionRect = m_selectionRect.translated(pixx-m_anchor.x(),pixy-m_anchor.y());
-            m_selectionRect = m_selectionRect.normalized();
-            paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-            m_anchor = QPoint(pixx,pixy);
-            renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-            renderer->repaint();
-            previewer->repaint();
+            else
+            {
+               m_selectionRect = m_selectionRect.translated(pixx-m_anchor.x(),pixy-m_anchor.y());
+               m_selectionRect = m_selectionRect.normalized();
+               paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+               m_anchor = QPoint(pixx,pixy);
+               renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+               renderer->repaint();
+               previewer->repaint();
+            }
          }
          else
          {
+            m_selectionRect = QRect(QPoint(m_anchor.x(),m_anchor.y()),QPoint(pixx+1,pixy+1));
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->repaint();
          }
@@ -2517,9 +2692,20 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
    case QEvent::MouseButtonRelease:
       if ( m_selection )
       {
-         paintOverlay(Overlay_PasteClipboard,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-         renderer->repaint();
-         previewer->repaint();
+         if ( m_resizeMode == Resize_None )
+         {
+            paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            renderer->repaint();
+            previewer->repaint();
+         }
+         else
+         {
+            copyNormalToSelection(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            paintOverlay(Overlay_Erase,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            copyOverlayToNormal();
+            paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+            m_selectionCaptured = true;
+         }
       }
       else
       {
@@ -2527,6 +2713,13 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
          m_selectionRect = m_selectionRect.normalized();
          renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
          renderer->repaint();
+         m_oldTileData = tileData();
+         m_oldAttributeData = attributeData();
+         copyNormalToSelection(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+         paintOverlay(Overlay_Erase,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+         copyOverlayToNormal();
+         paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
+         m_selectionCaptured = true;
          m_selection = true;
       }
       break;
@@ -3018,11 +3211,28 @@ void TileStampEditorForm::updateInfoText(int x,int y)
    if ( (x >= 0) && (y >= 0) )
    {
       QString str;
-      str.sprintf("Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)",
-                  x,y,
-                  PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
-                  PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),
-                  attrSection[PIXEL_TO_ATTRSECTION(x,y)]);
+      if ( m_selection || !(m_selectionRect.isEmpty()) )
+      {
+         str.sprintf("[Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)] [Selection:(%d,%d)-(%d,%d) %d x %d]",
+                     x,y,
+                     PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
+                     PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),
+                     attrSection[PIXEL_TO_ATTRSECTION(x,y)],
+                     m_selectionRect.left(),
+                     m_selectionRect.top(),
+                     m_selectionRect.right(),
+                     m_selectionRect.bottom(),
+                     m_selectionRect.width()-1,
+                     m_selectionRect.height()-1);
+      }
+      else
+      {
+         str.sprintf("[Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)]",
+                     x,y,
+                     PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
+                     PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),
+                     attrSection[PIXEL_TO_ATTRSECTION(x,y)]);
+      }
       ui->info->setText(str);
    }
    else

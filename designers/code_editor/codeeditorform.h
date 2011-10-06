@@ -59,6 +59,7 @@ public:
    void highlightLine(int linenumber);
    QString fileName() { return m_fileName; }
    void setReadOnly(bool readOnly) { m_scintilla->setReadOnly(readOnly); }
+   QMenu& editorMenu();
 
    virtual bool isModified() { return m_scintilla->isModified(); }
    virtual void setModified(bool modified) { m_scintilla->setModified(modified); }
@@ -77,6 +78,7 @@ private:
    QsciScintilla* m_scintilla;
    QsciLexer* m_lexer;
    int m_breakpointIndex;
+   int m_contextMenuLine;
    int m_timer;
    QString m_searchText;
    int m_language;

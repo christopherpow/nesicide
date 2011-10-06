@@ -22,7 +22,7 @@ public:
    virtual void onClose();
    virtual bool onSaveQuery();
    virtual void onSave();
-   virtual QList<QAction*> editorMenu();
+   virtual QMenu& editorMenu();
 
 protected:
    void keyPressEvent(QKeyEvent *e);
@@ -43,6 +43,7 @@ signals:
 
 protected:
    QUndoStack m_undoStack;
+   QMenu m_menu;
    bool m_isModified;
 };
 

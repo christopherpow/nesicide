@@ -1,5 +1,19 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.011
+Added Tile Editor that can be used to create tiles of sizes from 8x8, 8x16, up to 128x128.  Tile Editor includes
+many common "paint program" tools like: pencil tool, line tool, hollow/filled box tools, paint bucket tool, 
+selection-drag/copy/erase tool, rotate clockwise/counterclockwise tools, and flip horizontal/vertical tools.  Tiles
+that are big enough to contain multiple attribute-block segments (ie bigger than 16x16) will adjust the attributes
+of any conflicting pixels whenever necessary.  The full 16-color attribute table is available to paint with.  The
+only tool that behaves a bit differently in the "conflict resolution" is the selection-drag/copy/erase tool.  Since
+it is possible to select an arbitrary portion of the image it is thus *impossible* to resolve attribute conflicts from
+moving this arbitrary chunk around the rest of the image.  Attributes can be fixed with the familiar "paint attributes"
+tool.  Created tiles can be added to Graphics Banks items to be used in ROMs.  Also, any created tiles, including any
+loaded binary files (PNGs) can be used to paint any portion of any other tile by selecting the tile from the tile list
+and drawing with it.  I think I might rework how the tile-drawing works to make it tool-dependent, but for right now
+the tile-drawing just lets you paint any-size rectangles of the tile at 8x8-pixel grid resolution.
+
 V1.010
 Added source file and line information of declaration location of symbol to symbol tooltips in Code Editor.
 Added 'equate' relations to tooltips in Code Editor.
