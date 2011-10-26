@@ -103,6 +103,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private slots:
+   void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();
    void focusEmulator();
    void on_actionFullscreen_toggled(bool value);

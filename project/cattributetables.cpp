@@ -95,12 +95,12 @@ bool CAttributeTables::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 
 QString CAttributeTables::caption() const
 {
-   return QString("Attribute Tables");
+   return QString("Palettes");
 }
 
 void CAttributeTables::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
-   const QString NEW_ATBL_MENU_TEXT    = "&New Attribute Table...";
+   const QString NEW_ATBL_MENU_TEXT    = "&New Palette...";
 
    QMenu menu(parent);
 
@@ -112,7 +112,7 @@ void CAttributeTables::contextMenuEvent(QContextMenuEvent* event, QTreeView* par
    {
       if (ret->text() == NEW_ATBL_MENU_TEXT)
       {
-         QString name = QInputDialog::getText(parent, "New Attribute Table",
+         QString name = QInputDialog::getText(parent, "New Palette",
                                               "What name would you like to use to identify this Attribute Table?");
 
          if (!name.isEmpty())

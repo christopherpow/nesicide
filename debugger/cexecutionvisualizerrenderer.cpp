@@ -127,5 +127,5 @@ void CExecutionVisualizerRenderer::changeZoom(int newZoom)
    makeCurrent();
    zoom = newZoom;
    resizeGL(this->width(), this->height());
-   this->repaint();
+   update();
 }

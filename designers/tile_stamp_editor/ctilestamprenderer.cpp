@@ -172,7 +172,7 @@ void CTileStampRenderer::changeZoom(int newZoom)
    makeCurrent();
    zoom = newZoom;
    resizeGL(width(), height());
-   repaint();
+   update();
 }
 
 void CTileStampRenderer::setSize(int newX,int newY)
@@ -181,7 +181,7 @@ void CTileStampRenderer::setSize(int newX,int newY)
    xSize = newX;
    ySize = newY;
    resizeGL(width(),height());
-   repaint();
+   update();
 }
 
 bool CTileStampRenderer::pointToPixel(int ptx,int pty,int* pixx,int* pixy)

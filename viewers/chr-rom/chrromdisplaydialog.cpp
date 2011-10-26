@@ -203,13 +203,13 @@ void CHRROMDisplayDialog::updateScrollbars()
 void CHRROMDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void CHRROMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void CHRROMDisplayDialog::on_updateScanline_editingFinished()

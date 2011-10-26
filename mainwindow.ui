@@ -142,6 +142,7 @@
     <addaction name="actionOnline_Help"/>
     <addaction name="separator"/>
     <addaction name="action_About_Nesicide"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <widget class="QMenu" name="menuDebugger">
     <property name="title">
@@ -1068,6 +1069,11 @@
    </property>
    <property name="toolTip">
     <string>Code Profiler</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
    </property>
   </action>
  </widget>

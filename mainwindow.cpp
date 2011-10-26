@@ -1803,3 +1803,8 @@ void MainWindow::menuEdit_aboutToShow()
       ui->menuEdit->addActions(projectItem->editorMenu().actions());
    }
 }
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+   QMessageBox::aboutQt(this);
+}

@@ -107,25 +107,25 @@ void OAMVisualizerDockWidget::updateScrollbars()
 void OAMVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void OAMVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void OAMVisualizerDockWidget::on_updateScanline_editingFinished()
 {
    CPPUDBG::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
    renderData();
-   renderer->repaint();
+   renderer->update();
 }
 
 void OAMVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
    CPPUDBG::SetOAMViewerShowVisible ( checked );
    renderData();
-   renderer->repaint();
+   renderer->update();
 }

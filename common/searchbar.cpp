@@ -3,6 +3,7 @@
 
 #include <QSettings>
 #include <QCompleter>
+#include <QLineEdit>
 
 SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
     QWidget(parent),

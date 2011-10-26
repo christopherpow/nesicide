@@ -80,7 +80,7 @@ void AttributeTableEditorForm::keyPressEvent(QKeyEvent *event)
          }
          for ( idx = 0; idx < m_colors.count(); idx++ )
          {
-            m_colors.at(idx)->repaint();
+            m_colors.at(idx)->update();
          }
       }
       else if ( event->key() == Qt::Key_Y )
@@ -88,7 +88,7 @@ void AttributeTableEditorForm::keyPressEvent(QKeyEvent *event)
          m_undoStack.redo();
          for ( idx = 0; idx < m_colors.count(); idx++ )
          {
-            m_colors.at(idx)->repaint();
+            m_colors.at(idx)->update();
          }
          setModified(true);
          emit markProjectDirty(true);

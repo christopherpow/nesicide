@@ -64,7 +64,7 @@ void CCHRROMPreviewRenderer::reloadData(char* imgData)
 
    glBindTexture(GL_TEXTURE_2D, textureID);
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
-   repaint();
+   update();
 }
 
 void CCHRROMPreviewRenderer::setBGColor(QColor clr)
@@ -134,5 +134,5 @@ void CCHRROMPreviewRenderer::changeZoom(int newZoom)
    makeCurrent();
    zoom = newZoom;
    resizeGL(this->width(), this->height());
-   this->repaint();
+   update();
 }

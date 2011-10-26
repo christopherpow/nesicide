@@ -125,13 +125,13 @@ void ExecutionVisualizerDockWidget::updateScrollbars()
 void ExecutionVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void ExecutionVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 bool ExecutionVisualizerDockWidget::serialize(QDomDocument& doc, QDomNode& node)

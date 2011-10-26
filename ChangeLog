@@ -1,8 +1,13 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.012
+Improvements to Tile Editor, such as: hollow/filled circle tool; improved select/drag tool with resizeable drag edges;
+usage of clipboard for cut/copy/paste [Ctrl+X/Ctrl+C/Ctrl+V] to or from other programs.  Support for undo/redo is also
+included but there are a few minor quirks I'm still trying to work out.
+
 V1.011
 Added Tile Editor that can be used to create tiles of sizes from 8x8, 8x16, up to 128x128.  Tile Editor includes
-many common "paint program" tools like: pencil tool, line tool, hollow/filled box tools, paint bucket tool, 
+many common "paint program" tools like: pencil tool, line tool, hollow/filled box tools, paint bucket tool,
 selection-drag/copy/erase tool, rotate clockwise/counterclockwise tools, and flip horizontal/vertical tools.  Tiles
 that are big enough to contain multiple attribute-block segments (ie bigger than 16x16) will adjust the attributes
 of any conflicting pixels whenever necessary.  The full 16-color attribute table is available to paint with.  The

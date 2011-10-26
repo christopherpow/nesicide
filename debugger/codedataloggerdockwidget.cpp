@@ -118,13 +118,13 @@ void CodeDataLoggerDockWidget::updateScrollbars()
 void CodeDataLoggerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void CodeDataLoggerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
@@ -139,7 +139,7 @@ void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
          break;
    }
 
-   renderer->repaint();
+   renderer->update();
 }
 
 //CDL FORMAT

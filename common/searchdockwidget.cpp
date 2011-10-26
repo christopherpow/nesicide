@@ -61,6 +61,7 @@ void SearchDockWidget::showEvent(QShowEvent *event)
       ui->type->addItem("*");
       ui->type->addItem("*.s");
    }
+   ui->searchText->setFocus();
 }
 
 void SearchDockWidget::on_browse_clicked()

@@ -106,13 +106,13 @@ void NameTableVisualizerDockWidget::updateScrollbars()
 void NameTableVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void NameTableVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void NameTableVisualizerDockWidget::on_showVisible_toggled(bool checked)

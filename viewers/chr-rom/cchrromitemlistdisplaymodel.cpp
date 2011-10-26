@@ -70,6 +70,6 @@ int CChrRomItemListDisplayModel::columnCount(const QModelIndex& parent) const
 
 void CChrRomItemListDisplayModel::update()
 {
-   emit layoutChanged();
+   emit dataChanged(QModelIndex(),QModelIndex());
 }
 

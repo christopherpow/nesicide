@@ -97,6 +97,7 @@ protected:
    void circleTool(QMouseEvent* event,bool filled);
    void lineTool(QMouseEvent* event);
    void selectionTool(QMouseEvent* event);
+   int getSelectedColor();
 
 private slots:
    void on_filledCircleTool_clicked();

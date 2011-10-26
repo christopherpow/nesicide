@@ -127,7 +127,7 @@ void ProjectPropertiesDialog::updateUI(int colid)
 
    }
 
-   ui->tableWidget->repaint();
+   ui->tableWidget->update();
 
    if (ui->tableWidget->selectedItems().isEmpty())
    {
@@ -303,7 +303,7 @@ void ProjectPropertiesDialog::on_ImportPalettePushButton_clicked()
          n = n.nextSibling();
       }
 
-      ui->tableWidget->repaint();
+      ui->tableWidget->update();
 
    }
 }

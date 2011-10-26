@@ -256,13 +256,13 @@ void GraphicsBankEditorForm::updateScrollbars()
 void GraphicsBankEditorForm::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void GraphicsBankEditorForm::on_verticalScrollBar_valueChanged(int value)
 {
    renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->repaint();
+   renderer->update();
 }
 
 void GraphicsBankEditorForm::snapTo(QString item)
@@ -287,8 +287,5 @@ void GraphicsBankEditorForm::snapTo(QString item)
 
 void GraphicsBankEditorForm::applyChangesToTab(QString uuid)
 {
-   // Force an update...but block signals so we don't set modified to true.
-   model->blockSignals(true);
    updateChrRomBankItemList(bankItems());
-   model->blockSignals(false);
 }
