@@ -29,6 +29,9 @@ CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
       m_attr.append((char)0x00);
    }
 
+   // Initialize property data.
+   m_tileProperties = nesicideProject->getTileProperties();
+
    m_grid = true;
 }
 
@@ -70,6 +73,17 @@ bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
    element.setAttribute("attrtbl",m_attrTblUUID);
    element.setAttribute("grid",m_grid);
 
+   // Serialize tile properties.
+   QDomElement tilePropertiesElement = addElement(doc,element,"tileproperties");
+
+   foreach ( PropertyItem item, m_tileProperties )
+   {
+      QDomElement elm = addElement(doc,tilePropertiesElement,"property");
+      elm.setAttribute("name",item.name);
+      elm.setAttribute("type",item.type);
+      elm.setAttribute("value",item.value);
+   }
+
    // Serialize the tile data.
    QDomElement tileElement = addElement(doc,element,"tile");
    QDomCDATASection tileDataSect;
@@ -106,8 +120,11 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
    QDomNode cdataNode;
    QDomElement childsElement;
    QDomCDATASection cdataSection;
+   QDomNode propertyChild;
+   QDomElement propertyChildsElement;
    QString cdataString;
    char byte;
+   int idx;
 
    if (element.isNull())
    {
@@ -175,6 +192,29 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
             m_attr.append(byte);
          }
       }
+      else if ( child.nodeName() == "tileproperties" )
+      {
+         propertyChild = child.firstChild();
+
+         do
+         {
+            propertyChildsElement = propertyChild.toElement();
+            idx = 0;
+
+            // Find the property in the local properties.
+            foreach ( PropertyItem item, m_tileProperties )
+            {
+               if ( item.name == propertyChildsElement.attribute("name") )
+               {
+                  item.type = (propertyTypeEnum)propertyChildsElement.attribute("type").toInt();
+                  item.value = propertyChildsElement.attribute("value");
+                  m_tileProperties.replace(idx,item);
+               }
+               idx++;
+            }
+
+         } while (!(propertyChild = propertyChild.nextSibling()).isNull());
+      }
    }
    while (!(child = child.nextSibling()).isNull());
 
@@ -228,7 +268,7 @@ void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new TileStampEditorForm(m_tile,m_attr,m_attrTblUUID,m_xSize,m_ySize,m_grid,this);
+      m_editor = new TileStampEditorForm(m_tile,m_attr,m_attrTblUUID,m_tileProperties,m_xSize,m_ySize,m_grid,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
@@ -242,6 +282,7 @@ void CTileStamp::saveItemEvent()
    editor()->currentSize(&m_xSize,&m_ySize);
    m_attrTblUUID = editor()->currentAttributeTable();
    m_grid = editor()->isGridEnabled();
+   m_tileProperties = editor()->tileProperties();
 
    if ( m_editor )
    {

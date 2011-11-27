@@ -7,22 +7,22 @@
 
 #include "main.h"
 
-QSemaphore breakpointWatcherSemaphore(0);
-
 BreakpointWatcherThread::BreakpointWatcherThread(QObject*)
 {
    m_isTerminating = false;
+
+   semaphore = new QSemaphore(0);
 }
 
 BreakpointWatcherThread::~BreakpointWatcherThread()
 {
-
+   delete semaphore;
 }
 
 void BreakpointWatcherThread::kill()
 {
    m_isTerminating = true;
-   breakpointWatcherSemaphore.release();
+   semaphore->release();
 }
 
 void BreakpointWatcherThread::run ()
@@ -33,13 +33,13 @@ void BreakpointWatcherThread::run ()
 
    for ( ; ; )
    {
+      // Acquire the semaphore...which will block us until a breakpoint is hit...
+      semaphore->acquire();
+
       if ( m_isTerminating )
       {
          break;
       }
-
-      // Acquire the semaphore...which will block us until a breakpoint is hit...
-      breakpointWatcherSemaphore.acquire();
 
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
       {

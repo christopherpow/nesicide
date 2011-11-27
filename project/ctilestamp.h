@@ -6,6 +6,7 @@
 #include "cprojectbase.h"
 #include "tilestampeditorform.h"
 #include "ichrrombankitem.h"
+#include "cpropertylistmodel.h"
 
 #include <QMessageBox>
 #include <QTabWidget>
@@ -23,6 +24,7 @@ public:
    void getSize(int* xSize,int* ySize) { (*xSize) = m_xSize; (*ySize) = m_ySize; }
    QString getAttrTbl() { return m_attrTblUUID; }
    QImage getTileImage();
+   QList<PropertyItem> getTileProperties() { return m_tileProperties; }
 
    TileStampEditorForm* editor() { return dynamic_cast<TileStampEditorForm*>(m_editor); }
 
@@ -53,6 +55,7 @@ private:
    int        m_xSize;
    int        m_ySize;
    QString    m_attrTblUUID;
+   QList<PropertyItem> m_tileProperties;
    bool       m_grid;
 };
 

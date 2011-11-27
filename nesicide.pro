@@ -253,7 +253,9 @@ SOURCES += mainwindow.cpp \
     designers/tile_stamp_editor/tilestampeditorform.cpp \
     project/ctilestamps.cpp \
     project/ctilestamp.cpp \
-    common/colorpushbutton.cpp
+    common/colorpushbutton.cpp \
+    designers/propertyeditordialog.cpp \
+    designers/cpropertylistmodel.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -369,7 +371,10 @@ HEADERS += mainwindow.h \
     project/ctilestamps.h \
     project/ctilestamp.h \
     common/colorpushbutton.h \
-    common/cdesignercommon.h
+    common/cdesignercommon.h \
+    designers/propertyeditordialog.h \
+    designers/cpropertylistmodel.h \
+    common/cpropertyitem.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -406,6 +411,7 @@ FORMS += mainwindow.ui \
     emulator/nesemulatordockwidget.ui \
     common/searchdockwidget.ui \
     debugger/codeprofilerdockwidget.ui \
-    designers/tile_stamp_editor/tilestampeditorform.ui
+    designers/tile_stamp_editor/tilestampeditorform.ui \
+    designers/propertyeditordialog.ui
 
 RESOURCES += resource.qrc

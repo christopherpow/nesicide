@@ -31,6 +31,7 @@ public slots:
    virtual void snapTo(QString item) {}
    virtual void replaceText(QString from,QString to,bool replaceAll) {}
    virtual void applyChangesToTab(QString uuid) {}
+   virtual void applyProjectProperties() {}
 
 signals:
    void editor_modified(bool m);

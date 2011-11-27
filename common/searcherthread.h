@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QDir>
+#include <QSemaphore>
 
 class SearcherThread : public QThread
 {
@@ -18,6 +19,8 @@ signals:
    void searchDone(int found);
 
 protected:
+   QSemaphore* searchSemaphore;
+
    virtual void run ();
    void doSearch(QDir dir,int* finds);
    bool m_isTerminating;

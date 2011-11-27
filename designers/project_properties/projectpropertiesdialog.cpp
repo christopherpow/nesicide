@@ -5,6 +5,8 @@
 
 #include "cnessystempalette.h"
 
+#include "propertyeditordialog.h"
+
 #include "emulator_core.h"
 
 #include "main.h"
@@ -84,11 +86,16 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->romTypeComboBox->setCurrentIndex(0);
    ui->mirroringComboBox->setCurrentIndex(pCartridge->getMirrorMode());
 
+   tilePropertyListModel = new CPropertyListModel(false);
+   tilePropertyListModel->setItems(nesicideProject->getTileProperties());
+   ui->propertyTableView->setModel(tilePropertyListModel);
+
    updateUI();
 }
 
 ProjectPropertiesDialog::~ProjectPropertiesDialog()
 {
+   delete tilePropertyListModel;
    delete ui;
 }
 
@@ -429,6 +436,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
    nesicideProject->setLinkerAdditionalDependencies(ui->linkerAdditionalDependencies->text());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
+   nesicideProject->setTileProperties(tilePropertyListModel->getItems());
    serializeLinkerConfig();
 
    nesicideProject->getProjectPaletteEntries()->clear();
@@ -583,5 +591,67 @@ void ProjectPropertiesDialog::on_chrromOutputBasePathBrowse_clicked()
    if ( !value.isEmpty() )
    {
       ui->chrromOutputBasePath->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+   }
+}
+
+void ProjectPropertiesDialog::on_addProperty_clicked()
+{
+   PropertyEditorDialog ped;
+   PropertyItem item;
+   QList<PropertyItem> items;
+
+   int result = ped.exec();
+
+   if ( result == QDialog::Accepted )
+   {
+      item.name = ped.propertyName();
+      item.type = ped.propertyType();
+      item.value = ped.propertyValue();
+      if ( !item.name.isEmpty() )
+      {
+         items = tilePropertyListModel->getItems();
+         items.append(item);
+         tilePropertyListModel->setItems(items);
+         tilePropertyListModel->update();
+      }
+   }
+}
+
+void ProjectPropertiesDialog::on_removeProperty_clicked()
+{
+   QModelIndex index = ui->propertyTableView->currentIndex();
+   QList<PropertyItem> items = tilePropertyListModel->getItems();
+
+   if ( index.isValid() )
+   {
+      items.removeAt(index.row());
+      tilePropertyListModel->setItems(items);
+      tilePropertyListModel->update();
+   }
+}
+
+void ProjectPropertiesDialog::on_propertyTableView_doubleClicked(QModelIndex index)
+{
+   PropertyEditorDialog ped;
+   QList<PropertyItem> items = tilePropertyListModel->getItems();
+   PropertyItem item;
+   int result;
+
+   if ( index.isValid() )
+   {
+      ped.setPropertyName(items.at(index.row()).name);
+      ped.setPropertyType(items.at(index.row()).type);
+      ped.setPropertyValue(items.at(index.row()).value);
+      result = ped.exec();
+      if ( result == QDialog::Accepted )
+      {
+         item.name = ped.propertyName();
+         item.type = ped.propertyType();
+         item.value = ped.propertyValue();
+         items = tilePropertyListModel->getItems();
+         items.replace(index.row(),item);
+         tilePropertyListModel->setItems(items);
+         tilePropertyListModel->update();
+      }
    }
 }

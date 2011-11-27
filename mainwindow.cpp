@@ -25,6 +25,25 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QSettings settings;
 
+   // Create the NES emulator and breakpoint watcher threads...
+   emulator = new NESEmulatorThread();
+   breakpointWatcher = new BreakpointWatcherThread();
+
+   // Create the compiler thread...
+   compiler = new CompilerThread();
+
+   // Create the searcher thread...
+   searcher = new SearcherThread();
+
+   // Start breakpoint-watcher thread...
+   breakpointWatcher->start();
+
+   // Start compiler thread...
+   compiler->start();
+
+   // Start searcher thread...
+   searcher->start();
+
    // Initialize preferences dialogs.
    EmulatorPrefsDialog::readSettings();
 
@@ -43,6 +62,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(ui->tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
    QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
    QObject::connect(ui->tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   QObject::connect(this,SIGNAL(applyProjectProperties()),ui->tabWidget,SLOT(applyProjectProperties()));
 
    QObject::connect(ui->menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
@@ -422,6 +442,25 @@ MainWindow::~MainWindow()
 {
    ui->tabWidget->clear();
 
+   // Properly kill and destroy the threads we created above.
+   breakpointWatcher->kill();
+   breakpointWatcher->wait();
+   compiler->kill();
+   compiler->wait();
+   searcher->kill();
+   searcher->wait();
+   emulator->kill();
+   emulator->wait();
+
+   delete breakpointWatcher;
+   breakpointWatcher = NULL;
+   delete compiler;
+   compiler = NULL;
+   delete searcher;
+   searcher = NULL;
+   delete emulator;
+   emulator = NULL;
+
    delete generalTextLogger;
    delete buildTextLogger;
    delete debugTextLogger;
@@ -717,6 +756,8 @@ void MainWindow::on_actionProject_Properties_triggered()
    {
       nesicideProject->setDirty(true);
    }
+
+   emit applyProjectProperties();
 }
 
 void MainWindow::on_actionNew_Project_triggered()

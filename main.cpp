@@ -74,25 +74,6 @@ int main(int argc, char* argv[])
 
    QGLFormat::setDefaultFormat(fmt);
 
-   // Create the NES emulator and breakpoint watcher threads...
-   emulator = new NESEmulatorThread();
-   breakpointWatcher = new BreakpointWatcherThread();
-
-   // Create the compiler thread...
-   compiler = new CompilerThread();
-
-   // Create the searcher thread...
-   searcher = new SearcherThread();
-
-   // Start breakpoint-watcher thread...
-   breakpointWatcher->start();
-
-   // Start compiler thread...
-   compiler->start();
-
-   // Start searcher thread...
-   searcher->start();
-
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();
    nesicideWindow->show();
@@ -101,25 +82,6 @@ int main(int argc, char* argv[])
    testSuiteExecutive = new TestSuiteExecutiveDialog(nesicideWindow);
 
    int result = nesicideApplication.exec();
-
-   // Properly kill and destroy the threads we created above.
-   breakpointWatcher->kill();
-   breakpointWatcher->wait();
-   compiler->kill();
-   compiler->wait();
-   searcher->kill();
-   searcher->wait();
-   emulator->kill();
-   emulator->wait();
-
-   delete breakpointWatcher;
-   breakpointWatcher = NULL;
-   delete compiler;
-   compiler = NULL;
-   delete searcher;
-   searcher = NULL;
-   delete emulator;
-   emulator = NULL;
 
    delete pluginManager;
    pluginManager = NULL;

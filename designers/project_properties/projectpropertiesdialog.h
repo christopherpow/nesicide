@@ -9,6 +9,7 @@
 
 #include "cpaletteitemdelegate.h"
 #include "cnesicideproject.h"
+#include "cpropertyitem.h"
 #include "csourceitem.h"
 
 namespace Ui
@@ -33,8 +34,12 @@ private:
    void updateUI(int colid = -1);
    QList<QColor> currentPalette;
    bool          linkerConfigChanged;
+   CPropertyListModel* tilePropertyListModel;
 
 private slots:
+   void on_propertyTableView_doubleClicked(QModelIndex index);
+   void on_removeProperty_clicked();
+   void on_addProperty_clicked();
    void on_chrromOutputBasePathBrowse_clicked();
    void on_prgromOutputBasePathBrowse_clicked();
    void on_outputName_textEdited(QString );

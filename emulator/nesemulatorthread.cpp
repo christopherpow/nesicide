@@ -32,8 +32,7 @@
 
 #include "cnesicideproject.h"
 
-extern QSemaphore breakpointSemaphore;
-extern QSemaphore breakpointWatcherSemaphore;
+QSemaphore breakpointSemaphore(0);
 
 #include <QMutex>
 
@@ -53,7 +52,7 @@ void coreMutexUnlock ( void )
 
 void breakpointHook ( void )
 {
-   breakpointWatcherSemaphore.release();
+   breakpointWatcher->breakpointWatcherSemaphore()->release();
    breakpointSemaphore.acquire();
 }
 
@@ -143,6 +142,7 @@ void NESEmulatorThread::kill()
    m_isTerminating = true;
 
    breakpointSemaphore.release();
+   emulator->start();
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)

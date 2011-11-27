@@ -102,6 +102,9 @@ private:
 protected:
    virtual void closeEvent ( QCloseEvent* event );
 
+signals:
+   void applyProjectProperties();
+
 private slots:
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();

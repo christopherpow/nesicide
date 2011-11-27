@@ -4,6 +4,7 @@
 #include "cprojectbase.h"
 #include "ccartridge.h"
 #include "cproject.h"
+#include "cpropertylistmodel.h"
 
 #include <QString>
 #include <QStringList>
@@ -53,6 +54,7 @@ public:
    QString getLinkerAdditionalOptions() { return m_linkerAdditionalOptions; }
    QString getLinkerAdditionalDependencies() { return m_linkerAdditionalDependencies; }
    QStringList getSourceSearchPaths() { return m_sourceSearchPaths; }
+   QList<PropertyItem> getTileProperties() { return m_tileProperties; }
 
    QDomDocument& getSaveStateDoc() { return m_saveStateDoc; }
 
@@ -97,6 +99,7 @@ public:
    void setLinkerAdditionalDependencies(QString value) { m_linkerAdditionalDependencies = value; }
    void addSourceSearchPath(QString value);
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
+   void setTileProperties(QList<PropertyItem> items) { m_tileProperties = items; }
 
    void setSaveStateDoc(QDomDocument doc) { m_saveStateDoc = doc; }
 
@@ -152,6 +155,7 @@ private:
    QString m_linkerAdditionalOptions;
    QString m_linkerAdditionalDependencies;
    QStringList m_sourceSearchPaths;
+   QList<PropertyItem> m_tileProperties;
 
    // Save state information
    QDomDocument m_saveStateDoc;

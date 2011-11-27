@@ -77,6 +77,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(editor,SIGNAL(applyChanges(QString)),this,SLOT(applyChanges(QString)));
       QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
       QObject::connect(this,SIGNAL(applyChangesToTab(QString)),editor,SLOT(applyChangesToTab(QString)));
+      QObject::connect(this,SIGNAL(applyProjectPropertiesToTab()),editor,SLOT(applyProjectPropertiesToTab()));
    }
 
    if ( editor && editor->treeLink() )
@@ -332,5 +333,15 @@ void CProjectTabWidget::applyChanges(QString uuid)
       {
          emit applyChangesToTab(uuid);
       }
+   }
+}
+
+void CProjectTabWidget::applyProjectProperties()
+{
+   int tab;
+
+   for ( tab = 0; tab < count(); tab++ )
+   {
+      emit applyProjectPropertiesToTab();
    }
 }

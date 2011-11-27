@@ -4,35 +4,35 @@
 
 #include "main.h"
 
-QSemaphore compileSemaphore(0);
-
 CompilerThread::CompilerThread(QObject*)
 {
    m_isTerminating = false;
    m_assembledOk = false;
+
+   compileSemaphore = new QSemaphore(0);
 }
 
 CompilerThread::~CompilerThread()
 {
-
+   delete compileSemaphore;
 }
 
 void CompilerThread::kill()
 {
    m_isTerminating = true;
-   compileSemaphore.release();
+   compileSemaphore->release();
 }
 
 void CompilerThread::assemble()
 {
    m_operation = DoCompile;
-   compileSemaphore.release();
+   compileSemaphore->release();
 }
 
 void CompilerThread::clean()
 {
    m_operation = DoClean;
-   compileSemaphore.release();
+   compileSemaphore->release();
 }
 
 void CompilerThread::run ()
@@ -42,7 +42,7 @@ void CompilerThread::run ()
    for ( ; ; )
    {
       // Acquire the compile semaphore to know when the main thread wants a compile done...
-      compileSemaphore.acquire();
+      compileSemaphore->acquire();
 
       if ( m_isTerminating )
       {

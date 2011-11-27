@@ -2,6 +2,7 @@
 #define BREAKPOINTWATCHERTHREAD_H
 
 #include <QThread>
+#include <QSemaphore>
 
 class BreakpointWatcherThread : public QThread
 {
@@ -11,11 +12,15 @@ public:
    virtual ~BreakpointWatcherThread ();
    void kill();
 
+   QSemaphore* breakpointWatcherSemaphore() { return semaphore; }
+
 signals:
    void breakpointHit();
    void showPane(int pane);
 
 protected:
+   QSemaphore* semaphore;
+
    virtual void run ();
    bool m_isTerminating;
 };

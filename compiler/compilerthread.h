@@ -2,6 +2,7 @@
 #define COMPILERTHREAD_H
 
 #include <QThread>
+#include <QSemaphore>
 
 enum
 {
@@ -28,6 +29,8 @@ signals:
    void compileDone(bool bOk);
 
 protected:
+   QSemaphore* compileSemaphore;
+
    virtual void run ();
    bool m_isTerminating;
    bool m_assembledOk;

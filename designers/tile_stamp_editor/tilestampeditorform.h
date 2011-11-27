@@ -8,6 +8,7 @@
 #include "cdesignercommon.h"
 #include "ctilestamprenderer.h"
 #include "cchrromitemlistdisplaymodel.h"
+#include "cpropertylistmodel.h"
 
 typedef enum
 {
@@ -46,11 +47,12 @@ class TileStampEditorForm : public CDesignerEditorBase
    Q_OBJECT
 
 public:
-   explicit TileStampEditorForm(QByteArray data,QByteArray attr,QString attrTblUUID,int xSize,int ySize,bool grid,IProjectTreeViewItem* link,QWidget *parent = 0);
+   explicit TileStampEditorForm(QByteArray data,QByteArray attr,QString attrTblUUID,QList<PropertyItem> tileProperties,int xSize,int ySize,bool grid,IProjectTreeViewItem* link,QWidget *parent = 0);
    virtual ~TileStampEditorForm();
 
    QByteArray tileData(bool useOverlay=false);
    QByteArray attributeData(bool useOverlay=false);
+   QList<PropertyItem> tileProperties() { return m_tileProperties; }
    void currentSize(int* xSize,int* ySize) { (*xSize) = m_xSize; (*ySize) = m_ySize; }
    QUuid currentAttributeTable() { return m_attrTblUUID; }
    bool isGridEnabled() { return m_gridEnabled; }
@@ -126,14 +128,18 @@ private slots:
    void on_horizontalScrollBar_valueChanged(int value);
    void on_zoomSlider_valueChanged(int value);
    void applyChangesToTab(QString uuid);
+   void tilePropertyListModel_dataChanged(QModelIndex topLeft,QModelIndex bottomRight);
+   void applyProjectPropertiesToTab();
 
 private:
    Ui::TileStampEditorForm *ui;
    CTileStampRenderer* renderer;
    CTileStampRenderer* previewer;
    CChrRomItemListDisplayModel* tileListModel;
+   CPropertyListModel* tilePropertyListModel;
    QList<ColorPushButton*> m_colors;
    QList<uint8_t> m_colorIndexes;
+   QList<PropertyItem> m_tileProperties;
    int m_xSize;
    int m_ySize;
    QString m_attrTblUUID;

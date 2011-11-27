@@ -20,10 +20,6 @@
 #include "dbg_cnesppu.h"
 #include "dbg_cnesapu.h"
 
-#include <QSemaphore>
-
-QSemaphore breakpointSemaphore(0);
-
 CNESDBG::CNESDBG()
 {
 }

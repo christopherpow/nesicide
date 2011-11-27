@@ -177,6 +177,16 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
    propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(";"));
 
+   QDomElement tilePropertiesElement = addElement(doc,propertiesElement,"tileproperties");
+
+   foreach ( PropertyItem item, m_tileProperties )
+   {
+      QDomElement elm = addElement(doc,tilePropertiesElement,"property");
+      elm.setAttribute("name",item.name);
+      elm.setAttribute("type",item.type);
+      elm.setAttribute("value",item.value);
+   }
+
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
    SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
@@ -294,7 +304,38 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          QDomNode property = child.firstChild();
          do
          {
-            if ( property.nodeName() == "palette" )
+            if ( property.nodeName() == "tileproperties" )
+            {
+               // Get the properties that are attributes of the tileproperties node.
+               QDomElement tilePropertiesElement = property.toElement();
+
+               QDomNode tilePropertyNode = property.firstChild();
+               do
+               {
+                  QDomElement tilePropertyItem = tilePropertyNode.toElement();
+
+                  if (tilePropertyItem.isNull())
+                  {
+                     return false;
+                  }
+
+                  if ((!tilePropertyItem.hasAttribute("name"))
+                        || (!tilePropertyItem.hasAttribute("type"))
+                        || (!tilePropertyItem.hasAttribute("value")))
+                  {
+                     errors.append("Error parsing <tileproperties> element.\n");
+                     return false;
+                  }
+
+                  PropertyItem item;
+                  item.name = tilePropertyItem.attribute("name");
+                  item.type = (propertyTypeEnum)tilePropertyItem.attribute("type").toInt();
+                  item.value = tilePropertyItem.attribute("value");
+                  m_tileProperties.append(item);
+               }
+               while (!(tilePropertyNode = tilePropertyNode.nextSibling()).isNull());
+            }
+            else if ( property.nodeName() == "palette" )
             {
                QDomNode paletteNode = property.firstChild();
                do

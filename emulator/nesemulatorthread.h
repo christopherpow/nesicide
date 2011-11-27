@@ -10,10 +10,6 @@
 
 #include "ccartridge.h"
 
-#include <QMutex>
-
-extern QMutex doFrameMutex;
-
 // Hook function endpoints.
 void coreMutexLock ( void );
 void coreMutexUnlock ( void );

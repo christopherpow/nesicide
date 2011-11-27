@@ -83,12 +83,14 @@ signals:
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void markProjectDirty(bool dirty);
+   void applyProjectPropertiesToTab();
 
 public slots:
    void tabModified(bool modified);
    void projectDirtied(bool dirtied);
    void snapToTab(QString item);
    void applyChanges(QString uuid);
+   void applyProjectProperties();
 };
 
 #endif // CPROJECTTABWIDGET_H
