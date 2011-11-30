@@ -13,7 +13,14 @@ PropertyEditorDialog::PropertyEditorDialog(QWidget *parent) :
 
    ui->propertyValues->setCurrentWidget(ui->valuePage);
 
+   enumModel = new CPropertyEnumListModel(true);
+   ui->enumView->setModel(enumModel);
 
+   enumSymbolDelegate = new CPropertySymbolDelegate();
+   ui->enumView->setItemDelegateForColumn(PropertyEnumCol_Symbol,enumSymbolDelegate);
+
+   // Reuse symbol delegate as it's really not much more than a current-value parrot.
+   ui->enumView->setItemDelegateForColumn(PropertyEnumCol_Value,enumSymbolDelegate);
 }
 
 PropertyEditorDialog::~PropertyEditorDialog()
@@ -28,6 +35,9 @@ void PropertyEditorDialog::showEvent(QShowEvent *event)
 
    // Can't edit the property name if it's not empty.
    ui->name->setReadOnly(!property.name.isEmpty());
+
+   // Can't change the property type if the name's not empty.
+   ui->type->setDisabled(!property.name.isEmpty());
 
    // Pick the right propertyValue page to show.
    switch ( property.type )
@@ -53,7 +63,23 @@ void PropertyEditorDialog::showEvent(QShowEvent *event)
       break;
    case propertyEnumeration:
       ui->propertyValues->setCurrentWidget(ui->enumPage);
+      enumModel->setItems(property.value);
+      enumModel->update();
       break;
+   }
+}
+
+void PropertyEditorDialog::keyPressEvent(QKeyEvent *event)
+{
+   if ( property.type == propertyEnumeration )
+   {
+      if ( event->key() == Qt::Key_Delete )
+      {
+         if ( ui->enumView->currentIndex().isValid() )
+         {
+            enumModel->removeRow(ui->enumView->currentIndex().row());
+         }
+      }
    }
 }
 
@@ -82,16 +108,29 @@ void PropertyEditorDialog::on_buttonBox_accepted()
       property.value = ui->value->text();
       break;
    case propertyEnumeration:
+      property.value = enumModel->getItems();
       break;
    }
 }
 
-void PropertyEditorDialog::on_addValue_clicked()
+void PropertyEditorDialog::on_type_currentIndexChanged(int index)
 {
+   property.type = (propertyTypeEnum)index;
 
-}
-
-void PropertyEditorDialog::on_removeValue_clicked()
-{
-
+   // Pick the right propertyValue page to show.
+   switch ( index )
+   {
+   case propertyInteger:
+      ui->propertyValues->setCurrentWidget(ui->valuePage);
+      break;
+   case propertyBoolean:
+      ui->propertyValues->setCurrentWidget(ui->booleanPage);
+      break;
+   case propertyString:
+      ui->propertyValues->setCurrentWidget(ui->valuePage);
+      break;
+   case propertyEnumeration:
+      ui->propertyValues->setCurrentWidget(ui->enumPage);
+      break;
+   }
 }

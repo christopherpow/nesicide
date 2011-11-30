@@ -2,8 +2,11 @@
 #define PROPERTYEDITORDIALOG_H
 
 #include <QDialog>
+#include <QKeyEvent>
 
 #include "cpropertyitem.h"
+#include "cpropertyenumlistmodel.h"
+#include "cpropertysymboldelegate.h"
 
 namespace Ui {
    class PropertyEditorDialog;
@@ -27,14 +30,16 @@ public:
 
 protected:
    void showEvent(QShowEvent *event);
+   void keyPressEvent(QKeyEvent *event);
 
 private:
    Ui::PropertyEditorDialog *ui;
+   CPropertyEnumListModel* enumModel;
+   CPropertySymbolDelegate* enumSymbolDelegate;
    PropertyItem property;
 
 private slots:
-   void on_removeValue_clicked();
-   void on_addValue_clicked();
+   void on_type_currentIndexChanged(int index);
    void on_buttonBox_accepted();
 };
 

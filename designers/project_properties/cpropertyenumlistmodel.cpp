@@ -1,6 +1,7 @@
 #include <QInputDialog>
 
 #include "cpropertyenumlistmodel.h"
+#include "cpropertyitem.h"
 
 static char modelStringBuffer [ 2048 ];
 
@@ -21,7 +22,10 @@ Qt::ItemFlags CPropertyEnumListModel::flags(const QModelIndex& index) const
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
    if ( m_editable )
    {
-      flags |= Qt::ItemIsEditable;
+      if ( index.column() != PropertyEnumCol_Default )
+      {
+         flags |= Qt::ItemIsEditable;
+      }
       if ( (index.column() == PropertyEnumCol_Default) &&
            (index.row() < m_items.count()) )
       {
@@ -43,7 +47,7 @@ QVariant CPropertyEnumListModel::data(const QModelIndex& index, int role) const
       case PropertyEnumCol_Default:
          if (role == Qt::CheckStateRole)
          {
-            return QVariant(m_items.at(index.row()).isDefault?Qt::Checked:Qt::Unchecked);
+            return QVariant(m_items.at(index.row()).isSelected?Qt::Checked:Qt::Unchecked);
          }
          else
          {
@@ -111,14 +115,8 @@ bool CPropertyEnumListModel::setData(const QModelIndex &index, const QVariant &v
          {
             if ( role == Qt::CheckStateRole )
             {
-               for ( idx = 0; idx < m_items.count(); idx++ )
-               {
-                  item = m_items.at(idx);
-                  item.isDefault = false;
-                  m_items.replace(idx,item);
-               }
                item = m_items.at(index.row());
-               item.isDefault = true;
+               item.isSelected = value.toBool();
                m_items.replace(index.row(),item);
                emit layoutChanged();
                return true;
@@ -144,7 +142,7 @@ bool CPropertyEnumListModel::setData(const QModelIndex &index, const QVariant &v
             {
                beginInsertRows(QModelIndex(),m_items.count()+1,m_items.count()+1);
                item.symbol = value.toString();
-               item.isDefault = false;
+               item.isSelected = false;
                item.value = "0";
                m_items.append(item);
                endInsertRows();
@@ -252,25 +250,14 @@ void CPropertyEnumListModel::insertRow(QString text, const QModelIndex& parent)
    beginInsertRows(parent,m_items.count(),m_items.count());
    item.symbol = text;
    item.value = "0";
-   item.isDefault = false;
+   item.isSelected = false;
    m_items.append(item);
    endInsertRows();
 }
 
 QString CPropertyEnumListModel::getItems()
 {
-   QString itemsStr;
-   itemsStr = "";
-   foreach ( PropertyEnumItem item, m_items )
-   {
-      itemsStr += QString::number((int)item.isDefault);
-      itemsStr += ",";
-      itemsStr += item.symbol;
-      itemsStr += ",";
-      itemsStr += item.value;
-      itemsStr += ";";
-   }
-   return itemsStr;
+   return getEnumRawString(m_items);
 }
 
 void CPropertyEnumListModel::setItems(QString itemsStr)
@@ -281,7 +268,7 @@ void CPropertyEnumListModel::setItems(QString itemsStr)
    foreach ( QString itemStr, itemsStrList )
    {
       QStringList itemParts = itemStr.split(",");
-      item.isDefault = itemParts.at(PropertyEnumCol_Default).toInt();
+      item.isSelected = itemParts.at(PropertyEnumCol_Default).toInt();
       item.symbol = itemParts.at(PropertyEnumCol_Symbol);
       item.value = itemParts.at(PropertyEnumCol_Value);
       m_items.append(item);

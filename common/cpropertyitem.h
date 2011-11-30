@@ -1,6 +1,8 @@
 #ifndef CPROPERTYITEM_H
 #define CPROPERTYITEM_H
 
+#include <QString>
+
 typedef enum
 {
    propertyInteger,
@@ -15,5 +17,15 @@ struct PropertyItem
    propertyTypeEnum type;
    QString value;
 };
+
+struct PropertyEnumItem
+{
+   bool isSelected;
+   QString symbol;
+   QString value;
+};
+
+QString getEnumRawString(QList<PropertyEnumItem> items);
+QString getEnumValueString(QString itemsStr);
 
 #endif // CPROPERTYITEM_H

@@ -254,8 +254,12 @@ SOURCES += mainwindow.cpp \
     project/ctilestamps.cpp \
     project/ctilestamp.cpp \
     common/colorpushbutton.cpp \
-    designers/propertyeditordialog.cpp \
-    designers/cpropertylistmodel.cpp
+    designers/project_properties/propertyeditordialog.cpp \
+    designers/project_properties/cpropertylistmodel.cpp \
+    designers/project_properties/cpropertyenumlistmodel.cpp \
+    designers/project_properties/cpropertyvaluedelegate.cpp \
+    designers/project_properties/cpropertysymboldelegate.cpp \
+    common/cpropertyitem.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -372,9 +376,12 @@ HEADERS += mainwindow.h \
     project/ctilestamp.h \
     common/colorpushbutton.h \
     common/cdesignercommon.h \
-    designers/propertyeditordialog.h \
-    designers/cpropertylistmodel.h \
-    common/cpropertyitem.h
+    designers/project_properties/propertyeditordialog.h \
+    designers/project_properties/cpropertylistmodel.h \
+    common/cpropertyitem.h \
+    designers/project_properties/cpropertyenumlistmodel.h \
+    designers/project_properties/cpropertyvaluedelegate.h \
+    designers/project_properties/cpropertysymboldelegate.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -412,6 +419,6 @@ FORMS += mainwindow.ui \
     common/searchdockwidget.ui \
     debugger/codeprofilerdockwidget.ui \
     designers/tile_stamp_editor/tilestampeditorform.ui \
-    designers/propertyeditordialog.ui
+    designers/project_properties/propertyeditordialog.ui
 
 RESOURCES += resource.qrc

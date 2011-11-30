@@ -9,6 +9,7 @@
 #include "ctilestamprenderer.h"
 #include "cchrromitemlistdisplaymodel.h"
 #include "cpropertylistmodel.h"
+#include "cpropertyvaluedelegate.h"
 
 typedef enum
 {
@@ -102,6 +103,11 @@ protected:
    int getSelectedColor();
 
 private slots:
+   void on_propertyTableView_pressed(QModelIndex index);
+   void on_propertyTableView_entered(QModelIndex index);
+   void on_propertyTableView_doubleClicked(QModelIndex index);
+   void on_propertyTableView_clicked(QModelIndex index);
+   void on_propertyTableView_activated(QModelIndex index);
    void on_filledCircleTool_clicked();
    void on_hollowCircleTool_clicked();
    void on_hollowBoxTool_clicked();
@@ -137,6 +143,7 @@ private:
    CTileStampRenderer* previewer;
    CChrRomItemListDisplayModel* tileListModel;
    CPropertyListModel* tilePropertyListModel;
+   CPropertyValueDelegate* tilePropertyValueDelegate;
    QList<ColorPushButton*> m_colors;
    QList<uint8_t> m_colorIndexes;
    QList<PropertyItem> m_tileProperties;

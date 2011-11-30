@@ -16,7 +16,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
     CDesignerEditorBase(link,parent),
     ui(new Ui::TileStampEditorForm)
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   IProjectTreeViewItemIterator iter;
    IProjectTreeViewItem* item;
    CAttributeTable* pAttrTbl;
    QColor color;
@@ -47,10 +47,13 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    ui->pal0col1->setChecked(true);
 
    QList<IChrRomBankItem*> tileListChrItem;
+   iter.reset(nesicideProject->getProject());
    while ( iter.current() )
    {
       IChrRomBankItem* pChrItem = dynamic_cast<IChrRomBankItem*>(iter.current());
-      if ( pChrItem )
+      IProjectTreeViewItem* pProjItem = dynamic_cast<IProjectTreeViewItem*>(iter.current());
+      if ( pChrItem &&
+           (pProjItem != this->treeLink()) )
       {
          tileListChrItem.append(pChrItem);
       }
@@ -63,6 +66,9 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
 
    ui->tileList->setModel(tileListModel);
    ui->tileList->setModelColumn(ChrRomBankItemCol_Image);
+
+   tilePropertyValueDelegate = new CPropertyValueDelegate();
+   ui->propertyTableView->setItemDelegateForColumn(PropertyCol_Value,tilePropertyValueDelegate);
 
    tilePropertyListModel = new CPropertyListModel(true);
    m_tileProperties = nesicideProject->getTileProperties();
@@ -660,6 +666,7 @@ void TileStampEditorForm::on_zoomSlider_valueChanged(int value)
    ui->zoomValueLabel->setText(QString::number(pow(2.0,value)*100.0).append("%"));
    updateScrollbars();
 }
+
 void TileStampEditorForm::on_horizontalScrollBar_valueChanged(int value)
 {
    renderer->setScrollX(ui->horizontalScrollBar->value());
@@ -2328,20 +2335,22 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
    }
 
    // Update tile list.
-   QList<IChrRomBankItem*> tileList;
+   QList<IChrRomBankItem*> tileListChrItem;
    iter.reset(nesicideProject->getProject());
    while ( iter.current() )
    {
       IChrRomBankItem* pChrItem = dynamic_cast<IChrRomBankItem*>(iter.current());
-      if ( pChrItem )
+      IProjectTreeViewItem* pProjItem = dynamic_cast<IProjectTreeViewItem*>(iter.current());
+      if ( pChrItem &&
+           (pProjItem != this->treeLink()) )
       {
-         tileList.append(pChrItem);
+         tileListChrItem.append(pChrItem);
       }
 
       // Move through tree.
       iter.next();
    }
-   tileListModel->setBankItems(tileList);
+   tileListModel->setBankItems(tileListChrItem);
    tileListModel->update();
 }
 
@@ -3346,4 +3355,44 @@ void TileStampResizeCommand::redo()
 void TileStampResizeCommand::undo()
 {
    m_pEditor->setCurrentSize(m_oldXSize,m_oldYSize);
+}
+
+void TileStampEditorForm::on_propertyTableView_activated(QModelIndex index)
+{
+   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
+   {
+      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
+   }
+}
+
+void TileStampEditorForm::on_propertyTableView_clicked(QModelIndex index)
+{
+   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
+   {
+      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
+   }
+}
+
+void TileStampEditorForm::on_propertyTableView_doubleClicked(QModelIndex index)
+{
+   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
+   {
+      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
+   }
+}
+
+void TileStampEditorForm::on_propertyTableView_entered(QModelIndex index)
+{
+   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
+   {
+      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
+   }
+}
+
+void TileStampEditorForm::on_propertyTableView_pressed(QModelIndex index)
+{
+   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
+   {
+      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
+   }
 }

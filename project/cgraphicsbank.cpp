@@ -175,15 +175,7 @@ void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)
    {
-      if (m_editor->isVisible())
-      {
-         tabWidget->setCurrentWidget(m_editor);
-      }
-      else
-      {
-         tabWidget->addTab(m_editor, this->caption());
-         tabWidget->setCurrentWidget(m_editor);
-      }
+      tabWidget->setCurrentWidget(m_editor);
    }
    else
    {

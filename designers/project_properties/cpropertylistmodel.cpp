@@ -89,11 +89,19 @@ QVariant CPropertyListModel::data(const QModelIndex& index, int role) const
             return QVariant("Enumeration");
             break;
          }
-
-         return m_items.at(index.row()).type;
          break;
       case PropertyCol_Value:
-         return m_items.at(index.row()).value;
+         switch ( m_items.at(index.row()).type )
+         {
+         case propertyInteger:
+         case propertyBoolean:
+         case propertyString:
+            return m_items.at(index.row()).value;
+            break;
+         case propertyEnumeration:
+            return getEnumValueString(m_items.at(index.row()).value);
+            break;
+         }
          break;
       }
    }
@@ -127,7 +135,7 @@ QVariant CPropertyListModel::headerData(int section, Qt::Orientation orientation
          return QString("Type");
          break;
       case PropertyCol_Value:
-         return QString("Value");
+         return QString("Default Value");
          break;
       }
    }

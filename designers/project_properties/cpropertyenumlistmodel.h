@@ -4,19 +4,14 @@
 #include <QAbstractTableModel>
 #include <QList>
 
+#include "cpropertyitem.h"
+
 enum
 {
    PropertyEnumCol_Default = 0,
    PropertyEnumCol_Symbol,
    PropertyEnumCol_Value,
    PropertyEnumCol_MAX
-};
-
-struct PropertyEnumItem
-{
-   bool isDefault;
-   QString symbol;
-   QString value;
 };
 
 class CPropertyEnumListModel : public QAbstractTableModel

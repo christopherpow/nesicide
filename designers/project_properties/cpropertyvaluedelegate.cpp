@@ -5,7 +5,7 @@ CPropertyValueDelegate::CPropertyValueDelegate()
 
 QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
-      const QModelIndex& /* index */) const
+      const QModelIndex& index) const
 {
    QLineEdit* edit;
    QComboBox* comboBox;
@@ -61,6 +61,9 @@ void CPropertyValueDelegate::setEditorData(QWidget* editor,
       break;
 
    case propertyBoolean:
+      comboBox = static_cast<QComboBox*>(editor);
+      comboBox->setCurrentIndex(comboBox->findText(index.model()->data(index, Qt::DisplayRole).toString()));
+      break;
    case propertyEnumeration:
       comboBox = static_cast<QComboBox*>(editor);
       comboBox->setCurrentIndex(0);
@@ -71,6 +74,26 @@ void CPropertyValueDelegate::setEditorData(QWidget* editor,
 void CPropertyValueDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
       const QModelIndex& index) const
 {
+   QLineEdit* edit;
+   QComboBox* comboBox;
+
+   switch ( m_item.type )
+   {
+   case propertyInteger:
+   case propertyString:
+      edit = static_cast<QLineEdit*>(editor);
+      model->setData(index, edit->text(), Qt::EditRole);
+      break;
+
+   case propertyBoolean:
+      comboBox = static_cast<QComboBox*>(editor);
+      model->setData(index, comboBox->currentText(), Qt::EditRole);
+      break;
+   case propertyEnumeration:
+      comboBox = static_cast<QComboBox*>(editor);
+      // CPTODO: set model data for enumerations.
+      break;
+   }
 }
 
 void CPropertyValueDelegate::updateEditorGeometry(QWidget* editor,
