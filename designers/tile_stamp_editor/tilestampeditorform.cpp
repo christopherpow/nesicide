@@ -376,10 +376,6 @@ void TileStampEditorForm::resizeEvent(QResizeEvent* event)
 
 void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
 {
-   int boxX1;
-   int boxY1;
-   int boxX2;
-   int boxY2;
    QByteArray oldTileData;
    QByteArray oldAttributeData;
    QClipboard* clipboard = QApplication::clipboard();
@@ -2728,6 +2724,9 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
                   m_selectionRect.setBottom(pixy);
                   m_selectionRect = m_selectionRect.normalized();
                   break;
+               default:
+                  // Do nothing.
+                  break;
                }
                renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
                renderer->repaint();
@@ -2793,7 +2792,6 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
 
 void TileStampEditorForm::paintTool(QMouseEvent *event)
 {
-   int idx;
    int pixx;
    int pixy;
    int selectedColor = -1;
@@ -2852,7 +2850,6 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
    int boxY1;
    int boxX2;
    int boxY2;
-   int idx;
    QByteArray oldTileData;
    QByteArray oldAttributeData;
 
@@ -2972,7 +2969,6 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,OverlayType overlayType)
    int selectedColor = -1;
    int pixx;
    int pixy;
-   int idx;
    QByteArray oldTileData;
    QByteArray oldAttributeData;
 
@@ -3042,7 +3038,6 @@ void TileStampEditorForm::lineTool(QMouseEvent *event)
    int selectedColor = -1;
    int pixx;
    int pixy;
-   int idx;
    QByteArray oldTileData;
    QByteArray oldAttributeData;
 

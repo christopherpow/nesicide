@@ -18,7 +18,7 @@ public:
    static void clean();
    static bool assemble();
    static bool captureDebugInfo();
-   static int checkDebugInfo();
+   static bool isBuildUpToDate();
    static bool captureINESImage();
    static QStringList getSourceFiles();
    static unsigned int getSourceFileModificationTime(QString sourceFile);

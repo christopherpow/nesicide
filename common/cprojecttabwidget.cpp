@@ -78,6 +78,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
       QObject::connect(this,SIGNAL(applyChangesToTab(QString)),editor,SLOT(applyChangesToTab(QString)));
       QObject::connect(this,SIGNAL(applyProjectPropertiesToTab()),editor,SLOT(applyProjectPropertiesToTab()));
+      QObject::connect(this,SIGNAL(applyEnvironmentSettingsToTab()),editor,SLOT(applyEnvironmentSettingsToTab()));
    }
 
    if ( editor && editor->treeLink() )
@@ -144,8 +145,6 @@ void CProjectTabWidget::snapToTab(QString item)
    QStringList splits;
    uint32_t addr;
    uint32_t absAddr;
-   int      line;
-   int      index;
    IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
    CSourceItem* pSource;
    bool found = false;
@@ -343,5 +342,15 @@ void CProjectTabWidget::applyProjectProperties()
    for ( tab = 0; tab < count(); tab++ )
    {
       emit applyProjectPropertiesToTab();
+   }
+}
+
+void CProjectTabWidget::applyEnvironmentSettings()
+{
+   int tab;
+
+   for ( tab = 0; tab < count(); tab++ )
+   {
+      emit applyEnvironmentSettingsToTab();
    }
 }

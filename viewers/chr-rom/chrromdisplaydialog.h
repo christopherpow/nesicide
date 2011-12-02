@@ -47,6 +47,7 @@ private slots:
    void on_horizontalScrollBar_valueChanged(int value);
    void on_zoomSlider_valueChanged(int value);
    void colorChanged (const QColor& color);
+   void applyProjectPropertiesToTab();
 };
 
 #endif // CHRROMDISPLAYDIALOG_H

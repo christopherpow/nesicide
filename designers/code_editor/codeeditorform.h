@@ -71,6 +71,8 @@ protected:
    void changeEvent(QEvent *e);
    bool eventFilter(QObject *obj, QEvent *event);
    void timerEvent(QTimerEvent *e);
+   void restyleText();
+   void annotateText();
 
 private:
    Ui::CodeEditorForm* ui;
@@ -85,8 +87,6 @@ private:
    void updateToolTip(QString symbol);
 
 public slots:
-   void restyleText();
-   void annotateText();
    void resolveLineAddress(int line, int* addr, int* absAddr);
    void snapTo(QString item);
    void replaceText(QString from, QString to, bool replaceAll);
@@ -118,6 +118,8 @@ private slots:
    void on_actionRun_to_here_triggered();
    void on_actionBreak_on_CPU_execution_here_triggered();
    void customContextMenuRequested(const QPoint &pos);
+   void applyProjectPropertiesToTab();
+   void applyEnvironmentSettingsToTab();
 };
 
 #endif // CODEEDITORFORM_H

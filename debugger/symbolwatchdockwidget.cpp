@@ -333,6 +333,9 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
       index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
+   default:
+      addr = 0;
+      break;
    }
 
    if ( ok )
@@ -394,6 +397,9 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
       index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
+   default:
+      addr = 0;
+      break;
    }
 
    if ( ok )
@@ -454,6 +460,9 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
       row = ui->exram->currentIndex().row();
       index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
+      break;
+   default:
+      addr = 0;
       break;
    }
 

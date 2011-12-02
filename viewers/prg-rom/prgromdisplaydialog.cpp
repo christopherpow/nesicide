@@ -50,3 +50,7 @@ void PRGROMDisplayDialog::showEvent(QShowEvent* e)
       ui->textBrowser->setText(rt);
    }
 }
+
+void PRGROMDisplayDialog::applyProjectPropertiesToTab()
+{
+}

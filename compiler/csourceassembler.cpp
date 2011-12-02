@@ -19,7 +19,7 @@ bool CSourceAssembler::assemble()
 {
    IProjectTreeViewItemIterator iter(nesicideProject->getProject());
    IProjectTreeViewItem*        item;
-   bool ok;
+   bool ok = true;
 
    // Go through project elements invoking their exporters to prepare
    // the environment with everything it needs to build the project.

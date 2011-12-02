@@ -50,6 +50,7 @@ private slots:
    void colorChanged (const QColor& color);
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
+   void applyProjectPropertiesToTab();
 };
 
 #endif // GRAPHICSBANKEDITORFORM_H

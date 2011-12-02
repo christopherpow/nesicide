@@ -104,6 +104,7 @@ protected:
 
 signals:
    void applyProjectProperties();
+   void applyEnvironmentSettings();
 
 private slots:
    void on_actionAbout_Qt_triggered();

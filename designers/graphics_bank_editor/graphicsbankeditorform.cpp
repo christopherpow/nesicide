@@ -289,3 +289,7 @@ void GraphicsBankEditorForm::applyChangesToTab(QString uuid)
 {
    updateChrRomBankItemList(bankItems());
 }
+
+void GraphicsBankEditorForm::applyProjectPropertiesToTab()
+{
+}

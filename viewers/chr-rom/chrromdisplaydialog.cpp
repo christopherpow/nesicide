@@ -233,3 +233,7 @@ void CHRROMDisplayDialog::on_exportPushButton_clicked()
 
    }
 }
+
+void CHRROMDisplayDialog::applyProjectPropertiesToTab()
+{
+}

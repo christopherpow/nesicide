@@ -97,5 +97,6 @@
         <file>resources/selection_all_tool.png</file>
         <file>resources/RR_shape_circle_filled.png</file>
         <file>resources/RR_shape_circle_hollow.png</file>
+        <file>resources/pen.png</file>
     </qresource>
 </RCC>

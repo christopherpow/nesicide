@@ -655,3 +655,8 @@ void ProjectPropertiesDialog::on_propertyTableView_doubleClicked(QModelIndex ind
       }
    }
 }
+
+void ProjectPropertiesDialog::on_editProperty_clicked()
+{
+   on_propertyTableView_doubleClicked(ui->propertyTableView->currentIndex());
+}

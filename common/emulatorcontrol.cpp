@@ -50,8 +50,6 @@ QList<QAction*> EmulatorControl::menu()
 
 void EmulatorControl::internalPlay()
 {
-   CCC65Interface::checkDebugInfo();
-
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
    ui->stepCPUButton->setEnabled(false);
@@ -84,6 +82,8 @@ void EmulatorControl::internalPause()
 
 void EmulatorControl::on_playButton_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->startEmulation();
 
    emit focusEmulator();
@@ -96,30 +96,42 @@ void EmulatorControl::on_pauseButton_clicked()
 
 void EmulatorControl::on_stepCPUButton_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->stepCPUEmulation();
 }
 
 void EmulatorControl::on_stepPPUButton_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->stepPPUEmulation();
 }
 
 void EmulatorControl::on_resetButton_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->resetEmulator();
 }
 
 void EmulatorControl::on_frameAdvance_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->advanceFrame();
 }
 
 void EmulatorControl::on_stepOverButton_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->stepOverCPUEmulation();
 }
 
 void EmulatorControl::on_stepOutButton_clicked()
 {
+   CCC65Interface::isBuildUpToDate();
+
    emulator->stepOutCPUEmulation();
 }

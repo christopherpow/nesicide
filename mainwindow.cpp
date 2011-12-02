@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
    QObject::connect(ui->tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(this,SIGNAL(applyProjectProperties()),ui->tabWidget,SLOT(applyProjectProperties()));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),ui->tabWidget,SLOT(applyEnvironmentSettings()));
 
    QObject::connect(ui->menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
@@ -1189,6 +1190,7 @@ void MainWindow::compiler_compileStarted()
 void MainWindow::compiler_compileDone(bool bOk)
 {
    ui->actionCompile_Project->setEnabled(true);
+   ui->actionLoad_In_Emulator->setEnabled(true);
 
    projectDataChangesEvent();
 }
@@ -1670,20 +1672,10 @@ void MainWindow::on_actionMute_All_toggled(bool value)
 void MainWindow::on_actionEnvironment_Settings_triggered()
 {
    EnvironmentSettingsDialog dlg;
-   int tab;
 
    dlg.exec();
 
-   // Update any open document windows.
-   for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
-   {
-      CodeEditorForm* codeEditor = dynamic_cast<CodeEditorForm*>(ui->tabWidget->widget(tab));
-      if ( codeEditor )
-      {
-         codeEditor->restyleText();
-         codeEditor->annotateText();
-      }
-   }
+   emit applyEnvironmentSettings();
 }
 
 void MainWindow::on_actionPreferences_triggered()
@@ -1752,8 +1744,12 @@ void MainWindow::on_actionOnline_Help_triggered()
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
+   output->showPane(OutputPaneDockWidget::Output_Build);
+
    if ( compiler->assembledOk() )
    {
+      ui->actionLoad_In_Emulator->setEnabled(false);
+
       buildTextLogger->write("<b>Loading ROM...</b>");
 
       if ( !(CCC65Interface::captureINESImage() && CCC65Interface::captureDebugInfo()) )
@@ -1770,6 +1766,10 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
       ui->actionEmulation_Window->setChecked(true);
       on_actionEmulation_Window_toggled(true);
+   }
+   else
+   {
+      buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
    }
 }
 

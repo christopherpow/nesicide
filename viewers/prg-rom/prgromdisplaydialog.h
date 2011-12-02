@@ -31,6 +31,9 @@ protected:
 
 private:
    Ui::PRGROMDisplayDialog* ui;
+
+private slots:
+   void applyProjectPropertiesToTab();
 };
 
 #endif // PRGROMDISPLAYDIALOG_H

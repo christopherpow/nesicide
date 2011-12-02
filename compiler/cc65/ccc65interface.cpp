@@ -159,7 +159,7 @@ bool CCC65Interface::createMakefile()
 
 void CCC65Interface::clean()
 {
-   QProcess                     cc65;
+   QProcess                     make;
    QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
@@ -167,8 +167,8 @@ void CCC65Interface::clean()
    int                          exitCode;
 
    // Copy the system environment to the child process.
-   cc65.setProcessEnvironment(env);
-   cc65.setWorkingDirectory(QDir::currentPath());
+   make.setProcessEnvironment(env);
+   make.setWorkingDirectory(QDir::currentPath());
 
    // Clear the error storage.
    errors.clear();
@@ -179,17 +179,17 @@ void CCC65Interface::clean()
 
    buildTextLogger->write(invocationStr);
 
-   cc65.start(invocationStr);
-   cc65.waitForFinished();
-   cc65.waitForReadyRead();
-   exitCode = cc65.exitCode();
-   stdioStr = QString(cc65.readAllStandardOutput());
+   make.start(invocationStr);
+   make.waitForFinished();
+   make.waitForReadyRead();
+   exitCode = make.exitCode();
+   stdioStr = QString(make.readAllStandardOutput());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    foreach ( const QString& str, stdioList )
    {
       buildTextLogger->write("<font color='blue'>"+str+"</font>");
    }
-   stdioStr = QString(cc65.readAllStandardError());
+   stdioStr = QString(make.readAllStandardError());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    errors.append(stdioList);
    foreach ( const QString& str, stdioList )
@@ -202,7 +202,7 @@ void CCC65Interface::clean()
 
 bool CCC65Interface::assemble()
 {
-   QProcess                     cc65;
+   QProcess                     make;
    QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
@@ -223,8 +223,8 @@ bool CCC65Interface::assemble()
    buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
    // Copy the system environment to the child process.
-   cc65.setProcessEnvironment(env);
-   cc65.setWorkingDirectory(QDir::currentPath());
+   make.setProcessEnvironment(env);
+   make.setWorkingDirectory(QDir::currentPath());
 
    // Clear the error storage.
    errors.clear();
@@ -235,17 +235,17 @@ bool CCC65Interface::assemble()
 
    buildTextLogger->write(invocationStr);
 
-   cc65.start(invocationStr);
-   cc65.waitForFinished();
-   cc65.waitForReadyRead();
-   exitCode = cc65.exitCode();
-   stdioStr = QString(cc65.readAllStandardOutput());
+   make.start(invocationStr);
+   make.waitForFinished();
+   make.waitForReadyRead();
+   exitCode = make.exitCode();
+   stdioStr = QString(make.readAllStandardOutput());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    foreach ( const QString& str, stdioList )
    {
       buildTextLogger->write("<font color='blue'>"+str+"</font>");
    }
-   stdioStr = QString(cc65.readAllStandardError());
+   stdioStr = QString(make.readAllStandardError());
    stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
    errors.append(stdioList);
    foreach ( const QString& str, stdioList )
@@ -298,45 +298,51 @@ bool CCC65Interface::captureDebugInfo()
    }
 
    // Check consistency of debug information when it's loaded.
-   CCC65Interface::checkDebugInfo();
+   CCC65Interface::isBuildUpToDate();
 
    return true;
 }
 
-int CCC65Interface::checkDebugInfo()
+bool CCC65Interface::isBuildUpToDate()
 {
-   // Check for newer files than debug info.
-   QStringList files;
-   QDateTime mtimeInDbginfo;
-   QDateTime mtimeOfFile;
-   QFileInfo fileInfo;
-   unsigned int mtimeRaw;
-   QString outdated = "The following files have been modified since the last build\n"
-                      "and may not display correct information in the debuggers.\n\n";
-   int outdatedCount = 0;
+   QProcess                     make;
+   QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
+   QString                      invocationStr;
+   QString                      stdioStr;
+   QStringList                  stdioList;
+   int                          exitCode;
+   QString outdated = "The NES ROM image is older than one or more of its source files.\n"
+                      "Debuggers may not display correct information unless the NES ROM\n"
+                      "is rebuilt.\n\n";
+   bool ok = true;
 
-   // Get the file list to do a consistency check.
-   files = CCC65Interface::getSourceFiles();
-
-   foreach ( QString file, files )
+   // 'Build' is up-to-date if no sources present.
+   if ( (getCLanguageSourcesFromProject().count() ||
+        (getAssemblerSourcesFromProject().count())) )
    {
-      fileInfo.setFile(file);
-      mtimeOfFile = fileInfo.lastModified();
-      mtimeRaw = CCC65Interface::getSourceFileModificationTime(file);
-      mtimeInDbginfo = QDateTime::fromTime_t(mtimeRaw);
-      if ( mtimeOfFile > mtimeInDbginfo )
+      // Copy the system environment to the child process.
+      make.setProcessEnvironment(env);
+      make.setWorkingDirectory(QDir::currentPath());
+
+      // Clear the error storage.
+      errors.clear();
+
+      createMakefile();
+
+      invocationStr = "make -q all";
+
+      make.start(invocationStr);
+      make.waitForFinished();
+      exitCode = make.exitCode();
+
+      if ( exitCode )
       {
-         outdated += file;
-         outdatedCount++;
+         QMessageBox::warning(NULL,"Consistency problem...",outdated);
+         ok = false;
       }
    }
 
-   if ( outdatedCount )
-   {
-      QMessageBox::warning(NULL,"Consistency problem...",outdated);
-   }
-
-   return outdatedCount;
+   return ok;
 }
 
 bool CCC65Interface::captureINESImage()
@@ -1025,7 +1031,6 @@ int CCC65Interface::getLineMatchCount(QString file, int source_line)
    const cc65_lineinfo* dbgLines;
    const cc65_spaninfo* dbgSpans;
    int fidx;
-   int span;
    int count = 0;
 
    if ( dbgInfo )

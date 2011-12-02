@@ -37,6 +37,7 @@ private:
    CPropertyListModel* tilePropertyListModel;
 
 private slots:
+   void on_editProperty_clicked();
    void on_propertyTableView_doubleClicked(QModelIndex index);
    void on_removeProperty_clicked();
    void on_addProperty_clicked();

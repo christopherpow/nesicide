@@ -696,7 +696,6 @@ void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bpIdx;
-   int index;
 
    if ( addr != -1 )
    {
@@ -1239,4 +1238,14 @@ QMenu& CodeEditorForm::editorMenu()
    action = m_menu.addAction("Select All",this,SLOT(editor_selectAll()),QKeySequence(Qt::CTRL + Qt::Key_A));
 
    return m_menu;
+}
+
+void CodeEditorForm::applyProjectPropertiesToTab()
+{
+}
+
+void CodeEditorForm::applyEnvironmentSettingsToTab()
+{
+   restyleText();
+   annotateText();
 }

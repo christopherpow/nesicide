@@ -124,6 +124,10 @@ void AttributeTableEditorForm::colorChanged(QColor color)
    emit markProjectDirty(true);
 }
 
+void AttributeTableEditorForm::applyProjectPropertiesToTab()
+{
+}
+
 AttributeTableChangeColorCommand::AttributeTableChangeColorCommand(AttributeTableEditorForm *pEditor,
                                              int colorIdx,
                                              uint8_t oldColor,
