@@ -2,7 +2,8 @@
 
 CDebuggerRegisterComboBoxDelegate::CDebuggerRegisterComboBoxDelegate()
    : m_pBitfield(NULL)
-{}
+{
+}
 
 QWidget* CDebuggerRegisterComboBoxDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
@@ -56,6 +57,7 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget* editor,
       {
          QComboBox* comboBox = static_cast<QComboBox*>(editor);
          comboBox->setCurrentIndex(value);
+         comboBox->showPopup();
       }
       else
       {

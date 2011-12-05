@@ -1,4 +1,5 @@
 #include "cpropertyvaluedelegate.h"
+#include "checkboxlist.h"
 
 CPropertyValueDelegate::CPropertyValueDelegate()
 {}
@@ -9,7 +10,9 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
 {
    QLineEdit* edit;
    QComboBox* comboBox;
+   CheckBoxList* checkComboBox;
    QStringList itemsStrList;
+   int idx = 0;
 
    switch ( m_item.type )
    {
@@ -27,7 +30,7 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
       return comboBox;
       break;
    case propertyEnumeration:
-      comboBox = new QComboBox(parent);
+      checkComboBox = new CheckBoxList(parent);
 
       itemsStrList = m_item.value.split(";",QString::SkipEmptyParts);
       foreach ( QString itemStr, itemsStrList )
@@ -37,11 +40,13 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
          itemValue = itemParts.at(1);
          itemValue += "=";
          itemValue += itemParts.at(2);
-         comboBox->addItem(itemValue);
+         checkComboBox->addItem(itemValue);
+         checkComboBox->setItemData(idx,itemParts.at(0).toInt());
+         idx++;
       }
 
-      comboBox->setEditable(false);
-      return comboBox;
+      checkComboBox->setEditable(false);
+      return checkComboBox;
       break;
    }
 }
@@ -51,6 +56,7 @@ void CPropertyValueDelegate::setEditorData(QWidget* editor,
 {
    QLineEdit* edit;
    QComboBox* comboBox;
+   CheckBoxList* checkComboBox;
 
    switch ( m_item.type )
    {
@@ -65,8 +71,9 @@ void CPropertyValueDelegate::setEditorData(QWidget* editor,
       comboBox->setCurrentIndex(comboBox->findText(index.model()->data(index, Qt::DisplayRole).toString()));
       break;
    case propertyEnumeration:
-      comboBox = static_cast<QComboBox*>(editor);
-      comboBox->setCurrentIndex(0);
+      checkComboBox = static_cast<CheckBoxList*>(editor);
+      checkComboBox->SetDisplayText(index.model()->data(index, Qt::DisplayRole).toString());
+      checkComboBox->showPopup();
       break;
    }
 }
@@ -76,6 +83,10 @@ void CPropertyValueDelegate::setModelData(QWidget* editor, QAbstractItemModel* m
 {
    QLineEdit* edit;
    QComboBox* comboBox;
+   CheckBoxList* checkComboBox;
+   QStringList itemsStrList;
+   QString itemStr;
+   int idx = 0;
 
    switch ( m_item.type )
    {
@@ -90,8 +101,27 @@ void CPropertyValueDelegate::setModelData(QWidget* editor, QAbstractItemModel* m
       model->setData(index, comboBox->currentText(), Qt::EditRole);
       break;
    case propertyEnumeration:
-      comboBox = static_cast<QComboBox*>(editor);
-      // CPTODO: set model data for enumerations.
+      checkComboBox = static_cast<CheckBoxList*>(editor);
+
+      itemsStrList = m_item.value.split(";",QString::SkipEmptyParts);
+      itemStr = "";
+      foreach ( QString itemStr, itemsStrList )
+      {
+         QStringList itemParts = itemStr.split(",");
+         QString itemValue;
+         if ( checkComboBox->itemData(idx).toBool() )
+         {
+            itemValue = "1";
+         }
+         else
+         {
+            itemValue = "0";
+         }
+         itemParts.replace(0,itemValue);
+         itemsStrList.replace(idx,itemParts.join(","));
+         idx++;
+      }
+      model->setData(index,itemsStrList.join(";"),Qt::EditRole);
       break;
    }
 }

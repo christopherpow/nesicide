@@ -5,6 +5,13 @@
 
 #include "ccodedataloggerrenderer.h"
 
+enum
+{
+   CodeDataLogger_CPU,
+   CodeDataLogger_PPU,
+   CodeDataLogger_PRGROM // Not done yet.
+};
+
 namespace Ui {
    class CodeDataLoggerDockWidget;
 }

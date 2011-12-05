@@ -259,7 +259,8 @@ SOURCES += mainwindow.cpp \
     designers/project_properties/cpropertyenumlistmodel.cpp \
     designers/project_properties/cpropertyvaluedelegate.cpp \
     designers/project_properties/cpropertysymboldelegate.cpp \
-    common/cpropertyitem.cpp
+    common/cpropertyitem.cpp \
+    common/checkboxlist.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -381,7 +382,8 @@ HEADERS += mainwindow.h \
     common/cpropertyitem.h \
     designers/project_properties/cpropertyenumlistmodel.h \
     designers/project_properties/cpropertyvaluedelegate.h \
-    designers/project_properties/cpropertysymboldelegate.h
+    designers/project_properties/cpropertysymboldelegate.h \
+    common/checkboxlist.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

@@ -77,10 +77,10 @@ void CodeDataLoggerDockWidget::renderData()
 {
    switch ( ui->displaySelect->currentIndex() )
    {
-      case 0:
+      case CodeDataLogger_CPU:
          C6502DBG::RENDERCODEDATALOGGER();
          break;
-      case 1:
+      case CodeDataLogger_PPU:
          CPPUDBG::RENDERCODEDATALOGGER();
          break;
    }
@@ -131,10 +131,10 @@ void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
 {
    switch ( index )
    {
-      case 0:
+      case CodeDataLogger_CPU:
          renderer->changeImage(cpuImgData);
          break;
-      case 1:
+      case CodeDataLogger_PPU:
          renderer->changeImage(ppuImgData);
          break;
    }

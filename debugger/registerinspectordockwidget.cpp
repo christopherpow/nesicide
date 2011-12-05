@@ -84,7 +84,6 @@ void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
    updateMemory();
    ui->binaryView->resizeColumnsToContents();
-   ui->bitfieldView->resizeColumnsToContents();
 }
 
 void RegisterInspectorDockWidget::hideEvent(QHideEvent* e)
