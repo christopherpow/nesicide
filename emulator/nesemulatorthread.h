@@ -22,17 +22,22 @@ public:
    virtual ~NESEmulatorThread ();
    void kill();
 
+   // IXMLSerializable Interface Implementation
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+
+public slots:
    void primeEmulator ();
    void resetEmulator ();
-   void adjustAudio ( int32_t bufferDepth );
    void startEmulation ();
    void pauseEmulation (bool show);
-   void pauseEmulationAfter (int frames) { m_pauseAfterFrames = frames; }
+   void pauseEmulationAfter (int32_t frames) { m_pauseAfterFrames = frames; }
    void stepCPUEmulation ();
    void stepOverCPUEmulation ();
    void stepOutCPUEmulation ();
    void stepPPUEmulation ();
    void advanceFrame ();
+   void adjustAudio ( int32_t bufferDepth );
    void controllerInput ( uint8_t* joy )
    {
       coreMutexLock();
@@ -40,17 +45,13 @@ public:
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
       coreMutexUnlock();
    }
-   bool isActive () { return (m_isStarting||m_isRunning); }
-
-   // IXMLSerializable Interface Implementation
-   virtual bool serialize(QDomDocument& doc, QDomNode& node);
-   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
 signals:
    void emulatedFrame ();
    void updateDebuggers ();
    void cartridgeLoaded ();
    void emulatorPaused(bool show);
+   void emulatorPausedAfter();
    void emulatorReset();
    void emulatorStarted();
    void debugMessage(char* message);

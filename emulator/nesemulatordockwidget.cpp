@@ -24,6 +24,7 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
+   QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -88,7 +89,7 @@ void NESEmulatorDockWidget::mousePressEvent(QMouseEvent* event)
          m_joy [ CONTROLLER2 ] |= VAUS_FIRE;
       }
 
-      emulator->controllerInput ( m_joy );
+      emit controllerInput ( m_joy );
 
       event->accept();
    }
@@ -122,7 +123,7 @@ void NESEmulatorDockWidget::mouseReleaseEvent(QMouseEvent* event)
          m_joy [ CONTROLLER2 ] &= (~(VAUS_FIRE));
       }
 
-      emulator->controllerInput ( m_joy );
+      emit controllerInput ( m_joy );
 
       event->accept();
    }
@@ -230,7 +231,7 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
       }
    }
 
-   emulator->controllerInput ( m_joy );
+   emit controllerInput ( m_joy );
 
    event->accept();
 }
@@ -337,7 +338,7 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
       }
    }
 
-   emulator->controllerInput ( m_joy );
+   emit controllerInput ( m_joy );
 
    event->accept();
 }

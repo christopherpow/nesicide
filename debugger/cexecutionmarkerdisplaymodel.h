@@ -9,6 +9,7 @@ enum
    ExecutionVisualizerCol_Cycles,
    ExecutionVisualizerCol_StartAddr,
    ExecutionVisualizerCol_EndAddr,
+   ExecutionVisualizerCol_Status,
    ExecutionVisualizerCol_MAX
 };
 

@@ -49,10 +49,11 @@ CPPUDBG::~CPPUDBG()
 
 static QColor color [] =
 {
-   QColor(255,0,0),
-   QColor(0,255,0),
-   QColor(0,0,255),
-   QColor(255,255,0)
+   QColor(255,0,0),  // eLogger_InstructionFetch,
+   QColor(255,0,0),  // eLogger_OperandFetch,
+   QColor(0,255,0),  // eLogger_DataRead,
+   QColor(0,0,255),  // eLogger_DMA,
+   QColor(255,255,0) // eLogger_DataWrite
 };
 
 static QColor renderColor = QColor(0,0,255);
@@ -75,12 +76,13 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
    for ( idxx = 0; idxx < 0x4000; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
+      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
 
       if ( cycleDiff > 199 )
       {
          cycleDiff = 199;
       }
+      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
@@ -94,17 +96,17 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
             lcolor = color[(int)pLogEntry->type];
          }
 
-         if ( !lcolor.red() )
+         if ( lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
 
-         if ( !lcolor.green() )
+         if ( lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
 
-         if ( !lcolor.blue() )
+         if ( lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
@@ -115,9 +117,9 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
       }
       else
       {
-         *pTV = 0xFF;
-         *(pTV+1) = 0xFF;
-         *(pTV+2) = 0xFF;
+         *pTV = 0;
+         *(pTV+1) = 0;
+         *(pTV+2) = 0;
       }
 
       pTV += 4;

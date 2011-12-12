@@ -162,10 +162,13 @@ void CodeBrowserDockWidget::snapTo(QString item)
 
 void CodeBrowserDockWidget::breakpointHit()
 {
-   show();
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-   ui->tableView->scrollTo(ui->tableView->currentIndex());
-   ui->tableView->resizeColumnsToContents();
+   if ( nesROMIsLoaded() )
+   {
+      show();
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+      ui->tableView->scrollTo(ui->tableView->currentIndex());
+      ui->tableView->resizeColumnsToContents();
+   }
 }
 
 void CodeBrowserDockWidget::emulatorPaused(bool showMe)

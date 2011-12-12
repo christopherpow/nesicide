@@ -58,7 +58,6 @@ void BreakpointWatcherThread::run ()
       nesClearAudioSamplesAvailable();
 
       // A breakpoint has occurred...
-
       emit breakpointHit();
    }
 

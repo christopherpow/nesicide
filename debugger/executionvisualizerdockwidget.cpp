@@ -36,10 +36,14 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    }
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
+   // Connect signals to the UI to have the UI update.
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
+
+   // Connect signals to the models to have the model update.
+   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), model, SLOT(update()));
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
 
    renderer = new CExecutionVisualizerRenderer(ui->frame,imgData);
    ui->frame->layout()->addWidget(renderer);
@@ -76,7 +80,7 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
 
-   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
 
@@ -86,6 +90,13 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 
 void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
+   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
+
+   QObject::disconnect ( codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   QObject::disconnect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
+
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
 }
 
@@ -183,6 +194,9 @@ bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& doc, QDomNode& nod
    uint32_t endAbsAddr;
    QDomNode childNode = node.firstChild();
    QDomNode markerNode;
+
+   // Start with a clean slate.
+   pMarkers->ClearAllMarkers();
 
    if (!childNode.isNull())
    {

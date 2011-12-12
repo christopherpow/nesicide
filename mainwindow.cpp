@@ -35,6 +35,10 @@ MainWindow::MainWindow(QWidget* parent) :
    // Create the searcher thread...
    searcher = new SearcherThread();
 
+   // Create the Test Suite executive modeless dialog...
+   testSuiteExecutive = new TestSuiteExecutiveDialog();
+   QObject::connect(testSuiteExecutive,SIGNAL(openROM(QString)),this,SLOT(openROM(QString)));
+
    // Start breakpoint-watcher thread...
    breakpointWatcher->start();
 
@@ -49,6 +53,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
    QObject::connect(compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()));
    QObject::connect(compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)));
+
+   QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
+   QObject::connect(this,SIGNAL(pauseEmulation(bool)),emulator,SLOT(pauseEmulation(bool)));
+   QObject::connect(this,SIGNAL(primeEmulator()),emulator,SLOT(primeEmulator()));
+   QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(adjustAudio(int32_t)),emulator,SLOT(adjustAudio(int32_t)));
 
    generalTextLogger = new CTextLogger();
    buildTextLogger = new CTextLogger();
@@ -364,7 +374,7 @@ MainWindow::MainWindow(QWidget* parent) :
    if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
       ui->tabWidget->addTab(ui->tab,"Welcome Page");
-      ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+      ui->webView->setUrl(QUrl( "http://www.nesicide.com"));
    }
    else
    {
@@ -429,8 +439,8 @@ MainWindow::MainWindow(QWidget* parent) :
    // For now don't use the value from the settings, because nesGetAudioSamples()
    // always returns APU_SAMPLES samples
    //emulator->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
-   emulator->adjustAudio( APU_SAMPLES );
-   emulator->resetEmulator();
+   emit adjustAudio( APU_SAMPLES );
+   emit resetEmulator();
 
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
    {
@@ -461,6 +471,8 @@ MainWindow::~MainWindow()
    searcher = NULL;
    delete emulator;
    emulator = NULL;
+
+   delete testSuiteExecutive;
 
    delete generalTextLogger;
    delete buildTextLogger;
@@ -788,7 +800,7 @@ void MainWindow::openROM(QString fileName)
 
    output->showPane(OutputPaneDockWidget::Output_General);
 
-   emulator->pauseEmulation(false);
+   emit pauseEmulation(false);
 
    // Remove any lingering project content
    projectBrowser->disableNavigation();
@@ -829,12 +841,12 @@ void MainWindow::openROM(QString fileName)
       saveFile.close();
    }
 
-   emulator->resetEmulator();
-   emulator->primeEmulator();
+   emit resetEmulator();
+   emit primeEmulator();
 
    if ( EnvironmentSettingsDialog::runRomOnLoad() )
    {
-      emulator->startEmulation();
+      emit startEmulation();
    }
 
    projectDataChangesEvent();
@@ -1071,12 +1083,12 @@ void MainWindow::openProject(QString fileName)
             saveFile.close();
          }
 
-         emulator->primeEmulator();
-         emulator->resetEmulator();
+         emit primeEmulator();
+         emit resetEmulator();
 
          if ( EnvironmentSettingsDialog::runRomOnLoad() )
          {
-            emulator->startEmulation();
+            emit startEmulation();
          }
 
          ui->actionEmulation_Window->setChecked(true);
@@ -1159,7 +1171,7 @@ void MainWindow::on_actionCompile_Project_triggered()
    int tab;
 
    output->showPane(OutputPaneDockWidget::Output_Build);
-   emulator->pauseEmulation(false);
+   emit pauseEmulation(false);
 
    if ( EnvironmentSettingsDialog::saveAllOnCompile() )
    {
@@ -1474,6 +1486,9 @@ void MainWindow::closeProject()
    QAction* action;
    int tab;
 
+   // Close all inspectors
+   CDockWidgetRegistry::hideAll();
+
    // Try to close all opened editors
    for ( tab = ui->tabWidget->count()-1; tab >= 0; tab-- )
    {
@@ -1498,13 +1513,10 @@ void MainWindow::closeProject()
       }
    }
 
-   // Close all inspectors
-   CDockWidgetRegistry::hideAll();
-
    m_pSourceNavigator->shutdown();
 
    // Stop the emulator if it is running
-   emulator->pauseEmulation(false);
+   emit pauseEmulation(false);
 
    // Now save the emulator state if a save state file is specified.
    if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
@@ -1526,13 +1538,13 @@ void MainWindow::closeProject()
 
    nesicideProject->terminateProject();
 
-   emulator->primeEmulator();
-   emulator->resetEmulator();
+   emit primeEmulator();
+   emit resetEmulator();
 
    if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
       ui->tabWidget->addTab(ui->tab,"Welcome Page");
-      ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+      ui->webView->setUrl(QUrl( "http://www.nesicide.com"));
    }
 
    // Clear output
@@ -1561,8 +1573,8 @@ void MainWindow::on_actionNTSC_triggered()
    ui->actionPAL->setChecked(false);
    nesSetSystemMode(MODE_NTSC);
 
-   emulator->resetEmulator();
-   emulator->startEmulation();
+   emit resetEmulator();
+   emit startEmulation();
 }
 
 void MainWindow::on_actionPAL_triggered()
@@ -1572,8 +1584,8 @@ void MainWindow::on_actionPAL_triggered()
    ui->actionPAL->setChecked(true);
    nesSetSystemMode(MODE_PAL);
 
-   emulator->resetEmulator();
-   emulator->startEmulation();
+   emit resetEmulator();
+   emit startEmulation();
 }
 
 void MainWindow::on_actionDelta_Modulation_toggled(bool value)
@@ -1739,7 +1751,7 @@ void MainWindow::on_actionPreferences_triggered()
 void MainWindow::on_actionOnline_Help_triggered()
 {
    ui->tabWidget->addTab(ui->tab,"Welcome Page");
-   ui->webView->setUrl(QUrl( "http://wiki.nesicide.com/doku.php?id=nesicide_user_manual"));
+   ui->webView->setUrl(QUrl( "http://www.nesicide.com"));
 }
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
@@ -1758,9 +1770,9 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
          return;
       }
 
-      emulator->primeEmulator();
-      emulator->resetEmulator();
-      emulator->pauseEmulation(true);
+      emit primeEmulator();
+      emit resetEmulator();
+      emit pauseEmulation(true);
 
       buildTextLogger->write("<b>Load complete.</b>");
 

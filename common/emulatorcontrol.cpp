@@ -3,6 +3,8 @@
 
 #include "ccc65interface.h"
 
+#include "emulator_core.h"
+
 #include "main.h"
 
 EmulatorControl::EmulatorControl(QWidget *parent) :
@@ -27,6 +29,16 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
    QObject::connect(ui->actionStep_PPU, SIGNAL(triggered()), this, SLOT(on_stepPPUButton_clicked()));
    QObject::connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(on_resetButton_clicked()));
    QObject::connect(ui->actionFrame_Advance, SIGNAL(triggered()), this, SLOT(on_frameAdvance_clicked()));
+
+   // Connect control signals to emulator.
+   QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
+   QObject::connect(this,SIGNAL(pauseEmulation(bool)),emulator,SLOT(pauseEmulation(bool)));
+   QObject::connect(this,SIGNAL(stepCPUEmulation()),emulator,SLOT(stepCPUEmulation()));
+   QObject::connect(this,SIGNAL(stepOverCPUEmulation()),emulator,SLOT(stepOverCPUEmulation()));
+   QObject::connect(this,SIGNAL(stepOutCPUEmulation()),emulator,SLOT(stepOutCPUEmulation()));
+   QObject::connect(this,SIGNAL(stepPPUEmulation()),emulator,SLOT(stepPPUEmulation()));
+   QObject::connect(this,SIGNAL(advanceFrame()),emulator,SLOT(advanceFrame()));
+   QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
 }
 
 EmulatorControl::~EmulatorControl()
@@ -43,8 +55,8 @@ QList<QAction*> EmulatorControl::menu()
    items.append(ui->actionStep_Over);
    items.append(ui->actionStep_Out);
    items.append(ui->actionStep_PPU);
-   items.append(ui->actionReset);
    items.append(ui->actionFrame_Advance);
+   items.append(ui->actionReset);
    return items;
 }
 
@@ -60,78 +72,102 @@ void EmulatorControl::internalPlay()
    ui->actionRun->setEnabled(false);
    ui->actionPause->setEnabled(true);
    ui->actionStep_CPU->setEnabled(false);
+   ui->actionStep_Over->setEnabled(false);
+   ui->actionStep_Out->setEnabled(false);
    ui->actionStep_PPU->setEnabled(false);
    ui->actionFrame_Advance->setEnabled(false);
 }
 
 void EmulatorControl::internalPause()
 {
-   ui->playButton->setEnabled(true);
-   ui->pauseButton->setEnabled(false);
-   ui->stepCPUButton->setEnabled(true);
-   ui->stepOverButton->setEnabled(true);
-   ui->stepOutButton->setEnabled(true);
-   ui->stepPPUButton->setEnabled(true);
-   ui->frameAdvance->setEnabled(true);
-   ui->actionRun->setEnabled(true);
-   ui->actionPause->setEnabled(false);
-   ui->actionStep_CPU->setEnabled(true);
-   ui->actionStep_PPU->setEnabled(true);
-   ui->actionFrame_Advance->setEnabled(true);
+   if ( nesROMIsLoaded() )
+   {
+      ui->playButton->setEnabled(true);
+      ui->pauseButton->setEnabled(false);
+      ui->stepCPUButton->setEnabled(true);
+      ui->stepOverButton->setEnabled(true);
+      ui->stepOutButton->setEnabled(true);
+      ui->stepPPUButton->setEnabled(true);
+      ui->frameAdvance->setEnabled(true);
+      ui->actionRun->setEnabled(true);
+      ui->actionPause->setEnabled(false);
+      ui->actionStep_CPU->setEnabled(true);
+      ui->actionStep_Over->setEnabled(true);
+      ui->actionStep_Out->setEnabled(true);
+      ui->actionStep_PPU->setEnabled(true);
+      ui->actionFrame_Advance->setEnabled(true);
+   }
+   else
+   {
+      ui->playButton->setEnabled(false);
+      ui->pauseButton->setEnabled(false);
+      ui->stepCPUButton->setEnabled(false);
+      ui->stepOverButton->setEnabled(false);
+      ui->stepOutButton->setEnabled(false);
+      ui->stepPPUButton->setEnabled(false);
+      ui->frameAdvance->setEnabled(false);
+      ui->actionRun->setEnabled(false);
+      ui->actionPause->setEnabled(false);
+      ui->actionStep_CPU->setEnabled(false);
+      ui->actionStep_Over->setEnabled(false);
+      ui->actionStep_Out->setEnabled(false);
+      ui->actionStep_PPU->setEnabled(false);
+      ui->actionFrame_Advance->setEnabled(false);
+   }
 }
 
 void EmulatorControl::on_playButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->startEmulation();
+   emit startEmulation();
 
    emit focusEmulator();
 }
 
 void EmulatorControl::on_pauseButton_clicked()
 {
-   emulator->pauseEmulation(true);
+   emit pauseEmulation(true);
 }
 
 void EmulatorControl::on_stepCPUButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->stepCPUEmulation();
+   emit stepCPUEmulation();
 }
 
 void EmulatorControl::on_stepPPUButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->stepPPUEmulation();
+   emit stepPPUEmulation();
 }
 
 void EmulatorControl::on_resetButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->resetEmulator();
+   emit resetEmulator();
 }
 
 void EmulatorControl::on_frameAdvance_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->advanceFrame();
+   emit advanceFrame();
 }
 
 void EmulatorControl::on_stepOverButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->stepOverCPUEmulation();
+   emit stepOverCPUEmulation();
 }
 
 void EmulatorControl::on_stepOutButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
-   emulator->stepOutCPUEmulation();
+   emit stepOutCPUEmulation();
 }

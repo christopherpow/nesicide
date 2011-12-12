@@ -26,6 +26,9 @@ protected:
    void keyPressEvent(QKeyEvent* event);
    void keyReleaseEvent(QKeyEvent* event);
 
+signals:
+   void controllerInput(uint8_t* joy);
+
 private:
    Ui::NESEmulatorDockWidget *ui;
    CNESEmulatorRenderer* renderer;

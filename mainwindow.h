@@ -47,7 +47,7 @@ class MainWindow : public QMainWindow
 public:
    MainWindow(QWidget* parent = 0);
    virtual ~MainWindow();
-   void openROM(QString fileName);
+
 protected:
    void changeEvent(QEvent* e);
    void dragEnterEvent ( QDragEnterEvent* event );
@@ -105,8 +105,14 @@ protected:
 signals:
    void applyProjectProperties();
    void applyEnvironmentSettings();
+   void startEmulation();
+   void primeEmulator();
+   void pauseEmulation(bool show);
+   void resetEmulator();
+   void adjustAudio(int32_t length);
 
 private slots:
+   void openROM(QString fileName);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();
    void focusEmulator();

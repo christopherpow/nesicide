@@ -2618,19 +2618,20 @@ C6502DBG::~C6502DBG()
 
 static QColor color [] =
 {
-   QColor(255,0,0),
-   QColor(0,0,0),
-   QColor(0,255,0),
-   QColor(0,0,255),
-   QColor(255,255,0)
+   QColor(255,0,0),  // eLogger_InstructionFetch,
+   QColor(255,0,0),  // eLogger_OperandFetch,
+   QColor(0,255,0),  // eLogger_DataRead,
+   QColor(0,0,255),  // eLogger_DMA,
+   QColor(255,255,0) // eLogger_DataWrite
 };
 
 static QColor dmaColor [] =
 {
-   QColor(0,0,0),
-   QColor(255,0,255),
-   QColor(0,255,255),
-   QColor(0,0,0)
+   // This array uses the 'eSource' enumeration but is really the 'target' for DMA.
+   QColor(0,0,0),     // eSource_CPU, -- not a valid target.
+   QColor(255,0,255), // eSource_PPU,
+   QColor(0,255,255), // eSource_APU,
+   QColor(0,0,0)      // eSource_Mapper -- not a valid target.
 };
 
 void C6502DBG::RENDERCODEDATALOGGER ( void )
@@ -2651,12 +2652,13 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
+      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
 
       if ( cycleDiff > 199 )
       {
          cycleDiff = 199;
       }
+      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
@@ -2669,17 +2671,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor = color[(int)pLogEntry->type];
          }
 
-         if ( !lcolor.red() )
+         if ( lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
 
-         if ( !lcolor.green() )
+         if ( lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
 
-         if ( !lcolor.blue() )
+         if ( lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
@@ -2690,9 +2692,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       }
       else
       {
-         *pTV = 0xFF;
-         *(pTV+1) = 0xFF;
-         *(pTV+2) = 0xFF;
+         *pTV = 0;
+         *(pTV+1) = 0;
+         *(pTV+2) = 0;
       }
 
       pTV += 4;
@@ -2705,12 +2707,13 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
+      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
 
       if ( cycleDiff > 199 )
       {
          cycleDiff = 199;
       }
+      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
@@ -2723,17 +2726,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor = color[(int)pLogEntry->type];
          }
 
-         if ( !lcolor.red() )
+         if ( lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
 
-         if ( !lcolor.green() )
+         if ( lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
 
-         if ( !lcolor.blue() )
+         if ( lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
@@ -2744,9 +2747,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       }
       else
       {
-         *pTV = 0xFF;
-         *(pTV+1) = 0xFF;
-         *(pTV+2) = 0xFF;
+         *pTV = 0;
+         *(pTV+1) = 0;
+         *(pTV+2) = 0;
       }
 
       pTV += 4;
@@ -2759,12 +2762,13 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    for ( idxx = 0; idxx < MEM_1KB; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
+      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
 
       if ( cycleDiff > 199 )
       {
          cycleDiff = 199;
       }
+      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
@@ -2777,17 +2781,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor = color[(int)pLogEntry->type];
          }
 
-         if ( !lcolor.red() )
+         if ( lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
 
-         if ( !lcolor.green() )
+         if ( lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
 
-         if ( !lcolor.blue() )
+         if ( lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
@@ -2798,9 +2802,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       }
       else
       {
-         *pTV = 0xFF;
-         *(pTV+1) = 0xFF;
-         *(pTV+2) = 0xFF;
+         *pTV = 0;
+         *(pTV+1) = 0;
+         *(pTV+2) = 0;
       }
 
       pTV += 4;
@@ -2814,12 +2818,13 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       pLogger = nesGetVirtualSRAMCodeDataLoggerDatabase(0x6000);
 
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/17800;
+      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
 
       if ( cycleDiff > 199 )
       {
          cycleDiff = 199;
       }
+      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
@@ -2832,17 +2837,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor = color[(int)pLogEntry->type];
          }
 
-         if ( !lcolor.red() )
+         if ( lcolor.red() )
          {
             lcolor.setRed(cycleDiff);
          }
 
-         if ( !lcolor.green() )
+         if ( lcolor.green() )
          {
             lcolor.setGreen(cycleDiff);
          }
 
-         if ( !lcolor.blue() )
+         if ( lcolor.blue() )
          {
             lcolor.setBlue(cycleDiff);
          }
@@ -2853,9 +2858,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       }
       else
       {
-         *pTV = 0xFF;
-         *(pTV+1) = 0xFF;
-         *(pTV+2) = 0xFF;
+         *pTV = 0;
+         *(pTV+1) = 0;
+         *(pTV+2) = 0;
       }
 
       pTV += 4;
@@ -2871,12 +2876,13 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          pLogger = nesGetVirtualPRGROMCodeDataLoggerDatabase(MEM_32KB+(idxy*MEM_8KB)+idxx);
 
          pLogEntry = pLogger->GetLogEntry(idxx);
-         cycleDiff = (curCycle-pLogEntry->cycle)/17800;
+         cycleDiff = (curCycle-pLogEntry->cycle)/10000;
 
          if ( cycleDiff > 199 )
          {
             cycleDiff = 199;
          }
+         cycleDiff = 255-cycleDiff;
 
          if ( pLogEntry->count )
          {
@@ -2889,17 +2895,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
                lcolor = color[(int)pLogEntry->type];
             }
 
-            if ( !lcolor.red() )
+            if ( lcolor.red() )
             {
                lcolor.setRed(cycleDiff);
             }
 
-            if ( !lcolor.green() )
+            if ( lcolor.green() )
             {
                lcolor.setGreen(cycleDiff);
             }
 
-            if ( !lcolor.blue() )
+            if ( lcolor.blue() )
             {
                lcolor.setBlue(cycleDiff);
             }
@@ -2910,9 +2916,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          }
          else
          {
-            *pTV = 0xFF;
-            *(pTV+1) = 0xFF;
-            *(pTV+2) = 0xFF;
+            *pTV = 0;
+            *(pTV+1) = 0;
+            *(pTV+2) = 0;
          }
 
          pTV += 4;

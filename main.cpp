@@ -78,9 +78,6 @@ int main(int argc, char* argv[])
    nesicideWindow = new MainWindow();
    nesicideWindow->show();
 
-   // Create the Test Suite executive modeless dialog...
-   testSuiteExecutive = new TestSuiteExecutiveDialog(nesicideWindow);
-
    int result = nesicideApplication.exec();
 
    delete pluginManager;

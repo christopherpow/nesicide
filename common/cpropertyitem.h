@@ -27,5 +27,6 @@ struct PropertyEnumItem
 
 QString getEnumRawString(QList<PropertyEnumItem> items);
 QString getEnumValueString(QString itemsStr);
+QList<PropertyEnumItem> getEnumItems(QString itemsStr);
 
 #endif // CPROPERTYITEM_H

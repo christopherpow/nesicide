@@ -654,7 +654,7 @@ unsigned int CCC65Interface::getSymbolIndexFromSegment(QString symbol, int segme
       {
          for ( idx = 0; idx < dbgSymbols->count; idx++ )
          {
-            if ( (dbgSymbols->data[idx].export_id == CC65_INV_ID) &&
+            if ( /*(dbgSymbols->data[idx].export_id == CC65_INV_ID) &&*/
                  (dbgSymbols->data[idx].segment_id == segment) )
             {
                index = idx;

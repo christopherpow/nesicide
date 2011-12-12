@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>230</width>
+    <width>234</width>
     <height>30</height>
    </rect>
   </property>
@@ -39,6 +39,9 @@
      </property>
      <item>
       <widget class="QToolButton" name="playButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Run</string>
        </property>
@@ -66,7 +69,7 @@
      <item>
       <widget class="QToolButton" name="pauseButton">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="toolTip">
         <string>Pause</string>
@@ -94,6 +97,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="stepCPUButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Step Into</string>
        </property>
@@ -126,6 +132,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="stepOverButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Step Over</string>
        </property>
@@ -149,6 +158,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="stepOutButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Step Return</string>
        </property>
@@ -173,7 +185,7 @@
      <item>
       <widget class="QToolButton" name="stepPPUButton">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="toolTip">
         <string>Step PPU</string>
@@ -201,6 +213,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="frameAdvance">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>PPU Frame Advance</string>
        </property>
@@ -224,6 +239,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="resetButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>

@@ -19,13 +19,15 @@ public:
 
 private:
     Ui::TestSuiteExecutiveDialog *ui;
-    MainWindow* mainWindow;
     bool aborted;
+    bool running;
     void loadTestSuite(QString testSuiteFileName);
     void executeTests(int start,int end);
 
 signals:
     void openROM(QString romFile);
+    void startEmulation();
+    void pauseEmulationAfter(int32_t frames);
 
 private slots:
     void on_save_clicked();
@@ -35,6 +37,7 @@ private slots:
     void on_executeSelection_clicked();
     void on_abort_clicked();
     void updateProgress();
+    void emulatorPausedAfter();
 };
 
 #endif // TESTSUITEEXECUTIVEDIALOG_H

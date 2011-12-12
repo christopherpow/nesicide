@@ -36,6 +36,8 @@ public:
    QString getProjectTitle() { return m_projectTitle; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
+   QString getProjectHeaderFileName() { return m_projectHeaderFileName; }
+   QString getProjectSourceFileName() { return m_projectSourceFileName; }
    QString getProjectLinkerOutputBasePath() { return m_projectLinkerOutputBasePath; }
    QString getProjectLinkerOutputName() { return m_projectLinkerOutputName; }
    QString getProjectDebugInfoName() { return m_projectDebugInfoName; }
@@ -80,6 +82,8 @@ public:
       m_projectCHRROMOutputBasePath = m_projectOutputBasePath;
    }
    void setProjectOutputName(QString value) { m_projectOutputName = value; }
+   void setProjectHeaderFileName(QString value) { m_projectHeaderFileName = value; }
+   void setProjectSourceFileName(QString value) { m_projectSourceFileName = value; }
    void setProjectLinkerOutputBasePath(QString value) { m_projectLinkerOutputBasePath = value; }
    void setProjectLinkerOutputName(QString value) { m_projectLinkerOutputName = value; }
    void setProjectDebugInfoName(QString value) { m_projectDebugInfoName = value; }
@@ -125,6 +129,7 @@ public:
    {
       return true;
    }
+   virtual bool exportData();
 
 private:
    // Is the project initialized?
@@ -136,6 +141,8 @@ private:
    QString m_projectTitle;
    QString m_projectOutputBasePath;
    QString m_projectOutputName;
+   QString m_projectHeaderFileName;
+   QString m_projectSourceFileName;
    QString m_projectLinkerOutputBasePath;
    QString m_projectLinkerOutputName;
    QString m_projectDebugInfoName;

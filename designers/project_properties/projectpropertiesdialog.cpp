@@ -26,6 +26,8 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
    ui->projectBasePath->setText(QDir::fromNativeSeparators(QDir::currentPath()));
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
+   ui->projectHeaderName->setText(nesicideProject->getProjectHeaderFileName());
+   ui->projectSourceName->setText(nesicideProject->getProjectSourceFileName());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
    ui->prgromOutputBasePath->setText(nesicideProject->getProjectLinkerOutputBasePath());
    ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
@@ -419,6 +421,8 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
    nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
    nesicideProject->setProjectOutputName(ui->outputName->text());
+   nesicideProject->setProjectHeaderFileName(ui->projectHeaderName->text());
+   nesicideProject->setProjectSourceFileName(ui->projectSourceName->text());
    nesicideProject->setProjectLinkerOutputName(ui->linkerOutputName->text());
    nesicideProject->setProjectDebugInfoName(ui->debugInfoName->text());
    nesicideProject->setProjectCHRROMOutputBasePath(ui->chrromOutputBasePath->text());

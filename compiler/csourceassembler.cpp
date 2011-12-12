@@ -17,7 +17,7 @@ void CSourceAssembler::clean()
 
 bool CSourceAssembler::assemble()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   IProjectTreeViewItemIterator iter(nesicideProject);
    IProjectTreeViewItem*        item;
    bool ok = true;
 

@@ -12,6 +12,7 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
    QComboBox* comboBox;
    CheckBoxList* checkComboBox;
    QStringList itemsStrList;
+   QWidget* widget = NULL;
    int idx = 0;
 
    switch ( m_item.type )
@@ -19,7 +20,7 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
    case propertyInteger:
    case propertyString:
       edit = new QLineEdit(parent);
-      return edit;
+      widget = dynamic_cast<QWidget*>(edit);
       break;
 
    case propertyBoolean:
@@ -27,7 +28,7 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
       comboBox->addItem("false");
       comboBox->addItem("true");
       comboBox->setEditable(false);
-      return comboBox;
+      widget = dynamic_cast<QWidget*>(comboBox);
       break;
    case propertyEnumeration:
       checkComboBox = new CheckBoxList(parent);
@@ -46,9 +47,10 @@ QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
       }
 
       checkComboBox->setEditable(false);
-      return checkComboBox;
+      widget = dynamic_cast<QWidget*>(checkComboBox);
       break;
    }
+   return widget;
 }
 
 void CPropertyValueDelegate::setEditorData(QWidget* editor,

@@ -46,3 +46,21 @@ QString getEnumValueString(QString itemsStr)
    }
    return valueStr;
 }
+
+QList<PropertyEnumItem> getEnumItems(QString itemsStr)
+{
+   QStringList itemsStrList = itemsStr.split(";",QString::SkipEmptyParts);
+   QList<PropertyEnumItem> items;
+   QString valueStr;
+   PropertyEnumItem item;
+
+   foreach ( QString itemStr, itemsStrList )
+   {
+      QStringList itemParts = itemStr.split(",");
+      item.isSelected = itemParts.at(PropertyEnumCol_Default).toInt();
+      item.symbol = itemParts.at(PropertyEnumCol_Symbol);
+      item.value = itemParts.at(PropertyEnumCol_Value);
+      items.append(item);
+   }
+   return items;
+}

@@ -62,7 +62,14 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
       case ExecutionVisualizerCol_Cycles:
          if ( pMarker->state >= eMarkerSet_Complete )
          {
-            sprintf(modelStringBuffer,"%d",pMarker->endCpuCycle-pMarker->startCpuCycle);
+            if ( pMarker->endCpuCycle == MARKER_NOT_MARKED )
+            {
+               sprintf(modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
+            }
+            else
+            {
+               sprintf(modelStringBuffer,"%d",pMarker->endCpuCycle-pMarker->startCpuCycle);
+            }
             return QVariant(modelStringBuffer);
          }
          else
@@ -96,6 +103,17 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
             return QVariant(MARKER_NOT_COMPLETED);
          }
          break;
+      case ExecutionVisualizerCol_Status:
+         if ( pMarker->endCpuCycle == MARKER_NOT_MARKED )
+         {
+            sprintf(modelStringBuffer,"IN PROGRESS");
+         }
+         else
+         {
+            sprintf(modelStringBuffer,"COMPLETE");
+         }
+         return QVariant(modelStringBuffer);
+         break;
    }
    return QVariant();
 }
@@ -115,13 +133,16 @@ QVariant CExecutionMarkerDisplayModel::headerData(int section, Qt::Orientation o
          return QString("Color");
          break;
       case ExecutionVisualizerCol_Cycles:
-         return QString("Cycles");
+         return QString("CPU Cycles");
          break;
       case ExecutionVisualizerCol_StartAddr:
          return QString("Start");
          break;
       case ExecutionVisualizerCol_EndAddr:
          return QString("End");
+         break;
+      case ExecutionVisualizerCol_Status:
+         return QString("Status");
          break;
       }
    }

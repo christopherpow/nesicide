@@ -20,10 +20,13 @@ TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    ui->passRate->setMaximum(100);
    ui->passRate->setValue(0);
 
-   mainWindow = (MainWindow*)parent;
    aborted = false;
+   running = false;
 
    QObject::connect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
+   QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
+   QObject::connect(this,SIGNAL(pauseEmulationAfter(int32_t)),emulator,SLOT(pauseEmulationAfter(int32_t)));
+   QObject::connect(emulator,SIGNAL(emulatorPausedAfter()),this,SLOT(emulatorPausedAfter()));
 
    loadTestSuite(settings.value("TestSuiteFile").toString());
 }
@@ -31,6 +34,11 @@ TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
 TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
 {
    delete ui;
+}
+
+void TestSuiteExecutiveDialog::emulatorPausedAfter()
+{
+   running = false;
 }
 
 void TestSuiteExecutiveDialog::updateProgress()
@@ -218,7 +226,7 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
 
       framesRun = testFrames.toInt();
 
-      emulator->pauseEmulationAfter(testFrames.toInt());
+      emit pauseEmulationAfter(testFrames.toInt());
 
       nesResetInputRecording();
 
@@ -254,20 +262,21 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
          nesSetSystemMode(MODE_PAL);
       }
 
-      mainWindow->openROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
+      emit openROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
 
       if ( !(EnvironmentSettingsDialog::runRomOnLoad()) )
       {
-         emulator->startEmulation();
+         emit startEmulation();
       }
 
       // Kill the last loaded project
       settings.setValue("LastProject","");
 
-      while ( emulator->isActive() )
+      running = true;
+      do
       {
          QCoreApplication::processEvents();
-      }
+      } while ( running );
 
       ui->testProgress->setValue(ui->testProgress->maximum());
 
@@ -293,19 +302,19 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
             }
             if ( result == QMessageBox::Retry )
             {
-               emulator->pauseEmulationAfter(60);
+               emit pauseEmulationAfter(60);
 
                framesRun += 60;
 
                ui->testProgress->setMaximum(ui->testProgress->maximum()+60);
 
-               emulator->startEmulation();
+               emit startEmulation();
 
-               while ( emulator->isActive() )
+               running = true;
+               do
                {
                   QCoreApplication::processEvents();
-               }
-
+               } while ( running );
             }
          } while ( result == QMessageBox::Retry );
 
@@ -354,7 +363,7 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
       }
       ui->passRate->setValue(((float)numPass/(float)numTests)*100);
 
-      emulator->pauseEmulationAfter(-1);
+      emit pauseEmulationAfter(-1);
    }
 }
 

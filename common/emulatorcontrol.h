@@ -21,6 +21,14 @@ private:
 
 signals:
    void focusEmulator();
+   void startEmulation();
+   void pauseEmulation(bool show);
+   void stepCPUEmulation();
+   void stepOverCPUEmulation();
+   void stepOutCPUEmulation();
+   void stepPPUEmulation();
+   void advanceFrame();
+   void resetEmulator();
 
 private slots:
    void on_stepOutButton_clicked();

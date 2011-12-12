@@ -142,7 +142,7 @@ void NESEmulatorThread::kill()
    m_isTerminating = true;
 
    breakpointSemaphore.release();
-   emulator->start();
+   start();
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
@@ -169,6 +169,213 @@ void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
    coreMutexLock();
    nesClearAudioSamplesAvailable();
    coreMutexUnlock();
+}
+
+void NESEmulatorThread::primeEmulator()
+{
+   if ( (nesicideProject) &&
+        (nesicideProject->getCartridge()) )
+   {
+      m_pCartridge = nesicideProject->getCartridge();
+
+      nesClearOpcodeMasks();
+   }
+}
+
+void NESEmulatorThread::resetEmulator()
+{
+   // Force hard-reset of the machine...
+   nesEnableBreakpoints(false);
+
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
+   m_isResetting = true;
+   m_isStarting = false;
+   m_isRunning = false;
+   m_isPaused = true;
+   m_showOnPause = false;
+   start();
+}
+
+void NESEmulatorThread::startEmulation ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
+   m_isStarting = true;
+   start();
+}
+
+void NESEmulatorThread::stepCPUEmulation ()
+{
+   uint32_t endAddr;
+   uint32_t addr;
+   uint32_t absAddr;
+
+   // Check if we have an end address to stop at from a debug information file.
+   // If we do, it'll be the valid end of a C statement or an assembly instruction.
+   addr = nesGetCPUProgramCounter();
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+
+   if ( endAddr != 0xFFFFFFFF )
+   {
+      nesSetGotoAddress(endAddr);
+
+      // If during the last run we were stopped at a breakpoint, clear it...
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+
+      m_isStarting = true;
+      m_isPaused = false;
+      start();
+   }
+   else
+   {
+      // If during the last run we were stopped at a breakpoint, clear it...
+      // But ensure we come right back...
+      nesStepCpu();
+
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+
+      m_isStarting = true;
+      m_isPaused = false;
+      start();
+   }
+}
+
+void NESEmulatorThread::stepOverCPUEmulation ()
+{
+   uint32_t endAddr;
+   uint32_t addr;
+   uint32_t absAddr;
+   uint32_t instAbsAddr;
+   bool    isInstr;
+   uint8_t instr;
+
+   // Check if we have an end address to stop at from a debug information file.
+   // If we do, it'll be the valid end of a C statement or an assembly instruction.
+   addr = nesGetCPUProgramCounter();
+   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+
+   if ( endAddr != 0xFFFFFFFF )
+   {
+      // If the line has enough of an assembly-stream associated with it...
+      if ( endAddr-addr >= 2 )
+      {
+         // Check if last instruction on line is JSR...
+         // This is fairly typical of if conditions with function calls on the same line.
+         instr = nesGetPRGROMData(endAddr-2);
+         instAbsAddr = nesGetAbsoluteAddressFromAddress(endAddr-2);
+         isInstr = CCC65Interface::isAbsoluteAddressAnOpcode(instAbsAddr);
+         if ( !isInstr )
+         {
+            instr = nesGetPRGROMData(addr);
+         }
+      }
+      else
+      {
+         instr = nesGetPRGROMData(addr);
+      }
+   }
+   else
+   {
+      // Check if the current instruction is a JSR...
+      instr = nesGetPRGROMData(addr);
+
+      // Assume the instruction is JSR for loop below.
+      endAddr = addr+2;
+   }
+
+   // If the current instruction is a JSR we need to tell the emulator to
+   // go to the PC one past the JSR to 'step over' the JSR.
+   if ( instr == JSR_ABSOLUTE )
+   {
+      // Go to next opcode point in ROM.
+      // This *should* be where the JSR will vector back to on RTS.
+      nesSetGotoAddress(endAddr+1);
+
+      // If during the last run we were stopped at a breakpoint, clear it...
+      if ( !(breakpointSemaphore.available()) )
+      {
+         breakpointSemaphore.release();
+      }
+
+      m_isStarting = true;
+      m_isPaused = false;
+      start();
+   }
+   else
+   {
+      stepCPUEmulation();
+   }
+}
+
+void NESEmulatorThread::stepOutCPUEmulation ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+//CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   m_isStarting = true;
+   m_isPaused = false;
+   start();
+}
+
+void NESEmulatorThread::stepPPUEmulation ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   // But ensure we come right back...
+   nesStepPpu();
+
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
+   m_isStarting = true;
+   m_isPaused = false;
+   start();
+}
+
+void NESEmulatorThread::advanceFrame ()
+{
+   // If during the last run we were stopped at a breakpoint, clear it...
+   // But ensure we come right back...
+   nesStepPpuFrame();
+
+   if ( !(breakpointSemaphore.available()) )
+   {
+      breakpointSemaphore.release();
+   }
+
+   m_isStarting = true;
+   m_isPaused = false;
+   start();
+}
+
+void NESEmulatorThread::pauseEmulation (bool show)
+{
+   m_isStarting = false;
+   m_isRunning = false;
+   m_isPaused = true;
+   m_showOnPause = show;
+   start();
 }
 
 void NESEmulatorThread::loadCartridge()
@@ -248,228 +455,9 @@ void NESEmulatorThread::loadCartridge()
    }
 }
 
-void NESEmulatorThread::primeEmulator()
-{
-   if ( (nesicideProject) &&
-        (nesicideProject->getCartridge()) )
-   {
-      m_pCartridge = nesicideProject->getCartridge();
-
-      nesClearOpcodeMasks();
-#if 0
-      // Force hard-reset of the machine...
-      nesEnableBreakpoints(false);
-
-      // If we were stopped at a breakpoint, release...
-      // Breakpoints have been deleted.
-      if ( !(breakpointSemaphore.available()) )
-      {
-         breakpointSemaphore.release();
-      }
-      emulator->start();
-#endif
-   }
-}
-
-void NESEmulatorThread::resetEmulator()
-{
-   // Force hard-reset of the machine...
-   nesEnableBreakpoints(false);
-
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(breakpointSemaphore.available()) )
-   {
-      breakpointSemaphore.release();
-   }
-
-   m_isResetting = true;
-   m_isStarting = false;
-   m_isRunning = false;
-   m_isPaused = true;
-   m_showOnPause = false;
-   emulator->start();
-}
-
-void NESEmulatorThread::startEmulation ()
-{
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(breakpointSemaphore.available()) )
-   {
-      breakpointSemaphore.release();
-   }
-
-   m_isStarting = true;
-   emulator->start();
-}
-
-void NESEmulatorThread::stepCPUEmulation ()
-{
-   uint32_t endAddr;
-   uint32_t addr;
-   uint32_t absAddr;
-
-   // Check if we have an end address to stop at from a debug information file.
-   // If we do, it'll be the valid end of a C statement or an assembly instruction.
-   addr = nesGetCPUProgramCounter();
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
-
-   if ( endAddr != 0xFFFFFFFF )
-   {
-      nesSetGotoAddress(endAddr);
-
-      // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(breakpointSemaphore.available()) )
-      {
-         breakpointSemaphore.release();
-      }
-
-      m_isStarting = true;
-      m_isPaused = false;
-      emulator->start();
-   }
-   else
-   {
-      // If during the last run we were stopped at a breakpoint, clear it...
-      // But ensure we come right back...
-      nesStepCpu();
-
-      if ( !(breakpointSemaphore.available()) )
-      {
-         breakpointSemaphore.release();
-      }
-
-      m_isStarting = true;
-      m_isPaused = false;
-      emulator->start();
-   }
-}
-
-void NESEmulatorThread::stepOverCPUEmulation ()
-{
-   uint32_t endAddr;
-   uint32_t addr;
-   uint32_t absAddr;
-   uint32_t instAbsAddr;
-   bool    isInstr;
-   uint8_t instr;
-
-   // Check if we have an end address to stop at from a debug information file.
-   // If we do, it'll be the valid end of a C statement or an assembly instruction.
-   addr = nesGetCPUProgramCounter();
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
-
-   if ( endAddr != 0xFFFFFFFF )
-   {
-      // If the line has enough of an assembly-stream associated with it...
-      if ( endAddr-addr >= 2 )
-      {
-         // Check if last instruction on line is JSR...
-         // This is fairly typical of if conditions with function calls on the same line.
-         instr = nesGetPRGROMData(endAddr-2);
-         instAbsAddr = nesGetAbsoluteAddressFromAddress(endAddr-2);
-         isInstr = CCC65Interface::isAbsoluteAddressAnOpcode(instAbsAddr);
-         if ( !isInstr )
-         {
-            instr = nesGetPRGROMData(addr);
-         }
-      }
-      else
-      {
-         instr = nesGetPRGROMData(addr);
-      }
-   }
-   else
-   {
-      // Check if the current instruction is a JSR...
-      instr = nesGetPRGROMData(addr);
-
-      // Assume the instruction is JSR for loop below.
-      endAddr = addr+2;
-   }
-
-   // If the current instruction is a JSR we need to tell the emulator to
-   // go to the PC one past the JSR to 'step over' the JSR.
-   if ( instr == JSR_ABSOLUTE )
-   {
-      // Go to next opcode point in ROM.
-      // This *should* be where the JSR will vector back to on RTS.
-      nesSetGotoAddress(endAddr+1);
-
-      // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(breakpointSemaphore.available()) )
-      {
-         breakpointSemaphore.release();
-      }
-
-      m_isStarting = true;
-      m_isPaused = false;
-      emulator->start();
-   }
-   else
-   {
-      stepCPUEmulation();
-   }
-}
-
-void NESEmulatorThread::stepOutCPUEmulation ()
-{
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(breakpointSemaphore.available()) )
-   {
-      breakpointSemaphore.release();
-   }
-//CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   m_isStarting = true;
-   m_isPaused = false;
-   emulator->start();
-}
-
-void NESEmulatorThread::stepPPUEmulation ()
-{
-   // If during the last run we were stopped at a breakpoint, clear it...
-   // But ensure we come right back...
-   nesStepPpu();
-
-   if ( !(breakpointSemaphore.available()) )
-   {
-      breakpointSemaphore.release();
-   }
-
-   m_isStarting = true;
-   m_isPaused = false;
-   emulator->start();
-}
-
-void NESEmulatorThread::advanceFrame ()
-{
-   // If during the last run we were stopped at a breakpoint, clear it...
-   // But ensure we come right back...
-   nesStepPpuFrame();
-
-   if ( !(breakpointSemaphore.available()) )
-   {
-      breakpointSemaphore.release();
-   }
-
-   m_isStarting = true;
-   m_isPaused = false;
-   emulator->start();
-}
-
-void NESEmulatorThread::pauseEmulation (bool show)
-{
-   m_isStarting = false;
-   m_isRunning = false;
-   m_isPaused = true;
-   m_showOnPause = show;
-   emulator->start();
-}
-
 void NESEmulatorThread::run ()
 {
-   QWidget* emulator = CDockWidgetRegistry::getWidget("Emulator");
+   QWidget* emulatorWidget = CDockWidgetRegistry::getWidget("Emulator");
    int scaleX;
    int scaleY;
    int scale;
@@ -554,13 +542,15 @@ void NESEmulatorThread::run ()
          emit updateDebuggers();
 
          // Trigger UI updates...
-         emit emulatorPaused(m_showOnPause);
+         emit emulatorPaused(true);
 
          m_isPaused = false;
          m_isRunning = false;
          if ( m_pauseAfterFrames == 0 )
          {
             m_pauseAfterFrames = -1;
+
+            emit emulatorPausedAfter();
          }
 
          nesClearAudioSamplesAvailable();
@@ -588,16 +578,16 @@ void NESEmulatorThread::run ()
 
          // Run emulator for one frame...
          SDL_LockAudio();
-         if ( emulator )
+         if ( emulatorWidget )
          {
             // Figure out where in the window the actual emulator display is.
-            scaleX = emulator->geometry().width()/256;
-            scaleY = emulator->geometry().height()/240;
+            scaleX = emulatorWidget->geometry().width()/256;
+            scaleY = emulatorWidget->geometry().height()/240;
             scale = (scaleX<scaleY)?scaleX:scaleY;
             if ( scale == 0 ) scale = 1;
-            emuX = (emulator->geometry().x()+(emulator->geometry().width()/2))-(128*scale);
+            emuX = (emulatorWidget->geometry().x()+(emulatorWidget->geometry().width()/2))-(128*scale);
             if ( emuX < 0 ) emuX = 0;
-            emuY = (emulator->geometry().y()+(emulator->geometry().height()/2))-(120*scale);
+            emuY = (emulatorWidget->geometry().y()+(emulatorWidget->geometry().height()/2))-(120*scale);
             if ( emuY < 0 ) emuY = 0;
 
             // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
