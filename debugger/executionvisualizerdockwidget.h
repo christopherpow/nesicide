@@ -7,6 +7,8 @@
 
 #include "cexecutionmarkerdisplaymodel.h"
 
+#include "debuggerupdatethread.h"
+
 #include "ixmlserializable.h"
 
 namespace Ui {
@@ -49,6 +51,7 @@ private:
    Ui::ExecutionVisualizerDockWidget *ui;
    CExecutionMarkerDisplayModel *model;
    char* imgData;
+   DebuggerUpdateThread* pThread;
 };
 
 #endif // EXECUTIONVISUALIZERDOCKWIDGET_H

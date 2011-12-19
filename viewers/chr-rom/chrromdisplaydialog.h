@@ -8,6 +8,8 @@
 
 #include "emulator_core.h"
 
+#include "debuggerupdatethread.h"
+
 namespace Ui
 {
 class CHRROMDisplayDialog;
@@ -35,6 +37,7 @@ private:
    Ui::CHRROMDisplayDialog* ui;
    char* imgData;
    bool m_usePPU;
+   DebuggerUpdateThread* pThread;
    void updateScrollbars();
 
 public slots:

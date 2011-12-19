@@ -146,7 +146,6 @@ INCLUDEPATH += common \
 SOURCES += mainwindow.cpp \
     main.cpp \
     common/qtcolorpicker.cpp \
-    common/cgltexturemanager.cpp \
     compiler/csourceassembler.cpp \
     compiler/cgraphicsassembler.cpp \
     compiler/ccartridgebuilder.cpp \
@@ -260,13 +259,13 @@ SOURCES += mainwindow.cpp \
     designers/project_properties/cpropertyvaluedelegate.cpp \
     designers/project_properties/cpropertysymboldelegate.cpp \
     common/cpropertyitem.cpp \
-    common/checkboxlist.cpp
+    common/checkboxlist.cpp \
+    debugger/debuggerupdatethread.cpp
 
 HEADERS += mainwindow.h \
     main.h \
     common/qtcolorpicker.h \
     common/cpaletteitemdelegate.h \
-    common/cgltexturemanager.h \
     compiler/csourceassembler.h \
     compiler/cgraphicsassembler.h \
     compiler/ccartridgebuilder.h \
@@ -383,7 +382,8 @@ HEADERS += mainwindow.h \
     designers/project_properties/cpropertyenumlistmodel.h \
     designers/project_properties/cpropertyvaluedelegate.h \
     designers/project_properties/cpropertysymboldelegate.h \
-    common/checkboxlist.h
+    common/checkboxlist.h \
+    debugger/debuggerupdatethread.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

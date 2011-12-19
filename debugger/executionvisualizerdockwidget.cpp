@@ -36,9 +36,6 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    }
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-   // Connect signals to the UI to have the UI update.
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
-
    // Connect signals to the models to have the model update.
    QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), model, SLOT(update()));
    QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
@@ -52,6 +49,14 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    sizes.append(400);
    sizes.append(200);
    ui->splitter->setSizes(sizes);
+
+   pThread = new DebuggerUpdateThread(&C6502DBG::RENDEREXECUTIONVISUALIZER);
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
 ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
@@ -59,6 +64,7 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
    delete ui;
    delete imgData;
    delete model;
+   delete pThread;
 }
 
 void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
@@ -84,8 +90,9 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
 
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   renderData();
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+
+   pThread->updateDebuggers();
 }
 
 void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
@@ -97,12 +104,11 @@ void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
    QObject::disconnect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
 
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
 void ExecutionVisualizerDockWidget::renderData()
 {
-   C6502DBG::RENDEREXECUTIONVISUALIZER();
    renderer->updateGL ();
 }
 

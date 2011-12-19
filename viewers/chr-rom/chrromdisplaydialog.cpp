@@ -45,10 +45,13 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
       CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
 
-      QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()));
-      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
-      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
-      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
+      pThread = new DebuggerUpdateThread(&CPPUDBG::RENDERCHRMEM);
+
+      QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
    }
    else
    {
@@ -68,19 +71,22 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
    delete imgData;
    delete ui;
+   if ( m_usePPU )
+   {
+      delete pThread;
+   }
 }
 
 void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 {
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   CPPUDBG::EnableCHRMEMInspector(true);
-   renderData();
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+
+   pThread->updateDebuggers();
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   CPPUDBG::EnableCHRMEMInspector(false);
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
 void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
@@ -122,7 +128,7 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
       CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
    }
 
-   renderData();
+   pThread->updateDebuggers();
    renderer->setBGColor(ui->col0PushButton->currentColor());
    renderer->reloadData(imgData);
 }
@@ -138,11 +144,7 @@ void CHRROMDisplayDialog::renderData()
 
    if ( m_usePPU )
    {
-      if ( this->isVisible() )
-      {
-         CPPUDBG::RENDERCHRMEM();
-         renderer->updateGL ();
-      }
+      renderer->updateGL ();
    }
    else
    {

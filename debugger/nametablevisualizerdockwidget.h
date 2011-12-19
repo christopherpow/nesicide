@@ -5,6 +5,8 @@
 
 #include "cnametablepreviewrenderer.h"
 
+#include "debuggerupdatethread.h"
+
 namespace Ui {
    class NameTableVisualizerDockWidget;
 }
@@ -37,6 +39,7 @@ private slots:
 private:
    Ui::NameTableVisualizerDockWidget *ui;
    char* imgData;
+   DebuggerUpdateThread* pThread;
 };
 
 #endif // NAMETABLEVISUALIZERDOCKWIDGET_H

@@ -25,23 +25,27 @@ OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
    }
    CPPUDBG::OAMInspectorTV ( (int8_t*)imgData );
 
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
-
    renderer = new COAMPreviewRenderer(ui->frame,imgData);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
    ui->updateScanline->setText ( "0" );
    ui->showVisible->setChecked ( false );
+
+   pThread = new DebuggerUpdateThread(&CPPUDBG::RENDEROAM);
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
 OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
 {
    delete ui;
    delete imgData;
+   delete pThread;
 }
 
 void OAMVisualizerDockWidget::changeEvent(QEvent* e)
@@ -60,20 +64,18 @@ void OAMVisualizerDockWidget::changeEvent(QEvent* e)
 
 void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
 {
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   CPPUDBG::EnableOAMInspector(true);
-   renderData();
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+
+   pThread->updateDebuggers();
 }
 
 void OAMVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   CPPUDBG::EnableOAMInspector(false);
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
 void OAMVisualizerDockWidget::renderData()
 {
-   CPPUDBG::RENDEROAM();
    renderer->updateGL ();
 }
 
@@ -119,13 +121,11 @@ void OAMVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
 void OAMVisualizerDockWidget::on_updateScanline_editingFinished()
 {
    CPPUDBG::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
-   renderData();
    renderer->update();
 }
 
 void OAMVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
    CPPUDBG::SetOAMViewerShowVisible ( checked );
-   renderData();
    renderer->update();
 }

@@ -16,7 +16,6 @@ CCHRROMPreviewRenderer::~CCHRROMPreviewRenderer()
 void CCHRROMPreviewRenderer::initializeGL()
 {
    glGenTextures(1,(GLuint*)&textureID);
-
    zoom = 100;
 
    // Enable flat shading
@@ -32,6 +31,8 @@ void CCHRROMPreviewRenderer::initializeGL()
    glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
    glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
    glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+   glHint(GL_TEXTURE_COMPRESSION_HINT,GL_FASTEST);
+   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_FASTEST);
 
    // Disable Blending
    glDisable(GL_BLEND);
@@ -44,8 +45,11 @@ void CCHRROMPreviewRenderer::initializeGL()
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, textureID);
 
-   // We want it to be RGBRGB(etc) formatted
-   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+   // We want it to be RGBA formatted
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+   glPixelStorei(GL_PACK_ALIGNMENT, 4);
+   glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
+   glPixelStorei(GL_PACK_ROW_LENGTH, 256);
 
    // Set our texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -55,7 +59,7 @@ void CCHRROMPreviewRenderer::initializeGL()
    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
    // Load the actual texture
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 }
 
 void CCHRROMPreviewRenderer::reloadData(char* imgData)
@@ -63,7 +67,7 @@ void CCHRROMPreviewRenderer::reloadData(char* imgData)
    makeCurrent();
 
    glBindTexture(GL_TEXTURE_2D, textureID);
-   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    update();
 }
 
@@ -116,7 +120,7 @@ void CCHRROMPreviewRenderer::paintGL()
 {
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
-   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(000.0f - scrollX, 000.0f - scrollY, 0.0f);

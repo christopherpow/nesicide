@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QGLWidget>
-#include "cgltexturemanager.h"
 #if defined ( __APPLE__ )
 #include <OpenGL/glext.h>
 #else
@@ -25,7 +24,7 @@ public:
    int scrollX;
    int scrollY;
    char* imageData;
-   int textureID;
+   GLuint textureID;
 };
 
 #endif // CCHRROMPREVIEWRENDERER_H

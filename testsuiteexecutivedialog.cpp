@@ -21,7 +21,6 @@ TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    ui->passRate->setValue(0);
 
    aborted = false;
-   running = false;
 
    QObject::connect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
    QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
@@ -38,7 +37,7 @@ TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
 
 void TestSuiteExecutiveDialog::emulatorPausedAfter()
 {
-   running = false;
+   doTestPhase();
 }
 
 void TestSuiteExecutiveDialog::updateProgress()
@@ -163,9 +162,8 @@ void TestSuiteExecutiveDialog::on_executeSelection_clicked()
    executeTests(start,end+1);
 }
 
-void TestSuiteExecutiveDialog::executeTests(int start,int end)
+void TestSuiteExecutiveDialog::doTestPhase()
 {
-   QSettings settings;
    QString testSuiteFileName = ui->testSuiteFileName->text();
    QDir    testSuiteFolder(testSuiteFileName);
    QString testFileName;
@@ -182,42 +180,23 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
    int     test;
    int     sample;
    int     numTests = ui->tableWidget->rowCount();
-   int     numPass = 0;
 
    testSuiteFolder.cdUp();
 
-   ui->suiteProgress->setMaximum(numTests);
-   ui->suiteProgress->setValue(0);
-   ui->testProgress->setValue(0);
-   ui->passRate->setValue(0);
+   testFileName = ui->tableWidget->item(testRunning,0)->text();
+   testFrames = ui->tableWidget->item(testRunning,1)->text();
+   testSystem = ui->tableWidget->item(testRunning,2)->text();
+   testResult = ui->tableWidget->item(testRunning,3)->text();
+   testFailComment = ui->tableWidget->item(testRunning,4)->text();
+   previousSha1 = ui->tableWidget->item(testRunning,6)->text();
+   testRecordedInput = ui->tableWidget->item(testRunning,7)->text();
 
-   aborted = false;
-
-   if ( start == -1 )
+   switch ( testPhase )
    {
-      start = 0;
-   }
-   if ( end == -1 )
-   {
-      end = numTests;
-   }
+   case 0:
+      ui->tableWidget->setCurrentCell(testRunning,4);
 
-   for ( test = start; test < end; test++ )
-   {
-      if ( aborted )
-      {
-         break;
-      }
-      ui->tableWidget->setCurrentCell(test,4);
-      testFileName = ui->tableWidget->item(test,0)->text();
-      testFrames = ui->tableWidget->item(test,1)->text();
-      testSystem = ui->tableWidget->item(test,2)->text();
-      testResult = ui->tableWidget->item(test,3)->text();
-      testFailComment = ui->tableWidget->item(test,4)->text();
-      previousSha1 = ui->tableWidget->item(test,6)->text();
-      testRecordedInput = ui->tableWidget->item(test,7)->text();
-
-      ui->suiteProgress->setValue(test+1);
+      ui->suiteProgress->setValue(testRunning+1);
 
       ui->testROM->setText(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
 
@@ -225,8 +204,6 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
       ui->testProgress->setValue(0);
 
       framesRun = testFrames.toInt();
-
-      emit pauseEmulationAfter(testFrames.toInt());
 
       nesResetInputRecording();
 
@@ -262,22 +239,17 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
          nesSetSystemMode(MODE_PAL);
       }
 
-      emit openROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
+      emit openROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)),false);
 
-      if ( !(EnvironmentSettingsDialog::runRomOnLoad()) )
-      {
-         emit startEmulation();
-      }
+      emit pauseEmulationAfter(framesRun);
 
-      // Kill the last loaded project
-      settings.setValue("LastProject","");
+      emit startEmulation();
 
-      running = true;
-      do
-      {
-         QCoreApplication::processEvents();
-      } while ( running );
+      // Go to next phase.
+      testPhase = 1;
+      break;
 
+   case 1:
       ui->testProgress->setValue(ui->testProgress->maximum());
 
       QCryptographicHash crypto(QCryptographicHash::Sha1);
@@ -287,36 +259,27 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
       if ( crypto.result().toBase64() != previousSha1.toAscii() )
       {
          int result;
-         do
+
+         QMessageBox dlg;
+         dlg.setWindowTitle(testFileName+": Test Result");
+         dlg.setText("Did the test pass?");
+         dlg.setInformativeText("To add more time to the test run, click \"Retry\".\nTo abort test suite, click \"Abort\".");
+         dlg.setStandardButtons(QMessageBox::Yes|QMessageBox::No|QMessageBox::Retry|QMessageBox::Abort);
+         result = dlg.exec();
+         if ( result == QMessageBox::Abort )
          {
-            QMessageBox dlg;
-            dlg.setWindowTitle(testFileName+": Test Result");
-            dlg.setText("Did the test pass?");
-            dlg.setInformativeText("To add more time to the test run, click \"Retry\".\nTo abort test suite, click \"Abort\".");
-            dlg.setStandardButtons(QMessageBox::Yes|QMessageBox::No|QMessageBox::Retry|QMessageBox::Abort);
-            result = dlg.exec();
-            if ( result == QMessageBox::Abort )
-            {
-               aborted = true;
-               break;
-            }
-            if ( result == QMessageBox::Retry )
-            {
-               emit pauseEmulationAfter(60);
+            break;
+         }
+         if ( result == QMessageBox::Retry )
+         {
+            emit pauseEmulationAfter(60);
 
-               framesRun += 60;
+            framesRun += 60;
 
-               ui->testProgress->setMaximum(ui->testProgress->maximum()+60);
+            ui->testProgress->setMaximum(ui->testProgress->maximum()+60);
 
-               emit startEmulation();
-
-               running = true;
-               do
-               {
-                  QCoreApplication::processEvents();
-               } while ( running );
-            }
-         } while ( result == QMessageBox::Retry );
+            emit startEmulation();
+         }
 
          if ( result == QMessageBox::No )
          {
@@ -327,7 +290,7 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
             testFailComment = "";
          }
 
-         ui->tableWidget->item(test,4)->setText(testFailComment);
+         ui->tableWidget->item(testRunning,4)->setText(testFailComment);
 
          crypto.reset();
          crypto.addData((char*)nesGetTVOut(),256*240*4);
@@ -349,22 +312,70 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
                inputSample = nesGetInputSample(0,sample);
                inputSamplesRaw.append((char*)inputSample,sizeof(JoypadLoggerInfo));
             }
-            ui->tableWidget->item(test,7)->setText(inputSamplesRaw.toBase64());
+            ui->tableWidget->item(testRunning,7)->setText(inputSamplesRaw.toBase64());
          }
 
-         ui->tableWidget->item(test,3)->setText(testResult);
-         ui->tableWidget->item(test,1)->setText(QString::number(framesRun));
-         ui->tableWidget->item(test,6)->setText(crypto.result().toBase64());
+         ui->tableWidget->item(testRunning,3)->setText(testResult);
+         ui->tableWidget->item(testRunning,1)->setText(QString::number(framesRun));
+         ui->tableWidget->item(testRunning,6)->setText(crypto.result().toBase64());
+
+         testPhase = 0;
+         testRunning++;
+      }
+      else
+      {
+         testPhase = 0;
+         testRunning++;
       }
 
       if ( testResult == "pass" )
       {
-         numPass++;
+         testsPassed++;
       }
-      ui->passRate->setValue(((float)numPass/(float)numTests)*100);
+      ui->passRate->setValue(((float)testsPassed/(float)numTests)*100);
 
       emit pauseEmulationAfter(-1);
+
+      if ( testRunning < testEnd )
+      {
+         doTestPhase();
+      }
+      break;
    }
+}
+
+void TestSuiteExecutiveDialog::executeTests(int start,int end)
+{
+   QSettings settings;
+   int     numTests = ui->tableWidget->rowCount();
+
+   // Kill the last loaded project
+   settings.setValue("LastProject","");
+
+   ui->suiteProgress->setMaximum(numTests);
+   ui->suiteProgress->setValue(0);
+   ui->testProgress->setValue(0);
+   ui->passRate->setValue(0);
+
+   aborted = false;
+
+   if ( start == -1 )
+   {
+      start = 0;
+   }
+   if ( end == -1 )
+   {
+      end = numTests;
+   }
+
+   testStart = start;
+   testEnd = end;
+   testRunning = start;
+   testPhase = 0;
+   testsPassed = 0;
+
+   // Kick off first phase of first test.
+   doTestPhase();
 }
 
 void TestSuiteExecutiveDialog::on_abort_clicked()

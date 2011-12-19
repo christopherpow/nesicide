@@ -20,12 +20,17 @@ public:
 private:
     Ui::TestSuiteExecutiveDialog *ui;
     bool aborted;
-    bool running;
+    int testStart;
+    int testEnd;
+    int testRunning;
+    int testPhase;
+    int testsPassed;
     void loadTestSuite(QString testSuiteFileName);
     void executeTests(int start,int end);
+    void doTestPhase();
 
 signals:
-    void openROM(QString romFile);
+    void openROM(QString romFile,bool runRom);
     void startEmulation();
     void pauseEmulationAfter(int32_t frames);
 

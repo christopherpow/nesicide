@@ -5,6 +5,8 @@
 
 #include "coampreviewrenderer.h"
 
+#include "debuggerupdatethread.h"
+
 namespace Ui {
    class OAMVisualizerDockWidget;
 }
@@ -38,6 +40,7 @@ private slots:
 private:
    Ui::OAMVisualizerDockWidget *ui;
    char* imgData;
+   DebuggerUpdateThread* pThread;
 };
 
 #endif // OAMVISUALIZERDOCKWIDGET_H

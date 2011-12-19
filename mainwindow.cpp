@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    // Create the Test Suite executive modeless dialog...
    testSuiteExecutive = new TestSuiteExecutiveDialog();
-   QObject::connect(testSuiteExecutive,SIGNAL(openROM(QString)),this,SLOT(openROM(QString)));
+   QObject::connect(testSuiteExecutive,SIGNAL(openROM(QString,bool)),this,SLOT(openROM(QString,bool)));
 
    // Start breakpoint-watcher thread...
    breakpointWatcher->start();
@@ -794,13 +794,11 @@ void MainWindow::on_actionNew_Project_triggered()
    }
 }
 
-void MainWindow::openROM(QString fileName)
+void MainWindow::openROM(QString fileName,bool runRom)
 {
    QSettings settings;
 
    output->showPane(OutputPaneDockWidget::Output_General);
-
-   emit pauseEmulation(false);
 
    // Remove any lingering project content
    projectBrowser->disableNavigation();
@@ -844,7 +842,7 @@ void MainWindow::openROM(QString fileName)
    emit resetEmulator();
    emit primeEmulator();
 
-   if ( EnvironmentSettingsDialog::runRomOnLoad() )
+   if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
    {
       emit startEmulation();
    }
@@ -1011,7 +1009,7 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QMainWindow::closeEvent(event);
 }
 
-void MainWindow::openProject(QString fileName)
+void MainWindow::openProject(QString fileName,bool runRom)
 {
    QSettings settings;
    QString errors;
@@ -1086,7 +1084,7 @@ void MainWindow::openProject(QString fileName)
          emit primeEmulator();
          emit resetEmulator();
 
-         if ( EnvironmentSettingsDialog::runRomOnLoad() )
+         if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
          {
             emit startEmulation();
          }
@@ -1772,7 +1770,6 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
       emit primeEmulator();
       emit resetEmulator();
-      emit pauseEmulation(true);
 
       buildTextLogger->write("<b>Load complete.</b>");
 

@@ -31,14 +31,17 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
    C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)cpuImgData );
    CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)ppuImgData );
 
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(renderData()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(renderData()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(renderData()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()) );
-
    renderer = new CCodeDataLoggerRenderer(ui->frame,cpuImgData);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
+
+   pThread = new DebuggerUpdateThread(&C6502DBG::RENDERCODEDATALOGGER);
+
+   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
 CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
@@ -46,6 +49,7 @@ CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
    delete ui;
    delete cpuImgData;
    delete ppuImgData;
+   delete pThread;
 }
 
 void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
@@ -64,27 +68,18 @@ void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
 
 void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 {
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
-   renderData();
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+
+   pThread->updateDebuggers();
 }
 
 void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(renderData()) );
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
 void CodeDataLoggerDockWidget::renderData()
 {
-   switch ( ui->displaySelect->currentIndex() )
-   {
-      case CodeDataLogger_CPU:
-         C6502DBG::RENDERCODEDATALOGGER();
-         break;
-      case CodeDataLogger_PPU:
-         CPPUDBG::RENDERCODEDATALOGGER();
-         break;
-   }
-
    renderer->updateGL ();
 }
 
@@ -133,11 +128,15 @@ void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
    {
       case CodeDataLogger_CPU:
          renderer->changeImage(cpuImgData);
+         pThread->changeFunction(&C6502DBG::RENDERCODEDATALOGGER);
          break;
       case CodeDataLogger_PPU:
          renderer->changeImage(ppuImgData);
+         pThread->changeFunction(&CPPUDBG::RENDERCODEDATALOGGER);
          break;
    }
+
+   pThread->updateDebuggers();
 
    renderer->update();
 }

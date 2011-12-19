@@ -5,6 +5,8 @@
 
 #include "ccodedataloggerrenderer.h"
 
+#include "debuggerupdatethread.h"
+
 enum
 {
    CodeDataLogger_CPU,
@@ -36,6 +38,7 @@ private:
    Ui::CodeDataLoggerDockWidget *ui;
    char* cpuImgData;
    char* ppuImgData;
+   DebuggerUpdateThread* pThread;
 
 public slots:
    void renderData();

@@ -60,7 +60,7 @@ protected:
 private:
    Ui::MainWindow* ui;
    QString projectFileName;
-   void openProject(QString fileName);
+   void openProject(QString fileName,bool runRom=true);
    void saveProject();
    void saveEmulatorState(QString fileName);
    void closeProject();
@@ -112,7 +112,7 @@ signals:
    void adjustAudio(int32_t length);
 
 private slots:
-   void openROM(QString fileName);
+   void openROM(QString fileName,bool runRom=true);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();
    void focusEmulator();

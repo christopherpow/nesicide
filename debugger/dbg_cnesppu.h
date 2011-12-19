@@ -38,10 +38,6 @@ public:
    // rendered to, and passes it to the PPU.  If the CHR memory
    // visualization inspector is not visible the rendering is disabled
    // to save host CPU cycles.
-   static inline void EnableCHRMEMInspector ( bool enable )
-   {
-      m_bCHRMEMInspector = enable;
-   }
    static inline void CHRMEMInspectorTV ( int8_t* pTV )
    {
       m_pCHRMEMInspectorTV = pTV;
@@ -55,10 +51,6 @@ public:
    // visualization inspector allocates the memory to be rendered to,
    // and passes it to the PPU.  If the OAM visualization inspector is
    // not visible the rendering is disabled to save host CPU cycles.
-   static inline void EnableOAMInspector ( bool enable )
-   {
-      m_bOAMInspector = enable;
-   }
    static inline void OAMInspectorTV ( int8_t* pTV )
    {
       m_pOAMInspectorTV = pTV;
@@ -68,10 +60,6 @@ public:
    // visualization inspector allocates the memory to be rendered to,
    // and passes it to the PPU.  If the nametable visualization inspector
    // is not visible the rendering is disabled to save host CPU cycles.
-   static inline void EnableNameTableInspector ( bool enable )
-   {
-      m_bNameTableInspector = enable;
-   }
    static inline void NameTableInspectorTV ( int8_t* pTV )
    {
       m_pNameTableInspectorTV = pTV;
@@ -132,12 +120,6 @@ public:
       m_pCodeDataLoggerInspectorTV = pTV;
    }
    static void RENDERCODEDATALOGGER ( void );
-
-   // Flags defining whether or not the various debugger inspectors
-   // that are visualizers are enabled (visible) or not.
-   static bool           m_bCHRMEMInspector;
-   static bool           m_bOAMInspector;
-   static bool           m_bNameTableInspector;
 
    static QColor         m_chrMemColor [ 4 ];
 

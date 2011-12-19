@@ -2686,9 +2686,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor.setBlue(cycleDiff);
          }
 
-         *pTV = lcolor.blue();
+         *pTV = lcolor.red();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.red();
+         *(pTV+2) = lcolor.blue();
       }
       else
       {
@@ -2741,9 +2741,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor.setBlue(cycleDiff);
          }
 
-         *pTV = lcolor.blue();
+         *pTV = lcolor.red();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.red();
+         *(pTV+2) = lcolor.blue();
       }
       else
       {
@@ -2796,9 +2796,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor.setBlue(cycleDiff);
          }
 
-         *pTV = lcolor.blue();
+         *pTV = lcolor.red();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.red();
+         *(pTV+2) = lcolor.blue();
       }
       else
       {
@@ -2852,9 +2852,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
             lcolor.setBlue(cycleDiff);
          }
 
-         *pTV = lcolor.blue();
+         *pTV = lcolor.red();
          *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.red();
+         *(pTV+2) = lcolor.blue();
       }
       else
       {
@@ -2910,9 +2910,9 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
                lcolor.setBlue(cycleDiff);
             }
 
-            *pTV = lcolor.blue();
+            *pTV = lcolor.red();
             *(pTV+1) = lcolor.green();
-            *(pTV+2) = lcolor.red();
+            *(pTV+2) = lcolor.blue();
          }
          else
          {
@@ -2971,9 +2971,9 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
                       (frameDiff > 1)) )
                {
                   // Marker color!
-                  *pTV = pMarker->blue;
+                  *pTV = pMarker->red;
                   *(pTV+1) = pMarker->green;
-                  *(pTV+2) = pMarker->red;
+                  *(pTV+2) = pMarker->blue;
                   marked++;
                }
             }
