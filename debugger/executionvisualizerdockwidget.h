@@ -36,6 +36,7 @@ protected:
    void mousePressEvent(QMouseEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void wheelEvent(QWheelEvent *event);
+   void contextMenuEvent(QContextMenuEvent *event);
    CExecutionVisualizerRenderer* renderer;
    void updateScrollbars();
 
@@ -43,6 +44,8 @@ public slots:
    void renderData();
 
 private slots:
+   void on_actionRemove_Marker_triggered();
+   void on_actionReset_Marker_Data_triggered();
    void on_tableView_activated(QModelIndex index);
    void on_tableView_clicked(QModelIndex index);
    void on_tableView_entered(QModelIndex index);
@@ -50,6 +53,9 @@ private slots:
    void on_verticalScrollBar_valueChanged(int value);
    void on_horizontalScrollBar_valueChanged(int value);
    void on_zoomSlider_valueChanged(int value);
+
+signals:
+   void breakpointsChanged();
 
 private:
    Ui::ExecutionVisualizerDockWidget *ui;

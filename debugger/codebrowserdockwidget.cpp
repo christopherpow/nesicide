@@ -48,6 +48,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
    QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 
    ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    ui->tableView->scrollTo(ui->tableView->currentIndex());
@@ -74,6 +75,9 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
 
    if ( addr != -1 )
    {
+      menu.addAction(ui->actionGo_to_Source);
+      menu.addSeparator();
+
       bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
                                           eBreakpointItemAddress,
                                           0,
@@ -148,8 +152,9 @@ void CodeBrowserDockWidget::snapTo(QString item)
    if ( item.startsWith("Address,") )
    {
       QStringList splits;
-      splits = item.split(QRegExp("[,()]"));
-      if ( splits.count() == 5 )
+      splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
+
+      if ( splits.count() == 4 )
       {
          addr = splits.at(3).toInt(NULL,16);
 
@@ -388,5 +393,31 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
             emit markProjectDirty(true);
          }
       }
+   }
+}
+
+void CodeBrowserDockWidget::on_tableView_doubleClicked(QModelIndex index)
+{
+   if ( index.isValid() )
+   {
+      QString item = "Address,";
+
+      item += assemblyViewModel->data(assemblyViewModel->index(index.row(),CodeBrowserCol_Address),Qt::DisplayRole).toString();
+
+      emit snapToTab(item);
+   }
+}
+
+void CodeBrowserDockWidget::on_actionGo_to_Source_triggered()
+{
+   QModelIndex index = ui->tableView->currentIndex();
+
+   if ( index.isValid() )
+   {
+      QString item = "Address,";
+
+      item += assemblyViewModel->data(assemblyViewModel->index(index.row(),CodeBrowserCol_Address),Qt::DisplayRole).toString();
+
+      emit snapToTab(item);
    }
 }

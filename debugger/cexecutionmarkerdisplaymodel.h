@@ -6,7 +6,9 @@
 enum
 {
    ExecutionVisualizerCol_Color = 0,
-   ExecutionVisualizerCol_Cycles,
+   ExecutionVisualizerCol_MinCycles,
+   ExecutionVisualizerCol_CurCycles,
+   ExecutionVisualizerCol_MaxCycles,
    ExecutionVisualizerCol_StartAddr,
    ExecutionVisualizerCol_EndAddr,
    ExecutionVisualizerCol_Status,

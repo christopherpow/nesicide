@@ -30,6 +30,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
    QSettings settings;
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -160,6 +161,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
+   QObject::connect ( codeBrowser, SIGNAL(snapTo(QString)),this, SLOT(snapTo(QString)) );
+   QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
    QObject::connect ( this, SIGNAL(addWatchedItem(QString)), symbolWatch, SLOT(addWatchedItem(QString)) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
@@ -1119,8 +1122,8 @@ void CodeEditorForm::snapTo(QString item)
    // Make sure item is something we care about
    if ( item.startsWith("Address,") )
    {
-      splits = item.split(QRegExp("[,()]"));
-      if ( splits.count() == 5 )
+      splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
+      if ( splits.count() == 4 )
       {
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);

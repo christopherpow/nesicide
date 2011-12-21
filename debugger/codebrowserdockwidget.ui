@@ -75,7 +75,7 @@
        <bool>false</bool>
       </property>
       <attribute name="horizontalHeaderVisible">
-       <bool>true</bool>
+       <bool>false</bool>
       </attribute>
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>false</bool>
@@ -167,6 +167,14 @@
    </property>
    <property name="toolTip">
     <string>Clear Visualization Markers</string>
+   </property>
+  </action>
+  <action name="actionGo_to_Source">
+   <property name="text">
+    <string>Go to Source</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to Source</string>
    </property>
   </action>
  </widget>

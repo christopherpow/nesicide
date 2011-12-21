@@ -95,12 +95,14 @@ void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
 
 void ExecutionVisualizerDockWidget::keyPressEvent(QKeyEvent *event)
 {
+   CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+
    if ( ui->tableView->currentIndex().isValid() )
    {
-      CMarker* pMarkers = nesGetExecutionMarkerDatabase();
-
       pMarkers->RemoveMarker(ui->tableView->currentIndex().row());
       pThread->updateDebuggers();
+
+      emit breakpointsChanged();
    }
 }
 
@@ -149,16 +151,28 @@ void ExecutionVisualizerDockWidget::wheelEvent(QWheelEvent *event)
    }
 }
 
-void ExecutionVisualizerDockWidget::renderData()
+void ExecutionVisualizerDockWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-   renderer->updateGL ();
-   model->update();
+   QMenu menu;
+   if ( ui->tableView->currentIndex().isValid() )
+   {
+      menu.addAction(ui->actionRemove_Marker);
+      menu.addAction(ui->actionReset_Marker_Data);
+   }
+
+   menu.exec(event->globalPos());
 }
 
 void ExecutionVisualizerDockWidget::resizeEvent(QResizeEvent* event)
 {
    QDockWidget::resizeEvent(event);
    updateScrollbars();
+}
+
+void ExecutionVisualizerDockWidget::renderData()
+{
+   renderer->updateGL ();
+   model->update();
 }
 
 void ExecutionVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
@@ -312,4 +326,30 @@ void ExecutionVisualizerDockWidget::on_tableView_clicked(QModelIndex index)
 void ExecutionVisualizerDockWidget::on_tableView_activated(QModelIndex index)
 {
    on_tableView_pressed(index);
+}
+
+void ExecutionVisualizerDockWidget::on_actionReset_Marker_Data_triggered()
+{
+   CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+   int marker = ui->tableView->currentIndex().row();
+
+   if ( ui->tableView->currentIndex().isValid() )
+   {
+      pMarkers->ZeroMarker(marker);
+      pThread->updateDebuggers();
+   }
+}
+
+void ExecutionVisualizerDockWidget::on_actionRemove_Marker_triggered()
+{
+   CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+   int marker = ui->tableView->currentIndex().row();
+
+   if ( ui->tableView->currentIndex().isValid() )
+   {
+      pMarkers->RemoveMarker(marker);
+      pThread->updateDebuggers();
+
+      emit breakpointsChanged();
+   }
 }

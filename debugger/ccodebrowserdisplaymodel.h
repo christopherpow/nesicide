@@ -3,6 +3,17 @@
 
 #include <QAbstractTableModel>
 
+enum
+{
+   CodeBrowserCol_Decoration = 0,
+   CodeBrowserCol_Address,
+   CodeBrowserCol_Opcode,
+   CodeBrowserCol_Operand1,
+   CodeBrowserCol_Operand2,
+   CodeBrowserCol_Disassembly,
+   CodeBrowserCol_Max
+};
+
 class CCodeBrowserDisplayModel : public QAbstractTableModel
 {
    Q_OBJECT

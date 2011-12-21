@@ -196,6 +196,22 @@
     </item>
    </layout>
   </widget>
+  <action name="actionReset_Marker_Data">
+   <property name="text">
+    <string>Reset Marker Data</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset Marker Data</string>
+   </property>
+  </action>
+  <action name="actionRemove_Marker">
+   <property name="text">
+    <string>Remove Marker</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove Marker</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

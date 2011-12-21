@@ -56,68 +56,105 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    // Get data for columns...
    switch ( index.column() )
    {
-      case ExecutionVisualizerCol_Color:
-         return QVariant();
-         break;
-      case ExecutionVisualizerCol_Cycles:
-         if ( pMarker->state >= eMarkerSet_Complete )
+   case ExecutionVisualizerCol_Color:
+      return QVariant();
+      break;
+   case ExecutionVisualizerCol_CurCycles:
+      if ( pMarker->state >= eMarkerSet_Complete )
+      {
+         if ( (pMarker->startCpuCycle != MARKER_NOT_MARKED) &&
+              (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
          {
-            if ( pMarker->endCpuCycle == MARKER_NOT_MARKED )
-            {
-               sprintf(modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
-            }
-            else
-            {
-               sprintf(modelStringBuffer,"%d",pMarker->endCpuCycle-pMarker->startCpuCycle);
-            }
-            return QVariant(modelStringBuffer);
+            sprintf(modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
          }
          else
          {
-            return QVariant(MARKER_NO_DATA);
+            sprintf(modelStringBuffer,"%d",pMarker->curCpuCycles);
          }
-         break;
-      case ExecutionVisualizerCol_StartAddr:
-         if ( pMarker->state >= eMarkerSet_Started )
+         return QVariant(modelStringBuffer);
+      }
+      else
+      {
+         return QVariant(MARKER_NO_DATA);
+      }
+      break;
+   case ExecutionVisualizerCol_MinCycles:
+      if ( pMarker->state >= eMarkerSet_Complete )
+      {
+         if ( pMarker->minCpuCycles == 0xFFFFFFFF )
          {
-            nesGetPrintableAddressWithAbsolute(modelStringBuffer,
-                                               pMarker->startAddr,
-                                               pMarker->startAbsAddr);
-            return QVariant(modelStringBuffer);
+            sprintf(modelStringBuffer,"N/A");
          }
          else
          {
-            return QVariant(MARKER_NOT_STARTED);
+            sprintf(modelStringBuffer,"%d",pMarker->minCpuCycles);
          }
-         break;
-      case ExecutionVisualizerCol_EndAddr:
-         if ( pMarker->state >= eMarkerSet_Complete )
+         return QVariant(modelStringBuffer);
+      }
+      else
+      {
+         return QVariant(MARKER_NO_DATA);
+      }
+      break;
+   case ExecutionVisualizerCol_MaxCycles:
+      if ( pMarker->state >= eMarkerSet_Complete )
+      {
+         if ( pMarker->maxCpuCycles == 0 )
          {
-            nesGetPrintableAddressWithAbsolute(modelStringBuffer,
-                                               pMarker->endAddr,
-                                               pMarker->endAbsAddr);
-            return QVariant(modelStringBuffer);
+            sprintf(modelStringBuffer,"N/A");
          }
          else
          {
-            return QVariant(MARKER_NOT_COMPLETED);
+            sprintf(modelStringBuffer,"%d",pMarker->maxCpuCycles);
          }
-         break;
-      case ExecutionVisualizerCol_Status:
-         if ( pMarker->state == eMarkerSet_Invalid )
-         {
-            return QVariant("INVALID");
-         }
-         else if ( (pMarker->state == eMarkerSet_Complete) &&
-                   (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
-         {
-            return QVariant("IN PROGRESS");
-         }
-         else
-         {
-            return QVariant("COMPLETE");
-         }
-         break;
+         return QVariant(modelStringBuffer);
+      }
+      else
+      {
+         return QVariant(MARKER_NO_DATA);
+      }
+      break;
+   case ExecutionVisualizerCol_StartAddr:
+      if ( pMarker->state >= eMarkerSet_Started )
+      {
+         nesGetPrintableAddressWithAbsolute(modelStringBuffer,
+                                            pMarker->startAddr,
+                                            pMarker->startAbsAddr);
+         return QVariant(modelStringBuffer);
+      }
+      else
+      {
+         return QVariant(MARKER_NOT_STARTED);
+      }
+      break;
+   case ExecutionVisualizerCol_EndAddr:
+      if ( pMarker->state >= eMarkerSet_Complete )
+      {
+         nesGetPrintableAddressWithAbsolute(modelStringBuffer,
+                                            pMarker->endAddr,
+                                            pMarker->endAbsAddr);
+         return QVariant(modelStringBuffer);
+      }
+      else
+      {
+         return QVariant(MARKER_NOT_COMPLETED);
+      }
+      break;
+   case ExecutionVisualizerCol_Status:
+      if ( pMarker->state == eMarkerSet_Invalid )
+      {
+         return QVariant("INVALID");
+      }
+      else if ( (pMarker->state == eMarkerSet_Complete) &&
+                (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
+      {
+         return QVariant("IN PROGRESS");
+      }
+      else
+      {
+         return QVariant("COMPLETE");
+      }
+      break;
    }
    return QVariant();
 }
@@ -136,8 +173,14 @@ QVariant CExecutionMarkerDisplayModel::headerData(int section, Qt::Orientation o
       case ExecutionVisualizerCol_Color:
          return QString("Color");
          break;
-      case ExecutionVisualizerCol_Cycles:
+      case ExecutionVisualizerCol_MinCycles:
+         return QString("Min CPU Cycles");
+         break;
+      case ExecutionVisualizerCol_CurCycles:
          return QString("CPU Cycles");
+         break;
+      case ExecutionVisualizerCol_MaxCycles:
+         return QString("Max CPU Cycles");
          break;
       case ExecutionVisualizerCol_StartAddr:
          return QString("Start");

@@ -66,11 +66,13 @@ void CProjectTabWidget::contextMenuEvent(QContextMenuEvent *event)
 int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &label)
 {
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QIcon myIcon;
    int tabIdx;
 
    if ( editor )
    {
+      QObject::connect(codeBrowser,SIGNAL(snapToTab(QString)),this,SLOT(snapToTab(QString)));
       QObject::connect(editor,SIGNAL(editor_modified(bool)),this,SLOT(tabModified(bool)));
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
       QObject::connect(editor,SIGNAL(snapToTab(QString)),this,SLOT(snapToTab(QString)));
@@ -160,8 +162,8 @@ void CProjectTabWidget::snapToTab(QString item)
    // Make sure item is something we care about
    if ( item.startsWith("Address,") )
    {
-      splits = item.split(QRegExp("[,()]"));
-      if ( splits.count() == 5 )
+      splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
+      if ( splits.count() == 4 )
       {
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
