@@ -36,12 +36,6 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    }
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-   // Connect signals to the models to have the model update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), model, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
-
    renderer = new CExecutionVisualizerRenderer(ui->frame,imgData);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
@@ -67,11 +61,11 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
    delete pThread;
 }
 
-void ExecutionVisualizerDockWidget::changeEvent(QEvent* e)
+void ExecutionVisualizerDockWidget::changeEvent(QEvent* event)
 {
-   CDebuggerBase::changeEvent(e);
+   CDebuggerBase::changeEvent(event);
 
-   switch (e->type())
+   switch (event->type())
    {
       case QEvent::LanguageChange:
          ui->retranslateUi(this);
@@ -86,9 +80,8 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
 
-   QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
-   QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
+   QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointInspector,SIGNAL(breakpointsChanged()),pThread,SLOT(updateDebuggers()));
 
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
@@ -97,19 +90,69 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 
 void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
-
-   QObject::disconnect ( codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
-   QObject::disconnect ( breakpointInspector, SIGNAL(breakpointsChanged()), model, SLOT(update()) );
-
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+}
+
+void ExecutionVisualizerDockWidget::keyPressEvent(QKeyEvent *event)
+{
+   if ( ui->tableView->currentIndex().isValid() )
+   {
+      CMarker* pMarkers = nesGetExecutionMarkerDatabase();
+
+      pMarkers->RemoveMarker(ui->tableView->currentIndex().row());
+      pThread->updateDebuggers();
+   }
+}
+
+void ExecutionVisualizerDockWidget::mousePressEvent(QMouseEvent *event)
+{
+   if ( event->button() == Qt::LeftButton )
+   {
+      pressPos = event->pos();
+   }
+}
+
+void ExecutionVisualizerDockWidget::mouseMoveEvent(QMouseEvent *event)
+{
+   int zf = ui->zoomSlider->value();
+   zf = zf-(zf%100);
+   zf /= 100;
+
+   if ( event->buttons() == Qt::LeftButton )
+   {
+      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
+      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
+   }
+   else if ( event->buttons() == Qt::RightButton )
+   {
+      if ( event->pos().y() < pressPos.y() )
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+      }
+      else
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+      }
+   }
+   pressPos = event->pos();
+}
+
+void ExecutionVisualizerDockWidget::wheelEvent(QWheelEvent *event)
+{
+   if ( event->delta() > 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+   }
+   else if ( event->delta() < 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+   }
 }
 
 void ExecutionVisualizerDockWidget::renderData()
 {
    renderer->updateGL ();
+   model->update();
 }
 
 void ExecutionVisualizerDockWidget::resizeEvent(QResizeEvent* event)
@@ -159,30 +202,30 @@ bool ExecutionVisualizerDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 
    for ( marker = 0; marker < pMarkers->GetNumMarkers(); marker++ )
    {
-      QDomElement breakpointElement = addElement( doc, element, "marker" );
+      QDomElement markerElement = addElement( doc, element, "marker" );
       MarkerSetInfo* pMarker = pMarkers->GetMarker(marker);
-      breakpointElement.setAttribute("index",marker);
-      breakpointElement.setAttribute("state",pMarker->state);
+      markerElement.setAttribute("index",marker);
+      markerElement.setAttribute("state",pMarker->state);
       if ( pMarker->state == eMarkerSet_Started )
       {
-         breakpointElement.setAttribute("startaddr",pMarker->startAddr);
-         breakpointElement.setAttribute("startabsaddr",pMarker->startAbsAddr);
-         breakpointElement.setAttribute("endaddr",0);
-         breakpointElement.setAttribute("endabsaddr",0);
+         markerElement.setAttribute("startaddr",pMarker->startAddr);
+         markerElement.setAttribute("startabsaddr",pMarker->startAbsAddr);
+         markerElement.setAttribute("endaddr",0);
+         markerElement.setAttribute("endabsaddr",0);
       }
       else if ( pMarker->state == eMarkerSet_Complete )
       {
-         breakpointElement.setAttribute("startaddr",pMarker->startAddr);
-         breakpointElement.setAttribute("startabsaddr",pMarker->startAbsAddr);
-         breakpointElement.setAttribute("endaddr",pMarker->endAddr);
-         breakpointElement.setAttribute("endabsaddr",pMarker->endAbsAddr);
+         markerElement.setAttribute("startaddr",pMarker->startAddr);
+         markerElement.setAttribute("startabsaddr",pMarker->startAbsAddr);
+         markerElement.setAttribute("endaddr",pMarker->endAddr);
+         markerElement.setAttribute("endabsaddr",pMarker->endAbsAddr);
       }
       else
       {
-         breakpointElement.setAttribute("startaddr",0);
-         breakpointElement.setAttribute("startabsaddr",0);
-         breakpointElement.setAttribute("endaddr",0);
-         breakpointElement.setAttribute("endabsaddr",0);
+         markerElement.setAttribute("startaddr",0);
+         markerElement.setAttribute("startabsaddr",0);
+         markerElement.setAttribute("endaddr",0);
+         markerElement.setAttribute("endabsaddr",0);
       }
    }
 
@@ -202,7 +245,7 @@ bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& doc, QDomNode& nod
    QDomNode markerNode;
 
    // Start with a clean slate.
-   pMarkers->ClearAllMarkers();
+   pMarkers->RemoveAllMarkers();
 
    if (!childNode.isNull())
    {

@@ -104,15 +104,19 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
          }
          break;
       case ExecutionVisualizerCol_Status:
-         if ( pMarker->endCpuCycle == MARKER_NOT_MARKED )
+         if ( pMarker->state == eMarkerSet_Invalid )
          {
-            sprintf(modelStringBuffer,"IN PROGRESS");
+            return QVariant("INVALID");
+         }
+         else if ( (pMarker->state == eMarkerSet_Complete) &&
+                   (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
+         {
+            return QVariant("IN PROGRESS");
          }
          else
          {
-            sprintf(modelStringBuffer,"COMPLETE");
+            return QVariant("COMPLETE");
          }
-         return QVariant(modelStringBuffer);
          break;
    }
    return QVariant();

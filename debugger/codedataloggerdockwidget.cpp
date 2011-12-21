@@ -78,6 +78,51 @@ void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
+void CodeDataLoggerDockWidget::mousePressEvent(QMouseEvent *event)
+{
+   if ( event->button() == Qt::LeftButton )
+   {
+      pressPos = event->pos();
+   }
+}
+
+void CodeDataLoggerDockWidget::mouseMoveEvent(QMouseEvent *event)
+{
+   int zf = ui->zoomSlider->value();
+   zf = zf-(zf%100);
+   zf /= 100;
+
+   if ( event->buttons() == Qt::LeftButton )
+   {
+      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
+      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
+   }
+   else if ( event->buttons() == Qt::RightButton )
+   {
+      if ( event->pos().y() < pressPos.y() )
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+      }
+      else
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+      }
+   }
+   pressPos = event->pos();
+}
+
+void CodeDataLoggerDockWidget::wheelEvent(QWheelEvent *event)
+{
+   if ( event->delta() > 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+   }
+   else if ( event->delta() < 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+   }
+}
+
 void CodeDataLoggerDockWidget::renderData()
 {
    renderer->updateGL ();

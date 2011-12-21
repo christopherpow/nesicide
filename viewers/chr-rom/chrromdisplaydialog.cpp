@@ -95,6 +95,51 @@ void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
    updateScrollbars();
 }
 
+void CHRROMDisplayDialog::mousePressEvent(QMouseEvent *event)
+{
+   if ( event->button() == Qt::LeftButton )
+   {
+      pressPos = event->pos();
+   }
+}
+
+void CHRROMDisplayDialog::mouseMoveEvent(QMouseEvent *event)
+{
+   int zf = ui->zoomSlider->value();
+   zf = zf-(zf%100);
+   zf /= 100;
+
+   if ( event->buttons() == Qt::LeftButton )
+   {
+      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
+      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
+   }
+   else if ( event->buttons() == Qt::RightButton )
+   {
+      if ( event->pos().y() < pressPos.y() )
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+      }
+      else
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+      }
+   }
+   pressPos = event->pos();
+}
+
+void CHRROMDisplayDialog::wheelEvent(QWheelEvent *event)
+{
+   if ( event->delta() > 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+   }
+   else if ( event->delta() < 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+   }
+}
+
 void CHRROMDisplayDialog::changeEvent(QEvent* event)
 {
    QWidget::changeEvent(event);

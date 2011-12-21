@@ -334,7 +334,7 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
 void CodeBrowserDockWidget::on_actionClear_marker_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
-   markers->ClearAllMarkers();
+   markers->RemoveAllMarkers();
 
    emit breakpointsChanged();
    emit markProjectDirty(true);

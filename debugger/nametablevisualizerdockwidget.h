@@ -24,6 +24,9 @@ protected:
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
    void resizeEvent(QResizeEvent* event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void wheelEvent(QWheelEvent *event);
    CNameTablePreviewRenderer* renderer;
    void updateScrollbars();
 
@@ -40,6 +43,7 @@ private:
    Ui::NameTableVisualizerDockWidget *ui;
    char* imgData;
    DebuggerUpdateThread* pThread;
+   QPoint pressPos;
 };
 
 #endif // NAMETABLEVISUALIZERDOCKWIDGET_H

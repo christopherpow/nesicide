@@ -335,7 +335,7 @@ bool CCC65Interface::isBuildUpToDate()
       make.waitForFinished();
       exitCode = make.exitCode();
 
-      if ( exitCode )
+      if ( exitCode == 1 )
       {
          QMessageBox::warning(NULL,"Consistency problem...",outdated);
          ok = false;

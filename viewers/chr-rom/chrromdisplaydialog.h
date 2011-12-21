@@ -32,12 +32,16 @@ protected:
    void hideEvent(QHideEvent* event);
    void resizeEvent(QResizeEvent* event);
    void contextMenuEvent(QContextMenuEvent *event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void wheelEvent(QWheelEvent *event);
 
 private:
    Ui::CHRROMDisplayDialog* ui;
    char* imgData;
    bool m_usePPU;
    DebuggerUpdateThread* pThread;
+   QPoint pressPos;
    void updateScrollbars();
 
 public slots:

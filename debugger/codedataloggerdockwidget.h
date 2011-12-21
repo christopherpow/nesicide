@@ -31,6 +31,9 @@ protected:
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
    void resizeEvent(QResizeEvent* event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void wheelEvent(QWheelEvent *event);
    void updateScrollbars();
    CCodeDataLoggerRenderer* renderer;
 
@@ -39,6 +42,7 @@ private:
    char* cpuImgData;
    char* ppuImgData;
    DebuggerUpdateThread* pThread;
+   QPoint pressPos;
 
 public slots:
    void renderData();

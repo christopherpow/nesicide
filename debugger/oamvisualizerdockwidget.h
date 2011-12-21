@@ -24,6 +24,9 @@ protected:
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
    void resizeEvent(QResizeEvent* event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void wheelEvent(QWheelEvent *event);
    COAMPreviewRenderer* renderer;
    void updateScrollbars();
 
@@ -41,6 +44,7 @@ private:
    Ui::OAMVisualizerDockWidget *ui;
    char* imgData;
    DebuggerUpdateThread* pThread;
+   QPoint pressPos;
 };
 
 #endif // OAMVISUALIZERDOCKWIDGET_H

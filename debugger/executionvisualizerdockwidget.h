@@ -30,8 +30,12 @@ public:
 protected:
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
-   void changeEvent(QEvent* e);
+   void changeEvent(QEvent* event);
    void resizeEvent(QResizeEvent* event);
+   void keyPressEvent(QKeyEvent* event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void wheelEvent(QWheelEvent *event);
    CExecutionVisualizerRenderer* renderer;
    void updateScrollbars();
 
@@ -52,6 +56,7 @@ private:
    CExecutionMarkerDisplayModel *model;
    char* imgData;
    DebuggerUpdateThread* pThread;
+   QPoint pressPos;
 };
 
 #endif // EXECUTIONVISUALIZERDOCKWIDGET_H

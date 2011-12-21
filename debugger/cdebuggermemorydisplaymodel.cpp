@@ -495,5 +495,5 @@ void CDebuggerMemoryDisplayModel::update()
       m_tblRegisters = nesGetCartridgeRegisterDatabase();
    }
 
-   emit layoutChanged();
+   emit dataChanged(QModelIndex(),QModelIndex());
 }

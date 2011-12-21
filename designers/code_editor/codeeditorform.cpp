@@ -843,7 +843,7 @@ void CodeEditorForm::on_actionEnd_marker_here_triggered()
 void CodeEditorForm::on_actionClear_marker_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
-   markers->ClearAllMarkers();
+   markers->RemoveAllMarkers();
 
    emit breakpointsChanged();
    emit markProjectDirty(true);
