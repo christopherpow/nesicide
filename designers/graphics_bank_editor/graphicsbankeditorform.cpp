@@ -103,9 +103,60 @@ void GraphicsBankEditorForm::contextMenuEvent(QContextMenuEvent *event)
 {
 }
 
-void GraphicsBankEditorForm::resizeEvent(QResizeEvent* event)
+void GraphicsBankEditorForm::showEvent(QShowEvent *event)
 {
    updateScrollbars();
+}
+
+void GraphicsBankEditorForm::resizeEvent(QResizeEvent* event)
+{
+   QWidget::resizeEvent(event);
+   updateScrollbars();
+}
+
+void GraphicsBankEditorForm::mousePressEvent(QMouseEvent *event)
+{
+   if ( event->button() == Qt::LeftButton )
+   {
+      pressPos = event->pos();
+   }
+}
+
+void GraphicsBankEditorForm::mouseMoveEvent(QMouseEvent *event)
+{
+   int zf = ui->zoomSlider->value();
+   zf = zf-(zf%100);
+   zf /= 100;
+
+   if ( event->buttons() == Qt::LeftButton )
+   {
+      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
+      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
+   }
+   else if ( event->buttons() == Qt::RightButton )
+   {
+      if ( event->pos().y() < pressPos.y() )
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+      }
+      else
+      {
+         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+      }
+   }
+   pressPos = event->pos();
+}
+
+void GraphicsBankEditorForm::wheelEvent(QWheelEvent *event)
+{
+   if ( event->delta() > 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
+   }
+   else if ( event->delta() < 0 )
+   {
+      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
+   }
 }
 
 void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
@@ -187,7 +238,7 @@ void GraphicsBankEditorForm::renderData()
    {
       for (int x = 0; x < 256; x += 8)
       {
-         ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
+         ppuAddr = ((y>>3)<<8)+((x&0x7F)<<1)+(y&0x7);
 
          if ( x >= 128 )
          {
@@ -223,9 +274,9 @@ void GraphicsBankEditorForm::renderData()
             bit1 = (patternData1>>(7-(xf)))&0x1;
             bit2 = (patternData2>>(7-(xf)))&0x1;
             colorIdx = (bit1|(bit2<<1));
-            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].blue();
+            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].red();
             imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = color[colorIdx].green();
-            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].red();
+            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].blue();
          }
       }
    }

@@ -31,7 +31,11 @@ protected:
    void changeEvent(QEvent* event);
    void contextMenuEvent(QContextMenuEvent *event);
    void keyPressEvent(QKeyEvent *event);
+   void showEvent(QShowEvent *event);
    void resizeEvent(QResizeEvent* event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void wheelEvent(QWheelEvent *event);
 
 private:
    Ui::GraphicsBankEditorForm* ui;
@@ -39,6 +43,7 @@ private:
    CCHRROMPreviewRenderer* renderer;
    CChrRomBankItemDelegate* delegate;
    char* imgData;
+   QPoint pressPos;
    void renderData();
    void updateScrollbars();
 

@@ -46,13 +46,13 @@ void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
    case QImage::Format_Indexed8:
       image.setColorCount(4);
       m_binaryData = CImageConverters::fromIndexed8(image);
+      m_xSize = image.width();
+      m_ySize = image.height();
       break;
    default:
       m_binaryData = newBinaryData;
       break;
    }
-   m_xSize = image.width();
-   m_ySize = image.height();
 }
 
 bool CBinaryFile::serialize(QDomDocument& doc, QDomNode& node)
@@ -62,6 +62,10 @@ bool CBinaryFile::serialize(QDomDocument& doc, QDomNode& node)
    element.setAttribute("name", m_name);
    element.setAttribute("path",m_path);
    element.setAttribute("uuid", uuid());
+
+   // Serialize a size hint.
+   element.setAttribute("xsize",m_xSize);
+   element.setAttribute("ysize",m_ySize);
 
    // No need to serialize the content of binary files because there's
    // no way to modify their content within NESICIDE.
@@ -96,11 +100,26 @@ bool CBinaryFile::deserialize(QDomDocument&, QDomNode& node, QString& errors)
       return false;
    }
 
+   if (!element.hasAttribute("xsize"))
+   {
+      errors.append("Missing required attribute 'xsize' of element <binaryfile name='"+element.attribute("name")+"'>\n");
+      return false;
+   }
+
+   if (!element.hasAttribute("ysize"))
+   {
+      errors.append("Missing required attribute 'ysize' of element <binaryfile name='"+element.attribute("name")+"'>\n");
+      return false;
+   }
+
    m_name = element.attribute("name");
 
    m_path = element.attribute("path");
 
    setUuid(element.attribute("uuid"));
+
+   m_xSize = element.attribute("xsize").toInt();
+   m_ySize = element.attribute("ysize").toInt();
 
    return deserializeContent();
 }

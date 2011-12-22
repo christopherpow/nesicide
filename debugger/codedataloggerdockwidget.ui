@@ -83,6 +83,9 @@
         <property name="pageStep">
          <number>100</number>
         </property>
+        <property name="value">
+         <number>100</number>
+        </property>
         <property name="tracking">
          <bool>true</bool>
         </property>

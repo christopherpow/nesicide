@@ -51,6 +51,8 @@ void NameTableVisualizerDockWidget::showEvent(QShowEvent* event)
 {
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
+   updateScrollbars();
+
    pThread->updateDebuggers();
 }
 

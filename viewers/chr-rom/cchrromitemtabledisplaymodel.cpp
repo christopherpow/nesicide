@@ -17,7 +17,14 @@ CChrRomItemTableDisplayModel::~CChrRomItemTableDisplayModel()
 
 QModelIndex CChrRomItemTableDisplayModel::index(int row, int column, const QModelIndex &parent) const
 {
-   return createIndex(row,column,chrRomBankItems.at(row));
+   if ( row < chrRomBankItems.count() )
+   {
+      return createIndex(row,column,chrRomBankItems.at(row));
+   }
+   else
+   {
+      return createIndex(row,column,NULL);
+   }
 }
 
 Qt::ItemFlags CChrRomItemTableDisplayModel::flags(const QModelIndex& index) const

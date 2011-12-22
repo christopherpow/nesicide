@@ -55,6 +55,9 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    }
    else
    {
+      // No thread necessary.
+      pThread = NULL;
+
       // show CHR-ROM bank data...
       memcpy(chrrom,data,MEM_8KB);
       renderData();
@@ -79,14 +82,22 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
 
 void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 {
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+   if ( m_usePPU )
+   {
+      QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
-   pThread->updateDebuggers();
+      pThread->updateDebuggers();
+   }
+
+   updateScrollbars();
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
 {
-   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+   if ( m_usePPU )
+   {
+      QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+   }
 }
 
 void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
@@ -173,7 +184,10 @@ void CHRROMDisplayDialog::colorChanged (const QColor& color)
       CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
    }
 
-   pThread->updateDebuggers();
+   if ( m_usePPU )
+   {
+      pThread->updateDebuggers();
+   }
    renderer->setBGColor(ui->col0PushButton->currentColor());
    renderer->reloadData(imgData);
 }

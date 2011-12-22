@@ -26,7 +26,7 @@ Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& index) const
 
 QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) const
 {
-   if (!index.isValid())
+   if ( !index.isValid() )
    {
       return QVariant();
    }
@@ -54,6 +54,7 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) c
    {
       return QVariant(ptvi->caption());
    }
+
    return QVariant();
 }
 
