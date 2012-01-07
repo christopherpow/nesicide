@@ -2,7 +2,7 @@
 #define CHRROMDISPLAYDIALOG_H
 
 #include "cdesignereditorbase.h"
-#include "cchrrompreviewrenderer.h"
+#include "panzoomrenderer.h"
 
 #include "iprojecttreeviewitem.h"
 
@@ -23,37 +23,28 @@ public:
    virtual ~CHRROMDisplayDialog();
 
 protected:
-   CCHRROMPreviewRenderer* renderer;
    qint8 chrrom[MEM_8KB];
 
 protected:
    void changeEvent(QEvent* event);
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
-   void resizeEvent(QResizeEvent* event);
-   void contextMenuEvent(QContextMenuEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseMoveEvent(QMouseEvent *event);
-   void wheelEvent(QWheelEvent *event);
 
 private:
    Ui::CHRROMDisplayDialog* ui;
    char* imgData;
    bool m_usePPU;
    DebuggerUpdateThread* pThread;
+   PanZoomRenderer* renderer;
    QPoint pressPos;
-   void updateScrollbars();
 
 public slots:
    void renderData();
+   void repaintNeeded();
 
 private slots:
    void on_exportPushButton_clicked();
    void on_updateScanline_editingFinished();
-   void on_verticalScrollBar_valueChanged(int value);
-   void on_horizontalScrollBar_valueChanged(int value);
-   void on_zoomSlider_valueChanged(int value);
-   void colorChanged (const QColor& color);
    void applyProjectPropertiesToTab();
 };
 

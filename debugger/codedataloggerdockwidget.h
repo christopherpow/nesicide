@@ -3,7 +3,7 @@
 
 #include "cdebuggerbase.h"
 
-#include "ccodedataloggerrenderer.h"
+#include "panzoomrenderer.h"
 
 #include "debuggerupdatethread.h"
 
@@ -30,17 +30,11 @@ protected:
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
-   void resizeEvent(QResizeEvent* event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseMoveEvent(QMouseEvent *event);
-   void wheelEvent(QWheelEvent *event);
-   void updateScrollbars();
-   CCodeDataLoggerRenderer* renderer;
 
 private:
    Ui::CodeDataLoggerDockWidget *ui;
-   char* cpuImgData;
-   char* ppuImgData;
+   char* imgData;
+   PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
    QPoint pressPos;
 
@@ -50,9 +44,6 @@ public slots:
 private slots:
    void on_exportData_clicked();
    void on_displaySelect_currentIndexChanged(int index);
-   void on_verticalScrollBar_valueChanged(int value);
-   void on_horizontalScrollBar_valueChanged(int value);
-   void on_zoomSlider_valueChanged(int value);
 };
 
 #endif // CODEDATALOGGERDOCKWIDGET_H

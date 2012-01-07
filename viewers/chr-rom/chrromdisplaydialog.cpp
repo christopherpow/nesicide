@@ -27,23 +27,19 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    m_usePPU = usePPU;
 
-   ui->col0PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x0D),nesGetPaletteGreenComponent(0x0D),nesGetPaletteBlueComponent(0x0D)));
-   ui->col1PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x00),nesGetPaletteGreenComponent(0x00),nesGetPaletteBlueComponent(0x00)));
-   ui->col2PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x10),nesGetPaletteGreenComponent(0x10),nesGetPaletteBlueComponent(0x10)));
-   ui->col3PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x20),nesGetPaletteGreenComponent(0x20),nesGetPaletteBlueComponent(0x20)));
+   renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
+   ui->frame->layout()->addWidget(renderer);
+   ui->frame->layout()->update();
 
-   connect(ui->col0PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-   connect(ui->col1PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-   connect(ui->col2PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-   connect(ui->col3PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
+   QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(repaintNeeded()));
 
    if ( m_usePPU )
    {
       CPPUDBG::CHRMEMInspectorTV ( (int8_t*)imgData );
-      CPPUDBG::SetCHRMEMInspectorColor(0,ui->col0PushButton->currentColor());
-      CPPUDBG::SetCHRMEMInspectorColor(1,ui->col1PushButton->currentColor());
-      CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
-      CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
+      CPPUDBG::SetCHRMEMInspectorColor(0,renderer->getColor(0));
+      CPPUDBG::SetCHRMEMInspectorColor(1,renderer->getColor(1));
+      CPPUDBG::SetCHRMEMInspectorColor(2,renderer->getColor(2));
+      CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
 
       pThread = new DebuggerUpdateThread(&CPPUDBG::RENDERCHRMEM);
 
@@ -63,17 +59,14 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       renderData();
    }
 
-   renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
-   ui->frame->layout()->addWidget(renderer);
-   ui->frame->layout()->update();
-
    ui->updateScanline->setText ( "0" );
 }
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
-   delete imgData;
    delete ui;
+   delete imgData;
+   delete renderer;
    if ( m_usePPU )
    {
       delete pThread;
@@ -88,8 +81,6 @@ void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 
       pThread->updateDebuggers();
    }
-
-   updateScrollbars();
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
@@ -97,57 +88,6 @@ void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
    if ( m_usePPU )
    {
       QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
-   }
-}
-
-void CHRROMDisplayDialog::resizeEvent(QResizeEvent* event)
-{
-   QWidget::resizeEvent(event);
-   updateScrollbars();
-}
-
-void CHRROMDisplayDialog::mousePressEvent(QMouseEvent *event)
-{
-   if ( event->button() == Qt::LeftButton )
-   {
-      pressPos = event->pos();
-   }
-}
-
-void CHRROMDisplayDialog::mouseMoveEvent(QMouseEvent *event)
-{
-   int zf = ui->zoomSlider->value();
-   zf = zf-(zf%100);
-   zf /= 100;
-
-   if ( event->buttons() == Qt::LeftButton )
-   {
-      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
-      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
-   }
-   else if ( event->buttons() == Qt::RightButton )
-   {
-      if ( event->pos().y() < pressPos.y() )
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-      }
-      else
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
-      }
-   }
-   pressPos = event->pos();
-}
-
-void CHRROMDisplayDialog::wheelEvent(QWheelEvent *event)
-{
-   if ( event->delta() > 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-   }
-   else if ( event->delta() < 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
    }
 }
 
@@ -165,31 +105,17 @@ void CHRROMDisplayDialog::changeEvent(QEvent* event)
    }
 }
 
-void CHRROMDisplayDialog::contextMenuEvent(QContextMenuEvent *event)
+void CHRROMDisplayDialog::repaintNeeded()
 {
-}
-
-void CHRROMDisplayDialog::colorChanged (const QColor& color)
-{
-   ui->col0PushButton->setText("");
-   ui->col1PushButton->setText("");
-   ui->col2PushButton->setText("");
-   ui->col3PushButton->setText("");
-
    if ( m_usePPU )
    {
-      CPPUDBG::SetCHRMEMInspectorColor(0,ui->col0PushButton->currentColor());
-      CPPUDBG::SetCHRMEMInspectorColor(1,ui->col1PushButton->currentColor());
-      CPPUDBG::SetCHRMEMInspectorColor(2,ui->col2PushButton->currentColor());
-      CPPUDBG::SetCHRMEMInspectorColor(3,ui->col3PushButton->currentColor());
-   }
+      CPPUDBG::SetCHRMEMInspectorColor(0,renderer->getColor(0));
+      CPPUDBG::SetCHRMEMInspectorColor(1,renderer->getColor(1));
+      CPPUDBG::SetCHRMEMInspectorColor(2,renderer->getColor(2));
+      CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
 
-   if ( m_usePPU )
-   {
       pThread->updateDebuggers();
    }
-   renderer->setBGColor(ui->col0PushButton->currentColor());
-   renderer->reloadData(imgData);
 }
 
 void CHRROMDisplayDialog::renderData()
@@ -203,14 +129,14 @@ void CHRROMDisplayDialog::renderData()
 
    if ( m_usePPU )
    {
-      renderer->updateGL ();
+      renderer->reloadData(imgData);
    }
    else
    {
-      color[0] = ui->col0PushButton->currentColor();
-      color[1] = ui->col1PushButton->currentColor();
-      color[2] = ui->col2PushButton->currentColor();
-      color[3] = ui->col3PushButton->currentColor();
+      color[0] = renderer->getColor(0);
+      color[1] = renderer->getColor(1);
+      color[2] = renderer->getColor(2);
+      color[3] = renderer->getColor(3);
 
       for (int y = 0; y < 128; y++)
       {
@@ -238,39 +164,6 @@ void CHRROMDisplayDialog::renderData()
          }
       }
    }
-}
-
-void CHRROMDisplayDialog::on_zoomSlider_valueChanged(int value)
-{
-   value = value-(value%100);
-   ui->zoomSlider->setValue(value);
-   renderer->changeZoom(value);
-   ui->zoomValueLabel->setText(QString::number(value).append("%"));
-   updateScrollbars();
-}
-
-void CHRROMDisplayDialog::updateScrollbars()
-{
-   int value = ui->zoomSlider->value();
-   value = value-(value%100);
-   int viewWidth = (float)256 * ((float)value / 100.0f);
-   int viewHeight = (float)128 * ((float)value / 100.0f);
-   ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
-   ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void CHRROMDisplayDialog::on_horizontalScrollBar_valueChanged(int value)
-{
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->update();
-}
-
-void CHRROMDisplayDialog::on_verticalScrollBar_valueChanged(int value)
-{
-   renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->update();
 }
 
 void CHRROMDisplayDialog::on_updateScanline_editingFinished()

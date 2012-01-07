@@ -17,7 +17,7 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   renderer = new CNESEmulatorRenderer(ui->frame, imgData);
+   renderer = new PanZoomRenderer(256,240,2000,imgData,false,ui->frame);
    renderer->setMouseTracking(true);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
@@ -345,5 +345,5 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 
 void NESEmulatorDockWidget::renderData()
 {
-   renderer->updateGL();
+   renderer->reloadData(imgData);
 }

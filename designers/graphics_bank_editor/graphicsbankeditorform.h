@@ -9,7 +9,7 @@
 #include "ichrrombankitem.h"
 #include "iprojecttreeviewitem.h"
 
-#include "cchrrompreviewrenderer.h"
+#include "panzoomrenderer.h"
 
 namespace Ui
 {
@@ -29,30 +29,18 @@ public:
 
 protected:
    void changeEvent(QEvent* event);
-   void contextMenuEvent(QContextMenuEvent *event);
    void keyPressEvent(QKeyEvent *event);
-   void showEvent(QShowEvent *event);
-   void resizeEvent(QResizeEvent* event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseMoveEvent(QMouseEvent *event);
-   void wheelEvent(QWheelEvent *event);
 
 private:
    Ui::GraphicsBankEditorForm* ui;
    CChrRomItemTableDisplayModel* model;
-   CCHRROMPreviewRenderer* renderer;
+   PanZoomRenderer* renderer;
    CChrRomBankItemDelegate* delegate;
    char* imgData;
-   QPoint pressPos;
-   void renderData();
-   void updateScrollbars();
 
 private slots:
+   void renderData();
    void updateUi();
-   void on_verticalScrollBar_valueChanged(int value);
-   void on_horizontalScrollBar_valueChanged(int value);
-   void on_zoomSlider_valueChanged(int value);
-   void colorChanged (const QColor& color);
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void applyProjectPropertiesToTab();

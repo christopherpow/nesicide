@@ -3,7 +3,7 @@
 
 #include "cdebuggerbase.h"
 
-#include "coampreviewrenderer.h"
+#include "panzoomrenderer.h"
 
 #include "debuggerupdatethread.h"
 
@@ -23,12 +23,6 @@ protected:
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
-   void resizeEvent(QResizeEvent* event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseMoveEvent(QMouseEvent *event);
-   void wheelEvent(QWheelEvent *event);
-   COAMPreviewRenderer* renderer;
-   void updateScrollbars();
 
 public slots:
    void renderData();
@@ -36,13 +30,11 @@ public slots:
 private slots:
    void on_showVisible_toggled(bool checked);
    void on_updateScanline_editingFinished();
-   void on_verticalScrollBar_valueChanged(int value);
-   void on_horizontalScrollBar_valueChanged(int value);
-   void on_zoomSlider_valueChanged(int value);
 
 private:
    Ui::OAMVisualizerDockWidget *ui;
    char* imgData;
+   PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
    QPoint pressPos;
 };

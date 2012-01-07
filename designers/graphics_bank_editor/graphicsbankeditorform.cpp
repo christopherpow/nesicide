@@ -23,19 +23,11 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
       imgData[i+3] = 0xFF;
    }
 
-   ui->col0PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x0D),nesGetPaletteGreenComponent(0x0D),nesGetPaletteBlueComponent(0x0D)));
-   ui->col1PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x00),nesGetPaletteGreenComponent(0x00),nesGetPaletteBlueComponent(0x00)));
-   ui->col2PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x10),nesGetPaletteGreenComponent(0x10),nesGetPaletteBlueComponent(0x10)));
-   ui->col3PushButton->setCurrentColor(QColor(nesGetPaletteRedComponent(0x20),nesGetPaletteGreenComponent(0x20),nesGetPaletteBlueComponent(0x20)));
-
-   connect(ui->col0PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-   connect(ui->col1PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-   connect(ui->col2PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-   connect(ui->col3PushButton, SIGNAL(colorChanged(QColor)), this, SLOT(colorChanged(QColor)));
-
-   renderer = new CCHRROMPreviewRenderer(ui->frame, imgData);
+   renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
    ui->frame->layout()->addWidget(renderer);
-   ui->frame->layout()->update();
+   ui->frame->update();
+
+   QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(renderData()));
 
    model = new CChrRomItemTableDisplayModel(true);
 
@@ -58,6 +50,7 @@ GraphicsBankEditorForm::~GraphicsBankEditorForm()
 {
    delete ui;
    delete model;
+   delete imgData;
    delete renderer;
    delete delegate;
 }
@@ -96,66 +89,6 @@ void GraphicsBankEditorForm::changeEvent(QEvent* event)
          break;
       default:
          break;
-   }
-}
-
-void GraphicsBankEditorForm::contextMenuEvent(QContextMenuEvent *event)
-{
-}
-
-void GraphicsBankEditorForm::showEvent(QShowEvent *event)
-{
-   updateScrollbars();
-}
-
-void GraphicsBankEditorForm::resizeEvent(QResizeEvent* event)
-{
-   QWidget::resizeEvent(event);
-   updateScrollbars();
-}
-
-void GraphicsBankEditorForm::mousePressEvent(QMouseEvent *event)
-{
-   if ( event->button() == Qt::LeftButton )
-   {
-      pressPos = event->pos();
-   }
-}
-
-void GraphicsBankEditorForm::mouseMoveEvent(QMouseEvent *event)
-{
-   int zf = ui->zoomSlider->value();
-   zf = zf-(zf%100);
-   zf /= 100;
-
-   if ( event->buttons() == Qt::LeftButton )
-   {
-      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
-      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
-   }
-   else if ( event->buttons() == Qt::RightButton )
-   {
-      if ( event->pos().y() < pressPos.y() )
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-      }
-      else
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
-      }
-   }
-   pressPos = event->pos();
-}
-
-void GraphicsBankEditorForm::wheelEvent(QWheelEvent *event)
-{
-   if ( event->delta() > 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-   }
-   else if ( event->delta() < 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
    }
 }
 
@@ -210,13 +143,6 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ne
    renderData();
 }
 
-void GraphicsBankEditorForm::colorChanged (const QColor& color)
-{
-   renderData();
-   renderer->setBGColor(ui->col0PushButton->currentColor());
-   renderer->reloadData(imgData);
-}
-
 void GraphicsBankEditorForm::renderData()
 {
    unsigned int ppuAddr = 0x0000;
@@ -229,10 +155,10 @@ void GraphicsBankEditorForm::renderData()
    int itemIdx;
    int offset = 0;
 
-   color[0] = ui->col0PushButton->currentColor();
-   color[1] = ui->col1PushButton->currentColor();
-   color[2] = ui->col2PushButton->currentColor();
-   color[3] = ui->col3PushButton->currentColor();
+   color[0] = renderer->getColor(0);
+   color[1] = renderer->getColor(1);
+   color[2] = renderer->getColor(2);
+   color[3] = renderer->getColor(3);
 
    for (int y = 0; y < 128; y++)
    {
@@ -281,39 +207,6 @@ void GraphicsBankEditorForm::renderData()
       }
    }
    renderer->reloadData(imgData);
-}
-
-void GraphicsBankEditorForm::on_zoomSlider_valueChanged(int value)
-{
-   value = value-(value%100);
-   ui->zoomSlider->setValue(value);
-   renderer->changeZoom(value);
-   ui->zoomValueLabel->setText(QString::number(value).append("%"));
-   updateScrollbars();
-}
-
-void GraphicsBankEditorForm::updateScrollbars()
-{
-   int value = ui->zoomSlider->value();
-   value = value-(value%100);
-   int viewWidth = (float)256 * ((float)value / 100.0f);
-   int viewHeight = (float)128 * ((float)value / 100.0f);
-   ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
-   ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void GraphicsBankEditorForm::on_horizontalScrollBar_valueChanged(int value)
-{
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->update();
-}
-
-void GraphicsBankEditorForm::on_verticalScrollBar_valueChanged(int value)
-{
-   renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->update();
 }
 
 void GraphicsBankEditorForm::snapTo(QString item)

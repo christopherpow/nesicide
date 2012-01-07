@@ -36,9 +36,10 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    }
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-   renderer = new CExecutionVisualizerRenderer(ui->frame,imgData);
+   renderer = new PanZoomRenderer(341,262,512,10000,imgData,false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
+
    QList<int> sizes;
    sizes.append(400);
    sizes.append(200);
@@ -57,6 +58,7 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 {
    delete ui;
    delete imgData;
+   delete renderer;
    delete model;
    delete pThread;
 }
@@ -85,8 +87,6 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
-   updateScrollbars();
-
    pThread->updateDebuggers();
 }
 
@@ -108,51 +108,6 @@ void ExecutionVisualizerDockWidget::keyPressEvent(QKeyEvent *event)
    }
 }
 
-void ExecutionVisualizerDockWidget::mousePressEvent(QMouseEvent *event)
-{
-   if ( event->button() == Qt::LeftButton )
-   {
-      pressPos = event->pos();
-   }
-}
-
-void ExecutionVisualizerDockWidget::mouseMoveEvent(QMouseEvent *event)
-{
-   int zf = ui->zoomSlider->value();
-   zf = zf-(zf%100);
-   zf /= 100;
-
-   if ( event->buttons() == Qt::LeftButton )
-   {
-      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
-      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
-   }
-   else if ( event->buttons() == Qt::RightButton )
-   {
-      if ( event->pos().y() < pressPos.y() )
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-      }
-      else
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
-      }
-   }
-   pressPos = event->pos();
-}
-
-void ExecutionVisualizerDockWidget::wheelEvent(QWheelEvent *event)
-{
-   if ( event->delta() > 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-   }
-   else if ( event->delta() < 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
-   }
-}
-
 void ExecutionVisualizerDockWidget::contextMenuEvent(QContextMenuEvent *event)
 {
    QMenu menu;
@@ -165,49 +120,10 @@ void ExecutionVisualizerDockWidget::contextMenuEvent(QContextMenuEvent *event)
    menu.exec(event->globalPos());
 }
 
-void ExecutionVisualizerDockWidget::resizeEvent(QResizeEvent* event)
-{
-   QDockWidget::resizeEvent(event);
-   updateScrollbars();
-}
-
 void ExecutionVisualizerDockWidget::renderData()
 {
-   renderer->updateGL ();
+   renderer->reloadData(imgData);
    model->update();
-}
-
-void ExecutionVisualizerDockWidget::on_zoomSlider_valueChanged(int value)
-{
-   value = value-(value%100);
-   ui->zoomSlider->setValue(value);
-   renderer->changeZoom(value);
-   ui->zoomValueLabel->setText(QString::number(value).append("%"));
-   updateScrollbars();
-}
-
-void ExecutionVisualizerDockWidget::updateScrollbars()
-{
-   int value = ui->zoomSlider->value();
-   value = value-(value%100);
-   int viewWidth = (float)341 * ((float)value / 100.0f);
-   int viewHeight = (float)262 * ((float)value / 100.0f);
-   ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
-   ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void ExecutionVisualizerDockWidget::on_horizontalScrollBar_valueChanged(int value)
-{
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->update();
-}
-
-void ExecutionVisualizerDockWidget::on_verticalScrollBar_valueChanged(int value)
-{
-   renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->update();
 }
 
 bool ExecutionVisualizerDockWidget::serialize(QDomDocument& doc, QDomNode& node)

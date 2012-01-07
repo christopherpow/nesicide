@@ -164,7 +164,6 @@ SOURCES += mainwindow.cpp \
     project/ccartridge.cpp \
     project/cbinaryfiles.cpp \
     viewers/chr-rom/chrromdisplaydialog.cpp \
-    viewers/chr-rom/cchrrompreviewrenderer.cpp \
     viewers/prg-rom/prgromdisplaydialog.cpp \
     viewers/project_treeview/cprojecttreeviewmodel.cpp \
     viewers/project_treeview/cprojecttreeview.cpp \
@@ -221,10 +220,7 @@ SOURCES += mainwindow.cpp \
     debugger/csymbolwatchmodel.cpp \
     debugger/codedataloggerdockwidget.cpp \
     debugger/codebrowserdockwidget.cpp \
-    debugger/coampreviewrenderer.cpp \
-    debugger/cnametablepreviewrenderer.cpp \
     debugger/chrmeminspector.cpp \
-    debugger/cexecutionvisualizerrenderer.cpp \
     debugger/cexecutionmarkerdisplaymodel.cpp \
     debugger/cdebuggersymboldelegate.cpp \
     debugger/cdebuggerregisterdisplaymodel.cpp \
@@ -233,7 +229,6 @@ SOURCES += mainwindow.cpp \
     debugger/cdebuggermemorydisplaymodel.cpp \
     debugger/cdebuggerexecutiontracermodel.cpp \
     debugger/cdebuggerbase.cpp \
-    debugger/ccodedataloggerrenderer.cpp \
     debugger/ccodebrowserdisplaymodel.cpp \
     debugger/cbreakpointdisplaymodel.cpp \
     debugger/breakpointwatcherthread.cpp \
@@ -241,7 +236,6 @@ SOURCES += mainwindow.cpp \
     debugger/breakpointdialog.cpp \
     debugger/apuinformationdockwidget.cpp \
     emulator/nesemulatorthread.cpp \
-    emulator/nesemulatorrenderer.cpp \
     emulator/nesemulatordockwidget.cpp \
     common/searchdockwidget.cpp \
     common/cimageconverters.cpp \
@@ -260,7 +254,9 @@ SOURCES += mainwindow.cpp \
     designers/project_properties/cpropertysymboldelegate.cpp \
     common/cpropertyitem.cpp \
     common/checkboxlist.cpp \
-    debugger/debuggerupdatethread.cpp
+    debugger/debuggerupdatethread.cpp \
+    common/crendererbase.cpp \
+    common/panzoomrenderer.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -286,7 +282,6 @@ HEADERS += mainwindow.h \
     project/ccartridge.h \
     project/cbinaryfiles.h \
     viewers/chr-rom/chrromdisplaydialog.h \
-    viewers/chr-rom/cchrrompreviewrenderer.h \
     viewers/prg-rom/prgromdisplaydialog.h \
     viewers/project_treeview/cprojecttreeviewmodel.h \
     viewers/project_treeview/cprojecttreeview.h \
@@ -343,10 +338,7 @@ HEADERS += mainwindow.h \
     debugger/csymbolwatchmodel.h \
     debugger/codedataloggerdockwidget.h \
     debugger/codebrowserdockwidget.h \
-    debugger/coampreviewrenderer.h \
-    debugger/cnametablepreviewrenderer.h \
     debugger/chrmeminspector.h \
-    debugger/cexecutionvisualizerrenderer.h \
     debugger/cexecutionmarkerdisplaymodel.h \
     debugger/cdebuggersymboldelegate.h \
     debugger/cdebuggerregisterdisplaymodel.h \
@@ -355,7 +347,6 @@ HEADERS += mainwindow.h \
     debugger/cdebuggermemorydisplaymodel.h \
     debugger/cdebuggerexecutiontracermodel.h \
     debugger/cdebuggerbase.h \
-    debugger/ccodedataloggerrenderer.h \
     debugger/ccodebrowserdisplaymodel.h \
     debugger/cbreakpointdisplaymodel.h \
     debugger/breakpointwatcherthread.h \
@@ -363,7 +354,6 @@ HEADERS += mainwindow.h \
     debugger/breakpointdialog.h \
     debugger/apuinformationdockwidget.h \
     emulator/nesemulatorthread.h \
-    emulator/nesemulatorrenderer.h \
     emulator/nesemulatordockwidget.h \
     common/searchdockwidget.h \
     common/cimageconverters.h \
@@ -383,7 +373,9 @@ HEADERS += mainwindow.h \
     designers/project_properties/cpropertyvaluedelegate.h \
     designers/project_properties/cpropertysymboldelegate.h \
     common/checkboxlist.h \
-    debugger/debuggerupdatethread.h
+    debugger/debuggerupdatethread.h \
+    common/crendererbase.h \
+    common/panzoomrenderer.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -421,6 +413,7 @@ FORMS += mainwindow.ui \
     common/searchdockwidget.ui \
     debugger/codeprofilerdockwidget.ui \
     designers/tile_stamp_editor/tilestampeditorform.ui \
-    designers/project_properties/propertyeditordialog.ui
+    designers/project_properties/propertyeditordialog.ui \
+    common/panzoomrenderer.ui
 
 RESOURCES += resource.qrc

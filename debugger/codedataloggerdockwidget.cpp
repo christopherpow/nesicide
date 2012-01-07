@@ -13,25 +13,20 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
    int i;
 
    ui->setupUi(this);
-   cpuImgData = new char[256*256*4];
-   ppuImgData = new char[256*256*4];
+   imgData = new char[256*256*4];
 
-   // Clear images...
+   // Clear image...
    for ( i = 0; i < 256*256*4; i+=4 )
    {
-      cpuImgData[i] = 0;
-      cpuImgData[i+1] = 0;
-      cpuImgData[i+2] = 0;
-      cpuImgData[i+3] = 0xFF;
-      ppuImgData[i] = 0;
-      ppuImgData[i+1] = 0;
-      ppuImgData[i+2] = 0;
-      ppuImgData[i+3] = 0xFF;
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
    }
-   C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)cpuImgData );
-   CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)ppuImgData );
+   C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)imgData );
+   CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)imgData );
 
-   renderer = new CCodeDataLoggerRenderer(ui->frame,cpuImgData);
+   renderer = new PanZoomRenderer(256,256,10000,imgData,false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
@@ -47,8 +42,8 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
 CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
 {
    delete ui;
-   delete cpuImgData;
-   delete ppuImgData;
+   delete imgData;
+   delete renderer;
    delete pThread;
 }
 
@@ -70,8 +65,6 @@ void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 {
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
-   updateScrollbars();
-
    pThread->updateDebuggers();
 }
 
@@ -80,112 +73,43 @@ void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
-void CodeDataLoggerDockWidget::mousePressEvent(QMouseEvent *event)
-{
-   if ( event->button() == Qt::LeftButton )
-   {
-      pressPos = event->pos();
-   }
-}
-
-void CodeDataLoggerDockWidget::mouseMoveEvent(QMouseEvent *event)
-{
-   int zf = ui->zoomSlider->value();
-   zf = zf-(zf%100);
-   zf /= 100;
-
-   if ( event->buttons() == Qt::LeftButton )
-   {
-      ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value()-((event->pos().x()/zf)-(pressPos.x()/zf)));
-      ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-((event->pos().y()/zf)-(pressPos.y()/zf)));
-   }
-   else if ( event->buttons() == Qt::RightButton )
-   {
-      if ( event->pos().y() < pressPos.y() )
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-      }
-      else
-      {
-         ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
-      }
-   }
-   pressPos = event->pos();
-}
-
-void CodeDataLoggerDockWidget::wheelEvent(QWheelEvent *event)
-{
-   if ( event->delta() > 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()+100);
-   }
-   else if ( event->delta() < 0 )
-   {
-      ui->zoomSlider->setValue(ui->zoomSlider->value()-100);
-   }
-}
-
 void CodeDataLoggerDockWidget::renderData()
 {
-   renderer->updateGL ();
-}
-
-void CodeDataLoggerDockWidget::resizeEvent(QResizeEvent* event)
-{
-   QDockWidget::resizeEvent(event);
-   updateScrollbars();
-}
-
-void CodeDataLoggerDockWidget::on_zoomSlider_valueChanged(int value)
-{
-   value = value-(value%100);
-   ui->zoomSlider->setValue(value);
-   renderer->changeZoom(value);
-   ui->zoomValueLabel->setText(QString::number(value).append("%"));
-   updateScrollbars();
-}
-
-void CodeDataLoggerDockWidget::updateScrollbars()
-{
-   int value = ui->zoomSlider->value();
-   value = value-(value%100);
-   int viewWidth = (float)256 * ((float)value / 100.0f);
-   int viewHeight = (float)256 * ((float)value / 100.0f);
-   ui->horizontalScrollBar->setMaximum(viewWidth - renderer->width() < 0 ? 0 : ((viewWidth - renderer->width()) / ((float)value / 100.0f)) + 1);
-   ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->scrollY = ui->verticalScrollBar->value();
-}
-
-void CodeDataLoggerDockWidget::on_horizontalScrollBar_valueChanged(int value)
-{
-   renderer->scrollX = ui->horizontalScrollBar->value();
-   renderer->update();
-}
-
-void CodeDataLoggerDockWidget::on_verticalScrollBar_valueChanged(int value)
-{
-   renderer->scrollY = ui->verticalScrollBar->value();
-   renderer->update();
+   switch ( ui->displaySelect->currentIndex() )
+   {
+      case CodeDataLogger_CPU:
+         renderer->reloadData(imgData);
+         break;
+      case CodeDataLogger_PPU:
+         renderer->reloadData(imgData);
+         break;
+   }
 }
 
 void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
 {
+   int i;
+
+   // Clear image...
+   for ( i = 0; i < 256*256*4; i+=4 )
+   {
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
+   }
+
    switch ( index )
    {
       case CodeDataLogger_CPU:
-         renderer->changeImage(cpuImgData);
          pThread->changeFunction(&C6502DBG::RENDERCODEDATALOGGER);
          break;
       case CodeDataLogger_PPU:
-         renderer->changeImage(ppuImgData);
          pThread->changeFunction(&CPPUDBG::RENDERCODEDATALOGGER);
          break;
    }
 
    pThread->updateDebuggers();
-
-   renderer->update();
 }
 
 //CDL FORMAT

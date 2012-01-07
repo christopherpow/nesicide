@@ -2644,24 +2644,25 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    LoggerInfo* pLogEntry;
    int8_t* pTV;
 
-   pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
-
    // Show CPU RAM...
    pLogger = nesGetCpuCodeDataLoggerDatabase();
+
+   pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
 
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
-
-      if ( cycleDiff > 199 )
-      {
-         cycleDiff = 199;
-      }
-      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
+         cycleDiff = (curCycle-pLogEntry->cycle)/30000;
+         if ( cycleDiff > 220 )
+         {
+            cycleDiff = 220;
+         }
+
+         cycleDiff = 255-cycleDiff;
+
          if ( pLogEntry->type == eLogger_DMA )
          {
             lcolor = dmaColor[(int)pLogEntry->source];
@@ -2702,21 +2703,23 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
    // Show I/O region...
    pLogger = nesGetCpuCodeDataLoggerDatabase();
+
    pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_8KB<<2));
 
    for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
-
-      if ( cycleDiff > 199 )
-      {
-         cycleDiff = 199;
-      }
-      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
+         cycleDiff = (curCycle-pLogEntry->cycle)/30000;
+         if ( cycleDiff > 220 )
+         {
+            cycleDiff = 220;
+         }
+
+         cycleDiff = 255-cycleDiff;
+
          if ( pLogEntry->type == eLogger_DMA )
          {
             lcolor = dmaColor[(int)pLogEntry->source];
@@ -2757,21 +2760,23 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
 
    // Show cartrige EXRAM memory...
    pLogger = nesGetEXRAMCodeDataLoggerDatabase();
+
    pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x5C00<<2));
 
    for ( idxx = 0; idxx < MEM_1KB; idxx++ )
    {
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
-
-      if ( cycleDiff > 199 )
-      {
-         cycleDiff = 199;
-      }
-      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
+         cycleDiff = (curCycle-pLogEntry->cycle)/30000;
+         if ( cycleDiff > 220 )
+         {
+            cycleDiff = 220;
+         }
+
+         cycleDiff = 255-cycleDiff;
+
          if ( pLogEntry->type == eLogger_DMA )
          {
             lcolor = dmaColor[(int)pLogEntry->source];
@@ -2818,16 +2823,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       pLogger = nesGetVirtualSRAMCodeDataLoggerDatabase(0x6000);
 
       pLogEntry = pLogger->GetLogEntry(idxx);
-      cycleDiff = (curCycle-pLogEntry->cycle)/10000;
-
-      if ( cycleDiff > 199 )
-      {
-         cycleDiff = 199;
-      }
-      cycleDiff = 255-cycleDiff;
 
       if ( pLogEntry->count )
       {
+         cycleDiff = (curCycle-pLogEntry->cycle)/30000;
+         if ( cycleDiff > 220 )
+         {
+            cycleDiff = 220;
+         }
+
+         cycleDiff = 255-cycleDiff;
+
          if ( pLogEntry->type == eLogger_DMA )
          {
             lcolor = dmaColor[(int)pLogEntry->source];
@@ -2876,16 +2882,17 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
          pLogger = nesGetVirtualPRGROMCodeDataLoggerDatabase(MEM_32KB+(idxy*MEM_8KB)+idxx);
 
          pLogEntry = pLogger->GetLogEntry(idxx);
-         cycleDiff = (curCycle-pLogEntry->cycle)/10000;
-
-         if ( cycleDiff > 199 )
-         {
-            cycleDiff = 199;
-         }
-         cycleDiff = 255-cycleDiff;
 
          if ( pLogEntry->count )
          {
+            cycleDiff = (curCycle-pLogEntry->cycle)/30000;
+            if ( cycleDiff > 220 )
+            {
+               cycleDiff = 220;
+            }
+
+            cycleDiff = 255-cycleDiff;
+
             if ( pLogEntry->type == eLogger_DMA )
             {
                lcolor = dmaColor[(int)pLogEntry->source];
