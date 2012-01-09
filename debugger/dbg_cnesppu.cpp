@@ -169,9 +169,9 @@ void CPPUDBG::RENDERCHRMEM ( void )
             bit1 = (patternData1>>(7-(xf)))&0x1;
             bit2 = (patternData2>>(7-(xf)))&0x1;
             colorIdx = (bit1|(bit2<<1));
-            *pTV = color[colorIdx][2];
+            *pTV = color[colorIdx][0];
             *(pTV+1) = color[colorIdx][1];
-            *(pTV+2) = color[colorIdx][0];
+            *(pTV+2) = color[colorIdx][2];
 
             pTV += 4;
          }

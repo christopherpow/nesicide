@@ -256,7 +256,8 @@ SOURCES += mainwindow.cpp \
     common/checkboxlist.cpp \
     debugger/debuggerupdatethread.cpp \
     common/crendererbase.cpp \
-    common/panzoomrenderer.cpp
+    common/panzoomrenderer.cpp \
+    emulator/nesemulatorrenderer.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -375,7 +376,8 @@ HEADERS += mainwindow.h \
     common/checkboxlist.h \
     debugger/debuggerupdatethread.h \
     common/crendererbase.h \
-    common/panzoomrenderer.h
+    common/panzoomrenderer.h \
+    emulator/nesemulatorrenderer.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \

@@ -2,7 +2,7 @@
 #define NESEMULATORDOCKWIDGET_H
 
 #include "emulator_core.h"
-#include "panzoomrenderer.h"
+#include "nesemulatorrenderer.h"
 
 #include <QDockWidget>
 #include <QKeyEvent>
@@ -31,7 +31,7 @@ signals:
 
 private:
    Ui::NESEmulatorDockWidget *ui;
-   PanZoomRenderer* renderer;
+   CNESEmulatorRenderer* renderer;
    char* imgData;
    unsigned char m_joy [ NUM_CONTROLLERS ];
 

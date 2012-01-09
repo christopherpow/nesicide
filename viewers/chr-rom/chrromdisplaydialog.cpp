@@ -116,6 +116,10 @@ void CHRROMDisplayDialog::repaintNeeded()
 
       pThread->updateDebuggers();
    }
+   else
+   {
+      renderData();
+   }
 }
 
 void CHRROMDisplayDialog::renderData()
@@ -157,12 +161,13 @@ void CHRROMDisplayDialog::renderData()
                bit1 = (patternData1>>(7-(xf)))&0x1;
                bit2 = (patternData2>>(7-(xf)))&0x1;
                colorIdx = (bit1|(bit2<<1));
-               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].blue();
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].red();
                imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = color[colorIdx].green();
-               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].red();
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].blue();
             }
          }
       }
+      renderer->reloadData(imgData);
    }
 }
 
