@@ -61,13 +61,6 @@ void PPUInformationDockWidget::updateInformation()
    // Only update the UI elements if the inspector is visible...
    if ( isVisible() )
    {
-      sprintf ( buffer, "%d", (unsigned char)x );
-      ui->pixelX->setText(buffer);
-
-      // Fix for scanline -1...
-      sprintf ( buffer, "%d", y );
-      ui->pixelY->setText(buffer);
-
       sprintf ( buffer, "%d", nesGetPPUFrame() );
       ui->frameNumber->setText(buffer);
 

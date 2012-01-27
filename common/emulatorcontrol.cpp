@@ -9,6 +9,7 @@
 
 EmulatorControl::EmulatorControl(QWidget *parent) :
    QWidget(parent),
+   debugging(true),
    ui(new Ui::EmulatorControl)
 {
    ui->setupUi(this);
@@ -39,6 +40,8 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
    QObject::connect(this,SIGNAL(stepPPUEmulation()),emulator,SLOT(stepPPUEmulation()));
    QObject::connect(this,SIGNAL(advanceFrame()),emulator,SLOT(advanceFrame()));
    QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
+
+   ui->debugButton->setChecked(debugging);
 }
 
 EmulatorControl::~EmulatorControl()
@@ -49,6 +52,7 @@ EmulatorControl::~EmulatorControl()
 QList<QAction*> EmulatorControl::menu()
 {
    QList<QAction*> items;
+   items.append(ui->actionDebugging);
    items.append(ui->actionRun);
    items.append(ui->actionPause);
    items.append(ui->actionStep_CPU);
@@ -64,18 +68,18 @@ void EmulatorControl::internalPlay()
 {
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
-   ui->stepCPUButton->setEnabled(false);
-   ui->stepOverButton->setEnabled(false);
-   ui->stepOutButton->setEnabled(false);
-   ui->stepPPUButton->setEnabled(false);
-   ui->frameAdvance->setEnabled(false);
+   ui->stepCPUButton->setEnabled(debugging);
+   ui->stepOverButton->setEnabled(debugging);
+   ui->stepOutButton->setEnabled(debugging);
+   ui->stepPPUButton->setEnabled(debugging);
+   ui->frameAdvance->setEnabled(debugging);
    ui->actionRun->setEnabled(false);
    ui->actionPause->setEnabled(true);
-   ui->actionStep_CPU->setEnabled(false);
-   ui->actionStep_Over->setEnabled(false);
-   ui->actionStep_Out->setEnabled(false);
-   ui->actionStep_PPU->setEnabled(false);
-   ui->actionFrame_Advance->setEnabled(false);
+   ui->actionStep_CPU->setEnabled(debugging);
+   ui->actionStep_Over->setEnabled(debugging);
+   ui->actionStep_Out->setEnabled(debugging);
+   ui->actionStep_PPU->setEnabled(debugging);
+   ui->actionFrame_Advance->setEnabled(debugging);
 }
 
 void EmulatorControl::internalPause()
@@ -84,35 +88,35 @@ void EmulatorControl::internalPause()
    {
       ui->playButton->setEnabled(true);
       ui->pauseButton->setEnabled(false);
-      ui->stepCPUButton->setEnabled(true);
-      ui->stepOverButton->setEnabled(true);
-      ui->stepOutButton->setEnabled(true);
-      ui->stepPPUButton->setEnabled(true);
-      ui->frameAdvance->setEnabled(true);
+      ui->stepCPUButton->setEnabled(debugging);
+      ui->stepOverButton->setEnabled(debugging);
+      ui->stepOutButton->setEnabled(debugging);
+      ui->stepPPUButton->setEnabled(debugging);
+      ui->frameAdvance->setEnabled(debugging);
       ui->actionRun->setEnabled(true);
       ui->actionPause->setEnabled(false);
-      ui->actionStep_CPU->setEnabled(true);
-      ui->actionStep_Over->setEnabled(true);
-      ui->actionStep_Out->setEnabled(true);
-      ui->actionStep_PPU->setEnabled(true);
-      ui->actionFrame_Advance->setEnabled(true);
+      ui->actionStep_CPU->setEnabled(debugging);
+      ui->actionStep_Over->setEnabled(debugging);
+      ui->actionStep_Out->setEnabled(debugging);
+      ui->actionStep_PPU->setEnabled(debugging);
+      ui->actionFrame_Advance->setEnabled(debugging);
    }
    else
    {
       ui->playButton->setEnabled(false);
       ui->pauseButton->setEnabled(false);
-      ui->stepCPUButton->setEnabled(false);
-      ui->stepOverButton->setEnabled(false);
-      ui->stepOutButton->setEnabled(false);
-      ui->stepPPUButton->setEnabled(false);
-      ui->frameAdvance->setEnabled(false);
+      ui->stepCPUButton->setEnabled(debugging);
+      ui->stepOverButton->setEnabled(debugging);
+      ui->stepOutButton->setEnabled(debugging);
+      ui->stepPPUButton->setEnabled(debugging);
+      ui->frameAdvance->setEnabled(debugging);
       ui->actionRun->setEnabled(false);
       ui->actionPause->setEnabled(false);
-      ui->actionStep_CPU->setEnabled(false);
-      ui->actionStep_Over->setEnabled(false);
-      ui->actionStep_Out->setEnabled(false);
-      ui->actionStep_PPU->setEnabled(false);
-      ui->actionFrame_Advance->setEnabled(false);
+      ui->actionStep_CPU->setEnabled(debugging);
+      ui->actionStep_Over->setEnabled(debugging);
+      ui->actionStep_Out->setEnabled(debugging);
+      ui->actionStep_PPU->setEnabled(debugging);
+      ui->actionFrame_Advance->setEnabled(debugging);
    }
 }
 
@@ -170,4 +174,28 @@ void EmulatorControl::on_stepOutButton_clicked()
    CCC65Interface::isBuildUpToDate();
 
    emit stepOutCPUEmulation();
+}
+
+void EmulatorControl::on_debugButton_toggled(bool checked)
+{
+   debugging = checked;
+   ui->stepCPUButton->setEnabled(checked);
+   ui->stepOverButton->setEnabled(checked);
+   ui->stepOutButton->setEnabled(checked);
+   ui->stepPPUButton->setEnabled(checked);
+   ui->frameAdvance->setEnabled(checked);
+   ui->actionStep_CPU->setEnabled(checked);
+   ui->actionStep_Over->setEnabled(checked);
+   ui->actionStep_Out->setEnabled(checked);
+   ui->actionStep_PPU->setEnabled(checked);
+   ui->actionFrame_Advance->setEnabled(checked);
+
+   if ( debugging )
+   {
+      nesEnableDebug();
+   }
+   else
+   {
+      nesDisableDebug();
+   }
 }

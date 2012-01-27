@@ -19,10 +19,18 @@ QByteArray CImageConverters::fromIndexed8(QImage imgIn)
    char plane2[8];
    const uchar* bits = imgIn.bits();
 
+   if ( tileWidth > 16 ) tileWidth = 16;
+
    for ( tile = 0; tile < numTiles; tile++ )
    {
       tileX = (tile%tileWidth)*8;
       tileY = (tile/tileWidth)*8;
+
+      if ( tile >= 256 )
+      {
+         tileX += 128;
+         tileY -= 128;
+      }
 
       for ( y = 0; y < 8; y++ )
       {
@@ -65,6 +73,8 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, int xSize, int ySize)
    imgOut.setColor(1,qRgb(0x40,0x40,0x40));
    imgOut.setColor(2,qRgb(0x80,0x80,0x80));
    imgOut.setColor(3,qRgb(0xC0,0xC0,0xC0));
+
+   if ( tileWidth > 16 ) tileWidth = 16;
 
    for ( tile = 0; tile < numTiles; tile++ )
    {
@@ -113,6 +123,8 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QList<int> colorTable, int
    char pixel;
    int idx;
    uchar* bits = imgOut.bits();
+
+   if ( tileWidth > 16 ) tileWidth = 16;
 
    imgOut.setNumColors(16);
    imgOut.setColorCount(16);
@@ -174,6 +186,8 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QByteArray attrIn, QList<u
    int attrQuad;
    int idx;
    uchar* bits = imgOut.bits();
+
+   if ( tileWidth > 16 ) tileWidth = 16;
 
    attrQuadsX = (tileWidth>>2);
    attrQuadsY = (tileHeight>>2);

@@ -1,4 +1,8 @@
+#include <QFileDialog>
+
 #include "cchrrombank.h"
+#include "cimageconverters.h"
+#include "main.h"
 
 CCHRROMBank::CCHRROMBank(IProjectTreeViewItem* parent)
 {
@@ -29,9 +33,65 @@ QString CCHRROMBank::caption() const
    return "CHR Bank " + QString::number(m_bankIndex, 10);
 }
 
-void CCHRROMBank::contextMenuEvent(QContextMenuEvent*, QTreeView*)
+void CCHRROMBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
+   const QString EXPORT_PNG_TEXT = "Export as PNG";
+   const QString IMPORT_PNG_TEXT = "Import from PNG";
 
+   QMenu menu(parent);
+   menu.addAction(EXPORT_PNG_TEXT);
+   menu.addAction(IMPORT_PNG_TEXT);
+
+   QAction* ret = menu.exec(event->globalPos());
+
+   if (ret)
+   {
+      if (ret->text() == EXPORT_PNG_TEXT)
+      {
+         exportAsPNG();
+      }
+      else if ( ret->text() == IMPORT_PNG_TEXT)
+      {
+         importFromPNG();
+      }
+   }
+}
+
+void CCHRROMBank::exportAsPNG()
+{
+   QString fileName = QFileDialog::getSaveFileName(NULL,"Export CHR-ROM Bank as PNG",QDir::currentPath(),"PNG Files (*.png)");
+   QByteArray chrData;
+   QByteArray imgData;
+   QImage imgOut;
+
+   if ( !fileName.isEmpty() )
+   {
+      chrData.setRawData((const char*)getBankData(),MEM_8KB);
+
+      imgOut = CImageConverters::toIndexed8(chrData);
+
+      imgOut.save(fileName,"png");
+   }
+}
+
+void CCHRROMBank::importFromPNG()
+{
+   QString fileName = QFileDialog::getOpenFileName(NULL,"Import CHR-ROM Bank from PNG",QDir::currentPath(),"PNG Files (*.png)");
+   QByteArray chrData;
+   QByteArray imgData;
+   QImage imgIn;
+   CCHRROMBanks* chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
+
+   if ( !fileName.isEmpty() )
+   {
+      imgIn.load(fileName);
+
+      chrData = CImageConverters::fromIndexed8(imgIn);
+
+      setBankData(chrData.constData());
+
+      emulator->primeEmulator();
+   }
 }
 
 void CCHRROMBank::openItemEvent(CProjectTabWidget* tabWidget)

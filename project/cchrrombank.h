@@ -12,6 +12,8 @@ class CCHRROMBank : public CProjectBase
 public:
    CCHRROMBank(IProjectTreeViewItem* parent);
    virtual ~CCHRROMBank();
+   void exportAsPNG();
+   void importFromPNG();
 
    // Member Getters
    uint32_t getBankIndex() { return m_bankIndex; }
@@ -20,6 +22,7 @@ public:
    // Member Setters
    void setBankIndex(uint32_t bankIndex) { m_bankIndex = bankIndex; }
    void clearBankData() { memset(m_bankData,0,MEM_8KB); }
+   void setBankData(const char* bankData) { memcpy(m_bankData,bankData,MEM_8KB); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);

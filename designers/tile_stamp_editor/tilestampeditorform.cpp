@@ -515,10 +515,6 @@ void TileStampEditorForm::renderer_mousePressEvent(QMouseEvent *event)
       {
          paintTool(event);
       }
-      else if ( ui->textTool->isChecked() )
-      {
-         textTool(event);
-      }
       else if ( ui->hollowBoxTool->isChecked() )
       {
          hollowBoxTool(event);
@@ -568,10 +564,6 @@ void TileStampEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
    {
       paintTool(event);
    }
-   else if ( ui->textTool->isChecked() )
-   {
-      textTool(event);
-   }
    else if ( ui->hollowBoxTool->isChecked() )
    {
       hollowBoxTool(event);
@@ -619,10 +611,6 @@ void TileStampEditorForm::renderer_mouseReleaseEvent(QMouseEvent *event)
    else if ( ui->paintTool->isChecked() )
    {
       paintTool(event);
-   }
-   else if ( ui->textTool->isChecked() )
-   {
-      textTool(event);
    }
    else if ( ui->hollowBoxTool->isChecked() )
    {
@@ -734,9 +722,9 @@ void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
    for ( idx = 0; idx < 128*128*4; idx += 4 )
    {
       color = m_colors.at(colorData[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
+      imgData[idx+0] = color.red();
       imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
+      imgData[idx+2] = color.blue();
    }
    renderer->repaint();
    previewer->repaint();
@@ -769,9 +757,9 @@ void TileStampEditorForm::on_clear_clicked()
    for ( idx = 0; idx < 128*128*4; idx +=4 )
    {
       color = m_colors.at(colorData[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
+      imgData[idx+0] = color.red();
       imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
+      imgData[idx+2] = color.blue();
       imgData[idx+3] = 0xFF;
    }
    renderer->repaint();
@@ -790,7 +778,6 @@ void TileStampEditorForm::on_selectionTool_clicked()
 
    // Clear other selected tools if any.
    ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
    ui->filledBoxTool->setChecked(false);
    ui->lineTool->setChecked(false);
@@ -813,7 +800,6 @@ void TileStampEditorForm::on_paintTool_clicked()
 
    // Clear other selected tools if any.
    ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
    ui->filledBoxTool->setChecked(false);
    ui->lineTool->setChecked(false);
@@ -836,7 +822,6 @@ void TileStampEditorForm::on_pencilTool_clicked()
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
    ui->filledBoxTool->setChecked(false);
    ui->lineTool->setChecked(false);
@@ -845,29 +830,6 @@ void TileStampEditorForm::on_pencilTool_clicked()
    ui->hollowCircleTool->setChecked(false);
    ui->filledCircleTool->setChecked(false);
    ui->pencilTool->setChecked(true);
-
-   // Haven't selected anything yet.
-   clearSelection();
-}
-
-void TileStampEditorForm::on_textTool_clicked()
-{
-   m_activeTool = ui->textTool;
-
-   // Clear selected tile if any.
-   ui->tileList->setCurrentIndex(QModelIndex());
-
-   // Clear other selected tools if any.
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->hollowBoxTool->setChecked(false);
-   ui->filledBoxTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->paintAttr->setChecked(false);
-   ui->hollowCircleTool->setChecked(false);
-   ui->filledCircleTool->setChecked(false);
-   ui->textTool->setChecked(true);
 
    // Haven't selected anything yet.
    clearSelection();
@@ -888,7 +850,6 @@ void TileStampEditorForm::on_hollowCircleTool_clicked()
    ui->lineTool->setChecked(false);
    ui->selectionTool->setChecked(false);
    ui->paintAttr->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->filledCircleTool->setChecked(false);
    ui->hollowCircleTool->setChecked(true);
 
@@ -911,7 +872,6 @@ void TileStampEditorForm::on_filledCircleTool_clicked()
    ui->lineTool->setChecked(false);
    ui->selectionTool->setChecked(false);
    ui->paintAttr->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowCircleTool->setChecked(false);
    ui->filledCircleTool->setChecked(true);
 
@@ -929,7 +889,6 @@ void TileStampEditorForm::on_hollowBoxTool_clicked()
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
    ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->filledBoxTool->setChecked(false);
    ui->lineTool->setChecked(false);
    ui->selectionTool->setChecked(false);
@@ -952,7 +911,6 @@ void TileStampEditorForm::on_filledBoxTool_clicked()
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
    ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
    ui->lineTool->setChecked(false);
    ui->selectionTool->setChecked(false);
@@ -975,7 +933,6 @@ void TileStampEditorForm::on_lineTool_clicked()
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
    ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
    ui->filledBoxTool->setChecked(false);
    ui->selectionTool->setChecked(false);
@@ -998,7 +955,6 @@ void TileStampEditorForm::on_paintAttr_clicked()
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
    ui->pencilTool->setChecked(false);
-   ui->textTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
    ui->filledBoxTool->setChecked(false);
    ui->selectionTool->setChecked(false);
@@ -1013,11 +969,7 @@ void TileStampEditorForm::on_paintAttr_clicked()
 
 void TileStampEditorForm::on_tileList_activated(QModelIndex index)
 {
-   if ( ui->textTool->isChecked() )
-   {
-      m_activeTool = ui->textTool;
-   }
-   else if ( ui->paintTool->isChecked() )
+   if ( ui->paintTool->isChecked() )
    {
       m_activeTool = ui->paintTool;
    }
@@ -1055,7 +1007,6 @@ void TileStampEditorForm::on_tileList_activated(QModelIndex index)
    }
 
    // Clear other selected tools if any.
-   ui->textTool->setChecked(false);
    ui->paintTool->setChecked(false);
    ui->pencilTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
@@ -1072,11 +1023,7 @@ void TileStampEditorForm::on_tileList_activated(QModelIndex index)
 
 void TileStampEditorForm::on_tileList_clicked(QModelIndex index)
 {
-   if ( ui->textTool->isChecked() )
-   {
-      m_activeTool = ui->textTool;
-   }
-   else if ( ui->paintTool->isChecked() )
+   if ( ui->paintTool->isChecked() )
    {
       m_activeTool = ui->paintTool;
    }
@@ -1114,7 +1061,6 @@ void TileStampEditorForm::on_tileList_clicked(QModelIndex index)
    }
 
    // Clear other selected tools if any.
-   ui->textTool->setChecked(false);
    ui->paintTool->setChecked(false);
    ui->pencilTool->setChecked(false);
    ui->hollowBoxTool->setChecked(false);
@@ -1321,9 +1267,9 @@ void TileStampEditorForm::paintNormal()
    for ( idx = 0; idx < 128*128*4; idx +=4 )
    {
       color = m_colors.at(colorData[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
+      imgData[idx+0] = color.red();
       imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
+      imgData[idx+2] = color.blue();
       imgData[idx+3] = 0xFF;
 
       // Reset overlay.
@@ -1464,9 +1410,9 @@ void TileStampEditorForm::paintOverlay(QByteArray overlayData,QByteArray overlay
    for ( idx = 0; idx < 128*128*4; idx +=4 )
    {
       color = m_colors.at(colorDataOverlay[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
+      imgData[idx+0] = color.red();
       imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
+      imgData[idx+2] = color.blue();
       imgData[idx+3] = 0xFF;
    }
 }
@@ -2152,9 +2098,9 @@ void TileStampEditorForm::paintOverlay(OverlayType type,int selectedColor,int bo
    for ( idx = 0; idx < 128*128*4; idx +=4 )
    {
       color = m_colors.at(colorDataOverlay[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
+      imgData[idx+0] = color.red();
       imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
+      imgData[idx+2] = color.blue();
       imgData[idx+3] = 0xFF;
    }
 }
@@ -2178,9 +2124,9 @@ void TileStampEditorForm::paintOverlay(int selectedColor,int pixx,int pixy)
    for ( idx = 0; idx < 128*128*4; idx +=4 )
    {
       color = m_colors.at(colorDataOverlay[idx>>2])->currentColor();
-      imgData[idx+0] = color.blue();
+      imgData[idx+0] = color.red();
       imgData[idx+1] = color.green();
-      imgData[idx+2] = color.red();
+      imgData[idx+2] = color.blue();
       imgData[idx+3] = 0xFF;
    }
 }
@@ -2261,9 +2207,9 @@ void TileStampEditorForm::recolorTiles(int pixx,int pixy,int newColor,bool force
       for ( idx = 0; idx < 128*128*4; idx += 4 )
       {
          color = m_colors.at(colorDataOverlay[idx>>2])->currentColor();
-         imgData[idx+0] = color.blue();
+         imgData[idx+0] = color.red();
          imgData[idx+1] = color.green();
-         imgData[idx+2] = color.red();
+         imgData[idx+2] = color.blue();
       }
    }
 }
@@ -2322,9 +2268,9 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
       for ( idx = 0; idx < 128*128*4; idx += 4 )
       {
          color = m_colors.at(colorData[idx>>2])->currentColor();
-         imgData[idx+0] = color.blue();
+         imgData[idx+0] = color.red();
          imgData[idx+1] = color.green();
-         imgData[idx+2] = color.red();
+         imgData[idx+2] = color.blue();
       }
       renderer->repaint();
       previewer->repaint();
@@ -3096,10 +3042,6 @@ void TileStampEditorForm::lineTool(QMouseEvent *event)
          break;
       }
    }
-}
-
-void TileStampEditorForm::textTool(QMouseEvent *event)
-{
 }
 
 void TileStampEditorForm::tileTool(QMouseEvent *event)

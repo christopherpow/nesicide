@@ -818,7 +818,7 @@
   </action>
   <action name="action_About_Nesicide">
    <property name="text">
-    <string>&amp;About Nesicide</string>
+    <string>About NESICIDE</string>
    </property>
   </action>
   <action name="actionPPUInformation_Inspector">

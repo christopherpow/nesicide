@@ -90,7 +90,6 @@ protected:
    void updateInfoText(int x=-1,int y=-1);
    void paintTool(QMouseEvent* event);
    void pencilTool(QMouseEvent* event);
-   void textTool(QMouseEvent* event);
    void tileTool(QMouseEvent* event);
    void filledBoxTool(QMouseEvent* event);
    void hollowBoxTool(QMouseEvent* event);
@@ -118,7 +117,6 @@ private slots:
    void on_flipHorizontal_clicked();
    void on_cwRotate_clicked();
    void on_ccwRotate_clicked();
-   void on_textTool_clicked();
    void on_lineTool_clicked();
    void on_pencilTool_clicked();
    void on_paintTool_clicked();

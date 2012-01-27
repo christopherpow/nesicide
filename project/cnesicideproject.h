@@ -28,6 +28,7 @@ public:
    void initializeProject();
    void terminateProject();
    bool createProjectFromRom(QString fileName,bool silent=false);
+   bool createRomFromProject(QString fileName);
    void setDirty(bool dirty) { m_isDirty = dirty; }
    bool isDirty() const { return m_isDirty; }
 

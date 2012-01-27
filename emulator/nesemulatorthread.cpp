@@ -96,9 +96,6 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    nesSetCoreMutexLockHook(coreMutexLock);
    nesSetCoreMutexUnlockHook(coreMutexUnlock);
 
-   // Enable debugging in the external emulator library.
-   nesEnableDebug ();
-
    // Enable breakpoint callbacks from the external emulator library.
    nesSetBreakpointHook(breakpointHook);
 
@@ -634,8 +631,11 @@ void NESEmulatorThread::run ()
          if ( (!m_debugFrame) && (debuggerUpdateRate) )
          {
             m_debugFrame = debuggerUpdateRate;
-            nesDisassemble();
-            emit updateDebuggers();
+            if ( nesIsDebuggable() )
+            {
+               nesDisassemble();
+               emit updateDebuggers();
+            }
          }
       }
    }

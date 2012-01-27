@@ -48,7 +48,7 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
 
 void CGraphicsBank::exportAsPNG()
 {
-   QString fileName = QFileDialog::getSaveFileName(NULL,"Export Graphics Bank as PNG...",QDir::currentPath());
+   QString fileName = QFileDialog::getSaveFileName(NULL,"Export Graphics Bank as PNG",QDir::currentPath());
    QByteArray chrData;
    QByteArray imgData;
    int idx;
@@ -133,7 +133,7 @@ QString CGraphicsBank::caption() const
 
 void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
-   const QString EXPORT_PNG_TEXT    = "Export as PNG...";
+   const QString EXPORT_PNG_TEXT    = "Export as PNG";
    const QString DELETE_TEXT        = "&Delete";
 
    QMenu menu(parent);

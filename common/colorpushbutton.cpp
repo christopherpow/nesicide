@@ -25,4 +25,8 @@ void ColorPushButton::paintEvent(QPaintEvent *event)
       p.setPen( QPen( Qt::gray, 0, Qt::SolidLine ) );
       p.drawRect(1, 1, w - 2, h - 2);
    }
+
+// CPTODO: eventually have enough here to put the color index on the button.
+//   p.setPen( QPen( Qt::white, 1, Qt::SolidLine) );
+//   p.drawText(rect(),m_text,Qt::AlignCenter);
 }

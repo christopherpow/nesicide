@@ -81,7 +81,7 @@ private:
    QsciLexer* m_lexer;
    int m_breakpointIndex;
    int m_contextMenuLine;
-   int m_timer;
+   int m_toolTipTimer;
    QString m_searchText;
    int m_language;
    void updateToolTip(QString symbol);

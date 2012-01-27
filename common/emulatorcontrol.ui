@@ -38,6 +38,29 @@
       <number>0</number>
      </property>
      <item>
+      <widget class="QToolButton" name="debugButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/RR_bug.png</normaloff>:/resources/RR_bug.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="playButton">
        <property name="enabled">
         <bool>false</bool>
@@ -358,6 +381,20 @@
    </property>
    <property name="toolTip">
     <string>Step Out</string>
+   </property>
+  </action>
+  <action name="actionDebugging">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debugging</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable/Disable Debugging</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F7</string>
    </property>
   </action>
  </widget>

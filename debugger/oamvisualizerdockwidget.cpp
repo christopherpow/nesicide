@@ -4,6 +4,8 @@
 #include "cnessystempalette.h"
 #include "dbg_cnesppu.h"
 
+#include "emulator_core.h"
+
 #include "main.h"
 
 OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
@@ -77,6 +79,14 @@ void OAMVisualizerDockWidget::hideEvent(QHideEvent* event)
 
 void OAMVisualizerDockWidget::renderData()
 {
+    uint8_t x, y;
+    nesGetLastSprite0Hit(&x,&y);
+    QString str;
+
+    str.sprintf("%d",x);
+    ui->sprite0HitX->setText(str);
+    str.sprintf("%d",y);
+    ui->sprite0HitY->setText(str);
    renderer->reloadData(imgData);
 }
 
