@@ -100,7 +100,9 @@ QString CTileStamps::caption() const
 
 void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
-   const QString NEW_TILE_MENU_TEXT    = "&New Tile...";
+   const QString NEW_TILE_MENU_TEXT    = "New Tile";
+   const QString IMPORT_FROM_FILE_TEXT = "Import from file";
+   const QString IMPORT_FROM_EMULATOR_TEXT = "Import from Emulator";
 
    QMenu menu(parent);
 

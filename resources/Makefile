@@ -91,7 +91,8 @@ DEPENDS := $(OBJECTS:.o=.d)
 
 all: $(PROGRAM)
 
--include $(DEPENDS)
+# CPTODO: Disabled for now because of Windows crap paths
+#-include $(DEPENDS)
 
 # The remaining targets.
 $(OBJDIR):

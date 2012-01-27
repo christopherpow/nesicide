@@ -775,7 +775,7 @@ void MainWindow::on_actionProject_Properties_triggered()
 
 void MainWindow::on_actionNew_Project_triggered()
 {
-   NewProjectDialog dlg(this,"New Project","Untitled");
+   NewProjectDialog dlg(this,"New Project","Untitled","",true);
 
    if (dlg.exec() == QDialog::Accepted)
    {
@@ -1762,10 +1762,15 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
       buildTextLogger->write("<b>Loading ROM...</b>");
 
-      if ( !(CCC65Interface::captureINESImage() && CCC65Interface::captureDebugInfo()) )
+      if ( !CCC65Interface::captureINESImage() )
       {
          buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
          return;
+      }
+
+      if ( !CCC65Interface::captureDebugInfo() )
+      {
+          buildTextLogger->write("<font color='red'><b>Loading debug information failed.</b></font>");
       }
 
       emit primeEmulator();

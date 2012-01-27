@@ -176,7 +176,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
    QByteArray inputSamplesRaw;
    JoypadLoggerInfo* inputSample;
    int     numInputSamples;
-   int     framesRun;
+   static int     framesRun;
    int     test;
    int     sample;
    int     numTests = ui->tableWidget->rowCount();
@@ -279,6 +279,8 @@ void TestSuiteExecutiveDialog::doTestPhase()
             ui->testProgress->setMaximum(ui->testProgress->maximum()+60);
 
             emit startEmulation();
+
+            break;
          }
 
          if ( result == QMessageBox::No )

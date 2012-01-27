@@ -90,7 +90,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect(m_scintilla,SIGNAL(customContextMenuRequested(const QPoint&)),this,SLOT(customContextMenuRequested(const QPoint&)));
 
    // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
-   m_timer = startTimer(50);
+   m_toolTipTimer = startTimer(50);
 
    m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
    m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
@@ -185,8 +185,8 @@ CodeEditorForm::~CodeEditorForm()
 
 void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 {
-   const QString GO_TO_DEFINITION_TEXT = "Go to Definition...";
-   const QString ADD_TO_WATCH_TEXT = "Watch...";
+   const QString GO_TO_DEFINITION_TEXT = "Go to Definition of ";
+   const QString ADD_TO_WATCH_TEXT = "Watch ";
 
    QMenu menu;
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
@@ -271,8 +271,12 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    if ( (!symbol.isEmpty()) &&
         (CCC65Interface::isStringASymbol(symbol)) )
    {
-      menu.addAction(GO_TO_DEFINITION_TEXT);
-      menu.addAction(ADD_TO_WATCH_TEXT);
+      QString str = GO_TO_DEFINITION_TEXT;
+      str += symbol;
+      menu.addAction(str);
+      str = ADD_TO_WATCH_TEXT;
+      str += symbol;
+      menu.addAction(str);
    }
 
    // Run the context menu...
@@ -370,7 +374,7 @@ void CodeEditorForm::timerEvent(QTimerEvent *e)
 {
    QString    symbol;
 
-   if ( e->timerId() == m_timer )
+   if ( e->timerId() == m_toolTipTimer )
    {
       // Figure out if there's anything useful we can ToolTip.
       symbol = m_scintilla->wordAtPoint(mapFromGlobal(QCursor::pos()));
@@ -652,8 +656,27 @@ void CodeEditorForm::updateToolTip(QString symbol)
    // Next check for symbol tooltips.
    if ( EnvironmentSettingsDialog::showSymbolTips() )
    {
-      if ( (CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL) ||
-           (CCC65Interface::getSymbolType(symbol) == CC65_SYM_IMPORT) )
+      if ( (m_language == Language_C) &&
+           ((CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_IMPORT)) )
+      {
+         addr = CCC65Interface::getSymbolAddress(clangSymbol);
+
+         if ( addr != 0xFFFFFFFF )
+         {
+            absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
+            nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+
+            file = CCC65Interface::getSourceFileFromSymbol(clangSymbol);
+            line = CCC65Interface::getSourceLineFromFileAndSymbol(file,clangSymbol);
+
+            sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+            setToolTip(toolTipText);
+         }
+      }
+      else if ( (m_language == Language_Assembly) &&
+           ((CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::getSymbolType(symbol) == CC65_SYM_IMPORT)) )
       {
          addr = CCC65Interface::getSymbolAddress(symbol);
 
@@ -667,22 +690,6 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
             sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
             setToolTip(toolTipText);
-         }
-         else
-         {
-            addr = CCC65Interface::getSymbolAddress(clangSymbol);
-
-            if ( addr != 0xFFFFFFFF )
-            {
-               absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
-               nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
-
-               file = CCC65Interface::getSourceFileFromSymbol(symbol);
-               line = CCC65Interface::getSourceLineFromFileAndSymbol(file,symbol);
-
-               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
-               setToolTip(toolTipText);
-            }
          }
       }
       else if ( CCC65Interface::getSymbolType(symbol) == CC65_SYM_EQUATE )

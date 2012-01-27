@@ -661,6 +661,108 @@ bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
    return false;
 }
 
+bool CNesicideProject::createRomFromProject(QString fileName)
+{
+    CCHRROMBanks* chrRomBanks = getCartridge()->getChrRomBanks();
+    CPRGROMBanks* prgRomBanks = getCartridge()->getPrgRomBanks();
+
+    QFile fileOut (fileName);
+
+    if (fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate))
+    {
+       QDataStream fs(&fileOut);
+
+       // Check the NES header
+       char nesHeader[4] = {'N', 'E', 'S', 0x1A};
+       fs.writeRawData(nesHeader,4);
+
+       // Number of 16KB PRG-ROM banks
+       qint8 numPrgRomBanks = prgRomBanks->getPrgRomBanks().count();
+
+       // iNES header expects 16KB banks
+       qint8 numPrgRomBanksHdr = numPrgRomBanks>>1;
+
+       fs << numPrgRomBanksHdr;
+
+       // Get the number of 8KB CHR-ROM / VROM banks
+       qint8 numChrRomBanks = chrRomBanks->getChrRomBanks().count();
+       fs << numChrRomBanks;
+
+       // ROM Control Byte 1:
+       // - Bit 0 - Indicates the type of mirroring used by the game
+       //   where 0 indicates horizontal mirroring, 1 indicates
+       //   vertical mirroring.
+       //
+       // - Bit 1 - Indicates the presence of battery-backed RAM at
+       //   memory locations $6000-$7FFF.
+       //
+       // - Bit 2 - Indicates the presence of a 512-byte trainer at
+       //   memory locations $7000-$71FF.
+       //
+       // - Bit 3 - If this bit is set it overrides bit 0 to indicate fourscreen
+       //   mirroring should be used.
+       //
+       // - Bits 4-7 - Four lower bits of the mapper number.
+       qint8 romCB1 = 0x00;
+
+       // First extract the mirror mode
+       if (m_pCartridge->getMirrorMode() == VerticalMirroring)
+       {
+          romCB1 |= FLAG_MIRROR_VERT;
+       }
+       if (m_pCartridge->isBatteryBackedRam())
+       {
+          romCB1 |= 0x02;
+       }
+       romCB1 |= ((m_pCartridge->getMapperNumber()&0xF)<<4);
+
+       fs << romCB1;
+
+       // ROM Control Byte 2:
+       //  Bits 0-3 - Reserved for future usage and should all be 0.
+       //  Bits 4-7 - Four upper bits of the mapper number.
+       qint8 romCB2 = 0x00;
+
+       romCB2 |= (m_pCartridge->getMapperNumber()&0xF0);
+
+       fs << romCB2;
+
+       // Skip the 7 reserved bytes
+       qint8 skip;
+
+       for (int i=0; i<8; i++)
+       {
+          fs << skip;
+       }
+
+       // Ignore trainer.
+
+       // Save the PRG-ROM banks (16KB each)
+       for (int bank=0; bank<numPrgRomBanks; bank++)
+       {
+          // Grab either a previously used bank, or a new one
+          CPRGROMBank* curBank = prgRomBanks->getPrgRomBanks().at(bank);
+
+          fs.writeRawData((char*)curBank->getBankData(),MEM_8KB);
+       }
+
+       // Save the CHR-ROM banks (8KB each)
+       for (int bank=0; bank<numChrRomBanks; bank++)
+       {
+          // Grab either a previously used bank, or a new one
+          CCHRROMBank* curBank = chrRomBanks->getChrRomBanks().at(bank);
+
+          fs.writeRawData((char*)curBank->getBankData(),MEM_8KB);
+       }
+
+       fileOut.close();
+
+       return true;
+    }
+
+    return false;
+}
+
 bool CNesicideProject::exportData()
 {
    QDir dir(QDir::currentPath());

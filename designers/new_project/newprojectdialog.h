@@ -12,7 +12,7 @@ class NewProjectDialog : public QDialog
 {
    Q_OBJECT
 public:
-   NewProjectDialog(QWidget* parent = 0,QString windowTitle = "New",QString defName = "", QString defPath = "");
+   NewProjectDialog(QWidget* parent = 0,QString windowTitle = "New",QString defName = "", QString defPath = "", bool showTemplate = false);
    virtual ~NewProjectDialog();
    QString getName();
    QString getPath();

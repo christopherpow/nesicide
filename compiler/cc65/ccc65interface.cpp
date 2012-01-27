@@ -11,11 +11,9 @@ QStringList         CCC65Interface::errors;
 static const char* clangTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(COMPILE) --create-dep $(@:.o=.d) -c $(CFLAGS) -o $@ $<\r\n\r\n"
+      "\t$(COMPILE) --create-dep $(@:.o=.d) -S $(CFLAGS) -o $(@:.o=.s) $<\r\n\r\n"
+      "\t$(ASSEMBLE) $(ASFLAGS) -o $@ $(OBJDIR)/$(<:.<!extension!>=.s)\r\n\r\n"
       ;
-// CPTODO: This compiles a .s from a .c but not sure I want it yet:
-// "\t$(COMPILE) -S $(CFLAGS) $<\r\n\r\n"
-// (otherwise the .s from a .c is thrown away by cl65)
 
 static const char* asmTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
@@ -337,7 +335,7 @@ bool CCC65Interface::isBuildUpToDate()
 
       if ( exitCode == 1 )
       {
-         QMessageBox::warning(NULL,"Consistency problem...",outdated);
+         QMessageBox::warning(NULL,"Consistency problem!",outdated);
          ok = false;
       }
    }

@@ -38,6 +38,9 @@ bool CBinaryFile::onNameChanged(QString newName)
 void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
 {
    QImage image;
+   int tiles;
+   int tilesX;
+   int tilesY;
 
    image.loadFromData(newBinaryData);
 
@@ -51,6 +54,29 @@ void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
       break;
    default:
       m_binaryData = newBinaryData;
+
+      // Attempt to determine 'size' of binary data in tiles.
+      tiles = newBinaryData.length()/16;
+      tilesY = tiles/16;
+      if ( tilesY >= 1 )
+      {
+         tilesX = 16;
+      }
+      else
+      {
+         tilesX = tiles%16;
+      }
+      if ( tilesY == 0 )
+      {
+         tilesY = 1;
+      }
+      if ( tilesY > 16 )
+      {
+         tilesY = 16;
+         tilesX = 32;
+      }
+      m_xSize = tilesX*8;
+      m_ySize = tilesY*8;
       break;
    }
 }

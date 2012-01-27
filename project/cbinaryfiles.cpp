@@ -101,7 +101,7 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    // Project base directory (directory where the .nesproject file is)
    QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
 
-   const QString IMPORT_SOURCE_MENU_TEXT = "&Add Existing File(s)...";
+   const QString IMPORT_SOURCE_MENU_TEXT = "Add Existing File(s)";
 
    QMenu menu(parent);
    menu.addAction( IMPORT_SOURCE_MENU_TEXT );

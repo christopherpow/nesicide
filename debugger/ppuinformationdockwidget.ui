@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>286</height>
+    <height>284</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,37 +21,37 @@
     <property name="spacing">
      <number>6</number>
     </property>
-    <item row="4" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label_7">
       <property name="text">
        <string>PPU Address Latch:</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="3" column="1">
      <widget class="QLineEdit" name="ppuAddrLatch"/>
     </item>
-    <item row="4" column="2">
+    <item row="3" column="2">
      <widget class="QLineEdit" name="ppuFlipFlop"/>
     </item>
-    <item row="5" column="0">
+    <item row="4" column="0">
      <widget class="QLabel" name="label_5">
       <property name="text">
        <string>PPU Address:</string>
       </property>
      </widget>
     </item>
-    <item row="5" column="1" colspan="2">
+    <item row="4" column="1" colspan="2">
      <widget class="QLineEdit" name="ppuAddr"/>
     </item>
-    <item row="6" column="0">
+    <item row="5" column="0">
      <widget class="QLabel" name="label_6">
       <property name="text">
        <string>PPU Read Latch: </string>
       </property>
      </widget>
     </item>
-    <item row="6" column="1" colspan="2">
+    <item row="5" column="1" colspan="2">
      <widget class="QLineEdit" name="ppuLatch">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -61,9 +61,9 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="3">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
+    <item row="1" column="0" colspan="3">
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="1" rowspan="2">
        <widget class="QGroupBox" name="groupBox_2">
         <property name="title">
          <string>Clock</string>
@@ -97,10 +97,30 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="ppuX"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>X:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Y:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="ppuY"/>
+         </item>
         </layout>
        </widget>
       </item>
-      <item>
+      <item row="1" column="2">
        <widget class="QGroupBox" name="groupBox_3">
         <property name="title">
          <string>OAM</string>
@@ -129,54 +149,7 @@
         </layout>
        </widget>
       </item>
-     </layout>
-    </item>
-    <item row="0" column="0" colspan="3">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>Cycle information in pixel and PPU domains</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>X:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="pixelX">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Y:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="pixelY">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLineEdit" name="ppuX"/>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="ppuY"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
+      <item row="0" column="2">
        <widget class="QGroupBox" name="groupBox_4">
         <property name="title">
          <string>Scroll</string>

@@ -1,4 +1,5 @@
 #include "ccartridge.h"
+#include "main.h"
 
 CCartridge::CCartridge(IProjectTreeViewItem* parent)
 {
@@ -26,6 +27,34 @@ CCartridge::~CCartridge()
    {
       delete m_pPrgRomBanks;
    }
+}
+
+void CCartridge::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
+{
+   const QString EXPORT_ROM_TEXT = "Export NES ROM";
+
+   QMenu menu(parent);
+   menu.addAction(EXPORT_ROM_TEXT);
+
+   QAction* ret = menu.exec(event->globalPos());
+
+   if (ret)
+   {
+      if (ret->text() == EXPORT_ROM_TEXT)
+      {
+         exportROM();
+      }
+   }
+}
+
+void CCartridge::exportROM()
+{
+    QString fileName = QFileDialog::getSaveFileName(NULL,"Export NES ROM",QDir::currentPath(),"iNES Files (*.nes)");
+
+    if ( !fileName.isEmpty() )
+    {
+        nesicideProject->createRomFromProject(fileName);
+    }
 }
 
 void CCartridge::initializeProject()

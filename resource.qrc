@@ -65,7 +65,6 @@
         <file>resources/stepinto_6.png</file>
         <file>resources/stepreturn_6.png</file>
         <file>resources/stepover_6.png</file>
-        <file>resources/Makefile</file>
         <file>resources/folder_closed.png</file>
         <file>resources/folder_open.png</file>
         <file>resources/RR_cursor.png</file>
@@ -98,5 +97,6 @@
         <file>resources/RR_shape_circle_filled.png</file>
         <file>resources/RR_shape_circle_hollow.png</file>
         <file>resources/pen.png</file>
+        <file>resources/Makefile</file>
     </qresource>
 </RCC>

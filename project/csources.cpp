@@ -119,8 +119,8 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
    // Project base directory (directory where the .nesproject file is)
    QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
 
-   const QString NEW_SOURCE_MENU_TEXT    = "&New Source...";
-   const QString IMPORT_SOURCE_MENU_TEXT = "&Add Existing File(s)...";
+   const QString NEW_SOURCE_MENU_TEXT    = "New Source";
+   const QString IMPORT_SOURCE_MENU_TEXT = "Add Existing File(s)";
 
    QMenu menu(parent);
    menu.addAction( NEW_SOURCE_MENU_TEXT );

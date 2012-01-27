@@ -100,7 +100,7 @@ QString CAttributeTables::caption() const
 
 void CAttributeTables::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
-   const QString NEW_ATBL_MENU_TEXT    = "&New Palette...";
+   const QString NEW_ATBL_MENU_TEXT    = "New Palette";
 
    QMenu menu(parent);
 

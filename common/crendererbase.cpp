@@ -12,6 +12,8 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,c
       _maxZoom(maxZoom)
 {
    setBackgroundRole(QPalette::Dark);
+
+   setCursor(QCursor(Qt::CrossCursor));
 }
 
 CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,char* imageData,QWidget *parent) :
@@ -25,6 +27,8 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,char* imageData,QWi
     _maxZoom(maxZoom)
 {
    setBackgroundRole(QPalette::Dark);
+
+   setCursor(QCursor(Qt::CrossCursor));
 
    if ( _sizeX > sizeY )
    {

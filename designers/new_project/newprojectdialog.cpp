@@ -3,7 +3,7 @@
 
 #include <QFileDialog>
 
-NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString defName,QString defPath) :
+NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString defName,QString defPath, bool showTemplate) :
    QDialog(parent),
    ui(new Ui::NewProjectDialog)
 {
@@ -12,6 +12,7 @@ NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString d
    ui->path->setText(defPath);
    on_path_textChanged(defPath);
    setWindowTitle(windowTitle);
+   ui->templateGroup->setVisible(showTemplate);
 }
 
 NewProjectDialog::~NewProjectDialog()

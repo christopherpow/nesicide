@@ -18,6 +18,7 @@ public:
 
 private:
    Ui::EmulatorControl *ui;
+   bool debugging;
 
 signals:
    void focusEmulator();
@@ -31,6 +32,7 @@ signals:
    void resetEmulator();
 
 private slots:
+   void on_debugButton_toggled(bool checked);
    void on_stepOutButton_clicked();
    void on_stepOverButton_clicked();
    void on_frameAdvance_clicked();

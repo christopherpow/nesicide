@@ -59,13 +59,15 @@ public:
       m_hasBatteryBackedRam = batteryBackedRam;
    }
 
+   void exportROM();
+
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
-   virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
+   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget*) {}
    virtual bool onCloseQuery()
    {
