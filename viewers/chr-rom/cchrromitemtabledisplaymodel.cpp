@@ -1,4 +1,4 @@
-#include "CChrRomItemTableDisplayModel.h"
+#include "cchrromitemtabledisplaymodel.h"
 
 #include "iprojecttreeviewitem.h"
 

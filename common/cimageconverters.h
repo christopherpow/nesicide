@@ -4,6 +4,8 @@
 #include <QImage>
 #include <QByteArray>
 
+#include <stdint.h> // for standard base types...
+
 class CImageConverters
 {
 public:

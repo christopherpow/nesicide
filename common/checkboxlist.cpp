@@ -10,7 +10,7 @@
 //
 ///////////////////////////////////////////////////////////
 
-#include "CheckBoxList.h"
+#include "checkboxlist.h"
 #include <QtGui>
 
 

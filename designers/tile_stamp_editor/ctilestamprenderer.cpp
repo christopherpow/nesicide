@@ -1,4 +1,4 @@
-#include "CTileStamprenderer.h"
+#include "ctilestamprenderer.h"
 
 CTileStampRenderer::CTileStampRenderer(QWidget* parent, char* data)
    : QGLWidget(parent)

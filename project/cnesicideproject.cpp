@@ -667,10 +667,10 @@ bool CNesicideProject::exportData()
    QString projHdrFileName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectHeaderFileName()));
    QFile projHdrFile(projHdrFileName);
    QList<PropertyEnumItem> items;
+   bool ok = false;
 
    // This function exports project-specific data such as property enumerations
    // declared in the Project Properties panel.
-
    if ( projHdrFile.open(QIODevice::ReadWrite|QIODevice::Text|QIODevice::Truncate) )
    {
       projHdrFile.write(NESICIDE_HEADER);
@@ -696,6 +696,11 @@ bool CNesicideProject::exportData()
             projHdrFile.write(".endenum\n\n");
          }
       }
+
+      ok = true;
+
       projHdrFile.close();
    }
+
+   return ok;
 }

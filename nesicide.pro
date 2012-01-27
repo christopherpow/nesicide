@@ -56,6 +56,14 @@ mac {
    LUA_CXXFLAGS = -F.. -framework Lua
    LUA_LIBS = -F.. -framework Lua
 
+   SCINTILLA_CXXFLAGS = -I../nesicide/libraries/Qscintilla
+
+   CONFIG(release, debug|release) {
+      SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/release -lqscintilla2
+   } else {
+      SCINTILLA_LIBS = -L../nesicide/libraries/Qscintilla/debug -lqscintilla2
+   }
+
    TARGET = "NESICIDE"
 
    QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
@@ -69,6 +77,9 @@ mac {
 }
 
 unix:!mac {
+   NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator -I ../nesicide-emulator-lib/common
+   NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
+
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
 
