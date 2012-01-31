@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installdocs
+if [ "$1" = "configure" ]; then
+	ldconfig -n /usr/lib/i386-linux-gnu
+	echo "To finish NESICIDE installation:"
+	echo "1. Execute the following commands to download, compile, and install"
+	echo "   the latest CC65 snapshot if you do not already have it:"
+	echo ""
+	echo "     wget ftp://ftp.musoftware.de/pub/uz/cc65/snapshot/cc65-snapshot-sources-2.13.9.20120131.tar.bz2"
+	echo "     tar -xvjf cc65-snapshot-sources-2.13.9.20120131.tar.bz2"
+	echo "     cd cc65-snapshot-2.13.9.20120131"
+	echo "     make -f make/gcc.mak"
+	echo "     sudo make -f make/gcc.mak install" 
+fi
+# End automatically added section

@@ -1,0 +1,46 @@
+#!/bin/sh
+if [ $# -ne "1" ]; then
+	echo "Specify a version!"
+	exit 1;
+fi
+
+# Remove old binaries from debian/usr...
+rm -f debian/usr/bin/nesicide
+rm -f debian/usr/lib/i386-linux-gnu/libqscintilla*
+rm -f debian/usr/share/pixmaps/nesicide.png
+rm -f debian/usr/share/app-install/icons/nesicide.png
+
+# Copy binaries to debian/usr/...
+cp ../nesicide-build-desktop/nesicide debian/usr/bin/
+cp /usr/lib/i386-linux-gnu/libqscintilla2.so.8.0.0 debian/usr/lib/i386-linux-gnu/
+
+# Copy icons to debian/usr/...
+cp resources/controller.png debian/usr/share/pixmaps/nesicide.png
+cp resources/controller.png debian/usr/share/app-install/icons/nesicide.png
+
+# Clear executable bit 
+chmod 755 debian/usr/bin/nesicide
+chmod 644 debian/usr/lib/i386-linux-gnu/libqscintilla2.so.8.0.0
+
+# Create library symlinks
+( cd debian/usr/lib/i386-linux-gnu; ln -s libqscintilla2.so.8.0.0 libqscintilla2.so.8 )
+
+# Update version in debian/DEBIAN/control
+VERSION=$1
+sed -e s/\<version\>/$VERSION/ debian-control > debian/DEBIAN/control
+
+# Update MD5 sums in debian/DEBIAN/md5sums
+( cd debian; md5sum `find usr -type f`) > debian/DEBIAN/md5sums
+
+# Correct control file permissions
+chmod 644 debian/DEBIAN/control debian/DEBIAN/md5sums
+
+# Make debian
+fakeroot dpkg-deb --build debian
+
+# Rename
+cp debian.deb nesicide_$VERSION-1_i386.deb
+
+# Lintian
+lintian nesicide_$VERSION-1_i386.deb
+

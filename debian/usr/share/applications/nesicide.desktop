@@ -1,0 +1,10 @@
+
+[Desktop Entry]
+Name=NESICIDE
+Comment=Develop and play NES games
+Exec=nesicide
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=nesicide
+Categories=Development;

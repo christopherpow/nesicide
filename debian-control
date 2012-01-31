@@ -1,0 +1,16 @@
+Package: nesicide 
+Version: 1.014-1
+Section: devel
+Priority: optional
+Architecture: i386
+Pre-Depends: multiarch-support
+Depends: libc6 (>=2.2.1), liblua5.1-0, libqt4-xml, libqt4-opengl, libqt4-gui, libqt4-core, libqtwebkit4, libnesicide-emulator1 (>=1.004) 
+Suggests: nesicide-emulator 
+Conflicts: 
+Replaces: 
+Installed-Size: 2726
+Maintainer: Christopher Pow <christopher_pow@hotmail.com>
+Description: Integrated Development Environment, part of NESICIDE.
+ This is the Nintendo Entertainment System Integrated Development
+ Environment.  It provides source- and assembly-level debugging,
+ breakpoints, debuggers, and NES cartridge building capabilities.
