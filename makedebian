@@ -18,9 +18,11 @@ cp /usr/lib/i386-linux-gnu/libqscintilla2.so.8.0.0 debian/usr/lib/i386-linux-gnu
 cp resources/controller.png debian/usr/share/pixmaps/nesicide.png
 cp resources/controller.png debian/usr/share/app-install/icons/nesicide.png
 
-# Clear executable bit 
+# Set/Clear executable bit 
 chmod 755 debian/usr/bin/nesicide
 chmod 644 debian/usr/lib/i386-linux-gnu/libqscintilla2.so.8.0.0
+chmod 644 debian/usr/share/pixmaps/nesicide.png
+chmod 644 debian/usr/share/app-install/icons/nesicide.png
 
 # Create library symlinks
 ( cd debian/usr/lib/i386-linux-gnu; ln -s libqscintilla2.so.8.0.0 libqscintilla2.so.8 )
