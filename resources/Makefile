@@ -88,15 +88,15 @@ DEPENDS := $(OBJECTS:.o=.d)
 
 .SUFFIXES:
 .PHONY: all clean
-
-all: $(PROGRAM)
+	
+all: $(OBJDIR) $(PROGRAM)
 
 # CPTODO: Disabled for now because of Windows crap paths
 #-include $(DEPENDS)
 
 # The remaining targets.
 $(OBJDIR):
-	$(call MKDIR,@)
+	$(call MKDIR,$(OBJDIR))
 
 <!target-rules!>
 
