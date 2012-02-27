@@ -56,7 +56,6 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 
 void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), assemblyViewModel, SLOT(update()));
    QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
 }
 

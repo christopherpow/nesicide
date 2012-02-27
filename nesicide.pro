@@ -8,6 +8,9 @@ QT += network \
 
 TARGET = "nesicide"
 
+# Remove crap we don't need!
+CONFIG -= exceptions
+
 isEmpty (NESICIDE_LIBS) {
    NESICIDE_LIBS = -lnesicide-emulator
 }
@@ -129,7 +132,7 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
+QMAKE_CXXFLAGS += -fno-rtti $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
 LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += common \
@@ -268,7 +271,9 @@ SOURCES += mainwindow.cpp \
     debugger/debuggerupdatethread.cpp \
     common/crendererbase.cpp \
     common/panzoomrenderer.cpp \
-    emulator/nesemulatorrenderer.cpp
+    emulator/nesemulatorrenderer.cpp \
+    common/tilificationthread.cpp \
+    common/chrbankitemstabwidget.cpp
 
 HEADERS += mainwindow.h \
     main.h \
@@ -388,7 +393,9 @@ HEADERS += mainwindow.h \
     debugger/debuggerupdatethread.h \
     common/crendererbase.h \
     common/panzoomrenderer.h \
-    emulator/nesemulatorrenderer.h
+    emulator/nesemulatorrenderer.h \
+    common/tilificationthread.h \
+    common/chrbankitemstabwidget.h
 
 FORMS += mainwindow.ui \
     designers/code_editor/codeeditorform.ui \
@@ -427,6 +434,7 @@ FORMS += mainwindow.ui \
     debugger/codeprofilerdockwidget.ui \
     designers/tile_stamp_editor/tilestampeditorform.ui \
     designers/project_properties/propertyeditordialog.ui \
-    common/panzoomrenderer.ui
+    common/panzoomrenderer.ui \
+    common/chrbankitemstabwidget.ui
 
 RESOURCES += resource.qrc

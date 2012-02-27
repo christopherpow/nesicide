@@ -165,7 +165,9 @@ void OutputPaneDockWidget::on_compilerOutputTextEdit_selectionChanged()
       selection = textCursor.selectedText();
       ui->compilerOutputTextEdit->setTextCursor(textCursor);
 
-      if ( selection.contains(": Error:") )
+      if ( !selection.contains(".exe") && // Get rid of pesky ld65.exe: Error: and ld65.exe: Warning: matches...
+           (selection.contains(": Error:") ||
+            selection.contains(": Warning:")) )
       {
          // Parse the error file and line number.
          errorParts = selection.split(":");

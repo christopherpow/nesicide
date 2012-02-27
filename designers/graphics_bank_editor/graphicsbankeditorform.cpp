@@ -12,6 +12,12 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 
    ui->setupUi(this);
 
+   pThread = new TilificationThread;
+   QObject::connect(this,SIGNAL(prepareToTilify()),pThread,SLOT(prepareToTilify()));
+   QObject::connect(this,SIGNAL(addToTilificator(IChrRomBankItem*)),pThread,SLOT(addToTilificator(IChrRomBankItem*)));
+   QObject::connect(this,SIGNAL(tilify()),pThread,SLOT(tilify()));
+   QObject::connect(pThread,SIGNAL(tilificationComplete(QByteArray)),this,SLOT(renderData(QByteArray)));
+
    imgData = new char[256*256*4];
 
    // Clear image...
@@ -62,17 +68,18 @@ QList<IChrRomBankItem*> GraphicsBankEditorForm::bankItems()
 
 void GraphicsBankEditorForm::updateUi()
 {
-   int dataSize = 0;
+   int idx;
 
    ui->tableView->resizeRowsToContents();
 
-   for (int i=0; i<model->bankItems().count(); i++)
-   {
-      dataSize += model->bankItems().at(i)->getChrRomBankItemSize();
-   }
-   ui->progressBar->setValue(dataSize);
+   emit prepareToTilify();
 
-   renderData();
+   for (idx = 0; idx < model->bankItems().count(); idx++ )
+   {
+      emit addToTilificator(model->bankItems().at(idx));
+   }
+
+   emit tilify();
 
    setModified(true);
    emit markProjectDirty(true);
@@ -94,6 +101,8 @@ void GraphicsBankEditorForm::changeEvent(QEvent* event)
 
 void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
 {
+   int idx;
+
    if ( event->key() == Qt::Key_Delete )
    {
       QModelIndex index = ui->tableView->currentIndex();
@@ -102,16 +111,14 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
       {
          model->removeRow(index.row(),QModelIndex());
 
-         int dataSize = 0;
+         emit prepareToTilify();
 
-         for (int i=0; i<model->bankItems().count(); i++)
+         for (idx = 0; idx < model->bankItems().count(); idx++ )
          {
-            dataSize += model->bankItems().at(i)->getChrRomBankItemSize();
+            emit addToTilificator(model->bankItems().at(idx));
          }
 
-         ui->progressBar->setValue(dataSize);
-
-         renderData();
+         emit tilify();
 
          setModified(true);
          emit markProjectDirty(true);
@@ -127,18 +134,25 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
 
 void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> newList)
 {
+   int idx;
+
    model->setBankItems(newList);
    model->update();
    ui->tableView->resizeRowsToContents();
 
-   int dataSize = 0;
+   emit prepareToTilify();
 
-   for (int i=0; i<newList.count(); i++)
+   for (idx = 0; idx < newList.count(); idx++ )
    {
-      dataSize += newList.at(i)->getChrRomBankItemSize();
+      emit addToTilificator(newList.at(idx));
    }
 
-   ui->progressBar->setValue(dataSize);
+   emit tilify();
+}
+
+void GraphicsBankEditorForm::renderData(QByteArray output)
+{
+   tilifiedData = output;
 
    renderData();
 }
@@ -152,8 +166,6 @@ void GraphicsBankEditorForm::renderData()
    unsigned char colorIdx;
    QColor color[4];
    IChrRomBankItem* item;
-   int itemIdx;
-   int offset = 0;
 
    color[0] = renderer->getColor(0);
    color[1] = renderer->getColor(1);
@@ -171,41 +183,35 @@ void GraphicsBankEditorForm::renderData()
             ppuAddr += 0x1000;
          }
 
-         for ( itemIdx = 0, offset = 0; offset <= ppuAddr; )
+         if ( ppuAddr < tilifiedData.count() )
          {
-            if ( itemIdx < model->bankItems().count() )
-            {
-               item = model->bankItems().at(itemIdx);
-               if ( ppuAddr < offset+item->getChrRomBankItemSize() )
-               {
-                  patternData1 = item->getChrRomBankItemData().at(ppuAddr-offset);
-                  patternData2 = item->getChrRomBankItemData().at((ppuAddr-offset)+8);
-               }
+            patternData1 = tilifiedData.at(ppuAddr);
+            patternData2 = tilifiedData.at((ppuAddr)+8);
 
-               // Move along.
-               itemIdx++;
-               offset += item->getChrRomBankItemSize();
-            }
-            else
+            for ( int xf = 0; xf < 8; xf++ )
             {
-               patternData1 = 0;
-               patternData2 = 0;
-               break;
+               bit1 = (patternData1>>(7-(xf)))&0x1;
+               bit2 = (patternData2>>(7-(xf)))&0x1;
+               colorIdx = (bit1|(bit2<<1));
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].red();
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = color[colorIdx].green();
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].blue();
             }
          }
-
-
-         for ( int xf = 0; xf < 8; xf++ )
+         else
          {
-            bit1 = (patternData1>>(7-(xf)))&0x1;
-            bit2 = (patternData2>>(7-(xf)))&0x1;
-            colorIdx = (bit1|(bit2<<1));
-            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = color[colorIdx].red();
-            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = color[colorIdx].green();
-            imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = color[colorIdx].blue();
+            for ( int xf = 0; xf < 8; xf++ )
+            {
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = 0x00;
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = 0x00;
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = 0x00;
+            }
          }
       }
    }
+
+   ui->progressBar->setValue(tilifiedData.count());
+
    renderer->reloadData(imgData);
 }
 
@@ -227,6 +233,10 @@ void GraphicsBankEditorForm::snapTo(QString item)
          }
       }
    }
+}
+
+void GraphicsBankEditorForm::showEvent(QShowEvent *event)
+{
 }
 
 void GraphicsBankEditorForm::applyChangesToTab(QString uuid)

@@ -13,9 +13,9 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget,QW
 
    m_pTarget = pTarget;
 
-   m_pProjectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeWidget, nesicideProject);
-   ui->projectTreeWidget->setModel(m_pProjectTreeviewModel);
-   ui->projectTreeWidget->setTarget(m_pTarget);
+   m_pProjectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeView, nesicideProject);
+   ui->projectTreeView->setModel(m_pProjectTreeviewModel);
+   ui->projectTreeView->setTarget(m_pTarget);
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()
@@ -31,10 +31,17 @@ void ProjectBrowserDockWidget::layoutChangedEvent()
 
 void ProjectBrowserDockWidget::enableNavigation()
 {
-   ui->projectTreeWidget->setModel(m_pProjectTreeviewModel);
+   ui->projectTreeView->setModel(m_pProjectTreeviewModel);
 }
 
 void ProjectBrowserDockWidget::disableNavigation()
 {
-   ui->projectTreeWidget->setModel(NULL);
+   ui->projectTreeView->setModel(NULL);
+}
+
+void ProjectBrowserDockWidget::on_projectTreeView_doubleClicked(const QModelIndex &index)
+{
+   IProjectTreeViewItem* item = (IProjectTreeViewItem*)index.internalPointer();
+
+   item->openItemEvent(m_pTarget);
 }

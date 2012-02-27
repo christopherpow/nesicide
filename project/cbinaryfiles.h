@@ -3,7 +3,6 @@
 
 #include "cprojectbase.h"
 #include "cbinaryfile.h"
-#include "cprojecttreeviewmodel.h"
 
 #include <QList>
 #include <QMenu>

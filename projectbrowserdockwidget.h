@@ -24,6 +24,9 @@ public:
    void enableNavigation();
    void disableNavigation();
 
+private slots:
+   void on_projectTreeView_doubleClicked(const QModelIndex &index);
+
 private:
    Ui::ProjectBrowserDockWidget *ui;
    CProjectTabWidget* m_pTarget;

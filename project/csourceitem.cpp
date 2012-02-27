@@ -181,11 +181,6 @@ void CSourceItem::saveItemEvent()
    serializeContent();
 }
 
-bool CSourceItem::canChangeName()
-{
-   return true;
-}
-
 bool CSourceItem::onNameChanged(QString newName)
 {
    if (m_name != newName)

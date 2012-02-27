@@ -21,6 +21,8 @@ public:
    void setEditor(CDesignerEditorBase* editor) { m_editor = editor; }
    CDesignerEditorBase* editor() { return m_editor; }
 
+   void markForDeletion() { m_deleted = true; }
+
    // IProjectTreeViewItem Interface Implmentation
    virtual QString caption() const { return m_name; }
    virtual void closeItemEvent();
@@ -30,6 +32,7 @@ protected:
    // Attributes
    QString m_name;
    QString m_path;
+   bool    m_deleted;
    CDesignerEditorBase* m_editor;
 };
 

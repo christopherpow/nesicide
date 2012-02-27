@@ -22,7 +22,6 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(on_clear_clicked()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
    QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
 
@@ -32,6 +31,16 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
 CodeProfilerDockWidget::~CodeProfilerDockWidget()
 {
     delete ui;
+}
+void CodeProfilerDockWidget::showEvent(QShowEvent *event)
+{
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
+   model->update();
+}
+
+void CodeProfilerDockWidget::hideEvent(QHideEvent *event)
+{
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
 }
 
 void CodeProfilerDockWidget::updateUi()

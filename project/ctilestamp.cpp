@@ -32,7 +32,7 @@ CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
    // Initialize property data.
    m_tileProperties = nesicideProject->getTileProperties();
 
-   m_grid = true;
+   m_grid = false;
 }
 
 CTileStamp::~CTileStamp()
@@ -244,10 +244,10 @@ void CTileStamp::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             tabWidget->removeTab(tabWidget->indexOf(m_editor));
          }
 
-         // TODO: Fix this logic so the memory doesn't get lost.
-//         nesicideProject->getProject()->getSources()->removeChild(this);
-//         nesicideProject->getProject()->getSources()->getSourceItems().removeAll(this);
+         nesicideProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(this);
          ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+         markForDeletion();
+         nesicideProject->setDirty(true);
       }
    }
 }
@@ -280,11 +280,6 @@ void CTileStamp::saveItemEvent()
    {
       m_editor->setModified(false);
    }
-}
-
-bool CTileStamp::canChangeName()
-{
-   return true;
 }
 
 bool CTileStamp::onNameChanged(QString newName)

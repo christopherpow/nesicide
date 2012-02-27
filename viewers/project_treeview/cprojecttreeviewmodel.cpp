@@ -60,7 +60,7 @@ bool CProjectTreeViewModel::setData ( const QModelIndex& index, const QVariant& 
 
 QVariant CProjectTreeViewModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-   return  QString("");
+   return  QVariant();
 }
 
 QModelIndex CProjectTreeViewModel::index(int row, int column, const QModelIndex& parent) const

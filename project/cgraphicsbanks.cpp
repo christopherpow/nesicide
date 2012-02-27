@@ -1,4 +1,5 @@
 #include "cgraphicsbanks.h"
+#include "cprojecttreeviewmodel.h"
 
 CGraphicsBanks::CGraphicsBanks(IProjectTreeViewItem* parent)
 {

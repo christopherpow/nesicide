@@ -74,17 +74,22 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, int xSize, int ySize)
    imgOut.setColor(2,qRgb(0x80,0x80,0x80));
    imgOut.setColor(3,qRgb(0xC0,0xC0,0xC0));
 
-   if ( tileWidth > 16 ) tileWidth = 16;
+   // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
+   if ( (tileHeight <= 16) && (tileWidth > 16) ) tileWidth = 16;
 
    for ( tile = 0; tile < numTiles; tile++ )
    {
       tileX = (tile%tileWidth)*8;
       tileY = (tile/tileWidth)*8;
 
-      if ( tile >= 256 )
+      // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
+      if ( tileHeight <= 16 )
       {
-         tileX += 128;
-         tileY -= 128;
+         if ( tile >= 256 )
+         {
+            tileX += 128;
+            tileY -= 128;
+         }
       }
 
       for ( y = 0; y < 8; y++ )
@@ -124,7 +129,8 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QList<int> colorTable, int
    int idx;
    uchar* bits = imgOut.bits();
 
-   if ( tileWidth > 16 ) tileWidth = 16;
+   // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
+   if ( (tileHeight <= 16) && (tileWidth > 16) ) tileWidth = 16;
 
    imgOut.setNumColors(16);
    imgOut.setColorCount(16);
@@ -138,10 +144,14 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QList<int> colorTable, int
       tileX = (tile%tileWidth)*8;
       tileY = (tile/tileWidth)*8;
 
-      if ( tile >= 256 )
+      // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
+      if ( tileHeight <= 16 )
       {
-         tileX += 128;
-         tileY -= 128;
+         if ( tile >= 256 )
+         {
+            tileX += 128;
+            tileY -= 128;
+         }
       }
 
       for ( y = 0; y < 8; y++ )
@@ -187,7 +197,8 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QByteArray attrIn, QList<u
    int idx;
    uchar* bits = imgOut.bits();
 
-   if ( tileWidth > 16 ) tileWidth = 16;
+   // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
+   if ( (tileHeight <= 16) && (tileWidth > 16) ) tileWidth = 16;
 
    attrQuadsX = (tileWidth>>2);
    attrQuadsY = (tileHeight>>2);
@@ -207,10 +218,14 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QByteArray attrIn, QList<u
       tileX = (tile%tileWidth)*8;
       tileY = (tile/tileWidth)*8;
 
-      if ( tile >= 256 )
+      // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
+      if ( tileHeight <= 16 )
       {
-         tileX += 128;
-         tileY -= 128;
+         if ( tile >= 256 )
+         {
+            tileX += 128;
+            tileY -= 128;
+         }
       }
 
       for ( y = 0; y < 8; y++ )

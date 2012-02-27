@@ -85,6 +85,7 @@ QColor PanZoomRenderer::getColor(int idx)
       return ui->col3PushButton->currentColor();
       break;
    }
+   return QColor(0,0,0);
 }
 
 bool PanZoomRenderer::eventFilter(QObject *object, QEvent *event)

@@ -18,6 +18,10 @@ public:
    explicit CodeProfilerDockWidget(QWidget *parent = 0);
    ~CodeProfilerDockWidget();
 
+protected:
+   void showEvent(QShowEvent *event);
+   void hideEvent(QHideEvent *event);
+
 private:
    Ui::CodeProfilerDockWidget *ui;
    CDebuggerCodeProfilerModel *model;

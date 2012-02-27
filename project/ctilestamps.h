@@ -2,7 +2,6 @@
 #define CTILESTAMPS_H
 
 #include "ctilestamp.h"
-#include "cprojecttreeviewmodel.h"
 
 #include <QList>
 

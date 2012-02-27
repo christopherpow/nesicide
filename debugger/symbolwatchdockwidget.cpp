@@ -52,7 +52,6 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),watchModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),watchModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),watchModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),watchModel,SLOT(update()));
    QObject::connect(ui->watch->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),watchModel,SLOT(sort(int,Qt::SortOrder)));
    QObject::connect(watchModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
@@ -60,21 +59,18 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),ramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),ramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),ramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
    QObject::connect(ui->ram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),ramModel,SLOT(sort(int,Qt::SortOrder)));
 
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),sramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),sramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),sramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),sramModel,SLOT(update()));
    QObject::connect(ui->sram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),sramModel,SLOT(sort(int,Qt::SortOrder)));
 
    QObject::connect(emulator,SIGNAL(cartridgeLoaded()),exramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),exramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),exramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),exramModel,SLOT(update()));
    QObject::connect(ui->exram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),exramModel,SLOT(sort(int,Qt::SortOrder)));
 
@@ -240,6 +236,10 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
    watchModel->update();
    ramModel->update();
    sramModel->update();
@@ -248,6 +248,10 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
 {
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
 }
 
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)

@@ -26,6 +26,9 @@ public:
    QImage getTileImage();
    QList<PropertyItem> getTileProperties() { return m_tileProperties; }
 
+   // Member setters
+   void setSize(int xSize,int ySize) { m_xSize = xSize; m_ySize = ySize; }
+
    TileStampEditorForm* editor() { return dynamic_cast<TileStampEditorForm*>(m_editor); }
 
    // IXMLSerializable Interface Implementation
@@ -36,7 +39,7 @@ public:
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget* parent);
    virtual void saveItemEvent();
-   virtual bool canChangeName();
+   virtual bool canChangeName() { return true; }
    virtual bool onNameChanged(QString newName);
 
    // IChrRomBankItem Interface Implementation

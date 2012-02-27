@@ -10,6 +10,7 @@
 #include "iprojecttreeviewitem.h"
 
 #include "panzoomrenderer.h"
+#include "tilificationthread.h"
 
 namespace Ui
 {
@@ -30,6 +31,7 @@ public:
 protected:
    void changeEvent(QEvent* event);
    void keyPressEvent(QKeyEvent *event);
+   void showEvent(QShowEvent *event);
 
 private:
    Ui::GraphicsBankEditorForm* ui;
@@ -37,13 +39,21 @@ private:
    PanZoomRenderer* renderer;
    CChrRomBankItemDelegate* delegate;
    char* imgData;
+   TilificationThread* pThread;
+   QByteArray tilifiedData;
 
 private slots:
    void renderData();
+   void renderData(QByteArray output);
    void updateUi();
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void applyProjectPropertiesToTab();
+
+signals:
+   void prepareToTilify();
+   void addToTilificator(IChrRomBankItem* item);
+   void tilify();
 };
 
 #endif // GRAPHICSBANKEDITORFORM_H

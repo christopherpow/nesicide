@@ -3,7 +3,6 @@
 
 #include "cprojectbase.h"
 #include "csourceitem.h"
-#include "cprojecttreeviewmodel.h"
 
 #include <QInputDialog>
 #include <QList>

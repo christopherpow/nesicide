@@ -17,7 +17,7 @@
 #include <QSettings>
 
 OutputPaneDockWidget* output = NULL;
-ProjectBrowserDockWidget* projectBrowser = NULL;
+ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
 MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
@@ -108,11 +108,11 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pSearch, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSearch_close(bool)));
    CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
-   projectBrowser = new ProjectBrowserDockWidget(ui->tabWidget);
-   addDockWidget(Qt::LeftDockWidgetArea, projectBrowser );
-   projectBrowser->hide();
-   QObject::connect(projectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Project", projectBrowser );
+   m_pProjectBrowser = new ProjectBrowserDockWidget(ui->tabWidget);
+   addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
+   m_pProjectBrowser->hide();
+   QObject::connect(m_pProjectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Project", m_pProjectBrowser );
 
    output = new OutputPaneDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, output );
@@ -611,8 +611,8 @@ void MainWindow::showEvent(QShowEvent *event)
 
 void MainWindow::projectDataChangesEvent()
 {
-   projectBrowser->layoutChangedEvent();
-   projectBrowser->setVisible(nesicideProject->isInitialized());
+   m_pProjectBrowser->layoutChangedEvent();
+   m_pProjectBrowser->setVisible(nesicideProject->isInitialized());
    output->setVisible(nesicideProject->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not
@@ -781,7 +781,7 @@ void MainWindow::on_actionNew_Project_triggered()
    {
       projectFileName.clear();
 
-      projectBrowser->disableNavigation();
+      m_pProjectBrowser->disableNavigation();
 
       QDir::setCurrent(dlg.getPath());
 
@@ -789,7 +789,7 @@ void MainWindow::on_actionNew_Project_triggered()
       nesicideProject->setDirty(true);
       nesicideProject->setProjectTitle(dlg.getName());
 
-      projectBrowser->enableNavigation();
+      m_pProjectBrowser->enableNavigation();
       projectDataChangesEvent();
    }
 }
@@ -801,7 +801,7 @@ void MainWindow::openROM(QString fileName,bool runRom)
    output->showPane(OutputPaneDockWidget::Output_General);
 
    // Remove any lingering project content
-   projectBrowser->disableNavigation();
+   m_pProjectBrowser->disableNavigation();
    nesicideProject->terminateProject();
 
    // Clear output
@@ -824,7 +824,7 @@ void MainWindow::openROM(QString fileName,bool runRom)
    // Load debugger info if we can find it.
    CCC65Interface::captureDebugInfo();
 
-   projectBrowser->enableNavigation();
+   m_pProjectBrowser->enableNavigation();
 
    if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
    {
@@ -974,11 +974,11 @@ void MainWindow::on_action_Project_Browser_toggled(bool visible)
 {
    if ( visible )
    {
-      projectBrowser->show();
+      m_pProjectBrowser->show();
    }
    else
    {
-      projectBrowser->hide();
+      m_pProjectBrowser->hide();
    }
 }
 
@@ -1035,7 +1035,7 @@ void MainWindow::openProject(QString fileName,bool runRom)
 
       file.close();
 
-      projectBrowser->disableNavigation();
+      m_pProjectBrowser->disableNavigation();
 
       nesicideProject->initializeProject();
 
@@ -1093,7 +1093,7 @@ void MainWindow::openProject(QString fileName,bool runRom)
          on_actionEmulation_Window_toggled(true);
       }
 
-      projectBrowser->enableNavigation();
+      m_pProjectBrowser->enableNavigation();
 
       settings.setValue("LastProject",fileName);
 
@@ -1523,7 +1523,7 @@ void MainWindow::closeProject()
    }
 
    // Terminate the project and let the IDE know
-   projectBrowser->disableNavigation();
+   m_pProjectBrowser->disableNavigation();
 
    foreach ( action, actions )
    {

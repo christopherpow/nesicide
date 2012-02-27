@@ -161,11 +161,6 @@ void CAttributeTable::saveItemEvent()
    }
 }
 
-bool CAttributeTable::canChangeName()
-{
-   return true;
-}
-
 bool CAttributeTable::onNameChanged(QString newName)
 {
    if (m_name != newName)

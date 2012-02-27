@@ -269,5 +269,6 @@ void ExecutionVisualizerDockWidget::on_actionRemove_Marker_triggered()
       pThread->updateDebuggers();
 
       emit breakpointsChanged();
+      emit markProjectDirty(true);
    }
 }

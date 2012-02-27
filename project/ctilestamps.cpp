@@ -95,18 +95,20 @@ bool CTileStamps::deserialize(QDomDocument& doc, QDomNode& node, QString& errors
 
 QString CTileStamps::caption() const
 {
-   return QString("Tiles");
+   return QString("Tiles & Screens");
 }
 
 void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    const QString NEW_TILE_MENU_TEXT    = "New Tile";
+   const QString NEW_SCREEN_MENU_TEXT    = "New Screen";
    const QString IMPORT_FROM_FILE_TEXT = "Import from file";
    const QString IMPORT_FROM_EMULATOR_TEXT = "Import from Emulator";
 
    QMenu menu(parent);
 
    menu.addAction(NEW_TILE_MENU_TEXT);
+   menu.addAction(NEW_SCREEN_MENU_TEXT);
 
    QAction* ret = menu.exec(event->globalPos());
 
@@ -121,6 +123,21 @@ void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          {
             CTileStamp* pTileStamp = new CTileStamp(this);
             pTileStamp->setName(name);
+            m_tileStamps.append(pTileStamp);
+            appendChild(pTileStamp);
+            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+         }
+      }
+      else if (ret->text() == NEW_SCREEN_MENU_TEXT)
+      {
+         QString name = QInputDialog::getText(parent, "New Screen",
+                                              "What name would you like to use to identify this Screen?");
+
+         if (!name.isEmpty())
+         {
+            CTileStamp* pTileStamp = new CTileStamp(this);
+            pTileStamp->setName(name);
+            pTileStamp->setSize(256,240);
             m_tileStamps.append(pTileStamp);
             appendChild(pTileStamp);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();

@@ -15,17 +15,6 @@ void CProjectTreeView::contextMenuEvent(QContextMenuEvent* event)
    }
 }
 
-void CProjectTreeView::mouseDoubleClickEvent (QMouseEvent* event)
-{
-   IProjectTreeViewItem* item = const_cast<IProjectTreeViewItem*>((IProjectTreeViewItem*)this->indexAt(event->pos()).internalPointer());
-
-   if (item)
-   {
-      item->openItemEvent(m_pTarget);
-      emit projectTreeView_openItem(item);
-   }
-}
-
 void CProjectTreeView::keyPressEvent ( QKeyEvent* e )
 {
    if ((e->key() == Qt::Key_Backspace))

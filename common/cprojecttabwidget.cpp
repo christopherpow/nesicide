@@ -9,9 +9,24 @@
 CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
     QTabWidget(parent)
 {
+   tabBar()->installEventFilter(this);
 }
 
-void CProjectTabWidget::contextMenuEvent(QContextMenuEvent *event)
+bool CProjectTabWidget::eventFilter(QObject *object, QEvent *event)
+{
+   if ( object == tabBar() )
+   {
+      if ( event->type() == QEvent::ContextMenu )
+      {
+         QContextMenuEvent* cmEvent = dynamic_cast<QContextMenuEvent*>(event);
+         tabBar_contextMenuEvent(cmEvent);
+         return true;
+      }
+   }
+   return false;
+}
+
+void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
 {
    // Make sure tab under pointer is current...
    setCurrentWidget(widget(tabBar()->tabAt(event->pos())));

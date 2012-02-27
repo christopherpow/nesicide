@@ -14,7 +14,11 @@ CChrRomItemListDisplayModel::~CChrRomItemListDisplayModel()
 
 QModelIndex CChrRomItemListDisplayModel::index(int row, int column, const QModelIndex &parent) const
 {
-   return createIndex(row,column,chrRomBankItems.at(row));
+   if ( row < chrRomBankItems.count() )
+   {
+      return createIndex(row,column,chrRomBankItems.at(row));
+   }
+   return QModelIndex();
 }
 
 Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& index) const

@@ -74,7 +74,8 @@ public:
    void removeTab(int index);
 
 protected:
-   void contextMenuEvent(QContextMenuEvent *event);
+   void tabBar_contextMenuEvent(QContextMenuEvent *event);
+   bool eventFilter(QObject *object, QEvent *event);
 
 signals:
    void tabModified(int tab,bool modified);

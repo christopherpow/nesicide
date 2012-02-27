@@ -33,7 +33,7 @@ public:
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget* parent);
    virtual void saveItemEvent();
-   virtual bool canChangeName();
+   virtual bool canChangeName() { return false; }
    virtual bool onNameChanged(QString newName);
 
 private:

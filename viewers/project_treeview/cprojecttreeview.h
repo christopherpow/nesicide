@@ -18,7 +18,6 @@ private:
    CProjectTabWidget* m_pTarget;
 protected:
    virtual void contextMenuEvent(QContextMenuEvent* event);
-   virtual void mouseDoubleClickEvent (QMouseEvent* event);
    void keyPressEvent ( QKeyEvent* e );
 
 signals:

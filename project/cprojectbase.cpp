@@ -7,6 +7,7 @@ CProjectBase::CProjectBase()
    m_name = "";
    m_path = "";
    m_editor = NULL;
+   m_deleted = false;
 }
 
 CProjectBase::~CProjectBase()

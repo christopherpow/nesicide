@@ -633,7 +633,6 @@ void NESEmulatorThread::run ()
             m_debugFrame = debuggerUpdateRate;
             if ( nesIsDebuggable() )
             {
-               nesDisassemble();
                emit updateDebuggers();
             }
          }

@@ -40,7 +40,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="CProjectTreeView" name="projectTreeWidget">
+     <widget class="CProjectTreeView" name="projectTreeView">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -49,6 +49,12 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::EditKeyPressed</set>
       </property>
       <property name="autoExpandDelay">
        <number>1</number>
@@ -62,8 +68,8 @@
       <property name="headerHidden">
        <bool>true</bool>
       </property>
-      <attribute name="headerVisible">
-       <bool>false</bool>
+      <attribute name="headerDefaultSectionSize">
+       <number>0</number>
       </attribute>
      </widget>
     </item>
@@ -73,7 +79,7 @@
  <customwidgets>
   <customwidget>
    <class>CProjectTreeView</class>
-   <extends>QTreeWidget</extends>
+   <extends>QTreeView</extends>
    <header location="global">cprojecttreeview.h</header>
   </customwidget>
  </customwidgets>

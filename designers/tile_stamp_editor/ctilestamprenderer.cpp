@@ -41,8 +41,11 @@ void CTileStampRenderer::initializeGL()
    glHint(GL_TEXTURE_COMPRESSION_HINT,GL_FASTEST);
    glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_FASTEST);
 
-   // Disable Blending
+   // Disable stuff
    glDisable(GL_BLEND);
+   glDisable(GL_LIGHTING);
+   glDisable(GL_DEPTH_TEST);
+   glDisable(GL_DITHER);
 
    // Enable textures
    glEnable(GL_TEXTURE_2D);
@@ -55,8 +58,8 @@ void CTileStampRenderer::initializeGL()
    // We want it to be RGBA formatted
    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
    glPixelStorei(GL_PACK_ALIGNMENT, 4);
-   glPixelStorei(GL_UNPACK_ROW_LENGTH, 128);
-   glPixelStorei(GL_PACK_ROW_LENGTH, 128);
+   glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
+   glPixelStorei(GL_PACK_ROW_LENGTH, 256);
 
    // Set our texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -66,7 +69,7 @@ void CTileStampRenderer::initializeGL()
    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
    // Load the actual texture
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 }
 
 void CTileStampRenderer::setBGColor(QColor clr)
@@ -98,8 +101,8 @@ void CTileStampRenderer::paintGL()
    int zf  = zoom / 100;
    int size = (xSize>ySize)?xSize:ySize;
 
-   actualSize.setWidth( 128*zf );
-   actualSize.setHeight( 128*zf );
+   actualSize.setWidth( 256*zf );
+   actualSize.setHeight( 256*zf );
 
    // Select and reset the Projection matrix.
    glMatrixMode(GL_PROJECTION);
@@ -114,19 +117,19 @@ void CTileStampRenderer::paintGL()
 
    // Translate/scale.
    glTranslatef(-(scrollX*zf),-(scrollY*zf),0.0f);
-   glScalef( actualSize.width() / 128, actualSize.height() / 128, 1 );
+   glScalef( actualSize.width() / 256, actualSize.height() / 256, 1 );
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
-   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(000.0f, 000.0f, 0.0f);
-   glTexCoord2f ((float)xSize/128.0, 0.0);
+   glTexCoord2f ((float)xSize/256.0, 0.0);
    glVertex3f((float)xSize, 000.0f, 0.0f);
-   glTexCoord2f ((float)xSize/128.0, (float)ySize/128.0);
+   glTexCoord2f ((float)xSize/256.0, (float)ySize/256.0);
    glVertex3f((float)xSize, (float)ySize, 0.0f);
-   glTexCoord2f (0.0, (float)ySize/128.0);
+   glTexCoord2f (0.0, (float)ySize/256.0);
    glVertex3f(000.0f, (float)ySize, 0.0f);
    glEnd();
    if ( gridEnabled )
@@ -140,18 +143,17 @@ void CTileStampRenderer::paintGL()
             if ( (!(idxx%16)) && (!(idxy%16)) )
             {
                glPointSize(3.0);
+               glBegin(GL_POINTS);
+               glVertex3f(idxx, idxy, 0.0f);
+               glEnd();
             }
             else if ( (!(idxx%8)) && (!(idxy%8)) )
             {
                glPointSize(2.0);
+               glBegin(GL_POINTS);
+               glVertex3f(idxx, idxy, 0.0f);
+               glEnd();
             }
-            else
-            {
-               glPointSize(1.0);
-            }
-            glBegin(GL_POINTS);
-            glVertex3f(idxx, idxy, 0.0f);
-            glEnd();
          }
       }
       glEnable(GL_TEXTURE_2D);
