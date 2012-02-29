@@ -15,7 +15,6 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget,QW
 
    m_pProjectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeView, nesicideProject);
    ui->projectTreeView->setModel(m_pProjectTreeviewModel);
-   ui->projectTreeView->setTarget(m_pTarget);
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()

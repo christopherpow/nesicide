@@ -12,7 +12,7 @@ class CProjectTreeView : public QTreeView
    Q_OBJECT
 public:
    CProjectTreeView(QWidget* parent = 0);
-   void setTarget(CProjectTabWidget* pTarget) { m_pTarget = pTarget; }
+
 private:
    CProjectTreeViewModel* m_pTreeViewModel;
    CProjectTabWidget* m_pTarget;

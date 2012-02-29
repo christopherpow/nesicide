@@ -2,10 +2,10 @@ release/
 debug/
 ui_*.h
 ui_*.cpp
-object_script.nesicide2*
-*.pro.user
+object_script.nesicide*
+*.pro.user*
 ./output
-./Makefile
+Makefile
 *.o
 moc_*
 *.moc

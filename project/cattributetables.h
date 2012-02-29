@@ -2,7 +2,6 @@
 #define CATTRIBUTETABLES_H
 
 #include "cattributetable.h"
-#include "cprojecttreeviewmodel.h"
 
 #include <QInputDialog>
 #include <QList>
