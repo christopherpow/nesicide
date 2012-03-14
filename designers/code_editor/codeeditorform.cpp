@@ -156,6 +156,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect(m_scintilla,SIGNAL(linesChanged()),this,SLOT(editor_linesChanged()));
    QObject::connect(m_scintilla,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
    QObject::connect(m_scintilla,SIGNAL(copyAvailable(bool)),this,SLOT(editor_copyAvailable(bool)));
+   QObject::connect(m_scintilla,SIGNAL(cursorPositionChanged(int,int)),this,SLOT(editor_cursorPositionChanged(int,int)));
 
    ui->gridLayout->addWidget(m_scintilla);
 
@@ -336,7 +337,7 @@ bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
          else if ( (keyEvent->modifiers() == Qt::ControlModifier) &&
                    (keyEvent->key() == Qt::Key_F) )
          {
-            emit activateSearchBar();
+            emit activateSearchBar(m_scintilla->selectedText());
             return true;
          }
          else
@@ -356,11 +357,11 @@ bool CodeEditorForm::eventFilter(QObject *obj, QEvent *event)
    }
 }
 
-void CodeEditorForm::changeEvent(QEvent *e)
+void CodeEditorForm::changeEvent(QEvent *event)
 {
-   QWidget::changeEvent(e);
+   QWidget::changeEvent(event);
 
-   switch (e->type())
+   switch (event->type())
    {
       case QEvent::LanguageChange:
          ui->retranslateUi(this);
@@ -370,11 +371,11 @@ void CodeEditorForm::changeEvent(QEvent *e)
    }
 }
 
-void CodeEditorForm::timerEvent(QTimerEvent *e)
+void CodeEditorForm::timerEvent(QTimerEvent *event)
 {
    QString    symbol;
 
-   if ( e->timerId() == m_toolTipTimer )
+   if ( event->timerId() == m_toolTipTimer )
    {
       // Figure out if there's anything useful we can ToolTip.
       symbol = m_scintilla->wordAtPoint(mapFromGlobal(QCursor::pos()));
@@ -388,6 +389,17 @@ void CodeEditorForm::timerEvent(QTimerEvent *e)
          setToolTip("");
       }
    }
+}
+
+void CodeEditorForm::showEvent(QShowEvent *event)
+{
+   emit addStatusBarWidget(ui->info);
+   ui->info->show();
+}
+
+void CodeEditorForm::hideEvent(QHideEvent *event)
+{
+   emit removeStatusBarWidget(ui->info);
 }
 
 void CodeEditorForm::compiler_compileStarted()
@@ -491,6 +503,11 @@ void CodeEditorForm::external_breakpointsChanged()
 
 void CodeEditorForm::breakpointHit()
 {
+}
+
+void CodeEditorForm::editor_cursorPositionChanged(int line, int index)
+{
+   ui->info->setText(m_fileName + " line:" + QString::number(line+1) + " column:" + QString::number(index+1));
 }
 
 void CodeEditorForm::editor_undo()

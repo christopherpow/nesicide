@@ -29,12 +29,6 @@ QImage CBinaryFile::getBinaryImage()
    return CImageConverters::toIndexed8(getBinaryData(),m_xSize,m_ySize);
 }
 
-bool CBinaryFile::onNameChanged(QString newName)
-{
-   m_name = newName;
-   return true;
-}
-
 void CBinaryFile::setBinaryData(const QByteArray& newBinaryData)
 {
    QImage image;

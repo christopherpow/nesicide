@@ -15,7 +15,7 @@ public:
    virtual ~CGraphicsBank();
 
    // Member getters
-   QList<IChrRomBankItem*>& getGraphics();
+   QList<IChrRomBankItem*> getGraphics();
 
    GraphicsBankEditorForm* editor() { return dynamic_cast<GraphicsBankEditorForm*>(m_editor); }
    void exportAsPNG();
@@ -29,15 +29,16 @@ public:
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget* tabWidget);
    virtual void saveItemEvent();
-   virtual bool onNameChanged(QString newName);
    virtual bool canChangeName()
    {
       return true;
    }
+   virtual bool onNameChanged(QString newName);
 
 private:
    // Attributes
-   QList<IChrRomBankItem*> m_bankItems;
+   QList<IChrRomBankItem*> m_leftBankItems;
+   QList<IChrRomBankItem*> m_rightBankItems;
 };
 
 #endif // CGRAPHICSBANK_H

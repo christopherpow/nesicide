@@ -136,3 +136,12 @@ void SearchBar::on_direction_toggled(bool checked)
    settings.setValue("Direction",QVariant(checked));
    settings.endGroup();
 }
+
+void SearchBar::activateMe(QString item)
+{
+   setFocus();
+   if ( !item.isEmpty() )
+   {
+      ui->searchText->setEditText(item);
+   }
+}

@@ -96,6 +96,8 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(this,SIGNAL(applyChangesToTab(QString)),editor,SLOT(applyChangesToTab(QString)));
       QObject::connect(this,SIGNAL(applyProjectPropertiesToTab()),editor,SLOT(applyProjectPropertiesToTab()));
       QObject::connect(this,SIGNAL(applyEnvironmentSettingsToTab()),editor,SLOT(applyEnvironmentSettingsToTab()));
+      QObject::connect(editor,SIGNAL(addStatusBarWidget(QWidget*)),this,SIGNAL(addStatusBarWidget(QWidget*)));
+      QObject::connect(editor,SIGNAL(removeStatusBarWidget(QWidget*)),this,SIGNAL(removeStatusBarWidget(QWidget*)));
    }
 
    if ( editor && editor->treeLink() )
@@ -115,7 +117,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
 
 int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
 {
-   addTab(widget,QIcon(),label);
+   return addTab(widget,QIcon(),label);
 }
 
 void CProjectTabWidget::removeTab(int index)
@@ -162,7 +164,8 @@ void CProjectTabWidget::snapToTab(QString item)
    QStringList splits;
    uint32_t addr;
    uint32_t absAddr;
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   IProjectTreeViewItemIterator iter;
+   IProjectTreeViewItem* treeItem;
    CSourceItem* pSource;
    bool found = false;
    bool open = false;
@@ -171,6 +174,7 @@ void CProjectTabWidget::snapToTab(QString item)
    QFile fileIn;
    QString file;
    QString filePath;
+   QString uuid;
    QString symbol;
    CDesignerEditorBase* editor = NULL;
 
@@ -196,6 +200,35 @@ void CProjectTabWidget::snapToTab(QString item)
       splits = item.split(QRegExp("[,]"));
       file = splits.at(1);
    }
+   else if ( item.startsWith("Tile,") )
+   {
+      splits = item.split(QRegExp("[,]"));
+      uuid = splits.at(1);
+   }
+
+   if ( !uuid.isEmpty() )
+   {
+      for ( tab = 0; tab < count(); tab++ )
+      {
+         if ( file == tabBar()->tabText(tab) )
+         {
+            setCurrentIndex(tab);
+            found = true;
+            open = true;
+            break;
+         }
+      }
+
+      // File is not open, search the project.
+      if ( !found )
+      {
+         treeItem = findProjectItem(uuid);
+         if ( treeItem )
+         {
+            treeItem->openItemEvent(this);
+         }
+      }
+   }
 
    if ( !file.isEmpty() )
    {
@@ -213,6 +246,7 @@ void CProjectTabWidget::snapToTab(QString item)
       // File is not open, search the project.
       if ( !found )
       {
+         iter.reset(nesicideProject->getProject()->getSources());
          while ( iter.current() )
          {
             pSource = dynamic_cast<CSourceItem*>(iter.current());
@@ -311,7 +345,7 @@ void CProjectTabWidget::snapToTab(QString item)
             }
          }
          // If the file isn't opened by the above, check if it's a CHR file and
-         // if so, open it using the GraphicsBankEditorForm.
+         // if so, open it using the CHRROMDisplayDialog.
          if ( !editor )
          {
             if ( fileIn.fileName().endsWith(".chr",Qt::CaseInsensitive) )

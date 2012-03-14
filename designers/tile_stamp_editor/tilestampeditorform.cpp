@@ -64,6 +64,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
 
    ui->tileTabWidget->setItems(tileListChrItem);
    QObject::connect(ui->tileTabWidget,SIGNAL(snapToTab(QString)),this,SIGNAL(snapToTab(QString)));
+   QObject::connect(ui->tileTabWidget,SIGNAL(tileSelected(QModelIndex)),this,SLOT(tileSelected(QModelIndex)));
 
    tilePropertyValueDelegate = new CPropertyValueDelegate();
    ui->propertyTableView->setItemDelegateForColumn(PropertyCol_Value,tilePropertyValueDelegate);
@@ -427,6 +428,16 @@ void TileStampEditorForm::changeEvent(QEvent* event)
    }
 }
 
+void TileStampEditorForm::showEvent(QShowEvent *event)
+{
+   emit addStatusBarWidget(ui->info);
+}
+
+void TileStampEditorForm::hideEvent(QHideEvent *event)
+{
+   emit removeStatusBarWidget(ui->info);
+}
+
 void TileStampEditorForm::contextMenuEvent(QContextMenuEvent *event)
 {
 }
@@ -601,12 +612,10 @@ void TileStampEditorForm::renderer_mousePressEvent(QMouseEvent *event)
       {
          selectionTool(event);
       }
-#if 0
-      else if ( ui->tileList->currentIndex().isValid() )
+      else if ( ui->tileTabWidget->currentIndex().isValid() )
       {
          tileTool(event);
       }
-#endif
 
       updateInfoText(pixx,pixy);
    }
@@ -654,12 +663,10 @@ void TileStampEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
    {
       selectionTool(event);
    }
-#if 0
-   else if ( ui->tileList->currentIndex().isValid() )
+   else if ( ui->tileTabWidget->currentIndex().isValid() )
    {
       tileTool(event);
    }
-#endif
 
    updateInfoText(pixx,pixy);
 
@@ -706,12 +713,10 @@ void TileStampEditorForm::renderer_mouseReleaseEvent(QMouseEvent *event)
    {
       selectionTool(event);
    }
-#if 0
-   else if ( ui->tileList->currentIndex().isValid() )
+   else if ( ui->tileTabWidget->currentIndex().isValid() )
    {
       tileTool(event);
    }
-#endif
 
    updateInfoText(pixx,pixy);
 
@@ -848,9 +853,7 @@ void TileStampEditorForm::on_selectionTool_clicked()
    m_activeTool = ui->selectionTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->pencilTool->setChecked(false);
@@ -872,9 +875,7 @@ void TileStampEditorForm::on_paintTool_clicked()
    m_activeTool = ui->paintTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->pencilTool->setChecked(false);
@@ -896,9 +897,7 @@ void TileStampEditorForm::on_pencilTool_clicked()
    m_activeTool = ui->pencilTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -920,9 +919,7 @@ void TileStampEditorForm::on_hollowCircleTool_clicked()
    m_activeTool = ui->hollowCircleTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -944,9 +941,7 @@ void TileStampEditorForm::on_filledCircleTool_clicked()
    m_activeTool = ui->filledCircleTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -968,9 +963,7 @@ void TileStampEditorForm::on_hollowBoxTool_clicked()
    m_activeTool = ui->hollowBoxTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -992,9 +985,7 @@ void TileStampEditorForm::on_filledBoxTool_clicked()
    m_activeTool = ui->filledBoxTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -1016,9 +1007,7 @@ void TileStampEditorForm::on_lineTool_clicked()
    m_activeTool = ui->lineTool;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -1040,9 +1029,7 @@ void TileStampEditorForm::on_paintAttr_clicked()
    m_activeTool = ui->paintAttr;
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Clear other selected tools if any.
    ui->paintTool->setChecked(false);
@@ -1059,61 +1046,7 @@ void TileStampEditorForm::on_paintAttr_clicked()
    clearSelection();
 }
 
-void TileStampEditorForm::on_tileList_activated(QModelIndex index)
-{
-   if ( ui->paintTool->isChecked() )
-   {
-      m_activeTool = ui->paintTool;
-   }
-   else if ( ui->pencilTool->isChecked() )
-   {
-      m_activeTool = ui->pencilTool;
-   }
-   else if ( ui->hollowBoxTool->isChecked() )
-   {
-      m_activeTool = ui->hollowBoxTool;
-   }
-   else if ( ui->filledBoxTool->isChecked() )
-   {
-      m_activeTool = ui->filledBoxTool;
-   }
-   else if ( ui->hollowCircleTool->isChecked() )
-   {
-      m_activeTool = ui->hollowCircleTool;
-   }
-   else if ( ui->filledCircleTool->isChecked() )
-   {
-      m_activeTool = ui->filledCircleTool;
-   }
-   else if ( ui->lineTool->isChecked() )
-   {
-      m_activeTool = ui->lineTool;
-   }
-   else if ( ui->selectionTool->isChecked() )
-   {
-      m_activeTool = ui->selectionTool;
-   }
-   else if ( ui->paintAttr->isChecked() )
-   {
-      m_activeTool = ui->paintAttr;
-   }
-
-   // Clear other selected tools if any.
-   ui->paintTool->setChecked(false);
-   ui->pencilTool->setChecked(false);
-   ui->hollowBoxTool->setChecked(false);
-   ui->filledBoxTool->setChecked(false);
-   ui->lineTool->setChecked(false);
-   ui->selectionTool->setChecked(false);
-   ui->paintAttr->setChecked(false);
-   ui->hollowCircleTool->setChecked(false);
-   ui->filledCircleTool->setChecked(false);
-
-   // Haven't selected anything yet.
-   clearSelection();
-}
-
-void TileStampEditorForm::on_tileList_clicked(QModelIndex index)
+void TileStampEditorForm::tileSelected(QModelIndex index)
 {
    if ( ui->paintTool->isChecked() )
    {
@@ -1184,9 +1117,7 @@ void TileStampEditorForm::colorPicked(bool value)
    }
 
    // Clear selected tile if any.
-#if 0
-   ui->tileList->setCurrentIndex(QModelIndex());
-#endif
+   ui->tileTabWidget->setCurrentIndex(QModelIndex());
 
    // Re-enable the last-selected tool.
    if ( m_activeTool )
@@ -3149,11 +3080,7 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
    int boxY1;
    int boxX2;
    int boxY2;
-#if 0
-   IChrRomBankItem* pChrItem = reinterpret_cast<IChrRomBankItem*>(ui->tileList->currentIndex().internalPointer());
-#else
-   IChrRomBankItem* pChrItem = NULL;
-#endif
+   IChrRomBankItem* pChrItem = reinterpret_cast<IChrRomBankItem*>(ui->tileTabWidget->currentIndex().internalPointer());
    CTileStamp* pSelectedTile = dynamic_cast<CTileStamp*>(pChrItem);
    CBinaryFile* pSelectedBinary = dynamic_cast<CBinaryFile*>(pChrItem);
    int xSize;
@@ -3284,7 +3211,7 @@ void TileStampEditorForm::updateInfoText(int x,int y)
       QString str;
       if ( m_selection || !(m_selectionRect.isEmpty()) )
       {
-         str.sprintf("[Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)] [Selection:(%d,%d)-(%d,%d) %d x %d]",
+         str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s) Selection:(%d,%d)-(%d,%d) %d x %d",
                      x,y,
                      PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
                      PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),
@@ -3298,7 +3225,7 @@ void TileStampEditorForm::updateInfoText(int x,int y)
       }
       else
       {
-         str.sprintf("[Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)]",
+         str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)",
                      x,y,
                      PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
                      PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),

@@ -126,6 +126,7 @@ void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             m_tileStamps.append(pTileStamp);
             appendChild(pTileStamp);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            nesicideProject->setDirty(true);
          }
       }
       else if (ret->text() == NEW_SCREEN_MENU_TEXT)
@@ -141,6 +142,7 @@ void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             m_tileStamps.append(pTileStamp);
             appendChild(pTileStamp);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            nesicideProject->setDirty(true);
          }
       }
    }

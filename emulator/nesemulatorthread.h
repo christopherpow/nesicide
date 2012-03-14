@@ -26,6 +26,9 @@ public:
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
+   virtual bool serializeContent(QFile& fileOut);
+   virtual bool deserializeContent(QFile& fileIn);
+
 public slots:
    void primeEmulator ();
    void resetEmulator ();

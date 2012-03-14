@@ -31,17 +31,8 @@ public:
    QString caption() const;
    virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget*) {}
-   virtual bool onCloseQuery()
-   {
-      return true;
-   }
-   virtual void onClose() {}
-   virtual void saveItemEvent() {}
-   virtual bool canChangeName()
-   {
-      return true;
-   }
-   virtual bool onNameChanged(QString newName);
+
+   // ICenterWidgetItem Interface Implementation
 
    // IChrRomBankItem Interface Implementation
    virtual int getChrRomBankItemSize();

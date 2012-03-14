@@ -59,7 +59,7 @@ QVariant CChrRomItemTableDisplayModel::data(const QModelIndex& index, int role) 
          return item->getChrRomBankItemImage();
       }
 
-      if (role == Qt::SizeHintRole)
+      if ((role == Qt::SizeHintRole))
       {
          return QSize(item->getChrRomBankItemImage().width(),item->getChrRomBankItemImage().height()+6);
       }

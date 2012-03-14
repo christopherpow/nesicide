@@ -68,9 +68,11 @@ public:
    virtual void onSave();
 
 protected:
-   void changeEvent(QEvent *e);
+   void changeEvent(QEvent *event);
    bool eventFilter(QObject *obj, QEvent *event);
-   void timerEvent(QTimerEvent *e);
+   void timerEvent(QTimerEvent *event);
+   void showEvent(QShowEvent *event);
+   void hideEvent(QHideEvent *event);
    void restyleText();
    void annotateText();
 
@@ -104,6 +106,7 @@ private slots:
    void editor_linesChanged();
    void editor_modificationChanged(bool m);
    void editor_copyAvailable(bool yes);
+   void editor_cursorPositionChanged(int line,int index);
    void external_breakpointsChanged();
    void compiler_compileStarted();
    void compiler_compileDone(bool ok);

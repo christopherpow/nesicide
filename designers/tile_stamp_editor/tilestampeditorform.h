@@ -7,7 +7,6 @@
 #include "cdesignereditorbase.h"
 #include "cdesignercommon.h"
 #include "ctilestamprenderer.h"
-#include "cchrromitemlistdisplaymodel.h"
 #include "cpropertylistmodel.h"
 #include "cpropertyvaluedelegate.h"
 
@@ -70,6 +69,8 @@ protected:
    void contextMenuEvent(QContextMenuEvent *event);
    void resizeEvent(QResizeEvent *event);
    void keyPressEvent(QKeyEvent *event);
+   void showEvent(QShowEvent *event);
+   void hideEvent(QHideEvent *event);
    void renderer_enterEvent(QEvent* event);
    void renderer_leaveEvent(QEvent* event);
    void renderer_mousePressEvent(QMouseEvent *event);
@@ -120,8 +121,6 @@ private slots:
    void on_lineTool_clicked();
    void on_pencilTool_clicked();
    void on_paintTool_clicked();
-   void on_tileList_clicked(QModelIndex index);
-   void on_tileList_activated(QModelIndex index);
    void on_clear_clicked();
    void grid_toggled(bool checked);
    void attributeTable_currentIndexChanged(int index);
@@ -134,12 +133,12 @@ private slots:
    void applyChangesToTab(QString uuid);
    void tilePropertyListModel_dataChanged(QModelIndex topLeft,QModelIndex bottomRight);
    void applyProjectPropertiesToTab();
+   void tileSelected(QModelIndex index);
 
 private:
    Ui::TileStampEditorForm *ui;
    CTileStampRenderer* renderer;
    CTileStampRenderer* previewer;
-   CChrRomItemListDisplayModel* tileListModel;
    CPropertyListModel* tilePropertyListModel;
    CPropertyValueDelegate* tilePropertyValueDelegate;
    QList<ColorPushButton*> m_colors;

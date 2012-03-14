@@ -122,6 +122,7 @@ void CAttributeTables::contextMenuEvent(QContextMenuEvent* event, QTreeView* par
             m_attributeTables.append(pAttributeTable);
             appendChild(pAttributeTable);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            nesicideProject->setDirty(true);
          }
       }
    }

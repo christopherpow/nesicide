@@ -18,9 +18,11 @@ public:
    ~ChrBankItemsTabWidget();
 
    void setItems(QList<IChrRomBankItem*> items);
+   QModelIndex currentIndex() const;
+   void setCurrentIndex(QModelIndex index);
 
 signals:
-   void tileSelected(QString uuid);
+   void tileSelected(QModelIndex index);
    void snapToTab(QString item);
 
 private:

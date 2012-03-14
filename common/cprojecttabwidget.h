@@ -86,6 +86,8 @@ signals:
    void markProjectDirty(bool dirty);
    void applyProjectPropertiesToTab();
    void applyEnvironmentSettingsToTab();
+   void addStatusBarWidget(QWidget* widget);
+   void removeStatusBarWidget(QWidget* widget);
 
 public slots:
    void tabModified(bool modified);

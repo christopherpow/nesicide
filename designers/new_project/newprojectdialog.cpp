@@ -13,6 +13,7 @@ NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString d
    on_path_textChanged(defPath);
    setWindowTitle(windowTitle);
    ui->templateGroup->setVisible(showTemplate);
+   ui->name->setFocus();
 }
 
 NewProjectDialog::~NewProjectDialog()

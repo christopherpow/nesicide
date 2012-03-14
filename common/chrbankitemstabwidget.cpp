@@ -117,10 +117,35 @@ void ChrBankItemsTabWidget::setItems(QList<IChrRomBankItem *> items)
    }
 }
 
+QModelIndex ChrBankItemsTabWidget::currentIndex() const
+{
+   QListView* pListView = dynamic_cast<QListView*>(currentWidget());
+
+   if ( pListView )
+   {
+      return pListView->currentIndex();
+   }
+
+   return QModelIndex();
+}
+
+void ChrBankItemsTabWidget::setCurrentIndex(QModelIndex index)
+{
+   int tab;
+
+   // Put each item into the right list.
+   for ( tab = 0; tab < count(); tab++ )
+   {
+      QListView* pListView = dynamic_cast<QListView*>(currentWidget());
+      pListView->setCurrentIndex(index);
+   }
+}
+
 void ChrBankItemsTabWidget::tileList_activated(QModelIndex index)
 {
    if ( index.isValid() )
    {
+      emit tileSelected(index);
    }
 }
 
@@ -128,6 +153,7 @@ void ChrBankItemsTabWidget::tileList_clicked(QModelIndex index)
 {
    if ( index.isValid() )
    {
+      emit tileSelected(index);
    }
 }
 
@@ -140,6 +166,6 @@ void ChrBankItemsTabWidget::tileList_doubleClicked(QModelIndex index)
       IChrRomBankItem* pChrItem = pModel->bankItems().at(index.row());
       IProjectTreeViewItem* pProjItem = dynamic_cast<IProjectTreeViewItem*>(pChrItem);
 
-      emit snapToTab("Tile:"+pProjItem->uuid());
+      emit snapToTab("Tile,"+pProjItem->uuid());
    }
 }

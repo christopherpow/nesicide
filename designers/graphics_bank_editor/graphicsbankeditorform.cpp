@@ -4,7 +4,7 @@
 #include "emulator_core.h"
 #include "cnessystempalette.h"
 
-GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link,QWidget* parent) :
+GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankItems,QList<IChrRomBankItem*> rightBankItems,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::GraphicsBankEditorForm)
 {
@@ -12,11 +12,17 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 
    ui->setupUi(this);
 
-   pThread = new TilificationThread;
-   QObject::connect(this,SIGNAL(prepareToTilify()),pThread,SLOT(prepareToTilify()));
-   QObject::connect(this,SIGNAL(addToTilificator(IChrRomBankItem*)),pThread,SLOT(addToTilificator(IChrRomBankItem*)));
-   QObject::connect(this,SIGNAL(tilify()),pThread,SLOT(tilify()));
-   QObject::connect(pThread,SIGNAL(tilificationComplete(QByteArray)),this,SLOT(renderData(QByteArray)));
+   pLeftThread = new TilificationThread(LEFT);
+   QObject::connect(this,SIGNAL(prepareToTilify(int)),pLeftThread,SLOT(prepareToTilify(int)));
+   QObject::connect(this,SIGNAL(addToTilificator(int,IChrRomBankItem*)),pLeftThread,SLOT(addToTilificator(int,IChrRomBankItem*)));
+   QObject::connect(this,SIGNAL(tilify(int)),pLeftThread,SLOT(tilify(int)));
+   QObject::connect(pLeftThread,SIGNAL(tilificationComplete(int,QByteArray)),this,SLOT(renderData(int,QByteArray)));
+
+   pRightThread = new TilificationThread(RIGHT);
+   QObject::connect(this,SIGNAL(prepareToTilify(int)),pRightThread,SLOT(prepareToTilify(int)));
+   QObject::connect(this,SIGNAL(addToTilificator(int,IChrRomBankItem*)),pRightThread,SLOT(addToTilificator(int,IChrRomBankItem*)));
+   QObject::connect(this,SIGNAL(tilify(int)),pRightThread,SLOT(tilify(int)));
+   QObject::connect(pRightThread,SIGNAL(tilificationComplete(int,QByteArray)),this,SLOT(renderData(int,QByteArray)));
 
    imgData = new char[256*256*4];
 
@@ -35,51 +41,82 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
 
    QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(renderData()));
 
-   model = new CChrRomItemTableDisplayModel(true);
+   leftModel = new CChrRomItemTableDisplayModel(true);
+   rightModel = new CChrRomItemTableDisplayModel(true);
 
    delegate = new CChrRomBankItemDelegate();
 
-   ui->tableView->setModel(model);
-   ui->tableView->setItemDelegateForColumn(ChrRomBankItemCol_Name,delegate);
-   ui->tableView->setColumnWidth(ChrRomBankItemCol_Icon, 26);
-   ui->tableView->setColumnWidth(ChrRomBankItemCol_Name,400);
+   ui->leftTableView->setModel(leftModel);
+   ui->leftTableView->setItemDelegateForColumn(ChrRomBankItemCol_Name,delegate);
+   ui->leftTableView->setColumnWidth(ChrRomBankItemCol_Icon, 26);
+   ui->leftTableView->setColumnWidth(ChrRomBankItemCol_Name,400);
 
-   ui->progressBar->setMaximum(MEM_8KB);
+   ui->rightTableView->setModel(rightModel);
+   ui->rightTableView->setItemDelegateForColumn(ChrRomBankItemCol_Name,delegate);
+   ui->rightTableView->setColumnWidth(ChrRomBankItemCol_Icon, 26);
+   ui->rightTableView->setColumnWidth(ChrRomBankItemCol_Name,400);
 
-   updateChrRomBankItemList(bankItems);
+   ui->leftGauge->setMaximum(MEM_4KB);
+   ui->rightGauge->setMaximum(MEM_4KB);
 
-   QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
-   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
+   updateChrRomBankItemList(leftBankItems,rightBankItems);
+
+   QObject::connect(leftModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
+   QObject::connect(leftModel,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
+
+   QObject::connect(rightModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
+   QObject::connect(rightModel,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 }
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()
 {
    delete ui;
-   delete model;
+   delete leftModel;
+   delete rightModel;
    delete imgData;
    delete renderer;
    delete delegate;
+   delete pLeftThread;
+   delete pRightThread;
 }
 
-QList<IChrRomBankItem*> GraphicsBankEditorForm::bankItems()
+QList<IChrRomBankItem*> GraphicsBankEditorForm::bankItems(int side)
 {
-   return model->bankItems();
+   if ( side == LEFT )
+   {
+      return leftModel->bankItems();
+   }
+   else
+   {
+      return rightModel->bankItems();
+   }
 }
 
 void GraphicsBankEditorForm::updateUi()
 {
    int idx;
 
-   ui->tableView->resizeRowsToContents();
+   ui->leftTableView->resizeRowsToContents();
 
-   emit prepareToTilify();
+   ui->rightTableView->resizeRowsToContents();
 
-   for (idx = 0; idx < model->bankItems().count(); idx++ )
+   emit prepareToTilify(LEFT);
+
+   for (idx = 0; idx < leftModel->bankItems().count(); idx++ )
    {
-      emit addToTilificator(model->bankItems().at(idx));
+      emit addToTilificator(LEFT,leftModel->bankItems().at(idx));
    }
 
-   emit tilify();
+   emit tilify(LEFT);
+
+   emit prepareToTilify(RIGHT);
+
+   for (idx = 0; idx < rightModel->bankItems().count(); idx++ )
+   {
+      emit addToTilificator(RIGHT,rightModel->bankItems().at(idx));
+   }
+
+   emit tilify(RIGHT);
 
    setModified(true);
    emit markProjectDirty(true);
@@ -105,54 +142,115 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
 
    if ( event->key() == Qt::Key_Delete )
    {
-      QModelIndex index = ui->tableView->currentIndex();
-
-      if ( index.isValid() )
+      if ( ui->leftTableView->hasFocus() )
       {
-         model->removeRow(index.row(),QModelIndex());
+         QModelIndex index = ui->leftTableView->currentIndex();
 
-         emit prepareToTilify();
-
-         for (idx = 0; idx < model->bankItems().count(); idx++ )
+         if ( index.isValid() )
          {
-            emit addToTilificator(model->bankItems().at(idx));
+            leftModel->removeRow(index.row(),QModelIndex());
+
+            emit prepareToTilify(LEFT);
+
+            for (idx = 0; idx < leftModel->bankItems().count(); idx++ )
+            {
+               emit addToTilificator(LEFT,leftModel->bankItems().at(idx));
+            }
+
+            emit tilify(LEFT);
+
+            setModified(true);
+            emit markProjectDirty(true);
          }
+      }
+      else if ( ui->rightTableView->hasFocus() )
+      {
+         QModelIndex index = ui->rightTableView->currentIndex();
 
-         emit tilify();
+         if ( index.isValid() )
+         {
+            rightModel->removeRow(index.row(),QModelIndex());
 
-         setModified(true);
-         emit markProjectDirty(true);
+            emit prepareToTilify(RIGHT);
+
+            for (idx = 0; idx < rightModel->bankItems().count(); idx++ )
+            {
+               emit addToTilificator(RIGHT,rightModel->bankItems().at(idx));
+            }
+
+            emit tilify(RIGHT);
+
+            setModified(true);
+            emit markProjectDirty(true);
+         }
       }
    }
    else if ( (event->key() == Qt::Key_F) &&
              (event->modifiers() == Qt::ControlModifier) )
    {
-      emit activateSearchBar();
+      emit activateSearchBar("");
    }
    CDesignerEditorBase::keyPressEvent(event);
 }
 
-void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> newList)
+void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> leftBankItems,QList<IChrRomBankItem*> rightBankItems)
 {
    int idx;
 
-   model->setBankItems(newList);
-   model->update();
-   ui->tableView->resizeRowsToContents();
+   leftModel->setBankItems(leftBankItems);
+   leftModel->update();
+   ui->leftTableView->resizeRowsToContents();
 
-   emit prepareToTilify();
+   rightModel->setBankItems(rightBankItems);
+   rightModel->update();
+   ui->rightTableView->resizeRowsToContents();
 
-   for (idx = 0; idx < newList.count(); idx++ )
+   emit prepareToTilify(LEFT);
+
+   for (idx = 0; idx < leftBankItems.count(); idx++ )
    {
-      emit addToTilificator(newList.at(idx));
+      emit addToTilificator(LEFT,leftBankItems.at(idx));
    }
 
-   emit tilify();
+   emit tilify(LEFT);
+
+   emit prepareToTilify(RIGHT);
+
+   for (idx = 0; idx < rightBankItems.count(); idx++ )
+   {
+      emit addToTilificator(RIGHT,rightBankItems.at(idx));
+   }
+
+   emit tilify(RIGHT);
 }
 
-void GraphicsBankEditorForm::renderData(QByteArray output)
+void GraphicsBankEditorForm::renderData(int side,QByteArray output)
 {
-   tilifiedData = output;
+   int idx;
+
+   if ( side == LEFT )
+   {
+      ui->leftGauge->setValue(output.count());
+   }
+   else
+   {
+      ui->rightGauge->setValue(output.count());
+   }
+
+   // Pad to 4KB.
+   for ( idx = output.count(); idx < MEM_4KB; idx++ )
+   {
+      output.append((char)0);
+   }
+
+   if ( side == LEFT )
+   {
+      tilifiedData.replace(0,MEM_4KB,output);
+   }
+   else
+   {
+      tilifiedData.replace(MEM_4KB,MEM_4KB,output);
+   }
 
    renderData();
 }
@@ -210,8 +308,6 @@ void GraphicsBankEditorForm::renderData()
       }
    }
 
-   ui->progressBar->setValue(tilifiedData.count());
-
    renderer->reloadData(imgData);
 }
 
@@ -226,10 +322,15 @@ void GraphicsBankEditorForm::snapTo(QString item)
       if ( isVisible() )
       {
          splits = item.split(QRegExp("[,]"));
-         list = model->match(model->index(ui->tableView->currentIndex().row()+1,ChrRomBankItemCol_Name),Qt::DisplayRole,splits.at(4),1,Qt::MatchFixedString|Qt::MatchContains|Qt::MatchWrap);
+         list = leftModel->match(leftModel->index(ui->leftTableView->currentIndex().row()+1,ChrRomBankItemCol_Name),Qt::DisplayRole,splits.at(4),1,Qt::MatchFixedString|Qt::MatchContains|Qt::MatchWrap);
          if ( list.count() )
          {
-            ui->tableView->setCurrentIndex(list.at(0));
+            ui->leftTableView->setCurrentIndex(list.at(0));
+         }
+         list = rightModel->match(rightModel->index(ui->rightTableView->currentIndex().row()+1,ChrRomBankItemCol_Name),Qt::DisplayRole,splits.at(4),1,Qt::MatchFixedString|Qt::MatchContains|Qt::MatchWrap);
+         if ( list.count() )
+         {
+            ui->rightTableView->setCurrentIndex(list.at(0));
          }
       }
    }
@@ -241,7 +342,7 @@ void GraphicsBankEditorForm::showEvent(QShowEvent *event)
 
 void GraphicsBankEditorForm::applyChangesToTab(QString uuid)
 {
-   updateChrRomBankItemList(bankItems());
+   updateChrRomBankItemList(bankItems(LEFT),bankItems(RIGHT));
 }
 
 void GraphicsBankEditorForm::applyProjectPropertiesToTab()

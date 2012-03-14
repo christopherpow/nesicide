@@ -1,5 +1,12 @@
 This is the list of changes per version for NESICIDE application.
 
+V1.014
+Bugfix in MMC1 mapper thanks to ThreeGen on #nesdev.
+Graphics Banks are now created from two separate listviews, one for the "left side" and one for the "right side".
+
+V1.013
+Tile Editor supports tiles from 8x8 up to 256x256 or Screens which are a 256x240 Tile.
+
 V1.012
 Improvements to Tile Editor, such as: hollow/filled circle tool; improved select/drag tool with resizeable drag edges;
 usage of clipboard for cut/copy/paste [Ctrl+X/Ctrl+C/Ctrl+V] to or from other programs.  Support for undo/redo is also

@@ -1,24 +1,36 @@
 #include "tilificationthread.h"
 
-TilificationThread::TilificationThread(QObject *parent) :
+#include "emulator_core.h"
+
+TilificationThread::TilificationThread(int side,QObject *parent) :
    QThread(parent)
 {
+   m_side = side;
 }
 
-void TilificationThread::prepareToTilify()
+void TilificationThread::prepareToTilify(int side)
 {
-   m_input.clear();
+   if ( side == m_side )
+   {
+      m_input.clear();
+      m_output.clear();
+   }
 }
 
-void TilificationThread::addToTilificator(IChrRomBankItem* input)
+void TilificationThread::addToTilificator(int side,IChrRomBankItem* input)
 {
-   m_input.append(input);
-   m_output.clear();
+   if ( side == m_side )
+   {
+      m_input.append(input);
+   }
 }
 
-void TilificationThread::tilify()
+void TilificationThread::tilify(int side)
 {
-   start();
+   if ( side == m_side )
+   {
+      start();
+   }
 }
 
 void TilificationThread::run()
@@ -33,6 +45,13 @@ void TilificationThread::run()
    const char* tileSrc;
    const char* tileDst;
 
+#if 1
+// disable tilification for now until I sort out how to incorporate it best.
+   for ( idx1 = 0; idx1 < m_input.count(); idx1++ )
+   {
+      m_output.append(m_input.at(idx1)->getChrRomBankItemData());
+   }
+#else
    for ( idx1 = 0; idx1 < m_input.count(); idx1++ )
    {
       tileDataIn.append(m_input.at(idx1)->getChrRomBankItemData());
@@ -116,6 +135,7 @@ void TilificationThread::run()
          }
       }
    }
+#endif
 
-   emit tilificationComplete(m_output);
+   emit tilificationComplete(m_side,m_output);
 }

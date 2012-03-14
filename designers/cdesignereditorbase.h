@@ -38,10 +38,12 @@ signals:
    void editor_modified(bool m);
    void markProjectDirty(bool dirty);
    void breakpointsChanged();
-   void activateSearchBar();
+   void activateSearchBar(QString item);
    void snapToTab(QString item);
    void addWatchedItem(QString item);
    void applyChanges(QString uuid);
+   void addStatusBarWidget(QWidget* widget);
+   void removeStatusBarWidget(QWidget* widget);
 
 protected:
    QUndoStack m_undoStack;

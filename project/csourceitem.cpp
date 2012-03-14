@@ -180,19 +180,3 @@ void CSourceItem::saveItemEvent()
    m_sourceCode = editor()->sourceCode();
    serializeContent();
 }
-
-bool CSourceItem::onNameChanged(QString newName)
-{
-   if (m_name != newName)
-   {
-      m_name = newName;
-
-      if ( m_editor )
-      {
-         QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
-         tabWidget->setTabText(tabWidget->indexOf(m_editor), newName);
-      }
-   }
-
-   return true;
-}

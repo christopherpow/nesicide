@@ -52,8 +52,10 @@ void coreMutexUnlock ( void )
 
 void breakpointHook ( void )
 {
+   SDL_PauseAudio(1);
    breakpointWatcher->breakpointWatcherSemaphore()->release();
    breakpointSemaphore.acquire();
+   SDL_PauseAudio(0);
 }
 
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
@@ -64,8 +66,9 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
    samplesAvailable = nesGetAudioSamplesAvailable();
    coreMutexUnlock();
 
-   if (samplesAvailable < 0)
+   if (samplesAvailable <= 0)
    {
+      memset(stream,0,len);
       return;
    }
 
@@ -377,6 +380,7 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::loadCartridge()
 {
+   QFile saveState(nesicideProject->getProjectCartridgeSaveStateName());
    QString errors;
    int32_t b;
    int32_t a;
@@ -441,7 +445,10 @@ void NESEmulatorThread::loadCartridge()
       // Initialize NES...
       nesResetInitial(m_pCartridge->getMapperNumber());
 
-      deserialize(nesicideProject->getSaveStateDoc(),nesicideProject->getSaveStateDoc(),errors);
+      if ( saveState.open(QIODevice::ReadOnly) )
+      {
+         deserializeContent(saveState);
+      }
 
       // Trigger inspector updates...
       nesDisassemble();
@@ -549,8 +556,6 @@ void NESEmulatorThread::run ()
 
             emit emulatorPausedAfter();
          }
-
-         nesClearAudioSamplesAvailable();
 
          nesBreak();
       }
@@ -769,6 +774,19 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
+bool NESEmulatorThread::serializeContent(QFile& fileOut)
+{
+   QByteArray bytes;
+   int idx;
+
+   for ( idx = 0; idx < MEM_64KB; idx++ )
+   {
+      bytes += nesGetSRAMDataPhysical(idx);
+   }
+
+   fileOut.write(bytes);
+}
+
 bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    // Loop through the child elements and process the ones we find
@@ -897,4 +915,37 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
    emit updateDebuggers();
 
    return true;
+}
+
+bool NESEmulatorThread::deserializeContent(QFile& fileIn)
+{
+   QByteArray bytes;
+   int idx;
+   char zero = 0;
+
+   bytes = fileIn.readAll();
+
+   if ( bytes.count() != MEM_64KB )
+   {
+      if ( bytes.count() < MEM_64KB )
+      {
+         for ( idx = bytes.count(); idx < MEM_64KB; idx++ )
+         {
+            bytes.append(zero);
+         }
+      }
+
+      QString str;
+      str = "The save file found for this ROM:\n\n";
+      str += fileIn.fileName();
+      str += "\n\nis not 64KB in size and may not be\n";
+      str += "valid.  Game save data may be lost.";
+      QMessageBox::warning(0,"Save file corrupted?",str);
+      bytes.truncate(MEM_64KB);
+   }
+
+   for ( idx = 0; idx < bytes.count(); idx++ )
+   {
+      nesSetSRAMDataPhysical(idx,bytes.at(idx));
+   }
 }

@@ -1,6 +1,8 @@
 #include "cgraphicsbanks.h"
 #include "cprojecttreeviewmodel.h"
 
+#include "main.h"
+
 CGraphicsBanks::CGraphicsBanks(IProjectTreeViewItem* parent)
 {
    // Add node to tree
@@ -112,6 +114,7 @@ void CGraphicsBanks::contextMenuEvent(QContextMenuEvent* event, QTreeView* paren
             m_graphicsBanks.append(pGraphicsBank);
             appendChild(pGraphicsBank);
             ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            nesicideProject->setDirty(true);
          }
       }
    }

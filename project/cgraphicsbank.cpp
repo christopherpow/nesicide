@@ -13,16 +13,17 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
    InitTreeItem("",parent);
 
    // Allocate attributes
-   m_bankItems.clear();
+   m_leftBankItems.clear();
+   m_rightBankItems.clear();
 }
 
 CGraphicsBank::~CGraphicsBank()
 {
 }
 
-QList<IChrRomBankItem*>& CGraphicsBank::getGraphics()
+QList<IChrRomBankItem*> CGraphicsBank::getGraphics()
 {
-   return m_bankItems;
+   return m_leftBankItems + m_rightBankItems;
 }
 
 bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
@@ -36,11 +37,20 @@ bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
       editor()->onSave();
    }
 
-   for (int i=0; i < m_bankItems.count(); i++)
+   for (int i=0; i < m_leftBankItems.count(); i++)
    {
       QDomElement graphicsItemElement = addElement( doc, element, "graphicitem" );
-      IProjectTreeViewItem* projectItem = dynamic_cast<IProjectTreeViewItem*>(m_bankItems.at(i));
+      IProjectTreeViewItem* projectItem = dynamic_cast<IProjectTreeViewItem*>(m_leftBankItems.at(i));
       graphicsItemElement.setAttribute("uuid", projectItem->uuid() );
+      graphicsItemElement.setAttribute("side",LEFT);
+   }
+
+   for (int i=0; i < m_rightBankItems.count(); i++)
+   {
+      QDomElement graphicsItemElement = addElement( doc, element, "graphicitem" );
+      IProjectTreeViewItem* projectItem = dynamic_cast<IProjectTreeViewItem*>(m_rightBankItems.at(i));
+      graphicsItemElement.setAttribute("uuid", projectItem->uuid() );
+      graphicsItemElement.setAttribute("side",RIGHT);
    }
 
    return true;
@@ -56,9 +66,17 @@ void CGraphicsBank::exportAsPNG()
 
    if ( !fileName.isEmpty() )
    {
-      for ( idx = 0; idx < m_bankItems.count(); idx++ )
+      for ( idx = 0; idx < m_leftBankItems.count(); idx++ )
       {
-         IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(m_bankItems.at(idx));
+         IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(m_leftBankItems.at(idx));
+         if ( item )
+         {
+            chrData += item->getChrRomBankItemData();
+         }
+      }
+      for ( idx = 0; idx < m_rightBankItems.count(); idx++ )
+      {
+         IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(m_rightBankItems.at(idx));
          if ( item )
          {
             chrData += item->getChrRomBankItemData();
@@ -95,7 +113,8 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& erro
 
    setUuid(element.attribute("uuid"));
 
-   m_bankItems.clear();
+   m_leftBankItems.clear();
+   m_rightBankItems.clear();
 
    QDomNode childNode = node.firstChild();
 
@@ -112,7 +131,15 @@ bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& erro
 
             if ( pItem )
             {
-               m_bankItems.append(pItem);
+               int side = graphicItem.attribute("side","0").toInt();
+               if ( side == LEFT )
+               {
+                  m_leftBankItems.append(pItem);
+               }
+               else
+               {
+                  m_rightBankItems.append(pItem);
+               }
             }
 
          }
@@ -179,7 +206,7 @@ void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new GraphicsBankEditorForm(m_bankItems,this);
+      m_editor = new GraphicsBankEditorForm(m_leftBankItems,m_rightBankItems,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
@@ -187,7 +214,8 @@ void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
 
 void CGraphicsBank::saveItemEvent()
 {
-   m_bankItems = editor()->bankItems();
+   m_leftBankItems = editor()->bankItems(LEFT);
+   m_rightBankItems = editor()->bankItems(RIGHT);
 
    if ( m_editor )
    {

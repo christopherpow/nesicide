@@ -34,8 +34,8 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
          m_length = 0x18; // this should perhaps be MEM_4KB or something else...mirroring?
          break;
       case eMemory_cartSRAM:
-         m_offset = 0x6000;
-         m_length = MEM_64KB;
+         m_offset = 0;
+         m_length = MEM_8KB;
          break;
       case eMemory_cartROM:
          m_offset = 0x8000;
@@ -420,7 +420,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex&) const
          return (MEM_32KB>>4);
          break;
       case eMemory_cartSRAM:
-         return (MEM_64KB>>4);
+         return (MEM_8KB>>4);
          break;
       case eMemory_cartEXRAM:
          return (MEM_1KB>>4);

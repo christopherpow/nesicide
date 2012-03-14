@@ -112,6 +112,8 @@ signals:
    void adjustAudio(int32_t length);
 
 private slots:
+   void addStatusBarWidget(QWidget* widget);
+   void removeStatusBarWidget(QWidget* widget);
    void openROM(QString fileName,bool runRom=true);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();

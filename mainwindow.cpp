@@ -341,6 +341,10 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( output, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
 
+   // Slots for updating status bar.
+   QObject::connect ( ui->tabWidget, SIGNAL(addStatusBarWidget(QWidget*)), this, SLOT(addStatusBarWidget(QWidget*)));
+   QObject::connect ( ui->tabWidget, SIGNAL(removeStatusBarWidget(QWidget*)), this, SLOT(removeStatusBarWidget(QWidget*)));
+
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
@@ -651,6 +655,17 @@ void MainWindow::markProjectDirty(bool dirty)
    setWindowModified(dirty);
 }
 
+void MainWindow::addStatusBarWidget(QWidget *widget)
+{
+   ui->statusBar->addWidget(widget,100);
+   widget->show();
+}
+
+void MainWindow::removeStatusBarWidget(QWidget *widget)
+{
+   ui->statusBar->removeWidget(widget);
+}
+
 void MainWindow::on_actionSave_Project_triggered()
 {
    QSettings settings;
@@ -684,6 +699,7 @@ void MainWindow::saveEmulatorState(QString fileName)
          return;
       }
 
+#if defined(XML_SAVE_STATE)
       QDomDocument doc;
       QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
       doc.appendChild(instr);
@@ -700,6 +716,13 @@ void MainWindow::saveEmulatorState(QString fileName)
       // Use the standard C++ stream function for streaming the string representation of our XML to
       // our file stream.
       ts << doc.toString();
+#else
+      if (!emulator->serializeContent(file))
+      {
+         QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
+         file.close();
+      }
+#endif
 
       // And finally close the file.
       file.close();
