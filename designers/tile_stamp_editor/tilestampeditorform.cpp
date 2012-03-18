@@ -431,6 +431,7 @@ void TileStampEditorForm::changeEvent(QEvent* event)
 void TileStampEditorForm::showEvent(QShowEvent *event)
 {
    emit addStatusBarWidget(ui->info);
+   ui->info->show();
 }
 
 void TileStampEditorForm::hideEvent(QHideEvent *event)

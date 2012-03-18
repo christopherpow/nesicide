@@ -178,3 +178,30 @@ void CRendererBase::changeZoom(int newZoom)
    resizeGL(width(),height());
    update();
 }
+
+bool CRendererBase::pointToPixel(int ptx,int pty,int* pixx,int* pixy)
+{
+   int size = (_sizeX>_sizeY)?_sizeX:_sizeY;
+   int zf = _zoomFactor/100;
+   bool valid = false;
+
+   // Get to widget-coords.
+   QPoint myPoint = mapFromGlobal(QPoint(ptx,pty));
+   ptx = myPoint.x();
+   pty = myPoint.y();
+
+   ptx /= zf;
+   pty /= zf;
+   (*pixx) = ptx;
+   (*pixy) = pty;
+   (*pixx) += _scrollX;
+   (*pixy) += _scrollY;
+   if ( ((*pixx) < _sizeX) && ((*pixy) < _sizeY) )
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+}

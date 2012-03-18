@@ -160,6 +160,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    ui->gridLayout->addWidget(m_scintilla);
 
+   // Create the status-bar widget.
+   info = new QLabel(this);
+
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    QObject::connect ( codeBrowser, SIGNAL(snapTo(QString)),this, SLOT(snapTo(QString)) );
@@ -179,6 +182,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 CodeEditorForm::~CodeEditorForm()
 {
    delete ui;
+
+   delete info;
 
    delete m_lexer;
    delete m_scintilla;
@@ -393,13 +398,13 @@ void CodeEditorForm::timerEvent(QTimerEvent *event)
 
 void CodeEditorForm::showEvent(QShowEvent *event)
 {
-   emit addStatusBarWidget(ui->info);
-   ui->info->show();
+   emit addStatusBarWidget(info);
+   info->show();
 }
 
 void CodeEditorForm::hideEvent(QHideEvent *event)
 {
-   emit removeStatusBarWidget(ui->info);
+   emit removeStatusBarWidget(info);
 }
 
 void CodeEditorForm::compiler_compileStarted()
@@ -507,7 +512,7 @@ void CodeEditorForm::breakpointHit()
 
 void CodeEditorForm::editor_cursorPositionChanged(int line, int index)
 {
-   ui->info->setText(m_fileName + " line:" + QString::number(line+1) + " column:" + QString::number(index+1));
+   info->setText("Line: " + QString::number(line+1) + ", Col: " + QString::number(index+1));
 }
 
 void CodeEditorForm::editor_undo()

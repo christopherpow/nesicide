@@ -10,6 +10,7 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
     QTabWidget(parent)
 {
    tabBar()->installEventFilter(this);
+   tabBar()->setMouseTracking(true);
 }
 
 bool CProjectTabWidget::eventFilter(QObject *object, QEvent *event)
@@ -22,8 +23,18 @@ bool CProjectTabWidget::eventFilter(QObject *object, QEvent *event)
          tabBar_contextMenuEvent(cmEvent);
          return true;
       }
+      else if ( event->type() == QEvent::MouseMove )
+      {
+         QMouseEvent* mmEvent = dynamic_cast<QMouseEvent*>(event);
+         tabBar_mouseMoveEvent(mmEvent);
+         return true;
+      }
    }
    return false;
+}
+
+void CProjectTabWidget::tabBar_mouseMoveEvent(QMouseEvent *event)
+{
 }
 
 void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
@@ -98,6 +109,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(this,SIGNAL(applyEnvironmentSettingsToTab()),editor,SLOT(applyEnvironmentSettingsToTab()));
       QObject::connect(editor,SIGNAL(addStatusBarWidget(QWidget*)),this,SIGNAL(addStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(removeStatusBarWidget(QWidget*)),this,SIGNAL(removeStatusBarWidget(QWidget*)));
+      QObject::connect(editor,SIGNAL(setStatusBarMessage(QString)),this,SIGNAL(setStatusBarMessage(QString)));
    }
 
    if ( editor && editor->treeLink() )

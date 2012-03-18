@@ -2,6 +2,7 @@
 #define GRAPHICSBANKEDITORFORM_H
 
 #include <QList>
+#include <QLabel>
 
 #include "cdesignereditorbase.h"
 #include "cchrromitemtabledisplaymodel.h"
@@ -36,9 +37,16 @@ protected:
    void changeEvent(QEvent* event);
    void keyPressEvent(QKeyEvent *event);
    void showEvent(QShowEvent *event);
+   void hideEvent(QHideEvent *event);
+   void updateInfoText(int x=-1,int y=-1);
+   bool eventFilter(QObject *obj, QEvent *event);
+   void renderer_enterEvent(QEvent* event);
+   void renderer_leaveEvent(QEvent* event);
+   void renderer_mouseMoveEvent(QMouseEvent *event);
 
 private:
    Ui::GraphicsBankEditorForm* ui;
+   QLabel* info;
    CChrRomItemTableDisplayModel* leftModel;
    CChrRomItemTableDisplayModel* rightModel;
    PanZoomRenderer* renderer;

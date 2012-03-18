@@ -75,6 +75,7 @@ public:
 
 protected:
    void tabBar_contextMenuEvent(QContextMenuEvent *event);
+   void tabBar_mouseMoveEvent(QMouseEvent* event);
    bool eventFilter(QObject *object, QEvent *event);
 
 signals:
@@ -88,6 +89,7 @@ signals:
    void applyEnvironmentSettingsToTab();
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void setStatusBarMessage(QString message);
 
 public slots:
    void tabModified(bool modified);

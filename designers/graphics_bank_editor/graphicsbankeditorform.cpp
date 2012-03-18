@@ -1,5 +1,9 @@
+#include <QMessageBox>
+
 #include "graphicsbankeditorform.h"
 #include "ui_graphicsbankeditorform.h"
+
+#include "cdesignercommon.h"
 
 #include "emulator_core.h"
 #include "cnessystempalette.h"
@@ -11,6 +15,8 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankI
    int i;
 
    ui->setupUi(this);
+
+   info = new QLabel();
 
    pLeftThread = new TilificationThread(LEFT);
    QObject::connect(this,SIGNAL(prepareToTilify(int)),pLeftThread,SLOT(prepareToTilify(int)));
@@ -61,6 +67,9 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankI
 
    updateChrRomBankItemList(leftBankItems,rightBankItems);
 
+   // Get mouse events from the renderer here!
+   renderer->installEventFilter(this);
+
    QObject::connect(leftModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
    QObject::connect(leftModel,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 
@@ -70,6 +79,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankI
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()
 {
+   delete info;
    delete ui;
    delete leftModel;
    delete rightModel;
@@ -89,6 +99,62 @@ QList<IChrRomBankItem*> GraphicsBankEditorForm::bankItems(int side)
    else
    {
       return rightModel->bankItems();
+   }
+}
+
+bool GraphicsBankEditorForm::eventFilter(QObject* obj,QEvent* event)
+{
+   if ( obj == renderer )
+   {
+      if ( event->type() == QEvent::MouseMove )
+      {
+         QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+         renderer_mouseMoveEvent(mouseEvent);
+      }
+      else if ( event->type() == QEvent::Enter )
+      {
+         QEvent* enterEvent = dynamic_cast<QEvent*>(event);
+         renderer_enterEvent(enterEvent);
+      }
+      else if ( event->type() == QEvent::Leave )
+      {
+         QEvent* leaveEvent = dynamic_cast<QEvent*>(event);
+         renderer_leaveEvent(leaveEvent);
+      }
+   }
+   return false;
+}
+
+void GraphicsBankEditorForm::renderer_enterEvent(QEvent *event)
+{
+   int pixx;
+   int pixy;
+   bool visible;
+
+   visible = renderer->pointToPixel(QCursor::pos().x(),QCursor::pos().y(),&pixx,&pixy);
+
+   if ( visible )
+   {
+      updateInfoText(pixx,pixy);
+   }
+}
+
+void GraphicsBankEditorForm::renderer_leaveEvent(QEvent *event)
+{
+   updateInfoText();
+}
+
+void GraphicsBankEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
+{
+   int pixx;
+   int pixy;
+   bool visible;
+
+   visible = renderer->pointToPixel(QCursor::pos().x(),QCursor::pos().y(),&pixx,&pixy);
+
+   if ( visible )
+   {
+      updateInfoText(pixx,pixy);
    }
 }
 
@@ -338,6 +404,50 @@ void GraphicsBankEditorForm::snapTo(QString item)
 
 void GraphicsBankEditorForm::showEvent(QShowEvent *event)
 {
+   emit addStatusBarWidget(info);
+   info->show();
+}
+
+void GraphicsBankEditorForm::hideEvent(QHideEvent *event)
+{
+   emit removeStatusBarWidget(info);
+}
+
+void GraphicsBankEditorForm::updateInfoText(int x, int y)
+{
+   int tileX;
+   int tileY;
+   int side;
+   const char* sideStr[] = { "LEFT", "RIGHT" };
+
+   if ( (x >= 0) && (y >= 0) )
+   {
+      QString str;
+
+      tileX = PIXEL_TO_TILE(x);
+      tileY = PIXEL_TO_TILE(y);
+
+      if ( tileX >= 16 )
+      {
+         side = 1;
+         tileX -= 16;
+      }
+      else
+      {
+         side = 0;
+      }
+
+      str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) %s",
+                  x,y,
+                  tileX,tileY,
+                  sideStr[side]);
+
+      info->setText(str);
+   }
+   else
+   {
+      info->clear();
+   }
 }
 
 void GraphicsBankEditorForm::applyChangesToTab(QString uuid)

@@ -4,6 +4,8 @@
 #include "cdesignereditorbase.h"
 #include "iprojecttreeviewitem.h"
 
+#include <QLabel>
+
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexercpp.h>
 #include <Qsci/qscistyle.h>
@@ -78,6 +80,7 @@ protected:
 
 private:
    Ui::CodeEditorForm* ui;
+   QLabel* info;
    QString m_fileName;
    QsciScintilla* m_scintilla;
    QsciLexer* m_lexer;

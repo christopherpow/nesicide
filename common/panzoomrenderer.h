@@ -21,6 +21,8 @@ public:
    void reloadData(char* imageData) { renderer->reloadData(imageData); }
    QColor getColor(int idx);
    void showPalette(bool show);
+   bool pointToPixel(int ptx,int pty,int* pixx,int* pixy) { return renderer->pointToPixel(ptx,pty,pixx,pixy); }
+   QWidget* getRenderer() { return renderer; }
 
 protected:
    void showEvent(QShowEvent *event);

@@ -114,6 +114,7 @@ signals:
 private slots:
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void setStatusBarMessage(QString message);
    void openROM(QString fileName,bool runRom=true);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();

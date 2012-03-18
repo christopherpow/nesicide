@@ -37,6 +37,8 @@ PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int maxZoom,char* imageData
 
 void PanZoomRenderer::commonConstructor(bool showPalette)
 {
+   renderer->setMouseTracking(true);
+
    renderer->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
    renderer->resize(_sizeX,_sizeY);
 

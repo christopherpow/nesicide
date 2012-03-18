@@ -61,6 +61,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>

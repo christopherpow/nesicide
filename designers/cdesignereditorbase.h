@@ -44,6 +44,7 @@ signals:
    void applyChanges(QString uuid);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void setStatusBarMessage(QString message);
 
 protected:
    QUndoStack m_undoStack;

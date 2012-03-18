@@ -14,6 +14,9 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    int i;
 
    ui->setupUi(this);
+
+   info = new QLabel();
+
    imgData = new char[256*256*4];
 
    // Clear image...
@@ -59,11 +62,14 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       renderData();
    }
 
+   renderer->installEventFilter(this);
+
    ui->updateScanline->setText ( "0" );
 }
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
+   delete info;
    delete ui;
    delete imgData;
    delete renderer;
@@ -81,6 +87,7 @@ void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 
       pThread->updateDebuggers();
    }
+   emit addStatusBarWidget(info);
 }
 
 void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
@@ -88,6 +95,63 @@ void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
    if ( m_usePPU )
    {
       QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
+   }
+   emit removeStatusBarWidget(info);
+}
+
+bool CHRROMDisplayDialog::eventFilter(QObject* obj,QEvent* event)
+{
+   if ( obj == renderer )
+   {
+      if ( event->type() == QEvent::MouseMove )
+      {
+         QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+         renderer_mouseMoveEvent(mouseEvent);
+      }
+      else if ( event->type() == QEvent::Enter )
+      {
+         QEvent* enterEvent = dynamic_cast<QEvent*>(event);
+         renderer_enterEvent(enterEvent);
+      }
+      else if ( event->type() == QEvent::Leave )
+      {
+         QEvent* leaveEvent = dynamic_cast<QEvent*>(event);
+         renderer_leaveEvent(leaveEvent);
+      }
+   }
+   return false;
+}
+
+void CHRROMDisplayDialog::renderer_enterEvent(QEvent *event)
+{
+   int pixx;
+   int pixy;
+   bool visible;
+
+   visible = renderer->pointToPixel(QCursor::pos().x(),QCursor::pos().y(),&pixx,&pixy);
+
+   if ( visible )
+   {
+      updateInfoText(pixx,pixy);
+   }
+}
+
+void CHRROMDisplayDialog::renderer_leaveEvent(QEvent *event)
+{
+   updateInfoText();
+}
+
+void CHRROMDisplayDialog::renderer_mouseMoveEvent(QMouseEvent *event)
+{
+   int pixx;
+   int pixy;
+   bool visible;
+
+   visible = renderer->pointToPixel(QCursor::pos().x(),QCursor::pos().y(),&pixx,&pixy);
+
+   if ( visible )
+   {
+      updateInfoText(pixx,pixy);
    }
 }
 
@@ -102,6 +166,43 @@ void CHRROMDisplayDialog::changeEvent(QEvent* event)
          break;
       default:
          break;
+   }
+}
+
+void CHRROMDisplayDialog::updateInfoText(int x, int y)
+{
+   int tileX;
+   int tileY;
+   int side;
+   const char* sideStr[] = { "LEFT", "RIGHT" };
+
+   if ( (x >= 0) && (y >= 0) )
+   {
+      QString str;
+
+      tileX = PIXEL_TO_TILE(x);
+      tileY = PIXEL_TO_TILE(y);
+
+      if ( tileX >= 16 )
+      {
+         side = 1;
+         tileX -= 16;
+      }
+      else
+      {
+         side = 0;
+      }
+
+      str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) %s",
+                  x,y,
+                  tileX,tileY,
+                  sideStr[side]);
+
+      info->setText(str);
+   }
+   else
+   {
+      info->clear();
    }
 }
 

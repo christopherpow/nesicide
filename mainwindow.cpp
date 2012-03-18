@@ -663,7 +663,14 @@ void MainWindow::addStatusBarWidget(QWidget *widget)
 
 void MainWindow::removeStatusBarWidget(QWidget *widget)
 {
+   // For some reason on creation the widget isn't there but it's being removed?
+   ui->statusBar->addWidget(widget,100);
    ui->statusBar->removeWidget(widget);
+}
+
+void MainWindow::setStatusBarMessage(QString message)
+{
+   ui->statusBar->showMessage(message,2000);
 }
 
 void MainWindow::on_actionSave_Project_triggered()
