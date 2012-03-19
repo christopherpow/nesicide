@@ -135,7 +135,9 @@ unix:!mac {
 QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
 LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
 
-INCLUDEPATH += common \
+INCLUDEPATH += \
+    common \
+    nes/common \
     compilers \
     compilers/cc65 \
     nes/compilers \
@@ -154,22 +156,22 @@ SOURCES += \
     aboutdialog.cpp \
     common/cbuildertextlogger.cpp \
     common/cdockwidgetregistry.cpp \
-    common/cgamedatabasehandler.cpp \
+    nes/common/cgamedatabasehandler.cpp \
     common/checkboxlist.cpp \
-    common/chrbankitemstabwidget.cpp \
-    common/cimageconverters.cpp \
-    common/colorpushbutton.cpp \
+    nes/common/chrbankitemstabwidget.cpp \
+    nes/common/cimageconverters.cpp \
+    nes/common/colorpushbutton.cpp \
     common/cprojecttabwidget.cpp \
     common/cpropertyitem.cpp \
     common/crendererbase.cpp \
-    common/emulatorcontrol.cpp \
+    nes/emulator/emulatorcontrol.cpp \
     common/panzoomrenderer.cpp \
     common/qtcolorpicker.cpp \
     common/searchbar.cpp \
     common/searchdockwidget.cpp \
     common/searcherthread.cpp \
     common/sourcenavigator.cpp \
-    common/tilificationthread.cpp \
+    nes/common/tilificationthread.cpp \
     common/xmlhelpers.cpp \
     compilers/cc65/ccc65interface.cpp \
     compilers/cc65/dbginfo.c \
@@ -274,23 +276,23 @@ HEADERS += \
     common/cbuildertextlogger.h \
     common/cdesignercommon.h \
     common/cdockwidgetregistry.h \
-    common/cgamedatabasehandler.h \
+    nes/common/cgamedatabasehandler.h \
     common/checkboxlist.h \
-    common/chrbankitemstabwidget.h \
-    common/cimageconverters.h \
-    common/colorpushbutton.h \
-    common/cpaletteitemdelegate.h \
+    nes/common/chrbankitemstabwidget.h \
+    nes/common/cimageconverters.h \
+    nes/common/colorpushbutton.h \
+    nes/common/cpaletteitemdelegate.h \
     common/cprojecttabwidget.h \
     common/cpropertyitem.h \
     common/crendererbase.h \
-    common/emulatorcontrol.h \
+    nes/emulator/emulatorcontrol.h \
     common/panzoomrenderer.h \
     common/qtcolorpicker.h \
     common/searchbar.h \
     common/searchdockwidget.h \
     common/searcherthread.h \
     common/sourcenavigator.h \
-    common/tilificationthread.h \
+    nes/common/tilificationthread.h \
     compilers/cc65/ccc65interface.h \
     compilers/cc65/dbginfo.h \
     nes/compilers/ccartridgebuilder.h \
@@ -394,8 +396,8 @@ HEADERS += \
 
 FORMS += \
     aboutdialog.ui \
-    common/chrbankitemstabwidget.ui \
-    common/emulatorcontrol.ui \
+    nes/common/chrbankitemstabwidget.ui \
+    nes/emulator/emulatorcontrol.ui \
     common/panzoomrenderer.ui \
     common/searchbar.ui \
     common/searchdockwidget.ui \
