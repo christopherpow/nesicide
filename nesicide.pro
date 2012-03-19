@@ -148,7 +148,7 @@ INCLUDEPATH += common \
     designers/project_properties \
     nes/designers/graphics_bank_editor \
     nes/designers/tile_stamp_editor \
-    emulator \
+    nes/emulator \
     interfaces \
     project \
     nes/project \
