@@ -3212,7 +3212,7 @@ void TileStampEditorForm::updateInfoText(int x,int y)
       QString str;
       if ( m_selection || !(m_selectionRect.isEmpty()) )
       {
-         str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s) Selection:(%d,%d)-(%d,%d) %d x %d",
+         str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d %s) Selection:(%d,%d)-(%d,%d) %d x %d",
                      x,y,
                      PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
                      PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),
@@ -3226,7 +3226,7 @@ void TileStampEditorForm::updateInfoText(int x,int y)
       }
       else
       {
-         str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d) AttrSeq(%s)",
+         str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) AttrQuad(%d,%d %s)",
                      x,y,
                      PIXEL_TO_TILE(x),PIXEL_TO_TILE(y),
                      PIXEL_TO_ATTRQUAD(x),PIXEL_TO_ATTRQUAD(y),
