@@ -137,17 +137,12 @@ LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += common \
     compilers \
-    nes/compilers \
     compilers/cc65 \
+    nes/compilers \
     debuggers \
     nes/debuggers \
-    designers/ \
-    nes/designers/attribute_table_editor \
-    designers/code_editor \
-    designers/new_project \
-    designers/project_properties \
-    nes/designers/graphics_bank_editor \
-    nes/designers/tile_stamp_editor \
+    designers \
+    nes/designers \
     nes/emulator \
     interfaces \
     project \
@@ -218,22 +213,22 @@ SOURCES += \
     nes/debuggers/ppuinformationdockwidget.cpp \
     debuggers/registerinspectordockwidget.cpp \
     debuggers/symbolwatchdockwidget.cpp \
-    nes/designers/attribute_table_editor/attributetableeditorform.cpp \
+    nes/designers/attributetableeditorform.cpp \
     designers/cdesignereditorbase.cpp \
-    designers/code_editor/codeeditorform.cpp \
-    designers/code_editor/qscilexerca65.cpp \
-    designers/code_editor/qscilexerdefault.cpp \
-    nes/designers/graphics_bank_editor/cchrrombankitemdelegate.cpp \
-    nes/designers/graphics_bank_editor/graphicsbankeditorform.cpp \
-    designers/new_project/newprojectdialog.cpp \
-    designers/project_properties/cpropertyenumlistmodel.cpp \
-    designers/project_properties/cpropertylistmodel.cpp \
-    designers/project_properties/cpropertysymboldelegate.cpp \
-    designers/project_properties/cpropertyvaluedelegate.cpp \
-    designers/project_properties/projectpropertiesdialog.cpp \
-    designers/project_properties/propertyeditordialog.cpp \
-    nes/designers/tile_stamp_editor/ctilestamprenderer.cpp \
-    nes/designers/tile_stamp_editor/tilestampeditorform.cpp \
+    designers/codeeditorform.cpp \
+    designers/qscilexerca65.cpp \
+    designers/qscilexerdefault.cpp \
+    nes/designers/cchrrombankitemdelegate.cpp \
+    nes/designers/graphicsbankeditorform.cpp \
+    designers/newprojectdialog.cpp \
+    designers/cpropertyenumlistmodel.cpp \
+    designers/cpropertylistmodel.cpp \
+    designers/cpropertysymboldelegate.cpp \
+    designers/cpropertyvaluedelegate.cpp \
+    designers/projectpropertiesdialog.cpp \
+    designers/propertyeditordialog.cpp \
+    nes/designers/ctilestamprenderer.cpp \
+    nes/designers/tilestampeditorform.cpp \
     nes/emulator/nesemulatordockwidget.cpp \
     nes/emulator/nesemulatorrenderer.cpp \
     nes/emulator/nesemulatorthread.cpp \
@@ -338,22 +333,22 @@ HEADERS += \
     nes/debuggers/ppuinformationdockwidget.h \
     debuggers/registerinspectordockwidget.h \
     debuggers/symbolwatchdockwidget.h \
-    nes/designers/attribute_table_editor/attributetableeditorform.h \
+    nes/designers/attributetableeditorform.h \
     designers/cdesignereditorbase.h \
-    designers/code_editor/codeeditorform.h \
-    designers/code_editor/qscilexerca65.h \
-    designers/code_editor/qscilexerdefault.h \
-    nes/designers/graphics_bank_editor/cchrrombankitemdelegate.h \
-    nes/designers/graphics_bank_editor/graphicsbankeditorform.h \
-    designers/new_project/newprojectdialog.h \
-    designers/project_properties/cpropertyenumlistmodel.h \
-    designers/project_properties/cpropertylistmodel.h \
-    designers/project_properties/cpropertysymboldelegate.h \
-    designers/project_properties/cpropertyvaluedelegate.h \
-    designers/project_properties/projectpropertiesdialog.h \
-    designers/project_properties/propertyeditordialog.h \
-    nes/designers/tile_stamp_editor/ctilestamprenderer.h \
-    nes/designers/tile_stamp_editor/tilestampeditorform.h \
+    designers/codeeditorform.h \
+    designers/qscilexerca65.h \
+    designers/qscilexerdefault.h \
+    nes/designers/cchrrombankitemdelegate.h \
+    nes/designers/graphicsbankeditorform.h \
+    designers/newprojectdialog.h \
+    designers/cpropertyenumlistmodel.h \
+    designers/cpropertylistmodel.h \
+    designers/cpropertysymboldelegate.h \
+    designers/cpropertyvaluedelegate.h \
+    designers/projectpropertiesdialog.h \
+    designers/propertyeditordialog.h \
+    nes/designers/ctilestamprenderer.h \
+    nes/designers/tilestampeditorform.h \
     nes/emulator/nesemulatordockwidget.h \
     nes/emulator/nesemulatorrenderer.h \
     nes/emulator/nesemulatorthread.h \
@@ -420,13 +415,13 @@ FORMS += \
     nes/debuggers/ppuinformationdockwidget.ui \
     debuggers/registerinspectordockwidget.ui \
     debuggers/symbolwatchdockwidget.ui \
-    nes/designers/attribute_table_editor/attributetableeditorform.ui \
-    designers/code_editor/codeeditorform.ui \
-    nes/designers/graphics_bank_editor/graphicsbankeditorform.ui \
-    designers/new_project/newprojectdialog.ui \
-    designers/project_properties/projectpropertiesdialog.ui \
-    designers/project_properties/propertyeditordialog.ui \
-    nes/designers/tile_stamp_editor/tilestampeditorform.ui \
+    nes/designers/attributetableeditorform.ui \
+    designers/codeeditorform.ui \
+    nes/designers/graphicsbankeditorform.ui \
+    designers/newprojectdialog.ui \
+    designers/projectpropertiesdialog.ui \
+    designers/propertyeditordialog.ui \
+    nes/designers/tilestampeditorform.ui \
     nes/emulator/nesemulatordockwidget.ui \
     nes/emulator/emulatorprefsdialog.ui \
     environmentsettingsdialog.ui \
