@@ -10,10 +10,10 @@
 
 static char modelStringBuffer [ 2048 ];
 
-CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType display)
+CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(eMemoryType display,QObject*)
 {
    m_display = display;
-   m_tblRegisters = NULL;
+   m_dbRegisters = NULL;
 
    switch ( m_display )
    {
@@ -24,14 +24,17 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
       case eMemory_CPUregs:
          m_offset = 0; // bogus...
          m_length = 6; // bogus...
+         m_dbRegisters = nesGetCpuRegisterDatabase();
          break;
       case eMemory_PPUregs:
          m_offset = 0x2000;
          m_length = MEM_8KB; // it's really 8 bytes mirrored to 0x4000...
+         m_dbRegisters = nesGetPpuRegisterDatabase();
          break;
       case eMemory_IOregs:
          m_offset = 0x4000;
          m_length = 0x18; // this should perhaps be MEM_4KB or something else...mirroring?
+         m_dbRegisters = nesGetApuRegisterDatabase();
          break;
       case eMemory_cartSRAM:
          m_offset = 0;
@@ -52,6 +55,7 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
       case eMemory_cartMapper:
          m_offset = 0; // bogus...
          m_length = 0; // bogus...
+         m_dbRegisters = nesGetCartridgeRegisterDatabase();
          break;
       case eMemory_PPU:
          m_offset = 0x2000;
@@ -64,6 +68,7 @@ CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(QObject*, eMemoryType d
       case eMemory_PPUoam:
          m_offset = 0; // bogus...
          m_length = MEM_256B; // bogus...
+         m_dbRegisters = nesGetPpuOamRegisterDatabase();
          break;
    }
 }
@@ -139,6 +144,11 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
 
    if ( orientation == Qt::Horizontal )
    {
+      if ( m_dbRegisters )
+      {
+         sprintf(modelStringBuffer,m_dbRegisters->GetRegister(section)->GetName());
+      }
+
       switch ( m_display )
       {
          case eMemory_CPUregs:
@@ -189,9 +199,9 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
             break;
          case eMemory_cartMapper:
 
-            if ( m_tblRegisters )
+            if ( m_dbRegisters )
             {
-               sprintf ( modelStringBuffer, "%04X", m_tblRegisters[section]->GetAddr());
+               sprintf ( modelStringBuffer, "%04X", m_dbRegisters->GetRegister(section)->GetAddr());
             }
 
             break;
@@ -239,22 +249,22 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVar
             switch ( index.column() )
             {
                case CPU_PC:
-                  nesSetCPUProgramCounter(data);
+                  nesSetCPURegister(CPU_PC,data);
                   break;
                case CPU_A:
-                  nesSetCPUAccumulator(data);
+                  nesSetCPURegister(CPU_A,data);
                   break;
                case CPU_X:
-                  nesSetCPUIndexX(data);
+                  nesSetCPURegister(CPU_X,data);
                   break;
                case CPU_Y:
-                  nesSetCPUIndexY(data);
+                  nesSetCPURegister(CPU_Y,data);
                   break;
                case CPU_SP:
-                  nesSetCPUStackPointer(data);
+                  nesSetCPURegister(CPU_SP,data);
                   break;
                case CPU_F:
-                  nesSetCPUFlags(data);
+                  nesSetCPURegister(CPU_F,data);
                   break;
             }
 
@@ -281,13 +291,13 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVar
             nesSetCHRMEMData(m_offset+(index.row()<<4)+index.column(), data);
             break;
          case eMemory_cartMapper:
-            if ( m_tblRegisters[index.row()]->GetAddr() < MEM_32KB )
+            if ( m_dbRegisters->GetRegister(index.row())->GetAddr() < MEM_32KB )
             {
-               nesMapperLowWrite(m_tblRegisters[index.row()]->GetAddr(), data);
+               nesMapperLowWrite(m_dbRegisters->GetRegister(index.row())->GetAddr(), data);
             }
             else
             {
-               nesMapperHighWrite(m_tblRegisters[index.row()]->GetAddr(), data);
+               nesMapperHighWrite(m_dbRegisters->GetRegister(index.row())->GetAddr(), data);
             }
             break;
          case eMemory_PPU:
@@ -297,10 +307,9 @@ bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVar
             nesSetPPUMemory(m_offset+(index.row()<<2)+index.column(), data);
             break;
          case eMemory_PPUoam:
-            nesSetPPUOAM(index.column(), index.row(), data);
+            nesSetPPUOAM((index.row()*OAM_SIZE)+index.column(), data);
             break;
       }
-
       emit dataChanged(index,index);
    }
 
@@ -318,31 +327,31 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
             switch ( column )
             {
                case CPU_IRQ:
-                  return createIndex(row, column, (int)nesGetCPUVector(VECTOR_IRQ));
+                  return createIndex(row, column, (int)nesGetCPURegister(VECTOR_IRQ));
                   break;
                case CPU_NMI:
-                  return createIndex(row, column, (int)nesGetCPUVector(VECTOR_NMI));
+                  return createIndex(row, column, (int)nesGetCPURegister(VECTOR_NMI));
                   break;
                case CPU_RESET:
-                  return createIndex(row, column, (int)nesGetCPUVector(VECTOR_RESET));
+                  return createIndex(row, column, (int)nesGetCPURegister(VECTOR_RESET));
                   break;
                case CPU_PC:
-                  return createIndex(row, column, (int)nesGetCPUProgramCounter());
+                  return createIndex(row, column, (int)nesGetCPURegister(CPU_PC));
                   break;
                case CPU_A:
-                  return createIndex(row, column, (int)nesGetCPUAccumulator());
+                  return createIndex(row, column, (int)nesGetCPURegister(CPU_A));
                   break;
                case CPU_X:
-                  return createIndex(row, column, (int)nesGetCPUIndexX());
+                  return createIndex(row, column, (int)nesGetCPURegister(CPU_X));
                   break;
                case CPU_Y:
-                  return createIndex(row, column, (int)nesGetCPUIndexY());
+                  return createIndex(row, column, (int)nesGetCPURegister(CPU_Y));
                   break;
                case CPU_SP:
-                  return createIndex(row, column, (int)0x100|nesGetCPUStackPointer());
+                  return createIndex(row, column, (int)0x100|nesGetCPURegister(CPU_SP));
                   break;
                case CPU_F:
-                  return createIndex(row, column, (int)nesGetCPUFlags());
+                  return createIndex(row, column, (int)nesGetCPURegister(CPU_F));
                   break;
             }
 
@@ -369,15 +378,15 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
             return createIndex(row, column, (int)nesGetCHRMEMData(m_offset+(row<<4)+column));
             break;
          case eMemory_cartMapper:
-            if ( m_tblRegisters )
+            if ( m_dbRegisters )
             {
-               if ( m_tblRegisters[row]->GetAddr() < MEM_32KB )
+               if ( m_dbRegisters->GetRegister(row)->GetAddr() < MEM_32KB )
                {
-                  return createIndex(row, column, (int)nesMapperLowRead(m_tblRegisters[row]->GetAddr()));
+                  return createIndex(row, column, (int)nesMapperLowRead(m_dbRegisters->GetRegister(row)->GetAddr()));
                }
                else
                {
-                  return createIndex(row, column, (int)nesMapperHighRead(m_tblRegisters[row]->GetAddr()));
+                  return createIndex(row, column, (int)nesMapperHighRead(m_dbRegisters->GetRegister(row)->GetAddr()));
                }
             }
             else
@@ -392,7 +401,7 @@ QModelIndex CDebuggerMemoryDisplayModel::index(int row, int column, const QModel
             return createIndex(row, column, (int)nesGetPPUMemory(m_offset+(row<<2)+column));
             break;
          case eMemory_PPUoam:
-            return createIndex(row, column, (int)nesGetPPUOAM(column,row));
+            return createIndex(row, column, (int)nesGetPPUOAM((row*OAM_SIZE)+column));
             break;
       }
    }
@@ -429,7 +438,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex&) const
          return (MEM_8KB>>4);
          break;
       case eMemory_cartMapper:
-         return nesGetSizeOfCartridgeRegisterDatabase();
+         return nesGetCartridgeRegisterDatabase()->GetNumRegisters();
          break;
       case eMemory_PPU:
          return (MEM_4KB>>4);
@@ -459,7 +468,7 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex& parent) const
          break;
       case eMemory_cartMapper:
 
-         if ( m_tblRegisters )
+         if ( m_dbRegisters )
          {
             return 1;
          }
@@ -489,11 +498,5 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex& parent) const
 
 void CDebuggerMemoryDisplayModel::update()
 {
-   if ( m_display == eMemory_cartMapper )
-   {
-      // get the registers from the mapper just incase a cart has been loaded...
-      m_tblRegisters = nesGetCartridgeRegisterDatabase();
-   }
-
    emit dataChanged(QModelIndex(),QModelIndex());
 }

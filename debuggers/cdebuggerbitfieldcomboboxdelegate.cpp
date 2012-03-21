@@ -1,11 +1,11 @@
-#include "cdebuggerregistercomboboxdelegate.h"
+#include "cdebuggerbitfieldcomboboxdelegate.h"
 
-CDebuggerRegisterComboBoxDelegate::CDebuggerRegisterComboBoxDelegate()
+CDebuggerBitfieldComboBoxDelegate::CDebuggerBitfieldComboBoxDelegate()
    : m_pBitfield(NULL)
 {
 }
 
-QWidget* CDebuggerRegisterComboBoxDelegate::createEditor(QWidget* parent,
+QWidget* CDebuggerBitfieldComboBoxDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
       const QModelIndex& /* index */) const
 {
@@ -40,7 +40,7 @@ QWidget* CDebuggerRegisterComboBoxDelegate::createEditor(QWidget* parent,
    }
 }
 
-void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget* editor,
+void CDebuggerBitfieldComboBoxDelegate::setEditorData(QWidget* editor,
       const QModelIndex& index) const
 {
    // get register value from model...
@@ -75,7 +75,7 @@ void CDebuggerRegisterComboBoxDelegate::setEditorData(QWidget* editor,
    }
 }
 
-void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
+void CDebuggerBitfieldComboBoxDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
       const QModelIndex& index) const
 {
    // get register value from model...
@@ -110,7 +110,7 @@ void CDebuggerRegisterComboBoxDelegate::setModelData(QWidget* editor, QAbstractI
    }
 }
 
-void CDebuggerRegisterComboBoxDelegate::updateEditorGeometry(QWidget* editor,
+void CDebuggerBitfieldComboBoxDelegate::updateEditorGeometry(QWidget* editor,
       const QStyleOptionViewItem& option, const QModelIndex& /* index */) const
 {
    editor->setGeometry(option.rect);

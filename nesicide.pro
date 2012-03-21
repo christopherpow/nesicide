@@ -190,8 +190,8 @@ SOURCES += \
     debuggers/cdebuggerexecutiontracermodel.cpp \
     debuggers/cdebuggermemorydisplaymodel.cpp \
     debuggers/cdebuggernumericitemdelegate.cpp \
-    debuggers/cdebuggerregistercomboboxdelegate.cpp \
-    debuggers/cdebuggerregisterdisplaymodel.cpp \
+    debuggers/cdebuggerbitfieldcomboboxdelegate.cpp \
+    debuggers/cdebuggerbitfielddisplaymodel.cpp \
     debuggers/cdebuggersymboldelegate.cpp \
     debuggers/cexecutionmarkerdisplaymodel.cpp \
     nes/debuggers/chrmeminspector.cpp \
@@ -270,6 +270,7 @@ SOURCES += \
     nes/debuggers/prgromdisplaydialog.cpp \
     project/cprojecttreeview.cpp \
     project/cprojecttreeviewmodel.cpp \
+    debuggers/cdebuggerregisterdisplaymodel.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -310,8 +311,8 @@ HEADERS += \
     debuggers/cdebuggerexecutiontracermodel.h \
     debuggers/cdebuggermemorydisplaymodel.h \
     debuggers/cdebuggernumericitemdelegate.h \
-    debuggers/cdebuggerregistercomboboxdelegate.h \
-    debuggers/cdebuggerregisterdisplaymodel.h \
+    debuggers/cdebuggerbitfieldcomboboxdelegate.h \
+    debuggers/cdebuggerbitfielddisplaymodel.h \
     debuggers/cdebuggersymboldelegate.h \
     debuggers/cexecutionmarkerdisplaymodel.h \
     nes/debuggers/chrmeminspector.h \
@@ -393,6 +394,7 @@ HEADERS += \
     nes/debuggers/prgromdisplaydialog.h \
     project/cprojecttreeview.h \
     project/cprojecttreeviewmodel.h \
+    debuggers/cdebuggerregisterdisplaymodel.h
 
 FORMS += \
     aboutdialog.ui \

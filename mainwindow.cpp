@@ -192,7 +192,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pCodeDataLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
 
-   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(eMemory_CPUregs);
+   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(nesGetCpuRegisterDatabase);
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
@@ -228,7 +228,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
 
-   m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(eMemory_PPUregs);
+   m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(nesGetPpuRegisterDatabase);
    m_pBinPPURegisterInspector->setObjectName("ppuRegisterInspector");
    m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPURegisterInspector );
@@ -244,7 +244,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pPPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PPU Information", m_pPPUInformationInspector );
 
-   m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(eMemory_IOregs);
+   m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(nesGetApuRegisterDatabase);
    m_pBinAPURegisterInspector->setObjectName("apuRegisterInspector");
    m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinAPURegisterInspector );
@@ -269,7 +269,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
 
-   m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(eMemory_PPUoam);
+   m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(nesGetPpuOamRegisterDatabase);
    m_pBinOAMMemoryInspector->setObjectName("oamMemoryInspector");
    m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinOAMMemoryInspector );
@@ -312,7 +312,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pMapperInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
-   m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(eMemory_cartMapper);
+   m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(nesGetCartridgeRegisterDatabase);
    m_pBinMapperMemoryInspector->setObjectName("cartMapperRegisterInspector");
    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );

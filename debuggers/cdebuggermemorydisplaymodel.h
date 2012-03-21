@@ -11,7 +11,7 @@ class CDebuggerMemoryDisplayModel : public QAbstractTableModel
 {
    Q_OBJECT
 public:
-   CDebuggerMemoryDisplayModel(QObject* parent, eMemoryType display);
+   CDebuggerMemoryDisplayModel(eMemoryType display,QObject* parent = 0);
    virtual ~CDebuggerMemoryDisplayModel();
    QVariant data(const QModelIndex& index, int role) const;
    Qt::ItemFlags flags(const QModelIndex& index) const;
@@ -34,7 +34,7 @@ public:
    {
       return m_offset+m_length-1;
    }
-   
+
 public slots:
    void update(void);
 
@@ -42,7 +42,7 @@ private:
    eMemoryType m_display;
    int m_offset;
    int m_length;
-   CRegisterData** m_tblRegisters;
+   CRegisterDatabase* m_dbRegisters;
 };
 
 #endif // CDEBUGGERMEMORYDISPLAYMODEL_H

@@ -1,16 +1,16 @@
-#ifndef CDEBUGGERREGISTERCOMBOBOXDELEGATE_H
-#define CDEBUGGERREGISTERCOMBOBOXDELEGATE_H
+#ifndef CDEBUGGERBITFIELDCOMBOBOXDELEGATE_H
+#define CDEBUGGERBITFIELDCOMBOBOXDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QComboBox>
 #include <QLineEdit>
 #include "cregisterdata.h"
 
-class CDebuggerRegisterComboBoxDelegate : public QStyledItemDelegate
+class CDebuggerBitfieldComboBoxDelegate : public QStyledItemDelegate
 {
    Q_OBJECT
 public:
-   CDebuggerRegisterComboBoxDelegate();
+   CDebuggerBitfieldComboBoxDelegate();
 
    void setBitfield ( CBitfieldData* pBitfield )
    {
@@ -29,4 +29,4 @@ private:
    CBitfieldData* m_pBitfield;
 };
 
-#endif // CDEBUGGERREGISTERCOMBOBOXDELEGATE_H
+#endif // CDEBUGGERBITFIELDCOMBOBOXDELEGATE_H

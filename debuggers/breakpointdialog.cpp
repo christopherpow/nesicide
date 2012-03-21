@@ -106,9 +106,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->reg->clear();
          ui->bitfield->clear();
 
-         for ( idx = 0; idx < NUM_CPU_REGISTERS; idx++ )
+         for ( idx = 0; idx < nesGetCpuRegisterDatabase()->GetNumRegisters(); idx++ )
          {
-            ui->reg->addItem ( nesGetCpuRegisterDatabase()[idx]->GetName() );
+            ui->reg->addItem ( nesGetCpuRegisterDatabase()->GetRegister(idx)->GetName() );
          }
 
          break;
@@ -141,9 +141,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->reg->clear();
          ui->bitfield->clear();
 
-         for ( idx = 0; idx < NUM_PPU_REGISTERS; idx++ )
+         for ( idx = 0; idx < nesGetPpuRegisterDatabase()->GetNumRegisters(); idx++ )
          {
-            ui->reg->addItem ( nesGetPpuRegisterDatabase()[idx]->GetName() );
+            ui->reg->addItem ( nesGetPpuRegisterDatabase()->GetRegister(idx)->GetName() );
          }
 
          break;
@@ -170,9 +170,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->reg->clear();
          ui->bitfield->clear();
 
-         for ( idx = 0; idx < NUM_APU_REGISTERS; idx++ )
+         for ( idx = 0; idx < nesGetApuRegisterDatabase()->GetNumRegisters(); idx++ )
          {
-            ui->reg->addItem ( nesGetApuRegisterDatabase()[idx]->GetName() );
+            ui->reg->addItem ( nesGetApuRegisterDatabase()->GetRegister(idx)->GetName() );
          }
 
          break;
@@ -201,9 +201,9 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
 
          if ( nesGetCartridgeRegisterDatabase() )
          {
-            for ( idx = 0; idx < nesGetSizeOfCartridgeRegisterDatabase(); idx++ )
+            for ( idx = 0; idx < nesGetCartridgeRegisterDatabase()->GetNumRegisters(); idx++ )
             {
-               ui->reg->addItem ( nesGetCartridgeRegisterDatabase()[idx]->GetName() );
+               ui->reg->addItem ( nesGetCartridgeRegisterDatabase()->GetRegister(idx)->GetName() );
             }
          }
          break;
@@ -234,19 +234,19 @@ void BreakpointDialog::on_reg_currentIndexChanged(int index)
       switch ( ui->type->currentIndex() )
       {
          case eBreakOnCPUState:
-            m_pRegister = nesGetCpuRegisterDatabase() [ ui->reg->currentIndex() ];
+            m_pRegister = nesGetCpuRegisterDatabase()->GetRegister(ui->reg->currentIndex());
             break;
          case eBreakOnPPUState:
-            m_pRegister = nesGetPpuRegisterDatabase() [ ui->reg->currentIndex() ];
+            m_pRegister = nesGetPpuRegisterDatabase()->GetRegister(ui->reg->currentIndex());
             break;
          case eBreakOnAPUState:
-            m_pRegister = nesGetApuRegisterDatabase() [ ui->reg->currentIndex() ];
+            m_pRegister = nesGetApuRegisterDatabase()->GetRegister(ui->reg->currentIndex());
             break;
          case eBreakOnMapperState:
 
-            if ( nesGetSizeOfCartridgeRegisterDatabase() > 0 )
+            if ( nesGetCartridgeRegisterDatabase()->GetNumRegisters() > 0 )
             {
-               m_pRegister = nesGetCartridgeRegisterDatabase() [ ui->reg->currentIndex() ];
+               m_pRegister = nesGetCartridgeRegisterDatabase()->GetRegister(ui->reg->currentIndex());
             }
             else
             {

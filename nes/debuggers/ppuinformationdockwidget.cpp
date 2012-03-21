@@ -76,7 +76,7 @@ void PPUInformationDockWidget::updateInformation()
       sprintf ( buffer, "%02X", nesGetPPUOAMAddress() );
       ui->oamAddress->setText(buffer);
 
-      sprintf ( buffer, "%02X", nesGetPPUOAM(nesGetPPUOAMAddress()&3,nesGetPPUOAMAddress()>>2) );
+      sprintf ( buffer, "%02X", nesGetPPUOAM(nesGetPPUOAMAddress()) );
       ui->oamData->setText(buffer);
 
       nesGetCurrentScroll(&x,&y);

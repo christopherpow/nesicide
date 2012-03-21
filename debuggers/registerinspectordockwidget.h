@@ -3,9 +3,9 @@
 
 #include "cdebuggerbase.h"
 
-#include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggerregisterdisplaymodel.h"
-#include "cdebuggerregistercomboboxdelegate.h"
+#include "cdebuggerbitfielddisplaymodel.h"
+#include "cdebuggerbitfieldcomboboxdelegate.h"
 #include "cdebuggernumericitemdelegate.h"
 #include "cregisterdata.h"
 
@@ -18,7 +18,7 @@ class RegisterInspectorDockWidget : public CDebuggerBase
    Q_OBJECT
 
 public:
-   explicit RegisterInspectorDockWidget(eMemoryType display = eMemory_IOregs, QWidget *parent = 0);
+   RegisterInspectorDockWidget(regDBFunc regDB,QWidget *parent = 0);
    virtual ~RegisterInspectorDockWidget();
 
 protected:
@@ -32,13 +32,12 @@ public slots:
 
 private:
    Ui::RegisterInspectorDockWidget *ui;
-   CDebuggerMemoryDisplayModel* binaryModel;
-   CDebuggerRegisterDisplayModel* bitfieldModel;
-   CDebuggerRegisterComboBoxDelegate* bitfieldDelegate;
+   CDebuggerRegisterDisplayModel* binaryModel;
+   CDebuggerBitfieldDisplayModel* bitfieldModel;
+   CDebuggerBitfieldComboBoxDelegate* bitfieldDelegate;
    CDebuggerNumericItemDelegate* binaryDelegate;
-   CRegisterData** m_tblRegisters;
-   eMemoryType m_display;
-   int m_register;
+   regDBFunc m_regDB;
+   int       m_register;
 
 private slots:
    void on_binaryView_entered(QModelIndex index);

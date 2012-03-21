@@ -1,33 +1,36 @@
-#ifndef CDEBUGGERREGISTERDISPLAYMODEL_H
-#define CDEBUGGERREGISTERDISPLAYMODEL_H
+#ifndef CDEBUGGERBITFIELDDISPLAYMODEL_H
+#define CDEBUGGERBITFIELDDISPLAYMODEL_H
 
-#include <QAbstractTableModel>
-
-#include "emulator_core.h"
+#include <QAbstractItemModel>
 
 #include "cregisterdata.h"
 
-class CDebuggerRegisterDisplayModel : public QAbstractTableModel
+class CDebuggerBitfieldDisplayModel : public QAbstractTableModel
 {
    Q_OBJECT
 public:
-   CDebuggerRegisterDisplayModel(regDBFunc regDB,QObject* parent = 0);
-   virtual ~CDebuggerRegisterDisplayModel();
+   CDebuggerBitfieldDisplayModel(regDBFunc regDB,QObject* parent = 0);
+   virtual ~CDebuggerBitfieldDisplayModel();
    QVariant data(const QModelIndex& index, int role) const;
    Qt::ItemFlags flags(const QModelIndex& index) const;
-   bool setData ( const QModelIndex& index, const QVariant& value, int );
+   bool setData ( const QModelIndex& index, const QVariant& value, int role);
    QVariant headerData(int section, Qt::Orientation orientation,
                        int role = Qt::DisplayRole) const;
    QModelIndex index(int row, int column,
                      const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
+   void setRegister ( int newRegister )
+   {
+      m_register = newRegister;
+   }
 
 public slots:
    void update(void);
 
 private:
    regDBFunc m_regDB;
+   int       m_register;
 };
 
-#endif // CDEBUGGERREGISTERDISPLAYMODEL_H
+#endif // CDEBUGGERBITFIELDDISPLAYMODEL_H

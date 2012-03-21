@@ -15,7 +15,7 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidge
 {
    ui->setupUi(this);
 
-   model = new CDebuggerMemoryDisplayModel(this,display);
+   model = new CDebuggerMemoryDisplayModel(display);
    delegate = new CDebuggerNumericItemDelegate();
    ui->tableView->setModel(model);
    ui->tableView->setItemDelegate(delegate);

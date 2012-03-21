@@ -221,7 +221,7 @@ void NESEmulatorThread::stepCPUEmulation ()
 
    // Check if we have an end address to stop at from a debug information file.
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
-   addr = nesGetCPUProgramCounter();
+   addr = nesGetCPURegister(CPU_PC);
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
    endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
 
@@ -267,7 +267,7 @@ void NESEmulatorThread::stepOverCPUEmulation ()
 
    // Check if we have an end address to stop at from a debug information file.
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
-   addr = nesGetCPUProgramCounter();
+   addr = nesGetCPURegister(CPU_PC);
    absAddr = nesGetAbsoluteAddressFromAddress(addr);
    endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
 
@@ -662,12 +662,12 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    // Serialize the CPU registers.
    QDomElement cpuRegsElement = addElement(doc,cpuElement,"registers");
 
-   cpuRegsElement.setAttribute("pc",nesGetCPUProgramCounter());
-   cpuRegsElement.setAttribute("sp",nesGetCPUStackPointer());
-   cpuRegsElement.setAttribute("a",nesGetCPUAccumulator());
-   cpuRegsElement.setAttribute("x",nesGetCPUIndexX());
-   cpuRegsElement.setAttribute("y",nesGetCPUIndexY());
-   cpuRegsElement.setAttribute("f",nesGetCPUFlags());
+   cpuRegsElement.setAttribute("pc",nesGetCPURegister(CPU_PC));
+   cpuRegsElement.setAttribute("sp",nesGetCPURegister(CPU_SP));
+   cpuRegsElement.setAttribute("a",nesGetCPURegister(CPU_A));
+   cpuRegsElement.setAttribute("x",nesGetCPURegister(CPU_X));
+   cpuRegsElement.setAttribute("y",nesGetCPURegister(CPU_Y));
+   cpuRegsElement.setAttribute("f",nesGetCPURegister(CPU_F));
 
    // Serialize the CPU memory.
    QDomElement cpuMemElement = addElement(doc,cpuElement,"memory");
@@ -719,7 +719,7 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    ppuMem.clear();
    for ( idx = 0; idx < MEM_256B; idx++ )
    {
-      sprintf(byte,"%02X",nesGetPPUOAM(idx&3,idx>>2));
+      sprintf(byte,"%02X",nesGetPPUOAM(idx));
       ppuMem += byte;
    }
    ppuOamMemDataSect = doc.createCDATASection(ppuMem);
@@ -940,7 +940,7 @@ bool NESEmulatorThread::deserializeContent(QFile& fileIn)
       str += fileIn.fileName();
       str += "\n\nis not 64KB in size and may not be\n";
       str += "valid.  Game save data may be lost.";
-      QMessageBox::warning(0,"Save file corrupted?",str);
+//      QMessageBox::warning(0,"Save file corrupted?",str);
       bytes.truncate(MEM_64KB);
    }
 
