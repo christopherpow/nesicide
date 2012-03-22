@@ -16,7 +16,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankI
 
    ui->setupUi(this);
 
-   info = new QLabel();
+   info = new QLabel(this);
 
    pLeftThread = new TilificationThread(LEFT);
    QObject::connect(this,SIGNAL(prepareToTilify(int)),pLeftThread,SLOT(prepareToTilify(int)));
@@ -79,7 +79,11 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankI
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()
 {
-   delete info;
+   if ( info->parent() == this )
+   {
+      delete info;
+   }
+
    delete ui;
    delete leftModel;
    delete rightModel;

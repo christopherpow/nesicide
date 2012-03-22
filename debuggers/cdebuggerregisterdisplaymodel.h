@@ -3,8 +3,6 @@
 
 #include <QAbstractTableModel>
 
-#include "emulator_core.h"
-
 #include "cregisterdata.h"
 
 class CDebuggerRegisterDisplayModel : public QAbstractTableModel

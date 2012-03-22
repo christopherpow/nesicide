@@ -183,7 +183,10 @@ CodeEditorForm::~CodeEditorForm()
 {
    delete ui;
 
-   delete info;
+   if ( info->parent() == this )
+   {
+      delete info;
+   }
 
    delete m_lexer;
    delete m_scintilla;

@@ -1,7 +1,5 @@
 #include "cdebuggerbitfielddisplaymodel.h"
 
-#include "emulator_core.h"
-
 static char modelStringBuffer [ 2048 ];
 
 CDebuggerBitfieldDisplayModel::CDebuggerBitfieldDisplayModel(regDBFunc regDB,QObject*)

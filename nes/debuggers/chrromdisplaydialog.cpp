@@ -15,7 +15,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    ui->setupUi(this);
 
-   info = new QLabel();
+   info = new QLabel(this);
 
    imgData = new char[256*256*4];
 
@@ -69,7 +69,11 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
 CHRROMDisplayDialog::~CHRROMDisplayDialog()
 {
-   delete info;
+   if ( info->parent() == this )
+   {
+      delete info;
+   }
+
    delete ui;
    delete imgData;
    delete renderer;

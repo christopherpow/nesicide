@@ -9,13 +9,13 @@
 
 #include <QMessageBox>
 
-MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidget *parent) :
+MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB, QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::MemoryInspectorDockWidget)
 {
    ui->setupUi(this);
 
-   model = new CDebuggerMemoryDisplayModel(display);
+   model = new CDebuggerMemoryDisplayModel(memDB);
    delegate = new CDebuggerNumericItemDelegate();
    ui->tableView->setModel(model);
    ui->tableView->setItemDelegate(delegate);
@@ -29,7 +29,7 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(eMemoryType display, QWidge
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
 
-   m_display = display;
+   m_memDB = memDB;
 }
 
 MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
@@ -55,20 +55,9 @@ void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
 {
    QMenu menu;
 
-   switch ( m_display )
-   {
-      case eMemory_CPU:
-      case eMemory_cartROM:
-      case eMemory_cartSRAM:
-      case eMemory_cartEXRAM:
-      case eMemory_cartMapper:
-         menu.addAction(ui->actionBreak_on_CPU_access_here);
-         menu.addAction(ui->actionBreak_on_CPU_read_here);
-         menu.addAction(ui->actionBreak_on_CPU_write_here);
-         break;
-      default:
-         break;
-   }
+   menu.addAction(ui->actionBreak_on_CPU_access_here);
+   menu.addAction(ui->actionBreak_on_CPU_read_here);
+   menu.addAction(ui->actionBreak_on_CPU_write_here);
 
    menu.exec(e->globalPos());
 
@@ -91,6 +80,7 @@ void MemoryInspectorDockWidget::changeEvent(QEvent* e)
 
 void MemoryInspectorDockWidget::updateMemory ()
 {
+#if 0
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    eMemoryType memoryType = model->memoryType();
    int idx;
@@ -143,6 +133,7 @@ void MemoryInspectorDockWidget::updateMemory ()
          }
       }
    }
+#endif
 }
 
 void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
@@ -151,7 +142,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = model->memoryBottom()+(row*model->columnCount())+col;
+   int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
    int bpIdx;
 
    bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
@@ -180,7 +171,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = model->memoryBottom()+(row*model->columnCount())+col;
+   int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
    int bpIdx;
 
    bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
@@ -209,7 +200,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = model->memoryBottom()+(row*model->columnCount())+col;
+   int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
    int bpIdx;
 
    bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,

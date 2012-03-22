@@ -11,6 +11,22 @@ PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem*
    ui->setupUi(this);
 
    m_data = bankData;
+
+   if ( m_data )
+   {
+      QString rt;
+      char    temp[4];
+
+      for (int i=0; i<MEM_8KB; i++)
+      {
+         char l = (m_data[i]>>4)&0x0F;
+         char r = m_data[i]&0x0F;
+         sprintf(temp,"%01X%01X ",l,r);
+         rt.append(temp);
+      }
+
+      ui->textBrowser->setText(rt);
+   }
 }
 
 PRGROMDisplayDialog::~PRGROMDisplayDialog()
@@ -34,21 +50,6 @@ void PRGROMDisplayDialog::changeEvent(QEvent* e)
 
 void PRGROMDisplayDialog::showEvent(QShowEvent* e)
 {
-   if ( m_data )
-   {
-      QString rt;
-      char    temp[4];
-
-      for (int i=0; i<MEM_8KB; i++)
-      {
-         char l = (m_data[i]>>4)&0x0F;
-         char r = m_data[i]&0x0F;
-         sprintf(temp,"%01X%01X ",l,r);
-         rt.append(temp);
-      }
-
-      ui->textBrowser->setText(rt);
-   }
 }
 
 void PRGROMDisplayDialog::applyProjectPropertiesToTab()

@@ -201,7 +201,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
-   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(eMemory_CPU);
+   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(nesGetCpuMemoryDatabase);
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
@@ -210,7 +210,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
-   m_pBinROMInspector = new MemoryInspectorDockWidget(eMemory_cartROM);
+   m_pBinROMInspector = new MemoryInspectorDockWidget(nesGetCartridgePRGROMMemoryDatabase);
    m_pBinROMInspector->setObjectName("cartPRGROMMemoryInspector");
    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
@@ -219,7 +219,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinROMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
 
-   m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(eMemory_PPU);
+   m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase);
    m_pBinNameTableMemoryInspector->setObjectName("ppuNameTableMemoryInspector");
    m_pBinNameTableMemoryInspector->setWindowTitle("NameTable Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
@@ -260,7 +260,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pAPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "APU Information", m_pAPUInformationInspector );
 
-   m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartCHRMEM);
+   m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeCHRMemoryDatabase);
    m_pBinCHRMemoryInspector->setObjectName("chrMemoryInspector");
    m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCHRMemoryInspector );
@@ -278,7 +278,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
 
-   m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(eMemory_PPUpalette);
+   m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuPaletteMemoryDatabase);
    m_pBinPaletteMemoryInspector->setObjectName("ppuPaletteMemoryInspector");
    m_pBinPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPaletteMemoryInspector );
@@ -287,7 +287,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinPaletteMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
 
-   m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartSRAM);
+   m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeSRAMMemoryDatabase);
    m_pBinSRAMMemoryInspector->setObjectName("cartSRAMMemoryInspector");
    m_pBinSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
@@ -296,7 +296,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinSRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
 
-   m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(eMemory_cartEXRAM);
+   m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeEXRAMMemoryDatabase);
    m_pBinEXRAMMemoryInspector->setObjectName("cartEXRAMMemoryInspector");
    m_pBinEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );

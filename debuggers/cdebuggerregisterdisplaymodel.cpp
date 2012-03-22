@@ -1,7 +1,5 @@
 #include "cdebuggerregisterdisplaymodel.h"
 
-#include "emulator_core.h"
-
 static char modelStringBuffer [ 2048 ];
 
 CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(regDBFunc regDB,QObject*)

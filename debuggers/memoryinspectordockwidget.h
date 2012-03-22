@@ -5,7 +5,7 @@
 
 #include "cdebuggermemorydisplaymodel.h"
 #include "cdebuggernumericitemdelegate.h"
-#include "cregisterdata.h"
+#include "cmemorydata.h"
 
 namespace Ui {
     class MemoryInspectorDockWidget;
@@ -16,7 +16,7 @@ class MemoryInspectorDockWidget : public CDebuggerBase
    Q_OBJECT
 
 public:
-   explicit MemoryInspectorDockWidget(eMemoryType display = eMemory_CPU, QWidget *parent = 0);
+   explicit MemoryInspectorDockWidget(memDBFunc memDB, QWidget *parent = 0);
    virtual ~MemoryInspectorDockWidget();
 
 protected:
@@ -35,7 +35,7 @@ private:
    Ui::MemoryInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* model;
    CDebuggerNumericItemDelegate* delegate;
-   eMemoryType m_display;
+   memDBFunc m_memDB;
 
 private slots:
    void on_actionBreak_on_CPU_write_here_triggered();
