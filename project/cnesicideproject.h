@@ -34,6 +34,7 @@ public:
 
    // Member Getters
    bool isInitialized() const { return m_isInitialized; }
+   QString getProjectTarget() { return m_projectTarget; }
    QString getProjectTitle() { return m_projectTitle; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
@@ -66,6 +67,7 @@ public:
    CProject* getProject() { return m_pProject; }
 
    // Member Setters
+   void setProjectTarget(QString value) { m_projectTarget = value; }
    void setProjectTitle(QString value)
    {
       m_projectTitle = value;
@@ -127,6 +129,7 @@ private:
 
    // Attributes
    // The visible title of the project
+   QString m_projectTarget;
    QString m_projectTitle;
    QString m_projectOutputBasePath;
    QString m_projectOutputName;
@@ -160,6 +163,9 @@ private:
    QList<CPaletteEntry> m_projectPaletteEntries;                 // List of palette entries for the emulator.
    CProject*            m_pProject;
    CCartridge*          m_pCartridge;
+
+signals:
+   void createTarget(QString target);
 };
 
 #endif // CNESICIDEPROJECT_H

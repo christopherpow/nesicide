@@ -1,7 +1,7 @@
 #include "registerinspectordockwidget.h"
 #include "ui_registerinspectordockwidget.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "dbg_cnesmappers.h"
 

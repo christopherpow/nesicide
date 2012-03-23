@@ -1,7 +1,7 @@
 #include "mapperinformationdockwidget.h"
 #include "ui_mapperinformationdockwidget.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "dbg_cnesmappers.h"
 

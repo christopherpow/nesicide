@@ -12,7 +12,7 @@ TARGET = "nesicide"
 CONFIG -= exceptions
 
 isEmpty (NESICIDE_LIBS) {
-   NESICIDE_LIBS = -lnesicide-emulator
+   NESICIDE_LIBS = -lnes-emulator
 }
 
 isEmpty (SCINTILLA_LIBS) {
@@ -38,20 +38,20 @@ win32 {
    LUA_CXXFLAGS = -I../nesicide/libraries/Lua
    LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
 
-   NESICIDE_CXXFLAGS = -I../nesicide-emulator-lib -I../nesicide-emulator-lib/emulator -I../nesicide-emulator-lib/common
+   NESICIDE_CXXFLAGS = -I../nes-emulator-lib -I../nes-emulator-lib/emulator -I../nes-emulator-lib/common
 
    QMAKE_LFLAGS += -static-libgcc
 
    CONFIG(release, debug|release) {
-      NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop/release -lnesicide-emulator
+      NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop/release -lnes-emulator
    } else {
-      NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop/debug -lnesicide-emulator
+      NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop/debug -lnes-emulator
    }
 }
 
 mac {
-   NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator -I ../nesicide-emulator-lib/common
-   NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
+   NESICIDE_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
+   NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
 
    SDL_CXXFLAGS = -framework SDL
    SDL_LIBS = -framework SDL
@@ -70,18 +70,18 @@ mac {
    TARGET = "NESICIDE"
 
    QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
-   QMAKE_POST_LINK += cp ../nesicide-emulator-lib-build-desktop/libnesicide-emulator.1.0.0.dylib \
-      $$TARGET.app/Contents/Frameworks/libnesicide-emulator.1.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libnesicide-emulator.1.dylib \
-      @executable_path/../Frameworks/libnesicide-emulator.1.dylib \
+   QMAKE_POST_LINK += cp ../nes-emulator-lib-build-desktop/libnes-emulator.1.0.0.dylib \
+      $$TARGET.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
+      @executable_path/../Frameworks/libnes-emulator.1.dylib \
       $$TARGET.app/Contents/MacOS/NESICIDE $$escape_expand(\n\t)
    QMAKE_POST_LINK += cp -r ../Lua.framework \
       $$TARGET.app/Contents/Frameworks/ $$escape_expand(\n\t)
 }
 
 unix:!mac {
-   NESICIDE_CXXFLAGS = -I ../nesicide-emulator-lib -I ../nesicide-emulator-lib/emulator -I ../nesicide-emulator-lib/common
-   NESICIDE_LIBS = -L../nesicide-emulator-lib-build-desktop -lnesicide-emulator
+   NESICIDE_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
+   NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################

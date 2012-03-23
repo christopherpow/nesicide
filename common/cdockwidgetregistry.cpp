@@ -22,6 +22,11 @@ void CDockWidgetRegistry::addWidget(const QString& name, QWidget* widget, bool v
    widgets.insert ( name, pDockWidgetManager );
 }
 
+void CDockWidgetRegistry::removeWidget(const QString &name)
+{
+   widgets.remove(name);
+}
+
 void CDockWidgetRegistry::hideAll()
 {
    QHash<QString,CDockWidgetManager*>::const_iterator i;

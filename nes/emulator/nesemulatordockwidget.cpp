@@ -5,7 +5,7 @@
 
 #include "emulatorprefsdialog.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
     QDockWidget(parent),

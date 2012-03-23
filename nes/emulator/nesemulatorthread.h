@@ -6,7 +6,7 @@
 
 #include "ixmlserializable.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "ccartridge.h"
 

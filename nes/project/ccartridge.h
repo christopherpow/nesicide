@@ -1,7 +1,7 @@
 #ifndef CCARTRIDGE_H
 #define CCARTRIDGE_H
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 #include "cprojectbase.h"
 #include "cprgrombanks.h"
 #include "cchrrombanks.h"

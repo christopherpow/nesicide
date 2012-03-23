@@ -148,93 +148,16 @@
     <property name="title">
      <string>Debugger</string>
     </property>
-    <widget class="QMenu" name="menuCPU_Inspectors">
-     <property name="title">
-      <string>CPU</string>
-     </property>
-     <addaction name="actionBinCPURegister_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionBinCPURAM_Inspector"/>
-    </widget>
-    <widget class="QMenu" name="menuAPU_Inpsectors">
-     <property name="title">
-      <string>APU</string>
-     </property>
-     <addaction name="actionAPUInformation_Inspector"/>
-     <addaction name="actionBinAPURegister_Inspector"/>
-    </widget>
-    <widget class="QMenu" name="menuPPU_Inspectors">
-     <property name="title">
-      <string>PPU</string>
-     </property>
-     <addaction name="actionPPUInformation_Inspector"/>
-     <addaction name="actionBinPPURegister_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionBinNameTableMemory_Inspector"/>
-     <addaction name="actionBinPaletteMemory_Inspector"/>
-     <addaction name="actionBinOAMMemory_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionGfxNameTableMemory_Inspector"/>
-     <addaction name="actionGfxOAMMemory_Inspector"/>
-    </widget>
-    <widget class="QMenu" name="menuCartridge_Inspectors">
-     <property name="title">
-      <string>Cartridge</string>
-     </property>
-     <addaction name="actionMapperInformation_Inspector"/>
-     <addaction name="actionBinMapperMemory_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionBinCHRMemory_Inspector"/>
-     <addaction name="actionBinEXRAMMemory_Inspector"/>
-     <addaction name="actionBinSRAMMemory_Inspector"/>
-     <addaction name="actionBinROM_Inspector"/>
-     <addaction name="separator"/>
-     <addaction name="actionGfxCHRMemory_Inspector"/>
-    </widget>
     <addaction name="actionExecution_Inspector"/>
     <addaction name="actionAssembly_Inspector"/>
     <addaction name="actionBreakpoint_Inspector"/>
     <addaction name="actionCode_Profiler"/>
     <addaction name="actionSymbol_Watch"/>
-    <addaction name="separator"/>
-    <addaction name="actionExecution_Visualizer_Inspector"/>
-    <addaction name="actionCodeDataLogger_Inspector"/>
-    <addaction name="separator"/>
-    <addaction name="menuCPU_Inspectors"/>
-    <addaction name="menuPPU_Inspectors"/>
-    <addaction name="menuAPU_Inpsectors"/>
-    <addaction name="actionI_O"/>
-    <addaction name="menuCartridge_Inspectors"/>
    </widget>
    <widget class="QMenu" name="menuEmulator">
     <property name="title">
      <string>Emulator</string>
     </property>
-    <widget class="QMenu" name="menuVideo">
-     <property name="title">
-      <string>System</string>
-     </property>
-     <addaction name="actionNTSC"/>
-     <addaction name="actionPAL"/>
-    </widget>
-    <widget class="QMenu" name="menuAudio">
-     <property name="title">
-      <string>Audio</string>
-     </property>
-     <addaction name="actionMute_All"/>
-     <addaction name="separator"/>
-     <addaction name="actionSquare_1"/>
-     <addaction name="actionSquare_2"/>
-     <addaction name="actionTriangle"/>
-     <addaction name="actionNoise"/>
-     <addaction name="actionDelta_Modulation"/>
-    </widget>
-    <addaction name="menuVideo"/>
-    <addaction name="menuAudio"/>
-    <addaction name="actionFullscreen"/>
-    <addaction name="separator"/>
-    <addaction name="actionRun_Test_Suite"/>
-    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menu_File">
@@ -274,9 +197,7 @@
      <string>View</string>
     </property>
     <addaction name="action_Project_Browser"/>
-    <addaction name="separator"/>
     <addaction name="actionOutput_Window"/>
-    <addaction name="actionEmulation_Window"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -344,25 +265,13 @@
    <addaction name="action_Project_Browser"/>
    <addaction name="separator"/>
    <addaction name="actionOutput_Window"/>
-   <addaction name="actionEmulation_Window"/>
    <addaction name="separator"/>
    <addaction name="actionProject_Properties"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar">
+  <widget class="QStatusBar" name="appStatusBar">
    <property name="sizeGripEnabled">
     <bool>true</bool>
    </property>
-  </widget>
-  <widget class="QToolBar" name="debuggerToolbar">
-   <property name="windowTitle">
-    <string>Emulator Controls</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
   <widget class="QToolBar" name="searchToolBar">
    <property name="windowTitle">
@@ -451,18 +360,6 @@
     <string>&amp;Project Browser</string>
    </property>
   </action>
-  <action name="actionNew_Palette">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/style.png</normaloff>:/resources/style.png</iconset>
-   </property>
-   <property name="text">
-    <string>New Palette</string>
-   </property>
-   <property name="toolTip">
-    <string>Create a new Palette</string>
-   </property>
-  </action>
   <action name="actionProject_Properties">
    <property name="icon">
     <iconset resource="resource.qrc">
@@ -484,24 +381,6 @@
    </property>
    <property name="toolTip">
     <string>Create project from a ROM</string>
-   </property>
-  </action>
-  <action name="actionEmulation_Window">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/controller.png</normaloff>:/resources/controller.png</iconset>
-   </property>
-   <property name="text">
-    <string>Emulator</string>
-   </property>
-   <property name="toolTip">
-    <string>Emulator</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionSave_Active_Document">
@@ -546,51 +425,6 @@
     <string>F5</string>
    </property>
   </action>
-  <action name="actionGfxCHRMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_chr_mem.png</normaloff>:/resources/22_chr_mem.png</iconset>
-   </property>
-   <property name="text">
-    <string>CHR Memory Visualizer</string>
-   </property>
-   <property name="toolTip">
-    <string>Graphical CHR Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionGfxOAMMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>OAM Visualizer</string>
-   </property>
-   <property name="toolTip">
-    <string>Graphical OAM Inspector</string>
-   </property>
-  </action>
-  <action name="actionGfxNameTableMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_nametable.png</normaloff>:/resources/22_nametable.png</iconset>
-   </property>
-   <property name="text">
-    <string>NameTable Visualizer</string>
-   </property>
-   <property name="toolTip">
-    <string>Graphical NameTable Inspector</string>
-   </property>
-  </action>
   <action name="actionExecution_Inspector">
    <property name="checkable">
     <bool>true</bool>
@@ -604,186 +438,6 @@
    </property>
    <property name="toolTip">
     <string>Execution Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinCPURAM_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_cpu_ram.png</normaloff>:/resources/22_cpu_ram.png</iconset>
-   </property>
-   <property name="text">
-    <string>CPU RAM Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>CPU RAM Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinNameTableMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>NameTable Memory Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>NameTable Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinPPURegister_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>PPU Register Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>PPU Register Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinAPURegister_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>APU Register Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>APU Register Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinCHRMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>CHR Memory Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>CHR Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinOAMMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>OAM Memory Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>OAM Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinPaletteMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>Palette Memory Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>Palette Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinSRAMMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge SRAM Memory Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>Cartridge SRAM Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinEXRAMMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge EXRAM Memory Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>Cartridge EXRAM Memory Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinCPURegister_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_cpu_registers.png</normaloff>:/resources/22_cpu_registers.png</iconset>
-   </property>
-   <property name="text">
-    <string>CPU Register Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>CPU Register Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinMapperMemory_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_mapper_memory.png</normaloff>:/resources/22_mapper_memory.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge Mapper Register Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>Cartridge Mapper Register Inspector</string>
-   </property>
-  </action>
-  <action name="actionBinROM_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_bin_rom.png</normaloff>:/resources/22_bin_rom.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge PRG-ROM Inspector</string>
-   </property>
-   <property name="toolTip">
-    <string>Cartridge PRG-ROM Inspector</string>
    </property>
   </action>
   <action name="actionBreakpoint_Inspector">
@@ -821,21 +475,6 @@
     <string>About NESICIDE</string>
    </property>
   </action>
-  <action name="actionPPUInformation_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>PPU Information</string>
-   </property>
-   <property name="toolTip">
-    <string>PPU Information</string>
-   </property>
-  </action>
   <action name="action_Close_Project">
    <property name="icon">
     <iconset resource="resource.qrc">
@@ -843,124 +482,6 @@
    </property>
    <property name="text">
     <string>&amp;Close Project</string>
-   </property>
-  </action>
-  <action name="actionI_O">
-   <property name="text">
-    <string>I/O</string>
-   </property>
-  </action>
-  <action name="actionCodeDataLogger_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Code/Data Visualizer</string>
-   </property>
-  </action>
-  <action name="actionExecution_Visualizer_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Execution Visualizer</string>
-   </property>
-   <property name="toolTip">
-    <string>Execution Visualizer Inspector</string>
-   </property>
-  </action>
-  <action name="actionMapperInformation_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge Mapper Information</string>
-   </property>
-   <property name="toolTip">
-    <string>Cartridge Mapper Information</string>
-   </property>
-  </action>
-  <action name="actionAPUInformation_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>APU Information</string>
-   </property>
-   <property name="toolTip">
-    <string>APU Information</string>
-   </property>
-  </action>
-  <action name="actionNTSC">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>NTSC</string>
-   </property>
-  </action>
-  <action name="actionPAL">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>PAL</string>
-   </property>
-  </action>
-  <action name="actionMute_All">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Mute All</string>
-   </property>
-  </action>
-  <action name="actionSquare_1">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Square 1</string>
-   </property>
-  </action>
-  <action name="actionSquare_2">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Square 2</string>
-   </property>
-  </action>
-  <action name="actionTriangle">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Triangle</string>
-   </property>
-  </action>
-  <action name="actionNoise">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Noise</string>
-   </property>
-  </action>
-  <action name="actionDelta_Modulation">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Delta Modulation</string>
    </property>
   </action>
   <action name="actionEnvironment_Settings">
@@ -997,11 +518,6 @@
    </property>
    <property name="shortcut">
     <string>F6</string>
-   </property>
-  </action>
-  <action name="actionRun_Test_Suite">
-   <property name="text">
-    <string>Run Test Suite</string>
    </property>
   </action>
   <action name="actionSymbol_Watch">
@@ -1044,20 +560,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+F</string>
-   </property>
-  </action>
-  <action name="actionFullscreen">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Fullscreen</string>
-   </property>
-   <property name="toolTip">
-    <string>Enter fullscreen mode</string>
-   </property>
-   <property name="shortcut">
-    <string>F11</string>
    </property>
   </action>
   <action name="actionCode_Profiler">

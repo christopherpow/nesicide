@@ -3,7 +3,7 @@
 
 #include <QDockWidget>
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 class CDebuggerBase : public QDockWidget
 {

@@ -1,7 +1,7 @@
 #if !defined ( MAPPERS_H )
 #define MAPPERS_H
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 typedef struct _MapperInfo
 {

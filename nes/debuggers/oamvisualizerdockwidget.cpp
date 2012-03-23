@@ -4,7 +4,7 @@
 #include "cnessystempalette.h"
 #include "dbg_cnesppu.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "main.h"
 

@@ -1,7 +1,7 @@
 #if !defined ( PPU_H )
 #define PPU_H
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"

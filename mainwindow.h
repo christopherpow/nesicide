@@ -34,6 +34,8 @@
 #include "emulatorcontrol.h"
 #include "searchdockwidget.h"
 
+#include "ui_mainwindow.h"
+
 namespace Ui
 {
 class MainWindow;
@@ -41,7 +43,14 @@ class MainWindow;
 
 extern OutputPaneDockWidget* output;
 
-class MainWindow : public QMainWindow
+typedef enum
+{
+   eSupportedTarget_None = -1,
+   eSupportedTarget_NES,
+   eSupportedTarget_C64
+} eSupportedTargets;
+
+class MainWindow : public QMainWindow, private Ui::MainWindow
 {
    Q_OBJECT
 public:
@@ -56,19 +65,15 @@ protected:
    void hideEvent(QHideEvent* event);
    void showEvent(QShowEvent* event);
    void keyPressEvent(QKeyEvent *event);
+   void createNesUi();
+   void destroyNesUi();
 
-private:
-   Ui::MainWindow* ui;
-   QString projectFileName;
-   void openProject(QString fileName,bool runRom=true);
-   void saveProject();
-   void saveEmulatorState(QString fileName);
-   void closeProject();
+   // Which target is loaded?
+   eSupportedTargets m_targetLoaded;
 
-   // Dock widgets
+   // NES-specific UI elements.
    NESEmulatorDockWidget* m_pEmulator;
    bool m_bEmulatorFloating;
-   ExecutionInspectorDockWidget* m_pExecutionInspector;
    ExecutionVisualizerDockWidget* m_pExecutionVisualizer;
    RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
    CHRMEMInspector* m_pGfxCHRMemoryInspector;
@@ -85,12 +90,61 @@ private:
    RegisterInspectorDockWidget* m_pBinOAMMemoryInspector;
    MemoryInspectorDockWidget* m_pBinPaletteMemoryInspector;
    RegisterInspectorDockWidget* m_pBinMapperMemoryInspector;
-   BreakpointDockWidget* m_pBreakpointInspector;
-   CodeBrowserDockWidget* m_pAssemblyInspector;
    CodeDataLoggerDockWidget* m_pCodeDataLoggerInspector;
    PPUInformationDockWidget* m_pPPUInformationInspector;
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
+   QToolBar *debuggerToolBar;
+   QMenu *menuCPU_Inspectors;
+   QMenu *menuAPU_Inpsectors;
+   QMenu *menuPPU_Inspectors;
+   QMenu *menuCartridge_Inspectors;
+   QMenu *menuVideo;
+   QMenu *menuAudio;
+   QAction *actionEmulation_Window;
+   QAction *actionGfxCHRMemory_Inspector;
+   QAction *actionGfxOAMMemory_Inspector;
+   QAction *actionGfxNameTableMemory_Inspector;
+   QAction *actionBinCPURAM_Inspector;
+   QAction *actionBinNameTableMemory_Inspector;
+   QAction *actionBinPPURegister_Inspector;
+   QAction *actionBinAPURegister_Inspector;
+   QAction *actionBinCHRMemory_Inspector;
+   QAction *actionBinOAMMemory_Inspector;
+   QAction *actionBinPaletteMemory_Inspector;
+   QAction *actionBinSRAMMemory_Inspector;
+   QAction *actionBinEXRAMMemory_Inspector;
+   QAction *actionBinCPURegister_Inspector;
+   QAction *actionBinMapperMemory_Inspector;
+   QAction *actionBinROM_Inspector;
+   QAction *actionPPUInformation_Inspector;
+   QAction *actionI_O;
+   QAction *actionCodeDataLogger_Inspector;
+   QAction *actionExecution_Visualizer_Inspector;
+   QAction *actionMapperInformation_Inspector;
+   QAction *actionAPUInformation_Inspector;
+   QAction *actionNTSC;
+   QAction *actionPAL;
+   QAction *actionMute_All;
+   QAction *actionSquare_1;
+   QAction *actionSquare_2;
+   QAction *actionTriangle;
+   QAction *actionNoise;
+   QAction *actionDelta_Modulation;
+   QAction *actionRun_Test_Suite;
+   QAction *actionFullscreen;
+
+private:
+   QString projectFileName;
+   void openNesProject(QString fileName,bool runRom=true);
+   void saveProject();
+   void saveEmulatorState(QString fileName);
+   void closeProject();
+
+   // Dock widgets
+   ExecutionInspectorDockWidget* m_pExecutionInspector;
+   BreakpointDockWidget* m_pBreakpointInspector;
+   CodeBrowserDockWidget* m_pAssemblyInspector;
    SymbolWatchDockWidget* m_pSymbolInspector;
    CodeProfilerDockWidget* m_pCodeProfiler;
 
@@ -112,64 +166,79 @@ signals:
    void adjustAudio(int32_t length);
 
 private slots:
+   void createTarget(QString target);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
    void setStatusBarMessage(QString message);
-   void openROM(QString fileName,bool runRom=true);
+   void openNesROM(QString fileName,bool runRom=true);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();
    void focusEmulator();
-   void on_actionFullscreen_toggled(bool value);
    void windowMenu_triggered();
    void markProjectDirty(bool dirty);
    void on_actionClean_Project_triggered();
    void tabWidget_tabAdded(int tab);
    void tabWidget_tabModified(int tab,bool modified);
    void on_actionE_xit_triggered();
-   void on_actionRun_Test_Suite_triggered();
    void on_actionLoad_In_Emulator_triggered();
    void on_actionOnline_Help_triggered();
    void projectDataChangesEvent();
    void on_actionPreferences_triggered();
    void compiler_compileStarted();
    void compiler_compileDone(bool bOk);
-   void on_actionEnvironment_Settings_triggered();
-   void on_actionMute_All_toggled(bool );
-   void on_actionSquare_1_toggled(bool );
-   void on_actionSquare_2_toggled(bool );
-   void on_actionTriangle_toggled(bool );
-   void on_actionNoise_toggled(bool );
-   void on_actionDelta_Modulation_toggled(bool );
-   void on_actionPAL_triggered();
-   void on_actionNTSC_triggered();
    void on_action_Close_Project_triggered();
    void on_action_About_Nesicide_triggered();
+   void on_actionEnvironment_Settings_triggered();
    void on_actionAssembly_Inspector_toggled(bool );
-   void on_actionCodeDataLogger_Inspector_toggled(bool );
    void on_actionExecution_Inspector_toggled(bool );
-   void on_actionExecution_Visualizer_Inspector_toggled(bool );
    void on_actionBreakpoint_Inspector_toggled(bool );
-   void on_actionGfxCHRMemory_Inspector_toggled(bool );
-   void on_actionGfxOAMMemory_Inspector_toggled(bool );
-   void on_actionGfxNameTableMemory_Inspector_toggled(bool );
-   void on_actionBinCPURegister_Inspector_toggled(bool );
-   void on_actionBinCPURAM_Inspector_toggled(bool );
-   void on_actionBinROM_Inspector_toggled(bool );
-   void on_actionBinNameTableMemory_Inspector_toggled(bool );
-   void on_actionBinCHRMemory_Inspector_toggled(bool );
-   void on_actionBinOAMMemory_Inspector_toggled(bool );
-   void on_actionBinSRAMMemory_Inspector_toggled(bool );
-   void on_actionBinEXRAMMemory_Inspector_toggled(bool );
-   void on_actionBinPaletteMemory_Inspector_toggled(bool );
-   void on_actionBinAPURegister_Inspector_toggled(bool );
-   void on_actionBinPPURegister_Inspector_toggled(bool );
-   void on_actionBinMapperMemory_Inspector_toggled(bool );
-   void on_actionPPUInformation_Inspector_toggled(bool );
-   void on_actionAPUInformation_Inspector_toggled(bool );
-   void on_actionMapperInformation_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
    void on_actionCode_Profiler_toggled(bool );
    void on_actionSearch_toggled(bool value);
+   void on_actionCompile_Project_triggered();
+   void on_actionOutput_Window_toggled(bool );
+   void on_actionSave_Active_Document_triggered();
+   void on_tabWidget_currentChanged(int index);
+   void on_actionOpen_Project_triggered();
+   void on_action_Project_Browser_toggled(bool );
+   void on_tabWidget_tabCloseRequested(int index);
+   void on_actionCreate_Project_from_ROM_triggered();
+   void on_actionNew_Project_triggered();
+   void on_actionProject_Properties_triggered();
+   void on_actionSave_Project_As_triggered();
+   void on_actionSave_Project_triggered();
+   void openFile(QString file);
+   void actionFullscreen_toggled(bool value);
+   void actionRun_Test_Suite_triggered();
+   void actionMute_All_toggled(bool );
+   void actionSquare_1_toggled(bool );
+   void actionSquare_2_toggled(bool );
+   void actionTriangle_toggled(bool );
+   void actionNoise_toggled(bool );
+   void actionDelta_Modulation_toggled(bool );
+   void actionPAL_triggered();
+   void actionNTSC_triggered();
+   void actionCodeDataLogger_Inspector_toggled(bool );
+   void actionExecution_Visualizer_Inspector_toggled(bool );
+   void actionGfxCHRMemory_Inspector_toggled(bool );
+   void actionGfxOAMMemory_Inspector_toggled(bool );
+   void actionGfxNameTableMemory_Inspector_toggled(bool );
+   void actionBinCPURegister_Inspector_toggled(bool );
+   void actionBinCPURAM_Inspector_toggled(bool );
+   void actionBinROM_Inspector_toggled(bool );
+   void actionBinNameTableMemory_Inspector_toggled(bool );
+   void actionBinCHRMemory_Inspector_toggled(bool );
+   void actionBinOAMMemory_Inspector_toggled(bool );
+   void actionBinSRAMMemory_Inspector_toggled(bool );
+   void actionBinEXRAMMemory_Inspector_toggled(bool );
+   void actionBinPaletteMemory_Inspector_toggled(bool );
+   void actionBinAPURegister_Inspector_toggled(bool );
+   void actionBinPPURegister_Inspector_toggled(bool );
+   void actionBinMapperMemory_Inspector_toggled(bool );
+   void actionPPUInformation_Inspector_toggled(bool );
+   void actionAPUInformation_Inspector_toggled(bool );
+   void actionMapperInformation_Inspector_toggled(bool );
+   void actionEmulation_Window_toggled(bool );
    void reflectedEmulator_close(bool toplevel);
    void reflectedAssemblyInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
@@ -199,22 +268,6 @@ private slots:
    void reflectedSearch_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
    void reflectedProjectBrowser_close(bool toplevel);
-   void on_actionCompile_Project_triggered();
-   void on_actionOutput_Window_toggled(bool );
-   void on_actionSave_Active_Document_triggered();
-   void on_tabWidget_currentChanged(int index);
-   void on_actionOpen_Project_triggered();
-   void on_actionEmulation_Window_toggled(bool );
-   void on_action_Project_Browser_toggled(bool );
-   void on_tabWidget_tabCloseRequested(int index);
-   void on_actionCreate_Project_from_ROM_triggered();
-   void on_actionNew_Project_triggered();
-   void on_actionProject_Properties_triggered();
-   void on_actionSave_Project_As_triggered();
-   void on_actionSave_Project_triggered();
-
-public slots:
-   void openFile(QString file);
 };
 
 #endif // MAINWINDOW_H

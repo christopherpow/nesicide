@@ -1,7 +1,7 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include <QProcess>
 #include <QDir>

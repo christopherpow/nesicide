@@ -30,7 +30,7 @@ private:
     void doTestPhase();
 
 signals:
-    void openROM(QString romFile,bool runRom);
+    void openNesROM(QString romFile,bool runRom);
     void startEmulation();
     void pauseEmulationAfter(int32_t frames);
 

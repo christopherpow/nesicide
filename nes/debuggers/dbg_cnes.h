@@ -3,7 +3,7 @@
 
 #include "cbreakpointinfo.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 // Identifiers of tooltip info to provide.
 #define TOOLTIP_BYTES 0

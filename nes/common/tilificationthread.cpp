@@ -1,6 +1,6 @@
 #include "tilificationthread.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 TilificationThread::TilificationThread(int side,QObject *parent) :
    QThread(parent)

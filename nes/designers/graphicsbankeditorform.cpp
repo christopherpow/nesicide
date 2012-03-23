@@ -5,7 +5,7 @@
 
 #include "cdesignercommon.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 #include "cnessystempalette.h"
 
 GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankItems,QList<IChrRomBankItem*> rightBankItems,IProjectTreeViewItem* link,QWidget* parent) :

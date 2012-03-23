@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 #include "cjoypadlogger.h"
 
 TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
@@ -239,7 +239,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
          nesSetSystemMode(MODE_PAL);
       }
 
-      emit openROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)),false);
+      emit openNesROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)),false);
 
       emit pauseEmulationAfter(framesRun);
 

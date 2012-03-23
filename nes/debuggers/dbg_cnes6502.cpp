@@ -18,7 +18,7 @@
 #include "dbg_cnesrom.h"
 #include "dbg_cnesppu.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "cmarker.h"
 #include "ccodedatalogger.h"

@@ -3,7 +3,7 @@
 #include "cdebuggercodeprofilermodel.h"
 
 #include "ccc65interface.h"
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "ccodedatalogger.h"
 

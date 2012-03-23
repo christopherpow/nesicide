@@ -7,7 +7,7 @@
 
 #include "dbg_cnes6502.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "main.h"
 

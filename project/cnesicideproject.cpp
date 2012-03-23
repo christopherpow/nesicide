@@ -168,6 +168,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
 
    // Set some variables as tags to this node.
    projectElement.setAttribute("version", 0.3);
+   projectElement.setAttribute("target", m_projectTarget);
    projectElement.setAttribute("title", m_projectTitle);
 
    // Create the project configuration node.
@@ -264,6 +265,17 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
       errors.append("NESICIDE Project files must be version 0.3\n");
       return false;
    }
+
+   // For now, error out if the target is not specified in the XML.
+   if ( projectElement.attribute("target").isEmpty() )
+   {
+      errors.append("Missing required attribute 'target' of element <nesicideproject>\n");
+      return false;
+   }
+
+   // Load the project target.
+   m_projectTarget = projectElement.attribute("target");
+   emit createTarget(m_projectTarget);
 
    // Load our properties. Note that the default value is returned if an attribute is missing.
    // This is the expected behavior.

@@ -3,7 +3,7 @@
 #include <QColor>
 
 #include "cmarker.h"
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 static char modelStringBuffer [ 2048 ];
 

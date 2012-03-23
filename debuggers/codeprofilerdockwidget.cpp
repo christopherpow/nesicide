@@ -1,7 +1,7 @@
 #include "codeprofilerdockwidget.h"
 #include "ui_codeprofilerdockwidget.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "ccodedatalogger.h"
 

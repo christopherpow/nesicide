@@ -1,7 +1,7 @@
 #include "emulatorprefsdialog.h"
 #include "ui_emulatorprefsdialog.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include <QSettings>
 

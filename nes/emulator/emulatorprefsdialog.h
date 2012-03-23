@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 namespace Ui
 {

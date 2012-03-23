@@ -1,7 +1,7 @@
 #include "memoryinspectordockwidget.h"
 #include "ui_memoryinspectordockwidget.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "dbg_cnes.h"
 

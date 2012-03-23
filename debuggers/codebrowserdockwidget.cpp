@@ -1,7 +1,7 @@
 #include "codebrowserdockwidget.h"
 #include "ui_codebrowserdockwidget.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "cmarker.h"
 #include "cdockwidgetregistry.h"

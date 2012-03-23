@@ -4,7 +4,7 @@
 #include "cprojectbase.h"
 #include "chrromdisplaydialog.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 class CCHRROMBank : public CProjectBase
 {

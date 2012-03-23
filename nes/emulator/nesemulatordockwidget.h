@@ -1,7 +1,7 @@
 #ifndef NESEMULATORDOCKWIDGET_H
 #define NESEMULATORDOCKWIDGET_H
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 #include "nesemulatorrenderer.h"
 
 #include <QDockWidget>

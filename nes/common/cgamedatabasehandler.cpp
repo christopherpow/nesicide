@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QCryptographicHash>
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 CGameDatabaseHandler::CGameDatabaseHandler()
 {

@@ -5,7 +5,7 @@
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 // Routines to retrieve the ToolTip information for a particular opcode.
 const char* OPCODEINFO ( uint8_t op );

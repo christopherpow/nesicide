@@ -4,7 +4,7 @@
 #include <QFont>
 #include <QSettings>
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 #include "ccc65interface.h"
 
 static const char* CA65_keyword[] =

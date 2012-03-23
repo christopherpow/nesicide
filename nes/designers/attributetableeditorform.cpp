@@ -3,7 +3,7 @@
 #include "attributetableeditorform.h"
 #include "ui_attributetableeditorform.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 #include "cnessystempalette.h"
 
 #include <QToolTip>

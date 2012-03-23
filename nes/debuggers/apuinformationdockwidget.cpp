@@ -1,7 +1,7 @@
 #include "apuinformationdockwidget.h"
 #include "ui_apuinformationdockwidget.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "main.h"
 

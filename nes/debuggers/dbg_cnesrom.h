@@ -1,7 +1,7 @@
 #if !defined ( ROM_H )
 #define ROM_H
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 #include "cregisterdata.h"
 #include "ccodedatalogger.h"

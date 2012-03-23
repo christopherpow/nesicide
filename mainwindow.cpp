@@ -20,8 +20,7 @@ OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
 MainWindow::MainWindow(QWidget* parent) :
-   QMainWindow(parent),
-   ui(new Ui::MainWindow)
+   QMainWindow(parent)
 {
    QSettings settings;
 
@@ -37,7 +36,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    // Create the Test Suite executive modeless dialog...
    testSuiteExecutive = new TestSuiteExecutiveDialog();
-   QObject::connect(testSuiteExecutive,SIGNAL(openROM(QString,bool)),this,SLOT(openROM(QString,bool)));
+   QObject::connect(testSuiteExecutive,SIGNAL(openNesROM(QString,bool)),this,SLOT(openNesROM(QString,bool)));
 
    // Start breakpoint-watcher thread...
    breakpointWatcher->start();
@@ -66,41 +65,31 @@ MainWindow::MainWindow(QWidget* parent) :
    searchTextLogger = new CTextLogger();
 
    nesicideProject = new CNesicideProject();
+   QObject::connect(nesicideProject,SIGNAL(createTarget(QString)),this,SLOT(createTarget(QString)));
 
-   ui->setupUi(this);
+   setupUi(this);
 
-   QObject::connect(ui->tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
-   QObject::connect(ui->tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
-   QObject::connect(ui->tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   QObject::connect(this,SIGNAL(applyProjectProperties()),ui->tabWidget,SLOT(applyProjectProperties()));
-   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),ui->tabWidget,SLOT(applyEnvironmentSettings()));
+   QObject::connect(tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
+   QObject::connect(tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
+   QObject::connect(tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   QObject::connect(this,SIGNAL(applyProjectProperties()),tabWidget,SLOT(applyProjectProperties()));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),tabWidget,SLOT(applyEnvironmentSettings()));
 
-   QObject::connect(ui->menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
+   QObject::connect(menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
-   ui->menuWindow->setEnabled(false);
+   menuWindow->setEnabled(false);
 
-   m_pEmulator = new NESEmulatorDockWidget();
-   addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
-   m_pEmulator->hide();
-   QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
+   // Start with no target loaded.
+   m_targetLoaded = eSupportedTarget_None;
 
+   // Set up common UI elements.
    m_pSourceNavigator = new SourceNavigator();
-   ui->compilerToolbar->addWidget(m_pSourceNavigator);
+   compilerToolbar->addWidget(m_pSourceNavigator);
    CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
 
    m_pSearchBar = new SearchBar("SearchBar");
-   ui->searchToolBar->addWidget(m_pSearchBar);
+   searchToolBar->addWidget(m_pSearchBar);
    CDockWidgetRegistry::addWidget ( "Search Bar", m_pSearchBar );
-
-   m_pEmulatorControl = new EmulatorControl();
-   ui->debuggerToolbar->addWidget(m_pEmulatorControl);
-   QObject::connect(m_pEmulatorControl,SIGNAL(focusEmulator()),this,SLOT(focusEmulator()));
-
-   // Add menu for emulator control.  The emulator control provides menu for itself!  =]
-   QAction* firstEmuMenuAction = ui->menuEmulator->actions().at(0);
-   ui->menuEmulator->insertActions(firstEmuMenuAction,m_pEmulatorControl->menu());
-   ui->menuEmulator->insertSeparator(firstEmuMenuAction);
 
    m_pSearch = new SearchDockWidget();
    addDockWidget(Qt::LeftDockWidgetArea, m_pSearch );
@@ -108,7 +97,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pSearch, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSearch_close(bool)));
    CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
-   m_pProjectBrowser = new ProjectBrowserDockWidget(ui->tabWidget);
+   m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
    m_pProjectBrowser->hide();
    QObject::connect(m_pProjectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
@@ -139,6 +128,393 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
 
+   m_pExecutionInspector = new ExecutionInspectorDockWidget();
+   addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
+   m_pExecutionInspector->hide();
+   QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
+   QObject::connect(m_pExecutionInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Execution Inspector", m_pExecutionInspector );
+
+   m_pAssemblyInspector = new CodeBrowserDockWidget();
+   addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
+   m_pAssemblyInspector->hide();
+   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
+   QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
+
+   m_pSymbolInspector = new SymbolWatchDockWidget();
+   addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
+   m_pSymbolInspector->hide();
+   QObject::connect(m_pSymbolInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSymbol_Watch_close(bool)));
+   QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
+
+   m_pCodeProfiler = new CodeProfilerDockWidget();
+   addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
+   m_pCodeProfiler->hide();
+   QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Code Profiler", m_pCodeProfiler );
+
+   // Connect snapTo's from various debuggers to the central widget.
+   QObject::connect ( m_pSourceNavigator, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pCodeProfiler, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( output, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+
+   // Slots for updating status bar.
+   QObject::connect ( tabWidget, SIGNAL(addStatusBarWidget(QWidget*)), this, SLOT(addStatusBarWidget(QWidget*)));
+   QObject::connect ( tabWidget, SIGNAL(removeStatusBarWidget(QWidget*)), this, SLOT(removeStatusBarWidget(QWidget*)));
+
+   if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
+   {
+      tabWidget->addTab(tab,"Welcome Page");
+      webView->setUrl(QUrl( "http://www.nesicide.com"));
+   }
+   else
+   {
+      tabWidget->removeTab(tabWidget->indexOf(tab));
+   }
+
+   // Load all plugins.
+   pluginManager->doInitScript();
+   pluginManager->loadPlugins();
+
+   QStringList argv = QApplication::arguments();
+
+   // Insert last project loaded into argument stream if one isn't specified.
+   if ( EnvironmentSettingsDialog::trackRecentProjects() )
+   {
+      if ( argv.count() == 1 ) // Only executable name is on argv stack.
+      {
+         argv.append(settings.value("LastProject").toString());
+      }
+   }
+
+   // Filter for supported files to open.
+   QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
+   QStringList argv_nesproject = argv.filter ( QRegExp(".*[.]nesproject$",Qt::CaseInsensitive) );
+
+   if ( (argv_nes.count() >= 1) &&
+        (argv_nesproject.count() >= 1) )
+   {
+      QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .nes and a .nesproject file to open.\n" );
+   }
+
+   if ( argv_nes.count() >= 1 )
+   {
+      openNesROM(argv_nes.at(0));
+
+      if ( argv_nes.count() > 1 )
+      {
+         QMessageBox::information ( 0, "Command Line Error", "Too many NES ROM files were specified on the command\n"
+                                    "line.  Only the first NES ROM was opened, all others\n"
+                                    "were ignored." );
+      }
+   }
+   else if ( argv_nesproject.count() >= 1 )
+   {
+      openNesProject(argv_nesproject.at(0));
+
+      if ( argv_nesproject.count() > 1 )
+      {
+         QMessageBox::information ( 0, "Command Line Error", "Too many NESICIDE project files were specified on the command\n"
+                                    "line.  Only the first NESICIDE project was opened, all others\n"
+                                    "were ignored." );
+      }
+   }
+
+   projectDataChangesEvent();
+
+   // For now don't use the value from the settings, because nesGetAudioSamples()
+   // always returns APU_SAMPLES samples
+   //emulator->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
+   emit adjustAudio( APU_SAMPLES );
+   emit resetEmulator();
+
+   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   {
+      restoreGeometry(settings.value("IDEGeometry").toByteArray());
+      restoreState(settings.value("IDEState").toByteArray());
+   }
+}
+
+MainWindow::~MainWindow()
+{
+   tabWidget->clear();
+
+   // Properly kill and destroy the threads we created above.
+   breakpointWatcher->kill();
+   breakpointWatcher->wait();
+   compiler->kill();
+   compiler->wait();
+   searcher->kill();
+   searcher->wait();
+   emulator->kill();
+   emulator->wait();
+
+   delete breakpointWatcher;
+   breakpointWatcher = NULL;
+   delete compiler;
+   compiler = NULL;
+   delete searcher;
+   searcher = NULL;
+   delete emulator;
+   emulator = NULL;
+
+   delete testSuiteExecutive;
+
+   delete generalTextLogger;
+   delete buildTextLogger;
+   delete debugTextLogger;
+   delete searchTextLogger;
+
+   delete nesicideProject;
+   delete pluginManager;
+
+   delete m_pBreakpointInspector;
+   delete m_pExecutionInspector;
+   delete m_pAssemblyInspector;
+   delete m_pSourceNavigator;
+   delete m_pSymbolInspector;
+   delete m_pSearch;
+}
+
+void MainWindow::createTarget(QString target)
+{
+   if ( !target.compare("nes",Qt::CaseInsensitive) )
+   {
+      createNesUi();
+   }
+   else if ( !target.compare("c64",Qt::CaseInsensitive) )
+   {
+
+   }
+}
+
+void MainWindow::createNesUi()
+{
+   if ( m_targetLoaded == eSupportedTarget_NES )
+   {
+      return;
+   }
+
+   actionEmulation_Window = new QAction("Emulator",this);
+   actionEmulation_Window->setObjectName(QString::fromUtf8("actionEmulation_Window"));
+   actionEmulation_Window->setCheckable(true);
+   QIcon icon8;
+   icon8.addFile(QString::fromUtf8(":/resources/controller.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionEmulation_Window->setIcon(icon8);
+   actionGfxCHRMemory_Inspector = new QAction("CHR Memory Visualizer",this);
+   actionGfxCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxCHRMemory_Inspector"));
+   actionGfxCHRMemory_Inspector->setCheckable(true);
+   QIcon icon12;
+   icon12.addFile(QString::fromUtf8(":/resources/22_chr_mem.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionGfxCHRMemory_Inspector->setIcon(icon12);
+   actionGfxOAMMemory_Inspector = new QAction("OAM Memory Visualizer",this);
+   actionGfxOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxOAMMemory_Inspector"));
+   actionGfxOAMMemory_Inspector->setCheckable(true);
+   QIcon icon13;
+   icon13.addFile(QString::fromUtf8(":/resources/22_preferences-desktop-display-color.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionGfxOAMMemory_Inspector->setIcon(icon13);
+   actionGfxNameTableMemory_Inspector = new QAction("NameTable Visualizer",this);
+   actionGfxNameTableMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxNameTableMemory_Inspector"));
+   actionGfxNameTableMemory_Inspector->setCheckable(true);
+   actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
+   actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
+   QIcon icon16;
+   icon16.addFile(QString::fromUtf8(":/resources/22_cpu_ram.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBinCPURAM_Inspector->setIcon(icon16);
+   actionBinCPURAM_Inspector->setCheckable(true);
+   actionBinNameTableMemory_Inspector = new QAction("NameTable Memory",this);
+   actionBinNameTableMemory_Inspector->setObjectName(QString::fromUtf8("actionBinNameTableMemory_Inspector"));
+   actionBinNameTableMemory_Inspector->setIcon(icon13);
+   actionBinNameTableMemory_Inspector->setCheckable(true);
+   actionBinPPURegister_Inspector = new QAction("Registers",this);
+   actionBinPPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinPPURegister_Inspector"));
+   actionBinPPURegister_Inspector->setIcon(icon13);
+   actionBinPPURegister_Inspector->setCheckable(true);
+   actionBinAPURegister_Inspector = new QAction("Registers",this);
+   actionBinAPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinAPURegister_Inspector"));
+   actionBinAPURegister_Inspector->setIcon(icon13);
+   actionBinAPURegister_Inspector->setCheckable(true);
+   actionBinCHRMemory_Inspector = new QAction("CHR Memory",this);
+   actionBinCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionBinCHRMemory_Inspector"));
+   actionBinCHRMemory_Inspector->setIcon(icon13);
+   actionBinCHRMemory_Inspector->setCheckable(true);
+   actionBinOAMMemory_Inspector = new QAction("OAM Memory",this);
+   actionBinOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinOAMMemory_Inspector"));
+   actionBinOAMMemory_Inspector->setIcon(icon13);
+   actionBinOAMMemory_Inspector->setCheckable(true);
+   actionBinPaletteMemory_Inspector = new QAction("Palette Memory",this);
+   actionBinPaletteMemory_Inspector->setObjectName(QString::fromUtf8("actionBinPaletteMemory_Inspector"));
+   actionBinPaletteMemory_Inspector->setIcon(icon13);
+   actionBinPaletteMemory_Inspector->setCheckable(true);
+   actionBinSRAMMemory_Inspector = new QAction("SRAM Memory",this);
+   actionBinSRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinSRAMMemory_Inspector"));
+   actionBinSRAMMemory_Inspector->setIcon(icon13);
+   actionBinSRAMMemory_Inspector->setCheckable(true);
+   actionBinEXRAMMemory_Inspector = new QAction("EXRAM Memory",this);
+   actionBinEXRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinEXRAMMemory_Inspector"));
+   actionBinEXRAMMemory_Inspector->setIcon(icon13);
+   actionBinEXRAMMemory_Inspector->setCheckable(true);
+   actionBinCPURegister_Inspector = new QAction("Registers",this);
+   actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
+   QIcon icon17;
+   icon17.addFile(QString::fromUtf8(":/resources/22_cpu_registers.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBinCPURegister_Inspector->setIcon(icon17);
+   actionBinCPURegister_Inspector->setCheckable(true);
+   actionBinMapperMemory_Inspector = new QAction("Mapper Memory",this);
+   actionBinMapperMemory_Inspector->setObjectName(QString::fromUtf8("actionBinMapperMemory_Inspector"));
+   QIcon icon18;
+   icon18.addFile(QString::fromUtf8(":/resources/22_mapper_memory.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBinMapperMemory_Inspector->setIcon(icon18);
+   actionBinMapperMemory_Inspector->setCheckable(true);
+   actionBinROM_Inspector = new QAction("PRG-ROM Memory",this);
+   actionBinROM_Inspector->setObjectName(QString::fromUtf8("actionBinROM_Inspector"));
+   QIcon icon19;
+   icon19.addFile(QString::fromUtf8(":/resources/22_bin_rom.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBinROM_Inspector->setIcon(icon19);
+   actionBinROM_Inspector->setCheckable(true);
+   actionPPUInformation_Inspector = new QAction("Information",this);
+   actionPPUInformation_Inspector->setObjectName(QString::fromUtf8("actionPPUInformation_Inspector"));
+   actionPPUInformation_Inspector->setIcon(icon13);
+   actionPPUInformation_Inspector->setCheckable(true);
+   actionI_O = new QAction("I/O",this);
+   actionI_O->setObjectName(QString::fromUtf8("actionI_O"));
+   actionCodeDataLogger_Inspector = new QAction("Code/Data Log Visualizer",this);
+   actionCodeDataLogger_Inspector->setObjectName(QString::fromUtf8("actionCodeDataLogger_Inspector"));
+   actionCodeDataLogger_Inspector->setCheckable(true);
+   actionExecution_Visualizer_Inspector = new QAction("Execution Visualizer",this);
+   actionExecution_Visualizer_Inspector->setObjectName(QString::fromUtf8("actionExecution_Visualizer_Inspector"));
+   actionExecution_Visualizer_Inspector->setCheckable(true);
+   actionMapperInformation_Inspector = new QAction("Information",this);
+   actionMapperInformation_Inspector->setObjectName(QString::fromUtf8("actionMapperInformation_Inspector"));
+   actionMapperInformation_Inspector->setIcon(icon13);
+   actionMapperInformation_Inspector->setCheckable(true);
+   actionAPUInformation_Inspector = new QAction("Information",this);
+   actionAPUInformation_Inspector->setObjectName(QString::fromUtf8("actionAPUInformation_Inspector"));
+   actionAPUInformation_Inspector->setIcon(icon13);
+   actionAPUInformation_Inspector->setCheckable(true);
+   actionNTSC = new QAction("NTSC",this);
+   actionNTSC->setObjectName(QString::fromUtf8("actionNTSC"));
+   actionPAL = new QAction("PAL",this);
+   actionPAL->setObjectName(QString::fromUtf8("actionPAL"));
+   actionMute_All = new QAction("Mute All",this);
+   actionMute_All->setObjectName(QString::fromUtf8("actionMute_All"));
+   actionMute_All->setCheckable(true);
+   actionSquare_1 = new QAction("Square 1",this);
+   actionSquare_1->setObjectName(QString::fromUtf8("actionSquare_1"));
+   actionSquare_1->setCheckable(true);
+   actionSquare_2 = new QAction("Square 2",this);
+   actionSquare_2->setObjectName(QString::fromUtf8("actionSquare_2"));
+   actionSquare_2->setCheckable(true);
+   actionTriangle = new QAction("Triangle",this);
+   actionTriangle->setObjectName(QString::fromUtf8("actionTriangle"));
+   actionTriangle->setCheckable(true);
+   actionNoise = new QAction("Noise",this);
+   actionNoise->setObjectName(QString::fromUtf8("actionNoise"));
+   actionNoise->setCheckable(true);
+   actionDelta_Modulation = new QAction("DMC",this);
+   actionDelta_Modulation->setObjectName(QString::fromUtf8("actionDelta_Modulation"));
+   actionDelta_Modulation->setCheckable(true);
+   actionRun_Test_Suite = new QAction("Run Test Suite",this);
+   actionRun_Test_Suite->setObjectName(QString::fromUtf8("actionRun_Test_Suite"));
+   actionFullscreen = new QAction("Fullscreen",this);
+   actionFullscreen->setObjectName(QString::fromUtf8("actionFullscreen"));
+   actionFullscreen->setShortcut(QKeySequence("F11"));
+   actionFullscreen->setCheckable(true);
+
+   menuCPU_Inspectors = new QMenu("CPU",menuDebugger);
+   menuCPU_Inspectors->setObjectName(QString::fromUtf8("menuCPU_Inspectors"));
+   menuAPU_Inpsectors = new QMenu("APU",menuDebugger);
+   menuAPU_Inpsectors->setObjectName(QString::fromUtf8("menuAPU_Inpsectors"));
+   menuPPU_Inspectors = new QMenu("PPU",menuDebugger);
+   menuPPU_Inspectors->setObjectName(QString::fromUtf8("menuPPU_Inspectors"));
+   menuCartridge_Inspectors = new QMenu("Cartridge",menuDebugger);
+   menuCartridge_Inspectors->setObjectName(QString::fromUtf8("menuCartridge_Inspectors"));
+   menuVideo = new QMenu("Video",menuEmulator);
+   menuVideo->setObjectName(QString::fromUtf8("menuVideo"));
+   menuAudio = new QMenu("Audio",menuEmulator);
+   menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
+
+   menuDebugger->addSeparator();
+   menuDebugger->addAction(actionExecution_Visualizer_Inspector);
+   menuDebugger->addAction(actionCodeDataLogger_Inspector);
+   menuDebugger->addSeparator();
+   menuDebugger->addAction(menuCPU_Inspectors->menuAction());
+   menuDebugger->addAction(menuPPU_Inspectors->menuAction());
+   menuDebugger->addAction(menuAPU_Inpsectors->menuAction());
+   menuDebugger->addAction(actionI_O);
+   menuDebugger->addAction(menuCartridge_Inspectors->menuAction());
+   menuCPU_Inspectors->addAction(actionBinCPURegister_Inspector);
+   menuCPU_Inspectors->addSeparator();
+   menuCPU_Inspectors->addAction(actionBinCPURAM_Inspector);
+   menuAPU_Inpsectors->addAction(actionAPUInformation_Inspector);
+   menuAPU_Inpsectors->addAction(actionBinAPURegister_Inspector);
+   menuPPU_Inspectors->addAction(actionPPUInformation_Inspector);
+   menuPPU_Inspectors->addAction(actionBinPPURegister_Inspector);
+   menuPPU_Inspectors->addSeparator();
+   menuPPU_Inspectors->addAction(actionBinNameTableMemory_Inspector);
+   menuPPU_Inspectors->addAction(actionBinPaletteMemory_Inspector);
+   menuPPU_Inspectors->addAction(actionBinOAMMemory_Inspector);
+   menuPPU_Inspectors->addSeparator();
+   menuPPU_Inspectors->addAction(actionGfxNameTableMemory_Inspector);
+   menuPPU_Inspectors->addAction(actionGfxOAMMemory_Inspector);
+   menuCartridge_Inspectors->addAction(actionMapperInformation_Inspector);
+   menuCartridge_Inspectors->addAction(actionBinMapperMemory_Inspector);
+   menuCartridge_Inspectors->addSeparator();
+   menuCartridge_Inspectors->addAction(actionBinCHRMemory_Inspector);
+   menuCartridge_Inspectors->addAction(actionBinEXRAMMemory_Inspector);
+   menuCartridge_Inspectors->addAction(actionBinSRAMMemory_Inspector);
+   menuCartridge_Inspectors->addAction(actionBinROM_Inspector);
+   menuCartridge_Inspectors->addSeparator();
+   menuCartridge_Inspectors->addAction(actionGfxCHRMemory_Inspector);
+   menuEmulator->addAction(menuVideo->menuAction());
+   menuEmulator->addAction(menuAudio->menuAction());
+   menuEmulator->addAction(actionFullscreen);
+   menuEmulator->addSeparator();
+   menuEmulator->addAction(actionRun_Test_Suite);
+   menuEmulator->addSeparator();
+   menuVideo->addAction(actionNTSC);
+   menuVideo->addAction(actionPAL);
+   menuAudio->addAction(actionMute_All);
+   menuAudio->addSeparator();
+   menuAudio->addAction(actionSquare_1);
+   menuAudio->addAction(actionSquare_2);
+   menuAudio->addAction(actionTriangle);
+   menuAudio->addAction(actionNoise);
+   menuAudio->addAction(actionDelta_Modulation);
+   menuView->addSeparator();
+   menuView->addAction(actionEmulation_Window);
+
+   debuggerToolBar = new QToolBar("Emulator Control",this);
+   debuggerToolBar->setObjectName(QString::fromUtf8("debuggerToolBar"));
+   QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+   sizePolicy1.setHorizontalStretch(0);
+   sizePolicy1.setVerticalStretch(0);
+   sizePolicy1.setHeightForWidth(debuggerToolBar->sizePolicy().hasHeightForWidth());
+   debuggerToolBar->setSizePolicy(sizePolicy1);
+   addToolBar(Qt::TopToolBarArea, debuggerToolBar);
+
+   toolToolbar->addAction(actionEmulation_Window);
+   toolToolbar->addSeparator();
+
+   m_pEmulator = new NESEmulatorDockWidget();
+   addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
+   m_pEmulator->hide();
+   QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
+
+   m_pEmulatorControl = new EmulatorControl();
+   debuggerToolBar->addWidget(m_pEmulatorControl);
+   debuggerToolBar->show();
+   QObject::connect(m_pEmulatorControl,SIGNAL(focusEmulator()),this,SLOT(focusEmulator()));
+
+   // Add menu for emulator control.  The emulator control provides menu for itself!  =]
+   QAction* firstEmuMenuAction = menuEmulator->actions().at(0);
+   menuEmulator->insertActions(firstEmuMenuAction,m_pEmulatorControl->menu());
+   menuEmulator->insertSeparator(firstEmuMenuAction);
+
    m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
    m_pGfxCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
    m_pGfxCHRMemoryInspector->setWindowTitle("CHR Memory Visualizer");
@@ -164,26 +540,12 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pGfxNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
 
-   m_pExecutionInspector = new ExecutionInspectorDockWidget();
-   addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
-   m_pExecutionInspector->hide();
-   QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
-   QObject::connect(m_pExecutionInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::addWidget ( "Execution Inspector", m_pExecutionInspector );
-
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
    m_pExecutionVisualizer->hide();
    QObject::connect(m_pExecutionVisualizer, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionVisualizer_Inspector_close(bool)));
    QObject::connect(m_pExecutionVisualizer,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
-
-   m_pAssemblyInspector = new CodeBrowserDockWidget();
-   addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
-   m_pAssemblyInspector->hide();
-   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
-   QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
@@ -321,34 +683,46 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pBinMapperMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
-   m_pSymbolInspector = new SymbolWatchDockWidget();
-   addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
-   m_pSymbolInspector->hide();
-   QObject::connect(m_pSymbolInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSymbol_Watch_close(bool)));
-   QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
+   // Connect slots for new UI elements.
+   QObject::connect(actionEmulation_Window,SIGNAL(toggled(bool)),this,SLOT(actionEmulation_Window_toggled(bool)));
+   QObject::connect(actionFullscreen,SIGNAL(toggled(bool)),this,SLOT(actionFullscreen_toggled(bool)));
+   QObject::connect(actionRun_Test_Suite,SIGNAL(triggered()),this,SLOT(actionRun_Test_Suite_triggered()));
+   QObject::connect(actionMute_All,SIGNAL(toggled(bool)),this,SLOT(actionMute_All_toggled(bool)));
+   QObject::connect(actionSquare_1,SIGNAL(toggled(bool)),this,SLOT(actionSquare_1_toggled(bool)));
+   QObject::connect(actionSquare_2,SIGNAL(toggled(bool)),this,SLOT(actionSquare_2_toggled(bool)));
+   QObject::connect(actionTriangle,SIGNAL(toggled(bool)),this,SLOT(actionTriangle_toggled(bool)));
+   QObject::connect(actionNoise,SIGNAL(toggled(bool)),this,SLOT(actionNoise_toggled(bool)));
+   QObject::connect(actionDelta_Modulation,SIGNAL(toggled(bool)),this,SLOT(actionDelta_Modulation_toggled(bool)));
+   QObject::connect(actionPAL,SIGNAL(triggered()),this,SLOT(actionPAL_triggered()));
+   QObject::connect(actionNTSC,SIGNAL(triggered()),this,SLOT(actionNTSC_triggered()));
+   QObject::connect(actionCodeDataLogger_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionCodeDataLogger_Inspector_toggled(bool)));
+   QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionExecution_Visualizer_Inspector_toggled(bool)));
+   QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxCHRMemory_Inspector_toggled(bool)));
+   QObject::connect(actionGfxOAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxOAMMemory_Inspector_toggled(bool)));
+   QObject::connect(actionGfxNameTableMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxNameTableMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinCPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURegister_Inspector_toggled(bool)));
+   QObject::connect(actionBinCPURAM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURAM_Inspector_toggled(bool)));
+   QObject::connect(actionBinROM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinROM_Inspector_toggled(bool)));
+   QObject::connect(actionBinNameTableMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinNameTableMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCHRMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinOAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinOAMMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinSRAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinSRAMMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinEXRAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinEXRAMMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinPaletteMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPaletteMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinAPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinAPURegister_Inspector_toggled(bool)));
+   QObject::connect(actionBinPPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPPURegister_Inspector_toggled(bool)));
+   QObject::connect(actionBinMapperMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinMapperMemory_Inspector_toggled(bool)));
+   QObject::connect(actionPPUInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionPPUInformation_Inspector_toggled(bool)));
+   QObject::connect(actionAPUInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAPUInformation_Inspector_toggled(bool)));
+   QObject::connect(actionMapperInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionMapperInformation_Inspector_toggled(bool)));
 
-   m_pCodeProfiler = new CodeProfilerDockWidget();
-   addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
-   m_pCodeProfiler->hide();
-   QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Code Profiler", m_pCodeProfiler );
-
-   // Connect snapTo's from various debuggers to the central widget.
-   QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
-   QObject::connect ( m_pSourceNavigator, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
-   QObject::connect ( m_pCodeProfiler, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
-   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
-   QObject::connect ( output, SIGNAL(snapTo(QString)), ui->tabWidget, SLOT(snapToTab(QString)) );
-
-   // Slots for updating status bar.
-   QObject::connect ( ui->tabWidget, SIGNAL(addStatusBarWidget(QWidget*)), this, SLOT(addStatusBarWidget(QWidget*)));
-   QObject::connect ( ui->tabWidget, SIGNAL(removeStatusBarWidget(QWidget*)), this, SLOT(removeStatusBarWidget(QWidget*)));
+   // Connect snapTo's from various debuggers.
+   QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
 
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
-   ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
-   ui->actionPAL->setChecked(systemMode==MODE_PAL);
+   actionNTSC->setChecked(systemMode==MODE_NTSC);
+   actionPAL->setChecked(systemMode==MODE_PAL);
    nesSetSystemMode(systemMode);
 
    bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
@@ -368,132 +742,51 @@ MainWindow::MainWindow(QWidget* parent) :
    bool dmc = EmulatorPrefsDialog::getDMCEnabled();
    int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
-   ui->actionSquare_1->setChecked(square1);
-   ui->actionSquare_2->setChecked(square2);
-   ui->actionTriangle->setChecked(triangle);
-   ui->actionNoise->setChecked(noise);
-   ui->actionDelta_Modulation->setChecked(dmc);
-   ui->actionMute_All->setChecked(!mask);
+   actionSquare_1->setChecked(square1);
+   actionSquare_2->setChecked(square2);
+   actionTriangle->setChecked(triangle);
+   actionNoise->setChecked(noise);
+   actionDelta_Modulation->setChecked(dmc);
+   actionMute_All->setChecked(!mask);
 
-   if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
-   {
-      ui->tabWidget->addTab(ui->tab,"Welcome Page");
-      ui->webView->setUrl(QUrl( "http://www.nesicide.com"));
-   }
-   else
-   {
-      ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tab));
-   }
-
-   // Load all plugins.
-   pluginManager->doInitScript();
-   pluginManager->loadPlugins();
-
-   QStringList argv = QApplication::arguments();
-   QStringList argv_nes = argv.filter ( QRegExp("*.nes",Qt::CaseInsensitive,QRegExp::Wildcard) );
-   QStringList argv_nesproject = argv.filter ( QRegExp("*.nesproject",Qt::CaseInsensitive,QRegExp::Wildcard) );
-
-   if ( (argv_nes.count() >= 1) &&
-        (argv_nesproject.count() >= 1) )
-   {
-      QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .nes and a .nesproject file to open.\n" );
-   }
-
-   if ( argv_nes.count() >= 1 )
-   {
-      openROM(argv_nes.at(0));
-
-      if ( argv_nes.count() > 1 )
-      {
-         QMessageBox::information ( 0, "Command Line Error", "Too many NES ROM files were specified on the command\n"
-                                    "line.  Only the first NES ROM was opened, all others\n"
-                                    "were ignored." );
-      }
-   }
-   else if ( argv_nesproject.count() >= 1 )
-   {
-      openProject(argv_nesproject.at(0));
-
-      if ( argv_nesproject.count() > 1 )
-      {
-         QMessageBox::information ( 0, "Command Line Error", "Too many NESICIDE project files were specified on the command\n"
-                                    "line.  Only the first NESICIDE project was opened, all others\n"
-                                    "were ignored." );
-      }
-   }
-   else if ( EnvironmentSettingsDialog::trackRecentProjects() )
-   {
-      argv.clear();
-      argv.append(settings.value("LastProject").toString());
-      if ( !(argv.at(0).isEmpty()) )
-      {
-         if ( argv.at(0).contains(".nesproject") )
-         {
-            openProject(argv.at(0));
-         }
-         else
-         {
-            openROM(argv.at(0));
-         }
-      }
-   }
-
-   projectDataChangesEvent();
-
-   // For now don't use the value from the settings, because nesGetAudioSamples()
-   // always returns APU_SAMPLES samples
-   //emulator->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
-   emit adjustAudio( APU_SAMPLES );
-   emit resetEmulator();
-
-   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
-   {
-      restoreGeometry(settings.value("IDEGeometry").toByteArray());
-      restoreState(settings.value("IDEState").toByteArray());
-   }
+   m_targetLoaded = eSupportedTarget_NES;
 }
 
-MainWindow::~MainWindow()
+void MainWindow::destroyNesUi()
 {
-   ui->tabWidget->clear();
+   if ( m_targetLoaded != eSupportedTarget_NES )
+   {
+      return;
+   }
 
-   // Properly kill and destroy the threads we created above.
-   breakpointWatcher->kill();
-   breakpointWatcher->wait();
-   compiler->kill();
-   compiler->wait();
-   searcher->kill();
-   searcher->wait();
-   emulator->kill();
-   emulator->wait();
+   CDockWidgetRegistry::removeWidget ( "Emulator" );
+   CDockWidgetRegistry::removeWidget ( "CHR Memory Visualizer" );
+   CDockWidgetRegistry::removeWidget ( "OAM Memory Visualizer" );
+   CDockWidgetRegistry::removeWidget ( "Name Table Visualizer" );
+   CDockWidgetRegistry::removeWidget ( "Execution Visualizer" );
+   CDockWidgetRegistry::removeWidget ( "Code/Data Logger Inspector" );
+   CDockWidgetRegistry::removeWidget ( "CPU Register Inspector" );
+   CDockWidgetRegistry::removeWidget ( "CPU RAM Inspector" );
+   CDockWidgetRegistry::removeWidget ( "PRG-ROM Inspector" );
+   CDockWidgetRegistry::removeWidget ( "NameTable Inspector" );
+   CDockWidgetRegistry::removeWidget ( "PPU Register Inspector" );
+   CDockWidgetRegistry::removeWidget ( "PPU Information" );
+   CDockWidgetRegistry::removeWidget ( "APU Register Inspector" );
+   CDockWidgetRegistry::removeWidget ( "APU Information" );
+   CDockWidgetRegistry::removeWidget ( "CHR Memory Inspector" );
+   CDockWidgetRegistry::removeWidget ( "OAM Memory Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Palette Memory Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Cartridge SRAM Memory Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Cartridge EXRAM Memory Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Information" );
+   CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Register Inspector" );
 
-   delete breakpointWatcher;
-   breakpointWatcher = NULL;
-   delete compiler;
-   compiler = NULL;
-   delete searcher;
-   searcher = NULL;
-   delete emulator;
-   emulator = NULL;
-
-   delete testSuiteExecutive;
-
-   delete generalTextLogger;
-   delete buildTextLogger;
-   delete debugTextLogger;
-   delete searchTextLogger;
-
-   delete nesicideProject;
-   delete pluginManager;
-   delete ui;
-
-   delete m_pBreakpointInspector;
+   delete m_pEmulator;
+   delete m_pEmulatorControl;
    delete m_pGfxCHRMemoryInspector;
    delete m_pGfxOAMMemoryInspector;
    delete m_pGfxNameTableMemoryInspector;
-   delete m_pExecutionInspector;
    delete m_pExecutionVisualizer;
-   delete m_pAssemblyInspector;
    delete m_pCodeDataLoggerInspector;
    delete m_pBinCPURegisterInspector;
    delete m_pBinCPURAMInspector;
@@ -510,9 +803,47 @@ MainWindow::~MainWindow()
    delete m_pBinEXRAMMemoryInspector;
    delete m_pMapperInformationInspector;
    delete m_pBinMapperMemoryInspector;
-   delete m_pSourceNavigator;
-   delete m_pSymbolInspector;
-   delete m_pSearch;
+   delete actionFullscreen;
+   delete actionEmulation_Window;
+   delete actionGfxCHRMemory_Inspector;
+   delete actionGfxOAMMemory_Inspector;
+   delete actionGfxNameTableMemory_Inspector;
+   delete actionBinCPURAM_Inspector;
+   delete actionBinNameTableMemory_Inspector;
+   delete actionBinPPURegister_Inspector;
+   delete actionBinAPURegister_Inspector;
+   delete actionBinCHRMemory_Inspector;
+   delete actionBinOAMMemory_Inspector;
+   delete actionBinPaletteMemory_Inspector;
+   delete actionBinSRAMMemory_Inspector;
+   delete actionBinEXRAMMemory_Inspector;
+   delete actionBinCPURegister_Inspector;
+   delete actionBinMapperMemory_Inspector;
+   delete actionBinROM_Inspector;
+   delete actionPPUInformation_Inspector;
+   delete actionI_O;
+   delete actionCodeDataLogger_Inspector;
+   delete actionExecution_Visualizer_Inspector;
+   delete actionMapperInformation_Inspector;
+   delete actionAPUInformation_Inspector;
+   delete actionNTSC;
+   delete actionPAL;
+   delete actionMute_All;
+   delete actionSquare_1;
+   delete actionSquare_2;
+   delete actionTriangle;
+   delete actionNoise;
+   delete actionDelta_Modulation;
+   delete actionRun_Test_Suite;
+   delete menuCPU_Inspectors;
+   delete menuAPU_Inpsectors;
+   delete menuPPU_Inspectors;
+   delete menuCartridge_Inspectors;
+   delete menuVideo;
+   delete menuAudio;
+   delete debuggerToolBar;
+
+   m_targetLoaded = eSupportedTarget_None;
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -522,7 +853,7 @@ void MainWindow::changeEvent(QEvent* e)
    switch (e->type())
    {
       case QEvent::LanguageChange:
-         ui->retranslateUi(this);
+         retranslateUi(this);
          break;
       default:
          break;
@@ -570,7 +901,7 @@ void MainWindow::dropEvent(QDropEvent* event)
             {
                closeProject();
             }
-            openProject(fileName);
+            openNesProject(fileName);
 
             event->acceptProposedAction();
          }
@@ -580,7 +911,7 @@ void MainWindow::dropEvent(QDropEvent* event)
             {
                closeProject();
             }
-            openROM(fileName);
+            openNesROM(fileName);
 
             event->acceptProposedAction();
          }
@@ -620,29 +951,29 @@ void MainWindow::projectDataChangesEvent()
    output->setVisible(nesicideProject->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not
-   ui->actionNew_Project->setEnabled(!nesicideProject->isInitialized());
-   ui->actionCreate_Project_from_ROM->setEnabled(!nesicideProject->isInitialized());
-   ui->actionOpen_Project->setEnabled(!nesicideProject->isInitialized());
-   ui->actionProject_Properties->setEnabled(nesicideProject->isInitialized());
-   ui->action_Project_Browser->setEnabled(nesicideProject->isInitialized());
-   ui->action_Close_Project->setEnabled(nesicideProject->isInitialized());
-   ui->actionCompile_Project->setEnabled(nesicideProject->isInitialized());
-   ui->actionSave_Project->setEnabled(nesicideProject->isInitialized());
-   ui->actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
-   ui->actionClean_Project->setEnabled(nesicideProject->isInitialized());
-   ui->actionLoad_In_Emulator->setEnabled(nesicideProject->isInitialized());
+   actionNew_Project->setEnabled(!nesicideProject->isInitialized());
+   actionCreate_Project_from_ROM->setEnabled(!nesicideProject->isInitialized());
+   actionOpen_Project->setEnabled(!nesicideProject->isInitialized());
+   actionProject_Properties->setEnabled(nesicideProject->isInitialized());
+   action_Project_Browser->setEnabled(nesicideProject->isInitialized());
+   action_Close_Project->setEnabled(nesicideProject->isInitialized());
+   actionCompile_Project->setEnabled(nesicideProject->isInitialized());
+   actionSave_Project->setEnabled(nesicideProject->isInitialized());
+   actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
+   actionClean_Project->setEnabled(nesicideProject->isInitialized());
+   actionLoad_In_Emulator->setEnabled(nesicideProject->isInitialized());
 
-   if (ui->tabWidget->currentIndex() >= 0)
+   if (tabWidget->currentIndex() >= 0)
    {
-      ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->currentWidget());
+      ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(tabWidget->currentWidget());
 
       if ( projectItem && projectItem->isModified() )
       {
-         ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
+         actionSave_Active_Document->setEnabled(projectItem->isModified());
       }
       else
       {
-         ui->actionSave_Active_Document->setEnabled(false);
+         actionSave_Active_Document->setEnabled(false);
       }
    }
 
@@ -657,20 +988,20 @@ void MainWindow::markProjectDirty(bool dirty)
 
 void MainWindow::addStatusBarWidget(QWidget *widget)
 {
-   ui->statusBar->addWidget(widget,100);
+   appStatusBar->addWidget(widget,100);
    widget->show();
 }
 
 void MainWindow::removeStatusBarWidget(QWidget *widget)
 {
    // For some reason on creation the widget isn't there but it's being removed?
-   ui->statusBar->addWidget(widget,100);
-   ui->statusBar->removeWidget(widget);
+   appStatusBar->addWidget(widget,100);
+   appStatusBar->removeWidget(widget);
 }
 
 void MainWindow::setStatusBarMessage(QString message)
 {
-   ui->statusBar->showMessage(message,2000);
+   appStatusBar->showMessage(message,2000);
 }
 
 void MainWindow::on_actionSave_Project_triggered()
@@ -824,9 +1155,11 @@ void MainWindow::on_actionNew_Project_triggered()
    }
 }
 
-void MainWindow::openROM(QString fileName,bool runRom)
+void MainWindow::openNesROM(QString fileName,bool runRom)
 {
    QSettings settings;
+
+   createNesUi();
 
    output->showPane(OutputPaneDockWidget::Output_General);
 
@@ -879,8 +1212,8 @@ void MainWindow::openROM(QString fileName,bool runRom)
 
    projectDataChangesEvent();
 
-   ui->actionEmulation_Window->setChecked(true);
-   on_actionEmulation_Window_toggled(true);
+   actionEmulation_Window->setChecked(true);
+   actionEmulation_Window_toggled(true);
 
    settings.setValue("LastProject",fileName);
 }
@@ -895,15 +1228,15 @@ void MainWindow::on_actionCreate_Project_from_ROM_triggered()
       return;
    }
 
-   openROM(fileName);
+   openNesROM(fileName);
 }
 
 void MainWindow::tabWidget_tabModified(int tab, bool modified)
 {
-   QList<QAction*> actions = ui->menuWindow->actions();
+   QList<QAction*> actions = menuWindow->actions();
    QString match;
 
-   match = ui->tabWidget->tabText(tab);
+   match = tabWidget->tabText(tab);
    if ( modified )
    {
       match = match.left(match.length()-1);
@@ -927,7 +1260,7 @@ void MainWindow::tabWidget_tabModified(int tab, bool modified)
          action->setText(match);
       }
    }
-   ui->actionSave_Active_Document->setEnabled(modified);
+   actionSave_Active_Document->setEnabled(modified);
 }
 
 void MainWindow::windowMenu_triggered()
@@ -937,11 +1270,11 @@ void MainWindow::windowMenu_triggered()
 
    if ( action )
    {
-      for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+      for ( tab = 0; tab < tabWidget->count(); tab++ )
       {
-         if ( ui->tabWidget->tabText(tab) == action->text() )
+         if ( tabWidget->tabText(tab) == action->text() )
          {
-            ui->tabWidget->setCurrentIndex(tab);
+            tabWidget->setCurrentIndex(tab);
          }
       }
    }
@@ -949,8 +1282,8 @@ void MainWindow::windowMenu_triggered()
 
 void MainWindow::tabWidget_tabAdded(int tab)
 {
-   QList<QAction*> actions = ui->menuWindow->actions();
-   QString label = ui->tabWidget->tabText(tab);
+   QList<QAction*> actions = menuWindow->actions();
+   QString label = tabWidget->tabText(tab);
    QAction* action;
    bool found = false;
 
@@ -963,17 +1296,17 @@ void MainWindow::tabWidget_tabAdded(int tab)
    }
    if ( !found )
    {
-      action = ui->menuWindow->addAction(label);
+      action = menuWindow->addAction(label);
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
    }
-   ui->menuWindow->setEnabled(ui->menuWindow->actions().count()>0);
+   menuWindow->setEnabled(menuWindow->actions().count()>0);
 }
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
-   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
-   QList<QAction*> actions = ui->menuWindow->actions();
-   QString label = ui->tabWidget->tabText(index);
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(tabWidget->widget(index));
+   QList<QAction*> actions = menuWindow->actions();
+   QString label = tabWidget->tabText(index);
    QAction* action;
 
    foreach ( action, actions )
@@ -981,22 +1314,22 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
       if ( label == action->text() )
       {
          QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
-         ui->menuWindow->removeAction(action);
+         menuWindow->removeAction(action);
       }
    }
-   ui->menuWindow->setEnabled(ui->menuWindow->actions().count()>0);
+   menuWindow->setEnabled(menuWindow->actions().count()>0);
 
    if (projectItem)
    {
       if (projectItem->onCloseQuery())
       {
-         ui->tabWidget->removeTab(index);
+         tabWidget->removeTab(index);
          projectItem->onClose();
       }
    }
    else
    {
-      ui->tabWidget->removeTab(index);
+      tabWidget->removeTab(index);
    }
 }
 
@@ -1012,7 +1345,7 @@ void MainWindow::on_action_Project_Browser_toggled(bool visible)
    }
 }
 
-void MainWindow::on_actionEmulation_Window_toggled(bool value)
+void MainWindow::actionEmulation_Window_toggled(bool value)
 {
    if (value)
    {
@@ -1039,7 +1372,7 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QMainWindow::closeEvent(event);
 }
 
-void MainWindow::openProject(QString fileName,bool runRom)
+void MainWindow::openNesProject(QString fileName,bool runRom)
 {
    QSettings settings;
    QString errors;
@@ -1119,8 +1452,8 @@ void MainWindow::openProject(QString fileName,bool runRom)
             emit startEmulation();
          }
 
-         ui->actionEmulation_Window->setChecked(true);
-         on_actionEmulation_Window_toggled(true);
+         actionEmulation_Window->setChecked(true);
+         actionEmulation_Window_toggled(true);
       }
 
       m_pProjectBrowser->enableNavigation();
@@ -1142,36 +1475,36 @@ void MainWindow::on_actionOpen_Project_triggered()
       return;
    }
 
-   openProject(fileName);
+   openNesProject(fileName);
 }
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(index));
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(tabWidget->widget(index));
    int idx;
 
    if ( projectItem )
    {
-      QList<QAction*> actions = ui->menuEdit->actions();
+      QList<QAction*> actions = menuEdit->actions();
       for ( idx = actions.count()-1; idx >= 2; idx-- )
       {
-         ui->menuEdit->removeAction(actions.at(idx));
+         menuEdit->removeAction(actions.at(idx));
       }
-      ui->menuEdit->addActions(projectItem->editorMenu().actions());
+      menuEdit->addActions(projectItem->editorMenu().actions());
       if ( projectItem->isModified() )
       {
-         ui->actionSave_Active_Document->setEnabled(projectItem->isModified());
+         actionSave_Active_Document->setEnabled(projectItem->isModified());
       }
       else
       {
-         ui->actionSave_Active_Document->setEnabled(false);
+         actionSave_Active_Document->setEnabled(false);
       }
    }
 }
 
 void MainWindow::on_actionSave_Active_Document_triggered()
 {
-   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->currentWidget());
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(tabWidget->currentWidget());
 
    if (projectItem)
    {
@@ -1181,7 +1514,7 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
 void MainWindow::reflectedOutput_Window_close(bool toplevel)
 {
-   ui->actionOutput_Window->setChecked(toplevel);
+   actionOutput_Window->setChecked(toplevel);
 }
 
 void MainWindow::on_actionOutput_Window_toggled(bool value)
@@ -1191,7 +1524,7 @@ void MainWindow::on_actionOutput_Window_toggled(bool value)
 
 void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 {
-   ui->action_Project_Browser->setChecked(toplevel);
+   action_Project_Browser->setChecked(toplevel);
 }
 
 void MainWindow::on_actionCompile_Project_triggered()
@@ -1206,9 +1539,9 @@ void MainWindow::on_actionCompile_Project_triggered()
       on_actionSave_Project_triggered();
 
       // Try to save all opened editors
-      for ( tab = 0; tab < ui->tabWidget->count(); tab++ )
+      for ( tab = 0; tab < tabWidget->count(); tab++ )
       {
-         ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
+         ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(tabWidget->widget(tab));
          if ( item )
          {
             if ( item->isModified() )
@@ -1223,14 +1556,14 @@ void MainWindow::on_actionCompile_Project_triggered()
 
 void MainWindow::compiler_compileStarted()
 {
-   ui->actionCompile_Project->setEnabled(false);
-   ui->actionLoad_In_Emulator->setEnabled(false);
+   actionCompile_Project->setEnabled(false);
+   actionLoad_In_Emulator->setEnabled(false);
 }
 
 void MainWindow::compiler_compileDone(bool bOk)
 {
-   ui->actionCompile_Project->setEnabled(true);
-   ui->actionLoad_In_Emulator->setEnabled(true);
+   actionCompile_Project->setEnabled(true);
+   actionLoad_In_Emulator->setEnabled(true);
 
    projectDataChangesEvent();
 }
@@ -1242,17 +1575,17 @@ void MainWindow::on_actionExecution_Inspector_toggled(bool value)
 
 void MainWindow::reflectedExecutionInspector_close (bool toplevel)
 {
-   ui->actionExecution_Inspector->setChecked(toplevel);
+   actionExecution_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionExecution_Visualizer_Inspector_toggled(bool value)
+void MainWindow::actionExecution_Visualizer_Inspector_toggled(bool value)
 {
    m_pExecutionVisualizer->setVisible(value);
 }
 
 void MainWindow::reflectedExecutionVisualizer_Inspector_close (bool toplevel)
 {
-   ui->actionExecution_Visualizer_Inspector->setChecked(toplevel);
+   actionExecution_Visualizer_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionBreakpoint_Inspector_toggled(bool value)
@@ -1262,157 +1595,157 @@ void MainWindow::on_actionBreakpoint_Inspector_toggled(bool value)
 
 void MainWindow::reflectedBreakpointInspector_close (bool toplevel)
 {
-   ui->actionBreakpoint_Inspector->setChecked(toplevel);
+   actionBreakpoint_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionGfxCHRMemory_Inspector_toggled(bool value)
+void MainWindow::actionGfxCHRMemory_Inspector_toggled(bool value)
 {
    m_pGfxCHRMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedGfxCHRMemoryInspector_close (bool toplevel)
 {
-   ui->actionGfxCHRMemory_Inspector->setChecked(toplevel);
+   actionGfxCHRMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionGfxOAMMemory_Inspector_toggled(bool value)
+void MainWindow::actionGfxOAMMemory_Inspector_toggled(bool value)
 {
    m_pGfxOAMMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedGfxOAMMemoryInspector_close (bool toplevel)
 {
-   ui->actionGfxOAMMemory_Inspector->setChecked(toplevel);
+   actionGfxOAMMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionGfxNameTableMemory_Inspector_toggled(bool value)
+void MainWindow::actionGfxNameTableMemory_Inspector_toggled(bool value)
 {
    m_pGfxNameTableMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedGfxNameTableMemoryInspector_close (bool toplevel)
 {
-   ui->actionGfxNameTableMemory_Inspector->setChecked(toplevel);
+   actionGfxNameTableMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinOAMMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinOAMMemory_Inspector_toggled(bool value)
 {
    m_pBinOAMMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinOAMMemoryInspector_close (bool toplevel)
 {
-   ui->actionBinOAMMemory_Inspector->setChecked(toplevel);
+   actionBinOAMMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinCPURegister_Inspector_toggled(bool value)
+void MainWindow::actionBinCPURegister_Inspector_toggled(bool value)
 {
    m_pBinCPURegisterInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinCPURegisterInspector_close ( bool toplevel )
 {
-   ui->actionBinCPURegister_Inspector->setChecked(toplevel);
+   actionBinCPURegister_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinCPURAM_Inspector_toggled(bool value)
+void MainWindow::actionBinCPURAM_Inspector_toggled(bool value)
 {
    m_pBinCPURAMInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinCPURAMInspector_close (bool toplevel)
 {
-   ui->actionBinCPURAM_Inspector->setChecked(toplevel);
+   actionBinCPURAM_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinROM_Inspector_toggled(bool value)
+void MainWindow::actionBinROM_Inspector_toggled(bool value)
 {
    m_pBinROMInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinROMInspector_close (bool toplevel)
 {
-   ui->actionBinROM_Inspector->setChecked(toplevel);
+   actionBinROM_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinNameTableMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinNameTableMemory_Inspector_toggled(bool value)
 {
    m_pBinNameTableMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinNameTableMemoryInspector_close (bool toplevel)
 {
-   ui->actionBinNameTableMemory_Inspector->setChecked(toplevel);
+   actionBinNameTableMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinPaletteMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinPaletteMemory_Inspector_toggled(bool value)
 {
    m_pBinPaletteMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinPaletteMemoryInspector_close (bool toplevel)
 {
-   ui->actionBinPaletteMemory_Inspector->setChecked(toplevel);
+   actionBinPaletteMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinPPURegister_Inspector_toggled(bool value)
+void MainWindow::actionBinPPURegister_Inspector_toggled(bool value)
 {
    m_pBinPPURegisterInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinPPURegisterInspector_close ( bool toplevel )
 {
-   ui->actionBinPPURegister_Inspector->setChecked(toplevel);
+   actionBinPPURegister_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinAPURegister_Inspector_toggled(bool value)
+void MainWindow::actionBinAPURegister_Inspector_toggled(bool value)
 {
    m_pBinAPURegisterInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinAPURegisterInspector_close ( bool toplevel )
 {
-   ui->actionBinAPURegister_Inspector->setChecked(toplevel);
+   actionBinAPURegister_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinCHRMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinCHRMemory_Inspector_toggled(bool value)
 {
    m_pBinCHRMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinCHRMemoryInspector_close ( bool toplevel )
 {
-   ui->actionBinCHRMemory_Inspector->setChecked(toplevel);
+   actionBinCHRMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinSRAMMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinSRAMMemory_Inspector_toggled(bool value)
 {
    m_pBinSRAMMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinSRAMMemoryInspector_close ( bool toplevel )
 {
-   ui->actionBinSRAMMemory_Inspector->setChecked(toplevel);
+   actionBinSRAMMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinEXRAMMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinEXRAMMemory_Inspector_toggled(bool value)
 {
    m_pBinEXRAMMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinEXRAMMemoryInspector_close ( bool toplevel )
 {
-   ui->actionBinEXRAMMemory_Inspector->setChecked(toplevel);
+   actionBinEXRAMMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBinMapperMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinMapperMemory_Inspector_toggled(bool value)
 {
    m_pBinMapperMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
 {
-   ui->actionBinMapperMemory_Inspector->setChecked(toplevel);
+   actionBinMapperMemory_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionAssembly_Inspector_toggled(bool value)
@@ -1422,52 +1755,52 @@ void MainWindow::on_actionAssembly_Inspector_toggled(bool value)
 
 void MainWindow::reflectedEmulator_close ( bool toplevel )
 {
-   ui->actionEmulation_Window->setChecked(toplevel);
+   actionEmulation_Window->setChecked(toplevel);
 }
 
 void MainWindow::reflectedAssemblyInspector_close ( bool toplevel )
 {
-   ui->actionAssembly_Inspector->setChecked(toplevel);
+   actionAssembly_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionCodeDataLogger_Inspector_toggled(bool value)
+void MainWindow::actionCodeDataLogger_Inspector_toggled(bool value)
 {
    m_pCodeDataLoggerInspector->setVisible(value);
 }
 
 void MainWindow::reflectedCodeDataLoggerInspector_close ( bool toplevel )
 {
-   ui->actionCodeDataLogger_Inspector->setChecked(toplevel);
+   actionCodeDataLogger_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionPPUInformation_Inspector_toggled(bool value)
+void MainWindow::actionPPUInformation_Inspector_toggled(bool value)
 {
    m_pPPUInformationInspector->setVisible(value);
 }
 
 void MainWindow::reflectedPPUInformationInspector_close ( bool toplevel )
 {
-   ui->actionPPUInformation_Inspector->setChecked(toplevel);
+   actionPPUInformation_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionAPUInformation_Inspector_toggled(bool value)
+void MainWindow::actionAPUInformation_Inspector_toggled(bool value)
 {
    m_pAPUInformationInspector->setVisible(value);
 }
 
 void MainWindow::reflectedAPUInformationInspector_close ( bool toplevel )
 {
-   ui->actionAPUInformation_Inspector->setChecked(toplevel);
+   actionAPUInformation_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionMapperInformation_Inspector_toggled(bool value)
+void MainWindow::actionMapperInformation_Inspector_toggled(bool value)
 {
    m_pMapperInformationInspector->setVisible(value);
 }
 
 void MainWindow::reflectedMapperInformationInspector_close ( bool toplevel )
 {
-   ui->actionMapperInformation_Inspector->setChecked(toplevel);
+   actionMapperInformation_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::on_actionSymbol_Watch_toggled(bool value)
@@ -1477,7 +1810,7 @@ void MainWindow::on_actionSymbol_Watch_toggled(bool value)
 
 void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
 {
-   ui->actionSymbol_Watch->setChecked(toplevel);
+   actionSymbol_Watch->setChecked(toplevel);
 }
 
 void MainWindow::on_actionCode_Profiler_toggled(bool value)
@@ -1487,7 +1820,7 @@ void MainWindow::on_actionCode_Profiler_toggled(bool value)
 
 void MainWindow::reflectedCode_Profiler_close ( bool toplevel )
 {
-   ui->actionCode_Profiler->setChecked(toplevel);
+   actionCode_Profiler->setChecked(toplevel);
 }
 
 void MainWindow::on_actionSearch_toggled(bool value)
@@ -1498,7 +1831,7 @@ void MainWindow::on_actionSearch_toggled(bool value)
 
 void MainWindow::reflectedSearch_close ( bool toplevel )
 {
-   ui->actionSearch->setChecked(toplevel);
+   actionSearch->setChecked(toplevel);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()
@@ -1510,25 +1843,25 @@ void MainWindow::on_action_About_Nesicide_triggered()
 
 void MainWindow::closeProject()
 {
-   QList<QAction*> actions = ui->menuWindow->actions();
+   QList<QAction*> actions = menuWindow->actions();
    QAction* action;
-   int tab;
+   int idx;
 
    // Close all inspectors
    CDockWidgetRegistry::hideAll();
 
    // Try to close all opened editors
-   for ( tab = ui->tabWidget->count()-1; tab >= 0; tab-- )
+   for ( idx = tabWidget->count()-1; idx >= 0; idx-- )
    {
-      ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->widget(tab));
+      ICenterWidgetItem* item = dynamic_cast<ICenterWidgetItem*>(tabWidget->widget(idx));
       if ( item )
       {
-         ui->tabWidget->setCurrentWidget(ui->tabWidget->widget(tab));
+         tabWidget->setCurrentWidget(tabWidget->widget(idx));
          if ( item->onSaveQuery() )
          {
             item->onSave();
          }
-         ui->tabWidget->removeTab(tab);
+         tabWidget->removeTab(idx);
       }
    }
 
@@ -1558,9 +1891,9 @@ void MainWindow::closeProject()
    foreach ( action, actions )
    {
       QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
-      ui->menuWindow->removeAction(action);
+      menuWindow->removeAction(action);
    }
-   ui->menuWindow->setEnabled(ui->menuWindow->actions().count()>0);
+   menuWindow->setEnabled(menuWindow->actions().count()>0);
 
    CCC65Interface::clear();
 
@@ -1571,8 +1904,8 @@ void MainWindow::closeProject()
 
    if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
-      ui->tabWidget->addTab(ui->tab,"Welcome Page");
-      ui->webView->setUrl(QUrl( "http://www.nesicide.com"));
+      tabWidget->addTab(tab,"Welcome Page");
+      webView->setUrl(QUrl( "http://www.nesicide.com"));
    }
 
    // Clear output
@@ -1583,6 +1916,8 @@ void MainWindow::closeProject()
 
    // Let the UI know what's up
    projectDataChangesEvent();
+
+   destroyNesUi();
 }
 
 void MainWindow::on_action_Close_Project_triggered()
@@ -1594,34 +1929,34 @@ void MainWindow::on_action_Close_Project_triggered()
    closeProject();
 }
 
-void MainWindow::on_actionNTSC_triggered()
+void MainWindow::actionNTSC_triggered()
 {
    EmulatorPrefsDialog::setTVStandard(MODE_NTSC);
-   ui->actionNTSC->setChecked(true);
-   ui->actionPAL->setChecked(false);
+   actionNTSC->setChecked(true);
+   actionPAL->setChecked(false);
    nesSetSystemMode(MODE_NTSC);
 
    emit resetEmulator();
    emit startEmulation();
 }
 
-void MainWindow::on_actionPAL_triggered()
+void MainWindow::actionPAL_triggered()
 {
    EmulatorPrefsDialog::setTVStandard(MODE_PAL);
-   ui->actionNTSC->setChecked(false);
-   ui->actionPAL->setChecked(true);
+   actionNTSC->setChecked(false);
+   actionPAL->setChecked(true);
    nesSetSystemMode(MODE_PAL);
 
    emit resetEmulator();
    emit startEmulation();
 }
 
-void MainWindow::on_actionDelta_Modulation_toggled(bool value)
+void MainWindow::actionDelta_Modulation_toggled(bool value)
 {
    EmulatorPrefsDialog::setDMCEnabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
+      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x10);
    }
    else
@@ -1630,12 +1965,12 @@ void MainWindow::on_actionDelta_Modulation_toggled(bool value)
    }
 }
 
-void MainWindow::on_actionNoise_toggled(bool value)
+void MainWindow::actionNoise_toggled(bool value)
 {
    EmulatorPrefsDialog::setNoiseEnabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
+      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x08);
    }
    else
@@ -1644,12 +1979,12 @@ void MainWindow::on_actionNoise_toggled(bool value)
    }
 }
 
-void MainWindow::on_actionTriangle_toggled(bool value)
+void MainWindow::actionTriangle_toggled(bool value)
 {
    EmulatorPrefsDialog::setTriangleEnabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
+      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x04);
    }
    else
@@ -1658,12 +1993,12 @@ void MainWindow::on_actionTriangle_toggled(bool value)
    }
 }
 
-void MainWindow::on_actionSquare_2_toggled(bool value)
+void MainWindow::actionSquare_2_toggled(bool value)
 {
    EmulatorPrefsDialog::setSquare2Enabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
+      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x02);
    }
    else
@@ -1672,12 +2007,12 @@ void MainWindow::on_actionSquare_2_toggled(bool value)
    }
 }
 
-void MainWindow::on_actionSquare_1_toggled(bool value)
+void MainWindow::actionSquare_1_toggled(bool value)
 {
    EmulatorPrefsDialog::setSquare1Enabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
+      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x01);
    }
    else
@@ -1686,18 +2021,18 @@ void MainWindow::on_actionSquare_1_toggled(bool value)
    }
 }
 
-void MainWindow::on_actionMute_All_toggled(bool value)
+void MainWindow::actionMute_All_toggled(bool value)
 {
    EmulatorPrefsDialog::setSquare1Enabled(!value);
    EmulatorPrefsDialog::setSquare2Enabled(!value);
    EmulatorPrefsDialog::setTriangleEnabled(!value);
    EmulatorPrefsDialog::setNoiseEnabled(!value);
    EmulatorPrefsDialog::setDMCEnabled(!value);
-   ui->actionSquare_1->setChecked(!value);
-   ui->actionSquare_2->setChecked(!value);
-   ui->actionTriangle->setChecked(!value);
-   ui->actionNoise->setChecked(!value);
-   ui->actionDelta_Modulation->setChecked(!value);
+   actionSquare_1->setChecked(!value);
+   actionSquare_2->setChecked(!value);
+   actionTriangle->setChecked(!value);
+   actionNoise->setChecked(!value);
+   actionDelta_Modulation->setChecked(!value);
 
    if ( value )
    {
@@ -1727,8 +2062,8 @@ void MainWindow::on_actionPreferences_triggered()
    // Synchronize UI elements with changes.
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
-   ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
-   ui->actionPAL->setChecked(systemMode==MODE_PAL);
+   actionNTSC->setChecked(systemMode==MODE_NTSC);
+   actionPAL->setChecked(systemMode==MODE_PAL);
    nesSetSystemMode(systemMode);
 
    bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
@@ -1743,19 +2078,19 @@ void MainWindow::on_actionPreferences_triggered()
 
    if ( !(square1|square2|triangle|noise|dmc) )
    {
-      ui->actionMute_All->setChecked(true);
+      actionMute_All->setChecked(true);
       nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
    }
    else
    {
-      ui->actionMute_All->setChecked(false);
+      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|mask);
    }
-   ui->actionSquare_1->setChecked(square1);
-   ui->actionSquare_2->setChecked(square2);
-   ui->actionTriangle->setChecked(triangle);
-   ui->actionNoise->setChecked(noise);
-   ui->actionDelta_Modulation->setChecked(dmc);
+   actionSquare_1->setChecked(square1);
+   actionSquare_2->setChecked(square2);
+   actionTriangle->setChecked(triangle);
+   actionNoise->setChecked(noise);
+   actionDelta_Modulation->setChecked(dmc);
 
    if ( EmulatorPrefsDialog::videoSettingsChanged() )
    {
@@ -1778,8 +2113,8 @@ void MainWindow::on_actionPreferences_triggered()
 
 void MainWindow::on_actionOnline_Help_triggered()
 {
-   ui->tabWidget->addTab(ui->tab,"Welcome Page");
-   ui->webView->setUrl(QUrl( "http://www.nesicide.com"));
+   tabWidget->addTab(tab,"Welcome Page");
+   webView->setUrl(QUrl( "http://www.nesicide.com"));
 }
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
@@ -1788,7 +2123,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
    if ( compiler->assembledOk() )
    {
-      ui->actionLoad_In_Emulator->setEnabled(false);
+      actionLoad_In_Emulator->setEnabled(false);
 
       buildTextLogger->write("<b>Loading ROM...</b>");
 
@@ -1808,8 +2143,8 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
       buildTextLogger->write("<b>Load complete.</b>");
 
-      ui->actionEmulation_Window->setChecked(true);
-      on_actionEmulation_Window_toggled(true);
+      actionEmulation_Window->setChecked(true);
+      actionEmulation_Window_toggled(true);
    }
    else
    {
@@ -1817,7 +2152,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
    }
 }
 
-void MainWindow::on_actionRun_Test_Suite_triggered()
+void MainWindow::actionRun_Test_Suite_triggered()
 {
    testSuiteExecutive->show();
 }
@@ -1844,8 +2179,8 @@ void MainWindow::openFile(QString file)
 
       fileIn.close();
 
-      ui->tabWidget->addTab(editor, fileName);
-      ui->tabWidget->setCurrentWidget(editor);
+      tabWidget->addTab(editor, fileName);
+      tabWidget->setCurrentWidget(editor);
    }
    else
    {
@@ -1853,7 +2188,7 @@ void MainWindow::openFile(QString file)
    }
 }
 
-void MainWindow::on_actionFullscreen_toggled(bool value)
+void MainWindow::actionFullscreen_toggled(bool value)
 {
    if ( value )
    {
@@ -1875,17 +2210,25 @@ void MainWindow::focusEmulator()
 
 void MainWindow::menuEdit_aboutToShow()
 {
-   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(ui->tabWidget->currentWidget());
+   ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(tabWidget->currentWidget());
    int idx;
 
    if ( projectItem )
    {
-      QList<QAction*> actions = ui->menuEdit->actions();
+      QList<QAction*> actions = menuEdit->actions();
       for ( idx = actions.count()-1; idx >= 2; idx-- )
       {
-         ui->menuEdit->removeAction(actions.at(idx));
+         menuEdit->removeAction(actions.at(idx));
       }
-      ui->menuEdit->addActions(projectItem->editorMenu().actions());
+      menuEdit->addActions(projectItem->editorMenu().actions());
+   }
+   else
+   {
+      QList<QAction*> actions = menuEdit->actions();
+      for ( idx = actions.count()-1; idx >= 2; idx-- )
+      {
+         menuEdit->removeAction(actions.at(idx));
+      }
    }
 }
 

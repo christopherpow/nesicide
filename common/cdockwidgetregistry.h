@@ -19,6 +19,7 @@ public:
    static void     addWidget(const QString& name,
                              QWidget* widget,
                              bool visible = false);
+   static void     removeWidget(const QString& name);
    static void         hideAll();
    static void         saveVisibility();
    static bool         visible(const QString& name);

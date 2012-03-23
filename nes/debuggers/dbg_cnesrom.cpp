@@ -17,7 +17,7 @@
 #include "dbg_cnesrom.h"
 #include "dbg_cnes6502.h"
 
-#include "emulator_core.h"
+#include "nes_emulator_core.h"
 
 static CROMDBG __init __attribute((unused));
 
