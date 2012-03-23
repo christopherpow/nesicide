@@ -115,5 +115,5 @@ int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex& parent) const
 
 void CDebuggerRegisterDisplayModel::update()
 {
-   emit dataChanged(QModelIndex(),QModelIndex());
+   emit layoutChanged();
 }

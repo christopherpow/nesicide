@@ -89,6 +89,15 @@ void RegisterInspectorDockWidget::changeEvent(QEvent* e)
 
 void RegisterInspectorDockWidget::updateMemory ()
 {
+   char buffer [ 128 ];
+
+   ui->binaryView->resizeColumnsToContents();
+
+   if ( m_regDB() )
+   {
+      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      ui->label->setText ( buffer );
+   }
 #if 0
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    eMemoryType memoryType = binaryModel->memoryType();
@@ -102,12 +111,6 @@ void RegisterInspectorDockWidget::updateMemory ()
    {
       sprintf ( buffer, "Mapper %d: %s Register Inspector", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
       setWindowTitle ( buffer );
-   }
-
-   if ( m_regDB() )
-   {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
-      ui->label->setText ( buffer );
    }
 
    // Check breakpoints for hits and highlight if necessary...
