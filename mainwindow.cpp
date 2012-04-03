@@ -65,10 +65,10 @@ MainWindow::MainWindow(QWidget* parent) :
    debugTextLogger = new CTextLogger();
    searchTextLogger = new CTextLogger();
 
+   setupUi(this);
+
    nesicideProject = new CNesicideProject();
    QObject::connect(nesicideProject,SIGNAL(createTarget(QString)),this,SLOT(createTarget(QString)));
-
-   setupUi(this);
 
    QObject::connect(tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
    QObject::connect(tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
@@ -247,12 +247,6 @@ MainWindow::MainWindow(QWidget* parent) :
    }
 
    projectDataChangesEvent();
-
-   // For now don't use the value from the settings, because nesGetAudioSamples()
-   // always returns APU_SAMPLES samples
-   //m_pNESEmulatorThread->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
-   emit adjustAudio( APU_SAMPLES );
-   emit resetEmulator();
 
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
    {

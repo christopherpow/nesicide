@@ -31,6 +31,10 @@ int EnvironmentSettingsDialog::m_spacesForTabs;
 bool EnvironmentSettingsDialog::m_annotateSource;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
+QString EnvironmentSettingsDialog::m_viceExecutable;
+QString EnvironmentSettingsDialog::m_viceIPAddress;
+int EnvironmentSettingsDialog::m_viceMonitorPort;
+QString EnvironmentSettingsDialog::m_viceOptions;
 
 static const char* sourceExtensionListC = ".c .c65";
 static const char* sourceExtensionListAsm = ".a .asm .a65 .s .s65";
@@ -132,6 +136,11 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->sourceExtensionsC->setText(m_cSourceExtensions);
    ui->sourceExtensionsAsm->setText(m_asmSourceExtensions);
 
+   ui->viceC64Executable->setText(m_viceExecutable);
+   ui->viceC64MonitorIPAddress->setText(m_viceIPAddress);
+   ui->viceC64MonitorPort->setText(QString::number(m_viceMonitorPort));
+   ui->viceOptions->setText(m_viceOptions);
+
    pageMap.insert("General",ui->general);
    pageMap.insert("Code Editor",ui->codeeditor);
    pageMap.insert("Compiler",ui->compiler);
@@ -213,6 +222,13 @@ void EnvironmentSettingsDialog::readSettings()
    m_annotateSource = settings.value("annotateSource",QVariant(true)).toBool();
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
+
+   settings.beginGroup("C=64");
+   m_viceExecutable = settings.value("VICEExecutable",QVariant()).toString();
+   m_viceIPAddress = settings.value("VICEIPAddress",QVariant("127.0.0.1")).toString();
+   m_viceMonitorPort = settings.value("VICEMonitorPort",QVariant(6510)).toInt();
+   m_viceOptions = settings.value("VICEOptions",QVariant()).toString();
+   settings.endGroup();
 //   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    settings.endGroup();
 }
@@ -254,6 +270,11 @@ void EnvironmentSettingsDialog::writeSettings()
    m_annotateSource = ui->annotate->isChecked();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
+
+   m_viceExecutable = ui->viceC64Executable->text();
+   m_viceIPAddress = ui->viceC64MonitorIPAddress->text();
+   m_viceMonitorPort = ui->viceC64MonitorPort->text().toInt();
+   m_viceOptions = ui->viceOptions->toPlainText();
 //   m_lastActiveTab = ui->treeWidget->currentIndex();
 
    // Then save to QSettings;
@@ -291,6 +312,12 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
 
 //   settings.setValue("LastActiveTab",m_lastActiveTab);
+   settings.beginGroup("C=64");
+   settings.setValue("VICEExecutable",m_viceExecutable);
+   settings.setValue("VICEIPAddress",m_viceIPAddress);
+   settings.setValue("VICEMonitorPort",m_viceMonitorPort);
+   settings.setValue("VICEOptions",m_viceOptions);
+   settings.endGroup();
    settings.endGroup();
 
    m_defaultLexer->writeSettings(settings,"CodeEditor");
@@ -400,11 +427,6 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
    m_scintilla->markerAdd(1,Marker_Highlight);
 }
 
-//void EnvironmentSettingsDialog::on_buttonBox_accepted()
-//{
-//   writeSettings();
-//   accept();
-//}
 
 void EnvironmentSettingsDialog::changeEvent(QEvent* e)
 {
@@ -690,4 +712,14 @@ void EnvironmentSettingsDialog::on_treeWidget_itemSelectionChanged()
 void EnvironmentSettingsDialog::on_buttonBox_accepted()
 {
    writeSettings();
+}
+
+void EnvironmentSettingsDialog::on_viceC64Browse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"VICE Executables Path",ui->viceC64Executable->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->viceC64Executable->setText(value);
+   }
 }

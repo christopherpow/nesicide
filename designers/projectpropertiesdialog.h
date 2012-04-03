@@ -38,7 +38,6 @@ private:
    QMap<QString,QWidget*> pageMap;
 
 private slots:
-   void on_viceC64Browse_clicked();
    void on_treeWidget_itemSelectionChanged();
    void on_editProperty_clicked();
    void on_propertyTableView_doubleClicked(QModelIndex index);

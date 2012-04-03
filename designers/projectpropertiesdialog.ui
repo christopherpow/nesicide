@@ -81,16 +81,6 @@
        </property>
       </item>
      </item>
-     <item>
-      <property name="text">
-       <string>Commodore 64</string>
-      </property>
-      <item>
-       <property name="text">
-        <string>VICE Settings</string>
-       </property>
-      </item>
-     </item>
     </widget>
    </item>
    <item row="0" column="1">
@@ -99,7 +89,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="project">
       <layout class="QGridLayout" name="gridLayout_8">
@@ -1070,47 +1060,6 @@
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="c64vicesettings">
-      <layout class="QFormLayout" name="formLayout">
-       <item row="0" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>VICE Commodore 64 Executable</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
-          <item>
-           <widget class="QLineEdit" name="viceC64Executable">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="viceC64Browse">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../resource.qrc">
-              <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_31">
-         <property name="text">
-          <string>VICE Remote Monitor Port:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="viceC64MonitorPort"/>
        </item>
       </layout>
      </widget>

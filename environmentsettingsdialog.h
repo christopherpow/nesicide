@@ -50,6 +50,10 @@ public:
    static bool annotateSource() { return m_annotateSource; }
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
+   static QString VICEExecutable() { return m_viceExecutable; }
+   static QString VICEIPAddress() { return m_viceIPAddress; }
+   static int VICEMonitorPort() { return m_viceMonitorPort; }
+   static QString VICEOptions() { return m_viceOptions; }
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
 
@@ -97,8 +101,13 @@ private:
    static bool m_annotateSource;
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
+   static QString m_viceExecutable;
+   static QString m_viceIPAddress;
+   static int m_viceMonitorPort;
+   static QString m_viceOptions;
 
 private slots:
+   void on_viceC64Browse_clicked();
    void on_buttonBox_accepted();
    void on_treeWidget_itemSelectionChanged();
    void on_language_currentIndexChanged(int index);

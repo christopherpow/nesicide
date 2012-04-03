@@ -28,8 +28,7 @@
 
 QSemaphore c64BreakpointSemaphore(0);
 
-QSemaphore*  m_requestSemaphore;
-QSemaphore*  m_clientSemaphore;
+QMutex*  m_requestMutex;
 
 static void breakpointHook ( void )
 {
@@ -40,25 +39,28 @@ static void breakpointHook ( void )
 
 C64EmulatorThread::C64EmulatorThread(QObject*)
 {
+   QDir dir(EnvironmentSettingsDialog::VICEExecutable());
+   QString viceStartup;
+   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.exe"));
+   viceStartup += " -remotemonitor";
+
+// CPTODO: Setting VICE monitor port doesn't seem to work yet even if the port is
+//         explicitly set to 6510.
+//   viceStartup += " -remotemonitoraddress ";
+//   viceStartup += QString::number(EnvironmentSettingsDialog::VICEMonitorPort());
+   viceStartup += " ";
+   viceStartup += EnvironmentSettingsDialog::VICEOptions();
+
    m_pViceApp = new QProcess(this);
-   m_pViceApp->start("C:\\WinVICE\\x64sc.exe -remotemonitor");
-   m_pViceApp->waitForStarted();
-
-   m_pClient = new TcpClient();
-   m_pClient->moveToThread(this);
-
-   QObject::connect(m_pClient,SIGNAL(responses(QStringList,QStringList)),this,SLOT(processResponses(QStringList,QStringList)));
-   QObject::connect(this,SIGNAL(sendRequests(QStringList,QList<int>)),m_pClient,SLOT(sendRequests(QStringList,QList<int>)));
-   QObject::connect(m_pClient,SIGNAL(traps(QString)),this,SLOT(processTraps(QString)));
+   QObject::connect(m_pViceApp,SIGNAL(started()),this,SLOT(viceStarted()));
+   QObject::connect(m_pViceApp,SIGNAL(error(QProcess::ProcessError)),this,SLOT(viceError(QProcess::ProcessError)));
+   QObject::connect(m_pViceApp,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(viceFinished(int,QProcess::ExitStatus)));
+   m_pViceApp->start(viceStartup);
 
    // Enable breakpoint callbacks from the external emulator library.
    c64SetBreakpointHook(breakpointHook);
 
-   m_requestSemaphore = new QSemaphore(1);
-   m_clientSemaphore = new QSemaphore(1);
-
-   // Start the thread.
-   start();
+   m_requestMutex = new QMutex();
 }
 
 C64EmulatorThread::~C64EmulatorThread()
@@ -67,24 +69,92 @@ C64EmulatorThread::~C64EmulatorThread()
    m_pViceApp->deleteLater();
 }
 
+void C64EmulatorThread::timerEvent(QTimerEvent *event)
+{
+}
+
+void C64EmulatorThread::viceStarted()
+{
+   m_pClient = new TcpClient(EnvironmentSettingsDialog::VICEIPAddress(),EnvironmentSettingsDialog::VICEMonitorPort());
+   m_pClient->moveToThread(this);
+
+   QObject::connect(m_pClient,SIGNAL(responses(QStringList,QStringList)),this,SLOT(processResponses(QStringList,QStringList)));
+   QObject::connect(this,SIGNAL(sendRequests(QStringList,QList<int>)),m_pClient,SLOT(sendRequests(QStringList,QList<int>)));
+   QObject::connect(m_pClient,SIGNAL(traps(QString)),this,SLOT(processTraps(QString)));
+   QObject::connect(m_pClient,SIGNAL(clientConnected()),this,SIGNAL(emulatorConnected()));
+   QObject::connect(m_pClient,SIGNAL(clientDisconnected()),this,SIGNAL(emulatorDisconnected()));
+
+   qDebug("VICE started, starting thread.");
+
+   // Start the thread.
+   start();
+}
+
+void C64EmulatorThread::viceError(QProcess::ProcessError error)
+{
+   EnvironmentSettingsDialog dlg;
+   QDir dir;
+   QString viceStartup;
+
+#if 0
+   QProcess::FailedToStart	0	The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program.
+   QProcess::Crashed	1	The process crashed some time after starting successfully.
+   QProcess::Timedout	2	The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.
+   QProcess::WriteError	4	An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.
+   QProcess::ReadError	3	An error occurred when attempting to read from the process. For example, the process may not be running.
+   QProcess::UnknownError
+#endif
+
+   switch ( error )
+   {
+   case QProcess::FailedToStart:
+      QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc.exe, could not be found."
+                           "Please set the path to it in NESICIDE's Environment Settings dialog.");
+
+      dlg.exec();
+
+      dir.setPath(EnvironmentSettingsDialog::VICEExecutable());
+      viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.exe"));
+      viceStartup += " -remotemonitor";
+
+// CPTODO: Setting VICE monitor port doesn't seem to work yet even if the port is
+//         explicitly set to 6510.
+//      viceStartup += " -remotemonitoraddress ";
+//      viceStartup += QString::number(EnvironmentSettingsDialog::VICEMonitorPort());
+      viceStartup += " ";
+      viceStartup += EnvironmentSettingsDialog::VICEOptions();
+
+      m_pViceApp->start(viceStartup);
+      break;
+   }
+}
+
+void C64EmulatorThread::viceFinished(int exitCode,QProcess::ExitStatus exitStatus)
+{
+   QMessageBox::warning(0,"VICE exited!","The VICE Commodore 64 emulator, x64sc.exe, has exited unexpectedly."
+                        "Debugging this project cannot continue.");
+}
+
 void C64EmulatorThread::kill()
 {
    lockRequestQueue();
    clearRequestQueue();
    addToRequestQueue("until $a474",false); // using "exit" doesn't seem to work.
    runRequestQueue();
-
-   // Get outta here!
-   exit();
+   unlockRequestQueue();
 
    // Force hard-reset of the machine...
    c64EnableBreakpoints(false);
 
    c64BreakpointSemaphore.release();
+
+   // Get outta here!
+   exit();
 }
 
 void C64EmulatorThread::primeEmulator()
 {
+   // Nothing to do here, it's all done in resetEmulator.
 }
 
 void C64EmulatorThread::resetEmulator()
@@ -101,8 +171,7 @@ void C64EmulatorThread::resetEmulator()
    if ( nesicideProject->isInitialized() )
    {
       QDir dirProject(nesicideProject->getProjectLinkerOutputBasePath());
-      QDir dirVICE("C:\\WinVICE");
-      QString fileName = QDir::toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
+      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
       QString request;
       int addr;
 
@@ -118,11 +187,12 @@ void C64EmulatorThread::resetEmulator()
          addToRequestQueue(request.toAscii(),true);
          request = "r pc = $" + QString::number(addr,16);
          addToRequestQueue(request,false);
-//         addToRequestQueue("r",true);
+         addToRequestQueue("r",true);
 //         addToRequestQueue("io",true);
-//         addToRequestQueue("m $0 $cfff",true);
+         addToRequestQueue("m $0 $cfff",true);
       }
       runRequestQueue();
+      unlockRequestQueue();
    }
 }
 
@@ -138,6 +208,7 @@ void C64EmulatorThread::startEmulation ()
    clearRequestQueue();
    addToRequestQueue("until $a474",false); // using "exit" doesn't seem to work.
    runRequestQueue();
+   unlockRequestQueue();
 }
 
 void C64EmulatorThread::stepCPUEmulation ()
@@ -152,13 +223,6 @@ void C64EmulatorThread::stepCPUEmulation ()
    addr = c64GetCPURegister(CPU_PC);
    absAddr = c64GetAbsoluteAddressFromAddress(addr);
    endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
-
-   QString dbg;
-   dbg.append("STEP:");
-   dbg.append(QString::number(addr,16));
-   dbg.append(","+QString::number(absAddr,16));
-   dbg.append(","+QString::number(endAddr,16));
-   qDebug(dbg.toAscii().constData());
 
 #if 0
 // VICE doesn't give us what we need to step a full C language line yet.
@@ -198,6 +262,7 @@ void C64EmulatorThread::stepCPUEmulation ()
 //      addToRequestQueue("io",true);
       addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
+      unlockRequestQueue();
    }
 }
 
@@ -269,6 +334,7 @@ void C64EmulatorThread::stepOverCPUEmulation ()
 //      addToRequestQueue("io",true);
       addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
+      unlockRequestQueue();
    }
    else
    {
@@ -291,6 +357,7 @@ void C64EmulatorThread::stepOutCPUEmulation ()
 //   addToRequestQueue("io",true);
    addToRequestQueue("m $0 $cfff",true);
    runRequestQueue();
+   unlockRequestQueue();
 }
 
 void C64EmulatorThread::pauseEmulation (bool show)
@@ -303,16 +370,7 @@ void C64EmulatorThread::pauseEmulation (bool show)
 //   addToRequestQueue("io",true);
    addToRequestQueue("m $0 $cfff",true);
    runRequestQueue();
-}
-
-void C64EmulatorThread::loadFile()
-{
-   // Trigger inspector updates...
-   c64Disassemble();
-   emit updateDebuggers();
-
-   // Trigger UI updates...
-   emit machineReady();
+   unlockRequestQueue();
 }
 
 void C64EmulatorThread::clearRequestQueue()
@@ -337,17 +395,16 @@ void C64EmulatorThread::runRequestQueue()
 
       emit sendRequests(m_requests,m_responseExpected);
    }
-   else
-   {
-      unlockRequestQueue();
-   }
 }
 
 void C64EmulatorThread::processTraps(QString traps)
 {
    qDebug("TRAP:");
    qDebug(traps.toAscii().constData());
-   pauseEmulation(true);
+   if ( traps.contains(QRegExp("#[1-9]+ [(]")) )
+   {
+      pauseEmulation(true);
+   }
 }
 
 void C64EmulatorThread::processResponses(QStringList requests,QStringList responses)
@@ -360,20 +417,21 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
    int32_t a;
 
 #if 0
-   for ( int i = 0; i < requests.count(); i++ )
+   for ( int resp = 0; resp < requests.count(); resp++ )
    {
       QString str;
-      if ( requests.at(i) != "END" )
+      if ( requests.at(resp) != "END" )
       {
-         str = QString::number(i);
+         str = QString::number(resp);
          str += " Request: \n";
-         str += requests.at(i);
+         str += requests.at(resp);
          str += "\nResponse: \n";
-         str += QString::number(responses.at(i).length());
+         str += QString::number(responses.at(resp).length());
          qDebug(str.toAscii().constData());
       }
    }
 #endif
+
    for ( resp = 0; resp < responses.count(); resp++ )
    {
       // Check if we need to update debuggers.
@@ -545,24 +603,27 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
 
 void C64EmulatorThread::lockRequestQueue()
 {
-   m_requestSemaphore->acquire();
+   m_requestMutex->lock();
 }
 
 void C64EmulatorThread::unlockRequestQueue()
 {
-   m_requestSemaphore->release();
+   m_requestMutex->unlock();
 }
 
-TcpClient::TcpClient(QObject *parent)
+TcpClient::TcpClient(QString monitorIPAddress,int monitorPort,QObject *parent)
+   : m_ipAddress(monitorIPAddress),
+     m_port(monitorPort)
 {
    pSocket = new QTcpSocket(this);
    QObject::connect(pSocket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
    QObject::connect(pSocket,SIGNAL(connected()),this,SLOT(connected()));
+   QObject::connect(pSocket,SIGNAL(disconnected()),this,SLOT(disconnected()));
    QObject::connect(pSocket,SIGNAL(readyRead()),this,SLOT(readyRead()));
    QObject::connect(pSocket,SIGNAL(bytesWritten(qint64)),this,SLOT(bytesWritten(qint64)));
-   pSocket->connectToHost("127.0.0.1",6510);
+   pSocket->connectToHost(m_ipAddress,m_port);
 
-   m_request = -1;
+   m_request = 0;
 }
 
 TcpClient::~TcpClient()
@@ -571,32 +632,73 @@ TcpClient::~TcpClient()
    delete pSocket;
 }
 
-void TcpClient::error(QAbstractSocket::SocketError)
+void TcpClient::error(QAbstractSocket::SocketError error)
 {
-   qDebug("SOCKET ERROR!");
+   qDebug("SOCKET ERROR");
+   qDebug(QString::number((int)error).toAscii().constData());
+   switch ( error )
+   {
+   case QAbstractSocket::ConnectionRefusedError:
+      pSocket->connectToHost(m_ipAddress,m_port);
+      break;
+   }
+
+#if 0
+   QAbstractSocket::ConnectionRefusedError	0	The connection was refused by the peer (or timed out).
+   QAbstractSocket::RemoteHostClosedError	1	The remote host closed the connection. Note that the client socket (i.e., this socket) will be closed after the remote close notification has been sent.
+   QAbstractSocket::HostNotFoundError	2	The host address was not found.
+   QAbstractSocket::SocketAccessError	3	The socket operation failed because the application lacked the required privileges.
+   QAbstractSocket::SocketResourceError	4	The local system ran out of resources (e.g., too many sockets).
+   QAbstractSocket::SocketTimeoutError	5	The socket operation timed out.
+   QAbstractSocket::DatagramTooLargeError	6	The datagram was larger than the operating system's limit (which can be as low as 8192 bytes).
+   QAbstractSocket::NetworkError	7	An error occurred with the network (e.g., the network cable was accidentally plugged out).
+   QAbstractSocket::AddressInUseError	8	The address specified to QUdpSocket::bind() is already in use and was set to be exclusive.
+   QAbstractSocket::SocketAddressNotAvailableError	9	The address specified to QUdpSocket::bind() does not belong to the host.
+   QAbstractSocket::UnsupportedSocketOperationError	10	The requested socket operation is not supported by the local operating system (e.g., lack of IPv6 support).
+   QAbstractSocket::ProxyAuthenticationRequiredError	12	The socket is using a proxy, and the proxy requires authentication.
+   QAbstractSocket::SslHandshakeFailedError	13	The SSL/TLS handshake failed, so the connection was closed (only used in QSslSocket)
+   QAbstractSocket::UnfinishedSocketOperationError	11	Used by QAbstractSocketEngine only, The last operation attempted has not finished yet (still in progress in the background).
+   QAbstractSocket::ProxyConnectionRefusedError	14	Could not contact the proxy server because the connection to that server was denied
+   QAbstractSocket::ProxyConnectionClosedError	15	The connection to the proxy server was closed unexpectedly (before the connection to the final peer was established)
+   QAbstractSocket::ProxyConnectionTimeoutError	16	The connection to the proxy server timed out or the proxy server stopped responding in the authentication phase.
+   QAbstractSocket::ProxyNotFoundError	17	The proxy address set with setProxy() (or the application proxy) was not found.
+   QAbstractSocket::ProxyProtocolError	18	The connection negotiation with the proxy server because the response from the proxy server could not be understood.
+   QAbstractSocket::UnknownSocketError
+#endif
 }
 
 void TcpClient::connected()
 {
+   emit clientConnected();
    qDebug("SOCKET CONNECTED!");
+}
+
+void TcpClient::disconnected()
+{
+   emit clientDisconnected();
+   qDebug("SOCKET DISCONNECTED!");
 }
 
 void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
 {
-   m_clientSemaphore->acquire();
-   responseMessage.clear();
-   m_request = 0;
-   m_requests.clear();
+   int currentRequest = m_request;
+
    m_requests.append(requests);
 //   qDebug(m_requests.at(m_request).toAscii().constData());
-   m_expectDataInResponse = expectings;
-   m_responses.clear();
+   m_expectDataInResponse.append(expectings);
    pSocket->readAll();
-   pSocket->write(m_requests.at(m_request).toAscii());
+
+   if ( !currentRequest )
+   {
+      // Kick off if nothing going on.
+      pSocket->write(m_requests.at(m_request).toAscii());
+   }
 }
 
 void TcpClient::readyRead()
 {
+   QStringList returnRequests;
+   QStringList returnResponses;
    QRegExp regex("([(]C:[$][0-9a-f]+[)]) ");
 
    responseMessage.append(pSocket->readAll());
@@ -604,6 +706,7 @@ void TcpClient::readyRead()
    if ( m_request >= (m_requests.count()-1) )
    {
       emit traps(responseMessage);
+      responseMessage.clear();
       return;
    }
 
@@ -623,9 +726,21 @@ void TcpClient::readyRead()
       else
       {
 //         qDebug("FINISHED");
-         emit responses(m_requests,m_responses);
-         m_clientSemaphore->release();
-         m_requestSemaphore->release();
+         m_requests.removeAt(m_request);
+         do
+         {
+            m_request--;
+            returnRequests.prepend(m_requests.at(m_request));
+            returnResponses.prepend(m_responses.at(m_request));
+            m_requests.removeAt(m_request);
+            m_responses.removeAt(m_request);
+            m_expectDataInResponse.removeAt(m_request);
+         } while ( m_request > 0 );
+         emit responses(returnRequests,returnResponses);
+         if ( m_requests.count() )
+         {
+            pSocket->write(m_requests.at(0).toAscii());
+         }
       }
    }
 }
@@ -649,6 +764,7 @@ bool C64EmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
 {
    return true;
 }
+
 
 bool C64EmulatorThread::deserializeContent(QFile& fileIn)
 {

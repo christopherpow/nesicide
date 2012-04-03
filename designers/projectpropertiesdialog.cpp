@@ -107,8 +107,6 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    pageMap.insert("Cartridge",ui->nescartridge);
    pageMap.insert("Tile Properties",ui->nestileproperties);
    pageMap.insert("System Palette",ui->nessystempalette);
-   pageMap.insert("Commodore 64",ui->c64vicesettings);
-   pageMap.insert("VICE Settings",ui->c64vicesettings);
 
    ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("Project",Qt::MatchExactly).at(0));
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
@@ -700,9 +698,4 @@ void ProjectPropertiesDialog::on_treeWidget_itemSelectionChanged()
       ui->treeWidget->setCurrentItem(ui->treeWidget->itemBelow(ui->treeWidget->currentItem()));
    }
    ui->stackedWidget->setCurrentWidget(pageMap[ui->treeWidget->currentItem()->text(0)]);
-}
-
-void ProjectPropertiesDialog::on_viceC64Browse_clicked()
-{
-
 }

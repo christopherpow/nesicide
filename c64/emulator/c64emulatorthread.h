@@ -15,7 +15,7 @@ class TcpClient : public QObject
 {
    Q_OBJECT
 public:
-   explicit TcpClient(QObject *parent = 0);
+   explicit TcpClient(QString monitorIPAddress,int monitorPort,QObject *parent = 0);
    ~TcpClient();
 
 private:
@@ -25,15 +25,20 @@ private:
    QStringList m_responses;
    QList<int> m_expectDataInResponse;
    int m_request;
+   QString m_ipAddress;
+   int m_port;
 
 signals:
    void responses(QStringList requests,QStringList responses);
    void traps(QString traps);
+   void clientConnected();
+   void clientDisconnected();
 
 private slots:
    void sendRequests(QStringList requests,QList<int> expectings);
-   void error(QAbstractSocket::SocketError);
+   void error(QAbstractSocket::SocketError error);
    void connected();
+   void disconnected();
    void readyRead();
    void bytesWritten(qint64);
 };
@@ -53,7 +58,13 @@ public:
    virtual bool serializeContent(QFile& fileOut);
    virtual bool deserializeContent(QFile& fileIn);
 
+protected:
+   void timerEvent(QTimerEvent *event);
+
 public slots:
+   void viceStarted();
+   void viceError(QProcess::ProcessError error);
+   void viceFinished(int exitCode,QProcess::ExitStatus exitStatus);
    void primeEmulator ();
    void resetEmulator ();
    void startEmulation ();
@@ -66,8 +77,10 @@ public slots:
    void processTraps(QString traps);
 
 signals:
-   void emulatedFrame ();
-   void updateDebuggers ();
+   void emulatorConnected();
+   void emulatorDisconnected();
+   void emulatedFrame();
+   void updateDebuggers();
    void emulatorPaused(bool show);
    void emulatorPausedAfter();
    void emulatorReset();
@@ -77,7 +90,6 @@ signals:
    void sendRequests(QStringList requests,QList<int> expectings);
 
 protected:
-   void loadFile ();
    void lockRequestQueue();
    void clearRequestQueue();
    void addToRequestQueue(QString command,bool expecting);
