@@ -21,6 +21,7 @@ private:
    Ui::SourceNavigator *ui;
    void updateSymbolsForFile(QString file);
    void updateFiles(bool doIt);
+   QString m_loadedTarget;
 
 signals:
    void snapTo(QString item);
@@ -32,7 +33,8 @@ private slots:
 public slots:
    void compiler_compileDone(bool bOk);
    void emulator_emulatorPaused(bool show = true);
-   void emulator_cartridgeLoaded();
+   void emulator_machineReady();
+   void updateTargetMachine(QString target);
 };
 
 #endif // SOURCENAVIGATOR_H

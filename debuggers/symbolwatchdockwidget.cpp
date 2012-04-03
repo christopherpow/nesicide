@@ -1,6 +1,7 @@
 #include "symbolwatchdockwidget.h"
 #include "ui_symbolwatchdockwidget.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 #include "ccc65interface.h"
@@ -14,10 +15,9 @@ enum
 };
 
 SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
-   CDebuggerBase(parent),
-   ui(new Ui::SymbolWatchDockWidget)
+   CDebuggerBase(parent)
 {
-   ui->setupUi(this);
+   setupUi(this);
 
    watchModel = new CSymbolWatchModel(true);
    watchSymbolDelegate = new CDebuggerSymbolDelegate();
@@ -26,70 +26,196 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    ramModel = new CSymbolWatchModel(false);
    ramValueDelegate = new CDebuggerNumericItemDelegate();
 
+   watch->setModel(watchModel);
+   watch->setItemDelegateForColumn(SymbolWatchCol_Symbol,watchSymbolDelegate);
+   watch->setItemDelegateForColumn(SymbolWatchCol_Value,watchValueDelegate);
+   watch->resizeColumnsToContents();
+
+   ram->setModel(ramModel);
+   ram->setItemDelegateForColumn(SymbolWatchCol_Value,ramValueDelegate);
+   ram->resizeColumnsToContents();
+
+   QObject::connect(watch->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),watchModel,SLOT(sort(int,Qt::SortOrder)));
+   QObject::connect(watchModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
+   QObject::connect(ram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),ramModel,SLOT(sort(int,Qt::SortOrder)));
+
+   m_targetLoaded = "none";
+}
+
+SymbolWatchDockWidget::~SymbolWatchDockWidget()
+{
+   delete watchModel;
+   delete watchValueDelegate;
+   delete watchSymbolDelegate;
+   delete ramModel;
+   delete ramValueDelegate;
+}
+
+void SymbolWatchDockWidget::createNesUi()
+{
+   if ( !m_targetLoaded.compare("nes") )
+   {
+      return;
+   }
+
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   sramTab = new QWidget();
+   sramTab->setObjectName(QString::fromUtf8("sramTab"));
+   sramGridLayout = new QGridLayout(sramTab);
+   sramGridLayout->setContentsMargins(0, 0, 0, 0);
+   sramGridLayout->setObjectName(QString::fromUtf8("sramGridLayout"));
+   sram = new QTableView(sramTab);
+   sram->setObjectName(QString::fromUtf8("sram"));
+   sram->setAcceptDrops(true);
+   sram->setFrameShape(QFrame::NoFrame);
+   sram->setEditTriggers(QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked);
+   sram->setDragEnabled(true);
+   sram->setDragDropMode(QAbstractItemView::DragDrop);
+   sram->setSelectionMode(QAbstractItemView::SingleSelection);
+   sram->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+   sram->setShowGrid(false);
+   sram->setWordWrap(false);
+   sram->setCornerButtonEnabled(false);
+   sram->horizontalHeader()->setDefaultSectionSize(150);
+   sram->horizontalHeader()->setProperty("showSortIndicator", QVariant(true));
+   sram->horizontalHeader()->setStretchLastSection(true);
+   sram->verticalHeader()->setVisible(false);
+   sram->verticalHeader()->setDefaultSectionSize(23);
+
+   sramGridLayout->addWidget(sram, 0, 0, 1, 1);
+
+   tabWidget->addTab(sramTab, "SRAM");
+   exramTab = new QWidget();
+   exramTab->setObjectName(QString::fromUtf8("exramTab"));
+   exramGridLayout = new QGridLayout(exramTab);
+   exramGridLayout->setContentsMargins(0, 0, 0, 0);
+   exramGridLayout->setObjectName(QString::fromUtf8("exramGridLayout"));
+   exram = new QTableView(exramTab);
+   exram->setObjectName(QString::fromUtf8("exram"));
+   exram->setAcceptDrops(true);
+   exram->setFrameShape(QFrame::NoFrame);
+   exram->setEditTriggers(QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked);
+   exram->setDragEnabled(true);
+   exram->setDragDropMode(QAbstractItemView::DragDrop);
+   exram->setSelectionMode(QAbstractItemView::SingleSelection);
+   exram->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+   exram->setShowGrid(false);
+   exram->setWordWrap(false);
+   exram->setCornerButtonEnabled(false);
+   exram->horizontalHeader()->setDefaultSectionSize(150);
+   exram->horizontalHeader()->setProperty("showSortIndicator", QVariant(true));
+   exram->horizontalHeader()->setStretchLastSection(true);
+   exram->verticalHeader()->setVisible(false);
+   exram->verticalHeader()->setDefaultSectionSize(23);
+
+   exramGridLayout->addWidget(exram, 0, 0, 1, 1);
+
+   tabWidget->addTab(exramTab, "EXRAM");
+
    sramModel = new CSymbolWatchModel(false);
    sramValueDelegate = new CDebuggerNumericItemDelegate();
 
    exramModel = new CSymbolWatchModel(false);
    exramValueDelegate = new CDebuggerNumericItemDelegate();
 
-   ui->watch->setModel(watchModel);
-   ui->watch->setItemDelegateForColumn(SymbolWatchCol_Symbol,watchSymbolDelegate);
-   ui->watch->setItemDelegateForColumn(SymbolWatchCol_Value,watchValueDelegate);
-   ui->watch->resizeColumnsToContents();
+   sram->setModel(sramModel);
+   sram->setItemDelegateForColumn(SymbolWatchCol_Value,sramValueDelegate);
+   sram->resizeColumnsToContents();
 
-   ui->ram->setModel(ramModel);
-   ui->ram->setItemDelegateForColumn(SymbolWatchCol_Value,ramValueDelegate);
-   ui->ram->resizeColumnsToContents();
+   exram->setModel(exramModel);
+   exram->setItemDelegateForColumn(SymbolWatchCol_Value,exramValueDelegate);
+   exram->resizeColumnsToContents();
 
-   ui->sram->setModel(sramModel);
-   ui->sram->setItemDelegateForColumn(SymbolWatchCol_Value,sramValueDelegate);
-   ui->sram->resizeColumnsToContents();
+   QObject::connect(sram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),sramModel,SLOT(sort(int,Qt::SortOrder)));
+   QObject::connect(exram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),exramModel,SLOT(sort(int,Qt::SortOrder)));
 
-   ui->exram->setModel(exramModel);
-   ui->exram->setItemDelegateForColumn(SymbolWatchCol_Value,exramValueDelegate);
-   ui->exram->resizeColumnsToContents();
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),watchModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),watchModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),watchModel,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),watchModel,SLOT(update()));
-   QObject::connect(ui->watch->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),watchModel,SLOT(sort(int,Qt::SortOrder)));
-   QObject::connect(watchModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),ramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),ramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),ramModel,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
-   QObject::connect(ui->ram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),ramModel,SLOT(sort(int,Qt::SortOrder)));
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),sramModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),sramModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),exramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(machineReady()),sramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),sramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),sramModel,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),sramModel,SLOT(update()));
-   QObject::connect(ui->sram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),sramModel,SLOT(sort(int,Qt::SortOrder)));
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),exramModel,SLOT(update()));
+   QObject::connect(emulator,SIGNAL(machineReady()),exramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),exramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),exramModel,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),exramModel,SLOT(update()));
-   QObject::connect(ui->exram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),exramModel,SLOT(sort(int,Qt::SortOrder)));
 
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(updateVariables()));
-   QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(updateVariables()));
+   m_targetLoaded = "nes";
 }
 
-SymbolWatchDockWidget::~SymbolWatchDockWidget()
+void SymbolWatchDockWidget::destroyNesUi()
 {
-   delete ui;
-   delete watchModel;
-   delete watchValueDelegate;
-   delete watchSymbolDelegate;
-   delete ramModel;
-   delete ramValueDelegate;
-   delete sramModel;
-   delete sramValueDelegate;
-   delete exramModel;
-   delete exramValueDelegate;
+   if ( m_targetLoaded.compare("nes") )
+   {
+      return;
+   }
+
+   sramModel->deleteLater();
+   sramValueDelegate->deleteLater();
+   exramModel->deleteLater();
+   exramValueDelegate->deleteLater();
+
+   sramTab->deleteLater();
+   sramGridLayout->deleteLater();
+   sram->deleteLater();
+   exramTab->deleteLater();
+   exramGridLayout->deleteLater();
+   exram->deleteLater();
+
+   m_targetLoaded = "none";
+}
+
+void SymbolWatchDockWidget::createC64Ui()
+{
+   // Nothing new.
+
+   m_targetLoaded = "c64";
+}
+
+void SymbolWatchDockWidget::destroyC64Ui()
+{
+   // Nothing new.
+
+   m_targetLoaded = "none";
+}
+
+void SymbolWatchDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QThread* compiler = CThreadRegistry::getThread("Compiler");
+
+   if ( !target.compare("nes",Qt::CaseInsensitive) )
+   {
+      if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+      {
+         destroyC64Ui();
+      }
+      createNesUi();
+   }
+   else if ( !target.compare("c64",Qt::CaseInsensitive) )
+   {
+      if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+      {
+         destroyNesUi();
+      }
+      createC64Ui();
+   }
+
+   QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(updateVariables()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),watchModel,SLOT(update()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
+   if ( emulator )
+   {
+      QObject::connect(emulator,SIGNAL(machineReady()),watchModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),watchModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),watchModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(machineReady()),ramModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),ramModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),ramModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(machineReady()),this,SLOT(updateVariables()));
+   }
+
 }
 
 void SymbolWatchDockWidget::updateUi()
@@ -102,38 +228,53 @@ void SymbolWatchDockWidget::updateVariables()
    QStringList symbols = CCC65Interface::getSymbolsForSourceFile("");
    int addr;
 
-   ramModel->removeRows(0,ramModel->rowCount());
-   sramModel->removeRows(0,sramModel->rowCount());
-   exramModel->removeRows(0,exramModel->rowCount());
-   foreach ( QString symbol,symbols )
+   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
    {
-      addr = CCC65Interface::getSymbolAddress(symbol);
-      if ( addr < MEM_2KB )
+      ramModel->removeRows(0,ramModel->rowCount());
+      sramModel->removeRows(0,sramModel->rowCount());
+      exramModel->removeRows(0,exramModel->rowCount());
+      foreach ( QString symbol,symbols )
       {
-         // Symbol is in RAM...
-         ramModel->insertRow(symbol);
+         addr = CCC65Interface::getSymbolAddress(symbol);
+         if ( addr < MEM_2KB )
+         {
+            // Symbol is in RAM...
+            ramModel->insertRow(symbol,addr);
+         }
+         else if ( (addr >= 0x5C00) && (addr < 0x6000) )
+         {
+            // Symbol is in EXRAM...
+            exramModel->insertRow(symbol,addr);
+         }
+         else if ( (addr >= 0x6000) && (addr < 0x8000) )
+         {
+            // Symbol is in SRAM...
+            sramModel->insertRow(symbol,addr);
+         }
       }
-      else if ( (addr >= 0x5C00) && (addr < 0x6000) )
-      {
-         // Symbol is in EXRAM...
-         exramModel->insertRow(symbol);
-      }
-      else if ( (addr >= 0x6000) && (addr < 0x8000) )
-      {
-         // Symbol is in SRAM...
-         sramModel->insertRow(symbol);
-      }
+      ramModel->update();
+      sramModel->update();
+      exramModel->update();
    }
-   ramModel->update();
-   sramModel->update();
-   exramModel->update();
+   else if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+   {
+      ramModel->removeRows(0,ramModel->rowCount());
+      foreach ( QString symbol,symbols )
+      {
+         addr = CCC65Interface::getSymbolAddress(symbol);
+
+         // Symbol is in RAM...
+         ramModel->insertRow(symbol,addr);
+      }
+      ramModel->update();
+   }
 }
 
 void SymbolWatchDockWidget::addWatchedItem(QString item)
 {
    show();
 
-   ui->tabWidget->setCurrentIndex(Symbol_Watch_Window);
+   tabWidget->setCurrentIndex(Symbol_Watch_Window);
 
    watchModel->insertRow(item);
 
@@ -142,12 +283,12 @@ void SymbolWatchDockWidget::addWatchedItem(QString item)
 
 void SymbolWatchDockWidget::keyPressEvent(QKeyEvent *event)
 {
-   if ( ui->tabWidget->currentIndex() == Symbol_Watch_Window )
+   if ( tabWidget->currentIndex() == Symbol_Watch_Window )
    {
       if ( (event->key() == Qt::Key_Delete) &&
-           (ui->watch->currentIndex().row() >= 0) )
+           (watch->currentIndex().row() >= 0) )
       {
-         watchModel->removeRow(ui->watch->currentIndex().row());
+         watchModel->removeRow(watch->currentIndex().row());
 
          emit markProjectDirty(true);
       }
@@ -186,7 +327,7 @@ void SymbolWatchDockWidget::dropEvent(QDropEvent *event)
    {
       text = event->mimeData()->text();
 
-      ui->tabWidget->setCurrentIndex(Symbol_Watch_Window);
+      tabWidget->setCurrentIndex(Symbol_Watch_Window);
 
       watchModel->insertRow(text);
 
@@ -201,34 +342,34 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
    QModelIndex index;
    QMenu menu;
 
-   switch ( ui->tabWidget->currentIndex() )
+   switch ( tabWidget->currentIndex() )
    {
    case Symbol_Watch_Window:
-      index = ui->watch->currentIndex();
+      index = watch->currentIndex();
       break;
    case Symbol_RAM_Window:
-      index = ui->ram->currentIndex();
+      index = ram->currentIndex();
       break;
    case Symbol_SRAM_Window:
-      index = ui->sram->currentIndex();
+      index = sram->currentIndex();
       break;
    case Symbol_EXRAM_Window:
-      index = ui->exram->currentIndex();
+      index = exram->currentIndex();
       break;
    }
 
    if ( index.isValid() )
    {
-      if ( ui->tabWidget->currentIndex() == Symbol_Watch_Window )
+      if ( tabWidget->currentIndex() == Symbol_Watch_Window )
       {
-         menu.addAction(ui->actionRemove_symbol);
+         menu.addAction(actionRemove_symbol);
          menu.addSeparator();
       }
-      menu.addAction(ui->actionGo_to_Definition);
+      menu.addAction(actionGo_to_Definition);
       menu.addSeparator();
-      menu.addAction(ui->actionBreak_on_CPU_access_here);
-      menu.addAction(ui->actionBreak_on_CPU_read_here);
-      menu.addAction(ui->actionBreak_on_CPU_write_here);
+      menu.addAction(actionBreak_on_CPU_access_here);
+      menu.addAction(actionBreak_on_CPU_read_here);
+      menu.addAction(actionBreak_on_CPU_write_here);
 
       menu.exec(event->globalPos());
    }
@@ -236,22 +377,42 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+      if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+      {
+         QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+         QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+      }
+   }
    watchModel->update();
    ramModel->update();
-   sramModel->update();
-   exramModel->update();
+
+   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+   {
+      sramModel->update();
+      exramModel->update();
+   }
 }
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
 {
-   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
-   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
-   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
-   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+      QObject::disconnect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+      if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+      {
+         QObject::disconnect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+         QObject::disconnect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+      }
+   }
 }
 
 bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
@@ -315,25 +476,25 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_write_here_triggered()
    int bpIdx;
    bool ok;
 
-   switch ( ui->tabWidget->currentIndex() )
+   switch ( tabWidget->currentIndex() )
    {
    case Symbol_Watch_Window:
-      row = ui->watch->currentIndex().row();
+      row = watch->currentIndex().row();
       index = watchModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_RAM_Window:
-      row = ui->ram->currentIndex().row();
+      row = ram->currentIndex().row();
       index = ramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_SRAM_Window:
-      row = ui->sram->currentIndex().row();
+      row = sram->currentIndex().row();
       index = sramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_EXRAM_Window:
-      row = ui->exram->currentIndex().row();
+      row = exram->currentIndex().row();
       index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
@@ -379,25 +540,25 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_read_here_triggered()
    int bpIdx;
    bool ok;
 
-   switch ( ui->tabWidget->currentIndex() )
+   switch ( tabWidget->currentIndex() )
    {
    case Symbol_Watch_Window:
-      row = ui->watch->currentIndex().row();
+      row = watch->currentIndex().row();
       index = watchModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_RAM_Window:
-      row = ui->ram->currentIndex().row();
+      row = ram->currentIndex().row();
       index = ramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_SRAM_Window:
-      row = ui->sram->currentIndex().row();
+      row = sram->currentIndex().row();
       index = sramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_EXRAM_Window:
-      row = ui->exram->currentIndex().row();
+      row = exram->currentIndex().row();
       index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
@@ -443,25 +604,25 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
    int bpIdx;
    bool ok;
 
-   switch ( ui->tabWidget->currentIndex() )
+   switch ( tabWidget->currentIndex() )
    {
    case Symbol_Watch_Window:
-      row = ui->watch->currentIndex().row();
+      row = watch->currentIndex().row();
       index = watchModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_RAM_Window:
-      row = ui->ram->currentIndex().row();
+      row = ram->currentIndex().row();
       index = ramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_SRAM_Window:
-      row = ui->sram->currentIndex().row();
+      row = sram->currentIndex().row();
       index = sramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
    case Symbol_EXRAM_Window:
-      row = ui->exram->currentIndex().row();
+      row = exram->currentIndex().row();
       index = exramModel->index(row,SymbolWatchCol_Address);
       addr = index.data(Qt::DisplayRole).toString().toInt(&ok,16);
       break;
@@ -500,9 +661,9 @@ void SymbolWatchDockWidget::on_actionBreak_on_CPU_access_here_triggered()
 
 void SymbolWatchDockWidget::on_actionRemove_symbol_triggered()
 {
-   if ( ui->watch->currentIndex().isValid() )
+   if ( watch->currentIndex().isValid() )
    {
-      watchModel->removeRow(ui->watch->currentIndex().row());
+      watchModel->removeRow(watch->currentIndex().row());
 
       emit markProjectDirty(true);
    }
@@ -515,22 +676,22 @@ void SymbolWatchDockWidget::on_actionGo_to_Definition_triggered()
    QString symbol;
    QString file;
 
-   switch ( ui->tabWidget->currentIndex() )
+   switch ( tabWidget->currentIndex() )
    {
    case Symbol_Watch_Window:
-      row = ui->watch->currentIndex().row();
+      row = watch->currentIndex().row();
       index = watchModel->index(row,SymbolWatchCol_Symbol);
       break;
    case Symbol_RAM_Window:
-      row = ui->ram->currentIndex().row();
+      row = ram->currentIndex().row();
       index = ramModel->index(row,SymbolWatchCol_Symbol);
       break;
    case Symbol_SRAM_Window:
-      row = ui->sram->currentIndex().row();
+      row = sram->currentIndex().row();
       index = sramModel->index(row,SymbolWatchCol_Symbol);
       break;
    case Symbol_EXRAM_Window:
-      row = ui->exram->currentIndex().row();
+      row = exram->currentIndex().row();
       index = exramModel->index(row,SymbolWatchCol_Symbol);
       break;
    }

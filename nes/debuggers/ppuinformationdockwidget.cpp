@@ -4,6 +4,7 @@
 #include "dbg_cnes.h"
 #include "dbg_cnesppu.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
@@ -11,16 +12,22 @@ PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
     ui(new Ui::PPUInformationDockWidget)
 {
    ui->setupUi(this);
-
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 PPUInformationDockWidget::~PPUInformationDockWidget()
 {
    delete ui;
+}
+
+void PPUInformationDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 void PPUInformationDockWidget::changeEvent(QEvent* e)
@@ -39,12 +46,16 @@ void PPUInformationDockWidget::changeEvent(QEvent* e)
 
 void PPUInformationDockWidget::showEvent(QShowEvent* e)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
 }
 
 void PPUInformationDockWidget::hideEvent(QHideEvent* e)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 

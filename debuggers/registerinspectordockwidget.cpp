@@ -5,6 +5,7 @@
 
 #include "dbg_cnesmappers.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,QWidget *parent) :
@@ -25,21 +26,6 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,QWidget
 
    ui->label->setText ( "" );
 
-   // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateMemory()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
-
-   // Connect signals to the models to have the model update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), binaryModel, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), binaryModel, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), binaryModel, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), bitfieldModel, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), bitfieldModel, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), bitfieldModel, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
-
    // Connect inter-model signals so the models can update each other.
    QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), binaryModel, SLOT(update()) );
    QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), bitfieldModel, SLOT(update()) );
@@ -55,18 +41,49 @@ RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
    delete bitfieldDelegate;
 }
 
+void RegisterInspectorDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateMemory()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), binaryModel, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), binaryModel, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), binaryModel, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), bitfieldModel, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), bitfieldModel, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), bitfieldModel, SLOT(update()) );
+   }
+}
+
 void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
+   }
    updateMemory();
    ui->binaryView->resizeColumnsToContents();
 }
 
 void RegisterInspectorDockWidget::hideEvent(QHideEvent* e)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
+      QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
+   }
 }
 
 void RegisterInspectorDockWidget::contextMenuEvent(QContextMenuEvent*)
@@ -132,7 +149,7 @@ void RegisterInspectorDockWidget::updateMemory ()
                  (pBreakpoint->itemActual <= high) )
             {
                if ( ((pBreakpoint->target == eBreakInPPU) &&
-                     (memoryType == eMemory_PPUoam)) )
+                     (memoryType == eNESMemory_PPUoam)) )
                {
                   // Change memory address into row/column of display...
                   itemActual = pBreakpoint->itemActual - binaryModel->memoryBottom();
@@ -155,13 +172,13 @@ void RegisterInspectorDockWidget::updateMemory ()
                    (pBreakpoint->type == eBreakOnMapperState) )
          {
             if ( ((pBreakpoint->target == eBreakInCPU) &&
-                  (memoryType == eMemory_CPUregs)) ||
+                  (memoryType == eNESMemory_CPUregs)) ||
                   ((pBreakpoint->target == eBreakInPPU) &&
-                   (memoryType == eMemory_PPUregs)) ||
+                   (memoryType == eNESMemory_PPUregs)) ||
                   ((pBreakpoint->target == eBreakInAPU) &&
-                   (memoryType == eMemory_IOregs)) ||
+                   (memoryType == eNESMemory_IOregs)) ||
                   ((pBreakpoint->target == eBreakInMapper) &&
-                   (memoryType == eMemory_cartMapper)) )
+                   (memoryType == eNESMemory_cartMapper)) )
             {
                // Change register into row/column of display...
                row = pBreakpoint->item1/binaryModel->columnCount();

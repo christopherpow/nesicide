@@ -16,6 +16,7 @@ public:
    virtual ~NewProjectDialog();
    QString getName();
    QString getPath();
+   QString getTarget();
 
 protected:
    void changeEvent(QEvent* e);

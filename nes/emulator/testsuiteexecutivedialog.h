@@ -43,6 +43,7 @@ private slots:
     void on_abort_clicked();
     void updateProgress();
     void emulatorPausedAfter();
+    void updateTargetMachine(QString target);
 };
 
 #endif // TESTSUITEEXECUTIVEDIALOG_H

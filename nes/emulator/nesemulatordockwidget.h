@@ -37,6 +37,7 @@ private:
 
 private slots:
    void renderData();
+   void updateTargetMachine(QString target);
 };
 
 #endif // NESEMULATORDOCKWIDGET_H

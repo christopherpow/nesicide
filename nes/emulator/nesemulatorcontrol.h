@@ -1,23 +1,23 @@
-#ifndef EMULATORCONTROL_H
-#define EMULATORCONTROL_H
+#ifndef NESEMULATORCONTROL_H
+#define NESEMULATORCONTROL_H
 
 #include <QWidget>
 
 namespace Ui {
-   class EmulatorControl;
+   class NESEmulatorControl;
 }
 
-class EmulatorControl : public QWidget
+class NESEmulatorControl : public QWidget
 {
    Q_OBJECT
 
 public:
-   explicit EmulatorControl(QWidget *parent = 0);
-   virtual ~EmulatorControl();
+   explicit NESEmulatorControl(QWidget *parent = 0);
+   virtual ~NESEmulatorControl();
    QList<QAction*> menu();
 
 private:
-   Ui::EmulatorControl *ui;
+   Ui::NESEmulatorControl *ui;
    bool debugging;
 
 signals:
@@ -45,4 +45,4 @@ private slots:
    void internalPlay();
 };
 
-#endif // EMULATORCONTROL_H
+#endif // NESEMULATORCONTROL_H

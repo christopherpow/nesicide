@@ -11,6 +11,8 @@
 
 #include "ccc65interface.h"
 
+#include "cthreadregistry.h"
+
 BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
    QDialog(parent),
    ui(new Ui::BreakpointDialog)
@@ -398,6 +400,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
    QString  text;
    QStringList textSplit;
    QFileInfo   fileInfo;
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
 
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);

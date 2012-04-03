@@ -69,9 +69,10 @@ private:
    QsciLexerCA65* m_ca65Lexer;
    QsciLexerCPP* m_cppLexer;
    QsciLexer* m_lexer;
+   QMap<QString,QWidget*> pageMap;
 
    // Settings data structures.
-   static int  m_lastActiveTab;
+   static QModelIndex  m_lastActiveTab;
    static bool m_useInternalGameDatabase;
    static QString m_gameDatabase;
    static bool m_showWelcomeOnStart;
@@ -98,6 +99,8 @@ private:
    static QString m_asmSourceExtensions;
 
 private slots:
+   void on_buttonBox_accepted();
+   void on_treeWidget_itemSelectionChanged();
    void on_language_currentIndexChanged(int index);
    void on_fontSize_valueChanged(int value);
    void on_showLineNumberMargin_toggled(bool checked);
@@ -119,7 +122,6 @@ private slots:
    void on_ROMPathBrowse_clicked();
    void on_GameDatabasePathButton_clicked();
    void on_useInternalDB_toggled(bool checked);
-   void on_buttonBox_accepted();
    void on_PluginPathButton_clicked();
 };
 

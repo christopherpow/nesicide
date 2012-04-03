@@ -36,6 +36,7 @@ protected:
 
 public slots:
    void renderData();
+   void updateTargetMachine(QString target);
 
 private slots:
    void on_actionRemove_Marker_triggered();

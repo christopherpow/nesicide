@@ -3,6 +3,8 @@
 
 #include "nes_emulator_core.h"
 
+#include "cthreadregistry.h"
+
 #include "main.h"
 
 APUInformationDockWidget::APUInformationDockWidget(QWidget *parent) :
@@ -10,16 +12,21 @@ APUInformationDockWidget::APUInformationDockWidget(QWidget *parent) :
     ui(new Ui::APUInformationDockWidget)
 {
    ui->setupUi(this);
-
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 APUInformationDockWidget::~APUInformationDockWidget()
 {
     delete ui;
+}
+
+void APUInformationDockWidget::updateTargetMachine(QString target)
+{
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 void APUInformationDockWidget::changeEvent(QEvent* e)
@@ -38,12 +45,14 @@ void APUInformationDockWidget::changeEvent(QEvent* e)
 
 void APUInformationDockWidget::showEvent(QShowEvent* e)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
 }
 
 void APUInformationDockWidget::hideEvent(QHideEvent* e)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 

@@ -35,8 +35,11 @@ private:
    QList<QColor> currentPalette;
    bool          linkerConfigChanged;
    CPropertyListModel* tilePropertyListModel;
+   QMap<QString,QWidget*> pageMap;
 
 private slots:
+   void on_viceC64Browse_clicked();
+   void on_treeWidget_itemSelectionChanged();
    void on_editProperty_clicked();
    void on_propertyTableView_doubleClicked(QModelIndex index);
    void on_removeProperty_clicked();

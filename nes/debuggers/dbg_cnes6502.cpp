@@ -2628,10 +2628,10 @@ static QColor color [] =
 static QColor dmaColor [] =
 {
    // This array uses the 'eSource' enumeration but is really the 'target' for DMA.
-   QColor(0,0,0),     // eSource_CPU, -- not a valid target.
-   QColor(255,0,255), // eSource_PPU,
-   QColor(0,255,255), // eSource_APU,
-   QColor(0,0,0)      // eSource_Mapper -- not a valid target.
+   QColor(0,0,0),     // eNESSource_CPU, -- not a valid target.
+   QColor(255,0,255), // eNESSource_PPU,
+   QColor(0,255,255), // eNESSource_APU,
+   QColor(0,0,0)      // eNESSource_Mapper -- not a valid target.
 };
 
 void C6502DBG::RENDERCODEDATALOGGER ( void )

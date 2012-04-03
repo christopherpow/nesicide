@@ -27,6 +27,7 @@ protected:
 
 public slots:
    void updateMemory();
+   void updateTargetMachine(QString target);
 
 signals:
    void breakpointsChanged();

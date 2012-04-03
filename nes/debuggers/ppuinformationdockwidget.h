@@ -22,6 +22,7 @@ protected:
 
 public slots:
    void updateInformation();
+   void updateTargetMachine(QString target);
 
 private:
    Ui::PPUInformationDockWidget *ui;

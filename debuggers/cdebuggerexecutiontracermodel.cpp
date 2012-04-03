@@ -186,16 +186,16 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
 
             switch ( pSample->source )
             {
-               case eSource_CPU:
+               case eNESSource_CPU:
                   strcpy ( str, "CPU" );
                   break;
-               case eSource_PPU:
+               case eNESSource_PPU:
                   strcpy ( str, "PPU" );
                   break;
-               case eSource_APU:
+               case eNESSource_APU:
                   strcpy ( str, "APU" );
                   break;
-               case eSource_Mapper:
+               case eNESSource_Mapper:
                   strcpy ( str, "Mapper" );
                   break;
             }

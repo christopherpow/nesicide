@@ -57,13 +57,13 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const
       // Get data for columns...
       switch ( index.column() )
       {
-         case 0:
-            return QVariant();
-            break;
-         case 1:
-            pBreakpoints->GetPrintable(index.row(),modelStringBuffer);
-            return QVariant(modelStringBuffer);
-            break;
+      case 0:
+         return QVariant();
+         break;
+      case 1:
+         pBreakpoints->GetPrintable(index.row(),modelStringBuffer);
+         return QVariant(modelStringBuffer);
+         break;
       }
    }
    else

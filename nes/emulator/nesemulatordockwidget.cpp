@@ -1,6 +1,7 @@
 #include "nesemulatordockwidget.h"
 #include "ui_nesemulatordockwidget.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 #include "emulatorprefsdialog.h"
@@ -22,10 +23,6 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
-   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
-   QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));
-
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
 
@@ -45,6 +42,19 @@ NESEmulatorDockWidget::~NESEmulatorDockWidget()
     delete ui;
     delete renderer;
     delete imgData;
+}
+
+void NESEmulatorDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( !target.compare("nes") )
+   {
+      QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));
+   }
+   QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
+   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
 }
 
 void NESEmulatorDockWidget::changeEvent(QEvent* e)

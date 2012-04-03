@@ -4,11 +4,17 @@
 #include "nes_emulator_core.h"
 
 #include "cmarker.h"
+#include "cbreakpointinfo.h"
 #include "cdockwidgetregistry.h"
 
-#include "main.h"
+#include "cthreadregistry.h"
 
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
+
+#include <QMenu>
 #include <QMessageBox>
+#include <QContextMenuEvent>
 
 CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
@@ -18,17 +24,9 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
    assemblyViewModel = new CCodeBrowserDisplayModel(this);
    ui->tableView->setModel(assemblyViewModel);
 
-   // Connect signals to the models to have the model update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), assemblyViewModel, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), assemblyViewModel, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), assemblyViewModel, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), assemblyViewModel, SLOT(update()) );
-   QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
+   m_loadedTarget = "none";
 
-   // Connect signals to the UI to have the UI update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
+   QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 }
 
 CodeBrowserDockWidget::~CodeBrowserDockWidget()
@@ -37,26 +35,64 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
    delete assemblyViewModel;
 }
 
+void CodeBrowserDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), assemblyViewModel, SLOT(update()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
+
+   m_loadedTarget = target;
+
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(machineReady()), assemblyViewModel, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), assemblyViewModel, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), assemblyViewModel, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(machineReady()) );
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(machineReady()) );
+   }
+}
+
 void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
 
    // Specifically not connecting to updateDebuggers signal here since it doesn't make much sense to
    // update the code position until a pause/breakpoint.
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
-
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
+   }
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
-   QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
-   QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
-
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   QObject::connect ( breakpointInspector, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   if ( executionVisualizer )
+   {
+      QObject::connect ( executionVisualizer, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+      QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
+   }
+   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   }
+   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
+   {
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
+   }
    ui->tableView->scrollTo(ui->tableView->currentIndex());
 }
 
 void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
 {
-   QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
+   }
 }
 
 void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
@@ -68,9 +104,16 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
    int absAddr = 0;
    QModelIndex index = ui->tableView->currentIndex();
 
-   addr = nesGetAddressFromSLOC(index.row());
-
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+   {
+      addr = nesGetAddressFromSLOC(index.row());
+      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   }
+   else
+   {
+      addr = c64GetAddressFromSLOC(index.row());
+      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+   }
 
    if ( addr != -1 )
    {
@@ -157,7 +200,14 @@ void CodeBrowserDockWidget::snapTo(QString item)
       {
          addr = splits.at(3).toInt(NULL,16);
 
-         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(addr),0));
+         if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(addr),0));
+         }
+         else
+         {
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(addr),0));
+         }
          ui->tableView->scrollTo(ui->tableView->currentIndex());
          ui->tableView->resizeColumnsToContents();
       }
@@ -169,7 +219,14 @@ void CodeBrowserDockWidget::breakpointHit()
    if ( nesROMIsLoaded() )
    {
       show();
-      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+      if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+      {
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+      }
+      else
+      {
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
+      }
       ui->tableView->scrollTo(ui->tableView->currentIndex());
       ui->tableView->resizeColumnsToContents();
    }
@@ -181,18 +238,33 @@ void CodeBrowserDockWidget::emulatorPaused(bool showMe)
    {
       show();
    }
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   }
+   else
+   {
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
+   }
    ui->tableView->scrollTo(ui->tableView->currentIndex());
    ui->tableView->resizeColumnsToContents();
 }
 
-void CodeBrowserDockWidget::cartridgeLoaded()
+void CodeBrowserDockWidget::machineReady()
 {
-   if ( nesROMIsLoaded() )
+   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+   {
+      if ( nesROMIsLoaded() )
+      {
+         show();
+      }
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+   }
+   else
    {
       show();
+      ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
    }
-   ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    ui->tableView->scrollTo(ui->tableView->currentIndex());
    ui->tableView->resizeColumnsToContents();
 }
@@ -205,9 +277,16 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   addr = nesGetAddressFromSLOC(index.row());
-
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+   {
+      addr = nesGetAddressFromSLOC(index.row());
+      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+   }
+   else
+   {
+      addr = c64GetAddressFromSLOC(index.row());
+      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+   }
 
    if ( addr != -1 )
    {
@@ -243,14 +322,24 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   addr = nesGetAddressFromSLOC(index.row());
-
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
-
-   if ( addr != -1 )
+   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      nesSetGotoAddress(addr);
-   }// CPTODO: fix the goto for absolute
+      addr = nesGetAddressFromSLOC(index.row());
+      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+      if ( addr != -1 )
+      {
+         nesSetGotoAddress(addr);
+      }// CPTODO: fix the goto for absolute
+   }
+   else
+   {
+      addr = c64GetAddressFromSLOC(index.row());
+      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+      if ( addr != -1 )
+      {
+         c64SetGotoAddress(addr);
+      }// CPTODO: fix the goto for absolute
+   }
 }
 
 void CodeBrowserDockWidget::on_actionDisable_breakpoint_triggered()
@@ -301,12 +390,26 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
 
    if ( index.isValid() )
    {
-      addr = nesGetAddressFromSLOC(index.row());
+      if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+      {
+         addr = nesGetAddressFromSLOC(index.row());
+      }
+      else
+      {
+         addr = c64GetAddressFromSLOC(index.row());
+      }
 
       if ( addr != -1 )
       {
          // Find unused Marker entry...
-         marker = markers->AddMarker(addr,nesGetAbsoluteAddressFromAddress(addr));
+         if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            marker = markers->AddMarker(addr,nesGetAbsoluteAddressFromAddress(addr));
+         }
+         else
+         {
+            marker = markers->AddMarker(addr,c64GetAbsoluteAddressFromAddress(addr));
+         }
 
          emit breakpointsChanged();
          emit markProjectDirty(true);
@@ -323,11 +426,25 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
 
    if ( marker >= 0 )
    {
-      addr = nesGetAddressFromSLOC(index.row());
+      if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+      {
+         addr = nesGetAddressFromSLOC(index.row());
+      }
+      else
+      {
+         addr = c64GetAddressFromSLOC(index.row());
+      }
 
       if ( addr != -1 )
       {
-         markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
+         if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
+         }
+         else
+         {
+            markers->CompleteMarker(marker,addr,c64GetAbsoluteAddressFromAddress(addr));
+         }
 
          emit breakpointsChanged();
          emit markProjectDirty(true);
@@ -355,9 +472,16 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
    {
       if ( index.isValid() && index.column() == 0 )
       {
-         addr = nesGetAddressFromSLOC(index.row());
-
-         absAddr = nesGetAbsoluteAddressFromAddress(addr);
+         if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            addr = nesGetAddressFromSLOC(index.row());
+            absAddr = nesGetAbsoluteAddressFromAddress(addr);
+         }
+         else
+         {
+            addr = c64GetAddressFromSLOC(index.row());
+            absAddr = c64GetAbsoluteAddressFromAddress(addr);
+         }
 
          if ( addr != -1 )
          {

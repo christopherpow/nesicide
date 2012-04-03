@@ -262,20 +262,20 @@ bool CSymbolWatchModel::removeRows(int row, int count, const QModelIndex &parent
    return false;
 }
 
-void CSymbolWatchModel::insertRow(QString text, const QModelIndex& parent)
+void CSymbolWatchModel::insertRow(QString text, int addr, const QModelIndex& parent)
 {
    WatchedItem item;
 
    beginInsertRows(parent,m_items.count(),m_items.count());
    item.symbol = text;
-   item.segment = resolveSymbol(text);
+   item.segment = resolveSymbol(text,addr);
    m_items.append(item);
    endInsertRows();
 }
 
-int CSymbolWatchModel::resolveSymbol(QString text)
+int CSymbolWatchModel::resolveSymbol(QString text,int addr)
 {
-   unsigned int addr;
+   unsigned int checkAddr;
    unsigned int absAddr;
    int count;
    int idx;
@@ -283,7 +283,7 @@ int CSymbolWatchModel::resolveSymbol(QString text)
    QString symbolFile;
    QStringList symbols;
    QString selStr;
-   int selIdx = 0;
+   int selIdx = -1;
    bool ok;
 
    count = CCC65Interface::getSymbolMatchCount(text);
@@ -291,32 +291,40 @@ int CSymbolWatchModel::resolveSymbol(QString text)
    {
       for ( idx = 0; idx < count; idx++ )
       {
-         addr = CCC65Interface::getSymbolAddress(text,idx);
+         checkAddr = CCC65Interface::getSymbolAddress(text,idx);
+         if ( checkAddr == addr )
+         {
+            selIdx = idx;
+            break;
+         }
          absAddr = CCC65Interface::getSymbolAbsoluteAddress(text,idx);
          symbolFile = CCC65Interface::getSourceFileFromSymbol(text);
 
          symbol = text;
          symbol += " @";
-         nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+         nesGetPrintableAddressWithAbsolute(modelStringBuffer,checkAddr,absAddr);
          symbol += modelStringBuffer;
          symbol += " in ";
          symbol += symbolFile;
          symbols.append(symbol);
       }
-      selStr = QInputDialog::getItem(0,"Help!","Symbol has multiple possible matches, pick one:",symbols,0,false,&ok);
-      if ( ok )
+      if ( selIdx < 0 )
       {
-         for ( selIdx = 0; selIdx < count; selIdx++ )
+         selStr = QInputDialog::getItem(0,"Help!","Symbol has multiple possible matches, pick one:",symbols,0,false,&ok);
+         if ( ok )
          {
-            if ( symbols.at(selIdx) == selStr )
+            for ( selIdx = 0; selIdx < count; selIdx++ )
             {
-               break;
+               if ( symbols.at(selIdx) == selStr )
+               {
+                  break;
+               }
             }
          }
-      }
-      else
-      {
-         selIdx = 0;
+         else
+         {
+            selIdx = 0;
+         }
       }
    }
    return CCC65Interface::getSymbolSegment(text,selIdx);

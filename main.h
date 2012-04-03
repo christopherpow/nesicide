@@ -3,7 +3,6 @@
 
 #include "mainwindow.h"
 
-#include "nesemulatorthread.h"
 #include "breakpointwatcherthread.h"
 #include "compilerthread.h"
 #include "searcherthread.h"
@@ -15,13 +14,6 @@
 char* ideGetVersion();
 
 extern MainWindow* nesicideWindow;
-
-extern NESEmulatorThread* emulator;
-extern BreakpointWatcherThread* breakpointWatcher;
-
-extern CompilerThread* compiler;
-
-extern SearcherThread* searcher;
 
 extern TestSuiteExecutiveDialog* testSuiteExecutive;
 

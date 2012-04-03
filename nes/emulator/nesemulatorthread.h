@@ -11,8 +11,8 @@
 #include "ccartridge.h"
 
 // Hook function endpoints.
-void coreMutexLock ( void );
-void coreMutexUnlock ( void );
+void nesCoreMutexLock ( void );
+void nesCoreMutexUnlock ( void );
 
 class NESEmulatorThread : public QThread, public IXMLSerializable
 {
@@ -43,16 +43,16 @@ public slots:
    void adjustAudio ( int32_t bufferDepth );
    void controllerInput ( uint8_t* joy )
    {
-      coreMutexLock();
+      nesCoreMutexLock();
       m_joy[CONTROLLER1] = joy[CONTROLLER1];
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
-      coreMutexUnlock();
+      nesCoreMutexUnlock();
    }
 
 signals:
    void emulatedFrame ();
    void updateDebuggers ();
-   void cartridgeLoaded ();
+   void machineReady ();
    void emulatorPaused(bool show);
    void emulatorPausedAfter();
    void emulatorReset();

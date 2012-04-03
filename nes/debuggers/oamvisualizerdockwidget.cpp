@@ -6,6 +6,7 @@
 
 #include "nes_emulator_core.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
@@ -35,11 +36,6 @@ OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
    ui->showVisible->setChecked ( false );
 
    pThread = new DebuggerUpdateThread(&CPPUDBG::RENDEROAM);
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -49,6 +45,17 @@ OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
    delete imgData;
    delete renderer;
    delete pThread;
+}
+
+void OAMVisualizerDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
 }
 
 void OAMVisualizerDockWidget::changeEvent(QEvent* e)
@@ -67,6 +74,8 @@ void OAMVisualizerDockWidget::changeEvent(QEvent* e)
 
 void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
    pThread->updateDebuggers();
@@ -74,6 +83,8 @@ void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
 
 void OAMVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 

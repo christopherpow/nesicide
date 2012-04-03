@@ -9,6 +9,7 @@
 
 #include "nes_emulator_core.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
@@ -46,11 +47,6 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    ui->splitter->setSizes(sizes);
 
    pThread = new DebuggerUpdateThread(&C6502DBG::RENDEREXECUTIONVISUALIZER);
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -61,6 +57,17 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
    delete renderer;
    delete model;
    delete pThread;
+}
+
+void ExecutionVisualizerDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
 }
 
 void ExecutionVisualizerDockWidget::changeEvent(QEvent* event)
@@ -79,6 +86,7 @@ void ExecutionVisualizerDockWidget::changeEvent(QEvent* event)
 
 void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
 
@@ -92,6 +100,8 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
 
 void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 

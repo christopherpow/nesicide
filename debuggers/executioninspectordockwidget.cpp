@@ -3,6 +3,7 @@
 
 #include "dbg_cnes.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :
@@ -16,15 +17,6 @@ ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :
    ui->showCPU->setChecked(true);
    ui->showPPU->setChecked(true);
    ui->tableView->setModel(model);
-
-   // Connect signals to the UI to have the UI update.
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
-
-   // Connect signals to the models to have the model update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), model, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
 }
 
 ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
@@ -33,16 +25,41 @@ ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
    delete model;
 }
 
+void ExecutionInspectorDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
+   }
+}
+
 void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   }
    model->update();
    ui->tableView->resizeColumnsToContents();
 }
 
 void ExecutionInspectorDockWidget::hideEvent(QHideEvent* e)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   }
 }
 
 void ExecutionInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)

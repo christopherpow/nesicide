@@ -5,6 +5,8 @@
 
 #include "ccodebrowserdisplaymodel.h"
 
+#include "QThread"
+
 namespace Ui {
    class CodeBrowserDockWidget;
 }
@@ -26,7 +28,8 @@ protected:
 public slots:
    void breakpointHit();
    void emulatorPaused(bool showMe);
-   void cartridgeLoaded();
+   void machineReady();
+   void updateTargetMachine(QString target);
 
 signals:
    void breakpointsChanged();
@@ -36,6 +39,7 @@ private:
    Ui::CodeBrowserDockWidget *ui;
    CCodeBrowserDisplayModel* assemblyViewModel;
    int m_breakpointIndex;
+   QString m_loadedTarget;
 
 private slots:
    void on_actionGo_to_Source_triggered();

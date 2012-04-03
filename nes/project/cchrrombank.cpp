@@ -2,6 +2,7 @@
 
 #include "cchrrombank.h"
 #include "cimageconverters.h"
+#include "cthreadregistry.h"
 #include "main.h"
 
 CCHRROMBank::CCHRROMBank(IProjectTreeViewItem* parent)
@@ -76,6 +77,7 @@ void CCHRROMBank::exportAsPNG()
 
 void CCHRROMBank::importFromPNG()
 {
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CThreadRegistry::getThread("Emulator"));
    QString fileName = QFileDialog::getOpenFileName(NULL,"Import CHR-ROM Bank from PNG",QDir::currentPath(),"PNG Files (*.png)");
    QByteArray chrData;
    QByteArray imgData;

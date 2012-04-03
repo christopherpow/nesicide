@@ -6,25 +6,8 @@
 #include "startupsplashdialog.h"
 #include "environmentsettingsdialog.h"
 
-// Thread for NES emulator.  This thread runs the NES core.
-NESEmulatorThread* emulator = NULL;
-
 // Modeless dialog for Test Suite executive.
 TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
-
-// Interface to compiler.
-CompilerThread* compiler = NULL;
-
-// Interface to search engine.
-SearcherThread* searcher = NULL;
-
-// Thread for watching for breakpoints ejected by the NES
-// emulator thread.
-BreakpointWatcherThread* breakpointWatcher = NULL;
-
-// Hash table of debugger inspector windows to support automagic
-// opening/closing of inspector windows on things like breakpoints.
-QHash<QString,QDockWidget*> inspectors;
 
 // Database of all known games.
 CGameDatabaseHandler gameDatabase;
@@ -79,9 +62,6 @@ int main(int argc, char* argv[])
    nesicideWindow->show();
 
    int result = nesicideApplication.exec();
-
-   delete pluginManager;
-   pluginManager = NULL;
 
    return result;
 }

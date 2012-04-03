@@ -1,7 +1,7 @@
 #include "panzoomrenderer.h"
 #include "ui_panzoomrenderer.h"
 
-#include "cnessystempalette.h"
+#include "nes_emulator_core.h"
 
 PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int textureSizeXY,int maxZoom,char* imageData,bool showPalette,QWidget *parent) :
       QWidget(parent),

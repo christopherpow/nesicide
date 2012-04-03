@@ -25,6 +25,7 @@
 
 #include "ccc65interface.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 #undef main
@@ -32,7 +33,7 @@
 
 #include "cnesicideproject.h"
 
-QSemaphore breakpointSemaphore(0);
+QSemaphore nesBreakpointSemaphore(0);
 
 #include <QMutex>
 
@@ -40,31 +41,33 @@ SDL_AudioSpec sdlAudioSpec;
 QMutex doFrameMutex;
 
 // Hook function endpoints.
-void coreMutexLock ( void )
+void nesCoreMutexLock ( void )
 {
    doFrameMutex.lock();
 }
 
-void coreMutexUnlock ( void )
+void nesCoreMutexUnlock ( void )
 {
    doFrameMutex.unlock();
 }
 
-void breakpointHook ( void )
+static void breakpointHook ( void )
 {
    SDL_PauseAudio(1);
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CThreadRegistry::getThread("Breakpoint Watcher"));
    breakpointWatcher->breakpointWatcherSemaphore()->release();
-   breakpointSemaphore.acquire();
+   nesBreakpointSemaphore.acquire();
    SDL_PauseAudio(0);
 }
 
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CThreadRegistry::getThread("Emulator"));
    int32_t samplesAvailable;
 
-   coreMutexLock();
+   nesCoreMutexLock();
    samplesAvailable = nesGetAudioSamplesAvailable();
-   coreMutexUnlock();
+   nesCoreMutexUnlock();
 
    if (samplesAvailable <= 0)
    {
@@ -96,8 +99,8 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_debugFrame = 0;
    m_pCartridge = NULL;
 
-   nesSetCoreMutexLockHook(coreMutexLock);
-   nesSetCoreMutexUnlockHook(coreMutexUnlock);
+   nesSetCoreMutexLockHook(nesCoreMutexLock);
+   nesSetCoreMutexUnlockHook(nesCoreMutexUnlock);
 
    // Enable breakpoint callbacks from the external emulator library.
    nesSetBreakpointHook(breakpointHook);
@@ -117,9 +120,9 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    SDL_PauseAudio ( 0 );
 
-   coreMutexLock();
+   nesCoreMutexLock();
    nesClearAudioSamplesAvailable();
-   coreMutexUnlock();
+   nesCoreMutexUnlock();
 }
 
 NESEmulatorThread::~NESEmulatorThread()
@@ -141,7 +144,7 @@ void NESEmulatorThread::kill()
    m_showOnPause = false;
    m_isTerminating = true;
 
-   breakpointSemaphore.release();
+   nesBreakpointSemaphore.release();
    start();
 }
 
@@ -166,9 +169,9 @@ void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
 
    SDL_PauseAudio ( 0 );
 
-   coreMutexLock();
+   nesCoreMutexLock();
    nesClearAudioSamplesAvailable();
-   coreMutexUnlock();
+   nesCoreMutexUnlock();
 }
 
 void NESEmulatorThread::primeEmulator()
@@ -188,9 +191,9 @@ void NESEmulatorThread::resetEmulator()
    nesEnableBreakpoints(false);
 
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(breakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore.available()) )
    {
-      breakpointSemaphore.release();
+      nesBreakpointSemaphore.release();
    }
 
    m_isResetting = true;
@@ -204,9 +207,9 @@ void NESEmulatorThread::resetEmulator()
 void NESEmulatorThread::startEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(breakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore.available()) )
    {
-      breakpointSemaphore.release();
+      nesBreakpointSemaphore.release();
    }
 
    m_isStarting = true;
@@ -230,9 +233,9 @@ void NESEmulatorThread::stepCPUEmulation ()
       nesSetGotoAddress(endAddr);
 
       // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(breakpointSemaphore.available()) )
+      if ( !(nesBreakpointSemaphore.available()) )
       {
-         breakpointSemaphore.release();
+         nesBreakpointSemaphore.release();
       }
 
       m_isStarting = true;
@@ -245,9 +248,9 @@ void NESEmulatorThread::stepCPUEmulation ()
       // But ensure we come right back...
       nesStepCpu();
 
-      if ( !(breakpointSemaphore.available()) )
+      if ( !(nesBreakpointSemaphore.available()) )
       {
-         breakpointSemaphore.release();
+         nesBreakpointSemaphore.release();
       }
 
       m_isStarting = true;
@@ -309,9 +312,9 @@ void NESEmulatorThread::stepOverCPUEmulation ()
       nesSetGotoAddress(endAddr+1);
 
       // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(breakpointSemaphore.available()) )
+      if ( !(nesBreakpointSemaphore.available()) )
       {
-         breakpointSemaphore.release();
+         nesBreakpointSemaphore.release();
       }
 
       m_isStarting = true;
@@ -327,9 +330,9 @@ void NESEmulatorThread::stepOverCPUEmulation ()
 void NESEmulatorThread::stepOutCPUEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(breakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore.available()) )
    {
-      breakpointSemaphore.release();
+      nesBreakpointSemaphore.release();
    }
 //CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    m_isStarting = true;
@@ -343,9 +346,9 @@ void NESEmulatorThread::stepPPUEmulation ()
    // But ensure we come right back...
    nesStepPpu();
 
-   if ( !(breakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore.available()) )
    {
-      breakpointSemaphore.release();
+      nesBreakpointSemaphore.release();
    }
 
    m_isStarting = true;
@@ -359,9 +362,9 @@ void NESEmulatorThread::advanceFrame ()
    // But ensure we come right back...
    nesStepPpuFrame();
 
-   if ( !(breakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore.available()) )
    {
-      breakpointSemaphore.release();
+      nesBreakpointSemaphore.release();
    }
 
    m_isStarting = true;
@@ -455,7 +458,7 @@ void NESEmulatorThread::loadCartridge()
       emit updateDebuggers();
 
       // Trigger UI updates...
-      emit cartridgeLoaded();
+      emit machineReady();
    }
 }
 
@@ -563,9 +566,9 @@ void NESEmulatorThread::run ()
       // Run the NES...
       if ( m_isRunning )
       {
-         coreMutexLock();
+         nesCoreMutexLock();
          samplesAvailable = nesGetAudioSamplesAvailable();
-         coreMutexUnlock();
+         nesCoreMutexUnlock();
 
          if ( samplesAvailable >= APU_BUFFER_PRERENDER )
          {
@@ -576,7 +579,7 @@ void NESEmulatorThread::run ()
          nesEnableBreakpoints(true);
 
          // Make sure breakpoint semaphore is on the precipice...
-         breakpointSemaphore.tryAcquire();
+         nesBreakpointSemaphore.tryAcquire();
 
          // Run emulator for one frame...
          SDL_LockAudio();

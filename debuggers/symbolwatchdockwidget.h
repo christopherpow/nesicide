@@ -8,11 +8,13 @@
 #include "cdebuggersymboldelegate.h"
 #include "ixmlserializable.h"
 
+#include "ui_symbolwatchdockwidget.h"
+
 namespace Ui {
    class SymbolWatchDockWidget;
 }
 
-class SymbolWatchDockWidget : public CDebuggerBase, public IXMLSerializable
+class SymbolWatchDockWidget : public CDebuggerBase, public IXMLSerializable, private Ui::SymbolWatchDockWidget
 {
    Q_OBJECT
 
@@ -32,9 +34,12 @@ protected:
    void contextMenuEvent(QContextMenuEvent *event);
    void showEvent(QShowEvent *event);
    void hideEvent(QHideEvent *event);
+   void createNesUi();
+   void destroyNesUi();
+   void createC64Ui();
+   void destroyC64Ui();
 
 private:
-   Ui::SymbolWatchDockWidget *ui;
    CSymbolWatchModel* watchModel;
    CDebuggerSymbolDelegate* watchSymbolDelegate;
    CDebuggerNumericItemDelegate* watchValueDelegate;
@@ -44,6 +49,13 @@ private:
    CDebuggerNumericItemDelegate* sramValueDelegate;
    CSymbolWatchModel* exramModel;
    CDebuggerNumericItemDelegate* exramValueDelegate;
+   QWidget *sramTab;
+   QGridLayout *sramGridLayout;
+   QTableView *sram;
+   QWidget *exramTab;
+   QGridLayout *exramGridLayout;
+   QTableView *exram;
+   QString m_targetLoaded;
 
 signals:
    void breakpointsChanged();
@@ -57,6 +69,7 @@ private slots:
    void on_actionBreak_on_CPU_access_here_triggered();
    void on_actionBreak_on_CPU_read_here_triggered();
    void on_actionBreak_on_CPU_write_here_triggered();
+   void updateTargetMachine(QString target);
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H

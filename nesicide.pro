@@ -38,20 +38,23 @@ win32 {
    LUA_CXXFLAGS = -I../nesicide/libraries/Lua
    LUA_LIBS = ../nesicide/libraries/Lua/liblua.a
 
-   NESICIDE_CXXFLAGS = -I../nes-emulator-lib -I../nes-emulator-lib/emulator -I../nes-emulator-lib/common
+   NES_CXXFLAGS = -I../nes-emulator-lib -I../nes-emulator-lib/emulator -I../nes-emulator-lib/common
+   C64_CXXFLAGS = -I../c64-emulator-lib -I../c64-emulator-lib/emulator -I../c64-emulator-lib/common
 
    QMAKE_LFLAGS += -static-libgcc
 
    CONFIG(release, debug|release) {
-      NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop/release -lnes-emulator
+      NES_LIBS = -L../nes-emulator-lib-build-desktop/release -lnes-emulator
+      C64_LIBS = -L../c64-emulator-lib-build-desktop/release -lc64-emulator
    } else {
-      NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop/debug -lnes-emulator
+      NES_LIBS = -L../nes-emulator-lib-build-desktop/debug -lnes-emulator
+      C64_LIBS = -L../c64-emulator-lib-build-desktop/debug -lc64-emulator
    }
 }
 
 mac {
-   NESICIDE_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
-   NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
+   NES_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
+   NES_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
 
    SDL_CXXFLAGS = -framework SDL
    SDL_LIBS = -framework SDL
@@ -80,8 +83,8 @@ mac {
 }
 
 unix:!mac {
-   NESICIDE_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
-   NESICIDE_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
+   NES_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
+   NES_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -132,8 +135,8 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
-LIBS += $$NESICIDE_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
+QMAKE_CXXFLAGS += $$NES_CXXFLAGS $$C64_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
+LIBS += $$NES_LIBS $$C64_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += \
     common \
@@ -141,11 +144,14 @@ INCLUDEPATH += \
     compilers \
     compilers/cc65 \
     nes/compilers \
+    c64/compilers \
     debuggers \
     nes/debuggers \
+    c64/debuggers \
     designers \
     nes/designers \
     nes/emulator \
+    c64/emulator \
     interfaces \
     project \
     nes/project \
@@ -164,7 +170,8 @@ SOURCES += \
     common/cprojecttabwidget.cpp \
     common/cpropertyitem.cpp \
     common/crendererbase.cpp \
-    nes/emulator/emulatorcontrol.cpp \
+    nes/emulator/nesemulatorcontrol.cpp \
+    c64/emulator/c64emulatorcontrol.cpp \
     common/panzoomrenderer.cpp \
     common/qtcolorpicker.cpp \
     common/searchbar.cpp \
@@ -235,6 +242,7 @@ SOURCES += \
     nes/emulator/nesemulatorrenderer.cpp \
     nes/emulator/nesemulatorthread.cpp \
     nes/emulator/emulatorprefsdialog.cpp \
+    c64/emulator/c64emulatorthread.cpp \
     environmentsettingsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -270,7 +278,10 @@ SOURCES += \
     nes/debuggers/prgromdisplaydialog.cpp \
     project/cprojecttreeview.cpp \
     project/cprojecttreeviewmodel.cpp \
-    debuggers/cdebuggerregisterdisplaymodel.cpp
+    debuggers/cdebuggerregisterdisplaymodel.cpp \
+    common/cthreadregistry.cpp \
+    c64/compilers/cmachineimagebuilder.cpp \
+    c64/debuggers/dbg_cc64.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -286,7 +297,8 @@ HEADERS += \
     common/cprojecttabwidget.h \
     common/cpropertyitem.h \
     common/crendererbase.h \
-    nes/emulator/emulatorcontrol.h \
+    nes/emulator/nesemulatorcontrol.h \
+    c64/emulator/c64emulatorcontrol.h \
     common/panzoomrenderer.h \
     common/qtcolorpicker.h \
     common/searchbar.h \
@@ -355,6 +367,7 @@ HEADERS += \
     nes/emulator/nesemulatordockwidget.h \
     nes/emulator/nesemulatorrenderer.h \
     nes/emulator/nesemulatorthread.h \
+    c64/emulator/c64emulatorthread.h \
     nes/emulator/emulatorprefsdialog.h \
     environmentsettingsdialog.h \
     interfaces/icenterwidgetitem.h \
@@ -394,12 +407,16 @@ HEADERS += \
     nes/debuggers/prgromdisplaydialog.h \
     project/cprojecttreeview.h \
     project/cprojecttreeviewmodel.h \
-    debuggers/cdebuggerregisterdisplaymodel.h
+    debuggers/cdebuggerregisterdisplaymodel.h \
+    common/cthreadregistry.h \
+    c64/compilers/cmachineimagebuilder.h \
+    c64/debuggers/dbg_cc64.h
 
 FORMS += \
     aboutdialog.ui \
     nes/common/chrbankitemstabwidget.ui \
-    nes/emulator/emulatorcontrol.ui \
+    nes/emulator/nesemulatorcontrol.ui \
+    c64/emulator/c64emulatorcontrol.ui \
     common/panzoomrenderer.ui \
     common/searchbar.ui \
     common/searchdockwidget.ui \

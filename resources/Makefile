@@ -38,21 +38,21 @@ CONFIG := $(subst \,/,$(CONFIG))
 
 # Additional C compiler flags and options.
 # Default: none
-CFLAGS  = -t nes -g --debug-info <!compiler-flags!>
+CFLAGS  = -t <!target-machine!> -g --debug-info <!compiler-flags!>
 
 # Get rid of Windows path wonkiness.
 CFLAGS := $(subst \,/,$(CFLAGS))
 
 # Additional assembler flags and options.
 # Default: none
-ASFLAGS = -t nes -g --debug-info <!assembler-flags!>
+ASFLAGS = -t <!target-machine!> -g --debug-info <!assembler-flags!>
 
 # Get rid of Windows path wonkiness.
 ASFLAGS := $(subst \,/,$(ASFLAGS))
 
 # Additional linker flags and options.
 # Default: none
-LDFLAGS = -t nes -C $(CONFIG) <!linker-flags!> -Wl --dbgfile,<!debug-file!>
+LDFLAGS = -t <!target-machine!> -C $(CONFIG) <!linker-flags!> -Wl --dbgfile,<!debug-file!>
 REMOVES += <!debug-file!>
 
 # Get rid of Windows path wonkiness.

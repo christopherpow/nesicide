@@ -5,6 +5,7 @@
 
 #include "dbg_cnes.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 #include <QMessageBox>
@@ -20,15 +21,6 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB, QWidget *p
    ui->tableView->setModel(model);
    ui->tableView->setItemDelegate(delegate);
 
-   // Connect signals to the UI to have the UI update.
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
-
-   // Connect signals to the models to have the model update.
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), model, SLOT(update()));
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
-
    m_memDB = memDB;
 }
 
@@ -39,16 +31,41 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
    delete delegate;
 }
 
+void MemoryInspectorDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
+   }
+}
+
 void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   }
    model->update();
    ui->tableView->resizeColumnsToContents();
 }
 
 void MemoryInspectorDockWidget::hideEvent(QHideEvent* e)
 {
-   QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
+   }
 }
 
 void MemoryInspectorDockWidget::contextMenuEvent(QContextMenuEvent* e)
@@ -110,14 +127,14 @@ void MemoryInspectorDockWidget::updateMemory ()
                   (pBreakpoint->itemActual <= high) )
             {
                if ( ((pBreakpoint->target == eBreakInCPU) &&
-                     ((memoryType == eMemory_CPU) ||
-                      (memoryType == eMemory_cartSRAM) ||
-                      (memoryType == eMemory_cartEXRAM) ||
-                      (memoryType == eMemory_cartROM))) ||
+                     ((memoryType == eNESMemory_CPU) ||
+                      (memoryType == eNESMemory_cartSRAM) ||
+                      (memoryType == eNESMemory_cartEXRAM) ||
+                      (memoryType == eNESMemory_cartROM))) ||
                      ((pBreakpoint->target == eBreakInPPU) &&
-                      ((memoryType == eMemory_PPU) ||
-                       (memoryType == eMemory_PPUpalette) ||
-                       (memoryType == eMemory_cartCHRMEM))) )
+                      ((memoryType == eNESMemory_PPU) ||
+                       (memoryType == eNESMemory_PPUpalette) ||
+                       (memoryType == eNESMemory_cartCHRMEM))) )
                {
                   // Change memory address into row/column of display...
                   itemActual = pBreakpoint->itemActual - model->memoryBottom();

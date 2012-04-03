@@ -5,6 +5,7 @@
 
 #include "ccodedatalogger.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
@@ -19,10 +20,6 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
 
    ui->tableView->sortByColumn(CodeProfilerCol_Calls,Qt::DescendingOrder);
 
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),this,SLOT(on_clear_clicked()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
    QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
 
    QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
@@ -32,15 +29,40 @@ CodeProfilerDockWidget::~CodeProfilerDockWidget()
 {
     delete ui;
 }
+
+void CodeProfilerDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
+   if ( emulator )
+   {
+      QObject::connect(emulator,SIGNAL(machineReady()),this,SLOT(on_clear_clicked()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
+   }
+}
+
 void CodeProfilerDockWidget::showEvent(QShowEvent *event)
 {
-   QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
+   }
    model->update();
 }
 
 void CodeProfilerDockWidget::hideEvent(QHideEvent *event)
 {
-   QObject::disconnect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect(emulator,SIGNAL(updateDebuggers()),model,SLOT(update()));
+   }
 }
 
 void CodeProfilerDockWidget::updateUi()

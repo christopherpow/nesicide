@@ -84,7 +84,7 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
       if ( pLogEntry->count )
       {
          // PPU fetches are one color, CPU fetches are others...
-         if ( pLogEntry->source == eSource_PPU )
+         if ( pLogEntry->source == eNESSource_PPU )
          {
             lcolor = renderColor;
          }

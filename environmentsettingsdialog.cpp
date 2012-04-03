@@ -6,7 +6,7 @@
 #include <QSettings>
 
 // Settings data structures.
-int EnvironmentSettingsDialog::m_lastActiveTab;
+//QModelIndex EnvironmentSettingsDialog::m_lastActiveTab;
 bool EnvironmentSettingsDialog::m_useInternalGameDatabase;
 QString EnvironmentSettingsDialog::m_gameDatabase;
 bool EnvironmentSettingsDialog::m_showWelcomeOnStart;
@@ -132,7 +132,24 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->sourceExtensionsC->setText(m_cSourceExtensions);
    ui->sourceExtensionsAsm->setText(m_asmSourceExtensions);
 
-   ui->tabWidget->setCurrentIndex(m_lastActiveTab);
+   pageMap.insert("General",ui->general);
+   pageMap.insert("Code Editor",ui->codeeditor);
+   pageMap.insert("Compiler",ui->compiler);
+   pageMap.insert("Nintendo Entertainment System",ui->nesemulator);
+   pageMap.insert("Emulation",ui->nesemulator);
+   pageMap.insert("Debugging",ui->nesdebugger);
+   pageMap.insert("Commodore 64",ui->c64emulator);
+   pageMap.insert("Emulation",ui->c64emulator);
+
+   ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("General",Qt::MatchExactly).at(0));
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->treeWidget->findItems("Commodore 64",Qt::MatchExactly).at(0)->setHidden(true);
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      ui->treeWidget->findItems("Nintendo Entertainment System",Qt::MatchExactly).at(0)->setHidden(true);
+   }
 }
 
 EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
@@ -196,7 +213,7 @@ void EnvironmentSettingsDialog::readSettings()
    m_annotateSource = settings.value("annotateSource",QVariant(true)).toBool();
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
-   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
+//   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    settings.endGroup();
 }
 
@@ -237,7 +254,7 @@ void EnvironmentSettingsDialog::writeSettings()
    m_annotateSource = ui->annotate->isChecked();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
-   m_lastActiveTab = ui->tabWidget->currentIndex();
+//   m_lastActiveTab = ui->treeWidget->currentIndex();
 
    // Then save to QSettings;
    settings.beginGroup("Environment");
@@ -273,7 +290,7 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
 
-   settings.setValue("LastActiveTab",m_lastActiveTab);
+//   settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
 
    m_defaultLexer->writeSettings(settings,"CodeEditor");
@@ -383,10 +400,11 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
    m_scintilla->markerAdd(1,Marker_Highlight);
 }
 
-void EnvironmentSettingsDialog::on_buttonBox_accepted()
-{
-   writeSettings();
-}
+//void EnvironmentSettingsDialog::on_buttonBox_accepted()
+//{
+//   writeSettings();
+//   accept();
+//}
 
 void EnvironmentSettingsDialog::changeEvent(QEvent* e)
 {
@@ -657,4 +675,19 @@ void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
 void EnvironmentSettingsDialog::on_language_currentIndexChanged(int index)
 {
    setupCodeEditor(index);
+}
+
+void EnvironmentSettingsDialog::on_treeWidget_itemSelectionChanged()
+{
+   ui->treeWidget->expand(ui->treeWidget->currentIndex());
+   if ( ui->treeWidget->currentItem()->childCount() )
+   {
+      ui->treeWidget->setCurrentItem(ui->treeWidget->itemBelow(ui->treeWidget->currentItem()));
+   }
+   ui->stackedWidget->setCurrentWidget(pageMap[ui->treeWidget->currentItem()->text(0)]);
+}
+
+void EnvironmentSettingsDialog::on_buttonBox_accepted()
+{
+   writeSettings();
 }

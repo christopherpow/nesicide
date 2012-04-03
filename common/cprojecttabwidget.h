@@ -90,6 +90,7 @@ signals:
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
    void setStatusBarMessage(QString message);
+   void updateTargetMachine(QString target);
 
 public slots:
    void tabModified(bool modified);

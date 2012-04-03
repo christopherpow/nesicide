@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "cdockwidgetregistry.h"
+#include "cthreadregistry.h"
 #include "cpluginmanager.h"
 
 #include "testsuiteexecutivedialog.h"
@@ -10,6 +11,9 @@
 
 #include "compilerthread.h"
 #include "ccc65interface.h"
+
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
 
 #include <QApplication>
 #include <QStringList>
@@ -24,18 +28,21 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QSettings settings;
 
-   // Create the NES emulator and breakpoint watcher threads...
-   emulator = new NESEmulatorThread();
-   breakpointWatcher = new BreakpointWatcherThread();
+   // Create the search engine thread.
+   SearcherThread* searcher = new SearcherThread();
+   CThreadRegistry::addThread ( "Searcher", searcher );
+
+   // Create the breakpoint watcher thread...
+   BreakpointWatcherThread* breakpointWatcher = new BreakpointWatcherThread();
+   CThreadRegistry::addThread ( "Breakpoint Watcher", breakpointWatcher );
 
    // Create the compiler thread...
-   compiler = new CompilerThread();
-
-   // Create the searcher thread...
-   searcher = new SearcherThread();
+   CompilerThread* compiler = new CompilerThread();
+   CThreadRegistry::addThread ( "Compiler", compiler );
 
    // Create the Test Suite executive modeless dialog...
    testSuiteExecutive = new TestSuiteExecutiveDialog();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),testSuiteExecutive,SLOT(updateTargetMachine(QString)));
    QObject::connect(testSuiteExecutive,SIGNAL(openNesROM(QString,bool)),this,SLOT(openNesROM(QString,bool)));
 
    // Start breakpoint-watcher thread...
@@ -53,12 +60,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()));
    QObject::connect(compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)));
 
-   QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
-   QObject::connect(this,SIGNAL(pauseEmulation(bool)),emulator,SLOT(pauseEmulation(bool)));
-   QObject::connect(this,SIGNAL(primeEmulator()),emulator,SLOT(primeEmulator()));
-   QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
-   QObject::connect(this,SIGNAL(adjustAudio(int32_t)),emulator,SLOT(adjustAudio(int32_t)));
-
    generalTextLogger = new CTextLogger();
    buildTextLogger = new CTextLogger();
    debugTextLogger = new CTextLogger();
@@ -74,17 +75,19 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(this,SIGNAL(applyProjectProperties()),tabWidget,SLOT(applyProjectProperties()));
    QObject::connect(this,SIGNAL(applyEnvironmentSettings()),tabWidget,SLOT(applyEnvironmentSettings()));
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),tabWidget,SIGNAL(updateTargetMachine(QString)));
 
    QObject::connect(menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
    menuWindow->setEnabled(false);
 
    // Start with no target loaded.
-   m_targetLoaded = eSupportedTarget_None;
+   m_targetLoaded = "none";
 
    // Set up common UI elements.
    m_pSourceNavigator = new SourceNavigator();
    compilerToolbar->addWidget(m_pSourceNavigator);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pSourceNavigator,SLOT(updateTargetMachine(QString)));
    CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
 
    m_pSearchBar = new SearchBar("SearchBar");
@@ -121,7 +124,8 @@ MainWindow::MainWindow(QWidget* parent) :
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
    generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
-   m_pBreakpointInspector = new BreakpointDockWidget ();
+   m_pBreakpointInspector = new BreakpointDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
    QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
@@ -129,6 +133,7 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
 
    m_pExecutionInspector = new ExecutionInspectorDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
    m_pExecutionInspector->hide();
    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
@@ -136,6 +141,7 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Execution Inspector", m_pExecutionInspector );
 
    m_pAssemblyInspector = new CodeBrowserDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
    QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
@@ -143,6 +149,7 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pSymbolInspector = new SymbolWatchDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pSymbolInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
    m_pSymbolInspector->hide();
    QObject::connect(m_pSymbolInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSymbol_Watch_close(bool)));
@@ -150,15 +157,19 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
 
    m_pCodeProfiler = new CodeProfilerDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeProfiler,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
    m_pCodeProfiler->hide();
    QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));
    CDockWidgetRegistry::addWidget ( "Code Profiler", m_pCodeProfiler );
 
+   emit updateTargetMachine("none");
+
    // Connect snapTo's from various debuggers to the central widget.
    QObject::connect ( m_pSourceNavigator, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pCodeProfiler, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( output, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
 
    // Slots for updating status bar.
@@ -193,6 +204,7 @@ MainWindow::MainWindow(QWidget* parent) :
    // Filter for supported files to open.
    QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
    QStringList argv_nesproject = argv.filter ( QRegExp(".*[.]nesproject$",Qt::CaseInsensitive) );
+   QStringList argv_c64 = argv.filter ( QRegExp(".*[.](c64|prg)$",Qt::CaseInsensitive) );
 
    if ( (argv_nes.count() >= 1) &&
         (argv_nesproject.count() >= 1) )
@@ -222,12 +234,23 @@ MainWindow::MainWindow(QWidget* parent) :
                                     "were ignored." );
       }
    }
+   else if ( argv_c64.count() >= 1 )
+   {
+      openC64File(argv_c64.at(0));
+
+      if ( argv_c64.count() > 1 )
+      {
+         QMessageBox::information ( 0, "Command Line Error", "Too many C64 files were specified on the command\n"
+                                    "line.  Only the first C64 file was opened, all others\n"
+                                    "were ignored." );
+      }
+   }
 
    projectDataChangesEvent();
 
    // For now don't use the value from the settings, because nesGetAudioSamples()
    // always returns APU_SAMPLES samples
-   //emulator->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
+   //m_pNESEmulatorThread->adjustAudio(EnvironmentSettingsDialog::soundBufferDepth());
    emit adjustAudio( APU_SAMPLES );
    emit resetEmulator();
 
@@ -240,6 +263,10 @@ MainWindow::MainWindow(QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CThreadRegistry::getThread("Breakpoint Watcher"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CThreadRegistry::getThread("Searcher"));
+
    tabWidget->clear();
 
    // Properly kill and destroy the threads we created above.
@@ -249,34 +276,30 @@ MainWindow::~MainWindow()
    compiler->wait();
    searcher->kill();
    searcher->wait();
-   emulator->kill();
-   emulator->wait();
 
-   delete breakpointWatcher;
+   breakpointWatcher->deleteLater();
    breakpointWatcher = NULL;
-   delete compiler;
+   compiler->deleteLater();
    compiler = NULL;
-   delete searcher;
+   searcher->deleteLater();
    searcher = NULL;
-   delete emulator;
-   emulator = NULL;
 
-   delete testSuiteExecutive;
+   testSuiteExecutive->deleteLater();
 
-   delete generalTextLogger;
-   delete buildTextLogger;
-   delete debugTextLogger;
-   delete searchTextLogger;
+   generalTextLogger->deleteLater();
+   buildTextLogger->deleteLater();
+   debugTextLogger->deleteLater();
+   searchTextLogger->deleteLater();
 
-   delete nesicideProject;
-   delete pluginManager;
+   nesicideProject->deleteLater();
+   pluginManager->deleteLater();
 
-   delete m_pBreakpointInspector;
-   delete m_pExecutionInspector;
-   delete m_pAssemblyInspector;
-   delete m_pSourceNavigator;
-   delete m_pSymbolInspector;
-   delete m_pSearch;
+   m_pBreakpointInspector->deleteLater();
+   m_pExecutionInspector->deleteLater();
+   m_pAssemblyInspector->deleteLater();
+   m_pSourceNavigator->deleteLater();
+   m_pSymbolInspector->deleteLater();
+   m_pSearch->deleteLater();
 }
 
 void MainWindow::createTarget(QString target)
@@ -287,16 +310,20 @@ void MainWindow::createTarget(QString target)
    }
    else if ( !target.compare("c64",Qt::CaseInsensitive) )
    {
-
+      createC64Ui();
    }
 }
 
 void MainWindow::createNesUi()
 {
-   if ( m_targetLoaded == eSupportedTarget_NES )
+   // If we're not set up for NES target, do so.
+   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
    {
       return;
    }
+
+   // Set up compiler for appropriate target.
+   CCC65Interface::updateTargetMachine("nes");
 
    actionEmulation_Window = new QAction("Emulator",this);
    actionEmulation_Window->setObjectName(QString::fromUtf8("actionEmulation_Window"));
@@ -316,19 +343,19 @@ void MainWindow::createNesUi()
    QIcon icon13;
    icon13.addFile(QString::fromUtf8(":/resources/22_preferences-desktop-display-color.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionGfxOAMMemory_Inspector->setIcon(icon13);
-   actionGfxNameTableMemory_Inspector = new QAction("NameTable Visualizer",this);
-   actionGfxNameTableMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxNameTableMemory_Inspector"));
-   actionGfxNameTableMemory_Inspector->setCheckable(true);
+   actionGfxNameTableNESMemory_Inspector = new QAction("NameTable Visualizer",this);
+   actionGfxNameTableNESMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxNameTableNESMemory_Inspector"));
+   actionGfxNameTableNESMemory_Inspector->setCheckable(true);
    actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
    actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
    QIcon icon16;
    icon16.addFile(QString::fromUtf8(":/resources/22_cpu_ram.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionBinCPURAM_Inspector->setIcon(icon16);
    actionBinCPURAM_Inspector->setCheckable(true);
-   actionBinNameTableMemory_Inspector = new QAction("NameTable Memory",this);
-   actionBinNameTableMemory_Inspector->setObjectName(QString::fromUtf8("actionBinNameTableMemory_Inspector"));
-   actionBinNameTableMemory_Inspector->setIcon(icon13);
-   actionBinNameTableMemory_Inspector->setCheckable(true);
+   actionBinNameTableNESMemory_Inspector = new QAction("NameTable Memory",this);
+   actionBinNameTableNESMemory_Inspector->setObjectName(QString::fromUtf8("actionBinNameTableNESMemory_Inspector"));
+   actionBinNameTableNESMemory_Inspector->setIcon(icon13);
+   actionBinNameTableNESMemory_Inspector->setCheckable(true);
    actionBinPPURegister_Inspector = new QAction("Registers",this);
    actionBinPPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinPPURegister_Inspector"));
    actionBinPPURegister_Inspector->setIcon(icon13);
@@ -345,10 +372,10 @@ void MainWindow::createNesUi()
    actionBinOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinOAMMemory_Inspector"));
    actionBinOAMMemory_Inspector->setIcon(icon13);
    actionBinOAMMemory_Inspector->setCheckable(true);
-   actionBinPaletteMemory_Inspector = new QAction("Palette Memory",this);
-   actionBinPaletteMemory_Inspector->setObjectName(QString::fromUtf8("actionBinPaletteMemory_Inspector"));
-   actionBinPaletteMemory_Inspector->setIcon(icon13);
-   actionBinPaletteMemory_Inspector->setCheckable(true);
+   actionBinPaletteNESMemory_Inspector = new QAction("Palette Memory",this);
+   actionBinPaletteNESMemory_Inspector->setObjectName(QString::fromUtf8("actionBinPaletteNESMemory_Inspector"));
+   actionBinPaletteNESMemory_Inspector->setIcon(icon13);
+   actionBinPaletteNESMemory_Inspector->setCheckable(true);
    actionBinSRAMMemory_Inspector = new QAction("SRAM Memory",this);
    actionBinSRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinSRAMMemory_Inspector"));
    actionBinSRAMMemory_Inspector->setIcon(icon13);
@@ -454,11 +481,11 @@ void MainWindow::createNesUi()
    menuPPU_Inspectors->addAction(actionPPUInformation_Inspector);
    menuPPU_Inspectors->addAction(actionBinPPURegister_Inspector);
    menuPPU_Inspectors->addSeparator();
-   menuPPU_Inspectors->addAction(actionBinNameTableMemory_Inspector);
-   menuPPU_Inspectors->addAction(actionBinPaletteMemory_Inspector);
+   menuPPU_Inspectors->addAction(actionBinNameTableNESMemory_Inspector);
+   menuPPU_Inspectors->addAction(actionBinPaletteNESMemory_Inspector);
    menuPPU_Inspectors->addAction(actionBinOAMMemory_Inspector);
    menuPPU_Inspectors->addSeparator();
-   menuPPU_Inspectors->addAction(actionGfxNameTableMemory_Inspector);
+   menuPPU_Inspectors->addAction(actionGfxNameTableNESMemory_Inspector);
    menuPPU_Inspectors->addAction(actionGfxOAMMemory_Inspector);
    menuCartridge_Inspectors->addAction(actionMapperInformation_Inspector);
    menuCartridge_Inspectors->addAction(actionBinMapperMemory_Inspector);
@@ -499,20 +526,30 @@ void MainWindow::createNesUi()
    toolToolbar->addAction(actionEmulation_Window);
    toolToolbar->addSeparator();
 
-   m_pEmulator = new NESEmulatorDockWidget();
-   addDockWidget(Qt::RightDockWidgetArea, m_pEmulator );
-   m_pEmulator->hide();
-   QObject::connect(m_pEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
-   CDockWidgetRegistry::addWidget ( "Emulator", m_pEmulator );
+   m_pNESEmulatorThread = new NESEmulatorThread();
+   CThreadRegistry::addThread("Emulator",m_pNESEmulatorThread);
 
-   m_pEmulatorControl = new EmulatorControl();
-   debuggerToolBar->addWidget(m_pEmulatorControl);
+   QObject::connect(this,SIGNAL(startEmulation()),m_pNESEmulatorThread,SLOT(startEmulation()));
+   QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
+   QObject::connect(this,SIGNAL(primeEmulator()),m_pNESEmulatorThread,SLOT(primeEmulator()));
+   QObject::connect(this,SIGNAL(resetEmulator()),m_pNESEmulatorThread,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(adjustAudio(int32_t)),m_pNESEmulatorThread,SLOT(adjustAudio(int32_t)));
+
+   m_pNESEmulator = new NESEmulatorDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pNESEmulator,SLOT(updateTargetMachine(QString)));
+   addDockWidget(Qt::RightDockWidgetArea, m_pNESEmulator );
+   m_pNESEmulator->hide();
+   QObject::connect(m_pNESEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
+   CDockWidgetRegistry::addWidget ( "Emulator", m_pNESEmulator );
+
+   m_pNESEmulatorControl = new NESEmulatorControl();
+   debuggerToolBar->addWidget(m_pNESEmulatorControl);
    debuggerToolBar->show();
-   QObject::connect(m_pEmulatorControl,SIGNAL(focusEmulator()),this,SLOT(focusEmulator()));
+   QObject::connect(m_pNESEmulatorControl,SIGNAL(focusEmulator()),this,SLOT(focusEmulator()));
 
    // Add menu for emulator control.  The emulator control provides menu for itself!  =]
    QAction* firstEmuMenuAction = menuEmulator->actions().at(0);
-   menuEmulator->insertActions(firstEmuMenuAction,m_pEmulatorControl->menu());
+   menuEmulator->insertActions(firstEmuMenuAction,m_pNESEmulatorControl->menu());
    menuEmulator->insertSeparator(firstEmuMenuAction);
 
    m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
@@ -527,6 +564,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
    m_pGfxOAMMemoryInspector->hide();
    QObject::connect(m_pGfxOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxOAMMemoryInspector_close(bool)));
@@ -534,6 +572,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
 
    m_pGfxNameTableMemoryInspector = new NameTableVisualizerDockWidget ();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
    m_pGfxNameTableMemoryInspector->hide();
    QObject::connect(m_pGfxNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxNameTableMemoryInspector_close(bool)));
@@ -541,6 +580,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
 
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionVisualizer,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
    m_pExecutionVisualizer->hide();
    QObject::connect(m_pExecutionVisualizer, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionVisualizer_Inspector_close(bool)));
@@ -548,6 +588,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeDataLoggerInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
    m_pCodeDataLoggerInspector->hide();
    QObject::connect(m_pCodeDataLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeDataLoggerInspector_close(bool)));
@@ -555,6 +596,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(nesGetCpuRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
@@ -564,6 +606,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(nesGetCpuMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
@@ -573,6 +616,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
    m_pBinROMInspector = new MemoryInspectorDockWidget(nesGetCartridgePRGROMMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinROMInspector,SLOT(updateTargetMachine(QString)));
    m_pBinROMInspector->setObjectName("cartPRGROMMemoryInspector");
    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
@@ -582,6 +626,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
 
    m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinNameTableMemoryInspector->setObjectName("ppuNameTableMemoryInspector");
    m_pBinNameTableMemoryInspector->setWindowTitle("NameTable Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
@@ -591,6 +636,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
 
    m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(nesGetPpuRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinPPURegisterInspector->setObjectName("ppuRegisterInspector");
    m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPURegisterInspector );
@@ -600,6 +646,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "PPU Register Inspector", m_pBinPPURegisterInspector );
 
    m_pPPUInformationInspector = new PPUInformationDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pPPUInformationInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
    m_pPPUInformationInspector->hide();
    QObject::connect(m_pPPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedPPUInformationInspector_close(bool)));
@@ -607,6 +654,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "PPU Information", m_pPPUInformationInspector );
 
    m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(nesGetApuRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinAPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinAPURegisterInspector->setObjectName("apuRegisterInspector");
    m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinAPURegisterInspector );
@@ -620,9 +668,11 @@ void MainWindow::createNesUi()
    m_pAPUInformationInspector->hide();
    QObject::connect(m_pAPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAPUInformationInspector_close(bool)));
    QObject::connect(m_pAPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAPUInformationInspector,SLOT(updateTargetMachine(QString)));
    CDockWidgetRegistry::addWidget ( "APU Information", m_pAPUInformationInspector );
 
    m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeCHRMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCHRMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCHRMemoryInspector->setObjectName("chrMemoryInspector");
    m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCHRMemoryInspector );
@@ -632,6 +682,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
 
    m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(nesGetPpuOamRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinOAMMemoryInspector->setObjectName("oamMemoryInspector");
    m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinOAMMemoryInspector );
@@ -641,6 +692,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
 
    m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuPaletteMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPaletteMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinPaletteMemoryInspector->setObjectName("ppuPaletteMemoryInspector");
    m_pBinPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPaletteMemoryInspector );
@@ -650,6 +702,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
 
    m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeSRAMMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinSRAMMemoryInspector->setObjectName("cartSRAMMemoryInspector");
    m_pBinSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
@@ -659,6 +712,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
 
    m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeEXRAMMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinEXRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinEXRAMMemoryInspector->setObjectName("cartEXRAMMemoryInspector");
    m_pBinEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );
@@ -668,6 +722,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
 
    m_pMapperInformationInspector = new MapperInformationDockWidget();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pMapperInformationInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
    m_pMapperInformationInspector->hide();
    QObject::connect(m_pMapperInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedMapperInformationInspector_close(bool)));
@@ -675,6 +730,7 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
    m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(nesGetCartridgeRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinMapperMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinMapperMemoryInspector->setObjectName("cartMapperRegisterInspector");
    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
@@ -699,16 +755,16 @@ void MainWindow::createNesUi()
    QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionExecution_Visualizer_Inspector_toggled(bool)));
    QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxCHRMemory_Inspector_toggled(bool)));
    QObject::connect(actionGfxOAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxOAMMemory_Inspector_toggled(bool)));
-   QObject::connect(actionGfxNameTableMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxNameTableMemory_Inspector_toggled(bool)));
+   QObject::connect(actionGfxNameTableNESMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxNameTableNESMemory_Inspector_toggled(bool)));
    QObject::connect(actionBinCPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURegister_Inspector_toggled(bool)));
    QObject::connect(actionBinCPURAM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURAM_Inspector_toggled(bool)));
    QObject::connect(actionBinROM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinROM_Inspector_toggled(bool)));
-   QObject::connect(actionBinNameTableMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinNameTableMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinNameTableNESMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinNameTableNESMemory_Inspector_toggled(bool)));
    QObject::connect(actionBinCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCHRMemory_Inspector_toggled(bool)));
    QObject::connect(actionBinOAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinOAMMemory_Inspector_toggled(bool)));
    QObject::connect(actionBinSRAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinSRAMMemory_Inspector_toggled(bool)));
    QObject::connect(actionBinEXRAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinEXRAMMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinPaletteMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPaletteMemory_Inspector_toggled(bool)));
+   QObject::connect(actionBinPaletteNESMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPaletteNESMemory_Inspector_toggled(bool)));
    QObject::connect(actionBinAPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinAPURegister_Inspector_toggled(bool)));
    QObject::connect(actionBinPPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPPURegister_Inspector_toggled(bool)));
    QObject::connect(actionBinMapperMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinMapperMemory_Inspector_toggled(bool)));
@@ -749,12 +805,15 @@ void MainWindow::createNesUi()
    actionDelta_Modulation->setChecked(dmc);
    actionMute_All->setChecked(!mask);
 
-   m_targetLoaded = eSupportedTarget_NES;
+   m_targetLoaded = "nes";
+
+   emit updateTargetMachine(m_targetLoaded);
 }
 
 void MainWindow::destroyNesUi()
 {
-   if ( m_targetLoaded != eSupportedTarget_NES )
+   // If we're set up for NES, clear it.
+   if ( m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
    {
       return;
    }
@@ -781,91 +840,247 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Information" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Register Inspector" );
 
-   m_pEmulator->hide();
-   removeDockWidget(m_pEmulator);
-   delete m_pEmulator;
-   delete m_pEmulatorControl;
-   removeDockWidget(m_pGfxCHRMemoryInspector);
-   delete m_pGfxCHRMemoryInspector;
-   removeDockWidget(m_pGfxOAMMemoryInspector);
-   delete m_pGfxOAMMemoryInspector;
-   removeDockWidget(m_pGfxNameTableMemoryInspector);
-   delete m_pGfxNameTableMemoryInspector;
-   removeDockWidget(m_pExecutionVisualizer);
-   delete m_pExecutionVisualizer;
-   removeDockWidget(m_pCodeDataLoggerInspector);
-   delete m_pCodeDataLoggerInspector;
-   removeDockWidget(m_pBinCPURegisterInspector);
-   delete m_pBinCPURegisterInspector;
-   removeDockWidget(m_pBinCPURAMInspector);
-   delete m_pBinCPURAMInspector;
-   removeDockWidget(m_pBinROMInspector);
-   delete m_pBinROMInspector;
-   removeDockWidget(m_pBinNameTableMemoryInspector);
-   delete m_pBinNameTableMemoryInspector;
-   removeDockWidget(m_pBinPPURegisterInspector);
-   delete m_pBinPPURegisterInspector;
-   removeDockWidget(m_pPPUInformationInspector);
-   delete m_pPPUInformationInspector;
-   removeDockWidget(m_pBinAPURegisterInspector);
-   delete m_pBinAPURegisterInspector;
-   removeDockWidget(m_pAPUInformationInspector);
-   delete m_pAPUInformationInspector;
-   removeDockWidget(m_pBinCHRMemoryInspector);
-   delete m_pBinCHRMemoryInspector;
-   removeDockWidget(m_pBinOAMMemoryInspector);
-   delete m_pBinOAMMemoryInspector;
-   removeDockWidget(m_pBinPaletteMemoryInspector);
-   delete m_pBinPaletteMemoryInspector;
-   removeDockWidget(m_pBinSRAMMemoryInspector);
-   delete m_pBinSRAMMemoryInspector;
-   removeDockWidget(m_pBinEXRAMMemoryInspector);
-   delete m_pBinEXRAMMemoryInspector;
-   removeDockWidget(m_pMapperInformationInspector);
-   delete m_pMapperInformationInspector;
-   removeDockWidget(m_pBinMapperMemoryInspector);
-   delete m_pBinMapperMemoryInspector;
-   delete actionFullscreen;
-   delete actionEmulation_Window;
-   delete actionGfxCHRMemory_Inspector;
-   delete actionGfxOAMMemory_Inspector;
-   delete actionGfxNameTableMemory_Inspector;
-   delete actionBinCPURAM_Inspector;
-   delete actionBinNameTableMemory_Inspector;
-   delete actionBinPPURegister_Inspector;
-   delete actionBinAPURegister_Inspector;
-   delete actionBinCHRMemory_Inspector;
-   delete actionBinOAMMemory_Inspector;
-   delete actionBinPaletteMemory_Inspector;
-   delete actionBinSRAMMemory_Inspector;
-   delete actionBinEXRAMMemory_Inspector;
-   delete actionBinCPURegister_Inspector;
-   delete actionBinMapperMemory_Inspector;
-   delete actionBinROM_Inspector;
-   delete actionPPUInformation_Inspector;
-   delete actionI_O;
-   delete actionCodeDataLogger_Inspector;
-   delete actionExecution_Visualizer_Inspector;
-   delete actionMapperInformation_Inspector;
-   delete actionAPUInformation_Inspector;
-   delete actionNTSC;
-   delete actionPAL;
-   delete actionMute_All;
-   delete actionSquare_1;
-   delete actionSquare_2;
-   delete actionTriangle;
-   delete actionNoise;
-   delete actionDelta_Modulation;
-   delete actionRun_Test_Suite;
-   delete menuCPU_Inspectors;
-   delete menuAPU_Inpsectors;
-   delete menuPPU_Inspectors;
-   delete menuCartridge_Inspectors;
-   delete menuVideo;
-   delete menuAudio;
-   delete debuggerToolBar;
+   CThreadRegistry::removeThread ( "Emulator" );
 
-   m_targetLoaded = eSupportedTarget_None;
+   m_pNESEmulator->hide();
+   m_pNESEmulator->deleteLater();
+   removeDockWidget(m_pNESEmulator);
+   m_pNESEmulatorControl->deleteLater();
+   removeDockWidget(m_pGfxCHRMemoryInspector);
+   m_pGfxCHRMemoryInspector->deleteLater();
+   removeDockWidget(m_pGfxOAMMemoryInspector);
+   m_pGfxOAMMemoryInspector->deleteLater();
+   removeDockWidget(m_pGfxNameTableMemoryInspector);
+   m_pGfxNameTableMemoryInspector->deleteLater();
+   removeDockWidget(m_pExecutionVisualizer);
+   m_pExecutionVisualizer->deleteLater();
+   removeDockWidget(m_pCodeDataLoggerInspector);
+   m_pCodeDataLoggerInspector->deleteLater();
+   removeDockWidget(m_pBinCPURegisterInspector);
+   m_pBinCPURegisterInspector->deleteLater();
+   removeDockWidget(m_pBinCPURAMInspector);
+   m_pBinCPURAMInspector->deleteLater();
+   removeDockWidget(m_pBinROMInspector);
+   m_pBinROMInspector->deleteLater();
+   removeDockWidget(m_pBinNameTableMemoryInspector);
+   m_pBinNameTableMemoryInspector->deleteLater();
+   removeDockWidget(m_pBinPPURegisterInspector);
+   m_pBinPPURegisterInspector->deleteLater();
+   removeDockWidget(m_pPPUInformationInspector);
+   m_pPPUInformationInspector->deleteLater();
+   removeDockWidget(m_pBinAPURegisterInspector);
+   m_pBinAPURegisterInspector->deleteLater();
+   removeDockWidget(m_pAPUInformationInspector);
+   m_pAPUInformationInspector->deleteLater();
+   removeDockWidget(m_pBinCHRMemoryInspector);
+   m_pBinCHRMemoryInspector->deleteLater();
+   removeDockWidget(m_pBinOAMMemoryInspector);
+   m_pBinOAMMemoryInspector->deleteLater();
+   removeDockWidget(m_pBinPaletteMemoryInspector);
+   m_pBinPaletteMemoryInspector->deleteLater();
+   removeDockWidget(m_pBinSRAMMemoryInspector);
+   m_pBinSRAMMemoryInspector->deleteLater();
+   removeDockWidget(m_pBinEXRAMMemoryInspector);
+   m_pBinEXRAMMemoryInspector->deleteLater();
+   removeDockWidget(m_pMapperInformationInspector);
+   m_pMapperInformationInspector->deleteLater();
+   removeDockWidget(m_pBinMapperMemoryInspector);
+   m_pBinMapperMemoryInspector->deleteLater();
+   actionFullscreen->deleteLater();
+   actionEmulation_Window->deleteLater();
+   actionGfxCHRMemory_Inspector->deleteLater();
+   actionGfxOAMMemory_Inspector->deleteLater();
+   actionGfxNameTableNESMemory_Inspector->deleteLater();
+   actionBinNameTableNESMemory_Inspector->deleteLater();
+   actionBinPPURegister_Inspector->deleteLater();
+   actionBinAPURegister_Inspector->deleteLater();
+   actionBinCHRMemory_Inspector->deleteLater();
+   actionBinOAMMemory_Inspector->deleteLater();
+   actionBinPaletteNESMemory_Inspector->deleteLater();
+   actionBinSRAMMemory_Inspector->deleteLater();
+   actionBinEXRAMMemory_Inspector->deleteLater();
+   actionBinCPURAM_Inspector->deleteLater();
+   actionBinCPURegister_Inspector->deleteLater();
+   actionBinMapperMemory_Inspector->deleteLater();
+   actionBinROM_Inspector->deleteLater();
+   actionPPUInformation_Inspector->deleteLater();
+   actionI_O->deleteLater();
+   actionCodeDataLogger_Inspector->deleteLater();
+   actionExecution_Visualizer_Inspector->deleteLater();
+   actionMapperInformation_Inspector->deleteLater();
+   actionAPUInformation_Inspector->deleteLater();
+   actionNTSC->deleteLater();
+   actionPAL->deleteLater();
+   actionMute_All->deleteLater();
+   actionSquare_1->deleteLater();
+   actionSquare_2->deleteLater();
+   actionTriangle->deleteLater();
+   actionNoise->deleteLater();
+   actionDelta_Modulation->deleteLater();
+   actionRun_Test_Suite->deleteLater();
+   menuCPU_Inspectors->deleteLater();
+   menuAPU_Inpsectors->deleteLater();
+   menuPPU_Inspectors->deleteLater();
+   menuCartridge_Inspectors->deleteLater();
+   menuVideo->deleteLater();
+   menuAudio->deleteLater();
+   debuggerToolBar->deleteLater();
+
+   // Properly kill and destroy the thread we created above.
+   m_pNESEmulatorThread->kill();
+   m_pNESEmulatorThread->wait();
+
+   delete m_pNESEmulatorThread;
+   m_pNESEmulatorThread = NULL;
+
+   m_targetLoaded = "none";
+}
+
+void MainWindow::createC64Ui()
+{
+   // If we're not set up for C64 target, do so.
+   if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+   {
+      return;
+   }
+
+   // Set up compiler for appropriate target.
+   CCC65Interface::updateTargetMachine("c64");
+
+   actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
+   actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
+   QIcon icon16;
+   icon16.addFile(QString::fromUtf8(":/resources/22_cpu_ram.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBinCPURAM_Inspector->setIcon(icon16);
+   actionBinCPURAM_Inspector->setCheckable(true);
+   actionBinCPURegister_Inspector = new QAction("Registers",this);
+   actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
+   QIcon icon17;
+   icon17.addFile(QString::fromUtf8(":/resources/22_cpu_registers.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBinCPURegister_Inspector->setIcon(icon17);
+   actionBinCPURegister_Inspector->setCheckable(true);
+   actionBinSIDRegister_Inspector = new QAction("Registers",this);
+   actionBinSIDRegister_Inspector->setObjectName(QString::fromUtf8("actionBinSIDRegister_Inspector"));
+   actionBinSIDRegister_Inspector->setIcon(icon17);
+   actionBinSIDRegister_Inspector->setCheckable(true);
+
+   menuCPU_Inspectors = new QMenu("CPU",menuDebugger);
+   menuCPU_Inspectors->setObjectName(QString::fromUtf8("menuCPU_Inspectors"));
+
+   menuCPU_Inspectors->addAction(actionBinCPURegister_Inspector);
+   menuCPU_Inspectors->addSeparator();
+   menuCPU_Inspectors->addAction(actionBinCPURAM_Inspector);
+
+   menuSID_Inspectors = new QMenu("SID",menuDebugger);
+   menuSID_Inspectors->setObjectName(QString::fromUtf8("menuSID_Inspectors"));
+
+   menuSID_Inspectors->addAction(actionBinSIDRegister_Inspector);
+
+   menuDebugger->addSeparator();
+   menuDebugger->addAction(menuCPU_Inspectors->menuAction());
+   menuDebugger->addAction(menuSID_Inspectors->menuAction());
+
+   debuggerToolBar = new QToolBar("Emulator Control",this);
+   debuggerToolBar->setObjectName(QString::fromUtf8("debuggerToolBar"));
+   QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+   sizePolicy1.setHorizontalStretch(0);
+   sizePolicy1.setVerticalStretch(0);
+   sizePolicy1.setHeightForWidth(debuggerToolBar->sizePolicy().hasHeightForWidth());
+   debuggerToolBar->setSizePolicy(sizePolicy1);
+   addToolBar(Qt::TopToolBarArea, debuggerToolBar);
+
+   m_pC64EmulatorThread = new C64EmulatorThread();
+   CThreadRegistry::addThread("Emulator",m_pC64EmulatorThread);
+
+   QObject::connect(this,SIGNAL(startEmulation()),m_pC64EmulatorThread,SLOT(startEmulation()));
+   QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pC64EmulatorThread,SLOT(pauseEmulation(bool)));
+   QObject::connect(this,SIGNAL(primeEmulator()),m_pC64EmulatorThread,SLOT(primeEmulator()));
+   QObject::connect(this,SIGNAL(resetEmulator()),m_pC64EmulatorThread,SLOT(resetEmulator()));
+
+   m_pC64EmulatorControl = new C64EmulatorControl();
+   debuggerToolBar->addWidget(m_pC64EmulatorControl);
+   debuggerToolBar->show();
+
+   // Add menu for emulator control.  The emulator control provides menu for itself!  =]
+   QAction* firstEmuMenuAction = menuEmulator->actions().at(0);
+   menuEmulator->insertActions(firstEmuMenuAction,m_pC64EmulatorControl->menu());
+   menuEmulator->insertSeparator(firstEmuMenuAction);
+
+   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(c64GetCpuRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
+   m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
+   m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
+   addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
+   m_pBinCPURegisterInspector->hide();
+   QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
+   QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
+
+   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(c64GetCpuMemoryDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
+   m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
+   m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
+   addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
+   m_pBinCPURAMInspector->hide();
+   QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
+   QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
+
+   m_pBinSIDRegisterInspector = new RegisterInspectorDockWidget(c64GetSidRegisterDatabase);
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSIDRegisterInspector,SLOT(updateTargetMachine(QString)));
+   m_pBinSIDRegisterInspector->setObjectName("sidRegisterInspector");
+   m_pBinSIDRegisterInspector->setWindowTitle("SID Register Inspector");
+   addDockWidget(Qt::BottomDockWidgetArea, m_pBinSIDRegisterInspector );
+   m_pBinSIDRegisterInspector->hide();
+   QObject::connect(m_pBinSIDRegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinSIDRegisterInspector_close(bool)));
+   QObject::connect(m_pBinSIDRegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "SID Register Inspector", m_pBinSIDRegisterInspector );
+
+   m_targetLoaded = "c64";
+
+   emit updateTargetMachine(m_targetLoaded);
+
+   // Connect slots for new UI elements.
+   QObject::connect(actionBinCPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURegister_Inspector_toggled(bool)));
+   QObject::connect(actionBinCPURAM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURAM_Inspector_toggled(bool)));
+   QObject::connect(actionBinSIDRegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinSIDRegister_Inspector_toggled(bool)));
+}
+
+void MainWindow::destroyC64Ui()
+{
+   // If we're set up for C64, clear it.
+   if ( m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+   {
+      return;
+   }
+
+   CDockWidgetRegistry::removeWidget ( "CPU Register Inspector" );
+   CDockWidgetRegistry::removeWidget ( "CPU RAM Inspector" );
+
+   removeDockWidget(m_pBinCPURegisterInspector);
+   m_pBinCPURegisterInspector->deleteLater();
+   removeDockWidget(m_pBinSIDRegisterInspector);
+   m_pBinSIDRegisterInspector->deleteLater();
+   removeDockWidget(m_pBinCPURAMInspector);
+   m_pBinCPURAMInspector->deleteLater();
+   actionBinCPURAM_Inspector->deleteLater();
+   actionBinCPURegister_Inspector->deleteLater();
+   actionBinSIDRegister_Inspector->deleteLater();
+   menuCPU_Inspectors->deleteLater();
+   menuSID_Inspectors->deleteLater();
+   m_pC64EmulatorControl->deleteLater();
+   debuggerToolBar->deleteLater();
+
+   CThreadRegistry::removeThread ( "Emulator" );
+
+   // Properly kill and destroy the thread we created above.
+   m_pC64EmulatorThread->kill();
+   m_pC64EmulatorThread->wait();
+
+   delete m_pC64EmulatorThread;
+   m_pC64EmulatorThread = NULL;
+
+   m_targetLoaded = "none";
 }
 
 void MainWindow::changeEvent(QEvent* e)
@@ -934,6 +1149,16 @@ void MainWindow::dropEvent(QDropEvent* event)
                closeProject();
             }
             openNesROM(fileName);
+
+            event->acceptProposedAction();
+         }
+         else if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) )
+         {
+            if ( nesicideProject->isInitialized() )
+            {
+               closeProject();
+            }
+            openC64File(fileName);
 
             event->acceptProposedAction();
          }
@@ -1064,7 +1289,7 @@ void MainWindow::saveEmulatorState(QString fileName)
       QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
       doc.appendChild(instr);
 
-      if (!emulator->serialize(doc, doc))
+      if (!m_pNESEmulatorThread->serialize(doc, doc))
       {
          QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
          file.close();
@@ -1077,7 +1302,7 @@ void MainWindow::saveEmulatorState(QString fileName)
       // our file stream.
       ts << doc.toString();
 #else
-      if (!emulator->serializeContent(file))
+      if (!m_pNESEmulatorThread->serializeContent(file))
       {
          QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
          file.close();
@@ -1168,6 +1393,15 @@ void MainWindow::on_actionNew_Project_triggered()
 
       QDir::setCurrent(dlg.getPath());
 
+      // Set project target before initializing project...
+      if ( dlg.getTarget() == "Commodore 64" )
+      {
+         nesicideProject->setProjectTarget("c64");
+      }
+      else if ( dlg.getTarget() == "Nintendo Entertainment System" )
+      {
+         nesicideProject->setProjectTarget("nes");
+      }
       nesicideProject->initializeProject();
       nesicideProject->setDirty(true);
       nesicideProject->setProjectTitle(dlg.getName());
@@ -1194,12 +1428,15 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
    output->show();
 
    // Create new project from ROM
+   // Set project target before initializing project.
+   nesicideProject->setProjectTarget("nes");
    nesicideProject->initializeProject();
    nesicideProject->createProjectFromRom(fileName);
 
    // Set up some default stuff guessing from the path...
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
+   nesicideProject->setProjectTitle(fileInfo.completeBaseName());
    nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
    nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
    nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
@@ -1236,6 +1473,52 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    actionEmulation_Window->setChecked(true);
    actionEmulation_Window_toggled(true);
+
+   settings.setValue("LastProject",fileName);
+}
+
+void MainWindow::openC64File(QString fileName)
+{
+   QSettings settings;
+
+   createC64Ui();
+
+   output->showPane(OutputPaneDockWidget::Output_General);
+
+   // Remove any lingering project content
+   m_pProjectBrowser->disableNavigation();
+   nesicideProject->terminateProject();
+
+   // Clear output
+   output->clearAllPanes();
+   output->show();
+
+   // Create new project from ROM
+   // Set project target before initializing project.
+   nesicideProject->setProjectTarget("c64");
+   nesicideProject->initializeProject();
+//   nesicideProject->createProjectFromRom(fileName);
+
+   // Set up some default stuff guessing from the path...
+   QFileInfo fileInfo(fileName);
+   QDir::setCurrent(fileInfo.path());
+   nesicideProject->setProjectTitle(fileInfo.completeBaseName());
+   nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".c64");
+   nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".c64");
+   nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
+   nesicideProject->setProjectCHRROMOutputName("");
+   nesicideProject->setProjectCartridgeOutputName("");
+   nesicideProject->setProjectCartridgeSaveStateName("");
+
+   // Load debugger info if we can find it.
+   CCC65Interface::captureDebugInfo();
+
+   m_pProjectBrowser->enableNavigation();
+
+   emit resetEmulator();
+   emit primeEmulator();
+
+   projectDataChangesEvent();
 
    settings.setValue("LastProject",fileName);
 }
@@ -1371,11 +1654,11 @@ void MainWindow::actionEmulation_Window_toggled(bool value)
 {
    if (value)
    {
-      m_pEmulator->show();
+      m_pNESEmulator->show();
    }
    else
    {
-      m_pEmulator->hide();
+      m_pNESEmulator->hide();
    }
 }
 
@@ -1422,6 +1705,8 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
 
       m_pProjectBrowser->disableNavigation();
 
+      // Set project target before initializing project.
+      nesicideProject->setProjectTarget("nes");
       nesicideProject->initializeProject();
 
       // Clear output
@@ -1441,41 +1726,59 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
          nesicideProject->terminateProject();
       }
 
-      // Load ROM if it exists.
-      if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         QDir dir(QDir::currentPath());
-         QString romName;
-         romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
-
-         nesicideProject->createProjectFromRom(romName,true);
-
-         // Load debugger info if we can find it.
-         CCC65Interface::captureDebugInfo();
-
-         if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+         // Load ROM if it exists.
+         if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
          {
-            QDomDocument saveDoc;
-            QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
+            QDir dir(QDir::currentPath());
+            QString romName;
+            romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
 
-            if (saveFile.open(QFile::ReadOnly))
+            nesicideProject->createProjectFromRom(romName,true);
+
+            // Load debugger info if we can find it.
+            CCC65Interface::captureDebugInfo();
+
+            if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
             {
-               saveDoc.setContent(saveFile.readAll());
-               nesicideProject->setSaveStateDoc(saveDoc);
+               QDomDocument saveDoc;
+               QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
+
+               if (saveFile.open(QFile::ReadOnly))
+               {
+                  saveDoc.setContent(saveFile.readAll());
+                  nesicideProject->setSaveStateDoc(saveDoc);
+               }
+               saveFile.close();
             }
-            saveFile.close();
+
+            emit primeEmulator();
+            emit resetEmulator();
+
+            if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
+            {
+               emit startEmulation();
+            }
+
+            actionEmulation_Window->setChecked(true);
+            actionEmulation_Window_toggled(true);
          }
-
-         emit primeEmulator();
-         emit resetEmulator();
-
-         if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
+      }
+      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+      {
+         // Load C64 image if it exists.
+         if ( !nesicideProject->getProjectLinkerOutputName().isEmpty() )
          {
-            emit startEmulation();
-         }
+            QDir dir(QDir::currentPath());
+            QString c64Name;
+            c64Name = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectLinkerOutputName()));
 
-         actionEmulation_Window->setChecked(true);
-         actionEmulation_Window_toggled(true);
+            // Load debugger info if we can find it.
+            CCC65Interface::captureDebugInfo();
+
+            emit resetEmulator();
+         }
       }
 
       m_pProjectBrowser->enableNavigation();
@@ -1551,6 +1854,7 @@ void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
    int tab;
 
    output->showPane(OutputPaneDockWidget::Output_Build);
@@ -1640,14 +1944,14 @@ void MainWindow::reflectedGfxOAMMemoryInspector_close (bool toplevel)
    actionGfxOAMMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::actionGfxNameTableMemory_Inspector_toggled(bool value)
+void MainWindow::actionGfxNameTableNESMemory_Inspector_toggled(bool value)
 {
    m_pGfxNameTableMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedGfxNameTableMemoryInspector_close (bool toplevel)
 {
-   actionGfxNameTableMemory_Inspector->setChecked(toplevel);
+   actionGfxNameTableNESMemory_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::actionBinOAMMemory_Inspector_toggled(bool value)
@@ -1690,24 +1994,24 @@ void MainWindow::reflectedBinROMInspector_close (bool toplevel)
    actionBinROM_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::actionBinNameTableMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinNameTableNESMemory_Inspector_toggled(bool value)
 {
    m_pBinNameTableMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinNameTableMemoryInspector_close (bool toplevel)
 {
-   actionBinNameTableMemory_Inspector->setChecked(toplevel);
+   actionBinNameTableNESMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::actionBinPaletteMemory_Inspector_toggled(bool value)
+void MainWindow::actionBinPaletteNESMemory_Inspector_toggled(bool value)
 {
    m_pBinPaletteMemoryInspector->setVisible(value);
 }
 
 void MainWindow::reflectedBinPaletteMemoryInspector_close (bool toplevel)
 {
-   actionBinPaletteMemory_Inspector->setChecked(toplevel);
+   actionBinPaletteNESMemory_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::actionBinPPURegister_Inspector_toggled(bool value)
@@ -1860,7 +2164,7 @@ void MainWindow::on_action_About_Nesicide_triggered()
 {
    AboutDialog* dlg = new AboutDialog(this);
    dlg->exec();
-   delete dlg;
+   dlg->deleteLater();
 }
 
 void MainWindow::closeProject()
@@ -1939,7 +2243,14 @@ void MainWindow::closeProject()
    // Let the UI know what's up
    projectDataChangesEvent();
 
-   destroyNesUi();
+   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+   {
+      destroyNesUi();
+   }
+   else if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+   {
+      destroyC64Ui();
+   }
 }
 
 void MainWindow::on_action_Close_Project_triggered()
@@ -2118,9 +2429,9 @@ void MainWindow::on_actionPreferences_triggered()
    {
       if ( EmulatorPrefsDialog::getScalingFactor() > 1 )
       {
-         m_pEmulator->setFloating(true);
+         m_pNESEmulator->setFloating(true);
       }
-      m_pEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
+      m_pNESEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
    }
 
    if ( EmulatorPrefsDialog::controllerSettingsChanged() )
@@ -2141,32 +2452,50 @@ void MainWindow::on_actionOnline_Help_triggered()
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+
    output->showPane(OutputPaneDockWidget::Output_Build);
 
    if ( compiler->assembledOk() )
    {
       actionLoad_In_Emulator->setEnabled(false);
 
-      buildTextLogger->write("<b>Loading ROM...</b>");
-
-      if ( !CCC65Interface::captureINESImage() )
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
-         return;
-      }
+         buildTextLogger->write("<b>Loading ROM...</b>");
 
-      if ( !CCC65Interface::captureDebugInfo() )
+         if ( !CCC65Interface::captureINESImage() )
+         {
+            buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
+            return;
+         }
+
+         if ( !CCC65Interface::captureDebugInfo() )
+         {
+             buildTextLogger->write("<font color='red'><b>Loading debug information failed.</b></font>");
+         }
+
+         emit primeEmulator();
+         emit resetEmulator();
+
+         buildTextLogger->write("<b>Load complete.</b>");
+
+         actionEmulation_Window->setChecked(true);
+         actionEmulation_Window_toggled(true);
+      }
+      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
-          buildTextLogger->write("<font color='red'><b>Loading debug information failed.</b></font>");
+         buildTextLogger->write("<b>Loading C64...</b>");
+
+         if ( !CCC65Interface::captureDebugInfo() )
+         {
+             buildTextLogger->write("<font color='red'><b>Loading debug information failed.</b></font>");
+         }
+
+         emit resetEmulator();
+
+         buildTextLogger->write("<b>Load complete.</b>");
       }
-
-      emit primeEmulator();
-      emit resetEmulator();
-
-      buildTextLogger->write("<b>Load complete.</b>");
-
-      actionEmulation_Window->setChecked(true);
-      actionEmulation_Window_toggled(true);
    }
    else
    {
@@ -2185,6 +2514,8 @@ void MainWindow::on_actionE_xit_triggered()
 
 void MainWindow::on_actionClean_Project_triggered()
 {
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+
    output->showPane(OutputPaneDockWidget::Output_Build);
    compiler->clean();
 }
@@ -2214,20 +2545,20 @@ void MainWindow::actionFullscreen_toggled(bool value)
 {
    if ( value )
    {
-      m_bEmulatorFloating = m_pEmulator->isFloating();
-      m_pEmulator->setFloating(true);
-      m_pEmulator->showFullScreen();
+      m_bEmulatorFloating = m_pNESEmulator->isFloating();
+      m_pNESEmulator->setFloating(true);
+      m_pNESEmulator->showFullScreen();
    }
    else
    {
-      m_pEmulator->showNormal();
-      m_pEmulator->setFloating(m_bEmulatorFloating);
+      m_pNESEmulator->showNormal();
+      m_pNESEmulator->setFloating(m_bEmulatorFloating);
    }
 }
 
 void MainWindow::focusEmulator()
 {
-   m_pEmulator->setFocus();
+   m_pNESEmulator->setFocus();
 }
 
 void MainWindow::menuEdit_aboutToShow()
@@ -2257,4 +2588,14 @@ void MainWindow::menuEdit_aboutToShow()
 void MainWindow::on_actionAbout_Qt_triggered()
 {
    QMessageBox::aboutQt(this);
+}
+
+void MainWindow::actionBinSIDRegister_Inspector_toggled(bool value)
+{
+   m_pBinSIDRegisterInspector->setVisible(value);
+}
+
+void MainWindow::reflectedBinSIDRegisterInspector_close(bool toplevel)
+{
+   actionBinSIDRegister_Inspector->setChecked(toplevel);
 }

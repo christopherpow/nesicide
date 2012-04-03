@@ -66,7 +66,7 @@
 
 #include "qtcolorpicker.h"
 
-#include "cnessystempalette.h"
+#include "nes_emulator_core.h"
 
 /*! \class QtColorPicker
 
@@ -294,7 +294,7 @@ QtColorPicker::QtColorPicker(QWidget* parent,
    // Connect this push button's pressed() signal.
    connect(this, SIGNAL(toggled(bool)), SLOT(buttonPressed(bool)));
 
-   for (int i=0; i<NUM_PALETTES; i++)
+   for (int i=0; i<nesGetNumColors(); i++)
    {
       insertColor(QColor(nesGetPaletteRedComponent(i),nesGetPaletteGreenComponent(i),nesGetPaletteBlueComponent(i)), "", i);
    }

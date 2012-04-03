@@ -9,23 +9,24 @@ namespace Ui {
 
 class MapperInformationDockWidget : public CDebuggerBase
 {
-    Q_OBJECT
+   Q_OBJECT
 
 public:
-    explicit MapperInformationDockWidget(QWidget *parent = 0);
-    virtual ~MapperInformationDockWidget();
+   explicit MapperInformationDockWidget(QWidget *parent = 0);
+   virtual ~MapperInformationDockWidget();
 
 protected:
-    void showEvent(QShowEvent* e);
-    void hideEvent(QHideEvent* e);
+   void showEvent(QShowEvent* e);
+   void hideEvent(QHideEvent* e);
    void changeEvent(QEvent* e);
 
 public slots:
    void updateInformation();
-   void cartridgeLoaded();
+   void machineReady();
+   void updateTargetMachine(QString target);
 
 private:
-    Ui::MapperInformationDockWidget *ui;
+   Ui::MapperInformationDockWidget *ui;
 };
 
 #endif // MAPPERINFORMATIONDOCKWIDGET_H

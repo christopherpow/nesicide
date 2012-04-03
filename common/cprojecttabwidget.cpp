@@ -110,6 +110,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(editor,SIGNAL(addStatusBarWidget(QWidget*)),this,SIGNAL(addStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(removeStatusBarWidget(QWidget*)),this,SIGNAL(removeStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(setStatusBarMessage(QString)),this,SIGNAL(setStatusBarMessage(QString)));
+      QObject::connect(this,SIGNAL(updateTargetMachine(QString)),editor,SLOT(updateTargetMachine(QString)));
    }
 
    if ( editor && editor->treeLink() )

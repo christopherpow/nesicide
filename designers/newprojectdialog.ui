@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>433</width>
-    <height>227</height>
+    <height>253</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,7 +41,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Path</string>
@@ -60,7 +60,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../resource.qrc">
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -68,7 +68,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="2" column="0" colspan="2">
         <widget class="QGroupBox" name="templateGroup">
          <property name="title">
           <string>Template Project</string>
@@ -98,6 +98,27 @@
          </layout>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Target Machine:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="target">
+         <item>
+          <property name="text">
+           <string>Commodore 64</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Nintendo Entertainment System</string>
+          </property>
+         </item>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -115,7 +136,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../resource.qrc"/>
+  <include location="../resource.qrc"/>
  </resources>
  <connections>
   <connection>

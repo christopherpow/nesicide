@@ -8,6 +8,7 @@
 
 #include "Qsci/qsciscintillabase.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 #include "ccc65interface.h"
@@ -167,13 +168,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    QObject::connect ( codeBrowser, SIGNAL(snapTo(QString)),this, SLOT(snapTo(QString)) );
    QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
    QObject::connect ( this, SIGNAL(addWatchedItem(QString)), symbolWatch, SLOT(addWatchedItem(QString)) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
-   QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
-   QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
-   QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
@@ -190,6 +187,21 @@ CodeEditorForm::~CodeEditorForm()
 
    delete m_lexer;
    delete m_scintilla;
+}
+
+void CodeEditorForm::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QThread* compiler = CThreadRegistry::getThread("Compiler");
+
+   QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
+   QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
+   }
 }
 
 void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
@@ -690,12 +702,26 @@ void CodeEditorForm::updateToolTip(QString symbol)
          if ( addr != 0xFFFFFFFF )
          {
             absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
-            nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            {
+               nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+            }
+            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            {
+               c64GetPrintableAddressWithAbsolute(address,addr,absAddr);
+            }
 
             file = CCC65Interface::getSourceFileFromSymbol(clangSymbol);
             line = CCC65Interface::getSourceLineFromFileAndSymbol(file,clangSymbol);
 
-            sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            {
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+            }
+            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            {
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,c64GetMemory(addr));
+            }
             setToolTip(toolTipText);
          }
       }
@@ -708,12 +734,26 @@ void CodeEditorForm::updateToolTip(QString symbol)
          if ( addr != 0xFFFFFFFF )
          {
             absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
-            nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            {
+               nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+            }
+            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            {
+               c64GetPrintableAddressWithAbsolute(address,addr,absAddr);
+            }
 
             file = CCC65Interface::getSourceFileFromSymbol(symbol);
             line = CCC65Interface::getSourceLineFromFileAndSymbol(file,symbol);
 
-            sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            {
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+            }
+            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            {
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,c64GetMemory(addr));
+            }
             setToolTip(toolTipText);
          }
       }
@@ -963,9 +1003,17 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
          (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
          (*absAddr) = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
 
-         nesGetPrintableAddressWithAbsolute(resolutionBuffer,(*addr),(*absAddr));
+         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+         {
+            nesGetPrintableAddressWithAbsolute(resolutionBuffer,(*addr),(*absAddr));
+            nesGetDisassemblyAtAbsoluteAddress((*absAddr),resolutionBuffer);
+         }
+         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+         {
+            c64GetPrintableAddressWithAbsolute(resolutionBuffer,(*addr),(*absAddr));
+            c64GetDisassemblyAtAbsoluteAddress((*absAddr),resolutionBuffer);
+         }
          asmChunk = resolutionBuffer;
-         nesGetDisassemblyAtAbsoluteAddress((*absAddr),resolutionBuffer);
          asmChunk += ":";
          asmChunk += resolutionBuffer;
          asmChunks.append(asmChunk);
@@ -1043,7 +1091,14 @@ void CodeEditorForm::annotateText()
                {
                   if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
                   {
-                     nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                     if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+                     {
+                        nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                     }
+                     else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+                     {
+                        c64GetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                     }
                      if ( disassembly[0] )
                      {
                         if ( !first )
@@ -1052,7 +1107,14 @@ void CodeEditorForm::annotateText()
                         }
                         first = false;
 
-                        nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+                        if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+                        {
+                           nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+                        }
+                        else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+                        {
+                           c64GetPrintableAddressWithAbsolute(address,addr,absAddr);
+                        }
                         pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
                         pAnnotationBuffer += sprintf(pAnnotationBuffer,disassembly);
                      }

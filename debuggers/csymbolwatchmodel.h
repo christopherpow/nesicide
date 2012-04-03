@@ -36,12 +36,12 @@ public:
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    void removeRow(int row, const QModelIndex &parent = QModelIndex());
    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
-   void insertRow(QString text, const QModelIndex &parent = QModelIndex());
+   void insertRow(QString text, int addr = -1, const QModelIndex &parent = QModelIndex());
 
    QList<WatchedItem> getItems() { return m_items; }
    void setItems(QList<WatchedItem> items) { m_items = items; }
 
-   int resolveSymbol(QString text);
+   int resolveSymbol(QString text,int addr = -1);
 
 public slots:
    void update();

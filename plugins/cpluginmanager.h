@@ -13,8 +13,9 @@ extern "C" {
 
 #include "cbuildertextlogger.h"
 
-class CPluginManager
+class CPluginManager : public QObject
 {
+   Q_OBJECT
 public:
    CPluginManager();
    virtual ~CPluginManager();

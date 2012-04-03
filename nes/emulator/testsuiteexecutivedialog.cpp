@@ -5,6 +5,7 @@
 
 #include "nes_emulator_core.h"
 #include "cjoypadlogger.h"
+#include "cthreadregistry.h"
 
 TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    QDialog(parent),
@@ -22,17 +23,25 @@ TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
 
    aborted = false;
 
-   QObject::connect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
-   QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
-   QObject::connect(this,SIGNAL(pauseEmulationAfter(int32_t)),emulator,SLOT(pauseEmulationAfter(int32_t)));
-   QObject::connect(emulator,SIGNAL(emulatorPausedAfter()),this,SLOT(emulatorPausedAfter()));
-
    loadTestSuite(settings.value("TestSuiteFile").toString());
 }
 
 TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
 {
    delete ui;
+}
+
+void TestSuiteExecutiveDialog::updateTargetMachine(QString target)
+{
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
+      QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
+      QObject::connect(this,SIGNAL(pauseEmulationAfter(int32_t)),emulator,SLOT(pauseEmulationAfter(int32_t)));
+      QObject::connect(emulator,SIGNAL(emulatorPausedAfter()),this,SLOT(emulatorPausedAfter()));
+   }
 }
 
 void TestSuiteExecutiveDialog::emulatorPausedAfter()

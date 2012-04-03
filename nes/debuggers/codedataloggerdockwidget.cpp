@@ -4,6 +4,7 @@
 #include "dbg_cnes6502.h"
 #include "dbg_cnesppu.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
@@ -31,11 +32,6 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
    ui->frame->layout()->update();
 
    pThread = new DebuggerUpdateThread(&C6502DBG::RENDERCODEDATALOGGER);
-
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -45,6 +41,17 @@ CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
    delete imgData;
    delete renderer;
    delete pThread;
+}
+
+void CodeDataLoggerDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
 }
 
 void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
@@ -63,6 +70,8 @@ void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
 
 void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
    pThread->updateDebuggers();
@@ -70,6 +79,8 @@ void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 
 void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
@@ -168,7 +179,7 @@ void CodeDataLoggerDockWidget::on_exportData_clicked()
                   // No information available (yet) to fill in the indirect code use bit.
                   // No information available (yet) to fill in the indirect data use bit.
                   if ( (pEntry->type == eLogger_DMA) &&
-                       (pEntry->source == eSource_APU) )
+                       (pEntry->source == eNESSource_APU) )
                   {
                      cdl |= 0x40;
                   }

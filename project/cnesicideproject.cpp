@@ -1,7 +1,8 @@
 #include "cnesicideproject.h"
 #include "main.h"
 
-#include "cnessystempalette.h"
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
 #include "cdockwidgetregistry.h"
 
 #define PROJECT_HEADER_FILE "project_data.h"
@@ -73,11 +74,24 @@ void CNesicideProject::initializeProject()
    // Initialize this node's attributes
    m_projectPaletteEntries.clear();
 
-   for (int col=0; col <= NUM_PALETTES; col++)
+   // Palette is target-dependent!
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      m_projectPaletteEntries.append(QColor(nesGetPaletteRedComponent(col),
-                                            nesGetPaletteGreenComponent(col),
-                                            nesGetPaletteBlueComponent(col)));
+      for (int col=0; col < nesGetNumColors(); col++)
+      {
+         m_projectPaletteEntries.append(QColor(nesGetPaletteRedComponent(col),
+                                               nesGetPaletteGreenComponent(col),
+                                               nesGetPaletteBlueComponent(col)));
+      }
+   }
+   else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
+   {
+      for (int col=0; col < c64GetNumColors(); col++)
+      {
+         m_projectPaletteEntries.append(QColor(c64GetPaletteRedComponent(col),
+                                               c64GetPaletteGreenComponent(col),
+                                               c64GetPaletteBlueComponent(col)));
+      }
    }
 
    // Notify the fact that the project data has been initialized properly
@@ -175,17 +189,9 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    QDomElement propertiesElement = addElement(doc,projectElement,"properties");
 
    propertiesElement.setAttribute("outputbasepath",m_projectOutputBasePath);
-   propertiesElement.setAttribute("outputname",m_projectOutputName);
-   propertiesElement.setAttribute("headerfilename",m_projectHeaderFileName);
-   propertiesElement.setAttribute("sourcefilename",m_projectSourceFileName);
    propertiesElement.setAttribute("linkeroutputbasepath",m_projectLinkerOutputBasePath);
    propertiesElement.setAttribute("linkeroutputname",m_projectLinkerOutputName);
    propertiesElement.setAttribute("debuginfoname",m_projectDebugInfoName);
-   propertiesElement.setAttribute("chrromoutputbasepath",m_projectCHRROMOutputBasePath);
-   propertiesElement.setAttribute("chrromoutputname",m_projectCHRROMOutputName);
-   propertiesElement.setAttribute("chrrom",m_projectUsesCHRROM);
-   propertiesElement.setAttribute("cartridgeoutputname",m_projectCartridgeOutputName);
-   propertiesElement.setAttribute("cartridgesavestatename",m_projectCartridgeSaveStateName);
    propertiesElement.setAttribute("compilerdefinedsymbols",m_compilerDefinedSymbols);
    propertiesElement.setAttribute("compilerincludepaths",m_compilerIncludePaths);
    propertiesElement.setAttribute("compileradditionaloptions",m_compilerAdditionalOptions);
@@ -197,45 +203,86 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
    propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(";"));
 
-   QDomElement tilePropertiesElement = addElement(doc,propertiesElement,"tileproperties");
-
-   foreach ( PropertyItem item, m_tileProperties )
+   // These are NES-specific properties.
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      QDomElement elm = addElement(doc,tilePropertiesElement,"property");
-      elm.setAttribute("name",item.name);
-      elm.setAttribute("type",item.type);
-      elm.setAttribute("value",item.value);
+      propertiesElement.setAttribute("outputname",m_projectOutputName);
+      propertiesElement.setAttribute("headerfilename",m_projectHeaderFileName);
+      propertiesElement.setAttribute("sourcefilename",m_projectSourceFileName);
+      propertiesElement.setAttribute("chrromoutputbasepath",m_projectCHRROMOutputBasePath);
+      propertiesElement.setAttribute("chrromoutputname",m_projectCHRROMOutputName);
+      propertiesElement.setAttribute("chrrom",m_projectUsesCHRROM);
+      propertiesElement.setAttribute("cartridgeoutputname",m_projectCartridgeOutputName);
+      propertiesElement.setAttribute("cartridgesavestatename",m_projectCartridgeSaveStateName);
+   }
+
+   // These are NES-specific properties.
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+   {
+      QDomElement tilePropertiesElement = addElement(doc,propertiesElement,"tileproperties");
+
+      foreach ( PropertyItem item, m_tileProperties )
+      {
+         QDomElement elm = addElement(doc,tilePropertiesElement,"property");
+         elm.setAttribute("name",item.name);
+         elm.setAttribute("type",item.type);
+         elm.setAttribute("value",item.value);
+      }
    }
 
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
+   // These are target-independent inspectors.
    SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
    pSymbolInspector->serialize(doc,inspectorsElement);
 
    BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    pBreakpointInspector->serialize(doc,inspectorsElement);
 
+   // This is a NES-specific inspector.  So it may not be part of the current UI.
    ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-   pExecutionVisualizer->serialize(doc,inspectorsElement);
+   if ( pExecutionVisualizer )
+   {
+      pExecutionVisualizer->serialize(doc,inspectorsElement);
+   }
 
    // Create the root palette element, and give it a version attribute
    QDomElement rootPaletteElement = addElement( doc, propertiesElement, "palette" );
 
    // Loop through all palette entries, and for each entry add an <entry /> tag that has the
    // index, as well as the RGB properties of the palette.
-   for (int indexOfCurrentPaletteEntry=0; indexOfCurrentPaletteEntry <= NUM_PALETTES; indexOfCurrentPaletteEntry++)
+   // Palette is target-dependent!
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      QDomElement elm = addElement( doc, rootPaletteElement, "entry");
-      elm.setAttribute("index", indexOfCurrentPaletteEntry);
-      elm.setAttribute("r", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).red());
-      elm.setAttribute("g", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).green());
-      elm.setAttribute("b", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).blue());
+      for (int indexOfCurrentPaletteEntry=0; indexOfCurrentPaletteEntry < nesGetNumColors(); indexOfCurrentPaletteEntry++)
+      {
+         QDomElement elm = addElement( doc, rootPaletteElement, "entry");
+         elm.setAttribute("index", indexOfCurrentPaletteEntry);
+         elm.setAttribute("r", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).red());
+         elm.setAttribute("g", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).green());
+         elm.setAttribute("b", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).blue());
+      }
+   }
+   else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
+   {
+      for (int indexOfCurrentPaletteEntry=0; indexOfCurrentPaletteEntry < c64GetNumColors(); indexOfCurrentPaletteEntry++)
+      {
+         QDomElement elm = addElement( doc, rootPaletteElement, "entry");
+         elm.setAttribute("index", indexOfCurrentPaletteEntry);
+         elm.setAttribute("r", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).red());
+         elm.setAttribute("g", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).green());
+         elm.setAttribute("b", m_projectPaletteEntries.at(indexOfCurrentPaletteEntry).blue());
+      }
    }
 
-   // Now serialize all child objects
-   if (!m_pCartridge->serialize(doc, projectElement))
+   // Now serialize all child objects.
+   // This is a NES-specific project item.
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      return false;
+      if (!m_pCartridge->serialize(doc, projectElement))
+      {
+         return false;
+      }
    }
 
    if (!m_pProject->serialize(doc, projectElement))
@@ -250,6 +297,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 {
    // Read in the DOM element
    QDomElement projectElement = doc.documentElement();
+   int numColors = 0;
 
    m_isInitialized = false;
 
@@ -282,11 +330,23 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
    m_projectTitle = projectElement.attribute("title","Untitled Project");
 
    // Initialize the palette.
-   for (int color = 0; color < 64; color++)
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      m_projectPaletteEntries.append(QColor(nesGetPaletteRedComponent(color),
-                                            nesGetPaletteGreenComponent(color),
-                                            nesGetPaletteBlueComponent(color)));
+      for (int color = 0; color < nesGetNumColors(); color++)
+      {
+         m_projectPaletteEntries.append(QColor(nesGetPaletteRedComponent(color),
+                                               nesGetPaletteGreenComponent(color),
+                                               nesGetPaletteBlueComponent(color)));
+      }
+   }
+   else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
+   {
+      for (int color = 0; color < c64GetNumColors(); color++)
+      {
+         m_projectPaletteEntries.append(QColor(c64GetPaletteRedComponent(color),
+                                               c64GetPaletteGreenComponent(color),
+                                               c64GetPaletteBlueComponent(color)));
+      }
    }
 
    // Now loop through the child elements and process the ones we find
@@ -302,8 +362,12 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
          pBreakpointInspector->deserialize(doc,child,errors);
 
+         // This is a NES-specific inspector.  So it may not be part of the current UI.
          ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-         pExecutionVisualizer->deserialize(doc,child,errors);
+         if ( pExecutionVisualizer )
+         {
+            pExecutionVisualizer->deserialize(doc,child,errors);
+         }
       }
       else if (child.nodeName() == "properties")
       {
@@ -311,17 +375,9 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          QDomElement propertiesElement = child.toElement();
 
          m_projectOutputBasePath = propertiesElement.attribute("outputbasepath");
-         m_projectOutputName = propertiesElement.attribute("outputname");
-         m_projectHeaderFileName = propertiesElement.attribute("headerfilename",PROJECT_HEADER_FILE);
-         m_projectSourceFileName = propertiesElement.attribute("sourcefilename",PROJECT_SOURCE_FILE);
          m_projectLinkerOutputBasePath = propertiesElement.attribute("linkeroutputbasepath");
          m_projectLinkerOutputName = propertiesElement.attribute("linkeroutputname");
          m_projectDebugInfoName = propertiesElement.attribute("debuginfoname");
-         m_projectCHRROMOutputBasePath = propertiesElement.attribute("chrromoutputbasepath");
-         m_projectCHRROMOutputName = propertiesElement.attribute("chrromoutputname");
-         m_projectUsesCHRROM = propertiesElement.attribute("chrrom").toInt();
-         m_projectCartridgeOutputName = propertiesElement.attribute("cartridgeoutputname");
-         m_projectCartridgeSaveStateName = propertiesElement.attribute("cartridgesavestatename");
          m_compilerDefinedSymbols = propertiesElement.attribute("compilerdefinedsymbols");
          m_compilerIncludePaths = propertiesElement.attribute("compilerincludepaths");
          m_compilerAdditionalOptions = propertiesElement.attribute("compileradditionaloptions");
@@ -332,43 +388,70 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
          m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts);
+         m_projectOutputName = propertiesElement.attribute("outputname");
+
+         // These are NES-specific parameters.
+         if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            m_projectHeaderFileName = propertiesElement.attribute("headerfilename",PROJECT_HEADER_FILE);
+            m_projectSourceFileName = propertiesElement.attribute("sourcefilename",PROJECT_SOURCE_FILE);
+            m_projectCHRROMOutputBasePath = propertiesElement.attribute("chrromoutputbasepath");
+            m_projectCHRROMOutputName = propertiesElement.attribute("chrromoutputname");
+            m_projectUsesCHRROM = propertiesElement.attribute("chrrom").toInt();
+            m_projectCartridgeOutputName = propertiesElement.attribute("cartridgeoutputname");
+            m_projectCartridgeSaveStateName = propertiesElement.attribute("cartridgesavestatename");
+         }
 
          // Loop through the properties nodes.
          QDomNode property = child.firstChild();
          do
          {
-            if ( property.nodeName() == "tileproperties" )
+            // These are NES-specific project items.
+            if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
             {
-               // Get the properties that are attributes of the tileproperties node.
-               QDomElement tilePropertiesElement = property.toElement();
-
-               QDomNode tilePropertyNode = property.firstChild();
-               do
+               if ( property.nodeName() == "tileproperties" )
                {
-                  QDomElement tilePropertyItem = tilePropertyNode.toElement();
+                  // Get the properties that are attributes of the tileproperties node.
+                  QDomElement tilePropertiesElement = property.toElement();
 
-                  if (!tilePropertyItem.isNull())
+                  QDomNode tilePropertyNode = property.firstChild();
+                  do
                   {
+                     QDomElement tilePropertyItem = tilePropertyNode.toElement();
 
-                     if ((!tilePropertyItem.hasAttribute("name"))
-                           || (!tilePropertyItem.hasAttribute("type"))
-                           || (!tilePropertyItem.hasAttribute("value")))
+                     if (!tilePropertyItem.isNull())
                      {
-                        errors.append("Error parsing <tileproperties> element.\n");
-                        return false;
-                     }
 
-                     PropertyItem item;
-                     item.name = tilePropertyItem.attribute("name");
-                     item.type = (propertyTypeEnum)tilePropertyItem.attribute("type").toInt();
-                     item.value = tilePropertyItem.attribute("value");
-                     m_tileProperties.append(item);
+                        if ((!tilePropertyItem.hasAttribute("name"))
+                              || (!tilePropertyItem.hasAttribute("type"))
+                              || (!tilePropertyItem.hasAttribute("value")))
+                        {
+                           errors.append("Error parsing <tileproperties> element.\n");
+                           return false;
+                        }
+
+                        PropertyItem item;
+                        item.name = tilePropertyItem.attribute("name");
+                        item.type = (propertyTypeEnum)tilePropertyItem.attribute("type").toInt();
+                        item.value = tilePropertyItem.attribute("value");
+                        m_tileProperties.append(item);
+                     }
                   }
+                  while (!(tilePropertyNode = tilePropertyNode.nextSibling()).isNull());
                }
-               while (!(tilePropertyNode = tilePropertyNode.nextSibling()).isNull());
             }
-            else if ( property.nodeName() == "palette" )
+            if ( property.nodeName() == "palette" )
             {
+               // Palette is target-dependent!
+               if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+               {
+                  numColors = nesGetNumColors();
+               }
+               else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
+               {
+                  numColors = c64GetNumColors();
+               }
+
                QDomNode paletteNode = property.firstChild();
                do
                {
@@ -390,31 +473,31 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
 
                   int nodeIndex = paletteItem.attribute("index").toInt();
 
-                  if ((nodeIndex < 0) || (nodeIndex > NUM_PALETTES))
+                  if ((nodeIndex >= 0) && (nodeIndex < numColors))
                   {
-                     return false;
+                     m_projectPaletteEntries.replace(nodeIndex,
+                                                     QColor(paletteItem.attribute("r").toInt(),
+                                                            paletteItem.attribute("g").toInt(),
+                                                            paletteItem.attribute("b").toInt()));
                   }
-
-                  m_projectPaletteEntries.replace(nodeIndex,
-                                                  QColor(paletteItem.attribute("r").toInt(),
-                                                         paletteItem.attribute("g").toInt(),
-                                                         paletteItem.attribute("b").toInt()));
-
                }
                while (!(paletteNode = paletteNode.nextSibling()).isNull());
             }
          } while (!(property = property.nextSibling()).isNull());
       }
+      else if (child.nodeName() == "cartridge")
+      {
+         if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            if (!m_pCartridge->deserialize(doc,child,errors))
+            {
+               return false;
+            }
+         }
+      }
       else if (child.nodeName() == "project")
       {
          if (!m_pProject->deserialize(doc,child,errors))
-         {
-            return false;
-         }
-      }
-      else if (child.nodeName() == "cartridge")
-      {
-         if (!m_pCartridge->deserialize(doc,child,errors))
          {
             return false;
          }
@@ -654,12 +737,6 @@ bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
       {
          str = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><font color=\"red\">Not found.</font></i>";
          generalTextLogger->write(str);
-
-         // Set project title...
-         if ( !silent )
-         {
-            m_projectTitle = fileName;
-         }
       }
 
       str = "<b>Game loaded.</b>";

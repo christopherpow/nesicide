@@ -5,6 +5,7 @@
 #include "cnessystempalette.h"
 #include "dbg_cnesppu.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeViewItem* link,QWidget* parent) :
@@ -45,11 +46,6 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
 
       pThread = new DebuggerUpdateThread(&CPPUDBG::RENDERCHRMEM);
-
-      QObject::connect(emulator,SIGNAL(cartridgeLoaded()),pThread,SLOT(updateDebuggers()));
-      QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
-      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
-      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
       QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
    }
    else
@@ -83,10 +79,26 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
    }
 }
 
+void CHRROMDisplayDialog::updateTargetMachine(QString target)
+{
+   if ( m_usePPU )
+   {
+      QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+      QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+      QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+   }
+}
+
 void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 {
    if ( m_usePPU )
    {
+      QThread* emulator = CThreadRegistry::getThread("Emulator");
+
       QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
       pThread->updateDebuggers();
@@ -98,6 +110,8 @@ void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
 {
    if ( m_usePPU )
    {
+      QThread* emulator = CThreadRegistry::getThread("Emulator");
+
       QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
    }
    emit removeStatusBarWidget(info);

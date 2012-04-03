@@ -96,6 +96,7 @@ public slots:
    void snapTo(QString item);
    void replaceText(QString from, QString to, bool replaceAll);
    void setBreakpoint(int line, int addr, int absAddr);
+   void updateTargetMachine(QString target);
 
 private slots:
    void editor_undo();

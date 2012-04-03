@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include <QCompleter>
 
+#include "cthreadregistry.h"
+
 #include "main.h"
 
 SearchDockWidget::SearchDockWidget(QWidget *parent) :
@@ -41,6 +43,7 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
 
    ui->replaceText->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
+   QThread* searcher = CThreadRegistry::getThread("Searcher");
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
 }
 
@@ -78,6 +81,7 @@ void SearchDockWidget::on_find_clicked()
 {
    QSettings settings;
    QStringList items;
+   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CThreadRegistry::getThread("Searcher"));
 
    settings.beginGroup("Search");
 

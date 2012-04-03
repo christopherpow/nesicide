@@ -49,6 +49,7 @@ private:
 public slots:
    void renderData();
    void repaintNeeded();
+   void updateTargetMachine(QString target);
 
 private slots:
    void on_exportPushButton_clicked();

@@ -5,6 +5,7 @@
 
 #include "dbg_cnesmappers.h"
 
+#include "cthreadregistry.h"
 #include "main.h"
 
 enum
@@ -21,20 +22,26 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QObject::connect ( emulator, SIGNAL(cartridgeLoaded()), this, SLOT(cartridgeLoaded()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
-
    ui->tabWidget->setCurrentIndex(InternalsPage);
 
    // Force UI update so it doesn't look uninitialized completely.
-   cartridgeLoaded();
+   machineReady();
 }
 
 MapperInformationDockWidget::~MapperInformationDockWidget()
 {
     delete ui;
+}
+
+void MapperInformationDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(machineReady()) );
+   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
 void MapperInformationDockWidget::changeEvent(QEvent* e)
@@ -53,16 +60,20 @@ void MapperInformationDockWidget::changeEvent(QEvent* e)
 
 void MapperInformationDockWidget::showEvent(QShowEvent* e)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
 }
 
 void MapperInformationDockWidget::hideEvent(QHideEvent* e)
 {
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 
-void MapperInformationDockWidget::cartridgeLoaded()
+void MapperInformationDockWidget::machineReady()
 {
    char buffer [ 128 ];
    sprintf ( buffer, "Mapper %d: %s Information", nesGetMapper(), mapperNameFromID(nesGetMapper()) );

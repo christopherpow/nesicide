@@ -7,7 +7,6 @@
 #include "projectbrowserdockwidget.h"
 #include "projectpropertiesdialog.h"
 #include "newprojectdialog.h"
-#include "nesemulatordockwidget.h"
 #include "cbuildertextlogger.h"
 #include "ccartridgebuilder.h"
 #include "chrmeminspector.h"
@@ -31,7 +30,11 @@
 #include "sourcenavigator.h"
 #include "codeprofilerdockwidget.h"
 #include "searchbar.h"
-#include "emulatorcontrol.h"
+#include "nesemulatorthread.h"
+#include "nesemulatordockwidget.h"
+#include "nesemulatorcontrol.h"
+#include "c64emulatorthread.h"
+#include "c64emulatorcontrol.h"
 #include "searchdockwidget.h"
 
 #include "ui_mainwindow.h"
@@ -42,13 +45,6 @@ class MainWindow;
 }
 
 extern OutputPaneDockWidget* output;
-
-typedef enum
-{
-   eSupportedTarget_None = -1,
-   eSupportedTarget_NES,
-   eSupportedTarget_C64
-} eSupportedTargets;
 
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
@@ -65,21 +61,32 @@ protected:
    void hideEvent(QHideEvent* event);
    void showEvent(QShowEvent* event);
    void keyPressEvent(QKeyEvent *event);
+
+   // Target UI builders/destroyers.
    void createNesUi();
    void destroyNesUi();
+   void createC64Ui();
+   void destroyC64Ui();
 
    // Which target is loaded?
-   eSupportedTargets m_targetLoaded;
+   QString m_targetLoaded;
+
+   // Common/reused UI elements.
+   RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
+   MemoryInspectorDockWidget* m_pBinCPURAMInspector;
+   QToolBar *debuggerToolBar;
+   QMenu *menuCPU_Inspectors;
+   QAction *actionBinCPURAM_Inspector;
+   QAction *actionBinCPURegister_Inspector;
 
    // NES-specific UI elements.
-   NESEmulatorDockWidget* m_pEmulator;
+   NESEmulatorThread* m_pNESEmulatorThread;
+   NESEmulatorDockWidget* m_pNESEmulator;
    bool m_bEmulatorFloating;
    ExecutionVisualizerDockWidget* m_pExecutionVisualizer;
-   RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
    CHRMEMInspector* m_pGfxCHRMemoryInspector;
    OAMVisualizerDockWidget* m_pGfxOAMMemoryInspector;
    NameTableVisualizerDockWidget* m_pGfxNameTableMemoryInspector;
-   MemoryInspectorDockWidget* m_pBinCPURAMInspector;
    MemoryInspectorDockWidget* m_pBinROMInspector;
    MemoryInspectorDockWidget* m_pBinNameTableMemoryInspector;
    MemoryInspectorDockWidget* m_pBinCHRMemoryInspector;
@@ -94,8 +101,6 @@ protected:
    PPUInformationDockWidget* m_pPPUInformationInspector;
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
-   QToolBar *debuggerToolBar;
-   QMenu *menuCPU_Inspectors;
    QMenu *menuAPU_Inpsectors;
    QMenu *menuPPU_Inspectors;
    QMenu *menuCartridge_Inspectors;
@@ -104,17 +109,15 @@ protected:
    QAction *actionEmulation_Window;
    QAction *actionGfxCHRMemory_Inspector;
    QAction *actionGfxOAMMemory_Inspector;
-   QAction *actionGfxNameTableMemory_Inspector;
-   QAction *actionBinCPURAM_Inspector;
-   QAction *actionBinNameTableMemory_Inspector;
+   QAction *actionGfxNameTableNESMemory_Inspector;
+   QAction *actionBinNameTableNESMemory_Inspector;
    QAction *actionBinPPURegister_Inspector;
    QAction *actionBinAPURegister_Inspector;
    QAction *actionBinCHRMemory_Inspector;
    QAction *actionBinOAMMemory_Inspector;
-   QAction *actionBinPaletteMemory_Inspector;
+   QAction *actionBinPaletteNESMemory_Inspector;
    QAction *actionBinSRAMMemory_Inspector;
    QAction *actionBinEXRAMMemory_Inspector;
-   QAction *actionBinCPURegister_Inspector;
    QAction *actionBinMapperMemory_Inspector;
    QAction *actionBinROM_Inspector;
    QAction *actionPPUInformation_Inspector;
@@ -134,6 +137,12 @@ protected:
    QAction *actionRun_Test_Suite;
    QAction *actionFullscreen;
 
+   // C64-specific UI elements.
+   C64EmulatorThread* m_pC64EmulatorThread;
+   RegisterInspectorDockWidget* m_pBinSIDRegisterInspector;
+   QMenu *menuSID_Inspectors;
+   QAction *actionBinSIDRegister_Inspector;
+
 private:
    QString projectFileName;
    void openNesProject(QString fileName,bool runRom=true);
@@ -150,7 +159,8 @@ private:
 
    SourceNavigator* m_pSourceNavigator;
    SearchBar* m_pSearchBar;
-   EmulatorControl* m_pEmulatorControl;
+   NESEmulatorControl* m_pNESEmulatorControl;
+   C64EmulatorControl* m_pC64EmulatorControl;
    SearchDockWidget* m_pSearch;
 
 protected:
@@ -164,6 +174,7 @@ signals:
    void pauseEmulation(bool show);
    void resetEmulator();
    void adjustAudio(int32_t length);
+   void updateTargetMachine(QString target);
 
 private slots:
    void createTarget(QString target);
@@ -171,6 +182,7 @@ private slots:
    void removeStatusBarWidget(QWidget* widget);
    void setStatusBarMessage(QString message);
    void openNesROM(QString fileName,bool runRom=true);
+   void openC64File(QString fileName);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();
    void focusEmulator();
@@ -208,6 +220,8 @@ private slots:
    void on_actionSave_Project_As_triggered();
    void on_actionSave_Project_triggered();
    void openFile(QString file);
+
+   // NES-specific UI elements.
    void actionFullscreen_toggled(bool value);
    void actionRun_Test_Suite_triggered();
    void actionMute_All_toggled(bool );
@@ -222,16 +236,16 @@ private slots:
    void actionExecution_Visualizer_Inspector_toggled(bool );
    void actionGfxCHRMemory_Inspector_toggled(bool );
    void actionGfxOAMMemory_Inspector_toggled(bool );
-   void actionGfxNameTableMemory_Inspector_toggled(bool );
+   void actionGfxNameTableNESMemory_Inspector_toggled(bool );
    void actionBinCPURegister_Inspector_toggled(bool );
    void actionBinCPURAM_Inspector_toggled(bool );
    void actionBinROM_Inspector_toggled(bool );
-   void actionBinNameTableMemory_Inspector_toggled(bool );
+   void actionBinNameTableNESMemory_Inspector_toggled(bool );
    void actionBinCHRMemory_Inspector_toggled(bool );
    void actionBinOAMMemory_Inspector_toggled(bool );
    void actionBinSRAMMemory_Inspector_toggled(bool );
    void actionBinEXRAMMemory_Inspector_toggled(bool );
-   void actionBinPaletteMemory_Inspector_toggled(bool );
+   void actionBinPaletteNESMemory_Inspector_toggled(bool );
    void actionBinAPURegister_Inspector_toggled(bool );
    void actionBinPPURegister_Inspector_toggled(bool );
    void actionBinMapperMemory_Inspector_toggled(bool );
@@ -268,6 +282,10 @@ private slots:
    void reflectedSearch_close(bool toplevel);
    void reflectedOutput_Window_close(bool toplevel);
    void reflectedProjectBrowser_close(bool toplevel);
+
+   // C64-specific UI elements.
+   void actionBinSIDRegister_Inspector_toggled(bool value);
+   void reflectedBinSIDRegisterInspector_close(bool toplevel);
 };
 
 #endif // MAINWINDOW_H

@@ -1,25 +1,30 @@
-#include "emulatorcontrol.h"
-#include "ui_emulatorcontrol.h"
+#include "nesemulatorcontrol.h"
+#include "ui_nesemulatorcontrol.h"
 
 #include "ccc65interface.h"
 
 #include "nes_emulator_core.h"
 
+#include "cthreadregistry.h"
+
 #include "main.h"
 
-EmulatorControl::EmulatorControl(QWidget *parent) :
+NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
    QWidget(parent),
    debugging(true),
-   ui(new Ui::EmulatorControl)
+   ui(new Ui::NESEmulatorControl)
 {
    ui->setupUi(this);
+
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
 
    // Buttons are disabled until a cartridge is loaded...then they go to the "pause-just-happened" state.
-   QObject::connect(emulator, SIGNAL(cartridgeLoaded()), this, SLOT(internalPause()));
+   QObject::connect(emulator, SIGNAL(machineReady()), this, SLOT(internalPause()));
 
    // Connect menu actions to slots.
    QObject::connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(on_playButton_clicked()));
@@ -44,12 +49,12 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
    ui->debugButton->setChecked(debugging);
 }
 
-EmulatorControl::~EmulatorControl()
+NESEmulatorControl::~NESEmulatorControl()
 {
    delete ui;
 }
 
-QList<QAction*> EmulatorControl::menu()
+QList<QAction*> NESEmulatorControl::menu()
 {
    QList<QAction*> items;
    items.append(ui->actionDebugging);
@@ -64,7 +69,7 @@ QList<QAction*> EmulatorControl::menu()
    return items;
 }
 
-void EmulatorControl::internalPlay()
+void NESEmulatorControl::internalPlay()
 {
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
@@ -82,7 +87,7 @@ void EmulatorControl::internalPlay()
    ui->actionFrame_Advance->setEnabled(debugging);
 }
 
-void EmulatorControl::internalPause()
+void NESEmulatorControl::internalPause()
 {
    if ( nesROMIsLoaded() )
    {
@@ -120,7 +125,7 @@ void EmulatorControl::internalPause()
    }
 }
 
-void EmulatorControl::on_playButton_clicked()
+void NESEmulatorControl::on_playButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
@@ -129,54 +134,54 @@ void EmulatorControl::on_playButton_clicked()
    emit focusEmulator();
 }
 
-void EmulatorControl::on_pauseButton_clicked()
+void NESEmulatorControl::on_pauseButton_clicked()
 {
    emit pauseEmulation(true);
 }
 
-void EmulatorControl::on_stepCPUButton_clicked()
+void NESEmulatorControl::on_stepCPUButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
    emit stepCPUEmulation();
 }
 
-void EmulatorControl::on_stepPPUButton_clicked()
+void NESEmulatorControl::on_stepPPUButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
    emit stepPPUEmulation();
 }
 
-void EmulatorControl::on_resetButton_clicked()
+void NESEmulatorControl::on_resetButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
    emit resetEmulator();
 }
 
-void EmulatorControl::on_frameAdvance_clicked()
+void NESEmulatorControl::on_frameAdvance_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
    emit advanceFrame();
 }
 
-void EmulatorControl::on_stepOverButton_clicked()
+void NESEmulatorControl::on_stepOverButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
    emit stepOverCPUEmulation();
 }
 
-void EmulatorControl::on_stepOutButton_clicked()
+void NESEmulatorControl::on_stepOutButton_clicked()
 {
    CCC65Interface::isBuildUpToDate();
 
    emit stepOutCPUEmulation();
 }
 
-void EmulatorControl::on_debugButton_toggled(bool checked)
+void NESEmulatorControl::on_debugButton_toggled(bool checked)
 {
    debugging = checked;
    ui->stepCPUButton->setEnabled(checked);

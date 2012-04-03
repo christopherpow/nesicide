@@ -16,6 +16,10 @@
 #include "ccc65interface.h"
 
 #include "main.h"
+#include "cthreadregistry.h"
+
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
 
 BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
@@ -28,13 +32,6 @@ BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
    ui->tableView->installEventFilter(this);
    ui->tableView->viewport()->installEventFilter(this);
 
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
-
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(cartridgeLoaded()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
-   QObject::connect(emulator,SIGNAL(emulatorStarted()),model,SLOT(update()));
    QObject::connect(this,SIGNAL(breakpointsChanged()),model,SLOT(update()));
 }
 
@@ -42,6 +39,22 @@ BreakpointDockWidget::~BreakpointDockWidget()
 {
    delete ui;
    delete model;
+}
+
+void BreakpointDockWidget::updateTargetMachine(QString target)
+{
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
+   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
+   if ( emulator )
+   {
+      QObject::connect(emulator,SIGNAL(machineReady()),model,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
+      QObject::connect(emulator,SIGNAL(emulatorStarted()),model,SLOT(update()));
+   }
 }
 
 bool BreakpointDockWidget::eventFilter(QObject *obj, QEvent *event)
@@ -249,10 +262,19 @@ void BreakpointDockWidget::updateData()
 void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
 {
    CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   char buffer[32];
 
    // Check for left-click to "enable/disable"...
    if ( QApplication::mouseButtons()&Qt::LeftButton )
    {
+      // Emit snapTo if possible...
+      if ( (index.row() < pBreakpoints->GetNumBreakpoints()) &&
+           (pBreakpoints->GetBreakpoint(index.row())->type == eBreakOnCPUExecution) )
+      {
+         nesGetPrintableAddressWithAbsolute(buffer,pBreakpoints->GetBreakpoint(index.row())->item1,pBreakpoints->GetBreakpoint(index.row())->item1Absolute);
+         emit snapTo(QString("Address,")+QString(buffer));
+      }
+
       if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
       {
          pBreakpoints->ToggleEnabled(index.row());

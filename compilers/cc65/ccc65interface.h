@@ -11,16 +11,25 @@ class CCC65Interface : public QObject
 {
    Q_OBJECT
 public:
+   // Class maintenance.
    CCC65Interface();
    virtual ~CCC65Interface();
    static void clear();
+
+   // Makefile and target image APIs.
    static bool createMakefile();
    static void clean();
    static bool assemble();
    static bool captureDebugInfo();
    static bool isBuildUpToDate();
    static bool captureINESImage();
+   static QStringList getCLanguageSourcesFromProject();
+   static QStringList getAssemblerSourcesFromProject();
+   static void updateTargetMachine(QString target);
+
+   // Debug information parsing/extending APIs.
    static QStringList getSourceFiles();
+   static uint32_t getSegmentBase(QString segment);
    static unsigned int getSourceFileModificationTime(QString sourceFile);
    static QStringList getSymbolsForSourceFile(QString sourceFile);
    static int getSymbolMatchCount(QString symbol);
@@ -33,23 +42,37 @@ public:
    static unsigned int getSymbolSize(QString symbol,int index = 0);
    static int getSourceLineFromFileAndSymbol(QString file,QString symbol);
    static QString getSourceFileFromSymbol(QString symbol);
-   static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static int getLineMatchCount(QString file,int source_line);
    static unsigned int getAddressFromFileAndLine(QString file,int source_line,int entry = -1);
-   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
-   static unsigned int getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
    static QStringList getErrors() { return errors; }
    static bool isErrorOnLineOfFile(QString file,int source_line);
    static bool isStringASymbol(QString string);
 
-   static QStringList getCLanguageSourcesFromProject();
-   static QStringList getAssemblerSourcesFromProject();
+   // Target-dependent launchpads.
+   static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
+
+   // NES target-dependent APIs.
+   static QString nesGetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static int nesGetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int nesGetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int nesGetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static bool nesIsAbsoluteAddressAnOpcode(uint32_t absAddr);
+
+   // C64 target-dependent APIs.
+   static QString c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static int c64GetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int c64GetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int c64GetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
+   static bool c64IsAbsoluteAddressAnOpcode(uint32_t absAddr);
 
 protected:
    static cc65_dbginfo        dbgInfo;
    static QStringList         errors;
+   static QString             targetMachine;
 };
 
 #endif // CCC65INTERFACE_H

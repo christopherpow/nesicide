@@ -21,17 +21,32 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    int i = 0;
    char mapperTag [ 64 ];
 
+
    // Initialize UI elements...
    ui->setupUi(this);
+
+   // Common project properties.
    ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
    ui->projectBasePath->setText(QDir::fromNativeSeparators(QDir::currentPath()));
    ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
-   ui->projectHeaderName->setText(nesicideProject->getProjectHeaderFileName());
-   ui->projectSourceName->setText(nesicideProject->getProjectSourceFileName());
    ui->outputName->setText(nesicideProject->getProjectOutputName());
-   ui->prgromOutputBasePath->setText(nesicideProject->getProjectLinkerOutputBasePath());
+   ui->compilerDefinedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
+   ui->compilerIncludePaths->setText(nesicideProject->getCompilerIncludePaths());
+   ui->compilerAdditionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
+   ui->assemblerDefinedSymbols->setText(nesicideProject->getAssemblerDefinedSymbols());
+   ui->assemblerIncludePaths->setText(nesicideProject->getAssemblerIncludePaths());
+   ui->assemblerAdditionalOptions->setText(nesicideProject->getAssemblerAdditionalOptions());
    ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
    ui->debugInfoName->setText(nesicideProject->getProjectDebugInfoName());
+   ui->linkerAdditionalOptions->setText(nesicideProject->getLinkerAdditionalOptions());
+   ui->linkerAdditionalDependencies->setText(nesicideProject->getLinkerAdditionalDependencies());
+   ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
+   deserializeLinkerConfig();
+
+   // NES-specific project properties.
+   ui->projectHeaderName->setText(nesicideProject->getProjectHeaderFileName());
+   ui->projectSourceName->setText(nesicideProject->getProjectSourceFileName());
+   ui->prgromOutputBasePath->setText(nesicideProject->getProjectLinkerOutputBasePath());
    ui->chrromOutputBasePath->setText(nesicideProject->getProjectCHRROMOutputBasePath());
    ui->chrromOutputName->setText(nesicideProject->getProjectCHRROMOutputName());
    ui->chrRom->setChecked(nesicideProject->getProjectUsesCHRROM());
@@ -39,16 +54,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
    ui->cartridgeSaveStateName->setText(nesicideProject->getProjectCartridgeSaveStateName());
 
-   ui->compilerDefinedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
-   ui->compilerIncludePaths->setText(nesicideProject->getCompilerIncludePaths());
-   ui->compilerAdditionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
-   ui->assemblerDefinedSymbols->setText(nesicideProject->getAssemblerDefinedSymbols());
-   ui->assemblerIncludePaths->setText(nesicideProject->getAssemblerIncludePaths());
-   ui->assemblerAdditionalOptions->setText(nesicideProject->getAssemblerAdditionalOptions());
-   ui->linkerAdditionalOptions->setText(nesicideProject->getLinkerAdditionalOptions());
-   ui->linkerAdditionalDependencies->setText(nesicideProject->getLinkerAdditionalDependencies());
-   ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
-   deserializeLinkerConfig();
+   // C64-specific project properties.
 
    // Link up the project palette to this dialog
    for (int paletteItemIndex=0; paletteItemIndex<pal->count(); paletteItemIndex++)
@@ -92,6 +98,27 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    tilePropertyListModel->setItems(nesicideProject->getTileProperties());
    ui->propertyTableView->setModel(tilePropertyListModel);
 
+   pageMap.insert("Project",ui->project);
+   pageMap.insert("Compiler",ui->compiler);
+   pageMap.insert("Assembler",ui->assembler);
+   pageMap.insert("Linker",ui->linker);
+   pageMap.insert("Nintendo Entertainment System",ui->nesgraphicsbuilder);
+   pageMap.insert("Graphics Builder",ui->nesgraphicsbuilder);
+   pageMap.insert("Cartridge",ui->nescartridge);
+   pageMap.insert("Tile Properties",ui->nestileproperties);
+   pageMap.insert("System Palette",ui->nessystempalette);
+   pageMap.insert("Commodore 64",ui->c64vicesettings);
+   pageMap.insert("VICE Settings",ui->c64vicesettings);
+
+   ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("Project",Qt::MatchExactly).at(0));
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->treeWidget->findItems("Commodore 64",Qt::MatchExactly).at(0)->setHidden(true);
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      ui->treeWidget->findItems("Nintendo Entertainment System",Qt::MatchExactly).at(0)->setHidden(true);
+   }
    updateUI();
 }
 
@@ -663,4 +690,19 @@ void ProjectPropertiesDialog::on_propertyTableView_doubleClicked(QModelIndex ind
 void ProjectPropertiesDialog::on_editProperty_clicked()
 {
    on_propertyTableView_doubleClicked(ui->propertyTableView->currentIndex());
+}
+
+void ProjectPropertiesDialog::on_treeWidget_itemSelectionChanged()
+{
+   ui->treeWidget->expand(ui->treeWidget->currentIndex());
+   if ( ui->treeWidget->currentItem()->childCount() )
+   {
+      ui->treeWidget->setCurrentItem(ui->treeWidget->itemBelow(ui->treeWidget->currentItem()));
+   }
+   ui->stackedWidget->setCurrentWidget(pageMap[ui->treeWidget->currentItem()->text(0)]);
+}
+
+void ProjectPropertiesDialog::on_viceC64Browse_clicked()
+{
+
 }

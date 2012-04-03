@@ -45,6 +45,11 @@ QString NewProjectDialog::getPath()
    return ui->path->text();
 }
 
+QString NewProjectDialog::getTarget()
+{
+   return ui->target->currentText();
+}
+
 void NewProjectDialog::on_pathBrowse_clicked()
 {
    QString value = QFileDialog::getExistingDirectory(this,"Path",QDir::currentPath());
