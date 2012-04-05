@@ -72,11 +72,22 @@ public:
    {
       m_projectTitle = value;
       m_projectOutputName = m_projectTitle.toLower().replace(" ","_");
-      m_projectLinkerOutputName = m_projectTitle.toLower().replace(" ","_")+".prg";
-      m_projectDebugInfoName = m_projectTitle.toLower().replace(" ","_")+".dbg";
-      m_projectCHRROMOutputName = m_projectTitle.toLower().replace(" ","_")+".chr";
-      m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
-      m_projectCartridgeSaveStateName = m_projectTitle.toLower().replace(" ","_")+".sav";
+      if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+      {
+         m_projectLinkerOutputName = m_projectTitle.toLower().replace(" ","_")+".prg";
+         m_projectDebugInfoName = m_projectTitle.toLower().replace(" ","_")+".dbg";
+         m_projectCHRROMOutputName = m_projectTitle.toLower().replace(" ","_")+".chr";
+         m_projectCartridgeOutputName = m_projectTitle.toLower().replace(" ","_")+".nes";
+         m_projectCartridgeSaveStateName = m_projectTitle.toLower().replace(" ","_")+".sav";
+      }
+      else if ( !m_projectTarget.contains("c64",Qt::CaseInsensitive) )
+      {
+         m_projectLinkerOutputName = m_projectTitle.toLower().replace(" ","_")+".c64";
+         m_projectDebugInfoName = m_projectTitle.toLower().replace(" ","_")+".dbg";
+         m_projectCHRROMOutputName = "";
+         m_projectCartridgeOutputName = "";
+         m_projectCartridgeSaveStateName = "";
+      }
    }
    void setProjectOutputBasePath(QString value)
    {

@@ -16,15 +16,18 @@
 #include <QMessageBox>
 #include <QContextMenuEvent>
 
-CodeBrowserDockWidget::CodeBrowserDockWidget(QWidget *parent) :
+CodeBrowserDockWidget::CodeBrowserDockWidget(CBreakpointInfo* pBreakpoints,QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::CodeBrowserDockWidget)
 {
    ui->setupUi(this);
-   assemblyViewModel = new CCodeBrowserDisplayModel(this);
-   ui->tableView->setModel(assemblyViewModel);
+
+   m_pBreakpoints = pBreakpoints;
 
    m_loadedTarget = "none";
+
+   assemblyViewModel = new CCodeBrowserDisplayModel(pBreakpoints,this);
+   ui->tableView->setModel(assemblyViewModel);
 
    QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 }
@@ -97,7 +100,6 @@ void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
 
 void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QMenu menu;
    int bp;
    int addr = 0;
@@ -120,7 +122,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
       menu.addAction(ui->actionGo_to_Source);
       menu.addSeparator();
 
-      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+      bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
                                           eBreakpointItemAddress,
                                           0,
                                           addr,
@@ -142,7 +144,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
       }
       else
       {
-         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+         if ( m_pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
          {
             menu.addAction(ui->actionEnable_breakpoint);
             menu.addAction(ui->actionRemove_breakpoint);
@@ -271,7 +273,6 @@ void CodeBrowserDockWidget::machineReady()
 
 void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int bpIdx;
    int addr = 0;
@@ -290,7 +291,7 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
 
    if ( addr != -1 )
    {
-      bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
+      bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
                                             eBreakpointItemAddress,
                                             0,
                                             addr,
@@ -344,11 +345,9 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
 
 void CodeBrowserDockWidget::on_actionDisable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( m_breakpointIndex >= 0 )
    {
-      pBreakpoints->ToggleEnabled(m_breakpointIndex);
+      m_pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
@@ -357,11 +356,9 @@ void CodeBrowserDockWidget::on_actionDisable_breakpoint_triggered()
 
 void CodeBrowserDockWidget::on_actionRemove_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( m_breakpointIndex >= 0 )
    {
-      pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
+      m_pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
@@ -370,11 +367,9 @@ void CodeBrowserDockWidget::on_actionRemove_breakpoint_triggered()
 
 void CodeBrowserDockWidget::on_actionEnable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( m_breakpointIndex >= 0 )
    {
-      pBreakpoints->ToggleEnabled(m_breakpointIndex);
+      m_pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
@@ -463,7 +458,6 @@ void CodeBrowserDockWidget::on_actionClear_marker_triggered()
 
 void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
    int absAddr = 0;
@@ -485,7 +479,7 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
 
          if ( addr != -1 )
          {
-            bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+            bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
                                                 eBreakpointItemAddress,
                                                 0,
                                                 addr,
@@ -502,13 +496,13 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
             }
             else
             {
-               if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+               if ( m_pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
                {
-                  pBreakpoints->RemoveBreakpoint(bp);
+                  m_pBreakpoints->RemoveBreakpoint(bp);
                }
                else
                {
-                  pBreakpoints->SetEnabled(bp,false);
+                  m_pBreakpoints->SetEnabled(bp,false);
                }
             }
 

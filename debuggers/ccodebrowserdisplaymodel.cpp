@@ -23,8 +23,9 @@
 
 static char modelStringBuffer [ 2048 ];
 
-CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(QObject*)
+CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(CBreakpointInfo* pBreakpoints,QObject*)
 {
+   m_pBreakpoints = pBreakpoints;
 }
 
 CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
@@ -38,7 +39,6 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    int32_t absAddr;
    //uint32_t addr = (uint32_t)index.internalPointer();
    unsigned char opSize;
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int idx;
@@ -125,9 +125,9 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
    if ((role == Qt::DecorationRole) && (index.column() == CodeBrowserCol_Decoration))
    {
-      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+      for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
       {
-         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+         BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(idx);
 
          if ( (pBreakpoint->enabled) &&
                (pBreakpoint->type == eBreakOnCPUExecution) &&

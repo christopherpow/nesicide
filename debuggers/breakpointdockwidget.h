@@ -18,7 +18,7 @@ class BreakpointDockWidget : public CDebuggerBase, public IXMLSerializable
    Q_OBJECT
 
 public:
-   explicit BreakpointDockWidget(QWidget *parent = 0);
+   BreakpointDockWidget(CBreakpointInfo* pBreakpoints,QWidget *parent = 0);
    virtual ~BreakpointDockWidget();
 
    // IXMLSerializable interface
@@ -39,6 +39,7 @@ signals:
 
 private:
    Ui::BreakpointDockWidget *ui;
+   CBreakpointInfo* m_pBreakpoints;
    CBreakpointDisplayModel* model;
    bool eventFilter(QObject *obj, QEvent *event);
 

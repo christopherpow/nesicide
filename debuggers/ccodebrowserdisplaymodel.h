@@ -3,6 +3,8 @@
 
 #include <QAbstractTableModel>
 
+#include "cbreakpointinfo.h"
+
 enum
 {
    CodeBrowserCol_Decoration = 0,
@@ -18,7 +20,7 @@ class CCodeBrowserDisplayModel : public QAbstractTableModel
 {
    Q_OBJECT
 public:
-   CCodeBrowserDisplayModel(QObject* parent);
+   CCodeBrowserDisplayModel(CBreakpointInfo* pBreakpoints,QObject* parent);
    virtual ~CCodeBrowserDisplayModel();
    QVariant data(const QModelIndex& index, int role) const;
    Qt::ItemFlags flags(const QModelIndex& index) const;
@@ -28,6 +30,9 @@ public:
                      const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
+
+private:
+   CBreakpointInfo* m_pBreakpoints;
 
 public slots:
    void update(void);

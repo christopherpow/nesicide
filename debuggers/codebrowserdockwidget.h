@@ -5,6 +5,8 @@
 
 #include "ccodebrowserdisplaymodel.h"
 
+#include "cbreakpointinfo.h"
+
 #include "QThread"
 
 namespace Ui {
@@ -16,7 +18,7 @@ class CodeBrowserDockWidget : public CDebuggerBase
    Q_OBJECT
 
 public:
-   explicit CodeBrowserDockWidget(QWidget *parent = 0);
+   explicit CodeBrowserDockWidget(CBreakpointInfo* pBreakpoints,QWidget *parent = 0);
    virtual ~CodeBrowserDockWidget();
 
 protected:
@@ -37,6 +39,7 @@ signals:
 
 private:
    Ui::CodeBrowserDockWidget *ui;
+   CBreakpointInfo* m_pBreakpoints;
    CCodeBrowserDisplayModel* assemblyViewModel;
    int m_breakpointIndex;
    QString m_loadedTarget;

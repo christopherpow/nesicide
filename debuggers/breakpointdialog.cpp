@@ -13,11 +13,38 @@
 
 #include "cthreadregistry.h"
 
-BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
+BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget* parent) :
    QDialog(parent),
    ui(new Ui::BreakpointDialog)
 {
    ui->setupUi(this);
+
+   m_pBreakpoints = pBreakpoints;
+
+   ui->type->addItem("CPU Execution");
+   ui->type->addItem("CPU Memory Access (Read or Write)");
+   ui->type->addItem("CPU Memory Read");
+   ui->type->addItem("CPU Memory Write");
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->type->addItem("CPU State");
+      ui->type->addItem("CPU Event");
+      ui->type->addItem("PPU Fetch (Rendering)");
+      ui->type->addItem("OAM Portal Access (Read or Write)");
+      ui->type->addItem("OAM Portal Read");
+      ui->type->addItem("OAM Portal Write");
+      ui->type->addItem("PPU Portal Access (Read or Write)");
+      ui->type->addItem("PPU Portal Read");
+      ui->type->addItem("PPU Portal Write");
+      ui->type->addItem("PPU State");
+      ui->type->addItem("PPU Event");
+      ui->type->addItem("APU State");
+      ui->type->addItem("APU Event");
+      ui->type->addItem("Cartridge (Mapper) State");
+      ui->type->addItem("Cartridge (Mapper) Event");
+   }
+
    ui->itemWidget->setCurrentIndex ( eBreakpointItemAddress );
    ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
    ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
@@ -25,10 +52,17 @@ BreakpointDialog::BreakpointDialog(int bp, QWidget* parent) :
 
    ui->enabled->setChecked(true);
 
-   ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
-   ui->resolve->setChecked(false);
-   ui->resolutions->addItem("N/A");
-   ui->resolutions->setEnabled(false);
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
+      ui->resolve->setChecked(false);
+      ui->resolutions->addItem("N/A");
+      ui->resolutions->setEnabled(false);
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      ui->resolverWidget->setCurrentIndex(0);
+   }
 
    m_pRegister = NULL;
    m_pBitfield = NULL;
@@ -468,8 +502,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
 void BreakpointDialog::DisplayBreakpoint ( int idx )
 {
    char buffer [ 16 ];
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint ( idx );
+   BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint ( idx );
 
    ui->type->setCurrentIndex ( pBreakpoint->type );
    ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
@@ -575,7 +608,6 @@ void BreakpointDialog::on_cancel_clicked()
 
 void BreakpointDialog::on_addBreakpoint_clicked()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int  item1 = 0;
    int  item1Absolute = 0;
    int  item2 = 0;
@@ -659,7 +691,7 @@ void BreakpointDialog::on_addBreakpoint_clicked()
       }
    }
 
-   pBreakpoints->ConstructBreakpoint ( &m_breakpoint,
+   m_pBreakpoints->ConstructBreakpoint ( &m_breakpoint,
                                        (eBreakpointType)ui->type->currentIndex(),
                                        (eBreakpointItemType)ui->itemWidget->currentIndex(),
                                        event,

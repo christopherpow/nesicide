@@ -150,6 +150,7 @@ INCLUDEPATH += \
     c64/debuggers \
     designers \
     nes/designers \
+    emulator \
     nes/emulator \
     c64/emulator \
     interfaces \
@@ -160,6 +161,7 @@ INCLUDEPATH += \
 
 SOURCES += \
     aboutdialog.cpp \
+    emulator/cbreakpointinfo.cpp \
     common/cbuildertextlogger.cpp \
     common/cdockwidgetregistry.cpp \
     nes/common/cgamedatabasehandler.cpp \
@@ -285,6 +287,7 @@ SOURCES += \
 
 HEADERS += \
     aboutdialog.h \
+    emulator/cbreakpointinfo.h \
     common/cbuildertextlogger.h \
     common/cdesignercommon.h \
     common/cdockwidgetregistry.h \

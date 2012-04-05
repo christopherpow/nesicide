@@ -21,13 +21,15 @@
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
 
-BreakpointDockWidget::BreakpointDockWidget(QWidget *parent) :
+BreakpointDockWidget::BreakpointDockWidget(CBreakpointInfo* pBreakpoints,QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::BreakpointDockWidget)
 {
    ui->setupUi(this);
 
-   model = new CBreakpointDisplayModel();
+   m_pBreakpoints = pBreakpoints;
+
+   model = new CBreakpointDisplayModel(pBreakpoints);
    ui->tableView->setModel ( model );
    ui->tableView->installEventFilter(this);
    ui->tableView->viewport()->installEventFilter(this);
@@ -54,6 +56,7 @@ void BreakpointDockWidget::updateTargetMachine(QString target)
       QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorStarted()),model,SLOT(update()));
+      QObject::connect(this,SIGNAL(breakpointsChanged()),emulator,SLOT(breakpointsChanged()));
    }
 }
 
@@ -102,32 +105,54 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* symbolInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
    QDockWidget* memoryInspector;
+   QThread*     emulator = CThreadRegistry::getThread("Emulator");
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
 
    memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("CPU RAM Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector"));
-   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector"));
-   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("PRG-ROM Inspector"));
-   QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector"));
+      QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector"));
+      QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("PRG-ROM Inspector"));
+      QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+   }
+
+   if ( emulator )
+   {
+      QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
+      QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
+
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("CPU RAM Inspector"));
+      QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      {
+         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector"));
+         QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
+         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector"));
+         QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
+         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("PRG-ROM Inspector"));
+         QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
+      }
+   }
+
    model->update();
    updateData();
 }
 
 void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QMenu menu;
 
-   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
+   if ( ui->tableView->currentIndex().row() < m_pBreakpoints->GetNumBreakpoints() )
    {
       menu.addAction(ui->actionEdit_Breakpoint);
 
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(ui->tableView->currentIndex().row());
+      BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(ui->tableView->currentIndex().row());
       if ( pBreakpoint->enabled )
       {
          menu.addAction(ui->actionDisable_Breakpoint);
@@ -138,11 +163,11 @@ void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
       }
       menu.addSeparator();
    }
-   if ( pBreakpoints->GetNumBreakpoints() < NUM_BREAKPOINTS )
+   if ( m_pBreakpoints->GetNumBreakpoints() < NUM_BREAKPOINTS )
    {
       menu.addAction(ui->actionAdd_Breakpoint);
    }
-   if ( pBreakpoints->GetNumBreakpoints() > 0 )
+   if ( m_pBreakpoints->GetNumBreakpoints() > 0 )
    {
       menu.addAction(ui->actionRemove_Breakpoint);
       menu.addAction(ui->actionEnable_All_Breakpoints);
@@ -202,9 +227,7 @@ void BreakpointDockWidget::dropEvent(QDropEvent *event)
       addr = CCC65Interface::getSymbolAddress(text);
       if ( addr != 0xFFFFFFFF )
       {
-         CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
-         bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+         bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
                                                eBreakpointItemAddress,
                                                0,
                                                addr,
@@ -231,11 +254,9 @@ void BreakpointDockWidget::dropEvent(QDropEvent *event)
 
 void BreakpointDockWidget::keyPressEvent(QKeyEvent *event)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( event->key() == Qt::Key_Delete )
    {
-      if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
+      if ( ui->tableView->currentIndex().row() < m_pBreakpoints->GetNumBreakpoints() )
       {
          on_actionRemove_Breakpoint_triggered();
       }
@@ -244,12 +265,11 @@ void BreakpointDockWidget::keyPressEvent(QKeyEvent *event)
 
 void BreakpointDockWidget::updateData()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int idx;
 
-   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+   for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
    {
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(idx);
 
       if ( pBreakpoint->hit )
       {
@@ -261,23 +281,22 @@ void BreakpointDockWidget::updateData()
 
 void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    char buffer[32];
 
    // Check for left-click to "enable/disable"...
    if ( QApplication::mouseButtons()&Qt::LeftButton )
    {
       // Emit snapTo if possible...
-      if ( (index.row() < pBreakpoints->GetNumBreakpoints()) &&
-           (pBreakpoints->GetBreakpoint(index.row())->type == eBreakOnCPUExecution) )
+      if ( (index.row() < m_pBreakpoints->GetNumBreakpoints()) &&
+           (m_pBreakpoints->GetBreakpoint(index.row())->type == eBreakOnCPUExecution) )
       {
-         nesGetPrintableAddressWithAbsolute(buffer,pBreakpoints->GetBreakpoint(index.row())->item1,pBreakpoints->GetBreakpoint(index.row())->item1Absolute);
+         nesGetPrintableAddressWithAbsolute(buffer,m_pBreakpoints->GetBreakpoint(index.row())->item1,m_pBreakpoints->GetBreakpoint(index.row())->item1Absolute);
          emit snapTo(QString("Address,")+QString(buffer));
       }
 
-      if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
+      if ( (index.row() < m_pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
       {
-         pBreakpoints->ToggleEnabled(index.row());
+         m_pBreakpoints->ToggleEnabled(index.row());
          emit breakpointsChanged();
          emit markProjectDirty(true);
       }
@@ -286,37 +305,36 @@ void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
 
 void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
 
    // Check for double-click to "edit"...
-   if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() > 0) )
+   if ( (index.row() < m_pBreakpoints->GetNumBreakpoints()) && (index.column() > 0) )
    {
-      BreakpointDialog bd(index.row(),this);
+      BreakpointDialog bd(m_pBreakpoints,index.row(),this);
       result = bd.exec();
       if ( result )
       {
-         pBreakpoints->ModifyBreakpoint(index.row(), bd.getBreakpoint());
+         m_pBreakpoints->ModifyBreakpoint(index.row(), bd.getBreakpoint());
          emit breakpointsChanged();
          emit markProjectDirty(true);
       }
    }
    // Check for double-click to "add"...
-   if ( index.row() == pBreakpoints->GetNumBreakpoints() )
+   if ( index.row() == m_pBreakpoints->GetNumBreakpoints() )
    {
-      BreakpointDialog bd(-1,this);
+      BreakpointDialog bd(m_pBreakpoints,-1,this);
       result = bd.exec();
       if ( result )
       {
-         pBreakpoints->AddBreakpoint(bd.getBreakpoint());
+         m_pBreakpoints->AddBreakpoint(bd.getBreakpoint());
          emit breakpointsChanged();
          emit markProjectDirty(true);
       }
    }
    // Check for double-click to "enable/disable"...
-   if ( (index.row() < pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
+   if ( (index.row() < m_pBreakpoints->GetNumBreakpoints()) && (index.column() == 0) )
    {
-      pBreakpoints->ToggleEnabled(index.row());
+      m_pBreakpoints->ToggleEnabled(index.row());
       emit breakpointsChanged();
       emit markProjectDirty(true);
    }
@@ -324,14 +342,13 @@ void BreakpointDockWidget::on_tableView_doubleClicked(QModelIndex index)
 
 void BreakpointDockWidget::on_actionAdd_Breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
 
-   BreakpointDialog bd(-1,this);
+   BreakpointDialog bd(m_pBreakpoints,-1,this);
    result = bd.exec();
    if ( result )
    {
-      pBreakpoints->AddBreakpoint(bd.getBreakpoint());
+      m_pBreakpoints->AddBreakpoint(bd.getBreakpoint());
       emit breakpointsChanged();
       emit markProjectDirty(true);
    }
@@ -339,11 +356,9 @@ void BreakpointDockWidget::on_actionAdd_Breakpoint_triggered()
 
 void BreakpointDockWidget::on_actionRemove_Breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
-   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
+   if ( ui->tableView->currentIndex().row() < m_pBreakpoints->GetNumBreakpoints() )
    {
-      pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
+      m_pBreakpoints->RemoveBreakpoint(ui->tableView->currentIndex().row());
       emit breakpointsChanged();
       emit markProjectDirty(true);
    }
@@ -351,16 +366,15 @@ void BreakpointDockWidget::on_actionRemove_Breakpoint_triggered()
 
 void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int result;
 
-   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
+   if ( ui->tableView->currentIndex().row() < m_pBreakpoints->GetNumBreakpoints() )
    {
-      BreakpointDialog bd(ui->tableView->currentIndex().row(),this);
+      BreakpointDialog bd(m_pBreakpoints,ui->tableView->currentIndex().row(),this);
       result = bd.exec();
       if ( result )
       {
-         pBreakpoints->ModifyBreakpoint(ui->tableView->currentIndex().row(), bd.getBreakpoint());
+         m_pBreakpoints->ModifyBreakpoint(ui->tableView->currentIndex().row(), bd.getBreakpoint());
          emit breakpointsChanged();
          emit markProjectDirty(true);
       }
@@ -369,11 +383,9 @@ void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()
 
 void BreakpointDockWidget::on_actionEnable_Breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
-   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
+   if ( ui->tableView->currentIndex().row() < m_pBreakpoints->GetNumBreakpoints() )
    {
-      pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), true);
+      m_pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), true);
       emit breakpointsChanged();
       emit markProjectDirty(true);
    }
@@ -381,11 +393,9 @@ void BreakpointDockWidget::on_actionEnable_Breakpoint_triggered()
 
 void BreakpointDockWidget::on_actionDisable_Breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
-   if ( ui->tableView->currentIndex().row() < pBreakpoints->GetNumBreakpoints() )
+   if ( ui->tableView->currentIndex().row() < m_pBreakpoints->GetNumBreakpoints() )
    {
-      pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), false);
+      m_pBreakpoints->SetEnabled(ui->tableView->currentIndex().row(), false);
       emit breakpointsChanged();
       emit markProjectDirty(true);
    }
@@ -393,12 +403,11 @@ void BreakpointDockWidget::on_actionDisable_Breakpoint_triggered()
 
 void BreakpointDockWidget::on_actionEnable_All_Breakpoints_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
 
-   for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
+   for ( bp = 0; bp < m_pBreakpoints->GetNumBreakpoints(); bp++ )
    {
-      pBreakpoints->SetEnabled(bp,true);
+      m_pBreakpoints->SetEnabled(bp,true);
    }
    emit breakpointsChanged();
    emit markProjectDirty(true);
@@ -406,12 +415,11 @@ void BreakpointDockWidget::on_actionEnable_All_Breakpoints_triggered()
 
 void BreakpointDockWidget::on_actionDisable_All_Breakpoints_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
 
-   for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
+   for ( bp = 0; bp < m_pBreakpoints->GetNumBreakpoints(); bp++ )
    {
-      pBreakpoints->SetEnabled(bp,false);
+      m_pBreakpoints->SetEnabled(bp,false);
    }
    emit breakpointsChanged();
    emit markProjectDirty(true);
@@ -420,13 +428,12 @@ void BreakpointDockWidget::on_actionDisable_All_Breakpoints_triggered()
 bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "breakpoints" );
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
 
-   for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
+   for ( bp = 0; bp < m_pBreakpoints->GetNumBreakpoints(); bp++ )
    {
       QDomElement breakpointElement = addElement( doc, element, "breakpoint" );
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
+      BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(bp);
       breakpointElement.setAttribute("type",pBreakpoint->type);
       breakpointElement.setAttribute("enabled",pBreakpoint->enabled);
       breakpointElement.setAttribute("target",pBreakpoint->target);
@@ -446,17 +453,16 @@ bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)
 
 bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QDomNode childNode = node.firstChild();
    QDomNode breakpointNode;
    int bp;
 
    // Clear out existing breakpoints...
-   if ( pBreakpoints->GetNumBreakpoints() )
+   if ( m_pBreakpoints->GetNumBreakpoints() )
    {
-      for ( bp = pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
+      for ( bp = m_pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
       {
-         pBreakpoints->RemoveBreakpoint(bp);
+         m_pBreakpoints->RemoveBreakpoint(bp);
       }
    }
 
@@ -484,7 +490,7 @@ bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QStrin
                breakpoint.condition = element.attribute("condition").toInt();
                breakpoint.dataType = (eBreakpointDataType)element.attribute("datatype").toInt();
                breakpoint.data = element.attribute("data").toInt();
-               pBreakpoints->AddBreakpoint(&breakpoint);
+               m_pBreakpoints->AddBreakpoint(&breakpoint);
                breakpointNode = breakpointNode.nextSibling();
             }
 

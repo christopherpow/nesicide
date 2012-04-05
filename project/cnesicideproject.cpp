@@ -129,15 +129,25 @@ void CNesicideProject::initializeProject()
 
 void CNesicideProject::terminateProject()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   int bp;
+   CBreakpointInfo* pBreakpoints;
+   CMarker* pMarkers;
+   int idx;
 
    // Clear out existing breakpoints...
+   pBreakpoints = nesGetBreakpointDatabase();
    if ( pBreakpoints->GetNumBreakpoints() )
    {
-      for ( bp = pBreakpoints->GetNumBreakpoints()-1; bp >= 0; bp-- )
+      for ( idx = pBreakpoints->GetNumBreakpoints()-1; idx >= 0; idx-- )
       {
-         pBreakpoints->RemoveBreakpoint(bp);
+         pBreakpoints->RemoveBreakpoint(idx);
+      }
+   }
+   pBreakpoints = c64GetBreakpointDatabase();
+   if ( pBreakpoints->GetNumBreakpoints() )
+   {
+      for ( idx = pBreakpoints->GetNumBreakpoints()-1; idx >= 0; idx-- )
+      {
+         pBreakpoints->RemoveBreakpoint(idx);
       }
    }
 
@@ -817,7 +827,7 @@ bool CNesicideProject::createRomFromProject(QString fileName)
        fs << romCB2;
 
        // Skip the 7 reserved bytes
-       qint8 skip;
+       qint8 skip = 0;
 
        for (int i=0; i<8; i++)
        {

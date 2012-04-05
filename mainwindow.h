@@ -72,14 +72,26 @@ protected:
    QString m_targetLoaded;
 
    // Common/reused UI elements.
-   RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
-   MemoryInspectorDockWidget* m_pBinCPURAMInspector;
    QToolBar *debuggerToolBar;
+   QAction *actionBreakpoint_Inspector;
+   QAction *actionAssembly_Inspector;
    QMenu *menuCPU_Inspectors;
    QAction *actionBinCPURAM_Inspector;
    QAction *actionBinCPURegister_Inspector;
+   RegisterInspectorDockWidget* m_pBinCPURegisterInspector;
+   MemoryInspectorDockWidget* m_pBinCPURAMInspector;
+   ExecutionInspectorDockWidget* m_pExecutionInspector;
+   BreakpointDockWidget* m_pBreakpointInspector;
+   CodeBrowserDockWidget* m_pAssemblyInspector;
+   SymbolWatchDockWidget* m_pSymbolInspector;
+   CodeProfilerDockWidget* m_pCodeProfiler;
+
+   SourceNavigator* m_pSourceNavigator;
+   SearchBar* m_pSearchBar;
+   SearchDockWidget* m_pSearch;
 
    // NES-specific UI elements.
+   NESEmulatorControl* m_pNESEmulatorControl;
    NESEmulatorThread* m_pNESEmulatorThread;
    NESEmulatorDockWidget* m_pNESEmulator;
    bool m_bEmulatorFloating;
@@ -138,6 +150,7 @@ protected:
    QAction *actionFullscreen;
 
    // C64-specific UI elements.
+   C64EmulatorControl* m_pC64EmulatorControl;
    C64EmulatorThread* m_pC64EmulatorThread;
    RegisterInspectorDockWidget* m_pBinSIDRegisterInspector;
    QMenu *menuSID_Inspectors;
@@ -149,19 +162,6 @@ private:
    void saveProject();
    void saveEmulatorState(QString fileName);
    void closeProject();
-
-   // Dock widgets
-   ExecutionInspectorDockWidget* m_pExecutionInspector;
-   BreakpointDockWidget* m_pBreakpointInspector;
-   CodeBrowserDockWidget* m_pAssemblyInspector;
-   SymbolWatchDockWidget* m_pSymbolInspector;
-   CodeProfilerDockWidget* m_pCodeProfiler;
-
-   SourceNavigator* m_pSourceNavigator;
-   SearchBar* m_pSearchBar;
-   NESEmulatorControl* m_pNESEmulatorControl;
-   C64EmulatorControl* m_pC64EmulatorControl;
-   SearchDockWidget* m_pSearch;
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
@@ -201,9 +201,7 @@ private slots:
    void on_action_Close_Project_triggered();
    void on_action_About_Nesicide_triggered();
    void on_actionEnvironment_Settings_triggered();
-   void on_actionAssembly_Inspector_toggled(bool );
    void on_actionExecution_Inspector_toggled(bool );
-   void on_actionBreakpoint_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
    void on_actionCode_Profiler_toggled(bool );
    void on_actionSearch_toggled(bool value);
@@ -220,6 +218,12 @@ private slots:
    void on_actionSave_Project_As_triggered();
    void on_actionSave_Project_triggered();
    void openFile(QString file);
+
+   // Common/reused UI elements.
+   void actionBreakpoint_Inspector_toggled(bool );
+   void reflectedBreakpointInspector_close(bool toplevel);
+   void actionAssembly_Inspector_toggled(bool );
+   void reflectedAssemblyInspector_close(bool toplevel);
 
    // NES-specific UI elements.
    void actionFullscreen_toggled(bool value);
@@ -254,11 +258,9 @@ private slots:
    void actionMapperInformation_Inspector_toggled(bool );
    void actionEmulation_Window_toggled(bool );
    void reflectedEmulator_close(bool toplevel);
-   void reflectedAssemblyInspector_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
    void reflectedExecutionInspector_close(bool toplevel);
    void reflectedExecutionVisualizer_Inspector_close(bool toplevel);
-   void reflectedBreakpointInspector_close(bool toplevel);
    void reflectedGfxCHRMemoryInspector_close(bool toplevel);
    void reflectedGfxNameTableMemoryInspector_close(bool toplevel);
    void reflectedGfxOAMMemoryInspector_close(bool toplevel);

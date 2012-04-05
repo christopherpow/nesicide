@@ -21,12 +21,12 @@
 
 #include "c64emulatorthread.h"
 
+#include "c64_emulator_core.h"
+
 #include "ccc65interface.h"
 
 #include "cthreadregistry.h"
 #include "main.h"
-
-QSemaphore c64BreakpointSemaphore(0);
 
 QMutex*  m_requestMutex;
 
@@ -34,7 +34,6 @@ static void breakpointHook ( void )
 {
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CThreadRegistry::getThread("Breakpoint Watcher"));
    breakpointWatcher->breakpointWatcherSemaphore()->release();
-   c64BreakpointSemaphore.acquire();
 }
 
 C64EmulatorThread::C64EmulatorThread(QObject*)
@@ -146,10 +145,17 @@ void C64EmulatorThread::kill()
    // Force hard-reset of the machine...
    c64EnableBreakpoints(false);
 
-   c64BreakpointSemaphore.release();
-
    // Get outta here!
    exit();
+}
+
+void C64EmulatorThread::breakpointsChanged()
+{
+   lockRequestQueue();
+   clearRequestQueue();
+   addToRequestQueue("break",true); // Get/update breakpoints on emulated machine.
+   runRequestQueue();
+   unlockRequestQueue();
 }
 
 void C64EmulatorThread::primeEmulator()
@@ -161,12 +167,6 @@ void C64EmulatorThread::resetEmulator()
 {
    // Force hard-reset of the machine...
    c64EnableBreakpoints(false);
-
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(c64BreakpointSemaphore.available()) )
-   {
-      c64BreakpointSemaphore.release();
-   }
 
    if ( nesicideProject->isInitialized() )
    {
@@ -190,6 +190,7 @@ void C64EmulatorThread::resetEmulator()
          addToRequestQueue("r",true);
 //         addToRequestQueue("io",true);
          addToRequestQueue("m $0 $cfff",true);
+         addToRequestQueue("break",true);
       }
       runRequestQueue();
       unlockRequestQueue();
@@ -198,12 +199,6 @@ void C64EmulatorThread::resetEmulator()
 
 void C64EmulatorThread::startEmulation ()
 {
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(c64BreakpointSemaphore.available()) )
-   {
-      c64BreakpointSemaphore.release();
-   }
-
    lockRequestQueue();
    clearRequestQueue();
    addToRequestQueue("until $a474",false); // using "exit" doesn't seem to work.
@@ -230,12 +225,6 @@ void C64EmulatorThread::stepCPUEmulation ()
    {
       c64SetGotoAddress(endAddr);
 
-      // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(c64BreakpointSemaphore.available()) )
-      {
-         c64BreakpointSemaphore.release();
-      }
-
       lockRequestQueue();
       clearRequestQueue();
       request = "break load $" + QString::number(endAddr,16);
@@ -248,13 +237,6 @@ void C64EmulatorThread::stepCPUEmulation ()
    else
 #endif
    {
-      // If during the last run we were stopped at a breakpoint, clear it...
-      // But ensure we come right back...
-      if ( !(c64BreakpointSemaphore.available()) )
-      {
-         c64BreakpointSemaphore.release();
-      }
-
       lockRequestQueue();
       clearRequestQueue();
       addToRequestQueue("step",true);
@@ -319,17 +301,10 @@ void C64EmulatorThread::stepOverCPUEmulation ()
       // This *should* be where the JSR will vector back to on RTS.
       c64SetGotoAddress(endAddr+1);
 
-      // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(c64BreakpointSemaphore.available()) )
-      {
-         c64BreakpointSemaphore.release();
-      }
-
       lockRequestQueue();
       clearRequestQueue();
       request = "until $" + QString::number(endAddr+1,16);
       addToRequestQueue(request,false);
-      addToRequestQueue(".",true);
       addToRequestQueue("r",true);
 //      addToRequestQueue("io",true);
       addToRequestQueue("m $0 $cfff",true);
@@ -344,12 +319,6 @@ void C64EmulatorThread::stepOverCPUEmulation ()
 
 void C64EmulatorThread::stepOutCPUEmulation ()
 {
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(c64BreakpointSemaphore.available()) )
-   {
-      c64BreakpointSemaphore.release();
-   }
-
    lockRequestQueue();
    clearRequestQueue();
    addToRequestQueue("next",true);
@@ -399,24 +368,62 @@ void C64EmulatorThread::runRequestQueue()
 
 void C64EmulatorThread::processTraps(QString traps)
 {
-   qDebug("TRAP:");
-   qDebug(traps.toAscii().constData());
-   if ( traps.contains(QRegExp("#[1-9]+ [(]")) )
+   CBreakpointInfo* pBreakpoints = c64GetBreakpointDatabase();
+   QStringList trapLines = traps.split(QRegExp("[\n]"),QString::SkipEmptyParts);
+   QRegExp bpRegex("[#]([0-9]+)[ \t]+[(]Stop[ \t]+on[ \t]+exec[ \t]+([0-9]+)[)] ");
+   int bp;
+   bool ok;
+   bool hook = false;
+
+   foreach ( QString trap, trapLines )
    {
-      pauseEmulation(true);
+      qDebug("TRAP:");
+      qDebug(trap.toAscii().constData());
+      if ( trap.contains(bpRegex) && (bpRegex.captureCount() == 2) )
+      {
+         qDebug("bpRegex tripped!");
+         for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
+         {
+            BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
+            uint32_t addr = bpRegex.cap(2).toInt(&ok,16);
+
+            pBreakpoint->hit = false;
+            if ( (pBreakpoint->item1 <= addr) && (pBreakpoint->item2 >= addr) )
+            {
+               pBreakpoint->hit = true;
+               hook = true;
+            }
+         }
+      }
+   }
+
+   if ( hook )
+   {
+      lockRequestQueue();
+      clearRequestQueue();
+      addToRequestQueue("r",true);
+//      addToRequestQueue("io",true);
+      addToRequestQueue("m $0 $cfff",true);
+      runRequestQueue();
+      unlockRequestQueue();
+
+      breakpointHook();
    }
 }
 
 void C64EmulatorThread::processResponses(QStringList requests,QStringList responses)
 {
+   CBreakpointInfo* pBreakpoints = c64GetBreakpointDatabase();
+   int resp;
+   int32_t a;
+   int bp;
+
    qDebug("processResponses");
    qDebug(requests.at(0).toAscii().constData());
    qDebug(QString::number(requests.count()).toAscii().constData());
    qDebug(QString::number(responses.count()).toAscii().constData());
-   int resp;
-   int32_t a;
 
-#if 0
+#if 1
    for ( int resp = 0; resp < requests.count(); resp++ )
    {
       QString str;
@@ -426,7 +433,14 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
          str += " Request: \n";
          str += requests.at(resp);
          str += "\nResponse: \n";
-         str += QString::number(responses.at(resp).length());
+         if ( requests.at(resp).startsWith("m ") )
+         {
+            str += QString::number(responses.at(resp).length());
+         }
+         else
+         {
+            str += responses.at(resp);
+         }
          qDebug(str.toAscii().constData());
       }
    }
@@ -435,7 +449,78 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
    for ( resp = 0; resp < responses.count(); resp++ )
    {
       // Check if we need to update debuggers.
-      if ( requests.at(resp).startsWith("reset") )
+      if ( requests.at(resp).contains("break\n") )
+      {
+         // Create a mapping of break address to breakpoint-number
+         QStringList targetBreakpoints = responses.at(resp).split(QRegExp("[\n]"),QString::SkipEmptyParts);
+         QMap<QString,QString> bpMapAddrToInstance;
+         QMap<QString,QString> bpMapInstanceToAddr;
+         QRegExp bpRegex("BREAK:[ \t]+([0-9]+)[ \t]+C:[$]([0-9]+)");
+         foreach ( QString bpText, targetBreakpoints )
+         {
+            if ( bpText.contains(bpRegex) && (bpRegex.captureCount() == 2) )
+            {
+               bpMapAddrToInstance.insert(bpRegex.cap(2),bpRegex.cap(1));
+               bpMapInstanceToAddr.insert(bpRegex.cap(1),bpRegex.cap(2));
+            }
+         }
+
+         for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
+         {
+            BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
+            QString bpInstance;
+            QString bpText;
+
+            // Do we need to disable?
+            if ( !pBreakpoint->enabled )
+            {
+               // If breakpoint is in map, disable it.
+               bpInstance = bpMapAddrToInstance[QString::number(pBreakpoint->item1,16)];
+               if ( !bpInstance.isEmpty() )
+               {
+                  bpText = "disable ";
+                  bpText += bpInstance;
+                  lockRequestQueue();
+                  clearRequestQueue();
+                  addToRequestQueue(bpText,true);
+                  runRequestQueue();
+                  unlockRequestQueue();
+               }
+            }
+            else
+            {
+               // If breakpoint is in map, enable it.
+               bpInstance = bpMapAddrToInstance[QString::number(pBreakpoint->item1,16)];
+               if ( !bpInstance.isEmpty() )
+               {
+                  bpText = "enable ";
+                  bpText += bpInstance;
+                  lockRequestQueue();
+                  clearRequestQueue();
+                  addToRequestQueue(bpText,true);
+                  runRequestQueue();
+                  unlockRequestQueue();
+               }
+               // Breakpoint not in map, add it.
+               else
+               {
+                  bpText = "break exec $";
+                  bpText += QString::number(pBreakpoint->item1,16);
+                  if ( pBreakpoint->item2 != pBreakpoint->item1 )
+                  {
+                     bpText += " $";
+                     bpText += QString::number(pBreakpoint->item2,16);
+                  }
+                  lockRequestQueue();
+                  clearRequestQueue();
+                  addToRequestQueue(bpText,true);
+                  runRequestQueue();
+                  unlockRequestQueue();
+               }
+            }
+         }
+      }
+      else if ( requests.at(resp).startsWith("reset") )
       {
          emit emulatorReset();
       }
@@ -699,7 +784,7 @@ void TcpClient::readyRead()
 {
    QStringList returnRequests;
    QStringList returnResponses;
-   QRegExp regex("([(]C:[$][0-9a-f]+[)]) ");
+   QRegExp regex("([\n][(]C:[$][0-9a-f]+[)]) ");
 
    responseMessage.append(pSocket->readAll());
 
@@ -713,20 +798,20 @@ void TcpClient::readyRead()
    if ( (!m_expectDataInResponse.at(m_request)) || (responseMessage.lastIndexOf(regex) > 0) )
    {
       m_responses.append(responseMessage);
+      responseMessage.clear();
       m_request++;
       if ( m_requests.at(m_request) != "END" )
       {
-         responseMessage.clear();
 //         qDebug(m_requests.at(m_request).toAscii().constData());
-         if ( m_requests.at(m_request) != ".\n" )
-         {
-            pSocket->write(m_requests.at(m_request).toAscii());
-         }
+         pSocket->write(m_requests.at(m_request).toAscii());
       }
       else
       {
 //         qDebug("FINISHED");
+         // Remove the "END" marker.
          m_requests.removeAt(m_request);
+
+         // Copy the requests/responses to return in this bundle.
          do
          {
             m_request--;
@@ -736,7 +821,12 @@ void TcpClient::readyRead()
             m_responses.removeAt(m_request);
             m_expectDataInResponse.removeAt(m_request);
          } while ( m_request > 0 );
+
+         // Give the responses back to the requestor.
          emit responses(returnRequests,returnResponses);
+
+         // If new requests have come in, process those.  Otherwise
+         // they'll be processed by the next bundle's arrival.
          if ( m_requests.count() )
          {
             pSocket->write(m_requests.at(0).toAscii());

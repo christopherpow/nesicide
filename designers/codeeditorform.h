@@ -4,6 +4,8 @@
 #include "cdesignereditorbase.h"
 #include "iprojecttreeviewitem.h"
 
+#include "cbreakpointinfo.h"
+
 #include <QLabel>
 
 #include <Qsci/qsciscintilla.h>
@@ -82,6 +84,7 @@ private:
    Ui::CodeEditorForm* ui;
    QLabel* info;
    QString m_fileName;
+   CBreakpointInfo* m_pBreakpoints;
    QsciScintilla* m_scintilla;
    QsciLexer* m_lexer;
    int m_breakpointIndex;

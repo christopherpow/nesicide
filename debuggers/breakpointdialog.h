@@ -15,7 +15,7 @@ class BreakpointDialog : public QDialog
 {
    Q_OBJECT
 public:
-   BreakpointDialog(int bp = -1, QWidget* parent = 0);
+   BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp = -1, QWidget* parent = 0);
    virtual ~BreakpointDialog();
    BreakpointInfo* getBreakpoint() { return &m_breakpoint; }
 
@@ -24,6 +24,7 @@ protected:
 
 private:
    Ui::BreakpointDialog* ui;
+   CBreakpointInfo* m_pBreakpoints;
    CRegisterData* m_pRegister;
    CBitfieldData* m_pBitfield;
    CBreakpointEventInfo* m_pEvent;

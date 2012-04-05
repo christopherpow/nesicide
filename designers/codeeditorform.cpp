@@ -39,6 +39,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    ui->setupUi(this);
 
+   m_pBreakpoints = NULL;
+
    m_scintilla = new QsciScintilla();
 
    m_scintilla->setFrameShape(QFrame::NoFrame);
@@ -167,10 +169,14 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );
    QObject::connect ( codeBrowser, SIGNAL(snapTo(QString)),this, SLOT(snapTo(QString)) );
-   QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    QObject::connect ( this, SIGNAL(addWatchedItem(QString)), symbolWatch, SLOT(addWatchedItem(QString)) );
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
+   }
 
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
@@ -210,7 +216,6 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    const QString ADD_TO_WATCH_TEXT = "Watch ";
 
    QMenu menu;
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
    int absAddr = 0;
@@ -220,6 +225,15 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    bool undoable = m_scintilla->isUndoAvailable();
    bool redoable = m_scintilla->isRedoAvailable();
    bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = nesGetBreakpointDatabase();
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = c64GetBreakpointDatabase();
+   }
 
    m_contextMenuLine = m_scintilla->lineAt(pos);
 
@@ -240,53 +254,56 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    menu.addSeparator();
    action = menu.addAction("Select All",this,SLOT(editor_selectAll()),QKeySequence(Qt::CTRL + Qt::Key_A));
 
-   resolveLineAddress(m_contextMenuLine,&addr,&absAddr);
-
-   if ( addr != -1 )
+   if ( m_pBreakpoints )
    {
-      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                          eBreakpointItemAddress,
-                                          0,
-                                          addr,
-                                          absAddr,
-                                          addr,
-                                          eBreakpointConditionNone,
-                                          0,
-                                          eBreakpointDataNone,
-                                          0 );
+      resolveLineAddress(m_contextMenuLine,&addr,&absAddr);
 
-      // Build context menu...
-      menu.addAction(ui->actionRun_to_here);
-      menu.addSeparator();
+      if ( addr != -1 )
+      {
+         bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                             eBreakpointItemAddress,
+                                             0,
+                                             addr,
+                                             absAddr,
+                                             addr,
+                                             eBreakpointConditionNone,
+                                             0,
+                                             eBreakpointDataNone,
+                                             0 );
 
-      // If breakpoint isn't set here, give menu options to set one...
-      if ( bp < 0 )
-      {
-         menu.addAction(ui->actionBreak_on_CPU_execution_here);
-      }
-      else
-      {
-         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+         // Build context menu...
+         menu.addAction(ui->actionRun_to_here);
+         menu.addSeparator();
+
+         // If breakpoint isn't set here, give menu options to set one...
+         if ( bp < 0 )
          {
-            menu.addAction(ui->actionEnable_breakpoint);
-            menu.addAction(ui->actionRemove_breakpoint);
+            menu.addAction(ui->actionBreak_on_CPU_execution_here);
          }
          else
          {
-            menu.addAction(ui->actionDisable_breakpoint);
-            menu.addAction(ui->actionRemove_breakpoint);
+            if ( m_pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+            {
+               menu.addAction(ui->actionEnable_breakpoint);
+               menu.addAction(ui->actionRemove_breakpoint);
+            }
+            else
+            {
+               menu.addAction(ui->actionDisable_breakpoint);
+               menu.addAction(ui->actionRemove_breakpoint);
+            }
          }
+
+         menu.addSeparator();
+         menu.addAction(ui->actionClear_marker);
+         menu.addSeparator();
+
+         menu.addAction(ui->actionStart_marker_here);
+         menu.addAction(ui->actionEnd_marker_here);
+         menu.addSeparator();
+
+         m_breakpointIndex = bp;
       }
-
-      menu.addSeparator();
-      menu.addAction(ui->actionClear_marker);
-      menu.addSeparator();
-
-      menu.addAction(ui->actionStart_marker_here);
-      menu.addAction(ui->actionEnd_marker_here);
-      menu.addSeparator();
-
-      m_breakpointIndex = bp;
    }
 
    if ( (!symbol.isEmpty()) &&
@@ -452,7 +469,6 @@ void CodeEditorForm::emulator_emulatorStarted()
 
 void CodeEditorForm::external_breakpointsChanged()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int addr;
@@ -462,6 +478,15 @@ void CodeEditorForm::external_breakpointsChanged()
    int idx;
    int asmcount;
    int asmline;
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = nesGetBreakpointDatabase();
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = c64GetBreakpointDatabase();
+   }
 
    m_scintilla->getCursorPosition(&line,&index);
 
@@ -497,23 +522,26 @@ void CodeEditorForm::external_breakpointsChanged()
                }
             }
 
-            for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+            if ( m_pBreakpoints )
             {
-               BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+               for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
+               {
+                  BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(idx);
 
-               if ( (pBreakpoint->enabled) &&
-                    (pBreakpoint->type == eBreakOnCPUExecution) &&
-                    (pBreakpoint->item1 <= addr) &&
-                    ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
-               {
-                  m_scintilla->markerAdd(line,Marker_Breakpoint);
-               }
-               else if ( (!pBreakpoint->enabled) &&
-                         (pBreakpoint->type == eBreakOnCPUExecution) &&
-                         (pBreakpoint->item1 <= addr) &&
-                         ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
-               {
-                  m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+                  if ( (pBreakpoint->enabled) &&
+                       (pBreakpoint->type == eBreakOnCPUExecution) &&
+                       (pBreakpoint->item1 <= addr) &&
+                       ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
+                  {
+                     m_scintilla->markerAdd(line,Marker_Breakpoint);
+                  }
+                  else if ( (!pBreakpoint->enabled) &&
+                            (pBreakpoint->type == eBreakOnCPUExecution) &&
+                            (pBreakpoint->item1 <= addr) &&
+                            ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
+                  {
+                     m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+                  }
                }
             }
          }
@@ -588,54 +616,65 @@ void CodeEditorForm::editor_linesChanged()
 
 void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bp;
    int addr = 0;
    int absAddr = 0;
 
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = nesGetBreakpointDatabase();
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = c64GetBreakpointDatabase();
+   }
+
    m_scintilla->setCursorPosition(line,0);
 
-   resolveLineAddress(line,&addr,&absAddr);
-
-   if ( addr != -1 )
+   if ( m_pBreakpoints )
    {
-      bp = pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                          eBreakpointItemAddress,
-                                          0,
-                                          addr,
-                                          absAddr,
-                                          addr,
-                                          eBreakpointConditionNone,
-                                          0,
-                                          eBreakpointDataNone,
-                                          0 );
+      resolveLineAddress(line,&addr,&absAddr);
 
-      m_breakpointIndex = bp;
+      if ( addr != -1 )
+      {
+         bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                             eBreakpointItemAddress,
+                                             0,
+                                             addr,
+                                             absAddr,
+                                             addr,
+                                             eBreakpointConditionNone,
+                                             0,
+                                             eBreakpointDataNone,
+                                             0 );
 
-      // If breakpoint isn't set here, give menu options to set one...
-      if ( bp < 0 )
-      {
-         setBreakpoint(line,addr,absAddr);
-      }
-      else
-      {
-         if ( pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+         m_breakpointIndex = bp;
+
+         // If breakpoint isn't set here, give menu options to set one...
+         if ( bp < 0 )
          {
-            on_actionRemove_breakpoint_triggered();
-
-            m_scintilla->markerDelete(line,Marker_BreakpointDisabled);
+            setBreakpoint(line,addr,absAddr);
          }
          else
          {
-            on_actionDisable_breakpoint_triggered();
+            if ( m_pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+            {
+               on_actionRemove_breakpoint_triggered();
 
-            m_scintilla->markerDelete(line,Marker_Breakpoint);
-            m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+               m_scintilla->markerDelete(line,Marker_BreakpointDisabled);
+            }
+            else
+            {
+               on_actionDisable_breakpoint_triggered();
+
+               m_scintilla->markerDelete(line,Marker_Breakpoint);
+               m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+            }
          }
-      }
 
-      emit breakpointsChanged();
-      emit markProjectDirty(true);
+         emit breakpointsChanged();
+         emit markProjectDirty(true);
+      }
    }
 }
 
@@ -769,12 +808,20 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
 void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    int bpIdx;
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = nesGetBreakpointDatabase();
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      m_pBreakpoints = c64GetBreakpointDatabase();
+   }
 
    if ( addr != -1 )
    {
-      bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
+      bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
                                             eBreakpointItemAddress,
                                             0,
                                             addr,
@@ -830,11 +877,9 @@ void CodeEditorForm::on_actionRun_to_here_triggered()
 
 void CodeEditorForm::on_actionDisable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( m_breakpointIndex >= 0 )
    {
-      pBreakpoints->ToggleEnabled(m_breakpointIndex);
+      m_pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
@@ -843,11 +888,9 @@ void CodeEditorForm::on_actionDisable_breakpoint_triggered()
 
 void CodeEditorForm::on_actionRemove_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( m_breakpointIndex >= 0 )
    {
-      pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
+      m_pBreakpoints->RemoveBreakpoint(m_breakpointIndex);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
@@ -856,11 +899,9 @@ void CodeEditorForm::on_actionRemove_breakpoint_triggered()
 
 void CodeEditorForm::on_actionEnable_breakpoint_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-
    if ( m_breakpointIndex >= 0 )
    {
-      pBreakpoints->ToggleEnabled(m_breakpointIndex);
+      m_pBreakpoints->ToggleEnabled(m_breakpointIndex);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);

@@ -30,6 +30,7 @@ public:
    virtual bool deserializeContent(QFile& fileIn);
 
 public slots:
+   void breakpointsChanged (); // unused
    void primeEmulator ();
    void resetEmulator ();
    void startEmulation ();

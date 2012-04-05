@@ -124,14 +124,6 @@ MainWindow::MainWindow(QWidget* parent) :
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
    generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
 
-   m_pBreakpointInspector = new BreakpointDockWidget();
-   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
-   addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
-   m_pBreakpointInspector->hide();
-   QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
-   QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
-
    m_pExecutionInspector = new ExecutionInspectorDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
@@ -139,14 +131,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
    QObject::connect(m_pExecutionInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Execution Inspector", m_pExecutionInspector );
-
-   m_pAssemblyInspector = new CodeBrowserDockWidget();
-   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
-   addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
-   m_pAssemblyInspector->hide();
-   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
-   QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pSymbolInspector = new SymbolWatchDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pSymbolInspector,SLOT(updateTargetMachine(QString)));
@@ -169,7 +153,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect ( m_pSourceNavigator, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pCodeProfiler, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
-   QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( output, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
 
    // Slots for updating status bar.
@@ -325,6 +308,19 @@ void MainWindow::createNesUi()
    QIcon icon8;
    icon8.addFile(QString::fromUtf8(":/resources/controller.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionEmulation_Window->setIcon(icon8);
+
+   actionAssembly_Inspector = new QAction("Assembly Browser",this);
+   actionAssembly_Inspector->setObjectName(QString::fromUtf8("actionAssembly_Inspector"));
+   actionAssembly_Inspector->setCheckable(true);
+   QIcon icon10;
+   icon10.addFile(QString::fromUtf8(":/resources/22_code_inspector.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionAssembly_Inspector->setIcon(icon10);
+   actionBreakpoint_Inspector = new QAction("Breakpoints",this);
+   actionBreakpoint_Inspector->setObjectName(QString::fromUtf8("actionBreakpoint_Inspector"));
+   actionBreakpoint_Inspector->setCheckable(true);
+   QIcon icon11;
+   icon11.addFile(QString::fromUtf8(":/resources/22_breakpoint.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBreakpoint_Inspector->setIcon(icon11);
    actionGfxCHRMemory_Inspector = new QAction("CHR Memory Visualizer",this);
    actionGfxCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxCHRMemory_Inspector"));
    actionGfxCHRMemory_Inspector->setCheckable(true);
@@ -458,6 +454,8 @@ void MainWindow::createNesUi()
    menuAudio = new QMenu("Audio",menuEmulator);
    menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
 
+   menuDebugger->addAction(actionAssembly_Inspector);
+   menuDebugger->addAction(actionBreakpoint_Inspector);
    menuDebugger->addSeparator();
    menuDebugger->addAction(actionExecution_Visualizer_Inspector);
    menuDebugger->addAction(actionCodeDataLogger_Inspector);
@@ -545,6 +543,22 @@ void MainWindow::createNesUi()
    QAction* firstEmuMenuAction = menuEmulator->actions().at(0);
    menuEmulator->insertActions(firstEmuMenuAction,m_pNESEmulatorControl->menu());
    menuEmulator->insertSeparator(firstEmuMenuAction);
+
+   m_pBreakpointInspector = new BreakpointDockWidget(nesGetBreakpointDatabase());
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
+   addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
+   m_pBreakpointInspector->hide();
+   QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
+   QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
+
+   m_pAssemblyInspector = new CodeBrowserDockWidget(nesGetBreakpointDatabase());
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
+   addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
+   m_pAssemblyInspector->hide();
+   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
+   QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
    m_pGfxCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -734,6 +748,8 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
    // Connect slots for new UI elements.
+   QObject::connect(actionAssembly_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAssembly_Inspector_toggled(bool)));
+   QObject::connect(actionBreakpoint_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBreakpoint_Inspector_toggled(bool)));
    QObject::connect(actionEmulation_Window,SIGNAL(toggled(bool)),this,SLOT(actionEmulation_Window_toggled(bool)));
    QObject::connect(actionFullscreen,SIGNAL(toggled(bool)),this,SLOT(actionFullscreen_toggled(bool)));
    QObject::connect(actionRun_Test_Suite,SIGNAL(triggered()),this,SLOT(actionRun_Test_Suite_triggered()));
@@ -768,6 +784,7 @@ void MainWindow::createNesUi()
 
    // Connect snapTo's from various debuggers.
    QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
 
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
@@ -812,6 +829,8 @@ void MainWindow::destroyNesUi()
       return;
    }
 
+   CDockWidgetRegistry::removeWidget ( "Assembly Browser" );
+   CDockWidgetRegistry::removeWidget ( "Breakpoints" );
    CDockWidgetRegistry::removeWidget ( "Emulator" );
    CDockWidgetRegistry::removeWidget ( "CHR Memory Visualizer" );
    CDockWidgetRegistry::removeWidget ( "OAM Memory Visualizer" );
@@ -840,6 +859,10 @@ void MainWindow::destroyNesUi()
    m_pNESEmulator->deleteLater();
    removeDockWidget(m_pNESEmulator);
    m_pNESEmulatorControl->deleteLater();
+   removeDockWidget(m_pAssemblyInspector);
+   m_pAssemblyInspector->deleteLater();
+   removeDockWidget(m_pBreakpointInspector);
+   m_pBreakpointInspector->deleteLater();
    removeDockWidget(m_pGfxCHRMemoryInspector);
    m_pGfxCHRMemoryInspector->deleteLater();
    removeDockWidget(m_pGfxOAMMemoryInspector);
@@ -882,6 +905,8 @@ void MainWindow::destroyNesUi()
    m_pBinMapperMemoryInspector->deleteLater();
    actionFullscreen->deleteLater();
    actionEmulation_Window->deleteLater();
+   actionAssembly_Inspector->deleteLater();
+   actionBreakpoint_Inspector->deleteLater();
    actionGfxCHRMemory_Inspector->deleteLater();
    actionGfxOAMMemory_Inspector->deleteLater();
    actionGfxNameTableNESMemory_Inspector->deleteLater();
@@ -941,6 +966,18 @@ void MainWindow::createC64Ui()
    // Set up compiler for appropriate target.
    CCC65Interface::updateTargetMachine("c64");
 
+   actionAssembly_Inspector = new QAction("Assembly Browser",this);
+   actionAssembly_Inspector->setObjectName(QString::fromUtf8("actionAssembly_Inspector"));
+   actionAssembly_Inspector->setCheckable(true);
+   QIcon icon12;
+   icon12.addFile(QString::fromUtf8(":/resources/22_code_inspector.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionAssembly_Inspector->setIcon(icon12);
+   actionBreakpoint_Inspector = new QAction("Breakpoints",this);
+   actionBreakpoint_Inspector->setObjectName(QString::fromUtf8("actionBreakpoint_Inspector"));
+   actionBreakpoint_Inspector->setCheckable(true);
+   QIcon icon11;
+   icon11.addFile(QString::fromUtf8(":/resources/22_breakpoint.png"), QSize(), QIcon::Normal, QIcon::Off);
+   actionBreakpoint_Inspector->setIcon(icon11);
    actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
    actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
    QIcon icon16;
@@ -970,6 +1007,8 @@ void MainWindow::createC64Ui()
 
    menuSID_Inspectors->addAction(actionBinSIDRegister_Inspector);
 
+   menuDebugger->addAction(actionAssembly_Inspector);
+   menuDebugger->addAction(actionBreakpoint_Inspector);
    menuDebugger->addSeparator();
    menuDebugger->addAction(menuCPU_Inspectors->menuAction());
    menuDebugger->addAction(menuSID_Inspectors->menuAction());
@@ -999,6 +1038,22 @@ void MainWindow::createC64Ui()
    QAction* firstEmuMenuAction = menuEmulator->actions().at(0);
    menuEmulator->insertActions(firstEmuMenuAction,m_pC64EmulatorControl->menu());
    menuEmulator->insertSeparator(firstEmuMenuAction);
+
+   m_pBreakpointInspector = new BreakpointDockWidget(c64GetBreakpointDatabase());
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
+   addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
+   m_pBreakpointInspector->hide();
+   QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
+   QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
+
+   m_pAssemblyInspector = new CodeBrowserDockWidget(c64GetBreakpointDatabase());
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
+   addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
+   m_pAssemblyInspector->hide();
+   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
+   QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(c64GetCpuRegisterDatabase);
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
@@ -1038,6 +1093,11 @@ void MainWindow::createC64Ui()
    QObject::connect(actionBinCPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURegister_Inspector_toggled(bool)));
    QObject::connect(actionBinCPURAM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURAM_Inspector_toggled(bool)));
    QObject::connect(actionBinSIDRegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinSIDRegister_Inspector_toggled(bool)));
+   QObject::connect(actionAssembly_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAssembly_Inspector_toggled(bool)));
+   QObject::connect(actionBreakpoint_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBreakpoint_Inspector_toggled(bool)));
+
+   // Connect snapTo's from various debuggers.
+   QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
 }
 
 void MainWindow::destroyC64Ui()
@@ -1048,15 +1108,23 @@ void MainWindow::destroyC64Ui()
       return;
    }
 
+   CDockWidgetRegistry::removeWidget ( "Assembly Browser" );
+   CDockWidgetRegistry::removeWidget ( "Breakpoints" );
    CDockWidgetRegistry::removeWidget ( "CPU Register Inspector" );
    CDockWidgetRegistry::removeWidget ( "CPU RAM Inspector" );
 
+   removeDockWidget(m_pAssemblyInspector);
+   m_pAssemblyInspector->deleteLater();
+   removeDockWidget(m_pBreakpointInspector);
+   m_pBreakpointInspector->deleteLater();
    removeDockWidget(m_pBinCPURegisterInspector);
    m_pBinCPURegisterInspector->deleteLater();
    removeDockWidget(m_pBinSIDRegisterInspector);
    m_pBinSIDRegisterInspector->deleteLater();
    removeDockWidget(m_pBinCPURAMInspector);
    m_pBinCPURAMInspector->deleteLater();
+   actionAssembly_Inspector->deleteLater();
+   actionBreakpoint_Inspector->deleteLater();
    actionBinCPURAM_Inspector->deleteLater();
    actionBinCPURegister_Inspector->deleteLater();
    actionBinSIDRegister_Inspector->deleteLater();
@@ -1908,7 +1976,7 @@ void MainWindow::reflectedExecutionVisualizer_Inspector_close (bool toplevel)
    actionExecution_Visualizer_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionBreakpoint_Inspector_toggled(bool value)
+void MainWindow::actionBreakpoint_Inspector_toggled(bool value)
 {
    m_pBreakpointInspector->setVisible(value);
 }
@@ -2068,7 +2136,7 @@ void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
    actionBinMapperMemory_Inspector->setChecked(toplevel);
 }
 
-void MainWindow::on_actionAssembly_Inspector_toggled(bool value)
+void MainWindow::actionAssembly_Inspector_toggled(bool value)
 {
    m_pAssemblyInspector->setVisible(value);
 }

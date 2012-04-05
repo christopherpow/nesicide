@@ -27,7 +27,7 @@ void BreakpointWatcherThread::kill()
 
 void BreakpointWatcherThread::run ()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
+   CBreakpointInfo* pBreakpoints;
    int idx;
    char hitMsg [ 256 ];
 
@@ -39,6 +39,15 @@ void BreakpointWatcherThread::run ()
       if ( m_isTerminating )
       {
          break;
+      }
+
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      {
+         pBreakpoints = nesGetBreakpointDatabase();
+      }
+      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+      {
+         pBreakpoints = c64GetBreakpointDatabase();
       }
 
       for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
@@ -55,7 +64,10 @@ void BreakpointWatcherThread::run ()
          }
       }
 
-      nesClearAudioSamplesAvailable();
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      {
+         nesClearAudioSamplesAvailable();
+      }
 
       // A breakpoint has occurred...
       emit breakpointHit();

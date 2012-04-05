@@ -62,6 +62,7 @@ protected:
    void timerEvent(QTimerEvent *event);
 
 public slots:
+   void breakpointsChanged();
    void viceStarted();
    void viceError(QProcess::ProcessError error);
    void viceFinished(int exitCode,QProcess::ExitStatus exitStatus);

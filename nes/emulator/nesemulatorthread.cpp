@@ -174,6 +174,11 @@ void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
    nesCoreMutexUnlock();
 }
 
+void NESEmulatorThread::breakpointsChanged()
+{
+   // unused
+}
+
 void NESEmulatorThread::primeEmulator()
 {
    if ( (nesicideProject) &&

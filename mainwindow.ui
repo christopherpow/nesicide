@@ -149,8 +149,6 @@
      <string>Debugger</string>
     </property>
     <addaction name="actionExecution_Inspector"/>
-    <addaction name="actionAssembly_Inspector"/>
-    <addaction name="actionBreakpoint_Inspector"/>
     <addaction name="actionCode_Profiler"/>
     <addaction name="actionSymbol_Watch"/>
    </widget>
@@ -438,36 +436,6 @@
    </property>
    <property name="toolTip">
     <string>Execution Inspector</string>
-   </property>
-  </action>
-  <action name="actionBreakpoint_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_breakpoint.png</normaloff>:/resources/22_breakpoint.png</iconset>
-   </property>
-   <property name="text">
-    <string>Breakpoints</string>
-   </property>
-   <property name="toolTip">
-    <string>Breakpoints</string>
-   </property>
-  </action>
-  <action name="actionAssembly_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
-   </property>
-   <property name="text">
-    <string>Assembly Browser</string>
-   </property>
-   <property name="toolTip">
-    <string>Assembly Browser</string>
    </property>
   </action>
   <action name="action_About_Nesicide">
