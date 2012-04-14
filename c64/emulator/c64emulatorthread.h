@@ -24,9 +24,11 @@ private:
    QStringList m_requests;
    QStringList m_responses;
    QList<int> m_expectDataInResponse;
+   QList<bool> m_requestSent;
    int m_request;
    QString m_ipAddress;
    int m_port;
+   QMutex*  m_clientMutex;
 
 signals:
    void responses(QStringList requests,QStringList responses);
@@ -89,6 +91,7 @@ signals:
    void debugMessage(char* message);
    void machineReady();
    void sendRequests(QStringList requests,QList<int> expectings);
+   void emulatorWantsExit();
 
 protected:
    void lockRequestQueue();
@@ -99,13 +102,15 @@ protected:
 
    QProcess*   m_pViceApp;
    TcpClient*  m_pClient;
+   QMutex*  m_requestMutex;
 
    QString     m_pFile;
    bool        m_showOnPause;
 
    QStringList m_requests;
    QStringList m_responses;
-   QList<int> m_responseExpected;
+   QList<int>  m_responseExpected;
+   QString     m_traps;
 };
 
 #endif // C64EMULATORTHREAD_H

@@ -8,6 +8,7 @@
 #include "cdebuggerbitfieldcomboboxdelegate.h"
 #include "cdebuggernumericitemdelegate.h"
 #include "cregisterdata.h"
+#include "cbreakpointinfo.h"
 
 namespace Ui {
    class RegisterInspectorDockWidget;
@@ -18,7 +19,7 @@ class RegisterInspectorDockWidget : public CDebuggerBase
    Q_OBJECT
 
 public:
-   RegisterInspectorDockWidget(regDBFunc regDB,QWidget *parent = 0);
+   RegisterInspectorDockWidget(regDBFunc regDB,CBreakpointInfo* pBreakpoints,QWidget *parent = 0);
    virtual ~RegisterInspectorDockWidget();
 
 protected:
@@ -36,6 +37,7 @@ private:
    CDebuggerBitfieldDisplayModel* bitfieldModel;
    CDebuggerBitfieldComboBoxDelegate* bitfieldDelegate;
    CDebuggerNumericItemDelegate* binaryDelegate;
+   CBreakpointInfo* m_pBreakpoints;
    regDBFunc m_regDB;
    int       m_register;
 

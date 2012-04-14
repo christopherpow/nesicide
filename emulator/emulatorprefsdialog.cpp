@@ -4,6 +4,7 @@
 #include "nes_emulator_core.h"
 
 #include <QSettings>
+#include <QFileDialog>
 
 // Query flags.
 bool EmulatorPrefsDialog::controllersUpdated;
@@ -11,8 +12,7 @@ bool EmulatorPrefsDialog::audioUpdated;
 bool EmulatorPrefsDialog::videoUpdated;
 bool EmulatorPrefsDialog::systemUpdated;
 
-// Settings data structures.
-int EmulatorPrefsDialog::lastActiveTab;
+// NES settings data structures.
 int EmulatorPrefsDialog::controllerType[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
 int EmulatorPrefsDialog::zapperKeyMap[NUM_CONTROLLERS][IO_Zapper_MAX];
@@ -29,11 +29,22 @@ bool EmulatorPrefsDialog::noiseEnabled;
 bool EmulatorPrefsDialog::dmcEnabled;
 int EmulatorPrefsDialog::scalingFactor;
 
-EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
+// C=64 settings data structures.
+QString EmulatorPrefsDialog::viceExecutable;
+QString EmulatorPrefsDialog::viceIPAddress;
+int EmulatorPrefsDialog::viceMonitorPort;
+QString EmulatorPrefsDialog::viceOptions;
+QString EmulatorPrefsDialog::c64KernalROM;
+QString EmulatorPrefsDialog::c64BasicROM;
+QString EmulatorPrefsDialog::c64CharROM;
+
+EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EmulatorPrefsDialog)
 {
    ui->setupUi(this);
+
+   m_targetLoaded = target;
 
    readSettings();
 
@@ -52,7 +63,25 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
 
-   ui->tabWidget->setCurrentIndex(lastActiveTab);
+   ui->viceC64Executable->setText(viceExecutable);
+   ui->viceC64MonitorIPAddress->setText(viceIPAddress);
+   ui->viceC64MonitorPort->setText(QString::number(viceMonitorPort));
+   ui->viceOptions->setText(viceOptions);
+   ui->c64KernalROM->setText(c64KernalROM);
+   ui->c64BasicROM->setText(c64BasicROM);
+   ui->c64CharROM->setText(c64CharROM);
+
+   if ( !target.compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->tabWidget->removeTab(4);
+   }
+   else if ( !target.compare("c64",Qt::CaseInsensitive) )
+   {
+      ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
+   }
 }
 
 EmulatorPrefsDialog::~EmulatorPrefsDialog()
@@ -74,23 +103,23 @@ void EmulatorPrefsDialog::readSettings()
 
    for ( port = 0; port < NUM_CONTROLLERS; port++ )
    {
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Port"+QString::number(port));
       controllerType[port] = settings.value("Type",QVariant(IO_StandardJoypad)).toInt();
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/StandardJoypad/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/StandardJoypad/Port"+QString::number(port));
       for ( function = 0; function < IO_StandardJoypad_MAX; function++ )
       {
          standardJoypadKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Zapper/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Zapper/Port"+QString::number(port));
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
          zapperKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
          zapperMouseMap[port][function] = settings.value("MouseMap"+QString::number(function),QVariant(true)).toBool();
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
       for ( function = 0; function < IO_Vaus_MAX; function++ )
       {
          vausArkanoidKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
@@ -100,7 +129,7 @@ void EmulatorPrefsDialog::readSettings()
       settings.endGroup();
    }
 
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    square1Enabled = settings.value("Square1",QVariant(true)).toBool();
    square2Enabled = settings.value("Square2",QVariant(true)).toBool();
    triangleEnabled = settings.value("Triangle",QVariant(true)).toBool();
@@ -108,17 +137,23 @@ void EmulatorPrefsDialog::readSettings()
    dmcEnabled = settings.value("DMC",QVariant(true)).toBool();
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/Video");
+   settings.beginGroup("EmulatorPreferences/NES/Video");
    scalingFactor = settings.value("ScalingFactor",0).toInt();
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/System");
+   settings.beginGroup("EmulatorPreferences/NES/System");
    tvStandard = settings.value("TVStandard",QVariant(MODE_NTSC)).toInt();
    pauseOnKIL = settings.value("PauseOnKIL",QVariant(true)).toBool();
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences");
-   lastActiveTab = settings.value("LastActiveTab",0).toInt();
+   settings.beginGroup("EmulatorPreferences/C64");
+   viceExecutable = settings.value("VICEExecutable",QVariant()).toString();
+   viceIPAddress = settings.value("VICEIPAddress",QVariant("127.0.0.1")).toString();
+   viceMonitorPort = settings.value("VICEMonitorPort",QVariant(6510)).toInt();
+   viceOptions = settings.value("VICEOptions",QVariant()).toString();
+   c64KernalROM = settings.value("C64KernalROM").toString();
+   c64BasicROM = settings.value("C64BasicROM").toString();
+   c64CharROM = settings.value("C64CharROM").toString();
    settings.endGroup();
 }
 
@@ -159,7 +194,6 @@ void EmulatorPrefsDialog::writeSettings()
       videoUpdated = true;
    }
    controllersUpdated = true;
-   lastActiveTab = ui->tabWidget->currentIndex();
 
    // Save UI to locals first.
    switch ( ui->controllerTypeComboBox->currentIndex() )
@@ -216,26 +250,34 @@ void EmulatorPrefsDialog::writeSettings()
 
    scalingFactor = ui->scalingFactor->currentIndex();
 
+   viceExecutable = ui->viceC64Executable->text();
+   viceIPAddress = ui->viceC64MonitorIPAddress->text();
+   viceMonitorPort = ui->viceC64MonitorPort->text().toInt();
+   viceOptions = ui->viceOptions->toPlainText();
+   c64KernalROM = ui->c64KernalROM->text();
+   c64BasicROM = ui->c64BasicROM->text();
+   c64CharROM = ui->c64CharROM->text();
+
    // Then save locals to QSettings.
    for ( port = 0; port < NUM_CONTROLLERS; port++ )
    {
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Port"+QString::number(port));
       settings.setValue("Type",controllerType[port]);
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/StandardJoypad/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/StandardJoypad/Port"+QString::number(port));
       for ( function = 0; function < IO_StandardJoypad_MAX; function++ )
       {
          settings.setValue("KeyMap"+QString::number(function),standardJoypadKeyMap[port][function]);
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Zapper/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Zapper/Port"+QString::number(port));
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
          settings.setValue("KeyMap"+QString::number(function),zapperKeyMap[port][function]);
          settings.setValue("MouseMap"+QString::number(function),zapperMouseMap[port][function]);
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
       for ( function = 0; function < IO_Vaus_MAX; function++ )
       {
          settings.setValue("KeyMap"+QString::number(function),vausArkanoidKeyMap[port][function]);
@@ -245,7 +287,7 @@ void EmulatorPrefsDialog::writeSettings()
       settings.endGroup();
    }
 
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("Square1",square1Enabled);
    settings.setValue("Square2",square2Enabled);
    settings.setValue("Triangle",triangleEnabled);
@@ -253,17 +295,23 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("DMC",dmcEnabled);
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/Video");
+   settings.beginGroup("EmulatorPreferences/NES/Video");
    settings.setValue("ScalingFactor",scalingFactor);
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/System");
+   settings.beginGroup("EmulatorPreferences/NES/System");
    settings.setValue("TVStandard",tvStandard);
    settings.setValue("PauseOnKIL",pauseOnKIL);
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences");
-   settings.setValue("LastActiveTab",lastActiveTab);
+   settings.beginGroup("EmulatorPreferences/C64");
+   settings.setValue("VICEExecutable",viceExecutable);
+   settings.setValue("VICEIPAddress",viceIPAddress);
+   settings.setValue("VICEMonitorPort",viceMonitorPort);
+   settings.setValue("VICEOptions",viceOptions);
+   settings.setValue("C64KernalROM",c64KernalROM);
+   settings.setValue("C64BasicROM",c64BasicROM);
+   settings.setValue("C64CharROM",c64CharROM);
    settings.endGroup();
 }
 
@@ -614,4 +662,82 @@ void EmulatorPrefsDialog::on_trimPotVaus_dialMoved(int value)
    QString str;
    str.sprintf("$%02X-$%02X",value,value+0xA0);
    ui->trimPotValueVaus->setText(str);
+}
+
+QString EmulatorPrefsDialog::getVICEExecutable()
+{
+   return viceExecutable;
+}
+
+QString EmulatorPrefsDialog::getVICEIPAddress()
+{
+   return viceIPAddress;
+}
+
+int EmulatorPrefsDialog::getVICEMonitorPort()
+{
+   return viceMonitorPort;
+}
+
+QString EmulatorPrefsDialog::getVICEOptions()
+{
+   return viceOptions;
+}
+
+void EmulatorPrefsDialog::on_viceC64Browse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"VICE Executables Path",ui->viceC64Executable->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->viceC64Executable->setText(value);
+      ui->c64KernalROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"kernal");
+      ui->c64BasicROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"basic");
+      ui->c64CharROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"chargen");
+   }
+}
+
+void EmulatorPrefsDialog::on_c64KernalROMBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Commodore 64 Kernal ROM",ui->c64KernalROM->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->c64KernalROM->setText(value);
+   }
+}
+
+void EmulatorPrefsDialog::on_c64BasicROMBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Commodore 64 BASIC ROM",ui->c64BasicROM->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->c64BasicROM->setText(value);
+   }
+}
+
+void EmulatorPrefsDialog::on_c64CharROMBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Commodore 64 Character ROM",ui->c64CharROM->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->c64CharROM->setText(value);
+   }
+}
+
+QString EmulatorPrefsDialog::getC64KernalROM()
+{
+   return c64KernalROM;
+}
+
+QString EmulatorPrefsDialog::getC64BasicROM()
+{
+   return c64BasicROM;
+}
+
+QString EmulatorPrefsDialog::getC64CharROM()
+{
+   return c64CharROM;
 }

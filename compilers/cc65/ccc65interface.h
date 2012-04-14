@@ -35,7 +35,6 @@ public:
    static int getSymbolMatchCount(QString symbol);
    static cc65_symbol_type getSymbolType(QString symbol,int index = 0);
    static unsigned int getSymbolAddress(QString symbol,int index = 0);
-   static unsigned int getSymbolAbsoluteAddress(QString symbol,int index = 0);
    static unsigned int getSymbolSegment(QString symbol,int index = 0);
    static QString getSymbolSegmentName(QString symbol, int index = 0);
    static unsigned int getSymbolIndexFromSegment(QString symbol,int segment);
@@ -54,6 +53,7 @@ public:
    static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
    static unsigned int getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
+   static unsigned int getSymbolAbsoluteAddress(QString symbol,int index = 0);
 
    // NES target-dependent APIs.
    static QString nesGetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
@@ -61,6 +61,7 @@ public:
    static unsigned int nesGetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
    static unsigned int nesGetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static bool nesIsAbsoluteAddressAnOpcode(uint32_t absAddr);
+   static unsigned int nesGetSymbolAbsoluteAddress(QString symbol,int index = 0);
 
    // C64 target-dependent APIs.
    static QString c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
@@ -68,6 +69,7 @@ public:
    static unsigned int c64GetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
    static unsigned int c64GetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
    static bool c64IsAbsoluteAddressAnOpcode(uint32_t absAddr);
+   static unsigned int c64GetSymbolAbsoluteAddress(QString symbol,int index = 0);
 
 protected:
    static cc65_dbginfo        dbgInfo;

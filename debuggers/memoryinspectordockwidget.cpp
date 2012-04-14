@@ -1,20 +1,21 @@
 #include "memoryinspectordockwidget.h"
 #include "ui_memoryinspectordockwidget.h"
 
-#include "nes_emulator_core.h"
-
-#include "dbg_cnes.h"
-
 #include "cthreadregistry.h"
 #include "main.h"
 
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
+
 #include <QMessageBox>
 
-MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB, QWidget *parent) :
+MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpointInfo* pBreakpoints,QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::MemoryInspectorDockWidget)
 {
    ui->setupUi(this);
+
+   m_pBreakpoints = pBreakpoints;
 
    model = new CDebuggerMemoryDisplayModel(memDB);
    delegate = new CDebuggerNumericItemDelegate();
@@ -97,18 +98,16 @@ void MemoryInspectorDockWidget::changeEvent(QEvent* e)
 
 void MemoryInspectorDockWidget::updateMemory ()
 {
-#if 0
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   eMemoryType memoryType = model->memoryType();
+   int memoryType = model->memoryType();
    int idx;
    int row = 0, col = 0;
    int low = 0, high = 0;
    int itemActual;
 
    // Check breakpoints for hits and highlight if necessary...
-   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+   for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
    {
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(idx);
 
       if ( pBreakpoint->hit )
       {
@@ -127,14 +126,14 @@ void MemoryInspectorDockWidget::updateMemory ()
                   (pBreakpoint->itemActual <= high) )
             {
                if ( ((pBreakpoint->target == eBreakInCPU) &&
-                     ((memoryType == eNESMemory_CPU) ||
-                      (memoryType == eNESMemory_cartSRAM) ||
-                      (memoryType == eNESMemory_cartEXRAM) ||
-                      (memoryType == eNESMemory_cartROM))) ||
+                     ((memoryType == eMemory_CPU) ||
+                      (memoryType == eMemory_cartSRAM) ||
+                      (memoryType == eMemory_cartEXRAM) ||
+                      (memoryType == eMemory_cartROM))) ||
                      ((pBreakpoint->target == eBreakInPPU) &&
-                      ((memoryType == eNESMemory_PPU) ||
-                       (memoryType == eNESMemory_PPUpalette) ||
-                       (memoryType == eNESMemory_cartCHRMEM))) )
+                      ((memoryType == eMemory_PPU) ||
+                       (memoryType == eMemory_PPUpalette) ||
+                       (memoryType == eMemory_cartCHRMEM))) )
                {
                   // Change memory address into row/column of display...
                   itemActual = pBreakpoint->itemActual - model->memoryBottom();
@@ -150,19 +149,17 @@ void MemoryInspectorDockWidget::updateMemory ()
          }
       }
    }
-#endif
 }
 
 void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
    int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
    int bpIdx;
 
-   bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
+   bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
                                          eBreakpointItemAddress,
                                          0,
                                          addr,
@@ -184,14 +181,13 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
 
 void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
    int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
    int bpIdx;
 
-   bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
+   bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
                                          eBreakpointItemAddress,
                                          0,
                                          addr,
@@ -213,14 +209,13 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
 
 void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
 {
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
    int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
    int bpIdx;
 
-   bpIdx = pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
+   bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
                                          eBreakpointItemAddress,
                                          0,
                                          addr,

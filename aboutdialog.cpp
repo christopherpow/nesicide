@@ -2,6 +2,7 @@
 #include "ui_aboutdialog.h"
 
 #include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
 
 #include <QProcess>
 #include <QDir>
@@ -29,8 +30,12 @@ AboutDialog::AboutDialog(QWidget* parent) :
    ui->versionsText->append(ideGetVersion());
    ui->versionsText->append("");
 
-   ui->versionsText->append("<b>NESICIDE Emulator Library version:</b>");
+   ui->versionsText->append("<b>NES Emulator Library version:</b>");
    ui->versionsText->append(nesGetVersion());
+   ui->versionsText->append("");
+
+   ui->versionsText->append("<b>Commodore 64 (VICE Interface) Library version:</b>");
+   ui->versionsText->append(c64GetVersion());
    ui->versionsText->append("");
 
    ui->versionsText->append("<b>Versions of external dependencies:</b>");

@@ -243,7 +243,7 @@ SOURCES += \
     nes/emulator/nesemulatordockwidget.cpp \
     nes/emulator/nesemulatorrenderer.cpp \
     nes/emulator/nesemulatorthread.cpp \
-    nes/emulator/emulatorprefsdialog.cpp \
+    emulator/emulatorprefsdialog.cpp \
     c64/emulator/c64emulatorthread.cpp \
     environmentsettingsdialog.cpp \
     main.cpp \
@@ -371,7 +371,7 @@ HEADERS += \
     nes/emulator/nesemulatorrenderer.h \
     nes/emulator/nesemulatorthread.h \
     c64/emulator/c64emulatorthread.h \
-    nes/emulator/emulatorprefsdialog.h \
+    emulator/emulatorprefsdialog.h \
     environmentsettingsdialog.h \
     interfaces/icenterwidgetitem.h \
     interfaces/ichrrombankitem.h \
@@ -413,7 +413,9 @@ HEADERS += \
     debuggers/cdebuggerregisterdisplaymodel.h \
     common/cthreadregistry.h \
     c64/compilers/cmachineimagebuilder.h \
-    c64/debuggers/dbg_cc64.h
+    c64/debuggers/dbg_cc64.h \
+    emulator/cregisterdata.h \
+    emulator/cmemorydata.h
 
 FORMS += \
     aboutdialog.ui \
@@ -447,7 +449,7 @@ FORMS += \
     designers/propertyeditordialog.ui \
     nes/designers/tilestampeditorform.ui \
     nes/emulator/nesemulatordockwidget.ui \
-    nes/emulator/emulatorprefsdialog.ui \
+    emulator/emulatorprefsdialog.ui \
     environmentsettingsdialog.ui \
     mainwindow.ui \
     outputpanedockwidget.ui \

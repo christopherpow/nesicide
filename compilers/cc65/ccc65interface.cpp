@@ -534,6 +534,19 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
 
 unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
 {
+   // Dispatch to appropriate target machine handler.
+   if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
+   {
+      return nesGetSymbolAbsoluteAddress(symbol,index);
+   }
+   else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
+   {
+      return c64GetSymbolAbsoluteAddress(symbol,index);
+   }
+}
+
+unsigned int CCC65Interface::nesGetSymbolAbsoluteAddress(QString symbol, int index)
+{
    const cc65_symbolinfo* dbgSymbols;
    const cc65_segmentinfo* dbgSegments;
    unsigned int addr;
@@ -576,6 +589,63 @@ unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
                   {
                      addrOffset = addr-dbgSegments->data[0].segment_start;
                      absAddr = dbgSegments->data[0].output_offs+addrOffset;
+                  }
+
+                  cc65_free_segmentinfo(dbgInfo,dbgSegments);
+               }
+            }
+         }
+
+         cc65_free_symbolinfo(dbgInfo,dbgSymbols);
+      }
+   }
+   return absAddr;
+}
+
+unsigned int CCC65Interface::c64GetSymbolAbsoluteAddress(QString symbol, int index)
+{
+   const cc65_symbolinfo* dbgSymbols;
+   const cc65_segmentinfo* dbgSegments;
+   unsigned int addr;
+   unsigned int absAddr = 0xFFFFFFFF;
+   unsigned int addrOffset;
+   int sym;
+
+   // Getting a symbol by name gets all the def and ref entries for the symbol, so
+   // we need to ignore the symbol count.  Move the 'sym' reference variable to the
+   // proper symbol in the returned pile.
+   if ( dbgInfo )
+   {
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+
+      if ( dbgSymbols )
+      {
+         for ( sym = 0; sym < dbgSymbols->count; sym++ )
+         {
+            if ( dbgSymbols->data[sym].export_id == CC65_INV_ID )
+            {
+               if ( !index )
+               {
+                  break;
+               }
+               index--;
+            }
+         }
+
+         if ( sym < dbgSymbols->count )
+         {
+            addr = dbgSymbols->data[sym].symbol_value;
+
+            if ( dbgSymbols->data[sym].segment_id != CC65_INV_ID )
+            {
+               dbgSegments = cc65_segment_byid(dbgInfo,dbgSymbols->data[sym].segment_id);
+
+               if ( dbgSegments )
+               {
+                  if ( dbgSegments->count == 1 )
+                  {
+                     addrOffset = addr-dbgSegments->data[0].segment_start;
+                     absAddr = dbgSegments->data[0].segment_start+addrOffset;
                   }
 
                   cc65_free_segmentinfo(dbgInfo,dbgSegments);

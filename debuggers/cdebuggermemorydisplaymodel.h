@@ -21,6 +21,10 @@ public:
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
 
+   int memoryType() const;
+   int memoryBottom() const;
+   int memoryTop() const;
+
 public slots:
    void update(void);
 

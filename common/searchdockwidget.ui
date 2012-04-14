@@ -251,6 +251,11 @@
  <tabstops>
   <tabstop>searchText</tabstop>
   <tabstop>location</tabstop>
+  <tabstop>browse</tabstop>
+  <tabstop>type</tabstop>
+  <tabstop>projectFolder</tabstop>
+  <tabstop>subfolders</tabstop>
+  <tabstop>sourceSearchPaths</tabstop>
   <tabstop>caseSensitive</tabstop>
   <tabstop>regex</tabstop>
   <tabstop>find</tabstop>
@@ -258,6 +263,7 @@
   <tabstop>findForReplace</tabstop>
   <tabstop>replace</tabstop>
   <tabstop>replaceAll</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources>
   <include location="../resource.qrc"/>

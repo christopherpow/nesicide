@@ -141,55 +141,6 @@
         </widget>
        </item>
        <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_3">
-         <property name="title">
-          <string>Game Database</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="2" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLineEdit" name="GameDatabasePathEdit">
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="GameDatabasePathButton">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-              <property name="icon">
-               <iconset resource="resource.qrc">
-                <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QCheckBox" name="useInternalDB">
-              <property name="text">
-               <string>Use Internal</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="GameDatabase">
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -586,7 +537,7 @@
        <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="title">
           <string>Sound Buffer Depth</string>
@@ -648,7 +599,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
           <string>ROM Path</string>
@@ -675,21 +626,21 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="runRom">
          <property name="text">
           <string>Run ROM after loading</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="4" column="0" colspan="2">
         <widget class="QCheckBox" name="followExecution">
          <property name="text">
           <string>Follow Execution in Code Editor (if available)</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0" colspan="2">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -701,6 +652,55 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Game Database</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLineEdit" name="GameDatabasePathEdit">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="GameDatabasePathButton">
+              <property name="text">
+               <string>Browse...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="resource.qrc">
+                <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QCheckBox" name="useInternalDB">
+              <property name="text">
+               <string>Use Internal</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="GameDatabase">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -773,92 +773,12 @@
      </widget>
      <widget class="QWidget" name="c64emulator">
       <layout class="QGridLayout" name="gridLayout_15">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="3">
-        <widget class="QGroupBox" name="groupBox_11">
-         <property name="title">
-          <string>VICE Commodore 64 Executable Path</string>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>This page intentionally left blank.</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
-          <item>
-           <widget class="QLineEdit" name="viceC64Executable">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="viceC64Browse">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resource.qrc">
-              <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
-       </item>
-       <item row="3" column="0" colspan="3">
-        <spacer name="verticalSpacer_7">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="0" colspan="3">
-        <layout class="QFormLayout" name="formLayout">
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_31">
-           <property name="text">
-            <string>VICE Remote Monitor Port:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="viceC64MonitorPort"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Other VICE command line options:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QTextEdit" name="viceOptions"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>VICE Remote Monitor IP Address:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="viceC64MonitorIPAddress">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </item>
       </layout>
      </widget>

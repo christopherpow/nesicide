@@ -16,6 +16,8 @@
 
 #include <QSettings>
 #include <QRegExp>
+#include <QMessageBox>
+#include <QVector>
 
 #include <cdockwidgetregistry.h>
 
@@ -25,10 +27,9 @@
 
 #include "ccc65interface.h"
 
+#include "emulatorprefsdialog.h"
 #include "cthreadregistry.h"
 #include "main.h"
-
-QMutex*  m_requestMutex;
 
 static void breakpointHook ( void )
 {
@@ -38,7 +39,7 @@ static void breakpointHook ( void )
 
 C64EmulatorThread::C64EmulatorThread(QObject*)
 {
-   QDir dir(EnvironmentSettingsDialog::VICEExecutable());
+   QDir dir(EmulatorPrefsDialog::getVICEExecutable());
    QString viceStartup;
    viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.exe"));
    viceStartup += " -remotemonitor";
@@ -48,7 +49,7 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
 //   viceStartup += " -remotemonitoraddress ";
 //   viceStartup += QString::number(EnvironmentSettingsDialog::VICEMonitorPort());
    viceStartup += " ";
-   viceStartup += EnvironmentSettingsDialog::VICEOptions();
+   viceStartup += EmulatorPrefsDialog::getVICEOptions();
 
    m_pViceApp = new QProcess(this);
    QObject::connect(m_pViceApp,SIGNAL(started()),this,SLOT(viceStarted()));
@@ -74,7 +75,12 @@ void C64EmulatorThread::timerEvent(QTimerEvent *event)
 
 void C64EmulatorThread::viceStarted()
 {
-   m_pClient = new TcpClient(EnvironmentSettingsDialog::VICEIPAddress(),EnvironmentSettingsDialog::VICEMonitorPort());
+   // Close the pipes.
+   m_pViceApp->closeReadChannel(QProcess::StandardError);
+   m_pViceApp->closeReadChannel(QProcess::StandardOutput);
+   m_pViceApp->closeWriteChannel();
+
+   m_pClient = new TcpClient(EmulatorPrefsDialog::getVICEIPAddress(),EmulatorPrefsDialog::getVICEMonitorPort());
    m_pClient->moveToThread(this);
 
    QObject::connect(m_pClient,SIGNAL(responses(QStringList,QStringList)),this,SLOT(processResponses(QStringList,QStringList)));
@@ -91,9 +97,10 @@ void C64EmulatorThread::viceStarted()
 
 void C64EmulatorThread::viceError(QProcess::ProcessError error)
 {
-   EnvironmentSettingsDialog dlg;
+   EmulatorPrefsDialog dlg("c64");
    QDir dir;
    QString viceStartup;
+   int result;
 
 #if 0
    QProcess::FailedToStart	0	The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program.
@@ -107,12 +114,20 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
    switch ( error )
    {
    case QProcess::FailedToStart:
-      QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc.exe, could not be found."
-                           "Please set the path to it in NESICIDE's Environment Settings dialog.");
+      int result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc.exe, could not be found.\n"
+                           "Please set the path to it in NESICIDE's Emulator Preferences dialog.","Exit","Fix","",1,-1);
 
-      dlg.exec();
+      if ( result == 1 )
+      {
+         dlg.exec();
+      }
+      else
+      {
+         emit emulatorWantsExit();
+         exit();
+      }
 
-      dir.setPath(EnvironmentSettingsDialog::VICEExecutable());
+      dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
       viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.exe"));
       viceStartup += " -remotemonitor";
 
@@ -121,7 +136,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
 //      viceStartup += " -remotemonitoraddress ";
 //      viceStartup += QString::number(EnvironmentSettingsDialog::VICEMonitorPort());
       viceStartup += " ";
-      viceStartup += EnvironmentSettingsDialog::VICEOptions();
+      viceStartup += EmulatorPrefsDialog::getVICEOptions();
 
       m_pViceApp->start(viceStartup);
       break;
@@ -130,15 +145,17 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
 
 void C64EmulatorThread::viceFinished(int exitCode,QProcess::ExitStatus exitStatus)
 {
-   QMessageBox::warning(0,"VICE exited!","The VICE Commodore 64 emulator, x64sc.exe, has exited unexpectedly."
+   QMessageBox::warning(0,"VICE exited!","The VICE Commodore 64 emulator, x64sc.exe, has exited unexpectedly.\n"
                         "Debugging this project cannot continue.");
+   emit emulatorWantsExit();
+   wait();
 }
 
 void C64EmulatorThread::kill()
 {
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("until $a474",false); // using "exit" doesn't seem to work.
+   addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
    runRequestQueue();
    unlockRequestQueue();
 
@@ -188,7 +205,7 @@ void C64EmulatorThread::resetEmulator()
          request = "r pc = $" + QString::number(addr,16);
          addToRequestQueue(request,false);
          addToRequestQueue("r",true);
-//         addToRequestQueue("io",true);
+         addToRequestQueue("io",true);
          addToRequestQueue("m $0 $cfff",true);
          addToRequestQueue("break",true);
       }
@@ -201,7 +218,7 @@ void C64EmulatorThread::startEmulation ()
 {
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("until $a474",false); // using "exit" doesn't seem to work.
+   addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -231,7 +248,7 @@ void C64EmulatorThread::stepCPUEmulation ()
       addToRequestQueue(request,true);
       addToRequestQueue("r",true);
 //      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+//      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
    }
    else
@@ -242,7 +259,7 @@ void C64EmulatorThread::stepCPUEmulation ()
       addToRequestQueue("step",true);
       addToRequestQueue("r",true);
 //      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+//      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -307,7 +324,7 @@ void C64EmulatorThread::stepOverCPUEmulation ()
       addToRequestQueue(request,false);
       addToRequestQueue("r",true);
 //      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+//      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -324,7 +341,7 @@ void C64EmulatorThread::stepOutCPUEmulation ()
    addToRequestQueue("next",true);
    addToRequestQueue("r",true);
 //   addToRequestQueue("io",true);
-   addToRequestQueue("m $0 $cfff",true);
+//   addToRequestQueue("m $0 $cfff",true);
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -361,6 +378,7 @@ void C64EmulatorThread::runRequestQueue()
    if ( m_requests.count() )
    {
       m_requests.append("END");
+      m_responseExpected.append(false);
 
       emit sendRequests(m_requests,m_responseExpected);
    }
@@ -369,24 +387,37 @@ void C64EmulatorThread::runRequestQueue()
 void C64EmulatorThread::processTraps(QString traps)
 {
    CBreakpointInfo* pBreakpoints = c64GetBreakpointDatabase();
-   QStringList trapLines = traps.split(QRegExp("[\n]"),QString::SkipEmptyParts);
-   QRegExp bpRegex("[#]([0-9]+)[ \t]+[(]Stop[ \t]+on[ \t]+exec[ \t]+([0-9]+)[)] ");
+   QStringList trapLines;
+   QRegExp bpRegex("[#]([0-9]+)[ \t]+[(]Stop[ \t]+on[ \t]+exec[ \t]+([0-9a-f]+)[)] ");
+   QString trap;
    int bp;
+   int trapLine;
    bool ok;
    bool hook = false;
 
-   foreach ( QString trap, trapLines )
+   // First append this message chunk to the message string we're holding on to.
+   m_traps += traps;
+
+   // Then split the message string into lines, throwing away empties.
+   trapLines = m_traps.split(QRegExp("[\n]"),QString::SkipEmptyParts);
+
+   // For each line, check if it is a breakpoint hit indication.
+   // Don't check the last line as it may not yet be completely received.
+   for ( trapLine = 0; trapLine < trapLines.count()-1; trapLine++ )
    {
-      qDebug("TRAP:");
-      qDebug(trap.toAscii().constData());
+      trap = trapLines.at(trapLine);
       if ( trap.contains(bpRegex) && (bpRegex.captureCount() == 2) )
       {
-         qDebug("bpRegex tripped!");
+         qDebug("TRAP:");
+         qDebug(trap.toAscii().constData());
+
+         // Figure out which breakpoint hit this is.
          for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
          {
             BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
             uint32_t addr = bpRegex.cap(2).toInt(&ok,16);
 
+            // And prepare to tell the UI.
             pBreakpoint->hit = false;
             if ( (pBreakpoint->item1 <= addr) && (pBreakpoint->item2 >= addr) )
             {
@@ -395,14 +426,22 @@ void C64EmulatorThread::processTraps(QString traps)
             }
          }
       }
+
+      // Since we've done something with this part of the
+      // trap message string, null it out so we don't do it again.
+      trapLines.replace(trapLine,"");
    }
 
+   // Finally, put the message string back together as one long bunch.
+   m_traps = trapLines.join("\n");
+
+   // If we found a breakpoint hit, tell the UI.
    if ( hook )
    {
       lockRequestQueue();
       clearRequestQueue();
       addToRequestQueue("r",true);
-//      addToRequestQueue("io",true);
+      addToRequestQueue("io",true);
       addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
       unlockRequestQueue();
@@ -417,11 +456,6 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
    int resp;
    int32_t a;
    int bp;
-
-   qDebug("processResponses");
-   qDebug(requests.at(0).toAscii().constData());
-   qDebug(QString::number(requests.count()).toAscii().constData());
-   qDebug(QString::number(responses.count()).toAscii().constData());
 
 #if 1
    for ( int resp = 0; resp < requests.count(); resp++ )
@@ -453,72 +487,70 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
       {
          // Create a mapping of break address to breakpoint-number
          QStringList targetBreakpoints = responses.at(resp).split(QRegExp("[\n]"),QString::SkipEmptyParts);
-         QMap<QString,QString> bpMapAddrToInstance;
-         QMap<QString,QString> bpMapInstanceToAddr;
-         QRegExp bpRegex("BREAK:[ \t]+([0-9]+)[ \t]+C:[$]([0-9]+)");
+         QVector<QString> bpVector;
+         QVector<QString>::const_iterator bpIterator;
+         QRegExp bpRegex("(BREAK|WATCH|UNTIL):[ \t]+([0-9]+)");
+         QString bpText;
+
+         // Find all breakpoints reported by the target.  Map them so we can use them.
          foreach ( QString bpText, targetBreakpoints )
          {
             if ( bpText.contains(bpRegex) && (bpRegex.captureCount() == 2) )
             {
-               bpMapAddrToInstance.insert(bpRegex.cap(2),bpRegex.cap(1));
-               bpMapInstanceToAddr.insert(bpRegex.cap(1),bpRegex.cap(2));
+               bpVector.append(bpRegex.cap(2));
             }
          }
 
+         // Delete all breakpoints...
+         lockRequestQueue();
+         clearRequestQueue();
+         for ( bpIterator = bpVector.constBegin();
+               bpIterator != bpVector.constEnd();
+               ++bpIterator )
+         {
+            bpText = "delete ";
+            bpText += bpIterator;
+            addToRequestQueue(bpText,false);
+         }
+         runRequestQueue();
+         unlockRequestQueue();
+
+         // Add all enabled breakpoints...
+         lockRequestQueue();
+         clearRequestQueue();
          for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
          {
             BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);
-            QString bpInstance;
-            QString bpText;
 
-            // Do we need to disable?
-            if ( !pBreakpoint->enabled )
+            if ( pBreakpoint->enabled )
             {
-               // If breakpoint is in map, disable it.
-               bpInstance = bpMapAddrToInstance[QString::number(pBreakpoint->item1,16)];
-               if ( !bpInstance.isEmpty() )
-               {
-                  bpText = "disable ";
-                  bpText += bpInstance;
-                  lockRequestQueue();
-                  clearRequestQueue();
-                  addToRequestQueue(bpText,true);
-                  runRequestQueue();
-                  unlockRequestQueue();
-               }
-            }
-            else
-            {
-               // If breakpoint is in map, enable it.
-               bpInstance = bpMapAddrToInstance[QString::number(pBreakpoint->item1,16)];
-               if ( !bpInstance.isEmpty() )
-               {
-                  bpText = "enable ";
-                  bpText += bpInstance;
-                  lockRequestQueue();
-                  clearRequestQueue();
-                  addToRequestQueue(bpText,true);
-                  runRequestQueue();
-                  unlockRequestQueue();
-               }
-               // Breakpoint not in map, add it.
-               else
+               if ( pBreakpoint->type == eBreakOnCPUExecution )
                {
                   bpText = "break exec $";
-                  bpText += QString::number(pBreakpoint->item1,16);
-                  if ( pBreakpoint->item2 != pBreakpoint->item1 )
-                  {
-                     bpText += " $";
-                     bpText += QString::number(pBreakpoint->item2,16);
-                  }
-                  lockRequestQueue();
-                  clearRequestQueue();
-                  addToRequestQueue(bpText,true);
-                  runRequestQueue();
-                  unlockRequestQueue();
                }
+               else if ( pBreakpoint->type == eBreakOnCPUMemoryAccess )
+               {
+                  bpText = "break load store $";
+               }
+               else if ( pBreakpoint->type == eBreakOnCPUMemoryRead )
+               {
+                  bpText = "break load $";
+               }
+               else if ( pBreakpoint->type == eBreakOnCPUMemoryWrite )
+               {
+                  bpText = "break store $";
+               }
+               bpText += QString::number(pBreakpoint->item1,16);
+               if ( pBreakpoint->item2 != pBreakpoint->item1 )
+               {
+                  bpText += " $";
+                  bpText += QString::number(pBreakpoint->item2,16);
+               }
+               addToRequestQueue(bpText,false);
             }
          }
+         runRequestQueue();
+         unlockRequestQueue();
       }
       else if ( requests.at(resp).startsWith("reset") )
       {
@@ -604,7 +636,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
             }
          }
 
-         // emit done in io dump below.
+         emit emulatorPaused(m_showOnPause);
       }
       else if ( requests.at(resp).startsWith("m "))
       {
@@ -633,8 +665,6 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
                }
             }
          }
-
-         emit emulatorPaused(m_showOnPause);
       }
       else if ( requests.at(resp).startsWith("io\n"))
       {
@@ -708,6 +738,8 @@ TcpClient::TcpClient(QString monitorIPAddress,int monitorPort,QObject *parent)
    QObject::connect(pSocket,SIGNAL(bytesWritten(qint64)),this,SLOT(bytesWritten(qint64)));
    pSocket->connectToHost(m_ipAddress,m_port);
 
+   m_clientMutex = new QMutex();
+
    m_request = 0;
 }
 
@@ -755,6 +787,15 @@ void TcpClient::error(QAbstractSocket::SocketError error)
 void TcpClient::connected()
 {
    emit clientConnected();
+
+   m_clientMutex->lock();
+   if ( m_requests.count() )
+   {
+      // Kick off writing anything that's been queued.
+      pSocket->write(m_requests.at(0).toAscii());
+      qDebug("requests were pending");
+   }
+   m_clientMutex->unlock();
    qDebug("SOCKET CONNECTED!");
 }
 
@@ -766,50 +807,76 @@ void TcpClient::disconnected()
 
 void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
 {
-   int currentRequest = m_request;
+   int currentRequest;
+   int req;
 
+   m_clientMutex->lock();
+   currentRequest = m_request;
    m_requests.append(requests);
-//   qDebug(m_requests.at(m_request).toAscii().constData());
+   for ( req = 0; req < m_requests.count(); req++ )
+   {
+      m_requestSent.append(false);
+   }
    m_expectDataInResponse.append(expectings);
-   pSocket->readAll();
 
-   if ( !currentRequest )
+   if ( (!currentRequest) &&
+        (!m_requestSent.at(currentRequest)) &&
+        (pSocket->state() == QAbstractSocket::ConnectedState) )
    {
       // Kick off if nothing going on.
-      pSocket->write(m_requests.at(m_request).toAscii());
+      qDebug(m_requests.at(0).toAscii().constData());
+      pSocket->write(m_requests.at(0).toAscii());
+      m_requestSent.replace(0,true);
    }
+   m_clientMutex->unlock();
 }
 
 void TcpClient::readyRead()
 {
    QStringList returnRequests;
    QStringList returnResponses;
-   QRegExp regex("([\n][(]C:[$][0-9a-f]+[)]) ");
+   QString     receivedData;
+   QRegExp     regex("([\n][(]C:[$][0-9a-f]+[)]) ");
+   int count;
+   int currentRequest;
+   bool expecting;
 
-   responseMessage.append(pSocket->readAll());
+   receivedData = pSocket->readAll();
+   responseMessage.append(receivedData);
 
-   if ( m_request >= (m_requests.count()-1) )
+   emit traps(receivedData);
+
+   m_clientMutex->lock();
+   count = m_requests.count();
+   currentRequest = m_request;
+   expecting = m_expectDataInResponse.at(currentRequest);
+   m_clientMutex->unlock();
+
+   if ( currentRequest >= (count-1) )
    {
-      emit traps(responseMessage);
       responseMessage.clear();
       return;
    }
 
-   if ( (!m_expectDataInResponse.at(m_request)) || (responseMessage.lastIndexOf(regex) > 0) )
+   if ( (!expecting) || (responseMessage.lastIndexOf(regex) > 0) )
    {
+      m_clientMutex->lock();
       m_responses.append(responseMessage);
-      responseMessage.clear();
       m_request++;
       if ( m_requests.at(m_request) != "END" )
       {
-//         qDebug(m_requests.at(m_request).toAscii().constData());
+         qDebug(m_requests.at(m_request).toAscii().constData());
          pSocket->write(m_requests.at(m_request).toAscii());
+         m_requestSent.replace(m_request,true);
       }
       else
       {
 //         qDebug("FINISHED");
          // Remove the "END" marker.
          m_requests.removeAt(m_request);
+         m_responses.removeAt(m_request);
+         m_expectDataInResponse.removeAt(m_request);
+         m_requestSent.removeAt(m_request);
 
          // Copy the requests/responses to return in this bundle.
          do
@@ -820,6 +887,7 @@ void TcpClient::readyRead()
             m_requests.removeAt(m_request);
             m_responses.removeAt(m_request);
             m_expectDataInResponse.removeAt(m_request);
+            m_requestSent.removeAt(m_request);
          } while ( m_request > 0 );
 
          // Give the responses back to the requestor.
@@ -829,9 +897,12 @@ void TcpClient::readyRead()
          // they'll be processed by the next bundle's arrival.
          if ( m_requests.count() )
          {
+            qDebug(m_requests.at(0).toAscii().constData());
             pSocket->write(m_requests.at(0).toAscii());
          }
       }
+      m_clientMutex->unlock();
+      responseMessage.clear();
    }
 }
 

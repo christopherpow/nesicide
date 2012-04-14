@@ -5,6 +5,14 @@
 #include "stdio.h"
 #include "string.h"
 
+#define eMemory_REGISTER_BASE 0x2000 // Must be unique from eMemory_MEMORY_BASE in cmemorydata.h
+#define eMemory_CPUregs (eMemory_REGISTER_BASE+0)
+#define eMemory_PPUregs (eMemory_REGISTER_BASE+1)
+#define eMemory_PPUoam (eMemory_REGISTER_BASE+2)
+#define eMemory_IOregs (eMemory_REGISTER_BASE+3)
+#define eMemory_cartMapper (eMemory_REGISTER_BASE+4)
+#define eMemory_SIDregs (eMemory_REGISTER_BASE+5)
+
 class CBitfieldData
 {
 public:
@@ -149,8 +157,9 @@ protected:
 class CRegisterDatabase
 {
 public:
-   CRegisterDatabase(int rows,int columns,int registers,CRegisterData** tblRegisters,const char** rowHeadings,const char** columnHeadings )
+   CRegisterDatabase(int type,int rows,int columns,int registers,CRegisterData** tblRegisters,const char** rowHeadings,const char** columnHeadings )
    {
+      m_type = type;
       m_register = tblRegisters;
       m_registers = registers;
       m_rows = rows;
@@ -159,6 +168,18 @@ public:
       m_columnHeadings = columnHeadings;
    }
 
+   int GetType() { return m_type; }
+   bool Contains(int addr)
+   {
+      for ( int idx = 0; idx < m_registers; idx++ )
+      {
+         if ( m_register[idx]->GetAddr() == addr )
+         {
+            return true;
+         }
+      }
+      return false;
+   }
    CRegisterData** GetRegisters() { return m_register; }
    CRegisterData* GetRegister(int idx) { return m_register[idx]; }
    int GetNumRegisters() { return m_registers; }
@@ -168,6 +189,7 @@ public:
    const char* GetColumnHeading(int idx) { return m_columnHeadings[idx]; }
 
 protected:
+   int m_type;
    CRegisterData** m_register;
    int m_registers;
    int m_rows;

@@ -7,6 +7,8 @@
 #include "cdebuggernumericitemdelegate.h"
 #include "cmemorydata.h"
 
+#include "cbreakpointinfo.h"
+
 namespace Ui {
     class MemoryInspectorDockWidget;
 }
@@ -16,7 +18,7 @@ class MemoryInspectorDockWidget : public CDebuggerBase
    Q_OBJECT
 
 public:
-   explicit MemoryInspectorDockWidget(memDBFunc memDB, QWidget *parent = 0);
+   explicit MemoryInspectorDockWidget(memDBFunc memDB,CBreakpointInfo* pBreakpoints,QWidget *parent = 0);
    virtual ~MemoryInspectorDockWidget();
 
 protected:
@@ -36,6 +38,7 @@ private:
    Ui::MemoryInspectorDockWidget *ui;
    CDebuggerMemoryDisplayModel* model;
    CDebuggerNumericItemDelegate* delegate;
+   CBreakpointInfo* m_pBreakpoints;
    memDBFunc m_memDB;
 
 private slots:

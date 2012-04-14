@@ -15,7 +15,7 @@ class EmulatorPrefsDialog : public QDialog
    Q_OBJECT
 
 public:
-   explicit EmulatorPrefsDialog(QWidget* parent = 0);
+   explicit EmulatorPrefsDialog(QString target,QWidget* parent = 0);
    virtual ~EmulatorPrefsDialog();
 
    // Interface to retrieve values from QSettings and store them
@@ -28,7 +28,7 @@ public:
    static bool videoSettingsChanged() { return videoUpdated; }
    static bool systemSettingsChanged() { return systemUpdated; }
 
-   // Accessors
+   // NES accessors
    static int getControllerType(int port);
    static int getControllerKeyMap(int port,int function);
    static bool getControllerMouseMap(int port,int function);
@@ -42,6 +42,15 @@ public:
    static bool getDMCEnabled();
    static int getScalingFactor();
 
+   // C=64 accessors
+   static QString getVICEExecutable();
+   static QString getVICEIPAddress();
+   static int getVICEMonitorPort();
+   static QString getVICEOptions();
+   static QString getC64KernalROM();
+   static QString getC64BasicROM();
+   static QString getC64CharROM();
+
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
    static void setTVStandard(int standard);
    static void setSquare1Enabled(bool enabled);
@@ -53,11 +62,12 @@ public:
 
 private:
    Ui::EmulatorPrefsDialog* ui;
+   QString m_targetLoaded;
 
    // Interface to store values to QSettings from local storage.
    void writeSettings();
 
-   // Settings data structures.
+   // NES settings data structures.
    static int lastActiveTab;
    static int controllerType[NUM_CONTROLLERS];
    static int standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
@@ -75,6 +85,15 @@ private:
    static bool dmcEnabled;
    static int scalingFactor;
 
+   // C=64 settings data structures.
+   static QString viceExecutable;
+   static QString viceIPAddress;
+   static int viceMonitorPort;
+   static QString viceOptions;
+   static QString c64KernalROM;
+   static QString c64BasicROM;
+   static QString c64CharROM;
+
    // Query flags.
    static bool controllersUpdated;
    static bool audioUpdated;
@@ -85,12 +104,16 @@ private:
    void updateDb();
 
 private slots:
+   void on_c64CharROMBrowse_clicked();
+   void on_c64BasicROMBrowse_clicked();
+   void on_c64KernalROMBrowse_clicked();
    void on_trimPotVaus_dialMoved(int value);
    void on_controllerTypeComboBox_highlighted(int index);
    void on_controllerPortComboBox_highlighted(int index);
    void on_buttonBox_accepted();
    void on_controllerPortComboBox_currentIndexChanged(int index);
    void on_controllerTypeComboBox_currentIndexChanged(int index );
+   void on_viceC64Browse_clicked();
 };
 
 #endif // EMULATORPREFSDIALOG_H

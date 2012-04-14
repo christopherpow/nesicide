@@ -14,6 +14,39 @@ CDebuggerMemoryDisplayModel::~CDebuggerMemoryDisplayModel()
 {
 }
 
+int CDebuggerMemoryDisplayModel::memoryType() const
+{
+   CMemoryDatabase* memDB = m_memDB();
+
+   if ( memDB )
+   {
+      return memDB->GetType();
+   }
+   return 0;
+}
+
+int CDebuggerMemoryDisplayModel::memoryBottom() const
+{
+   CMemoryDatabase* memDB = m_memDB();
+
+   if ( memDB )
+   {
+      return memDB->GetBase();
+   }
+   return 0;
+}
+
+int CDebuggerMemoryDisplayModel::memoryTop() const
+{
+   CMemoryDatabase* memDB = m_memDB();
+
+   if ( memDB )
+   {
+      return memDB->GetBase()+memDB->GetSize();
+   }
+   return 0;
+}
+
 QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) const
 {
    CMemoryDatabase* memDB = m_memDB();

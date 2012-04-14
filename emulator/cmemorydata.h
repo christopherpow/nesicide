@@ -5,6 +5,15 @@
 #include "stdio.h"
 #include "string.h"
 
+#define eMemory_MEMORY_BASE 0x1000 // Must be unique from eMemory_REGISTER_BASE in cregisterdata.h
+#define eMemory_CPU 0
+#define eMemory_PPU 1
+#define eMemory_PPUpalette 2
+#define eMemory_cartROM 3
+#define eMemory_cartSRAM 4
+#define eMemory_cartEXRAM 5
+#define eMemory_cartCHRMEM 6
+
 typedef void (*setMemFunc)(uint32_t,uint32_t);
 typedef uint32_t (*getMemFunc)(uint32_t);
 typedef void (*rowHeadingFunc)(char*,uint32_t);
@@ -14,7 +23,8 @@ typedef uint32_t (*cellColorComponentFunc)(uint32_t);
 class CMemoryDatabase
 {
 public:
-   CMemoryDatabase(int base,
+   CMemoryDatabase(int type,
+                   int base,
                    int size,
                    int columns,
                    const char* name,
@@ -27,6 +37,7 @@ public:
                    cellColorComponentFunc cellBlue = NULL,
                    cellsEditableFunc cellsEditable = NULL)
    {
+      m_type = type;
       m_base = base;
       m_columns = columns;
       m_rows = size/m_columns;
@@ -45,6 +56,10 @@ public:
    const char* GetName ( void ) const
    {
       return m_name;
+   }
+   int GetType ( void ) const
+   {
+      return m_type;
    }
    int GetBase ( void ) const
    {
@@ -103,6 +118,7 @@ public:
    uint32_t Get ( uint32_t offset ) { return m_get(m_base+offset); }
 
 protected:
+   int m_type;
    int m_base;
    int m_extent;
    int m_mirroredExtent;

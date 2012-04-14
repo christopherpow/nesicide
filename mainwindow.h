@@ -204,7 +204,7 @@ private slots:
    void on_actionExecution_Inspector_toggled(bool );
    void on_actionSymbol_Watch_toggled(bool );
    void on_actionCode_Profiler_toggled(bool );
-   void on_actionSearch_toggled(bool value);
+   void on_actionSearch_triggered(bool );
    void on_actionCompile_Project_triggered();
    void on_actionOutput_Window_toggled(bool );
    void on_actionSave_Active_Document_triggered();

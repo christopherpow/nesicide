@@ -11,6 +11,39 @@ CDebuggerRegisterDisplayModel::~CDebuggerRegisterDisplayModel()
 {
 }
 
+int CDebuggerRegisterDisplayModel::memoryType() const
+{
+   CRegisterDatabase* regDB = m_regDB();
+
+   if ( regDB )
+   {
+      return regDB->GetType();
+   }
+   return 0;
+}
+
+bool CDebuggerRegisterDisplayModel::memoryContains(uint32_t addr) const
+{
+   CRegisterDatabase* regDB = m_regDB();
+
+   if ( regDB )
+   {
+      return regDB->Contains(addr);
+   }
+   return false;
+}
+
+int CDebuggerRegisterDisplayModel::memoryBottom() const
+{
+   CRegisterDatabase* regDB = m_regDB();
+
+   if ( regDB )
+   {
+      return regDB->GetRegister(0)->GetAddr();
+   }
+   return 0;
+}
+
 QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex& index, int role) const
 {
    CRegisterData* pRegister = (CRegisterData*)index.internalPointer();

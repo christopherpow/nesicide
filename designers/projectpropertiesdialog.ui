@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>631</width>
-    <height>336</height>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,7 +89,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="currentIndex">
-      <number>7</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="project">
       <layout class="QGridLayout" name="gridLayout_8">

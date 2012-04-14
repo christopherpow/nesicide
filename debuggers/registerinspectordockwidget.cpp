@@ -8,7 +8,7 @@
 #include "cthreadregistry.h"
 #include "main.h"
 
-RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,QWidget *parent) :
+RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,CBreakpointInfo* pBreakpoints,QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::RegisterInspectorDockWidget)
 {
@@ -21,8 +21,10 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,QWidget
    bitfieldDelegate = new CDebuggerBitfieldComboBoxDelegate();
    ui->bitfieldView->setModel(bitfieldModel);
    ui->bitfieldView->setItemDelegate(bitfieldDelegate);
+
    m_regDB = regDB;
    m_register = 0;
+   m_pBreakpoints = pBreakpoints;
 
    ui->label->setText ( "" );
 
@@ -106,6 +108,10 @@ void RegisterInspectorDockWidget::changeEvent(QEvent* e)
 
 void RegisterInspectorDockWidget::updateMemory ()
 {
+   int memoryType = binaryModel->memoryType();
+   int idx;
+   int row = 0, col = 0;
+   int itemActual;
    char buffer [ 128 ];
 
    ui->binaryView->resizeColumnsToContents();
@@ -115,14 +121,6 @@ void RegisterInspectorDockWidget::updateMemory ()
       sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
-#if 0
-   CBreakpointInfo* pBreakpoints = nesGetBreakpointDatabase();
-   eMemoryType memoryType = binaryModel->memoryType();
-   int idx;
-   int row = 0, col = 0;
-   int low = 0, high = 0;
-   int itemActual;
-   char buffer [ 128 ];
 
    if ( m_regDB == nesGetCartridgeRegisterDatabase )
    {
@@ -131,9 +129,9 @@ void RegisterInspectorDockWidget::updateMemory ()
    }
 
    // Check breakpoints for hits and highlight if necessary...
-   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+   for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
    {
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+      BreakpointInfo* pBreakpoint = m_pBreakpoints->GetBreakpoint(idx);
 
       if ( pBreakpoint->hit )
       {
@@ -142,14 +140,10 @@ void RegisterInspectorDockWidget::updateMemory ()
                (pBreakpoint->type == eBreakOnOAMPortalWrite) )
          {
             // Check memory range...
-            low = binaryModel->memoryBottom();
-            high = binaryModel->memoryTop();
-
-            if ( (pBreakpoint->itemActual >= low) &&
-                 (pBreakpoint->itemActual <= high) )
+            if ( binaryModel->memoryContains(pBreakpoint->itemActual) )
             {
                if ( ((pBreakpoint->target == eBreakInPPU) &&
-                     (memoryType == eNESMemory_PPUoam)) )
+                     (memoryType == eMemory_PPUoam)) )
                {
                   // Change memory address into row/column of display...
                   itemActual = pBreakpoint->itemActual - binaryModel->memoryBottom();
@@ -172,13 +166,13 @@ void RegisterInspectorDockWidget::updateMemory ()
                    (pBreakpoint->type == eBreakOnMapperState) )
          {
             if ( ((pBreakpoint->target == eBreakInCPU) &&
-                  (memoryType == eNESMemory_CPUregs)) ||
+                  (memoryType == eMemory_CPUregs)) ||
                   ((pBreakpoint->target == eBreakInPPU) &&
-                   (memoryType == eNESMemory_PPUregs)) ||
+                   (memoryType == eMemory_PPUregs)) ||
                   ((pBreakpoint->target == eBreakInAPU) &&
-                   (memoryType == eNESMemory_IOregs)) ||
+                   (memoryType == eMemory_IOregs)) ||
                   ((pBreakpoint->target == eBreakInMapper) &&
-                   (memoryType == eNESMemory_cartMapper)) )
+                   (memoryType == eMemory_cartMapper)) )
             {
                // Change register into row/column of display...
                row = pBreakpoint->item1/binaryModel->columnCount();
@@ -195,7 +189,6 @@ void RegisterInspectorDockWidget::updateMemory ()
          }
       }
    }
-#endif
 }
 
 void RegisterInspectorDockWidget::binaryView_currentChanged(QModelIndex index, QModelIndex)

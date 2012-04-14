@@ -298,6 +298,11 @@ void MainWindow::createNesUi()
    {
       return;
    }
+   // If we're set up for some other UI, tear it down.
+   if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+   {
+      destroyC64Ui();
+   }
 
    // Set up compiler for appropriate target.
    CCC65Interface::updateTargetMachine("nes");
@@ -603,7 +608,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pCodeDataLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
 
-   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(nesGetCpuRegisterDatabase);
+   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(nesGetCpuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
@@ -613,7 +618,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
-   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(nesGetCpuMemoryDatabase);
+   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(nesGetCpuMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
@@ -623,7 +628,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
-   m_pBinROMInspector = new MemoryInspectorDockWidget(nesGetCartridgePRGROMMemoryDatabase);
+   m_pBinROMInspector = new MemoryInspectorDockWidget(nesGetCartridgePRGROMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinROMInspector,SLOT(updateTargetMachine(QString)));
    m_pBinROMInspector->setObjectName("cartPRGROMMemoryInspector");
    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
@@ -633,7 +638,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinROMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
 
-   m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase);
+   m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinNameTableMemoryInspector->setObjectName("ppuNameTableMemoryInspector");
    m_pBinNameTableMemoryInspector->setWindowTitle("NameTable Inspector");
@@ -643,7 +648,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
 
-   m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(nesGetPpuRegisterDatabase);
+   m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(nesGetPpuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinPPURegisterInspector->setObjectName("ppuRegisterInspector");
    m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
@@ -661,7 +666,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pPPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PPU Information", m_pPPUInformationInspector );
 
-   m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(nesGetApuRegisterDatabase);
+   m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(nesGetApuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinAPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinAPURegisterInspector->setObjectName("apuRegisterInspector");
    m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
@@ -679,7 +684,7 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAPUInformationInspector,SLOT(updateTargetMachine(QString)));
    CDockWidgetRegistry::addWidget ( "APU Information", m_pAPUInformationInspector );
 
-   m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeCHRMemoryDatabase);
+   m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeCHRMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCHRMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCHRMemoryInspector->setObjectName("chrMemoryInspector");
    m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
@@ -689,7 +694,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
 
-   m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(nesGetPpuOamRegisterDatabase);
+   m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(nesGetPpuOamRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinOAMMemoryInspector->setObjectName("oamMemoryInspector");
    m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
@@ -699,7 +704,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
 
-   m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuPaletteMemoryDatabase);
+   m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuPaletteMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPaletteMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinPaletteMemoryInspector->setObjectName("ppuPaletteMemoryInspector");
    m_pBinPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
@@ -709,7 +714,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinPaletteMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
 
-   m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeSRAMMemoryDatabase);
+   m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeSRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinSRAMMemoryInspector->setObjectName("cartSRAMMemoryInspector");
    m_pBinSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
@@ -719,7 +724,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinSRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
 
-   m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeEXRAMMemoryDatabase);
+   m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeEXRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinEXRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinEXRAMMemoryInspector->setObjectName("cartEXRAMMemoryInspector");
    m_pBinEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
@@ -737,7 +742,7 @@ void MainWindow::createNesUi()
    QObject::connect(m_pMapperInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
-   m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(nesGetCartridgeRegisterDatabase);
+   m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(nesGetCartridgeRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinMapperMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinMapperMemoryInspector->setObjectName("cartMapperRegisterInspector");
    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
@@ -962,6 +967,11 @@ void MainWindow::createC64Ui()
    {
       return;
    }
+   // If we're set up for some other UI, tear it down.
+   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+   {
+      destroyC64Ui();
+   }
 
    // Set up compiler for appropriate target.
    CCC65Interface::updateTargetMachine("c64");
@@ -1024,6 +1034,7 @@ void MainWindow::createC64Ui()
 
    m_pC64EmulatorThread = new C64EmulatorThread();
    CThreadRegistry::addThread("Emulator",m_pC64EmulatorThread);
+   QObject::connect(m_pC64EmulatorThread,SIGNAL(emulatorWantsExit()),this,SLOT(close()));
 
    QObject::connect(this,SIGNAL(startEmulation()),m_pC64EmulatorThread,SLOT(startEmulation()));
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pC64EmulatorThread,SLOT(pauseEmulation(bool)));
@@ -1055,7 +1066,7 @@ void MainWindow::createC64Ui()
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
-   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(c64GetCpuRegisterDatabase);
+   m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(c64GetCpuRegisterDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
@@ -1065,7 +1076,7 @@ void MainWindow::createC64Ui()
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
-   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(c64GetCpuMemoryDatabase);
+   m_pBinCPURAMInspector = new MemoryInspectorDockWidget(c64GetCpuMemoryDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
@@ -1075,7 +1086,7 @@ void MainWindow::createC64Ui()
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
-   m_pBinSIDRegisterInspector = new RegisterInspectorDockWidget(c64GetSidRegisterDatabase);
+   m_pBinSIDRegisterInspector = new RegisterInspectorDockWidget(c64GetSidRegisterDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSIDRegisterInspector,SLOT(updateTargetMachine(QString)));
    m_pBinSIDRegisterInspector->setObjectName("sidRegisterInspector");
    m_pBinSIDRegisterInspector->setWindowTitle("SID Register Inspector");
@@ -1112,6 +1123,7 @@ void MainWindow::destroyC64Ui()
    CDockWidgetRegistry::removeWidget ( "Breakpoints" );
    CDockWidgetRegistry::removeWidget ( "CPU Register Inspector" );
    CDockWidgetRegistry::removeWidget ( "CPU RAM Inspector" );
+   CDockWidgetRegistry::removeWidget ( "SID Register Inspector" );
 
    removeDockWidget(m_pAssemblyInspector);
    m_pAssemblyInspector->deleteLater();
@@ -1319,7 +1331,7 @@ void MainWindow::on_actionSave_Project_triggered()
 
    if (projectFileName.isEmpty())
    {
-      projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
+      projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
                                                      "NESICIDE Project (*.nesproject)");
    }
 
@@ -1409,9 +1421,12 @@ void MainWindow::saveProject()
    file.close();
 
    // Now save the emulator state if a save state file is specified.
-   if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+      if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+      {
+         saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+      }
    }
 
    // Mark the project as not dirty...
@@ -1459,10 +1474,12 @@ void MainWindow::on_actionNew_Project_triggered()
       if ( dlg.getTarget() == "Commodore 64" )
       {
          nesicideProject->setProjectTarget("c64");
+         createC64Ui();
       }
       else if ( dlg.getTarget() == "Nintendo Entertainment System" )
       {
          nesicideProject->setProjectTarget("nes");
+         createNesUi();
       }
       nesicideProject->initializeProject();
       nesicideProject->setDirty(true);
@@ -2211,10 +2228,17 @@ void MainWindow::reflectedCode_Profiler_close ( bool toplevel )
    actionCode_Profiler->setChecked(toplevel);
 }
 
-void MainWindow::on_actionSearch_toggled(bool value)
+void MainWindow::on_actionSearch_triggered(bool value)
 {
-   output->showPane(OutputPaneDockWidget::Output_Search);
-   m_pSearch->setVisible(value);
+   if ( value )
+   {
+      output->showPane(OutputPaneDockWidget::Output_Search);
+      m_pSearch->setVisible(true);
+   }
+   else
+   {
+      m_pSearch->setVisible(false);
+   }
 }
 
 void MainWindow::reflectedSearch_close ( bool toplevel )
@@ -2268,9 +2292,12 @@ void MainWindow::closeProject()
    emit pauseEmulation(false);
 
    // Now save the emulator state if a save state file is specified.
-   if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+      if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+      {
+         saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+      }
    }
 
    // Terminate the project and let the IDE know
@@ -2450,59 +2477,62 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
 
 void MainWindow::on_actionPreferences_triggered()
 {
-   EmulatorPrefsDialog dlg;
+   EmulatorPrefsDialog dlg(nesicideProject->getProjectTarget());
 
    dlg.exec();
 
-   // Synchronize UI elements with changes.
-   // Set TV standard to use.
-   int systemMode = EmulatorPrefsDialog::getTVStandard();
-   actionNTSC->setChecked(systemMode==MODE_NTSC);
-   actionPAL->setChecked(systemMode==MODE_PAL);
-   nesSetSystemMode(systemMode);
-
-   bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
-   nesSetBreakOnKIL(breakOnKIL);
-
-   bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
-   bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
-   bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
-   bool noise = EmulatorPrefsDialog::getNoiseEnabled();
-   bool dmc = EmulatorPrefsDialog::getDMCEnabled();
-   int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
-
-   if ( !(square1|square2|triangle|noise|dmc) )
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      actionMute_All->setChecked(true);
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
-   }
-   else
-   {
-      actionMute_All->setChecked(false);
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|mask);
-   }
-   actionSquare_1->setChecked(square1);
-   actionSquare_2->setChecked(square2);
-   actionTriangle->setChecked(triangle);
-   actionNoise->setChecked(noise);
-   actionDelta_Modulation->setChecked(dmc);
+      // Synchronize UI elements with changes.
+      // Set TV standard to use.
+      int systemMode = EmulatorPrefsDialog::getTVStandard();
+      actionNTSC->setChecked(systemMode==MODE_NTSC);
+      actionPAL->setChecked(systemMode==MODE_PAL);
+      nesSetSystemMode(systemMode);
 
-   if ( EmulatorPrefsDialog::videoSettingsChanged() )
-   {
-      if ( EmulatorPrefsDialog::getScalingFactor() > 1 )
+      bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
+      nesSetBreakOnKIL(breakOnKIL);
+
+      bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
+      bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
+      bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
+      bool noise = EmulatorPrefsDialog::getNoiseEnabled();
+      bool dmc = EmulatorPrefsDialog::getDMCEnabled();
+      int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+
+      if ( !(square1|square2|triangle|noise|dmc) )
       {
-         m_pNESEmulator->setFloating(true);
+         actionMute_All->setChecked(true);
+         nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
       }
-      m_pNESEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
-   }
+      else
+      {
+         actionMute_All->setChecked(false);
+         nesSetAudioChannelMask(nesGetAudioChannelMask()|mask);
+      }
+      actionSquare_1->setChecked(square1);
+      actionSquare_2->setChecked(square2);
+      actionTriangle->setChecked(triangle);
+      actionNoise->setChecked(noise);
+      actionDelta_Modulation->setChecked(dmc);
 
-   if ( EmulatorPrefsDialog::controllerSettingsChanged() )
-   {
-      // Set up controllers.
-      nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
-      nesSetControllerSpecial(0,EmulatorPrefsDialog::getControllerSpecial(0));
-      nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
-      nesSetControllerSpecial(1,EmulatorPrefsDialog::getControllerSpecial(1));
+      if ( EmulatorPrefsDialog::videoSettingsChanged() )
+      {
+         if ( EmulatorPrefsDialog::getScalingFactor() > 1 )
+         {
+            m_pNESEmulator->setFloating(true);
+         }
+         m_pNESEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
+      }
+
+      if ( EmulatorPrefsDialog::controllerSettingsChanged() )
+      {
+         // Set up controllers.
+         nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
+         nesSetControllerSpecial(0,EmulatorPrefsDialog::getControllerSpecial(0));
+         nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
+         nesSetControllerSpecial(1,EmulatorPrefsDialog::getControllerSpecial(1));
+      }
    }
 }
 
