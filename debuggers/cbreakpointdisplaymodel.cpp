@@ -88,7 +88,11 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const
 
 int CBreakpointDisplayModel::rowCount(const QModelIndex&) const
 {
-   return m_pBreakpoints->GetNumBreakpoints()+1;
+   if ( m_pBreakpoints )
+   {
+      return m_pBreakpoints->GetNumBreakpoints()+1;
+   }
+   return 0;
 }
 
 int CBreakpointDisplayModel::columnCount(const QModelIndex&) const
