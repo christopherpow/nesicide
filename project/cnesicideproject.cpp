@@ -134,20 +134,26 @@ void CNesicideProject::terminateProject()
    int idx;
 
    // Clear out existing breakpoints...
-   pBreakpoints = nesGetBreakpointDatabase();
-   if ( pBreakpoints->GetNumBreakpoints() )
+   if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      for ( idx = pBreakpoints->GetNumBreakpoints()-1; idx >= 0; idx-- )
+      pBreakpoints = nesGetBreakpointDatabase();
+      if ( (pBreakpoints) && (pBreakpoints->GetNumBreakpoints()) )
       {
-         pBreakpoints->RemoveBreakpoint(idx);
+         for ( idx = pBreakpoints->GetNumBreakpoints()-1; idx >= 0; idx-- )
+         {
+            pBreakpoints->RemoveBreakpoint(idx);
+         }
       }
    }
-   pBreakpoints = c64GetBreakpointDatabase();
-   if ( pBreakpoints->GetNumBreakpoints() )
+   else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
    {
-      for ( idx = pBreakpoints->GetNumBreakpoints()-1; idx >= 0; idx-- )
+      pBreakpoints = c64GetBreakpointDatabase();
+      if ( pBreakpoints->GetNumBreakpoints() )
       {
-         pBreakpoints->RemoveBreakpoint(idx);
+         for ( idx = pBreakpoints->GetNumBreakpoints()-1; idx >= 0; idx-- )
+         {
+            pBreakpoints->RemoveBreakpoint(idx);
+         }
       }
    }
 

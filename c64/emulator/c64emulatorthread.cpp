@@ -61,6 +61,8 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
    c64SetBreakpointHook(breakpointHook);
 
    m_requestMutex = new QMutex();
+
+   m_isRunning = false;
 }
 
 C64EmulatorThread::~C64EmulatorThread()
@@ -171,6 +173,12 @@ void C64EmulatorThread::breakpointsChanged()
    lockRequestQueue();
    clearRequestQueue();
    addToRequestQueue("break",true); // Get/update breakpoints on emulated machine.
+
+   // If the emulator is running, restart it after this interruption.
+   if ( m_isRunning )
+   {
+      addToRequestQueue("until $ffff",false);
+   }
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -216,6 +224,8 @@ void C64EmulatorThread::resetEmulator()
 
 void C64EmulatorThread::startEmulation ()
 {
+   m_isRunning = true;
+
    lockRequestQueue();
    clearRequestQueue();
    addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
@@ -348,6 +358,7 @@ void C64EmulatorThread::stepOutCPUEmulation ()
 
 void C64EmulatorThread::pauseEmulation (bool show)
 {
+   m_isRunning = false;
    m_showOnPause = show;
 
    lockRequestQueue();
@@ -792,6 +803,7 @@ void TcpClient::connected()
    if ( m_requests.count() )
    {
       // Kick off writing anything that's been queued.
+      qDebug(m_requests.at(0).toAscii().constData());
       pSocket->write(m_requests.at(0).toAscii());
       qDebug("requests were pending");
    }

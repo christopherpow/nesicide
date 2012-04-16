@@ -111,6 +111,8 @@ protected:
    QStringList m_responses;
    QList<int>  m_responseExpected;
    QString     m_traps;
+
+   bool m_isRunning;
 };
 
 #endif // C64EMULATORTHREAD_H
