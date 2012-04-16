@@ -970,7 +970,7 @@ void MainWindow::createC64Ui()
    // If we're set up for some other UI, tear it down.
    if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
    {
-      destroyC64Ui();
+      destroyNesUi();
    }
 
    // Set up compiler for appropriate target.
