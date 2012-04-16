@@ -832,6 +832,7 @@ void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
    m_expectDataInResponse.append(expectings);
 
    if ( (!currentRequest) &&
+        (currentRequest < m_requests.count()) &&
         (!m_requestSent.at(currentRequest)) &&
         (pSocket->state() == QAbstractSocket::ConnectedState) )
    {
@@ -861,7 +862,14 @@ void TcpClient::readyRead()
    m_clientMutex->lock();
    count = m_requests.count();
    currentRequest = m_request;
-   expecting = m_expectDataInResponse.at(currentRequest);
+   if ( currentRequest < m_requests.count() )
+   {
+      expecting = m_expectDataInResponse.at(currentRequest);
+   }
+   else
+   {
+      expecting = false;
+   }
    m_clientMutex->unlock();
 
    if ( currentRequest >= (count-1) )
