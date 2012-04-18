@@ -11,10 +11,6 @@ TARGET = "nesicide"
 # Remove crap we don't need!
 CONFIG -= exceptions
 
-isEmpty (NESICIDE_LIBS) {
-   NESICIDE_LIBS = -lnes-emulator
-}
-
 isEmpty (SCINTILLA_LIBS) {
    SCINTILLA_LIBS = -lqscintilla2
 }
@@ -84,7 +80,9 @@ mac {
 
 unix:!mac {
    NES_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
+   C64_CXXFLAGS = -I ../c64-emulator-lib -I ../c64-emulator-lib/emulator -I ../c64-emulator-lib/common
    NES_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
+   C64_LIBS = -L../c64-emulator-lib-build-desktop -lc64-emulator
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################

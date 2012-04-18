@@ -4,6 +4,7 @@
 #include "stdarg.h"
 #include "stdio.h"
 #include "string.h"
+#include "stdint.h"
 
 #define eMemory_MEMORY_BASE 0x1000 // Must be unique from eMemory_REGISTER_BASE in cregisterdata.h
 #define eMemory_CPU 0
