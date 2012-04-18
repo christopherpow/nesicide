@@ -41,7 +41,7 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
 {
    QDir dir(EmulatorPrefsDialog::getVICEExecutable());
    QString viceStartup;
-   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.exe"));
+   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
    viceStartup += " -remotemonitor";
 
 // CPTODO: Setting VICE monitor port doesn't seem to work yet even if the port is
@@ -116,7 +116,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
    switch ( error )
    {
    case QProcess::FailedToStart:
-      int result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc.exe, could not be found.\n"
+      int result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc, could not be found.\n"
                            "Please set the path to it in NESICIDE's Emulator Preferences dialog.","Exit","Fix","",1,-1);
 
       if ( result == 1 )
@@ -130,7 +130,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
       }
 
       dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
-      viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.exe"));
+      viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
       viceStartup += " -remotemonitor";
 
 // CPTODO: Setting VICE monitor port doesn't seem to work yet even if the port is
@@ -147,7 +147,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
 
 void C64EmulatorThread::viceFinished(int exitCode,QProcess::ExitStatus exitStatus)
 {
-   QMessageBox::warning(0,"VICE exited!","The VICE Commodore 64 emulator, x64sc.exe, has exited unexpectedly.\n"
+   QMessageBox::warning(0,"VICE exited!","The VICE Commodore 64 emulator, x64sc, has exited unexpectedly.\n"
                         "Debugging this project cannot continue.");
    emit emulatorWantsExit();
    wait();
