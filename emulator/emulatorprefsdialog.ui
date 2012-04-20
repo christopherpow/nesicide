@@ -918,7 +918,7 @@
           <item>
            <widget class="QLineEdit" name="viceC64Executable">
             <property name="readOnly">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>

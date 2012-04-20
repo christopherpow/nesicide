@@ -691,9 +691,15 @@ void EmulatorPrefsDialog::on_viceC64Browse_clicked()
    if ( !value.isEmpty() )
    {
       ui->viceC64Executable->setText(value);
+#if defined(Q_WS_WIN)
       ui->c64KernalROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"kernal");
       ui->c64BasicROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"basic");
       ui->c64CharROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"chargen");
+#else
+      ui->c64KernalROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"Kernal.rom");
+      ui->c64BasicROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"Basic.rom");
+      ui->c64CharROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"Char.rom");
+#endif
    }
 }
 

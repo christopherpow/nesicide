@@ -41,13 +41,23 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
 {
    QDir dir(EmulatorPrefsDialog::getVICEExecutable());
    QString viceStartup;
-   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
-   viceStartup += " -remotemonitor";
 
-// CPTODO: Setting VICE monitor port doesn't seem to work yet even if the port is
-//         explicitly set to 6510.
-//   viceStartup += " -remotemonitoraddress ";
-//   viceStartup += QString::number(EnvironmentSettingsDialog::VICEMonitorPort());
+   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
+   viceStartup += " -remotemonitor ";
+
+   viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
+   viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
+
+   // Point to the kernal, BASIC, and character ROMs specified.
+   viceStartup += " -kernal ";
+   viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+   viceStartup += " -basic ";
+   viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+   viceStartup += " -chargen ";
+   viceStartup += EmulatorPrefsDialog::getC64CharROM();
+
+   // Get rid of some pesky behaviors.
+   viceStartup += " +confirmexit ";
    viceStartup += " ";
    viceStartup += EmulatorPrefsDialog::getVICEOptions();
 
@@ -67,6 +77,8 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
 
 C64EmulatorThread::~C64EmulatorThread()
 {
+   delete m_requestMutex;
+
    m_pViceApp->kill();
    m_pViceApp->deleteLater();
 }
@@ -78,9 +90,9 @@ void C64EmulatorThread::timerEvent(QTimerEvent *event)
 void C64EmulatorThread::viceStarted()
 {
    // Close the pipes.
-   m_pViceApp->closeReadChannel(QProcess::StandardError);
-   m_pViceApp->closeReadChannel(QProcess::StandardOutput);
-   m_pViceApp->closeWriteChannel();
+//   m_pViceApp->closeReadChannel(QProcess::StandardError);
+//   m_pViceApp->closeReadChannel(QProcess::StandardOutput);
+//   m_pViceApp->closeWriteChannel();
 
    m_pClient = new TcpClient(EmulatorPrefsDialog::getVICEIPAddress(),EmulatorPrefsDialog::getVICEMonitorPort());
    m_pClient->moveToThread(this);
@@ -116,7 +128,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
    switch ( error )
    {
    case QProcess::FailedToStart:
-      int result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc, could not be found.\n"
+      result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc, could not be found.\n"
                            "Please set the path to it in NESICIDE's Emulator Preferences dialog.","Exit","Fix","",1,-1);
 
       if ( result == 1 )
@@ -131,12 +143,21 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
 
       dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
       viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
-      viceStartup += " -remotemonitor";
+      viceStartup += " -remotemonitor ";
 
-// CPTODO: Setting VICE monitor port doesn't seem to work yet even if the port is
-//         explicitly set to 6510.
-//      viceStartup += " -remotemonitoraddress ";
-//      viceStartup += QString::number(EnvironmentSettingsDialog::VICEMonitorPort());
+      viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
+      viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
+
+      // Point to the kernal, BASIC, and character ROMs specified.
+      viceStartup += " -kernal ";
+      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+      viceStartup += " -basic ";
+      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+      viceStartup += " -chargen ";
+      viceStartup += EmulatorPrefsDialog::getC64CharROM();
+
+      // Get rid of some pesky behaviors.
+      viceStartup += " +confirmexit ";
       viceStartup += " ";
       viceStartup += EmulatorPrefsDialog::getVICEOptions();
 
@@ -147,10 +168,51 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
 
 void C64EmulatorThread::viceFinished(int exitCode,QProcess::ExitStatus exitStatus)
 {
-   QMessageBox::warning(0,"VICE exited!","The VICE Commodore 64 emulator, x64sc, has exited unexpectedly.\n"
-                        "Debugging this project cannot continue.");
-   emit emulatorWantsExit();
-   wait();
+   EmulatorPrefsDialog dlg("c64");
+   QDir dir;
+   QString viceStartup;
+   QString str = "The VICE Commodore 64 emulator, x64sc, has exited unexpectedly.\n"
+                 "Debugging this project cannot continue.\n\n"
+                 "If you know this is a problem with NESICIDE's configuration, click\n"
+                 "'Fix' to fix it."
+                 "\n\nOutput from VICE:\n";
+
+   str += m_pViceApp->readAll();
+
+   int result = QMessageBox::warning(0,"VICE exited!",str,"Exit","Fix","",1,-1);
+
+
+   if ( result == 1 )
+   {
+      dlg.exec();
+
+      dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
+      viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
+      viceStartup += " -remotemonitor ";
+
+      viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
+      viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
+
+      // Point to the kernal, BASIC, and character ROMs specified.
+      viceStartup += " -kernal ";
+      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+      viceStartup += " -basic ";
+      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+      viceStartup += " -chargen ";
+      viceStartup += EmulatorPrefsDialog::getC64CharROM();
+
+      // Get rid of some pesky behaviors.
+      viceStartup += " +confirmexit ";
+      viceStartup += " ";
+      viceStartup += EmulatorPrefsDialog::getVICEOptions();
+
+      m_pViceApp->start(viceStartup);
+   }
+   else
+   {
+      emit emulatorWantsExit();
+      exit();
+   }
 }
 
 void C64EmulatorThread::kill()
