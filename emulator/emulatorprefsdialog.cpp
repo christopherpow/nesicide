@@ -151,9 +151,39 @@ void EmulatorPrefsDialog::readSettings()
    viceIPAddress = settings.value("VICEIPAddress",QVariant("127.0.0.1")).toString();
    viceMonitorPort = settings.value("VICEMonitorPort",QVariant(6510)).toInt();
    viceOptions = settings.value("VICEOptions",QVariant()).toString();
+#if defined(Q_WS_WIN)
    c64KernalROM = settings.value("C64KernalROM").toString();
+   if ( c64KernalROM.isEmpty() )
+   {
+      c64KernalROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"kernal";
+   }
    c64BasicROM = settings.value("C64BasicROM").toString();
+   if ( c64BasicROM.isEmpty() )
+   {
+      c64BasicROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"basic";
+   }
    c64CharROM = settings.value("C64CharROM").toString();
+   if ( c64CharROM.isEmpty() )
+   {
+      c64CharROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"chargen";
+   }
+#else
+   c64KernalROM = settings.value("C64KernalROM").toString();
+   if ( c64KernalROM.isEmpty() )
+   {
+      c64KernalROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"Kernal.rom";
+   }
+   c64BasicROM = settings.value("C64BasicROM").toString();
+   if ( c64BasicROM.isEmpty() )
+   {
+      c64BasicROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"Basic.rom";
+   }
+   c64CharROM = settings.value("C64CharROM").toString();
+   if ( c64CharROM.isEmpty() )
+   {
+      c64CharROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"Char.rom";
+   }
+#endif
    settings.endGroup();
 }
 
@@ -691,9 +721,6 @@ void EmulatorPrefsDialog::on_viceC64Browse_clicked()
    if ( !value.isEmpty() )
    {
       ui->viceC64Executable->setText(value);
-      ui->c64KernalROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"kernal");
-      ui->c64BasicROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"basic");
-      ui->c64CharROM->setText(value+QDir::separator()+"C64"+QDir::separator()+"chargen");
    }
 }
 
