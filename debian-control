@@ -2,9 +2,9 @@ Package: nesicide
 Version: 1.014-1
 Section: devel
 Priority: optional
-Architecture: i386
+Architecture: i386 
 Pre-Depends: 
-Depends: libc6 (>=2.2.1), liblua5.1-0, libqt4-xml, libqt4-opengl, libqt4-gui, libqt4-core, libqtwebkit4, libnesicide-emulator1 (>=1.004) 
+Depends: libc6 (>=2.2.1), liblua5.1-0, libqt4-xml, libqt4-opengl, libqt4-gui, libqt4-core, libqtwebkit4, libnes-emulator1 (>=1.004), libc64-emulator1 
 Suggests: nesicide-emulator 
 Conflicts: 
 Replaces: 
