@@ -40,17 +40,17 @@ win32 {
    QMAKE_LFLAGS += -static-libgcc
 
    CONFIG(release, debug|release) {
-      NES_LIBS = -L../nes-emulator-lib-build-desktop/release -lnes-emulator
-      C64_LIBS = -L../c64-emulator-lib-build-desktop/release -lc64-emulator
+      NES_LIBS = -L../nes-emulator-lib/release -lnes-emulator
+      C64_LIBS = -L../c64-emulator-lib/release -lc64-emulator
    } else {
-      NES_LIBS = -L../nes-emulator-lib-build-desktop/debug -lnes-emulator
-      C64_LIBS = -L../c64-emulator-lib-build-desktop/debug -lc64-emulator
+      NES_LIBS = -L../nes-emulator-lib/debug -lnes-emulator
+      C64_LIBS = -L../c64-emulator-lib/debug -lc64-emulator
    }
 }
 
 mac {
    NES_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
-   NES_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
+   NES_LIBS = -L../nes-emulator-lib -lnes-emulator
 
    SDL_CXXFLAGS = -framework SDL
    SDL_LIBS = -framework SDL
@@ -69,7 +69,7 @@ mac {
    TARGET = "NESICIDE"
 
    QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
-   QMAKE_POST_LINK += cp ../nes-emulator-lib-build-desktop/libnes-emulator.1.0.0.dylib \
+   QMAKE_POST_LINK += cp ../nes-emulator-lib/libnes-emulator.1.0.0.dylib \
       $$TARGET.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
       @executable_path/../Frameworks/libnes-emulator.1.dylib \
@@ -81,8 +81,8 @@ mac {
 unix:!mac {
    NES_CXXFLAGS = -I ../nes-emulator-lib -I ../nes-emulator-lib/emulator -I ../nes-emulator-lib/common
    C64_CXXFLAGS = -I ../c64-emulator-lib -I ../c64-emulator-lib/emulator -I ../c64-emulator-lib/common
-   NES_LIBS = -L../nes-emulator-lib-build-desktop -lnes-emulator
-   C64_LIBS = -L../c64-emulator-lib-build-desktop -lc64-emulator
+   NES_LIBS = -L../nes-emulator-lib -lnes-emulator
+   C64_LIBS = -L../c64-emulator-lib -lc64-emulator
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
