@@ -419,8 +419,10 @@ void MainWindow::createNesUi()
    actionAPUInformation_Inspector->setCheckable(true);
    actionNTSC = new QAction("NTSC",this);
    actionNTSC->setObjectName(QString::fromUtf8("actionNTSC"));
+   actionNTSC->setCheckable(true);
    actionPAL = new QAction("PAL",this);
    actionPAL->setObjectName(QString::fromUtf8("actionPAL"));
+   actionPAL->setCheckable(true);
    actionMute_All = new QAction("Mute All",this);
    actionMute_All->setObjectName(QString::fromUtf8("actionMute_All"));
    actionMute_All->setCheckable(true);
