@@ -77,7 +77,7 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 
    memcpy(stream,nesGetAudioSamples(),len);
 
-   if ( emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
+   if ( emulator && emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
    {
       emulator->start();
    }

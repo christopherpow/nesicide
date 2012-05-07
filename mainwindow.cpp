@@ -1540,8 +1540,8 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
       saveFile.close();
    }
 
-   emit resetEmulator();
    emit primeEmulator();
+   emit resetEmulator();
 
    if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
    {

@@ -111,11 +111,19 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("Project",Qt::MatchExactly).at(0));
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      ui->treeWidget->findItems("Commodore 64",Qt::MatchExactly).at(0)->setHidden(true);
+      QList<QTreeWidgetItem*> items = ui->treeWidget->findItems("Commodore 64",Qt::MatchExactly);
+      if ( items.count() )
+      {
+         items.at(0)->setHidden(true);
+      }
    }
    else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
-      ui->treeWidget->findItems("Nintendo Entertainment System",Qt::MatchExactly).at(0)->setHidden(true);
+      QList<QTreeWidgetItem*> items = ui->treeWidget->findItems("Nintendo Entertainment System",Qt::MatchExactly);
+      if ( items.count() )
+      {
+         items.at(0)->setHidden(true);
+      }
    }
    updateUI();
 }
