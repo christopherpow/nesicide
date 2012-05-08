@@ -18,22 +18,23 @@ TOP = ../..
 # Remove crap we don't need!
 CONFIG -= rtti exceptions
 
-INCLUDEPATH += . \
-               ./common \
-               ./emulator \
-               $$TOP/apps/ide/emulator
+INCLUDEPATH += \
+   $$TOP/common \
+   . \
+   ./common \
+   ./emulator
 
 SOURCES += \
-    $$TOP/apps/ide/emulator/cbreakpointinfo.cpp \
-    c64_emulator_core.cpp \
-    emulator/cc646502.cpp \
-    emulator/cc64breakpointinfo.cpp \
-    common/cc64systempalette.cpp \
-    emulator/cc64sid.cpp
+   $$TOP/common/cbreakpointinfo.cpp \
+   c64_emulator_core.cpp \
+   emulator/cc646502.cpp \
+   emulator/cc64breakpointinfo.cpp \
+   common/cc64systempalette.cpp \
+   emulator/cc64sid.cpp
 
 HEADERS +=\
-    c64_emulator_core.h \
-    emulator/cc646502.h \
-    emulator/cc64breakpointinfo.h \
-    common/cc64systempalette.h \
-    emulator/cc64sid.h
+   c64_emulator_core.h \
+   emulator/cc646502.h \
+   emulator/cc64breakpointinfo.h \
+   common/cc64systempalette.h \
+   emulator/cc64sid.h

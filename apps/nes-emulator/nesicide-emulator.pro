@@ -70,42 +70,45 @@ QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS
 LIBS += $$NESICIDE_LIBS $$SDL_LIBS
 
 INCLUDEPATH += \
-   $$TOP/apps/ide/emulator \
+   $$TOP/common \
    common \
    emulator \
    interfaces \
    project
 
-SOURCES += main.cpp\
+SOURCES += \
+   $$TOP/common/xmlhelpers.cpp \
+   main.cpp \
    mainwindow.cpp \
    project/ccartridge.cpp \
    aboutdialog.cpp \
    emulator/nesemulatorthread.cpp \
    emulatorprefsdialog.cpp \
    qkeymapitemedit.cpp \
-    version.cpp \
-    emulator/nesemulatorrenderer.cpp \
-    common/emulatorcontrol.cpp \
-    emulator/nesemulatordockwidget.cpp \
-    common/xmlhelpers.cpp
+   version.cpp \
+   emulator/nesemulatorrenderer.cpp \
+   common/emulatorcontrol.cpp \
+   emulator/nesemulatordockwidget.cpp
 
-HEADERS += mainwindow.h \
+HEADERS += \
+   mainwindow.h \
    project/ccartridge.h \
    main.h \
    aboutdialog.h \
    emulator/nesemulatorthread.h \
    emulatorprefsdialog.h \
    qkeymapitemedit.h \
-    emulator/nesemulatorrenderer.h \
-    common/emulatorcontrol.h \
-    emulator/nesemulatordockwidget.h \
-    interfaces/ixmlserializable.h
+   emulator/nesemulatorrenderer.h \
+   common/emulatorcontrol.h \
+   emulator/nesemulatordockwidget.h \
+   interfaces/ixmlserializable.h
 
-FORMS += mainwindow.ui \
+FORMS += \
+   mainwindow.ui \
    aboutdialog.ui \
    emulatorprefsdialog.ui \
-    common/emulatorcontrol.ui \
-    emulator/nesemulatordockwidget.ui
+   common/emulatorcontrol.ui \
+   emulator/nesemulatordockwidget.ui
 
 RESOURCES += \
     resource.qrc

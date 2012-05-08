@@ -56,6 +56,11 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
          m_language = Language_C;
       }
    }
+   // Check explicitly for header files...
+   if ( m_fileName.endsWith(".h",Qt::CaseInsensitive) )
+   {
+      m_language = Language_C;
+   }
    if ( m_language == Language_Default )
    {
       foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ") )
