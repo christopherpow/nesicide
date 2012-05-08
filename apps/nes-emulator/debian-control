@@ -1,0 +1,16 @@
+Package: nesicide-emulator 
+Version: <version> 
+Section: devel
+Priority: optional
+Architecture: i386 
+Depends: libc6 (>=2.2.1), libqt4-xml, libqt4-opengl, libqt4-gui, libqt4-core, libnes-emulator1 (>=1.004) 
+Suggests: nesicide 
+Conflicts: 
+Replaces: 
+Installed-Size: 385
+Maintainer: Christopher Pow <christopher_pow@hotmail.com>
+Description: Standalone emulator application, part of NESICIDE.
+ This is the standalone emulator that provides a GUI framework
+ for the emulation core used by the NESICIDE toolset.  It is useful
+ for running ROMs created by NESICIDE without the full debugging
+ capabilities of the IDE.

@@ -1,0 +1,37 @@
+#!/bin/sh
+if [ $# -ne "1" ]; then
+	echo "Specify a version!"
+	exit 1;
+fi
+
+# Remove old binaries from debian/usr...
+rm -f debian/usr/lib/libnes-emulator*
+
+# Copy binaries to debian/usr/...
+cp ../nes-emulator-lib-build-desktop/libnes-emulator.so.1.0.0 debian/usr/lib
+
+# Clear executable bit 
+chmod 644 debian/usr/lib/libnes-emulator.so.1.0.0
+
+# Create library symlinks
+( cd debian/usr/lib; ln -s libnes-emulator.so.1.0.0 libnes-emulator.so.1 )
+
+# Update version in debian/DEBIAN/control
+VERSION=$1
+sed -e s/\<version\>/$VERSION/ debian-control > debian/DEBIAN/control
+
+# Update MD5 sums in debian/DEBIAN/md5sums
+( cd debian; md5sum `find usr -type f`) > debian/DEBIAN/md5sums
+
+# Correct control file permissions
+chmod 644 debian/DEBIAN/control debian/DEBIAN/md5sums
+
+# Make debian
+fakeroot dpkg-deb --build debian
+
+# Rename
+cp debian.deb libnes-emulator_$VERSION-1_i386.deb
+
+# Lintian
+lintian libnes-emulator_$VERSION-1_i386.deb
+

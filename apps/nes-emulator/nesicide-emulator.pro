@@ -1,0 +1,111 @@
+QT += core \
+   gui \
+   opengl \
+   xml
+
+TOP = ../..
+
+TARGET = nes-emulator
+
+# Remove crap we don't need!
+CONFIG -= rtti exceptions
+
+isEmpty (NESICIDE_LIBS) {
+   NESICIDE_LIBS = -lnes-emulator
+}
+
+win32 {
+   SDL_CXXFLAGS = -I$$TOP/deps/SDL
+   SDL_LIBS =  -L$$TOP/deps/SDL/ -lsdl
+
+   NESICIDE_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator
+
+   CONFIG(release, debug|release) {
+      NESICIDE_LIBS = -L$$TOP/libs/nes/release -lnes-emulator
+   } else {
+      NESICIDE_LIBS = -L$$TOP/libs/nes/debug -lnes-emulator
+   }
+}
+
+mac {
+   QMAKE_CFLAGS += -macx
+
+   NESICIDE_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator
+   NESICIDE_LIBS = -L$$TOP/libs/nes -lnes-emulator
+
+   SDL_CXXFLAGS = -framework SDL
+   SDL_LIBS = -framework SDL
+
+   mac:QMAKE_POST_LINK += mkdir -p \'./$${TARGET}.app/Contents/Frameworks\' $$escape_expand(\n\t)
+   mac:QMAKE_POST_LINK += cp \'$$TOP/libs/nes/libnes-emulator.1.0.0.dylib\' \
+      \'./$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib\' $$escape_expand(\n\t)
+   mac:QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
+      @executable_path/../Frameworks/libnes-emulator.1.dylib \'$${TARGET}.app/Contents/MacOS/$${TARGET}\' $$escape_expand(\n\t)
+
+   ICON = ./Resources/controller.icns
+}
+
+unix:!mac {
+   NESICIDE_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
+   NESICIDE_LIBS = -L$$TOP/libs/nes -lnes-emulator
+
+   SDL_CXXFLAGS = $$system(sdl-config --cflags)
+   SDL_LIBS = $$system(sdl-config --libs)
+
+   PREFIX = $$(PREFIX)
+   isEmpty (PREFIX) {
+      PREFIX = /usr/local
+   }
+
+   BINDIR = $$(BINDIR)
+   isEmpty (BINDIR) {
+      BINDIR=$$EPREFIX/bin
+   }
+
+   target.path = $$BINDIR
+   INSTALLS += target
+}
+
+QMAKE_CXXFLAGS += $$NESICIDE_CXXFLAGS $$SDL_CXXFLAGS
+LIBS += $$NESICIDE_LIBS $$SDL_LIBS
+
+INCLUDEPATH += \
+   $$TOP/apps/ide/emulator \
+   common \
+   emulator \
+   interfaces \
+   project
+
+SOURCES += main.cpp\
+   mainwindow.cpp \
+   project/ccartridge.cpp \
+   aboutdialog.cpp \
+   emulator/nesemulatorthread.cpp \
+   emulatorprefsdialog.cpp \
+   qkeymapitemedit.cpp \
+    version.cpp \
+    emulator/nesemulatorrenderer.cpp \
+    common/emulatorcontrol.cpp \
+    emulator/nesemulatordockwidget.cpp \
+    common/xmlhelpers.cpp
+
+HEADERS += mainwindow.h \
+   project/ccartridge.h \
+   main.h \
+   aboutdialog.h \
+   emulator/nesemulatorthread.h \
+   emulatorprefsdialog.h \
+   qkeymapitemedit.h \
+    emulator/nesemulatorrenderer.h \
+    common/emulatorcontrol.h \
+    emulator/nesemulatordockwidget.h \
+    interfaces/ixmlserializable.h
+
+FORMS += mainwindow.ui \
+   aboutdialog.ui \
+   emulatorprefsdialog.ui \
+    common/emulatorcontrol.ui \
+    emulator/nesemulatordockwidget.ui
+
+RESOURCES += \
+    resource.qrc

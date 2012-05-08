@@ -1,0 +1,18 @@
+Package: libnes-emulator1
+Version: <version>-1
+Section: devel
+Priority: optional
+Architecture: i386 
+Depends: libc6 (>=2.2.1) 
+Suggests: nesicide, nes-emulator 
+Conflicts: 
+Replaces: 
+Installed-Size: 370 
+Maintainer: Christopher Pow <christopher_pow@hotmail.com>
+Description: NES emulation core library used by NESICIDE. 
+ This is the NES emulation core library that is used by the NESICIDE tools.
+ It completely contains the elements of the NES system.  It provides APIs
+ for loading a NES cartridge, resetting the emulation, and running the NES
+ for a frame.  It also contains APIs useful for debugging the internal state
+ of the NES at any point, including the ability to set breakpoints in any of
+ the NES components. 

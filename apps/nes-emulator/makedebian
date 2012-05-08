@@ -1,0 +1,42 @@
+#!/bin/sh
+if [ $# -ne "1" ]; then
+	echo "Specify a version!"
+	exit 1;
+fi
+
+# Remove old binaries from debian/usr...
+rm -f debian/usr/bin/nes-emulator
+rm -f debian/usr/share/pixmaps/nes-emulator.png
+rm -f debian/usr/share/app-install/icons/nes-emulator.png
+
+# Copy binaries to debian/usr/...
+cp ../nesicide-emulator-build-desktop/nes-emulator debian/usr/bin
+
+# Copy icons to debian/usr/...
+cp resources/controller.png debian/usr/share/pixmaps/nes-emulator.png
+cp resources/controller.png debian/usr/share/app-install/icons/nes-emulator.png
+
+# Set/Clear executable bit 
+chmod 755 debian/usr/bin/nes-emulator
+chmod 644 debian/usr/share/pixmaps/nes-emulator.png
+chmod 644 debian/usr/share/app-install/icons/nes-emulator.png
+
+# Update version in debian/DEBIAN/control
+VERSION=$1
+sed -e s/\<version\>/$VERSION/ debian-control > debian/DEBIAN/control
+
+# Update MD5 sums in debian/DEBIAN/md5sums
+( cd debian; md5sum `find usr -type f`) > debian/DEBIAN/md5sums
+
+# Correct control file permissions
+chmod 644 debian/DEBIAN/control debian/DEBIAN/md5sums
+
+# Make debian
+fakeroot dpkg-deb --build debian
+
+# Rename
+cp debian.deb nes-emulator_$VERSION-1_i386.deb
+
+# Lintian
+lintian nes-emulator_$VERSION-1_i386.deb
+

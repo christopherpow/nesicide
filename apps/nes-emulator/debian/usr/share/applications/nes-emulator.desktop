@@ -1,0 +1,10 @@
+
+[Desktop Entry]
+Name=NES Emulator
+Comment=Play NES games
+Exec=nes-emulator
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=nes-emulator
+Categories=Development;

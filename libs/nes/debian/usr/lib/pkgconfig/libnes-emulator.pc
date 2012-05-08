@@ -1,0 +1,9 @@
+prefix=/usr/local/lib/nesicide
+libdir=${prefix}
+includedir=/usr/local/include/nesicide
+ 
+Name: libnesicide-emulator
+Description: NES emulation core for NESICIDE components.
+Version: 1.004
+Libs: -L${libdir} -lnesicide-emulator
+Cflags: -I${includedir}

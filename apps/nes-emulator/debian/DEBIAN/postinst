@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installdocs
+#if [ "$1" = "configure" ]; then
+#fi
+# End automatically added section

@@ -1,0 +1,15 @@
+Package: libc64-emulator1
+Version: 1.000-1
+Section: devel
+Priority: optional
+Architecture: any 
+Depends: libc6 (>=2.2.1) 
+Suggests: nesicide 
+Conflicts: 
+Replaces: 
+Installed-Size: 370 
+Maintainer: Christopher Pow <christopher_pow@hotmail.com>
+Description: Commodore 64 emulation core library used by NESICIDE. 
+ This is the C=64 emulation core library that is used by the NESICIDE tools.
+ It interfaces NESICIDE to the VICE emulator using the VICE remote monitor
+ to provide debug capability of the VICE supported target, the Commodore 64.

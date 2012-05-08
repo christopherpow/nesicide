@@ -2,7 +2,7 @@ release/
 debug/
 ui_*.h
 ui_*.cpp
-object_script.nesicide*
+object_script.*
 *.pro.user*
 ./output
 Makefile
@@ -16,7 +16,7 @@ Makefile.Release
 nesicide2
 nesicide2.exe
 */.directory
-libraries/
+deps/
 compiler/lex.asm.c
 compiler/lex.pp.c
 compiler/libpasm.a
