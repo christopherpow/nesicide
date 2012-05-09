@@ -74,12 +74,12 @@ void C64EmulatorControl::internalPlay()
 {
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
-   ui->stepCPUButton->setEnabled(debugging);
+   ui->stepCPUButton->setEnabled(false);
 //   ui->stepOverButton->setEnabled(debugging);
 //   ui->stepOutButton->setEnabled(debugging);
    ui->actionRun->setEnabled(false);
    ui->actionPause->setEnabled(true);
-   ui->actionStep_CPU->setEnabled(debugging);
+   ui->actionStep_CPU->setEnabled(false);
 //   ui->actionStep_Over->setEnabled(debugging);
 //   ui->actionStep_Out->setEnabled(debugging);
 }

@@ -279,6 +279,40 @@ MainWindow::~MainWindow()
    m_pSearch->deleteLater();
 }
 
+void MainWindow::applicationActivated()
+{
+   QFileInfo fileInfo;
+   QDateTime now = QDateTime::currentDateTimeUtc();
+   QString str;
+   int result;
+
+   qDebug("ACTIVATED!");
+   qDebug(now.toString().toAscii().constData());
+
+   // Check whether the current open project file has changed.
+   if ( m_lastActivationTime.isValid() && nesicideProject->isInitialized() )
+   {
+      fileInfo.setFile(nesicideProject->getProjectFileName());
+      if ( fileInfo.lastModified() > m_lastActivationTime )
+      {
+         str = "The currently loaded project:\n\n";
+         str += nesicideProject->getProjectFileName();
+         str += "\n\nhas been modified outside of NESICIDE.\n\n";
+         str += "Do you want to re-load the project?";
+         result = QMessageBox::warning(this,"External interference detected!",str,QMessageBox::Yes,QMessageBox::No);
+
+         if ( result == QMessageBox::Yes )
+         {
+            closeProject();
+            openNesProject(fileInfo.fileName());
+         }
+      }
+   }
+
+   // Save the date/time so we know what to compare against next time.
+   m_lastActivationTime = now;
+}
+
 void MainWindow::createTarget(QString target)
 {
    if ( !target.compare("nes",Qt::CaseInsensitive) )
@@ -1330,21 +1364,22 @@ void MainWindow::setStatusBarMessage(QString message)
 void MainWindow::on_actionSave_Project_triggered()
 {
    QSettings settings;
+   QString   fileName;
 
-   if (projectFileName.isEmpty())
+   if ( !nesicideProject->getProjectFileName().compare("(unset)",Qt::CaseInsensitive) )
    {
-      projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
+      fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
                                                      "NESICIDE Project (*.nesproject)");
    }
 
-   if (!projectFileName.isEmpty())
+   if (!fileName.isEmpty())
    {
-      saveProject();
+      saveProject(fileName);
    }
 
    nesicideProject->setDirty(false);
 
-   settings.setValue("LastProject",projectFileName);
+   settings.setValue("LastProject",fileName);
 }
 
 void MainWindow::saveEmulatorState(QString fileName)
@@ -1390,14 +1425,13 @@ void MainWindow::saveEmulatorState(QString fileName)
    }
 }
 
-void MainWindow::saveProject()
+void MainWindow::saveProject(QString fileName)
 {
-   QFile file(projectFileName);
+   QFile file(fileName);
 
    if ( !file.open( QFile::WriteOnly) )
    {
       QMessageBox::critical(this, "Error", "An error occured while trying to open the project file for writing.");
-      projectFileName.clear();
       return;
    }
 
@@ -1409,7 +1443,6 @@ void MainWindow::saveProject()
    {
       QMessageBox::critical(this, "Error", "An error occured while trying to serialize the project data.");
       file.close();
-      projectFileName.clear();
    }
 
    // Create a text stream so we can stream the XML data to the file easily.
@@ -1439,12 +1472,12 @@ void MainWindow::on_actionSave_Project_As_triggered()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   projectFileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
+   QString fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
                                                   "NESICIDE Project (*.nesproject)");
 
-   if (!projectFileName.isEmpty())
+   if (!fileName.isEmpty())
    {
-      saveProject();
+      saveProject(fileName);
    }
 }
 
@@ -1466,8 +1499,6 @@ void MainWindow::on_actionNew_Project_triggered()
 
    if (dlg.exec() == QDialog::Accepted)
    {
-      projectFileName.clear();
-
       m_pProjectBrowser->disableNavigation();
 
       QDir::setCurrent(dlg.getPath());
@@ -1510,7 +1541,6 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    // Create new project from ROM
    // Set project target before initializing project.
-   nesicideProject->setProjectTarget("nes");
    nesicideProject->initializeProject();
    nesicideProject->createProjectFromRom(fileName);
 
@@ -1789,6 +1819,7 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
       // Set project target before initializing project.
       nesicideProject->setProjectTarget("nes");
       nesicideProject->initializeProject();
+      nesicideProject->setProjectFileName(fileName);
 
       // Clear output
       output->clearAllPanes();
@@ -1867,8 +1898,6 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
       settings.setValue("LastProject",fileName);
 
       projectDataChangesEvent();
-
-      projectFileName = fileName;
    }
 }
 
@@ -2328,8 +2357,6 @@ void MainWindow::closeProject()
    // Clear output
    output->clearAllPanes();
    output->hide();
-
-   projectFileName = "";
 
    // Let the UI know what's up
    projectDataChangesEvent();

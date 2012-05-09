@@ -34,6 +34,7 @@ public:
 
    // Member Getters
    bool isInitialized() const { return m_isInitialized; }
+   QString getProjectFileName() { return m_projectFileName; }
    QString getProjectTarget() { return m_projectTarget; }
    QString getProjectTitle() { return m_projectTitle; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
@@ -67,6 +68,7 @@ public:
    CProject* getProject() { return m_pProject; }
 
    // Member Setters
+   void setProjectFileName(QString value) { m_projectFileName = value; }
    void setProjectTarget(QString value) { m_projectTarget = value; }
    void setProjectTitle(QString value)
    {
@@ -140,6 +142,7 @@ private:
 
    // Attributes
    // The visible title of the project
+   QString m_projectFileName;
    QString m_projectTarget;
    QString m_projectTitle;
    QString m_projectOutputBasePath;

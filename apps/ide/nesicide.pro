@@ -284,7 +284,8 @@ SOURCES += \
    debuggers/cdebuggerregisterdisplaymodel.cpp \
    common/cthreadregistry.cpp \
    c64/compilers/cmachineimagebuilder.cpp \
-   c64/debuggers/dbg_cc64.cpp
+   c64/debuggers/dbg_cc64.cpp \
+    appeventfilter.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -416,7 +417,8 @@ HEADERS += \
    c64/compilers/cmachineimagebuilder.h \
    c64/debuggers/dbg_cc64.h \
    emulator/cregisterdata.h \
-   emulator/cmemorydata.h
+   emulator/cmemorydata.h \
+    appeventfilter.h
 
 FORMS += \
    aboutdialog.ui \

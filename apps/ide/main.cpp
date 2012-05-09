@@ -6,21 +6,25 @@
 #include "startupsplashdialog.h"
 #include "environmentsettingsdialog.h"
 
+#include "appeventfilter.h"
+
 // Modeless dialog for Test Suite executive.
 TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
 
 // Database of all known games.
 CGameDatabaseHandler gameDatabase;
 
-// Main window of application.
-MainWindow* nesicideWindow;
-
 // The project container.
 CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 
 int main(int argc, char* argv[])
 {
+   // Main window of application.
+   MainWindow* nesicideWindow;
+
    QApplication nesicideApplication(argc, argv);
+   AppEventFilter nesicideEventFilter;
+   nesicideApplication.installEventFilter(&nesicideEventFilter); // Installing the event filter
 
    QCoreApplication::setOrganizationName("CSPSoftware");
    QCoreApplication::setOrganizationDomain("nesicide.com");
@@ -59,6 +63,7 @@ int main(int argc, char* argv[])
 
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();
+   QObject::connect(&nesicideEventFilter,SIGNAL(applicationActivated()),nesicideWindow,SLOT(applicationActivated()));
    nesicideWindow->show();
 
    int result = nesicideApplication.exec();

@@ -73,18 +73,18 @@ void NESEmulatorControl::internalPlay()
 {
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
-   ui->stepCPUButton->setEnabled(debugging);
-   ui->stepOverButton->setEnabled(debugging);
-   ui->stepOutButton->setEnabled(debugging);
-   ui->stepPPUButton->setEnabled(debugging);
-   ui->frameAdvance->setEnabled(debugging);
+   ui->stepCPUButton->setEnabled(false);
+   ui->stepOverButton->setEnabled(false);
+   ui->stepOutButton->setEnabled(false);
+   ui->stepPPUButton->setEnabled(false);
+   ui->frameAdvance->setEnabled(false);
    ui->actionRun->setEnabled(false);
    ui->actionPause->setEnabled(true);
-   ui->actionStep_CPU->setEnabled(debugging);
-   ui->actionStep_Over->setEnabled(debugging);
-   ui->actionStep_Out->setEnabled(debugging);
-   ui->actionStep_PPU->setEnabled(debugging);
-   ui->actionFrame_Advance->setEnabled(debugging);
+   ui->actionStep_CPU->setEnabled(false);
+   ui->actionStep_Over->setEnabled(false);
+   ui->actionStep_Out->setEnabled(false);
+   ui->actionStep_PPU->setEnabled(false);
+   ui->actionFrame_Advance->setEnabled(false);
 }
 
 void NESEmulatorControl::internalPause()
@@ -110,18 +110,18 @@ void NESEmulatorControl::internalPause()
    {
       ui->playButton->setEnabled(false);
       ui->pauseButton->setEnabled(false);
-      ui->stepCPUButton->setEnabled(debugging);
-      ui->stepOverButton->setEnabled(debugging);
-      ui->stepOutButton->setEnabled(debugging);
-      ui->stepPPUButton->setEnabled(debugging);
-      ui->frameAdvance->setEnabled(debugging);
+      ui->stepCPUButton->setEnabled(false);
+      ui->stepOverButton->setEnabled(false);
+      ui->stepOutButton->setEnabled(false);
+      ui->stepPPUButton->setEnabled(false);
+      ui->frameAdvance->setEnabled(false);
       ui->actionRun->setEnabled(false);
       ui->actionPause->setEnabled(false);
-      ui->actionStep_CPU->setEnabled(debugging);
-      ui->actionStep_Over->setEnabled(debugging);
-      ui->actionStep_Out->setEnabled(debugging);
-      ui->actionStep_PPU->setEnabled(debugging);
-      ui->actionFrame_Advance->setEnabled(debugging);
+      ui->actionStep_CPU->setEnabled(false);
+      ui->actionStep_Over->setEnabled(false);
+      ui->actionStep_Out->setEnabled(false);
+      ui->actionStep_PPU->setEnabled(false);
+      ui->actionFrame_Advance->setEnabled(false);
    }
 }
 

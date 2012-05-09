@@ -95,6 +95,7 @@ void CNesicideProject::initializeProject()
    }
 
    // Notify the fact that the project data has been initialized properly
+   m_projectFileName = "(unset)";
    m_projectTitle = "(No project loaded)";
    setProjectOutputBasePath(".");
    setProjectOutputName("");
@@ -166,6 +167,7 @@ void CNesicideProject::terminateProject()
    removeChild(m_pProject);
 
    // Notify the fact that the project data is no longer valid
+   m_projectFileName = "(unset)";
    m_projectTitle = "(No project loaded)";
    setProjectOutputBasePath(".");
    setProjectOutputName("");

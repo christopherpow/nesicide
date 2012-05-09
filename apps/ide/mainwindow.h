@@ -71,6 +71,9 @@ protected:
    // Which target is loaded?
    QString m_targetLoaded;
 
+   // Last activation time (for file-modified-outside-of-ide check)
+   QDateTime m_lastActivationTime;
+
    // Common/reused UI elements.
    QToolBar *debuggerToolBar;
    QAction *actionBreakpoint_Inspector;
@@ -157,9 +160,8 @@ protected:
    QAction *actionBinSIDRegister_Inspector;
 
 private:
-   QString projectFileName;
    void openNesProject(QString fileName,bool runRom=true);
-   void saveProject();
+   void saveProject(QString fileName);
    void saveEmulatorState(QString fileName);
    void closeProject();
 
@@ -177,6 +179,7 @@ signals:
    void updateTargetMachine(QString target);
 
 private slots:
+   void applicationActivated();
    void createTarget(QString target);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);

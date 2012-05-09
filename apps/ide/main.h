@@ -13,8 +13,6 @@
 
 char* ideGetVersion();
 
-extern MainWindow* nesicideWindow;
-
 extern TestSuiteExecutiveDialog* testSuiteExecutive;
 
 extern CGameDatabaseHandler gameDatabase;
