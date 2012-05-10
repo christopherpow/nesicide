@@ -5,7 +5,6 @@ ui_*.cpp
 object_script.*
 *.pro.user*
 ./output
-Makefile
 *.o
 moc_*
 *.moc

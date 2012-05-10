@@ -1,0 +1,39 @@
+PREFIX=/usr/local
+DESTDIR=
+
+default: apps/nes-emulator/nes-emulator apps/ide/nesicide
+
+%/Makefile: %/*.pro
+	cd `dirname $@` && qmake
+
+libs/nes/libnes-emulator.so.1.0.0: libs/nes/Makefile
+	$(MAKE) -C libs/nes
+
+libs/c64/libc64-emulator.so.1.0.0: libs/c64/Makefile
+	$(MAKE) -C libs/c64
+
+apps/nes-emulator/nes-emulator: apps/nes-emulator/Makefile libs/nes/libnes-emulator.so.1.0.0
+	$(MAKE) -C apps/nes-emulator
+
+apps/ide/nesicide: apps/ide/Makefile libs/nes/libnes-emulator.so.1.0.0 libs/c64/libc64-emulator.so.1.0.0
+	$(MAKE) -C apps/ide
+
+clean:
+	cd libs/nes && $(MAKE) clean; rm -f libnes-emulator.so*
+	cd libs/c64 && $(MAKE) clean; rm -f libc64-emulator.so*
+	cd apps/nes-emulator && $(MAKE) clean; rm -f nes-emulator
+	cd apps/ide && $(MAKE) clean; rm -f nesicide
+	rm -f */*/Makefile
+
+install:
+	install -d $(DESTDIR)$(PREFIX)/lib $(DESTDIR)$(PREFIX)/bin
+	install libs/c64/libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib
+	ln -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so.1.0
+	ln -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so.1
+	ln -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so
+	install libs/nes/libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib
+	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so.1.0
+	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so.1
+	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so
+	install apps/nes-emulator/nes-emulator $(DESTDIR)$(PREFIX)/bin
+	install apps/ide/nesicide $(DESTDIR)$(PREFIX)/bin
