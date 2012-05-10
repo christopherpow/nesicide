@@ -18,6 +18,21 @@ TOP = ../..
 # Remove crap we don't need!
 CONFIG -= rtti exceptions
 
+unix:!mac {
+   PREFIX = $$(PREFIX)
+   isEmpty (PREFIX) {
+      PREFIX = /usr/local
+   }
+
+   BINDIR = $$(BINDIR)
+   isEmpty (BINDIR) {
+      BINDIR=$$PREFIX/lib/nesicide
+   }
+
+   target.path = $$BINDIR
+   INSTALLS += target
+}
+
 INCLUDEPATH += . \
                ./common \
                ./emulator \
