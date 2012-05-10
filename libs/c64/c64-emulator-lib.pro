@@ -36,7 +36,7 @@ unix:!mac {
 INCLUDEPATH += . \
                ./common \
                ./emulator \
-               $$TOP/apps/ide/emulator
+               $$TOP/common
 
 SOURCES += \
    $$TOP/common/cbreakpointinfo.cpp \
