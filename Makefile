@@ -6,16 +6,16 @@ default: apps/nes-emulator/nes-emulator apps/ide/nesicide
 %/Makefile: %/*.pro
 	cd `dirname $@` && qmake
 
-libs/nes/libnes-emulator.so.1.0.0: libs/nes/Makefile
+libs/nes/libnes-emulator.so.1.0.0: libs/nes/Makefile FORCE
 	$(MAKE) -C libs/nes
 
-libs/c64/libc64-emulator.so.1.0.0: libs/c64/Makefile
+libs/c64/libc64-emulator.so.1.0.0: libs/c64/Makefile FORCE
 	$(MAKE) -C libs/c64
 
-apps/nes-emulator/nes-emulator: apps/nes-emulator/Makefile libs/nes/libnes-emulator.so.1.0.0
+apps/nes-emulator/nes-emulator: apps/nes-emulator/Makefile libs/nes/libnes-emulator.so.1.0.0 FORCE
 	$(MAKE) -C apps/nes-emulator
 
-apps/ide/nesicide: apps/ide/Makefile libs/nes/libnes-emulator.so.1.0.0 libs/c64/libc64-emulator.so.1.0.0
+apps/ide/nesicide: apps/ide/Makefile libs/nes/libnes-emulator.so.1.0.0 libs/c64/libc64-emulator.so.1.0.0 FORCE
 	$(MAKE) -C apps/ide
 
 clean:
@@ -37,3 +37,5 @@ install:
 	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so
 	install apps/nes-emulator/nes-emulator $(DESTDIR)$(PREFIX)/bin
 	install apps/ide/nesicide $(DESTDIR)$(PREFIX)/bin
+
+FORCE:
