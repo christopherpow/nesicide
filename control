@@ -1,0 +1,17 @@
+Source: nesicide
+Section: otherosfs
+Priority: extra
+Maintainer: Christopher Pow <christopher.s.pow@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), libqscintilla2-dev, libqt4-opengl-dev, libqtwebkit-dev, liblua5.1-0-dev, libsdl1.2-dev
+Standards-Version: 3.9.2
+Homepage: https://gitorious.org/nesicide
+#Vcs-Git: git://git.debian.org/collab-maint/nesicide2.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/nesicide2.git;a=summary
+
+Package: nesicide
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: NESICIDE: an IDE for developing for the NES
+ This is the Nintendo Entertainment System Integrated Development
+ Environment.  It provides source- and assembly-level debugging,
+ breakpoints, debuggers, and NES cartridge building capabilities.
