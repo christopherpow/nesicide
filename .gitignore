@@ -2,6 +2,8 @@ release/
 debug/
 ui_*.h
 ui_*.cpp
+*.exe
+*.so*
 object_script.*
 *.pro.user*
 ./output
@@ -12,8 +14,6 @@ qrc_*
 *.exe
 Makefile.Debug
 Makefile.Release
-nesicide2
-nesicide2.exe
 */.directory
 deps/
 compiler/lex.asm.c
