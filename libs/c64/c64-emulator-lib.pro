@@ -26,7 +26,7 @@ unix:!mac {
 
    BINDIR = $$(BINDIR)
    isEmpty (BINDIR) {
-      BINDIR=$$PREFIX/lib/nesicide
+      BINDIR=$$PREFIX/lib
    }
 
    target.path = $$BINDIR
