@@ -18,11 +18,25 @@ TOP = ../..
 # Remove crap we don't need!
 CONFIG -= rtti exceptions
 
-INCLUDEPATH += \
-   $$TOP/common \
-   . \
-   ./common \
-   ./emulator
+unix:!mac {
+   PREFIX = $$(PREFIX)
+   isEmpty (PREFIX) {
+      PREFIX = /usr/local
+   }
+
+   BINDIR = $$(BINDIR)
+   isEmpty (BINDIR) {
+      BINDIR=$$PREFIX/lib
+   }
+
+   target.path = $$BINDIR
+   INSTALLS += target
+}
+
+INCLUDEPATH += . \
+               ./common \
+               ./emulator \
+               $$TOP/apps/ide/emulator
 
 SOURCES += \
    $$TOP/common/cbreakpointinfo.cpp \

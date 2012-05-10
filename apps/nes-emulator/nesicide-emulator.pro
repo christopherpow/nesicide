@@ -59,7 +59,7 @@ unix:!mac {
 
    BINDIR = $$(BINDIR)
    isEmpty (BINDIR) {
-      BINDIR=$$EPREFIX/bin
+      BINDIR=$$PREFIX/bin
    }
 
    target.path = $$BINDIR
