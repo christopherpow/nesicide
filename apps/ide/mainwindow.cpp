@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
    QObject::connect(tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
    QObject::connect(tabWidget,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   QObject::connect(this,SIGNAL(checkOpenFiles(QDateTime)),tabWidget,SLOT(checkOpenFiles(QDateTime)));
    QObject::connect(this,SIGNAL(applyProjectProperties()),tabWidget,SLOT(applyProjectProperties()));
    QObject::connect(this,SIGNAL(applyEnvironmentSettings()),tabWidget,SLOT(applyEnvironmentSettings()));
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),tabWidget,SIGNAL(updateTargetMachine(QString)));
@@ -286,9 +287,6 @@ void MainWindow::applicationActivated()
    QString str;
    int result;
 
-   qDebug("ACTIVATED!");
-   qDebug(now.toString().toAscii().constData());
-
    // Check whether the current open project file has changed.
    if ( m_lastActivationTime.isValid() && nesicideProject->isInitialized() )
    {
@@ -308,6 +306,8 @@ void MainWindow::applicationActivated()
          }
       }
    }
+
+   emit checkOpenFiles(m_lastActivationTime);
 
    // Save the date/time so we know what to compare against next time.
    m_lastActivationTime = now;
@@ -1366,7 +1366,8 @@ void MainWindow::on_actionSave_Project_triggered()
    QSettings settings;
    QString   fileName;
 
-   if ( !nesicideProject->getProjectFileName().compare("(unset)",Qt::CaseInsensitive) )
+   fileName = nesicideProject->getProjectFileName();
+   if ( !fileName.compare("(unset)",Qt::CaseInsensitive) )
    {
       fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
                                                      "NESICIDE Project (*.nesproject)");

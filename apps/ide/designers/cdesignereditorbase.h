@@ -33,6 +33,7 @@ public slots:
    virtual void applyChangesToTab(QString uuid) {}
    virtual void applyProjectPropertiesToTab() {}
    virtual void applyEnvironmentSettingsToTab() {}
+   virtual void checkOpenFile(QDateTime lastActivationTime) {}
 
 signals:
    void editor_modified(bool m);

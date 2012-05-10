@@ -2,6 +2,7 @@
 #define CPROJECTTABWIDGET_H
 
 #include <QTabWidget>
+#include <QDateTime>
 
 // The IDE uses a system of signals named "snapTo" and "snapToTab" to
 // communicate information between various debuggers, IDE elements, or
@@ -91,8 +92,10 @@ signals:
    void removeStatusBarWidget(QWidget* widget);
    void setStatusBarMessage(QString message);
    void updateTargetMachine(QString target);
+   void checkOpenFile(QDateTime lastActivationTime);
 
 public slots:
+   void checkOpenFiles(QDateTime lastActivationTime);
    void tabModified(bool modified);
    void projectDirtied(bool dirtied);
    void snapToTab(QString item);

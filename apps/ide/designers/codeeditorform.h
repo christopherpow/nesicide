@@ -100,6 +100,7 @@ public slots:
    void replaceText(QString from, QString to, bool replaceAll);
    void setBreakpoint(int line, int addr, int absAddr);
    void updateTargetMachine(QString target);
+   void checkOpenFile(QDateTime lastActivationTime);
 
 private slots:
    void editor_undo();

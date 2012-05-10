@@ -1392,3 +1392,34 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    restyleText();
    annotateText();
 }
+
+void CodeEditorForm::checkOpenFile(QDateTime lastActivationTime)
+{
+   QFileInfo fileInfo;
+   QDateTime now = QDateTime::currentDateTimeUtc();
+   QString str;
+   int result;
+
+   // Check whether the current open project file has changed.
+   if ( lastActivationTime.isValid() )
+   {
+      fileInfo.setFile(m_fileName);
+      if ( fileInfo.lastModified() > lastActivationTime )
+      {
+         str += m_fileName;
+         str += "\n\nhas been modified outside of NESICIDE.\n\n";
+         str += "Do you want to re-load it?";
+         result = QMessageBox::warning(this,"External interference detected!",str,QMessageBox::Yes,QMessageBox::No);
+
+         if ( result == QMessageBox::Yes )
+         {
+            QFile fileIn(m_fileName);
+            if ( fileIn.open(QIODevice::ReadOnly) )
+            {
+               QByteArray fileData = fileIn.readAll();
+               this->setSourceCode(fileData);
+            }
+         }
+      }
+   }
+}

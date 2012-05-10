@@ -169,6 +169,7 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 signals:
+   void checkOpenFiles(QDateTime lastActivationTime);
    void applyProjectProperties();
    void applyEnvironmentSettings();
    void startEmulation();

@@ -107,6 +107,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       QObject::connect(this,SIGNAL(applyChangesToTab(QString)),editor,SLOT(applyChangesToTab(QString)));
       QObject::connect(this,SIGNAL(applyProjectPropertiesToTab()),editor,SLOT(applyProjectPropertiesToTab()));
       QObject::connect(this,SIGNAL(applyEnvironmentSettingsToTab()),editor,SLOT(applyEnvironmentSettingsToTab()));
+      QObject::connect(this,SIGNAL(checkOpenFile(QDateTime)),editor,SLOT(checkOpenFile(QDateTime)));
       QObject::connect(editor,SIGNAL(addStatusBarWidget(QWidget*)),this,SIGNAL(addStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(removeStatusBarWidget(QWidget*)),this,SIGNAL(removeStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(setStatusBarMessage(QString)),this,SIGNAL(setStatusBarMessage(QString)));
@@ -416,5 +417,15 @@ void CProjectTabWidget::applyEnvironmentSettings()
    for ( tab = 0; tab < count(); tab++ )
    {
       emit applyEnvironmentSettingsToTab();
+   }
+}
+
+void CProjectTabWidget::checkOpenFiles(QDateTime lastActivationTime)
+{
+   int tab;
+
+   for ( tab = 0; tab < count(); tab++ )
+   {
+      emit checkOpenFile(lastActivationTime);
    }
 }
