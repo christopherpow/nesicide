@@ -123,6 +123,7 @@ unix:!mac {
        LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
     }
 
+   PREFIX = $$(PREFIX)
    isEmpty (PREFIX) {
       PREFIX = /usr/local
    }
@@ -289,7 +290,7 @@ SOURCES += \
 
 HEADERS += \
    aboutdialog.h \
-   emulator/cbreakpointinfo.h \
+   $$TOP/common/cbreakpointinfo.h \
    common/cbuildertextlogger.h \
    common/cdesignercommon.h \
    common/cdockwidgetregistry.h \
@@ -416,8 +417,8 @@ HEADERS += \
    common/cthreadregistry.h \
    c64/compilers/cmachineimagebuilder.h \
    c64/debuggers/dbg_cc64.h \
-   emulator/cregisterdata.h \
-   emulator/cmemorydata.h \
+   $$TOP/common/cregisterdata.h \
+   $$TOP/common/cmemorydata.h \
     appeventfilter.h
 
 FORMS += \
