@@ -183,6 +183,18 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
       QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    }
 
+   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QThread* compiler = CThreadRegistry::getThread("Compiler");
+
+   QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
+   QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
+   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
+   if ( emulator )
+   {
+      QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
+   }
+
    // Finally set the text in the Scintilla object.
    setSourceCode(sourceCode);
 }
@@ -202,17 +214,6 @@ CodeEditorForm::~CodeEditorForm()
 
 void CodeEditorForm::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
-   QThread* compiler = CThreadRegistry::getThread("Compiler");
-
-   QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
-   QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this,SLOT(breakpointHit()) );
-   if ( emulator )
-   {
-      QObject::connect ( emulator, SIGNAL(emulatorStarted()), this, SLOT(emulator_emulatorStarted()) );
-   }
 }
 
 void CodeEditorForm::customContextMenuRequested(const QPoint &pos)

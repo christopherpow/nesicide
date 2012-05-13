@@ -26,88 +26,95 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="2">
-    <widget class="QToolButton" name="regex">
-     <property name="toolTip">
-      <string>Regular Expression</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../resource.qrc">
-       <normaloff>:/resources/regular-expression.png</normaloff>:/resources/regular-expression.png</iconset>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QToolButton" name="direction">
-     <property name="toolTip">
-      <string>Search Direction</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../resource.qrc">
-       <normaloff>:/resources/view_sort_descending.png</normaloff>
-       <normalon>:/resources/view_sort_ascending.png</normalon>:/resources/view_sort_descending.png</iconset>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="autoRaise">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
-    <widget class="QComboBox" name="searchText">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
      </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <property name="maxVisibleItems">
-      <number>30</number>
-     </property>
-     <property name="insertPolicy">
-      <enum>QComboBox::InsertAtTop</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QToolButton" name="caseSensitive">
-     <property name="toolTip">
-      <string>Case Sensitive</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../resource.qrc">
-       <normaloff>:/resources/case-sensitive.png</normaloff>:/resources/case-sensitive.png</iconset>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
+     <item>
+      <widget class="QComboBox" name="searchText">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="maxVisibleItems">
+        <number>30</number>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::InsertAtTop</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="caseSensitive">
+       <property name="toolTip">
+        <string>Case Sensitive</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/case-sensitive.png</normaloff>:/resources/case-sensitive.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="regex">
+       <property name="toolTip">
+        <string>Regular Expression</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/regular-expression.png</normaloff>:/resources/regular-expression.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="direction">
+       <property name="toolTip">
+        <string>Search Direction</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/view_sort_descending.png</normaloff>
+         <normalon>:/resources/view_sort_ascending.png</normalon>:/resources/view_sort_descending.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>searchText</tabstop>
-  <tabstop>caseSensitive</tabstop>
-  <tabstop>regex</tabstop>
-  <tabstop>direction</tabstop>
- </tabstops>
  <resources>
   <include location="../resource.qrc"/>
  </resources>

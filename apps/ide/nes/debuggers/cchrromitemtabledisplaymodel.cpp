@@ -23,7 +23,7 @@ QModelIndex CChrRomItemTableDisplayModel::index(int row, int column, const QMode
    }
    else
    {
-      return createIndex(row,column,NULL);
+      return createIndex(row,column);
    }
 }
 
