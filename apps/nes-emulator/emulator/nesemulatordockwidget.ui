@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>NESEmulatorDockWidget</class>
- <widget class="QWidget" name="NESEmulatorDockWidget">
+ <widget class="QDockWidget" name="NESEmulatorDockWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Emulator</string>
   </property>
-  <widget class="QWidget" name="widgetContents">
+  <widget class="QWidget" name="dockWidgetContents">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -81,6 +81,9 @@
       </property>
       <property name="frameShadow">
        <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <property name="sizeConstraint">

@@ -33,6 +33,7 @@ protected:
 private:
    Ui::MainWindow* ui;
    NESEmulatorDockWidget* m_pEmulator;
+   bool m_bEmulatorFloating;
    EmulatorControl* m_pEmulatorControl;
 
 signals:

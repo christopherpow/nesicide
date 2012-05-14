@@ -576,11 +576,14 @@ void MainWindow::on_actionFullscren_toggled(bool value)
 {
    if ( value )
    {
+      m_bEmulatorFloating = m_pEmulator->isFloating();
+      m_pEmulator->setFloating(true);
       m_pEmulator->showFullScreen();
    }
    else
    {
       m_pEmulator->showNormal();
+      m_pEmulator->setFloating(m_bEmulatorFloating);
    }
 }
 
