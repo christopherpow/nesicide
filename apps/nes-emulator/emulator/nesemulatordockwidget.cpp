@@ -8,7 +8,7 @@
 #include "nes_emulator_core.h"
 
 NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+    QWidget(parent),
     ui(new Ui::NESEmulatorDockWidget)
 {
    int32_t i;
@@ -24,9 +24,6 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
    QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));
-
-   fakeTitleBar = new QWidget();
-   setTitleBarWidget(fakeTitleBar);
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -51,7 +48,7 @@ NESEmulatorDockWidget::~NESEmulatorDockWidget()
 
 void NESEmulatorDockWidget::changeEvent(QEvent* e)
 {
-   QDockWidget::changeEvent(e);
+   QWidget::changeEvent(e);
 
    switch (e->type())
    {

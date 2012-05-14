@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>257</width>
-    <height>282</height>
+    <width>258</width>
+    <height>283</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>257</width>
-    <height>282</height>
+    <width>258</width>
+    <height>283</height>
    </size>
   </property>
   <property name="sizeIncrement">
@@ -65,8 +65,8 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>256</width>
-        <height>240</height>
+        <width>257</width>
+        <height>241</height>
        </size>
       </property>
       <property name="mouseTracking">
@@ -104,7 +104,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>257</width>
+     <width>258</width>
      <height>21</height>
     </rect>
    </property>

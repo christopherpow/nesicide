@@ -11,7 +11,7 @@ namespace Ui {
    class NESEmulatorDockWidget;
 }
 
-class NESEmulatorDockWidget : public QDockWidget
+class NESEmulatorDockWidget : public QWidget
 {
    Q_OBJECT
 
