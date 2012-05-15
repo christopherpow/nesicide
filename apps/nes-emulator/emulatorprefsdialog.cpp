@@ -11,8 +11,10 @@ bool EmulatorPrefsDialog::audioUpdated;
 bool EmulatorPrefsDialog::videoUpdated;
 bool EmulatorPrefsDialog::systemUpdated;
 
-// Settings data structures.
-int EmulatorPrefsDialog::lastActiveTab;
+// General data structures.
+bool EmulatorPrefsDialog::pauseOnTaskSwitch;
+
+// NES settings data structures.
 int EmulatorPrefsDialog::controllerType[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
 int EmulatorPrefsDialog::zapperKeyMap[NUM_CONTROLLERS][IO_Zapper_MAX];
@@ -38,6 +40,9 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    readSettings();
 
    ui->tabWidget->setCurrentIndex(0);
+
+   ui->pauseOnTaskSwitch->setChecked(pauseOnTaskSwitch);
+
    ui->controllerPortComboBox->setCurrentIndex(0);
    on_controllerPortComboBox_currentIndexChanged(0);
 
@@ -51,8 +56,6 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    ui->dmc->setChecked(dmcEnabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
-
-   ui->tabWidget->setCurrentIndex(lastActiveTab);
 }
 
 EmulatorPrefsDialog::~EmulatorPrefsDialog()
@@ -72,25 +75,29 @@ void EmulatorPrefsDialog::readSettings()
    videoUpdated = false;
    systemUpdated = false;
 
+   settings.beginGroup("EmulatorPreferences/General");
+   pauseOnTaskSwitch = settings.value("pauseOnTaskSwitch",QVariant(true)).toBool();
+   settings.endGroup();
+
    for ( port = 0; port < NUM_CONTROLLERS; port++ )
    {
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Port"+QString::number(port));
       controllerType[port] = settings.value("Type",QVariant(IO_StandardJoypad)).toInt();
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/StandardJoypad/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/StandardJoypad/Port"+QString::number(port));
       for ( function = 0; function < IO_StandardJoypad_MAX; function++ )
       {
          standardJoypadKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Zapper/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Zapper/Port"+QString::number(port));
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
          zapperKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
          zapperMouseMap[port][function] = settings.value("MouseMap"+QString::number(function),QVariant(true)).toBool();
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
       for ( function = 0; function < IO_Vaus_MAX; function++ )
       {
          vausArkanoidKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
@@ -100,7 +107,7 @@ void EmulatorPrefsDialog::readSettings()
       settings.endGroup();
    }
 
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    square1Enabled = settings.value("Square1",QVariant(true)).toBool();
    square2Enabled = settings.value("Square2",QVariant(true)).toBool();
    triangleEnabled = settings.value("Triangle",QVariant(true)).toBool();
@@ -108,17 +115,13 @@ void EmulatorPrefsDialog::readSettings()
    dmcEnabled = settings.value("DMC",QVariant(true)).toBool();
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/Video");
+   settings.beginGroup("EmulatorPreferences/NES/Video");
    scalingFactor = settings.value("ScalingFactor",0).toInt();
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/System");
+   settings.beginGroup("EmulatorPreferences/NES/System");
    tvStandard = settings.value("TVStandard",QVariant(MODE_NTSC)).toInt();
    pauseOnKIL = settings.value("PauseOnKIL",QVariant(true)).toBool();
-   settings.endGroup();
-
-   settings.beginGroup("EmulatorPreferences");
-   lastActiveTab = settings.value("LastActiveTab",0).toInt();
    settings.endGroup();
 }
 
@@ -159,7 +162,6 @@ void EmulatorPrefsDialog::writeSettings()
       videoUpdated = true;
    }
    controllersUpdated = true;
-   lastActiveTab = ui->tabWidget->currentIndex();
 
    // Save UI to locals first.
    switch ( ui->controllerTypeComboBox->currentIndex() )
@@ -205,6 +207,9 @@ void EmulatorPrefsDialog::writeSettings()
          vausArkanoidTrimPot[port] = ui->trimPotVaus->value();
       break;
    }
+
+   pauseOnTaskSwitch = ui->pauseOnTaskSwitch->isChecked();
+
    tvStandard = ui->tvStandard->currentIndex();
    pauseOnKIL = ui->pauseOnKIL->isChecked();
 
@@ -217,25 +222,29 @@ void EmulatorPrefsDialog::writeSettings()
    scalingFactor = ui->scalingFactor->currentIndex();
 
    // Then save locals to QSettings.
+   settings.beginGroup("EmulatorPreferences/General");
+   settings.setValue("pauseOnTaskSwitch",QVariant(pauseOnTaskSwitch));
+   settings.endGroup();
+
    for ( port = 0; port < NUM_CONTROLLERS; port++ )
    {
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Port"+QString::number(port));
       settings.setValue("Type",controllerType[port]);
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/StandardJoypad/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/StandardJoypad/Port"+QString::number(port));
       for ( function = 0; function < IO_StandardJoypad_MAX; function++ )
       {
          settings.setValue("KeyMap"+QString::number(function),standardJoypadKeyMap[port][function]);
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Zapper/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Zapper/Port"+QString::number(port));
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
          settings.setValue("KeyMap"+QString::number(function),zapperKeyMap[port][function]);
          settings.setValue("MouseMap"+QString::number(function),zapperMouseMap[port][function]);
       }
       settings.endGroup();
-      settings.beginGroup("EmulatorPreferences/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Vaus(Arkanoid)/Port"+QString::number(port));
       for ( function = 0; function < IO_Vaus_MAX; function++ )
       {
          settings.setValue("KeyMap"+QString::number(function),vausArkanoidKeyMap[port][function]);
@@ -245,7 +254,7 @@ void EmulatorPrefsDialog::writeSettings()
       settings.endGroup();
    }
 
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("Square1",square1Enabled);
    settings.setValue("Square2",square2Enabled);
    settings.setValue("Triangle",triangleEnabled);
@@ -253,17 +262,13 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("DMC",dmcEnabled);
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/Video");
+   settings.beginGroup("EmulatorPreferences/NES/Video");
    settings.setValue("ScalingFactor",scalingFactor);
    settings.endGroup();
 
-   settings.beginGroup("EmulatorPreferences/System");
+   settings.beginGroup("EmulatorPreferences/NES/System");
    settings.setValue("TVStandard",tvStandard);
    settings.setValue("PauseOnKIL",pauseOnKIL);
-   settings.endGroup();
-
-   settings.beginGroup("EmulatorPreferences");
-   settings.setValue("LastActiveTab",lastActiveTab);
    settings.endGroup();
 }
 
@@ -416,6 +421,11 @@ void EmulatorPrefsDialog::on_buttonBox_accepted()
    writeSettings();
 }
 
+bool EmulatorPrefsDialog::getPauseOnTaskSwitch()
+{
+   return pauseOnTaskSwitch;
+}
+
 int EmulatorPrefsDialog::getControllerType(int port)
 {
    return controllerType[port];
@@ -488,6 +498,19 @@ bool EmulatorPrefsDialog::getPauseOnKIL()
    return pauseOnKIL;
 }
 
+void EmulatorPrefsDialog::setPauseOnTaskSwitch(bool pause)
+{
+   QSettings settings;
+
+   // Update local storage first.
+   pauseOnTaskSwitch = pause;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/General");
+   settings.setValue("pauseOnTaskSwitch",pauseOnTaskSwitch);
+   settings.endGroup();
+}
+
 void EmulatorPrefsDialog::setTVStandard(int standard)
 {
    QSettings settings;
@@ -496,7 +519,7 @@ void EmulatorPrefsDialog::setTVStandard(int standard)
    tvStandard = standard;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/System");
+   settings.beginGroup("EmulatorPreferences/NES/System");
    settings.setValue("TVStandard",tvStandard);
    settings.endGroup();
 }
@@ -534,7 +557,7 @@ void EmulatorPrefsDialog::setSquare1Enabled(bool enabled)
    square1Enabled = enabled;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("Square1",square1Enabled);
    settings.endGroup();
 }
@@ -547,7 +570,7 @@ void EmulatorPrefsDialog::setSquare2Enabled(bool enabled)
    square2Enabled = enabled;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("Square2",square2Enabled);
    settings.endGroup();
 }
@@ -560,7 +583,7 @@ void EmulatorPrefsDialog::setTriangleEnabled(bool enabled)
    triangleEnabled = enabled;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("Triangle",triangleEnabled);
    settings.endGroup();
 }
@@ -573,7 +596,7 @@ void EmulatorPrefsDialog::setNoiseEnabled(bool enabled)
    noiseEnabled = enabled;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("Noise",noiseEnabled);
    settings.endGroup();
 }
@@ -586,7 +609,7 @@ void EmulatorPrefsDialog::setDMCEnabled(bool enabled)
    dmcEnabled = enabled;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/Audio");
+   settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("DMC",dmcEnabled);
    settings.endGroup();
 }
@@ -604,7 +627,7 @@ void EmulatorPrefsDialog::setScalingFactor(int factor)
    scalingFactor = factor;
 
    // Now write to QSettings.
-   settings.beginGroup("EmulatorPreferences/Video");
+   settings.beginGroup("EmulatorPreferences/NES/Video");
    settings.setValue("ScalingFactor",scalingFactor);
    settings.endGroup();
 }

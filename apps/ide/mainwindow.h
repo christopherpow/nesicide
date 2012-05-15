@@ -72,7 +72,7 @@ protected:
    QString m_targetLoaded;
 
    // Last activation time (for file-modified-outside-of-ide check)
-   QDateTime m_lastActivationTime;
+   QDateTime m_lastActivationChangeTime;
 
    // Common/reused UI elements.
    QToolBar *debuggerToolBar;
@@ -180,7 +180,7 @@ signals:
    void updateTargetMachine(QString target);
 
 private slots:
-   void applicationActivated();
+   void applicationActivationChanged(bool activated);
    void createTarget(QString target);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);

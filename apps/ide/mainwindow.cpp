@@ -280,37 +280,41 @@ MainWindow::~MainWindow()
    m_pSearch->deleteLater();
 }
 
-void MainWindow::applicationActivated()
+void MainWindow::applicationActivationChanged(bool activated)
 {
    QFileInfo fileInfo;
    QDateTime now = QDateTime::currentDateTimeUtc();
    QString str;
    int result;
 
-   // Check whether the current open project file has changed.
-   if ( m_lastActivationTime.isValid() && nesicideProject->isInitialized() )
+   // ACTIVATING
+   if ( activated )
    {
-      fileInfo.setFile(nesicideProject->getProjectFileName());
-      if ( fileInfo.lastModified() > m_lastActivationTime )
+      // Check whether the current open project file has changed.
+      if ( m_lastActivationChangeTime.isValid() && nesicideProject->isInitialized() )
       {
-         str = "The currently loaded project:\n\n";
-         str += nesicideProject->getProjectFileName();
-         str += "\n\nhas been modified outside of NESICIDE.\n\n";
-         str += "Do you want to re-load the project?";
-         result = QMessageBox::warning(this,"External interference detected!",str,QMessageBox::Yes,QMessageBox::No);
-
-         if ( result == QMessageBox::Yes )
+         fileInfo.setFile(nesicideProject->getProjectFileName());
+         if ( fileInfo.lastModified() > m_lastActivationChangeTime )
          {
-            closeProject();
-            openNesProject(fileInfo.fileName());
+            str = "The currently loaded project:\n\n";
+            str += nesicideProject->getProjectFileName();
+            str += "\n\nhas been modified outside of NESICIDE.\n\n";
+            str += "Do you want to re-load the project?";
+            result = QMessageBox::warning(this,"External interference detected!",str,QMessageBox::Yes,QMessageBox::No);
+
+            if ( result == QMessageBox::Yes )
+            {
+               closeProject();
+               openNesProject(fileInfo.fileName());
+            }
          }
       }
+
+      emit checkOpenFiles(m_lastActivationChangeTime);
    }
 
-   emit checkOpenFiles(m_lastActivationTime);
-
    // Save the date/time so we know what to compare against next time.
-   m_lastActivationTime = now;
+   m_lastActivationChangeTime = now;
 }
 
 void MainWindow::createTarget(QString target)
@@ -1429,6 +1433,9 @@ void MainWindow::saveEmulatorState(QString fileName)
 void MainWindow::saveProject(QString fileName)
 {
    QFile file(fileName);
+
+   // Save the project file name in the project...
+   nesicideProject->setProjectFileName(fileName);
 
    if ( !file.open( QFile::WriteOnly) )
    {

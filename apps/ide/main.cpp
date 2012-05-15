@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();
-   QObject::connect(&nesicideEventFilter,SIGNAL(applicationActivated()),nesicideWindow,SLOT(applicationActivated()));
+   QObject::connect(&nesicideEventFilter,SIGNAL(applicationActivationChanged(bool)),nesicideWindow,SLOT(applicationActivationChanged(bool)));
    nesicideWindow->show();
 
    int result = nesicideApplication.exec();

@@ -11,7 +11,14 @@ bool AppEventFilter::eventFilter(QObject *obj, QEvent *event)
    if (!inActivationEvent && event->type() == QEvent::ApplicationActivate) {
       // The application activation can be handled here
       inActivationEvent = true;
-      emit applicationActivated();
+      emit applicationActivationChanged(true);
+      inActivationEvent = false;
+      return true;
+   }
+   else if (!inActivationEvent && event->type() == QEvent::ApplicationDeactivate) {
+      // The application deactivation can be handled here
+      inActivationEvent = true;
+      emit applicationActivationChanged(false);
       inActivationEvent = false;
       return true;
    }

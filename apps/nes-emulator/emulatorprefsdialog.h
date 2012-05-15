@@ -28,7 +28,10 @@ public:
    static bool videoSettingsChanged() { return videoUpdated; }
    static bool systemSettingsChanged() { return systemUpdated; }
 
-   // Accessors
+   // General accessors
+   static bool getPauseOnTaskSwitch();
+
+   // NES accessors
    static int getControllerType(int port);
    static int getControllerKeyMap(int port,int function);
    static bool getControllerMouseMap(int port,int function);
@@ -50,6 +53,7 @@ public:
    static void setNoiseEnabled(bool enabled);
    static void setDMCEnabled(bool enabled);
    static void setScalingFactor(int factor);
+   static void setPauseOnTaskSwitch(bool pause);
 
 private:
    Ui::EmulatorPrefsDialog* ui;
@@ -57,8 +61,10 @@ private:
    // Interface to store values to QSettings from local storage.
    void writeSettings();
 
-   // Settings data structures.
-   static int lastActiveTab;
+   // General data structures.
+   static bool pauseOnTaskSwitch;
+
+   // NES settings data structures.
    static int controllerType[NUM_CONTROLLERS];
    static int standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
    static int zapperKeyMap[NUM_CONTROLLERS][IO_Zapper_MAX];

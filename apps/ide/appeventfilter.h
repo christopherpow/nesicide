@@ -13,7 +13,7 @@ public:
     bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
-    void applicationActivated();
+    void applicationActivationChanged(bool activated);
 
 public slots:
 
