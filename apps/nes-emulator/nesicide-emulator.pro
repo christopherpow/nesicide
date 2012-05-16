@@ -83,12 +83,14 @@ SOURCES += \
    project/ccartridge.cpp \
    aboutdialog.cpp \
    emulator/nesemulatorthread.cpp \
-   emulatorprefsdialog.cpp \
+   emulator/emulatorprefsdialog.cpp \
    qkeymapitemedit.cpp \
    version.cpp \
    emulator/nesemulatorrenderer.cpp \
    common/emulatorcontrol.cpp \
-   emulator/nesemulatordockwidget.cpp
+   emulator/nesemulatordockwidget.cpp \
+   $$TOP/common/appeventfilter.cpp \
+   $$TOP/common/cthreadregistry.cpp
 
 HEADERS += \
    mainwindow.h \
@@ -96,17 +98,19 @@ HEADERS += \
    main.h \
    aboutdialog.h \
    emulator/nesemulatorthread.h \
-   emulatorprefsdialog.h \
+   emulator/emulatorprefsdialog.h \
    qkeymapitemedit.h \
    emulator/nesemulatorrenderer.h \
    common/emulatorcontrol.h \
    emulator/nesemulatordockwidget.h \
-   interfaces/ixmlserializable.h
+   interfaces/ixmlserializable.h \
+   $$TOP/common/appeventfilter.h \
+   $$TOP/common/cthreadregistry.h
 
 FORMS += \
    mainwindow.ui \
    aboutdialog.ui \
-   emulatorprefsdialog.ui \
+   emulator/emulatorprefsdialog.ui \
    common/emulatorcontrol.ui \
    emulator/nesemulatordockwidget.ui
 

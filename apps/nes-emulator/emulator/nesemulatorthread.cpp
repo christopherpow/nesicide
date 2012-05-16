@@ -42,6 +42,7 @@ void nesCoreMutexUnlock ( void )
 
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
+   NESEmulatorThread* emulator = (NESEmulatorThread*)userdata;
    int32_t samplesAvailable;
 
    nesCoreMutexLock();
@@ -82,7 +83,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    SDL_Init ( SDL_INIT_AUDIO );
 
    sdlAudioSpec.callback = SDL_GetMoreData;
-   sdlAudioSpec.userdata = NULL;
+   sdlAudioSpec.userdata = this;
    sdlAudioSpec.channels = 1;
    sdlAudioSpec.format = AUDIO_S16SYS;
    sdlAudioSpec.freq = SDL_SAMPLE_RATE;
@@ -225,7 +226,7 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::run ()
 {
-   QWidget* emulatorWidget = nesicideWindow; // Hacky, but works for now.
+   QWidget* emulatorWidget = MainWindow::me(); // Hacky, but works for now.
    int scaleX;
    int scaleY;
    int scale;

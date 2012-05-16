@@ -7,8 +7,12 @@
 
 #include "nes_emulator_core.h"
 
+#include "cthreadregistry.h"
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+QWidget* MainWindow::_me = NULL;
 
 MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
@@ -16,7 +20,14 @@ MainWindow::MainWindow(QWidget* parent) :
 {
    QSettings settings;
 
+   // Set up singleton pointer for main window referencing.
+   _me = this;
+
    ui->setupUi(this);
+
+   m_pNESEmulatorThread = new NESEmulatorThread();
+   CThreadRegistry::addThread("Emulator",m_pNESEmulatorThread);
+
    m_pEmulator = new NESEmulatorDockWidget(this);
    ui->frame->layout()->addWidget(m_pEmulator);
    m_pEmulator->setVisible(true);
@@ -24,9 +35,10 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pEmulatorControl = new EmulatorControl();
 
    // Connect emulator signals.
-   QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
-   QObject::connect(this,SIGNAL(pauseEmulation(bool)),emulator,SLOT(pauseEmulation(bool)));
-   QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(startEmulation()),m_pNESEmulatorThread,SLOT(startEmulation()));
+   QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
+   QObject::connect(this,SIGNAL(resetEmulator()),m_pNESEmulatorThread,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(primeEmulator(CCartridge*)),m_pNESEmulatorThread,SLOT(primeEmulator(CCartridge*)));
 
    // Add menu for emulator control.  The emulator control provides menu for itself!  =]
    QAction* firstEmuMenuAction = ui->menuEmulator->actions().at(0);
@@ -72,7 +84,7 @@ MainWindow::MainWindow(QWidget* parent) :
       loadCartridge(sl_nes.at(0));
 
       // set up emulator if it needs to be...
-      emulator->primeEmulator ( cartridge );
+      emit primeEmulator ( cartridge );
 
       emit resetEmulator();
       emit startEmulation();
@@ -97,6 +109,21 @@ MainWindow::MainWindow(QWidget* parent) :
 MainWindow::~MainWindow()
 {
    delete ui;
+}
+
+void MainWindow::applicationActivationChanged(bool activated)
+{
+   if ( activated )
+   {
+      // Nothing to do...
+   }
+   else
+   {
+      if ( EmulatorPrefsDialog::getPauseOnTaskSwitch() )
+      {
+         emit pauseEmulation(false);
+      }
+   }
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -153,7 +180,7 @@ void MainWindow::saveEmulatorState(QString fileName)
       // our file stream.
       ts << doc.toString();
 #else
-      if (!emulator->serializeContent(file))
+      if (!m_pNESEmulatorThread->serializeContent(file))
       {
          QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
          file.close();
@@ -326,7 +353,7 @@ void MainWindow::on_actionOpen_triggered()
    loadCartridge(fileName);
 
    // set up emulator if it needs to be...
-   emulator->primeEmulator ( cartridge );
+   emit primeEmulator ( cartridge );
 
    emit resetEmulator();
    emit startEmulation();
@@ -389,7 +416,7 @@ void MainWindow::dropEvent(QDropEvent* event)
          loadCartridge(fileName);
 
          // set up emulator if it needs to be...
-         emulator->primeEmulator ( cartridge );
+         emit primeEmulator ( cartridge );
 
          emit resetEmulator();
          emit startEmulation();

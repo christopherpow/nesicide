@@ -1,13 +1,15 @@
 #include "emulatorcontrol.h"
 #include "ui_emulatorcontrol.h"
 
-#include "main.h"
+#include "cthreadregistry.h"
 
 EmulatorControl::EmulatorControl(QWidget *parent) :
    QWidget(parent),
    ui(new Ui::EmulatorControl)
 {
    ui->setupUi(this);
+
+   QThread* emulator = CThreadRegistry::getThread("Emulator");
 
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));

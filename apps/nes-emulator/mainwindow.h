@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "nesemulatordockwidget.h"
+#include "nesemulatorthread.h"
 #include "aboutdialog.h"
 #include "emulatorprefsdialog.h"
 #include "emulatorcontrol.h"
@@ -19,6 +20,7 @@ class MainWindow : public QMainWindow
 public:
    explicit MainWindow(QWidget* parent = 0);
    virtual ~MainWindow();
+   static QWidget* me() { return _me; }
 
 protected:
    void dragEnterEvent ( QDragEnterEvent* event );
@@ -31,17 +33,21 @@ protected:
    virtual void closeEvent ( QCloseEvent* event );
 
 private:
+   static QWidget* _me;
    Ui::MainWindow* ui;
    NESEmulatorDockWidget* m_pEmulator;
    bool m_bEmulatorFloating;
    EmulatorControl* m_pEmulatorControl;
+   NESEmulatorThread* m_pNESEmulatorThread;
 
 signals:
+   void primeEmulator(CCartridge* pCartridge);
    void startEmulation();
    void pauseEmulation(bool show);
    void resetEmulator();
 
 private slots:
+   void applicationActivationChanged(bool activated);
    void on_actionAbout_Qt_triggered();
    void on_actionFullscren_toggled(bool value);
    void on_actionDelta_Modulation_toggled(bool );

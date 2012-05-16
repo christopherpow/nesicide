@@ -45,7 +45,7 @@ void TilificationThread::run()
    const char* tileSrc;
    const char* tileDst;
 
-#if 0
+#if 1
 // disable tilification for now until I sort out how to incorporate it best.
    for ( idx1 = 0; idx1 < m_input.count(); idx1++ )
    {

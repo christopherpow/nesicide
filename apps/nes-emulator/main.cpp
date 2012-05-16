@@ -2,20 +2,19 @@
 #include "main.h"
 #include "mainwindow.h"
 
-#include "nes_emulator_core.h"
-
-// Main window of application.
-MainWindow* nesicideWindow;
-
-// Thread for NES emulator.  This thread runs the NES core.
-NESEmulatorThread* emulator = NULL;
+#include "appeventfilter.h"
 
 // Cartridge for NES emulator.
 CCartridge* cartridge = NULL;
 
 int main(int argc, char* argv[])
 {
+   // Main window of application.
+   MainWindow* nesicideWindow;
+
    QApplication nesicideApplication(argc, argv);
+   AppEventFilter nesicideEventFilter;
+   nesicideApplication.installEventFilter(&nesicideEventFilter); // Installing the event filter
 
    QCoreApplication::setOrganizationName("CSPSoftware");
    QCoreApplication::setOrganizationDomain("nesicide.com");
@@ -29,24 +28,12 @@ int main(int argc, char* argv[])
 
    QGLFormat::setDefaultFormat(fmt);
 
-   // Create the NES emulator thread...
-   emulator = new NESEmulatorThread ();
-
-   // Start emulator thread...
-   emulator->start();
-
    // Create, show, and execute the main window (UI) thread.
    nesicideWindow = new MainWindow();
+   QObject::connect(&nesicideEventFilter,SIGNAL(applicationActivationChanged(bool)),nesicideWindow,SLOT(applicationActivationChanged(bool)));
    nesicideWindow->show();
 
    int result = nesicideApplication.exec();
-
-   // Properly kill and destroy the thread we created above.
-   emulator->kill();
-   emulator->wait();
-
-   emulator->deleteLater();
-   emulator = NULL;
 
    return result;
 }

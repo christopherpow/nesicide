@@ -9,7 +9,5 @@
 
 extern CCartridge* cartridge;
 
-extern MainWindow* nesicideWindow;
-extern NESEmulatorThread* emulator;
 
 #endif // MAIN_H

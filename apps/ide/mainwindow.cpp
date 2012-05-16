@@ -312,6 +312,13 @@ void MainWindow::applicationActivationChanged(bool activated)
 
       emit checkOpenFiles(m_lastActivationChangeTime);
    }
+   else
+   {
+      if ( EmulatorPrefsDialog::getPauseOnTaskSwitch() )
+      {
+         emit pauseEmulation(false);
+      }
+   }
 
    // Save the date/time so we know what to compare against next time.
    m_lastActivationChangeTime = now;
