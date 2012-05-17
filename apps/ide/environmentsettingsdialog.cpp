@@ -307,6 +307,10 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
 
    ui->styleName->clear();
 
+   m_defaultLexer->readSettings(settings,"CodeEditor");
+   m_ca65Lexer->readSettings(settings,"CodeEditor");
+   m_cppLexer->readSettings(settings,"CodeEditor");
+
    // Clear current lexer first!
    m_scintilla->setLexer(NULL);
 
