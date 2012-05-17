@@ -54,12 +54,10 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankI
 
    ui->leftTableView->setModel(leftModel);
    ui->leftTableView->setItemDelegateForColumn(ChrRomBankItemCol_Name,delegate);
-   ui->leftTableView->setColumnWidth(ChrRomBankItemCol_Icon, 26);
    ui->leftTableView->setColumnWidth(ChrRomBankItemCol_Name,400);
 
    ui->rightTableView->setModel(rightModel);
    ui->rightTableView->setItemDelegateForColumn(ChrRomBankItemCol_Name,delegate);
-   ui->rightTableView->setColumnWidth(ChrRomBankItemCol_Icon, 26);
    ui->rightTableView->setColumnWidth(ChrRomBankItemCol_Name,400);
 
    ui->leftGauge->setMaximum(MEM_4KB);

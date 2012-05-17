@@ -8,11 +8,10 @@
 
 enum
 {
-   ChrRomBankItemCol_Icon,
-   ChrRomBankItemCol_Name,
-   ChrRomBankItemCol_Type,
-   ChrRomBankItemCol_Size,
    ChrRomBankItemCol_Image,
+   ChrRomBankItemCol_Name,
+   ChrRomBankItemCol_Size,
+   ChrRomBankItemCol_Type,
    ChrRomBankItemCol_MAX
 };
 

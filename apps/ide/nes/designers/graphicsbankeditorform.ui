@@ -55,6 +55,12 @@
           <property name="textElideMode">
            <enum>Qt::ElideNone</enum>
           </property>
+          <property name="verticalScrollMode">
+           <enum>QAbstractItemView::ScrollPerPixel</enum>
+          </property>
+          <property name="horizontalScrollMode">
+           <enum>QAbstractItemView::ScrollPerPixel</enum>
+          </property>
           <property name="showGrid">
            <bool>false</bool>
           </property>
@@ -105,6 +111,12 @@
           </property>
           <property name="textElideMode">
            <enum>Qt::ElideNone</enum>
+          </property>
+          <property name="verticalScrollMode">
+           <enum>QAbstractItemView::ScrollPerPixel</enum>
+          </property>
+          <property name="horizontalScrollMode">
+           <enum>QAbstractItemView::ScrollPerPixel</enum>
           </property>
           <property name="showGrid">
            <bool>false</bool>

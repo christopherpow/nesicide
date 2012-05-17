@@ -49,11 +49,6 @@ QVariant CChrRomItemTableDisplayModel::data(const QModelIndex& index, int role) 
    {
       IChrRomBankItem* item = chrRomBankItems.at(index.row());
 
-      if ((role == Qt::DecorationRole) && (index.column() == ChrRomBankItemCol_Icon))
-      {
-         return item->getChrRomBankItemIcon();
-      }
-
       if ((role == Qt::DecorationRole) && (index.column() == ChrRomBankItemCol_Image))
       {
          return item->getChrRomBankItemImage();
