@@ -333,8 +333,6 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
       break;
    }
 
-   m_lexer->readSettings(settings,"CodeEditor");
-
    for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
    {
       if ( !m_lexer->description(style).isEmpty() )
@@ -519,28 +517,103 @@ void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
 {
    QSettings settings;
-   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
-   QFont font = m_lexer->font(style);
-   font.setBold(checked);
-   m_lexer->setFont(font,style);
+   int style;
+
+   if ( ui->applyAll->isChecked() )
+   {
+      for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
+      {
+         if ( !m_lexer->description(style).isEmpty() )
+         {
+            QFont font = m_lexer->font(style);
+            font.setBold(checked);
+            m_lexer->setFont(font,style);
+            if ( style == QsciLexerCA65::CA65_Default )
+            {
+               m_scintilla->setMarginsFont(font);
+            }
+         }
+      }
+   }
+   else
+   {
+      style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
+      QFont font = m_lexer->font(style);
+      font.setBold(checked);
+      m_lexer->setFont(font,style);
+      if ( style == QsciLexerCA65::CA65_Default )
+      {
+         m_scintilla->setMarginsFont(font);
+      }
+   }
 }
 
 void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
 {
    QSettings settings;
    int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
-   QFont font = m_lexer->font(style);
-   font.setItalic(checked);
-   m_lexer->setFont(font,style);
+
+   if ( ui->applyAll->isChecked() )
+   {
+      for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
+      {
+         if ( !m_lexer->description(style).isEmpty() )
+         {
+            QFont font = m_lexer->font(style);
+            font.setItalic(checked);
+            m_lexer->setFont(font,style);
+            if ( style == QsciLexerCA65::CA65_Default )
+            {
+               m_scintilla->setMarginsFont(font);
+            }
+         }
+      }
+   }
+   else
+   {
+      style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
+      QFont font = m_lexer->font(style);
+      font.setItalic(checked);
+      m_lexer->setFont(font,style);
+      if ( style == QsciLexerCA65::CA65_Default )
+      {
+         m_scintilla->setMarginsFont(font);
+      }
+   }
 }
 
 void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
 {
    QSettings settings;
-   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
-   QFont font = m_lexer->font(style);
-   font.setUnderline(checked);
-   m_lexer->setFont(font,style);
+   int style;
+
+   if ( ui->applyAll->isChecked() )
+   {
+      for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
+      {
+         if ( !m_lexer->description(style).isEmpty() )
+         {
+            QFont font = m_lexer->font(style);
+            font.setUnderline(checked);
+            m_lexer->setFont(font,style);
+            if ( style == QsciLexerCA65::CA65_Default )
+            {
+               m_scintilla->setMarginsFont(font);
+            }
+         }
+      }
+   }
+   else
+   {
+      style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
+      QFont font = m_lexer->font(style);
+      font.setUnderline(checked);
+      m_lexer->setFont(font,style);
+      if ( style == QsciLexerCA65::CA65_Default )
+      {
+         m_scintilla->setMarginsFont(font);
+      }
+   }
 }
 
 void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
@@ -663,13 +736,34 @@ void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
 void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
 {
    QSettings settings;
-   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
-   QFont font = m_lexer->font(style);
-   font.setPointSize(value);
-   m_lexer->setFont(font,style);
-   if ( style == QsciLexerCA65::CA65_Default )
+   int style;
+
+   if ( ui->applyAll->isChecked() )
    {
-      m_scintilla->setMarginsFont(font);
+      for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
+      {
+         if ( !m_lexer->description(style).isEmpty() )
+         {
+            QFont font = m_lexer->font(style);
+            font.setPointSize(value);
+            m_lexer->setFont(font,style);
+            if ( style == QsciLexerCA65::CA65_Default )
+            {
+               m_scintilla->setMarginsFont(font);
+            }
+         }
+      }
+   }
+   else
+   {
+      style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
+      QFont font = m_lexer->font(style);
+      font.setPointSize(value);
+      m_lexer->setFont(font,style);
+      if ( style == QsciLexerCA65::CA65_Default )
+      {
+         m_scintilla->setMarginsFont(font);
+      }
    }
 }
 
