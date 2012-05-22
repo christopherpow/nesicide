@@ -169,7 +169,7 @@
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -215,7 +215,7 @@
            <item row="1" column="0">
             <widget class="QGroupBox" name="groupBox_10">
              <property name="title">
-              <string>Annotations (mixed-mode debug of C langauge sources)</string>
+              <string>Mixed-mode debug annotations (C/assembly)</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_12">
               <item row="0" column="0">

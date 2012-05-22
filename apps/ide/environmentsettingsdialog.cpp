@@ -619,16 +619,40 @@ void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
 void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
 {
    QSettings settings;
-   int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
-   QFont font = ui->styleFont->currentFont();
-   font.setBold(ui->fontBold->isChecked());
-   font.setItalic(ui->fontItalic->isChecked());
-   font.setUnderline(ui->fontUnderline->isChecked());
-   font.setPointSize(ui->fontSize->value());
-   m_lexer->setFont(font,style);
-   if ( style == QsciLexerCA65::CA65_Default )
+   int style;
+
+   if ( ui->applyAll->isChecked() )
    {
-      m_scintilla->setMarginsFont(font);
+      for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
+      {
+         if ( !m_lexer->description(style).isEmpty() )
+         {
+            QFont font = ui->styleFont->currentFont();
+            font.setBold(ui->fontBold->isChecked());
+            font.setItalic(ui->fontItalic->isChecked());
+            font.setUnderline(ui->fontUnderline->isChecked());
+            font.setPointSize(ui->fontSize->value());
+            m_lexer->setFont(font,style);
+            if ( style == QsciLexerCA65::CA65_Default )
+            {
+               m_scintilla->setMarginsFont(font);
+            }
+         }
+      }
+   }
+   else
+   {
+      style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
+      QFont font = ui->styleFont->currentFont();
+      font.setBold(ui->fontBold->isChecked());
+      font.setItalic(ui->fontItalic->isChecked());
+      font.setUnderline(ui->fontUnderline->isChecked());
+      font.setPointSize(ui->fontSize->value());
+      m_lexer->setFont(font,style);
+      if ( style == QsciLexerCA65::CA65_Default )
+      {
+         m_scintilla->setMarginsFont(font);
+      }
    }
 }
 
