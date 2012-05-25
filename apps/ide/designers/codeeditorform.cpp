@@ -1397,7 +1397,11 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 void CodeEditorForm::checkOpenFile(QDateTime lastActivationTime)
 {
    QFileInfo fileInfo;
+#if QT_VERSION >= 0x040700
    QDateTime now = QDateTime::currentDateTimeUtc();
+#else
+   QDateTime now = QDateTime::currentDateTime();
+#endif
    QString str;
    int result;
 
