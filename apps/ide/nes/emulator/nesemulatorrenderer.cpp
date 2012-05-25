@@ -107,6 +107,9 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    // Initialize our viewpoint using the actual size so 1 point should = 1 pixel.
    glViewport(0, 0, width, height);
 
+   // clear the widget using the background color
+   glClear(GL_COLOR_BUFFER_BIT);
+
    // We are using a projection matrix.
    glMatrixMode(GL_PROJECTION);
 
