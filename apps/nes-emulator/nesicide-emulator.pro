@@ -33,7 +33,7 @@ mac {
    NESICIDE_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator
    NESICIDE_LIBS = -L$$TOP/libs/nes -lnes-emulator
 
-   SDL_CXXFLAGS = -framework SDL
+   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
    SDL_LIBS = -framework SDL
 
    mac:QMAKE_POST_LINK += mkdir -p \'./$${TARGET}.app/Contents/Frameworks\' $$escape_expand(\n\t)
