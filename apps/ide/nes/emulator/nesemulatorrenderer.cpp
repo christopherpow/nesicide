@@ -134,6 +134,11 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
+#ifdef __APPLE__
+   // force clear, needed for mac os x, resize' glClear doesn't clear for some reason
+   glClear(GL_COLOR_BUFFER_BIT);
+#endif
+
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 240.f/256);
