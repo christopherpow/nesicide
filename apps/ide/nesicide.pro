@@ -54,10 +54,10 @@ mac {
    #use "qmake -config debug" to specify debug build
    CONFIG(debug, debug|release) {
       DESTDIR = release
-	  OBJECTS_DIR = release
+      OBJECTS_DIR = release
    } else {
       DESTDIR = debug
-	  OBJECTS_DIR = debug
+      OBJECTS_DIR = debug
    }
    NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
