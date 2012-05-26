@@ -68,8 +68,6 @@ mac {
       C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
    }
 
-   TARGET = "NESICIDE"
-
    QMAKE_POST_LINK += mkdir -p $${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += cp $$TOP/libs/nes/libnes-emulator.1.0.0.dylib \
