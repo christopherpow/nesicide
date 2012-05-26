@@ -51,8 +51,8 @@ win32 {
 }
 
 mac {
-   #use "qmake -config debug" to specify debug build
-   CONFIG(debug, debug|release) {
+   #use "qmake -config release -spec macx-g++" to specify release build
+   CONFIG(release, debug|release) {
       DESTDIR = release
       OBJECTS_DIR = release
    } else {
