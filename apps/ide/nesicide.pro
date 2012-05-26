@@ -78,28 +78,28 @@ mac {
 
    ICON = mac/resources/nesicide.icns
 
-   QMAKE_POST_LINK += mkdir -p $${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += cp $$TOP/libs/nes/libnes-emulator.1.0.0.dylib \
-      $${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
       @executable_path/../Frameworks/libnes-emulator.1.dylib \
-      $${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += cp $$TOP/libs/c64/libc64-emulator.1.0.0.dylib \
-      $${TARGET}.app/Contents/Frameworks/libc64-emulator.1.dylib $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libc64-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libc64-emulator.1.dylib \
       @executable_path/../Frameworks/libc64-emulator.1.dylib \
-      $${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += cp mac/dependencies/libqscintilla2.6.1.0.dylib \
-      $${TARGET}.app/Contents/Frameworks/libqscintilla2.6.dylib $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.6.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libqscintilla2.6.dylib \
       @executable_path/../Frameworks/libqscintilla2.6.dylib \
-      $${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += cp -r ~/Library/Frameworks/Lua.framework \
-      $${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 }
 
 unix:!mac {
