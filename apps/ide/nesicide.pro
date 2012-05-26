@@ -55,6 +55,8 @@ mac {
    CONFIG(release, debug|release) {
       DESTDIR = release
       OBJECTS_DIR = release
+      QMAKE_CXXFLAGS_RELEASE -= -O2
+      QMAKE_CXXFLAGS_RELEASE += -Os
    } else {
       DESTDIR = debug
       OBJECTS_DIR = debug
