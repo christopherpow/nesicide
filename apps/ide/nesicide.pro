@@ -84,7 +84,7 @@ mac {
       @executable_path/../Frameworks/libc64-emulator.1.dylib \
       $${TARGET}.app/Contents/MacOS/NESICIDE $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp mac/libqscintilla2.6.1.0.dylib \
+   QMAKE_POST_LINK += cp mac/dependencies/libqscintilla2.6.1.0.dylib \
       $${TARGET}.app/Contents/Frameworks/libqscintilla2.6.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libqscintilla2.6.dylib \
       @executable_path/../Frameworks/libqscintilla2.6.dylib \
