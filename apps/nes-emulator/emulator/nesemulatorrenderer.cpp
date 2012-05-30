@@ -107,6 +107,9 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    // Initialize our viewpoint using the actual size so 1 point should = 1 pixel.
    glViewport(0, 0, width, height);
 
+   // clear the widget using the background color
+   glClear(GL_COLOR_BUFFER_BIT);
+
    // We are using a projection matrix.
    glMatrixMode(GL_PROJECTION);
 
@@ -131,6 +134,11 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
+#ifdef __APPLE__
+   // force clear, needed for mac os x, resize' glClear doesn't clear for some reason
+   glClear(GL_COLOR_BUFFER_BIT);
+#endif
+
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 240.f/256);
