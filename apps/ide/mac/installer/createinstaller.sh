@@ -9,6 +9,11 @@ finalDMGName="${title}.dmg"
 systemSDLPath="/Library/Frameworks"
 filePath="../.."
 
+if [ -e ${finalDMGName} ]; then
+	echo "\"${finalDMGName}\" already exist, please remove first"
+	exit -1
+fi
+
 #
 mkdir -p ${source}/.background
 cp ${backgroundPictureName} ${source}/.background/
