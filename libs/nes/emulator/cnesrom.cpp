@@ -342,20 +342,44 @@ void CROM::RESET ( uint32_t mapper )
       }
    }
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-
-   // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
-   // to the second PRG-ROM bank slot...
-   if ( m_numPrgBanks == 2 )
+   // Support for NROM-368 for Shiru and crew.
+   if ( (m_mapper == 0) && (m_numPrgBanks > 4) )
    {
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 0 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ];
+      // A NROM-368 file is laid out linearly so the six 8KB PRG-ROM banks will be
+      // loaded into the following memory addresses:
+      // 0: $4000-$5fff
+      // 1: $6000-$7fff
+      // 2: $8000-$9fff
+      // 3: $a000-$bfff
+      // 4: $c000-$dfff
+      // 5: $e000-$ffff
+      // The code here takes care of shifting the PRG-ROM visible window from $8000-$ffff
+      // so that the CPU sees the upper end of the linear memory there.  The lower end
+      // from $4000-$7fff will be mapped in by the existing mapper "low read" APIs called
+      // whenever the CPU reads from $4018-$7fff.
+      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 2 ];
+      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 3 ];
+
+      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 4 ];
+      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 5 ];
    }
    else
    {
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
+      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+
+      // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
+      // to the second PRG-ROM bank slot...
+      if ( m_numPrgBanks == 2 )
+      {
+         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 0 ];
+         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ];
+      }
+      else
+      {
+         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
+         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+      }
    }
 
    // Assume no VROM...point to VRAM...
@@ -387,9 +411,17 @@ uint32_t CROM::LMAPPER ( uint32_t addr )
 {
    uint8_t data = C6502::OPENBUS();
 
-   if ( addr >= 0x6000 )
+   if ( (m_mapper == 0) && (m_numPrgBanks > 4) )
    {
-      data = CROM::SRAMVIRT(addr);
+      addr -= MEM_16KB;
+      return *(*(m_PRGROMmemory+(PRGBANK_VIRT(addr)))+(PRGBANK_OFF(addr)));
+   }
+   else
+   {
+      if ( addr >= 0x6000 )
+      {
+         data = CROM::SRAMVIRT(addr);
+      }
    }
 
    return data;

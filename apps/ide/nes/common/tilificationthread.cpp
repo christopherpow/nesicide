@@ -2,35 +2,25 @@
 
 #include "nes_emulator_core.h"
 
-TilificationThread::TilificationThread(int side,QObject *parent) :
+TilificationThread::TilificationThread(QObject *parent) :
    QThread(parent)
 {
-   m_side = side;
 }
 
-void TilificationThread::prepareToTilify(int side)
+void TilificationThread::prepareToTilify()
 {
-   if ( side == m_side )
-   {
-      m_input.clear();
-      m_output.clear();
-   }
+   m_input.clear();
+   m_output.clear();
 }
 
-void TilificationThread::addToTilificator(int side,IChrRomBankItem* input)
+void TilificationThread::addToTilificator(IChrRomBankItem* input)
 {
-   if ( side == m_side )
-   {
-      m_input.append(input);
-   }
+   m_input.append(input);
 }
 
-void TilificationThread::tilify(int side)
+void TilificationThread::tilify()
 {
-   if ( side == m_side )
-   {
-      start();
-   }
+   start();
 }
 
 void TilificationThread::run()
@@ -137,5 +127,5 @@ void TilificationThread::run()
    }
 #endif
 
-   emit tilificationComplete(m_side,m_output);
+   emit tilificationComplete(m_output);
 }

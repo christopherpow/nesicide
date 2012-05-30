@@ -27,7 +27,7 @@ void BreakpointWatcherThread::kill()
 
 void BreakpointWatcherThread::run ()
 {
-   CBreakpointInfo* pBreakpoints;
+   CBreakpointInfo* pBreakpoints = NULL;
    int idx;
    char hitMsg [ 256 ];
 
@@ -50,17 +50,20 @@ void BreakpointWatcherThread::run ()
          pBreakpoints = c64GetBreakpointDatabase();
       }
 
-      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+      if ( pBreakpoints )
       {
-         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-
-         if ( pBreakpoint->hit )
+         for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
          {
-            pBreakpoints->GetHitPrintable(idx,hitMsg);
+            BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
 
-            debugTextLogger->write ( hitMsg );
+            if ( pBreakpoint->hit )
+            {
+               pBreakpoints->GetHitPrintable(idx,hitMsg);
 
-            emit showPane(OutputPaneDockWidget::Output_Debug);
+               debugTextLogger->write ( hitMsg );
+
+               emit showPane(OutputPaneDockWidget::Output_Debug);
+            }
          }
       }
 

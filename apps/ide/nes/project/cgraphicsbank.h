@@ -37,8 +37,7 @@ public:
 
 private:
    // Attributes
-   QList<IChrRomBankItem*> m_leftBankItems;
-   QList<IChrRomBankItem*> m_rightBankItems;
+   QList<IChrRomBankItem*> m_bankItems;
 };
 
 #endif // CGRAPHICSBANK_H

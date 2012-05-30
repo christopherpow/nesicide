@@ -13,10 +13,6 @@
 #include "panzoomrenderer.h"
 #include "tilificationthread.h"
 
-// CHR bank 'sides'
-#define LEFT 0
-#define RIGHT 1
-
 namespace Ui
 {
 class GraphicsBankEditorForm;
@@ -26,12 +22,12 @@ class GraphicsBankEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   GraphicsBankEditorForm(QList<IChrRomBankItem*> leftBankItems,QList<IChrRomBankItem*> rightBankItems,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
+   GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    virtual ~GraphicsBankEditorForm();
-   void updateChrRomBankItemList(QList<IChrRomBankItem*> leftBankItems,QList<IChrRomBankItem*> rightBankItems);
+   void updateChrRomBankItemList(QList<IChrRomBankItem*> bankItems);
 
    // Member getters.
-   QList<IChrRomBankItem*> bankItems(int side);
+   QList<IChrRomBankItem*> bankItems();
 
 protected:
    void changeEvent(QEvent* event);
@@ -47,27 +43,25 @@ protected:
 private:
    Ui::GraphicsBankEditorForm* ui;
    QLabel* info;
-   CChrRomItemTableDisplayModel* leftModel;
-   CChrRomItemTableDisplayModel* rightModel;
+   CChrRomItemTableDisplayModel* model;
    PanZoomRenderer* renderer;
    CChrRomBankItemDelegate* delegate;
    char* imgData;
-   TilificationThread* pLeftThread;
-   TilificationThread* pRightThread;
+   TilificationThread* pThread;
    QByteArray tilifiedData;
 
 private slots:
    void renderData();
-   void renderData(int side,QByteArray output);
+   void renderData(QByteArray output);
    void updateUi();
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void applyProjectPropertiesToTab();
 
 signals:
-   void prepareToTilify(int side);
-   void addToTilificator(int side,IChrRomBankItem* item);
-   void tilify(int side);
+   void prepareToTilify();
+   void addToTilificator(IChrRomBankItem* item);
+   void tilify();
 };
 
 #endif // GRAPHICSBANKEDITORFORM_H

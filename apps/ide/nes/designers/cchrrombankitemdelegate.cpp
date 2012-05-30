@@ -29,6 +29,12 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
    QComboBox* edit = static_cast<QComboBox*>(editor);
    IProjectTreeViewItemIterator iter(nesicideProject->getProject());
    QStringList choices;
+   choices.append("<<4KB break>>");
+   edit->addItem("<<4KB break>>");
+   choices.append("<<2KB break>>");
+   edit->addItem("<<2KB break>>");
+   choices.append("<<1KB break>>");
+   edit->addItem("<<1KB break>>");
    do
    {
       IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(iter.current());
