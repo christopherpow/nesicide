@@ -71,24 +71,24 @@ mac {
    LUA_LIBS = -F ~/Library/Frameworks -framework Lua
 
    CONFIG(release, debug|release) {
-      NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
-      C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
+      LIB_BUILD_TYPE_DIR = release
    } else {
-      NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
-      C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
+      LIB_BUILD_TYPE_DIR = debug
    }
+   NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
+   C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
 
    ICON = mac/resources/nesicide.icns
 
    QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp $$TOP/libs/nes/libnes-emulator.1.0.0.dylib \
+   QMAKE_POST_LINK += cp $$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR}/libnes-emulator.1.0.0.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
       @executable_path/../Frameworks/libnes-emulator.1.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp $$TOP/libs/c64/libc64-emulator.1.0.0.dylib \
+   QMAKE_POST_LINK += cp $$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR}/libc64-emulator.1.0.0.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libc64-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libc64-emulator.1.dylib \
       @executable_path/../Frameworks/libc64-emulator.1.dylib \

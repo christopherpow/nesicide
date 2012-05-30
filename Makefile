@@ -4,6 +4,7 @@ UNAME := $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
 QMAKEFLAGS += -spec macx-g++ # force makefile generation on osx
+QMAKEFLAGS += -config release # force makefile generation on osx
 endif
 
 default: apps/nes-emulator/nes-emulator apps/ide/nesicide
