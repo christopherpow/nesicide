@@ -51,33 +51,57 @@ win32 {
 }
 
 mac {
+   #use "qmake -config release -spec macx-g++" to specify release build
+   CONFIG(release, debug|release) {
+      DESTDIR = release
+      OBJECTS_DIR = release
+      QMAKE_CXXFLAGS_RELEASE -= -O2
+      QMAKE_CXXFLAGS_RELEASE += -Os
+   } else {
+      DESTDIR = debug
+      OBJECTS_DIR = debug
+   }
    NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
-   NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
+   C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
 
-   SDL_CXXFLAGS = -framework SDL
+   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
    SDL_LIBS = -framework SDL
 
    LUA_CXXFLAGS = -F.. -framework Lua
-   LUA_LIBS = -F.. -framework Lua
-
-   SCINTILLA_CXXFLAGS = -I$$TOP/deps/Qscintilla
+   LUA_LIBS = -F ~/Library/Frameworks -framework Lua
 
    CONFIG(release, debug|release) {
-      SCINTILLA_LIBS = -L$$TOP/deps/Qscintilla/release -lqscintilla2
+      LIB_BUILD_TYPE_DIR = release
    } else {
-      SCINTILLA_LIBS = -L$$TOP/deps/Qscintilla/debug -lqscintilla2
+      LIB_BUILD_TYPE_DIR = debug
    }
+   NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
+   C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
 
-   TARGET = "NESICIDE"
+   ICON = mac/resources/nesicide.icns
 
-   QMAKE_POST_LINK += mkdir -p $$TARGET.app/Contents/Frameworks $$escape_expand(\n\t)
-   QMAKE_POST_LINK += cp $$TOP/libs/nes/libnes-emulator.1.0.0.dylib \
-      $$TARGET.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += cp $$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR}/libnes-emulator.1.0.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
       @executable_path/../Frameworks/libnes-emulator.1.dylib \
-      $$TARGET.app/Contents/MacOS/NESICIDE $$escape_expand(\n\t)
-   QMAKE_POST_LINK += cp -r ../Lua.framework \
-      $$TARGET.app/Contents/Frameworks/ $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += cp $$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR}/libc64-emulator.1.0.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libc64-emulator.1.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libc64-emulator.1.dylib \
+      @executable_path/../Frameworks/libc64-emulator.1.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += cp mac/dependencies/libqscintilla2.6.1.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.6.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libqscintilla2.6.dylib \
+      @executable_path/../Frameworks/libqscintilla2.6.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += cp -r ~/Library/Frameworks/Lua.framework \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 }
 
 unix:!mac {

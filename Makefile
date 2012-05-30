@@ -1,10 +1,20 @@
 PREFIX=/usr/local
 DESTDIR=
+UNAME := $(shell uname -s)
+
+ifeq ($(UNAME),Darwin)
+QMAKEFLAGS += -spec macx-g++ # force makefile generation on osx
+ifeq ($(DEBUG),1)
+QMAKEFLAGS += -config debug # force makefile generation on osx
+else
+QMAKEFLAGS += -config release # force makefile generation on osx
+endif
+endif
 
 default: apps/nes-emulator/nes-emulator apps/ide/nesicide
 
 %/Makefile: %/*.pro
-	cd `dirname $@` && qmake
+	cd `dirname $@` && qmake $(QMAKEFLAGS)
 
 libs/nes/libnes-emulator.so.1.0.0: libs/nes/Makefile FORCE
 	$(MAKE) -C libs/nes

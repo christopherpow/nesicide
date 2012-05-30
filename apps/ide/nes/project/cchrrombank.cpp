@@ -61,15 +61,16 @@ void CCHRROMBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 void CCHRROMBank::exportAsPNG()
 {
    QString fileName = QFileDialog::getSaveFileName(NULL,"Export CHR-ROM Bank as PNG",QDir::currentPath(),"PNG Files (*.png)");
-   QByteArray chrData;
-   QByteArray imgData;
-   QImage imgOut;
 
    if ( !fileName.isEmpty() )
    {
+#if QT_VERSION >= 0x040700
+      QByteArray chrData;
       chrData.setRawData((const char*)getBankData(),MEM_8KB);
-
-      imgOut = CImageConverters::toIndexed8(chrData);
+#else
+      QByteArray chrData((const char*)getBankData(),MEM_8KB);
+#endif
+      QImage imgOut = CImageConverters::toIndexed8(chrData);
 
       imgOut.save(fileName,"png");
    }

@@ -7,7 +7,7 @@ TOP = ../..
 
 TARGET = nes-emulator
 
-# Remove crap we don't need!
+# Remove crap we do not need!
 CONFIG -= rtti exceptions
 
 isEmpty (NESICIDE_LIBS) {
@@ -28,19 +28,33 @@ win32 {
 }
 
 mac {
+   CONFIG(release, debug|release) {
+      DESTDIR = release
+      OBJECTS_DIR = release
+      QMAKE_CXXFLAGS_RELEASE -= -O2
+      QMAKE_CXXFLAGS_RELEASE += -Os
+   } else {
+      DESTDIR = debug
+      OBJECTS_DIR = debug
+   }
    QMAKE_CFLAGS += -macx
 
    NESICIDE_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator
-   NESICIDE_LIBS = -L$$TOP/libs/nes -lnes-emulator
+   CONFIG(release, debug|release) {
+      BUILD_DIR = release
+   } else {
+      BUILD_DIR = debug
+   }
+   NESICIDE_LIBS = -L$$TOP/libs/nes/$$BUILD_DIR -lnes-emulator
 
-   SDL_CXXFLAGS = -framework SDL
+   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
    SDL_LIBS = -framework SDL
 
-   mac:QMAKE_POST_LINK += mkdir -p \'./$${TARGET}.app/Contents/Frameworks\' $$escape_expand(\n\t)
-   mac:QMAKE_POST_LINK += cp \'$$TOP/libs/nes/libnes-emulator.1.0.0.dylib\' \
-      \'./$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib\' $$escape_expand(\n\t)
-   mac:QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
-      @executable_path/../Frameworks/libnes-emulator.1.dylib \'$${TARGET}.app/Contents/MacOS/$${TARGET}\' $$escape_expand(\n\t)
+  QMAKE_POST_LINK += mkdir -p \'$${BUILD_DIR}/$${TARGET}.app/Contents/Frameworks\' $$escape_expand(\n\t)
+   QMAKE_POST_LINK += cp \'$$TOP/libs/nes/$${BUILD_DIR}/libnes-emulator.1.0.0.dylib\' \
+   \'$${BUILD_DIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib\' $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
+      @executable_path/../Frameworks/libnes-emulator.1.dylib \'$${BUILD_DIR}/$${TARGET}.app/Contents/MacOS/$${TARGET}\' $$escape_expand(\n\t)
 
    ICON = ./Resources/controller.icns
 }
