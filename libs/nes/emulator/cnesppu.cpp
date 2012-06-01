@@ -1033,12 +1033,6 @@ void CPPU::RESET ( void )
 {
    int idx;
 
-   // Set up default mapping.
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      m_pPPUmemory[idx] = m_PPUmemory+((idx&1)<<UPSHIFT_1KB);
-   }
-
    m_PPUreg [ 0 ] = 0x00;
    m_PPUreg [ 1 ] = 0x00;
    m_PPUreg [ 2 ] = 0x00;

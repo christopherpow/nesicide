@@ -564,7 +564,7 @@ void MainWindow::createNesUi()
 
    debuggerToolBar = new QToolBar("Emulator Control",this);
    debuggerToolBar->setObjectName(QString::fromUtf8("debuggerToolBar"));
-   QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+   QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
    sizePolicy1.setHorizontalStretch(0);
    sizePolicy1.setVerticalStretch(0);
    sizePolicy1.setHeightForWidth(debuggerToolBar->sizePolicy().hasHeightForWidth());
@@ -912,8 +912,9 @@ void MainWindow::destroyNesUi()
    CThreadRegistry::removeThread ( "Emulator" );
 
    m_pNESEmulator->hide();
-   m_pNESEmulator->deleteLater();
    removeDockWidget(m_pNESEmulator);
+   delete m_pNESEmulator;
+//   m_pNESEmulator->deleteLater();
    m_pNESEmulatorControl->deleteLater();
    removeDockWidget(m_pAssemblyInspector);
    m_pAssemblyInspector->deleteLater();
@@ -1076,7 +1077,7 @@ void MainWindow::createC64Ui()
 
    debuggerToolBar = new QToolBar("Emulator Control",this);
    debuggerToolBar->setObjectName(QString::fromUtf8("debuggerToolBar"));
-   QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+   QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
    sizePolicy1.setHorizontalStretch(0);
    sizePolicy1.setVerticalStretch(0);
    sizePolicy1.setHeightForWidth(debuggerToolBar->sizePolicy().hasHeightForWidth());
