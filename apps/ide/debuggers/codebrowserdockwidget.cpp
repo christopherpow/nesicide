@@ -111,7 +111,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
       addr = nesGetAddressFromSLOC(index.row());
       absAddr = nesGetAbsoluteAddressFromAddress(addr);
    }
-   else
+   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       addr = c64GetAddressFromSLOC(index.row());
       absAddr = c64GetAbsoluteAddressFromAddress(addr);
@@ -206,7 +206,7 @@ void CodeBrowserDockWidget::snapTo(QString item)
          {
             ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(addr),0));
          }
-         else
+         else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
             ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(addr),0));
          }
@@ -225,7 +225,7 @@ void CodeBrowserDockWidget::breakpointHit()
       {
          ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
       }
-      else
+      else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
       {
          ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
       }
@@ -244,7 +244,7 @@ void CodeBrowserDockWidget::emulatorPaused(bool showMe)
    {
       ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    }
-   else
+   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
    }
@@ -262,7 +262,7 @@ void CodeBrowserDockWidget::machineReady()
       }
       ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
    }
-   else
+   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       show();
       ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
@@ -283,7 +283,7 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
       addr = nesGetAddressFromSLOC(index.row());
       absAddr = nesGetAbsoluteAddressFromAddress(addr);
    }
-   else
+   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       addr = c64GetAddressFromSLOC(index.row());
       absAddr = c64GetAbsoluteAddressFromAddress(addr);
@@ -332,7 +332,7 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
          nesSetGotoAddress(addr);
       }// CPTODO: fix the goto for absolute
    }
-   else
+   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       addr = c64GetAddressFromSLOC(index.row());
       absAddr = c64GetAbsoluteAddressFromAddress(addr);
@@ -389,7 +389,7 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
       {
          addr = nesGetAddressFromSLOC(index.row());
       }
-      else
+      else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
       {
          addr = c64GetAddressFromSLOC(index.row());
       }
@@ -401,7 +401,7 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
          {
             marker = markers->AddMarker(addr,nesGetAbsoluteAddressFromAddress(addr));
          }
-         else
+         else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
             marker = markers->AddMarker(addr,c64GetAbsoluteAddressFromAddress(addr));
          }
@@ -425,7 +425,7 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
       {
          addr = nesGetAddressFromSLOC(index.row());
       }
-      else
+      else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
       {
          addr = c64GetAddressFromSLOC(index.row());
       }
@@ -436,7 +436,7 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
          {
             markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
          }
-         else
+         else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
             markers->CompleteMarker(marker,addr,c64GetAbsoluteAddressFromAddress(addr));
          }
@@ -471,7 +471,7 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
             addr = nesGetAddressFromSLOC(index.row());
             absAddr = nesGetAbsoluteAddressFromAddress(addr);
          }
-         else
+         else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
             addr = c64GetAddressFromSLOC(index.row());
             absAddr = c64GetAbsoluteAddressFromAddress(addr);

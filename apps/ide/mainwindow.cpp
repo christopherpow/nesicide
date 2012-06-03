@@ -914,7 +914,6 @@ void MainWindow::destroyNesUi()
    m_pNESEmulator->hide();
    removeDockWidget(m_pNESEmulator);
    delete m_pNESEmulator;
-//   m_pNESEmulator->deleteLater();
    m_pNESEmulatorControl->deleteLater();
    removeDockWidget(m_pAssemblyInspector);
    m_pAssemblyInspector->deleteLater();
@@ -1561,6 +1560,7 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    // Create new project from ROM
    // Set project target before initializing project.
+   nesicideProject->setProjectTarget("nes");
    nesicideProject->initializeProject();
    nesicideProject->createProjectFromRom(fileName);
 
