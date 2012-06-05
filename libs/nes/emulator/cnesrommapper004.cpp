@@ -161,7 +161,7 @@ void CROMMapper004::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
 
    if ( clockIt )
    {
-      if ( (ppuCycle-m_lastPPUCycle) < 9 )
+      if ( (ppuCycle-m_lastPPUCycle) < 12 )
       {
          clockIt = false;
       }

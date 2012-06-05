@@ -914,7 +914,6 @@ void MainWindow::destroyNesUi()
    m_pNESEmulator->hide();
    removeDockWidget(m_pNESEmulator);
    delete m_pNESEmulator;
-   m_pNESEmulatorControl->deleteLater();
    removeDockWidget(m_pAssemblyInspector);
    m_pAssemblyInspector->deleteLater();
    removeDockWidget(m_pBreakpointInspector);
@@ -1193,7 +1192,6 @@ void MainWindow::destroyC64Ui()
    actionBinSIDRegister_Inspector->deleteLater();
    menuCPU_Inspectors->deleteLater();
    menuSID_Inspectors->deleteLater();
-   m_pC64EmulatorControl->deleteLater();
    debuggerToolBar->deleteLater();
 
    CThreadRegistry::removeThread ( "Emulator" );
