@@ -247,7 +247,7 @@ CROM::~CROM()
 
       for ( addr = 0; addr < MEM_8KB; addr++ )
       {
-         delete [] m_PRGROMdisassembly[bank][addr];
+         delete m_PRGROMdisassembly[bank][addr];
       }
       delete [] m_PRGROMopcodeMask[bank];
       delete [] m_PRGROMsloc2addr[bank];
@@ -263,7 +263,7 @@ CROM::~CROM()
    {
       for ( addr = 0; addr < MEM_8KB; addr++ )
       {
-         delete [] m_SRAMdisassembly[bank][addr];
+         delete m_SRAMdisassembly[bank][addr];
       }
       delete [] m_SRAMopcodeMask[bank];
       delete [] m_SRAMsloc2addr[bank];
@@ -277,7 +277,7 @@ CROM::~CROM()
 
    for ( addr = 0; addr < MEM_1KB; addr++ )
    {
-      delete [] m_EXRAMdisassembly[addr];
+      delete m_EXRAMdisassembly[addr];
    }
    delete [] m_EXRAMopcodeMask;
    delete [] m_EXRAMsloc2addr;
