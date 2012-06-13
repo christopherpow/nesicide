@@ -1456,10 +1456,10 @@ void CAPUDMC::RESET ( void )
 {
    CAPUOscillator::RESET();
    m_loop = false;
-   m_sampleAddr = 0x0000;
+   m_sampleAddr = 0xc000;
    m_sampleLength = 0x0000;
-   m_dmaReaderAddrPtr = 0x0000;
-   m_dmcIrqEnabled = false;
+   m_dmaReaderAddrPtr = 0xc000;
+   m_dmcIrqEnabled = true;
    m_dmcIrqAsserted = false;
    m_sampleBuffer = 0x00;
    m_sampleBufferFull = false;
