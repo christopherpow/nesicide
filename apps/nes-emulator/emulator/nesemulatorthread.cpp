@@ -23,50 +23,24 @@
 #undef main
 #include <SDL.h>
 
-#include <QMutex>
-//#include <QMessageBox>
-
 SDL_AudioSpec sdlAudioSpec;
-QMutex doFrameMutex;
+QSemaphore nesAudioSemaphore(0);
 
 // Hook function endpoints.
-void nesCoreMutexLock ( void )
+static void audioHook ( void )
 {
-   doFrameMutex.lock();
-}
-
-void nesCoreMutexUnlock ( void )
-{
-   doFrameMutex.unlock();
+   nesAudioSemaphore.acquire();
 }
 
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
-   NESEmulatorThread* emulator = (NESEmulatorThread*)userdata;
-   int32_t samplesAvailable;
+   memcpy(stream,nesGetAudioSamples(len>>1),len);
 
-   nesCoreMutexLock();
-   samplesAvailable = nesGetAudioSamplesAvailable();
-   nesCoreMutexUnlock();
-
-   if (samplesAvailable <= 0)
-   {
-      memset(stream,0,len);
-      return;
-   }
-
-   memcpy(stream,nesGetAudioSamples(),len);
-
-   if ( emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
-   {
-      emulator->start();
-   }
+   nesAudioSemaphore.release();
 }
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
 {
-   SDL_AudioSpec obtained;
-
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
    m_isRunning = false;
@@ -77,8 +51,8 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_isResetting = false;
    m_pCartridge = NULL;
 
-   nesSetCoreMutexLockHook(nesCoreMutexLock);
-   nesSetCoreMutexUnlockHook(nesCoreMutexUnlock);
+   // Enable callbacks from the external emulator library.
+   nesSetAudioHook(audioHook);
 
    SDL_Init ( SDL_INIT_AUDIO );
 
@@ -95,9 +69,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    SDL_PauseAudio ( 0 );
 
-   nesCoreMutexLock();
    nesClearAudioSamplesAvailable();
-   nesCoreMutexUnlock();
 }
 
 NESEmulatorThread::~NESEmulatorThread()
@@ -281,17 +253,7 @@ void NESEmulatorThread::run ()
       // Run the NES...
       if ( m_isRunning )
       {
-         nesCoreMutexLock();
-         samplesAvailable = nesGetAudioSamplesAvailable();
-         nesCoreMutexUnlock();
-
-         if ( samplesAvailable >= APU_BUFFER_PRERENDER )
-         {
-            break;
-         }
-
          // Run emulator for one frame...
-         SDL_LockAudio();
          if ( emulatorWidget )
          {
             // Figure out where in the window the actual emulator display is.
@@ -332,7 +294,6 @@ void NESEmulatorThread::run ()
             }
          }
          nesRun(m_joy);
-         SDL_UnlockAudio();
 
          emit emulatedFrame();
       }

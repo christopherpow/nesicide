@@ -1792,6 +1792,7 @@ bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
    {
       return c64IsAbsoluteAddressAnOpcode(absAddr);
    }
+   return false;
 }
 
 bool CCC65Interface::nesIsAbsoluteAddressAnOpcode(uint32_t absAddr)
@@ -1805,7 +1806,7 @@ bool CCC65Interface::nesIsAbsoluteAddressAnOpcode(uint32_t absAddr)
    if ( dbgInfo )
    {
       // Make addresses for where code might be in PRG-ROM space.
-      addr = (absAddr&MASK_8KB)+MEM_32KB;
+      addr = (absAddr&MASK_8KB);
       for ( ; addr < MEM_64KB; addr += MEM_8KB )
       {
          dbgSpans = cc65_span_byaddr(dbgInfo,addr);

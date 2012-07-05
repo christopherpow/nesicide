@@ -34,23 +34,11 @@
 #include "cnesicideproject.h"
 
 QSemaphore nesBreakpointSemaphore(0);
-
-#include <QMutex>
+QSemaphore nesAudioSemaphore(0);
 
 SDL_AudioSpec sdlAudioSpec;
-QMutex doFrameMutex;
 
 // Hook function endpoints.
-void nesCoreMutexLock ( void )
-{
-   doFrameMutex.lock();
-}
-
-void nesCoreMutexUnlock ( void )
-{
-   doFrameMutex.unlock();
-}
-
 static void breakpointHook ( void )
 {
    SDL_PauseAudio(1);
@@ -60,33 +48,20 @@ static void breakpointHook ( void )
    SDL_PauseAudio(0);
 }
 
+static void audioHook ( void )
+{
+   nesAudioSemaphore.acquire();
+}
+
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
-   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CThreadRegistry::getThread("Emulator"));
-   int32_t samplesAvailable;
+   memcpy(stream,nesGetAudioSamples(len>>1),len);
 
-   nesCoreMutexLock();
-   samplesAvailable = nesGetAudioSamplesAvailable();
-   nesCoreMutexUnlock();
-
-   if (samplesAvailable <= 0)
-   {
-      memset(stream,0,len);
-      return;
-   }
-
-   memcpy(stream,nesGetAudioSamples(),len);
-
-   if ( emulator && emulator->isFinished() && (samplesAvailable < APU_BUFFER_PRERENDER_THRESHOLD) )
-   {
-      emulator->start();
-   }
+   nesAudioSemaphore.release();
 }
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
 {
-   SDL_AudioSpec obtained;
-
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
    m_isRunning = false;
@@ -99,11 +74,9 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_debugFrame = 0;
    m_pCartridge = NULL;
 
-   nesSetCoreMutexLockHook(nesCoreMutexLock);
-   nesSetCoreMutexUnlockHook(nesCoreMutexUnlock);
-
-   // Enable breakpoint callbacks from the external emulator library.
+   // Enable callbacks from the external emulator library.
    nesSetBreakpointHook(breakpointHook);
+   nesSetAudioHook(audioHook);
 
    SDL_Init ( SDL_INIT_AUDIO );
 
@@ -120,9 +93,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    SDL_PauseAudio ( 0 );
 
-   nesCoreMutexLock();
    nesClearAudioSamplesAvailable();
-   nesCoreMutexUnlock();
 }
 
 NESEmulatorThread::~NESEmulatorThread()
@@ -169,9 +140,7 @@ void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
 
    SDL_PauseAudio ( 0 );
 
-   nesCoreMutexLock();
    nesClearAudioSamplesAvailable();
-   nesCoreMutexUnlock();
 }
 
 void NESEmulatorThread::breakpointsChanged()
@@ -571,15 +540,6 @@ void NESEmulatorThread::run ()
       // Run the NES...
       if ( m_isRunning )
       {
-         nesCoreMutexLock();
-         samplesAvailable = nesGetAudioSamplesAvailable();
-         nesCoreMutexUnlock();
-
-         if ( samplesAvailable >= APU_BUFFER_PRERENDER )
-         {
-            break;
-         }
-
          // Re-enable breakpoints that were previously enabled...
          nesEnableBreakpoints(true);
 
@@ -587,7 +547,6 @@ void NESEmulatorThread::run ()
          nesBreakpointSemaphore.tryAcquire();
 
          // Run emulator for one frame...
-         SDL_LockAudio();
          if ( emulatorWidget )
          {
             // Figure out where in the window the actual emulator display is.
@@ -628,7 +587,6 @@ void NESEmulatorThread::run ()
             }
          }
          nesRun(m_joy);
-         SDL_UnlockAudio();
 
          if ( m_pauseAfterFrames != -1 )
          {

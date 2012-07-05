@@ -43,40 +43,18 @@ void nesSetBreakOnKIL ( bool breakOnKIL )
    C6502::BREAKONKIL(breakOnKIL);
 }
 
-static void (*mutexLockHook)(void) = NULL;
-static void (*mutexUnlockHook)(void) = NULL;
-
-void nesSetCoreMutexLockHook ( void (*hook)(void) )
-{
-   mutexLockHook = hook;
-}
-
-void nesSetCoreMutexUnlockHook ( void (*hook)(void) )
-{
-   mutexUnlockHook = hook;
-}
-
-void nesLockCoreMutex ( void )
-{
-   if ( mutexLockHook )
-   {
-      mutexLockHook();
-   }
-}
-
-void nesUnlockCoreMutex ( void )
-{
-   if ( mutexUnlockHook )
-   {
-      mutexUnlockHook();
-   }
-}
-
 static void (*breakpointHook)(void) = NULL;
 
 void nesSetBreakpointHook ( void (*hook)(void) )
 {
    breakpointHook = hook;
+}
+
+static void (*audioHook)(void) = NULL;
+
+void nesSetAudioHook ( void (*hook)(void) )
+{
+   audioHook = hook;
 }
 
 void nesBreak ( void )
@@ -85,6 +63,14 @@ void nesBreak ( void )
    {
       nesClearAudioSamplesAvailable();
       breakpointHook();
+   }
+}
+
+void nesBreakAudio ( void )
+{
+   if ( audioHook )
+   {
+      audioHook();
    }
 }
 
@@ -462,9 +448,9 @@ void nesRun ( uint8_t* joypads )
    CNES::RUN(joypads);
 }
 
-uint8_t* nesGetAudioSamples ( void )
+uint8_t* nesGetAudioSamples ( uint16_t samples )
 {
-   return CAPU::PLAY();
+   return CAPU::PLAY(samples);
 }
 
 int32_t nesGetAudioSamplesAvailable ( void )

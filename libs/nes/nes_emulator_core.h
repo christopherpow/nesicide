@@ -239,7 +239,7 @@ enum
 #define OAM_SIZE     4
 #define NUM_OAM_REGS (NUM_SPRITES*OAM_SIZE)
 
-// Samples per video frame for 44.1KHz audio output.
+// Samples per video frame for 22.05KHz audio output.
 // NTSC is 60Hz, PAL is 50Hz.  The number of samples
 // drives the rate at which the SDL library will invoke
 // the callback method to retrieve more audio samples to
@@ -251,7 +251,6 @@ enum
 #define APU_SAMPLE_SPACE_NTSC (89341.5/3.0/(SDL_SAMPLE_RATE/60.0))
 #define APU_SAMPLE_SPACE_PAL  (106392.0/3.2/(SDL_SAMPLE_RATE/50.0))
 
-#define APU_BUFFER_PRERENDER_THRESHOLD (APU_SAMPLES*4)   // When to start doing more rendering
 #define APU_BUFFER_PRERENDER           (APU_SAMPLES*4)   // How much rendering to do
 
 #pragma pack(1)
@@ -432,10 +431,6 @@ extern const char* hex_char;
 // Version control interfaces.
 char* nesGetVersion();
 
-// Internal hook interfaces.
-void nesLockCoreMutex ( void );
-void nesUnlockCoreMutex ( void );
-
 // Exported interfaces.
 // The following interfaces are to be used by a UI to interact with the emulation
 // core and perform the necessary steps to emulate a NES game.  Those steps are:
@@ -476,11 +471,9 @@ void nesLoadROM ( void );
 void nesResetInitial ( uint32_t mapper );
 void nesReset ( void );
 void nesRun ( uint8_t* joypads );
-void nesSetCoreMutexLockHook ( void (*hook)(void) );
-void nesSetCoreMutexUnlockHook ( void (*hook)(void) );
 int32_t nesGetAudioSamplesAvailable ( void );
 void nesClearAudioSamplesAvailable ( void );
-uint8_t* nesGetAudioSamples ( void );
+uint8_t* nesGetAudioSamples ( uint16_t samples );
 void nesSetControllerType ( int32_t port, int32_t type );
 void nesSetControllerConfig ( int32_t port, int32_t type, int32_t** configString, int32_t* configSize );
 void nesSetControllerScreenPosition ( int32_t port, int32_t px, int32_t py, int32_t wx1, int32_t wy1, int32_t wx2, int32_t wy2 );
@@ -491,6 +484,7 @@ bool nesROMIsLoaded ( void );
 extern bool __nesdebug;
 #define nesIsDebuggable() ( __nesdebug )
 void nesBreak ( void );
+void nesBreakAudio ( void );
 
 CBreakpointInfo* nesGetBreakpointDatabase ( void );
 CBreakpointEventInfo** nesGetCpuBreakpointEventDatabase ( void );
@@ -544,6 +538,7 @@ uint32_t nesGetAbsoluteAddressFromAddress ( uint32_t addr );
 void nesClearOpcodeMasks ( void );
 void nesSetOpcodeMask ( uint32_t addr, uint8_t mask );
 void nesSetBreakpointHook ( void (*hook)(void) );
+void nesSetAudioHook ( void (*hook)(void) );
 void nesEnableBreakpoints ( bool enable );
 void nesStepCpu ( void );
 void nesStepPpu ( void );

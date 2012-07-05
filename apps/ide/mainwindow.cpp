@@ -2605,7 +2605,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
          if ( !CCC65Interface::captureINESImage() )
          {
-            buildTextLogger->write("<font color='red'><b>Load failed.</b></font>");
+            buildTextLogger->write("<font color='red'><b>Load NES failed.</b></font>");
             return;
          }
 

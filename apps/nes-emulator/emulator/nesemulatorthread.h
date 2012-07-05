@@ -10,10 +10,6 @@
 
 #include "ccartridge.h"
 
-// Hook function endpoints.
-void nesCoreMutexLock ( void );
-void nesCoreMutexUnlock ( void );
-
 class NESEmulatorThread : public QThread, public IXMLSerializable
 {
    Q_OBJECT
@@ -35,10 +31,8 @@ public slots:
    void pauseEmulation (bool show);
    void controllerInput ( uint8_t* joy )
    {
-      nesCoreMutexLock();
       m_joy[CONTROLLER1] = joy[CONTROLLER1];
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
-      nesCoreMutexUnlock();
    }
    void primeEmulator ( CCartridge* pCartridge );
 
