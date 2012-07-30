@@ -646,6 +646,9 @@ protected:
    // The current opcode's addressing mode.
    static int32_t             amode;
 
+   // DMC DMA request active flag.
+   static int32_t m_dmaRequest;
+
    // DMA address for DMA write transfers.  The CPU sets this on a DMA
    // request from a write to $4014, then begins its DMA transfer at the
    // appropriate time.  When not DMAing the counter will be 0.

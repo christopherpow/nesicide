@@ -187,6 +187,7 @@ int32_t         C6502::m_curCycles = 0;
 uint16_t C6502::m_writeDmaAddr = 0x0000;
 int32_t  C6502::m_writeDmaCounter = 0;
 uint16_t C6502::m_readDmaAddr = 0x0000;
+int32_t     C6502::m_dmaRequest = -1;
 int32_t  C6502::m_readDmaCounter = 0;
 
 int32_t         C6502::amode;
@@ -773,20 +774,15 @@ void C6502::EMULATE ( int32_t cycles )
 
 void C6502::APUDMAREQ ( uint16_t addr )
 {
-   if ( m_writeDmaCounter )
-   {
-      m_readDmaCounter = 2;
-   }
-   else
-   {
-      m_readDmaCounter = 4;
-   }
+   m_dmaRequest = 3;
    m_readDmaAddr = addr;
 }
 
 void C6502::STEALCYCLES ( int32_t cycles, uint8_t source )
 {
    // CPTODO: complete implementation of cycle stealing that affects $4016 reads
+   MEM ( rEA() );
+#if 0
    if ( (m_instrCycle>0) && m_write )
    {
       for ( int32_t i = 0; i < cycles; i++ )
@@ -809,6 +805,7 @@ void C6502::STEALCYCLES ( int32_t cycles, uint8_t source )
          ADVANCE ( true );
       }
    }
+#endif
 
    // Check stolen cycles breakpoint.
    CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
@@ -874,8 +871,212 @@ bool C6502::DMA( void )
    bool doCycle = true;
    static uint8_t databuf;
 
+   // If the DMC DMA request is active it means the CPU was writing when
+   // the DMC DMA controller went active.  We need to assert RDY on the next
+   // CPU read cycle.  Check if that is now.
+   if ( !m_dmaRequest )
+   {
+      if ( !m_write )
+      {
+         if ( m_writeDmaCounter )
+         {
+            m_readDmaCounter = 2;
+         }
+         else
+         {
+            m_readDmaCounter = 4;
+         }
+         if ( !(_CYCLES()&1) )
+         {
+            m_readDmaCounter++;
+         }
+         m_dmaRequest--;
+      }
+   }
+   if ( m_dmaRequest > 0 )
+   {
+      m_dmaRequest--;
+   }
+
+   // Run the DMA controller cycles if necessary.
+   // Is this a read-beat?
+   if ( (_CYCLES()&1) )
+   {
+      // APU DMC DMA happens even if sprite DMA is occurring.
+      // If we're in the waiting period before DMA, wait.
+      if ( m_readDmaCounter > 4 )
+      {
+         m_readDmaCounter--;
+         goto done;
+      }
+      // If we're in the DMC DMA RDY-phase, just steal a cycle if there's
+      // no sprite DMA already stealing them.
+      if ( m_readDmaCounter > 2 )
+      {
+         m_readDmaCounter--;
+         if ( !m_writeDmaCounter )
+         {
+            STEALCYCLES ( 1, eNESSource_APU );
+            doCycle = false;
+            goto done;
+         }
+         else
+         {
+            doCycle = false;
+            goto done;
+         }
+      }
+      // If we're ready to do the DMC DMA read, do it.
+      if ( m_readDmaCounter == 2 )
+      {
+         CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+         m_readDmaCounter--;
+         doCycle = false;
+         goto done;
+      }
+      // If we're in the sprite DMA RDY-phase, just steal a cycle.
+      if ( m_writeDmaCounter > 512 )
+      {
+         STEALCYCLES ( 1, eNESSource_PPU );
+         m_writeDmaCounter--;
+         doCycle = false;
+         goto done;
+      }
+      // If we're ready to do the sprite DMA read, do it.
+      else if ( m_writeDmaCounter )
+      {
+         databuf = DMA(m_writeDmaAddr|(((512-m_writeDmaCounter)>>1)&0xFF));
+         m_writeDmaCounter--;
+         doCycle = false;
+         goto done;
+      }
+   }
+   else
+   {
+      // If we're in the waiting period before DMA, wait.
+      if ( m_readDmaCounter > 4 )
+      {
+         m_readDmaCounter--;
+         goto done;
+      }
+      // If APU DMC DMA occurred on the read-beat, skip this
+      // write-beat if sprite DMA is in progress.
+      if ( m_readDmaCounter == 1 )
+      {
+         if ( m_writeDmaCounter )
+         {
+            m_readDmaCounter--;
+            MEM(rPC()); // Put CPU on bus.
+            doCycle = false;
+            goto done;
+         }
+         else
+         {
+            m_readDmaCounter--;
+            goto done;
+         }
+      }
+      // If we're in the DMC DMA RDY-phase, just steal a cycle if there's
+      // no sprite DMA already stealing them.
+      if ( m_readDmaCounter > 2 )
+      {
+         m_readDmaCounter--;
+         if ( !m_writeDmaCounter )
+         {
+            STEALCYCLES ( 1, eNESSource_APU );
+            doCycle = false;
+            goto done;
+         }
+         else
+         {
+            doCycle = false;
+            goto done;
+         }
+      }
+      // If we're in the sprite DMA RDY-phase, just steal a cycle.
+      if ( m_writeDmaCounter > 512 )
+      {
+         STEALCYCLES ( 1, eNESSource_PPU );
+         m_writeDmaCounter--;
+         doCycle = false;
+         goto done;
+      }
+      // If we're ready to do the sprite DMA write, do it.
+      else if ( m_writeDmaCounter )
+      {
+         DMA ( (m_writeDmaAddr)|(((512-m_writeDmaCounter)>>1)&0xFF),
+               OAMDATA,
+               databuf );
+         m_writeDmaCounter--;
+         doCycle = false;
+         goto done;
+      }
+   }
+   done:
+#if 0
+
+   if ( (m_readDmaCounter > 1) && (!m_writeDmaCounter) )
+   {
+      STEALCYCLES ( 1, eNESSource_APU );
+      m_readDmaCounter--;
+      doCycle = false;
+   }
+   else if ( m_readDmaCounter > 1 )
+   {
+      m_readDmaCounter--;
+      doCycle = false;
+   }
+   else if ( m_writeDmaCounter > 512 )
+   {
+      STEALCYCLES ( 1, eNESSource_PPU );
+      m_writeDmaCounter--;
+      doCycle = false;
+   }
+   else if ( m_readDmaCounter == 1 && (!m_writeDmaCounter) )
+   {
+      CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+      m_readDmaCounter--;
+      doCycle = false;
+   }
+   else if ( m_readDmaCounter == 1 )
+   {
+      if ( _CYCLES()&1 )
+      {
+         CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+         doCycle = false;
+      }
+      else
+      {
+         STEALCYCLES ( 1, eNESSource_APU );
+         m_readDmaCounter--;
+         doCycle = false;
+      }
+   }
+   else if ( m_writeDmaCounter && (m_readDmaCounter != 1) )
+   {
+      // If this is a read-beat, do the read.
+      if ( !(m_writeDmaCounter&0x01) )
+      {
+         databuf = DMA(m_writeDmaAddr|(((512-m_writeDmaCounter)>>1)&0xFF));
+         doCycle = false;
+      }
+      // If this is a write-beat, do the write.
+      else
+      {
+         DMA ( (m_writeDmaAddr)|(((512-m_writeDmaCounter)>>1)&0xFF),
+               OAMDATA,
+               databuf );
+         doCycle = false;
+      }
+      m_writeDmaCounter--;
+   }
+#endif
+
+#if 0
    // Steal a CPU cycle if it is the appropriate time to do so...
-   if ( m_readDmaCounter > 1 )
+   // If the CPU is currently writing, we don't bother it unless we're
+   // already bothering it.
+   if ( (m_readDmaCounter > 1) && ((m_writeDmaCounter == 0) || (!(m_writeDmaCounter&1))) )
    {
       if ( m_write )
       {
@@ -899,13 +1100,13 @@ bool C6502::DMA( void )
    // Perform DMA if necessary.
    if ( doCycle )
    {
-      if ( m_readDmaCounter == 1 )
+      if ( (m_readDmaCounter == 1) && ((m_writeDmaCounter == 0) || (!(m_writeDmaCounter&1))) )
       {
          CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
          m_readDmaCounter = 0;
          doCycle = false;
       }
-      if ( m_writeDmaCounter )
+      if ( m_writeDmaCounter && doCycle )
       {
          if ( !(m_writeDmaCounter&1) )
          {
@@ -924,7 +1125,7 @@ bool C6502::DMA( void )
          }
       }
    }
-
+#endif
    return doCycle;
 }
 
@@ -3362,6 +3563,7 @@ void C6502::RESET ( void )
    m_curCycles = 0;
    m_phase = 0;
 
+   m_dmaRequest = -1;
    m_writeDmaCounter = 0;
    m_readDmaCounter = 0;
 
@@ -3519,8 +3721,7 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
          // Note: DMA is done in C6502::EMULATE, it is only set-up here.
          m_writeDmaAddr = data<<8;
          m_writeDmaCounter = 513;
-
-         if ( !(_CYCLES()&1) )
+         if ( _CYCLES()&1 )
          {
             m_writeDmaCounter++;
          }

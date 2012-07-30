@@ -6,7 +6,7 @@
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
 
-#define NUM_APU_BUFS 16
+#define NUM_APU_BUFS 32
 #define APU_BUFFER_SIZE (NUM_APU_BUFS*APU_SAMPLES)
 
 // APU mask register ($4017) bit definitions.
@@ -593,7 +593,7 @@ public:
    static uint32_t APU ( uint32_t addr );
    static void APU ( uint32_t addr, uint8_t data );
    static void EMULATE ( void );
-   static uint8_t* PLAY ();
+   static uint8_t* PLAY ( uint16_t samples );
    static void PAUSE ()
    {
       memset( m_waveBuf, 0, APU_BUFFER_SIZE * sizeof m_waveBuf[0] );

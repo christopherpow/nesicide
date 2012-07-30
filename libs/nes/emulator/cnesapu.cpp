@@ -562,18 +562,16 @@ CAPU::CAPU()
    memset( m_waveBuf, 0, APU_BUFFER_SIZE * sizeof m_waveBuf[ 0 ] );
 }
 
-uint8_t* CAPU::PLAY ( void )
+uint8_t* CAPU::PLAY ( uint16_t samples )
 {
    uint16_t* waveBuf;
 
    waveBuf = m_waveBuf + m_waveBufConsume;
 
-   m_waveBufConsume += APU_SAMPLES;
+   m_waveBufConsume += samples;
    m_waveBufConsume %= APU_BUFFER_SIZE;
 
-   nesLockCoreMutex();
-   apuDataAvailable -= APU_SAMPLES;
-   nesUnlockCoreMutex();
+   apuDataAvailable -= samples;
 
    return (uint8_t*)waveBuf;
 }
@@ -745,9 +743,7 @@ void CAPU::RESET ( void )
    }
 
    m_cycles = 0;
-   nesLockCoreMutex();
    apuDataAvailable = 0;
-   nesUnlockCoreMutex();
 }
 
 CAPUOscillator::CAPUOscillator ()
@@ -1953,9 +1949,12 @@ if ( wavOut )
 
       m_waveBufProduce %= APU_BUFFER_SIZE;
 
-      nesLockCoreMutex();
       apuDataAvailable++;
-      nesUnlockCoreMutex();
+
+      if ( apuDataAvailable >= APU_BUFFER_PRERENDER )
+      {
+         nesBreakAudio();
+      }
    }
 
    // Go to next cycle and restart if necessary...
