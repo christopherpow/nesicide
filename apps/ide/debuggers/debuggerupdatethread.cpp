@@ -5,18 +5,25 @@
 #include "main.h"
 
 DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject *parent) :
-    QThread(parent),_func(func)
+    QObject(),_func(func)
 {
+   pThread = new QThread();
+
+   moveToThread(pThread);
+
+   pThread->start();
 }
 
-void DebuggerUpdateThread::run()
+DebuggerUpdateThread::~DebuggerUpdateThread()
 {
-   _func();
-
-   emit updateComplete();
+   pThread->terminate();
+   pThread->wait();
+   delete pThread;
 }
 
 void DebuggerUpdateThread::updateDebuggers()
 {
-   start();
+   _func();
+
+   emit updateComplete();
 }

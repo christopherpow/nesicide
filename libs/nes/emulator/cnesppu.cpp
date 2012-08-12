@@ -675,6 +675,12 @@ bool           CPPU::m_extraVRAM = false;
 
 uint32_t   CPPU::m_cycles = 0;
 
+uint32_t CPPU::vblankScanlines;
+uint32_t CPPU::vblankEndCycle;
+uint32_t CPPU::prerenderScanline;
+uint32_t CPPU::cycleRatio;
+uint32_t CPPU::memoryDecayFrames;
+
 bool           CPPU::m_vblankChoked = false;
 bool           CPPU::m_nmiChoked = false;
 bool           CPPU::m_nmiReenabled = false;
@@ -747,97 +753,132 @@ CPPU::~CPPU()
    delete [] m_PPUmemory;
 }
 
-void CPPU::EMULATE(void)
+void CPPU::EMULATE(uint32_t cycles)
 {
-   int32_t cpuCycles;
-   uint32_t vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
-   uint32_t prerenderScanline = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINE_PRERENDER_NTSC:SCANLINE_PRERENDER_PAL;
+   uint32_t idxx = 0xffffffff;
+   uint32_t idxy = 0xffffffff;
 
-   // We're emulating one PPU cycle...
-   m_curCycles += CPU_CYCLE_ADJUST;
-
-   // Update PPU address from latch at appropriate times...
-   // Re-latch PPU address...
-   if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
+   for ( ; cycles > 0; cycles-- )
    {
-      if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 257) &&
-            ((m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE) )
+      // Get VBLANK raster position.
+      if ( m_cycles >= PPU_CYCLE_START_VBLANK )
       {
-         SCANLINESTART ();
+         idxy = (m_cycles-PPU_CYCLE_START_VBLANK)/PPU_CYCLES_PER_SCANLINE;
+         idxx = (m_cycles-PPU_CYCLE_START_VBLANK)%PPU_CYCLES_PER_SCANLINE;
       }
-      else if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 304) &&
-                ((m_cycles/PPU_CYCLES_PER_SCANLINE) == prerenderScanline) )
+
+      // We're emulating one PPU cycle...
+      m_curCycles += CPU_CYCLE_ADJUST;
+
+      // Update PPU address from latch at appropriate times...
+      // Re-latch PPU address...
+      if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
-         FRAMESTART ();
-      }
-      else if ( (m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE )
-      {
-         if ( (m_cycles%PPU_CYCLES_PER_SCANLINE) == 251 )
+         if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 257) &&
+               ((m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE) )
          {
-            SCANLINEEND ();
+            m_ppuAddr &= 0xFBE0;
+            m_ppuAddr |= m_ppuAddrLatch&0x41F;
          }
-
-         if ( (((m_cycles%PPU_CYCLES_PER_SCANLINE)%8) == 3) &&
-               (((m_cycles%PPU_CYCLES_PER_SCANLINE) < 256) ||
-                ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 323) ||
-                ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 331)) )
+         else if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 304) &&
+                   ((m_cycles/PPU_CYCLES_PER_SCANLINE) == prerenderScanline) )
          {
-            if ( (m_ppuAddr&0x001F) != 0x001F )
+            m_ppuAddr = m_ppuAddrLatch;
+         }
+         else if ( (m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE )
+         {
+            if ( (m_cycles%PPU_CYCLES_PER_SCANLINE) == 251 )
             {
-               m_ppuAddr++;
+               if ( (m_ppuAddr&0x7000) == 0x7000 )
+               {
+                  m_ppuAddr &= 0x8FFF;
+
+                  if ( (m_ppuAddr&0x03E0) == 0x03A0 )
+                  {
+                     m_ppuAddr ^= 0x0800;
+                     m_ppuAddr &= 0xFC1F;
+                  }
+                  else
+                  {
+                     if ( (m_ppuAddr&0x03E0) == 0x03E0 )
+                     {
+                        m_ppuAddr &= 0xFC1F;
+                     }
+                     else
+                     {
+                        m_ppuAddr += 0x0020;
+                     }
+                  }
+               }
+               else
+               {
+                  m_ppuAddr += 0x1000;
+               }
             }
-            else
+
+            if ( (((m_cycles%PPU_CYCLES_PER_SCANLINE)%8) == 3) &&
+                  (((m_cycles%PPU_CYCLES_PER_SCANLINE) < 256) ||
+                   ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 323) ||
+                   ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 331)) )
             {
-               m_ppuAddr ^= 0x041F;
+               if ( (m_ppuAddr&0x001F) != 0x001F )
+               {
+                  m_ppuAddr++;
+               }
+               else
+               {
+                  m_ppuAddr ^= 0x041F;
+               }
             }
          }
       }
-   }
 
-   // How many CPU cycles might we do?  (0 or 1?)
-   if ( CNES::VIDEOMODE() == MODE_NTSC )
-   {
-      cpuCycles = m_curCycles/PPU_CPU_RATIO_NTSC;
-   }
-   else
-   {
-      cpuCycles = m_curCycles/PPU_CPU_RATIO_PAL;
-   }
+      // Run 0 or 1 CPU cycles...
+      C6502::EMULATE ( m_curCycles/cycleRatio );
 
-   // Run 0 or 1 CPU cycles...
-   C6502::EMULATE ( cpuCycles );
+      // Adjust current cycle count...
+      m_curCycles %= cycleRatio;
 
-   // Adjust current cycle count...
-   if ( CNES::VIDEOMODE() == MODE_NTSC )
-   {
-      m_curCycles %= PPU_CPU_RATIO_NTSC;
-   }
-   else
-   {
-      m_curCycles %= PPU_CPU_RATIO_PAL;
-   }
+      // Turn off NMI choking if it shouldn't be...
+      if ( m_cycles > PPU_CYCLE_START_VBLANK+1 )
+      {
+         NMICHOKED ( false );
+      }
 
-   // Turn off NMI choking if it shouldn't be...
-   if ( m_cycles > PPU_CYCLE_START_VBLANK+1 )
-   {
-      NMICHOKED ( false );
-   }
+      // Turn off NMI re-enablement if it shouldn't be...
+      if ( m_cycles > vblankEndCycle )
+      {
+         NMIREENABLED ( false );
+      }
 
-   // Turn off NMI re-enablement if it shouldn't be...
-   if ( m_cycles > vblankEndCycle )
-   {
-      NMIREENABLED ( false );
-   }
+      if ( nesIsDebuggable() )
+      {
+         // Check for breakpoints...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
+      }
 
-   if ( nesIsDebuggable() )
-   {
-      // Check for breakpoints...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
-   }
+      if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
+            (((!NMICHOKED()) && (idxy == 0) && (idxx == 1)) ||
+             ((NMIREENABLED()) && (idxy <= vblankScanlines-1) && (idxx < PPU_CYCLES_PER_SCANLINE-1))) )
+      {
+         C6502::ASSERTNMI ();
 
-   // Internal cycle counter keeps track of stuff needing to happen
-   // at particular PPU frame cycles.  It is reset at the end of a frame.
-   m_cycles++;
+         // Check for PPU NMI breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_NMI );
+      }
+
+      // Clear OAM at appropriate point...
+      // Note the appropriate point comes from blargg's discussion on nesdev forum:
+      // http://nesdev.parodius.com/bbs/viewtopic.php?t=1366&highlight=sprite+address+clear
+      if ( (idxy == 19) && (idxx == 316) )
+      {
+         m_oamAddr = 0x00;
+      }
+
+      // Internal cycle counter keeps track of stuff needing to happen
+      // at particular PPU frame cycles.  It is reset at the end of a frame.
+      m_cycles++;
+   }
 }
 
 uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
@@ -972,7 +1013,7 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
    mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
-   EMULATE();
+   EMULATE(1);
 
    if ( nesIsDebuggable() )
    {
@@ -997,7 +1038,7 @@ void CPPU::GARBAGE ( uint32_t addr, int8_t target )
    mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
-   EMULATE();
+   EMULATE(1);
 
    if ( nesIsDebuggable() )
    {
@@ -1017,7 +1058,7 @@ void CPPU::EXTRA ()
    }
 
    // Idle cycle...
-   EMULATE();
+   EMULATE(1);
 
    if ( nesIsDebuggable() )
    {
@@ -1032,6 +1073,12 @@ void CPPU::EXTRA ()
 void CPPU::RESET ( void )
 {
    int idx;
+
+   vblankScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:SCANLINES_VBLANK_PAL;
+   vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
+   prerenderScanline = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINE_PRERENDER_NTSC:SCANLINE_PRERENDER_PAL;
+   cycleRatio = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CPU_RATIO_NTSC:PPU_CPU_RATIO_PAL;
+   memoryDecayFrames = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_DECAY_FRAME_COUNT_NTSC:PPU_DECAY_FRAME_COUNT_PAL;
 
    m_PPUreg [ 0 ] = 0x00;
    m_PPUreg [ 1 ] = 0x00;
@@ -1081,110 +1128,107 @@ uint32_t CPPU::PPU ( uint32_t addr )
    uint16_t fixAddr;
    uint16_t oldPpuAddr;
 
-   if ( addr < 0x4000 )
+   fixAddr = addr&0x0007;
+
+   if ( fixAddr == PPUSTATUS_REG )
    {
-      fixAddr = addr&0x0007;
+      data = *(m_PPUreg+fixAddr);
+      *(m_PPUreg+fixAddr) &= (~PPUSTATUS_VBLANK); // VBLANK clear-on-read
+      m_ppuRegByte = 0; // Clear PPUADDR address latch
+      data = (data&0xE0)|(m_ppuIOLatch&0x1F);
 
-      if ( fixAddr == PPUSTATUS_REG )
+      // Refresh I/O latch...
+      m_ppuIOLatch &= (0x1F);
+      m_ppuIOLatch |= (data&0xE0);
+
+      // Kill VBLANK flag if register is read at 'wrong' time...
+      if ( m_cycles == PPU_CYCLE_START_VBLANK-1 )
       {
-         data = *(m_PPUreg+fixAddr);
-         *(m_PPUreg+fixAddr) &= (~PPUSTATUS_VBLANK); // VBLANK clear-on-read
-         m_ppuRegByte = 0; // Clear PPUADDR address latch
-         data = (data&0xE0)|(m_ppuIOLatch&0x1F);
-
-         // Refresh I/O latch...
-         m_ppuIOLatch &= (0x1F);
-         m_ppuIOLatch |= (data&0xE0);
-
-         // Kill VBLANK flag if register is read at 'wrong' time...
-         if ( m_cycles == PPU_CYCLE_START_VBLANK-1 )
-         {
-            VBLANKCHOKED ( true );
-         }
-
-         // Kill NMI assertion if register is read at 'wrong' time...
-         if ( (m_cycles >= PPU_CYCLE_START_VBLANK-1) &&
-               (m_cycles <= PPU_CYCLE_START_VBLANK+1) )
-         {
-            NMICHOKED ( true );
-         }
+         VBLANKCHOKED ( true );
       }
-      else if ( fixAddr == OAMDATA_REG )
+
+      // Kill NMI assertion if register is read at 'wrong' time...
+      if ( (m_cycles >= PPU_CYCLE_START_VBLANK-1) &&
+            (m_cycles <= PPU_CYCLE_START_VBLANK+1) )
       {
-         if ( (m_oamAddr&3) == SPRITEATT )
-         {
-            // Third sprite byte should be masked with E3 on read.
-            data = (*(m_PPUoam+m_oamAddr))&0xE3;
-         }
-         else
-         {
-            data = *(m_PPUoam+m_oamAddr);
-         }
+         NMICHOKED ( true );
+      }
+   }
+   else if ( fixAddr == OAMDATA_REG )
+   {
+      if ( (m_oamAddr&3) == SPRITEATT )
+      {
+         // Third sprite byte should be masked with E3 on read.
+         data = (*(m_PPUoam+m_oamAddr))&0xE3;
+      }
+      else
+      {
+         data = *(m_PPUoam+m_oamAddr);
+      }
+
+      // Refresh I/O latch...
+      m_ppuIOLatch = data;
+
+      if ( nesIsDebuggable() )
+      {
+         // Check for breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
+      }
+   }
+   else if ( fixAddr == PPUDATA_REG )
+   {
+      oldPpuAddr = m_ppuAddr;
+
+      m_ppuAddr += m_ppuAddrIncrement;
+
+      if ( oldPpuAddr < 0x3F00 )
+      {
+         data = m_ppuReadLatch;
 
          // Refresh I/O latch...
          m_ppuIOLatch = data;
 
-         if ( nesIsDebuggable() )
-         {
-            // Check for breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
-         }
-      }
-      else if ( fixAddr == PPUDATA_REG )
-      {
-         oldPpuAddr = m_ppuAddr;
-
-         m_ppuAddr += m_ppuAddrIncrement;
-
-         if ( oldPpuAddr < 0x3F00 )
-         {
-            data = m_ppuReadLatch;
-
-            // Refresh I/O latch...
-            m_ppuIOLatch = data;
-
-            m_ppuReadLatch = LOAD ( oldPpuAddr, eNESSource_CPU, eTracer_DataRead );
-         }
-         else
-         {
-            data = LOAD ( oldPpuAddr, eNESSource_CPU, eTracer_DataRead );
-
-            // Mask off unused palette RAM bits.
-            data &= 0x3F;
-
-            // Fill in read-latch bits...
-            data |= (m_ppuIOLatch&0xC0);
-
-            // Refresh I/O latch...
-            m_ppuIOLatch &= (0xC0);
-            m_ppuIOLatch |= (data&0x3F);
-
-            // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
-            m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
-         }
-
-         if ( nesIsDebuggable() )
-         {
-            // Check for breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
-
-            // Log Code/Data logger...
-            m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eNESSource_CPU );
-         }
-
-         // Toggling A12 causes IRQ count in some mappers...
-         mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+         m_ppuReadLatch = LOAD ( oldPpuAddr, eNESSource_CPU, eTracer_DataRead );
       }
       else
       {
-         data = m_ppuIOLatch;
+         data = LOAD ( oldPpuAddr, eNESSource_CPU, eTracer_DataRead );
+
+         // Mask off unused palette RAM bits.
+         data &= 0x3F;
+
+         // Fill in read-latch bits...
+         data |= (m_ppuIOLatch&0xC0);
+
+         // Refresh I/O latch...
+         m_ppuIOLatch &= (0xC0);
+         m_ppuIOLatch |= (data&0x3F);
+
+         // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
+         m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
       }
 
       if ( nesIsDebuggable() )
       {
          // Check for breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
+
+         // Log Code/Data logger...
+         m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eNESSource_CPU );
       }
+
+      // Toggling A12 causes IRQ count in some mappers...
+      mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+   }
+   else
+   {
+      data = m_ppuIOLatch;
+   }
+
+   if ( nesIsDebuggable() )
+   {
+      // Check for breakpoint...
+      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
    }
 
    return data;
@@ -1197,150 +1241,139 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
    uint8_t  old2000;
    int32_t  bit;
 
-   if ( addr < 0x4000 )
+   // Set I/O latch for bus hold-up emulation...
+   m_ppuIOLatch = data;
+
+   // Set crude 'frame counters' for each 1 bit to decay...
+   for ( bit = 0; bit < 8; bit++ )
    {
-      // Set I/O latch for bus hold-up emulation...
-      m_ppuIOLatch = data;
-
-      // Set crude 'frame counters' for each 1 bit to decay...
-      for ( bit = 0; bit < 8; bit++ )
+      if ( m_ppuIOLatch&(1<<bit) )
       {
-         if ( m_ppuIOLatch&(1<<bit) )
-         {
-            if ( CNES::VIDEOMODE() == MODE_NTSC )
-            {
-               // ~600msec
-               m_ppuIOLatchDecayFrames [ bit ] = PPU_DECAY_FRAME_COUNT_NTSC;
-            }
-            else
-            {
-               // ~600msec
-               m_ppuIOLatchDecayFrames [ bit ] = PPU_DECAY_FRAME_COUNT_PAL;
-            }
-         }
-         else
-         {
-            // No decay necessary.
-            m_ppuIOLatchDecayFrames [ bit ] = 0;
-         }
+         // ~600msec
+         m_ppuIOLatchDecayFrames [ bit ] = memoryDecayFrames;
       }
-
-      fixAddr = addr&0x0007;
-
-      if ( fixAddr != PPUSTATUS_REG )
+      else
       {
-         old2000 = *(m_PPUreg+PPUCTRL_REG);
-         *(m_PPUreg+fixAddr) = data;
-
-         // Check for need to re-assert NMI if NMI is enabled and we're in VBLANK...
-         if ( (fixAddr == PPUCTRL_REG) &&
-               (!(old2000&PPUCTRL_GENERATE_NMI)) &&
-               (rPPU(PPUSTATUS)&PPUSTATUS_VBLANK) &&
-               (data&PPUCTRL_GENERATE_NMI) )
-         {
-            NMIREENABLED ( true );
-         }
+         // No decay necessary.
+         m_ppuIOLatchDecayFrames [ bit ] = 0;
       }
+   }
 
-      if ( fixAddr == PPUCTRL_REG )
+   fixAddr = addr&0x0007;
+
+   if ( fixAddr != PPUSTATUS_REG )
+   {
+      old2000 = *(m_PPUreg+PPUCTRL_REG);
+      *(m_PPUreg+fixAddr) = data;
+
+      // Check for need to re-assert NMI if NMI is enabled and we're in VBLANK...
+      if ( (fixAddr == PPUCTRL_REG) &&
+            (!(old2000&PPUCTRL_GENERATE_NMI)) &&
+            (rPPU(PPUSTATUS)&PPUSTATUS_VBLANK) &&
+            (data&PPUCTRL_GENERATE_NMI) )
       {
-         m_ppuAddrLatch &= 0x73FF;
-         m_ppuAddrLatch |= ((((uint16_t)data&PPUCTRL_BASE_NAM_TBL_ADDR_MSK))<<10);
-         m_ppuAddrIncrement = (((!!(data&PPUCTRL_VRAM_ADDR_INC))*31)+1);
+         NMIREENABLED ( true );
       }
-      else if ( fixAddr == OAMADDR_REG )
-      {
-         m_oamAddr = data;
-      }
-      else if ( fixAddr == OAMDATA_REG )
-      {
-         *(m_PPUoam+m_oamAddr) = data;
+   }
 
-         if ( nesIsDebuggable() )
-         {
-            // Check for breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalWrite, data );
-         }
-
-         m_oamAddr++;
-      }
-      else if ( fixAddr == PPUSCROLL_REG )
-      {
-         if ( m_ppuRegByte )
-         {
-            m_last2005y = data;
-            m_ppuAddrLatch &= 0x8C1F;
-            m_ppuAddrLatch |= ((((uint16_t)data&0xF8))<<2);
-            m_ppuAddrLatch |= ((((uint16_t)data&0x07))<<12);
-
-            if ( nesIsDebuggable() )
-            {
-               // Check for PPU Y scroll update breakpoint...
-               CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_YSCROLL_UPDATE );
-            }
-         }
-         else
-         {
-            m_last2005x = data;
-            m_ppuScrollX = data&0x07;
-            m_ppuAddrLatch &= 0xFFE0;
-            m_ppuAddrLatch |= ((((uint16_t)data&0xF8))>>3);
-
-            if ( nesIsDebuggable() )
-            {
-               // Check for PPU X scroll update breakpoint...
-               CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_XSCROLL_UPDATE );
-            }
-         }
-
-         m_ppuRegByte = !m_ppuRegByte;
-      }
-      else if ( fixAddr == PPUADDR_REG )
-      {
-         if ( m_ppuRegByte )
-         {
-            m_ppuAddrLatch &= 0x7F00;
-            m_ppuAddrLatch |= data;
-
-            m_ppuAddr = m_ppuAddrLatch;
-
-            // Toggling A12 causes IRQ count in some mappers...
-            mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
-         }
-         else
-         {
-            m_ppuAddrLatch &= 0x00FF;
-            m_ppuAddrLatch |= ((((uint16_t)data&0x3F))<<8);
-         }
-
-         m_ppuRegByte = !m_ppuRegByte;
-      }
-      else if ( fixAddr == PPUDATA_REG )
-      {
-         STORE ( m_ppuAddr, data, eNESSource_CPU, eTracer_DataWrite );
-
-         oldPpuAddr = m_ppuAddr;
-
-         if ( nesIsDebuggable() )
-         {
-            m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eNESSource_CPU );
-
-            // Check for breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
-         }
-
-         // Increment PPUADDR
-         m_ppuAddr += m_ppuAddrIncrement;
-
-         // Toggling A12 causes IRQ count in some mappers...
-         mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
-      }
+   if ( fixAddr == PPUCTRL_REG )
+   {
+      m_ppuAddrLatch &= 0x73FF;
+      m_ppuAddrLatch |= ((((uint16_t)data&PPUCTRL_BASE_NAM_TBL_ADDR_MSK))<<10);
+      m_ppuAddrIncrement = (((!!(data&PPUCTRL_VRAM_ADDR_INC))*31)+1);
+   }
+   else if ( fixAddr == OAMADDR_REG )
+   {
+      m_oamAddr = data;
+   }
+   else if ( fixAddr == OAMDATA_REG )
+   {
+      *(m_PPUoam+m_oamAddr) = data;
 
       if ( nesIsDebuggable() )
       {
          // Check for breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalWrite, data );
       }
+
+      m_oamAddr++;
+   }
+   else if ( fixAddr == PPUSCROLL_REG )
+   {
+      if ( m_ppuRegByte )
+      {
+         m_last2005y = data;
+         m_ppuAddrLatch &= 0x8C1F;
+         m_ppuAddrLatch |= ((((uint16_t)data&0xF8))<<2);
+         m_ppuAddrLatch |= ((((uint16_t)data&0x07))<<12);
+
+         if ( nesIsDebuggable() )
+         {
+            // Check for PPU Y scroll update breakpoint...
+            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_YSCROLL_UPDATE );
+         }
+      }
+      else
+      {
+         m_last2005x = data;
+         m_ppuScrollX = data&0x07;
+         m_ppuAddrLatch &= 0xFFE0;
+         m_ppuAddrLatch |= ((((uint16_t)data&0xF8))>>3);
+
+         if ( nesIsDebuggable() )
+         {
+            // Check for PPU X scroll update breakpoint...
+            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_XSCROLL_UPDATE );
+         }
+      }
+
+      m_ppuRegByte = !m_ppuRegByte;
+   }
+   else if ( fixAddr == PPUADDR_REG )
+   {
+      if ( m_ppuRegByte )
+      {
+         m_ppuAddrLatch &= 0x7F00;
+         m_ppuAddrLatch |= data;
+
+         m_ppuAddr = m_ppuAddrLatch;
+
+         // Toggling A12 causes IRQ count in some mappers...
+         mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+      }
+      else
+      {
+         m_ppuAddrLatch &= 0x00FF;
+         m_ppuAddrLatch |= ((((uint16_t)data&0x3F))<<8);
+      }
+
+      m_ppuRegByte = !m_ppuRegByte;
+   }
+   else if ( fixAddr == PPUDATA_REG )
+   {
+      STORE ( m_ppuAddr, data, eNESSource_CPU, eTracer_DataWrite );
+
+      oldPpuAddr = m_ppuAddr;
+
+      if ( nesIsDebuggable() )
+      {
+         m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eNESSource_CPU );
+
+         // Check for breakpoint...
+         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
+      }
+
+      // Increment PPUADDR
+      m_ppuAddr += m_ppuAddrIncrement;
+
+      // Toggling A12 causes IRQ count in some mappers...
+      mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+   }
+
+   if ( nesIsDebuggable() )
+   {
+      // Check for breakpoint...
+      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
    }
 }
 
@@ -1389,55 +1422,12 @@ void CPPU::MIRROR ( int32_t nt1, int32_t nt2, int32_t nt3, int32_t nt4 )
    Move1KBank ( 0xB, &(m_PPUmemory[(nt4<<UPSHIFT_1KB)]) );
 }
 
-void CPPU::FRAMESTART ( void )
-{
-   m_ppuAddr = m_ppuAddrLatch;
-}
-
-void CPPU::SCANLINESTART ( void )
-{
-   m_ppuAddr &= 0xFBE0;
-   m_ppuAddr |= m_ppuAddrLatch&0x41F;
-}
-
-void CPPU::SCANLINEEND ( void )
-{
-   if ( (m_ppuAddr&0x7000) == 0x7000 )
-   {
-      m_ppuAddr &= 0x8FFF;
-
-      if ( (m_ppuAddr&0x03E0) == 0x03A0 )
-      {
-         m_ppuAddr ^= 0x0800;
-         m_ppuAddr &= 0xFC1F;
-      }
-      else
-      {
-         if ( (m_ppuAddr&0x03E0) == 0x03E0 )
-         {
-            m_ppuAddr &= 0xFC1F;
-         }
-         else
-         {
-            m_ppuAddr += 0x0020;
-         }
-      }
-   }
-   else
-   {
-      m_ppuAddr += 0x1000;
-   }
-}
-
 void CPPU::QUIETSCANLINE ( void )
 {
    int32_t idxx;
    int32_t bit;
 
-   for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
-   {
-      EMULATE();
-   }
+   EMULATE(PPU_CYCLES_PER_SCANLINE);
 
    // Do I/O latch decay...this is just a convenient place to put
    // this decay because this function is called once per frame and
@@ -1461,49 +1451,13 @@ void CPPU::QUIETSCANLINE ( void )
 
 void CPPU::VBLANKSCANLINES ( void )
 {
-   int32_t idxx, idxy, scanlines;
-
-   if ( CNES::VIDEOMODE() == MODE_NTSC )
-   {
-      scanlines = SCANLINES_VBLANK_NTSC;
-   }
-   else
-   {
-      scanlines = SCANLINES_VBLANK_PAL;
-   }
-
    // Set VBLANK flag...
    if ( !VBLANKCHOKED() )
    {
       wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_VBLANK );
    }
 
-   for ( idxy = 0; idxy < scanlines; idxy++ )
-   {
-      // Logic for asserting NMI...
-      for ( idxx = 0; idxx < PPU_CYCLES_PER_SCANLINE; idxx++ )
-      {
-         EMULATE();
-
-         if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
-               (((!NMICHOKED()) && (idxy == 0) && (idxx == 1)) ||
-                ((NMIREENABLED()) && (idxy <= scanlines-1) && (idxx < PPU_CYCLES_PER_SCANLINE-1))) )
-         {
-            C6502::ASSERTNMI ();
-
-            // Check for PPU NMI breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_NMI );
-         }
-
-         // Clear OAM at appropriate point...
-         // Note the appropriate point comes from blargg's discussion on nesdev forum:
-         // http://nesdev.parodius.com/bbs/viewtopic.php?t=1366&highlight=sprite+address+clear
-         if ( (idxy == 19) && (idxx == 316) )
-         {
-            m_oamAddr = 0x00;
-         }
-      }
-   }
+   EMULATE(vblankScanlines*PPU_CYCLES_PER_SCANLINE);
 
    // Clear VBLANK, Sprite 0 Hit flag and sprite overflow...
    wPPU ( PPUSTATUS, rPPU(PPUSTATUS)&(~(PPUSTATUS_VBLANK|PPUSTATUS_SPRITE_0_HIT|PPUSTATUS_SPRITE_OVFLO)) );
@@ -1809,7 +1763,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       }
 
       // Finish off scanline render clock cycles...
-      EMULATE();
+      EMULATE(1);
 
       // If this is a visible scanline it is 341 clocks long both NTSC and PAL...
       // The exact skipped cycle appears to be cycle 337, which is right here.
@@ -1837,16 +1791,16 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
-      EMULATE();
+      EMULATE(1);
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
          GARBAGE ( 0x2000, eTarget_NameTable );
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
    }
 }
@@ -1882,7 +1836,7 @@ void CPPU::GATHERBKGND ( int8_t phase )
 
    if ( !(phase&1) )
    {
-      EMULATE();
+      EMULATE(1);
    }
 
    if ( phase == 1 )
@@ -1894,7 +1848,7 @@ void CPPU::GATHERBKGND ( int8_t phase )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
    }
    else if ( phase == 3 )
@@ -1905,7 +1859,7 @@ void CPPU::GATHERBKGND ( int8_t phase )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
 
       if ( (tileY&0x0002) == 0 )
@@ -2003,7 +1957,7 @@ void CPPU::GATHERBKGND ( int8_t phase )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
    }
    else if ( phase == 7 )
@@ -2014,7 +1968,7 @@ void CPPU::GATHERBKGND ( int8_t phase )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
 
       pBkgnd->attribData1 = bkgndTemp.attribData1;
@@ -2256,21 +2210,18 @@ void CPPU::GATHERSPRITES ( int32_t scanline )
       // Garbage nametable fetches according to Samus Aran...
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
-         EMULATE();
+         EMULATE(1);
          GARBAGE ( 0x2000, eTarget_NameTable );
-         EMULATE();
+         EMULATE(1);
          GARBAGE ( 0x2000, eTarget_NameTable );
       }
       else
       {
-         EMULATE();
-         EMULATE();
-         EMULATE();
-         EMULATE();
+         EMULATE(4);
       }
 
       // Get sprite's pattern data...
-      EMULATE();
+      EMULATE(1);
 
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
@@ -2279,10 +2230,10 @@ void CPPU::GATHERSPRITES ( int32_t scanline )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
 
-      EMULATE();
+      EMULATE(1);
 
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
@@ -2290,7 +2241,7 @@ void CPPU::GATHERSPRITES ( int32_t scanline )
       }
       else
       {
-         EMULATE();
+         EMULATE(1);
       }
    }
 
@@ -2301,17 +2252,14 @@ void CPPU::GATHERSPRITES ( int32_t scanline )
       // Garbage nametable fetches according to Samus Aran...
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
-         EMULATE();
+         EMULATE(1);
          GARBAGE ( 0x2000, eTarget_NameTable );
-         EMULATE();
+         EMULATE(1);
          GARBAGE ( 0x2000, eTarget_NameTable );
       }
       else
       {
-         EMULATE();
-         EMULATE();
-         EMULATE();
-         EMULATE();
+         EMULATE(4);
       }
 
       if ( spriteSize == 16 )
@@ -2321,17 +2269,14 @@ void CPPU::GATHERSPRITES ( int32_t scanline )
 
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
-         EMULATE();
+         EMULATE(1);
          GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4), eTarget_PatternMemory );
-         EMULATE();
+         EMULATE(1);
          GARBAGE ( spritePatBase+(GARBAGE_SPRITE_FETCH<<4)+PATTERN_SIZE, eTarget_PatternMemory );
       }
       else
       {
-         EMULATE();
-         EMULATE();
-         EMULATE();
-         EMULATE();
+         EMULATE(4);
       }
    }
 }

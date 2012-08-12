@@ -191,7 +191,7 @@ public:
    virtual ~CPPU();
 
    // Emulation routine.  Emulates one PPU cycle.
-   static inline void EMULATE ( void );
+   static inline void EMULATE ( uint32_t cycles );
 
    // Routine invoked on reset of the emulation engine.
    // Cleans up the PPU state as if a NES reset had just occurred.
@@ -304,14 +304,6 @@ public:
    {
       return m_extraVRAM;
    }
-
-   // Framing interfaces.  These are invoked by the NES object at
-   // particular places within the PPU frame in order to change
-   // the state of the PPU object such that video rendering is accurately
-   // portrayed.
-   static inline void FRAMESTART ( void );
-   static inline void SCANLINESTART ( void );
-   static inline void SCANLINEEND ( void );
 
    // Rendering interfaces.  These are invoked by the NES object at
    // particular places within the PPU frame to run the PPU for a
@@ -623,6 +615,13 @@ protected:
    // PPU address $2005, or $2007.  It is reset on reads from
    // PPU address $2002.
    static int32_t            m_ppuRegByte;
+
+   // Pre-calculated values based on video mode.
+   static uint32_t vblankScanlines;
+   static uint32_t vblankEndCycle;
+   static uint32_t prerenderScanline;
+   static uint32_t cycleRatio;
+   static uint32_t memoryDecayFrames;
 
    // The PPU has an internal OAM address register that is
    // accessed via PPU address $2003.  It is incremented on

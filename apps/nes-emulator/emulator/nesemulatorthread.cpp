@@ -34,8 +34,27 @@ static void audioHook ( void )
 
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
-   memcpy(stream,nesGetAudioSamples(len>>1),len);
-
+#if 0
+   LARGE_INTEGER t;
+   static LARGE_INTEGER to;
+   LARGE_INTEGER f;
+   QueryPerformanceFrequency(&f);
+   QueryPerformanceCounter(&t);
+   QString str;
+   str.sprintf("Smp: %d, Freq: %d, Ctr: %d, Diff %d, Per %lf", len>>1, f.LowPart, t.LowPart,t.LowPart-to.LowPart,(float)(t.LowPart-to.LowPart)/(float)f.LowPart);
+   to = t;
+   qDebug(str.toAscii().constData());
+#endif
+   if ( nesGetAudioSamplesAvailable() >= (len>>1) )
+   {
+      memcpy(stream,nesGetAudioSamples(len>>1),len);
+   }
+#if 0
+   else
+   {
+      qDebug("UNDERRUN");
+   }
+#endif
    nesAudioSemaphore.release();
 }
 

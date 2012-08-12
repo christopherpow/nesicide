@@ -9,7 +9,7 @@
 #include "nes_emulator_core.h"
 
 #include "ccartridge.h"
-
+// EMU
 class NESEmulatorThread : public QThread, public IXMLSerializable
 {
    Q_OBJECT

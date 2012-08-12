@@ -244,14 +244,14 @@ enum
 // drives the rate at which the SDL library will invoke
 // the callback method to retrieve more audio samples to
 // play.
-#define APU_SAMPLES           (1024)
+#define APU_SAMPLES           (512)
 
 #define SDL_SAMPLE_RATE       (22050)
 
 #define APU_SAMPLE_SPACE_NTSC (89341.5/3.0/(SDL_SAMPLE_RATE/60.0))
 #define APU_SAMPLE_SPACE_PAL  (106392.0/3.2/(SDL_SAMPLE_RATE/50.0))
 
-#define APU_BUFFER_PRERENDER           (APU_SAMPLES*4)   // How much rendering to do
+#define APU_BUFFER_PRERENDER           (APU_SAMPLES*2)   // How much rendering to do
 
 #pragma pack(1)
 typedef struct

@@ -3,13 +3,12 @@
 
 #include <QThread>
 
-class DebuggerUpdateThread : public QThread
+class DebuggerUpdateThread : public QObject
 {
    Q_OBJECT
 public:
    explicit DebuggerUpdateThread(void (*func)(),QObject *parent = 0);
-
-   virtual void run();
+   ~DebuggerUpdateThread();
 
    void changeFunction(void (*func)()) { _func = func; }
 
@@ -21,6 +20,7 @@ public slots:
 
 private:
    void (*_func)();
+   QThread* pThread;
 };
 
 #endif // DEBUGGERUPDATETHREAD_H

@@ -159,16 +159,22 @@ void TestSuiteExecutiveDialog::on_load_clicked()
 
 void TestSuiteExecutiveDialog::on_execute_clicked()
 {
-   executeTests(-1,-1);
+   if ( ui->tableWidget->rowCount() > 0 )
+   {
+      executeTests(-1,-1);
+   }
 }
 
 void TestSuiteExecutiveDialog::on_executeSelection_clicked()
 {
    QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
-   int start = items.first()->row();
-   int end = items.last()->row();
+   QTableWidgetItem* start = items.first();
+   QTableWidgetItem* end = items.last();
 
-   executeTests(start,end+1);
+   if ( start && end && (start->row() > 0) && (end->row() > 0) )
+   {
+      executeTests(start->row(),end->row()+1);
+   }
 }
 
 void TestSuiteExecutiveDialog::doTestPhase()
@@ -378,6 +384,8 @@ void TestSuiteExecutiveDialog::executeTests(int start,int end)
    {
       end = numTests;
    }
+
+   if ( start == end ) return;
 
    testStart = start;
    testEnd = end;
