@@ -5,23 +5,22 @@
 #include <QDir>
 #include <QSemaphore>
 
-class SearcherThread : public QThread
+class SearcherThread : public QObject
 {
    Q_OBJECT
 public:
    SearcherThread ( QObject* parent = 0 );
    virtual ~SearcherThread ();
-   void kill();
 
+public slots:
    void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive);
 
 signals:
    void searchDone(int found);
 
 protected:
-   QSemaphore* searchSemaphore;
+   QThread* pThread;
 
-   virtual void run ();
    void doSearch(QDir dir,int* finds);
    bool m_isTerminating;
    QDir m_dir;

@@ -2,7 +2,7 @@
 
 #include "dbg_cnes.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include <QIcon>
 #include <QMimeData>

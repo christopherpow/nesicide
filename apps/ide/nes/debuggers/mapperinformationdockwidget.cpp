@@ -5,7 +5,7 @@
 
 #include "dbg_cnesmappers.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 enum
@@ -35,8 +35,8 @@ MapperInformationDockWidget::~MapperInformationDockWidget()
 
 void MapperInformationDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(machineReady()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
@@ -60,7 +60,7 @@ void MapperInformationDockWidget::changeEvent(QEvent* e)
 
 void MapperInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
@@ -68,7 +68,7 @@ void MapperInformationDockWidget::showEvent(QShowEvent* e)
 
 void MapperInformationDockWidget::hideEvent(QHideEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }

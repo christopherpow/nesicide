@@ -126,6 +126,7 @@
      </property>
      <addaction name="actionNTSC"/>
      <addaction name="actionPAL"/>
+     <addaction name="actionDendy"/>
     </widget>
     <widget class="QMenu" name="menuAudio">
      <property name="title">
@@ -266,6 +267,17 @@
   <action name="actionAbout_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionDendy">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dendy</string>
+   </property>
+   <property name="toolTip">
+    <string>Dendy</string>
    </property>
   </action>
  </widget>

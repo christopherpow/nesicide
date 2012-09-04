@@ -2,7 +2,7 @@
 #include "ui_nesemulatordockwidget.h"
 
 #include "emulatorprefsdialog.h"
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include "nes_emulator_core.h"
 
@@ -16,7 +16,7 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    renderer = new CNESEmulatorRenderer(ui->frame, imgData);
    renderer->setMouseTracking(true);

@@ -10,17 +10,18 @@ enum
    DoClean
 };
 
-class CompilerThread : public QThread
+class CompilerThread : public QObject
 {
    Q_OBJECT
 public:
    CompilerThread ( QObject* parent = 0 );
    virtual ~CompilerThread ();
-   void kill();
 
    bool assembledOk() { return m_assembledOk; }
    void reset() { m_assembledOk = false; }
-   void assemble();
+
+public slots:
+   void compile();
    void clean();
 
 signals:
@@ -29,12 +30,10 @@ signals:
    void compileDone(bool bOk);
 
 protected:
-   QSemaphore* compileSemaphore;
-
-   virtual void run ();
-   bool m_isTerminating;
    bool m_assembledOk;
    int  m_operation;
+
+   QThread* pThread;
 };
 
 #endif // COMPILERTHREAD_H

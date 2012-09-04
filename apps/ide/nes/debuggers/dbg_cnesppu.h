@@ -28,7 +28,8 @@ public:
    // PAL: 312 scanlines
    static inline uint32_t SCANLINES ( void )
    {
-      return nesGetSystemMode()==MODE_NTSC?SCANLINES_TOTAL_NTSC:SCANLINES_TOTAL_PAL;
+      uint32_t mode = nesGetSystemMode();
+      return mode==MODE_NTSC?SCANLINES_TOTAL_NTSC:mode==MODE_PAL?SCANLINES_TOTAL_PAL:SCANLINES_TOTAL_DENDY;
    }
 
    // The CHR memory rendering is performed by the PPU.  The CHR

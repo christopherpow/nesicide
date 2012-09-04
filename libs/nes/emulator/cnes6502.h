@@ -335,11 +335,6 @@ public:
    // The APU can request a DMA.
    static void APUDMAREQ ( uint16_t addr );
 
-   // The PPU and APU can steal cycles from the CPU in addition to
-   // doing DMA transfers (actually, the DMA engine steals the cycles
-   // but the DMA engine is invoked by the PPU or APU).
-   static void STEALCYCLES ( int32_t cycles, uint8_t source );
-
    // Accessor method for stack popping.
    static inline uint32_t POP ( void )
    {
@@ -573,6 +568,11 @@ public:
    static inline uint16_t SLOC ()
    {
       return m_RAMsloc;
+   }
+
+   static inline uint32_t WRITEDMAADDR()
+   {
+      return (512-m_writeDmaCounter)>>1;
    }
 
 protected:

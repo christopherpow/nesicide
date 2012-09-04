@@ -24,11 +24,12 @@ protected:
 private:
    Ui::SearchDockWidget *ui;
    SearchBar* searchBar;
-   void search(QDir dir,QString pattern,int* finds);
 
 signals:
+   void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive);
    void snapTo(QString item);
    void replaceText(QString from, QString to,bool replaceAll);
+   void showPane(int);
 
 private slots:
    void on_replaceAll_clicked();

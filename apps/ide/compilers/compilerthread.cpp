@@ -7,76 +7,50 @@
 
 CompilerThread::CompilerThread(QObject*)
 {
-   m_isTerminating = false;
    m_assembledOk = false;
 
-   compileSemaphore = new QSemaphore(0);
+   pThread = new QThread();
+
+   moveToThread(pThread);
+
+   pThread->start();
 }
 
 CompilerThread::~CompilerThread()
 {
-   delete compileSemaphore;
+   pThread->terminate();
+   pThread->wait();
+   delete pThread;
 }
 
-void CompilerThread::kill()
-{
-   m_isTerminating = true;
-   compileSemaphore->release();
-}
-
-void CompilerThread::assemble()
-{
-   m_operation = DoCompile;
-   compileSemaphore->release();
-}
-
-void CompilerThread::clean()
-{
-   m_operation = DoClean;
-   compileSemaphore->release();
-}
-
-void CompilerThread::run ()
+void CompilerThread::compile()
 {
    CCartridgeBuilder cartridgeBuilder;
    CMachineImageBuilder machineImageBuilder;
 
-   for ( ; ; )
+   emit compileStarted();
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      // Acquire the compile semaphore to know when the main thread wants a compile done...
-      compileSemaphore->acquire();
-
-      if ( m_isTerminating )
-      {
-         break;
-      }
-
-      switch ( m_operation )
-      {
-      case DoCompile:
-         emit compileStarted();
-         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-         {
-            m_assembledOk = cartridgeBuilder.build();
-         }
-         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
-         {
-            m_assembledOk = machineImageBuilder.build();
-         }
-         emit compileDone(m_assembledOk);
-         break;
-      case DoClean:
-         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-         {
-            cartridgeBuilder.clean();
-         }
-         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
-         {
-            machineImageBuilder.clean();
-         }
-         break;
-      }
+      m_assembledOk = cartridgeBuilder.build();
    }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      m_assembledOk = machineImageBuilder.build();
+   }
+   emit compileDone(m_assembledOk);
+}
 
-   return;
+void CompilerThread::clean()
+{
+   CCartridgeBuilder cartridgeBuilder;
+   CMachineImageBuilder machineImageBuilder;
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      cartridgeBuilder.clean();
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      machineImageBuilder.clean();
+   }
 }

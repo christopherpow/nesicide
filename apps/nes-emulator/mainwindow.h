@@ -47,6 +47,7 @@ signals:
    void resetEmulator();
 
 private slots:
+   void on_actionDendy_triggered();
    void applicationActivationChanged(bool activated);
    void on_actionAbout_Qt_triggered();
    void on_actionFullscren_toggled(bool value);

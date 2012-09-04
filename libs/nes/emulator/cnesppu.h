@@ -10,17 +10,19 @@
 
 // Rudimentary PPU I/O bus decay algorithm simply counts PPU frames to get
 // "close" to 600 milliseconds of time elapsed for a single bit to decay.
-#define PPU_DECAY_FRAME_COUNT_NTSC 36
-#define PPU_DECAY_FRAME_COUNT_PAL  30
+#define PPU_DECAY_FRAME_COUNT_NTSC  36
+#define PPU_DECAY_FRAME_COUNT_PAL   30
+#define PPU_DECAY_FRAME_COUNT_DENDY 30
 
 // PPU cycles are used as the master cycle of the emulation system.
 // To achieve an integer ratio of PPU/CPU/APU cycles the PPU cycle
 // counter is incremented by 5 each time.  To arrive at the appropriate
 // ratio of PPU-to-CPU cycles the PPU cycle is divided by 15 for NTSC
 // and 16 for PAL.  The CPU-to-APU ratio is 1:1 in both NTSC and PAL.
-#define CPU_CYCLE_ADJUST   5
-#define PPU_CPU_RATIO_NTSC 15
-#define PPU_CPU_RATIO_PAL  16
+#define CPU_CYCLE_ADJUST    5
+#define PPU_CPU_RATIO_NTSC  15
+#define PPU_CPU_RATIO_PAL   16
+#define PPU_CPU_RATIO_DENDY 15
 
 // This structure represents a sprite entry in the
 // sprite temporary memory which is the memory used
@@ -197,14 +199,6 @@ public:
    // Cleans up the PPU state as if a NES reset had just occurred.
    static void RESET ( void );
 
-   // NTSC/PAL-dependent interfaces.
-   // NTSC: 262 scanlines
-   // PAL: 312 scanlines
-   static inline uint32_t SCANLINES ( void )
-   {
-      return CNES::VIDEOMODE()==MODE_NTSC?SCANLINES_TOTAL_NTSC:SCANLINES_TOTAL_PAL;
-   }
-
    // State and internal data accessor interfaces.
    // Read a PPU register, affecting the PPU's internal state.
    // This function is used during emulation.
@@ -310,7 +304,7 @@ public:
    // specific number of PPU cycles, usually a multiple of the number
    // of PPU cycles per scanline.
    static void RENDERSCANLINE ( int32_t scanline );
-   static void QUIETSCANLINE ( void );
+   static void QUIETSCANLINES ( void );
    static void VBLANKSCANLINES ( void );
 
    // Interface to handle the special case where the setting of the
@@ -617,6 +611,8 @@ protected:
    static int32_t            m_ppuRegByte;
 
    // Pre-calculated values based on video mode.
+   static uint32_t startVblank;
+   static uint32_t quietScanlines;
    static uint32_t vblankScanlines;
    static uint32_t vblankEndCycle;
    static uint32_t prerenderScanline;

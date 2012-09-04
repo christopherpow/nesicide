@@ -5,7 +5,7 @@
 #include "cnessystempalette.h"
 #include "dbg_cnesppu.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeViewItem* link,QWidget* parent) :
@@ -83,8 +83,8 @@ void CHRROMDisplayDialog::updateTargetMachine(QString target)
 {
    if ( m_usePPU )
    {
-      QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-      QThread* emulator = CThreadRegistry::getThread("Emulator");
+      QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::getObject("Emulator");
 
       QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
       QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
@@ -97,7 +97,7 @@ void CHRROMDisplayDialog::showEvent(QShowEvent* event)
 {
    if ( m_usePPU )
    {
-      QThread* emulator = CThreadRegistry::getThread("Emulator");
+      QObject* emulator = CObjectRegistry::getObject("Emulator");
 
       QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
@@ -110,7 +110,7 @@ void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
 {
    if ( m_usePPU )
    {
-      QThread* emulator = CThreadRegistry::getThread("Emulator");
+      QObject* emulator = CObjectRegistry::getObject("Emulator");
 
       QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
    }

@@ -44,7 +44,9 @@ public slots:
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
    }
 
+   void _breakpointHook();
 signals:
+   void breakpoint ();
    void emulatedFrame ();
    void updateDebuggers ();
    void machineReady ();

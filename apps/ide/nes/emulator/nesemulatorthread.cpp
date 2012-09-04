@@ -25,7 +25,8 @@
 
 #include "ccc65interface.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
+#include "breakpointwatcherthread.h"
 #include "main.h"
 
 #undef main
@@ -42,10 +43,19 @@ SDL_AudioSpec sdlAudioSpec;
 static void breakpointHook ( void )
 {
    SDL_PauseAudio(1);
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CThreadRegistry::getThread("Breakpoint Watcher"));
-   breakpointWatcher->breakpointWatcherSemaphore()->release();
+
+   // Tell the world.
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
+   emulator->_breakpointHook();
+
+   // Put my thread to sleep.
    nesBreakpointSemaphore.acquire();
    SDL_PauseAudio(0);
+}
+
+void NESEmulatorThread::_breakpointHook()
+{
+   emit breakpoint();
 }
 
 static void audioHook ( void )
@@ -70,12 +80,10 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
    {
       memcpy(stream,nesGetAudioSamples(len>>1),len);
    }
-#if 0
    else
    {
-      qDebug("UNDERRUN");
+//      qDebug("UNDERRUN");
    }
-#endif
    nesAudioSemaphore.release();
 }
 
@@ -110,18 +118,17 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    SDL_OpenAudio ( &sdlAudioSpec, NULL );
 
-   SDL_PauseAudio ( 0 );
-
    nesClearAudioSamplesAvailable();
+
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
+   QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
+
+
+   SDL_PauseAudio ( 0 );
 }
 
 NESEmulatorThread::~NESEmulatorThread()
 {
-   SDL_PauseAudio ( 1 );
-
-   SDL_CloseAudio ();
-
-   SDL_Quit();
 }
 
 void NESEmulatorThread::kill()
@@ -134,7 +141,15 @@ void NESEmulatorThread::kill()
    m_showOnPause = false;
    m_isTerminating = true;
 
+   SDL_PauseAudio ( 1 );
+
+   SDL_CloseAudio ();
+
+   SDL_Quit();
+
    nesBreakpointSemaphore.release();
+   nesAudioSemaphore.release();
+
    start();
 }
 
@@ -183,29 +198,29 @@ void NESEmulatorThread::resetEmulator()
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
 
-   // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(nesBreakpointSemaphore.available()) )
-   {
-      nesBreakpointSemaphore.release();
-   }
-
    m_isResetting = true;
    m_isStarting = false;
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = false;
-   start();
-}
 
-void NESEmulatorThread::startEmulation ()
-{
    // If during the last run we were stopped at a breakpoint, clear it...
    if ( !(nesBreakpointSemaphore.available()) )
    {
       nesBreakpointSemaphore.release();
    }
+   start();
+}
 
+void NESEmulatorThread::startEmulation ()
+{
    m_isStarting = true;
+
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(nesBreakpointSemaphore.available()) )
+   {
+      nesBreakpointSemaphore.release();
+   }
    start();
 }
 
@@ -225,14 +240,14 @@ void NESEmulatorThread::stepCPUEmulation ()
    {
       nesSetGotoAddress(endAddr);
 
+      m_isStarting = true;
+      m_isPaused = false;
+
       // If during the last run we were stopped at a breakpoint, clear it...
       if ( !(nesBreakpointSemaphore.available()) )
       {
          nesBreakpointSemaphore.release();
       }
-
-      m_isStarting = true;
-      m_isPaused = false;
       start();
    }
    else
@@ -241,13 +256,13 @@ void NESEmulatorThread::stepCPUEmulation ()
       // But ensure we come right back...
       nesStepCpu();
 
+      m_isStarting = true;
+      m_isPaused = false;
+
       if ( !(nesBreakpointSemaphore.available()) )
       {
          nesBreakpointSemaphore.release();
       }
-
-      m_isStarting = true;
-      m_isPaused = false;
       start();
    }
 }
@@ -304,14 +319,14 @@ void NESEmulatorThread::stepOverCPUEmulation ()
       // This *should* be where the JSR will vector back to on RTS.
       nesSetGotoAddress(endAddr+1);
 
+      m_isStarting = true;
+      m_isPaused = false;
+
       // If during the last run we were stopped at a breakpoint, clear it...
       if ( !(nesBreakpointSemaphore.available()) )
       {
          nesBreakpointSemaphore.release();
       }
-
-      m_isStarting = true;
-      m_isPaused = false;
       start();
    }
    else
@@ -322,14 +337,15 @@ void NESEmulatorThread::stepOverCPUEmulation ()
 
 void NESEmulatorThread::stepOutCPUEmulation ()
 {
+//CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   m_isStarting = true;
+   m_isPaused = false;
+
    // If during the last run we were stopped at a breakpoint, clear it...
    if ( !(nesBreakpointSemaphore.available()) )
    {
       nesBreakpointSemaphore.release();
    }
-//CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   m_isStarting = true;
-   m_isPaused = false;
    start();
 }
 
@@ -339,13 +355,13 @@ void NESEmulatorThread::stepPPUEmulation ()
    // But ensure we come right back...
    nesStepPpu();
 
+   m_isStarting = true;
+   m_isPaused = false;
+
    if ( !(nesBreakpointSemaphore.available()) )
    {
       nesBreakpointSemaphore.release();
    }
-
-   m_isStarting = true;
-   m_isPaused = false;
    start();
 }
 
@@ -355,13 +371,13 @@ void NESEmulatorThread::advanceFrame ()
    // But ensure we come right back...
    nesStepPpuFrame();
 
+   m_isStarting = true;
+   m_isPaused = false;
+
    if ( !(nesBreakpointSemaphore.available()) )
    {
       nesBreakpointSemaphore.release();
    }
-
-   m_isStarting = true;
-   m_isPaused = false;
    start();
 }
 

@@ -8,7 +8,7 @@
 
 #include "Qsci/qsciscintillabase.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 #include "ccc65interface.h"
@@ -183,9 +183,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
       QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    }
 
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
-   QThread* compiler = CThreadRegistry::getThread("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* compiler = CObjectRegistry::getObject("Compiler");
 
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );

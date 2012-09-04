@@ -3,78 +3,56 @@
 #include <QSemaphore>
 #include <stdio.h>
 
-#include "dbg_cnes.h"
-
 #include "main.h"
 
 BreakpointWatcherThread::BreakpointWatcherThread(QObject*)
 {
-   m_isTerminating = false;
+   pThread = new QThread();
 
-   semaphore = new QSemaphore(0);
+   moveToThread(pThread);
+
+   pThread->start();
 }
 
 BreakpointWatcherThread::~BreakpointWatcherThread()
 {
-   delete semaphore;
+   pThread->terminate();
+   pThread->wait();
+   delete pThread;
 }
 
-void BreakpointWatcherThread::kill()
-{
-   m_isTerminating = true;
-   semaphore->release();
-}
-
-void BreakpointWatcherThread::run ()
+void BreakpointWatcherThread::breakpoint()
 {
    CBreakpointInfo* pBreakpoints = NULL;
    int idx;
    char hitMsg [ 256 ];
 
-   for ( ; ; )
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      // Acquire the semaphore...which will block us until a breakpoint is hit...
-      semaphore->acquire();
-
-      if ( m_isTerminating )
-      {
-         break;
-      }
-
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-      {
-         pBreakpoints = nesGetBreakpointDatabase();
-      }
-      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
-      {
-         pBreakpoints = c64GetBreakpointDatabase();
-      }
-
-      if ( pBreakpoints )
-      {
-         for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
-         {
-            BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-
-            if ( pBreakpoint->hit )
-            {
-               pBreakpoints->GetHitPrintable(idx,hitMsg);
-
-               debugTextLogger->write ( hitMsg );
-
-               emit showPane(OutputPaneDockWidget::Output_Debug);
-            }
-         }
-      }
-
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-      {
-         nesClearAudioSamplesAvailable();
-      }
-
-      // A breakpoint has occurred...
-      emit breakpointHit();
+      pBreakpoints = nesGetBreakpointDatabase();
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      pBreakpoints = c64GetBreakpointDatabase();
    }
 
-   return;
+   if ( pBreakpoints )
+   {
+      for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+      {
+         BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
+         if ( pBreakpoint->hit )
+         {
+            pBreakpoints->GetHitPrintable(idx,hitMsg);
+
+            debugTextLogger->write ( hitMsg );
+
+            emit showPane(OutputPaneDockWidget::Output_Debug);
+         }
+      }
+   }
+
+   // A breakpoint has occurred...
+   emit breakpointHit();
 }

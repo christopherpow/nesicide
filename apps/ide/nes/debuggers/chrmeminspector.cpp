@@ -1,6 +1,6 @@
 #include "chrmeminspector.h"
 
-CHRMEMInspector::CHRMEMInspector()
+CHRMEMInspector::CHRMEMInspector(QWidget *parent)
 {
    frame = new QFrame ( this );
    frame->setFrameRect ( this->rect() );

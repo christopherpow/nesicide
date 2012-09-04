@@ -12,7 +12,7 @@ class CHRMEMInspector : public CDebuggerBase
 {
    Q_OBJECT
 public:
-   CHRMEMInspector();
+   CHRMEMInspector(QWidget *parent = 0);
    virtual ~CHRMEMInspector();
 protected:
    CHRROMDisplayDialog* dialog;

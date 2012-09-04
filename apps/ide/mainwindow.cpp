@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "cdockwidgetregistry.h"
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "cpluginmanager.h"
 
 #include "testsuiteexecutivedialog.h"
@@ -11,6 +11,9 @@
 
 #include "compilerthread.h"
 #include "ccc65interface.h"
+
+#include "searcherthread.h"
+#include "breakpointwatcherthread.h"
 
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
@@ -30,29 +33,22 @@ MainWindow::MainWindow(QWidget* parent) :
 
    // Create the search engine thread.
    SearcherThread* searcher = new SearcherThread();
-   CThreadRegistry::addThread ( "Searcher", searcher );
+   CObjectRegistry::addObject ( "Searcher", searcher );
 
    // Create the breakpoint watcher thread...
    BreakpointWatcherThread* breakpointWatcher = new BreakpointWatcherThread();
-   CThreadRegistry::addThread ( "Breakpoint Watcher", breakpointWatcher );
+   CObjectRegistry::addObject ( "Breakpoint Watcher", breakpointWatcher );
 
    // Create the compiler thread...
    CompilerThread* compiler = new CompilerThread();
-   CThreadRegistry::addThread ( "Compiler", compiler );
+   QObject::connect(this,SIGNAL(compile()),compiler,SLOT(compile()));
+   QObject::connect(this,SIGNAL(clean()),compiler,SLOT(clean()));
+   CObjectRegistry::addObject ( "Compiler", compiler );
 
    // Create the Test Suite executive modeless dialog...
-   testSuiteExecutive = new TestSuiteExecutiveDialog();
+   testSuiteExecutive = new TestSuiteExecutiveDialog(this);
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),testSuiteExecutive,SLOT(updateTargetMachine(QString)));
    QObject::connect(testSuiteExecutive,SIGNAL(openNesROM(QString,bool)),this,SLOT(openNesROM(QString,bool)));
-
-   // Start breakpoint-watcher thread...
-   breakpointWatcher->start();
-
-   // Start compiler thread...
-   compiler->start();
-
-   // Start searcher thread...
-   searcher->start();
 
    // Initialize preferences dialogs.
    EmulatorPrefsDialog::readSettings();
@@ -120,6 +116,7 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(debugTextLogger,SIGNAL(eraseText()),output,SLOT(eraseDebugPane()));
    QObject::connect(searchTextLogger,SIGNAL(eraseText()),output,SLOT(eraseSearchPane()));
    QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
+   QObject::connect(m_pSearch, SIGNAL(showPane(int)), output, SLOT(showPane(int)));
    CDockWidgetRegistry::addWidget ( "Output", output );
 
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
@@ -241,19 +238,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CThreadRegistry::getThread("Breakpoint Watcher"));
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
-   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CThreadRegistry::getThread("Searcher"));
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
+   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
 
    tabWidget->clear();
-
-   // Properly kill and destroy the threads we created above.
-   breakpointWatcher->kill();
-   breakpointWatcher->wait();
-   compiler->kill();
-   compiler->wait();
-   searcher->kill();
-   searcher->wait();
 
    breakpointWatcher->deleteLater();
    breakpointWatcher = NULL;
@@ -472,6 +461,9 @@ void MainWindow::createNesUi()
    actionPAL = new QAction("PAL",this);
    actionPAL->setObjectName(QString::fromUtf8("actionPAL"));
    actionPAL->setCheckable(true);
+   actionDendy = new QAction("Dendy",this);
+   actionDendy->setObjectName(QString::fromUtf8("actionDendy"));
+   actionDendy->setCheckable(true);
    actionMute_All = new QAction("Mute All",this);
    actionMute_All->setObjectName(QString::fromUtf8("actionMute_All"));
    actionMute_All->setCheckable(true);
@@ -505,8 +497,8 @@ void MainWindow::createNesUi()
    menuPPU_Inspectors->setObjectName(QString::fromUtf8("menuPPU_Inspectors"));
    menuCartridge_Inspectors = new QMenu("Cartridge",menuDebugger);
    menuCartridge_Inspectors->setObjectName(QString::fromUtf8("menuCartridge_Inspectors"));
-   menuVideo = new QMenu("Video",menuEmulator);
-   menuVideo->setObjectName(QString::fromUtf8("menuVideo"));
+   menuSystem = new QMenu("System",menuEmulator);
+   menuSystem->setObjectName(QString::fromUtf8("menuSystem"));
    menuAudio = new QMenu("Audio",menuEmulator);
    menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
 
@@ -544,14 +536,15 @@ void MainWindow::createNesUi()
    menuCartridge_Inspectors->addAction(actionBinROM_Inspector);
    menuCartridge_Inspectors->addSeparator();
    menuCartridge_Inspectors->addAction(actionGfxCHRMemory_Inspector);
-   menuEmulator->addAction(menuVideo->menuAction());
+   menuEmulator->addAction(menuSystem->menuAction());
    menuEmulator->addAction(menuAudio->menuAction());
    menuEmulator->addAction(actionFullscreen);
    menuEmulator->addSeparator();
    menuEmulator->addAction(actionRun_Test_Suite);
    menuEmulator->addSeparator();
-   menuVideo->addAction(actionNTSC);
-   menuVideo->addAction(actionPAL);
+   menuSystem->addAction(actionNTSC);
+   menuSystem->addAction(actionPAL);
+   menuSystem->addAction(actionDendy);
    menuAudio->addAction(actionMute_All);
    menuAudio->addSeparator();
    menuAudio->addAction(actionSquare_1);
@@ -575,7 +568,7 @@ void MainWindow::createNesUi()
    toolToolbar->addSeparator();
 
    m_pNESEmulatorThread = new NESEmulatorThread();
-   CThreadRegistry::addThread("Emulator",m_pNESEmulatorThread);
+   CObjectRegistry::addObject("Emulator",m_pNESEmulatorThread);
 
    QObject::connect(this,SIGNAL(startEmulation()),m_pNESEmulatorThread,SLOT(startEmulation()));
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
@@ -817,6 +810,7 @@ void MainWindow::createNesUi()
    QObject::connect(actionDelta_Modulation,SIGNAL(toggled(bool)),this,SLOT(actionDelta_Modulation_toggled(bool)));
    QObject::connect(actionPAL,SIGNAL(triggered()),this,SLOT(actionPAL_triggered()));
    QObject::connect(actionNTSC,SIGNAL(triggered()),this,SLOT(actionNTSC_triggered()));
+   QObject::connect(actionDendy,SIGNAL(triggered()),this,SLOT(actionDendy_triggered()));
    QObject::connect(actionCodeDataLogger_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionCodeDataLogger_Inspector_toggled(bool)));
    QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionExecution_Visualizer_Inspector_toggled(bool)));
    QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxCHRMemory_Inspector_toggled(bool)));
@@ -846,6 +840,7 @@ void MainWindow::createNesUi()
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    actionNTSC->setChecked(systemMode==MODE_NTSC);
    actionPAL->setChecked(systemMode==MODE_PAL);
+   actionDendy->setChecked(systemMode==MODE_DENDY);
    nesSetSystemMode(systemMode);
 
    bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
@@ -908,8 +903,6 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Cartridge EXRAM Memory Inspector" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Information" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Register Inspector" );
-
-   CThreadRegistry::removeThread ( "Emulator" );
 
    m_pNESEmulator->hide();
    removeDockWidget(m_pNESEmulator);
@@ -985,6 +978,7 @@ void MainWindow::destroyNesUi()
    actionAPUInformation_Inspector->deleteLater();
    actionNTSC->deleteLater();
    actionPAL->deleteLater();
+   actionDendy->deleteLater();
    actionMute_All->deleteLater();
    actionSquare_1->deleteLater();
    actionSquare_2->deleteLater();
@@ -996,7 +990,7 @@ void MainWindow::destroyNesUi()
    menuAPU_Inpsectors->deleteLater();
    menuPPU_Inspectors->deleteLater();
    menuCartridge_Inspectors->deleteLater();
-   menuVideo->deleteLater();
+   menuSystem->deleteLater();
    menuAudio->deleteLater();
    debuggerToolBar->deleteLater();
 
@@ -1006,6 +1000,8 @@ void MainWindow::destroyNesUi()
 
    delete m_pNESEmulatorThread;
    m_pNESEmulatorThread = NULL;
+
+   CObjectRegistry::removeObject ( "Emulator" );
 
    m_targetLoaded = "none";
 }
@@ -1083,7 +1079,7 @@ void MainWindow::createC64Ui()
    addToolBar(Qt::TopToolBarArea, debuggerToolBar);
 
    m_pC64EmulatorThread = new C64EmulatorThread();
-   CThreadRegistry::addThread("Emulator",m_pC64EmulatorThread);
+   CObjectRegistry::addObject("Emulator",m_pC64EmulatorThread);
    QObject::connect(m_pC64EmulatorThread,SIGNAL(emulatorWantsExit()),this,SLOT(close()));
 
    QObject::connect(this,SIGNAL(startEmulation()),m_pC64EmulatorThread,SLOT(startEmulation()));
@@ -1194,14 +1190,14 @@ void MainWindow::destroyC64Ui()
    menuSID_Inspectors->deleteLater();
    debuggerToolBar->deleteLater();
 
-   CThreadRegistry::removeThread ( "Emulator" );
-
    // Properly kill and destroy the thread we created above.
    m_pC64EmulatorThread->kill();
    m_pC64EmulatorThread->wait();
 
    delete m_pC64EmulatorThread;
    m_pC64EmulatorThread = NULL;
+
+   CObjectRegistry::removeObject ( "Emulator" );
 
    m_targetLoaded = "none";
 }
@@ -1982,7 +1978,7 @@ void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
    int tab;
 
    output->showPane(OutputPaneDockWidget::Output_Build);
@@ -2005,7 +2001,7 @@ void MainWindow::on_actionCompile_Project_triggered()
          }
       }
    }
-   compiler->assemble();
+   emit compile();
 }
 
 void MainWindow::compiler_compileStarted()
@@ -2398,11 +2394,24 @@ void MainWindow::on_action_Close_Project_triggered()
    closeProject();
 }
 
+void MainWindow::actionDendy_triggered()
+{
+   EmulatorPrefsDialog::setTVStandard(MODE_DENDY);
+   actionNTSC->setChecked(false);
+   actionPAL->setChecked(false);
+   actionDendy->setChecked(true);
+   nesSetSystemMode(MODE_DENDY);
+
+   emit resetEmulator();
+   emit startEmulation();
+}
+
 void MainWindow::actionNTSC_triggered()
 {
    EmulatorPrefsDialog::setTVStandard(MODE_NTSC);
    actionNTSC->setChecked(true);
    actionPAL->setChecked(false);
+   actionDendy->setChecked(false);
    nesSetSystemMode(MODE_NTSC);
 
    emit resetEmulator();
@@ -2414,6 +2423,7 @@ void MainWindow::actionPAL_triggered()
    EmulatorPrefsDialog::setTVStandard(MODE_PAL);
    actionNTSC->setChecked(false);
    actionPAL->setChecked(true);
+   actionDendy->setChecked(false);
    nesSetSystemMode(MODE_PAL);
 
    emit resetEmulator();
@@ -2535,6 +2545,7 @@ void MainWindow::on_actionPreferences_triggered()
       int systemMode = EmulatorPrefsDialog::getTVStandard();
       actionNTSC->setChecked(systemMode==MODE_NTSC);
       actionPAL->setChecked(systemMode==MODE_PAL);
+      actionDendy->setChecked(systemMode==MODE_DENDY);
       nesSetSystemMode(systemMode);
 
       bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
@@ -2591,7 +2602,7 @@ void MainWindow::on_actionOnline_Help_triggered()
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
 
    output->showPane(OutputPaneDockWidget::Output_Build);
 
@@ -2653,10 +2664,11 @@ void MainWindow::on_actionE_xit_triggered()
 
 void MainWindow::on_actionClean_Project_triggered()
 {
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
 
    output->showPane(OutputPaneDockWidget::Output_Build);
-   compiler->clean();
+
+   emit clean();
 }
 
 void MainWindow::openFile(QString file)

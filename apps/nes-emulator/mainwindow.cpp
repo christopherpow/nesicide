@@ -7,7 +7,7 @@
 
 #include "nes_emulator_core.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->setupUi(this);
 
    m_pNESEmulatorThread = new NESEmulatorThread();
-   CThreadRegistry::addThread("Emulator",m_pNESEmulatorThread);
+   CObjectRegistry::addObject("Emulator",m_pNESEmulatorThread);
 
    m_pEmulator = new NESEmulatorDockWidget(this);
    ui->frame->layout()->addWidget(m_pEmulator);
@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget* parent) :
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
    ui->actionPAL->setChecked(systemMode==MODE_PAL);
+   ui->actionDendy->setChecked(systemMode==MODE_DENDY);
    nesSetSystemMode(systemMode);
 
    // Set up controllers.
@@ -426,11 +427,24 @@ void MainWindow::dropEvent(QDropEvent* event)
    }
 }
 
+void MainWindow::on_actionDendy_triggered()
+{
+   EmulatorPrefsDialog::setTVStandard(MODE_DENDY);
+   ui->actionNTSC->setChecked(false);
+   ui->actionPAL->setChecked(false);
+   ui->actionDendy->setChecked(true);
+   nesSetSystemMode(MODE_DENDY);
+
+   emit resetEmulator();
+   emit startEmulation();
+}
+
 void MainWindow::on_actionNTSC_triggered()
 {
    EmulatorPrefsDialog::setTVStandard(MODE_NTSC);
    ui->actionNTSC->setChecked(true);
    ui->actionPAL->setChecked(false);
+   ui->actionDendy->setChecked(false);
    nesSetSystemMode(MODE_NTSC);
 
    emit resetEmulator();
@@ -442,6 +456,7 @@ void MainWindow::on_actionPAL_triggered()
    EmulatorPrefsDialog::setTVStandard(MODE_PAL);
    ui->actionNTSC->setChecked(false);
    ui->actionPAL->setChecked(true);
+   ui->actionDendy->setChecked(false);
    nesSetSystemMode(MODE_PAL);
 
    emit resetEmulator();
@@ -559,6 +574,7 @@ void MainWindow::on_actionPreferences_triggered()
    int systemMode = EmulatorPrefsDialog::getTVStandard();
    ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
    ui->actionPAL->setChecked(systemMode==MODE_PAL);
+   ui->actionDendy->setChecked(systemMode==MODE_DENDY);
    nesSetSystemMode(systemMode);
 
    bool square1 = EmulatorPrefsDialog::getSquare1Enabled();

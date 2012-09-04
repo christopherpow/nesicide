@@ -6,7 +6,7 @@
 
 #include "nes_emulator_core.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
@@ -49,8 +49,8 @@ OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
 
 void OAMVisualizerDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
@@ -74,7 +74,7 @@ void OAMVisualizerDockWidget::changeEvent(QEvent* e)
 
 void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
@@ -83,7 +83,7 @@ void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
 
 void OAMVisualizerDockWidget::hideEvent(QHideEvent* event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }

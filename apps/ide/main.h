@@ -3,9 +3,6 @@
 
 #include "mainwindow.h"
 
-#include "breakpointwatcherthread.h"
-#include "compilerthread.h"
-#include "searcherthread.h"
 #include "testsuiteexecutivedialog.h"
 
 #include "cgamedatabasehandler.h"

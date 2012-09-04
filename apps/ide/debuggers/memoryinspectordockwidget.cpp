@@ -1,7 +1,7 @@
 #include "memoryinspectordockwidget.h"
 #include "ui_memoryinspectordockwidget.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 #include "nes_emulator_core.h"
@@ -34,8 +34,8 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
 
 void MemoryInspectorDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
@@ -49,7 +49,7 @@ void MemoryInspectorDockWidget::updateTargetMachine(QString target)
 
 void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
@@ -61,7 +61,7 @@ void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
 
 void MemoryInspectorDockWidget::hideEvent(QHideEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {

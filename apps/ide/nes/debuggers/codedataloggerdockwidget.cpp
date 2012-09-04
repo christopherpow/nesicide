@@ -4,7 +4,7 @@
 #include "dbg_cnes6502.h"
 #include "dbg_cnesppu.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
@@ -45,8 +45,8 @@ CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
 
 void CodeDataLoggerDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
@@ -70,7 +70,7 @@ void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
 
 void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
@@ -79,7 +79,7 @@ void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
 
 void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }

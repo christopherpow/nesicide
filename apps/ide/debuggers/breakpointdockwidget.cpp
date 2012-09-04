@@ -16,7 +16,7 @@
 #include "ccc65interface.h"
 
 #include "main.h"
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
@@ -45,8 +45,8 @@ BreakpointDockWidget::~BreakpointDockWidget()
 
 void BreakpointDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
@@ -105,7 +105,7 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* symbolInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
    QDockWidget* memoryInspector;
-   QThread*     emulator = CThreadRegistry::getThread("Emulator");
+   QObject*     emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );

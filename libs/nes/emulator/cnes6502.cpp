@@ -778,39 +778,6 @@ void C6502::APUDMAREQ ( uint16_t addr )
    m_readDmaAddr = addr;
 }
 
-void C6502::STEALCYCLES ( int32_t cycles, uint8_t source )
-{
-   // CPTODO: complete implementation of cycle stealing that affects $4016 reads
-   MEM ( rEA() );
-#if 0
-   if ( (m_instrCycle>0) && m_write )
-   {
-      for ( int32_t i = 0; i < cycles; i++ )
-      {
-         ADVANCE ( true );
-      }
-   }
-   else if ( (m_instrCycle>0) && (!m_write) )
-   {
-      // Read from effective address...
-      for ( int32_t i = 0; i < cycles; i++ )
-      {
-         STEAL ( rEA(), source );
-      }
-   }
-   else
-   {
-      for ( int32_t i = 0; i < cycles; i++ )
-      {
-         ADVANCE ( true );
-      }
-   }
-#endif
-
-   // Check stolen cycles breakpoint.
-   CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
-}
-
 void C6502::ADVANCE ( bool stealing )
 {
    // If this cycle is being stolen, don't check whether IRQ/NMI needs to happen.
@@ -916,7 +883,7 @@ bool C6502::DMA( void )
          m_readDmaCounter--;
          if ( !m_writeDmaCounter )
          {
-            STEALCYCLES ( 1, eNESSource_APU );
+            STEAL ( 1, eNESSource_APU );
             doCycle = false;
             goto done;
          }
@@ -932,20 +899,34 @@ bool C6502::DMA( void )
          CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
          m_readDmaCounter--;
          doCycle = false;
+
+         if ( nesIsDebuggable() )
+         {
+            // Check for APU DMC channel DMA breakpoint event...
+            CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
+         }
+
          goto done;
       }
       // If we're in the sprite DMA RDY-phase, just steal a cycle.
       if ( m_writeDmaCounter > 512 )
       {
-         STEALCYCLES ( 1, eNESSource_PPU );
+         STEAL ( 1, eNESSource_PPU );
          m_writeDmaCounter--;
          doCycle = false;
          goto done;
       }
       // If we're ready to do the sprite DMA read, do it.
-      else if ( m_writeDmaCounter )
+      if ( m_writeDmaCounter )
       {
          databuf = DMA(m_writeDmaAddr|(((512-m_writeDmaCounter)>>1)&0xFF));
+
+         if ( nesIsDebuggable() )
+         {
+            // Check for PPU cycle breakpoint...
+            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, (512-m_writeDmaCounter)>>1, PPU_EVENT_SPRITE_DMA );
+         }
+
          m_writeDmaCounter--;
          doCycle = false;
          goto done;
@@ -959,23 +940,6 @@ bool C6502::DMA( void )
          m_readDmaCounter--;
          goto done;
       }
-      // If APU DMC DMA occurred on the read-beat, skip this
-      // write-beat if sprite DMA is in progress.
-      if ( m_readDmaCounter == 1 )
-      {
-         if ( m_writeDmaCounter )
-         {
-            m_readDmaCounter--;
-            MEM(rPC()); // Put CPU on bus.
-            doCycle = false;
-            goto done;
-         }
-         else
-         {
-            m_readDmaCounter--;
-            goto done;
-         }
-      }
       // If we're in the DMC DMA RDY-phase, just steal a cycle if there's
       // no sprite DMA already stealing them.
       if ( m_readDmaCounter > 2 )
@@ -983,7 +947,7 @@ bool C6502::DMA( void )
          m_readDmaCounter--;
          if ( !m_writeDmaCounter )
          {
-            STEALCYCLES ( 1, eNESSource_APU );
+            STEAL ( 1, eNESSource_APU );
             doCycle = false;
             goto done;
          }
@@ -993,16 +957,33 @@ bool C6502::DMA( void )
             goto done;
          }
       }
+      // If APU DMC DMA occurred on the read-beat, skip this
+      // write-beat if sprite DMA is in progress.
+      if ( m_readDmaCounter == 1 )
+      {
+         if ( m_writeDmaCounter )
+         {
+            m_readDmaCounter--;
+            STEAL(rPC(),eNESSource_APU); // Put CPU on bus.
+            doCycle = false;
+            goto done;
+         }
+         else
+         {
+            m_readDmaCounter--;
+            goto done;
+         }
+      }
       // If we're in the sprite DMA RDY-phase, just steal a cycle.
       if ( m_writeDmaCounter > 512 )
       {
-         STEALCYCLES ( 1, eNESSource_PPU );
+         STEAL ( 1, eNESSource_PPU );
          m_writeDmaCounter--;
          doCycle = false;
          goto done;
       }
       // If we're ready to do the sprite DMA write, do it.
-      else if ( m_writeDmaCounter )
+      if ( m_writeDmaCounter )
       {
          DMA ( (m_writeDmaAddr)|(((512-m_writeDmaCounter)>>1)&0xFF),
                OAMDATA,
@@ -1017,7 +998,7 @@ bool C6502::DMA( void )
 
    if ( (m_readDmaCounter > 1) && (!m_writeDmaCounter) )
    {
-      STEALCYCLES ( 1, eNESSource_APU );
+      STEAL ( 1, eNESSource_APU );
       m_readDmaCounter--;
       doCycle = false;
    }
@@ -1028,7 +1009,7 @@ bool C6502::DMA( void )
    }
    else if ( m_writeDmaCounter > 512 )
    {
-      STEALCYCLES ( 1, eNESSource_PPU );
+      STEAL ( 1, eNESSource_PPU );
       m_writeDmaCounter--;
       doCycle = false;
    }
@@ -1047,7 +1028,7 @@ bool C6502::DMA( void )
       }
       else
       {
-         STEALCYCLES ( 1, eNESSource_APU );
+         STEAL ( 1, eNESSource_APU );
          m_readDmaCounter--;
          doCycle = false;
       }
@@ -1085,14 +1066,14 @@ bool C6502::DMA( void )
       }
       else
       {
-         STEALCYCLES ( 1, eNESSource_APU );
+         STEAL ( 1, eNESSource_APU );
          m_readDmaCounter--;
          doCycle = false;
       }
    }
    if ( m_writeDmaCounter > 512 )
    {
-      STEALCYCLES ( 1, eNESSource_PPU );
+      STEAL ( 1, eNESSource_PPU );
       m_writeDmaCounter--;
       doCycle = false;
    }
@@ -3711,12 +3692,6 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
       {
          (*pTarget) = eTarget_IORegister;
 
-         if ( nesIsDebuggable() )
-         {
-            // Check for PPU cycle breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_DMA );
-         }
-
          // DMA
          // Note: DMA is done in C6502::EMULATE, it is only set-up here.
          m_writeDmaAddr = data<<8;
@@ -3944,6 +3919,9 @@ uint8_t C6502::DMA ( uint32_t addr )
       {
          m_logger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eNESSource_APU );
       }
+
+      // Check for breakpoint...
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;
@@ -3986,6 +3964,12 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
    if ( pSample )
    {
       pSample->target = target;
+   }
+
+   if ( nesIsDebuggable() )
+   {
+      // Check for breakpoint...
+      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
    }
 }
 
@@ -4176,6 +4160,9 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
          // Log to Code/Data Logger...
          m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
+
+      // Check stolen cycles breakpoint.
+      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
 
       // Check for breakpoint...
       CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );

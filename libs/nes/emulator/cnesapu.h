@@ -140,10 +140,12 @@ public:
       m_sweepShift = 0;
       m_sweepDivider = 0;
       m_sweep = 0;
+      m_sweepVolume = 0;
       m_volume = 0;
       m_volumeSet = 0;
       m_enabled = false;
       m_newHalted = false;
+      m_envelopeLoop = false;
       m_halted = false;
       m_linearCounterHalted = false;
       m_envelopeEnabled = false;
@@ -207,6 +209,7 @@ protected:
    uint8_t  m_envelope;
    uint8_t  m_envelopeCounter;
    uint8_t  m_envelopeDivider;
+   uint8_t  m_envelopeLoop;
 
    // These values define the sweep configuration currently being
    // used by the channel.  A divider deals out clock edges at a lower
@@ -217,6 +220,7 @@ protected:
    uint8_t  m_sweepShift;
    uint8_t  m_sweepDivider;
    uint8_t  m_sweep;
+   uint8_t  m_sweepVolume;
 
    // The channels' current volume that may eventually make
    // its way into the DAC as the current DAC setting if the
@@ -594,10 +598,6 @@ public:
    static void APU ( uint32_t addr, uint8_t data );
    static void EMULATE ( void );
    static uint8_t* PLAY ( uint16_t samples );
-   static void PAUSE ()
-   {
-      memset( m_waveBuf, 0, APU_BUFFER_SIZE * sizeof m_waveBuf[0] );
-   }
 
    static void DMASOURCE ( uint8_t* source )
    {

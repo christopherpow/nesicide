@@ -847,9 +847,10 @@ void CNES::RUN ( uint8_t* joy )
    // PPU cycles repeat...
    CPPU::RESETCYCLECOUNTER ();
 
+   m_frame = CPPU::_FRAME();
+
    if ( nesIsDebuggable() )
    {
-      m_frame = CPPU::_FRAME();
       m_tracer.SetFrame ( m_frame );
 
       // Emit start-of-frame indication to Tracer...
@@ -882,8 +883,8 @@ void CNES::RUN ( uint8_t* joy )
       m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_QuietStart, eNESSource_PPU, 0, 0, 0 );
    }
 
-   // Emulate PPU resting scanline...
-   CPPU::QUIETSCANLINE ();
+   // Emulate PPU resting scanlines...
+   CPPU::QUIETSCANLINES ();
 
    if ( nesIsDebuggable() )
    {

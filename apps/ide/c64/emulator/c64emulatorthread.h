@@ -60,6 +60,8 @@ public:
    virtual bool serializeContent(QFile& fileOut);
    virtual bool deserializeContent(QFile& fileIn);
 
+   void _breakpointHook();
+
 protected:
    void timerEvent(QTimerEvent *event);
 
@@ -80,6 +82,7 @@ public slots:
    void processTraps(QString traps);
 
 signals:
+   void breakpoint();
    void emulatorConnected();
    void emulatorDisconnected();
    void emulatedFrame();

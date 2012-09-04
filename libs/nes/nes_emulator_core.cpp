@@ -61,7 +61,6 @@ void nesBreak ( void )
 {
    if ( breakpointHook )
    {
-      nesClearAudioSamplesAvailable();
       breakpointHook();
    }
 }
@@ -461,7 +460,6 @@ int32_t nesGetAudioSamplesAvailable ( void )
 void nesClearAudioSamplesAvailable ( void )
 {
    apuDataAvailable = 0;
-   CAPU::PAUSE();
 }
 
 uint32_t nesGetCPUCycle ( void )

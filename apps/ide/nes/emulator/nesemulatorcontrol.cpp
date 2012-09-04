@@ -5,7 +5,7 @@
 
 #include "nes_emulator_core.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include "main.h"
 
@@ -16,8 +16,8 @@ NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));

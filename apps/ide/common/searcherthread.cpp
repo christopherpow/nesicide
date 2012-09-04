@@ -4,21 +4,20 @@
 
 SearcherThread::SearcherThread(QObject*)
 {
-   m_isTerminating = false;
    m_found = 0;
 
-   searchSemaphore = new QSemaphore(0);
+   pThread = new QThread();
+
+   moveToThread(pThread);
+
+   pThread->start();
 }
 
 SearcherThread::~SearcherThread()
 {
-   delete searchSemaphore;
-}
-
-void SearcherThread::kill()
-{
-   m_isTerminating = true;
-   searchSemaphore->release();
+   pThread->terminate();
+   pThread->wait();
+   delete pThread;
 }
 
 void SearcherThread::search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive)
@@ -30,35 +29,18 @@ void SearcherThread::search(QDir dir, QString searchText, QString pattern, bool 
    m_sourceSearchPaths = sourceSearchPaths;
    m_useRegex = useRegex;
    m_caseSensitive = caseSensitive;
-   searchSemaphore->release();
-}
 
-void SearcherThread::run ()
-{
-   for ( ; ; )
+   m_found = 0;
+   doSearch(m_dir,&m_found);
+   if ( m_sourceSearchPaths )
    {
-      // Acquire the search semaphore to know when the main thread wants a search done...
-      searchSemaphore->acquire();
-
-      if ( m_isTerminating )
+      foreach ( QString searchPath, nesicideProject->getSourceSearchPaths() )
       {
-         break;
+         m_dir = searchPath;
+         doSearch(m_dir,&m_found);
       }
-
-      m_found = 0;
-      doSearch(m_dir,&m_found);
-      if ( m_sourceSearchPaths )
-      {
-         foreach ( QString searchPath, nesicideProject->getSourceSearchPaths() )
-         {
-            m_dir = searchPath;
-            doSearch(m_dir,&m_found);
-         }
-      }
-      emit searchDone(m_found);
    }
-
-   return;
+   emit searchDone(m_found);
 }
 
 void SearcherThread::doSearch(QDir dir,int* finds)

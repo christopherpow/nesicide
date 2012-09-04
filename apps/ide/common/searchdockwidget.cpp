@@ -4,7 +4,9 @@
 #include <QFileDialog>
 #include <QCompleter>
 
-#include "cthreadregistry.h"
+#include "searcherthread.h"
+
+#include "cobjectregistry.h"
 
 #include "main.h"
 
@@ -43,7 +45,9 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
 
    ui->replaceText->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
-   QThread* searcher = CThreadRegistry::getThread("Searcher");
+   QObject* searcher = CObjectRegistry::getObject("Searcher");
+   qRegisterMetaType<QDir>("QDir");
+   QObject::connect(this,SIGNAL(search(QDir,QString,QString,bool,bool,bool,bool)),searcher,SLOT(search(QDir,QString,QString,bool,bool,bool,bool)));
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
 }
 
@@ -81,12 +85,12 @@ void SearchDockWidget::on_find_clicked()
 {
    QSettings settings;
    QStringList items;
-   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CThreadRegistry::getThread("Searcher"));
-
-   settings.beginGroup("Search");
+   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
 
    if ( !ui->searchText->currentText().isEmpty() )
    {
+      settings.beginGroup("Search");
+
       settings.setValue("IncludeSubfolders",QVariant(ui->subfolders->isChecked()));
       settings.setValue("IncludeSourceSearchPaths",QVariant(ui->sourceSearchPaths->isChecked()));
       settings.setValue("CaseSensitive",QVariant(ui->caseSensitive->isChecked()));
@@ -138,14 +142,17 @@ void SearchDockWidget::on_find_clicked()
       searchTextLogger->write("<b>Searching for \""+ui->searchText->currentText()+"\"...</b>");
       if ( ui->projectFolder->isChecked() )
       {
-         searcher->search(QDir::currentPath(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+         emit search(QDir::currentPath(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
       }
       else
       {
-         searcher->search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
+         emit search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
       }
+
+      emit showPane(OutputPaneDockWidget::Output_Search);
+
+      settings.endGroup();
    }
-   settings.endGroup();
 }
 
 void SearchDockWidget::searcher_searchDone(int found)

@@ -1,7 +1,7 @@
 #include "symbolwatchdockwidget.h"
 #include "ui_symbolwatchdockwidget.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 #include "ccc65interface.h"
@@ -58,8 +58,8 @@ void SymbolWatchDockWidget::createNesUi()
       return;
    }
 
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    sramTab = new QWidget();
    sramTab->setObjectName(QString::fromUtf8("sramTab"));
@@ -181,9 +181,9 @@ void SymbolWatchDockWidget::destroyC64Ui()
 
 void SymbolWatchDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
-   QThread* compiler = CThreadRegistry::getThread("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* compiler = CObjectRegistry::getObject("Compiler");
 
    if ( !target.compare("nes",Qt::CaseInsensitive) )
    {
@@ -377,7 +377,7 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
@@ -401,7 +401,7 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {

@@ -4,25 +4,22 @@
 #include <QThread>
 #include <QSemaphore>
 
-class BreakpointWatcherThread : public QThread
+class BreakpointWatcherThread : public QObject
 {
    Q_OBJECT
 public:
    BreakpointWatcherThread ( QObject* parent = 0 );
    virtual ~BreakpointWatcherThread ();
-   void kill();
-
-   QSemaphore* breakpointWatcherSemaphore() { return semaphore; }
 
 signals:
    void breakpointHit();
    void showPane(int pane);
 
-protected:
-   QSemaphore* semaphore;
+public slots:
+   void breakpoint();
 
-   virtual void run ();
-   bool m_isTerminating;
+protected:
+   QThread* pThread;
 };
 
 #endif // BREAKPOINTWATCHERTHREAD_H

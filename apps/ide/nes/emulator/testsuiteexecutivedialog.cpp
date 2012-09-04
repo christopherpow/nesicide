@@ -5,7 +5,7 @@
 
 #include "nes_emulator_core.h"
 #include "cjoypadlogger.h"
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    QDialog(parent),
@@ -33,7 +33,7 @@ TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
 
 void TestSuiteExecutiveDialog::updateTargetMachine(QString target)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
@@ -171,8 +171,13 @@ void TestSuiteExecutiveDialog::on_executeSelection_clicked()
    QTableWidgetItem* start = items.first();
    QTableWidgetItem* end = items.last();
 
-   if ( start && end && (start->row() > 0) && (end->row() > 0) )
+   qDebug(QString::number((int)start).toAscii().constData());
+   qDebug(QString::number((int)end).toAscii().constData());
+   qDebug(QString::number((int)start->row()).toAscii().constData());
+   qDebug(QString::number((int)end->row()).toAscii().constData());
+   if ( start && end && (start->row() >= 0) && (end->row() >= 0) )
    {
+      qDebug("here");
       executeTests(start->row(),end->row()+1);
    }
 }

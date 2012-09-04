@@ -28,13 +28,19 @@
 #include "ccc65interface.h"
 
 #include "emulatorprefsdialog.h"
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 static void breakpointHook ( void )
 {
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CThreadRegistry::getThread("Breakpoint Watcher"));
-   breakpointWatcher->breakpointWatcherSemaphore()->release();
+   // Tell the world.
+   C64EmulatorThread* emulator = dynamic_cast<C64EmulatorThread*>(CObjectRegistry::getObject("Emulator"));
+   emulator->_breakpointHook();
+}
+
+void C64EmulatorThread::_breakpointHook()
+{
+   emit breakpoint();
 }
 
 C64EmulatorThread::C64EmulatorThread(QObject*)

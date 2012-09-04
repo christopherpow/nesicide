@@ -5,7 +5,7 @@
 
 #include <QCompleter>
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
@@ -22,8 +22,8 @@ SourceNavigator::SourceNavigator(QWidget *parent) :
 
    m_loadedTarget = "none";
 
-   QThread* compiler = CThreadRegistry::getThread("Compiler");
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
+   QObject* compiler = CObjectRegistry::getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(emulator_emulatorPaused()));
 }
@@ -35,7 +35,7 @@ SourceNavigator::~SourceNavigator()
 
 void SourceNavigator::updateTargetMachine(QString target)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    m_loadedTarget = target;
 

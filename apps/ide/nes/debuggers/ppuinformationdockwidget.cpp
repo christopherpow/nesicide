@@ -4,7 +4,7 @@
 #include "dbg_cnes.h"
 #include "dbg_cnesppu.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
@@ -21,8 +21,8 @@ PPUInformationDockWidget::~PPUInformationDockWidget()
 
 void PPUInformationDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
@@ -46,7 +46,7 @@ void PPUInformationDockWidget::changeEvent(QEvent* e)
 
 void PPUInformationDockWidget::showEvent(QShowEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
@@ -54,7 +54,7 @@ void PPUInformationDockWidget::showEvent(QShowEvent* e)
 
 void PPUInformationDockWidget::hideEvent(QHideEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }

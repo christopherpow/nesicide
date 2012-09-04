@@ -307,10 +307,10 @@ SOURCES += \
    project/cprojecttreeview.cpp \
    project/cprojecttreeviewmodel.cpp \
    debuggers/cdebuggerregisterdisplaymodel.cpp \
-   $$TOP/common/cthreadregistry.cpp \
    c64/compilers/cmachineimagebuilder.cpp \
    c64/debuggers/dbg_cc64.cpp \
-   $$TOP/common/appeventfilter.cpp
+   $$TOP/common/appeventfilter.cpp \
+   $$TOP/common/cobjectregistry.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -438,12 +438,12 @@ HEADERS += \
    project/cprojecttreeview.h \
    project/cprojecttreeviewmodel.h \
    debuggers/cdebuggerregisterdisplaymodel.h \
-   $$TOP/common/cthreadregistry.h \
    c64/compilers/cmachineimagebuilder.h \
    c64/debuggers/dbg_cc64.h \
    $$TOP/common/cregisterdata.h \
    $$TOP/common/cmemorydata.h \
-   $$TOP/common/appeventfilter.h
+   $$TOP/common/appeventfilter.h \
+   $$TOP/common/cobjectregistry.h
 
 FORMS += \
    aboutdialog.ui \

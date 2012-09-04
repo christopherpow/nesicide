@@ -7,7 +7,7 @@
 #include "cbreakpointinfo.h"
 #include "cdockwidgetregistry.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
@@ -40,8 +40,8 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 
 void CodeBrowserDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), assemblyViewModel, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
@@ -62,7 +62,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 {
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    // Specifically not connecting to updateDebuggers signal here since it doesn't make much sense to
    // update the code position until a pause/breakpoint.
@@ -90,7 +90,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
 
 void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {

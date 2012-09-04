@@ -119,7 +119,7 @@ protected:
    QMenu *menuAPU_Inpsectors;
    QMenu *menuPPU_Inspectors;
    QMenu *menuCartridge_Inspectors;
-   QMenu *menuVideo;
+   QMenu *menuSystem;
    QMenu *menuAudio;
    QAction *actionEmulation_Window;
    QAction *actionGfxCHRMemory_Inspector;
@@ -143,6 +143,7 @@ protected:
    QAction *actionAPUInformation_Inspector;
    QAction *actionNTSC;
    QAction *actionPAL;
+   QAction *actionDendy;
    QAction *actionMute_All;
    QAction *actionSquare_1;
    QAction *actionSquare_2;
@@ -172,12 +173,15 @@ signals:
    void checkOpenFiles(QDateTime lastActivationTime);
    void applyProjectProperties();
    void applyEnvironmentSettings();
+   void startEmulatorThread();
    void startEmulation();
    void primeEmulator();
    void pauseEmulation(bool show);
    void resetEmulator();
    void adjustAudio(int32_t length);
    void updateTargetMachine(QString target);
+   void compile();
+   void clean();
 
 private slots:
    void applicationActivationChanged(bool activated);
@@ -240,6 +244,7 @@ private slots:
    void actionDelta_Modulation_toggled(bool );
    void actionPAL_triggered();
    void actionNTSC_triggered();
+   void actionDendy_triggered();
    void actionCodeDataLogger_Inspector_toggled(bool );
    void actionExecution_Visualizer_Inspector_toggled(bool );
    void actionGfxCHRMemory_Inspector_toggled(bool );

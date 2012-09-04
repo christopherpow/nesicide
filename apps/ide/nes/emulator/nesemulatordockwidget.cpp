@@ -1,7 +1,7 @@
 #include "nesemulatordockwidget.h"
 #include "ui_nesemulatordockwidget.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 #include "emulatorprefsdialog.h"
@@ -46,8 +46,8 @@ NESEmulatorDockWidget::~NESEmulatorDockWidget()
 
 void NESEmulatorDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( !target.compare("nes") )
    {

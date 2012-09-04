@@ -3,7 +3,7 @@
 
 #include "dbg_cnes.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :
@@ -27,8 +27,8 @@ ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
 
 void ExecutionInspectorDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
@@ -42,7 +42,7 @@ void ExecutionInspectorDockWidget::updateTargetMachine(QString target)
 
 void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
@@ -54,7 +54,7 @@ void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
 
 void ExecutionInspectorDockWidget::hideEvent(QHideEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {

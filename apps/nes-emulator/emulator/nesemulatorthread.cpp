@@ -52,7 +52,7 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 #if 0
    else
    {
-      qDebug("UNDERRUN");
+//      qDebug("UNDERRUN");
    }
 #endif
    nesAudioSemaphore.release();
@@ -324,8 +324,6 @@ void NESEmulatorThread::run ()
          emit emulatorPaused(m_showOnPause);
          m_isPaused = false;
          m_isRunning = false;
-
-         nesClearAudioSamplesAvailable();
       }
 
    }

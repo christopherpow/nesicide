@@ -7,11 +7,12 @@
 #include "dbg_cnesppu.h"
 #include "dbg_cnesapu.h"
 
+#include "compilerthread.h"
 #include "main.h"
 
 #include "ccc65interface.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 
 BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget* parent) :
    QDialog(parent),
@@ -434,7 +435,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
    QString  text;
    QStringList textSplit;
    QFileInfo   fileInfo;
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CThreadRegistry::getThread("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
 
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);

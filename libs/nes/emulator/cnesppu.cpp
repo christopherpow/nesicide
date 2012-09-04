@@ -594,6 +594,16 @@ bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint,int data)
    return false;
 }
 
+bool ppuSpriteDmaEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   if ( pBreakpoint->item1 == C6502::WRITEDMAADDR() )
+   {
+      return true;
+   }
+
+   return false;
+}
+
 bool ppuSpriteInMultiplexerEvent(BreakpointInfo* pBreakpoint,int data)
 {
    if ( data == pBreakpoint->item1 )
@@ -645,7 +655,7 @@ static CBreakpointEventInfo* tblPPUEvents [] =
    new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuAlwaysFireEvent, 0, "Break at end of scanline", 10),
    new CBreakpointEventInfo("X Scroll Updated", ppuAlwaysFireEvent, 0, "Break if PPU's X scroll is updated", 10),
    new CBreakpointEventInfo("Y Scroll Updated", ppuAlwaysFireEvent, 0, "Break if PPU's Y scroll is updated", 10),
-   new CBreakpointEventInfo("Sprite DMA", ppuAlwaysFireEvent, 0, "Break on sprite DMA", 10),
+   new CBreakpointEventInfo("Sprite DMA", ppuSpriteDmaEvent, 1, "Break on sprite DMA at byte %d", 10, "Addr:"),
    new CBreakpointEventInfo("Sprite 0 Hit", ppuAlwaysFireEvent, 0, "Break on sprite 0 hit", 10),
    new CBreakpointEventInfo("Sprite enters multiplexer", ppuSpriteInMultiplexerEvent, 1, "Break if sprite %d enters multiplexer", 10, "Sprite:"),
    new CBreakpointEventInfo("Sprite selected by multiplexer", ppuSpriteSelectedEvent, 1, "Break if sprite %d is selected by multiplexer", 10, "Sprite:"),
@@ -675,6 +685,8 @@ bool           CPPU::m_extraVRAM = false;
 
 uint32_t   CPPU::m_cycles = 0;
 
+uint32_t CPPU::startVblank;
+uint32_t CPPU::quietScanlines;
 uint32_t CPPU::vblankScanlines;
 uint32_t CPPU::vblankEndCycle;
 uint32_t CPPU::prerenderScanline;
@@ -761,10 +773,10 @@ void CPPU::EMULATE(uint32_t cycles)
    for ( ; cycles > 0; cycles-- )
    {
       // Get VBLANK raster position.
-      if ( m_cycles >= PPU_CYCLE_START_VBLANK )
+      if ( m_cycles >= startVblank )
       {
-         idxy = (m_cycles-PPU_CYCLE_START_VBLANK)/PPU_CYCLES_PER_SCANLINE;
-         idxx = (m_cycles-PPU_CYCLE_START_VBLANK)%PPU_CYCLES_PER_SCANLINE;
+         idxy = (m_cycles-startVblank)/PPU_CYCLES_PER_SCANLINE;
+         idxx = (m_cycles-startVblank)%PPU_CYCLES_PER_SCANLINE;
       }
 
       // We're emulating one PPU cycle...
@@ -840,7 +852,7 @@ void CPPU::EMULATE(uint32_t cycles)
       m_curCycles %= cycleRatio;
 
       // Turn off NMI choking if it shouldn't be...
-      if ( m_cycles > PPU_CYCLE_START_VBLANK+1 )
+      if ( m_cycles > startVblank+1 )
       {
          NMICHOKED ( false );
       }
@@ -1074,11 +1086,13 @@ void CPPU::RESET ( void )
 {
    int idx;
 
-   vblankScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:SCANLINES_VBLANK_PAL;
-   vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:PPU_CYCLE_END_VBLANK_PAL;
-   prerenderScanline = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINE_PRERENDER_NTSC:SCANLINE_PRERENDER_PAL;
-   cycleRatio = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CPU_RATIO_NTSC:PPU_CPU_RATIO_PAL;
-   memoryDecayFrames = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_DECAY_FRAME_COUNT_NTSC:PPU_DECAY_FRAME_COUNT_PAL;
+   startVblank = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_START_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_START_VBLANK_PAL:PPU_CYCLE_START_VBLANK_DENDY;
+   quietScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_QUIET_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_QUIET_PAL:SCANLINES_QUIET_DENDY;
+   vblankScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_VBLANK_PAL:SCANLINES_VBLANK_DENDY;
+   vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_END_VBLANK_PAL:PPU_CYCLE_END_VBLANK_DENDY;
+   prerenderScanline = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINE_PRERENDER_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINE_PRERENDER_PAL:SCANLINE_PRERENDER_DENDY;
+   cycleRatio = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CPU_RATIO_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CPU_RATIO_PAL:PPU_CPU_RATIO_DENDY;
+   memoryDecayFrames = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_DECAY_FRAME_COUNT_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_DECAY_FRAME_COUNT_PAL:PPU_DECAY_FRAME_COUNT_DENDY;
 
    m_PPUreg [ 0 ] = 0x00;
    m_PPUreg [ 1 ] = 0x00;
@@ -1142,14 +1156,14 @@ uint32_t CPPU::PPU ( uint32_t addr )
       m_ppuIOLatch |= (data&0xE0);
 
       // Kill VBLANK flag if register is read at 'wrong' time...
-      if ( m_cycles == PPU_CYCLE_START_VBLANK-1 )
+      if ( m_cycles == startVblank-1 )
       {
          VBLANKCHOKED ( true );
       }
 
       // Kill NMI assertion if register is read at 'wrong' time...
-      if ( (m_cycles >= PPU_CYCLE_START_VBLANK-1) &&
-            (m_cycles <= PPU_CYCLE_START_VBLANK+1) )
+      if ( (m_cycles >= startVblank-1) &&
+            (m_cycles <= startVblank+1) )
       {
          NMICHOKED ( true );
       }
@@ -1422,12 +1436,11 @@ void CPPU::MIRROR ( int32_t nt1, int32_t nt2, int32_t nt3, int32_t nt4 )
    Move1KBank ( 0xB, &(m_PPUmemory[(nt4<<UPSHIFT_1KB)]) );
 }
 
-void CPPU::QUIETSCANLINE ( void )
+void CPPU::QUIETSCANLINES ( void )
 {
-   int32_t idxx;
    int32_t bit;
 
-   EMULATE(PPU_CYCLES_PER_SCANLINE);
+   EMULATE(PPU_CYCLES_PER_SCANLINE*quietScanlines);
 
    // Do I/O latch decay...this is just a convenient place to put
    // this decay because this function is called once per frame and
@@ -1777,7 +1790,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       // 340 dots for NTSC odd frames and 341 dots for NTSC even frames if rendering is off, 341 dots for all frames otherwise
       else
       {
-         if ( (CNES::VIDEOMODE() == MODE_PAL) || ((CNES::VIDEOMODE() == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
+         if ( (CNES::VIDEOMODE() == MODE_DENDY) || (CNES::VIDEOMODE() == MODE_PAL) || ((CNES::VIDEOMODE() == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
          {
             // account for extra clock (341)
             EXTRA ();

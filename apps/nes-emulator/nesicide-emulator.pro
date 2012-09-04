@@ -104,7 +104,7 @@ SOURCES += \
    common/emulatorcontrol.cpp \
    emulator/nesemulatordockwidget.cpp \
    $$TOP/common/appeventfilter.cpp \
-   $$TOP/common/cthreadregistry.cpp
+   $$TOP/common/cobjectregistry.cpp
 
 HEADERS += \
    mainwindow.h \
@@ -119,7 +119,7 @@ HEADERS += \
    emulator/nesemulatordockwidget.h \
    interfaces/ixmlserializable.h \
    $$TOP/common/appeventfilter.h \
-   $$TOP/common/cthreadregistry.h
+   $$TOP/common/cobjectregistry.h
 
 FORMS += \
    mainwindow.ui \

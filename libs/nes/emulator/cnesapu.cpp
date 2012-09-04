@@ -83,7 +83,7 @@ static CBitfieldData* tblAPUSQCTRLBitfields [] =
 {
    new CBitfieldData("Duty Cycle", 6, 2, "%X", 4, "25%", "50%", "75%", "12.5%"),
    new CBitfieldData("Channel State", 5, 1, "%X", 2, "Running", "Halted"),
-   new CBitfieldData("Envelope Enabled", 4, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Envelope Disabled", 4, 1, "%X", 2, "No", "Yes"),
    new CBitfieldData("Volume/Envelope", 0, 4, "%X", 0)
 };
 
@@ -120,7 +120,7 @@ static CBitfieldData* tblAPUDMZBitfields [] =
 static CBitfieldData* tblAPUNZCTRLBitfields [] =
 {
    new CBitfieldData("Channel State", 5, 1, "%X", 2, "Running", "Halted"),
-   new CBitfieldData("Envelope Enabled", 4, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Envelope Disabled", 4, 1, "%X", 2, "No", "Yes"),
    new CBitfieldData("Volume/Envelope", 0, 4, "%X", 0)
 };
 
@@ -618,10 +618,10 @@ void CAPU::SEQTICK ( int32_t sequence )
 
       if ( m_seq5[sequence]&APU_SEQ_CLK_LENGTH_CTR )
       {
-         clockedLengthCounter |= m_square[0].CLKLENGTHCOUNTER ();
          m_square[0].CLKSWEEPUNIT ();
-         clockedLengthCounter |= m_square[1].CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_square[0].CLKLENGTHCOUNTER ();
          m_square[1].CLKSWEEPUNIT ();
+         clockedLengthCounter |= m_square[1].CLKLENGTHCOUNTER ();
          clockedLengthCounter |= m_triangle.CLKLENGTHCOUNTER ();
          clockedLengthCounter |= m_noise.CLKLENGTHCOUNTER ();
       }
@@ -638,10 +638,10 @@ void CAPU::SEQTICK ( int32_t sequence )
 
       if ( m_seq4[sequence]&APU_SEQ_CLK_LENGTH_CTR )
       {
-         clockedLengthCounter |= m_square[0].CLKLENGTHCOUNTER ();
          m_square[0].CLKSWEEPUNIT ();
-         clockedLengthCounter |= m_square[1].CLKLENGTHCOUNTER ();
+         clockedLengthCounter |= m_square[0].CLKLENGTHCOUNTER ();
          m_square[1].CLKSWEEPUNIT ();
+         clockedLengthCounter |= m_square[1].CLKLENGTHCOUNTER ();
          clockedLengthCounter |= m_triangle.CLKLENGTHCOUNTER ();
          clockedLengthCounter |= m_noise.CLKLENGTHCOUNTER ();
       }
@@ -737,6 +737,10 @@ void CAPU::RESET ( void )
    {
       m_sampleSpacer = APU_SAMPLE_SPACE_NTSC;
    }
+   else if ( CNES::VIDEOMODE() == MODE_DENDY )
+   {
+      m_sampleSpacer = APU_SAMPLE_SPACE_DENDY;
+   }
    else
    {
       m_sampleSpacer = APU_SAMPLE_SPACE_PAL;
@@ -765,10 +769,12 @@ CAPUOscillator::CAPUOscillator ()
    m_sweepShift = 0;
    m_sweepNegate = false;
    m_sweep = 0;
+   m_sweepVolume = 0;
    m_enabled = false;
    m_halted = false;
    m_newHalted = false;
    m_envelopeEnabled = false;
+   m_envelopeLoop = false;
    m_sweepEnabled = false;
    m_linearCounterHalted = false;
    m_dac = 0x00;
@@ -792,45 +798,42 @@ void CAPUOscillator::CLKSWEEPUNIT ( void )
    int16_t sweepPeriod = 0;
 
    // sweep unit...
-   m_sweep++;
-
-   if ( m_sweep >= m_sweepDivider )
+   m_sweep--;
+   if ( !m_sweep )
    {
-      m_sweep = 0;
+      m_sweep = m_sweepDivider;
       sweepClkEdge = true;
    }
 
    if ( m_reg1Wrote == true )
    {
       m_reg1Wrote = false;
-      m_sweep = 0;
+      m_sweep = m_sweepDivider;
    }
 
-   if ( m_sweepEnabled )
+   sweepPeriod = m_period;
+   sweepPeriod >>= m_sweepShift;
+
+   if ( m_sweepNegate )
    {
-      sweepPeriod = m_period;
-      sweepPeriod >>= m_sweepShift;
+      sweepPeriod = ~sweepPeriod;
 
-      if ( m_sweepNegate )
+      if ( m_channel == 1 )
       {
-         sweepPeriod = ~sweepPeriod;
-
-         if ( m_channel == 1 )
-         {
-            sweepPeriod++;
-         }
+         sweepPeriod++;
       }
-
-      sweepPeriod += m_period;
    }
+
+   sweepPeriod += m_period;
 
    if ( (m_period < 8) ||
         (sweepPeriod > 0x7FF) )
    {
-      m_volume = 0;
+      m_sweepVolume = 0;
    }
    else
    {
+      m_sweepVolume = m_volume;
       if ( (m_sweepEnabled) && (m_sweepShift) )
       {
          if ( sweepClkEdge )
@@ -893,22 +896,21 @@ void CAPUOscillator::CLKENVELOPE ( void )
    {
       m_reg3Wrote = false;
       m_envelopeCounter = 15;
-      m_envelope = 0;
+      m_envelope = m_envelopeDivider;
    }
    else
    {
-      m_envelope++;
-
-      if ( m_envelope >= m_envelopeDivider )
+      m_envelope--;
+      if ( !m_envelope )
       {
-         m_envelope = 0;
+         m_envelope = m_envelopeDivider;
          envelopeClkEdge = true;
       }
    }
 
    if ( envelopeClkEdge )
    {
-      if ( (m_halted) && (m_envelopeCounter == 0) )
+      if ( (m_envelopeLoop) && (m_envelopeCounter == 0) )
       {
          m_envelopeCounter = 15;
       }
@@ -957,8 +959,9 @@ uint8_t CAPUOscillator::AVERAGEDAC ( void )
       {
          avg += (m_dacAverage[val]);
       }
+      avg += m_dac;
 
-      avg /= m_dacSamples;
+      avg /= (m_dacSamples+1);
       m_dac = avg;
    }
    else
@@ -985,10 +988,11 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
    {
       m_duty = ((data&0xC0)>>6);
       m_newHalted = data&0x20;
+      m_envelopeLoop = data&0x20;
       m_envelopeEnabled = !(data&0x10);
       m_envelopeDivider = (data&0x0F)+1;
       m_volume = (data&0x0F);
-      m_volumeSet = m_volume;
+      m_volumeSet = (data&0x0F);
    }
    else if ( addr == 1 )
    {
@@ -1007,7 +1011,7 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
    {
       if ( m_enabled )
       {
-         if ( CNES::VIDEOMODE() == MODE_NTSC )
+         if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
          {
             if ( CAPU::SEQUENCERMODE() == 0 )
             {
@@ -1103,7 +1107,7 @@ void CAPUSquare::TIMERTICK ( void )
    m_seqTick += seqTicks;
    m_seqTick &= 0x7;
 
-   if ( (m_lengthCounter) && (m_period > 7) )
+   if ( (m_sweepVolume) && (m_lengthCounter) && (m_period > 7) )
    {
       if ( *(*(m_squareSeq+m_duty)+m_seqTick) )
       {
@@ -1148,7 +1152,7 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
    {
       if ( m_enabled )
       {
-         if ( CNES::VIDEOMODE() == MODE_NTSC )
+         if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
          {
             if ( CAPU::SEQUENCERMODE() == 0 )
             {
@@ -1305,10 +1309,11 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
    if ( addr == 0 )
    {
       m_newHalted = data&0x20;
+      m_envelopeLoop = data&0x20;
       m_envelopeEnabled = !(data&0x10);
       m_envelopeDivider = (data&0x0F)+1;
       m_volume = (data&0x0F);
-      m_volumeSet = m_volume;
+      m_volumeSet = (data&0x0F);
    }
    else if ( addr == 2 )
    {
@@ -1319,7 +1324,7 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
    {
       if ( m_enabled )
       {
-         if ( CNES::VIDEOMODE() == MODE_NTSC )
+         if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
          {
             if ( CAPU::SEQUENCERMODE() == 0 )
             {
@@ -1583,12 +1588,6 @@ void CAPUDMC::DMAREADER ( void )
          else
          {
             C6502::APUDMAREQ ( m_dmaReaderAddrPtr );
-
-            if ( nesIsDebuggable() )
-            {
-               // Check for APU DMC channel DMA breakpoint event...
-               CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
-            }
          }
       }
    }
@@ -1674,7 +1673,7 @@ void CAPU::EMULATE ( void )
 
    // Clock the 240Hz sequencer.
    // NTSC APU
-   if ( CNES::VIDEOMODE() == MODE_NTSC )
+   if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
    {
       // APU sequencer mode 1
       if ( m_sequencerMode )
@@ -1960,7 +1959,7 @@ if ( wavOut )
    // Go to next cycle and restart if necessary...
    m_cycles++;
 
-   if ( CNES::VIDEOMODE() == MODE_NTSC )
+   if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
    {
       if ( (m_sequencerMode) && (m_cycles >= 37283) )
       {

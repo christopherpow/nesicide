@@ -5,7 +5,7 @@
 
 #include "dbg_cnesmappers.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,CBreakpointInfo* pBreakpoints,QWidget *parent) :
@@ -45,8 +45,8 @@ RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
 
 void RegisterInspectorDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
@@ -66,7 +66,7 @@ void RegisterInspectorDockWidget::updateTargetMachine(QString target)
 
 void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
@@ -79,7 +79,7 @@ void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
 
 void RegisterInspectorDockWidget::hideEvent(QHideEvent* e)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {

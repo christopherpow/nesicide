@@ -5,7 +5,7 @@
 
 #include "ccodedatalogger.h"
 
-#include "cthreadregistry.h"
+#include "cobjectregistry.h"
 #include "main.h"
 
 CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
@@ -32,8 +32,8 @@ CodeProfilerDockWidget::~CodeProfilerDockWidget()
 
 void CodeProfilerDockWidget::updateTargetMachine(QString target)
 {
-   QThread* breakpointWatcher = CThreadRegistry::getThread("Breakpoint Watcher");
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
    if ( emulator )
@@ -46,7 +46,7 @@ void CodeProfilerDockWidget::updateTargetMachine(QString target)
 
 void CodeProfilerDockWidget::showEvent(QShowEvent *event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
@@ -57,7 +57,7 @@ void CodeProfilerDockWidget::showEvent(QShowEvent *event)
 
 void CodeProfilerDockWidget::hideEvent(QHideEvent *event)
 {
-   QThread* emulator = CThreadRegistry::getThread("Emulator");
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
