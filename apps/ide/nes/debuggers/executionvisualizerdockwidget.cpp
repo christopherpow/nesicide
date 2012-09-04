@@ -37,7 +37,7 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    }
    C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
 
-   renderer = new PanZoomRenderer(341,262,512,10000,imgData,false,ui->frame);
+   renderer = new PanZoomRenderer(341,312,512,10000,imgData,false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 

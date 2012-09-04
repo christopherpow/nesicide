@@ -26,6 +26,7 @@ public:
    // NTSC/PAL-dependent interfaces.
    // NTSC: 262 scanlines
    // PAL: 312 scanlines
+   // Dendy: 312 scanlines
    static inline uint32_t SCANLINES ( void )
    {
       uint32_t mode = nesGetSystemMode();
