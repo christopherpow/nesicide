@@ -136,6 +136,7 @@ void NESEmulatorThread::kill()
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
 
+   m_isStarting = false;
    m_isRunning = false;
    m_isPaused = false;
    m_showOnPause = false;
@@ -147,10 +148,13 @@ void NESEmulatorThread::kill()
 
    SDL_Quit();
 
-   nesBreakpointSemaphore.release();
-   nesAudioSemaphore.release();
-
    start();
+
+   while ( !isFinished() )
+   {
+      nesBreakpointSemaphore.release();
+      nesAudioSemaphore.release();
+   }
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)

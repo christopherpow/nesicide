@@ -995,11 +995,8 @@ void MainWindow::destroyNesUi()
    debuggerToolBar->deleteLater();
 
    // Properly kill and destroy the thread we created above.
-   qDebug("killing");
    m_pNESEmulatorThread->kill();
-   qDebug("ok now waiting");
    m_pNESEmulatorThread->wait();
-   qDebug("done waiting");
 
    delete m_pNESEmulatorThread;
    m_pNESEmulatorThread = NULL;

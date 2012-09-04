@@ -93,11 +93,6 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
 NESEmulatorThread::~NESEmulatorThread()
 {
-   SDL_PauseAudio ( 1 );
-
-   SDL_CloseAudio ();
-
-   SDL_Quit();
 }
 
 void NESEmulatorThread::kill()
@@ -106,6 +101,19 @@ void NESEmulatorThread::kill()
    m_isPaused = false;
    m_showOnPause = false;
    m_isTerminating = true;
+
+   SDL_PauseAudio ( 1 );
+
+   SDL_CloseAudio ();
+
+   SDL_Quit();
+
+   start();
+
+   while ( !isFinished() )
+   {
+      nesAudioSemaphore.release();
+   }
 }
 
 void NESEmulatorThread::primeEmulator(CCartridge* pCartridge)
