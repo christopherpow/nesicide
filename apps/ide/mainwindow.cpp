@@ -1580,6 +1580,7 @@ void MainWindow::on_actionNew_Project_triggered()
       {
          QString templateDirName = ":/templates/";
          QString projectFileName;
+         QDir projectDir;
          templateDirName += dlg.getTemplate();
          templateDirName += "/";
 
@@ -1593,9 +1594,9 @@ void MainWindow::on_actionNew_Project_triggered()
          }
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
          {
-            qDebug("opening project...");
-            qDebug(projectFileName.toAscii().constData());
             openNesProject(projectFileName);
+
+            settings.setValue("LastProject",projectDir.absoluteFilePath(projectFileName));
          }
       }
 
