@@ -6,7 +6,7 @@
 #include <QProcess>
 #include <QDir>
 
-extern char* emuGetVersion();
+extern char* nesicideGetVersion();
 
 AboutDialog::AboutDialog(QWidget* parent) :
    QDialog(parent),
@@ -16,7 +16,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
 
    ui->versionsText->append("<a href=\"#top\"/>");
    ui->versionsText->append("<b>NESICIDE standalone emulator version:</b>");
-   ui->versionsText->append(emuGetVersion());
+   ui->versionsText->append(nesicideGetVersion());
    ui->versionsText->append("");
 
    ui->versionsText->append("<b>NESICIDE Emulator Library version:</b>");

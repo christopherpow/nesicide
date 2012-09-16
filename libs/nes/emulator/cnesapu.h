@@ -108,6 +108,7 @@ public:
    inline void SETDAC ( uint8_t dac )
    {
       m_dacAverage[m_dacSamples] = dac;
+      m_dac = dac;
       m_dacSamples++;
    }
    inline uint8_t GETDAC ( void )
@@ -120,10 +121,10 @@ public:
    {
       // Put the averaged DAC value in as the first sample to provide
       // continuity of sample averaging between windows.
-      m_dacAverage[0] = m_dac;
-      m_dacSamples = 1;
+      m_dacSamples = 0;
    }
-   inline uint8_t AVERAGEDAC ( void );
+   inline uint8_t* GETDACSAMPLES ( void ) { return m_dacAverage; }
+   inline uint8_t  GETDACSAMPLECOUNT ( void ) { return m_dacSamples; }
 
    // This routine returns the channels' internal state to
    // what it should be at NES reset.
@@ -416,8 +417,7 @@ public:
    {
       CAPUOscillator::RESET();
       m_mode = 0;
-      m_shortTableIdx = 0;
-      m_longTableIdx = 0;
+      m_shiftRegister = 1;
    }
 
 protected:
@@ -426,15 +426,7 @@ protected:
    // 32767-cycle pattern
    int32_t            m_mode;
 
-   // The noise channel generates a look-up table of
-   // shift register values during program initialization.
-   uint8_t*  m_shortTable;
-   uint8_t*  m_longTable;
-
-   // The noise channel keeps track of where it is in the
-   // table of shift register values.
-   uint16_t m_shortTableIdx;
-   uint16_t m_longTableIdx;
+   uint16_t m_shiftRegister;
 };
 
 // The CAPUDMC class extends the base CAPUOscillator class to provide

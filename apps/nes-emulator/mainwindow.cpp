@@ -468,7 +468,6 @@ void MainWindow::on_actionDelta_Modulation_toggled(bool value)
    EmulatorPrefsDialog::setDMCEnabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x10);
    }
    else
@@ -482,7 +481,6 @@ void MainWindow::on_actionNoise_toggled(bool value)
    EmulatorPrefsDialog::setNoiseEnabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x08);
    }
    else
@@ -496,7 +494,6 @@ void MainWindow::on_actionTriangle_toggled(bool value)
    EmulatorPrefsDialog::setTriangleEnabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x04);
    }
    else
@@ -510,7 +507,6 @@ void MainWindow::on_actionSquare_2_toggled(bool value)
    EmulatorPrefsDialog::setSquare2Enabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x02);
    }
    else
@@ -524,7 +520,6 @@ void MainWindow::on_actionSquare_1_toggled(bool value)
    EmulatorPrefsDialog::setSquare1Enabled(value);
    if ( value )
    {
-      ui->actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x01);
    }
    else
@@ -545,15 +540,6 @@ void MainWindow::on_actionMute_All_toggled(bool value)
    ui->actionTriangle->setChecked(!value);
    ui->actionNoise->setChecked(!value);
    ui->actionDelta_Modulation->setChecked(!value);
-
-   if ( value )
-   {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
-   }
-   else
-   {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x1F);
-   }
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -615,7 +601,7 @@ void MainWindow::on_actionPreferences_triggered()
    }
 }
 
-void MainWindow::on_actionFullscren_toggled(bool value)
+void MainWindow::on_actionFullscreen_toggled(bool value)
 {
    if ( value )
    {
@@ -627,6 +613,7 @@ void MainWindow::on_actionFullscren_toggled(bool value)
    {
       m_pEmulator->showNormal();
       m_pEmulator->setFloating(m_bEmulatorFloating);
+      m_pEmulator->setFocus();
    }
 }
 

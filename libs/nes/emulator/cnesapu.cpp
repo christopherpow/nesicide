@@ -18,6 +18,8 @@
 #include "cnes6502.h"
 #include "cnesppu.h"
 
+//#define OUTPUT_WAV
+
 FILE* wavOut = NULL;
 int   wavOutFileNum = 1;
 char wavOutName [ 100 ];
@@ -304,248 +306,6 @@ static uint8_t m_lengthLUT [ 32 ] =
    0x1E
 };
 
-static uint16_t m_squareTable [ 31 ] =
-{
-   0x0000,
-   0x023A,
-   0x0467,
-   0x0687,
-   0x089A,
-   0x0AA0,
-   0x0C9B,
-   0x0E8A,
-   0x106E,
-   0x1248,
-   0x1417,
-   0x15DC,
-   0x1797,
-   0x1949,
-   0x1AF2,
-   0x1C92,
-   0x1E29,
-   0x1FB9,
-   0x2140,
-   0x22BF,
-   0x2437,
-   0x25A7,
-   0x2710,
-   0x2873,
-   0x29CE,
-   0x2B23,
-   0x2C72,
-   0x2DBA,
-   0x2EFD,
-   0x303A,
-   0x3171
-};
-
-static uint16_t m_tndTable [ 203 ] =
-{
-   0x0000,
-   0x0149,
-   0x028F,
-   0x03D3,
-   0x0515,
-   0x0653,
-   0x0790,
-   0x08C9,
-   0x0A01,
-   0x0B35,
-   0x0C68,
-   0x0D97,
-   0x0EC5,
-   0x0FF0,
-   0x1119,
-   0x123F,
-   0x1364,
-   0x1486,
-   0x15A5,
-   0x16C3,
-   0x17DE,
-   0x18F8,
-   0x1A0F,
-   0x1B24,
-   0x1C37,
-   0x1D48,
-   0x1E57,
-   0x1F63,
-   0x206E,
-   0x2177,
-   0x227E,
-   0x2383,
-   0x2487,
-   0x2588,
-   0x2687,
-   0x2785,
-   0x2881,
-   0x297B,
-   0x2A73,
-   0x2B6A,
-   0x2C5E,
-   0x2D51,
-   0x2E43,
-   0x2F32,
-   0x3020,
-   0x310D,
-   0x31F7,
-   0x32E0,
-   0x33C8,
-   0x34AE,
-   0x3592,
-   0x3675,
-   0x3756,
-   0x3836,
-   0x3914,
-   0x39F0,
-   0x3ACC,
-   0x3BA5,
-   0x3C7E,
-   0x3D55,
-   0x3E2A,
-   0x3EFE,
-   0x3FD1,
-   0x40A2,
-   0x4172,
-   0x4241,
-   0x430E,
-   0x43DA,
-   0x44A5,
-   0x456E,
-   0x4636,
-   0x46FD,
-   0x47C2,
-   0x4886,
-   0x4949,
-   0x4A0B,
-   0x4ACC,
-   0x4B8B,
-   0x4C49,
-   0x4D06,
-   0x4DC2,
-   0x4E7D,
-   0x4F37,
-   0x4FEF,
-   0x50A6,
-   0x515C,
-   0x5211,
-   0x52C5,
-   0x5378,
-   0x542A,
-   0x54DB,
-   0x558A,
-   0x5639,
-   0x56E7,
-   0x5793,
-   0x583F,
-   0x58E9,
-   0x5993,
-   0x5A3B,
-   0x5AE3,
-   0x5B89,
-   0x5C2F,
-   0x5CD4,
-   0x5D77,
-   0x5E1A,
-   0x5EBC,
-   0x5F5D,
-   0x5FFD,
-   0x609C,
-   0x613A,
-   0x61D7,
-   0x6273,
-   0x630F,
-   0x63A9,
-   0x6443,
-   0x64DC,
-   0x6574,
-   0x660B,
-   0x66A2,
-   0x6737,
-   0x67CC,
-   0x6860,
-   0x68F3,
-   0x6985,
-   0x6A17,
-   0x6AA7,
-   0x6B37,
-   0x6BC6,
-   0x6C55,
-   0x6CE2,
-   0x6D6F,
-   0x6DFB,
-   0x6E87,
-   0x6F11,
-   0x6F9B,
-   0x7024,
-   0x70AD,
-   0x7134,
-   0x71BB,
-   0x7241,
-   0x72C7,
-   0x734C,
-   0x73D0,
-   0x7454,
-   0x74D6,
-   0x7559,
-   0x75DA,
-   0x765B,
-   0x76DB,
-   0x775B,
-   0x77D9,
-   0x7858,
-   0x78D5,
-   0x7952,
-   0x79CE,
-   0x7A4A,
-   0x7AC5,
-   0x7B40,
-   0x7BB9,
-   0x7C33,
-   0x7CAB,
-   0x7D23,
-   0x7D9B,
-   0x7E12,
-   0x7E88,
-   0x7EFE,
-   0x7F73,
-   0x7FE7,
-   0x805B,
-   0x80CF,
-   0x8142,
-   0x81B4,
-   0x8226,
-   0x8297,
-   0x8308,
-   0x8378,
-   0x83E7,
-   0x8456,
-   0x84C5,
-   0x8533,
-   0x85A0,
-   0x860D,
-   0x867A,
-   0x86E6,
-   0x8751,
-   0x87BC,
-   0x8827,
-   0x8891,
-   0x88FA,
-   0x8963,
-   0x89CB,
-   0x8A33,
-   0x8A9B,
-   0x8B02,
-   0x8B69,
-   0x8BCF,
-   0x8C34,
-   0x8C9A,
-   0x8CFE,
-   0x8D63,
-   0x8DC6,
-   0x8E2A,
-   0x8E8D
-};
-
 int32_t apuDataAvailable = 0;
 
 static CAPU __init __attribute((unused));
@@ -578,18 +338,60 @@ uint8_t* CAPU::PLAY ( uint16_t samples )
 
 uint16_t CAPU::AMPLITUDE ( void )
 {
+   float famp;
    int16_t amp;
-   static int16_t old = 0;
    int16_t delta;
-   static int16_t out;
+   int16_t out[100] = { 0, };
+   static int16_t outLast = 0;
+   uint8_t sample;
+   uint8_t* sq1dacSamples = m_square[0].GETDACSAMPLES();
+   uint8_t* sq2dacSamples = m_square[1].GETDACSAMPLES();
+   uint8_t* triangleDacSamples = m_triangle.GETDACSAMPLES();
+   uint8_t* noiseDacSamples = m_noise.GETDACSAMPLES();
+   uint8_t* dmcDacSamples = m_dmc.GETDACSAMPLES();
+   static int32_t outDownsampled = 0;
 
-   amp = *(m_squareTable+(m_square[0].AVERAGEDAC()+m_square[1].AVERAGEDAC()))
-         + *(m_tndTable+((m_triangle.AVERAGEDAC()*3)+(m_noise.AVERAGEDAC()<<1)+m_dmc.AVERAGEDAC()));
+   for ( sample = 0; sample < m_square[0].GETDACSAMPLECOUNT(); sample++ )
+   {
+//      output = square_out + tnd_out
+//
+//
+//                            95.88
+//      square_out = -----------------------
+//                          8128
+//                   ----------------- + 100
+//                   square1 + square2
+//
+//
+//                            159.79
+//      tnd_out = ------------------------------
+//                            1
+//                ------------------------ + 100
+//                triangle   noise    dmc
+//                -------- + ----- + -----
+//                  8227     12241   22638
+      famp = 0.0;
+      if ( (*(sq1dacSamples+sample))+(*(sq2dacSamples+sample)) )
+      {
+         famp = (95.88/((8128.0/((*(sq1dacSamples+sample))+(*(sq2dacSamples+sample))))+100.0));
+      }
+      if ( (*(triangleDacSamples+sample))+(*(noiseDacSamples+sample))+(*(dmcDacSamples+sample)) )
+      {
+         famp += (159.79/((1.0/((((*(triangleDacSamples+sample))/8227.0)+((*(noiseDacSamples+sample))/12241.0)+((*(dmcDacSamples+sample))/22638.0))))+100.0));
+      }
+      amp = (int16_t)(float)(65535.0*famp*0.50);
 
-   delta = amp - old;
-   old = amp;
+      (*(out+sample)) = amp;
 
-   out = ((out*65371)/65536)+delta; // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.
+      outDownsampled += (*(out+sample));
+   }
+
+   outDownsampled = (int32_t)((float)outDownsampled/((float)m_square[0].GETDACSAMPLECOUNT()+1));
+
+   delta = outDownsampled - outLast;
+   outDownsampled = outLast+((delta*65371)/65536); // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.
+
+   outLast = outDownsampled;
 
    // Reset DAC averaging...
    m_square[0].CLEARDACAVG();
@@ -598,7 +400,7 @@ uint16_t CAPU::AMPLITUDE ( void )
    m_noise.CLEARDACAVG();
    m_dmc.CLEARDACAVG();
 
-   return out;
+   return outDownsampled;
 }
 
 void CAPU::SEQTICK ( int32_t sequence )
@@ -691,7 +493,7 @@ void CAPU::RESET ( void )
    strncpy(wavChunk.ctype,"fmt ",4);
    wavChunk.len = 16;
    wavFmt.ccode = 1;
-   wavFmt.chans = 5;
+   wavFmt.chans = 1;
    wavFmt.Bps = 88200;
    wavFmt.align = 2;
    wavFmt.rate = 44100;
@@ -934,42 +736,21 @@ uint32_t CAPUOscillator::CLKDIVIDER ( void )
 {
    uint32_t clockIt = 0;
 
-   if ( m_periodCounter )
+   if ( m_period )
    {
-      m_periodCounter--;
-   }
+      if ( m_periodCounter )
+      {
+         m_periodCounter--;
+      }
 
-   if ( m_periodCounter == 0 )
-   {
-      m_periodCounter = m_period;
-      clockIt = 1;
+      if ( m_periodCounter == 0 )
+      {
+         m_periodCounter = m_period;
+         clockIt = 1;
+      }
    }
 
    return clockIt;
-}
-
-uint8_t CAPUOscillator::AVERAGEDAC ( void )
-{
-   uint32_t val;
-   uint32_t avg = 0;
-
-   if ( !m_muted )
-   {
-      for ( val = 0; val < m_dacSamples; val++ )
-      {
-         avg += (m_dacAverage[val]);
-      }
-      avg += m_dac;
-
-      avg /= (m_dacSamples+1);
-      m_dac = avg;
-   }
-   else
-   {
-      m_dac = 0;
-   }
-
-   return m_dac;
 }
 
 static int32_t m_squareSeq [ 4 ] [ 8 ] =
@@ -1107,7 +888,9 @@ void CAPUSquare::TIMERTICK ( void )
    m_seqTick += seqTicks;
    m_seqTick &= 0x7;
 
-   if ( (m_sweepVolume) && (m_lengthCounter) && (m_period > 7) )
+   if ( (!m_muted) &&
+        (m_sweepVolume) &&
+        (m_lengthCounter) )
    {
       if ( *(*(m_squareSeq+m_duty)+m_seqTick) )
       {
@@ -1128,10 +911,10 @@ void CAPUSquare::TIMERTICK ( void )
 
 static int32_t m_triangleSeq [ 32 ] =
 {
-   0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
-   0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF,
    0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 0x9, 0x8,
-   0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0
+   0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0,
+   0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
+   0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF
 };
 
 void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
@@ -1241,65 +1024,48 @@ void CAPUTriangle::TIMERTICK ( void )
    uint32_t clockIt = CLKDIVIDER ();
 
    if ( (m_linearCounter) &&
-        (m_lengthCounter) && (m_period>1) )
+        (m_lengthCounter) &&
+        (m_period > 1) )
    {
       m_seqTick += clockIt;
       m_seqTick &= 0x1F;
    }
 
-   SETDAC ( *(m_triangleSeq+m_seqTick) );
+   if ( !m_muted )
+   {
+      SETDAC ( *(m_triangleSeq+m_seqTick) );
+   }
+   else
+   {
+      SETDAC ( 0 );
+   }
 
    m_halted = m_newHalted;
 }
 
-static uint16_t m_noisePeriod [ 2 ][ 16 ] =
+static uint16_t m_noisePeriod [ 3 ][ 16 ] =
 {
+   // NTSC
    {
       4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068
    },
+   // PAL
    {
       4, 7, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778
+   },
+   // Dendy
+   {
+      4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068
    }
 };
 
 CAPUNoise::CAPUNoise ()
-   : CAPUOscillator(), m_mode(0)
+   : CAPUOscillator(), m_mode(0), m_shiftRegister(1)
 {
-   uint8_t preShiftXor;
-   uint16_t shift;
-   int32_t idx;
-
-   // Allocate noise tables.
-   m_shortTable = new uint8_t[93];
-   m_longTable = new uint8_t[32767];
-
-   // Calculate short table...
-   shift = 1;
-
-   for ( idx = 0; idx < 93; idx++ )
-   {
-      preShiftXor = (shift&1)^((shift>>6)&1);
-      shift >>= 1;
-      shift |= preShiftXor<<13;
-      m_shortTable [ idx ] = shift;
-   }
-
-   // Calculate long table...
-   shift = 1;
-
-   for ( idx = 0; idx < 32767; idx++ )
-   {
-      preShiftXor = (shift&1)^((shift>>1)&1);
-      shift >>= 1;
-      shift |= preShiftXor<<13;
-      m_longTable [ idx ] = shift;
-   }
 }
 
 CAPUNoise::~CAPUNoise()
 {
-   delete [] m_shortTable;
-   delete [] m_longTable;
 }
 
 void CAPUNoise::APU ( uint32_t addr, uint8_t data )
@@ -1407,31 +1173,29 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
 void CAPUNoise::TIMERTICK ( void )
 {
    uint32_t clockIt = CLKDIVIDER ();
-   uint16_t shift;
+   uint8_t preShiftXor;
 
-   if ( m_mode )
+   if ( clockIt )
    {
-      m_shortTableIdx += clockIt;
-      m_shortTableIdx %= 93;
-      shift = *(m_shortTable+m_shortTableIdx);
-   }
-   else
-   {
-      m_longTableIdx += clockIt;
-      m_longTableIdx %= 32767;
-      shift = *(m_longTable+m_longTableIdx);
-   }
-
-   if ( !(shift&1) )
-   {
-      if ( m_lengthCounter )
+      if ( m_mode )
       {
-         SETDAC ( m_volume );
+         preShiftXor = (m_shiftRegister&1)^((m_shiftRegister>>6)&1);
+         m_shiftRegister >>= 1;
+         m_shiftRegister |= (preShiftXor<<14);
       }
       else
       {
-         SETDAC ( 0 );
+         preShiftXor = (m_shiftRegister&1)^((m_shiftRegister>>1)&1);
+         m_shiftRegister >>= 1;
+         m_shiftRegister |= (preShiftXor<<14);
       }
+   }
+
+   if ( (!m_muted) &&
+        (!(m_shiftRegister&1)) &&
+        (m_lengthCounter) )
+   {
+      SETDAC ( m_volume );
    }
    else
    {
@@ -1441,7 +1205,7 @@ void CAPUNoise::TIMERTICK ( void )
    m_halted = m_newHalted;
 }
 
-static uint16_t m_dmcPeriod [ 2 ][ 16 ] =
+static uint16_t m_dmcPeriod [ 3 ][ 16 ] =
 {
    // NTSC
    {
@@ -1450,6 +1214,10 @@ static uint16_t m_dmcPeriod [ 2 ][ 16 ] =
    // PAL
    {
       398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118,  98,  78,  66,  50
+   },
+   // Dendy
+   {
+      428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54
    }
 };
 
@@ -1492,6 +1260,7 @@ void CAPUDMC::APU ( uint32_t addr, uint8_t data )
    else if ( addr == 1 )
    {
       m_volume = data&0x7f;
+      m_volumeSet = data&0x7f;
    }
    else if ( addr == 2 )
    {
@@ -1628,6 +1397,10 @@ void CAPUDMC::TIMERTICK ( void )
             m_volume += 2;
          }
       }
+      else
+      {
+         m_volume = m_volumeSet;
+      }
 
       if ( m_outputShiftCounter )
       {
@@ -1636,7 +1409,14 @@ void CAPUDMC::TIMERTICK ( void )
       }
    }
 
-   SETDAC ( m_volume );
+   if ( !m_muted )
+   {
+      SETDAC ( m_volume );
+   }
+   else
+   {
+      SETDAC ( 0 );
+   }
 }
 
 void CAPU::EMULATE ( void )
@@ -1921,18 +1701,24 @@ void CAPU::EMULATE ( void )
 
    if ( takeSample >= m_sampleSpacer )
    {
+      takeSample -= m_sampleSpacer;
+
+      pWaveBuf = m_waveBuf+m_waveBufProduce;
+      (*pWaveBuf) = AMPLITUDE ();
+
 #if defined ( OUTPUT_WAV )
 if ( wavOut )
 {
-   uint8_t s1,s2,t,n,d;
-   CAPU::GETDACS(&s1,&s2,&t,&n,&d);
-   fwrite(&s1,1,1,wavOut);
-   fwrite(&s2,1,1,wavOut);
-   fwrite(&t,1,1,wavOut);
-   fwrite(&n,1,1,wavOut);
-   fwrite(&d,1,1,wavOut);
-   wavFileSize += 5;
-   if ( wavFileSize == 88200*20 )
+//   uint8_t s1,s2,t,n,d;
+//   CAPU::GETDACS(&s1,&s2,&t,&n,&d);
+//   fwrite(&s1,1,1,wavOut);
+//   fwrite(&s2,1,1,wavOut);
+//   fwrite(&t,1,1,wavOut);
+//   fwrite(&n,1,1,wavOut);
+//   fwrite(&d,1,1,wavOut);
+   fwrite(&(*pWaveBuf),1,2,wavOut);
+   wavFileSize += 2;
+   if ( wavFileSize == 88200*200 )
    {
       fclose(wavOut);
       wavOut = NULL;
@@ -1940,10 +1726,6 @@ if ( wavOut )
 }
 #endif
 
-      takeSample -= m_sampleSpacer;
-
-      pWaveBuf = m_waveBuf+m_waveBufProduce;
-      (*pWaveBuf) = AMPLITUDE ();
       m_waveBufProduce++;
 
       m_waveBufProduce %= APU_BUFFER_SIZE;

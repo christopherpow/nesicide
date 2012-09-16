@@ -7,7 +7,7 @@
 #include <QProcess>
 #include <QDir>
 
-extern char* ideGetVersion();
+extern char* nesicideGetVersion();
 
 AboutDialog::AboutDialog(QWidget* parent) :
    QDialog(parent),
@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
 
    ui->versionsText->append("<a href=\"#top\"/>");
    ui->versionsText->append("<b>NESICIDE Application version:</b>");
-   ui->versionsText->append(ideGetVersion());
+   ui->versionsText->append(nesicideGetVersion());
    ui->versionsText->append("");
 
    ui->versionsText->append("<b>NES Emulator Library version:</b>");

@@ -99,7 +99,7 @@ SOURCES += \
    emulator/nesemulatorthread.cpp \
    emulator/emulatorprefsdialog.cpp \
    qkeymapitemedit.cpp \
-   version.cpp \
+   $$TOP/common/version.cpp \
    emulator/nesemulatorrenderer.cpp \
    common/emulatorcontrol.cpp \
    emulator/nesemulatordockwidget.cpp \

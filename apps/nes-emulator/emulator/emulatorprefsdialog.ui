@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -109,7 +109,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="resource.qrc">:/resources/controller.png</pixmap>
+              <pixmap resource="../resource.qrc">:/resources/controller.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -419,7 +419,7 @@
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="resource.qrc">:/resources/vaus.png</pixmap>
+                <pixmap resource="../resource.qrc">:/resources/vaus.png</pixmap>
                </property>
               </widget>
              </item>
@@ -600,6 +600,11 @@
          <item>
           <property name="text">
            <string>PAL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Dendy</string>
           </property>
          </item>
         </widget>
@@ -863,7 +868,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../resource.qrc"/>
  </resources>
  <connections>
   <connection>

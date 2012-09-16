@@ -1506,9 +1506,52 @@ void MainWindow::on_actionProject_Properties_triggered()
    emit applyProjectProperties();
 }
 
+void MainWindow::explodeTemplate(QString templateDirName,QString localDirName,QString* projectFileName)
+{
+   QDir templateDir(templateDirName);
+   QDir localDir;
+   QString localDirTemp;
+   QFileInfoList templateFileInfos = templateDir.entryInfoList();
+
+   foreach ( QFileInfo fileInfo, templateFileInfos )
+   {
+      if ( fileInfo.isDir() )
+      {
+         localDirTemp = localDirName;
+         localDirName += fileInfo.fileName();
+         localDirName += "/";
+         localDir.mkpath(localDirName);
+         explodeTemplate(fileInfo.filePath(),localDirName,projectFileName);
+         localDirName = localDirTemp;
+      }
+      else
+      {
+         // Save the file locally.
+         QFile templateFile(fileInfo.filePath());
+         QFile localFile(localDirName+fileInfo.fileName());
+
+         if ( templateFile.open(QIODevice::ReadOnly) &&
+              localFile.open(QIODevice::ReadWrite|QIODevice::Truncate) )
+         {
+            localFile.write(templateFile.readAll());
+         }
+
+         // If this is the project file, spit out the name.
+         if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+         {
+            (*projectFileName) = localFile.fileName();
+         }
+
+         templateFile.close();
+         localFile.close();
+      }
+   }
+}
+
 void MainWindow::on_actionNew_Project_triggered()
 {
-   NewProjectDialog dlg(this,"New Project","Untitled","",true);
+   QSettings settings;
+   NewProjectDialog dlg(this,"New Project","Untitled",settings.value("LastProjectBasePath").toString(),true);
 
    if (dlg.exec() == QDialog::Accepted)
    {
@@ -1516,20 +1559,45 @@ void MainWindow::on_actionNew_Project_triggered()
 
       QDir::setCurrent(dlg.getPath());
 
-      // Set project target before initializing project...
-      if ( dlg.getTarget() == "Commodore 64" )
+      if ( dlg.getTemplateIndex() == 0 )
       {
-         nesicideProject->setProjectTarget("c64");
-         createC64Ui();
+         // Set project target before initializing project...
+         if ( dlg.getTarget() == "Commodore 64" )
+         {
+            nesicideProject->setProjectTarget("c64");
+            createC64Ui();
+         }
+         else if ( dlg.getTarget() == "Nintendo Entertainment System" )
+         {
+            nesicideProject->setProjectTarget("nes");
+            createNesUi();
+         }
+         nesicideProject->initializeProject();
+         nesicideProject->setDirty(true);
+         nesicideProject->setProjectTitle(dlg.getName());
       }
-      else if ( dlg.getTarget() == "Nintendo Entertainment System" )
+      else
       {
-         nesicideProject->setProjectTarget("nes");
-         createNesUi();
+         QString templateDirName = ":/templates/";
+         QString projectFileName;
+         templateDirName += dlg.getTemplate();
+         templateDirName += "/";
+
+         // Recursively copy the project content to the local location.
+         explodeTemplate(templateDirName,"",&projectFileName);
+
+         // Now 'open' the new project.
+         // Set project target before initializing project...
+         if ( dlg.getTarget() == "Commodore 64" )
+         {
+         }
+         else if ( dlg.getTarget() == "Nintendo Entertainment System" )
+         {
+            qDebug("opening project...");
+            qDebug(projectFileName.toAscii().constData());
+            openNesProject(projectFileName);
+         }
       }
-      nesicideProject->initializeProject();
-      nesicideProject->setDirty(true);
-      nesicideProject->setProjectTitle(dlg.getName());
 
       m_pProjectBrowser->enableNavigation();
       projectDataChangesEvent();

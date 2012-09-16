@@ -8,8 +8,6 @@
 #include "cgamedatabasehandler.h"
 #include "cnesicideproject.h"
 
-char* ideGetVersion();
-
 extern TestSuiteExecutiveDialog* testSuiteExecutive;
 
 extern CGameDatabaseHandler gameDatabase;

@@ -17,6 +17,8 @@ public:
    QString getName();
    QString getPath();
    QString getTarget();
+   QString getTemplate();
+   int getTemplateIndex();
 
 protected:
    void changeEvent(QEvent* e);

@@ -255,7 +255,7 @@ enum
 // play.
 #define APU_SAMPLES           (1024)
 
-#define SDL_SAMPLE_RATE       (22050)
+#define SDL_SAMPLE_RATE       (44100)
 
 #define APU_SAMPLE_SPACE_NTSC  (89341.5/3.0/(SDL_SAMPLE_RATE/60.0))
 #define APU_SAMPLE_SPACE_PAL   (106392.0/3.2/(SDL_SAMPLE_RATE/50.0))

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>433</width>
-    <height>253</height>
+    <height>260</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,7 @@
         </widget>
        </item>
        <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="pathGroup">
          <property name="title">
           <string>Path</string>
          </property>
@@ -88,11 +88,6 @@
               <string>Empty Project</string>
              </property>
             </item>
-            <item>
-             <property name="text">
-              <string>NROM Hello World Project</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -109,12 +104,12 @@
         <widget class="QComboBox" name="target">
          <item>
           <property name="text">
-           <string>Commodore 64</string>
+           <string>Nintendo Entertainment System</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Nintendo Entertainment System</string>
+           <string>Commodore 64</string>
           </property>
          </item>
         </widget>

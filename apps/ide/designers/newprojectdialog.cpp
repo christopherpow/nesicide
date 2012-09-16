@@ -2,6 +2,7 @@
 #include "ui_newprojectdialog.h"
 
 #include <QFileDialog>
+#include <QSettings>
 
 NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString defName,QString defPath, bool showTemplate) :
    QDialog(parent),
@@ -14,6 +15,11 @@ NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString d
    setWindowTitle(windowTitle);
    ui->templateGroup->setVisible(showTemplate);
    ui->name->setFocus();
+
+   QDir templatesDir(":/templates");
+   QStringList templates = templatesDir.entryList();
+
+   ui->templateProject->addItems(templates);
 }
 
 NewProjectDialog::~NewProjectDialog()
@@ -50,24 +56,42 @@ QString NewProjectDialog::getTarget()
    return ui->target->currentText();
 }
 
+QString NewProjectDialog::getTemplate()
+{
+   return ui->templateProject->currentText();
+}
+
+int NewProjectDialog::getTemplateIndex()
+{
+   return ui->templateProject->currentIndex();
+}
+
 void NewProjectDialog::on_pathBrowse_clicked()
 {
-   QString value = QFileDialog::getExistingDirectory(this,"Path",QDir::currentPath());
+   QSettings settings;
+
+   QString path = settings.value("LastProjectBasePath").toString();
+
+   QString value = QFileDialog::getExistingDirectory(this,"Path",path);
 
    if ( !value.isEmpty() )
    {
       ui->path->setText(value);
+
+      QFileInfo fileInfo(value);
+
+      settings.setValue("LastProjectBasePath",fileInfo.path());
    }
 }
 
 void NewProjectDialog::on_path_textChanged(QString text)
 {
-   ui->buttonBox->setEnabled(checkValidity());
+   ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checkValidity());
 }
 
 void NewProjectDialog::on_name_textChanged(QString text)
 {
-   ui->buttonBox->setEnabled(checkValidity());
+   ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checkValidity());
 }
 
 bool NewProjectDialog::checkValidity()

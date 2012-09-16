@@ -171,13 +171,8 @@ void TestSuiteExecutiveDialog::on_executeSelection_clicked()
    QTableWidgetItem* start = items.first();
    QTableWidgetItem* end = items.last();
 
-   qDebug(QString::number((int)start).toAscii().constData());
-   qDebug(QString::number((int)end).toAscii().constData());
-   qDebug(QString::number((int)start->row()).toAscii().constData());
-   qDebug(QString::number((int)end->row()).toAscii().constData());
    if ( start && end && (start->row() >= 0) && (end->row() >= 0) )
    {
-      qDebug("here");
       executeTests(start->row(),end->row()+1);
    }
 }

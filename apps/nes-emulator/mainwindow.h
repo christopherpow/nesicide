@@ -50,7 +50,7 @@ private slots:
    void on_actionDendy_triggered();
    void applicationActivationChanged(bool activated);
    void on_actionAbout_Qt_triggered();
-   void on_actionFullscren_toggled(bool value);
+   void on_actionFullscreen_toggled(bool value);
    void on_actionDelta_Modulation_toggled(bool );
    void on_actionNoise_toggled(bool );
    void on_actionTriangle_toggled(bool );

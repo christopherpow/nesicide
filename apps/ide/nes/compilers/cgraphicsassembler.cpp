@@ -21,6 +21,12 @@ bool CGraphicsAssembler::assemble()
    QString outputName;
    QFile chrRomFile;
 
+   // Make sure directory exists...
+   if ( !outputDir.exists() )
+   {
+      outputDir.mkpath(outputDir.path());
+   }
+
    if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
    {
       outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));

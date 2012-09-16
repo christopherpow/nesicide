@@ -142,7 +142,7 @@
     </widget>
     <addaction name="menuSystem"/>
     <addaction name="menuAudio"/>
-    <addaction name="actionFullscren"/>
+    <addaction name="actionFullscreen"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -250,12 +250,12 @@
     <string>Delta Modulation</string>
    </property>
   </action>
-  <action name="actionFullscren">
+  <action name="actionFullscreen">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fullscren</string>
+    <string>Fullscreen</string>
    </property>
    <property name="toolTip">
     <string>Enter fullscreen mode</string>

@@ -299,7 +299,7 @@ SOURCES += \
    common/qkeymapitemedit.cpp \
    startupsplashdialog.cpp \
    nes/emulator/testsuiteexecutivedialog.cpp \
-   version.cpp \
+   $$TOP/common/version.cpp \
    nes/debuggers/cchrromitemlistdisplaymodel.cpp \
    nes/debuggers/cchrromitemtabledisplaymodel.cpp \
    nes/debuggers/chrromdisplaydialog.cpp \
@@ -487,4 +487,5 @@ FORMS += \
    nes/debuggers/chrromdisplaydialog.ui \
    nes/debuggers/prgromdisplaydialog.ui \
 
-RESOURCES += resource.qrc
+RESOURCES += resource.qrc \
+    templates.qrc

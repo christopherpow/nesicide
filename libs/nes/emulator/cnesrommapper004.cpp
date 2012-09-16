@@ -366,11 +366,11 @@ void CROMMapper004::MAPPER ( uint32_t addr, uint8_t data )
                SETPPU ();
                break;
             case 0x06:
-               m_prg [ 0 ] = data;
+               m_prg [ 0 ] = data%m_numPrgBanks;
                SETCPU ();
                break;
             case 0x07:
-               m_prg [ 1 ] = data;
+               m_prg [ 1 ] = data%m_numPrgBanks;
                SETCPU ();
                break;
          }
