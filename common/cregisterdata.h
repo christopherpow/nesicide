@@ -183,6 +183,17 @@ public:
    }
    CRegisterData** GetRegisters() { return m_register; }
    CRegisterData* GetRegister(int idx) { return m_register[idx]; }
+   int GetRegisterAt(int addr)
+   {
+      for ( int idx = 0; idx < m_registers; idx++ )
+      {
+         if ( m_register[idx]->GetAddr() == addr )
+         {
+            return idx;
+         }
+      }
+      return -1;
+   }
    int GetNumRegisters() { return m_registers; }
    int GetNumRows() { return m_rows; }
    int GetNumColumns() { return m_columns; }

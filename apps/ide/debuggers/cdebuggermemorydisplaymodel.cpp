@@ -42,7 +42,7 @@ int CDebuggerMemoryDisplayModel::memoryTop() const
 
    if ( memDB )
    {
-      return memDB->GetBase()+memDB->GetSize();
+      return memDB->GetBase()+memDB->GetSize()-1;
    }
    return 0;
 }
