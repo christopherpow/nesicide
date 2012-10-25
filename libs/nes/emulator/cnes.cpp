@@ -35,7 +35,7 @@ bool     CNES::m_bReplay = false;
 bool     CNES::m_bRecord = true;
 uint32_t CNES::m_frame = 0;
 
-CTracer         CNES::m_tracer;
+CTracer*         CNES::m_tracer = NULL;
 
 CBreakpointInfo* CNES::m_breakpoints;
 bool            CNES::m_bBreakpointsEnabled = true;
@@ -50,11 +50,15 @@ static CNES __init __attribute((unused));
 CNES::CNES()
 {
    m_breakpoints = new CNESBreakpointInfo();
+
+   m_tracer = new CTracer();
 }
 
 CNES::~CNES()
 {
    delete m_breakpoints;
+
+   delete m_tracer;
 }
 
 uint8_t CNES::_MEM ( uint32_t addr )
@@ -266,7 +270,7 @@ void CNES::RESET ( uint32_t mapper )
    if ( nesIsDebuggable() )
    {
       // Clear execution tracer sample buffer...
-      m_tracer.ClearSampleBuffer ();
+      m_tracer->ClearSampleBuffer ();
 
       // Zero visualizer markers...
       C6502::MARKERS()->ZeroAllMarkers();
@@ -851,10 +855,10 @@ void CNES::RUN ( uint8_t* joy )
 
    if ( nesIsDebuggable() )
    {
-      m_tracer.SetFrame ( m_frame );
+      m_tracer->SetFrame ( m_frame );
 
       // Emit start-of-frame indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_StartPPUFrame, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_StartPPUFrame, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
@@ -880,7 +884,7 @@ void CNES::RUN ( uint8_t* joy )
    if ( nesIsDebuggable() )
    {
       // Emit start-of-quiet scanline indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_QuietStart, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_QuietStart, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Emulate PPU resting scanlines...
@@ -889,11 +893,11 @@ void CNES::RUN ( uint8_t* joy )
    if ( nesIsDebuggable() )
    {
       // Emit end-of-quiet scanline indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_QuietEnd, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_QuietEnd, eNESSource_PPU, 0, 0, 0 );
 
       // Do VBLANK processing (scanlines 0-19 NTSC or 0-69 PAL)...
       // Emit start-VBLANK indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_VBLANKStart, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_VBLANKStart, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Emulate VBLANK non-render scanlines...
@@ -902,10 +906,10 @@ void CNES::RUN ( uint8_t* joy )
    if ( nesIsDebuggable() )
    {
       // Emit end-VBLANK indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_VBLANKEnd, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_VBLANKEnd, eNESSource_PPU, 0, 0, 0 );
 
       // Emit start-of-prerender scanline indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_PreRenderStart, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_PreRenderStart, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Pre-render scanline...
@@ -914,9 +918,9 @@ void CNES::RUN ( uint8_t* joy )
    if ( nesIsDebuggable() )
    {
       // Emit end-of-prerender scanline indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_PreRenderEnd, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_PreRenderEnd, eNESSource_PPU, 0, 0, 0 );
 
       // Emit end-of-frame indication to Tracer...
-      m_tracer.AddSample ( CPPU::_CYCLES(), eTracer_EndPPUFrame, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_EndPPUFrame, eNESSource_PPU, 0, 0, 0 );
    }
 }

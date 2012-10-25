@@ -129,7 +129,7 @@ enum
 #define AM_RELATIVE             12
 #define NUM_ADDRESSING_MODES    13
 
-#define NUM_ROM_BANKS 64
+#define NUM_ROM_BANKS 128
 #define NUM_SRAM_BANKS 8
 
 #define PATTERN_SIZE 8
@@ -740,6 +740,15 @@ typedef struct _nesMapper004Info
    uint32_t ppuCycle;
 } nesMapper004Info;
 void nesMapper004GetInformation ( nesMapper004Info* pInfo );
+
+typedef struct _nesMapper028Info
+{
+   uint32_t prgMode;
+   uint32_t prgSize;
+   uint32_t prgOuterBank;
+   uint32_t prgInnerBank;
+} nesMapper028Info;
+void nesMapper028GetInformation ( nesMapper028Info* pInfo );
 
 typedef struct _nesMapper069Info
 {

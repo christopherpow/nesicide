@@ -284,31 +284,37 @@ void c64SetMemory ( uint32_t addr, uint32_t data )
 uint32_t c64GetPaletteRedComponent(uint32_t idx)
 {
 //   return CBasePalette::GetPaletteR(idx)&0xFF;
+   return 0;
 }
 
 uint32_t c64GetPaletteGreenComponent(uint32_t idx)
 {
 //   return CBasePalette::GetPaletteG(idx)&0xFF;
+   return 0;
 }
 
 uint32_t c64GetPaletteBlueComponent(uint32_t idx)
 {
 //   return CBasePalette::GetPaletteB(idx)&0xFF;
+   return 0;
 }
 
 void    c64SetPaletteRedComponent(uint32_t idx,uint32_t r)
 {
 //   CBasePalette::SetPaletteR(idx,r&0xFF);
+   return;
 }
 
 void    c64SetPaletteGreenComponent(uint32_t idx,uint32_t g)
 {
 //   CBasePalette::SetPaletteG(idx,g&0xFF);
+   return;
 }
 
 void    c64SetPaletteBlueComponent(uint32_t idx,uint32_t b)
 {
 //   CBasePalette::SetPaletteB(idx,b&0xFF);
+   return;
 }
 
 CRegisterDatabase* c64GetSidRegisterDatabase()

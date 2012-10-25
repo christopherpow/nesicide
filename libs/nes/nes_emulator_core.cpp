@@ -7,6 +7,7 @@
 #include "cnes6502.h"
 #include "cnesrommapper001.h"
 #include "cnesrommapper004.h"
+#include "cnesrommapper028.h"
 #include "cnesrommapper069.h"
 
 #include "common/cnessystempalette.h"
@@ -1012,6 +1013,14 @@ void nesMapper004GetInformation ( nesMapper004Info* pInfo )
    pInfo->irqLatch = CROMMapper004::IRQLATCH();
    pInfo->ppuAddrA12 = CROMMapper004::PPUADDRA12();
    pInfo->ppuCycle = CROMMapper004::PPUCYCLE();
+}
+
+void nesMapper028GetInformation ( nesMapper028Info* pInfo )
+{
+   pInfo->prgMode = CROMMapper028::PRGMODE();
+   pInfo->prgSize = CROMMapper028::PRGSIZE();
+   pInfo->prgOuterBank = CROMMapper028::PRGOUTERBANK();
+   pInfo->prgInnerBank = CROMMapper028::PRGINNERBANK();
 }
 
 void nesMapper069GetInformation ( nesMapper069Info* pInfo )

@@ -109,7 +109,7 @@ uint32_t CROMMapper009::MAPPER ( uint32_t addr )
 
 void CROMMapper009::MAPPER ( uint32_t addr, uint8_t data )
 {
-   int32_t reg;
+   int32_t reg = 0;
 
    switch ( addr&0xF000 )
    {

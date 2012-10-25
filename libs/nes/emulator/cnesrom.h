@@ -325,11 +325,11 @@ public:
    }
 
 protected:
-   static uint8_t  m_PRGROMmemory[NUM_ROM_BANKS][MEM_8KB+1]; // Leave room for bank ID.
-   static uint8_t  m_CHRROMmemory[NUM_ROM_BANKS][MEM_8KB+1]; // Leave room for bank ID.
-   static uint8_t  m_CHRRAMmemory[MEM_8KB+1]; // Leave room for bank ID.
-   static uint8_t  m_SRAMmemory[NUM_SRAM_BANKS][MEM_8KB+1]; // Leave room for bank ID.
-   static uint8_t  m_EXRAMmemory[MEM_1KB];
+   static uint8_t**  m_PRGROMmemory;
+   static uint8_t**  m_CHRROMmemory;
+   static uint8_t*   m_CHRRAMmemory;
+   static uint8_t**  m_SRAMmemory;
+   static uint8_t*   m_EXRAMmemory;
 
    // Mapper stuff...
    static uint32_t           m_mapper;

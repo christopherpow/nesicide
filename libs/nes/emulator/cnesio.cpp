@@ -184,7 +184,7 @@ uint32_t CIOZapper::IO ( uint32_t addr )
    int32_t px, py, wx1, wy1, wx2, wy2;
    int32_t pxs, pys;
    uint8_t r = 0, g = 0, b = 0;
-   int32_t nonBlacks;
+   int32_t nonBlacks = 0;
 
    // Evaluate light detection based on position most recently
    // passed into the emulator core by the UI.

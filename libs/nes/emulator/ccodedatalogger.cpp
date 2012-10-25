@@ -38,22 +38,6 @@ CCodeDataLogger::~CCodeDataLogger()
    delete [] m_pLogger;
 }
 
-uint8_t CCodeDataLogger::GetLastValue ( uint32_t addr, uint8_t count )
-{
-   LoggerInfo* pLogger = m_pLogger+(addr&m_mask);
-   int32_t pos = pLogger->lastValuePos;
-
-   pos -= count;
-   pos -= 1;
-
-   if ( pos < 0 )
-   {
-      pos = LAST_VALUE_LIST_LEN+pos;
-   }
-
-   return pLogger->lastValue [ pos ];
-}
-
 void CCodeDataLogger::ClearData ( void )
 {
    uint32_t idx = 0;
@@ -61,8 +45,6 @@ void CCodeDataLogger::ClearData ( void )
    for ( idx = 0; idx < m_size; idx++ )
    {
       m_pLogger [ idx ].count = 0;
-      m_pLogger [ idx ].lastValueCount = 0;
-      m_pLogger [ idx ].lastValuePos = 0;
    }
 
    m_maxCount = 1;
@@ -99,20 +81,6 @@ void CCodeDataLogger::LogAccess ( uint32_t cycle, uint32_t addr, uint8_t data, i
    if ( pLogger->count > m_maxCount )
    {
       m_maxCount = pLogger->count;
-   }
-
-   *(pLogger->lastValue+pLogger->lastValuePos) = data;
-   pLogger->lastValuePos++;
-   pLogger->lastValueCount++;
-
-   if ( pLogger->lastValueCount >= LAST_VALUE_LIST_LEN )
-   {
-      pLogger->lastValueCount = LAST_VALUE_LIST_LEN;
-   }
-
-   if ( pLogger->lastValuePos >= LAST_VALUE_LIST_LEN )
-   {
-      pLogger->lastValuePos = 0;
    }
 
    pLogger->pLastLoad = NULL;

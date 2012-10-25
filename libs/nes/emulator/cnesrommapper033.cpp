@@ -140,6 +140,7 @@ uint32_t CROMMapper033::MAPPER ( uint32_t addr )
       return m_reg[7];
       break;
    }
+   return 0;
 }
 
 void CROMMapper033::MAPPER ( uint32_t addr, uint8_t data )

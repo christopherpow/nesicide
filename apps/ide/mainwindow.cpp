@@ -185,7 +185,7 @@ MainWindow::MainWindow(QWidget* parent) :
    // Filter for supported files to open.
    QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
    QStringList argv_nesproject = argv.filter ( QRegExp(".*[.]nesproject$",Qt::CaseInsensitive) );
-   QStringList argv_c64 = argv.filter ( QRegExp(".*[.](c64|prg)$",Qt::CaseInsensitive) );
+   QStringList argv_c64 = argv.filter ( QRegExp(".*[.](c64|prg|d64)$",Qt::CaseInsensitive) );
 
    if ( (argv_nes.count() >= 1) &&
         (argv_nesproject.count() >= 1) )
@@ -234,6 +234,9 @@ MainWindow::MainWindow(QWidget* parent) :
       restoreGeometry(settings.value("IDEGeometry").toByteArray());
       restoreState(settings.value("IDEState").toByteArray());
    }
+
+   // Start timer for doing background stuff.
+   m_periodicTimer = startTimer(5000);
 }
 
 MainWindow::~MainWindow()
@@ -241,6 +244,8 @@ MainWindow::~MainWindow()
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
    SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
+
+   killTimer(m_periodicTimer);
 
    tabWidget->clear();
 
@@ -439,8 +444,10 @@ void MainWindow::createNesUi()
    actionPPUInformation_Inspector->setObjectName(QString::fromUtf8("actionPPUInformation_Inspector"));
    actionPPUInformation_Inspector->setIcon(icon13);
    actionPPUInformation_Inspector->setCheckable(true);
-   actionI_O = new QAction("I/O",this);
-   actionI_O->setObjectName(QString::fromUtf8("actionI_O"));
+   actionJoypadLogger_Inspector = new QAction("Joypad Logger",this);
+   actionJoypadLogger_Inspector->setObjectName(QString::fromUtf8("actionJoypadLogger_Inspector"));
+   actionJoypadLogger_Inspector->setCheckable(true);
+   actionJoypadLogger_Inspector->setEnabled(false);
    actionCodeDataLogger_Inspector = new QAction("Code/Data Log Visualizer",this);
    actionCodeDataLogger_Inspector->setObjectName(QString::fromUtf8("actionCodeDataLogger_Inspector"));
    actionCodeDataLogger_Inspector->setCheckable(true);
@@ -495,6 +502,8 @@ void MainWindow::createNesUi()
    menuAPU_Inpsectors->setObjectName(QString::fromUtf8("menuAPU_Inpsectors"));
    menuPPU_Inspectors = new QMenu("PPU",menuDebugger);
    menuPPU_Inspectors->setObjectName(QString::fromUtf8("menuPPU_Inspectors"));
+   menuI_O_Inspectors = new QMenu("I/O",menuDebugger);
+   menuI_O_Inspectors->setObjectName(QString::fromUtf8("menuI_O_Inspectors"));
    menuCartridge_Inspectors = new QMenu("Cartridge",menuDebugger);
    menuCartridge_Inspectors->setObjectName(QString::fromUtf8("menuCartridge_Inspectors"));
    menuSystem = new QMenu("System",menuEmulator);
@@ -511,7 +520,7 @@ void MainWindow::createNesUi()
    menuDebugger->addAction(menuCPU_Inspectors->menuAction());
    menuDebugger->addAction(menuPPU_Inspectors->menuAction());
    menuDebugger->addAction(menuAPU_Inpsectors->menuAction());
-   menuDebugger->addAction(actionI_O);
+   menuDebugger->addAction(menuI_O_Inspectors->menuAction());
    menuDebugger->addAction(menuCartridge_Inspectors->menuAction());
    menuCPU_Inspectors->addAction(actionBinCPURegister_Inspector);
    menuCPU_Inspectors->addSeparator();
@@ -527,6 +536,7 @@ void MainWindow::createNesUi()
    menuPPU_Inspectors->addSeparator();
    menuPPU_Inspectors->addAction(actionGfxNameTableNESMemory_Inspector);
    menuPPU_Inspectors->addAction(actionGfxOAMMemory_Inspector);
+   menuI_O_Inspectors->addAction(actionJoypadLogger_Inspector);
    menuCartridge_Inspectors->addAction(actionMapperInformation_Inspector);
    menuCartridge_Inspectors->addAction(actionBinMapperMemory_Inspector);
    menuCartridge_Inspectors->addSeparator();
@@ -635,6 +645,14 @@ void MainWindow::createNesUi()
    QObject::connect(m_pGfxNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxNameTableMemoryInspector_close(bool)));
    QObject::connect(m_pGfxNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
+
+   m_pJoypadLoggerInspector = new JoypadLoggerDockWidget ();
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pJoypadLoggerInspector,SLOT(updateTargetMachine(QString)));
+   addDockWidget(Qt::BottomDockWidgetArea, m_pJoypadLoggerInspector );
+   m_pJoypadLoggerInspector->hide();
+   QObject::connect(m_pJoypadLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedJoypadLoggerInspector_close(bool)));
+   QObject::connect(m_pJoypadLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Joypad Logger", m_pJoypadLoggerInspector );
 
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionVisualizer,SLOT(updateTargetMachine(QString)));
@@ -831,6 +849,7 @@ void MainWindow::createNesUi()
    QObject::connect(actionPPUInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionPPUInformation_Inspector_toggled(bool)));
    QObject::connect(actionAPUInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAPUInformation_Inspector_toggled(bool)));
    QObject::connect(actionMapperInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionMapperInformation_Inspector_toggled(bool)));
+   QObject::connect(actionJoypadLogger_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionJoypadLogger_Inspector_toggled(bool)));
 
    // Connect snapTo's from various debuggers.
    QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
@@ -971,7 +990,7 @@ void MainWindow::destroyNesUi()
    actionBinMapperMemory_Inspector->deleteLater();
    actionBinROM_Inspector->deleteLater();
    actionPPUInformation_Inspector->deleteLater();
-   actionI_O->deleteLater();
+   actionJoypadLogger_Inspector->deleteLater();
    actionCodeDataLogger_Inspector->deleteLater();
    actionExecution_Visualizer_Inspector->deleteLater();
    actionMapperInformation_Inspector->deleteLater();
@@ -989,6 +1008,7 @@ void MainWindow::destroyNesUi()
    menuCPU_Inspectors->deleteLater();
    menuAPU_Inpsectors->deleteLater();
    menuPPU_Inspectors->deleteLater();
+   menuI_O_Inspectors->deleteLater();
    menuCartridge_Inspectors->deleteLater();
    menuSystem->deleteLater();
    menuAudio->deleteLater();
@@ -1271,7 +1291,9 @@ void MainWindow::dropEvent(QDropEvent* event)
 
             event->acceptProposedAction();
          }
-         else if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) )
+         else if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) ||
+                   !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) ||
+                   !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
          {
             if ( nesicideProject->isInitialized() )
             {
@@ -1318,7 +1340,7 @@ void MainWindow::projectDataChangesEvent()
 
    // Enabled/Disable actions based on if we have a project loaded or not
    actionNew_Project->setEnabled(!nesicideProject->isInitialized());
-   actionCreate_Project_from_ROM->setEnabled(!nesicideProject->isInitialized());
+   actionCreate_Project_from_File->setEnabled(!nesicideProject->isInitialized());
    actionOpen_Project->setEnabled(!nesicideProject->isInitialized());
    actionProject_Properties->setEnabled(nesicideProject->isInitialized());
    action_Project_Browser->setEnabled(nesicideProject->isInitialized());
@@ -1697,15 +1719,25 @@ void MainWindow::openC64File(QString fileName)
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
    nesicideProject->setProjectTitle(fileInfo.completeBaseName());
-   nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".c64");
-   nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".c64");
-   nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
+
+   if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) ||
+        !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) )
+   {
+      nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".c64");
+      nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".c64");
+      nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
+
+      // Load debugger info if we can find it.
+      CCC65Interface::captureDebugInfo();
+   }
+   else if ( !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
+   {
+      nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".d64");
+   }
+
    nesicideProject->setProjectCHRROMOutputName("");
    nesicideProject->setProjectCartridgeOutputName("");
    nesicideProject->setProjectCartridgeSaveStateName("");
-
-   // Load debugger info if we can find it.
-   CCC65Interface::captureDebugInfo();
 
    m_pProjectBrowser->enableNavigation();
 
@@ -1717,17 +1749,25 @@ void MainWindow::openC64File(QString fileName)
    settings.setValue("LastProject",fileName);
 }
 
-void MainWindow::on_actionCreate_Project_from_ROM_triggered()
+void MainWindow::on_actionCreate_Project_from_File_triggered()
 {
    QString romPath = EnvironmentSettingsDialog::romPath();
-   QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "iNES ROM (*.nes)");
+   QString selectedFilter;
+   QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "All Files (*.*);;iNES ROM (*.nes);;Commodore 64 Program (*.c64 *.prg);;Commodore 64 Disk Image (*.d64)",&selectedFilter);
 
    if (fileName.isEmpty())
    {
       return;
    }
 
-   openNesROM(fileName);
+   if ( selectedFilter.contains("*.nes") )
+   {
+      openNesROM(fileName);
+   }
+   else if ( selectedFilter.contains("*.d64") || selectedFilter.contains("*.prg") || selectedFilter.contains("*.c64") )
+   {
+      openC64File(fileName);
+   }
 }
 
 void MainWindow::tabWidget_tabModified(int tab, bool modified)
@@ -1869,6 +1909,14 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    }
 
    QMainWindow::closeEvent(event);
+}
+
+void MainWindow::timerEvent(QTimerEvent *event)
+{
+// CP: This is part way to doing incremental building
+// but needs to check if any files have been modified
+// and be less intrusive.
+//   on_actionCompile_Project_triggered();
 }
 
 void MainWindow::openNesProject(QString fileName,bool runRom)
@@ -2125,6 +2173,16 @@ void MainWindow::actionGfxCHRMemory_Inspector_toggled(bool value)
 void MainWindow::reflectedGfxCHRMemoryInspector_close (bool toplevel)
 {
    actionGfxCHRMemory_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::actionJoypadLogger_Inspector_toggled(bool value)
+{
+   m_pJoypadLoggerInspector->setVisible(value);
+}
+
+void MainWindow::reflectedJoypadLoggerInspector_close (bool toplevel)
+{
+   actionJoypadLogger_Inspector->setChecked(toplevel);
 }
 
 void MainWindow::actionGfxOAMMemory_Inspector_toggled(bool value)

@@ -131,10 +131,10 @@ typedef struct _BreakpointInfo
    eBreakpointItemType itemType;
    int event;
    CBreakpointEventInfo* pEvent;
-   int item1;
-   int item1Absolute;
-   int item2;
-   int itemActual;
+   uint32_t item1;
+   uint32_t item1Absolute;
+   uint32_t item2;
+   uint32_t itemActual;
    eBreakpointConditionType conditionType;
    int condition;
    eBreakpointDataType dataType;

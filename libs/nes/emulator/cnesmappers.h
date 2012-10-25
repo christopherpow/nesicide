@@ -61,7 +61,7 @@ typedef struct _MapperState
       Mapper004State mapper004;
       Mapper009State mapper009;
       Mapper069State mapper069;
-      Mapper069State mapper075;
+      Mapper075State mapper075;
    } data;
 } MapperState;
 

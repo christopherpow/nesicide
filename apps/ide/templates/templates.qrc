@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>templates/NROM Hello World/nes.ini</file>
+        <file>templates/NROM Hello World/NROM Hello World.nesproject</file>
+        <file>templates/NROM Hello World/src/main.s</file>
+        <file>templates/NROM Hello World/src/nes.h</file>
+        <file>templates/NROM Hello World/tilesets/gamegfx.png</file>
+        <file>templates/NROM Hello World/tilesets/titlegfx.png</file>
+    </qresource>
+</RCC>

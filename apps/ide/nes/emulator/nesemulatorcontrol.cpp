@@ -11,8 +11,8 @@
 
 NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
    QWidget(parent),
-   debugging(true),
-   ui(new Ui::NESEmulatorControl)
+   ui(new Ui::NESEmulatorControl),
+   debugging(true)
 {
    ui->setupUi(this);
 

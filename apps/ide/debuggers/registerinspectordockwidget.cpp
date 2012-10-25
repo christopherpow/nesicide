@@ -193,22 +193,25 @@ void RegisterInspectorDockWidget::updateMemory ()
                   (pBreakpoint->type == eBreakOnCPUMemoryWrite) )
          {
             // Change register into row/column of display...
-            reg = m_regDB()->GetRegisterAt(pBreakpoint->itemActual);
-            if ( reg >= 0 )
+            if ( m_regDB() )
             {
-               row = reg/binaryModel->columnCount();
-               col = reg%binaryModel->columnCount();
-
-               if ( ((pBreakpoint->target == eBreakInCPU) &&
-                     ((memoryType == eMemory_PPUregs) ||
-                      (memoryType == eMemory_cartMapper))) )
+               reg = m_regDB()->GetRegisterAt(pBreakpoint->itemActual);
+               if ( reg >= 0 )
                {
-                  // Update display...
-                  show();
-                  ui->binaryView->resizeColumnsToContents();
-                  ui->bitfieldView->resizeColumnsToContents();
-                  ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
-                  on_binaryView_clicked(binaryModel->index(row,col));
+                  row = reg/binaryModel->columnCount();
+                  col = reg%binaryModel->columnCount();
+
+                  if ( ((pBreakpoint->target == eBreakInCPU) &&
+                        ((memoryType == eMemory_PPUregs) ||
+                         (memoryType == eMemory_cartMapper))) )
+                  {
+                     // Update display...
+                     show();
+                     ui->binaryView->resizeColumnsToContents();
+                     ui->bitfieldView->resizeColumnsToContents();
+                     ui->binaryView->setCurrentIndex(binaryModel->index(row,col));
+                     on_binaryView_clicked(binaryModel->index(row,col));
+                  }
                }
             }
          }

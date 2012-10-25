@@ -111,7 +111,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setMarginMarkerMask(4,0);
 
    m_scintilla->setMarginWidth(2,5);
-   m_scintilla->setMarginMarkerMask(2,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginType(2,QsciScintilla::SymbolMargin);
    m_scintilla->setMarginSensitivity(2,true);
    m_scintilla->setMarginMarkerMask(2,0x00000FF0);
 
@@ -601,6 +601,12 @@ void CodeEditorForm::editor_selectAll()
 
 void CodeEditorForm::editor_modificationChanged(bool m)
 {
+   // Clear annotations.
+   if ( m )
+   {
+      m_scintilla->clearAnnotations();
+   }
+
    emit editor_modified(m);
 }
 
@@ -637,49 +643,52 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
 
    m_scintilla->setCursorPosition(line,0);
 
-   if ( m_pBreakpoints )
+   if ( margin < 2 )
    {
-      resolveLineAddress(line,&addr,&absAddr);
-
-      if ( addr != -1 )
+      if ( m_pBreakpoints )
       {
-         bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                             eBreakpointItemAddress,
-                                             0,
-                                             addr,
-                                             absAddr,
-                                             addr,
-                                             eBreakpointConditionNone,
-                                             0,
-                                             eBreakpointDataNone,
-                                             0 );
+         resolveLineAddress(line,&addr,&absAddr);
 
-         m_breakpointIndex = bp;
+         if ( addr != -1 )
+         {
+            bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
+                                                eBreakpointItemAddress,
+                                                0,
+                                                addr,
+                                                absAddr,
+                                                addr,
+                                                eBreakpointConditionNone,
+                                                0,
+                                                eBreakpointDataNone,
+                                                0 );
 
-         // If breakpoint isn't set here, give menu options to set one...
-         if ( bp < 0 )
-         {
-            setBreakpoint(line,addr,absAddr);
-         }
-         else
-         {
-            if ( m_pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+            m_breakpointIndex = bp;
+
+            // If breakpoint isn't set here, give menu options to set one...
+            if ( bp < 0 )
             {
-               on_actionRemove_breakpoint_triggered();
-
-               m_scintilla->markerDelete(line,Marker_BreakpointDisabled);
+               setBreakpoint(line,addr,absAddr);
             }
             else
             {
-               on_actionDisable_breakpoint_triggered();
+               if ( m_pBreakpoints->GetStatus(bp) == Breakpoint_Disabled )
+               {
+                  on_actionRemove_breakpoint_triggered();
 
-               m_scintilla->markerDelete(line,Marker_Breakpoint);
-               m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+                  m_scintilla->markerDelete(line,Marker_BreakpointDisabled);
+               }
+               else
+               {
+                  on_actionDisable_breakpoint_triggered();
+
+                  m_scintilla->markerDelete(line,Marker_Breakpoint);
+                  m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
+               }
             }
-         }
 
-         emit breakpointsChanged();
-         emit markProjectDirty(true);
+            emit breakpointsChanged();
+            emit markProjectDirty(true);
+         }
       }
    }
 }

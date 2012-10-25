@@ -13,6 +13,9 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <property name="features">
    <set>QDockWidget::AllDockWidgetFeatures</set>
   </property>

@@ -94,14 +94,14 @@ CMemoryDatabase* CROM::m_dbCHRMemory = dbCHRMemory;
 CBreakpointEventInfo** CROM::m_tblBreakpointEvents = tblMapperEvents;
 int32_t                CROM::m_numBreakpointEvents = NUM_MAPPER_EVENTS;
 
-uint8_t  CROM::m_PRGROMmemory[][MEM_8KB+1]; // Leave room for bank ID.
-uint8_t  CROM::m_CHRROMmemory[][MEM_8KB+1]; // Leave room for bank ID.
-uint8_t  CROM::m_CHRRAMmemory[MEM_8KB+1]; // Leave room for bank ID.
-uint8_t* CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
-uint8_t* CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-uint8_t  CROM::m_SRAMmemory[][MEM_8KB+1]; // Leave room for bank ID.
-uint8_t* CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
-uint8_t  CROM::m_EXRAMmemory[MEM_1KB];
+uint8_t** CROM::m_PRGROMmemory = NULL;
+uint8_t** CROM::m_CHRROMmemory = NULL;
+uint8_t*  CROM::m_CHRRAMmemory = NULL;
+uint8_t*  CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
+uint8_t*  CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+uint8_t** CROM::m_SRAMmemory = NULL;
+uint8_t*  CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
+uint8_t*  CROM::m_EXRAMmemory = NULL;
 
 uint32_t           CROM::m_mapper = 0;
 uint32_t           CROM::m_numPrgBanks = 0;
@@ -138,6 +138,7 @@ CROM::CROM()
    int32_t bank;
    int32_t addr;
 
+   m_PRGROMmemory = new uint8_t*[NUM_ROM_BANKS];
    m_PRGROMdisassembly = new char**[NUM_ROM_BANKS];
    m_PRGROMopcodeMaskDirty = new bool[NUM_ROM_BANKS];
    m_PRGROMopcodeMask = new uint8_t*[NUM_ROM_BANKS];
@@ -146,6 +147,7 @@ CROM::CROM()
    m_PRGROMsloc = new uint32_t[NUM_ROM_BANKS];
    for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
    {
+      m_PRGROMmemory[bank] = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
       m_PRGROMdisassembly[bank] = new char*[MEM_8KB];
       m_PRGROMopcodeMaskDirty[bank] = true;
       m_PRGROMopcodeMask[bank] = new uint8_t[MEM_8KB];
@@ -169,6 +171,7 @@ CROM::CROM()
       m_PRGROMmemory[bank][MEM_8KB] = bank;
    }
 
+   m_SRAMmemory = new uint8_t*[NUM_SRAM_BANKS];
    m_SRAMdisassembly = new char**[NUM_SRAM_BANKS];
    m_SRAMopcodeMaskDirty = new bool[NUM_SRAM_BANKS];
    m_SRAMopcodeMask = new uint8_t*[NUM_SRAM_BANKS];
@@ -177,6 +180,7 @@ CROM::CROM()
    m_SRAMsloc = new uint32_t[NUM_SRAM_BANKS];
    for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
    {
+      m_SRAMmemory[bank] = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
       m_SRAMdisassembly[bank] = new char*[MEM_8KB];
       m_SRAMopcodeMaskDirty[bank] = true;
       m_SRAMopcodeMask[bank] = new uint8_t[MEM_8KB];
@@ -200,6 +204,7 @@ CROM::CROM()
       m_SRAMmemory[bank][MEM_8KB] = bank;
    }
 
+   m_EXRAMmemory = new uint8_t[MEM_1KB];
    m_EXRAMdisassembly = new char*[MEM_1KB];
    m_EXRAMopcodeMask = new uint8_t[MEM_1KB];
    m_EXRAMsloc2addr = new uint16_t[MEM_1KB];
@@ -213,8 +218,11 @@ CROM::CROM()
       m_EXRAMaddr2sloc[addr] = 0;
    }
 
+   m_CHRROMmemory = new uint8_t*[NUM_ROM_BANKS];
    for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
    {
+      m_CHRROMmemory[bank] = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
+
       // Store bank ID in bank data at the end.  This is used only
       // by code that needs to calculate absolute address stuff.
       // Since the banks are stored non-contiguously this is a cheap
@@ -222,6 +230,12 @@ CROM::CROM()
       m_CHRROMmemory[bank][MEM_8KB] = bank;
    }
 
+   m_CHRRAMmemory = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
+
+   // Store bank ID in bank data at the end.  This is used only
+   // by code that needs to calculate absolute address stuff.
+   // Since the banks are stored non-contiguously this is a cheap
+   // way to get the bank ID without having to implement a structure.
    m_CHRRAMmemory[MEM_8KB] = 0;
 
    // Assume identity-mapped SRAM...
@@ -249,11 +263,16 @@ CROM::~CROM()
       {
          delete m_PRGROMdisassembly[bank][addr];
       }
+      delete [] m_PRGROMmemory[bank];
+      delete [] m_CHRROMmemory[bank];
       delete [] m_PRGROMopcodeMask[bank];
       delete [] m_PRGROMsloc2addr[bank];
       delete [] m_PRGROMaddr2sloc[bank];
    }
    delete [] m_PRGROMopcodeMaskDirty;
+   delete [] m_PRGROMmemory;
+   delete [] m_CHRROMmemory;
+   delete [] m_CHRRAMmemory;
    delete [] m_PRGROMopcodeMask;
    delete [] m_PRGROMsloc2addr;
    delete [] m_PRGROMaddr2sloc;
@@ -265,11 +284,13 @@ CROM::~CROM()
       {
          delete m_SRAMdisassembly[bank][addr];
       }
+      delete [] m_SRAMmemory[bank];
       delete [] m_SRAMopcodeMask[bank];
       delete [] m_SRAMsloc2addr[bank];
       delete [] m_SRAMaddr2sloc[bank];
    }
    delete [] m_SRAMopcodeMaskDirty;
+   delete [] m_SRAMmemory;
    delete [] m_SRAMopcodeMask;
    delete [] m_SRAMsloc2addr;
    delete [] m_SRAMaddr2sloc;
@@ -279,6 +300,7 @@ CROM::~CROM()
    {
       delete m_EXRAMdisassembly[addr];
    }
+   delete [] m_EXRAMmemory;
    delete [] m_EXRAMopcodeMask;
    delete [] m_EXRAMsloc2addr;
    delete [] m_EXRAMaddr2sloc;

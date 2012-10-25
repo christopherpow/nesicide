@@ -310,7 +310,8 @@ SOURCES += \
    c64/compilers/cmachineimagebuilder.cpp \
    c64/debuggers/dbg_cc64.cpp \
    $$TOP/common/appeventfilter.cpp \
-   $$TOP/common/cobjectregistry.cpp
+   $$TOP/common/cobjectregistry.cpp \
+    nes/debuggers/joypadloggerdockwidget.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -443,7 +444,8 @@ HEADERS += \
    $$TOP/common/cregisterdata.h \
    $$TOP/common/cmemorydata.h \
    $$TOP/common/appeventfilter.h \
-   $$TOP/common/cobjectregistry.h
+   $$TOP/common/cobjectregistry.h \
+    nes/debuggers/joypadloggerdockwidget.h
 
 FORMS += \
    aboutdialog.ui \
@@ -486,6 +488,7 @@ FORMS += \
    nes/emulator/testsuiteexecutivedialog.ui \
    nes/debuggers/chrromdisplaydialog.ui \
    nes/debuggers/prgromdisplaydialog.ui \
+    nes/debuggers/joypadloggerdockwidget.ui
 
 RESOURCES += resource.qrc \
     templates.qrc

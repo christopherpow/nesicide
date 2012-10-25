@@ -11,8 +11,8 @@
 
 C64EmulatorControl::C64EmulatorControl(QWidget *parent) :
    QWidget(parent),
-   debugging(true),
-   ui(new Ui::C64EmulatorControl)
+   ui(new Ui::C64EmulatorControl),
+   debugging(true)
 {
    ui->setupUi(this);
 

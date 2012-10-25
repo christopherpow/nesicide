@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #endif
 
+#include <QCoreApplication>
 #include <QDir>
 
 static int luabind_compiler_logger_print(lua_State* lua);
@@ -21,7 +22,7 @@ CPluginManager::CPluginManager()
 void CPluginManager::doInitScript()
 {
 #ifdef Q_WS_WIN
-   const char* initScriptPath   = "../nesicide/plugins/init.lua";
+   const char* initScriptPath   = "../plugins/init.lua";
 #else
    const char* initScriptPath   = "plugins/init.lua";
 #endif
@@ -54,14 +55,15 @@ void CPluginManager::doInitScript()
 
    report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toAscii().constData()));
 #else
-   report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, initScriptPath));
+   QString filePath = QCoreApplication::applicationDirPath()+"/"+QString(initScriptPath);
+   report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toAscii().constData()));
 #endif
 }
 
 void CPluginManager::loadPlugins()
 {
 #ifdef Q_WS_WIN
-   const char* pluginPath   = "../nesicide/plugins/";
+   const char* pluginPath   = "../plugins/";
 #else
    const char* pluginPath   = "plugins/";
 #endif

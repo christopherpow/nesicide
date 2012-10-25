@@ -129,6 +129,14 @@
     <property name="title">
      <string>Project</string>
     </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionCreate_Project_from_File"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionSave_Project"/>
+    <addaction name="actionSave_Project_As"/>
+    <addaction name="action_Close_Project"/>
+    <addaction name="separator"/>
     <addaction name="actionCompile_Project"/>
     <addaction name="actionLoad_In_Emulator"/>
     <addaction name="actionClean_Project"/>
@@ -160,19 +168,9 @@
    </widget>
    <widget class="QMenu" name="menu_File">
     <property name="title">
-     <string>&amp;File</string>
+     <string>NESICIDE</string>
     </property>
-    <addaction name="actionNew_Project"/>
-    <addaction name="actionCreate_Project_from_ROM"/>
-    <addaction name="separator"/>
-    <addaction name="actionOpen_Project"/>
-    <addaction name="separator"/>
     <addaction name="actionSave_Active_Document"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_Project"/>
-    <addaction name="actionSave_Project_As"/>
-    <addaction name="separator"/>
-    <addaction name="action_Close_Project"/>
     <addaction name="separator"/>
     <addaction name="actionEnvironment_Settings"/>
     <addaction name="separator"/>
@@ -385,9 +383,9 @@
     <string>Ctrl+P</string>
    </property>
   </action>
-  <action name="actionCreate_Project_from_ROM">
+  <action name="actionCreate_Project_from_File">
    <property name="text">
-    <string>Create Project from &amp;ROM...</string>
+    <string>Create Project from Existing Image...</string>
    </property>
    <property name="toolTip">
     <string>Create project from a ROM</string>

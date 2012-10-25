@@ -140,7 +140,9 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!prg-rom-name!>",nesicideProject->getProjectLinkerOutputName());
       makeFileContent.replace("<!linker-config!>",nesicideProject->getLinkerConfigFile());
       makeFileContent.replace("<!compiler-flags!>",nesicideProject->getCompilerAdditionalOptions());
+      makeFileContent.replace("<!compiler-defines!>",nesicideProject->getCompilerDefinedSymbols());
       makeFileContent.replace("<!assembler-flags!>",nesicideProject->getAssemblerAdditionalOptions());
+      makeFileContent.replace("<!assembler-defines!>",nesicideProject->getAssemblerDefinedSymbols());
       makeFileContent.replace("<!debug-file!>",nesicideProject->getProjectDebugInfoName());
       makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
       makeFileContent.replace("<!source-dir!>",QDir::currentPath());

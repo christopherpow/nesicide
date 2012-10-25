@@ -29,6 +29,7 @@
 #include "emulatorprefsdialog.h"
 #include "sourcenavigator.h"
 #include "codeprofilerdockwidget.h"
+#include "joypadloggerdockwidget.h"
 #include "searchbar.h"
 #include "nesemulatorthread.h"
 #include "nesemulatordockwidget.h"
@@ -116,8 +117,10 @@ protected:
    PPUInformationDockWidget* m_pPPUInformationInspector;
    APUInformationDockWidget* m_pAPUInformationInspector;
    MapperInformationDockWidget* m_pMapperInformationInspector;
+   JoypadLoggerDockWidget* m_pJoypadLoggerInspector;
    QMenu *menuAPU_Inpsectors;
    QMenu *menuPPU_Inspectors;
+   QMenu *menuI_O_Inspectors;
    QMenu *menuCartridge_Inspectors;
    QMenu *menuSystem;
    QMenu *menuAudio;
@@ -136,7 +139,7 @@ protected:
    QAction *actionBinMapperMemory_Inspector;
    QAction *actionBinROM_Inspector;
    QAction *actionPPUInformation_Inspector;
-   QAction *actionI_O;
+   QAction *actionJoypadLogger_Inspector;
    QAction *actionCodeDataLogger_Inspector;
    QAction *actionExecution_Visualizer_Inspector;
    QAction *actionMapperInformation_Inspector;
@@ -160,6 +163,9 @@ protected:
    QMenu *menuSID_Inspectors;
    QAction *actionBinSIDRegister_Inspector;
 
+   // Other
+   int m_periodicTimer;
+
 private:
    void openNesProject(QString fileName,bool runRom=true);
    void saveProject(QString fileName);
@@ -169,6 +175,7 @@ private:
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
+   virtual void timerEvent(QTimerEvent *event);
 
 signals:
    void checkOpenFiles(QDateTime lastActivationTime);
@@ -221,7 +228,7 @@ private slots:
    void on_actionOpen_Project_triggered();
    void on_action_Project_Browser_toggled(bool );
    void on_tabWidget_tabCloseRequested(int index);
-   void on_actionCreate_Project_from_ROM_triggered();
+   void on_actionCreate_Project_from_File_triggered();
    void on_actionNew_Project_triggered();
    void on_actionProject_Properties_triggered();
    void on_actionSave_Project_As_triggered();
@@ -266,6 +273,7 @@ private slots:
    void actionPPUInformation_Inspector_toggled(bool );
    void actionAPUInformation_Inspector_toggled(bool );
    void actionMapperInformation_Inspector_toggled(bool );
+   void actionJoypadLogger_Inspector_toggled(bool );
    void actionEmulation_Window_toggled(bool );
    void reflectedEmulator_close(bool toplevel);
    void reflectedCodeDataLoggerInspector_close(bool toplevel);
@@ -289,6 +297,7 @@ private slots:
    void reflectedPPUInformationInspector_close(bool toplevel);
    void reflectedAPUInformationInspector_close(bool toplevel);
    void reflectedMapperInformationInspector_close(bool toplevel);
+   void reflectedJoypadLoggerInspector_close(bool toplevel);
    void reflectedSymbol_Watch_close(bool toplevel);
    void reflectedCode_Profiler_close(bool toplevel);
    void reflectedSearch_close(bool toplevel);

@@ -63,12 +63,12 @@ static CBasePalette __init __attribute((unused));
 
 void CBasePalette::CalculateVariants ( void )
 {
-   int idx1, idx2;
+   int idx;
 
-   for ( idx2 = 0; idx2 < 16; idx2++ )
+   for ( idx = 0; idx < 16; idx++ )
    {
-      m_paletteRGBs [ idx2 ] [ 0 ] = red(m_paletteBase[idx2]);
-      m_paletteRGBs [ idx2 ] [ 1 ] = green(m_paletteBase[idx2]);
-      m_paletteRGBs [ idx2 ] [ 2 ] = blue(m_paletteBase[idx2]);
+      m_paletteRGBs [ idx ] [ 0 ] = red(m_paletteBase[idx]);
+      m_paletteRGBs [ idx ] [ 1 ] = green(m_paletteBase[idx]);
+      m_paletteRGBs [ idx ] [ 2 ] = blue(m_paletteBase[idx]);
    }
 }

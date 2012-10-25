@@ -55,12 +55,12 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
    viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
 
    // Point to the kernal, BASIC, and character ROMs specified.
-   viceStartup += " -kernal ";
-   viceStartup += EmulatorPrefsDialog::getC64KernalROM();
-   viceStartup += " -basic ";
-   viceStartup += EmulatorPrefsDialog::getC64BasicROM();
-   viceStartup += " -chargen ";
-   viceStartup += EmulatorPrefsDialog::getC64CharROM();
+//   viceStartup += " -kernal ";
+//   viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+//   viceStartup += " -basic ";
+//   viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+//   viceStartup += " -chargen ";
+//   viceStartup += EmulatorPrefsDialog::getC64CharROM();
 
    // Get rid of some pesky behaviors.
    viceStartup += " +confirmexit ";
@@ -263,30 +263,49 @@ void C64EmulatorThread::resetEmulator()
 
    if ( nesicideProject->isInitialized() )
    {
-      QDir dirProject(nesicideProject->getProjectLinkerOutputBasePath());
-      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
+      QDir dirProject(nesicideProject->getProjectOutputBasePath());
+      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectOutputName()));
       QString request;
       int addr;
 
-      addr = CCC65Interface::getSegmentBase("STARTUP");
-
-      lockRequestQueue();
-      clearRequestQueue();
-      addToRequestQueue("until $a474",false);
-      addToRequestQueue("reset",true);
-      if ( addr > 0 )
+      if ( fileName.endsWith(".c64",Qt::CaseInsensitive) ||
+           fileName.endsWith(".prg",Qt::CaseInsensitive) )
       {
-         request = "load \"" + fileName + "\" 0";
+         addr = CCC65Interface::getSegmentBase("STARTUP");
+
+         lockRequestQueue();
+         clearRequestQueue();
+         addToRequestQueue("until $a474",false);
+         addToRequestQueue("reset",true);
+         if ( addr > 0 )
+         {
+            request = "load \"" + fileName + "\" 0";
+            addToRequestQueue(request.toAscii(),true);
+            request = "r pc = $" + QString::number(addr,16);
+            addToRequestQueue(request,false);
+            addToRequestQueue("r",true);
+            addToRequestQueue("io",true);
+            addToRequestQueue("m $0 $cfff",true);
+            addToRequestQueue("break",true);
+         }
+         runRequestQueue();
+         unlockRequestQueue();
+      }
+      else if ( fileName.endsWith(".d64",Qt::CaseInsensitive) )
+      {
+         lockRequestQueue();
+         clearRequestQueue();
+         addToRequestQueue("until $a474",false);
+         addToRequestQueue("reset",true);
+         request = "autostart \"" + fileName + "\"";
          addToRequestQueue(request.toAscii(),true);
-         request = "r pc = $" + QString::number(addr,16);
-         addToRequestQueue(request,false);
          addToRequestQueue("r",true);
          addToRequestQueue("io",true);
          addToRequestQueue("m $0 $cfff",true);
          addToRequestQueue("break",true);
+         runRequestQueue();
+         unlockRequestQueue();
       }
-      runRequestQueue();
-      unlockRequestQueue();
    }
 }
 

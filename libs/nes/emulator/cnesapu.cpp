@@ -1423,7 +1423,6 @@ void CAPU::EMULATE ( void )
 {
    static float takeSample = 0.0f;
    uint16_t* pWaveBuf;
-   int32_t cycle;
 
    // Handle APU clock jitter.  Mode changes occur
    // only on even APU clocks.  On a mode change write

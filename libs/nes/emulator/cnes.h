@@ -131,7 +131,7 @@ public:
    // during emulation.
    static inline CTracer* TRACER ( void )
    {
-      return &m_tracer;
+      return m_tracer;
    }
 
    // This method globally enables or disables breakpoints.  It is used
@@ -216,7 +216,7 @@ protected:
    static int32_t  m_windowY2;
 
    // The execution tracer database.
-   static CTracer         m_tracer;
+   static CTracer*         m_tracer;
 
    // This is the database of active breakpoints.
    static CBreakpointInfo* m_breakpoints;

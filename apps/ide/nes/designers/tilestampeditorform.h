@@ -134,6 +134,7 @@ private slots:
    void tilePropertyListModel_dataChanged(QModelIndex topLeft,QModelIndex bottomRight);
    void applyProjectPropertiesToTab();
    void tileSelected(QModelIndex index);
+   void updateTargetMachine(QString target) {}
 
 private:
    Ui::TileStampEditorForm *ui;

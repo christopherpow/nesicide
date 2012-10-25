@@ -6,6 +6,8 @@
 
 #include "main.h"
 
+#include <QToolButton>
+
 CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
     QTabWidget(parent)
 {
@@ -123,6 +125,14 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString 
       myIcon = QIcon(":/resources/add_file.png");
    }
    tabIdx = QTabWidget::addTab(widget,myIcon,label);
+
+//   QToolButton* closeButton = new QToolButton;
+//   QStyle* closeButtonStyle = closeButton->style();
+//   QPixmap closePixmap = closeButtonStyle->standardPixmap(QStyle::SP_DockWidgetCloseButton);
+//   closeButton->setIcon(QIcon(closePixmap));
+//   closeButton->setAutoRaise(true);
+//   closeButton->setContentsMargins(0,0,0,0);
+//   tabBar()->setTabButton(tabIdx,QTabBar::RightSide,closeButton);
 
    emit tabAdded(tabIdx);
 

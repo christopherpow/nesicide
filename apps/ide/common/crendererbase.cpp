@@ -4,9 +4,9 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,c
       QGLWidget(parent),
       _sizeX(sizeX),
       _sizeY(sizeY),
-      _textureSizeXY(textureSizeXY),
       _scrollX(0),
       _scrollY(0),
+      _textureSizeXY(textureSizeXY),
       _imageData(imageData),
       _zoomFactor(100),
       _maxZoom(maxZoom)
@@ -181,9 +181,7 @@ void CRendererBase::changeZoom(int newZoom)
 
 bool CRendererBase::pointToPixel(int ptx,int pty,int* pixx,int* pixy)
 {
-   int size = (_sizeX>_sizeY)?_sizeX:_sizeY;
    int zf = _zoomFactor/100;
-   bool valid = false;
 
    // Get to widget-coords.
    QPoint myPoint = mapFromGlobal(QPoint(ptx,pty));

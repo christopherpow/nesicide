@@ -98,6 +98,7 @@ void MapperInformationDockWidget::updateInformation()
    char buffer [ 32 ];
    nesMapper001Info mapper001Info;
    nesMapper004Info mapper004Info;
+   nesMapper028Info mapper028Info;
    nesMapper069Info mapper069Info;
    uint16_t mirroring[4];
 
@@ -148,45 +149,56 @@ void MapperInformationDockWidget::updateInformation()
 
    switch ( nesGetMapper() )
    {
-      case 1:
-         nesMapper001GetInformation(&mapper001Info);
-         sprintf ( buffer, "%02X", mapper001Info.shiftRegister );
-         ui->shiftRegister1->setText ( buffer );
-         sprintf ( buffer, "%d", mapper001Info.shiftRegisterBit );
-         ui->shiftRegisterBit1->setText ( buffer );
-         break;
+   case 1:
+      nesMapper001GetInformation(&mapper001Info);
+      sprintf ( buffer, "%02X", mapper001Info.shiftRegister );
+      ui->shiftRegister1->setText ( buffer );
+      sprintf ( buffer, "%d", mapper001Info.shiftRegisterBit );
+      ui->shiftRegisterBit1->setText ( buffer );
+      break;
 
-      case 4:
-         nesMapper004GetInformation(&mapper004Info);
-         ui->irqEnabled4->setChecked ( mapper004Info.irqEnabled );
-         ui->irqAsserted4->setChecked ( mapper004Info.irqAsserted );
-         ui->ppuAddrA124->setChecked ( mapper004Info.ppuAddrA12 );
-         sprintf ( buffer, "%02X", mapper004Info.irqLatch );
-         ui->irqLatch4->setText ( buffer );
-         sprintf ( buffer, "%02X", mapper004Info.irqCounter );
-         ui->irqCounter4->setText ( buffer );
-         sprintf ( buffer, "%d", mapper004Info.ppuCycle );
-         ui->lastA12Cycle4->setText ( buffer );
-         ui->irqReload4->setChecked ( mapper004Info.irqReload );
-         break;
+   case 4:
+      nesMapper004GetInformation(&mapper004Info);
+      ui->irqEnabled4->setChecked ( mapper004Info.irqEnabled );
+      ui->irqAsserted4->setChecked ( mapper004Info.irqAsserted );
+      ui->ppuAddrA124->setChecked ( mapper004Info.ppuAddrA12 );
+      sprintf ( buffer, "%02X", mapper004Info.irqLatch );
+      ui->irqLatch4->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper004Info.irqCounter );
+      ui->irqCounter4->setText ( buffer );
+      sprintf ( buffer, "%d", mapper004Info.ppuCycle );
+      ui->lastA12Cycle4->setText ( buffer );
+      ui->irqReload4->setChecked ( mapper004Info.irqReload );
+      break;
 
-      case 69:
-         nesMapper069GetInformation(&mapper069Info);
-         ui->irqEnabled69->setChecked ( mapper069Info.irqEnabled );
-         ui->irqCounterEnabled69->setChecked ( mapper069Info.irqCountEnabled );
-         ui->irqAsserted69->setChecked ( mapper069Info.irqAsserted );
-         sprintf ( buffer, "%04X", mapper069Info.irqCounter );
-         ui->irqCounter69->setText ( buffer );
-         sprintf ( buffer, "%02X(6000)",
-                   mapper069Info.sramOrPrgBank );
-         ui->sramOrPrgBank69->setText(buffer);
-         ui->sramEnabled69->setChecked(mapper069Info.sramEnabled);
-         ui->sramIsSram69->setChecked(mapper069Info.sramIsSram);
-         sprintf ( buffer, "%X", mapper069Info.regSelected );
-         ui->regSelected69->setText(buffer);
-         sprintf ( buffer, "%02X", mapper069Info.regValue );
-         ui->regValue69->setText(buffer);
-         break;
+   case 28:
+      nesMapper028GetInformation(&mapper028Info);
+      sprintf ( buffer, "%02X", mapper028Info.prgMode );
+      ui->prgMode28->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper028Info.prgSize );
+      ui->prgSize28->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper028Info.prgOuterBank );
+      ui->prgOuterBank28->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper028Info.prgInnerBank );
+      ui->prgInnerBank28->setText ( buffer );
+      break;
+   case 69:
+      nesMapper069GetInformation(&mapper069Info);
+      ui->irqEnabled69->setChecked ( mapper069Info.irqEnabled );
+      ui->irqCounterEnabled69->setChecked ( mapper069Info.irqCountEnabled );
+      ui->irqAsserted69->setChecked ( mapper069Info.irqAsserted );
+      sprintf ( buffer, "%04X", mapper069Info.irqCounter );
+      ui->irqCounter69->setText ( buffer );
+      sprintf ( buffer, "%02X(6000)",
+                mapper069Info.sramOrPrgBank );
+      ui->sramOrPrgBank69->setText(buffer);
+      ui->sramEnabled69->setChecked(mapper069Info.sramEnabled);
+      ui->sramIsSram69->setChecked(mapper069Info.sramIsSram);
+      sprintf ( buffer, "%X", mapper069Info.regSelected );
+      ui->regSelected69->setText(buffer);
+      sprintf ( buffer, "%02X", mapper069Info.regValue );
+      ui->regValue69->setText(buffer);
+      break;
    }
 
    // Check breakpoints for hits and highlight if necessary...

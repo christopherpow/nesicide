@@ -39,6 +39,7 @@ private:
 private slots:
    void colorChanged(QColor color);
    void applyProjectPropertiesToTab();
+   void updateTargetMachine(QString target) {}
 };
 
 class AttributeTableChangeColorCommand : public QUndoCommand

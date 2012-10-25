@@ -1084,8 +1084,6 @@ void CPPU::EXTRA ()
 
 void CPPU::RESET ( void )
 {
-   int idx;
-
    startVblank = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_START_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_START_VBLANK_PAL:PPU_CYCLE_START_VBLANK_DENDY;
    quietScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_QUIET_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_QUIET_PAL:SCANLINES_QUIET_DENDY;
    vblankScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_VBLANK_PAL:SCANLINES_VBLANK_DENDY;
@@ -1734,7 +1732,11 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
             p++;
          }
 
-         BUILDSPRITELIST ( scanline, idxx );
+         // Secondary OAM reads occur on even PPU cycles...
+         if ( !(idxx&1) )
+         {
+            BUILDSPRITELIST ( scanline, idxx );
+         }
          GATHERBKGND ( idxx%8 );
       }
 
@@ -1850,6 +1852,7 @@ void CPPU::GATHERBKGND ( int8_t phase )
    if ( !(phase&1) )
    {
       EMULATE(1);
+      return;
    }
 
    if ( phase == 1 )
@@ -2022,12 +2025,6 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
 
    // Secondary OAM is actually cleared during first 64 cycles of scanline...
    if ( cycle < 64 )
-   {
-      return;
-   }
-
-   // Secondary OAM reads occur on even PPU cycles...
-   if ( cycle&1 )
    {
       return;
    }

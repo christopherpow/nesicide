@@ -57,6 +57,7 @@ private slots:
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void applyProjectPropertiesToTab();
+   void updateTargetMachine(QString target) {}
 
 signals:
    void prepareToTilify();

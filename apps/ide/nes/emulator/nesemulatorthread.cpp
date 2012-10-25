@@ -123,7 +123,6 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
-
    SDL_PauseAudio ( 0 );
 }
 
@@ -396,7 +395,7 @@ void NESEmulatorThread::pauseEmulation (bool show)
 
 void NESEmulatorThread::loadCartridge()
 {
-   QFile saveState(nesicideProject->getProjectCartridgeSaveStateName());
+   QFile saveState;
    QString errors;
    int32_t b;
    int32_t a;
@@ -461,9 +460,13 @@ void NESEmulatorThread::loadCartridge()
       // Initialize NES...
       nesResetInitial(m_pCartridge->getMapperNumber());
 
-      if ( saveState.open(QIODevice::ReadOnly) )
+      if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
       {
-         deserializeContent(saveState);
+         saveState.setFileName(nesicideProject->getProjectCartridgeSaveStateName());
+         if ( saveState.open(QIODevice::ReadOnly) )
+         {
+            deserializeContent(saveState);
+         }
       }
 
       // Trigger inspector updates...

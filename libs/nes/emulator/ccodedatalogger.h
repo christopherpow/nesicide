@@ -32,9 +32,6 @@ typedef struct _LoggerInfo
    uint32_t count;
    int8_t type;
    int8_t source;
-   uint8_t lastValue [ LAST_VALUE_LIST_LEN ];
-   uint8_t lastValueCount;
-   uint8_t lastValuePos;
    struct _LoggerInfo* pLastLoad;
 } LoggerInfo;
 #pragma pack()
@@ -73,11 +70,6 @@ public:
       return m_size;
    }
    void GetPrintable ( uint32_t addr, int32_t subItem, char* str );
-   uint8_t GetLastValueCount ( uint32_t addr )
-   {
-      return (*(m_pLogger+addr)).lastValueCount;
-   }
-   uint8_t GetLastValue ( uint32_t addr, uint8_t count );
    uint32_t GetLastLoadAddr ( uint32_t addr );
    LoggerInfo* GetLogEntry ( uint32_t addr )
    {
