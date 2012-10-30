@@ -224,31 +224,31 @@ void CROMMapper001::MAPPER ( uint32_t addr, uint8_t data )
                {
                   if ( m_reg[0]&0x10 )
                   {
-                     m_pCHRmemory [ 0 ] = m_CHRROMmemory [ ((m_reg[1]&0x1F)>>1) ] + ((m_reg[1]&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 1 ] = m_CHRROMmemory [ ((m_reg[1]&0x1F)>>1) ] + ((m_reg[1]&0x01)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 2 ] = m_CHRROMmemory [ ((m_reg[1]&0x1F)>>1) ] + ((m_reg[1]&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 3 ] = m_CHRROMmemory [ ((m_reg[1]&0x1F)>>1) ] + ((m_reg[1]&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
+                     m_pCHRmemory [ 0 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+0 ];
+                     m_pCHRmemory [ 1 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+1 ];
+                     m_pCHRmemory [ 2 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+2 ];
+                     m_pCHRmemory [ 3 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+3 ];
                   }
                   else
                   {
-                     m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (0<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (1<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (2<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (3<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (4<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (5<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (6<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (m_reg[1]&0x1F)>>1 ] + (7<<UPSHIFT_1KB);
+                     m_pCHRmemory [ 0 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+0 ];
+                     m_pCHRmemory [ 1 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+1 ];
+                     m_pCHRmemory [ 2 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+2 ];
+                     m_pCHRmemory [ 3 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+3 ];
+                     m_pCHRmemory [ 4 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+4 ];
+                     m_pCHRmemory [ 5 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+5 ];
+                     m_pCHRmemory [ 6 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+6 ];
+                     m_pCHRmemory [ 7 ] = m_CHRmemory [ ((m_reg[1]&0x1F)<<2)+7 ];
                   }
                }
                else
                {
                   if ( m_reg[0]&0x10 )
                   {
-                     m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (((m_reg[1]&0x1F)>>1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 0 ] = m_CHRmemory [ 0 ];
+                     m_pCHRmemory [ 1 ] = m_CHRmemory [ 1 ];
+                     m_pCHRmemory [ 2 ] = m_CHRmemory [ 2 ];
+                     m_pCHRmemory [ 3 ] = m_CHRmemory [ 3 ];
                   }
                }
 
@@ -259,20 +259,20 @@ void CROMMapper001::MAPPER ( uint32_t addr, uint8_t data )
                {
                   if ( m_reg[0]&0x10 )
                   {
-                     m_pCHRmemory [ 4 ] = m_CHRROMmemory [ ((m_reg[2]&0x1F)>>1) ] + ((m_reg[2]&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 5 ] = m_CHRROMmemory [ ((m_reg[2]&0x1F)>>1) ] + ((m_reg[2]&0x01)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 6 ] = m_CHRROMmemory [ ((m_reg[2]&0x1F)>>1) ] + ((m_reg[2]&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-                     m_pCHRmemory [ 7 ] = m_CHRROMmemory [ ((m_reg[2]&0x1F)>>1) ] + ((m_reg[2]&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
+                     m_pCHRmemory [ 4 ] = m_CHRmemory [ ((m_reg[2]&0x1F)<<2)+0 ];
+                     m_pCHRmemory [ 5 ] = m_CHRmemory [ ((m_reg[2]&0x1F)<<2)+1 ];
+                     m_pCHRmemory [ 6 ] = m_CHRmemory [ ((m_reg[2]&0x1F)<<2)+2 ];
+                     m_pCHRmemory [ 7 ] = m_CHRmemory [ ((m_reg[2]&0x1F)<<2)+3 ];
                   }
                }
                else
                {
                   if ( m_reg[0]&0x10 )
                   {
-                     m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB) );
-                     m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (((m_reg[2]&0x1F)>>1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB) );
+                     m_pCHRmemory [ 4 ] = m_CHRmemory [ 4 ];
+                     m_pCHRmemory [ 5 ] = m_CHRmemory [ 5 ];
+                     m_pCHRmemory [ 6 ] = m_CHRmemory [ 6 ];
+                     m_pCHRmemory [ 7 ] = m_CHRmemory [ 7 ];
                   }
                }
 

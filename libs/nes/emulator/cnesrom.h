@@ -16,14 +16,17 @@
 // Retrieve the bank-offset address portion of a 6502-address for use within PRG ROM banks
 #define PRGBANK_OFF(addr) ( addr&MASK_8KB )
 // Resolve a 6502-address to one of the 8KB PRG ROM banks within a ROM file [the absolute physical address]
-//#define PRGBANK_PHYS(addr) ( ((uint8_t*)(*(m_pPRGROMmemory+PRGBANK_VIRT(addr)))-(uint8_t*)m_PRGROMmemory)>>SHIFT_32KB_8KB )
 #define PRGBANK_PHYS(addr) ( *((*(m_pPRGROMmemory+PRGBANK_VIRT(addr)))+MEM_8KB) )
 
 // Resolve an absolute address to a PRG-ROM bank
 #define PRGBANK_ABSBANK(absAddr) ( absAddr>>SHIFT_32KB_8KB )
 
-#define CHRBANK_NUM(addr) ( addr>>SHIFT_8KB_1KB )
+// Resolve an address to one of 8 1KB CHR memory banks [0:$0000-$03FF, 1:$0400-$07FF, 2:$0800-$0BFF, 3:$0C00-$0FFF, 4:$1000-$13FF, 5:$1400-$17FF, 6:$1800-$1BFF, or 7:$1C00-$1FFF]
+#define CHRBANK_VIRT(addr) ( (addr&MASK_8KB)>>SHIFT_8KB_1KB )
+// Retrieve the bank-offset address portion of an address for use within CHR memory banks
 #define CHRBANK_OFF(addr) ( addr&MASK_1KB )
+// Resolve an address to one of the 8KB CHR memory banks [the absolute physical address]
+#define CHRBANK_PHYS(addr) ( *((*(m_pCHRmemory+CHRBANK_VIRT(addr)))+MEM_1KB) )
 
 #define SRAMBANK_VIRT(addr) ( ((addr-SRAM_START)&MASK_64KB)>>SHIFT_64KB_8KB )
 #define SRAMBANK_OFF(addr) ( addr&MASK_8KB )
@@ -69,18 +72,7 @@ public:
    }
    static uint32_t CHRMEMABSADDR ( uint32_t addr )
    {
-      if ( m_numChrBanks )
-      {
-         return (*((*(m_pCHRmemory+CHRBANK_NUM(addr)))+MEM_8KB))*MEM_8KB;
-      }
-      else
-      {
-         return ((uint8_t*)(*(m_pCHRmemory+CHRBANK_NUM(addr)))-(uint8_t*)m_CHRRAMmemory);
-      }
-   }
-   static inline uint8_t* CHRRAMPTR ( uint32_t addr )
-   {
-      return &(m_CHRRAMmemory[addr]);
+      return (CHRBANK_PHYS(addr)*MEM_1KB)+CHRBANK_OFF(addr);
    }
    static inline uint32_t PRGROMABSADDR ( uint32_t addr )
    {
@@ -97,11 +89,11 @@ public:
    }
    static inline void CHRMEM ( uint32_t addr, uint8_t data )
    {
-      *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr))) = data;
+      *(*(m_pCHRmemory+CHRBANK_VIRT(addr))+CHRBANK_OFF(addr)) = data;
    }
    static inline uint32_t CHRMEM ( uint32_t addr )
    {
-      return *(*(m_pCHRmemory+CHRBANK_NUM(addr))+(CHRBANK_OFF(addr)));
+      return *(*(m_pCHRmemory+CHRBANK_VIRT(addr))+CHRBANK_OFF(addr));
    }
    static inline uint32_t SRAMABSADDR ( uint32_t addr )
    {
@@ -326,8 +318,7 @@ public:
 
 protected:
    static uint8_t**  m_PRGROMmemory;
-   static uint8_t**  m_CHRROMmemory;
-   static uint8_t*   m_CHRRAMmemory;
+   static uint8_t**  m_CHRmemory;
    static uint8_t**  m_SRAMmemory;
    static uint8_t*   m_EXRAMmemory;
 

@@ -1017,10 +1017,12 @@ void nesMapper004GetInformation ( nesMapper004Info* pInfo )
 
 void nesMapper028GetInformation ( nesMapper028Info* pInfo )
 {
+   pInfo->regSel = CROMMapper028::REGSEL();
    pInfo->prgMode = CROMMapper028::PRGMODE();
    pInfo->prgSize = CROMMapper028::PRGSIZE();
    pInfo->prgOuterBank = CROMMapper028::PRGOUTERBANK();
    pInfo->prgInnerBank = CROMMapper028::PRGINNERBANK();
+   pInfo->chrBank = CROMMapper028::CHRBANK();
 }
 
 void nesMapper069GetInformation ( nesMapper069Info* pInfo )

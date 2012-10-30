@@ -95,8 +95,7 @@ CBreakpointEventInfo** CROM::m_tblBreakpointEvents = tblMapperEvents;
 int32_t                CROM::m_numBreakpointEvents = NUM_MAPPER_EVENTS;
 
 uint8_t** CROM::m_PRGROMmemory = NULL;
-uint8_t** CROM::m_CHRROMmemory = NULL;
-uint8_t*  CROM::m_CHRRAMmemory = NULL;
+uint8_t** CROM::m_CHRmemory = NULL;
 uint8_t*  CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
 uint8_t*  CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 uint8_t** CROM::m_SRAMmemory = NULL;
@@ -218,25 +217,17 @@ CROM::CROM()
       m_EXRAMaddr2sloc[addr] = 0;
    }
 
-   m_CHRROMmemory = new uint8_t*[NUM_ROM_BANKS];
-   for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
+   m_CHRmemory = new uint8_t*[NUM_CHR_BANKS];
+   for ( bank = 0; bank < NUM_CHR_BANKS; bank++ )
    {
-      m_CHRROMmemory[bank] = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
+      m_CHRmemory[bank] = new uint8_t[MEM_1KB+1]; // Leave room for bank ID.
 
       // Store bank ID in bank data at the end.  This is used only
       // by code that needs to calculate absolute address stuff.
       // Since the banks are stored non-contiguously this is a cheap
       // way to get the bank ID without having to implement a structure.
-      m_CHRROMmemory[bank][MEM_8KB] = bank;
+      m_CHRmemory[bank][MEM_1KB] = bank;
    }
-
-   m_CHRRAMmemory = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
-
-   // Store bank ID in bank data at the end.  This is used only
-   // by code that needs to calculate absolute address stuff.
-   // Since the banks are stored non-contiguously this is a cheap
-   // way to get the bank ID without having to implement a structure.
-   m_CHRRAMmemory[MEM_8KB] = 0;
 
    // Assume identity-mapped SRAM...
    // There are five possible concurrently-visible 8KB
@@ -264,19 +255,22 @@ CROM::~CROM()
          delete m_PRGROMdisassembly[bank][addr];
       }
       delete [] m_PRGROMmemory[bank];
-      delete [] m_CHRROMmemory[bank];
       delete [] m_PRGROMopcodeMask[bank];
       delete [] m_PRGROMsloc2addr[bank];
       delete [] m_PRGROMaddr2sloc[bank];
    }
    delete [] m_PRGROMopcodeMaskDirty;
    delete [] m_PRGROMmemory;
-   delete [] m_CHRROMmemory;
-   delete [] m_CHRRAMmemory;
    delete [] m_PRGROMopcodeMask;
    delete [] m_PRGROMsloc2addr;
    delete [] m_PRGROMaddr2sloc;
    delete [] m_PRGROMsloc;
+
+   for ( bank = 0; bank < NUM_CHR_BANKS; bank++ )
+   {
+      delete [] m_CHRmemory[bank];
+   }
+   delete [] m_CHRmemory;
 
    for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
    {
@@ -314,7 +308,11 @@ void CROM::SetPRGBank ( int32_t bank, uint8_t* data )
 
 void CROM::SetCHRBank ( int32_t bank, uint8_t* data )
 {
-   memcpy ( m_CHRROMmemory[bank], data, MEM_8KB );
+   uint8_t ibank;
+   for ( ibank = 0; ibank < 8; ibank++ )
+   {
+      memcpy ( m_CHRmemory[(bank<<3)+ibank], data+(ibank*MEM_1KB), MEM_1KB );
+   }
    m_numChrBanks = bank + 1;
 }
 
@@ -404,19 +402,10 @@ void CROM::RESET ( uint32_t mapper )
       }
    }
 
-   // Assume no VROM...point to VRAM...
+   // Default CHR map...
    for ( bank = 0; bank < 8; bank++ )
    {
-      m_pCHRmemory [ bank ] = m_CHRRAMmemory + (bank<<UPSHIFT_1KB);
-   }
-
-   // If the cartridge has VROM, map it instead...
-   if ( m_numChrBanks > 0 )
-   {
-      for ( bank = 0; bank < 8; bank++ )
-      {
-         m_pCHRmemory [ bank ] = m_CHRROMmemory [ 0 ] + (bank<<UPSHIFT_1KB);
-      }
+      m_pCHRmemory [ bank ] = m_CHRmemory [ bank ];
    }
 
    // Assume identity-mapped SRAM...
@@ -468,14 +457,7 @@ void CROM::LOAD ( MapperState* data )
 
    for ( idx = 0; idx < 8; idx++ )
    {
-      if ( m_numChrBanks )
-      {
-         m_pCHRmemory [ idx ] = (uint8_t*)m_CHRROMmemory + data->CHRMEMOffset [ idx ];
-      }
-      else
-      {
-         m_pCHRmemory [ idx ] = (uint8_t*)m_CHRRAMmemory + data->CHRMEMOffset [ idx ];
-      }
+      m_pCHRmemory [ idx ] = (uint8_t*)m_CHRmemory + data->CHRMEMOffset [ idx ];
    }
 }
 
@@ -490,14 +472,7 @@ void CROM::SAVE ( MapperState* data )
 
    for ( idx = 0; idx < 8; idx++ )
    {
-      if ( m_numChrBanks )
-      {
-         data->CHRMEMOffset [ idx ] = m_pCHRmemory [ idx ] - (uint8_t*)m_CHRROMmemory;
-      }
-      else
-      {
-         data->CHRMEMOffset [ idx ] = m_pCHRmemory [ idx ] - (uint8_t*)m_CHRRAMmemory;
-      }
+      data->CHRMEMOffset [ idx ] = m_pCHRmemory [ idx ] - (uint8_t*)m_CHRmemory;
    }
 }
 

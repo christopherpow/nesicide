@@ -20,9 +20,10 @@
 #include "cnesppu.h"
 
 // Irem H-3001 stuff
-uint8_t  CROMMapper065::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t  CROMMapper065::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 uint8_t  CROMMapper065::m_irqCounter = 0x00;
 bool           CROMMapper065::m_irqEnable = false;
+uint16_t CROMMapper065::m_irqReload = 0;
 
 CROMMapper065::CROMMapper065()
 {
@@ -49,11 +50,8 @@ void CROMMapper065::RESET ()
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper065::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
+void CROMMapper065::SYNCCPU ( void )
 {
-#if 0
-
-// CPTODO: reimplement...
    if ( m_irqEnable )
    {
       if ( m_irqCounter == 0 )
@@ -66,8 +64,6 @@ void CROMMapper065::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
          m_irqCounter--;
       }
    }
-
-#endif
 }
 
 void CROMMapper065::LOAD ( MapperState* data )
@@ -87,53 +83,50 @@ uint32_t CROMMapper065::MAPPER ( uint32_t addr )
       case 0x8000:
          return m_reg [ 0 ];
          break;
-      case 0x9000:
+      case 0x9001:
          return m_reg [ 1 ];
          break;
-      case 0x9001:
+      case 0x9003:
          return m_reg [ 2 ];
          break;
-      case 0x9003:
+      case 0x9004:
          return m_reg [ 3 ];
          break;
-      case 0x9004:
+      case 0x9005:
          return m_reg [ 4 ];
          break;
-      case 0x9005:
+      case 0x9006:
          return m_reg [ 5 ];
          break;
-      case 0x9006:
+      case 0xA000:
          return m_reg [ 6 ];
          break;
-      case 0xA000:
+      case 0xB000:
          return m_reg [ 7 ];
          break;
-      case 0xB000:
+      case 0xB001:
          return m_reg [ 8 ];
          break;
-      case 0xB001:
+      case 0xB002:
          return m_reg [ 9 ];
          break;
-      case 0xB002:
+      case 0xB003:
          return m_reg [ 10 ];
          break;
-      case 0xB003:
+      case 0xB004:
          return m_reg [ 11 ];
          break;
-      case 0xB004:
+      case 0xB005:
          return m_reg [ 12 ];
          break;
-      case 0xB005:
+      case 0xB006:
          return m_reg [ 13 ];
          break;
-      case 0xB006:
+      case 0xB007:
          return m_reg [ 14 ];
          break;
-      case 0xB007:
-         return m_reg [ 15 ];
-         break;
       case 0xC000:
-         return m_reg [ 16 ];
+         return m_reg [ 15 ];
          break;
    }
 
@@ -148,62 +141,73 @@ void CROMMapper065::MAPPER ( uint32_t addr, uint8_t data )
          m_reg [ 0 ] = data;
          m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
          break;
-      case 0x9000:
-         m_reg [ 1 ] = data;
-         break;
       case 0x9001:
-         m_reg [ 2 ] = data;
+         m_reg [ 1 ] = data;
+         if ( data&0x80 )
+         {
+            CPPU::MIRRORHORIZ();
+         }
+         else
+         {
+            CPPU::MIRRORVERT();
+         }
          break;
       case 0x9003:
-         m_reg [ 3 ] = data;
+         m_reg [ 2 ] = data;
+         m_irqEnable = (data&0x80);
          break;
       case 0x9004:
-         m_reg [ 4 ] = data;
+         m_reg [ 3 ] = data;
+         m_irqCounter = m_irqReload;
          break;
       case 0x9005:
-         m_reg [ 5 ] = data;
+         m_reg [ 4 ] = data;
+         m_irqReload &= 0x00FF;
+         m_irqReload |= (data<<8);
          break;
       case 0x9006:
-         m_reg [ 6 ] = data;
+         m_reg [ 5 ] = data;
+         m_irqReload &= 0xFF00;
+         m_irqReload |= data;
          break;
       case 0xA000:
-         m_reg [ 7 ] = data;
+         m_reg [ 6 ] = data;
          m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data ];
          break;
       case 0xB000:
-         m_reg [ 8 ] = data;
-         m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 7 ] = data;
+         m_pCHRmemory [ 0 ] = m_CHRmemory [ data ];
          break;
       case 0xB001:
-         m_reg [ 9 ] = data;
-         m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 8 ] = data;
+         m_pCHRmemory [ 1 ] = m_CHRmemory [ data ];
          break;
       case 0xB002:
-         m_reg [ 10 ] = data;
-         m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 9 ] = data;
+         m_pCHRmemory [ 2 ] = m_CHRmemory [ data ];
          break;
       case 0xB003:
-         m_reg [ 11 ] = data;
-         m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 10 ] = data;
+         m_pCHRmemory [ 3 ] = m_CHRmemory [ data ];
          break;
       case 0xB004:
-         m_reg [ 12 ] = data;
-         m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 11 ] = data;
+         m_pCHRmemory [ 4 ] = m_CHRmemory [ data ];
          break;
       case 0xB005:
-         m_reg [ 13 ] = data;
-         m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 12 ] = data;
+         m_pCHRmemory [ 5 ] = m_CHRmemory [ data ];
          break;
       case 0xB006:
-         m_reg [ 14 ] = data;
-         m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 13 ] = data;
+         m_pCHRmemory [ 6 ] = m_CHRmemory [ data ];
          break;
       case 0xB007:
-         m_reg [ 15 ] = data;
-         m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (data>>3)%m_numChrBanks ] + ((data&0x7)<<UPSHIFT_1KB);
+         m_reg [ 14 ] = data;
+         m_pCHRmemory [ 7 ] = m_CHRmemory [ data ];
          break;
       case 0xC000:
-         m_reg [ 16 ] = data;
+         m_reg [ 15 ] = data;
          m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data ];
          break;
    }

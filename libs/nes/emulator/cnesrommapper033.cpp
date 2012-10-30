@@ -169,29 +169,29 @@ void CROMMapper033::MAPPER ( uint32_t addr, uint8_t data )
       break;
    case 0x8002:
       m_reg[2] = data;
-      m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (m_reg[2]>>2)%m_numChrBanks ] + ((m_reg[2]&0x3)<<UPSHIFT_2KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (m_reg[2]>>2)%m_numChrBanks ] + ((m_reg[2]&0x3)<<UPSHIFT_2KB) + (1<<UPSHIFT_1KB);
+      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_reg[2]<<1)+0 ];
+      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_reg[2]<<1)+1 ];
       break;
    case 0x8003:
       m_reg[3] = data;
-      m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (m_reg[3]>>2)%m_numChrBanks ] + ((m_reg[3]&0x3)<<UPSHIFT_2KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (m_reg[3]>>2)%m_numChrBanks ] + ((m_reg[3]&0x3)<<UPSHIFT_2KB) + (1<<UPSHIFT_1KB);
+      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_reg[3]<<1)+0 ];
+      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_reg[3]<<1)+1 ];
       break;
    case 0xA000:
       m_reg[4] = data;
-      m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (m_reg[4]>>3)%m_numChrBanks ] + ((m_reg[4]&0x7)<<UPSHIFT_1KB);
+      m_pCHRmemory [ 4 ] = m_CHRmemory [ m_reg[4] ];
       break;
    case 0xA001:
       m_reg[5] = data;
-      m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (m_reg[5]>>3)%m_numChrBanks ] + ((m_reg[5]&0x7)<<UPSHIFT_1KB);
+      m_pCHRmemory [ 5 ] = m_CHRmemory [ m_reg[5] ];
       break;
    case 0xA002:
       m_reg[6] = data;
-      m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (m_reg[6]>>3)%m_numChrBanks ] + ((m_reg[6]&0x7)<<UPSHIFT_1KB);
+      m_pCHRmemory [ 6 ] = m_CHRmemory [ m_reg[6] ];
       break;
    case 0xA003:
       m_reg[7] = data;
-      m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (m_reg[7]>>3)%m_numChrBanks ] + ((m_reg[7]&0x7)<<UPSHIFT_1KB);
+      m_pCHRmemory [ 7 ] = m_CHRmemory [ m_reg[7] ];
       break;
    }
 

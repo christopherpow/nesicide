@@ -329,14 +329,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 0 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 0 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -344,14 +337,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 1 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 1 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -359,14 +345,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 2 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 2 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -374,14 +353,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 3 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 3 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -389,14 +361,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 4 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 4 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -404,14 +369,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 5 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 5 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -419,14 +377,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 6 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 6 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -434,14 +385,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 7 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 7 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -449,14 +393,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 4 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 4 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -464,14 +401,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 5 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 5 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -479,14 +409,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 6 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 6 ] = m_CHRmemory [ data ];
             }
 
             break;
@@ -494,14 +417,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 
             if ( m_chrMode == 3 )
             {
-               if ( m_numChrBanks > 0 )
-               {
-                  m_pCHRmemory [ 7 ] = m_CHRROMmemory [ data>>3 ] + ((data&0x7)<<UPSHIFT_1KB);
-               }
-               else
-               {
-                  m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (data&0x7)<<UPSHIFT_1KB );
-               }
+               m_pCHRmemory [ 7 ] = m_CHRmemory [ data ];
             }
 
             break;

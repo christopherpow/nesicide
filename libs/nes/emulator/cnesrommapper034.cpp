@@ -90,47 +90,61 @@ void CROMMapper034::RESET ()
 
 uint32_t CROMMapper034::LMAPPER ( uint32_t addr )
 {
-   return m_reg[addr-0x7ffd];
+   if ( (addr >= 0x7ffd) && (addr < 0x8000) )
+   {
+      return m_reg[addr-0x7ffd];
+   }
+   else if ( addr >= 0x6000 )
+   {
+      return CROM::SRAMVIRT(addr);
+   }
 }
 
 void CROMMapper034::LMAPPER ( uint32_t addr, uint8_t data )
 {
    uint8_t bank;
 
-   m_reg[addr-0x7ffd] = data;
-
-   switch ( addr )
+   if ( (addr >= 0x7ffd) && (addr < 0x8000) )
    {
-   case 0x7ffd:
-      bank = (m_reg[0]%m_numPrgBanks)<<2;
+      m_reg[addr-0x7ffd] = data;
 
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
-      break;
-   case 0x7ffe:
-      bank = (m_reg[1]%m_numChrBanks)>>1;
+      switch ( addr )
+      {
+      case 0x7ffd:
+         bank = (m_reg[0]&(m_numPrgBanks-1))<<2;
 
-      m_pCHRmemory [ 0 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 1 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 2 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 3 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
-      break;
-   case 0x7fff:
-      bank = (m_reg[2]%m_numChrBanks)>>1;
+         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank+0 ];
+         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
+         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
+         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+         break;
+      case 0x7ffe:
+         bank = (m_reg[1]&((m_numChrBanks<<1)-1));
 
-      m_pCHRmemory [ 4 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 5 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 6 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 7 ] = m_CHRROMmemory [ bank ] + ((m_reg[1]&0x1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
-      break;
+         m_pCHRmemory [ 0 ] = m_CHRmemory [ (bank<<2)+0 ];
+         m_pCHRmemory [ 1 ] = m_CHRmemory [ (bank<<2)+1 ];
+         m_pCHRmemory [ 2 ] = m_CHRmemory [ (bank<<2)+2 ];
+         m_pCHRmemory [ 3 ] = m_CHRmemory [ (bank<<2)+3 ];
+         break;
+      case 0x7fff:
+         bank = (m_reg[2]&((m_numChrBanks<<1)-1));
+
+         m_pCHRmemory [ 4 ] = m_CHRmemory [ (bank<<2)+0 ];
+         m_pCHRmemory [ 5 ] = m_CHRmemory [ (bank<<2)+1 ];
+         m_pCHRmemory [ 6 ] = m_CHRmemory [ (bank<<2)+2 ];
+         m_pCHRmemory [ 7 ] = m_CHRmemory [ (bank<<2)+3 ];
+         break;
+      }
+
+      if ( nesIsDebuggable() )
+      {
+         // Check mapper state breakpoints...
+         CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
+      }
    }
-
-   if ( nesIsDebuggable() )
+   else if ( addr >= 0x6000 )
    {
-      // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
+      CROM::SRAMVIRT(addr,data);
    }
 }
 

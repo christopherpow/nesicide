@@ -227,55 +227,27 @@ void CROMMapper004::SETCPU ( void )
 
 void CROMMapper004::SETPPU ( void )
 {
-   if ( m_numChrBanks > 0 )
+   if ( m_reg[0]&0x80 )
    {
-      if ( m_reg[0]&0x80 )
-      {
-         m_pCHRmemory [ 0 ] = m_CHRROMmemory [ m_chr[4]>>3 ] + ((m_chr[4]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 1 ] = m_CHRROMmemory [ m_chr[5]>>3 ] + ((m_chr[5]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 2 ] = m_CHRROMmemory [ m_chr[6]>>3 ] + ((m_chr[6]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 3 ] = m_CHRROMmemory [ m_chr[7]>>3 ] + ((m_chr[7]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 4 ] = m_CHRROMmemory [ m_chr[0]>>3 ] + ((m_chr[0]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 5 ] = m_CHRROMmemory [ m_chr[1]>>3 ] + ((m_chr[1]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 6 ] = m_CHRROMmemory [ m_chr[2]>>3 ] + ((m_chr[2]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 7 ] = m_CHRROMmemory [ m_chr[3]>>3 ] + ((m_chr[3]&0x7)<<UPSHIFT_1KB);
-      }
-      else
-      {
-         m_pCHRmemory [ 0 ] = m_CHRROMmemory [ m_chr[0]>>3 ] + ((m_chr[0]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 1 ] = m_CHRROMmemory [ m_chr[1]>>3 ] + ((m_chr[1]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 2 ] = m_CHRROMmemory [ m_chr[2]>>3 ] + ((m_chr[2]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 3 ] = m_CHRROMmemory [ m_chr[3]>>3 ] + ((m_chr[3]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 4 ] = m_CHRROMmemory [ m_chr[4]>>3 ] + ((m_chr[4]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 5 ] = m_CHRROMmemory [ m_chr[5]>>3 ] + ((m_chr[5]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 6 ] = m_CHRROMmemory [ m_chr[6]>>3 ] + ((m_chr[6]&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 7 ] = m_CHRROMmemory [ m_chr[7]>>3 ] + ((m_chr[7]&0x7)<<UPSHIFT_1KB);
-      }
+      m_pCHRmemory [ 0 ] = m_CHRmemory [ m_chr[4] ];
+      m_pCHRmemory [ 1 ] = m_CHRmemory [ m_chr[5] ];
+      m_pCHRmemory [ 2 ] = m_CHRmemory [ m_chr[6] ];
+      m_pCHRmemory [ 3 ] = m_CHRmemory [ m_chr[7] ];
+      m_pCHRmemory [ 4 ] = m_CHRmemory [ m_chr[0] ];
+      m_pCHRmemory [ 5 ] = m_CHRmemory [ m_chr[1] ];
+      m_pCHRmemory [ 6 ] = m_CHRmemory [ m_chr[2] ];
+      m_pCHRmemory [ 7 ] = m_CHRmemory [ m_chr[3] ];
    }
    else
    {
-      if ( m_reg[0]&0x80 )
-      {
-         m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (m_chr[4]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (m_chr[5]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (m_chr[6]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (m_chr[7]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (m_chr[0]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (m_chr[1]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (m_chr[2]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (m_chr[3]<<UPSHIFT_1KB) );
-      }
-      else
-      {
-         m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (m_chr[0]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (m_chr[1]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (m_chr[2]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (m_chr[3]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (m_chr[4]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (m_chr[5]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (m_chr[6]<<UPSHIFT_1KB) );
-         m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (m_chr[7]<<UPSHIFT_1KB) );
-      }
+      m_pCHRmemory [ 0 ] = m_CHRmemory [ m_chr[0] ];
+      m_pCHRmemory [ 1 ] = m_CHRmemory [ m_chr[1] ];
+      m_pCHRmemory [ 2 ] = m_CHRmemory [ m_chr[2] ];
+      m_pCHRmemory [ 3 ] = m_CHRmemory [ m_chr[3] ];
+      m_pCHRmemory [ 4 ] = m_CHRmemory [ m_chr[4] ];
+      m_pCHRmemory [ 5 ] = m_CHRmemory [ m_chr[5] ];
+      m_pCHRmemory [ 6 ] = m_CHRmemory [ m_chr[6] ];
+      m_pCHRmemory [ 7 ] = m_CHRmemory [ m_chr[7] ];
    }
 }
 

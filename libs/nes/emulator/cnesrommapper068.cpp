@@ -71,20 +71,20 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
    switch ( addr&0xF000 )
    {
       case 0x8000:
-         m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
+         m_pCHRmemory [ 0 ] = m_CHRmemory [ (data<<1)+0 ];
+         m_pCHRmemory [ 1 ] = m_CHRmemory [ (data<<1)+1 ];
          break;
       case 0x9000:
-         m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
+         m_pCHRmemory [ 2 ] = m_CHRmemory [ (data<<1)+0 ];
+         m_pCHRmemory [ 3 ] = m_CHRmemory [ (data<<1)+1 ];
          break;
       case 0xA000:
-         m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
+         m_pCHRmemory [ 4 ] = m_CHRmemory [ (data<<1)+0 ];
+         m_pCHRmemory [ 5 ] = m_CHRmemory [ (data<<1)+1 ];
          break;
       case 0xB000:
-         m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (data>>2) ] + (((data<<1)&0x7)<<UPSHIFT_1KB);
-         m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (data>>2) ] + ((((data<<1)&0x7)+1)<<UPSHIFT_1KB);
+         m_pCHRmemory [ 6 ] = m_CHRmemory [ (data<<1)+0 ];
+         m_pCHRmemory [ 7 ] = m_CHRmemory [ (data<<1)+1 ];
          break;
       case 0xC000:
          m_reg [ 2 ] = data|0x80;
@@ -93,30 +93,30 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
          {
             switch ( m_reg[1] )
             {
-               case 0:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 1:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 2:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 3:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
+            case 0:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
+            case 1:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
+            case 2:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[2] ] );
+               break;
+            case 3:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
             }
          }
          else
@@ -146,30 +146,30 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
          {
             switch ( m_reg[1] )
             {
-               case 0:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 1:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 2:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 3:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
+            case 0:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
+            case 1:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
+            case 2:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[2] ] );
+               break;
+            case 3:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
             }
          }
          else
@@ -200,30 +200,30 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
          {
             switch ( m_reg[1] )
             {
-               case 0:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 1:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 2:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[2]>>3) ] + (((m_reg[2])&0x7)<<UPSHIFT_1KB) );
-                  break;
-               case 3:
-                  CPPU::Move1KBank ( 0x8, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0x9, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xA, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  CPPU::Move1KBank ( 0xB, m_CHRROMmemory [ (m_reg[3]>>3) ] + (((m_reg[3])&0x7)<<UPSHIFT_1KB) );
-                  break;
+            case 0:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
+            case 1:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
+            case 2:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[2] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[2] ] );
+               break;
+            case 3:
+               CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[3] ] );
+               CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[3] ] );
+               break;
             }
          }
          else
@@ -247,8 +247,8 @@ void CROMMapper068::MAPPER ( uint32_t addr, uint8_t data )
 
          break;
       case 0xF000:
-         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
-         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data+1 ];
+         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data<<1)+0 ];
+         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data<<1)+1 ];
          break;
    }
 }

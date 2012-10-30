@@ -21,6 +21,10 @@ public:
 
    // Internal accessors for mapper information inspector...
    // Note: called directly!
+   static uint32_t REGSEL ( void )
+   {
+      return m_reg_sel;
+   }
    static uint32_t PRGMODE ( void )
    {
       return m_prg_mode;
@@ -36,6 +40,10 @@ public:
    static uint32_t PRGINNERBANK ( void )
    {
       return m_prg_inner_bank;
+   }
+   static uint32_t CHRBANK ( void )
+   {
+      return m_chr_bank;
    }
 
 protected:

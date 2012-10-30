@@ -116,28 +116,14 @@ void CROMMapper075::SETCPU ( void )
 
 void CROMMapper075::SETPPU ( void )
 {
-   if ( m_numChrBanks > 0 )
-   {
-      m_pCHRmemory [ 0 ] = m_CHRROMmemory [ m_chr[0]>>1 ] + ((m_chr[0]&0x1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 1 ] = m_CHRROMmemory [ m_chr[1]>>1 ] + ((m_chr[1]&0x1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 2 ] = m_CHRROMmemory [ m_chr[2]>>1 ] + ((m_chr[2]&0x1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 3 ] = m_CHRROMmemory [ m_chr[3]>>1 ] + ((m_chr[3]&0x1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
-      m_pCHRmemory [ 4 ] = m_CHRROMmemory [ m_chr[4]>>1 ] + ((m_chr[4]&0x1)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 5 ] = m_CHRROMmemory [ m_chr[5]>>1 ] + ((m_chr[5]&0x1)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 6 ] = m_CHRROMmemory [ m_chr[6]>>1 ] + ((m_chr[6]&0x1)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 7 ] = m_CHRROMmemory [ m_chr[7]>>1 ] + ((m_chr[7]&0x1)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
-   }
-   else
-   {
-      m_pCHRmemory [ 0 ] = CROM::CHRRAMPTR ( (m_chr[0]<<UPSHIFT_1KB)+(0<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 1 ] = CROM::CHRRAMPTR ( (m_chr[1]<<UPSHIFT_1KB)+(1<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 2 ] = CROM::CHRRAMPTR ( (m_chr[2]<<UPSHIFT_1KB)+(2<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 3 ] = CROM::CHRRAMPTR ( (m_chr[3]<<UPSHIFT_1KB)+(3<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 4 ] = CROM::CHRRAMPTR ( (m_chr[4]<<UPSHIFT_1KB)+(4<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 5 ] = CROM::CHRRAMPTR ( (m_chr[5]<<UPSHIFT_1KB)+(5<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 6 ] = CROM::CHRRAMPTR ( (m_chr[6]<<UPSHIFT_1KB)+(6<<UPSHIFT_1KB) );
-      m_pCHRmemory [ 7 ] = CROM::CHRRAMPTR ( (m_chr[7]<<UPSHIFT_1KB)+(7<<UPSHIFT_1KB) );
-   }
+   m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_chr[0]<<2)+0 ];
+   m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_chr[1]<<2)+1 ];
+   m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_chr[2]<<2)+2 ];
+   m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_chr[3]<<2)+3 ];
+   m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_chr[4]<<2)+0 ];
+   m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_chr[5]<<2)+1 ];
+   m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_chr[6]<<2)+2 ];
+   m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_chr[7]<<2)+3 ];
 }
 
 void CROMMapper075::LOAD ( MapperState* data )

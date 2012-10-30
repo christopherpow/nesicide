@@ -139,14 +139,14 @@ void CROMMapper028::SETPPU ( void )
       CPPU::MIRRORHORIZ();
    }
 
-   m_pCHRmemory [ 0 ] = m_CHRRAMmemory + (0<<UPSHIFT_1KB);
-   m_pCHRmemory [ 1 ] = m_CHRRAMmemory + (1<<UPSHIFT_1KB);
-   m_pCHRmemory [ 2 ] = m_CHRRAMmemory + (2<<UPSHIFT_1KB);
-   m_pCHRmemory [ 3 ] = m_CHRRAMmemory + (3<<UPSHIFT_1KB);
-   m_pCHRmemory [ 4 ] = m_CHRRAMmemory + (4<<UPSHIFT_1KB);
-   m_pCHRmemory [ 5 ] = m_CHRRAMmemory + (5<<UPSHIFT_1KB);
-   m_pCHRmemory [ 6 ] = m_CHRRAMmemory + (6<<UPSHIFT_1KB);
-   m_pCHRmemory [ 7 ] = m_CHRRAMmemory + (7<<UPSHIFT_1KB);
+   m_pCHRmemory [ 0 ] = m_CHRmemory [ ((m_chr_bank)<<3)+0 ];
+   m_pCHRmemory [ 1 ] = m_CHRmemory [ ((m_chr_bank)<<3)+1 ];
+   m_pCHRmemory [ 2 ] = m_CHRmemory [ ((m_chr_bank)<<3)+2 ];
+   m_pCHRmemory [ 3 ] = m_CHRmemory [ ((m_chr_bank)<<3)+3 ];
+   m_pCHRmemory [ 4 ] = m_CHRmemory [ ((m_chr_bank)<<3)+4 ];
+   m_pCHRmemory [ 5 ] = m_CHRmemory [ ((m_chr_bank)<<3)+5 ];
+   m_pCHRmemory [ 6 ] = m_CHRmemory [ ((m_chr_bank)<<3)+6 ];
+   m_pCHRmemory [ 7 ] = m_CHRmemory [ ((m_chr_bank)<<3)+7 ];
 }
 
 void CROMMapper028::LOAD ( MapperState* data )

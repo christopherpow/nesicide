@@ -69,14 +69,14 @@ void CROMMapper011::MAPPER ( uint32_t addr, uint8_t data )
    m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
    m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
 
-   m_pCHRmemory [ 0 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (0<<UPSHIFT_1KB);
-   m_pCHRmemory [ 1 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (1<<UPSHIFT_1KB);
-   m_pCHRmemory [ 2 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (2<<UPSHIFT_1KB);
-   m_pCHRmemory [ 3 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (3<<UPSHIFT_1KB);
-   m_pCHRmemory [ 4 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (4<<UPSHIFT_1KB);
-   m_pCHRmemory [ 5 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (5<<UPSHIFT_1KB);
-   m_pCHRmemory [ 6 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (6<<UPSHIFT_1KB);
-   m_pCHRmemory [ 7 ] = m_CHRROMmemory [ (data>>4)&0x0F ] + (7<<UPSHIFT_1KB);
+   m_pCHRmemory [ 0 ] = m_CHRmemory [ ((data>>1)&0x78)+0 ];
+   m_pCHRmemory [ 1 ] = m_CHRmemory [ ((data>>1)&0x78)+1 ];
+   m_pCHRmemory [ 2 ] = m_CHRmemory [ ((data>>1)&0x78)+2 ];
+   m_pCHRmemory [ 3 ] = m_CHRmemory [ ((data>>1)&0x78)+3 ];
+   m_pCHRmemory [ 4 ] = m_CHRmemory [ ((data>>1)&0x78)+4 ];
+   m_pCHRmemory [ 5 ] = m_CHRmemory [ ((data>>1)&0x78)+5 ];
+   m_pCHRmemory [ 6 ] = m_CHRmemory [ ((data>>1)&0x78)+6 ];
+   m_pCHRmemory [ 7 ] = m_CHRmemory [ ((data>>1)&0x78)+7 ];
 
    if ( nesIsDebuggable() )
    {

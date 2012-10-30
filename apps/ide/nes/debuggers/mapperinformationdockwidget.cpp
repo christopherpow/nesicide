@@ -173,6 +173,9 @@ void MapperInformationDockWidget::updateInformation()
 
    case 28:
       nesMapper028GetInformation(&mapper028Info);
+      ui->supervisorRegSel28->setChecked(mapper028Info.regSel&0x80);
+      sprintf ( buffer, "%X", mapper028Info.regSel&0x01 );
+      ui->regSel28->setText ( buffer );
       sprintf ( buffer, "%02X", mapper028Info.prgMode );
       ui->prgMode28->setText ( buffer );
       sprintf ( buffer, "%02X", mapper028Info.prgSize );
