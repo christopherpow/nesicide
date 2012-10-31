@@ -3605,8 +3605,15 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
 
    if ( addr >= 0x8000 )
    {
-      (*pTarget) = eTarget_ROM;
-      data = CROM::PRGROM ( addr );
+      if ( CROM::MAPPER() )
+      {
+         (*pTarget) = eTarget_Mapper;
+      }
+      else
+      {
+         (*pTarget) = eTarget_ROM;
+      }
+      data = CROM::MAPPER ( addr );
    }
    else if ( addr < 0x2000 )
    {

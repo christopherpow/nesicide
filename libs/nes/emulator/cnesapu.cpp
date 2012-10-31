@@ -787,6 +787,7 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
    {
       m_period &= 0xFF00;
       m_period |= data;
+      m_period += 1;
    }
    else if ( addr == 3 )
    {
@@ -870,7 +871,6 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
 
       m_period &= 0x00FF;
       m_period |= ((data&0x07)<<8);
-      m_period += 1;
       m_reg3Wrote = true;
       m_seqTick = 0;
    }
@@ -930,6 +930,7 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
    {
       m_period &= 0xFF00;
       m_period |= data;
+      m_period += 1;
    }
    else if ( addr == 3 )
    {
@@ -1013,7 +1014,6 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
 
       m_period &= 0x00FF;
       m_period |= ((data&0x07)<<8);
-      m_period += 1;
       m_linearCounterHalted = true;
       m_reg3Wrote = true;
    }

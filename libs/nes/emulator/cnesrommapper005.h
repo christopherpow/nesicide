@@ -24,11 +24,14 @@ protected:
    // MMC5
    static uint8_t m_prgMode;
    static uint8_t m_chrMode;
+   static uint8_t m_chrHigh;
    static uint8_t m_irqScanline;
    static uint8_t m_irqEnabled;
    static uint8_t m_irqStatus;
-   static bool          m_prgRAM [ 4 ];
+   static bool          m_prgRAM [ 3 ];
    static bool          m_wp;
+   static uint32_t m_ppuCycle;
+   static uint8_t m_chr[12];
    static uint8_t m_wp1;
    static uint8_t m_wp2;
    static uint8_t  m_mult1;
