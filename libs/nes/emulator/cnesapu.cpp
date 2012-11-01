@@ -552,7 +552,8 @@ void CAPU::RESET ( void )
    apuDataAvailable = 0;
 }
 
-CAPUOscillator::CAPUOscillator ()
+CAPUOscillator::CAPUOscillator (uint8_t periodAdjust) :
+      m_periodAdjust(periodAdjust)
 {
    int32_t idx;
 
@@ -745,7 +746,14 @@ uint32_t CAPUOscillator::CLKDIVIDER ( void )
 
       if ( m_periodCounter == 0 )
       {
-         m_periodCounter = m_period;
+         if ( m_periodAdjust == 1 )
+         {
+            m_periodCounter = m_period+m_periodAdjust;
+         }
+         else if ( m_periodAdjust == 2 )
+         {
+            m_periodCounter = (m_period<<1)+2;
+         }
          clockIt = 1;
       }
    }
@@ -787,7 +795,6 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
    {
       m_period &= 0xFF00;
       m_period |= data;
-      m_period += 1;
    }
    else if ( addr == 3 )
    {
@@ -882,10 +889,7 @@ void CAPUSquare::TIMERTICK ( void )
    uint32_t seqTicks;
 
    // divide timer by 2...
-   m_timerClk += clockIt;
-   seqTicks = m_timerClk>>1;
-   m_timerClk &= 0x1;
-   m_seqTick += seqTicks;
+   m_seqTick -= clockIt;
    m_seqTick &= 0x7;
 
    if ( (!m_muted) &&
@@ -930,7 +934,6 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
    {
       m_period &= 0xFF00;
       m_period |= data;
-      m_period += 1;
    }
    else if ( addr == 3 )
    {
@@ -1058,15 +1061,6 @@ static uint16_t m_noisePeriod [ 3 ][ 16 ] =
       4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068
    }
 };
-
-CAPUNoise::CAPUNoise ()
-   : CAPUOscillator(), m_mode(0), m_shiftRegister(1)
-{
-}
-
-CAPUNoise::~CAPUNoise()
-{
-}
 
 void CAPUNoise::APU ( uint32_t addr, uint8_t data )
 {

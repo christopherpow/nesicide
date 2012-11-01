@@ -575,7 +575,8 @@ void MainWindow::on_actionPreferences_triggered()
 
    if ( EmulatorPrefsDialog::videoSettingsChanged() )
    {
-      resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240)+41);
+      ui->frame->resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240));
+//      resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240)+41);
    }
 
    if ( EmulatorPrefsDialog::controllerSettingsChanged() )

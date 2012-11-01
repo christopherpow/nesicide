@@ -42,7 +42,7 @@
 class CAPUOscillator
 {
 public:
-   CAPUOscillator();
+   CAPUOscillator(uint8_t periodAdjust);
 
    // An APU channel should know what channel ID it has.  This isn't
    // useful in the APU itself but is needed by the debugger inspectors
@@ -194,6 +194,9 @@ protected:
    // divider will emit a clock edge.
    uint16_t m_period;
 
+   // The number of cycles to add to the period to adjust its divider.
+   uint16_t m_periodAdjust;
+
    // The current number of cycles into the counting of the
    // current period.  Once this counter hits m_period the
    // timer divider emits a clock edge that drives the rest of
@@ -303,8 +306,7 @@ class CAPUSquare : public CAPUOscillator
 {
 public:
    CAPUSquare() :
-      CAPUOscillator(),
-      m_timerClk(0),
+      CAPUOscillator(2),
       m_seqTick(0),
       m_duty(0) {};
 
@@ -325,13 +327,9 @@ public:
       CAPUOscillator::RESET();
       m_duty = 0;
       m_seqTick = 0;
-      m_timerClk = 0;
    }
 
 protected:
-   // The square waveform channel has an internal divide-by-two clock.
-   int32_t           m_timerClk;
-
    // The square waveform channel has an internal 8-step sequencer for
    // generating the appropriate duty-cycle.
    int32_t           m_seqTick;
@@ -354,7 +352,7 @@ class CAPUTriangle : public CAPUOscillator
 {
 public:
    CAPUTriangle() :
-      CAPUOscillator(),
+      CAPUOscillator(1),
       m_seqTick(0) {};
 
    // This method sets data internal to the APU channel.  There is no
@@ -398,8 +396,10 @@ protected:
 class CAPUNoise : public CAPUOscillator
 {
 public:
-   CAPUNoise();
-   virtual ~CAPUNoise();
+   CAPUNoise ()
+      : CAPUOscillator(0), m_mode(0), m_shiftRegister(1)
+   {
+   }
 
    // This method sets data internal to the APU channel.  There is no
    // get method because the APU channel's registers are write-only.
@@ -442,7 +442,7 @@ protected:
 class CAPUDMC : public CAPUOscillator
 {
 public:
-   CAPUDMC() : CAPUOscillator(),
+   CAPUDMC() : CAPUOscillator(0),
       m_dmaReaderAddrPtr(0x0000),
       m_dmcIrqEnabled(false),
       m_dmcIrqAsserted(false),
