@@ -68,12 +68,13 @@ MainWindow::MainWindow(QWidget* parent) :
    bool dmc = EmulatorPrefsDialog::getDMCEnabled();
    int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
+   nesSetAudioChannelMask(mask);
+
    ui->actionSquare_1->setChecked(square1);
    ui->actionSquare_2->setChecked(square2);
    ui->actionTriangle->setChecked(triangle);
    ui->actionNoise->setChecked(noise);
    ui->actionDelta_Modulation->setChecked(dmc);
-   ui->actionMute_All->setChecked(!mask);
 
    QStringList sl_raw = QApplication::arguments();
    QStringList sl_nes = sl_raw.filter ( ".nes", Qt::CaseInsensitive );
@@ -526,20 +527,6 @@ void MainWindow::on_actionSquare_1_toggled(bool value)
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x01));
    }
-}
-
-void MainWindow::on_actionMute_All_toggled(bool value)
-{
-   EmulatorPrefsDialog::setSquare1Enabled(!value);
-   EmulatorPrefsDialog::setSquare2Enabled(!value);
-   EmulatorPrefsDialog::setTriangleEnabled(!value);
-   EmulatorPrefsDialog::setNoiseEnabled(!value);
-   EmulatorPrefsDialog::setDMCEnabled(!value);
-   ui->actionSquare_1->setChecked(!value);
-   ui->actionSquare_2->setChecked(!value);
-   ui->actionTriangle->setChecked(!value);
-   ui->actionNoise->setChecked(!value);
-   ui->actionDelta_Modulation->setChecked(!value);
 }
 
 void MainWindow::on_actionAbout_triggered()

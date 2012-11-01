@@ -471,9 +471,6 @@ void MainWindow::createNesUi()
    actionDendy = new QAction("Dendy",this);
    actionDendy->setObjectName(QString::fromUtf8("actionDendy"));
    actionDendy->setCheckable(true);
-   actionMute_All = new QAction("Mute All",this);
-   actionMute_All->setObjectName(QString::fromUtf8("actionMute_All"));
-   actionMute_All->setCheckable(true);
    actionSquare_1 = new QAction("Square 1",this);
    actionSquare_1->setObjectName(QString::fromUtf8("actionSquare_1"));
    actionSquare_1->setCheckable(true);
@@ -555,8 +552,6 @@ void MainWindow::createNesUi()
    menuSystem->addAction(actionNTSC);
    menuSystem->addAction(actionPAL);
    menuSystem->addAction(actionDendy);
-   menuAudio->addAction(actionMute_All);
-   menuAudio->addSeparator();
    menuAudio->addAction(actionSquare_1);
    menuAudio->addAction(actionSquare_2);
    menuAudio->addAction(actionTriangle);
@@ -820,7 +815,6 @@ void MainWindow::createNesUi()
    QObject::connect(actionEmulation_Window,SIGNAL(toggled(bool)),this,SLOT(actionEmulation_Window_toggled(bool)));
    QObject::connect(actionFullscreen,SIGNAL(toggled(bool)),this,SLOT(actionFullscreen_toggled(bool)));
    QObject::connect(actionRun_Test_Suite,SIGNAL(triggered()),this,SLOT(actionRun_Test_Suite_triggered()));
-   QObject::connect(actionMute_All,SIGNAL(toggled(bool)),this,SLOT(actionMute_All_toggled(bool)));
    QObject::connect(actionSquare_1,SIGNAL(toggled(bool)),this,SLOT(actionSquare_1_toggled(bool)));
    QObject::connect(actionSquare_2,SIGNAL(toggled(bool)),this,SLOT(actionSquare_2_toggled(bool)));
    QObject::connect(actionTriangle,SIGNAL(toggled(bool)),this,SLOT(actionTriangle_toggled(bool)));
@@ -879,12 +873,13 @@ void MainWindow::createNesUi()
    bool dmc = EmulatorPrefsDialog::getDMCEnabled();
    int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
+   nesSetAudioChannelMask(mask);
+
    actionSquare_1->setChecked(square1);
    actionSquare_2->setChecked(square2);
    actionTriangle->setChecked(triangle);
    actionNoise->setChecked(noise);
    actionDelta_Modulation->setChecked(dmc);
-   actionMute_All->setChecked(!mask);
 
    m_targetLoaded = "nes";
 
@@ -922,10 +917,20 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Cartridge EXRAM Memory Inspector" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Information" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Register Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Joypad Logger" );
+
+   // Properly kill and destroy the thread we created above.
+   m_pNESEmulatorThread->kill();
+   m_pNESEmulatorThread->wait();
+
+   delete m_pNESEmulatorThread;
+   m_pNESEmulatorThread = NULL;
+
+   CObjectRegistry::removeObject ( "Emulator" );
 
    m_pNESEmulator->hide();
    removeDockWidget(m_pNESEmulator);
-   delete m_pNESEmulator;
+   m_pNESEmulator->deleteLater();
    removeDockWidget(m_pAssemblyInspector);
    m_pAssemblyInspector->deleteLater();
    removeDockWidget(m_pBreakpointInspector);
@@ -970,6 +975,8 @@ void MainWindow::destroyNesUi()
    m_pMapperInformationInspector->deleteLater();
    removeDockWidget(m_pBinMapperMemoryInspector);
    m_pBinMapperMemoryInspector->deleteLater();
+   removeDockWidget(m_pJoypadLoggerInspector);
+   m_pJoypadLoggerInspector->deleteLater();
    actionFullscreen->deleteLater();
    actionEmulation_Window->deleteLater();
    actionAssembly_Inspector->deleteLater();
@@ -998,7 +1005,6 @@ void MainWindow::destroyNesUi()
    actionNTSC->deleteLater();
    actionPAL->deleteLater();
    actionDendy->deleteLater();
-   actionMute_All->deleteLater();
    actionSquare_1->deleteLater();
    actionSquare_2->deleteLater();
    actionTriangle->deleteLater();
@@ -1013,15 +1019,6 @@ void MainWindow::destroyNesUi()
    menuSystem->deleteLater();
    menuAudio->deleteLater();
    debuggerToolBar->deleteLater();
-
-   // Properly kill and destroy the thread we created above.
-   m_pNESEmulatorThread->kill();
-   m_pNESEmulatorThread->wait();
-
-   delete m_pNESEmulatorThread;
-   m_pNESEmulatorThread = NULL;
-
-   CObjectRegistry::removeObject ( "Emulator" );
 
    m_targetLoaded = "none";
 }
@@ -2562,7 +2559,6 @@ void MainWindow::actionDelta_Modulation_toggled(bool value)
    EmulatorPrefsDialog::setDMCEnabled(value);
    if ( value )
    {
-      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x10);
    }
    else
@@ -2576,7 +2572,6 @@ void MainWindow::actionNoise_toggled(bool value)
    EmulatorPrefsDialog::setNoiseEnabled(value);
    if ( value )
    {
-      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x08);
    }
    else
@@ -2590,7 +2585,6 @@ void MainWindow::actionTriangle_toggled(bool value)
    EmulatorPrefsDialog::setTriangleEnabled(value);
    if ( value )
    {
-      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x04);
    }
    else
@@ -2604,7 +2598,6 @@ void MainWindow::actionSquare_2_toggled(bool value)
    EmulatorPrefsDialog::setSquare2Enabled(value);
    if ( value )
    {
-      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x02);
    }
    else
@@ -2618,35 +2611,11 @@ void MainWindow::actionSquare_1_toggled(bool value)
    EmulatorPrefsDialog::setSquare1Enabled(value);
    if ( value )
    {
-      actionMute_All->setChecked(false);
       nesSetAudioChannelMask(nesGetAudioChannelMask()|0x01);
    }
    else
    {
       nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x01));
-   }
-}
-
-void MainWindow::actionMute_All_toggled(bool value)
-{
-   EmulatorPrefsDialog::setSquare1Enabled(!value);
-   EmulatorPrefsDialog::setSquare2Enabled(!value);
-   EmulatorPrefsDialog::setTriangleEnabled(!value);
-   EmulatorPrefsDialog::setNoiseEnabled(!value);
-   EmulatorPrefsDialog::setDMCEnabled(!value);
-   actionSquare_1->setChecked(!value);
-   actionSquare_2->setChecked(!value);
-   actionTriangle->setChecked(!value);
-   actionNoise->setChecked(!value);
-   actionDelta_Modulation->setChecked(!value);
-
-   if ( value )
-   {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
-   }
-   else
-   {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x1F);
    }
 }
 
@@ -2685,16 +2654,8 @@ void MainWindow::on_actionPreferences_triggered()
       bool dmc = EmulatorPrefsDialog::getDMCEnabled();
       int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
-      if ( !(square1|square2|triangle|noise|dmc) )
-      {
-         actionMute_All->setChecked(true);
-         nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
-      }
-      else
-      {
-         actionMute_All->setChecked(false);
-         nesSetAudioChannelMask(nesGetAudioChannelMask()|mask);
-      }
+      nesSetAudioChannelMask(mask);
+
       actionSquare_1->setChecked(square1);
       actionSquare_2->setChecked(square2);
       actionTriangle->setChecked(triangle);

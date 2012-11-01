@@ -147,7 +147,6 @@ protected:
    QAction *actionNTSC;
    QAction *actionPAL;
    QAction *actionDendy;
-   QAction *actionMute_All;
    QAction *actionSquare_1;
    QAction *actionSquare_2;
    QAction *actionTriangle;
@@ -244,7 +243,6 @@ private slots:
    // NES-specific UI elements.
    void actionFullscreen_toggled(bool value);
    void actionRun_Test_Suite_triggered();
-   void actionMute_All_toggled(bool );
    void actionSquare_1_toggled(bool );
    void actionSquare_2_toggled(bool );
    void actionTriangle_toggled(bool );

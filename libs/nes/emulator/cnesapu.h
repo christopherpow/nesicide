@@ -604,10 +604,10 @@ public:
    static uint8_t MUTED ( void )
    {
       return ( (!m_square[0].MUTED())|
-               (!m_square[1].MUTED()<<1)|
-               (!m_triangle.MUTED()<<2)|
-               (!m_noise.MUTED()<<3)|
-               (!m_dmc.MUTED()<<4) );
+               (!(m_square[1].MUTED()<<1))|
+               (!(m_triangle.MUTED()<<2))|
+               (!(m_noise.MUTED()<<3))|
+               (!(m_dmc.MUTED()<<4)) );
    }
    static void MUTE ( uint8_t mask )
    {

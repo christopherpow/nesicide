@@ -56,7 +56,6 @@ private slots:
    void on_actionTriangle_toggled(bool );
    void on_actionSquare_2_toggled(bool );
    void on_actionSquare_1_toggled(bool );
-   void on_actionMute_All_toggled(bool );
    void on_actionPreferences_triggered();
    void on_actionAbout_triggered();
    void on_actionPAL_triggered();
