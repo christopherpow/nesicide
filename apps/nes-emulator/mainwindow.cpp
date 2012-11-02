@@ -47,34 +47,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
    EmulatorPrefsDialog::readSettings();
 
-   // Set TV standard to use.
-   int systemMode = EmulatorPrefsDialog::getTVStandard();
-   ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
-   ui->actionPAL->setChecked(systemMode==MODE_PAL);
-   ui->actionDendy->setChecked(systemMode==MODE_DENDY);
-   nesSetSystemMode(systemMode);
-
-   // Set up controllers.
-   nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
-   nesSetControllerSpecial(0,EmulatorPrefsDialog::getControllerSpecial(0));
-   nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
-   nesSetControllerSpecial(1,EmulatorPrefsDialog::getControllerSpecial(1));
-
-   // Set sound channel enables.
-   bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
-   bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
-   bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
-   bool noise = EmulatorPrefsDialog::getNoiseEnabled();
-   bool dmc = EmulatorPrefsDialog::getDMCEnabled();
-   int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
-
-   nesSetAudioChannelMask(mask);
-
-   ui->actionSquare_1->setChecked(square1);
-   ui->actionSquare_2->setChecked(square2);
-   ui->actionTriangle->setChecked(triangle);
-   ui->actionNoise->setChecked(noise);
-   ui->actionDelta_Modulation->setChecked(dmc);
+   updateFromEmulatorPrefs();
 
    QStringList sl_raw = QApplication::arguments();
    QStringList sl_nes = sl_raw.filter ( ".nes", Qt::CaseInsensitive );
@@ -536,12 +509,8 @@ void MainWindow::on_actionAbout_triggered()
    dlg->deleteLater();
 }
 
-void MainWindow::on_actionPreferences_triggered()
+void MainWindow::updateFromEmulatorPrefs()
 {
-   EmulatorPrefsDialog dlg;
-
-   dlg.exec();
-
    // Synchronize UI elements with changes.
    // Set TV standard to use.
    int systemMode = EmulatorPrefsDialog::getTVStandard();
@@ -557,16 +526,8 @@ void MainWindow::on_actionPreferences_triggered()
    bool dmc = EmulatorPrefsDialog::getDMCEnabled();
    int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
-   if ( !(square1|square2|triangle|noise|dmc) )
-   {
-      ui->actionMute_All->setChecked(true);
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x1F));
-   }
-   else
-   {
-      ui->actionMute_All->setChecked(false);
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|mask);
-   }
+   nesSetAudioChannelMask(mask);
+
    ui->actionSquare_1->setChecked(square1);
    ui->actionSquare_2->setChecked(square2);
    ui->actionTriangle->setChecked(triangle);
@@ -575,8 +536,7 @@ void MainWindow::on_actionPreferences_triggered()
 
    if ( EmulatorPrefsDialog::videoSettingsChanged() )
    {
-      ui->frame->resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240));
-//      resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240)+41);
+      resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240)+41);
    }
 
    if ( EmulatorPrefsDialog::controllerSettingsChanged() )
@@ -587,6 +547,15 @@ void MainWindow::on_actionPreferences_triggered()
       nesSetControllerType(1,EmulatorPrefsDialog::getControllerType(1));
       nesSetControllerSpecial(1,EmulatorPrefsDialog::getControllerSpecial(1));
    }
+}
+
+void MainWindow::on_actionPreferences_triggered()
+{
+   EmulatorPrefsDialog dlg;
+
+   dlg.exec();
+
+   updateFromEmulatorPrefs();
 }
 
 void MainWindow::on_actionFullscreen_toggled(bool value)

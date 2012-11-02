@@ -89,6 +89,7 @@ void MapperInformationDockWidget::machineReady()
    {
       ui->tabWidget->setTabEnabled(InternalsPage, false);
    }
+   ui->tabWidget->setCurrentIndex(PPUMirroringPage);
 }
 
 void MapperInformationDockWidget::updateInformation()

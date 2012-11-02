@@ -171,6 +171,7 @@ private:
    void saveEmulatorState(QString fileName);
    void closeProject();
    void explodeTemplate(QString templateDirName,QString localDirName,QString* projectFileName);
+   void updateFromEmulatorPrefs();
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );

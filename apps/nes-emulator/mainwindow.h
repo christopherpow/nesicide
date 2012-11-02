@@ -40,6 +40,9 @@ private:
    EmulatorControl* m_pEmulatorControl;
    NESEmulatorThread* m_pNESEmulatorThread;
 
+private:
+   void updateFromEmulatorPrefs();
+
 signals:
    void primeEmulator(CCartridge* pCartridge);
    void startEmulation();
