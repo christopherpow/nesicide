@@ -72,7 +72,6 @@ typedef void (*SYNCPPUFUNC)(uint32_t ppuCycle, uint32_t ppuAddr);
 typedef void (*SYNCCPUFUNC)(void);
 typedef void (*LOADFUNC)(MapperState* data);
 typedef void (*SAVEFUNC)(MapperState* data);
-typedef void (*LATCHFUNC)(uint32_t addr);
 
 typedef struct _MapperFuncs
 {
@@ -83,7 +82,6 @@ typedef struct _MapperFuncs
    MAPPERWFUNC lowwrite;
    SYNCPPUFUNC sync_ppu;
    SYNCCPUFUNC sync_cpu;
-   LATCHFUNC latch;
    LOADFUNC load;
    SAVEFUNC save;
    bool     remapPrg;

@@ -12,7 +12,7 @@ public:
    static void RESET ();
    static uint32_t MAPPER ( uint32_t addr );
    static void MAPPER ( uint32_t addr, uint8_t data );
-   static void LATCH ( uint32_t addr );
+   static void SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
 

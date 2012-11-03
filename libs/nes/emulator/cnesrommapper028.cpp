@@ -167,17 +167,11 @@ uint32_t CROMMapper028::MAPPER ( uint32_t addr )
 
 void CROMMapper028::MAPPER ( uint32_t addr, uint8_t data )
 {
-	if ( (m_reg_sel&0x02 == 0) && (m_mirror&0x02 == 0) )
+	if ( ((m_reg_sel&0x02) == 0) && ((m_mirror&0x02) == 0) )
    {
 		//$0x registers while in mirror mode 0 & 1 only
       m_mirror &= 0xFE;
 		m_mirror |= (data&0x10)>>4;
-   }
-	else if ( m_reg_sel == 2 )
-   {
-		//$80 register
-      m_mirror &= 0xFE;
-		m_mirror |= (data&0x01);
    }
 
    switch ( m_reg_sel )
@@ -191,8 +185,7 @@ void CROMMapper028::MAPPER ( uint32_t addr, uint8_t data )
    case 2:
       m_prg_size = (data&0x30)>>4;
       m_prg_mode = (data&0x0C)>>2;
-      m_mirror &= 0xFD;
-      m_mirror |= (data&0x02);
+      m_mirror = (data&0x03);
       break;
    case 3:
       m_prg_outer_bank = (data&0x3F);

@@ -200,38 +200,38 @@ void CROMMapper009::MAPPER ( uint32_t addr, uint8_t data )
    }
 }
 
-void CROMMapper009::LATCH ( uint32_t addr )
+void CROMMapper009::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
 {
-   if ( (addr&0x1FF0) == 0x0FD0 )
+   if ( (ppuAddr&0x1FF0) == 0x0FD0 )
    {
       m_latch0 = 0xFD;
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FD>>1) ] + ((m_latch0FD&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
+      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FD<<2)+0 ];
+      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FD<<2)+1 ];
+      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FD<<2)+2 ];
+      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FD<<2)+3 ];
    }
-   else if ( (addr&0x1FF0) == 0x0FE0 )
+   else if ( (ppuAddr&0x1FF0) == 0x0FE0 )
    {
       m_latch0 = 0xFE;
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FE>>1) ] + ((m_latch0FE&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
+      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FE<<2)+0 ];
+      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FE<<2)+1 ];
+      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FE<<2)+2 ];
+      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FE<<2)+3 ];
    }
-   else if ( (addr&0x1FF0) == 0x1FD0 )
+   else if ( (ppuAddr&0x1FF0) == 0x1FD0 )
    {
       m_latch1 = 0xFD;
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FD>>1) ] + ((m_latch1FD&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
+      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FD<<2)+0 ];
+      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FD<<2)+1 ];
+      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FD<<2)+2 ];
+      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FD<<2)+3 ];
    }
-   else if ( (addr&0x1FF0) == 0x1FE0 )
+   else if ( (ppuAddr&0x1FF0) == 0x1FE0 )
    {
       m_latch1 = 0xFE;
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (0<<UPSHIFT_1KB);
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (1<<UPSHIFT_1KB);
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (2<<UPSHIFT_1KB);
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FE>>1) ] + ((m_latch1FE&0x01)<<UPSHIFT_4KB) + (3<<UPSHIFT_1KB);
+      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FE<<2)+0 ];
+      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FE<<2)+1 ];
+      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FE<<2)+2 ];
+      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FE<<2)+3 ];
    }
 }

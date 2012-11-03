@@ -746,7 +746,7 @@ uint32_t CAPUOscillator::CLKDIVIDER ( void )
 
       if ( m_periodCounter == 0 )
       {
-         if ( m_periodAdjust == 1 )
+         if ( m_periodAdjust < 2 )
          {
             m_periodCounter = m_period+m_periodAdjust;
          }
