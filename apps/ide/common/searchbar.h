@@ -15,6 +15,7 @@ public:
    explicit SearchBar(QString settingsPrefix,QWidget *parent = 0);
    virtual ~SearchBar();
 
+   void showCloseButton(bool show);
    QString currentSearchText();
    bool    isCaseSensitive();
    bool    isRegularExpression();
@@ -23,6 +24,7 @@ public:
 
 protected:
    void focusInEvent(QFocusEvent *event);
+   bool eventFilter(QObject *object, QEvent *event);
 
 private:
    Ui::SearchBar *ui;
@@ -32,6 +34,7 @@ signals:
    void snapTo(QString item);
 
 private slots:
+   void on_close_clicked();
    void activateMe(QString item);
    void on_direction_toggled(bool checked);
    void on_regex_toggled(bool checked);

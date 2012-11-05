@@ -110,6 +110,7 @@ private slots:
    void editor_paste();
    void editor_delete();
    void editor_selectAll();
+   void editor_find();
    void editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers);
    void editor_linesChanged();
    void editor_modificationChanged(bool m);

@@ -47,7 +47,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AnimatedDocks</set>
   </property>
-  <widget class="QWidget" name="centralWidget">
+  <widget class="QWidget" name="mainWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
@@ -292,7 +292,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSearch"/>
-   <addaction name="separator"/>
   </widget>
   <action name="actionE_xit">
    <property name="icon">

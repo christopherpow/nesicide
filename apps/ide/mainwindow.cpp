@@ -88,7 +88,9 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Source Navigator", m_pSourceNavigator );
 
    m_pSearchBar = new SearchBar("SearchBar");
-   searchToolBar->addWidget(m_pSearchBar);
+   m_pSearchBar->showCloseButton(true);
+   centralWidget()->layout()->addWidget(m_pSearchBar);
+   m_pSearchBar->hide();
    CDockWidgetRegistry::addWidget ( "Search Bar", m_pSearchBar );
 
    m_pSearch = new SearchDockWidget();
@@ -1285,6 +1287,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
    if ( (event->key() == Qt::Key_F) &&
         (event->modifiers() == Qt::ControlModifier) )
    {
+      m_pSearchBar->show();
       m_pSearchBar->setFocus();
    }
 }

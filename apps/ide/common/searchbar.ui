@@ -32,9 +32,23 @@
       <number>0</number>
      </property>
      <item>
+      <widget class="QToolButton" name="close">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resource.qrc">
+         <normaloff>:/resources/edit_delete.png</normaloff>:/resources/edit_delete.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="searchText">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>

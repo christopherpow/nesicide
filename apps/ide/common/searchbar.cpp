@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QCompleter>
 #include <QLineEdit>
+#include <QKeyEvent>
 
 SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
     QWidget(parent),
@@ -29,6 +30,10 @@ SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
       ui->searchText->addItem(search);
    }
    ui->searchText->completer()->setCompletionMode(QCompleter::PopupCompletion);
+
+   ui->searchText->installEventFilter(this);
+
+   ui->close->hide();
 }
 
 SearchBar::~SearchBar()
@@ -36,9 +41,41 @@ SearchBar::~SearchBar()
    delete ui;
 }
 
+bool SearchBar::eventFilter(QObject* object, QEvent *event)
+{
+   // Only allow ESC to close if close button is shown.
+   if ( ui->close->isVisible() )
+   {
+      if ( (object == ui->searchText) &&
+           (event->type() == QEvent::KeyPress) )
+      {
+         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+         if ( keyEvent->key() == Qt::Key_Escape )
+         {
+            hide();
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
 void SearchBar::focusInEvent(QFocusEvent *event)
 {
    ui->searchText->setFocus();
+   ui->searchText->lineEdit()->setSelection(0,ui->searchText->currentText().length());
+}
+
+void SearchBar::showCloseButton(bool show)
+{
+   if ( show )
+   {
+      ui->close->show();
+   }
+   else
+   {
+      ui->close->hide();
+   }
 }
 
 QString SearchBar::currentSearchText()
@@ -139,9 +176,16 @@ void SearchBar::on_direction_toggled(bool checked)
 
 void SearchBar::activateMe(QString item)
 {
+   show();
    setFocus();
    if ( !item.isEmpty() )
    {
       ui->searchText->setEditText(item);
+      ui->searchText->lineEdit()->setSelection(0,ui->searchText->currentText().length());
    }
+}
+
+void SearchBar::on_close_clicked()
+{
+   hide();
 }

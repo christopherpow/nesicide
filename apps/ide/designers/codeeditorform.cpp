@@ -41,6 +41,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_pBreakpoints = NULL;
 
+   ui->gridLayout->setSpacing(0);
+
    m_scintilla = new QsciScintilla();
 
    m_scintilla->setFrameShape(QFrame::NoFrame);
@@ -221,7 +223,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    const QString GO_TO_DEFINITION_TEXT = "Go to Definition of ";
    const QString ADD_TO_WATCH_TEXT = "Watch ";
 
-   QMenu menu;
+   QMenu& menu = editorMenu();
    int bp;
    int addr = 0;
    int absAddr = 0;
@@ -231,6 +233,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    bool undoable = m_scintilla->isUndoAvailable();
    bool redoable = m_scintilla->isRedoAvailable();
    bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
+   QAction* action;
 
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
@@ -243,22 +246,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 
    m_contextMenuLine = m_scintilla->lineAt(pos);
 
-   QAction* action;
-   action = menu.addAction("Undo",this,SLOT(editor_undo()),QKeySequence(Qt::CTRL + Qt::Key_Z));
-   action->setEnabled(writable && undoable);
-   action = menu.addAction("Redo",this,SLOT(editor_redo()),QKeySequence(Qt::CTRL + Qt::Key_Y));
-   action->setEnabled(writable && redoable);
    menu.addSeparator();
-   action = menu.addAction("Cut",this,SLOT(editor_cut()),QKeySequence(Qt::CTRL + Qt::Key_X));
-   action->setEnabled(writable && m_scintilla->hasSelectedText());
-   action = menu.addAction("Copy",this,SLOT(editor_copy()),QKeySequence(Qt::CTRL + Qt::Key_C));
-   action->setEnabled(m_scintilla->hasSelectedText());
-   action = menu.addAction("Paste",this,SLOT(editor_paste()),QKeySequence(Qt::CTRL + Qt::Key_V));
-   action->setEnabled(writable && pasteable);
-//   action = menu.addAction("Delete",this,SLOT(editor_delete()));
-//   action->setEnabled(writable && m_scintilla->hasSelectedText());
-   menu.addSeparator();
-   action = menu.addAction("Select All",this,SLOT(editor_selectAll()),QKeySequence(Qt::CTRL + Qt::Key_A));
 
    if ( m_pBreakpoints )
    {
@@ -597,6 +585,11 @@ void CodeEditorForm::editor_delete()
 void CodeEditorForm::editor_selectAll()
 {
    m_scintilla->SendScintilla(QsciScintilla::SCI_SELECTALL, (unsigned long)0, (long)0);
+}
+
+void CodeEditorForm::editor_find()
+{
+   emit activateSearchBar(m_scintilla->selectedText());
 }
 
 void CodeEditorForm::editor_modificationChanged(bool m)
@@ -1389,6 +1382,8 @@ QMenu& CodeEditorForm::editorMenu()
 //   action->setEnabled(writable && m_scintilla->hasSelectedText());
    m_menu.addSeparator();
    action = m_menu.addAction("Select All",this,SLOT(editor_selectAll()),QKeySequence(Qt::CTRL + Qt::Key_A));
+   m_menu.addSeparator();
+   action = m_menu.addAction("Find",this,SLOT(editor_find()),QKeySequence(Qt::CTRL + Qt::Key_F));
 
    return m_menu;
 }
