@@ -53,10 +53,10 @@ public:
    }
 
    // This method mutes or unmutes this channel.
-   void MUTE(bool mute) { m_muted = mute; }
+   void MUTE(bool mute) { m_muted = !!mute; }
 
    // This method returns the mute state of the channel.
-   bool MUTED() { return m_muted; }
+   bool MUTED() { return !!m_muted; }
 
    // This method sets data internal to the APU channel.  There is no
    // get method because the APU channels' registers are write-only.
@@ -604,10 +604,10 @@ public:
    static uint8_t MUTED ( void )
    {
       return ( (!m_square[0].MUTED())|
-               (!(m_square[1].MUTED()<<1))|
-               (!(m_triangle.MUTED()<<2))|
-               (!(m_noise.MUTED()<<3))|
-               (!(m_dmc.MUTED()<<4)) );
+               ((!m_square[1].MUTED())<<1)|
+               ((!m_triangle.MUTED())<<2)|
+               ((!m_noise.MUTED())<<3)|
+               ((!m_dmc.MUTED())<<4) );
    }
    static void MUTE ( uint8_t mask )
    {

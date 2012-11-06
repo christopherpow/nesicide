@@ -50,6 +50,8 @@ public:
    static bool annotateSource() { return m_annotateSource; }
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
+   static int eolMode() { return m_eolMode; }
+   static bool eolForceConsistent() { return m_eolForceConsistent; }
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
 
@@ -97,6 +99,8 @@ private:
    static bool m_annotateSource;
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
+   static int m_eolMode;
+   static bool m_eolForceConsistent;
 
 private slots:
    void on_buttonBox_accepted();

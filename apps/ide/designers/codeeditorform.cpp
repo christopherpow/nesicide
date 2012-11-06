@@ -102,6 +102,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
    m_toolTipTimer = startTimer(50);
 
+   m_scintilla->setEolMode((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
+
    m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
    m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
    m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
@@ -328,6 +330,12 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 
 void CodeEditorForm::onSave()
 {
+   // Force EOL conversion if desired.
+   if ( EnvironmentSettingsDialog::eolForceConsistent() )
+   {
+      m_scintilla->convertEols((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
+   }
+
    if ( treeLink() )
    {
       // This editor is paired with a project item, use the normal
@@ -995,6 +1003,12 @@ void CodeEditorForm::setSourceCode(QString source)
 
    // Force repaint of error tags.
    compiler_compileDone(true);
+
+   // Force EOL conversion if desired.
+   if ( EnvironmentSettingsDialog::eolForceConsistent() )
+   {
+      m_scintilla->convertEols((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
+   }
 
    // Setting the text of the Scintilla object unfortunately marks
    // it as "modified".  Reset our modified flag.

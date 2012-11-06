@@ -138,8 +138,6 @@
      <property name="title">
       <string>Audio</string>
      </property>
-     <addaction name="actionMute_All"/>
-     <addaction name="separator"/>
      <addaction name="actionSquare_1"/>
      <addaction name="actionSquare_2"/>
      <addaction name="actionTriangle"/>
@@ -198,22 +196,9 @@
     <string>&amp;About NESICIDE</string>
    </property>
   </action>
-  <action name="actionController_Mapping">
-   <property name="text">
-    <string>Controller Mapping</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences...</string>
-   </property>
-  </action>
-  <action name="actionMute_All">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Mute All</string>
    </property>
   </action>
   <action name="actionSquare_1">

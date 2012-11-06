@@ -164,7 +164,6 @@
     <property name="title">
      <string>Emulator</string>
     </property>
-    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menu_File">
     <property name="title">
@@ -468,16 +467,6 @@
    </property>
    <property name="text">
     <string>Environment Settings...</string>
-   </property>
-  </action>
-  <action name="actionView">
-   <property name="text">
-    <string>View</string>
-   </property>
-  </action>
-  <action name="actionPreferences">
-   <property name="text">
-    <string>Preferences...</string>
    </property>
   </action>
   <action name="actionOnline_Help">

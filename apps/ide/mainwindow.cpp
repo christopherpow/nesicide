@@ -464,6 +464,8 @@ void MainWindow::createNesUi()
    actionAPUInformation_Inspector->setObjectName(QString::fromUtf8("actionAPUInformation_Inspector"));
    actionAPUInformation_Inspector->setIcon(icon13);
    actionAPUInformation_Inspector->setCheckable(true);
+   actionPreferences = new QAction("Preferences...",this);
+   actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
    actionNTSC = new QAction("NTSC",this);
    actionNTSC->setObjectName(QString::fromUtf8("actionNTSC"));
    actionNTSC->setCheckable(true);
@@ -551,6 +553,7 @@ void MainWindow::createNesUi()
    menuEmulator->addSeparator();
    menuEmulator->addAction(actionRun_Test_Suite);
    menuEmulator->addSeparator();
+   menuEmulator->addAction(actionPreferences);
    menuSystem->addAction(actionNTSC);
    menuSystem->addAction(actionPAL);
    menuSystem->addAction(actionDendy);
@@ -974,6 +977,7 @@ void MainWindow::destroyNesUi()
    actionExecution_Visualizer_Inspector->deleteLater();
    actionMapperInformation_Inspector->deleteLater();
    actionAPUInformation_Inspector->deleteLater();
+   actionPreferences->deleteLater();
    actionNTSC->deleteLater();
    actionPAL->deleteLater();
    actionDendy->deleteLater();
@@ -1039,6 +1043,8 @@ void MainWindow::createC64Ui()
    actionBinSIDRegister_Inspector->setObjectName(QString::fromUtf8("actionBinSIDRegister_Inspector"));
    actionBinSIDRegister_Inspector->setIcon(icon17);
    actionBinSIDRegister_Inspector->setCheckable(true);
+   actionPreferences = new QAction("Preferences...",this);
+   actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
 
    menuCPU_Inspectors = new QMenu("CPU",menuDebugger);
    menuCPU_Inspectors->setObjectName(QString::fromUtf8("menuCPU_Inspectors"));
@@ -1057,6 +1063,8 @@ void MainWindow::createC64Ui()
    menuDebugger->addSeparator();
    menuDebugger->addAction(menuCPU_Inspectors->menuAction());
    menuDebugger->addAction(menuSID_Inspectors->menuAction());
+
+   menuEmulator->addAction(actionPreferences);
 
    debuggerToolBar = new QToolBar("Emulator Control",this);
    debuggerToolBar->setObjectName(QString::fromUtf8("debuggerToolBar"));
@@ -1175,6 +1183,7 @@ void MainWindow::destroyC64Ui()
    actionBinCPURAM_Inspector->deleteLater();
    actionBinCPURegister_Inspector->deleteLater();
    actionBinSIDRegister_Inspector->deleteLater();
+   actionPreferences->deleteLater();
    menuCPU_Inspectors->deleteLater();
    menuSID_Inspectors->deleteLater();
    debuggerToolBar->deleteLater();
@@ -2621,13 +2630,12 @@ void MainWindow::updateFromEmulatorPrefs()
    bool dmc = EmulatorPrefsDialog::getDMCEnabled();
    int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
-   nesSetAudioChannelMask(mask);
-
    actionSquare_1->setChecked(square1);
    actionSquare_2->setChecked(square2);
    actionTriangle->setChecked(triangle);
    actionNoise->setChecked(noise);
    actionDelta_Modulation->setChecked(dmc);
+   nesSetAudioChannelMask(mask);
 
    if ( EmulatorPrefsDialog::videoSettingsChanged() )
    {
@@ -2648,7 +2656,7 @@ void MainWindow::updateFromEmulatorPrefs()
    }
 }
 
-void MainWindow::on_actionPreferences_triggered()
+void MainWindow::actionPreferences_triggered()
 {
    EmulatorPrefsDialog dlg(nesicideProject->getProjectTarget());
 

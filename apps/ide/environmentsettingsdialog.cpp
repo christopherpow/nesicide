@@ -3,6 +3,8 @@
 
 #include "main.h"
 
+#include "Qsci/qsciscintilla.h"
+
 #include <QSettings>
 
 // Settings data structures.
@@ -31,6 +33,8 @@ int EnvironmentSettingsDialog::m_spacesForTabs;
 bool EnvironmentSettingsDialog::m_annotateSource;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
+int EnvironmentSettingsDialog::m_eolMode;
+bool EnvironmentSettingsDialog::m_eolForceConsistent;
 
 static const char* sourceExtensionListC = ".c .c65";
 static const char* sourceExtensionListAsm = ".a .asm .a65 .s .s65";
@@ -132,6 +136,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->sourceExtensionsC->setText(m_cSourceExtensions);
    ui->sourceExtensionsAsm->setText(m_asmSourceExtensions);
 
+   ui->eolMode->setCurrentIndex(m_eolMode);
+   ui->eolConsistent->setChecked(m_eolForceConsistent);
+
    pageMap.insert("General",ui->general);
    pageMap.insert("Code Editor",ui->codeeditor);
    pageMap.insert("Compiler",ui->compiler);
@@ -214,6 +221,17 @@ void EnvironmentSettingsDialog::readSettings()
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
 
+#ifdef Q_WS_WIN
+   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolWindows)).toInt();
+#endif
+#ifdef Q_WS_MAC
+   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolMac)).toInt();
+#endif
+#ifdef Q_WS_X11
+   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolUnix)).toInt();
+#endif
+   m_eolForceConsistent = settings.value("EOLForceConsistent",QVariant(true)).toBool();
+
 //   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    settings.endGroup();
 }
@@ -255,6 +273,8 @@ void EnvironmentSettingsDialog::writeSettings()
    m_annotateSource = ui->annotate->isChecked();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
+   m_eolMode = ui->eolMode->currentIndex();
+   m_eolForceConsistent = ui->eolConsistent->isChecked();
 
 //   m_lastActiveTab = ui->treeWidget->currentIndex();
 
@@ -291,6 +311,8 @@ void EnvironmentSettingsDialog::writeSettings()
 
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
+   settings.setValue("EOLMode",m_eolMode);
+   settings.setValue("EOLForceConsistent",m_eolForceConsistent);
 
 //   settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();

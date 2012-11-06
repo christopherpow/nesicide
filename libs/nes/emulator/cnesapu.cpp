@@ -318,6 +318,12 @@ CAPU::CAPU()
    m_noise.SetChannel ( 3 );
    m_dmc.SetChannel ( 4 );
 
+   m_square[0].MUTE(false);
+   m_square[1].MUTE(false);
+   m_triangle.MUTE(false);
+   m_noise.MUTE(false);
+   m_dmc.MUTE(false);
+
    m_waveBuf = new uint16_t [ APU_BUFFER_SIZE ];
    memset( m_waveBuf, 0, APU_BUFFER_SIZE * sizeof m_waveBuf[ 0 ] );
 }

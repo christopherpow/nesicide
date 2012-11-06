@@ -144,6 +144,7 @@ protected:
    QAction *actionExecution_Visualizer_Inspector;
    QAction *actionMapperInformation_Inspector;
    QAction *actionAPUInformation_Inspector;
+   QAction *actionPreferences;
    QAction *actionNTSC;
    QAction *actionPAL;
    QAction *actionDendy;
@@ -211,7 +212,6 @@ private slots:
    void on_actionLoad_In_Emulator_triggered();
    void on_actionOnline_Help_triggered();
    void projectDataChangesEvent();
-   void on_actionPreferences_triggered();
    void compiler_compileStarted();
    void compiler_compileDone(bool bOk);
    void on_action_Close_Project_triggered();
@@ -240,6 +240,7 @@ private slots:
    void reflectedBreakpointInspector_close(bool toplevel);
    void actionAssembly_Inspector_toggled(bool );
    void reflectedAssemblyInspector_close(bool toplevel);
+   void actionPreferences_triggered();
 
    // NES-specific UI elements.
    void actionFullscreen_toggled(bool value);

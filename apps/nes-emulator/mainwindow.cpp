@@ -526,13 +526,12 @@ void MainWindow::updateFromEmulatorPrefs()
    bool dmc = EmulatorPrefsDialog::getDMCEnabled();
    int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
-   nesSetAudioChannelMask(mask);
-
    ui->actionSquare_1->setChecked(square1);
    ui->actionSquare_2->setChecked(square2);
    ui->actionTriangle->setChecked(triangle);
    ui->actionNoise->setChecked(noise);
    ui->actionDelta_Modulation->setChecked(dmc);
+   nesSetAudioChannelMask(mask);
 
    if ( EmulatorPrefsDialog::videoSettingsChanged() )
    {
