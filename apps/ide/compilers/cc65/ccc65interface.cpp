@@ -97,7 +97,7 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
 bool CCC65Interface::createMakefile()
 {
    QDir outputDir(QDir::currentPath());
-   QString outputName = outputDir.fromNativeSeparators(outputDir.filePath("Makefile"));
+   QString outputName = outputDir.fromNativeSeparators(outputDir.filePath("nesicide.mk"));
    QFile res(":/resources/Makefile");
    QFile makeFile(outputName);
    QString targetRules;
@@ -153,7 +153,15 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
       makeFileContent.replace("<!target-rules!>",targetRules);
       makeFileContent.replace("<!linker-dependencies!>",nesicideProject->getLinkerAdditionalDependencies());
-      makeFileContent.replace("<!custom-rules!>",nesicideProject->getMakefileCustomRules());
+
+      if ( !nesicideProject->getMakefileCustomRulesFile().isEmpty() )
+      {
+         makeFileContent.replace("<!custom-rules!>",QString("-include ")+nesicideProject->getMakefileCustomRulesFile());
+      }
+      else
+      {
+         makeFileContent.replace("<!custom-rules!>","");
+      }
 
       // Write the file to disk.
       makeFile.write(makeFileContent.toAscii());
@@ -185,7 +193,7 @@ void CCC65Interface::clean()
 
    createMakefile();
 
-   invocationStr = "make clean";
+   invocationStr = "make -f nesicide.mk clean";
 
    buildTextLogger->write(invocationStr);
 
@@ -241,7 +249,7 @@ bool CCC65Interface::assemble()
 
    createMakefile();
 
-   invocationStr = "make all";
+   invocationStr = "make -f nesicide.mk all";
 
    buildTextLogger->write(invocationStr);
 
@@ -339,7 +347,7 @@ bool CCC65Interface::isBuildUpToDate()
 
       createMakefile();
 
-      invocationStr = "make -q all";
+      invocationStr = "make -f nesicide.mk -q all";
 
       make.start(invocationStr);
       make.waitForFinished();
