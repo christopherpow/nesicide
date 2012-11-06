@@ -56,6 +56,8 @@ public:
    QString getAssemblerIncludePaths() { return m_assemblerIncludePaths; }
    QString getAssemblerAdditionalOptions() { return m_assemblerAdditionalOptions; }
    QString getLinkerConfigFile() { return m_linkerConfigFile; }
+   QString getMakefileCustomRulesFile() { return m_makefileCustomRulesFile; }
+   QString getMakefileCustomRules();
    QString getLinkerAdditionalOptions() { return m_linkerAdditionalOptions; }
    QString getLinkerAdditionalDependencies() { return m_linkerAdditionalDependencies; }
    QStringList getSourceSearchPaths() { return m_sourceSearchPaths; }
@@ -115,6 +117,7 @@ public:
    void setAssemblerIncludePaths(QString value) { m_assemblerIncludePaths = value; }
    void setAssemblerAdditionalOptions(QString value) { m_assemblerAdditionalOptions = value; }
    void setLinkerConfigFile(QString value) { m_linkerConfigFile = value; }
+   void setMakefileCustomRulesFile(QString value) { m_makefileCustomRulesFile = value; }
    void setLinkerAdditionalOptions(QString value) { m_linkerAdditionalOptions = value; }
    void setLinkerAdditionalDependencies(QString value) { m_linkerAdditionalDependencies = value; }
    void addSourceSearchPath(QString value);
@@ -165,6 +168,7 @@ private:
    QString m_assemblerIncludePaths;
    QString m_assemblerAdditionalOptions;
    QString m_linkerConfigFile;
+   QString m_makefileCustomRulesFile;
    QString m_linkerAdditionalOptions;
    QString m_linkerAdditionalDependencies;
    QStringList m_sourceSearchPaths;

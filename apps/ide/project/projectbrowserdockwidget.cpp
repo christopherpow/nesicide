@@ -15,6 +15,9 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget,QW
 
    m_pProjectTreeviewModel = new CProjectTreeViewModel(ui->projectTreeView, nesicideProject);
    ui->projectTreeView->setModel(m_pProjectTreeviewModel);
+
+   // CPTODO: Implement listview.
+   ui->projectListView->hide();
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()

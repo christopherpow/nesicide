@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>150</width>
-    <height>93</height>
+    <height>188</height>
    </size>
   </property>
   <property name="features">
@@ -32,45 +32,51 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
-     <number>0</number>
-    </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
-    <item row="0" column="0">
-     <widget class="CProjectTreeView" name="projectTreeView">
-      <property name="enabled">
-       <bool>true</bool>
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::EditKeyPressed</set>
-      </property>
-      <property name="autoExpandDelay">
-       <number>1</number>
-      </property>
-      <property name="indentation">
-       <number>10</number>
-      </property>
-      <property name="animated">
-       <bool>true</bool>
-      </property>
-      <property name="headerHidden">
-       <bool>true</bool>
-      </property>
-      <attribute name="headerDefaultSectionSize">
-       <number>0</number>
-      </attribute>
+      <widget class="CProjectTreeView" name="projectTreeView">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::EditKeyPressed</set>
+       </property>
+       <property name="autoExpandDelay">
+        <number>1</number>
+       </property>
+       <property name="indentation">
+        <number>10</number>
+       </property>
+       <property name="animated">
+        <bool>true</bool>
+       </property>
+       <property name="headerHidden">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerDefaultSectionSize">
+        <number>0</number>
+       </attribute>
+      </widget>
+      <widget class="QListView" name="projectListView"/>
      </widget>
     </item>
    </layout>

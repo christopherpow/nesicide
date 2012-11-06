@@ -108,6 +108,7 @@ void CNesicideProject::initializeProject()
    m_assemblerIncludePaths = "";
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
+   m_makefileCustomRulesFile = "";
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
    m_sourceSearchPaths.clear();
@@ -180,6 +181,7 @@ void CNesicideProject::terminateProject()
    m_assemblerIncludePaths = "";
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
+   m_makefileCustomRulesFile = "";
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
    m_sourceSearchPaths.clear();
@@ -217,6 +219,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("assemblerincludepaths",m_assemblerIncludePaths);
    propertiesElement.setAttribute("assembleradditionaloptions",m_assemblerAdditionalOptions);
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
+   propertiesElement.setAttribute("customrulesfile",m_makefileCustomRulesFile);
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
    propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
    propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(";"));
@@ -403,6 +406,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& e
          m_assemblerIncludePaths = propertiesElement.attribute("assemblerincludepaths");
          m_assemblerAdditionalOptions = propertiesElement.attribute("assembleradditionaloptions");
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
+         m_makefileCustomRulesFile = propertiesElement.attribute("customrulesfile");
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
          m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts);
@@ -912,4 +916,31 @@ bool CNesicideProject::exportData()
    }
 
    return ok;
+}
+
+QString CNesicideProject::getMakefileCustomRules()
+{
+   QDir dir(QDir::currentPath());
+   QString rules;
+
+   if ( !m_makefileCustomRulesFile.isEmpty() )
+   {
+      QFile fileIn(dir.filePath(m_makefileCustomRulesFile));
+
+      if ( fileIn.exists() )
+      {
+         fileIn.open(QIODevice::ReadOnly|QIODevice::Text);
+         if ( fileIn.isOpen() )
+         {
+            rules = fileIn.readAll();
+            fileIn.close();
+         }
+         else
+         {
+            QMessageBox::critical(0,"File I/O Error", "Could not read custom rules file:\n"+m_makefileCustomRulesFile);
+         }
+      }
+   }
+
+   return rules;
 }

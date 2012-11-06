@@ -21,6 +21,8 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    int i = 0;
    char mapperTag [ 64 ];
 
+   linkerConfigChanged = false;
+   customRulesChanged = false;
 
    // Initialize UI elements...
    ui->setupUi(this);
@@ -42,6 +44,19 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->linkerAdditionalDependencies->setText(nesicideProject->getLinkerAdditionalDependencies());
    ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
    deserializeLinkerConfig();
+   ui->customRuleFile->setText(nesicideProject->getMakefileCustomRulesFile());
+   deserializeCustomRules();
+
+   if ( ui->linkerConfigFile->text().isEmpty() )
+   {
+      ui->linkerConfig->setText("Select a file to store linker configuration in, then modify it here.");
+      ui->linkerConfig->setEnabled(false);
+   }
+   if ( ui->customRuleFile->text().isEmpty() )
+   {
+      ui->customRules->setText("Select a file to store custom makefile rules in, then modify it here.");
+      ui->customRules->setEnabled(false);
+   }
 
    // NES-specific project properties.
    ui->projectHeaderName->setText(nesicideProject->getProjectHeaderFileName());
@@ -102,6 +117,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    pageMap.insert("Compiler",ui->compiler);
    pageMap.insert("Assembler",ui->assembler);
    pageMap.insert("Linker",ui->linker);
+   pageMap.insert("Custom Rules",ui->customrules);
    pageMap.insert("Nintendo Entertainment System",ui->nesgraphicsbuilder);
    pageMap.insert("Graphics Builder",ui->nesgraphicsbuilder);
    pageMap.insert("Cartridge",ui->nescartridge);
@@ -472,9 +488,11 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setProjectLinkerOutputBasePath(ui->prgromOutputBasePath->text());
    nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
    nesicideProject->setLinkerAdditionalDependencies(ui->linkerAdditionalDependencies->text());
-   nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    nesicideProject->setTileProperties(tilePropertyListModel->getItems());
+   nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
+   nesicideProject->setMakefileCustomRulesFile(ui->customRuleFile->text());
+   serializeCustomRules();
 
    nesicideProject->getProjectPaletteEntries()->clear();
 
@@ -522,12 +540,14 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
 
 void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
 {
-   QString value = QFileDialog::getOpenFileName(this,"Linker Config File",QDir::currentPath());
+   QString value = QFileDialog::getSaveFileName(this,"Linker Config File",QDir::currentPath());
    QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
    {
       ui->linkerConfigFile->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->linkerConfig->setEnabled(true);
+      ui->linkerConfig->setText("");
    }
    deserializeLinkerConfig();
 }
@@ -706,4 +726,75 @@ void ProjectPropertiesDialog::on_treeWidget_itemSelectionChanged()
       ui->treeWidget->setCurrentItem(ui->treeWidget->itemBelow(ui->treeWidget->currentItem()));
    }
    ui->stackedWidget->setCurrentWidget(pageMap[ui->treeWidget->currentItem()->text(0)]);
+}
+
+void ProjectPropertiesDialog::serializeCustomRules()
+{
+   if ( !ui->customRuleFile->text().isEmpty() )
+   {
+      if ( customRulesChanged )
+      {
+         QDir dir(QDir::currentPath());
+         QFile fileOut(dir.filePath(ui->customRuleFile->text()));
+
+         fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
+         if ( fileOut.isOpen() )
+         {
+            fileOut.write(ui->customRules->toPlainText().toAscii());
+            fileOut.close();
+         }
+         else
+         {
+            QMessageBox::critical(0,"File I/O Error", "Could not write custom rules file:\n"+ui->customRuleFile->text());
+         }
+      }
+
+      customRulesChanged = false;
+   }
+}
+
+void ProjectPropertiesDialog::deserializeCustomRules()
+{
+   QDir dir(QDir::currentPath());
+
+   if ( !ui->customRuleFile->text().isEmpty() )
+   {
+      QFile fileIn(dir.filePath(ui->customRuleFile->text()));
+
+      if ( fileIn.exists() )
+      {
+         fileIn.open(QIODevice::ReadOnly|QIODevice::Text);
+         if ( fileIn.isOpen() )
+         {
+            ui->customRules->setText(QString(fileIn.readAll()));
+            fileIn.close();
+         }
+         else
+         {
+            QMessageBox::critical(0,"File I/O Error", "Could not read custom rules file:\n"+ui->customRuleFile->text());
+         }
+      }
+
+      customRulesChanged = false;
+   }
+}
+
+void ProjectPropertiesDialog::on_customRules_textChanged()
+{
+   // Trigger deserialization of custom rule file on dialog close.
+    customRulesChanged = true;
+}
+
+void ProjectPropertiesDialog::on_customRuleFileBrowse_clicked()
+{
+   QString value = QFileDialog::getSaveFileName(this,"Custom Rule File",QDir::currentPath());
+   QDir dir(QDir::currentPath());
+
+   if ( !value.isEmpty() )
+   {
+      ui->customRuleFile->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->customRules->setEnabled(true);
+      ui->customRules->setText("");
+   }
+   deserializeCustomRules();
 }

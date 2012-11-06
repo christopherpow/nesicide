@@ -311,7 +311,9 @@ SOURCES += \
    c64/debuggers/dbg_cc64.cpp \
    $$TOP/common/appeventfilter.cpp \
    $$TOP/common/cobjectregistry.cpp \
-    nes/debuggers/joypadloggerdockwidget.cpp
+    nes/debuggers/joypadloggerdockwidget.cpp \
+    project/cprojectlistview.cpp \
+    project/cprojectlistviewmodel.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -445,7 +447,9 @@ HEADERS += \
    $$TOP/common/cmemorydata.h \
    $$TOP/common/appeventfilter.h \
    $$TOP/common/cobjectregistry.h \
-    nes/debuggers/joypadloggerdockwidget.h
+    nes/debuggers/joypadloggerdockwidget.h \
+    project/cprojectlistview.h \
+    project/cprojectlistviewmodel.h
 
 FORMS += \
    aboutdialog.ui \

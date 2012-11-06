@@ -153,6 +153,7 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
       makeFileContent.replace("<!target-rules!>",targetRules);
       makeFileContent.replace("<!linker-dependencies!>",nesicideProject->getLinkerAdditionalDependencies());
+      makeFileContent.replace("<!custom-rules!>",nesicideProject->getMakefileCustomRules());
 
       // Write the file to disk.
       makeFile.write(makeFileContent.toAscii());

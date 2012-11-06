@@ -28,16 +28,21 @@ protected:
    void changeEvent(QEvent* e);
    void serializeLinkerConfig();
    void deserializeLinkerConfig();
+   void serializeCustomRules();
+   void deserializeCustomRules();
 
 private:
    Ui::ProjectPropertiesDialog* ui;
    void updateUI(int colid = -1);
    QList<QColor> currentPalette;
    bool          linkerConfigChanged;
+   bool          customRulesChanged;
    CPropertyListModel* tilePropertyListModel;
    QMap<QString,QWidget*> pageMap;
 
 private slots:
+   void on_customRuleFileBrowse_clicked();
+   void on_customRules_textChanged();
    void on_treeWidget_itemSelectionChanged();
    void on_editProperty_clicked();
    void on_propertyTableView_doubleClicked(QModelIndex index);

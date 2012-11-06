@@ -108,3 +108,5 @@ clean:
 	-$(call RMFILES,$(DEPENDS))
 	-$(call RMFILES,$(REMOVES))
 	-$(call RMFILES,$(PROGRAM))
+
+<!custom-rules!>

@@ -15,7 +15,6 @@ public:
 
 private:
    CProjectTreeViewModel* m_pTreeViewModel;
-   CProjectTabWidget* m_pTarget;
 protected:
    virtual void contextMenuEvent(QContextMenuEvent* event);
    void keyPressEvent ( QKeyEvent* e );
