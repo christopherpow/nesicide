@@ -1,6 +1,11 @@
-### NESICIDE generated makefile for 
+### NESICIDE auto-generated makefile 
 ### 
 ### <!project-name!>
+### 
+### To make changes to the content of this file
+### either change the Project Properties in
+### <!project-name!> or modify the custom rules
+### file associated with the project.
 
 # Toolchain stuff.
 COMPILE  := cl65
@@ -109,4 +114,8 @@ clean:
 	-$(call RMFILES,$(REMOVES))
 	-$(call RMFILES,$(PROGRAM))
 
+### START USER-SUPPLIED CUSTOM RULES SECTION
+
 <!custom-rules!>
+
+### END USER-SUPPLIED CUSTOM RULES SECTION
