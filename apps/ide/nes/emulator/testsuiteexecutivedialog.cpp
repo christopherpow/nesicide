@@ -11,7 +11,7 @@ TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    QDialog(parent),
    ui(new Ui::TestSuiteExecutiveDialog)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    ui->setupUi(this);
    ui->suiteProgress->setMaximum(1);
@@ -56,7 +56,7 @@ void TestSuiteExecutiveDialog::updateProgress()
 
 void TestSuiteExecutiveDialog::loadTestSuite(QString testSuiteFileName)
 {
-   QSettings    settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QDir         testSuiteFolder(testSuiteFileName);
    QDomDocument testSuiteDoc;
    QDomElement  testSuiteElement;
@@ -151,7 +151,7 @@ void TestSuiteExecutiveDialog::loadTestSuite(QString testSuiteFileName)
 
 void TestSuiteExecutiveDialog::on_load_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString testSuiteFileName = QFileDialog::getOpenFileName(this,"Test Suite XML File",settings.value("TestSuiteFile").toString(),"XML Files (*.xml)");
 
    loadTestSuite(testSuiteFileName);
@@ -363,7 +363,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
 
 void TestSuiteExecutiveDialog::executeTests(int start,int end)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int     numTests = ui->tableWidget->rowCount();
 
    // Kill the last loaded project
@@ -423,7 +423,7 @@ void TestSuiteExecutiveDialog::on_clear_clicked()
 
 void TestSuiteExecutiveDialog::on_save_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString testSuiteFileName = QFileDialog::getSaveFileName(this,"Test Suite XML File",settings.value("TestSuiteFile").toString(),"XML Files (*.xml)");
    QDir    testSuiteFolder(testSuiteFileName);
    QDomElement  testSuiteElement;

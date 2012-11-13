@@ -6,5 +6,11 @@
         <file>templates/NROM Hello World/src/nes.h</file>
         <file>templates/NROM Hello World/tilesets/gamegfx.png</file>
         <file>templates/NROM Hello World/tilesets/titlegfx.png</file>
+        <file>templates/NROM Hello World - C/nes.ini</file>
+        <file>templates/NROM Hello World - C/NROM Hello World - C.nesproject</file>
+        <file>templates/NROM Hello World - C/src/crt0.s</file>
+		  <file>templates/NROM Hello World - C/src/main.c</file>
+        <file>templates/NROM Hello World - C/tilesets/gamegfx.png</file>
+        <file>templates/NROM Hello World - C/tilesets/titlegfx.png</file>
     </qresource>
 </RCC>

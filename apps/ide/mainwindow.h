@@ -124,6 +124,7 @@ protected:
    QMenu *menuCartridge_Inspectors;
    QMenu *menuSystem;
    QMenu *menuAudio;
+   QMenu *menuVideo;
    QAction *actionEmulation_Window;
    QAction *actionGfxCHRMemory_Inspector;
    QAction *actionGfxOAMMemory_Inspector;
@@ -154,6 +155,13 @@ protected:
    QAction *actionNoise;
    QAction *actionDelta_Modulation;
    QAction *actionRun_Test_Suite;
+   QAction *action1x;
+   QAction *action1_5x;
+   QAction *action2x;
+   QAction *action2_5x;
+   QAction *action3x;
+   QAction *actionLinear_Interpolation;
+   QAction *action4_3_Aspect;
    QAction *actionFullscreen;
 
    // C64-specific UI elements.
@@ -172,7 +180,7 @@ private:
    void saveEmulatorState(QString fileName);
    void closeProject();
    void explodeTemplate(QString templateDirName,QString localDirName,QString* projectFileName);
-   void updateFromEmulatorPrefs();
+   void updateFromEmulatorPrefs(bool initial);
 
 protected:
    virtual void closeEvent ( QCloseEvent* event );
@@ -244,6 +252,13 @@ private slots:
 
    // NES-specific UI elements.
    void actionFullscreen_toggled(bool value);
+   void action1x_triggered();
+   void action1_5x_triggered();
+   void action2x_triggered();
+   void action2_5x_triggered();
+   void action3x_triggered();
+   void actionLinear_Interpolation_toggled(bool );
+   void action4_3_Aspect_toggled(bool );
    void actionRun_Test_Suite_triggered();
    void actionSquare_1_toggled(bool );
    void actionSquare_2_toggled(bool );

@@ -75,6 +75,10 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
    readSettings();
 
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   ui->settingsLocation->setText(QString("Currently reading settings from: ")+settings.fileName());
+
    m_scintilla = new QsciScintilla();
    m_defaultLexer = new QsciLexerDefault();
    m_ca65Lexer = new QsciLexerCA65();
@@ -172,7 +176,7 @@ EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
 
 void EnvironmentSettingsDialog::readSettings()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.beginGroup("Environment");
    m_useInternalGameDatabase = settings.value("useInternalGameDB",QVariant(true)).toBool();
@@ -238,7 +242,7 @@ void EnvironmentSettingsDialog::readSettings()
 
 void EnvironmentSettingsDialog::writeSettings()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // First save to locals.
    m_useInternalGameDatabase = ui->useInternalDB->isChecked();
@@ -324,7 +328,7 @@ void EnvironmentSettingsDialog::writeSettings()
 
 void EnvironmentSettingsDialog::setupCodeEditor(int index)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style;
 
    ui->styleName->clear();
@@ -538,7 +542,7 @@ void EnvironmentSettingsDialog::on_styleName_currentIndexChanged(int index)
 
 void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style;
 
    if ( ui->applyAll->isChecked() )
@@ -572,7 +576,7 @@ void EnvironmentSettingsDialog::on_fontBold_toggled(bool checked)
 
 void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
 
    if ( ui->applyAll->isChecked() )
@@ -606,7 +610,7 @@ void EnvironmentSettingsDialog::on_fontItalic_toggled(bool checked)
 
 void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style;
 
    if ( ui->applyAll->isChecked() )
@@ -640,7 +644,7 @@ void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
 
 void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style;
 
    if ( ui->applyAll->isChecked() )
@@ -680,7 +684,7 @@ void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontNam
 
 void EnvironmentSettingsDialog::on_styleColor_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QColorDialog dlg;
    int style = ui->styleName->itemData(ui->styleName->currentIndex()).toInt();
 
@@ -695,7 +699,7 @@ void EnvironmentSettingsDialog::on_styleColor_clicked()
 
 void EnvironmentSettingsDialog::on_backgroundColor_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QColorDialog dlg;
 
    dlg.setCurrentColor(m_lexer->defaultPaper());
@@ -710,7 +714,7 @@ void EnvironmentSettingsDialog::on_backgroundColor_clicked()
 
 void EnvironmentSettingsDialog::on_marginBackgroundColor_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QColorDialog dlg;
 
    dlg.setCurrentColor(m_marginBackgroundColor);
@@ -724,7 +728,7 @@ void EnvironmentSettingsDialog::on_marginBackgroundColor_clicked()
 
 void EnvironmentSettingsDialog::on_marginForegroundColor_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QColorDialog dlg;
 
    dlg.setCurrentColor(m_marginForegroundColor);
@@ -738,7 +742,7 @@ void EnvironmentSettingsDialog::on_marginForegroundColor_clicked()
 
 void EnvironmentSettingsDialog::on_highlightBarColor_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QColorDialog dlg;
 
    dlg.setCurrentColor(m_highlightBarColor);
@@ -781,7 +785,7 @@ void EnvironmentSettingsDialog::on_showLineNumberMargin_toggled(bool checked)
 
 void EnvironmentSettingsDialog::on_fontSize_valueChanged(int value)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style;
 
    if ( ui->applyAll->isChecked() )

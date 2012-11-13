@@ -31,6 +31,8 @@ bool EmulatorPrefsDialog::triangleEnabled;
 bool EmulatorPrefsDialog::noiseEnabled;
 bool EmulatorPrefsDialog::dmcEnabled;
 int EmulatorPrefsDialog::scalingFactor;
+bool EmulatorPrefsDialog::linearInterpolation;
+bool EmulatorPrefsDialog::aspect43;
 
 // C=64 settings data structures.
 QString EmulatorPrefsDialog::viceExecutable;
@@ -68,6 +70,8 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->dmc->setChecked(dmcEnabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
+   ui->linearInterpolation->setChecked(linearInterpolation);
+   ui->aspect43->setChecked(aspect43);
 
    ui->viceC64Executable->setText(viceExecutable);
    ui->viceC64MonitorIPAddress->setText(viceIPAddress);
@@ -79,7 +83,7 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
 
    if ( !target.compare("nes",Qt::CaseInsensitive) )
    {
-      ui->tabWidget->removeTab(4);
+      ui->tabWidget->removeTab(5);
    }
    else if ( !target.compare("c64",Qt::CaseInsensitive) )
    {
@@ -97,7 +101,7 @@ EmulatorPrefsDialog::~EmulatorPrefsDialog()
 
 void EmulatorPrefsDialog::readSettings()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int       port;
    int       function;
 
@@ -148,7 +152,9 @@ void EmulatorPrefsDialog::readSettings()
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
-   scalingFactor = settings.value("ScalingFactor",0).toInt();
+   scalingFactor = settings.value("IDEScalingFactor",0).toInt();
+   linearInterpolation = settings.value("LinearInterpolation",true).toBool();
+   aspect43 = settings.value("IDE43Aspect",true).toBool();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/System");
@@ -199,7 +205,7 @@ void EmulatorPrefsDialog::readSettings()
 
 void EmulatorPrefsDialog::writeSettings()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QKeySequence upKeySequence(ui->upKey->text());
    QKeySequence downKeySequence(ui->downKey->text());
    QKeySequence leftKeySequence(ui->leftKey->text());
@@ -292,6 +298,8 @@ void EmulatorPrefsDialog::writeSettings()
    dmcEnabled = ui->dmc->isChecked();
 
    scalingFactor = ui->scalingFactor->currentIndex();
+   linearInterpolation = ui->linearInterpolation->isChecked();
+   aspect43 = ui->aspect43->isChecked();
 
    viceExecutable = ui->viceC64Executable->text();
    viceIPAddress = ui->viceC64MonitorIPAddress->text();
@@ -343,7 +351,9 @@ void EmulatorPrefsDialog::writeSettings()
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
-   settings.setValue("ScalingFactor",scalingFactor);
+   settings.setValue("IDEScalingFactor",scalingFactor);
+   settings.setValue("LinearInterpolation",linearInterpolation);
+   settings.setValue("IDE43Aspect",aspect43);
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/System");
@@ -590,7 +600,7 @@ bool EmulatorPrefsDialog::getPauseOnKIL()
 
 void EmulatorPrefsDialog::setPauseOnTaskSwitch(bool pause)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    pauseOnTaskSwitch = pause;
@@ -603,7 +613,7 @@ void EmulatorPrefsDialog::setPauseOnTaskSwitch(bool pause)
 
 void EmulatorPrefsDialog::setTVStandard(int standard)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    tvStandard = standard;
@@ -641,7 +651,7 @@ bool EmulatorPrefsDialog::getDMCEnabled()
 
 void EmulatorPrefsDialog::setSquare1Enabled(bool enabled)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    square1Enabled = enabled;
@@ -654,7 +664,7 @@ void EmulatorPrefsDialog::setSquare1Enabled(bool enabled)
 
 void EmulatorPrefsDialog::setSquare2Enabled(bool enabled)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    square2Enabled = enabled;
@@ -667,7 +677,7 @@ void EmulatorPrefsDialog::setSquare2Enabled(bool enabled)
 
 void EmulatorPrefsDialog::setTriangleEnabled(bool enabled)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    triangleEnabled = enabled;
@@ -680,7 +690,7 @@ void EmulatorPrefsDialog::setTriangleEnabled(bool enabled)
 
 void EmulatorPrefsDialog::setNoiseEnabled(bool enabled)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    noiseEnabled = enabled;
@@ -693,7 +703,7 @@ void EmulatorPrefsDialog::setNoiseEnabled(bool enabled)
 
 void EmulatorPrefsDialog::setDMCEnabled(bool enabled)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    dmcEnabled = enabled;
@@ -706,19 +716,55 @@ void EmulatorPrefsDialog::setDMCEnabled(bool enabled)
 
 int EmulatorPrefsDialog::getScalingFactor()
 {
-   return scalingFactor+1; // This is used as a multiplier but is zero-based.
+   return scalingFactor;
 }
 
 void EmulatorPrefsDialog::setScalingFactor(int factor)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Update local storage first.
    scalingFactor = factor;
 
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Video");
-   settings.setValue("ScalingFactor",scalingFactor);
+   settings.setValue("IDEScalingFactor",scalingFactor);
+   settings.endGroup();
+}
+
+bool EmulatorPrefsDialog::getLinearInterpolation()
+{
+   return linearInterpolation;
+}
+
+void EmulatorPrefsDialog::setLinearInterpolation(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   linearInterpolation = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Video");
+   settings.setValue("LinearInterpolation",linearInterpolation);
+   settings.endGroup();
+}
+
+bool EmulatorPrefsDialog::get43Aspect()
+{
+   return aspect43;
+}
+
+void EmulatorPrefsDialog::set43Aspect(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   aspect43 = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Video");
+   settings.setValue("IDE43Aspect",aspect43);
    settings.endGroup();
 }
 

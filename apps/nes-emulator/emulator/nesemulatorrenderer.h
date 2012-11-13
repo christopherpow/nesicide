@@ -19,12 +19,16 @@ public:
    void paintGL();
    void changeZoom(int newZoom);
    void setBGColor(QColor clr);
+   void setLinearInterpolation(bool enabled) { linearInterpolation = enabled; }
+   void set43Aspect(bool enabled) { aspect43 = enabled; }
    int zoom;
    int scrollX;
    int scrollY;
    char* imageData;
    GLuint textureID;
    QRect renderRect;
+   bool linearInterpolation;
+   bool aspect43;
 };
 
 #endif // CNESEMULATORRENDERER_H

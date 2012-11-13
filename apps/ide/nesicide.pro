@@ -22,19 +22,19 @@ isEmpty (SCINTILLA_LIBS) {
 
 win32 {
 
-   SDL_CXXFLAGS = -I$$TOP/deps/SDL
-   SDL_LIBS =  -L$$TOP/deps/SDL/ -lsdl
+   SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
+   SDL_LIBS =  -L$$TOP/deps/Windows/SDL/ -lsdl
 
-   SCINTILLA_CXXFLAGS = -I$$TOP/deps/Qscintilla
+   SCINTILLA_CXXFLAGS = -I$$TOP/deps/Windows/Qscintilla
 
    CONFIG(release, debug|release) {
-      SCINTILLA_LIBS = -L$$TOP/deps/Qscintilla/release -lqscintilla2
+      SCINTILLA_LIBS = -L$$TOP/deps/Windows/Qscintilla/release -lqscintilla2
    } else {
-      SCINTILLA_LIBS = -L$$TOP/deps/Qscintilla/debug -lqscintilla2
+      SCINTILLA_LIBS = -L$$TOP/deps/Windows/Qscintilla/debug -lqscintilla2
    }
 
-   LUA_CXXFLAGS = -I$$TOP/deps/Lua
-   LUA_LIBS = $$TOP/deps/Lua/liblua.a
+   LUA_CXXFLAGS = -I$$TOP/deps/Windows/Lua
+   LUA_LIBS = $$TOP/deps/Windows/Lua/liblua.a
 
    NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common

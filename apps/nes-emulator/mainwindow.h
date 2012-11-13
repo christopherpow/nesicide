@@ -39,9 +39,10 @@ private:
    bool m_bEmulatorFloating;
    EmulatorControl* m_pEmulatorControl;
    NESEmulatorThread* m_pNESEmulatorThread;
+   QRect ncRect;
 
 private:
-   void updateFromEmulatorPrefs();
+   void updateFromEmulatorPrefs(bool initial);
 
 signals:
    void primeEmulator(CCartridge* pCartridge);
@@ -50,6 +51,13 @@ signals:
    void resetEmulator();
 
 private slots:
+   void on_action4_3_Aspect_toggled(bool );
+   void on_actionLinear_Interpolation_toggled(bool );
+   void on_action3x_triggered();
+   void on_action2_5x_triggered();
+   void on_action2x_triggered();
+   void on_action1_5x_triggered();
+   void on_action1x_triggered();
    void on_actionDendy_triggered();
    void applicationActivationChanged(bool activated);
    void on_actionAbout_Qt_triggered();

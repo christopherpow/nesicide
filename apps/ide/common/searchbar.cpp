@@ -10,7 +10,7 @@ SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SearchBar)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList searches;
 
    ui->setupUi(this);
@@ -109,7 +109,7 @@ QString SearchBar::snapTo()
 
 void SearchBar::on_searchText_activated(QString search)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList items;
 
    settings.beginGroup(m_settingsPrefix);
@@ -149,7 +149,7 @@ void SearchBar::on_searchText_editTextChanged(QString search)
 
 void SearchBar::on_caseSensitive_toggled(bool checked)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.beginGroup(m_settingsPrefix);
    settings.setValue("CaseSensitive",QVariant(checked));
@@ -158,7 +158,7 @@ void SearchBar::on_caseSensitive_toggled(bool checked)
 
 void SearchBar::on_regex_toggled(bool checked)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.beginGroup(m_settingsPrefix);
    settings.setValue("RegularExpression",QVariant(checked));
@@ -167,7 +167,7 @@ void SearchBar::on_regex_toggled(bool checked)
 
 void SearchBar::on_direction_toggled(bool checked)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.beginGroup(m_settingsPrefix);
    settings.setValue("Direction",QVariant(checked));

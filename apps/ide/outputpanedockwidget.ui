@@ -29,6 +29,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::TabFocus</enum>
+      </property>
       <property name="contextMenuPolicy">
        <enum>Qt::DefaultContextMenu</enum>
       </property>
@@ -42,7 +45,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -69,6 +72,9 @@
         </property>
         <item row="0" column="0">
          <widget class="QPlainTextEdit" name="generalOutputTextEdit">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="contextMenuPolicy">
            <enum>Qt::NoContextMenu</enum>
           </property>
@@ -116,6 +122,9 @@
           <property name="mouseTracking">
            <bool>true</bool>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="contextMenuPolicy">
            <enum>Qt::NoContextMenu</enum>
           </property>
@@ -123,8 +132,7 @@
            <bool>false</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">    a              { color:red; text-decoration:underline; }
-</string>
+           <string notr="true"/>
           </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
@@ -164,6 +172,9 @@
         </property>
         <item row="0" column="0">
          <widget class="QPlainTextEdit" name="debuggerOutputTextEdit">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="contextMenuPolicy">
            <enum>Qt::NoContextMenu</enum>
           </property>
@@ -208,6 +219,9 @@
         </property>
         <item row="0" column="0">
          <widget class="QPlainTextEdit" name="searchOutputTextEdit">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="contextMenuPolicy">
            <enum>Qt::NoContextMenu</enum>
           </property>

@@ -15,8 +15,8 @@ isEmpty (NESICIDE_LIBS) {
 }
 
 win32 {
-   SDL_CXXFLAGS = -I$$TOP/deps/SDL
-   SDL_LIBS =  -L$$TOP/deps/SDL/ -lsdl
+   SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
+   SDL_LIBS =  -L$$TOP/deps/Windows/SDL/ -lsdl
 
    NESICIDE_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator
 

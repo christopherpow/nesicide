@@ -68,11 +68,11 @@ int NewProjectDialog::getTemplateIndex()
 
 void NewProjectDialog::on_pathBrowse_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    QString path = settings.value("LastProjectBasePath").toString();
 
-   QString value = QFileDialog::getExistingDirectory(this,"Path",path);
+   QString value = QFileDialog::getSaveFileName(this,"Project Path",path,"",NULL,QFileDialog::ShowDirsOnly);
 
    if ( !value.isEmpty() )
    {
@@ -106,7 +106,7 @@ bool NewProjectDialog::checkValidity()
    {
       QDir check(ui->path->text());
 
-      if ( (!ui->path->text().isEmpty()) && check.exists() && (!ui->name->text().isEmpty()) )
+      if ( !ui->path->text().isEmpty() && !ui->name->text().isEmpty() )
       {
          return true;
       }
@@ -114,5 +114,15 @@ bool NewProjectDialog::checkValidity()
       {
          return false;
       }
+   }
+}
+
+void NewProjectDialog::on_buttonBox_accepted()
+{
+   QDir check(ui->path->text());
+
+   if ( !check.exists() )
+   {
+      check.mkpath(ui->path->text());
    }
 }

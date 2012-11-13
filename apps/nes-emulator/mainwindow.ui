@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>258</width>
-    <height>283</height>
+    <width>256</width>
+    <height>260</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>258</width>
-    <height>283</height>
+    <width>256</width>
+    <height>260</height>
    </size>
   </property>
   <property name="sizeIncrement">
@@ -57,41 +57,17 @@
     </property>
     <item row="0" column="0">
      <widget class="QFrame" name="frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="minimumSize">
        <size>
-        <width>257</width>
-        <height>241</height>
+        <width>256</width>
+        <height>240</height>
        </size>
-      </property>
-      <property name="sizeIncrement">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="mouseTracking">
-       <bool>false</bool>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: black;</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
-      </property>
-      <property name="lineWidth">
-       <number>0</number>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="margin">
@@ -110,7 +86,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>258</width>
+     <width>256</width>
      <height>21</height>
     </rect>
    </property>
@@ -144,9 +120,23 @@
      <addaction name="actionNoise"/>
      <addaction name="actionDelta_Modulation"/>
     </widget>
+    <widget class="QMenu" name="menuVideo">
+     <property name="title">
+      <string>Video</string>
+     </property>
+     <addaction name="action1x"/>
+     <addaction name="action1_5x"/>
+     <addaction name="action2x"/>
+     <addaction name="action2_5x"/>
+     <addaction name="action3x"/>
+     <addaction name="actionFullscreen"/>
+     <addaction name="separator"/>
+     <addaction name="actionLinear_Interpolation"/>
+     <addaction name="action4_3_Aspect"/>
+    </widget>
     <addaction name="menuSystem"/>
+    <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
-    <addaction name="actionFullscreen"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -269,6 +259,83 @@
    </property>
    <property name="toolTip">
     <string>Dendy</string>
+   </property>
+  </action>
+  <action name="action1x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1x</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="action1_5x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1.5x</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="action2x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>2x</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="action2_5x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>2.5x</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="action3x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>3x</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionLinear_Interpolation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Linear Interpolation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+9</string>
+   </property>
+  </action>
+  <action name="action4_3_Aspect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>4:3 Aspect</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
  </widget>

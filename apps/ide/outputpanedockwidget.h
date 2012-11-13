@@ -25,6 +25,8 @@ public:
    void clearAllPanes();
    void clearPane(int tab);
 
+   bool eventFilter(QObject *object, QEvent *event);
+
 public slots:
    void showPane(int tab);
    void updateGeneralPane(QString text);
@@ -46,8 +48,6 @@ private:
    Ui::OutputPaneDockWidget *ui;
 
 private slots:
-   void on_compilerOutputTextEdit_selectionChanged();
-   void on_searchOutputTextEdit_selectionChanged();
 };
 
 #endif // OUTPUTPANEDOCKWIDGET_H

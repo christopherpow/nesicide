@@ -14,7 +14,7 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::SearchDockWidget)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    ui->setupUi(this);
 
@@ -83,7 +83,7 @@ void SearchDockWidget::on_browse_clicked()
 
 void SearchDockWidget::on_find_clicked()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList items;
    SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
 
@@ -177,7 +177,7 @@ void SearchDockWidget::on_findForReplace_clicked()
 
 void SearchDockWidget::on_replace_clicked()
 {
-   QSettings   settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList items;
 
    settings.beginGroup("Search");
@@ -204,7 +204,7 @@ void SearchDockWidget::on_replace_clicked()
 
 void SearchDockWidget::on_replaceAll_clicked()
 {
-   QSettings   settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList items;
 
    settings.beginGroup("Search");

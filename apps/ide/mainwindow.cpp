@@ -29,7 +29,15 @@ ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent)
 {
-   QSettings settings;
+   if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
+        (QCoreApplication::applicationDirPath().contains("apps/ide"))) ) // Developer builds
+   {
+      QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::applicationDirPath());
+      QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
+   }
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   QProcessEnvironment::systemEnvironment();
 
    // Create the search engine thread.
    SearcherThread* searcher = new SearcherThread();
@@ -492,6 +500,34 @@ void MainWindow::createNesUi()
    actionDelta_Modulation->setCheckable(true);
    actionRun_Test_Suite = new QAction("Run Test Suite",this);
    actionRun_Test_Suite->setObjectName(QString::fromUtf8("actionRun_Test_Suite"));
+   action1x = new QAction("1x",this);
+   action1x->setObjectName(QString::fromUtf8("action1x"));
+   action1x->setShortcut(QKeySequence("Ctrl+1"));
+   action1x->setCheckable(true);
+   action1_5x = new QAction("1.5x",this);
+   action1_5x->setObjectName(QString::fromUtf8("action1_5x"));
+   action1_5x->setShortcut(QKeySequence("Ctrl+2"));
+   action1_5x->setCheckable(true);
+   action2x = new QAction("2x",this);
+   action2x->setObjectName(QString::fromUtf8("action2x"));
+   action2x->setShortcut(QKeySequence("Ctrl+3"));
+   action2x->setCheckable(true);
+   action2_5x = new QAction("2.5x",this);
+   action2_5x->setObjectName(QString::fromUtf8("action2_5x"));
+   action2_5x->setShortcut(QKeySequence("Ctrl+4"));
+   action2_5x->setCheckable(true);
+   action3x = new QAction("3x",this);
+   action3x->setObjectName(QString::fromUtf8("action3x"));
+   action3x->setShortcut(QKeySequence("Ctrl+5"));
+   action3x->setCheckable(true);
+   actionLinear_Interpolation = new QAction("Linear Interpolation",this);
+   actionLinear_Interpolation->setObjectName(QString::fromUtf8("actionLinear_Interpolation"));
+   actionLinear_Interpolation->setShortcut(QKeySequence("Ctrl+9"));
+   actionLinear_Interpolation->setCheckable(true);
+   action4_3_Aspect = new QAction("4:3 Aspect",this);
+   action4_3_Aspect->setObjectName(QString::fromUtf8("action4_3_Aspect"));
+   action4_3_Aspect->setShortcut(QKeySequence("Ctrl+0"));
+   action4_3_Aspect->setCheckable(true);
    actionFullscreen = new QAction("Fullscreen",this);
    actionFullscreen->setObjectName(QString::fromUtf8("actionFullscreen"));
    actionFullscreen->setShortcut(QKeySequence("F11"));
@@ -511,6 +547,17 @@ void MainWindow::createNesUi()
    menuSystem->setObjectName(QString::fromUtf8("menuSystem"));
    menuAudio = new QMenu("Audio",menuEmulator);
    menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
+   menuVideo = new QMenu("Video",menuEmulator);
+   menuVideo->setObjectName(QString::fromUtf8("menuVideo"));
+   menuVideo->addAction(action1x);
+   menuVideo->addAction(action1_5x);
+   menuVideo->addAction(action2x);
+   menuVideo->addAction(action2_5x);
+   menuVideo->addAction(action3x);
+   menuVideo->addAction(actionFullscreen);
+   menuVideo->addSeparator();
+   menuVideo->addAction(actionLinear_Interpolation);
+   menuVideo->addAction(action4_3_Aspect);
 
    menuDebugger->addAction(actionAssembly_Inspector);
    menuDebugger->addAction(actionBreakpoint_Inspector);
@@ -548,8 +595,8 @@ void MainWindow::createNesUi()
    menuCartridge_Inspectors->addSeparator();
    menuCartridge_Inspectors->addAction(actionGfxCHRMemory_Inspector);
    menuEmulator->addAction(menuSystem->menuAction());
+   menuEmulator->addAction(menuVideo->menuAction());
    menuEmulator->addAction(menuAudio->menuAction());
-   menuEmulator->addAction(actionFullscreen);
    menuEmulator->addSeparator();
    menuEmulator->addAction(actionRun_Test_Suite);
    menuEmulator->addSeparator();
@@ -815,6 +862,13 @@ void MainWindow::createNesUi()
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
    // Connect slots for new UI elements.
+   QObject::connect(action1x,SIGNAL(triggered()),this,SLOT(action1x_triggered()));
+   QObject::connect(action1_5x,SIGNAL(triggered()),this,SLOT(action1_5x_triggered()));
+   QObject::connect(action2x,SIGNAL(triggered()),this,SLOT(action2x_triggered()));
+   QObject::connect(action2_5x,SIGNAL(triggered()),this,SLOT(action2_5x_triggered()));
+   QObject::connect(action3x,SIGNAL(triggered()),this,SLOT(action3x_triggered()));
+   QObject::connect(actionLinear_Interpolation,SIGNAL(toggled(bool)),this,SLOT(actionLinear_Interpolation_toggled(bool)));
+   QObject::connect(action4_3_Aspect,SIGNAL(toggled(bool)),this,SLOT(action4_3_Aspect_toggled(bool)));
    QObject::connect(actionAssembly_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAssembly_Inspector_toggled(bool)));
    QObject::connect(actionBreakpoint_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBreakpoint_Inspector_toggled(bool)));
    QObject::connect(actionEmulation_Window,SIGNAL(toggled(bool)),this,SLOT(actionEmulation_Window_toggled(bool)));
@@ -828,6 +882,7 @@ void MainWindow::createNesUi()
    QObject::connect(actionPAL,SIGNAL(triggered()),this,SLOT(actionPAL_triggered()));
    QObject::connect(actionNTSC,SIGNAL(triggered()),this,SLOT(actionNTSC_triggered()));
    QObject::connect(actionDendy,SIGNAL(triggered()),this,SLOT(actionDendy_triggered()));
+   QObject::connect(actionPreferences,SIGNAL(triggered()),this,SLOT(actionPreferences_triggered()));
    QObject::connect(actionCodeDataLogger_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionCodeDataLogger_Inspector_toggled(bool)));
    QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionExecution_Visualizer_Inspector_toggled(bool)));
    QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxCHRMemory_Inspector_toggled(bool)));
@@ -854,7 +909,7 @@ void MainWindow::createNesUi()
    QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
 
-   updateFromEmulatorPrefs();
+   updateFromEmulatorPrefs(true);
 
    m_targetLoaded = "nes";
 
@@ -952,6 +1007,13 @@ void MainWindow::destroyNesUi()
    m_pBinMapperMemoryInspector->deleteLater();
    removeDockWidget(m_pJoypadLoggerInspector);
    m_pJoypadLoggerInspector->deleteLater();
+   action1x->deleteLater();
+   action1_5x->deleteLater();
+   action2x->deleteLater();
+   action2_5x->deleteLater();
+   action3x->deleteLater();
+   actionLinear_Interpolation->deleteLater();
+   action4_3_Aspect->deleteLater();
    actionFullscreen->deleteLater();
    actionEmulation_Window->deleteLater();
    actionAssembly_Inspector->deleteLater();
@@ -1373,7 +1435,7 @@ void MainWindow::setStatusBarMessage(QString message)
 
 void MainWindow::on_actionSave_Project_triggered()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString   fileName;
 
    fileName = nesicideProject->getProjectFileName();
@@ -1551,7 +1613,7 @@ void MainWindow::explodeTemplate(QString templateDirName,QString localDirName,QS
 
 void MainWindow::on_actionNew_Project_triggered()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    NewProjectDialog dlg(this,"New Project","Untitled",settings.value("LastProjectBasePath").toString(),true);
 
    if (dlg.exec() == QDialog::Accepted)
@@ -1608,7 +1670,7 @@ void MainWindow::on_actionNew_Project_triggered()
 
 void MainWindow::openNesROM(QString fileName,bool runRom)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    createNesUi();
 
@@ -1674,7 +1736,7 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
 void MainWindow::openC64File(QString fileName)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    createC64Ui();
 
@@ -1877,7 +1939,7 @@ void MainWindow::actionEmulation_Window_toggled(bool value)
 
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.setValue("IDEGeometry",saveGeometry());
    settings.setValue("IDEState",saveState());
@@ -1900,7 +1962,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
 void MainWindow::openNesProject(QString fileName,bool runRom)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString errors;
    bool    ok;
 
@@ -2493,7 +2555,7 @@ void MainWindow::closeProject()
 
 void MainWindow::on_action_Close_Project_triggered()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.setValue("LastProject","");
 
@@ -2610,43 +2672,71 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
    emit applyEnvironmentSettings();
 }
 
-void MainWindow::updateFromEmulatorPrefs()
+void MainWindow::updateFromEmulatorPrefs(bool initial)
 {
    // Synchronize UI elements with changes.
-   // Set TV standard to use.
-   int systemMode = EmulatorPrefsDialog::getTVStandard();
-   actionNTSC->setChecked(systemMode==MODE_NTSC);
-   actionPAL->setChecked(systemMode==MODE_PAL);
-   actionDendy->setChecked(systemMode==MODE_DENDY);
-   nesSetSystemMode(systemMode);
-
-   bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
-   nesSetBreakOnKIL(breakOnKIL);
-
-   bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
-   bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
-   bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
-   bool noise = EmulatorPrefsDialog::getNoiseEnabled();
-   bool dmc = EmulatorPrefsDialog::getDMCEnabled();
-   int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
-
-   actionSquare_1->setChecked(square1);
-   actionSquare_2->setChecked(square2);
-   actionTriangle->setChecked(triangle);
-   actionNoise->setChecked(noise);
-   actionDelta_Modulation->setChecked(dmc);
-   nesSetAudioChannelMask(mask);
-
-   if ( EmulatorPrefsDialog::videoSettingsChanged() )
+   if ( initial || EmulatorPrefsDialog::systemSettingsChanged() )
    {
-      if ( EmulatorPrefsDialog::getScalingFactor() > 1 )
-      {
-         m_pNESEmulator->setFloating(true);
-      }
-      m_pNESEmulator->resize((EmulatorPrefsDialog::getScalingFactor()*256)+2,(EmulatorPrefsDialog::getScalingFactor()*240)+2);
+      // Set TV standard to use.
+      int systemMode = EmulatorPrefsDialog::getTVStandard();
+      actionNTSC->setChecked(systemMode==MODE_NTSC);
+      actionPAL->setChecked(systemMode==MODE_PAL);
+      actionDendy->setChecked(systemMode==MODE_DENDY);
+      nesSetSystemMode(systemMode);
+
+      bool breakOnKIL = EmulatorPrefsDialog::getPauseOnKIL();
+      nesSetBreakOnKIL(breakOnKIL);
    }
 
-   if ( EmulatorPrefsDialog::controllerSettingsChanged() )
+   if ( initial || EmulatorPrefsDialog::audioSettingsChanged() )
+   {
+      bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
+      bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
+      bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
+      bool noise = EmulatorPrefsDialog::getNoiseEnabled();
+      bool dmc = EmulatorPrefsDialog::getDMCEnabled();
+      int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+
+      actionSquare_1->setChecked(square1);
+      actionSquare_2->setChecked(square2);
+      actionTriangle->setChecked(triangle);
+      actionNoise->setChecked(noise);
+      actionDelta_Modulation->setChecked(dmc);
+      nesSetAudioChannelMask(mask);
+   }
+
+   if ( initial || EmulatorPrefsDialog::videoSettingsChanged() )
+   {
+      switch ( EmulatorPrefsDialog::getScalingFactor() )
+      {
+      case 0:
+         // 1x
+         action1x_triggered();
+         break;
+      case 1:
+         // 1.5x
+         action1_5x_triggered();
+         break;
+      case 2:
+         // 2x
+         action2x_triggered();
+         break;
+      case 3:
+         // 2.5x
+         action2_5x_triggered();
+         break;
+      case 4:
+         // 3x
+         action3x_triggered();
+         break;
+      }
+      actionLinear_Interpolation->setChecked(EmulatorPrefsDialog::getLinearInterpolation());
+      m_pNESEmulator->setLinearInterpolation(EmulatorPrefsDialog::getLinearInterpolation());
+      action4_3_Aspect->setChecked(EmulatorPrefsDialog::get43Aspect());
+      m_pNESEmulator->set43Aspect(EmulatorPrefsDialog::get43Aspect());
+   }
+
+   if ( initial || EmulatorPrefsDialog::controllerSettingsChanged() )
    {
       // Set up controllers.
       nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
@@ -2664,7 +2754,7 @@ void MainWindow::actionPreferences_triggered()
 
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      updateFromEmulatorPrefs();
+      updateFromEmulatorPrefs(false);
    }
 }
 
@@ -2773,11 +2863,13 @@ void MainWindow::actionFullscreen_toggled(bool value)
       m_bEmulatorFloating = m_pNESEmulator->isFloating();
       m_pNESEmulator->setFloating(true);
       m_pNESEmulator->showFullScreen();
+      m_pNESEmulator->setFocus();
    }
    else
    {
       m_pNESEmulator->showNormal();
       m_pNESEmulator->setFloating(m_bEmulatorFloating);
+      m_pNESEmulator->setFocus();
    }
 }
 
@@ -2823,4 +2915,109 @@ void MainWindow::actionBinSIDRegister_Inspector_toggled(bool value)
 void MainWindow::reflectedBinSIDRegisterInspector_close(bool toplevel)
 {
    actionBinSIDRegister_Inspector->setChecked(toplevel);
+}
+
+void MainWindow::action1x_triggered()
+{
+   if ( m_pNESEmulator->isFullScreen() )
+   {
+      actionFullscreen->setChecked(false);
+   }
+   EmulatorPrefsDialog::setScalingFactor(0);
+   m_pNESEmulator->setScalingFactor(1.0);
+   action1x->setChecked(true);
+   action1_5x->setChecked(false);
+   action2x->setChecked(false);
+   action2_5x->setChecked(false);
+   action3x->setChecked(false);
+}
+
+void MainWindow::action1_5x_triggered()
+{
+   if ( m_pNESEmulator->isFullScreen() )
+   {
+      actionFullscreen->setChecked(false);
+   }
+   EmulatorPrefsDialog::setScalingFactor(1);
+   m_pNESEmulator->setScalingFactor(1.5);
+   action1x->setChecked(false);
+   action1_5x->setChecked(true);
+   action2x->setChecked(false);
+   action2_5x->setChecked(false);
+   action3x->setChecked(false);
+}
+
+void MainWindow::action2x_triggered()
+{
+   if ( m_pNESEmulator->isFullScreen() )
+   {
+      actionFullscreen->setChecked(false);
+   }
+   EmulatorPrefsDialog::setScalingFactor(2);
+   m_pNESEmulator->setScalingFactor(2.0);
+   action1x->setChecked(false);
+   action1_5x->setChecked(false);
+   action2x->setChecked(true);
+   action2_5x->setChecked(false);
+   action3x->setChecked(false);
+}
+
+void MainWindow::action2_5x_triggered()
+{
+   if ( m_pNESEmulator->isFullScreen() )
+   {
+      actionFullscreen->setChecked(false);
+   }
+   EmulatorPrefsDialog::setScalingFactor(3);
+   m_pNESEmulator->setScalingFactor(2.5);
+   action1x->setChecked(false);
+   action1_5x->setChecked(false);
+   action2x->setChecked(false);
+   action2_5x->setChecked(true);
+   action3x->setChecked(false);
+}
+
+void MainWindow::action3x_triggered()
+{
+   if ( m_pNESEmulator->isFullScreen() )
+   {
+      actionFullscreen->setChecked(false);
+   }
+   EmulatorPrefsDialog::setScalingFactor(4);
+   m_pNESEmulator->setScalingFactor(3.0);
+   action1x->setChecked(false);
+   action1_5x->setChecked(false);
+   action2x->setChecked(false);
+   action2_5x->setChecked(false);
+   action3x->setChecked(true);
+}
+
+void MainWindow::actionLinear_Interpolation_toggled(bool )
+{
+   EmulatorPrefsDialog::setLinearInterpolation(actionLinear_Interpolation->isChecked());
+   m_pNESEmulator->setLinearInterpolation(actionLinear_Interpolation->isChecked());
+}
+
+void MainWindow::action4_3_Aspect_toggled(bool )
+{
+   EmulatorPrefsDialog::set43Aspect(action4_3_Aspect->isChecked());
+   m_pNESEmulator->set43Aspect(action4_3_Aspect->isChecked());
+   switch ( EmulatorPrefsDialog::getScalingFactor() )
+   {
+   case 0:
+      action1x->trigger();
+      break;
+   case 1:
+      action1_5x->trigger();
+      break;
+   case 2:
+      action2x->trigger();
+      break;
+   case 3:
+      action2_5x->trigger();
+      break;
+   case 4:
+      action3x->trigger();
+      break;
+   }
 }

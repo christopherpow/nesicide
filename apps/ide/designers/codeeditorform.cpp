@@ -32,7 +32,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
    int marker;
@@ -1017,7 +1017,7 @@ void CodeEditorForm::setSourceCode(QString source)
 
 void CodeEditorForm::showExecutionLine(int linenumber)
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    bool      follow = EnvironmentSettingsDialog::followExecution();
 
    if ( m_scintilla )
@@ -1198,7 +1198,7 @@ void CodeEditorForm::annotateText()
 
 void CodeEditorForm::restyleText()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    m_lexer->readSettings(settings,"CodeEditor");
 

@@ -19,6 +19,10 @@ public:
    explicit NESEmulatorDockWidget(QWidget *parent = 0);
    virtual ~NESEmulatorDockWidget();
 
+   void setLinearInterpolation(bool enabled) { renderer->setLinearInterpolation(enabled); }
+   void set43Aspect(bool enabled) { renderer->set43Aspect(enabled); }
+   void fixTitleBar();
+
 protected:
    void changeEvent(QEvent* e);
    void mousePressEvent(QMouseEvent* event);
@@ -33,6 +37,7 @@ private:
    Ui::NESEmulatorDockWidget *ui;
    CNESEmulatorRenderer* renderer;
    QWidget* fakeTitleBar;
+   QWidget* savedTitleBar;
    char* imgData;
    unsigned char m_joy [ NUM_CONTROLLERS ];
 

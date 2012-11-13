@@ -44,6 +44,8 @@ public:
    static bool getNoiseEnabled();
    static bool getDMCEnabled();
    static int getScalingFactor();
+   static bool getLinearInterpolation();
+   static bool get43Aspect();
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
    static void setTVStandard(int standard);
@@ -54,6 +56,8 @@ public:
    static void setDMCEnabled(bool enabled);
    static void setScalingFactor(int factor);
    static void setPauseOnTaskSwitch(bool pause);
+   static void setLinearInterpolation(bool enabled);
+   static void set43Aspect(bool enabled);
 
 private:
    Ui::EmulatorPrefsDialog* ui;
@@ -80,6 +84,8 @@ private:
    static bool noiseEnabled;
    static bool dmcEnabled;
    static int scalingFactor;
+   static bool linearInterpolation;
+   static bool aspect43;
 
    // Query flags.
    static bool controllersUpdated;

@@ -61,8 +61,16 @@ void CNESEmulatorRenderer::initializeGL()
    // Set our texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   if ( linearInterpolation )
+   {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   }
+   else
+   {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   }
    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
    // Load the actual texture
@@ -78,20 +86,30 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 {
    QSize actualSize;
    QPoint offset;
+   int realWidth;
 
-   // Force integral scaling factors. TODO: Add to environment settings.
-   int iwidth  = width   / 256 * 256;
-   int iheight = height  / 240 * 240;
+   // Force .5x step scaling factors.
+   if ( aspect43 )
+   {
+      realWidth = 292;
+   }
+   else
+   {
+      realWidth = 256;
+   }
 
-   if (width >= ((float)height * (256.0f / 240.0f)))
+   int iwidth  = width   / (realWidth/2) * (realWidth/2);
+   int iheight = height  / 120 * 120;
+
+   if (width >= ((float)height * ((float)realWidth) / 240.0f))
    {
       actualSize.setHeight( iheight );
-      actualSize.setWidth( (float)iheight * (256.0f / 240.0f) );
+      actualSize.setWidth( (float)iheight * ((float)realWidth / 240.0f) );
    }
    else
    {
       actualSize.setWidth( iwidth );
-      actualSize.setHeight( (float)iwidth * (240.0f / 256.0f) );
+      actualSize.setHeight( (float)iwidth * (240.0f / (float)realWidth) );
    }
 
    // Calculate the offset so that the quad is centered
@@ -139,11 +157,21 @@ void CNESEmulatorRenderer::paintGL()
    glClear(GL_COLOR_BUFFER_BIT);
 #endif
 
+   if ( linearInterpolation )
+   {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   }
+   else
+   {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   }
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
-   glTexCoord2f (0.0, 240.f/256);
+   glTexCoord2f (0.0, 240.f/256.0);
    glVertex3f(0.0, 0.0, 0.0f);
-   glTexCoord2f (1.0, 240.f/256);
+   glTexCoord2f (1.0, 240.f/256.0);
    glVertex3f(1.0f, 0.0, 0.0f);
    glTexCoord2f (1.0, 0);
    glVertex3f(1.0f, 1.0f, 0.0f);

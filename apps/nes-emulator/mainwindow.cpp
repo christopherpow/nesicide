@@ -18,7 +18,13 @@ MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
    ui(new Ui::MainWindow)
 {
-   QSettings settings;
+   if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
+        (QCoreApplication::applicationDirPath().contains("apps/nes-emulator"))) ) // Developer builds
+   {
+      QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::applicationDirPath());
+      QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
+   }
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Set up singleton pointer for main window referencing.
    _me = this;
@@ -28,9 +34,11 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pNESEmulatorThread = new NESEmulatorThread();
    CObjectRegistry::addObject("Emulator",m_pNESEmulatorThread);
 
-   m_pEmulator = new NESEmulatorDockWidget(this);
-   ui->frame->layout()->addWidget(m_pEmulator);
+   m_pEmulator = new NESEmulatorDockWidget();
    m_pEmulator->setVisible(true);
+   ui->frame->layout()->addWidget(m_pEmulator);
+   ui->frame->layout()->update();
+   ui->statusBar->setVisible(false);
 
    m_pEmulatorControl = new EmulatorControl();
 
@@ -45,9 +53,15 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->menuEmulator->insertActions(firstEmuMenuAction,m_pEmulatorControl->menu());
    ui->menuEmulator->insertSeparator(firstEmuMenuAction);
 
+   setMinimumSize(0,ui->menuBar->sizeHint().height()+1);
+   setMaximumSize(0,ui->menuBar->sizeHint().height()+1);
+   ncRect = rect();
+   setMinimumSize(0,0);
+   setMaximumSize(0,0);
+
    EmulatorPrefsDialog::readSettings();
 
-   updateFromEmulatorPrefs();
+   updateFromEmulatorPrefs(true);
 
    QStringList sl_raw = QApplication::arguments();
    QStringList sl_nes = sl_raw.filter ( ".nes", Qt::CaseInsensitive );
@@ -108,7 +122,7 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    settings.setValue("EmulatorGeometry",saveGeometry());
    settings.setValue("EmulatorState",saveState());
@@ -310,7 +324,7 @@ void MainWindow::loadCartridge ( QString fileName )
 
 void MainWindow::on_actionOpen_triggered()
 {
-   QSettings settings;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    QString romPath = settings.value("Environment/romPath","").toString();
    QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "iNES ROM (*.nes)");
@@ -509,36 +523,68 @@ void MainWindow::on_actionAbout_triggered()
    dlg->deleteLater();
 }
 
-void MainWindow::updateFromEmulatorPrefs()
+void MainWindow::updateFromEmulatorPrefs(bool initial)
 {
-   // Synchronize UI elements with changes.
-   // Set TV standard to use.
-   int systemMode = EmulatorPrefsDialog::getTVStandard();
-   ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
-   ui->actionPAL->setChecked(systemMode==MODE_PAL);
-   ui->actionDendy->setChecked(systemMode==MODE_DENDY);
-   nesSetSystemMode(systemMode);
-
-   bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
-   bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
-   bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
-   bool noise = EmulatorPrefsDialog::getNoiseEnabled();
-   bool dmc = EmulatorPrefsDialog::getDMCEnabled();
-   int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
-
-   ui->actionSquare_1->setChecked(square1);
-   ui->actionSquare_2->setChecked(square2);
-   ui->actionTriangle->setChecked(triangle);
-   ui->actionNoise->setChecked(noise);
-   ui->actionDelta_Modulation->setChecked(dmc);
-   nesSetAudioChannelMask(mask);
-
-   if ( EmulatorPrefsDialog::videoSettingsChanged() )
+   if ( initial || EmulatorPrefsDialog::systemSettingsChanged() )
    {
-      resize((EmulatorPrefsDialog::getScalingFactor()*256),(EmulatorPrefsDialog::getScalingFactor()*240)+41);
+      // Synchronize UI elements with changes.
+      // Set TV standard to use.
+      int systemMode = EmulatorPrefsDialog::getTVStandard();
+      ui->actionNTSC->setChecked(systemMode==MODE_NTSC);
+      ui->actionPAL->setChecked(systemMode==MODE_PAL);
+      ui->actionDendy->setChecked(systemMode==MODE_DENDY);
+      nesSetSystemMode(systemMode);
    }
 
-   if ( EmulatorPrefsDialog::controllerSettingsChanged() )
+   if ( initial || EmulatorPrefsDialog::audioSettingsChanged() )
+   {
+      bool square1 = EmulatorPrefsDialog::getSquare1Enabled();
+      bool square2 = EmulatorPrefsDialog::getSquare2Enabled();
+      bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
+      bool noise = EmulatorPrefsDialog::getNoiseEnabled();
+      bool dmc = EmulatorPrefsDialog::getDMCEnabled();
+      int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+
+      ui->actionSquare_1->setChecked(square1);
+      ui->actionSquare_2->setChecked(square2);
+      ui->actionTriangle->setChecked(triangle);
+      ui->actionNoise->setChecked(noise);
+      ui->actionDelta_Modulation->setChecked(dmc);
+      nesSetAudioChannelMask(mask);
+   }
+
+   if ( initial || EmulatorPrefsDialog::videoSettingsChanged() )
+   {
+      switch ( EmulatorPrefsDialog::getScalingFactor() )
+      {
+      case 0:
+         // 1x
+         on_action1x_triggered();
+         break;
+      case 1:
+         // 1.5x
+         on_action1_5x_triggered();
+         break;
+      case 2:
+         // 2x
+         on_action2x_triggered();
+         break;
+      case 3:
+         // 2.5x
+         on_action2_5x_triggered();
+         break;
+      case 4:
+         // 3x
+         on_action3x_triggered();
+         break;
+      }
+      ui->actionLinear_Interpolation->setChecked(EmulatorPrefsDialog::getLinearInterpolation());
+      m_pEmulator->setLinearInterpolation(EmulatorPrefsDialog::getLinearInterpolation());
+      ui->action4_3_Aspect->setChecked(EmulatorPrefsDialog::get43Aspect());
+      m_pEmulator->set43Aspect(EmulatorPrefsDialog::get43Aspect());
+   }
+
+   if ( initial || EmulatorPrefsDialog::controllerSettingsChanged() )
    {
       // Set up controllers.
       nesSetControllerType(0,EmulatorPrefsDialog::getControllerType(0));
@@ -554,21 +600,23 @@ void MainWindow::on_actionPreferences_triggered()
 
    dlg.exec();
 
-   updateFromEmulatorPrefs();
+   updateFromEmulatorPrefs(false);
 }
 
 void MainWindow::on_actionFullscreen_toggled(bool value)
 {
    if ( value )
    {
-      m_bEmulatorFloating = m_pEmulator->isFloating();
       m_pEmulator->setFloating(true);
+      m_pEmulator->fixTitleBar();
       m_pEmulator->showFullScreen();
+      m_pEmulator->setFocus();
    }
    else
    {
       m_pEmulator->showNormal();
-      m_pEmulator->setFloating(m_bEmulatorFloating);
+      m_pEmulator->fixTitleBar();
+      m_pEmulator->setFloating(false);
       m_pEmulator->setFocus();
    }
 }
@@ -576,4 +624,164 @@ void MainWindow::on_actionFullscreen_toggled(bool value)
 void MainWindow::on_actionAbout_Qt_triggered()
 {
    QMessageBox::aboutQt(this);
+}
+
+void MainWindow::on_action1x_triggered()
+{
+   if ( m_pEmulator->isFullScreen() )
+   {
+      ui->actionFullscreen->setChecked(false);
+   }
+   QRect rect;
+   if ( EmulatorPrefsDialog::get43Aspect() )
+   {
+      rect = ncRect.adjusted(0,0,1.0*292,1.0*240);
+   }
+   else
+   {
+      rect = ncRect.adjusted(0,0,1.0*256,1.0*240);
+   }
+   EmulatorPrefsDialog::setScalingFactor(0);
+   setMinimumSize(rect.width(),rect.height());
+   setMaximumSize(rect.width(),rect.height());
+   resize(rect.width(),rect.height());
+   ui->action1x->setChecked(true);
+   ui->action1_5x->setChecked(false);
+   ui->action2x->setChecked(false);
+   ui->action2_5x->setChecked(false);
+   ui->action3x->setChecked(false);
+}
+
+void MainWindow::on_action1_5x_triggered()
+{
+   if ( m_pEmulator->isFullScreen() )
+   {
+      ui->actionFullscreen->setChecked(false);
+   }
+   QRect rect;
+   if ( EmulatorPrefsDialog::get43Aspect() )
+   {
+      rect = ncRect.adjusted(0,0,1.5*292,1.5*240);
+   }
+   else
+   {
+      rect = ncRect.adjusted(0,0,1.5*256,1.5*240);
+   }
+   EmulatorPrefsDialog::setScalingFactor(1);
+   setMinimumSize(rect.width(),rect.height());
+   setMaximumSize(rect.width(),rect.height());
+   resize(rect.width(),rect.height());
+   ui->action1x->setChecked(false);
+   ui->action1_5x->setChecked(true);
+   ui->action2x->setChecked(false);
+   ui->action2_5x->setChecked(false);
+   ui->action3x->setChecked(false);
+}
+
+void MainWindow::on_action2x_triggered()
+{
+   if ( m_pEmulator->isFullScreen() )
+   {
+      ui->actionFullscreen->setChecked(false);
+   }
+   QRect rect;
+   if ( EmulatorPrefsDialog::get43Aspect() )
+   {
+      rect = ncRect.adjusted(0,0,2.0*292,2.0*240);
+   }
+   else
+   {
+      rect = ncRect.adjusted(0,0,2.0*256,2.0*240);
+   }
+   EmulatorPrefsDialog::setScalingFactor(2);
+   setMinimumSize(rect.width(),rect.height());
+   setMaximumSize(rect.width(),rect.height());
+   resize(rect.width(),rect.height());
+   ui->action1x->setChecked(false);
+   ui->action1_5x->setChecked(false);
+   ui->action2x->setChecked(true);
+   ui->action2_5x->setChecked(false);
+   ui->action3x->setChecked(false);
+}
+
+void MainWindow::on_action2_5x_triggered()
+{
+   if ( m_pEmulator->isFullScreen() )
+   {
+      ui->actionFullscreen->setChecked(false);
+   }
+   QRect rect;
+   if ( EmulatorPrefsDialog::get43Aspect() )
+   {
+      rect = ncRect.adjusted(0,0,2.5*292,2.5*240);
+   }
+   else
+   {
+      rect = ncRect.adjusted(0,0,2.5*256,2.5*240);
+   }
+   EmulatorPrefsDialog::setScalingFactor(3);
+   setMinimumSize(rect.width(),rect.height());
+   setMaximumSize(rect.width(),rect.height());
+   resize(rect.width(),rect.height());
+   ui->action1x->setChecked(false);
+   ui->action1_5x->setChecked(false);
+   ui->action2x->setChecked(false);
+   ui->action2_5x->setChecked(true);
+   ui->action3x->setChecked(false);
+}
+
+void MainWindow::on_action3x_triggered()
+{
+   if ( m_pEmulator->isFullScreen() )
+   {
+      ui->actionFullscreen->setChecked(false);
+   }
+   QRect rect;
+   if ( EmulatorPrefsDialog::get43Aspect() )
+   {
+      rect = ncRect.adjusted(0,0,3.0*292,3.0*240);
+   }
+   else
+   {
+      rect = ncRect.adjusted(0,0,3.0*256,3.0*240);
+   }
+   EmulatorPrefsDialog::setScalingFactor(4);
+   setMinimumSize(rect.width(),rect.height());
+   setMaximumSize(rect.width(),rect.height());
+   resize(rect.width(),rect.height());
+   ui->action1x->setChecked(false);
+   ui->action1_5x->setChecked(false);
+   ui->action2x->setChecked(false);
+   ui->action2_5x->setChecked(false);
+   ui->action3x->setChecked(true);
+}
+
+void MainWindow::on_actionLinear_Interpolation_toggled(bool )
+{
+   EmulatorPrefsDialog::setLinearInterpolation(ui->actionLinear_Interpolation->isChecked());
+   m_pEmulator->setLinearInterpolation(ui->actionLinear_Interpolation->isChecked());
+}
+
+void MainWindow::on_action4_3_Aspect_toggled(bool )
+{
+   EmulatorPrefsDialog::set43Aspect(ui->action4_3_Aspect->isChecked());
+   m_pEmulator->set43Aspect(ui->action4_3_Aspect->isChecked());
+   switch ( EmulatorPrefsDialog::getScalingFactor() )
+   {
+   case 0:
+      ui->action1x->trigger();
+      break;
+   case 1:
+      ui->action1_5x->trigger();
+      break;
+   case 2:
+      ui->action2x->trigger();
+      break;
+   case 3:
+      ui->action2_5x->trigger();
+      break;
+   case 4:
+      ui->action3x->trigger();
+      break;
+   }
 }

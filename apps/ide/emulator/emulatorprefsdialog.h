@@ -44,6 +44,8 @@ public:
    static bool getNoiseEnabled();
    static bool getDMCEnabled();
    static int getScalingFactor();
+   static bool getLinearInterpolation();
+   static bool get43Aspect();
 
    // C=64 accessors
    static QString getVICEExecutable();
@@ -63,6 +65,8 @@ public:
    static void setDMCEnabled(bool enabled);
    static void setScalingFactor(int factor);
    static void setPauseOnTaskSwitch(bool pause);
+   static void setLinearInterpolation(bool enabled);
+   static void set43Aspect(bool enabled);
 
 private:
    Ui::EmulatorPrefsDialog* ui;
@@ -90,6 +94,8 @@ private:
    static bool noiseEnabled;
    static bool dmcEnabled;
    static int scalingFactor;
+   static bool linearInterpolation;
+   static bool aspect43;
 
    // C=64 settings data structures.
    static QString viceExecutable;

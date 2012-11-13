@@ -23,7 +23,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
 
    // Copy the system environment to the child process.
    versioner.setProcessEnvironment(env);
-   versioner.setWorkingDirectory(QDir::currentPath());
+   versioner.setWorkingDirectory(QCoreApplication::applicationDirPath());
 
    ui->versionsText->append("<a href=\"#top\"/>");
    ui->versionsText->append("<b>NESICIDE Application version:</b>");

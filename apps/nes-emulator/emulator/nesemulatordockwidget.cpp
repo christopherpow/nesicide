@@ -18,19 +18,17 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
-   renderer = new CNESEmulatorRenderer(ui->frame, imgData);
+   fakeTitleBar = new QWidget();
+   fakeTitleBar->setMaximumHeight(0);
+   savedTitleBar = titleBarWidget();
+   setTitleBarWidget(fakeTitleBar);
+
+   renderer = new CNESEmulatorRenderer(this, imgData);
    renderer->setMouseTracking(true);
-   ui->frame->layout()->addWidget(renderer);
-   ui->frame->layout()->update();
+   setWidget(renderer);
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
    QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));
-
-   fakeTitleBar = new QWidget();
-   fakeTitleBar->setMaximumHeight(0);
-   QWidget* faker = titleBarWidget();
-   setTitleBarWidget(fakeTitleBar);
-   delete faker;
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -65,6 +63,13 @@ void NESEmulatorDockWidget::changeEvent(QEvent* e)
       default:
          break;
    }
+}
+
+void NESEmulatorDockWidget::fixTitleBar()
+{
+   QWidget* swap = titleBarWidget();
+   setTitleBarWidget(savedTitleBar);
+   savedTitleBar = swap;
 }
 
 void NESEmulatorDockWidget::mousePressEvent(QMouseEvent* event)

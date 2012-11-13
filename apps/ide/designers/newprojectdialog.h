@@ -28,6 +28,7 @@ private:
    Ui::NewProjectDialog* ui;
 
 private slots:
+    void on_buttonBox_accepted();
     void on_name_textChanged(QString text);
     void on_path_textChanged(QString text);
     void on_pathBrowse_clicked();

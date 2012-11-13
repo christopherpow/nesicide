@@ -18,10 +18,23 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   renderer = new CNESEmulatorRenderer(ui->frame,imgData);
+   QWidget* titleBar = titleBarWidget();
+   QWidget* faker = new QWidget();
+   faker->setMaximumHeight(0);
+   setTitleBarWidget(faker);
+
+   setMinimumSize(0,titleBarWidget()->sizeHint().height()+1);
+   setMaximumSize(0,titleBarWidget()->sizeHint().height()+1);
+   ncRect = rect();
+
+   setTitleBarWidget(titleBar);
+   setMinimumSize(0,0);
+   setMaximumSize(16777215,16777215);
+   delete faker;
+
+   renderer = new CNESEmulatorRenderer(this,imgData);
    renderer->setMouseTracking(true);
-   ui->frame->layout()->addWidget(renderer);
-   ui->frame->layout()->update();
+   setWidget(renderer);//use this instead?
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -42,6 +55,30 @@ NESEmulatorDockWidget::~NESEmulatorDockWidget()
     delete ui;
     delete renderer;
     delete imgData;
+}
+
+void NESEmulatorDockWidget::setScalingFactor(float factor)
+{
+   QRect rect;
+   if ( EmulatorPrefsDialog::get43Aspect() )
+   {
+      rect = ncRect.adjusted(0,0,factor*292,factor*240);
+   }
+   else
+   {
+      rect = ncRect.adjusted(0,0,factor*256,factor*240);
+   }
+
+   if ( factor > 1.0 )
+   {
+      setFloating(true);
+   }
+   else
+   {
+      setFloating(false);
+   }
+   setMinimumSize(rect.width(),rect.height());
+   resize(rect.width(),rect.height());
 }
 
 void NESEmulatorDockWidget::updateTargetMachine(QString target)
