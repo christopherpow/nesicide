@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <nesicideproject title="NROM Hello World - C" version="0.3" target="nes">
- <properties outputname="helloworld" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" chrromoutputbasepath="." headerfilename="project_data.h" chrromoutputname="tileset.chr" debuginfoname="helloworld.dbg" compilerincludepaths="" chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="" sourcefilename="project_data.s" linkeroutputname="helloworld.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="helloworld.nes" linkeradditionaloptions="">
+ <properties outputname="helloworld" linkeradditionaldependencies="" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" customrulesfile="" chrromoutputbasepath="." headerfilename="project_data.h" chrromoutputname="tileset.chr" debuginfoname="helloworld.dbg" compilerincludepaths="" chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="" sourcefilename="project_data.s" linkeroutputname="helloworld.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="helloworld.nes" linkeradditionaloptions="">
   <tileproperties/>
   <palette>
    <entry g="102" index="0" r="102" b="102"/>
@@ -92,6 +92,7 @@
   <sources>
    <source path="src/crt0.s" uuid="{4f1ed9db-0bec-43b2-b775-bd6bfee5e2cf}" name="src/crt0.s"/>
    <source path="src/main.c" uuid="{ca22befe-3de9-4e1f-abbc-b81d76cf07bb}" name="src/main.c"/>
+   <source path="src/memmap.inc" uuid="{d18d42e1-6ffb-4d41-a7d8-15a8f458632c}" name="src/memmap.inc"/>
   </sources>
   <binaryfiles>
    <binaryfile xsize="256" ysize="128" path="tileset.chr" uuid="{1ca803f8-6259-424e-b065-46e927d4d47b}" name="tileset.chr"/>

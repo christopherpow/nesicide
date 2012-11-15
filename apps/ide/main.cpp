@@ -30,24 +30,6 @@ int main(int argc, char* argv[])
    QCoreApplication::setOrganizationDomain("nesicide.com");
    QCoreApplication::setApplicationName("NESICIDE");
 
-   // Initialize Environment settings.
-   EnvironmentSettingsDialog::readSettings();
-
-   // Initialize the game database object...
-   if ( EnvironmentSettingsDialog::useInternalGameDatabase() )
-   {
-      // Use internal resource.
-      gameDatabase.initialize(":GameDatabase");
-   }
-   else
-   {
-      // Use named file resource.  Default to internal if it's not set.
-      gameDatabase.initialize(EnvironmentSettingsDialog::getGameDatabase());
-   }
-
-   // Initialize the plugin manager
-   pluginManager = new CPluginManager();
-
    // Run the startup splash
    StartupSplashDialog* splash = new StartupSplashDialog();
    //splash->exec();

@@ -26,7 +26,7 @@
    <enum>Qt::StrongFocus</enum>
   </property>
   <property name="features">
-   <set>QDockWidget::AllDockWidgetFeatures</set>
+   <set>QDockWidget::DockWidgetFloatable</set>
   </property>
   <property name="windowTitle">
    <string>Emulator</string>

@@ -126,3 +126,19 @@ void NewProjectDialog::on_buttonBox_accepted()
       check.mkpath(ui->path->text());
    }
 }
+
+void NewProjectDialog::on_target_currentIndexChanged(QString target)
+{
+   QStringList templates;
+   if ( target == "Nintendo Entertainment System" )
+   {
+      QDir templatesDir(":/templates/NES");
+      templates = templatesDir.entryList();
+   }
+   else if ( target == "Commodore 64" )
+   {
+      QDir templatesDir(":/templates/C64");
+      templates = templatesDir.entryList();
+   }
+   ui->templateProject->addItems(templates);
+}

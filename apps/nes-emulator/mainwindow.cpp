@@ -66,6 +66,8 @@ MainWindow::MainWindow(QWidget* parent) :
    QStringList sl_raw = QApplication::arguments();
    QStringList sl_nes = sl_raw.filter ( ".nes", Qt::CaseInsensitive );
 
+   emit resetEmulator();
+
    if ( sl_nes.count() >= 1 )
    {
       emit pauseEmulation(false);
@@ -85,8 +87,6 @@ MainWindow::MainWindow(QWidget* parent) :
                                     "were ignored." );
       }
    }
-
-   emit resetEmulator();
 
    if ( settings.value("Environment/rememberWindowSettings").toBool() )
    {

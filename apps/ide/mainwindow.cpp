@@ -35,9 +35,58 @@ MainWindow::MainWindow(QWidget* parent) :
       QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::applicationDirPath());
       QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
    }
+   if ( !QCoreApplication::applicationDirPath().contains("apps/ide") )
+   {
+      // Set environment.
+      QString envvar = qgetenv("PATH");
+      QString envdat;
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/GnuWin32/bin;";
+      envdat += QCoreApplication::applicationDirPath();
+      envdat += "/cc65-snapshot/bin;";
+      qputenv("PATH",QString(envdat+envvar).toAscii());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65-snapshot";
+      qputenv("CC65_HOME",envdat.toAscii());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65-snapshot/lib";
+      qputenv("LD65_LIB",envdat.toAscii());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65-snapshot/lib";
+      qputenv("LD65_OBJ",envdat.toAscii());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65-snapshot/asminc";
+      qputenv("CC65_ASMINC",envdat.toAscii());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65-snapshot/asminc";
+      qputenv("CC65_INC",envdat.toAscii());
+
+   }
+
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
-   QProcessEnvironment::systemEnvironment();
+   // Initialize Environment settings.
+   EnvironmentSettingsDialog::readSettings();
+
+   // Initialize the game database object...
+   if ( EnvironmentSettingsDialog::useInternalGameDatabase() )
+   {
+      // Use internal resource.
+      gameDatabase.initialize(":GameDatabase");
+   }
+   else
+   {
+      // Use named file resource.  Default to internal if it's not set.
+      gameDatabase.initialize(EnvironmentSettingsDialog::getGameDatabase());
+   }
+
+   // Initialize the plugin manager
+   pluginManager = new CPluginManager();
 
    // Create the search engine thread.
    SearcherThread* searcher = new SearcherThread();
@@ -1658,10 +1707,10 @@ void MainWindow::on_actionNew_Project_triggered()
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
          {
             openNesProject(projectFileName);
-
-            settings.setValue("LastProject",projectDir.absoluteFilePath(projectFileName));
          }
       }
+
+      settings.setValue("LastProject",projectDir.absoluteFilePath(projectFileName));
 
       m_pProjectBrowser->enableNavigation();
       projectDataChangesEvent();

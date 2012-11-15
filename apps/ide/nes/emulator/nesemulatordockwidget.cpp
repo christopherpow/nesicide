@@ -18,19 +18,13 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   QWidget* titleBar = titleBarWidget();
-   QWidget* faker = new QWidget();
-   faker->setMaximumHeight(0);
-   setTitleBarWidget(faker);
+   setMinimumSize(0,22);
+   setMaximumSize(0,22);
 
-   setMinimumSize(0,titleBarWidget()->sizeHint().height()+1);
-   setMaximumSize(0,titleBarWidget()->sizeHint().height()+1);
    ncRect = rect();
 
-   setTitleBarWidget(titleBar);
    setMinimumSize(0,0);
    setMaximumSize(16777215,16777215);
-   delete faker;
 
    renderer = new CNESEmulatorRenderer(this,imgData);
    renderer->setMouseTracking(true);
