@@ -29,13 +29,13 @@ CROMMapper068::~CROMMapper068()
 {
 }
 
-void CROMMapper068::RESET ()
+void CROMMapper068::RESET ( bool soft )
 {
    int32_t idx;
 
    m_mapper = 68;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    for ( idx = 0; idx < 4; idx++ )
    {

@@ -16,9 +16,10 @@ NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString d
    ui->templateGroup->setVisible(showTemplate);
    ui->name->setFocus();
 
-   QDir templatesDir(":/templates");
+   QDir templatesDir(":/templates/NES");
    QStringList templates = templatesDir.entryList();
 
+   ui->templateProject->addItem("Empty Project");
    ui->templateProject->addItems(templates);
 }
 
@@ -130,6 +131,8 @@ void NewProjectDialog::on_buttonBox_accepted()
 void NewProjectDialog::on_target_currentIndexChanged(QString target)
 {
    QStringList templates;
+   ui->templateProject->clear();
+   ui->templateProject->addItem("Empty Project");
    if ( target == "Nintendo Entertainment System" )
    {
       QDir templatesDir(":/templates/NES");

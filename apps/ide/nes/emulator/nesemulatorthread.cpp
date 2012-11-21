@@ -196,12 +196,33 @@ void NESEmulatorThread::primeEmulator()
    }
 }
 
+void NESEmulatorThread::softResetEmulator()
+{
+   // Force hard-reset of the machine...
+   nesEnableBreakpoints(false);
+
+   m_isResetting = true;
+   m_isSoftReset = true;
+   m_isStarting = false;
+   m_isRunning = false;
+   m_isPaused = true;
+   m_showOnPause = false;
+
+   // If during the last run we were stopped at a breakpoint, clear it...
+   if ( !(nesBreakpointSemaphore.available()) )
+   {
+      nesBreakpointSemaphore.release();
+   }
+   start();
+}
+
 void NESEmulatorThread::resetEmulator()
 {
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
 
    m_isResetting = true;
+   m_isSoftReset = false;
    m_isStarting = false;
    m_isRunning = false;
    m_isPaused = true;
@@ -532,7 +553,7 @@ void NESEmulatorThread::run ()
          m_joy [ CONTROLLER2 ] = 0x00;
 
          // Reset NES...
-         nesReset();
+         nesReset(m_isSoftReset);
 
          // Re-enable breakpoints that were previously enabled...
          nesEnableBreakpoints(true);

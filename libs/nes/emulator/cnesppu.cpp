@@ -718,7 +718,7 @@ uint8_t  CPPU::m_lastSprite0HitY = 0;
 uint8_t  CPPU::m_x = 0xFF;
 uint8_t  CPPU::m_y = 0xFF;
 
-static CPPU __init __attribute((unused));
+static CPPU __init __attribute__((unused));
 
 CPPU::CPPU()
 {
@@ -1083,7 +1083,7 @@ void CPPU::EXTRA ()
    }
 }
 
-void CPPU::RESET ( void )
+void CPPU::RESET ( bool soft )
 {
    startVblank = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_START_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_START_VBLANK_PAL:PPU_CYCLE_START_VBLANK_DENDY;
    quietScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_QUIET_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_QUIET_PAL:SCANLINES_QUIET_DENDY;
@@ -1131,8 +1131,11 @@ void CPPU::RESET ( void )
    PALETTESET ( tblDefaultPalette );
 
    // Clear memory...
-   MEMCLR ();
-   OAMCLR ();
+   if ( !soft )
+   {
+      MEMCLR ();
+      OAMCLR ();
+   }
 }
 
 uint32_t CPPU::PPU ( uint32_t addr )

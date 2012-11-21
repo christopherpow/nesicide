@@ -15,6 +15,9 @@ public:
 signals:
    void markProjectDirty(bool dirty);
    void snapTo(QString item);
+   void setStatusBarMessage(QString message);
+   void addStatusBarWidget(QWidget* widget);
+   void removeStatusBarWidget(QWidget* widget);
 
 public slots:
 

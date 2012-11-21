@@ -308,7 +308,7 @@ static uint8_t m_lengthLUT [ 32 ] =
 
 int32_t apuDataAvailable = 0;
 
-static CAPU __init __attribute((unused));
+static CAPU __init __attribute__((unused));
 
 CAPU::CAPU()
 {

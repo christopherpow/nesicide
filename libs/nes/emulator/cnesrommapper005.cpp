@@ -45,11 +45,11 @@ CROMMapper005::~CROMMapper005()
 {
 }
 
-void CROMMapper005::RESET ()
+void CROMMapper005::RESET ( bool soft )
 {
    m_mapper = 5;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    m_prgMode = 0;
    m_chrMode = 0;

@@ -504,7 +504,7 @@ static CNES6502_opcode m_6502opcode [ 256 ] =
    { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }  // INS - Absolute,X (undocumented)
 };
 
-static C6502 __init __attribute((unused));
+static C6502 __init __attribute__((unused));
 
 C6502::C6502()
 {
@@ -3529,7 +3529,7 @@ void C6502::ASSERTNMI ()
    }
 }
 
-void C6502::RESET ( void )
+void C6502::RESET ( bool soft )
 {
    m_killed = false;
 
@@ -3590,7 +3590,10 @@ void C6502::RESET ( void )
    m_pcSyncSet = true;
 
    // Clear memory...
-   MEMCLR ();
+   if ( !soft )
+   {
+      MEMCLR ();
+   }
 
    if ( nesIsDebuggable() )
    {

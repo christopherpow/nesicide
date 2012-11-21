@@ -67,7 +67,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex& index, int role)
 
 Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex& index) const
 {
-   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 
    return flags;
 }

@@ -460,7 +460,10 @@ void CodeEditorForm::compiler_compileDone(bool ok)
       }
    }
 
-   annotateText();
+   if ( ok )
+   {
+      annotateText();
+   }
 }
 
 void CodeEditorForm::emulator_emulatorStarted()
@@ -990,9 +993,6 @@ void CodeEditorForm::setSourceCode(QString source)
 {
    m_scintilla->setText(source);
 
-   // Force re-do of annotations.
-   annotateText();
-
    // Force repaint of breakpoints since the reason this API is
    // called is usually when a CodeEditorForm is opened for the
    // first time or subsequent times after being closed.  Any
@@ -1001,14 +1001,14 @@ void CodeEditorForm::setSourceCode(QString source)
    // they just wouldn't show up in the code editor).
    external_breakpointsChanged();
 
-   // Force repaint of error tags.
-   compiler_compileDone(true);
-
    // Force EOL conversion if desired.
    if ( EnvironmentSettingsDialog::eolForceConsistent() )
    {
       m_scintilla->convertEols((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
    }
+
+   // Force repaint of error tags.
+   compiler_compileDone(true);
 
    // Setting the text of the Scintilla object unfortunately marks
    // it as "modified".  Reset our modified flag.

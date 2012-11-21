@@ -80,7 +80,7 @@ CROMMapper001::~CROMMapper001()
 {
 }
 
-void CROMMapper001::RESET ()
+void CROMMapper001::RESET ( bool soft )
 {
    int32_t idx;
 
@@ -88,7 +88,7 @@ void CROMMapper001::RESET ()
 
    m_dbRegisters = dbRegisters;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    m_sr = 0;
    m_srCount = 0;

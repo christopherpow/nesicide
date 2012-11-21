@@ -23,6 +23,8 @@
 #include <QMessageBox>
 #include <QSettings>
 
+//#include <QSystemStorageInfo>
+
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
@@ -724,6 +726,9 @@ void MainWindow::createNesUi()
    m_pGfxCHRMemoryInspector->hide();
    QObject::connect(m_pGfxCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxCHRMemoryInspector_close(bool)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(setStatusBarMessage(QString)),this,SLOT(setStatusBarMessage(QString)));
+   QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
+   QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(removeStatusBarWidget(QWidget*)),this,SLOT(removeStatusBarWidget(QWidget*)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
@@ -1693,24 +1698,30 @@ void MainWindow::on_actionNew_Project_triggered()
          QString templateDirName = ":/templates/";
          QString projectFileName;
          QDir projectDir;
-         templateDirName += dlg.getTemplate();
-         templateDirName += "/";
-
-         // Recursively copy the project content to the local location.
-         explodeTemplate(templateDirName,"",&projectFileName);
 
          // Now 'open' the new project.
          // Set project target before initializing project...
          if ( dlg.getTarget() == "Commodore 64" )
          {
+            templateDirName += "C64/";
+            templateDirName += dlg.getTemplate();
+            templateDirName += "/";
+
+            // Recursively copy the project content to the local location.
+            explodeTemplate(templateDirName,"",&projectFileName);
          }
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
          {
+            templateDirName += "NES/";
+            templateDirName += dlg.getTemplate();
+            templateDirName += "/";
+
+            // Recursively copy the project content to the local location.
+            explodeTemplate(templateDirName,"",&projectFileName);
+
             openNesProject(projectFileName);
          }
       }
-
-      settings.setValue("LastProject",projectDir.absoluteFilePath(projectFileName));
 
       m_pProjectBrowser->enableNavigation();
       projectDataChangesEvent();

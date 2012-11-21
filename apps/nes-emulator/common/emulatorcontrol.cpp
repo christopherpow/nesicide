@@ -21,11 +21,13 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
    QObject::connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(on_playButton_clicked()));
    QObject::connect(ui->actionPause, SIGNAL(triggered()), this, SLOT(on_pauseButton_clicked()));
    QObject::connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(on_resetButton_clicked()));
+   QObject::connect(ui->actionSoft_Reset, SIGNAL(triggered()), this, SLOT(on_softButton_clicked()));
 
    // Connect control signals to emulator.
    QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),emulator,SLOT(pauseEmulation(bool)));
    QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(softResetEmulator()),emulator,SLOT(softResetEmulator()));
 }
 
 EmulatorControl::~EmulatorControl()
@@ -38,6 +40,7 @@ QList<QAction*> EmulatorControl::menu()
    QList<QAction*> items;
    items.append(ui->actionRun);
    items.append(ui->actionPause);
+   items.append(ui->actionSoft_Reset);
    items.append(ui->actionReset);
    return items;
 }
@@ -71,5 +74,11 @@ void EmulatorControl::on_pauseButton_clicked()
 void EmulatorControl::on_resetButton_clicked()
 {
    emit resetEmulator();
+   emit startEmulation();
+}
+
+void EmulatorControl::on_softButton_clicked()
+{
+   emit softResetEmulator();
    emit startEmulation();
 }

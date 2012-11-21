@@ -82,13 +82,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="templateProject">
-            <item>
-             <property name="text">
-              <string>Empty Project</string>
-             </property>
-            </item>
-           </widget>
+           <widget class="QComboBox" name="templateProject"/>
           </item>
          </layout>
         </widget>

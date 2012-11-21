@@ -36,37 +36,40 @@ CROMMapper028::~CROMMapper028()
 {
 }
 
-void CROMMapper028::RESET ()
+void CROMMapper028::RESET ( bool soft )
 {
    m_mapper = 28;
 
-   CROM::RESET ( m_mapper );
-
-   m_reg_sel = 0x00;
-   m_chr_bank = 0x00;
-   m_prg_inner_bank = 0x00;
-   m_prg_size = 0x00;
-   m_prg_mode = 0x00;
-   m_mirror = 0x00;
-   m_prg_outer_bank = 0x00;
-
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-4 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
-
-   // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
-   // to the second PRG-ROM bank slot...
-   if ( m_numPrgBanks == 2 )
+   if ( !soft )
    {
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-4 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
-   }
-   else
-   {
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
-   }
+      CROM::RESET ( m_mapper, soft );
 
-   // CHR ROM/RAM already set up in CROM::RESET()...
+      m_reg_sel = 0x00;
+      m_chr_bank = 0x00;
+      m_prg_inner_bank = 0x00;
+      m_prg_size = 0x00;
+      m_prg_mode = 0x00;
+      m_mirror = 0x00;
+      m_prg_outer_bank = 0x00;
+
+      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-4 ];
+      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
+
+      // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
+      // to the second PRG-ROM bank slot...
+      if ( m_numPrgBanks == 2 )
+      {
+         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-4 ];
+         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
+      }
+      else
+      {
+         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+      }
+
+      // CHR ROM/RAM already set up in CROM::RESET()...
+   }
 }
 
 void CROMMapper028::SETCPU ( void )

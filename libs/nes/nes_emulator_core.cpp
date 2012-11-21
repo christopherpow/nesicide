@@ -433,14 +433,14 @@ void nesSetVerticalMirroring ( void )
    CPPU::MIRRORVERT();
 }
 
-void nesReset ( void )
+void nesReset ( bool soft )
 {
-   CNES::RESET(CROM::MAPPER());
+   CNES::RESET(CROM::MAPPER(),soft);
 }
 
 void nesResetInitial ( uint32_t mapper )
 {
-   CNES::RESET(mapper);
+   CNES::RESET(mapper,false);
 }
 
 void nesRun ( uint8_t* joypads )

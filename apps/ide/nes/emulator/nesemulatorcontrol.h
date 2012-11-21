@@ -30,8 +30,10 @@ signals:
    void stepPPUEmulation();
    void advanceFrame();
    void resetEmulator();
+   void softResetEmulator();
 
 private slots:
+   void on_softButton_clicked();
    void on_debugButton_toggled(bool checked);
    void on_stepOutButton_clicked();
    void on_stepOverButton_clicked();

@@ -29,6 +29,7 @@ public slots:
    void breakpointsChanged (); // unused
    void primeEmulator ();
    void resetEmulator ();
+   void softResetEmulator ();
    void startEmulation ();
    void pauseEmulation (bool show);
    void pauseEmulationAfter (int32_t frames) { m_pauseAfterFrames = frames; }
@@ -68,6 +69,7 @@ protected:
    int           m_pauseAfterFrames;
    bool          m_isTerminating;
    bool          m_isResetting;
+   bool          m_isSoftReset;
    bool          m_isStarting;
    int           m_debugFrame;
    uint8_t m_joy [ NUM_CONTROLLERS ];

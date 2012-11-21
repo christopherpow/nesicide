@@ -33,11 +33,11 @@ CROMMapper065::~CROMMapper065()
 {
 }
 
-void CROMMapper065::RESET ()
+void CROMMapper065::RESET ( bool soft )
 {
    m_mapper = 65;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    m_irqCounter = 0x00;
    m_irqEnable = false;

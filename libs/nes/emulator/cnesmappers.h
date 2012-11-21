@@ -65,7 +65,7 @@ typedef struct _MapperState
    } data;
 } MapperState;
 
-typedef void (*RESETFUNC)();
+typedef void (*RESETFUNC)(bool soft);
 typedef uint32_t (*MAPPERRFUNC)(uint32_t addr);
 typedef void (*MAPPERWFUNC)(uint32_t addr, uint8_t data);
 typedef void (*SYNCPPUFUNC)(uint32_t ppuCycle, uint32_t ppuAddr);

@@ -12,5 +12,6 @@
         <file>resources/vaus.png</file>
         <file>resources/stock_media-pause.png</file>
         <file>resources/stock_media-play.png</file>
+        <file>resources/stock_media-stop.png</file>
     </qresource>
 </RCC>

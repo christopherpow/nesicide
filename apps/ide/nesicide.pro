@@ -6,6 +6,8 @@ QT += network \
    webkit \
    xml
 
+mobility += systeminfo
+
 TOP = ../..
 
 TARGET = "nesicide"

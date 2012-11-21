@@ -27,6 +27,7 @@ public:
 
 public slots:
    void resetEmulator ();
+   void softResetEmulator ();
    void startEmulation ();
    void pauseEmulation (bool show);
    void controllerInput ( uint8_t* joy )
@@ -54,6 +55,7 @@ protected:
    bool          m_showOnPause;
    bool          m_isTerminating;
    bool          m_isResetting;
+   bool          m_isSoftReset;
    bool          m_isStarting;
    uint8_t m_joy [ NUM_CONTROLLERS ];
 };

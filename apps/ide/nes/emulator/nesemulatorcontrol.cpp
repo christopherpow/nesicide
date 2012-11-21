@@ -34,6 +34,7 @@ NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
    QObject::connect(ui->actionStep_Out, SIGNAL(triggered()), this, SLOT(on_stepOutButton_clicked()));
    QObject::connect(ui->actionStep_PPU, SIGNAL(triggered()), this, SLOT(on_stepPPUButton_clicked()));
    QObject::connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(on_resetButton_clicked()));
+   QObject::connect(ui->actionSoft_Reset, SIGNAL(triggered()), this, SLOT(on_softButton_clicked()));
    QObject::connect(ui->actionFrame_Advance, SIGNAL(triggered()), this, SLOT(on_frameAdvance_clicked()));
 
    // Connect control signals to emulator.
@@ -45,6 +46,7 @@ NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
    QObject::connect(this,SIGNAL(stepPPUEmulation()),emulator,SLOT(stepPPUEmulation()));
    QObject::connect(this,SIGNAL(advanceFrame()),emulator,SLOT(advanceFrame()));
    QObject::connect(this,SIGNAL(resetEmulator()),emulator,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(softResetEmulator()),emulator,SLOT(softResetEmulator()));
 
    ui->debugButton->setChecked(debugging);
 }
@@ -66,6 +68,7 @@ QList<QAction*> NESEmulatorControl::menu()
    items.append(ui->actionStep_PPU);
    items.append(ui->actionFrame_Advance);
    items.append(ui->actionReset);
+   items.append(ui->actionSoft_Reset);
    return items;
 }
 
@@ -158,6 +161,13 @@ void NESEmulatorControl::on_resetButton_clicked()
    CCC65Interface::isBuildUpToDate();
 
    emit resetEmulator();
+}
+
+void NESEmulatorControl::on_softButton_clicked()
+{
+   CCC65Interface::isBuildUpToDate();
+
+   emit softResetEmulator();
 }
 
 void NESEmulatorControl::on_frameAdvance_clicked()

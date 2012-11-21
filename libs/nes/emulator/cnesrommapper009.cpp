@@ -35,11 +35,11 @@ CROMMapper009::~CROMMapper009()
 {
 }
 
-void CROMMapper009::RESET ()
+void CROMMapper009::RESET ( bool soft )
 {
    m_mapper = 9;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    if ( m_numPrgBanks == 2 )

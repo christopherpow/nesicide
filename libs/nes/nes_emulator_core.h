@@ -480,7 +480,7 @@ void nesSetHorizontalMirroring ( void );
 void nesSetVerticalMirroring ( void );
 void nesLoadROM ( void );
 void nesResetInitial ( uint32_t mapper );
-void nesReset ( void );
+void nesReset ( bool soft );
 void nesRun ( uint8_t* joypads );
 int32_t nesGetAudioSamplesAvailable ( void );
 void nesClearAudioSamplesAvailable ( void );

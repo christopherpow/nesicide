@@ -130,7 +130,7 @@ uint16_t*  CROM::m_EXRAMsloc2addr = NULL;
 uint16_t*  CROM::m_EXRAMaddr2sloc = NULL;
 uint32_t   CROM::m_EXRAMsloc = 0;
 
-static CROM __init __attribute((unused));
+static CROM __init __attribute__((unused));
 
 CROM::CROM()
 {
@@ -238,7 +238,7 @@ CROM::CROM()
       m_pSRAMmemory [ bank ] = *(m_SRAMmemory+bank);
    }
 
-   CROM::RESET ();
+   CROM::RESET ( false );
 }
 
 CROM::~CROM()
@@ -337,12 +337,12 @@ void CROM::DoneLoadingBanks ()
    m_SRAMdirty = false;
 }
 
-void CROM::RESET ( void )
+void CROM::RESET ( bool soft )
 {
-   RESET ( 0 );
+   RESET ( 0, soft );
 }
 
-void CROM::RESET ( uint32_t mapper )
+void CROM::RESET ( uint32_t mapper, bool soft )
 {
    int32_t bank;
 

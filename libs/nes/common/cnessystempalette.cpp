@@ -109,7 +109,7 @@ uint32_t CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
 int8_t   CBasePalette::m_paletteRGBs [ 8 ] [ 64 ] [ 3 ];
 
-static CBasePalette __init __attribute((unused));
+static CBasePalette __init __attribute__((unused));
 
 void CBasePalette::CalculateVariants ( void )
 {

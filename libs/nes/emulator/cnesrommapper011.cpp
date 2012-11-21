@@ -27,11 +27,11 @@ CROMMapper011::~CROMMapper011()
 {
 }
 
-void CROMMapper011::RESET ()
+void CROMMapper011::RESET ( bool soft )
 {
    m_mapper = 11;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];

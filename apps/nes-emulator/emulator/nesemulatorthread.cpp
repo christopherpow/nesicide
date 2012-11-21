@@ -198,9 +198,21 @@ void NESEmulatorThread::loadCartridge()
    emit cartridgeLoaded();
 }
 
+void NESEmulatorThread::softResetEmulator()
+{
+   m_isResetting = true;
+   m_isSoftReset = true;
+   m_isStarting = false;
+   m_isRunning = false;
+   m_isPaused = true;
+   m_showOnPause = false;
+   start();
+}
+
 void NESEmulatorThread::resetEmulator()
 {
    m_isResetting = true;
+   m_isSoftReset = false;
    m_isStarting = false;
    m_isRunning = false;
    m_isPaused = true;
@@ -260,7 +272,7 @@ void NESEmulatorThread::run ()
          m_joy [ CONTROLLER2 ] = 0x00;
 
          // Reset NES...
-         nesReset();
+         nesReset(m_isSoftReset);
 
          // Allow cartridge to be loaded...
          if ( m_pCartridge )

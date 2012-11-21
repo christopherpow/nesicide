@@ -54,13 +54,13 @@ CROMMapper007::~CROMMapper007()
 {
 }
 
-void CROMMapper007::RESET ()
+void CROMMapper007::RESET ( bool soft )
 {
    m_mapper = 7;
 
    m_dbRegisters = dbRegisters;
 
-   CROM::RESET ( m_mapper );
+   CROM::RESET ( m_mapper, soft );
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <nesicideproject title="NROM Hello World - C" version="0.3" target="nes">
- <properties outputname="helloworld" linkeradditionaldependencies="" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" customrulesfile="" chrromoutputbasepath="." headerfilename="project_data.h" chrromoutputname="tileset.chr" debuginfoname="helloworld.dbg" compilerincludepaths="" chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="" sourcefilename="project_data.s" linkeroutputname="helloworld.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="helloworld.nes" linkeradditionaloptions="">
+ <properties outputname="hello_world" linkeradditionaldependencies="" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" customrulesfile="" chrromoutputbasepath="obj/nes" headerfilename="project_data.h" chrromoutputname="hello_world.chr" debuginfoname="hello_world.dbg" compilerincludepaths="" chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="" sourcefilename="project_data.s" linkeroutputname="hello_world.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="hello_world.nes" linkeradditionaloptions="">
   <tileproperties/>
   <palette>
    <entry g="102" index="0" r="102" b="102"/>
@@ -95,8 +95,14 @@
    <source path="src/memmap.inc" uuid="{d18d42e1-6ffb-4d41-a7d8-15a8f458632c}" name="src/memmap.inc"/>
   </sources>
   <binaryfiles>
-   <binaryfile xsize="256" ysize="128" path="tileset.chr" uuid="{1ca803f8-6259-424e-b065-46e927d4d47b}" name="tileset.chr"/>
+   <binaryfile xsize="128" ysize="128" path="tilesets/gamegfx.png" uuid="{047c9cf0-2c50-46c7-8f1c-cf678dac38fe}" name="tilesets/gamegfx.png"/>
+   <binaryfile xsize="128" ysize="128" path="tilesets/titlegfx.png" uuid="{bb0dd7d3-340a-49b4-b1ac-26fb9edb54e7}" name="tilesets/titlegfx.png"/>
   </binaryfiles>
-  <graphicsbanks/>
+  <graphicsbanks>
+   <graphicsbank uuid="{597023c1-14a0-428b-808f-498368614b55}" name="bank0">
+    <graphicitem uuid="{bb0dd7d3-340a-49b4-b1ac-26fb9edb54e7}"/>
+    <graphicitem uuid="{047c9cf0-2c50-46c7-8f1c-cf678dac38fe}"/>
+   </graphicsbank>
+  </graphicsbanks>
  </project>
 </nesicideproject>

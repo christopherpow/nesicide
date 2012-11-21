@@ -45,7 +45,7 @@ bool            CNES::m_bStepPPUBreakpoint = false;
 int32_t         CNES::m_ppuCycleToStepTo = -1;
 uint32_t        CNES::m_ppuFrameToStepTo = -1;
 
-static CNES __init __attribute((unused));
+static CNES __init __attribute__((unused));
 
 CNES::CNES()
 {
@@ -265,7 +265,7 @@ uint32_t CNES::ABSADDR ( uint32_t addr )
    }
 }
 
-void CNES::RESET ( uint32_t mapper )
+void CNES::RESET ( uint32_t mapper, bool soft )
 {
    if ( nesIsDebuggable() )
    {
@@ -279,15 +279,15 @@ void CNES::RESET ( uint32_t mapper )
    // Reset mapper...this sets up the CROM object with the
    // correct mapper information so the appropriate mapper
    // functions are called.
-   mapperfunc [ mapper ].reset ();
+   mapperfunc [ mapper ].reset ( soft );
 
    // Reset emulated PPU...
-   CPPU::RESET ();
+   CPPU::RESET ( soft );
 
    // Reset emulated 6502 and APU [APU reset internal to 6502]...
    // The APU reset will trigger the SDL callback by initializing SDL;
    // The SDL callback triggers emulation...
-   C6502::RESET ();
+   C6502::RESET ( soft );
 
    m_frame = 0;
 }

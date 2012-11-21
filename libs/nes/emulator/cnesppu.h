@@ -197,7 +197,7 @@ public:
 
    // Routine invoked on reset of the emulation engine.
    // Cleans up the PPU state as if a NES reset had just occurred.
-   static void RESET ( void );
+   static void RESET ( bool soft );
 
    // State and internal data accessor interfaces.
    // Read a PPU register, affecting the PPU's internal state.

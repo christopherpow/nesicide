@@ -138,8 +138,8 @@ public:
    }
 
    // Mapper interfaces [called by emulator through mapperfunc array]
-   static void RESET ( void );
-   static void RESET ( uint32_t mapper );
+   static void RESET ( bool soft );
+   static void RESET ( uint32_t mapper, bool soft );
    static uint32_t MAPPER ( void )
    {
       return m_mapper;

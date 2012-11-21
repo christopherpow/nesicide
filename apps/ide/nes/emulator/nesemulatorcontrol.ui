@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>263</width>
+    <width>292</width>
     <height>30</height>
    </rect>
   </property>
@@ -261,6 +261,26 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="softButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resource.qrc">
+         <normaloff>:/resources/stock_media-stop.png</normaloff>:/resources/stock_media-stop.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="resetButton">
        <property name="enabled">
         <bool>true</bool>
@@ -353,7 +373,7 @@
     <string>Reset</string>
    </property>
    <property name="shortcut">
-    <string>F10</string>
+    <string>Ctrl+F10</string>
    </property>
   </action>
   <action name="actionFrame_Advance">
@@ -395,6 +415,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F7</string>
+   </property>
+  </action>
+  <action name="actionSoft_Reset">
+   <property name="text">
+    <string>Soft Reset</string>
+   </property>
+   <property name="toolTip">
+    <string>Soft Reset</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
  </widget>

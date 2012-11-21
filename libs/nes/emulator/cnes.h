@@ -84,7 +84,7 @@ public:
 
    // This method performs a full NES reset and initializes
    // the ROM object with the appropriate mapper index.
-   static void RESET ( uint32_t mapper );
+   static void RESET ( uint32_t mapper, bool soft );
 
    // This method emulates a NES video frame and passes the
    // current state of the joypad to the emulation engine.

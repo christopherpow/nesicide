@@ -9,7 +9,7 @@ public:
    CROMMapper028();
    virtual ~CROMMapper028();
 
-   static void RESET ();
+   static void RESET ( bool soft );
    static uint32_t MAPPER ( uint32_t addr );
    static void MAPPER ( uint32_t addr, uint8_t data );
    static uint32_t LMAPPER ( uint32_t addr );

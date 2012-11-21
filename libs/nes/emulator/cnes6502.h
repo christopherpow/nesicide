@@ -160,7 +160,7 @@ public:
    }
 
    // CPU reset vector routine.
-   static void RESET ( void );
+   static void RESET ( bool soft );
 
    // Routines to manipulate the IRQ/NMI inputs to the CPU core.
    static void ASSERTIRQ ( int8_t source );
@@ -543,7 +543,7 @@ public:
    // disassembler.
    static inline void OPCODEMASK ( uint32_t addr, uint8_t mask )
    {
-      *(m_RAMopcodeMask+addr) = mask;
+      *(m_RAMopcodeMask+(addr&MEM_2KB)) = mask;
    }
    static inline void OPCODEMASKCLR ( void )
    {

@@ -9,7 +9,7 @@ public:
    CROMMapper033();
    virtual ~CROMMapper033();
 
-   static void RESET ();
+   static void RESET ( bool soft );
    static uint32_t MAPPER ( uint32_t addr );
    static void MAPPER ( uint32_t addr, uint8_t data );
    static void LOAD ( MapperState* data );
