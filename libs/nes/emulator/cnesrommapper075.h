@@ -10,12 +10,12 @@ public:
    virtual ~CROMMapper075();
 
    static void RESET ( bool soft );
-   static uint32_t MAPPER ( uint32_t addr );
-   static void MAPPER ( uint32_t addr, uint8_t data );
+   static void HMAPPER ( uint32_t addr, uint8_t data );
    static void SETCPU ( void );
    static void SETPPU ( void );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
+   static uint32_t DEBUGINFO ( uint32_t addr );
 
 protected:
    // VRC1

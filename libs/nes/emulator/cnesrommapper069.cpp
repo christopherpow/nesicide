@@ -205,12 +205,12 @@ void CROMMapper069::SAVE ( MapperState* data )
    data->data.mapper069.irqCountEnable = m_irqCountEnable;
 }
 
-uint32_t CROMMapper069::MAPPER ( uint32_t addr )
+uint32_t CROMMapper069::DEBUGINFO ( uint32_t addr )
 {
    return m_reg [ ((addr-MEM_32KB)/MEM_8KB) ];
 }
 
-void CROMMapper069::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper069::HMAPPER ( uint32_t addr, uint8_t data )
 {
    int32_t reg = ((addr-0x8000)/MEM_8KB);
    m_reg [ reg ] = data;

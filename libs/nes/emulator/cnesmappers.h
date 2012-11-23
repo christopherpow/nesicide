@@ -84,6 +84,7 @@ typedef struct _MapperFuncs
    SYNCCPUFUNC sync_cpu;
    LOADFUNC load;
    SAVEFUNC save;
+   MAPPERRFUNC debuginfo;
    bool     remapPrg;
    bool     remapChr;
 } MapperFuncs;

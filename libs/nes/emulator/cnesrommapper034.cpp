@@ -148,12 +148,12 @@ void CROMMapper034::LMAPPER ( uint32_t addr, uint8_t data )
    }
 }
 
-uint32_t CROMMapper034::MAPPER ( uint32_t addr )
+uint32_t CROMMapper034::DEBUGINFO ( uint32_t addr )
 {
    return m_reg[3];
 }
 
-void CROMMapper034::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper034::HMAPPER ( uint32_t addr, uint8_t data )
 {
    uint8_t bank;
 

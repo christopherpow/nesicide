@@ -157,12 +157,12 @@ void CROMMapper001::SYNCCPU()
    m_cpuCycle++;
 }
 
-uint32_t CROMMapper001::MAPPER ( uint32_t addr )
+uint32_t CROMMapper001::DEBUGINFO ( uint32_t addr )
 {
    return m_reg [ (addr-MEM_32KB)/MEM_8KB ];
 }
 
-void CROMMapper001::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper001::HMAPPER ( uint32_t addr, uint8_t data )
 {
    uint8_t bank = 0;
 

@@ -19,6 +19,74 @@
 #include "cnes6502.h"
 #include "cnesppu.h"
 
+// Mapper 068 Registers
+static CBitfieldData* tbl8000Bitfields [] =
+{
+   new CBitfieldData("PRG Bank", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tbl9001Bitfields [] =
+{
+   new CBitfieldData("Mirroring", 7, 1, "%X", 2, "Vertical", "Horizontal")
+};
+
+static CBitfieldData* tbl9003Bitfields [] =
+{
+   new CBitfieldData("IRQ Enabled", 7, 1, "%X", 2, "No", "Yes")
+};
+
+static CBitfieldData* tbl9004Bitfields [] =
+{
+   new CBitfieldData("Reload Trigger", 0, 8, "%X", 0)
+};
+
+static CBitfieldData* tbl9005Bitfields [] =
+{
+   new CBitfieldData("IRQ Reload MSB", 0, 8, "%X", 0)
+};
+
+static CBitfieldData* tbl9006Bitfields [] =
+{
+   new CBitfieldData("IRQ Reload LSB", 0, 8, "%X", 0)
+};
+
+static CBitfieldData* tblB000Bitfields [] =
+{
+   new CBitfieldData("CHR Bank", 0, 8, "%02X", 0)
+};
+
+static CRegisterData* tblRegisters [] =
+{
+   new CRegisterData(0x8000, "PRG Reg 0", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
+   new CRegisterData(0x9001, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tbl9001Bitfields),
+   new CRegisterData(0x9003, "IRQ Enable", nesMapperHighRead, nesMapperHighWrite, 1, tbl9003Bitfields),
+   new CRegisterData(0x9004, "IRQ Reload", nesMapperHighRead, nesMapperHighWrite, 1, tbl9004Bitfields),
+   new CRegisterData(0x9005, "IRQ Reload MSB", nesMapperHighRead, nesMapperHighWrite, 1, tbl9005Bitfields),
+   new CRegisterData(0x9006, "IRQ Reload LSB", nesMapperHighRead, nesMapperHighWrite, 1, tbl9006Bitfields),
+   new CRegisterData(0xA000, "PRG Reg 1", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
+   new CRegisterData(0xB000, "CHR Reg 0", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB001, "CHR Reg 1", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB002, "CHR Reg 2", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB003, "CHR Reg 3", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB004, "CHR Reg 4", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB005, "CHR Reg 5", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB006, "CHR Reg 6", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB007, "CHR Reg 7", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC000, "PRG Reg 2", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
+};
+
+static const char* rowHeadings [] =
+{
+ ""
+};
+
+static const char* columnHeadings [] =
+{
+   "8000","9001","9003","9004","9005","9006","A000","B000","B001","B002","B003","B004","B005","B006","B007","C000"
+};
+
+static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,16,16,tblRegisters,rowHeadings,columnHeadings);
+
 // Irem H-3001 stuff
 uint8_t  CROMMapper065::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 uint8_t  CROMMapper065::m_irqCounter = 0x00;
@@ -36,6 +104,8 @@ CROMMapper065::~CROMMapper065()
 void CROMMapper065::RESET ( bool soft )
 {
    m_mapper = 65;
+
+   m_dbRegisters = dbRegisters;
 
    CROM::RESET ( m_mapper, soft );
 
@@ -76,7 +146,7 @@ void CROMMapper065::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-uint32_t CROMMapper065::MAPPER ( uint32_t addr )
+uint32_t CROMMapper065::DEBUGINFO ( uint32_t addr )
 {
    switch ( addr )
    {
@@ -133,7 +203,7 @@ uint32_t CROMMapper065::MAPPER ( uint32_t addr )
    return 0xFF;
 }
 
-void CROMMapper065::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper065::HMAPPER ( uint32_t addr, uint8_t data )
 {
    switch ( addr )
    {

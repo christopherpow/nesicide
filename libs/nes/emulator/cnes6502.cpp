@@ -3616,7 +3616,7 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
       {
          (*pTarget) = eTarget_ROM;
       }
-      data = CROM::MAPPER ( addr );
+      data = mapperfunc[CROM::MAPPER()].highread(addr);
    }
    else if ( addr < 0x2000 )
    {

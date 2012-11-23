@@ -1,6 +1,8 @@
 #ifndef MAPPERINFORMATIONDOCKWIDGET_H
 #define MAPPERINFORMATIONDOCKWIDGET_H
 
+#include <QMap>
+
 #include "cdebuggerbase.h"
 
 namespace Ui {
@@ -27,6 +29,7 @@ public slots:
 
 private:
    Ui::MapperInformationDockWidget *ui;
+   QMap<int,QWidget*> internalPageMap;
 };
 
 #endif // MAPPERINFORMATIONDOCKWIDGET_H

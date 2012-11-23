@@ -111,7 +111,7 @@ void CROMMapper033::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-uint32_t CROMMapper033::MAPPER ( uint32_t addr )
+uint32_t CROMMapper033::DEBUGINFO ( uint32_t addr )
 {
    switch ( addr&0xA003 )
    {
@@ -143,7 +143,7 @@ uint32_t CROMMapper033::MAPPER ( uint32_t addr )
    return 0;
 }
 
-void CROMMapper033::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper033::HMAPPER ( uint32_t addr, uint8_t data )
 {
    uint8_t bank;
 

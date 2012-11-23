@@ -17,6 +17,31 @@
 #include "cnesrommapper011.h"
 #include "cnesppu.h"
 
+// Mapper 011 Registers
+static CBitfieldData* tbl8000_FFFFBitfields [] =
+{
+   new CBitfieldData("PRG Bank", 0, 2, "%X", 0),
+   new CBitfieldData("Lockout defeat", 2, 2, "%X", 0),
+   new CBitfieldData("CHR Bank", 4, 4, "%X", 0),
+};
+
+static CRegisterData* tblRegisters [] =
+{
+   new CRegisterData(0x8000, "Control", nesMapperHighRead, nesMapperHighWrite, 3, tbl8000_FFFFBitfields)
+};
+
+static const char* rowHeadings [] =
+{
+   ""
+};
+
+static const char* columnHeadings [] =
+{
+   "8000"
+};
+
+static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,1,1,tblRegisters,rowHeadings,columnHeadings);
+
 uint8_t  CROMMapper011::m_reg = 0x00;
 
 CROMMapper011::CROMMapper011()
@@ -30,6 +55,8 @@ CROMMapper011::~CROMMapper011()
 void CROMMapper011::RESET ( bool soft )
 {
    m_mapper = 11;
+
+   m_dbRegisters = dbRegisters;
 
    CROM::RESET ( m_mapper, soft );
 
@@ -51,12 +78,12 @@ void CROMMapper011::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-uint32_t CROMMapper011::MAPPER ( uint32_t addr )
+uint32_t CROMMapper011::DEBUGINFO ( uint32_t addr )
 {
    return m_reg;
 }
 
-void CROMMapper011::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper011::HMAPPER ( uint32_t addr, uint8_t data )
 {
    uint8_t bank;
 

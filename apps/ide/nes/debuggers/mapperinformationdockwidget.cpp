@@ -20,9 +20,26 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::MapperInformationDockWidget)
 {
+   int idx;
+
    ui->setupUi(this);
 
    ui->tabWidget->setCurrentIndex(InternalsPage);
+
+   // Set up default mapper internal info page map.
+   for ( idx = 0; idx < 256; idx++ )
+   {
+      // Set up internal info page to "nothing".
+      internalPageMap.insert(idx,ui->noInternals);
+   }
+
+   // Set up specific mapper internal info page maps.
+   internalPageMap.insert(1,ui->mapper1);
+   internalPageMap.insert(4,ui->mapper4);
+   internalPageMap.insert(9,ui->mapper9and10);
+   internalPageMap.insert(10,ui->mapper9and10);
+   internalPageMap.insert(28,ui->mapper28);
+   internalPageMap.insert(69,ui->mapper69);
 
    // Force UI update so it doesn't look uninitialized completely.
    machineReady();
@@ -80,7 +97,7 @@ void MapperInformationDockWidget::machineReady()
    setWindowTitle(buffer);
    ui->tabWidget->setTabEnabled(CPUToPRGPage, nesMapperRemapsPRGROM());
    ui->tabWidget->setTabEnabled(PPUToCHRPage, nesMapperRemapsCHRMEM());
-   ui->internalInfo->setCurrentIndex(mapperInspectorPageFromID(nesGetMapper()));
+   ui->internalInfo->setCurrentWidget(internalPageMap.value(nesGetMapper()));
    if ( ui->internalInfo->currentIndex() )
    {
       ui->tabWidget->setTabEnabled(InternalsPage, true);
@@ -99,6 +116,7 @@ void MapperInformationDockWidget::updateInformation()
    char buffer [ 32 ];
    nesMapper001Info mapper001Info;
    nesMapper004Info mapper004Info;
+   nesMapper009010Info mapper009010Info;
    nesMapper028Info mapper028Info;
    nesMapper069Info mapper069Info;
    uint16_t mirroring[4];
@@ -170,6 +188,70 @@ void MapperInformationDockWidget::updateInformation()
       sprintf ( buffer, "%d", mapper004Info.ppuCycle );
       ui->lastA12Cycle4->setText ( buffer );
       ui->irqReload4->setChecked ( mapper004Info.irqReload );
+      break;
+
+   case 9:
+      nesMapper009GetInformation(&mapper009010Info);
+      sprintf ( buffer, "%02X", mapper009010Info.latch0FD );
+      ui->latch0FD->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper009010Info.latch0FE );
+      ui->latch0FE->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper009010Info.latch1FD );
+      ui->latch1FD->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper009010Info.latch1FE );
+      ui->latch1FE->setText ( buffer );
+      if ( mapper009010Info.latch0 == 0xFD )
+      {
+         ui->latch0FD->setEnabled(true);
+         ui->latch0FE->setEnabled(false);
+      }
+      else
+      {
+         ui->latch0FD->setEnabled(false);
+         ui->latch0FE->setEnabled(true);
+      }
+      if ( mapper009010Info.latch1 == 0xFD )
+      {
+         ui->latch1FD->setEnabled(true);
+         ui->latch1FE->setEnabled(false);
+      }
+      else
+      {
+         ui->latch1FD->setEnabled(false);
+         ui->latch1FE->setEnabled(true);
+      }
+      break;
+
+   case 10:
+      nesMapper010GetInformation(&mapper009010Info);
+      sprintf ( buffer, "%02X", mapper009010Info.latch0FD );
+      ui->latch0FD->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper009010Info.latch0FE );
+      ui->latch0FE->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper009010Info.latch1FD );
+      ui->latch1FD->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper009010Info.latch1FE );
+      ui->latch1FE->setText ( buffer );
+      if ( mapper009010Info.latch0 == 0xFD )
+      {
+         ui->latch0FD->setEnabled(true);
+         ui->latch0FE->setEnabled(false);
+      }
+      else
+      {
+         ui->latch0FD->setEnabled(false);
+         ui->latch0FE->setEnabled(true);
+      }
+      if ( mapper009010Info.latch1 == 0xFD )
+      {
+         ui->latch1FD->setEnabled(true);
+         ui->latch1FE->setEnabled(false);
+      }
+      else
+      {
+         ui->latch1FD->setEnabled(false);
+         ui->latch1FE->setEnabled(true);
+      }
       break;
 
    case 28:

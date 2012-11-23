@@ -192,7 +192,6 @@ void TestSuiteExecutiveDialog::doTestPhase()
    JoypadLoggerInfo* inputSample;
    int     numInputSamples;
    static int     framesRun;
-   int     test;
    int     sample;
    int     numTests = ui->tableWidget->rowCount();
 

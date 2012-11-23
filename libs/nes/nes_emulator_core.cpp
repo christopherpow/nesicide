@@ -7,6 +7,8 @@
 #include "cnes6502.h"
 #include "cnesrommapper001.h"
 #include "cnesrommapper004.h"
+#include "cnesrommapper009.h"
+#include "cnesrommapper010.h"
 #include "cnesrommapper028.h"
 #include "cnesrommapper069.h"
 
@@ -825,7 +827,7 @@ uint8_t nesGetMapper ( void )
 
 uint32_t nesMapperLowRead ( uint32_t addr )
 {
-   return mapperfunc[CROM::MAPPER()].lowread(addr);
+   return mapperfunc[CROM::MAPPER()].debuginfo(addr);
 }
 
 void nesMapperLowWrite ( uint32_t addr, uint32_t data )
@@ -835,7 +837,7 @@ void nesMapperLowWrite ( uint32_t addr, uint32_t data )
 
 uint32_t nesMapperHighRead ( uint32_t addr )
 {
-   return mapperfunc[CROM::MAPPER()].highread(addr);
+   return mapperfunc[CROM::MAPPER()].debuginfo(addr);
 }
 
 void nesMapperHighWrite ( uint32_t addr, uint32_t data )
@@ -1013,6 +1015,26 @@ void nesMapper004GetInformation ( nesMapper004Info* pInfo )
    pInfo->irqLatch = CROMMapper004::IRQLATCH();
    pInfo->ppuAddrA12 = CROMMapper004::PPUADDRA12();
    pInfo->ppuCycle = CROMMapper004::PPUCYCLE();
+}
+
+void nesMapper009GetInformation ( nesMapper009010Info* pInfo )
+{
+   pInfo->latch0FD = CROMMapper009::LATCH0FD();
+   pInfo->latch0FE = CROMMapper009::LATCH0FE();
+   pInfo->latch1FD = CROMMapper009::LATCH1FD();
+   pInfo->latch1FE = CROMMapper009::LATCH1FE();
+   pInfo->latch0 = CROMMapper009::LATCH0();
+   pInfo->latch1 = CROMMapper009::LATCH0();
+}
+
+void nesMapper010GetInformation ( nesMapper009010Info* pInfo )
+{
+   pInfo->latch0FD = CROMMapper010::LATCH0FD();
+   pInfo->latch0FE = CROMMapper010::LATCH0FE();
+   pInfo->latch1FD = CROMMapper010::LATCH1FD();
+   pInfo->latch1FE = CROMMapper010::LATCH1FE();
+   pInfo->latch0 = CROMMapper010::LATCH0();
+   pInfo->latch1 = CROMMapper010::LATCH0();
 }
 
 void nesMapper028GetInformation ( nesMapper028Info* pInfo )

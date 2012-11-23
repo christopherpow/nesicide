@@ -173,12 +173,12 @@ void CROMMapper075::SAVE ( MapperState* data )
    }
 }
 
-uint32_t CROMMapper075::MAPPER ( uint32_t addr )
+uint32_t CROMMapper075::DEBUGINFO ( uint32_t addr )
 {
    return m_reg [ ((addr-MEM_32KB)/MEM_8KB) ];
 }
 
-void CROMMapper075::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper075::HMAPPER ( uint32_t addr, uint8_t data )
 {
    int reg = 0;
 

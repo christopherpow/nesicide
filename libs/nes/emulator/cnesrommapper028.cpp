@@ -162,13 +162,13 @@ void CROMMapper028::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-uint32_t CROMMapper028::MAPPER ( uint32_t addr )
+uint32_t CROMMapper028::DEBUGINFO ( uint32_t addr )
 {
    // CPTODO: return mapper registers here...
    return 0xA1;
 }
 
-void CROMMapper028::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper028::HMAPPER ( uint32_t addr, uint8_t data )
 {
 	if ( ((m_reg_sel&0x02) == 0) && ((m_mirror&0x02) == 0) )
    {

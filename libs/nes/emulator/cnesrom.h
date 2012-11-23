@@ -144,18 +144,21 @@ public:
    {
       return m_mapper;
    }
-   static uint32_t MAPPER ( uint32_t addr )
+   static uint32_t HMAPPER ( uint32_t addr )
    {
       return PRGROM(addr);
    }
-   static void MAPPER ( uint32_t, uint8_t ) {}
+   static void HMAPPER ( uint32_t, uint8_t ) {}
    static uint32_t LMAPPER ( uint32_t addr );
    static void LMAPPER ( uint32_t addr, uint8_t data);
    static void SYNCPPU ( uint32_t, uint32_t ) {}
    static void SYNCCPU ( void ) {}
-   static void LATCH ( uint32_t ) {}
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
+   static uint32_t DEBUGINFO ( uint32_t addr )
+   {
+      return PRGROM(addr);
+   }
 
    // Code/Data logger support functions
    static inline CCodeDataLogger* LOGGERVIRT ( uint32_t addr )

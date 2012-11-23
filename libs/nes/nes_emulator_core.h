@@ -742,6 +742,18 @@ typedef struct _nesMapper004Info
 } nesMapper004Info;
 void nesMapper004GetInformation ( nesMapper004Info* pInfo );
 
+typedef struct _nesMapper009010Info
+{
+   uint32_t latch0FD;
+   uint32_t latch0FE;
+   uint32_t latch1FD;
+   uint32_t latch1FE;
+   uint32_t latch0;
+   uint32_t latch1;
+} nesMapper009010Info;
+void nesMapper009GetInformation ( nesMapper009010Info* pInfo );
+void nesMapper010GetInformation ( nesMapper009010Info* pInfo );
+
 typedef struct _nesMapper028Info
 {
    uint32_t regSel;

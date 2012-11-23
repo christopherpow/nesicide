@@ -291,12 +291,12 @@ void CROMMapper004::SAVE ( MapperState* data )
    data->data.mapper004.irqLatch = m_irqLatch;
 }
 
-uint32_t CROMMapper004::MAPPER ( uint32_t addr )
+uint32_t CROMMapper004::DEBUGINFO ( uint32_t addr )
 {
    return m_reg [ (((addr-MEM_32KB)/MEM_8KB)*2)+(addr&0x0001) ];
 }
 
-void CROMMapper004::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper004::HMAPPER ( uint32_t addr, uint8_t data )
 {
    int32_t reg = (((addr-0x8000)/0x2000)*2)+(addr&0x0001);
    m_reg [ reg ] = data;

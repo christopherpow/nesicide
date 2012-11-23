@@ -10,8 +10,8 @@ public:
    virtual ~CROMMapper005();
 
    static void RESET ( bool soft );
-   static uint32_t MAPPER ( uint32_t addr );
-   static void MAPPER ( uint32_t addr, uint8_t data );
+   static uint32_t HMAPPER ( uint32_t addr );
+   static void HMAPPER ( uint32_t addr, uint8_t data );
    static uint32_t LMAPPER ( uint32_t addr );
    static void LMAPPER ( uint32_t addr, uint8_t data );
    static void SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr );
@@ -19,6 +19,7 @@ public:
    static void SETPPU ( void );
    static void LOAD ( MapperState* data );
    static void SAVE ( MapperState* data );
+   static uint32_t DEBUGINFO ( uint32_t addr );
 
 protected:
    // MMC5
@@ -39,6 +40,7 @@ protected:
    static uint16_t m_prod;
    static uint8_t  m_fillTile;
    static uint8_t  m_fillAttr;
+   static uint8_t  m_reg[44];
 };
 
 #endif

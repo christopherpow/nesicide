@@ -480,6 +480,63 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="mapper9and10">
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_32">
+              <property name="text">
+               <string>Latch 0 FD:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="latch0FD"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_34">
+              <property name="text">
+               <string>Latch 1 FD:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLineEdit" name="latch1FD"/>
+            </item>
+            <item row="2" column="2">
+             <spacer name="verticalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_35">
+              <property name="text">
+               <string>Latch 0 FE:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_36">
+              <property name="text">
+               <string>Latch 1 FE:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="latch0FE"/>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLineEdit" name="latch1FE"/>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="mapper28">
            <layout class="QGridLayout" name="gridLayout_9">
             <item row="1" column="0">

@@ -18,6 +18,59 @@
 
 #include "cnesppu.h"
 
+// Mapper 009 Registers
+static CBitfieldData* tblA000_AFFFBitfields [] =
+{
+   new CBitfieldData("PRG Bank", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblB000_BFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank 0A", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblC000_CFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank 0B", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblD000_DFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank 1A", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblE000_EFFFBitfields [] =
+{
+   new CBitfieldData("CHR Bank 1B", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tblF000_FFFFBitfields [] =
+{
+   new CBitfieldData("Mirroring", 0, 1, "%X", 2, "Vertical", "Horizontal")
+};
+
+static CRegisterData* tblRegisters [] =
+{
+   new CRegisterData(0xA000, "PRG Reg", nesMapperHighRead, nesMapperHighWrite, 1, tblA000_AFFFBitfields),
+   new CRegisterData(0xB000, "CHR Reg 0A", nesMapperHighRead, nesMapperHighWrite, 1, tblB000_BFFFBitfields),
+   new CRegisterData(0xC000, "CHR Reg 0B", nesMapperHighRead, nesMapperHighWrite, 1, tblC000_CFFFBitfields),
+   new CRegisterData(0xD000, "CHR Reg 1A", nesMapperHighRead, nesMapperHighWrite, 1, tblD000_DFFFBitfields),
+   new CRegisterData(0xE000, "CHR Reg 1B", nesMapperHighRead, nesMapperHighWrite, 1, tblE000_EFFFBitfields),
+   new CRegisterData(0xF000, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tblF000_FFFFBitfields),
+};
+
+static const char* rowHeadings [] =
+{
+   ""
+};
+
+static const char* columnHeadings [] =
+{
+   "A000", "B000", "C000", "D000", "E000", "F000"
+};
+
+static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,6,6,tblRegisters,rowHeadings,columnHeadings);
+
 // MMC2 stuff
 uint8_t  CROMMapper009::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 uint8_t  CROMMapper009::m_latch0 = 0xFE;
@@ -38,6 +91,8 @@ CROMMapper009::~CROMMapper009()
 void CROMMapper009::RESET ( bool soft )
 {
    m_mapper = 9;
+
+   m_dbRegisters = dbRegisters;
 
    CROM::RESET ( m_mapper, soft );
 
@@ -80,7 +135,7 @@ void CROMMapper009::SAVE ( MapperState* data )
    CROM::SAVE ( data );
 }
 
-uint32_t CROMMapper009::MAPPER ( uint32_t addr )
+uint32_t CROMMapper009::DEBUGINFO ( uint32_t addr )
 {
    switch ( addr&0xF000 )
    {
@@ -107,7 +162,7 @@ uint32_t CROMMapper009::MAPPER ( uint32_t addr )
    return 0xFF;
 }
 
-void CROMMapper009::MAPPER ( uint32_t addr, uint8_t data )
+void CROMMapper009::HMAPPER ( uint32_t addr, uint8_t data )
 {
    int32_t reg = 0;
 
