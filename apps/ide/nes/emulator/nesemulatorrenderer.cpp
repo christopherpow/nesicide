@@ -126,7 +126,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    glViewport(0, 0, width, height);
 
    // clear the widget using the background color
-   glClear(GL_COLOR_BUFFER_BIT);
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
    // We are using a projection matrix.
    glMatrixMode(GL_PROJECTION);
@@ -152,10 +152,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
-#ifdef __APPLE__
-   // force clear, needed for mac os x, resize' glClear doesn't clear for some reason
-   glClear(GL_COLOR_BUFFER_BIT);
-#endif
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
    if ( linearInterpolation )
    {
