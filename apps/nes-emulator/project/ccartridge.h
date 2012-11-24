@@ -30,6 +30,10 @@ public:
    {
       return m_hasBatteryBackedRam;
    }
+   bool getFourScreen()
+   {
+      return m_fourScreen;
+   }
    int getNumPrgRomBanks()
    {
       return m_numPrgBanks;
@@ -72,6 +76,10 @@ public:
    {
       m_hasBatteryBackedRam = batteryBackedRam;
    }
+   void setFourScreen(bool fourScreen)
+   {
+      m_fourScreen = fourScreen;
+   }
    void setSaveStateFile(QString file)
    {
       saveStateFile = file;
@@ -84,6 +92,7 @@ private:
    char m_chrBank [ NUM_ROM_BANKS ][ MEM_8KB ];
    eMirrorMode m_mirrorMode;                      // Mirror mode used in the emulator
    bool m_hasBatteryBackedRam;                        // Memory can be saved via RAM kept valid with a battery
+   bool m_fourScreen;
    int  m_mapperNumber;                              // Numeric ID of the cartridge mapper
    QString saveStateFile;
 };

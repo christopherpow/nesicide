@@ -435,6 +435,11 @@ void nesSetVerticalMirroring ( void )
    CPPU::MIRRORVERT();
 }
 
+void nesSetFourScreen ( void )
+{
+   CPPU::MIRROR(-1,true,true);
+}
+
 void nesReset ( bool soft )
 {
    CNES::RESET(CROM::MAPPER(),soft);

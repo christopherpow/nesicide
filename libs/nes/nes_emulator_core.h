@@ -478,6 +478,7 @@ void nesLoadPRGROMBank ( uint32_t bank, uint8_t* bankData );
 void nesLoadCHRROMBank ( uint32_t bank, uint8_t* bankData );
 void nesSetHorizontalMirroring ( void );
 void nesSetVerticalMirroring ( void );
+void nesSetFourScreen ( void );
 void nesLoadROM ( void );
 void nesResetInitial ( uint32_t mapper );
 void nesReset ( bool soft );

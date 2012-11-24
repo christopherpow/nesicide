@@ -44,6 +44,10 @@ public:
    {
       return m_pChrRomBanks;
    }
+   bool getFourScreen()
+   {
+      return m_fourScreen;
+   }
 
    // Member Setters
    void setMirrorMode(eMirrorMode mirrorMode)
@@ -57,6 +61,10 @@ public:
    void setBatteryBackedRam(bool batteryBackedRam)
    {
       m_hasBatteryBackedRam = batteryBackedRam;
+   }
+   void setFourScreen(bool fourScreen)
+   {
+      m_fourScreen = fourScreen;
    }
 
    void exportROM();
@@ -81,6 +89,7 @@ private:
    eMirrorMode m_mirrorMode;               // Mirror mode used in the emulator
    bool m_hasBatteryBackedRam;                                     // Memory can be saved via RAM kept valid with a battery
    int  m_mapperNumber;                                           // Numeric ID of the cartridge mapper
+   bool m_fourScreen;
 };
 
 #endif // CCARTRIDGE_H

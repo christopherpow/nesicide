@@ -85,7 +85,7 @@ C64EmulatorThread::~C64EmulatorThread()
    delete m_requestMutex;
 
    m_pViceApp->kill();
-   m_pViceApp->deleteLater();
+   delete m_pViceApp;
 }
 
 void C64EmulatorThread::timerEvent(QTimerEvent *event)

@@ -612,6 +612,10 @@ bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
       {
          m_pCartridge->setMirrorMode(HorizontalMirroring);
       }
+      if ((romCB1&FLAG_VRAM) == FLAG_FOURSCREEN_VRAM)
+      {
+         m_pCartridge->setFourScreen(true);
+      }
 
       // Now extract the two flags (battery backed ram and trainer)
       m_pCartridge->setBatteryBackedRam(romCB1 & 0x02);

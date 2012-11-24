@@ -152,6 +152,10 @@ void NESEmulatorThread::loadCartridge()
    {
       nesSetVerticalMirroring();
    }
+   if ( m_pCartridge->getFourScreen() )
+   {
+      nesSetFourScreen();
+   }
 
    // CPTODO: implement mapper reloading...project reload should load ROM in saved state.
 #if 0

@@ -520,7 +520,7 @@ void MainWindow::on_actionAbout_triggered()
 {
    AboutDialog* dlg = new AboutDialog(this);
    dlg->exec();
-   dlg->deleteLater();
+   delete dlg;
 }
 
 void MainWindow::updateFromEmulatorPrefs(bool initial)

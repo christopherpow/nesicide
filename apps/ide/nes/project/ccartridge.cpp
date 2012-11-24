@@ -10,6 +10,7 @@ CCartridge::CCartridge(IProjectTreeViewItem* parent)
    m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
+   m_fourScreen = false;
 
    // Allocate children
    m_pPrgRomBanks = new CPRGROMBanks(this);
@@ -63,6 +64,7 @@ void CCartridge::initializeProject()
    m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
+   m_fourScreen = false;
 
    // Initialize child nodes
    m_pPrgRomBanks->initializeProject();
@@ -79,6 +81,7 @@ void CCartridge::terminateProject()
    m_mirrorMode = HorizontalMirroring;
    m_mapperNumber = 0;
    m_hasBatteryBackedRam = false;
+   m_fourScreen = false;
 
    // Terminate child nodes
    m_pPrgRomBanks->terminateProject();
@@ -98,6 +101,7 @@ bool CCartridge::serialize(QDomDocument& doc, QDomNode& node)
    cartridgeElement.setAttribute("mapperNumber", m_mapperNumber);
    cartridgeElement.setAttribute("mirrorMode", m_mirrorMode);
    cartridgeElement.setAttribute("hasBatteryBackedRam", m_hasBatteryBackedRam);
+   cartridgeElement.setAttribute("fourScreen",m_fourScreen);
 
    // Export the PRG-ROM banks
    if (!m_pPrgRomBanks->serialize(doc, cartridgeElement))
@@ -122,6 +126,7 @@ bool CCartridge::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
    setMapperNumber(cartridgeElement.attribute("mapperNumber").toInt());
    setMirrorMode((eMirrorMode)cartridgeElement.attribute("mirrorMode").toInt());
    setBatteryBackedRam(cartridgeElement.attribute("hasBatteryBackedRam").toInt() == 1);
+   setFourScreen(cartridgeElement.attribute("fourScreen").toInt() == 1);
 
    // Import the PRG-ROM banks
    if (!m_pPrgRomBanks->deserialize(doc,cartridgeElement,errors))

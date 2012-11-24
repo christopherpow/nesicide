@@ -68,6 +68,9 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->chrRam->setChecked(!nesicideProject->getProjectUsesCHRROM());
    ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
    ui->cartridgeSaveStateName->setText(nesicideProject->getProjectCartridgeSaveStateName());
+   ui->trainerPresent->setChecked(false);
+   ui->saveRAMPresent->setChecked(nesicideProject->getCartridge()->isBatteryBackedRam());
+   ui->extraVRAMPresent->setChecked(nesicideProject->getCartridge()->getFourScreen());
 
    // C64-specific project properties.
 
@@ -503,6 +506,7 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
 
    nesicideProject->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
    nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
+   nesicideProject->getCartridge()->setFourScreen(ui->extraVRAMPresent->isChecked());
 }
 
 void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
