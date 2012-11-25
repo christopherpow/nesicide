@@ -314,9 +314,6 @@ void GetPrintable ( TracerInfo* pSample, int subItem, char* str )
                case eTarget_EXRAM:
                   strcpy ( str, "EXRAM" );
                   break;
-               case eTarget_ROM:
-                  strcpy ( str, "ROM" );
-                  break;
                case eTarget_Mapper:
                   strcpy ( str, "Mapper" );
                   break;

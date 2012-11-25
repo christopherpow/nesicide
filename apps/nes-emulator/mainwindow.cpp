@@ -607,16 +607,16 @@ void MainWindow::on_actionFullscreen_toggled(bool value)
 {
    if ( value )
    {
-      m_pEmulator->setFloating(true);
       m_pEmulator->fixTitleBar();
+      m_pEmulator->setFloating(true);
       m_pEmulator->showFullScreen();
       m_pEmulator->setFocus();
    }
    else
    {
+      m_pEmulator->setFloating(false);
       m_pEmulator->showNormal();
       m_pEmulator->fixTitleBar();
-      m_pEmulator->setFloating(false);
       m_pEmulator->setFocus();
    }
 }

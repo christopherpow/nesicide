@@ -49,7 +49,7 @@
                  ; http://magweasel.com/2009/08/29/hidden-messagin/
   dex            ; set up the stack
   txs
-  
+
   ; Wait for the PPU to warm up (part 1 of 2)
 vwait1:
   bit PPUSTATUS
@@ -70,7 +70,7 @@ clear_zp:
   ; the most basic sound engine possible
   lda #$0F
   sta $4015
-  
+
   ; Wait for the PPU to warm up (part 2 of 2)
 vwait2:
   bit PPUSTATUS
@@ -80,17 +80,17 @@ vwait2:
   jsr drawHelloWorld
 
   ; Turn screen on
-  lda #0
-  sta PPUSCROLL
-  sta PPUSCROLL
-  lda #VBLANK_NMI|BG_1000
-  sta PPUCTRL
-  lda #BG_ON
-  sta PPUMASK
-  
+  lda #0
+  sta PPUSCROLL
+  sta PPUSCROLL
+  lda #VBLANK_NMI|BG_1000
+  sta PPUCTRL
+  lda #BG_ON
+  sta PPUMASK
+
 
 mainLoop:
-  jsr mainLoop
+  jmp mainLoop
 .endproc
 
 
@@ -121,7 +121,7 @@ mainLoop:
 
 .proc drawHelloWorld
   jsr cls
-  
+
   ; set monochrome palette
   lda #$3F
   sta PPUADDR
@@ -149,7 +149,7 @@ mainLoop:
   sta 2
   ; fall through
 .endproc
-.proc printMsg  
+.proc printMsg
 dstLo = 2
 dstHi = 3
 src = 0

@@ -3608,14 +3608,7 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
 
    if ( addr >= 0x8000 )
    {
-      if ( CROM::MAPPER() )
-      {
-         (*pTarget) = eTarget_Mapper;
-      }
-      else
-      {
-         (*pTarget) = eTarget_ROM;
-      }
+      (*pTarget) = eTarget_Mapper;
       data = mapperfunc[CROM::MAPPER()].highread(addr);
    }
    else if ( addr < 0x2000 )
@@ -3777,7 +3770,7 @@ uint8_t C6502::FETCH ()
       }
 
       // If ROM is being accessed, log code/data logger...
-      if ( target == eTarget_ROM )
+      if ( target == eTarget_Mapper )
       {
          // Log to Code/Data Logger...
          CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( rPC() );
@@ -3874,7 +3867,7 @@ uint8_t C6502::EXTRAFETCH ()
 
 #if 0
       // If ROM is being accessed, log code/data logger...
-      if ( target == eTarget_ROM )
+      if ( target == eTarget_Mapper )
       {
          CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( rPC() );
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
@@ -3920,7 +3913,7 @@ uint8_t C6502::DMA ( uint32_t addr )
       CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, addr, data );
 
       // If ROM or RAM is being accessed, log code/data logger...
-      if ( target == eTarget_ROM )
+      if ( target == eTarget_Mapper )
       {
          CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eNESSource_APU );
@@ -4009,7 +4002,7 @@ uint8_t C6502::MEM ( uint32_t addr )
       CNES::TRACER()->AddSample ( m_cycles, eTracer_DataRead, eNESSource_CPU, target, addr, data );
 
       // If ROM or RAM is being accessed, log code/data logger...
-      if ( target == eTarget_ROM )
+      if ( target == eTarget_Mapper )
       {
          CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
@@ -4074,7 +4067,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // If ROM or RAM is being accessed, log code/data logger...
-      if ( target == eTarget_ROM )
+      if ( target == eTarget_Mapper )
       {
          CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
@@ -4142,7 +4135,7 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
       CNES::TRACER()->AddStolenCycle ( m_cycles, source );
 
       // If ROM or RAM is being accessed, log code/data logger...
-      if ( target == eTarget_ROM )
+      if ( target == eTarget_Mapper )
       {
          CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
