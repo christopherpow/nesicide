@@ -23,9 +23,11 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    savedTitleBar = titleBarWidget();
    setTitleBarWidget(fakeTitleBar);
 
-   renderer = new CNESEmulatorRenderer(this, imgData);
+   renderer = new CNESEmulatorRenderer(ui->frame, imgData);
    renderer->setMouseTracking(true);
-   setWidget(renderer);
+
+   ui->frame->layout()->addWidget(renderer);
+   ui->frame->layout()->update();
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
    QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));

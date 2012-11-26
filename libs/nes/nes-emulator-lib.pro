@@ -83,7 +83,10 @@ SOURCES += \
    emulator/cnesrommapper075.cpp \
    emulator/cnesrommapper034.cpp \
     emulator/cnesrommapper028.cpp \
-    emulator/cnesrommapper013.cpp
+    emulator/cnesrommapper013.cpp \
+    emulator/cnesrommapper022.cpp \
+    emulator/cnesrommapper023.cpp \
+    emulator/cnesrommapper021.cpp
 
 HEADERS +=\
    emulator/cnesrommapper068.h \
@@ -117,4 +120,7 @@ HEADERS +=\
    emulator/cnesbreakpointinfo.h \
    emulator/cnesrommapper034.h \
     emulator/cnesrommapper028.h \
-    emulator/cnesrommapper013.h
+    emulator/cnesrommapper013.h \
+    emulator/cnesrommapper022.h \
+    emulator/cnesrommapper023.h \
+    emulator/cnesrommapper021.h

@@ -18,17 +18,19 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   setMinimumSize(0,22);
-   setMaximumSize(0,22);
+   setMinimumSize(0,0);
+   setMaximumSize(0,0);
 
    ncRect = rect();
 
    setMinimumSize(0,0);
    setMaximumSize(16777215,16777215);
 
-   renderer = new CNESEmulatorRenderer(this,imgData);
+   renderer = new CNESEmulatorRenderer(ui->frame,imgData);
    renderer->setMouseTracking(true);
-   setWidget(renderer);//use this instead?
+
+   ui->frame->layout()->addWidget(renderer);
+   ui->frame->layout()->update();
 
    m_joy [ CONTROLLER1 ] = 0x00;
    m_joy [ CONTROLLER2 ] = 0x00;
@@ -72,6 +74,10 @@ void NESEmulatorDockWidget::setScalingFactor(float factor)
       setFloating(false);
    }
    setMinimumSize(rect.width(),rect.height());
+   if ( factor > 1.0 )
+   {
+      setMaximumSize(rect.width(),rect.height());
+   }
    resize(rect.width(),rect.height());
 }
 
