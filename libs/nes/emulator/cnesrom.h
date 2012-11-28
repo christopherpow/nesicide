@@ -153,8 +153,6 @@ public:
    static void LMAPPER ( uint32_t addr, uint8_t data);
    static void SYNCPPU ( uint32_t, uint32_t ) {}
    static void SYNCCPU ( void ) {}
-   static void LOAD ( MapperState* data );
-   static void SAVE ( MapperState* data );
    static uint32_t DEBUGINFO ( uint32_t addr )
    {
       return PRGROM(addr);

@@ -1,13 +1,13 @@
-#if !defined ( ROM_MAPPER023_H )
-#define ROM_MAPPER023_H
+#if !defined ( ROM_MAPPER026_H )
+#define ROM_MAPPER026_H
 
 #include "cnesrom.h"
 
-class CROMMapper023 : public CROM
+class CROMMapper026 : public CROM
 {
 public:
-   CROMMapper023();
-   virtual ~CROMMapper023();
+   CROMMapper026();
+   virtual ~CROMMapper026();
 
    static void RESET ( bool soft );
    static void HMAPPER ( uint32_t addr, uint8_t data );

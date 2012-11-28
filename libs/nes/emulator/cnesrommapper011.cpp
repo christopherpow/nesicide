@@ -68,16 +68,6 @@ void CROMMapper011::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper011::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper011::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
 uint32_t CROMMapper011::DEBUGINFO ( uint32_t addr )
 {
    return m_reg;

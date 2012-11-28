@@ -125,16 +125,6 @@ void CROMMapper009::RESET ( bool soft )
    m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FE<<2)+3 ];
 }
 
-void CROMMapper009::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper009::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
 uint32_t CROMMapper009::DEBUGINFO ( uint32_t addr )
 {
    switch ( addr&0xF000 )

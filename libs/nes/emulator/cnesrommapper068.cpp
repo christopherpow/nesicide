@@ -98,16 +98,6 @@ void CROMMapper068::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper068::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper068::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
 uint32_t CROMMapper068::DEBUGINFO ( uint32_t addr )
 {
    switch ( addr&0xF000 )

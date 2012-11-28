@@ -251,46 +251,6 @@ void CROMMapper004::SETPPU ( void )
    }
 }
 
-void CROMMapper004::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-
-   int32_t idx;
-
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      m_reg [ idx ] = data->data.mapper004.reg [ idx ];
-      m_chr [ idx ] = data->data.mapper004.chr [ idx ];
-   }
-
-   m_prg [ 0 ] = data->data.mapper004.prg [ 0 ];
-   m_prg [ 1 ] = data->data.mapper004.prg [ 1 ];
-   m_irqCounter = data->data.mapper004.irqCounter;
-   m_irqEnable = data->data.mapper004.irqEnable;
-   m_irqLatch = data->data.mapper004.irqLatch;
-   SETCPU ();
-   SETPPU ();
-}
-
-void CROMMapper004::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-
-   int32_t idx;
-
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      data->data.mapper004.reg [ idx ] = m_reg [ idx ];
-      data->data.mapper004.chr [ idx ] = m_chr [ idx ];
-   }
-
-   data->data.mapper004.prg [ 0 ] = m_prg [ 0 ];
-   data->data.mapper004.prg [ 1 ] = m_prg [ 1 ];
-   data->data.mapper004.irqCounter = m_irqCounter;
-   data->data.mapper004.irqEnable = m_irqEnable;
-   data->data.mapper004.irqLatch = m_irqLatch;
-}
-
 uint32_t CROMMapper004::DEBUGINFO ( uint32_t addr )
 {
    return m_reg [ (((addr-MEM_32KB)/MEM_8KB)*2)+(addr&0x0001) ];

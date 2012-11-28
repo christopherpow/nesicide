@@ -446,36 +446,6 @@ void CROM::LMAPPER ( uint32_t addr, uint8_t data )
    }
 }
 
-void CROM::LOAD ( MapperState* data )
-{
-   int32_t idx;
-
-   for ( idx = 0; idx < 4; idx++ )
-   {
-      m_pPRGROMmemory [ idx ] = (uint8_t*)m_PRGROMmemory + data->PRGROMOffset [ idx ];
-   }
-
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      m_pCHRmemory [ idx ] = (uint8_t*)m_CHRmemory + data->CHRMEMOffset [ idx ];
-   }
-}
-
-void CROM::SAVE ( MapperState* data )
-{
-   int32_t idx;
-
-   for ( idx = 0; idx < 4; idx++ )
-   {
-      data->PRGROMOffset [ idx ] = m_pPRGROMmemory [ idx ] - (uint8_t*)m_PRGROMmemory;
-   }
-
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      data->CHRMEMOffset [ idx ] = m_pCHRmemory [ idx ] - (uint8_t*)m_CHRmemory;
-   }
-}
-
 void CROM::DISASSEMBLE ()
 {
    uint32_t bank;

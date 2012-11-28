@@ -16,8 +16,6 @@ public:
    static void SYNCCPU ( void );
    static void SETCPU ( void );
    static void SETPPU ( void );
-   static void LOAD ( MapperState* data );
-   static void SAVE ( MapperState* data );
    static uint32_t DEBUGINFO ( uint32_t addr );
 
    // Internal accessors for mapper information inspector...

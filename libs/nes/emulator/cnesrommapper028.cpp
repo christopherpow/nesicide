@@ -152,16 +152,6 @@ void CROMMapper028::SETPPU ( void )
    m_pCHRmemory [ 7 ] = m_CHRmemory [ ((m_chr_bank)<<3)+7 ];
 }
 
-void CROMMapper028::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper028::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
 uint32_t CROMMapper028::DEBUGINFO ( uint32_t addr )
 {
    // CPTODO: return mapper registers here...

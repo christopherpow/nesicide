@@ -136,16 +136,6 @@ void CROMMapper065::SYNCCPU ( void )
    }
 }
 
-void CROMMapper065::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper065::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
 uint32_t CROMMapper065::DEBUGINFO ( uint32_t addr )
 {
    switch ( addr )

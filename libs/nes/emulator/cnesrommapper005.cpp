@@ -431,16 +431,6 @@ void CROMMapper005::SETPPU ( void )
    }
 }
 
-void CROMMapper005::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper005::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
 uint32_t CROMMapper005::HMAPPER ( uint32_t addr )
 {
    if ( (m_prgRAM[0]) && (addr < 0xA000) )

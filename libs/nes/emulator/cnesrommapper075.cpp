@@ -126,53 +126,6 @@ void CROMMapper075::SETPPU ( void )
    m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_chr[7]<<2)+3 ];
 }
 
-void CROMMapper075::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-
-   int32_t idx;
-
-   for ( idx = 0; idx < 4; idx++ )
-   {
-      m_prg [ idx ] = data->data.mapper075.prg [ idx ];
-   }
-
-   for ( idx = 0; idx < 6; idx++ )
-   {
-      m_reg [ idx ] = data->data.mapper075.reg [ idx ];
-   }
-
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      m_chr [ idx ] = data->data.mapper075.chr [ idx ];
-   }
-
-   SETCPU ();
-   SETPPU ();
-}
-
-void CROMMapper075::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-
-   int32_t idx;
-
-   for ( idx = 0; idx < 4; idx++ )
-   {
-      data->data.mapper075.prg [ idx ] = m_prg [ idx ];
-   }
-
-   for ( idx = 0; idx < 6; idx++ )
-   {
-      data->data.mapper075.reg [ idx ] = m_reg [ idx ];
-   }
-
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      data->data.mapper075.chr [ idx ] = m_chr [ idx ];
-   }
-}
-
 uint32_t CROMMapper075::DEBUGINFO ( uint32_t addr )
 {
    return m_reg [ ((addr-MEM_32KB)/MEM_8KB) ];

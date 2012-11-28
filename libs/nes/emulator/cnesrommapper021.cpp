@@ -89,24 +89,51 @@ static CRegisterData* tblRegisters [] =
    new CRegisterData(0xF002, "IRQ Latch HSN", nesMapperHighRead, nesMapperHighWrite, 1, tblF002Bitfields),
    new CRegisterData(0xF004, "IRQ Control", nesMapperHighRead, nesMapperHighWrite, 3, tblF004Bitfields),
    new CRegisterData(0xF006, "IRQ Acknowledge", nesMapperHighRead, nesMapperHighWrite, 1, tblF006Bitfields),
+   new CRegisterData(0x8000, "PRG Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
+   new CRegisterData(0x9000, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tbl9000Bitfields),
+   new CRegisterData(0x9080, "PRG Swap Mode", nesMapperHighRead, nesMapperHighWrite, 1, tbl9004Bitfields),
+   new CRegisterData(0xA000, "PRG Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
+   new CRegisterData(0xB000, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB040, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB080, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB0C0, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC000, "CHR Control 2", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC040, "CHR Control 2", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC080, "CHR Control 3", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC0C0, "CHR Control 3", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xD000, "CHR Control 4", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xD040, "CHR Control 4", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xD080, "CHR Control 5", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xD0C0, "CHR Control 5", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xE000, "CHR Control 6", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xE040, "CHR Control 6", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xE080, "CHR Control 7", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xE0C0, "CHR Control 7", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xF000, "IRQ Latch LSN", nesMapperHighRead, nesMapperHighWrite, 1, tblF000Bitfields),
+   new CRegisterData(0xF040, "IRQ Latch HSN", nesMapperHighRead, nesMapperHighWrite, 1, tblF002Bitfields),
+   new CRegisterData(0xF080, "IRQ Control", nesMapperHighRead, nesMapperHighWrite, 3, tblF004Bitfields),
+   new CRegisterData(0xF0C0, "IRQ Acknowledge", nesMapperHighRead, nesMapperHighWrite, 1, tblF006Bitfields)
 };
 
 static const char* rowHeadings [] =
 {
-   ""
+   "VRC4a",
+   "VRC4c"
 };
 
 static const char* columnHeadings [] =
 {
-   "8000","9000","9004","A000",
-   "B000","B002","B004","B006",
-   "C000","C002","C004","C006",
-   "D000","D002","D004","D006",
-   "E000","E002","E004","E006",
-   "F000","F002","F004","F006"
+   "8000",
+   "9000","9004\n9080",
+   "A000",
+   "B000","B002\nB040","B004\nB080","B006\nB0C0",
+   "C000","C002\nC040","C004\nC080","C006\nC0C0",
+   "D000","D002\nD040","D004\nD080","D006\nD0C0",
+   "E000","E002\nE040","E004\nE080","E006\nE0C0",
+   "F000","F002\nF040","F004\nF080","F006\nF0C0",
 };
 
-static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,24,24,tblRegisters,rowHeadings,columnHeadings);
+static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,2,24,48,tblRegisters,rowHeadings,columnHeadings);
 
 uint8_t  CROMMapper021::m_reg [] = { 0x00, };
 uint8_t  CROMMapper021::m_chr [] = { 0, };
@@ -146,16 +173,6 @@ void CROMMapper021::RESET ( bool soft )
    m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
 
    // CHR ROM/RAM already set up in CROM::RESET()...
-}
-
-void CROMMapper021::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper021::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
 }
 
 void CROMMapper021::SYNCCPU ( void )
@@ -207,82 +224,106 @@ uint32_t CROMMapper021::DEBUGINFO ( uint32_t addr )
    {
    case 0x8000:
    case 0x8002:
+   case 0x8040:
    case 0x8004:
+   case 0x8080:
    case 0x8006:
+   case 0x80C0:
       return m_reg[0];
       break;
    case 0x9000:
    case 0x9002:
+   case 0x9040:
       return m_reg[1];
       break;
    case 0x9004:
+   case 0x9080:
    case 0x9006:
+   case 0x90C0:
       return m_reg[2];
       break;
    case 0xA000:
    case 0xA002:
+   case 0xA040:
    case 0xA004:
+   case 0xA080:
    case 0xA006:
+   case 0xA0C0:
       return m_reg[3];
       break;
    case 0xB000:
       return m_reg[4];
       break;
    case 0xB002:
+   case 0xB040:
       return m_reg[5];
       break;
    case 0xB004:
+   case 0xB080:
       return m_reg[6];
       break;
    case 0xB006:
+   case 0xB0C0:
       return m_reg[7];
       break;
    case 0xC000:
       return m_reg[8];
       break;
    case 0xC002:
+   case 0xC040:
       return m_reg[9];
       break;
    case 0xC004:
+   case 0xC080:
       return m_reg[10];
       break;
    case 0xC006:
+   case 0xC0C0:
       return m_reg[11];
       break;
    case 0xD000:
       return m_reg[12];
       break;
    case 0xD002:
+   case 0xD040:
       return m_reg[13];
       break;
    case 0xD004:
+   case 0xD080:
       return m_reg[14];
       break;
    case 0xD006:
+   case 0xD0C0:
       return m_reg[15];
       break;
    case 0xE000:
       return m_reg[16];
       break;
    case 0xE002:
+   case 0xE040:
       return m_reg[17];
       break;
    case 0xE004:
+   case 0xE080:
       return m_reg[18];
       break;
    case 0xE006:
+   case 0xE0C0:
       return m_reg[19];
       break;
    case 0xF000:
       return m_reg[20];
       break;
    case 0xF002:
+   case 0xF040:
       return m_reg[21];
       break;
    case 0xF004:
+   case 0xF080:
       return m_reg[22];
       break;
    case 0xF006:
+   case 0xF0C0:
       return m_reg[23];
       break;
    }
@@ -296,8 +337,11 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
    {
    case 0x8000:
    case 0x8002:
+   case 0x8040:
    case 0x8004:
+   case 0x8080:
    case 0x8006:
+   case 0x80C0:
       reg = 0;
       m_reg[0] = data;
       if ( m_reg[2]&0x02 )
@@ -313,9 +357,10 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       break;
    case 0x9000:
    case 0x9002:
+   case 0x9040:
       reg = 1;
       m_reg[1] = data;
-      switch ( data )
+      switch ( data&0x03 )
       {
       case 0:
          CPPU::MIRRORVERT();
@@ -332,7 +377,9 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       }
       break;
    case 0x9004:
+   case 0x9080:
    case 0x9006:
+   case 0x90C0:
       reg = 2;
       m_reg[2] = data;
       if ( m_reg[2]&0x02 )
@@ -346,8 +393,11 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       break;
    case 0xA000:
    case 0xA002:
+   case 0xA040:
    case 0xA004:
+   case 0xA080:
    case 0xA006:
+   case 0xA0C0:
       reg = 3;
       m_reg[3] = data;
       m_pPRGROMmemory[1] = m_PRGROMmemory[data&0x1F];
@@ -360,6 +410,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[0] = m_CHRmemory[m_chr[0]];
       break;
    case 0xB002:
+   case 0xB040:
       reg = 5;
       m_reg[5] = data;
       m_chr[0] &= 0x0F;
@@ -367,6 +418,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[0] = m_CHRmemory[m_chr[0]];
       break;
    case 0xB004:
+   case 0xB080:
       reg = 6;
       m_reg[6] = data;
       m_chr[1] &= 0xF0;
@@ -374,6 +426,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[1] = m_CHRmemory[m_chr[1]];
       break;
    case 0xB006:
+   case 0xB0C0:
       reg = 7;
       m_reg[7] = data;
       m_chr[1] &= 0x0F;
@@ -388,6 +441,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[2] = m_CHRmemory[m_chr[2]];
       break;
    case 0xC002:
+   case 0xC040:
       reg = 9;
       m_reg[9] = data;
       m_chr[2] &= 0x0F;
@@ -395,6 +449,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[2] = m_CHRmemory[m_chr[2]];
       break;
    case 0xC004:
+   case 0xC080:
       reg = 10;
       m_reg[10] = data;
       m_chr[3] &= 0xF0;
@@ -402,6 +457,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[3] = m_CHRmemory[m_chr[3]];
       break;
    case 0xC006:
+   case 0xC0C0:
       reg = 11;
       m_reg[11] = data;
       m_chr[3] &= 0x0F;
@@ -416,6 +472,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[4] = m_CHRmemory[m_chr[4]];
       break;
    case 0xD002:
+   case 0xD040:
       reg = 13;
       m_reg[13] = data;
       m_chr[4] &= 0x0F;
@@ -423,6 +480,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[4] = m_CHRmemory[m_chr[4]];
       break;
    case 0xD004:
+   case 0xD080:
       reg = 14;
       m_reg[14] = data;
       m_chr[5] &= 0xF0;
@@ -430,6 +488,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[5] = m_CHRmemory[m_chr[5]];
       break;
    case 0xD006:
+   case 0xD0C0:
       reg = 15;
       m_reg[15] = data;
       m_chr[5] &= 0x0F;
@@ -444,6 +503,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[6] = m_CHRmemory[m_chr[6]];
       break;
    case 0xE002:
+   case 0xE040:
       reg = 17;
       m_reg[17] = data;
       m_chr[6] &= 0x0F;
@@ -451,6 +511,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[6] = m_CHRmemory[m_chr[6]];
       break;
    case 0xE004:
+   case 0xE080:
       reg = 18;
       m_reg[18] = data;
       m_chr[7] &= 0xF0;
@@ -458,6 +519,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_pCHRmemory[7] = m_CHRmemory[m_chr[7]];
       break;
    case 0xE006:
+   case 0xE0C0:
       reg = 19;
       m_reg[19] = data;
       m_chr[7] &= 0x0F;
@@ -471,12 +533,14 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       m_irqReload |= (data&0x0F);
       break;
    case 0xF002:
+   case 0xF040:
       reg = 21;
       m_reg[21] = data;
       m_irqReload &= 0x0F;
       m_irqReload |= (data<<4);
       break;
    case 0xF004:
+   case 0xF080:
       reg = 22;
       m_reg[22] = data;
       C6502::RELEASEIRQ(eNESSource_Mapper);
@@ -493,6 +557,7 @@ void CROMMapper021::HMAPPER ( uint32_t addr, uint8_t data )
       }
       break;
    case 0xF006:
+   case 0xF0C0:
       reg = 23;
       m_reg[23] = data;
       C6502::RELEASEIRQ(eNESSource_Mapper);

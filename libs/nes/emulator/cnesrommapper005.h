@@ -17,8 +17,6 @@ public:
    static void SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr );
    static void SETCPU ( void );
    static void SETPPU ( void );
-   static void LOAD ( MapperState* data );
-   static void SAVE ( MapperState* data );
    static uint32_t DEBUGINFO ( uint32_t addr );
 
 protected:

@@ -57,6 +57,9 @@
        <attribute name="horizontalHeaderMinimumSectionSize">
         <number>26</number>
        </attribute>
+       <attribute name="verticalHeaderCascadingSectionResizes">
+        <bool>false</bool>
+       </attribute>
        <attribute name="verticalHeaderDefaultSectionSize">
         <number>23</number>
        </attribute>

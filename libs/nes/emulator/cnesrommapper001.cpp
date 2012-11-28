@@ -109,48 +109,6 @@ void CROMMapper001::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper001::LOAD ( MapperState* data )
-{
-   m_reg [ 0 ] = data->data.mapper001.reg [ 0 ];
-   m_reg [ 1 ] = data->data.mapper001.reg [ 1 ];
-   m_reg [ 2 ] = data->data.mapper001.reg [ 2 ];
-   m_reg [ 3 ] = data->data.mapper001.reg [ 3 ];
-   m_sel = data->data.mapper001.sel;
-   m_sr = data->data.mapper001.sr;
-   m_srCount = data->data.mapper001.srCount;
-
-   if ( m_reg[0]&0x02 )
-   {
-      if ( m_reg[0]&0x01 )
-      {
-         CPPU::MIRRORHORIZ ();
-      }
-      else
-      {
-         CPPU::MIRRORVERT ();
-      }
-   }
-   else
-   {
-      CPPU::MIRROR ( m_reg[0]&0x01 );
-   }
-
-   CROM::LOAD ( data );
-}
-
-void CROMMapper001::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-
-   data->data.mapper001.reg [ 0 ] = m_reg [ 0 ];
-   data->data.mapper001.reg [ 1 ] = m_reg [ 1 ];
-   data->data.mapper001.reg [ 2 ] = m_reg [ 2 ];
-   data->data.mapper001.reg [ 3 ] = m_reg [ 3 ];
-   data->data.mapper001.sel = m_sel;
-   data->data.mapper001.sr = m_sr;
-   data->data.mapper001.srCount = m_srCount;
-}
-
 void CROMMapper001::SYNCCPU()
 {
    // This may not be the actual CPU cycle but it doesn't matter.

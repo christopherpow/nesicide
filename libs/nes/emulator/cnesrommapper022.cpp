@@ -42,20 +42,20 @@ static CRegisterData* tblRegisters [] =
    new CRegisterData(0x9000, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tbl9000Bitfields),
    new CRegisterData(0xA000, "PRG Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
    new CRegisterData(0xB000, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xB001, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xB002, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB001, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xB002, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xB003, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xC000, "CHR Control 2", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xC001, "CHR Control 3", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xC002, "CHR Control 2", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC001, "CHR Control 2", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xC002, "CHR Control 3", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xC003, "CHR Control 3", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xD000, "CHR Control 4", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xD001, "CHR Control 5", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xD002, "CHR Control 4", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xD001, "CHR Control 4", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xD002, "CHR Control 5", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xD003, "CHR Control 5", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xE000, "CHR Control 6", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xE001, "CHR Control 7", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
-   new CRegisterData(0xE002, "CHR Control 6", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xE001, "CHR Control 6", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
+   new CRegisterData(0xE002, "CHR Control 7", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xE003, "CHR Control 7", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields)
 };
 
@@ -102,16 +102,6 @@ void CROMMapper022::RESET ( bool soft )
    m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
 
    // CHR ROM/RAM already set up in CROM::RESET()...
-}
-
-void CROMMapper022::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper022::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
 }
 
 uint32_t CROMMapper022::DEBUGINFO ( uint32_t addr )
@@ -207,7 +197,7 @@ void CROMMapper022::HMAPPER ( uint32_t addr, uint8_t data )
    case 0x9003:
       reg = 1;
       m_reg[1] = data;
-      switch ( data )
+      switch ( data&0x03 )
       {
       case 0:
          CPPU::MIRRORVERT();

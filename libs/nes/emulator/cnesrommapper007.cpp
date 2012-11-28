@@ -98,14 +98,3 @@ void CROMMapper007::HMAPPER ( uint32_t addr, uint8_t data )
       CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
    }
 }
-
-void CROMMapper007::LOAD ( MapperState* data )
-{
-   CROM::LOAD ( data );
-}
-
-void CROMMapper007::SAVE ( MapperState* data )
-{
-   CROM::SAVE ( data );
-}
-
