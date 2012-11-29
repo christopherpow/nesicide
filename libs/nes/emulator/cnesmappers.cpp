@@ -30,6 +30,7 @@
 #include "cnesrommapper022.h"
 #include "cnesrommapper023.h"
 #include "cnesrommapper024.h"
+#include "cnesrommapper025.h"
 #include "cnesrommapper026.h"
 #include "cnesrommapper028.h"
 #include "cnesrommapper033.h"
@@ -66,7 +67,7 @@ MapperFuncs mapperfunc[] =
    /* 022 */ { CROMMapper022::RESET, CROM::HMAPPER,          CROMMapper022::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROMMapper022::DEBUGINFO, true,  true },
    /* 023 */ { CROMMapper023::RESET, CROM::HMAPPER,          CROMMapper023::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper023::SYNCCPU, CROMMapper023::DEBUGINFO, true,  true },
    /* 024 */ { CROMMapper024::RESET, CROM::HMAPPER,          CROMMapper024::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper024::SYNCCPU, CROMMapper024::DEBUGINFO, true,  true },
-   /* 025 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          false, false },
+   /* 025 */ { CROMMapper025::RESET, CROM::HMAPPER,          CROMMapper025::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper025::SYNCCPU, CROMMapper025::DEBUGINFO, true,  true },
    /* 026 */ { CROMMapper026::RESET, CROM::HMAPPER,          CROMMapper026::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper026::SYNCCPU, CROMMapper026::DEBUGINFO, true,  true },
    /* 027 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          false, false },
    /* 028 */ { CROMMapper028::RESET, CROM::HMAPPER,          CROMMapper028::HMAPPER, CROMMapper028::LMAPPER, CROMMapper028::LMAPPER, CROM::SYNCPPU,          CROM::SYNCCPU,          CROMMapper028::DEBUGINFO, true,  true },

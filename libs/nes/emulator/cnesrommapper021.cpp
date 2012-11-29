@@ -23,7 +23,7 @@
 // Mapper 021 Registers
 static CBitfieldData* tbl8000Bitfields [] =
 {
-   new CBitfieldData("PRG Bank", 0, 4, "%X", 0)
+   new CBitfieldData("PRG Bank", 0, 5, "%X", 0)
 };
 
 static CBitfieldData* tbl9000Bitfields [] =

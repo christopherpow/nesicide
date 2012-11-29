@@ -1004,7 +1004,14 @@ void CodeEditorForm::setSourceCode(QString source)
    // Force EOL conversion if desired.
    if ( EnvironmentSettingsDialog::eolForceConsistent() )
    {
-      m_scintilla->convertEols((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
+      // Convert first to Unix to get rid of CR+LF.
+      m_scintilla->convertEols(QsciScintilla::EolUnix);
+
+      // Then if mode is not Unix, convert to it.
+      if ( EnvironmentSettingsDialog::eolMode() != QsciScintilla::EolUnix )
+      {
+         m_scintilla->convertEols((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
+      }
    }
 
    // Force repaint of error tags.
