@@ -1417,12 +1417,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
    }
 }
 
-void MainWindow::hideEvent(QHideEvent *event)
+void MainWindow::hideEvent(QHideEvent */*event*/)
 {
    CDockWidgetRegistry::saveVisibility();
 }
 
-void MainWindow::showEvent(QShowEvent *event)
+void MainWindow::showEvent(QShowEvent */*event*/)
 {
    CDockWidgetRegistry::restoreVisibility();
 }
@@ -2012,7 +2012,7 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QMainWindow::closeEvent(event);
 }
 
-void MainWindow::timerEvent(QTimerEvent *event)
+void MainWindow::timerEvent(QTimerEvent */*event*/)
 {
 // CP: This is part way to doing incremental building
 // but needs to check if any files have been modified
@@ -2228,7 +2228,7 @@ void MainWindow::compiler_compileStarted()
    actionLoad_In_Emulator->setEnabled(false);
 }
 
-void MainWindow::compiler_compileDone(bool bOk)
+void MainWindow::compiler_compileDone(bool /*bOk*/)
 {
    actionCompile_Project->setEnabled(true);
    actionLoad_In_Emulator->setEnabled(true);

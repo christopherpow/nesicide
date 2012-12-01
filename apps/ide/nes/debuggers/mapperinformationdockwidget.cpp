@@ -50,7 +50,7 @@ MapperInformationDockWidget::~MapperInformationDockWidget()
     delete ui;
 }
 
-void MapperInformationDockWidget::updateTargetMachine(QString target)
+void MapperInformationDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -75,7 +75,7 @@ void MapperInformationDockWidget::changeEvent(QEvent* e)
    }
 }
 
-void MapperInformationDockWidget::showEvent(QShowEvent* e)
+void MapperInformationDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -83,7 +83,7 @@ void MapperInformationDockWidget::showEvent(QShowEvent* e)
    updateInformation();
 }
 
-void MapperInformationDockWidget::hideEvent(QHideEvent* e)
+void MapperInformationDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

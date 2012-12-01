@@ -70,7 +70,7 @@ void CGraphicsBank::exportAsPNG()
    }
 }
 
-bool CGraphicsBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool CGraphicsBank::deserialize(QDomDocument& /*doc*/, QDomNode& node, QString& errors)
 {
    QDomElement element = node.toElement();
 

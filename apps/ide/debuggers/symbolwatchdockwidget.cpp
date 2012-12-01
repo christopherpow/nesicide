@@ -399,7 +399,7 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
    }
 }
 
-void SymbolWatchDockWidget::hideEvent(QHideEvent *event)
+void SymbolWatchDockWidget::hideEvent(QHideEvent */*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -430,7 +430,7 @@ bool SymbolWatchDockWidget::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool SymbolWatchDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool SymbolWatchDockWidget::deserialize(QDomDocument& /*doc*/, QDomNode& node, QString& /*errors*/)
 {
    QDomNode childNode = node.firstChild();
    QDomNode symbolNode;

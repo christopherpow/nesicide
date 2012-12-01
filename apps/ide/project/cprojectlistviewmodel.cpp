@@ -5,7 +5,7 @@ CProjectListViewModel::CProjectListViewModel(QObject* parent)
 {
 }
 
-QVariant CProjectListViewModel::data(const QModelIndex& index, int role) const
+QVariant CProjectListViewModel::data(const QModelIndex& index, int /*role*/) const
 {
    if (!index.isValid())
    {
@@ -27,27 +27,27 @@ Qt::ItemFlags CProjectListViewModel::flags(const QModelIndex& index) const
    return flags;
 }
 
-bool CProjectListViewModel::setData ( const QModelIndex& index, const QVariant& value, int )
+bool CProjectListViewModel::setData ( const QModelIndex& /*index*/, const QVariant& /*value*/, int )
 {
    return false;
 }
 
-QVariant CProjectListViewModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CProjectListViewModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
 {
    return  QVariant();
 }
 
-QModelIndex CProjectListViewModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex CProjectListViewModel::index(int /*row*/, int /*column*/, const QModelIndex& /*parent*/) const
 {
    return QModelIndex();
 }
 
-int CProjectListViewModel::rowCount(const QModelIndex& parent) const
+int CProjectListViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
    return 0;
 }
 
-int CProjectListViewModel::columnCount(const QModelIndex& parent) const
+int CProjectListViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
    return 1;
 }

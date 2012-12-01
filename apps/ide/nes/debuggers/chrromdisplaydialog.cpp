@@ -79,7 +79,7 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
    }
 }
 
-void CHRROMDisplayDialog::updateTargetMachine(QString target)
+void CHRROMDisplayDialog::updateTargetMachine(QString /*target*/)
 {
    if ( m_usePPU )
    {
@@ -93,7 +93,7 @@ void CHRROMDisplayDialog::updateTargetMachine(QString target)
    }
 }
 
-void CHRROMDisplayDialog::showEvent(QShowEvent* event)
+void CHRROMDisplayDialog::showEvent(QShowEvent* /*event*/)
 {
    if ( m_usePPU )
    {
@@ -106,7 +106,7 @@ void CHRROMDisplayDialog::showEvent(QShowEvent* event)
    emit addStatusBarWidget(info);
 }
 
-void CHRROMDisplayDialog::hideEvent(QHideEvent* event)
+void CHRROMDisplayDialog::hideEvent(QHideEvent* /*event*/)
 {
    if ( m_usePPU )
    {
@@ -140,7 +140,7 @@ bool CHRROMDisplayDialog::eventFilter(QObject* obj,QEvent* event)
    return false;
 }
 
-void CHRROMDisplayDialog::renderer_enterEvent(QEvent *event)
+void CHRROMDisplayDialog::renderer_enterEvent(QEvent */*event*/)
 {
    int pixx;
    int pixy;
@@ -154,12 +154,12 @@ void CHRROMDisplayDialog::renderer_enterEvent(QEvent *event)
    }
 }
 
-void CHRROMDisplayDialog::renderer_leaveEvent(QEvent *event)
+void CHRROMDisplayDialog::renderer_leaveEvent(QEvent */*event*/)
 {
    updateInfoText();
 }
 
-void CHRROMDisplayDialog::renderer_mouseMoveEvent(QMouseEvent *event)
+void CHRROMDisplayDialog::renderer_mouseMoveEvent(QMouseEvent */*event*/)
 {
    int pixx;
    int pixy;

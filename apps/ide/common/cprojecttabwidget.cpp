@@ -35,7 +35,7 @@ bool CProjectTabWidget::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
-void CProjectTabWidget::tabBar_mouseMoveEvent(QMouseEvent *event)
+void CProjectTabWidget::tabBar_mouseMoveEvent(QMouseEvent */*event*/)
 {
 }
 
@@ -91,7 +91,7 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
    }
 }
 
-int CProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &label)
+int CProjectTabWidget::addTab(QWidget *widget, const QIcon &/*icon*/, const QString &label)
 {
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));

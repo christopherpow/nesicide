@@ -25,7 +25,7 @@ ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
    delete model;
 }
 
-void ExecutionInspectorDockWidget::updateTargetMachine(QString target)
+void ExecutionInspectorDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -40,7 +40,7 @@ void ExecutionInspectorDockWidget::updateTargetMachine(QString target)
    }
 }
 
-void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
+void ExecutionInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -52,7 +52,7 @@ void ExecutionInspectorDockWidget::showEvent(QShowEvent* e)
    ui->tableView->resizeColumnsToContents();
 }
 
-void ExecutionInspectorDockWidget::hideEvent(QHideEvent* e)
+void ExecutionInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

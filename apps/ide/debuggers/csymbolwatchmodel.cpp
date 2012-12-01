@@ -120,7 +120,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
    return QVariant();
 }
 
-bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool CSymbolWatchModel::setData(const QModelIndex &index, const QVariant &value, int /*role*/)
 {
    bool ok = false;
    unsigned int addr;

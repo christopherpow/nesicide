@@ -177,7 +177,7 @@ void CNESEmulatorRenderer::paintGL()
    glEnd();
 }
 
-void CNESEmulatorRenderer::changeZoom(int newZoom)
+void CNESEmulatorRenderer::changeZoom(int /*newZoom*/)
 {
 //    zoom = newZoom;
 //    resizeGL(this->width(), this->height());

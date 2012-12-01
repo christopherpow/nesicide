@@ -97,7 +97,7 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) c
    return QVariant(modelStringBuffer);
 }
 
-Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex& index) const
+Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex& /*index*/) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled;
 
@@ -180,7 +180,7 @@ int CDebuggerMemoryDisplayModel::rowCount(const QModelIndex&) const
    return 0;
 }
 
-int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex& parent) const
+int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex& /*parent*/) const
 {
    if ( m_memDB() )
    {

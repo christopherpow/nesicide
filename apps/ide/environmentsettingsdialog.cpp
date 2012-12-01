@@ -642,7 +642,7 @@ void EnvironmentSettingsDialog::on_fontUnderline_toggled(bool checked)
    }
 }
 
-void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString fontName)
+void EnvironmentSettingsDialog::on_styleFont_currentIndexChanged(QString /*fontName*/)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int style;

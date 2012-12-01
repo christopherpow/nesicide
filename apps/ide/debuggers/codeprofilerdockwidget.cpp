@@ -30,7 +30,7 @@ CodeProfilerDockWidget::~CodeProfilerDockWidget()
     delete ui;
 }
 
-void CodeProfilerDockWidget::updateTargetMachine(QString target)
+void CodeProfilerDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -44,7 +44,7 @@ void CodeProfilerDockWidget::updateTargetMachine(QString target)
    }
 }
 
-void CodeProfilerDockWidget::showEvent(QShowEvent *event)
+void CodeProfilerDockWidget::showEvent(QShowEvent */*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -55,7 +55,7 @@ void CodeProfilerDockWidget::showEvent(QShowEvent *event)
    model->update();
 }
 
-void CodeProfilerDockWidget::hideEvent(QHideEvent *event)
+void CodeProfilerDockWidget::hideEvent(QHideEvent */*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

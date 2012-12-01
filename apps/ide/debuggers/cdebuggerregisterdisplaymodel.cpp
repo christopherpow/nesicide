@@ -65,7 +65,7 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex& index, int role)
    return QVariant(modelStringBuffer);
 }
 
-Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex& index) const
+Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex& /*index*/) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 
@@ -126,7 +126,7 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
    return QModelIndex();
 }
 
-int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex& parent) const
+int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex& /*parent*/) const
 {
    if ( m_regDB() )
    {
@@ -136,7 +136,7 @@ int CDebuggerRegisterDisplayModel::rowCount(const QModelIndex& parent) const
    return 0;
 }
 
-int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex& parent) const
+int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex& /*parent*/) const
 {
    if ( m_regDB() )
    {

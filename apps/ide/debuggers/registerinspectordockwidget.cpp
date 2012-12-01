@@ -43,7 +43,7 @@ RegisterInspectorDockWidget::~RegisterInspectorDockWidget()
    delete bitfieldDelegate;
 }
 
-void RegisterInspectorDockWidget::updateTargetMachine(QString target)
+void RegisterInspectorDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -64,7 +64,7 @@ void RegisterInspectorDockWidget::updateTargetMachine(QString target)
    }
 }
 
-void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
+void RegisterInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -77,7 +77,7 @@ void RegisterInspectorDockWidget::showEvent(QShowEvent* e)
    ui->binaryView->resizeColumnsToContents();
 }
 
-void RegisterInspectorDockWidget::hideEvent(QHideEvent* e)
+void RegisterInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

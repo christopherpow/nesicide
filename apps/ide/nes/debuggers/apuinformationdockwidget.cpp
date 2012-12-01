@@ -19,7 +19,7 @@ APUInformationDockWidget::~APUInformationDockWidget()
     delete ui;
 }
 
-void APUInformationDockWidget::updateTargetMachine(QString target)
+void APUInformationDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
    QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
@@ -43,14 +43,14 @@ void APUInformationDockWidget::changeEvent(QEvent* e)
    }
 }
 
-void APUInformationDockWidget::showEvent(QShowEvent* e)
+void APUInformationDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
 }
 
-void APUInformationDockWidget::hideEvent(QHideEvent* e)
+void APUInformationDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );

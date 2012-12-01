@@ -6,7 +6,7 @@ CPropertyValueDelegate::CPropertyValueDelegate()
 
 QWidget* CPropertyValueDelegate::createEditor(QWidget* parent,
       const QStyleOptionViewItem& /* option */,
-      const QModelIndex& index) const
+      const QModelIndex& /*index*/) const
 {
    QLineEdit* edit;
    QComboBox* comboBox;

@@ -35,6 +35,6 @@ void CROMDBG::RESET ( void )
    RESET ( 0 );
 }
 
-void CROMDBG::RESET ( uint32_t mapper )
+void CROMDBG::RESET ( uint32_t /*mapper*/ )
 {
 }

@@ -58,7 +58,7 @@ bool CProjectTreeViewModel::setData ( const QModelIndex& index, const QVariant& 
    return item->onNameChanged(value.toString());
 }
 
-QVariant CProjectTreeViewModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CProjectTreeViewModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
 {
    return  QVariant();
 }
@@ -133,7 +133,7 @@ int CProjectTreeViewModel::rowCount(const QModelIndex& parent) const
    return parentItem->childCount();
 }
 
-int CProjectTreeViewModel::columnCount(const QModelIndex& parent) const
+int CProjectTreeViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
    return 1;
 }

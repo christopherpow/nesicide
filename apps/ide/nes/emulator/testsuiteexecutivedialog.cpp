@@ -31,7 +31,7 @@ TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
    delete ui;
 }
 
-void TestSuiteExecutiveDialog::updateTargetMachine(QString target)
+void TestSuiteExecutiveDialog::updateTargetMachine(QString /*target*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

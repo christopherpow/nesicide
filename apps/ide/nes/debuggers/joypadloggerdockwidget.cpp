@@ -47,7 +47,7 @@ JoypadLoggerDockWidget::~JoypadLoggerDockWidget()
    delete pThread;
 }
 
-void JoypadLoggerDockWidget::updateTargetMachine(QString target)
+void JoypadLoggerDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -72,7 +72,7 @@ void JoypadLoggerDockWidget::changeEvent(QEvent* e)
    }
 }
 
-void JoypadLoggerDockWidget::showEvent(QShowEvent* event)
+void JoypadLoggerDockWidget::showEvent(QShowEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -81,7 +81,7 @@ void JoypadLoggerDockWidget::showEvent(QShowEvent* event)
    pThread->updateDebuggers();
 }
 
-void JoypadLoggerDockWidget::hideEvent(QHideEvent* event)
+void JoypadLoggerDockWidget::hideEvent(QHideEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

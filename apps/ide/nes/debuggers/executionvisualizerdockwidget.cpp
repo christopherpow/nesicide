@@ -59,7 +59,7 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
    delete pThread;
 }
 
-void ExecutionVisualizerDockWidget::updateTargetMachine(QString target)
+void ExecutionVisualizerDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -84,7 +84,7 @@ void ExecutionVisualizerDockWidget::changeEvent(QEvent* event)
    }
 }
 
-void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
+void ExecutionVisualizerDockWidget::showEvent(QShowEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
@@ -98,14 +98,14 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* event)
    pThread->updateDebuggers();
 }
 
-void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* event)
+void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }
 
-void ExecutionVisualizerDockWidget::keyPressEvent(QKeyEvent *event)
+void ExecutionVisualizerDockWidget::keyPressEvent(QKeyEvent */*event*/)
 {
    CMarker* pMarkers = nesGetExecutionMarkerDatabase();
 
@@ -174,7 +174,7 @@ bool ExecutionVisualizerDockWidget::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& /*doc*/, QDomNode& node, QString& /*errors*/)
 {
    CMarker* pMarkers = nesGetExecutionMarkerDatabase();
    int marker;
