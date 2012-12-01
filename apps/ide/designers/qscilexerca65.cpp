@@ -184,7 +184,7 @@ static const char* CA65_mnemonics[] =
    NULL
 };
 
-QsciLexerCA65::QsciLexerCA65(QObject *parent)
+QsciLexerCA65::QsciLexerCA65(QObject */*parent*/)
 {
    QString regex;
    int rc;
@@ -434,12 +434,12 @@ QColor QsciLexerCA65::defaultPaper() const
    return QColor(255,255,255);
 }
 
-QColor QsciLexerCA65::defaultPaper(int style) const
+QColor QsciLexerCA65::defaultPaper(int /*style*/) const
 {
    return QsciLexer::defaultPaper();
 }
 
-QColor QsciLexerCA65::paper(int style) const
+QColor QsciLexerCA65::paper(int /*style*/) const
 {
    return QsciLexer::defaultPaper();
 }

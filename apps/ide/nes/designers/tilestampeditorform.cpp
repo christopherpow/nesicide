@@ -428,22 +428,22 @@ void TileStampEditorForm::changeEvent(QEvent* event)
    }
 }
 
-void TileStampEditorForm::showEvent(QShowEvent *event)
+void TileStampEditorForm::showEvent(QShowEvent */*event*/)
 {
    emit addStatusBarWidget(ui->info);
    ui->info->show();
 }
 
-void TileStampEditorForm::hideEvent(QHideEvent *event)
+void TileStampEditorForm::hideEvent(QHideEvent */*event*/)
 {
    emit removeStatusBarWidget(ui->info);
 }
 
-void TileStampEditorForm::contextMenuEvent(QContextMenuEvent *event)
+void TileStampEditorForm::contextMenuEvent(QContextMenuEvent */*event*/)
 {
 }
 
-void TileStampEditorForm::resizeEvent(QResizeEvent* event)
+void TileStampEditorForm::resizeEvent(QResizeEvent* /*event*/)
 {
    updateScrollbars();
 }
@@ -540,7 +540,7 @@ void TileStampEditorForm::onSave()
    }
 }
 
-void TileStampEditorForm::renderer_enterEvent(QEvent *event)
+void TileStampEditorForm::renderer_enterEvent(QEvent */*event*/)
 {
    int pixx;
    int pixy;
@@ -554,7 +554,7 @@ void TileStampEditorForm::renderer_enterEvent(QEvent *event)
    }
 }
 
-void TileStampEditorForm::renderer_leaveEvent(QEvent *event)
+void TileStampEditorForm::renderer_leaveEvent(QEvent */*event*/)
 {
    if ( (m_activeTool == ui->pencilTool) ||
         (m_activeTool == ui->paintAttr) )
@@ -566,7 +566,7 @@ void TileStampEditorForm::renderer_leaveEvent(QEvent *event)
    updateInfoText();
 }
 
-void TileStampEditorForm::renderer_mouseDoubleClickEvent(QMouseEvent *event)
+void TileStampEditorForm::renderer_mouseDoubleClickEvent(QMouseEvent */*event*/)
 {
 }
 
@@ -731,19 +731,19 @@ void TileStampEditorForm::on_zoomSlider_valueChanged(int value)
    updateScrollbars();
 }
 
-void TileStampEditorForm::on_horizontalScrollBar_valueChanged(int value)
+void TileStampEditorForm::on_horizontalScrollBar_valueChanged(int /*value*/)
 {
    renderer->setScrollX(ui->horizontalScrollBar->value());
    renderer->repaint();
 }
 
-void TileStampEditorForm::on_verticalScrollBar_valueChanged(int value)
+void TileStampEditorForm::on_verticalScrollBar_valueChanged(int /*value*/)
 {
    renderer->setScrollY(ui->verticalScrollBar->value());
    renderer->repaint();
 }
 
-void TileStampEditorForm::xSize_currentIndexChanged(int index)
+void TileStampEditorForm::xSize_currentIndexChanged(int /*index*/)
 {
    int oldXSize = m_xSize;
    int oldYSize = m_ySize;
@@ -758,7 +758,7 @@ void TileStampEditorForm::xSize_currentIndexChanged(int index)
    setModified(true);
 }
 
-void TileStampEditorForm::ySize_currentIndexChanged(int index)
+void TileStampEditorForm::ySize_currentIndexChanged(int /*index*/)
 {
    int oldXSize = m_xSize;
    int oldYSize = m_ySize;
@@ -1047,7 +1047,7 @@ void TileStampEditorForm::on_paintAttr_clicked()
    clearSelection();
 }
 
-void TileStampEditorForm::tileSelected(QModelIndex index)
+void TileStampEditorForm::tileSelected(QModelIndex /*index*/)
 {
    if ( ui->paintTool->isChecked() )
    {
@@ -1101,7 +1101,7 @@ void TileStampEditorForm::tileSelected(QModelIndex index)
    clearSelection();
 }
 
-void TileStampEditorForm::colorPicked(bool value)
+void TileStampEditorForm::colorPicked(bool /*value*/)
 {
    int idx;
 
@@ -3256,7 +3256,7 @@ int TileStampEditorForm::getSelectedColor()
    return selectedColor;
 }
 
-void TileStampEditorForm::tilePropertyListModel_dataChanged(QModelIndex topLeft,QModelIndex bottomRight)
+void TileStampEditorForm::tilePropertyListModel_dataChanged(QModelIndex /*topLeft*/,QModelIndex /*bottomRight*/)
 {
    m_tileProperties = tilePropertyListModel->getItems();
    emit markProjectDirty(true);
@@ -3277,7 +3277,7 @@ TileStampPaintCommand::TileStampPaintCommand(TileStampEditorForm *pEditor,
    m_newAttributeData = m_pEditor->attributeData();
 }
 
-bool TileStampPaintCommand::mergeWith(const QUndoCommand* command)
+bool TileStampPaintCommand::mergeWith(const QUndoCommand* /*command*/)
 {
    return false;
 }
@@ -3307,7 +3307,7 @@ TileStampResizeCommand::TileStampResizeCommand(TileStampEditorForm *pEditor,
    m_pEditor->currentSize(&m_newXSize,&m_newYSize);
 }
 
-bool TileStampResizeCommand::mergeWith(const QUndoCommand* command)
+bool TileStampResizeCommand::mergeWith(const QUndoCommand* /*command*/)
 {
    return false;
 }

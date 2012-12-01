@@ -74,7 +74,7 @@ public slots:
    void resetEmulator ();
    void startEmulation ();
    void pauseEmulation (bool show);
-   void pauseEmulationAfter (int32_t frames) {}
+   void pauseEmulationAfter (int32_t /*frames*/) {}
    void stepCPUEmulation ();
    void stepOverCPUEmulation ();
    void stepOutCPUEmulation ();

@@ -216,7 +216,7 @@ CodeEditorForm::~CodeEditorForm()
    delete m_scintilla;
 }
 
-void CodeEditorForm::updateTargetMachine(QString target)
+void CodeEditorForm::updateTargetMachine(QString /*target*/)
 {
 }
 
@@ -430,13 +430,13 @@ void CodeEditorForm::timerEvent(QTimerEvent *event)
    }
 }
 
-void CodeEditorForm::showEvent(QShowEvent *event)
+void CodeEditorForm::showEvent(QShowEvent */*event*/)
 {
    emit addStatusBarWidget(info);
    info->show();
 }
 
-void CodeEditorForm::hideEvent(QHideEvent *event)
+void CodeEditorForm::hideEvent(QHideEvent */*event*/)
 {
    emit removeStatusBarWidget(info);
 }
@@ -630,7 +630,7 @@ void CodeEditorForm::editor_linesChanged()
    }
 }
 
-void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
+void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers /*modifiers*/)
 {
    int bp;
    int addr = 0;

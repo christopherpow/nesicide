@@ -28,7 +28,7 @@ public:
    virtual void closeItemEvent();
    virtual bool exportData() { return true; }
    virtual bool canChangeName() { return false; }
-   virtual bool onNameChanged(QString newValue) { return true; }
+   virtual bool onNameChanged(QString /*newValue*/) { return true; }
    virtual void saveItemEvent() {}
 
 protected:

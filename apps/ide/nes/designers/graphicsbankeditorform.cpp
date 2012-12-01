@@ -103,7 +103,7 @@ bool GraphicsBankEditorForm::eventFilter(QObject* obj,QEvent* event)
    return false;
 }
 
-void GraphicsBankEditorForm::renderer_enterEvent(QEvent *event)
+void GraphicsBankEditorForm::renderer_enterEvent(QEvent */*event*/)
 {
    int pixx;
    int pixy;
@@ -117,12 +117,12 @@ void GraphicsBankEditorForm::renderer_enterEvent(QEvent *event)
    }
 }
 
-void GraphicsBankEditorForm::renderer_leaveEvent(QEvent *event)
+void GraphicsBankEditorForm::renderer_leaveEvent(QEvent */*event*/)
 {
    updateInfoText();
 }
 
-void GraphicsBankEditorForm::renderer_mouseMoveEvent(QMouseEvent *event)
+void GraphicsBankEditorForm::renderer_mouseMoveEvent(QMouseEvent */*event*/)
 {
    int pixx;
    int pixy;
@@ -316,13 +316,13 @@ void GraphicsBankEditorForm::snapTo(QString item)
    }
 }
 
-void GraphicsBankEditorForm::showEvent(QShowEvent *event)
+void GraphicsBankEditorForm::showEvent(QShowEvent */*event*/)
 {
    emit addStatusBarWidget(info);
    info->show();
 }
 
-void GraphicsBankEditorForm::hideEvent(QHideEvent *event)
+void GraphicsBankEditorForm::hideEvent(QHideEvent */*event*/)
 {
    emit removeStatusBarWidget(info);
 }
@@ -364,7 +364,7 @@ void GraphicsBankEditorForm::updateInfoText(int x, int y)
    }
 }
 
-void GraphicsBankEditorForm::applyChangesToTab(QString uuid)
+void GraphicsBankEditorForm::applyChangesToTab(QString /*uuid*/)
 {
    updateChrRomBankItemList(bankItems());
 }

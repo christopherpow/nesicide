@@ -30,7 +30,7 @@ public:
    virtual QString description(int style) const;
    virtual void styleText(int start,int end);
 
-   virtual bool eolFill(int style) const { return true; }
+   virtual bool eolFill(int /*style*/) const { return true; }
 
    virtual QColor defaultColor() const;
    virtual QColor defaultColor(int style) const;

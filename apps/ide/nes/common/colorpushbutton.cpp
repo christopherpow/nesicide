@@ -7,7 +7,7 @@ ColorPushButton::ColorPushButton(QWidget *parent) :
 {
 }
 
-void ColorPushButton::paintEvent(QPaintEvent *event)
+void ColorPushButton::paintEvent(QPaintEvent */*event*/)
 {
    QPainter p(this);
    int w = width();       // width of cell in pixels
