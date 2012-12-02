@@ -157,6 +157,10 @@ public:
    {
       return PRGROM(addr);
    }
+   static uint16_t AMPLITUDE ( void )
+   {
+      return 0; // soundless...
+   }
 
    // Code/Data logger support functions
    static inline CCodeDataLogger* LOGGERVIRT ( uint32_t addr )

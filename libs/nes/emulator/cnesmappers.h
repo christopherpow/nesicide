@@ -8,7 +8,7 @@ typedef uint32_t (*MAPPERRFUNC)(uint32_t addr);
 typedef void (*MAPPERWFUNC)(uint32_t addr, uint8_t data);
 typedef void (*SYNCPPUFUNC)(uint32_t ppuCycle, uint32_t ppuAddr);
 typedef void (*SYNCCPUFUNC)(void);
-
+typedef uint16_t (*SOUNDFUNC)(void);
 typedef struct _MapperFuncs
 {
    RESETFUNC reset;
@@ -19,6 +19,7 @@ typedef struct _MapperFuncs
    SYNCPPUFUNC sync_ppu;
    SYNCCPUFUNC sync_cpu;
    MAPPERRFUNC debuginfo;
+   SOUNDFUNC   amplitude;
    bool     remapPrg;
    bool     remapChr;
 } MapperFuncs;

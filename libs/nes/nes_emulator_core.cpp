@@ -450,7 +450,7 @@ void nesResetInitial ( uint32_t mapper )
    CNES::RESET(mapper,false);
 }
 
-void nesRun ( uint8_t* joypads )
+void nesRun ( uint32_t* joypads )
 {
    CNES::RUN(joypads);
 }

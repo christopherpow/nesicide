@@ -98,5 +98,6 @@
         <file>resources/RR_shape_circle_hollow.png</file>
         <file>resources/pen.png</file>
         <file>resources/Makefile</file>
+        <file>resources/turbo_ver01_by_ogr.png</file>
     </qresource>
 </RCC>

@@ -393,6 +393,12 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
    if ( m_irqEnabled && (m_irqStatus&0x80) )
    {
       C6502::ASSERTIRQ ( eNESSource_Mapper );
+
+      if ( nesIsDebuggable() )
+      {
+         // Check for IRQ breakpoint...
+         CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+      }
    }
 }
 

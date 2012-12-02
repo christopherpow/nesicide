@@ -355,6 +355,7 @@ enum
 {
    IO_Disconnected = 0,
    IO_StandardJoypad,
+   IO_TurboJoypad,
    IO_Zapper,
    IO_Vaus
 };
@@ -371,6 +372,22 @@ enum
    IO_StandardJoypad_B,
    IO_StandardJoypad_A,
    IO_StandardJoypad_MAX
+};
+
+// Turbo Joypad keymap enum
+enum
+{
+   IO_TurboJoypad_LEFT = 0,
+   IO_TurboJoypad_RIGHT,
+   IO_TurboJoypad_UP,
+   IO_TurboJoypad_DOWN,
+   IO_TurboJoypad_SELECT,
+   IO_TurboJoypad_START,
+   IO_TurboJoypad_B,
+   IO_TurboJoypad_A,
+   IO_TurboJoypad_BTURBO,
+   IO_TurboJoypad_ATURBO,
+   IO_TurboJoypad_MAX
 };
 
 // Zapper keymap enum
@@ -403,6 +420,10 @@ enum
 #define JOY_DOWN   0x20
 #define JOY_LEFT   0x40
 #define JOY_RIGHT  0x80
+
+// Turbo joypad interface (extends standard joypad interface)
+#define JOY_ATURBO 0x100
+#define JOY_BTURBO 0x200
 
 // Zapper interface
 #define ZAPPER_DETECT  0x08
@@ -482,7 +503,7 @@ void nesSetFourScreen ( void );
 void nesLoadROM ( void );
 void nesResetInitial ( uint32_t mapper );
 void nesReset ( bool soft );
-void nesRun ( uint8_t* joypads );
+void nesRun ( uint32_t* joypads );
 int32_t nesGetAudioSamplesAvailable ( void );
 void nesClearAudioSamplesAvailable ( void );
 uint8_t* nesGetAudioSamples ( uint16_t samples );

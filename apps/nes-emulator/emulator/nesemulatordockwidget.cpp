@@ -30,10 +30,10 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    ui->frame->layout()->update();
 
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
-   QObject::connect(this,SIGNAL(controllerInput(uint8_t*)),emulator,SLOT(controllerInput(uint8_t*)));
+   QObject::connect(this,SIGNAL(controllerInput(uint32_t*)),emulator,SLOT(controllerInput(uint32_t*)));
 
-   m_joy [ CONTROLLER1 ] = 0x00;
-   m_joy [ CONTROLLER2 ] = 0x00;
+   m_joy [ CONTROLLER1 ] = 0;
+   m_joy [ CONTROLLER2 ] = 0;
 
    // Clear image to set alpha channel...
    for ( i = 0; i < 256*256*4; i+=4 )
@@ -144,7 +144,19 @@ void NESEmulatorDockWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
 {
-   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_StandardJoypad )
+   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_TurboJoypad )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_TurboJoypad_ATURBO) )
+      {
+         m_joy [ CONTROLLER1 ] |= JOY_ATURBO;
+      }
+      else if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_TurboJoypad_BTURBO) )
+      {
+         m_joy [ CONTROLLER1 ] |= JOY_BTURBO;
+      }
+   }
+   if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_StandardJoypad) ||
+        (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_TurboJoypad) )
    {
       if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_LEFT) )
       {
@@ -194,7 +206,19 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
       }
    }
 
-   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_StandardJoypad )
+   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_TurboJoypad )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_TurboJoypad_ATURBO) )
+      {
+         m_joy [ CONTROLLER2 ] |= JOY_ATURBO;
+      }
+      else if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_TurboJoypad_BTURBO) )
+      {
+         m_joy [ CONTROLLER2 ] |= JOY_BTURBO;
+      }
+   }
+   if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_StandardJoypad) ||
+        (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_TurboJoypad) )
    {
       if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_LEFT) )
       {
@@ -251,7 +275,19 @@ void NESEmulatorDockWidget::keyPressEvent(QKeyEvent* event)
 
 void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 {
-   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_StandardJoypad )
+   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_TurboJoypad )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_TurboJoypad_ATURBO) )
+      {
+         m_joy [ CONTROLLER1 ] &= (~JOY_ATURBO);
+      }
+      else if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_TurboJoypad_BTURBO) )
+      {
+         m_joy [ CONTROLLER1 ] &= (~JOY_BTURBO);
+      }
+   }
+   if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_StandardJoypad) ||
+        (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_TurboJoypad) )
    {
       if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER1,IO_StandardJoypad_LEFT) )
       {
@@ -301,7 +337,19 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
       }
    }
 
-   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_StandardJoypad )
+   if ( EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_TurboJoypad )
+   {
+      if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_TurboJoypad_ATURBO) )
+      {
+         m_joy [ CONTROLLER2 ] &= (~JOY_ATURBO);
+      }
+      else if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_TurboJoypad_BTURBO) )
+      {
+         m_joy [ CONTROLLER2 ] &= (~JOY_BTURBO);
+      }
+   }
+   if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_StandardJoypad) ||
+        (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_TurboJoypad) )
    {
       if ( event->key() == EmulatorPrefsDialog::getControllerKeyMap(CONTROLLER2,IO_StandardJoypad_LEFT) )
       {

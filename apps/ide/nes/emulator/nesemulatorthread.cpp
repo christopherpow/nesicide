@@ -89,8 +89,8 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
 {
-   m_joy [ CONTROLLER1 ] = 0x00;
-   m_joy [ CONTROLLER2 ] = 0x00;
+   m_joy [ CONTROLLER1 ] = 0;
+   m_joy [ CONTROLLER2 ] = 0;
    m_isRunning = false;
    m_isPaused = false;
    m_showOnPause = false;
@@ -553,8 +553,8 @@ void NESEmulatorThread::run ()
       if ( m_isResetting )
       {
          // Reset emulated I/O devices...
-         m_joy [ CONTROLLER1 ] = 0x00;
-         m_joy [ CONTROLLER2 ] = 0x00;
+         m_joy [ CONTROLLER1 ] = 0;
+         m_joy [ CONTROLLER2 ] = 0;
 
          // Reset NES...
          nesReset(m_isSoftReset);

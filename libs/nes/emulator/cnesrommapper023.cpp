@@ -179,6 +179,12 @@ void CROMMapper023::SYNCCPU ( void )
          {
             m_irqCounter = m_irqReload;
             C6502::ASSERTIRQ(eNESSource_Mapper);
+
+            if ( nesIsDebuggable() )
+            {
+               // Check for IRQ breakpoint...
+               CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+            }
          }
          else
          {
@@ -199,6 +205,12 @@ void CROMMapper023::SYNCCPU ( void )
             {
                m_irqCounter = m_irqReload;
                C6502::ASSERTIRQ(eNESSource_Mapper);
+
+               if ( nesIsDebuggable() )
+               {
+                  // Check for IRQ breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+               }
             }
             else
             {
@@ -530,10 +542,10 @@ void CROMMapper023::HMAPPER ( uint32_t addr, uint8_t data )
       reg = 22;
       m_reg[22] = data;
       C6502::RELEASEIRQ(eNESSource_Mapper);
-      if ( m_reg[21]&0x01 )
+      m_reg[21] &= 0xFD;
+      m_reg[21] |= ((m_reg[21]&0x01)<<1);
+      if ( m_reg[21]&0x02 )
       {
-         m_reg[21] |= 0x02;
-         m_reg[21] &= 0xFE;
          m_irqEnabled = true;
       }
       else

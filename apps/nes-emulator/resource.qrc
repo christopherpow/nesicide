@@ -13,5 +13,6 @@
         <file>resources/stock_media-pause.png</file>
         <file>resources/stock_media-play.png</file>
         <file>resources/stock_media-stop.png</file>
+        <file>resources/turbo_ver01_by_ogr.png</file>
     </qresource>
 </RCC>

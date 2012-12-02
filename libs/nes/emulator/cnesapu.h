@@ -119,8 +119,6 @@ public:
    // These routines deal with averaging the DAC value over time.
    inline void CLEARDACAVG ( void )
    {
-      // Put the averaged DAC value in as the first sample to provide
-      // continuity of sample averaging between windows.
       m_dacSamples = 0;
    }
    inline uint8_t* GETDACSAMPLES ( void ) { return m_dacAverage; }

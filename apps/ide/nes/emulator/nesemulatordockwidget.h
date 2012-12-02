@@ -31,13 +31,13 @@ protected:
    void keyReleaseEvent(QKeyEvent* event);
 
 signals:
-   void controllerInput(uint8_t* joy);
+   void controllerInput(uint32_t* joy);
 
 private:
    Ui::NESEmulatorDockWidget *ui;
    CNESEmulatorRenderer* renderer;
    char* imgData;
-   unsigned char m_joy [ NUM_CONTROLLERS ];
+   uint32_t m_joy [ NUM_CONTROLLERS ];
    QRect ncRect;
 
 private slots:

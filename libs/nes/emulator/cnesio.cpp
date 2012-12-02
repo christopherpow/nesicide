@@ -20,25 +20,20 @@
 #include "cnes6502.h"
 
 // Default IO implementation stuff
-uint8_t   CIO::m_ioJoy [] = { 0x00, 0x00 };
+uint32_t   CIO::m_ioJoy [] = { 0x00, 0x00 };
 
 // Standard joypad stuff
 uint8_t   CIOStandardJoypad::m_ioJoyLatch [] = { 0x00, 0x00 };
 uint8_t   CIOStandardJoypad::m_last4016 = 0x00;
 CJoypadLogger  CIOStandardJoypad::m_logger [ NUM_CONTROLLERS ];
 
+// Turbo joypad stuff
+uint8_t   CIOTurboJoypad::m_alternator [][2] = { { 0, 0 }, { 0, 0 } };
+
 // Vaus Arkanoid pad stuff
 uint8_t   CIOVaus::m_ioPotLatch [] = { 0x00, 0x00 };
 uint8_t   CIOVaus::m_last4016 = 0x00;
 uint8_t   CIOVaus::m_trimPot [] = { 0x54, 0x54 };
-
-CIO::CIO()
-{
-}
-
-CIO::~CIO()
-{
-}
 
 uint32_t CIO::IO ( uint32_t addr )
 {
@@ -86,14 +81,6 @@ void CIO::_IO ( uint32_t addr, uint8_t data )
 {
    // No effect.
    return;
-}
-
-CIOStandardJoypad::CIOStandardJoypad()
-{
-}
-
-CIOStandardJoypad::~CIOStandardJoypad()
-{
 }
 
 uint32_t CIOStandardJoypad::IO ( uint32_t addr )
@@ -170,12 +157,93 @@ void CIOStandardJoypad::_IO ( uint32_t addr, uint8_t data )
    }
 }
 
-CIOZapper::CIOZapper()
+void CIOTurboJoypad::IO ( uint32_t addr, uint8_t data )
 {
+   switch ( addr )
+   {
+      case IOJOY1:
+
+         if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
+         {
+            *(m_ioJoyLatch+CONTROLLER1) = (uint8_t)(*(m_ioJoy+CONTROLLER1))&0xFF;
+            *(m_ioJoyLatch+CONTROLLER2) = (uint8_t)(*(m_ioJoy+CONTROLLER2))&0xFF;
+
+            if ( m_ioJoy[CONTROLLER1]&JOY_ATURBO )
+            {
+               m_alternator[CONTROLLER1][0] = !m_alternator[CONTROLLER1][0];
+               *(m_ioJoyLatch+CONTROLLER1) &= JOY_A;
+               if ( m_alternator[CONTROLLER1][0] )
+               {
+                  *(m_ioJoyLatch+CONTROLLER1) |= JOY_A;
+               }
+            }
+            if ( m_ioJoy[CONTROLLER1]&JOY_BTURBO )
+            {
+               m_alternator[CONTROLLER1][1] = !m_alternator[CONTROLLER1][1];
+               *(m_ioJoyLatch+CONTROLLER1) &= JOY_B;
+               if ( m_alternator[CONTROLLER1][1] )
+               {
+                  *(m_ioJoyLatch+CONTROLLER1) |= JOY_B;
+               }
+            }
+            if ( m_ioJoy[CONTROLLER2]&JOY_ATURBO )
+            {
+               m_alternator[CONTROLLER2][0] = !m_alternator[CONTROLLER2][0];
+               *(m_ioJoyLatch+CONTROLLER2) &= JOY_A;
+               if ( m_alternator[CONTROLLER2][0] )
+               {
+                  *(m_ioJoyLatch+CONTROLLER2) |= JOY_A;
+               }
+            }
+            if ( m_ioJoy[CONTROLLER2]&JOY_BTURBO )
+            {
+               m_alternator[CONTROLLER2][1] = !m_alternator[CONTROLLER2][1];
+               *(m_ioJoyLatch+CONTROLLER2) &= JOY_B;
+               if ( m_alternator[CONTROLLER2][1] )
+               {
+                  *(m_ioJoyLatch+CONTROLLER2) |= JOY_B;
+               }
+            }
+         }
+
+         m_last4016 = data;
+         break;
+   }
 }
 
-CIOZapper::~CIOZapper()
+uint32_t CIOTurboJoypad::_IO ( uint32_t addr )
 {
+   uint32_t data = 0xFF;
+
+   switch ( addr )
+   {
+      case IOJOY1:
+         data = 0x40|(m_ioJoyLatch[CONTROLLER1]&0x01);
+         break;
+
+      case IOJOY2:
+         data = 0x40|(m_ioJoyLatch[CONTROLLER2]&0x01);
+         break;
+   }
+
+   return data;
+}
+
+void CIOTurboJoypad::_IO ( uint32_t addr, uint8_t data )
+{
+   switch ( addr )
+   {
+      case IOJOY1:
+
+         if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
+         {
+            *(m_ioJoyLatch+CONTROLLER1) = *(m_ioJoy+CONTROLLER1);
+            *(m_ioJoyLatch+CONTROLLER2) = *(m_ioJoy+CONTROLLER2);
+         }
+
+         m_last4016 = data;
+         break;
+   }
 }
 
 uint32_t CIOZapper::IO ( uint32_t addr )
@@ -300,14 +368,6 @@ uint32_t CIOZapper::_IO ( uint32_t addr )
 void CIOZapper::_IO ( uint32_t addr, uint8_t data )
 {
    // Writes to zapper have no effect...
-}
-
-CIOVaus::CIOVaus()
-{
-}
-
-CIOVaus::~CIOVaus()
-{
 }
 
 uint32_t CIOVaus::IO ( uint32_t addr )

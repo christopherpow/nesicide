@@ -31,7 +31,7 @@ protected:
    void keyReleaseEvent(QKeyEvent* event);
 
 signals:
-   void controllerInput(uint8_t* joy);
+   void controllerInput(uint32_t* joy);
 
 private:
    Ui::NESEmulatorDockWidget *ui;
@@ -39,7 +39,7 @@ private:
    QWidget* fakeTitleBar;
    QWidget* savedTitleBar;
    char* imgData;
-   unsigned char m_joy [ NUM_CONTROLLERS ];
+   uint32_t m_joy [ NUM_CONTROLLERS ];
 
 private slots:
    void renderData();

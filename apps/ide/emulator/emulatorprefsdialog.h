@@ -2,6 +2,7 @@
 #define EMULATORPREFSDIALOG_H
 
 #include <QDialog>
+#include <QMap>
 
 #include "nes_emulator_core.h"
 
@@ -70,6 +71,7 @@ public:
 
 private:
    Ui::EmulatorPrefsDialog* ui;
+   QMap<QString,QWidget*> controllerPageMap;
    QString m_targetLoaded;
 
    // Interface to store values to QSettings from local storage.
@@ -81,6 +83,7 @@ private:
    // NES settings data structures.
    static int controllerType[NUM_CONTROLLERS];
    static int standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
+   static int turboJoypadKeyMap[NUM_CONTROLLERS][IO_TurboJoypad_MAX];
    static int zapperKeyMap[NUM_CONTROLLERS][IO_Zapper_MAX];
    static bool zapperMouseMap[NUM_CONTROLLERS][IO_Zapper_MAX];
    static int vausArkanoidKeyMap[NUM_CONTROLLERS][IO_Vaus_MAX];

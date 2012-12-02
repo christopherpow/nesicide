@@ -13,6 +13,7 @@ public:
    static void HMAPPER ( uint32_t addr, uint8_t data );
    static void SYNCCPU ( void );
    static uint32_t DEBUGINFO ( uint32_t addr );
+   static uint16_t AMPLITUDE ( void );
 
 protected:
    // VRC2+VRC4
