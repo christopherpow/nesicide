@@ -49,6 +49,7 @@ public:
    static uint32_t _IO ( uint32_t addr );
 
 protected:
+   static uint32_t m_lastFrame;
    static uint8_t m_alternator [ NUM_CONTROLLERS ][ 2 ];
 };
 

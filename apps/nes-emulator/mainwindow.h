@@ -73,6 +73,9 @@ private slots:
    void on_actionNTSC_triggered();
    void on_actionOpen_triggered();
    void on_actionExit_triggered();
+   void on_actionSawtoothVRC6_toggled(bool arg1);
+   void on_actionPulse_2VRC6_toggled(bool arg1);
+   void on_actionPulse_1VRC6_toggled(bool arg1);
 };
 
 #endif // MAINWINDOW_H

@@ -549,6 +549,15 @@ void MainWindow::createNesUi()
    actionDelta_Modulation = new QAction("DMC",this);
    actionDelta_Modulation->setObjectName(QString::fromUtf8("actionDelta_Modulation"));
    actionDelta_Modulation->setCheckable(true);
+   actionPulse_1VRC6 = new QAction("Pulse 1",this);
+   actionPulse_1VRC6->setObjectName(QString::fromUtf8("actionPulse_1VRC6"));
+   actionPulse_1VRC6->setCheckable(true);
+   actionPulse_2VRC6 = new QAction("Pulse 2",this);
+   actionPulse_2VRC6->setObjectName(QString::fromUtf8("actionPulse_2VRC6"));
+   actionPulse_2VRC6->setCheckable(true);
+   actionSawtoothVRC6 = new QAction("Sawtooth",this);
+   actionSawtoothVRC6->setObjectName(QString::fromUtf8("actionTriangle"));
+   actionSawtoothVRC6->setCheckable(true);
    actionRun_Test_Suite = new QAction("Run Test Suite",this);
    actionRun_Test_Suite->setObjectName(QString::fromUtf8("actionRun_Test_Suite"));
    action1x = new QAction("1x",this);
@@ -598,6 +607,8 @@ void MainWindow::createNesUi()
    menuSystem->setObjectName(QString::fromUtf8("menuSystem"));
    menuAudio = new QMenu("Audio",menuEmulator);
    menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
+   menuAudioVRC6 = new QMenu("VRC6",menuAudio);
+   menuAudioVRC6->setObjectName(QString::fromUtf8("menuAudioVRC6"));
    menuVideo = new QMenu("Video",menuEmulator);
    menuVideo->setObjectName(QString::fromUtf8("menuVideo"));
    menuVideo->addAction(action1x);
@@ -660,6 +671,10 @@ void MainWindow::createNesUi()
    menuAudio->addAction(actionTriangle);
    menuAudio->addAction(actionNoise);
    menuAudio->addAction(actionDelta_Modulation);
+   menuAudio->addAction(menuAudioVRC6->menuAction());
+   menuAudioVRC6->addAction(actionPulse_1VRC6);
+   menuAudioVRC6->addAction(actionPulse_2VRC6);
+   menuAudioVRC6->addAction(actionSawtoothVRC6);
    menuView->addSeparator();
    menuView->addAction(actionEmulation_Window);
 
@@ -933,6 +948,9 @@ void MainWindow::createNesUi()
    QObject::connect(actionTriangle,SIGNAL(toggled(bool)),this,SLOT(actionTriangle_toggled(bool)));
    QObject::connect(actionNoise,SIGNAL(toggled(bool)),this,SLOT(actionNoise_toggled(bool)));
    QObject::connect(actionDelta_Modulation,SIGNAL(toggled(bool)),this,SLOT(actionDelta_Modulation_toggled(bool)));
+   QObject::connect(actionPulse_1VRC6,SIGNAL(toggled(bool)),this,SLOT(actionPulse_1VRC6_toggled(bool)));
+   QObject::connect(actionPulse_2VRC6,SIGNAL(toggled(bool)),this,SLOT(actionPulse_2VRC6_toggled(bool)));
+   QObject::connect(actionSawtoothVRC6,SIGNAL(toggled(bool)),this,SLOT(actionSawtoothVRC6_toggled(bool)));
    QObject::connect(actionPAL,SIGNAL(triggered()),this,SLOT(actionPAL_triggered()));
    QObject::connect(actionNTSC,SIGNAL(triggered()),this,SLOT(actionNTSC_triggered()));
    QObject::connect(actionDendy,SIGNAL(triggered()),this,SLOT(actionDendy_triggered()));
@@ -1102,6 +1120,9 @@ void MainWindow::destroyNesUi()
    delete actionTriangle;
    delete actionNoise;
    delete actionDelta_Modulation;
+   delete actionPulse_1VRC6;
+   delete actionPulse_2VRC6;
+   delete actionSawtoothVRC6;
    delete actionRun_Test_Suite;
    delete menuCPU_Inspectors;
    delete menuAPU_Inpsectors;
@@ -1109,6 +1130,7 @@ void MainWindow::destroyNesUi()
    delete menuI_O_Inspectors;
    delete menuCartridge_Inspectors;
    delete menuSystem;
+   delete menuAudioVRC6;
    delete menuAudio;
    delete debuggerToolBar;
 
@@ -2723,6 +2745,54 @@ void MainWindow::actionSquare_1_toggled(bool value)
    }
 }
 
+void MainWindow::actionSawtoothVRC6_toggled(bool value)
+{
+   EmulatorPrefsDialog::setSawtoothVRC6Enabled(value);
+   if ( value )
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 (EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
+                                 0x04);
+   }
+   else
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 (EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1));
+   }
+}
+
+void MainWindow::actionPulse_2VRC6_toggled(bool value)
+{
+   EmulatorPrefsDialog::setPulse2VRC6Enabled(value);
+   if ( value )
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 0x02|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+   else
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+}
+
+void MainWindow::actionPulse_1VRC6_toggled(bool value)
+{
+   EmulatorPrefsDialog::setPulse1VRC6Enabled(value);
+   if ( value )
+   {
+      nesSetVRC6AudioChannelMask(0x01|
+                                 (EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+   else
+   {
+      nesSetVRC6AudioChannelMask((EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+}
+
 void MainWindow::on_actionEnvironment_Settings_triggered()
 {
    EnvironmentSettingsDialog dlg;
@@ -2755,7 +2825,7 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
       bool noise = EmulatorPrefsDialog::getNoiseEnabled();
       bool dmc = EmulatorPrefsDialog::getDMCEnabled();
-      int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+      uint32_t mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
       actionSquare_1->setChecked(square1);
       actionSquare_2->setChecked(square2);
@@ -2763,6 +2833,16 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       actionNoise->setChecked(noise);
       actionDelta_Modulation->setChecked(dmc);
       nesSetAudioChannelMask(mask);
+
+      bool pulse1VRC6 = EmulatorPrefsDialog::getPulse1VRC6Enabled();
+      bool pulse2VRC6 = EmulatorPrefsDialog::getPulse2VRC6Enabled();
+      bool sawtoothVRC6 = EmulatorPrefsDialog::getSawtoothVRC6Enabled();
+      mask = ((pulse1VRC6<<0)|(pulse2VRC6<<1)|(sawtoothVRC6<<2));
+
+      actionPulse_1VRC6->setChecked(pulse1VRC6);
+      actionPulse_2VRC6->setChecked(pulse2VRC6);
+      actionSawtoothVRC6->setChecked(sawtoothVRC6);
+      nesSetVRC6AudioChannelMask(mask);
    }
 
    if ( initial || EmulatorPrefsDialog::videoSettingsChanged() )

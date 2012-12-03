@@ -124,6 +124,7 @@ protected:
    QMenu *menuCartridge_Inspectors;
    QMenu *menuSystem;
    QMenu *menuAudio;
+   QMenu *menuAudioVRC6;
    QMenu *menuVideo;
    QAction *actionEmulation_Window;
    QAction *actionGfxCHRMemory_Inspector;
@@ -154,6 +155,9 @@ protected:
    QAction *actionTriangle;
    QAction *actionNoise;
    QAction *actionDelta_Modulation;
+   QAction *actionPulse_1VRC6;
+   QAction *actionPulse_2VRC6;
+   QAction *actionSawtoothVRC6;
    QAction *actionRun_Test_Suite;
    QAction *action1x;
    QAction *action1_5x;
@@ -265,6 +269,9 @@ private slots:
    void actionTriangle_toggled(bool );
    void actionNoise_toggled(bool );
    void actionDelta_Modulation_toggled(bool );
+   void actionPulse_1VRC6_toggled(bool );
+   void actionPulse_2VRC6_toggled(bool );
+   void actionSawtoothVRC6_toggled(bool );
    void actionPAL_triggered();
    void actionNTSC_triggered();
    void actionDendy_triggered();

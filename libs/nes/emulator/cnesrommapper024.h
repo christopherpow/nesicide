@@ -15,6 +15,12 @@ struct VRC6PulseChannel
    uint8_t  dacAverage[100];
    uint8_t  dac;
    uint8_t  dacSamples;
+   bool     muted;
+
+   VRC6PulseChannel()
+   {
+      muted = false;
+   }
 
    void RESET()
    {
@@ -80,6 +86,12 @@ struct VRC6SawtoothChannel
    uint8_t  dacAverage[100];
    uint8_t  dac;
    uint8_t  dacSamples;
+   bool     muted;
+
+   VRC6SawtoothChannel()
+   {
+      muted = false;
+   }
 
    void RESET()
    {
@@ -142,6 +154,12 @@ public:
    static void SYNCCPU ( void );
    static uint32_t DEBUGINFO ( uint32_t addr );
    static uint16_t AMPLITUDE ( void );
+   static void SOUNDENABLE ( uint32_t mask )
+   {
+      m_pulse[0].muted = !(mask&0x01);
+      m_pulse[1].muted = !(mask&0x02);
+      m_sawtooth.muted = !(mask&0x04);
+   }
 
 protected:
    // VRC6

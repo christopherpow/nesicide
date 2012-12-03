@@ -31,6 +31,9 @@ bool EmulatorPrefsDialog::square2Enabled;
 bool EmulatorPrefsDialog::triangleEnabled;
 bool EmulatorPrefsDialog::noiseEnabled;
 bool EmulatorPrefsDialog::dmcEnabled;
+bool EmulatorPrefsDialog::pulse1VRC6Enabled;
+bool EmulatorPrefsDialog::pulse2VRC6Enabled;
+bool EmulatorPrefsDialog::sawtoothVRC6Enabled;
 int EmulatorPrefsDialog::scalingFactor;
 bool EmulatorPrefsDialog::linearInterpolation;
 bool EmulatorPrefsDialog::aspect43;
@@ -74,6 +77,9 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->triangle->setChecked(triangleEnabled);
    ui->noise->setChecked(noiseEnabled);
    ui->dmc->setChecked(dmcEnabled);
+   ui->pulse1VRC6->setChecked(pulse1VRC6Enabled);
+   ui->pulse2VRC6->setChecked(pulse2VRC6Enabled);
+   ui->sawtoothVRC6->setChecked(sawtoothVRC6Enabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
    ui->linearInterpolation->setChecked(linearInterpolation);
@@ -161,6 +167,11 @@ void EmulatorPrefsDialog::readSettings()
    triangleEnabled = settings.value("Triangle",QVariant(true)).toBool();
    noiseEnabled = settings.value("Noise",QVariant(true)).toBool();
    dmcEnabled = settings.value("DMC",QVariant(true)).toBool();
+   settings.beginGroup("VRC6");
+   pulse1VRC6Enabled = settings.value("Pulse1",QVariant(true)).toBool();
+   pulse2VRC6Enabled = settings.value("Pulse2",QVariant(true)).toBool();
+   sawtoothVRC6Enabled = settings.value("Sawtooth",QVariant(true)).toBool();
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
@@ -257,6 +268,12 @@ void EmulatorPrefsDialog::writeSettings()
    {
       audioUpdated = true;
    }
+   if ( (pulse1VRC6Enabled != ui->pulse1VRC6->isChecked()) ||
+        (pulse2VRC6Enabled != ui->pulse2VRC6->isChecked()) ||
+        (sawtoothVRC6Enabled != ui->sawtoothVRC6->isChecked()) )
+   {
+      audioUpdated = true;
+   }
    if ( scalingFactor != ui->scalingFactor->currentIndex() )
    {
       videoUpdated = true;
@@ -341,6 +358,9 @@ void EmulatorPrefsDialog::writeSettings()
    triangleEnabled = ui->triangle->isChecked();
    noiseEnabled = ui->noise->isChecked();
    dmcEnabled = ui->dmc->isChecked();
+   pulse1VRC6Enabled = ui->pulse1VRC6->isChecked();
+   pulse2VRC6Enabled = ui->pulse2VRC6->isChecked();
+   sawtoothVRC6Enabled = ui->sawtoothVRC6->isChecked();
 
    scalingFactor = ui->scalingFactor->currentIndex();
    linearInterpolation = ui->linearInterpolation->isChecked();
@@ -399,6 +419,11 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("Triangle",triangleEnabled);
    settings.setValue("Noise",noiseEnabled);
    settings.setValue("DMC",dmcEnabled);
+   settings.beginGroup("VRC6");
+   settings.setValue("Pulse1",pulse1VRC6Enabled);
+   settings.setValue("Pulse2",pulse2VRC6Enabled);
+   settings.setValue("Sawtooth",sawtoothVRC6Enabled);
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
@@ -729,31 +754,6 @@ void EmulatorPrefsDialog::setTVStandard(int standard)
    settings.endGroup();
 }
 
-bool EmulatorPrefsDialog::getSquare1Enabled()
-{
-   return square1Enabled;
-}
-
-bool EmulatorPrefsDialog::getSquare2Enabled()
-{
-   return square2Enabled;
-}
-
-bool EmulatorPrefsDialog::getTriangleEnabled()
-{
-   return triangleEnabled;
-}
-
-bool EmulatorPrefsDialog::getNoiseEnabled()
-{
-   return noiseEnabled;
-}
-
-bool EmulatorPrefsDialog::getDMCEnabled()
-{
-   return dmcEnabled;
-}
-
 void EmulatorPrefsDialog::setSquare1Enabled(bool enabled)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
@@ -816,6 +816,45 @@ void EmulatorPrefsDialog::setDMCEnabled(bool enabled)
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Audio");
    settings.setValue("DMC",dmcEnabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setPulse1VRC6Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   pulse1VRC6Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
+   settings.setValue("Pulse1",pulse1VRC6Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setPulse2VRC6Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   pulse2VRC6Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
+   settings.setValue("Pulse2",pulse2VRC6Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setSawtoothVRC6Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   sawtoothVRC6Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
+   settings.setValue("Sawtooth",sawtoothVRC6Enabled);
    settings.endGroup();
 }
 

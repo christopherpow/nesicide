@@ -114,11 +114,20 @@
      <property name="title">
       <string>Audio</string>
      </property>
+     <widget class="QMenu" name="menuVRC6">
+      <property name="title">
+       <string>VRC6</string>
+      </property>
+      <addaction name="actionPulse_1VRC6"/>
+      <addaction name="actionPulse_2VRC6"/>
+      <addaction name="actionSawtoothVRC6"/>
+     </widget>
      <addaction name="actionSquare_1"/>
      <addaction name="actionSquare_2"/>
      <addaction name="actionTriangle"/>
      <addaction name="actionNoise"/>
      <addaction name="actionDelta_Modulation"/>
+     <addaction name="menuVRC6"/>
     </widget>
     <widget class="QMenu" name="menuVideo">
      <property name="title">
@@ -336,6 +345,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionPulse_1VRC6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pulse 1</string>
+   </property>
+  </action>
+  <action name="actionPulse_2VRC6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pulse 2</string>
+   </property>
+  </action>
+  <action name="actionSawtoothVRC6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sawtooth</string>
    </property>
   </action>
  </widget>

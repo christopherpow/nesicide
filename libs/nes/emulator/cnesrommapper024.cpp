@@ -508,7 +508,7 @@ void VRC6PulseChannel::TIMERTICK()
       sequencerStep %= 16;
    }
 
-   if ( enabled )
+   if ( enabled && !muted )
    {
       if ( mode )
       {
@@ -560,7 +560,7 @@ void VRC6SawtoothChannel::TIMERTICK()
       }
    }
 
-   if ( enabled )
+   if ( enabled && !muted )
    {
       SETDAC(accumulator>>3);
    }

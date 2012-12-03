@@ -502,6 +502,11 @@ int8_t* nesGetTVOut ( void )
    return CPPU::TV();
 }
 
+void nesSetVRC6AudioChannelMask ( uint32_t mask )
+{
+   mapperfunc[24].soundenable(mask);
+}
+
 void nesSetAudioChannelMask ( uint8_t mask )
 {
    CAPU::MUTE(mask);

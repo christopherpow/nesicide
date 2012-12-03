@@ -1,9 +1,9 @@
 #if !defined ( ROM_MAPPER026_H )
 #define ROM_MAPPER026_H
 
-#include "cnesrom.h"
+#include "cnesrommapper024.h"
 
-class CROMMapper026 : public CROM
+class CROMMapper026 : public CROMMapper024
 {
 public:
    CROMMapper026();
@@ -13,10 +13,9 @@ public:
    static void HMAPPER ( uint32_t addr, uint8_t data );
    static void SYNCCPU ( void );
    static uint32_t DEBUGINFO ( uint32_t addr );
-   static uint16_t AMPLITUDE ( void );
 
 protected:
-   // VRC2+VRC4
+   // VRC6
    static uint8_t  m_reg [ 23 ];
    static uint8_t  m_chr [ 8 ];
    static uint8_t  m_irqReload;

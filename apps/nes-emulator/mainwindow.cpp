@@ -543,7 +543,7 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       bool triangle = EmulatorPrefsDialog::getTriangleEnabled();
       bool noise = EmulatorPrefsDialog::getNoiseEnabled();
       bool dmc = EmulatorPrefsDialog::getDMCEnabled();
-      int mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
+      uint32_t mask = ((square1<<0)|(square2<<1)|(triangle<<2)|(noise<<3)|(dmc<<4));
 
       ui->actionSquare_1->setChecked(square1);
       ui->actionSquare_2->setChecked(square2);
@@ -551,6 +551,16 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       ui->actionNoise->setChecked(noise);
       ui->actionDelta_Modulation->setChecked(dmc);
       nesSetAudioChannelMask(mask);
+
+      bool pulse1VRC6 = EmulatorPrefsDialog::getPulse1VRC6Enabled();
+      bool pulse2VRC6 = EmulatorPrefsDialog::getPulse2VRC6Enabled();
+      bool sawtoothVRC6 = EmulatorPrefsDialog::getSawtoothVRC6Enabled();
+      mask = ((pulse1VRC6<<0)|(pulse2VRC6<<1)|(sawtoothVRC6<<2));
+
+      ui->actionPulse_1VRC6->setChecked(pulse1VRC6);
+      ui->actionPulse_2VRC6->setChecked(pulse2VRC6);
+      ui->actionSawtoothVRC6->setChecked(sawtoothVRC6);
+      nesSetVRC6AudioChannelMask(mask);
    }
 
    if ( initial || EmulatorPrefsDialog::videoSettingsChanged() )
@@ -783,5 +793,53 @@ void MainWindow::on_action4_3_Aspect_toggled(bool )
    case 4:
       ui->action3x->trigger();
       break;
+   }
+}
+
+void MainWindow::on_actionSawtoothVRC6_toggled(bool value)
+{
+   EmulatorPrefsDialog::setSawtoothVRC6Enabled(value);
+   if ( value )
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 (EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
+                                 0x04);
+   }
+   else
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 (EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1));
+   }
+}
+
+void MainWindow::on_actionPulse_2VRC6_toggled(bool value)
+{
+   EmulatorPrefsDialog::setPulse2VRC6Enabled(value);
+   if ( value )
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 0x02|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+   else
+   {
+      nesSetVRC6AudioChannelMask(EmulatorPrefsDialog::getPulse1VRC6Enabled()|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+}
+
+void MainWindow::on_actionPulse_1VRC6_toggled(bool value)
+{
+   EmulatorPrefsDialog::setPulse1VRC6Enabled(value);
+   if ( value )
+   {
+      nesSetVRC6AudioChannelMask(0x01|
+                                 (EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+   else
+   {
+      nesSetVRC6AudioChannelMask((EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
    }
 }

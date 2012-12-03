@@ -557,6 +557,7 @@ void    nesSetPaletteGreenComponent(uint32_t idx,uint32_t g);
 void    nesSetPaletteBlueComponent(uint32_t idx,uint32_t b);
 void nesSetBreakOnKIL ( bool breakOnKIL );
 int8_t* nesGetTVOut ( void );
+void nesSetVRC6AudioChannelMask ( uint32_t mask );
 void nesSetAudioChannelMask ( uint8_t mask );
 uint8_t nesGetAudioChannelMask ( void );
 uint8_t nesGetMemory ( uint32_t addr );

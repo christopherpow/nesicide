@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -983,181 +983,94 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
-           <widget class="QCheckBox" name="square1">
-            <property name="text">
-             <string>Square 1</string>
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string>APU</string>
             </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="square1">
+               <property name="text">
+                <string>Square 1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="square2">
+               <property name="text">
+                <string>Square 2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="triangle">
+               <property name="text">
+                <string>Triangle</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QCheckBox" name="noise">
+               <property name="text">
+                <string>Noise</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QCheckBox" name="dmc">
+               <property name="text">
+                <string>DMC</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="square2">
-            <property name="text">
-             <string>Square 2</string>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="groupBox_10">
+            <property name="title">
+             <string>VRC6</string>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="triangle">
-            <property name="text">
-             <string>Triangle</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="noise">
-            <property name="text">
-             <string>Noise</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QCheckBox" name="dmc">
-            <property name="text">
-             <string>DMC</string>
-            </property>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="pulse1VRC6">
+               <property name="text">
+                <string>Pulse 1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="pulse2VRC6">
+               <property name="text">
+                <string>Pulse 2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="sawtoothVRC6">
+               <property name="text">
+                <string>Sawtooth</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Equalizer</string>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="1" column="0">
-           <widget class="QSlider" name="square1Eq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="sliderPosition">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSlider" name="square2Eq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QSlider" name="triangleEq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QSlider" name="noiseEq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QSlider" name="dmcEq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Square 1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>Square 2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Triangle</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Noise</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>DMC</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -1229,7 +1142,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -1265,7 +1178,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -1288,7 +1201,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -1311,7 +1224,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>

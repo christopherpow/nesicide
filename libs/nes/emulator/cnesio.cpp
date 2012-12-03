@@ -29,6 +29,7 @@ CJoypadLogger  CIOStandardJoypad::m_logger [ NUM_CONTROLLERS ];
 
 // Turbo joypad stuff
 uint8_t   CIOTurboJoypad::m_alternator [][2] = { { 0, 0 }, { 0, 0 } };
+uint32_t  CIOTurboJoypad::m_lastFrame = 0;
 
 // Vaus Arkanoid pad stuff
 uint8_t   CIOVaus::m_ioPotLatch [] = { 0x00, 0x00 };
@@ -168,10 +169,19 @@ void CIOTurboJoypad::IO ( uint32_t addr, uint8_t data )
             *(m_ioJoyLatch+CONTROLLER1) = (uint8_t)(*(m_ioJoy+CONTROLLER1))&0xFF;
             *(m_ioJoyLatch+CONTROLLER2) = (uint8_t)(*(m_ioJoy+CONTROLLER2))&0xFF;
 
-            if ( m_ioJoy[CONTROLLER1]&JOY_ATURBO )
+            // Alternate for turbos if necessary.
+            if ( m_lastFrame != CNES::FRAME() )
             {
                m_alternator[CONTROLLER1][0] = !m_alternator[CONTROLLER1][0];
-               *(m_ioJoyLatch+CONTROLLER1) &= JOY_A;
+               m_alternator[CONTROLLER1][1] = !m_alternator[CONTROLLER1][1];
+               m_alternator[CONTROLLER2][0] = !m_alternator[CONTROLLER2][0];
+               m_alternator[CONTROLLER2][1] = !m_alternator[CONTROLLER2][1];
+            }
+            m_lastFrame = CNES::FRAME();
+
+            if ( m_ioJoy[CONTROLLER1]&JOY_ATURBO )
+            {
+               *(m_ioJoyLatch+CONTROLLER1) &= (~JOY_A);
                if ( m_alternator[CONTROLLER1][0] )
                {
                   *(m_ioJoyLatch+CONTROLLER1) |= JOY_A;
@@ -179,8 +189,7 @@ void CIOTurboJoypad::IO ( uint32_t addr, uint8_t data )
             }
             if ( m_ioJoy[CONTROLLER1]&JOY_BTURBO )
             {
-               m_alternator[CONTROLLER1][1] = !m_alternator[CONTROLLER1][1];
-               *(m_ioJoyLatch+CONTROLLER1) &= JOY_B;
+               *(m_ioJoyLatch+CONTROLLER1) &= (~JOY_B);
                if ( m_alternator[CONTROLLER1][1] )
                {
                   *(m_ioJoyLatch+CONTROLLER1) |= JOY_B;
@@ -188,8 +197,7 @@ void CIOTurboJoypad::IO ( uint32_t addr, uint8_t data )
             }
             if ( m_ioJoy[CONTROLLER2]&JOY_ATURBO )
             {
-               m_alternator[CONTROLLER2][0] = !m_alternator[CONTROLLER2][0];
-               *(m_ioJoyLatch+CONTROLLER2) &= JOY_A;
+               *(m_ioJoyLatch+CONTROLLER2) &= (~JOY_A);
                if ( m_alternator[CONTROLLER2][0] )
                {
                   *(m_ioJoyLatch+CONTROLLER2) |= JOY_A;
@@ -197,8 +205,7 @@ void CIOTurboJoypad::IO ( uint32_t addr, uint8_t data )
             }
             if ( m_ioJoy[CONTROLLER2]&JOY_BTURBO )
             {
-               m_alternator[CONTROLLER2][1] = !m_alternator[CONTROLLER2][1];
-               *(m_ioJoyLatch+CONTROLLER2) &= JOY_B;
+               *(m_ioJoyLatch+CONTROLLER2) &= (~JOY_B);
                if ( m_alternator[CONTROLLER2][1] )
                {
                   *(m_ioJoyLatch+CONTROLLER2) |= JOY_B;

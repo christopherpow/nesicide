@@ -39,11 +39,14 @@ public:
    static int getControllerSpecial(int port);
    static int getTVStandard();
    static bool getPauseOnKIL();
-   static bool getSquare1Enabled();
-   static bool getSquare2Enabled();
-   static bool getTriangleEnabled();
-   static bool getNoiseEnabled();
-   static bool getDMCEnabled();
+   static bool getSquare1Enabled() { return square1Enabled; }
+   static bool getSquare2Enabled() { return square2Enabled; }
+   static bool getTriangleEnabled() { return triangleEnabled; }
+   static bool getNoiseEnabled() { return noiseEnabled; }
+   static bool getDMCEnabled() { return dmcEnabled; }
+   static bool getPulse1VRC6Enabled() { return pulse1VRC6Enabled; }
+   static bool getPulse2VRC6Enabled() { return pulse2VRC6Enabled; }
+   static bool getSawtoothVRC6Enabled() { return sawtoothVRC6Enabled; }
    static int getScalingFactor();
    static bool getLinearInterpolation();
    static bool get43Aspect();
@@ -64,6 +67,9 @@ public:
    static void setTriangleEnabled(bool enabled);
    static void setNoiseEnabled(bool enabled);
    static void setDMCEnabled(bool enabled);
+   static void setPulse1VRC6Enabled(bool enabled);
+   static void setPulse2VRC6Enabled(bool enabled);
+   static void setSawtoothVRC6Enabled(bool enabled);
    static void setScalingFactor(int factor);
    static void setPauseOnTaskSwitch(bool pause);
    static void setLinearInterpolation(bool enabled);
@@ -96,6 +102,9 @@ private:
    static bool triangleEnabled;
    static bool noiseEnabled;
    static bool dmcEnabled;
+   static bool pulse1VRC6Enabled;
+   static bool pulse2VRC6Enabled;
+   static bool sawtoothVRC6Enabled;
    static int scalingFactor;
    static bool linearInterpolation;
    static bool aspect43;

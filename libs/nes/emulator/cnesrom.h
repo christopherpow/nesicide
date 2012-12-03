@@ -161,6 +161,7 @@ public:
    {
       return 0; // soundless...
    }
+   static void SOUNDENABLE ( uint32_t mask ) {}
 
    // Code/Data logger support functions
    static inline CCodeDataLogger* LOGGERVIRT ( uint32_t addr )
