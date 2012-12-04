@@ -558,6 +558,30 @@ void MainWindow::createNesUi()
    actionSawtoothVRC6 = new QAction("Sawtooth",this);
    actionSawtoothVRC6->setObjectName(QString::fromUtf8("actionTriangle"));
    actionSawtoothVRC6->setCheckable(true);
+   actionWave_1N106 = new QAction("Wave 1",this);
+   actionWave_1N106->setObjectName(QString::fromUtf8("actionWave_1N106"));
+   actionWave_1N106->setCheckable(true);
+   actionWave_2N106 = new QAction("Wave 2",this);
+   actionWave_2N106->setObjectName(QString::fromUtf8("actionWave_2N106"));
+   actionWave_2N106->setCheckable(true);
+   actionWave_3N106 = new QAction("Wave 3",this);
+   actionWave_3N106->setObjectName(QString::fromUtf8("actionWave_3N106"));
+   actionWave_3N106->setCheckable(true);
+   actionWave_4N106 = new QAction("Wave 4",this);
+   actionWave_4N106->setObjectName(QString::fromUtf8("actionWave_4N106"));
+   actionWave_4N106->setCheckable(true);
+   actionWave_5N106 = new QAction("Wave 5",this);
+   actionWave_5N106->setObjectName(QString::fromUtf8("actionWave_5N106"));
+   actionWave_5N106->setCheckable(true);
+   actionWave_6N106 = new QAction("Wave 6",this);
+   actionWave_6N106->setObjectName(QString::fromUtf8("actionWave_6N106"));
+   actionWave_6N106->setCheckable(true);
+   actionWave_7N106 = new QAction("Wave 7",this);
+   actionWave_7N106->setObjectName(QString::fromUtf8("actionWave_7N106"));
+   actionWave_7N106->setCheckable(true);
+   actionWave_8N106 = new QAction("Wave 8",this);
+   actionWave_8N106->setObjectName(QString::fromUtf8("actionWave_8N106"));
+   actionWave_8N106->setCheckable(true);
    actionRun_Test_Suite = new QAction("Run Test Suite",this);
    actionRun_Test_Suite->setObjectName(QString::fromUtf8("actionRun_Test_Suite"));
    action1x = new QAction("1x",this);
@@ -609,6 +633,8 @@ void MainWindow::createNesUi()
    menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
    menuAudioVRC6 = new QMenu("VRC6",menuAudio);
    menuAudioVRC6->setObjectName(QString::fromUtf8("menuAudioVRC6"));
+   menuAudioN106 = new QMenu("Namco 106",menuAudio);
+   menuAudioN106->setObjectName(QString::fromUtf8("menuAudioN106"));
    menuVideo = new QMenu("Video",menuEmulator);
    menuVideo->setObjectName(QString::fromUtf8("menuVideo"));
    menuVideo->addAction(action1x);
@@ -672,9 +698,18 @@ void MainWindow::createNesUi()
    menuAudio->addAction(actionNoise);
    menuAudio->addAction(actionDelta_Modulation);
    menuAudio->addAction(menuAudioVRC6->menuAction());
+   menuAudio->addAction(menuAudioN106->menuAction());
    menuAudioVRC6->addAction(actionPulse_1VRC6);
    menuAudioVRC6->addAction(actionPulse_2VRC6);
    menuAudioVRC6->addAction(actionSawtoothVRC6);
+   menuAudioN106->addAction(actionWave_1N106);
+   menuAudioN106->addAction(actionWave_2N106);
+   menuAudioN106->addAction(actionWave_3N106);
+   menuAudioN106->addAction(actionWave_4N106);
+   menuAudioN106->addAction(actionWave_5N106);
+   menuAudioN106->addAction(actionWave_6N106);
+   menuAudioN106->addAction(actionWave_7N106);
+   menuAudioN106->addAction(actionWave_8N106);
    menuView->addSeparator();
    menuView->addAction(actionEmulation_Window);
 
@@ -951,6 +986,14 @@ void MainWindow::createNesUi()
    QObject::connect(actionPulse_1VRC6,SIGNAL(toggled(bool)),this,SLOT(actionPulse_1VRC6_toggled(bool)));
    QObject::connect(actionPulse_2VRC6,SIGNAL(toggled(bool)),this,SLOT(actionPulse_2VRC6_toggled(bool)));
    QObject::connect(actionSawtoothVRC6,SIGNAL(toggled(bool)),this,SLOT(actionSawtoothVRC6_toggled(bool)));
+   QObject::connect(actionWave_1N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_1N106_toggled(bool)));
+   QObject::connect(actionWave_2N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_2N106_toggled(bool)));
+   QObject::connect(actionWave_3N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_3N106_toggled(bool)));
+   QObject::connect(actionWave_4N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_4N106_toggled(bool)));
+   QObject::connect(actionWave_5N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_5N106_toggled(bool)));
+   QObject::connect(actionWave_6N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_6N106_toggled(bool)));
+   QObject::connect(actionWave_7N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_7N106_toggled(bool)));
+   QObject::connect(actionWave_8N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_8N106_toggled(bool)));
    QObject::connect(actionPAL,SIGNAL(triggered()),this,SLOT(actionPAL_triggered()));
    QObject::connect(actionNTSC,SIGNAL(triggered()),this,SLOT(actionNTSC_triggered()));
    QObject::connect(actionDendy,SIGNAL(triggered()),this,SLOT(actionDendy_triggered()));
@@ -1123,6 +1166,14 @@ void MainWindow::destroyNesUi()
    delete actionPulse_1VRC6;
    delete actionPulse_2VRC6;
    delete actionSawtoothVRC6;
+   delete actionWave_1N106;
+   delete actionWave_2N106;
+   delete actionWave_3N106;
+   delete actionWave_4N106;
+   delete actionWave_5N106;
+   delete actionWave_6N106;
+   delete actionWave_7N106;
+   delete actionWave_8N106;
    delete actionRun_Test_Suite;
    delete menuCPU_Inspectors;
    delete menuAPU_Inpsectors;
@@ -1131,6 +1182,7 @@ void MainWindow::destroyNesUi()
    delete menuCartridge_Inspectors;
    delete menuSystem;
    delete menuAudioVRC6;
+   delete menuAudioN106;
    delete menuAudio;
    delete debuggerToolBar;
 
@@ -2685,11 +2737,18 @@ void MainWindow::actionDelta_Modulation_toggled(bool value)
    EmulatorPrefsDialog::setDMCEnabled(value);
    if ( value )
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x10);
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             0x10);
    }
    else
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x10));
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3));
    }
 }
 
@@ -2698,11 +2757,18 @@ void MainWindow::actionNoise_toggled(bool value)
    EmulatorPrefsDialog::setNoiseEnabled(value);
    if ( value )
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x08);
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             0x08|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
    else
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x08));
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
 }
 
@@ -2711,11 +2777,18 @@ void MainWindow::actionTriangle_toggled(bool value)
    EmulatorPrefsDialog::setTriangleEnabled(value);
    if ( value )
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x04);
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             0x04|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
    else
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x04));
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
 }
 
@@ -2724,11 +2797,18 @@ void MainWindow::actionSquare_2_toggled(bool value)
    EmulatorPrefsDialog::setSquare2Enabled(value);
    if ( value )
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x02);
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             0x02|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
    else
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x02));
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare1Enabled()<<0)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
 }
 
@@ -2737,11 +2817,18 @@ void MainWindow::actionSquare_1_toggled(bool value)
    EmulatorPrefsDialog::setSquare1Enabled(value);
    if ( value )
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()|0x01);
+      nesSetAudioChannelMask(0x01|
+                             (EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
    else
    {
-      nesSetAudioChannelMask(nesGetAudioChannelMask()&(~0x01));
+      nesSetAudioChannelMask((EmulatorPrefsDialog::getSquare2Enabled()<<1)|
+                             (EmulatorPrefsDialog::getTriangleEnabled()<<2)|
+                             (EmulatorPrefsDialog::getNoiseEnabled()<<3)|
+                             (EmulatorPrefsDialog::getDMCEnabled()<<4));
    }
 }
 
@@ -2790,6 +2877,214 @@ void MainWindow::actionPulse_1VRC6_toggled(bool value)
    {
       nesSetVRC6AudioChannelMask((EmulatorPrefsDialog::getPulse2VRC6Enabled()<<1)|
                                  (EmulatorPrefsDialog::getSawtoothVRC6Enabled()<<2));
+   }
+}
+
+void MainWindow::actionWave_8N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave8N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 0x80);
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6));
+   }
+}
+
+void MainWindow::actionWave_7N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave7N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 0x40|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+}
+
+void MainWindow::actionWave_6N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave6N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 0x20|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+}
+
+void MainWindow::actionWave_5N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave5N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 0x10|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+}
+
+void MainWindow::actionWave_4N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave4N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 0x08|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+}
+
+void MainWindow::actionWave_3N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave3N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 0x04|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+}
+
+void MainWindow::actionWave_2N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave2N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 0x02|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave1N106Enabled()<<0)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+}
+
+void MainWindow::actionWave_1N106_toggled(bool value)
+{
+   EmulatorPrefsDialog::setWave1N106Enabled(value);
+   if ( value )
+   {
+      nesSetN106AudioChannelMask(0x01|
+                                 (EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
+   }
+   else
+   {
+      nesSetN106AudioChannelMask((EmulatorPrefsDialog::getWave2N106Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getWave3N106Enabled()<<2)|
+                                 (EmulatorPrefsDialog::getWave4N106Enabled()<<3)|
+                                 (EmulatorPrefsDialog::getWave5N106Enabled()<<4)|
+                                 (EmulatorPrefsDialog::getWave6N106Enabled()<<5)|
+                                 (EmulatorPrefsDialog::getWave7N106Enabled()<<6)|
+                                 (EmulatorPrefsDialog::getWave8N106Enabled()<<7));
    }
 }
 
@@ -2843,6 +3138,27 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       actionPulse_2VRC6->setChecked(pulse2VRC6);
       actionSawtoothVRC6->setChecked(sawtoothVRC6);
       nesSetVRC6AudioChannelMask(mask);
+
+      bool wave1N106 = EmulatorPrefsDialog::getWave1N106Enabled();
+      bool wave2N106 = EmulatorPrefsDialog::getWave2N106Enabled();
+      bool wave3N106 = EmulatorPrefsDialog::getWave3N106Enabled();
+      bool wave4N106 = EmulatorPrefsDialog::getWave4N106Enabled();
+      bool wave5N106 = EmulatorPrefsDialog::getWave5N106Enabled();
+      bool wave6N106 = EmulatorPrefsDialog::getWave6N106Enabled();
+      bool wave7N106 = EmulatorPrefsDialog::getWave7N106Enabled();
+      bool wave8N106 = EmulatorPrefsDialog::getWave8N106Enabled();
+      mask = ((wave1N106<<0)|(wave2N106<<1)|(wave3N106<<2)|(wave4N106<<3)|
+              (wave5N106<<4)|(wave6N106<<5)|(wave7N106<<6)|(wave8N106<<7));
+
+      actionWave_1N106->setChecked(wave1N106);
+      actionWave_2N106->setChecked(wave2N106);
+      actionWave_3N106->setChecked(wave3N106);
+      actionWave_4N106->setChecked(wave4N106);
+      actionWave_5N106->setChecked(wave5N106);
+      actionWave_6N106->setChecked(wave6N106);
+      actionWave_7N106->setChecked(wave7N106);
+      actionWave_8N106->setChecked(wave8N106);
+      nesSetN106AudioChannelMask(mask);
    }
 
    if ( initial || EmulatorPrefsDialog::videoSettingsChanged() )

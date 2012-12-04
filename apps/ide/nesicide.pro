@@ -6,8 +6,6 @@ QT += network \
    webkit \
    xml
 
-mobility += systeminfo
-
 TOP = ../..
 
 TARGET = "nesicide"
@@ -162,7 +160,7 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$NES_CXXFLAGS $$C64_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
+QMAKE_CXXFLAGS += -DIDE $$NES_CXXFLAGS $$C64_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
 LIBS += $$NES_LIBS $$C64_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
 
 INCLUDEPATH += \
@@ -271,7 +269,7 @@ SOURCES += \
    nes/emulator/nesemulatordockwidget.cpp \
    nes/emulator/nesemulatorrenderer.cpp \
    nes/emulator/nesemulatorthread.cpp \
-   emulator/emulatorprefsdialog.cpp \
+   $$TOP/common/emulatorprefsdialog.cpp \
    c64/emulator/c64emulatorthread.cpp \
    environmentsettingsdialog.cpp \
    main.cpp \
@@ -403,7 +401,7 @@ HEADERS += \
    nes/emulator/nesemulatorrenderer.h \
    nes/emulator/nesemulatorthread.h \
    c64/emulator/c64emulatorthread.h \
-   emulator/emulatorprefsdialog.h \
+   $$TOP/common/emulatorprefsdialog.h \
    environmentsettingsdialog.h \
    interfaces/icenterwidgetitem.h \
    interfaces/ichrrombankitem.h \
@@ -485,7 +483,7 @@ FORMS += \
    designers/propertyeditordialog.ui \
    nes/designers/tilestampeditorform.ui \
    nes/emulator/nesemulatordockwidget.ui \
-   emulator/emulatorprefsdialog.ui \
+   $$TOP/common/emulatorprefsdialog.ui \
    environmentsettingsdialog.ui \
    mainwindow.ui \
    outputpanedockwidget.ui \

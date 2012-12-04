@@ -4,6 +4,7 @@
 #include "nes_emulator_core.h"
 
 #include <QSettings>
+#include <QFileDialog>
 
 // Query flags.
 bool EmulatorPrefsDialog::controllersUpdated;
@@ -33,16 +34,34 @@ bool EmulatorPrefsDialog::dmcEnabled;
 bool EmulatorPrefsDialog::pulse1VRC6Enabled;
 bool EmulatorPrefsDialog::pulse2VRC6Enabled;
 bool EmulatorPrefsDialog::sawtoothVRC6Enabled;
+bool EmulatorPrefsDialog::wave1N106Enabled;
+bool EmulatorPrefsDialog::wave2N106Enabled;
+bool EmulatorPrefsDialog::wave3N106Enabled;
+bool EmulatorPrefsDialog::wave4N106Enabled;
+bool EmulatorPrefsDialog::wave5N106Enabled;
+bool EmulatorPrefsDialog::wave6N106Enabled;
+bool EmulatorPrefsDialog::wave7N106Enabled;
+bool EmulatorPrefsDialog::wave8N106Enabled;
 int EmulatorPrefsDialog::scalingFactor;
 bool EmulatorPrefsDialog::linearInterpolation;
 bool EmulatorPrefsDialog::aspect43;
 
-EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
+// C=64 settings data structures.
+QString EmulatorPrefsDialog::viceExecutable;
+QString EmulatorPrefsDialog::viceIPAddress;
+int EmulatorPrefsDialog::viceMonitorPort;
+QString EmulatorPrefsDialog::viceOptions;
+QString EmulatorPrefsDialog::c64KernalROM;
+QString EmulatorPrefsDialog::c64BasicROM;
+QString EmulatorPrefsDialog::c64CharROM;
+
+EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    QDialog(parent),
    ui(new Ui::EmulatorPrefsDialog)
 {
    ui->setupUi(this);
 
+   m_targetLoaded = target;
    controllerPageMap.insert("(Disconnected)",ui->noControllerPage);
    controllerPageMap.insert("Standard Controller",ui->standardControllerPage);
    controllerPageMap.insert("Turbo Controller",ui->turboControllerPage);
@@ -69,10 +88,38 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QWidget* parent) :
    ui->pulse1VRC6->setChecked(pulse1VRC6Enabled);
    ui->pulse2VRC6->setChecked(pulse2VRC6Enabled);
    ui->sawtoothVRC6->setChecked(sawtoothVRC6Enabled);
+   ui->wave1N106->setChecked(wave1N106Enabled);
+   ui->wave2N106->setChecked(wave2N106Enabled);
+   ui->wave3N106->setChecked(wave3N106Enabled);
+   ui->wave4N106->setChecked(wave4N106Enabled);
+   ui->wave5N106->setChecked(wave5N106Enabled);
+   ui->wave6N106->setChecked(wave6N106Enabled);
+   ui->wave7N106->setChecked(wave7N106Enabled);
+   ui->wave8N106->setChecked(wave8N106Enabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
    ui->linearInterpolation->setChecked(linearInterpolation);
    ui->aspect43->setChecked(aspect43);
+
+   ui->viceC64Executable->setText(viceExecutable);
+   ui->viceC64MonitorIPAddress->setText(viceIPAddress);
+   ui->viceC64MonitorPort->setText(QString::number(viceMonitorPort));
+   ui->viceOptions->setText(viceOptions);
+   ui->c64KernalROM->setText(c64KernalROM);
+   ui->c64BasicROM->setText(c64BasicROM);
+   ui->c64CharROM->setText(c64CharROM);
+
+   if ( !target.compare("nes",Qt::CaseInsensitive) )
+   {
+      ui->tabWidget->removeTab(5);
+   }
+   else if ( !target.compare("c64",Qt::CaseInsensitive) )
+   {
+      ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
+   }
 }
 
 EmulatorPrefsDialog::~EmulatorPrefsDialog()
@@ -141,6 +188,16 @@ void EmulatorPrefsDialog::readSettings()
    pulse2VRC6Enabled = settings.value("Pulse2",QVariant(true)).toBool();
    sawtoothVRC6Enabled = settings.value("Sawtooth",QVariant(true)).toBool();
    settings.endGroup();
+   settings.beginGroup("N106");
+   wave1N106Enabled = settings.value("Wave1",QVariant(true)).toBool();
+   wave2N106Enabled = settings.value("Wave2",QVariant(true)).toBool();
+   wave3N106Enabled = settings.value("Wave3",QVariant(true)).toBool();
+   wave4N106Enabled = settings.value("Wave4",QVariant(true)).toBool();
+   wave5N106Enabled = settings.value("Wave5",QVariant(true)).toBool();
+   wave6N106Enabled = settings.value("Wave6",QVariant(true)).toBool();
+   wave7N106Enabled = settings.value("Wave7",QVariant(true)).toBool();
+   wave8N106Enabled = settings.value("Wave8",QVariant(true)).toBool();
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
@@ -152,6 +209,46 @@ void EmulatorPrefsDialog::readSettings()
    settings.beginGroup("EmulatorPreferences/NES/System");
    tvStandard = settings.value("TVStandard",QVariant(MODE_NTSC)).toInt();
    pauseOnKIL = settings.value("PauseOnKIL",QVariant(true)).toBool();
+   settings.endGroup();
+
+   settings.beginGroup("EmulatorPreferences/C64");
+   viceExecutable = settings.value("VICEExecutable",QVariant()).toString();
+   viceIPAddress = settings.value("VICEIPAddress",QVariant("127.0.0.1")).toString();
+   viceMonitorPort = settings.value("VICEMonitorPort",QVariant(6510)).toInt();
+   viceOptions = settings.value("VICEOptions",QVariant()).toString();
+#if defined(Q_WS_WIN)
+   c64KernalROM = settings.value("C64KernalROM").toString();
+   if ( c64KernalROM.isEmpty() )
+   {
+      c64KernalROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"kernal";
+   }
+   c64BasicROM = settings.value("C64BasicROM").toString();
+   if ( c64BasicROM.isEmpty() )
+   {
+      c64BasicROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"basic";
+   }
+   c64CharROM = settings.value("C64CharROM").toString();
+   if ( c64CharROM.isEmpty() )
+   {
+      c64CharROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"chargen";
+   }
+#else
+   c64KernalROM = settings.value("C64KernalROM").toString();
+   if ( c64KernalROM.isEmpty() )
+   {
+      c64KernalROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"Kernal.rom";
+   }
+   c64BasicROM = settings.value("C64BasicROM").toString();
+   if ( c64BasicROM.isEmpty() )
+   {
+      c64BasicROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"Basic.rom";
+   }
+   c64CharROM = settings.value("C64CharROM").toString();
+   if ( c64CharROM.isEmpty() )
+   {
+      c64CharROM = viceExecutable+QDir::separator()+"C64"+QDir::separator()+"Char.rom";
+   }
+#endif
    settings.endGroup();
 }
 
@@ -200,6 +297,17 @@ void EmulatorPrefsDialog::writeSettings()
    if ( (pulse1VRC6Enabled != ui->pulse1VRC6->isChecked()) ||
         (pulse2VRC6Enabled != ui->pulse2VRC6->isChecked()) ||
         (sawtoothVRC6Enabled != ui->sawtoothVRC6->isChecked()) )
+   {
+      audioUpdated = true;
+   }
+   if ( (wave1N106Enabled != ui->wave1N106->isChecked()) ||
+        (wave2N106Enabled != ui->wave2N106->isChecked()) ||
+        (wave3N106Enabled != ui->wave3N106->isChecked()) ||
+        (wave4N106Enabled != ui->wave4N106->isChecked()) ||
+        (wave5N106Enabled != ui->wave5N106->isChecked()) ||
+        (wave6N106Enabled != ui->wave6N106->isChecked()) ||
+        (wave7N106Enabled != ui->wave7N106->isChecked()) ||
+        (wave8N106Enabled != ui->wave8N106->isChecked()) )
    {
       audioUpdated = true;
    }
@@ -290,10 +398,26 @@ void EmulatorPrefsDialog::writeSettings()
    pulse1VRC6Enabled = ui->pulse1VRC6->isChecked();
    pulse2VRC6Enabled = ui->pulse2VRC6->isChecked();
    sawtoothVRC6Enabled = ui->sawtoothVRC6->isChecked();
+   wave1N106Enabled = ui->wave1N106->isChecked();
+   wave2N106Enabled = ui->wave2N106->isChecked();
+   wave3N106Enabled = ui->wave3N106->isChecked();
+   wave4N106Enabled = ui->wave4N106->isChecked();
+   wave5N106Enabled = ui->wave5N106->isChecked();
+   wave6N106Enabled = ui->wave6N106->isChecked();
+   wave7N106Enabled = ui->wave7N106->isChecked();
+   wave8N106Enabled = ui->wave8N106->isChecked();
 
    scalingFactor = ui->scalingFactor->currentIndex();
    linearInterpolation = ui->linearInterpolation->isChecked();
    aspect43 = ui->aspect43->isChecked();
+
+   viceExecutable = ui->viceC64Executable->text();
+   viceIPAddress = ui->viceC64MonitorIPAddress->text();
+   viceMonitorPort = ui->viceC64MonitorPort->text().toInt();
+   viceOptions = ui->viceOptions->toPlainText();
+   c64KernalROM = ui->c64KernalROM->text();
+   c64BasicROM = ui->c64BasicROM->text();
+   c64CharROM = ui->c64CharROM->text();
 
    // Then save locals to QSettings.
    settings.beginGroup("EmulatorPreferences/General");
@@ -345,6 +469,16 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("Pulse2",pulse2VRC6Enabled);
    settings.setValue("Sawtooth",sawtoothVRC6Enabled);
    settings.endGroup();
+   settings.beginGroup("N106");
+   settings.setValue("Wave1",wave1N106Enabled);
+   settings.setValue("Wave2",wave2N106Enabled);
+   settings.setValue("Wave3",wave3N106Enabled);
+   settings.setValue("Wave4",wave4N106Enabled);
+   settings.setValue("Wave5",wave5N106Enabled);
+   settings.setValue("Wave6",wave6N106Enabled);
+   settings.setValue("Wave7",wave7N106Enabled);
+   settings.setValue("Wave8",wave8N106Enabled);
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
@@ -356,6 +490,16 @@ void EmulatorPrefsDialog::writeSettings()
    settings.beginGroup("EmulatorPreferences/NES/System");
    settings.setValue("TVStandard",tvStandard);
    settings.setValue("PauseOnKIL",pauseOnKIL);
+   settings.endGroup();
+
+   settings.beginGroup("EmulatorPreferences/C64");
+   settings.setValue("VICEExecutable",viceExecutable);
+   settings.setValue("VICEIPAddress",viceIPAddress);
+   settings.setValue("VICEMonitorPort",viceMonitorPort);
+   settings.setValue("VICEOptions",viceOptions);
+   settings.setValue("C64KernalROM",c64KernalROM);
+   settings.setValue("C64BasicROM",c64BasicROM);
+   settings.setValue("C64CharROM",c64CharROM);
    settings.endGroup();
 }
 
@@ -769,6 +913,110 @@ void EmulatorPrefsDialog::setSawtoothVRC6Enabled(bool enabled)
    settings.endGroup();
 }
 
+void EmulatorPrefsDialog::setWave1N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave1N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave1",wave1N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave2N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave2N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave2",wave2N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave3N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave3N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave3",wave3N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave4N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave4N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave4",wave4N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave5N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave5N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave5",wave5N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave6N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave6N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave6",wave6N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave7N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave7N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave7",wave7N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave8N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave8N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave8",wave8N106Enabled);
+   settings.endGroup();
+}
+
 int EmulatorPrefsDialog::getScalingFactor()
 {
    return scalingFactor;
@@ -828,4 +1076,79 @@ void EmulatorPrefsDialog::on_trimPotVaus_dialMoved(int value)
    QString str;
    str.sprintf("$%02X-$%02X",value,value+0xA0);
    ui->trimPotValueVaus->setText(str);
+}
+
+QString EmulatorPrefsDialog::getVICEExecutable()
+{
+   return viceExecutable;
+}
+
+QString EmulatorPrefsDialog::getVICEIPAddress()
+{
+   return viceIPAddress;
+}
+
+int EmulatorPrefsDialog::getVICEMonitorPort()
+{
+   return viceMonitorPort;
+}
+
+QString EmulatorPrefsDialog::getVICEOptions()
+{
+   return viceOptions;
+}
+
+void EmulatorPrefsDialog::on_viceC64Browse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"VICE Executables Path",ui->viceC64Executable->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->viceC64Executable->setText(value);
+   }
+}
+
+void EmulatorPrefsDialog::on_c64KernalROMBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Commodore 64 Kernal ROM",ui->c64KernalROM->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->c64KernalROM->setText(value);
+   }
+}
+
+void EmulatorPrefsDialog::on_c64BasicROMBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Commodore 64 BASIC ROM",ui->c64BasicROM->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->c64BasicROM->setText(value);
+   }
+}
+
+void EmulatorPrefsDialog::on_c64CharROMBrowse_clicked()
+{
+   QString value = QFileDialog::getOpenFileName(this,"Commodore 64 Character ROM",ui->c64CharROM->text());
+
+   if ( !value.isEmpty() )
+   {
+      ui->c64CharROM->setText(value);
+   }
+}
+
+QString EmulatorPrefsDialog::getC64KernalROM()
+{
+   return c64KernalROM;
+}
+
+QString EmulatorPrefsDialog::getC64BasicROM()
+{
+   return c64BasicROM;
+}
+
+QString EmulatorPrefsDialog::getC64CharROM()
+{
+   return c64CharROM;
 }

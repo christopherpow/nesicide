@@ -507,14 +507,14 @@ void nesSetVRC6AudioChannelMask ( uint32_t mask )
    mapperfunc[24].soundenable(mask);
 }
 
+void nesSetN106AudioChannelMask ( uint32_t mask )
+{
+   mapperfunc[19].soundenable(mask);
+}
+
 void nesSetAudioChannelMask ( uint8_t mask )
 {
    CAPU::MUTE(mask);
-}
-
-uint8_t nesGetAudioChannelMask ( void )
-{
-   return CAPU::MUTED();
 }
 
 uint32_t nesGetCPUEffectiveAddress ( void )

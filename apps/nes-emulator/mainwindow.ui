@@ -122,12 +122,26 @@
       <addaction name="actionPulse_2VRC6"/>
       <addaction name="actionSawtoothVRC6"/>
      </widget>
+     <widget class="QMenu" name="menuN106">
+      <property name="title">
+       <string>Namco 106</string>
+      </property>
+      <addaction name="actionWave_1N106"/>
+      <addaction name="actionWave_2N106"/>
+      <addaction name="actionWave_3N106"/>
+      <addaction name="actionWave_4N106"/>
+      <addaction name="actionWave_5N106"/>
+      <addaction name="actionWave_6N106"/>
+      <addaction name="actionWave_7N106"/>
+      <addaction name="actionWave_8N106"/>
+     </widget>
      <addaction name="actionSquare_1"/>
      <addaction name="actionSquare_2"/>
      <addaction name="actionTriangle"/>
      <addaction name="actionNoise"/>
      <addaction name="actionDelta_Modulation"/>
      <addaction name="menuVRC6"/>
+     <addaction name="menuN106"/>
     </widget>
     <widget class="QMenu" name="menuVideo">
      <property name="title">
@@ -369,6 +383,70 @@
    </property>
    <property name="text">
     <string>Sawtooth</string>
+   </property>
+  </action>
+  <action name="actionWave_1N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 1</string>
+   </property>
+  </action>
+  <action name="actionWave_2N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 2</string>
+   </property>
+  </action>
+  <action name="actionWave_3N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 3</string>
+   </property>
+  </action>
+  <action name="actionWave_4N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 4</string>
+   </property>
+  </action>
+  <action name="actionWave_5N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 5</string>
+   </property>
+  </action>
+  <action name="actionWave_6N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 6</string>
+   </property>
+  </action>
+  <action name="actionWave_7N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 7</string>
+   </property>
+  </action>
+  <action name="actionWave_8N106">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wave 8</string>
    </property>
   </action>
  </widget>

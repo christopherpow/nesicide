@@ -628,6 +628,7 @@ uint16_t CROMMapper024::AMPLITUDE()
    // Reset DAC averaging...
    m_pulse[0].CLEARDACAVG();
    m_pulse[1].CLEARDACAVG();
+   m_sawtooth.CLEARDACAVG();
 
    return outDownsampled;
 }

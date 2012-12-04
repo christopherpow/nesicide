@@ -125,6 +125,7 @@ protected:
    QMenu *menuSystem;
    QMenu *menuAudio;
    QMenu *menuAudioVRC6;
+   QMenu *menuAudioN106;
    QMenu *menuVideo;
    QAction *actionEmulation_Window;
    QAction *actionGfxCHRMemory_Inspector;
@@ -158,6 +159,14 @@ protected:
    QAction *actionPulse_1VRC6;
    QAction *actionPulse_2VRC6;
    QAction *actionSawtoothVRC6;
+   QAction *actionWave_1N106;
+   QAction *actionWave_2N106;
+   QAction *actionWave_3N106;
+   QAction *actionWave_4N106;
+   QAction *actionWave_5N106;
+   QAction *actionWave_6N106;
+   QAction *actionWave_7N106;
+   QAction *actionWave_8N106;
    QAction *actionRun_Test_Suite;
    QAction *action1x;
    QAction *action1_5x;
@@ -272,6 +281,14 @@ private slots:
    void actionPulse_1VRC6_toggled(bool );
    void actionPulse_2VRC6_toggled(bool );
    void actionSawtoothVRC6_toggled(bool );
+   void actionWave_1N106_toggled(bool );
+   void actionWave_2N106_toggled(bool );
+   void actionWave_3N106_toggled(bool );
+   void actionWave_4N106_toggled(bool );
+   void actionWave_5N106_toggled(bool );
+   void actionWave_6N106_toggled(bool );
+   void actionWave_7N106_toggled(bool );
+   void actionWave_8N106_toggled(bool );
    void actionPAL_triggered();
    void actionNTSC_triggered();
    void actionDendy_triggered();

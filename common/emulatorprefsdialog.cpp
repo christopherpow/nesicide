@@ -34,6 +34,14 @@ bool EmulatorPrefsDialog::dmcEnabled;
 bool EmulatorPrefsDialog::pulse1VRC6Enabled;
 bool EmulatorPrefsDialog::pulse2VRC6Enabled;
 bool EmulatorPrefsDialog::sawtoothVRC6Enabled;
+bool EmulatorPrefsDialog::wave1N106Enabled;
+bool EmulatorPrefsDialog::wave2N106Enabled;
+bool EmulatorPrefsDialog::wave3N106Enabled;
+bool EmulatorPrefsDialog::wave4N106Enabled;
+bool EmulatorPrefsDialog::wave5N106Enabled;
+bool EmulatorPrefsDialog::wave6N106Enabled;
+bool EmulatorPrefsDialog::wave7N106Enabled;
+bool EmulatorPrefsDialog::wave8N106Enabled;
 int EmulatorPrefsDialog::scalingFactor;
 bool EmulatorPrefsDialog::linearInterpolation;
 bool EmulatorPrefsDialog::aspect43;
@@ -80,6 +88,14 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->pulse1VRC6->setChecked(pulse1VRC6Enabled);
    ui->pulse2VRC6->setChecked(pulse2VRC6Enabled);
    ui->sawtoothVRC6->setChecked(sawtoothVRC6Enabled);
+   ui->wave1N106->setChecked(wave1N106Enabled);
+   ui->wave2N106->setChecked(wave2N106Enabled);
+   ui->wave3N106->setChecked(wave3N106Enabled);
+   ui->wave4N106->setChecked(wave4N106Enabled);
+   ui->wave5N106->setChecked(wave5N106Enabled);
+   ui->wave6N106->setChecked(wave6N106Enabled);
+   ui->wave7N106->setChecked(wave7N106Enabled);
+   ui->wave8N106->setChecked(wave8N106Enabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
    ui->linearInterpolation->setChecked(linearInterpolation);
@@ -172,12 +188,30 @@ void EmulatorPrefsDialog::readSettings()
    pulse2VRC6Enabled = settings.value("Pulse2",QVariant(true)).toBool();
    sawtoothVRC6Enabled = settings.value("Sawtooth",QVariant(true)).toBool();
    settings.endGroup();
+   settings.beginGroup("N106");
+   wave1N106Enabled = settings.value("Wave1",QVariant(true)).toBool();
+   wave2N106Enabled = settings.value("Wave2",QVariant(true)).toBool();
+   wave3N106Enabled = settings.value("Wave3",QVariant(true)).toBool();
+   wave4N106Enabled = settings.value("Wave4",QVariant(true)).toBool();
+   wave5N106Enabled = settings.value("Wave5",QVariant(true)).toBool();
+   wave6N106Enabled = settings.value("Wave6",QVariant(true)).toBool();
+   wave7N106Enabled = settings.value("Wave7",QVariant(true)).toBool();
+   wave8N106Enabled = settings.value("Wave8",QVariant(true)).toBool();
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    scalingFactor = settings.value("IDEScalingFactor",0).toInt();
+#else
+   scalingFactor = settings.value("EMUScalingFactor",0).toInt();
+#endif
    linearInterpolation = settings.value("LinearInterpolation",true).toBool();
+#if defined(IDE)
    aspect43 = settings.value("IDE43Aspect",true).toBool();
+#else
+   aspect43 = settings.value("EMU43Aspect",true).toBool();
+#endif
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/System");
@@ -274,7 +308,19 @@ void EmulatorPrefsDialog::writeSettings()
    {
       audioUpdated = true;
    }
-   if ( scalingFactor != ui->scalingFactor->currentIndex() )
+   if ( (wave1N106Enabled != ui->wave1N106->isChecked()) ||
+        (wave2N106Enabled != ui->wave2N106->isChecked()) ||
+        (wave3N106Enabled != ui->wave3N106->isChecked()) ||
+        (wave4N106Enabled != ui->wave4N106->isChecked()) ||
+        (wave5N106Enabled != ui->wave5N106->isChecked()) ||
+        (wave6N106Enabled != ui->wave6N106->isChecked()) ||
+        (wave7N106Enabled != ui->wave7N106->isChecked()) ||
+        (wave8N106Enabled != ui->wave8N106->isChecked()) )
+   {
+      audioUpdated = true;
+   }
+   if ( (scalingFactor != ui->scalingFactor->currentIndex()) ||
+        (aspect43 != ui->aspect43->isChecked()) )
    {
       videoUpdated = true;
    }
@@ -361,6 +407,14 @@ void EmulatorPrefsDialog::writeSettings()
    pulse1VRC6Enabled = ui->pulse1VRC6->isChecked();
    pulse2VRC6Enabled = ui->pulse2VRC6->isChecked();
    sawtoothVRC6Enabled = ui->sawtoothVRC6->isChecked();
+   wave1N106Enabled = ui->wave1N106->isChecked();
+   wave2N106Enabled = ui->wave2N106->isChecked();
+   wave3N106Enabled = ui->wave3N106->isChecked();
+   wave4N106Enabled = ui->wave4N106->isChecked();
+   wave5N106Enabled = ui->wave5N106->isChecked();
+   wave6N106Enabled = ui->wave6N106->isChecked();
+   wave7N106Enabled = ui->wave7N106->isChecked();
+   wave8N106Enabled = ui->wave8N106->isChecked();
 
    scalingFactor = ui->scalingFactor->currentIndex();
    linearInterpolation = ui->linearInterpolation->isChecked();
@@ -424,12 +478,30 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("Pulse2",pulse2VRC6Enabled);
    settings.setValue("Sawtooth",sawtoothVRC6Enabled);
    settings.endGroup();
+   settings.beginGroup("N106");
+   settings.setValue("Wave1",wave1N106Enabled);
+   settings.setValue("Wave2",wave2N106Enabled);
+   settings.setValue("Wave3",wave3N106Enabled);
+   settings.setValue("Wave4",wave4N106Enabled);
+   settings.setValue("Wave5",wave5N106Enabled);
+   settings.setValue("Wave6",wave6N106Enabled);
+   settings.setValue("Wave7",wave7N106Enabled);
+   settings.setValue("Wave8",wave8N106Enabled);
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    settings.setValue("IDEScalingFactor",scalingFactor);
+#else
+   settings.setValue("EMUScalingFactor",scalingFactor);
+#endif
    settings.setValue("LinearInterpolation",linearInterpolation);
+#if defined(IDE)
    settings.setValue("IDE43Aspect",aspect43);
+#else
+   settings.setValue("EMU43Aspect",aspect43);
+#endif
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/System");
@@ -858,6 +930,110 @@ void EmulatorPrefsDialog::setSawtoothVRC6Enabled(bool enabled)
    settings.endGroup();
 }
 
+void EmulatorPrefsDialog::setWave1N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave1N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave1",wave1N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave2N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave2N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave2",wave2N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave3N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave3N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave3",wave3N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave4N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave4N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave4",wave4N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave5N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave5N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave5",wave5N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave6N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave6N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave6",wave6N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave7N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave7N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave7",wave7N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave8N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave8N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave8",wave8N106Enabled);
+   settings.endGroup();
+}
+
 int EmulatorPrefsDialog::getScalingFactor()
 {
    return scalingFactor;
@@ -872,7 +1048,11 @@ void EmulatorPrefsDialog::setScalingFactor(int factor)
 
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    settings.setValue("IDEScalingFactor",scalingFactor);
+#else
+   settings.setValue("EMUScalingFactor",scalingFactor);
+#endif
    settings.endGroup();
 }
 
@@ -908,7 +1088,11 @@ void EmulatorPrefsDialog::set43Aspect(bool enabled)
 
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    settings.setValue("IDE43Aspect",aspect43);
+#else
+   settings.setValue("EMU43Aspect",aspect43);
+#endif
    settings.endGroup();
 }
 

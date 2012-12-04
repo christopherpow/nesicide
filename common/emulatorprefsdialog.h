@@ -47,6 +47,14 @@ public:
    static bool getPulse1VRC6Enabled() { return pulse1VRC6Enabled; }
    static bool getPulse2VRC6Enabled() { return pulse2VRC6Enabled; }
    static bool getSawtoothVRC6Enabled() { return sawtoothVRC6Enabled; }
+   static bool getWave1N106Enabled() { return wave1N106Enabled; }
+   static bool getWave2N106Enabled() { return wave2N106Enabled; }
+   static bool getWave3N106Enabled() { return wave3N106Enabled; }
+   static bool getWave4N106Enabled() { return wave4N106Enabled; }
+   static bool getWave5N106Enabled() { return wave5N106Enabled; }
+   static bool getWave6N106Enabled() { return wave6N106Enabled; }
+   static bool getWave7N106Enabled() { return wave7N106Enabled; }
+   static bool getWave8N106Enabled() { return wave8N106Enabled; }
    static int getScalingFactor();
    static bool getLinearInterpolation();
    static bool get43Aspect();
@@ -70,6 +78,14 @@ public:
    static void setPulse1VRC6Enabled(bool enabled);
    static void setPulse2VRC6Enabled(bool enabled);
    static void setSawtoothVRC6Enabled(bool enabled);
+   static void setWave1N106Enabled(bool enabled);
+   static void setWave2N106Enabled(bool enabled);
+   static void setWave3N106Enabled(bool enabled);
+   static void setWave4N106Enabled(bool enabled);
+   static void setWave5N106Enabled(bool enabled);
+   static void setWave6N106Enabled(bool enabled);
+   static void setWave7N106Enabled(bool enabled);
+   static void setWave8N106Enabled(bool enabled);
    static void setScalingFactor(int factor);
    static void setPauseOnTaskSwitch(bool pause);
    static void setLinearInterpolation(bool enabled);
@@ -105,6 +121,14 @@ private:
    static bool pulse1VRC6Enabled;
    static bool pulse2VRC6Enabled;
    static bool sawtoothVRC6Enabled;
+   static bool wave1N106Enabled;
+   static bool wave2N106Enabled;
+   static bool wave3N106Enabled;
+   static bool wave4N106Enabled;
+   static bool wave5N106Enabled;
+   static bool wave6N106Enabled;
+   static bool wave7N106Enabled;
+   static bool wave8N106Enabled;
    static int scalingFactor;
    static bool linearInterpolation;
    static bool aspect43;

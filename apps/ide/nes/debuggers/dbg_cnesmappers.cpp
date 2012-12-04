@@ -117,7 +117,7 @@ MapperInfo mapper[] =
    { "Bandai", 16 },
    { "FFE F8", 17 },
    { "Jaleco SS8806", 18 },
-   { "Namcot 106", 19 },
+   { "Namco 106", 19 },
    { "Konami VRC4", 21 },
    { "VRC4", 21 },
    { "Konami VRC2 A", 22 },

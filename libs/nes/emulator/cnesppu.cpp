@@ -1428,14 +1428,26 @@ void CPPU::MIRRORHORIZ ( void )
 
 void CPPU::MIRROR ( int32_t nt1, int32_t nt2, int32_t nt3, int32_t nt4 )
 {
-   nt1 &= 0x3;
-   nt2 &= 0x3;
-   nt3 &= 0x3;
-   nt4 &= 0x3;
-   Move1KBank ( 0x8, &(m_PPUmemory[(nt1<<UPSHIFT_1KB)]) );
-   Move1KBank ( 0x9, &(m_PPUmemory[(nt2<<UPSHIFT_1KB)]) );
-   Move1KBank ( 0xA, &(m_PPUmemory[(nt3<<UPSHIFT_1KB)]) );
-   Move1KBank ( 0xB, &(m_PPUmemory[(nt4<<UPSHIFT_1KB)]) );
+   if ( nt1 >= 0 )
+   {
+      nt1 &= 0x3;
+      Move1KBank ( 0x8, &(m_PPUmemory[(nt1<<UPSHIFT_1KB)]) );
+   }
+   if ( nt2 >= 0 )
+   {
+      nt2 &= 0x3;
+      Move1KBank ( 0x9, &(m_PPUmemory[(nt2<<UPSHIFT_1KB)]) );
+   }
+   if ( nt3 >= 0 )
+   {
+      nt3 &= 0x3;
+      Move1KBank ( 0xA, &(m_PPUmemory[(nt3<<UPSHIFT_1KB)]) );
+   }
+   if ( nt4 >= 0 )
+   {
+      nt4 &= 0x3;
+      Move1KBank ( 0xB, &(m_PPUmemory[(nt4<<UPSHIFT_1KB)]) );
+   }
 }
 
 void CPPU::QUIETSCANLINES ( void )
