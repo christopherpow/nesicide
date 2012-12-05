@@ -374,7 +374,7 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
 
    SETPPU();
 
-   if ( scanline == 0 )
+   if ( scanline < 239 )
    {
       m_irqStatus = 0x40;
       C6502::RELEASEIRQ(eNESSource_Mapper);
@@ -1017,7 +1017,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5204:
          m_reg[41] = data;
-         m_irqEnabled = data;
+         m_irqEnabled = data&0x80;
          break;
       case 0x5205:
          m_reg[42] = data;

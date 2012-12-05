@@ -83,11 +83,19 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
    {
       if ( orientation == Qt::Horizontal )
       {
-         sprintf(modelStringBuffer,m_regDB()->GetColumnHeading(section));
+         if ( (section >= 0) &&
+              (section < m_regDB()->GetNumColumns()) )
+         {
+           sprintf(modelStringBuffer,m_regDB()->GetColumnHeading(section));
+         }
       }
       else
       {
-         sprintf(modelStringBuffer,m_regDB()->GetRowHeading(section));
+         if ( (section >= 0) &&
+              (section < m_regDB()->GetNumRows()) )
+         {
+            sprintf(modelStringBuffer,m_regDB()->GetRowHeading(section));
+         }
       }
    }
 
@@ -117,7 +125,8 @@ QModelIndex CDebuggerRegisterDisplayModel::index(int row, int column, const QMod
 {
    if ( m_regDB() )
    {
-      if ( (row >= 0) && (column >= 0) )
+      if ( (row >= 0) && (column >= 0) &&
+           (row < m_regDB()->GetNumRows()) && (column < m_regDB()->GetNumColumns()) )
       {
          return createIndex(row,column,m_regDB()->GetRegister((row*m_regDB()->GetNumColumns())+column));
       }
