@@ -815,7 +815,7 @@ void C6502::ADVANCE ( bool stealing )
    }
 
    // Tell mappers that look at CPU cycles that a CPU cycle has whisked by...
-   mapperfunc[CROM::MAPPER()].sync_cpu();
+   MAPPERFUNC->sync_cpu();
 
    // Run APU for one cycle...
    CAPU::EMULATE ();
@@ -3609,7 +3609,7 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
    if ( addr >= 0x8000 )
    {
       (*pTarget) = eTarget_Mapper;
-      data = mapperfunc[CROM::MAPPER()].highread(addr);
+      data = MAPPERFUNC->highread(addr);
    }
    else if ( addr < 0x2000 )
    {
@@ -3625,17 +3625,17 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
    else if ( addr >= 0x6000 )
    {
       (*pTarget) = eTarget_SRAM;
-      data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
+      data = MAPPERFUNC->lowread ( addr );
    }
    else if ( addr >= 0x5C00 )
    {
       (*pTarget) = eTarget_EXRAM;
-      data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
+      data = MAPPERFUNC->lowread ( addr );
    }
    else if ( addr >= 0x4018 )
    {
       (*pTarget) = eTarget_Mapper;
-      data = mapperfunc [ CROM::MAPPER() ].lowread ( addr );
+      data = MAPPERFUNC->lowread ( addr );
    }
    else
    {
@@ -3714,22 +3714,22 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
    else if ( addr < 0x5C00 )
    {
       (*pTarget) = eTarget_Mapper;
-      mapperfunc [ CROM::MAPPER() ].lowwrite ( addr, data );
+      MAPPERFUNC->lowwrite ( addr, data );
    }
    else if ( addr < 0x6000 )
    {
       (*pTarget) = eTarget_EXRAM;
-      mapperfunc [ CROM::MAPPER() ].lowwrite ( addr, data );
+      MAPPERFUNC->lowwrite ( addr, data );
    }
    else if ( addr < 0x8000 )
    {
       (*pTarget) = eTarget_SRAM;
-      mapperfunc [ CROM::MAPPER() ].lowwrite ( addr, data );
+      MAPPERFUNC->lowwrite ( addr, data );
    }
    else
    {
       (*pTarget) = eTarget_Mapper;
-      mapperfunc [ CROM::MAPPER() ].highwrite ( addr, data );
+      MAPPERFUNC->highwrite ( addr, data );
    }
 }
 

@@ -468,20 +468,6 @@ void NESEmulatorThread::loadCartridge()
          nesSetFourScreen();
       }
 
-      // CPTODO: implement mapper reloading...project reload should load ROM in saved state.
-   #if 0
-      // Force mapper to intialize...
-      mapperfunc [ m_pCartridge->getMapperNumber() ].reset ();
-
-      MapperState* pMapperState = m_pRIID->GetMapperState ();
-
-      if ( pMapperState->valid )
-      {
-         mapperfunc [ m_pRIID->GetMapperID() ].load ( pMapperState );
-      }
-
-   #endif
-
       // Initialize NES...
       nesResetInitial(m_pCartridge->getMapperNumber());
 

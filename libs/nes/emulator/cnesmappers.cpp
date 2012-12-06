@@ -42,7 +42,9 @@
 #include "cnesrommapper069.h"
 #include "cnesrommapper075.h"
 
-MapperFuncs mapperfunc[] =
+MapperFuncs* MAPPERFUNC = &(_mapperfunc[0]); // Assume NROM to start.
+
+MapperFuncs _mapperfunc[] =
 {
    /* 000 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          CROM::AMPLITUDE,          CROM::SOUNDENABLE,          false, false },
    /* 001 */ { CROMMapper001::RESET, CROM::HMAPPER,          CROMMapper001::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper001::SYNCCPU, CROMMapper001::DEBUGINFO, CROM::AMPLITUDE,          CROM::SOUNDENABLE,          true,  true },

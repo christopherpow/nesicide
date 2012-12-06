@@ -27,6 +27,8 @@ typedef struct _MapperFuncs
    bool     remapChr;
 } MapperFuncs;
 
-extern MapperFuncs mapperfunc[];
+extern MapperFuncs _mapperfunc[];
+
+extern MapperFuncs* MAPPERFUNC;
 
 #endif

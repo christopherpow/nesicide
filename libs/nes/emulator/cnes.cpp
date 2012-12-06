@@ -276,10 +276,9 @@ void CNES::RESET ( uint32_t mapper, bool soft )
       C6502::MARKERS()->ZeroAllMarkers();
    }
 
-   // Reset mapper...this sets up the CROM object with the
-   // correct mapper information so the appropriate mapper
-   // functions are called.
-   mapperfunc [ mapper ].reset ( soft );
+   // Reset mapper and set up quick access pointer to mapper function table.
+   MAPPERFUNC = &(_mapperfunc[mapper]);
+   MAPPERFUNC->reset ( soft );
 
    // Reset emulated PPU...
    CPPU::RESET ( soft );
@@ -697,11 +696,11 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            // Get actual register data...
                            if ( pRegister->GetAddr() >= MEM_32KB )
                            {
-                              value = mapperfunc[CROM::MAPPER()].debuginfo(pRegister->GetAddr());
+                              value = MAPPERFUNC->debuginfo(pRegister->GetAddr());
                            }
                            else
                            {
-                              value = mapperfunc[CROM::MAPPER()].debuginfo(pRegister->GetAddr());
+                              value = MAPPERFUNC->debuginfo(pRegister->GetAddr());
                            }
 
                            if ( pBreakpoint->condition == eBreakIfAnything )
