@@ -26,6 +26,7 @@
 #include "cnesrommapper010.h"
 #include "cnesrommapper011.h"
 #include "cnesrommapper013.h"
+#include "cnesrommapper018.h"
 #include "cnesrommapper019.h"
 #include "cnesrommapper021.h"
 #include "cnesrommapper022.h"
@@ -61,7 +62,7 @@ MapperFuncs mapperfunc[] =
    /* 015 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          CROM::AMPLITUDE,          CROM::SOUNDENABLE,          false, false },
    /* 016 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          CROM::AMPLITUDE,          CROM::SOUNDENABLE,          false, false },
    /* 017 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          CROM::AMPLITUDE,          CROM::SOUNDENABLE,          false, false },
-   /* 018 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          CROM::AMPLITUDE,          CROM::SOUNDENABLE,          false, false },
+   /* 018 */ { CROMMapper018::RESET, CROM::HMAPPER,          CROMMapper018::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper018::SYNCCPU, CROMMapper018::DEBUGINFO, CROM::AMPLITUDE,          CROM::SOUNDENABLE,          true,  true },
    /* 019 */ { CROMMapper019::RESET, CROM::HMAPPER,          CROMMapper019::HMAPPER, CROMMapper019::LMAPPER, CROMMapper019::LMAPPER, CROM::SYNCPPU,          CROMMapper019::SYNCCPU, CROMMapper019::DEBUGINFO, CROMMapper019::AMPLITUDE, CROMMapper019::SOUNDENABLE, true,  true },
    /* 020 */ { CROM::RESET,          CROM::HMAPPER,          CROM::HMAPPER,          CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROM::SYNCCPU,          CROM::DEBUGINFO,          CROM::AMPLITUDE,          CROM::SOUNDENABLE,          false, false },
    /* 021 */ { CROMMapper021::RESET, CROM::HMAPPER,          CROMMapper021::HMAPPER, CROM::LMAPPER,          CROM::LMAPPER,          CROM::SYNCPPU,          CROMMapper021::SYNCCPU, CROMMapper021::DEBUGINFO, CROM::AMPLITUDE,          CROM::SOUNDENABLE,          true,  true },
