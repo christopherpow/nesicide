@@ -129,4 +129,4 @@ FORMS += \
    emulator/nesemulatordockwidget.ui
 
 RESOURCES += \
-    resource.qrc
+    ../../common/resource.qrc

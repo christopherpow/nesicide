@@ -494,5 +494,6 @@ FORMS += \
    nes/debuggers/prgromdisplaydialog.ui \
     nes/debuggers/joypadloggerdockwidget.ui
 
-RESOURCES += resource.qrc \
-    templates.qrc
+RESOURCES += \
+    templates.qrc \
+    ../../common/resource.qrc
