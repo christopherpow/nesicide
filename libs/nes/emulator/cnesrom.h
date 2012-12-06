@@ -42,7 +42,7 @@ class CROM
 {
 public:
    CROM();
-   virtual ~CROM();
+   ~CROM();
 
    // Priming interfaces (data setup/initialization)
    static void ClearPRGBanks ()

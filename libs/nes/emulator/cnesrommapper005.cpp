@@ -324,6 +324,8 @@ uint8_t  CROMMapper005::m_fillAttr = 0;
 uint32_t CROMMapper005::m_ppuCycle = 0;
 uint8_t  CROMMapper005::m_chr[] = { 0, };
 uint8_t  CROMMapper005::m_reg[] = { 0, };
+CAPUSquare CROMMapper005::m_square[2];
+CAPUDMC    CROMMapper005::m_dmc;
 
 CROMMapper005::CROMMapper005()
 {
@@ -338,6 +340,10 @@ void CROMMapper005::RESET ( bool soft )
    m_mapper = 5;
 
    m_dbRegisters = dbRegisters;
+
+   m_square[0].RESET();
+   m_square[1].RESET();
+   m_dmc.RESET();
 
    CROM::RESET ( m_mapper, soft );
 
@@ -364,6 +370,13 @@ void CROMMapper005::RESET ( bool soft )
    m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
 
    // CHR ROM/RAM already set up in CROM::RESET()...
+}
+
+void CROMMapper005::SYNCCPU ( void )
+{
+   m_square[0].TIMERTICK();
+   m_square[1].TIMERTICK();
+   m_dmc.TIMERTICK();
 }
 
 void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
@@ -658,36 +671,48 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       {
       case 0x5000:
          m_reg[0] = data;
+         m_square[0].APU(0,data);
          break;
       case 0x5001:
          m_reg[1] = data;
+         m_square[0].APU(1,data);
          break;
       case 0x5002:
          m_reg[2] = data;
+         m_square[0].APU(2,data);
          break;
       case 0x5003:
          m_reg[3] = data;
+         m_square[0].APU(3,data);
          break;
       case 0x5004:
          m_reg[4] = data;
+         m_square[1].APU(0,data);
          break;
       case 0x5005:
          m_reg[5] = data;
+         m_square[1].APU(1,data);
          break;
       case 0x5006:
          m_reg[6] = data;
+         m_square[1].APU(2,data);
          break;
       case 0x5007:
          m_reg[7] = data;
+         m_square[1].APU(3,data);
          break;
       case 0x5010:
          m_reg[8] = data;
+         m_dmc.APU(0,data);
          break;
       case 0x5011:
          m_reg[9] = data;
+         m_dmc.APU(1,data);
          break;
       case 0x5015:
          m_reg[10] = data;
+         m_square[0].ENABLE(!!(data&0x01));
+         m_square[1].ENABLE(!!(data&0x02));
          break;
       case 0x5100:
          m_reg[11] = data;
@@ -1032,4 +1057,74 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       }
    }
    SETPPU();
+}
+
+uint16_t CROMMapper005::AMPLITUDE ( void )
+{
+   float famp;
+   int16_t amp;
+   int16_t delta;
+   int16_t out[100] = { 0, };
+   static int16_t outLast = 0;
+   uint8_t sample;
+   uint8_t* sq1dacSamples = m_square[0].GETDACSAMPLES();
+   uint8_t* sq2dacSamples = m_square[1].GETDACSAMPLES();
+   uint8_t* dmcDacSamples = m_dmc.GETDACSAMPLES();
+   static int32_t outDownsampled = 0;
+
+   for ( sample = 0; sample < m_square[0].GETDACSAMPLECOUNT(); sample++ )
+   {
+//      output = square_out + tnd_out
+//
+//
+//                            95.88
+//      square_out = -----------------------
+//                          8128
+//                   ----------------- + 100
+//                   square1 + square2
+//
+//
+//                            159.79
+//      tnd_out = ------------------------------
+//                            1
+//                ------------------------ + 100
+//                triangle   noise    dmc
+//                -------- + ----- + -----
+//                  8227     12241   22638
+      famp = 0.0;
+      if ( (*(sq1dacSamples+sample))+(*(sq2dacSamples+sample)) )
+      {
+         famp = (95.88/((8128.0/((*(sq1dacSamples+sample))+(*(sq2dacSamples+sample))))+100.0));
+      }
+      if ( (*(dmcDacSamples+sample)) )
+      {
+         famp += (159.79/((1.0/((((*(dmcDacSamples+sample))/22638.0))))+100.0));
+      }
+      amp = (int16_t)(float)(65535.0*famp*0.50);
+
+      (*(out+sample)) = amp;
+
+      outDownsampled += (*(out+sample));
+   }
+
+   outDownsampled = (int32_t)((float)outDownsampled/((float)m_square[0].GETDACSAMPLECOUNT()));
+
+   delta = outDownsampled - outLast;
+   outDownsampled = outLast+((delta*65371)/65536); // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.
+
+   outLast = outDownsampled;
+
+   // Reset DAC averaging...
+   m_square[0].CLEARDACAVG();
+   m_square[1].CLEARDACAVG();
+   m_dmc.CLEARDACAVG();
+
+   return outDownsampled;
+}
+
+void CROMMapper005::SOUNDENABLE(uint32_t mask)
+{
+   m_square[0].MUTE(0);//!(mask&0x01));
+   m_square[1].MUTE(0);//!(mask&0x02));
+   m_dmc.MUTE(0);//!(mask&0x04));
 }

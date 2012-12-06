@@ -2,12 +2,13 @@
 #define ROM_MAPPER005_H
 
 #include "cnesrom.h"
+#include "cnesapu.h"
 
 class CROMMapper005 : public CROM
 {
 public:
    CROMMapper005();
-   virtual ~CROMMapper005();
+   ~CROMMapper005();
 
    static void RESET ( bool soft );
    static uint32_t HMAPPER ( uint32_t addr );
@@ -15,9 +16,12 @@ public:
    static uint32_t LMAPPER ( uint32_t addr );
    static void LMAPPER ( uint32_t addr, uint8_t data );
    static void SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr );
+   static void SYNCCPU ( void );
    static void SETCPU ( void );
    static void SETPPU ( void );
    static uint32_t DEBUGINFO ( uint32_t addr );
+   static uint16_t AMPLITUDE ( void );
+   static void SOUNDENABLE ( uint32_t mask );
 
 protected:
    // MMC5
@@ -39,6 +43,9 @@ protected:
    static uint8_t  m_fillTile;
    static uint8_t  m_fillAttr;
    static uint8_t  m_reg[44];
+
+   static CAPUSquare m_square[2];
+   static CAPUDMC    m_dmc;
 };
 
 #endif

@@ -146,7 +146,7 @@ class C6502
 {
 public:
    C6502();
-   virtual ~C6502();
+   ~C6502();
 
    // Emulation routines.
    static void EMULATE ( int32_t cycles );

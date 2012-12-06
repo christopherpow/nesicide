@@ -40,7 +40,7 @@ class CCodeDataLogger
 {
 public:
    CCodeDataLogger(uint32_t size, uint32_t mask);
-   virtual ~CCodeDataLogger();
+   ~CCodeDataLogger();
 
    void ClearData ( void );
    void LogAccess ( uint32_t cycle, uint32_t addr, uint8_t data, int8_t type, int8_t source );

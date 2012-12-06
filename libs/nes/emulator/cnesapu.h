@@ -310,17 +310,17 @@ public:
 
    // This method sets data internal to the APU channel.  There is no
    // get method because the APU channel's registers are write-only.
-   inline void APU ( uint32_t addr, uint8_t data );
+   void APU ( uint32_t addr, uint8_t data );
 
    // This method handles the channel mechanics of generating the
    // appropriate square waveform given the register settings.  It
    // is invoked by the main APU object at each APU cycle.  When necessary
    // it updates the DAC value of the channel.
-   inline void TIMERTICK ( void );
+   void TIMERTICK ( void );
 
    // This routine returns the channels' internal state to
    // what it should be at NES reset.
-   inline void RESET ( void )
+   void RESET ( void )
    {
       CAPUOscillator::RESET();
       m_duty = 0;
@@ -458,14 +458,14 @@ public:
 
    // This method sets data internal to the APU channel.  There is no
    // get method because the APU channel's registers are write-only.
-   inline void APU ( uint32_t addr, uint8_t data );
+   void APU ( uint32_t addr, uint8_t data );
 
    // This method handles the channel mechanics of generating the
    // appropriate delta-modulation waveform given the register settings.  It
    // is invoked by the main APU object at each APU cycle.  When necessary
    // it updates the DAC value of the channel.  It also drives the other
    // channel elements to fetch sample data using DMA.
-   inline void TIMERTICK ( void );
+   void TIMERTICK ( void );
 
    // The delta-modulation channel requires special handling of writes
    // to $4015 because it has an internal interrupt generator that is
@@ -526,7 +526,7 @@ public:
 
    // This routine returns the channels' internal state to
    // what it should be at NES reset.
-   inline void RESET ( void );
+   void RESET ( void );
 
 protected:
    // Current address within NES system memory where

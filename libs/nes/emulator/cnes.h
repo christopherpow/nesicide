@@ -39,7 +39,7 @@ class CNES
 {
 public:
    CNES();
-   virtual ~CNES();
+   ~CNES();
 
    // Accessor methods to get/set the current video mode.
    static inline void VIDEOMODE ( int32_t mode )
