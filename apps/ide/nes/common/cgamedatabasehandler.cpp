@@ -13,7 +13,7 @@ CGameDatabaseHandler::CGameDatabaseHandler()
 bool CGameDatabaseHandler::initialize(QString fileName)
 {
    QFile file(fileName);
-   QFile res(":GameDatabase");
+   QFile res(":/GameDatabase");
    bool openedFile = false;
 
    // First attempt to open the user-specified game database...
