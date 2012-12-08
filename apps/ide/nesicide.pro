@@ -465,7 +465,8 @@ HEADERS += \
     model/ctilestampmodel.h \
     model/cattributemodel.h \
     model/iuuidvisitor.h \
-    model/cgraphicsbankmodel.h
+    model/cgraphicsbankmodel.h \
+    model/csubmodel.h
 
 FORMS += \
    aboutdialog.ui \

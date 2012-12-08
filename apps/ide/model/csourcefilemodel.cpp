@@ -4,15 +4,9 @@
 #include "cnesicideproject.h"
 
 CSourceFileModel::CSourceFileModel()
-   : m_pProject(NULL)
+   : CSubModel()
 {
 
-}
-
-void CSourceFileModel::setProject(CNesicideProject *project)
-{
-   m_pProject = project;
-   emit reset();
 }
 
 QUuid CSourceFileModel::newSourceFile(const QString& path)

@@ -1,9 +1,13 @@
 #ifndef CATTRIBUTEMODEL_H
 #define CATTRIBUTEMODEL_H
 
-class CAttributeModel
+#include "model/csubmodel.h"
+
+class CAttributeModel : public CSubModel
 {
-public:
+   Q_OBJECT
+private:
+   friend class CProjectModel;
    CAttributeModel();
 };
 

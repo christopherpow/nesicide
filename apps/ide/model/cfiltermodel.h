@@ -1,9 +1,13 @@
 #ifndef CFILTERMODEL_H
 #define CFILTERMODEL_H
 
-class CFilterModel
+#include "model/csubmodel.h"
+
+class CFilterModel : public CSubModel
 {
-public:
+   Q_OBJECT
+private:
+   friend class CProjectModel;
    CFilterModel();
 };
 

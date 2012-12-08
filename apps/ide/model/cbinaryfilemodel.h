@@ -1,9 +1,13 @@
 #ifndef CBINARYFILEMODEL_H
 #define CBINARYFILEMODEL_H
 
-class CBinaryFileModel
+#include "model/csubmodel.h"
+
+class CBinaryFileModel : public CSubModel
 {
-public:
+   Q_OBJECT
+private:
+   friend class CProjectModel;
    CBinaryFileModel();
 };
 

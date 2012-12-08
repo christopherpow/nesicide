@@ -1,9 +1,13 @@
 #ifndef CTILESTAMPMODEL_H
 #define CTILESTAMPMODEL_H
 
-class CTileStampModel
+#include "model/csubmodel.h"
+
+class CTileStampModel : public CSubModel
 {
-public:
+   Q_OBJECT
+private:
+   friend class CProjectModel;
    CTileStampModel();
 };
 

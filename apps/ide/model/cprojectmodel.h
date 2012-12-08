@@ -16,6 +16,12 @@ class CTileStampModel;
 class CProjectModel : public QObject
 {
    Q_OBJECT
+signals:
+   void itemAdded(QUuid item);
+   void itemRemoved(QUuid item);
+
+   void reset();
+
 public:
    CProjectModel();
    ~CProjectModel();
@@ -40,11 +46,6 @@ public:
    CSourceFileModel*    getSourceFileModel()    { return m_pSourceFileModel; }
    CTileStampModel*     getTileStampModel()     { return m_pTileStampModel; }
 
-signals:
-   void itemAdded(QUuid item);
-   void itemRemoved(QUuid item);
-
-   void reset();
 private:
    CNesicideProject*    m_pProject;
 

@@ -1,14 +1,16 @@
 #ifndef CSOURCEFILES_H
 #define CSOURCEFILES_H
 
-#include <QObject>
-#include <QUuid>
+#include "model/csubmodel.h"
 
-class CNesicideProject;
-
-class CSourceFileModel : public QObject
+class CSourceFileModel : public CSubModel
 {
    Q_OBJECT
+signals:
+   void sourceFileChanged(const QUuid& uuid);
+   void sourceFileAdded  (const QUuid& uuid);
+   void sourceFileRemoved(const QUuid& uuid);
+
 public:
    // Add a new source file to the project.
    QUuid newSourceFile(const QString& path);
@@ -28,21 +30,9 @@ public:
    void setSourceCode(const QUuid& uuid, const QString& source);
    void setRelativePath(const QUuid& uuid, const QString& path);
 
-signals:
-   void sourceFileChanged(const QUuid& uuid);
-   void sourceFileAdded  (const QUuid& uuid);
-   void sourceFileRemoved(const QUuid& uuid);
-
-   // Fired when the underlying project changes.
-   void reset();
-
 private:
-   CNesicideProject* m_pProject;
-
    friend class CProjectModel;
-
    CSourceFileModel();
-   void setProject(CNesicideProject* project);
 };
 
 #endif // CSOURCEFILES_H

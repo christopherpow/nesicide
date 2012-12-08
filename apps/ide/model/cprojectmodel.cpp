@@ -42,10 +42,18 @@ CProjectModel::~CProjectModel()
 
 void CProjectModel::setProject(CNesicideProject *project)
 {
-   // TODO Propagate data changes through all child models.
-   this->m_pProject = project;
+   m_pProject = project;
 
-   // TODO emit reset event.
+   // Propagate data changes through all child models.
+   m_pSourceFileModel->setProject(project);
+   m_pAttributeModel->setProject(project);
+   m_pBinaryFileModel->setProject(project);
+   m_pFilterModel->setProject(project);
+   m_pGraphicsBankModel->setProject(project);
+   m_pSourceFileModel->setProject(project);
+   m_pTileStampModel->setProject(project);
+
+   emit reset();
 }
 
 QList<QUuid> CProjectModel::getUuids() const

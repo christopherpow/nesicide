@@ -1,9 +1,13 @@
 #ifndef CGRAPHICSBANKMODEL_H
 #define CGRAPHICSBANKMODEL_H
 
-class CGraphicsBankModel
+#include "model/csubmodel.h"
+
+class CGraphicsBankModel : public CSubModel
 {
-public:
+   Q_OBJECT
+private:
+   friend class CProjectModel;
    CGraphicsBankModel();
 };
 
