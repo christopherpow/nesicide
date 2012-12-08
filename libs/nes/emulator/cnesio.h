@@ -7,27 +7,25 @@
 class CIO
 {
 public:
-   CIO();
-   virtual ~CIO();
+   CIO() {}
 
    static void IO ( uint32_t addr, uint8_t data );
    static uint32_t IO ( uint32_t addr );
    static void _IO ( uint32_t addr, uint8_t data );
    static uint32_t _IO ( uint32_t addr );
-   static inline void JOY ( uint8_t joy, uint8_t data )
+   static inline void JOY ( uint8_t joy, uint32_t data )
    {
       *(m_ioJoy+joy) = data;
    }
 
 protected:
-   static uint8_t  m_ioJoy [ NUM_CONTROLLERS ];
+   static uint32_t  m_ioJoy [ NUM_CONTROLLERS ];
 };
 
 class CIOStandardJoypad : public CIO
 {
 public:
-   CIOStandardJoypad();
-   virtual ~CIOStandardJoypad();
+   CIOStandardJoypad() {}
 
    static void IO ( uint32_t addr, uint8_t data );
    static uint32_t IO ( uint32_t addr );
@@ -41,11 +39,24 @@ protected:
    static CJoypadLogger  m_logger [ NUM_CONTROLLERS ];
 };
 
+class CIOTurboJoypad : public CIOStandardJoypad
+{
+public:
+   CIOTurboJoypad() {}
+
+   static void IO ( uint32_t addr, uint8_t data );
+   static void _IO ( uint32_t addr, uint8_t data );
+   static uint32_t _IO ( uint32_t addr );
+
+protected:
+   static uint32_t m_lastFrame;
+   static uint8_t m_alternator [ NUM_CONTROLLERS ][ 2 ];
+};
+
 class CIOVaus : public CIO
 {
 public:
-   CIOVaus();
-   virtual ~CIOVaus();
+   CIOVaus() {}
 
    static void IO ( uint32_t addr, uint8_t data );
    static uint32_t IO ( uint32_t addr );
@@ -62,8 +73,7 @@ protected:
 class CIOZapper : public CIO
 {
 public:
-   CIOZapper();
-   virtual ~CIOZapper();
+   CIOZapper() {}
 
    static void IO ( uint32_t addr, uint8_t data );
    static uint32_t IO ( uint32_t addr );

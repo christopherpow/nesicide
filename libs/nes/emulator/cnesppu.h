@@ -190,7 +190,7 @@ class CPPU
 {
 public:
    CPPU();
-   virtual ~CPPU();
+   ~CPPU();
 
    // Emulation routine.  Emulates one PPU cycle.
    static inline void EMULATE ( uint32_t cycles );

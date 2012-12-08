@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -77,6 +77,11 @@
            </item>
            <item>
             <property name="text">
+             <string>Turbo Controller</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Zapper</string>
             </property>
            </item>
@@ -98,7 +103,7 @@
           <enum>QFrame::Plain</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="noControllerPage"/>
          <widget class="QWidget" name="standardControllerPage">
@@ -109,7 +114,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="../../nes-emulator/resource.qrc">:/resources/controller.png</pixmap>
+              <pixmap resource="../resource.qrc">:/resources/controller.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -126,7 +131,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QKeymapItemEdit" name="upKey">
+              <widget class="QKeymapItemEdit" name="upKeyStandard">
                <property name="text">
                 <string>W</string>
                </property>
@@ -152,7 +157,7 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QKeymapItemEdit" name="downKey">
+              <widget class="QKeymapItemEdit" name="downKeyStandard">
                <property name="text">
                 <string>S</string>
                </property>
@@ -178,7 +183,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QKeymapItemEdit" name="leftKey">
+              <widget class="QKeymapItemEdit" name="leftKeyStandard">
                <property name="text">
                 <string>A</string>
                </property>
@@ -204,7 +209,7 @@
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QKeymapItemEdit" name="rightKey">
+              <widget class="QKeymapItemEdit" name="rightKeyStandard">
                <property name="text">
                 <string>D</string>
                </property>
@@ -223,7 +228,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QKeymapItemEdit" name="bKey">
+              <widget class="QKeymapItemEdit" name="bKeyStandard">
                <property name="text">
                 <string>.</string>
                </property>
@@ -242,7 +247,7 @@
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QKeymapItemEdit" name="aKey">
+              <widget class="QKeymapItemEdit" name="aKeyStandard">
                <property name="text">
                 <string>/</string>
                </property>
@@ -289,7 +294,7 @@
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QKeymapItemEdit" name="selectKey">
+              <widget class="QKeymapItemEdit" name="selectKeyStandard">
                <property name="text">
                 <string>[</string>
                </property>
@@ -308,7 +313,7 @@
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QKeymapItemEdit" name="startKey">
+              <widget class="QKeymapItemEdit" name="startKeyStandard">
                <property name="text">
                 <string>]</string>
                </property>
@@ -330,6 +335,297 @@
            </item>
            <item>
             <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="turboControllerPage">
+          <layout class="QGridLayout" name="gridLayout_28">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="../resource.qrc">:/resources/turbo_ver01_by_ogr.png</pixmap>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <layout class="QGridLayout" name="gridLayout_27">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_45">
+               <property name="text">
+                <string>Up</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QKeymapItemEdit" name="upKeyTurbo">
+               <property name="text">
+                <string>W</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_46">
+               <property name="text">
+                <string>Down</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QKeymapItemEdit" name="downKeyTurbo">
+               <property name="text">
+                <string>S</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_47">
+               <property name="text">
+                <string>Left</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QKeymapItemEdit" name="leftKeyTurbo">
+               <property name="text">
+                <string>A</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="label_48">
+               <property name="text">
+                <string>Right</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QKeymapItemEdit" name="rightKeyTurbo">
+               <property name="text">
+                <string>D</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QKeymapItemEdit" name="bKeyTurbo">
+               <property name="text">
+                <string>.</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QKeymapItemEdit" name="aKeyTurbo">
+               <property name="text">
+                <string>/</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_49">
+               <property name="text">
+                <string>B</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QLabel" name="label_50">
+               <property name="text">
+                <string>A</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_51">
+               <property name="text">
+                <string>B-Turbo</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLabel" name="label_52">
+               <property name="text">
+                <string>A-Turbo</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_53">
+               <property name="text">
+                <string>Select</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QKeymapItemEdit" name="selectKeyTurbo">
+               <property name="text">
+                <string>[</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QKeymapItemEdit" name="startKeyTurbo">
+               <property name="text">
+                <string>]</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLabel" name="label_54">
+               <property name="text">
+                <string>Start</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QKeymapItemEdit" name="bTurboKeyTurbo">
+               <property name="text">
+                <string>;</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QKeymapItemEdit" name="aTurboKeyTurbo">
+               <property name="text">
+                <string>'</string>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Normal</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
+            <spacer name="verticalSpacer_5">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -419,7 +715,7 @@
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../../nes-emulator/resource.qrc">:/resources/vaus.png</pixmap>
+                <pixmap resource="../resource.qrc">:/resources/vaus.png</pixmap>
                </property>
               </widget>
              </item>
@@ -687,181 +983,159 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
-           <widget class="QCheckBox" name="square1">
-            <property name="text">
-             <string>Square 1</string>
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string>APU</string>
             </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="square1">
+               <property name="text">
+                <string>Square 1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="square2">
+               <property name="text">
+                <string>Square 2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="triangle">
+               <property name="text">
+                <string>Triangle</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QCheckBox" name="noise">
+               <property name="text">
+                <string>Noise</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QCheckBox" name="dmc">
+               <property name="text">
+                <string>DMC</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="square2">
-            <property name="text">
-             <string>Square 2</string>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="groupBox_10">
+            <property name="title">
+             <string>VRC6</string>
             </property>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="pulse1VRC6">
+               <property name="text">
+                <string>Pulse 1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="pulse2VRC6">
+               <property name="text">
+                <string>Pulse 2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="sawtoothVRC6">
+               <property name="text">
+                <string>Sawtooth</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="triangle">
-            <property name="text">
-             <string>Triangle</string>
+          <item row="2" column="0">
+           <widget class="QGroupBox" name="groupBox_12">
+            <property name="title">
+             <string>Namco 106</string>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="noise">
-            <property name="text">
-             <string>Noise</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QCheckBox" name="dmc">
-            <property name="text">
-             <string>DMC</string>
-            </property>
+            <layout class="QGridLayout" name="gridLayout_16">
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="wave1N106">
+               <property name="text">
+                <string>Wave 1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="wave2N106">
+               <property name="text">
+                <string>Wave 2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="wave3N106">
+               <property name="text">
+                <string>Wave 3</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QCheckBox" name="wave4N106">
+               <property name="text">
+                <string>Wave 4</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="wave5N106">
+               <property name="text">
+                <string>Wave 5</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QCheckBox" name="wave6N106">
+               <property name="text">
+                <string>Wave 6</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QCheckBox" name="wave7N106">
+               <property name="text">
+                <string>Wave 7</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QCheckBox" name="wave8N106">
+               <property name="text">
+                <string>Wave 8</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Equalizer</string>
+       <item row="2" column="0" colspan="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="1" column="0">
-           <widget class="QSlider" name="square1Eq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="sliderPosition">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSlider" name="square2Eq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QSlider" name="triangleEq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QSlider" name="noiseEq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QSlider" name="dmcEq">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBothSides</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Square 1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>Square 2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Triangle</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Noise</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>DMC</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -933,7 +1207,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -969,7 +1243,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -992,7 +1266,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -1015,7 +1289,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -1046,7 +1320,9 @@
    <header location="global">qkeymapitemedit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

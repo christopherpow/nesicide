@@ -38,6 +38,7 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
    internalPageMap.insert(4,ui->mapper4);
    internalPageMap.insert(9,ui->mapper9and10);
    internalPageMap.insert(10,ui->mapper9and10);
+   internalPageMap.insert(19,ui->mapper19);
    internalPageMap.insert(28,ui->mapper28);
    internalPageMap.insert(69,ui->mapper69);
 

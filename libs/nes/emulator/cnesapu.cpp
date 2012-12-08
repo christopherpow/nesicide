@@ -392,7 +392,10 @@ uint16_t CAPU::AMPLITUDE ( void )
       outDownsampled += (*(out+sample));
    }
 
-   outDownsampled = (int32_t)((float)outDownsampled/((float)m_square[0].GETDACSAMPLECOUNT()+1));
+   outDownsampled = (int32_t)((float)outDownsampled/((float)m_square[0].GETDACSAMPLECOUNT()));
+
+   // Add mapper audio if any.
+   outDownsampled += mapperfunc[CROM::MAPPER()].amplitude();
 
    delta = outDownsampled - outLast;
    outDownsampled = outLast+((delta*65371)/65536); // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.

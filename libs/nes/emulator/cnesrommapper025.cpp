@@ -179,15 +179,21 @@ void CROMMapper025::SYNCCPU ( void )
 {
    uint8_t phases[3] = { 114, 114, 113 };
 
-   if ( m_reg[22]&0x02 )
+   if ( m_reg[21]&0x02 )
    {
-      if ( m_reg[22]&0x04 )
+      if ( m_reg[21]&0x04 )
       {
          // Cycle mode counter
          if ( m_irqCounter == 0xFF )
          {
             m_irqCounter = m_irqReload;
             C6502::ASSERTIRQ(eNESSource_Mapper);
+
+            if ( nesIsDebuggable() )
+            {
+               // Check for IRQ breakpoint...
+               CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+            }
          }
          else
          {
@@ -208,6 +214,12 @@ void CROMMapper025::SYNCCPU ( void )
             {
                m_irqCounter = m_irqReload;
                C6502::ASSERTIRQ(eNESSource_Mapper);
+
+               if ( nesIsDebuggable() )
+               {
+                  // Check for IRQ breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+               }
             }
             else
             {
@@ -561,10 +573,10 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       reg = 23;
       m_reg[23] = data;
       C6502::RELEASEIRQ(eNESSource_Mapper);
-      if ( m_reg[21]&0x01 )
+      m_reg[21] &= 0xFD;
+      m_reg[21] |= ((m_reg[21]&0x01)<<1);
+      if ( m_reg[21]&0x02 )
       {
-         m_reg[21] |= 0x02;
-         m_reg[21] &= 0xFE;
          m_irqEnabled = true;
       }
       else

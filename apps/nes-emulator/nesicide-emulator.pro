@@ -97,7 +97,7 @@ SOURCES += \
    project/ccartridge.cpp \
    aboutdialog.cpp \
    emulator/nesemulatorthread.cpp \
-   emulator/emulatorprefsdialog.cpp \
+   $$TOP/common/emulatorprefsdialog.cpp \
    qkeymapitemedit.cpp \
    $$TOP/common/version.cpp \
    emulator/nesemulatorrenderer.cpp \
@@ -112,7 +112,7 @@ HEADERS += \
    main.h \
    aboutdialog.h \
    emulator/nesemulatorthread.h \
-   emulator/emulatorprefsdialog.h \
+   $$TOP/common/emulatorprefsdialog.h \
    qkeymapitemedit.h \
    emulator/nesemulatorrenderer.h \
    common/emulatorcontrol.h \
@@ -124,9 +124,9 @@ HEADERS += \
 FORMS += \
    mainwindow.ui \
    aboutdialog.ui \
-   emulator/emulatorprefsdialog.ui \
+   $$TOP/common/emulatorprefsdialog.ui \
    common/emulatorcontrol.ui \
    emulator/nesemulatordockwidget.ui
 
 RESOURCES += \
-    resource.qrc
+    ../../common/resource.qrc

@@ -90,10 +90,10 @@ static CRegisterData* tblRegisters [] =
    new CRegisterData(0xA000, "Pulse2 Control", nesMapperHighRead, nesMapperHighWrite, 3, tbl9000Bitfields),
    new CRegisterData(0xA001, "Pulse2 Frequency LSB", nesMapperHighRead, nesMapperHighWrite, 1, tbl9001Bitfields),
    new CRegisterData(0xA002, "Pulse2 Frequency MSN", nesMapperHighRead, nesMapperHighWrite, 2, tbl9002Bitfields),
-   new CRegisterData(0xB000, "Sawtooth Control", nesMapperHighRead, nesMapperHighWrite, 3, tblB000Bitfields),
+   new CRegisterData(0xB000, "Sawtooth Control", nesMapperHighRead, nesMapperHighWrite, 1, tblB000Bitfields),
    new CRegisterData(0xB001, "Sawtooth Frequency LSB", nesMapperHighRead, nesMapperHighWrite, 1, tbl9001Bitfields),
    new CRegisterData(0xB002, "Sawtooth Frequency MSN", nesMapperHighRead, nesMapperHighWrite, 2, tbl9002Bitfields),
-   new CRegisterData(0xB003, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tbl9000Bitfields),
+   new CRegisterData(0xB003, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tblB003Bitfields),
    new CRegisterData(0xC000, "PRG Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
    new CRegisterData(0xD000, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblD000Bitfields),
    new CRegisterData(0xD001, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblD000Bitfields),
@@ -134,6 +134,8 @@ uint8_t  CROMMapper024::m_irqCounter = 0;
 uint8_t  CROMMapper024::m_irqPrescaler = 0;
 uint8_t  CROMMapper024::m_irqPrescalerPhase = 0;
 bool     CROMMapper024::m_irqEnabled = false;
+VRC6PulseChannel CROMMapper024::m_pulse[2];
+VRC6SawtoothChannel CROMMapper024::m_sawtooth;
 
 CROMMapper024::CROMMapper024()
 {
@@ -150,6 +152,10 @@ void CROMMapper024::RESET ( bool soft )
    m_mapper = 24;
 
    m_dbRegisters = dbRegisters;
+
+   m_pulse[0].RESET();
+   m_pulse[1].RESET();
+   m_sawtooth.RESET();
 
    CROM::RESET ( m_mapper, soft );
 
@@ -171,6 +177,10 @@ void CROMMapper024::SYNCCPU ( void )
 {
    uint8_t phases[3] = { 114, 114, 113 };
 
+   m_pulse[0].TIMERTICK();
+   m_pulse[1].TIMERTICK();
+   m_sawtooth.TIMERTICK();
+
    if ( m_reg[21]&0x02 )
    {
       if ( m_reg[21]&0x04 )
@@ -180,6 +190,12 @@ void CROMMapper024::SYNCCPU ( void )
          {
             m_irqCounter = m_irqReload;
             C6502::ASSERTIRQ(eNESSource_Mapper);
+
+            if ( nesIsDebuggable() )
+            {
+               // Check for IRQ breakpoint...
+               CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+            }
          }
          else
          {
@@ -200,6 +216,12 @@ void CROMMapper024::SYNCCPU ( void )
             {
                m_irqCounter = m_irqReload;
                C6502::ASSERTIRQ(eNESSource_Mapper);
+
+               if ( nesIsDebuggable() )
+               {
+                  // Check for IRQ breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+               }
             }
             else
             {
@@ -310,38 +332,47 @@ void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )
    case 0x9000:
       reg = 1;
       m_reg[1] = data;
+      m_pulse[0].REG(0x9000,data);
       break;
    case 0x9001:
       reg = 2;
       m_reg[2] = data;
+      m_pulse[0].REG(0x9001,data);
       break;
    case 0x9002:
       reg = 3;
       m_reg[3] = data;
+      m_pulse[0].REG(0x9002,data);
       break;
    case 0xA000:
       reg = 4;
       m_reg[4] = data;
+      m_pulse[1].REG(0xA000,data);
       break;
    case 0xA001:
       reg = 5;
       m_reg[5] = data;
+      m_pulse[1].REG(0xA001,data);
       break;
    case 0xA002:
       reg = 6;
       m_reg[6] = data;
+      m_pulse[1].REG(0xA002,data);
       break;
    case 0xB000:
       reg = 7;
       m_reg[7] = data;
+      m_sawtooth.REG(0xB000,data);
       break;
    case 0xB001:
       reg = 8;
       m_reg[8] = data;
+      m_sawtooth.REG(0xB001,data);
       break;
    case 0xB002:
       reg = 9;
       m_reg[9] = data;
+      m_sawtooth.REG(0xB002,data);
       break;
    case 0xB003:
       reg = 10;
@@ -443,10 +474,10 @@ void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )
       reg = 22;
       m_reg[22] = data;
       C6502::RELEASEIRQ(eNESSource_Mapper);
-      if ( m_reg[21]&0x01 )
+      m_reg[21] &= 0xFD;
+      m_reg[21] |= ((m_reg[21]&0x01)<<1);
+      if ( m_reg[21]&0x02 )
       {
-         m_reg[21] |= 0x02;
-         m_reg[21] &= 0xFE;
          m_irqEnabled = true;
       }
       else
@@ -461,4 +492,143 @@ void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )
       // Check mapper state breakpoints...
       CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
    }
+}
+
+void VRC6PulseChannel::TIMERTICK()
+{
+   // Duty-cycle mode
+   if ( periodCounter )
+   {
+      periodCounter--;
+   }
+   else
+   {
+      periodCounter = period;
+      sequencerStep++;
+      sequencerStep %= 16;
+   }
+
+   if ( enabled && !muted )
+   {
+      if ( mode )
+      {
+         // Digitized mode
+         SETDAC(volume);
+      }
+      else
+      {
+         if ( sequencerStep <= dutyCycle )
+         {
+            SETDAC(volume);
+         }
+         else
+         {
+            SETDAC(0);
+         }
+      }
+   }
+   else
+   {
+      SETDAC(0);
+   }
+}
+
+void VRC6SawtoothChannel::TIMERTICK()
+{
+   // Duty-cycle mode
+   if ( periodCounter )
+   {
+      periodCounter--;
+   }
+   else
+   {
+      periodCounter = period;
+      if ( accumulatorDivider )
+      {
+         accumulator += accumulatorRate;
+         accumulatorCount++;
+         if ( accumulatorCount == 7 )
+         {
+            accumulator = 0;
+            accumulatorCount = 0;
+         }
+         accumulatorDivider = 0;
+      }
+      else
+      {
+         accumulatorDivider++;
+      }
+   }
+
+   if ( enabled && !muted )
+   {
+      SETDAC(accumulator>>3);
+   }
+   else
+   {
+      SETDAC(0);
+   }
+}
+
+uint16_t CROMMapper024::AMPLITUDE()
+{
+   float famp;
+   int16_t amp;
+   int16_t delta;
+   int16_t out[100] = { 0, };
+   static int16_t outLast = 0;
+   uint8_t sample;
+   uint8_t* p1dacSamples = m_pulse[0].GETDACSAMPLES();
+   uint8_t* p2dacSamples = m_pulse[1].GETDACSAMPLES();
+   uint8_t* sdacSamples = m_sawtooth.GETDACSAMPLES();
+   static int32_t outDownsampled = 0;
+
+   for ( sample = 0; sample < m_pulse[0].GETDACSAMPLECOUNT(); sample++ )
+   {
+//      output = square_out + tnd_out
+//
+//
+//                            95.88
+//      square_out = -----------------------
+//                          8128
+//                   ----------------- + 100
+//                   square1 + square2
+//
+//
+//                            159.79
+//      tnd_out = ------------------------------
+//                            1
+//                ------------------------ + 100
+//                triangle   noise    dmc
+//                -------- + ----- + -----
+//                  8227     12241   22638
+      famp = 0.0;
+      if ( (*(p1dacSamples+sample))+(*(p2dacSamples+sample)) )
+      {
+         famp = (95.88/((8128.0/((*(p1dacSamples+sample))+(*(p2dacSamples+sample))))+100.0));
+      }
+      if ( (*(sdacSamples+sample)) )
+      {
+         famp += (95.88/((8128.0/(*(sdacSamples+sample)))+100.0));
+      }
+      amp = (int16_t)(float)(65535.0*famp*0.50);
+
+      (*(out+sample)) = amp;
+
+      outDownsampled += (*(out+sample));
+   }
+
+   outDownsampled = (int32_t)((float)outDownsampled/((float)m_pulse[0].GETDACSAMPLECOUNT()+1));
+
+   delta = outDownsampled - outLast;
+   outDownsampled = outLast+((delta*65371)/65536); // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.
+
+   outLast = outDownsampled;
+
+   // Reset DAC averaging...
+   m_pulse[0].CLEARDACAVG();
+   m_pulse[1].CLEARDACAVG();
+   m_sawtooth.CLEARDACAVG();
+
+   return outDownsampled;
 }

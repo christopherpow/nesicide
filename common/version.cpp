@@ -1,4 +1,4 @@
-static char __nesicide_version__ [] = "V1.034"
+static char __nesicide_version__ [] = "V1.036"
 #if defined ( QT_NO_DEBUG )
 " RELEASE";
 #else

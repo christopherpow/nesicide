@@ -147,10 +147,10 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    pageMap.insert("Code Editor",ui->codeeditor);
    pageMap.insert("Compiler",ui->compiler);
    pageMap.insert("Nintendo Entertainment System",ui->nesemulator);
-   pageMap.insert("Emulation",ui->nesemulator);
+   pageMap.insert("NES Emulation",ui->nesemulator);
    pageMap.insert("Debugging",ui->nesdebugger);
    pageMap.insert("Commodore 64",ui->c64emulator);
-   pageMap.insert("Emulation",ui->c64emulator);
+   pageMap.insert("C=64 Emulation",ui->c64emulator);
 
    ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("General",Qt::MatchExactly).at(0));
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )

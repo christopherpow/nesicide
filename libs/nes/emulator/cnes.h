@@ -39,7 +39,7 @@ class CNES
 {
 public:
    CNES();
-   virtual ~CNES();
+   ~CNES();
 
    // Accessor methods to get/set the current video mode.
    static inline void VIDEOMODE ( int32_t mode )
@@ -90,7 +90,7 @@ public:
    // current state of the joypad to the emulation engine.
    // The current state of the joypad is constructed from
    // intercepted keypress/keyrelease events in the UI.
-   static void RUN ( uint8_t* joy );
+   static void RUN ( uint32_t* joy );
 
    // Accessor methods to get/set whether or not the emulation
    // engine is in replay mode.  In replay mode the emulation runs

@@ -39,7 +39,7 @@ public slots:
    void stepPPUEmulation ();
    void advanceFrame ();
    void adjustAudio ( int32_t bufferDepth );
-   void controllerInput ( uint8_t* joy )
+   void controllerInput ( uint32_t* joy )
    {
       m_joy[CONTROLLER1] = joy[CONTROLLER1];
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
@@ -72,7 +72,7 @@ protected:
    bool          m_isSoftReset;
    bool          m_isStarting;
    int           m_debugFrame;
-   uint8_t m_joy [ NUM_CONTROLLERS ];
+   uint32_t      m_joy [ NUM_CONTROLLERS ];
 };
 
 #endif // NESEMULATORTHREAD_H

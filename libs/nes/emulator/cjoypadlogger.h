@@ -30,7 +30,7 @@ public:
    JoypadLoggerInfo* GetLastSample ( void );
 
    CJoypadLogger();
-   virtual ~CJoypadLogger();
+   ~CJoypadLogger();
 
 protected:
    unsigned int m_cursor;

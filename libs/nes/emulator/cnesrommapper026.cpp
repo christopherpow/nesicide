@@ -151,6 +151,10 @@ void CROMMapper026::RESET ( bool soft )
 
    m_dbRegisters = dbRegisters;
 
+   m_pulse[0].RESET();
+   m_pulse[1].RESET();
+   m_sawtooth.RESET();
+
    CROM::RESET ( m_mapper, soft );
 
    m_irqReload = 0;
@@ -171,6 +175,10 @@ void CROMMapper026::SYNCCPU ( void )
 {
    uint8_t phases[3] = { 114, 114, 113 };
 
+   m_pulse[0].TIMERTICK();
+   m_pulse[1].TIMERTICK();
+   m_sawtooth.TIMERTICK();
+
    if ( m_reg[21]&0x02 )
    {
       if ( m_reg[21]&0x04 )
@@ -180,6 +188,12 @@ void CROMMapper026::SYNCCPU ( void )
          {
             m_irqCounter = m_irqReload;
             C6502::ASSERTIRQ(eNESSource_Mapper);
+
+            if ( nesIsDebuggable() )
+            {
+               // Check for IRQ breakpoint...
+               CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+            }
          }
          else
          {
@@ -200,6 +214,12 @@ void CROMMapper026::SYNCCPU ( void )
             {
                m_irqCounter = m_irqReload;
                C6502::ASSERTIRQ(eNESSource_Mapper);
+
+               if ( nesIsDebuggable() )
+               {
+                  // Check for IRQ breakpoint...
+                  CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+               }
             }
             else
             {
@@ -310,38 +330,47 @@ void CROMMapper026::HMAPPER ( uint32_t addr, uint8_t data )
    case 0x9000:
       reg = 1;
       m_reg[1] = data;
+      m_pulse[0].REG(0x9000,data);
       break;
    case 0x9001:
       reg = 2;
       m_reg[2] = data;
+      m_pulse[0].REG(0x9002,data);
       break;
    case 0x9002:
       reg = 3;
       m_reg[3] = data;
+      m_pulse[0].REG(0x9001,data);
       break;
    case 0xA000:
       reg = 4;
       m_reg[4] = data;
+      m_pulse[1].REG(0xA000,data);
       break;
    case 0xA001:
       reg = 5;
       m_reg[5] = data;
+      m_pulse[1].REG(0xA002,data);
       break;
    case 0xA002:
       reg = 6;
       m_reg[6] = data;
+      m_pulse[1].REG(0xA001,data);
       break;
    case 0xB000:
       reg = 7;
       m_reg[7] = data;
+      m_sawtooth.REG(0xB000,data);
       break;
    case 0xB001:
       reg = 8;
       m_reg[8] = data;
+      m_sawtooth.REG(0xB002,data);
       break;
    case 0xB002:
       reg = 9;
       m_reg[9] = data;
+      m_sawtooth.REG(0xB001,data);
       break;
    case 0xB003:
       reg = 10;
@@ -427,10 +456,10 @@ void CROMMapper026::HMAPPER ( uint32_t addr, uint8_t data )
       reg = 21;
       m_reg[21] = data;
       C6502::RELEASEIRQ(eNESSource_Mapper);
-      if ( m_reg[21]&0x01 )
+      m_reg[22] &= 0xFD;
+      m_reg[22] |= ((m_reg[21]&0x01)<<1);
+      if ( m_reg[22]&0x02 )
       {
-         m_reg[21] |= 0x02;
-         m_reg[21] &= 0xFE;
          m_irqEnabled = true;
       }
       else

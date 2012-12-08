@@ -42,7 +42,7 @@ class CROM
 {
 public:
    CROM();
-   virtual ~CROM();
+   ~CROM();
 
    // Priming interfaces (data setup/initialization)
    static void ClearPRGBanks ()
@@ -157,6 +157,11 @@ public:
    {
       return PRGROM(addr);
    }
+   static uint16_t AMPLITUDE ( void )
+   {
+      return 0; // soundless...
+   }
+   static void SOUNDENABLE ( uint32_t mask ) {}
 
    // Code/Data logger support functions
    static inline CCodeDataLogger* LOGGERVIRT ( uint32_t addr )

@@ -7,7 +7,7 @@ class CROMMapper002 : public CROM
 {
 public:
    CROMMapper002();
-   virtual ~CROMMapper002();
+   ~CROMMapper002();
 
    static void RESET ( bool soft );
    static void HMAPPER ( uint32_t addr, uint8_t data );

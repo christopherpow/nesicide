@@ -450,7 +450,7 @@ void nesResetInitial ( uint32_t mapper )
    CNES::RESET(mapper,false);
 }
 
-void nesRun ( uint8_t* joypads )
+void nesRun ( uint32_t* joypads )
 {
    CNES::RUN(joypads);
 }
@@ -502,14 +502,19 @@ int8_t* nesGetTVOut ( void )
    return CPPU::TV();
 }
 
+void nesSetVRC6AudioChannelMask ( uint32_t mask )
+{
+   mapperfunc[24].soundenable(mask);
+}
+
+void nesSetN106AudioChannelMask ( uint32_t mask )
+{
+   mapperfunc[19].soundenable(mask);
+}
+
 void nesSetAudioChannelMask ( uint8_t mask )
 {
    CAPU::MUTE(mask);
-}
-
-uint8_t nesGetAudioChannelMask ( void )
-{
-   return CAPU::MUTED();
 }
 
 uint32_t nesGetCPUEffectiveAddress ( void )

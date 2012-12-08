@@ -145,7 +145,7 @@ public:
    }
 
    CTracer();
-   virtual ~CTracer();
+   ~CTracer();
 
    unsigned int GetNumCPUSamples() const
    {

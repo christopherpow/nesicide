@@ -697,11 +697,11 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            // Get actual register data...
                            if ( pRegister->GetAddr() >= MEM_32KB )
                            {
-                              value = mapperfunc[CROM::MAPPER()].highread(pRegister->GetAddr());
+                              value = mapperfunc[CROM::MAPPER()].debuginfo(pRegister->GetAddr());
                            }
                            else
                            {
-                              value = mapperfunc[CROM::MAPPER()].lowread(pRegister->GetAddr());
+                              value = mapperfunc[CROM::MAPPER()].debuginfo(pRegister->GetAddr());
                            }
 
                            if ( pBreakpoint->condition == eBreakIfAnything )
@@ -777,9 +777,9 @@ void CNES::FORCEBREAKPOINT ( void )
    }
 }
 
-void CNES::RUN ( uint8_t* joy )
+void CNES::RUN ( uint32_t* joy )
 {
-   uint8_t  ljoy [ NUM_CONTROLLERS ];
+   uint32_t  ljoy [ NUM_CONTROLLERS ];
    JoypadLoggerInfo* pSample;
 
    if ( m_bReplay )
@@ -813,6 +813,15 @@ void CNES::RUN ( uint8_t* joy )
       }
       CIOStandardJoypad::JOY ( CONTROLLER1, *(ljoy+CONTROLLER1) );
    }
+   else if ( CONTROLLER(0) == IO_TurboJoypad )
+   {
+      if ( m_bReplay )
+      {
+         pSample = CIOTurboJoypad::LOGGER(0)->GetSample ( m_frame );
+         *(ljoy+CONTROLLER1) |= (pSample->data);
+      }
+      CIOTurboJoypad::JOY ( CONTROLLER1, *(ljoy+CONTROLLER1) );
+   }
    else if ( CONTROLLER(0) == IO_Zapper )
    {
       CIOZapper::JOY ( CONTROLLER1, *(ljoy+CONTROLLER1) );
@@ -834,6 +843,15 @@ void CNES::RUN ( uint8_t* joy )
          *(ljoy+CONTROLLER2) |= (pSample->data);
       }
       CIOStandardJoypad::JOY ( CONTROLLER2, *(ljoy+CONTROLLER2) );
+   }
+   else if ( CONTROLLER(1) == IO_TurboJoypad )
+   {
+      if ( m_bReplay )
+      {
+         pSample = CIOTurboJoypad::LOGGER(1)->GetSample ( m_frame );
+         *(ljoy+CONTROLLER2) |= (pSample->data);
+      }
+      CIOTurboJoypad::JOY ( CONTROLLER2, *(ljoy+CONTROLLER2) );
    }
    else if ( CONTROLLER(1) == IO_Zapper )
    {

@@ -18,6 +18,7 @@ bool EmulatorPrefsDialog::pauseOnTaskSwitch;
 // NES settings data structures.
 int EmulatorPrefsDialog::controllerType[NUM_CONTROLLERS];
 int EmulatorPrefsDialog::standardJoypadKeyMap[NUM_CONTROLLERS][IO_StandardJoypad_MAX];
+int EmulatorPrefsDialog::turboJoypadKeyMap[NUM_CONTROLLERS][IO_TurboJoypad_MAX];
 int EmulatorPrefsDialog::zapperKeyMap[NUM_CONTROLLERS][IO_Zapper_MAX];
 bool EmulatorPrefsDialog::zapperMouseMap[NUM_CONTROLLERS][IO_Zapper_MAX];
 int EmulatorPrefsDialog::vausArkanoidKeyMap[NUM_CONTROLLERS][IO_Vaus_MAX];
@@ -30,6 +31,17 @@ bool EmulatorPrefsDialog::square2Enabled;
 bool EmulatorPrefsDialog::triangleEnabled;
 bool EmulatorPrefsDialog::noiseEnabled;
 bool EmulatorPrefsDialog::dmcEnabled;
+bool EmulatorPrefsDialog::pulse1VRC6Enabled;
+bool EmulatorPrefsDialog::pulse2VRC6Enabled;
+bool EmulatorPrefsDialog::sawtoothVRC6Enabled;
+bool EmulatorPrefsDialog::wave1N106Enabled;
+bool EmulatorPrefsDialog::wave2N106Enabled;
+bool EmulatorPrefsDialog::wave3N106Enabled;
+bool EmulatorPrefsDialog::wave4N106Enabled;
+bool EmulatorPrefsDialog::wave5N106Enabled;
+bool EmulatorPrefsDialog::wave6N106Enabled;
+bool EmulatorPrefsDialog::wave7N106Enabled;
+bool EmulatorPrefsDialog::wave8N106Enabled;
 int EmulatorPrefsDialog::scalingFactor;
 bool EmulatorPrefsDialog::linearInterpolation;
 bool EmulatorPrefsDialog::aspect43;
@@ -50,6 +62,11 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->setupUi(this);
 
    m_targetLoaded = target;
+   controllerPageMap.insert("(Disconnected)",ui->noControllerPage);
+   controllerPageMap.insert("Standard Controller",ui->standardControllerPage);
+   controllerPageMap.insert("Turbo Controller",ui->turboControllerPage);
+   controllerPageMap.insert("Zapper",ui->zapperPage);
+   controllerPageMap.insert("Vaus (Arkanoid)",ui->vausPage);
 
    readSettings();
 
@@ -68,6 +85,17 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->triangle->setChecked(triangleEnabled);
    ui->noise->setChecked(noiseEnabled);
    ui->dmc->setChecked(dmcEnabled);
+   ui->pulse1VRC6->setChecked(pulse1VRC6Enabled);
+   ui->pulse2VRC6->setChecked(pulse2VRC6Enabled);
+   ui->sawtoothVRC6->setChecked(sawtoothVRC6Enabled);
+   ui->wave1N106->setChecked(wave1N106Enabled);
+   ui->wave2N106->setChecked(wave2N106Enabled);
+   ui->wave3N106->setChecked(wave3N106Enabled);
+   ui->wave4N106->setChecked(wave4N106Enabled);
+   ui->wave5N106->setChecked(wave5N106Enabled);
+   ui->wave6N106->setChecked(wave6N106Enabled);
+   ui->wave7N106->setChecked(wave7N106Enabled);
+   ui->wave8N106->setChecked(wave8N106Enabled);
 
    ui->scalingFactor->setCurrentIndex(scalingFactor);
    ui->linearInterpolation->setChecked(linearInterpolation);
@@ -126,6 +154,12 @@ void EmulatorPrefsDialog::readSettings()
          standardJoypadKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
       }
       settings.endGroup();
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/TurboJoypad/Port"+QString::number(port));
+      for ( function = 0; function < IO_TurboJoypad_MAX; function++ )
+      {
+         turboJoypadKeyMap[port][function] = settings.value("KeyMap"+QString::number(function)).toInt();
+      }
+      settings.endGroup();
       settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Zapper/Port"+QString::number(port));
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
@@ -149,12 +183,35 @@ void EmulatorPrefsDialog::readSettings()
    triangleEnabled = settings.value("Triangle",QVariant(true)).toBool();
    noiseEnabled = settings.value("Noise",QVariant(true)).toBool();
    dmcEnabled = settings.value("DMC",QVariant(true)).toBool();
+   settings.beginGroup("VRC6");
+   pulse1VRC6Enabled = settings.value("Pulse1",QVariant(true)).toBool();
+   pulse2VRC6Enabled = settings.value("Pulse2",QVariant(true)).toBool();
+   sawtoothVRC6Enabled = settings.value("Sawtooth",QVariant(true)).toBool();
+   settings.endGroup();
+   settings.beginGroup("N106");
+   wave1N106Enabled = settings.value("Wave1",QVariant(true)).toBool();
+   wave2N106Enabled = settings.value("Wave2",QVariant(true)).toBool();
+   wave3N106Enabled = settings.value("Wave3",QVariant(true)).toBool();
+   wave4N106Enabled = settings.value("Wave4",QVariant(true)).toBool();
+   wave5N106Enabled = settings.value("Wave5",QVariant(true)).toBool();
+   wave6N106Enabled = settings.value("Wave6",QVariant(true)).toBool();
+   wave7N106Enabled = settings.value("Wave7",QVariant(true)).toBool();
+   wave8N106Enabled = settings.value("Wave8",QVariant(true)).toBool();
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    scalingFactor = settings.value("IDEScalingFactor",0).toInt();
+#else
+   scalingFactor = settings.value("EMUScalingFactor",0).toInt();
+#endif
    linearInterpolation = settings.value("LinearInterpolation",true).toBool();
+#if defined(IDE)
    aspect43 = settings.value("IDE43Aspect",true).toBool();
+#else
+   aspect43 = settings.value("EMU43Aspect",true).toBool();
+#endif
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/System");
@@ -206,14 +263,24 @@ void EmulatorPrefsDialog::readSettings()
 void EmulatorPrefsDialog::writeSettings()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   QKeySequence upKeySequence(ui->upKey->text());
-   QKeySequence downKeySequence(ui->downKey->text());
-   QKeySequence leftKeySequence(ui->leftKey->text());
-   QKeySequence rightKeySequence(ui->rightKey->text());
-   QKeySequence aKeySequence(ui->aKey->text());
-   QKeySequence bKeySequence(ui->bKey->text());
-   QKeySequence selectKeySequence(ui->selectKey->text());
-   QKeySequence startKeySequence(ui->startKey->text());
+   QKeySequence upKeyStandardSequence(ui->upKeyStandard->text());
+   QKeySequence downKeyStandardSequence(ui->downKeyStandard->text());
+   QKeySequence leftKeyStandardSequence(ui->leftKeyStandard->text());
+   QKeySequence rightKeyStandardSequence(ui->rightKeyStandard->text());
+   QKeySequence aKeyStandardSequence(ui->aKeyStandard->text());
+   QKeySequence bKeyStandardSequence(ui->bKeyStandard->text());
+   QKeySequence selectKeyStandardSequence(ui->selectKeyStandard->text());
+   QKeySequence startKeyStandardSequence(ui->startKeyStandard->text());
+   QKeySequence upKeyTurboSequence(ui->upKeyTurbo->text());
+   QKeySequence downKeyTurboSequence(ui->downKeyTurbo->text());
+   QKeySequence leftKeyTurboSequence(ui->leftKeyTurbo->text());
+   QKeySequence rightKeyTurboSequence(ui->rightKeyTurbo->text());
+   QKeySequence aKeyTurboSequence(ui->aKeyTurbo->text());
+   QKeySequence bKeyTurboSequence(ui->bKeyTurbo->text());
+   QKeySequence aTurboKeyTurboSequence(ui->aTurboKeyTurbo->text());
+   QKeySequence bTurboKeyTurboSequence(ui->bTurboKeyTurbo->text());
+   QKeySequence selectKeyTurboSequence(ui->selectKeyTurbo->text());
+   QKeySequence startKeyTurboSequence(ui->startKeyTurbo->text());
    QKeySequence triggerZapperKeySequence(ui->triggerKeyZapper->text());
    QKeySequence ccwVausKeySequence(ui->ccwKeyVaus->text());
    QKeySequence cwVausKeySequence(ui->cwKeyVaus->text());
@@ -235,7 +302,25 @@ void EmulatorPrefsDialog::writeSettings()
    {
       audioUpdated = true;
    }
-   if ( scalingFactor != ui->scalingFactor->currentIndex() )
+   if ( (pulse1VRC6Enabled != ui->pulse1VRC6->isChecked()) ||
+        (pulse2VRC6Enabled != ui->pulse2VRC6->isChecked()) ||
+        (sawtoothVRC6Enabled != ui->sawtoothVRC6->isChecked()) )
+   {
+      audioUpdated = true;
+   }
+   if ( (wave1N106Enabled != ui->wave1N106->isChecked()) ||
+        (wave2N106Enabled != ui->wave2N106->isChecked()) ||
+        (wave3N106Enabled != ui->wave3N106->isChecked()) ||
+        (wave4N106Enabled != ui->wave4N106->isChecked()) ||
+        (wave5N106Enabled != ui->wave5N106->isChecked()) ||
+        (wave6N106Enabled != ui->wave6N106->isChecked()) ||
+        (wave7N106Enabled != ui->wave7N106->isChecked()) ||
+        (wave8N106Enabled != ui->wave8N106->isChecked()) )
+   {
+      audioUpdated = true;
+   }
+   if ( (scalingFactor != ui->scalingFactor->currentIndex()) ||
+        (aspect43 != ui->aspect43->isChecked()) )
    {
       videoUpdated = true;
    }
@@ -244,46 +329,69 @@ void EmulatorPrefsDialog::writeSettings()
    // Save UI to locals first.
    switch ( ui->controllerTypeComboBox->currentIndex() )
    {
-      case IO_Disconnected:
-      break;
-      case IO_StandardJoypad:
-         port = ui->controllerPortComboBox->currentIndex();
-         upKeySequence.fromString(ui->upKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_UP] = upKeySequence[0];
-         downKeySequence.fromString(ui->downKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_DOWN] = downKeySequence[0];
-         leftKeySequence.fromString(ui->leftKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_LEFT] = leftKeySequence[0];
-         rightKeySequence.fromString(ui->rightKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT] = rightKeySequence[0];
-         aKeySequence.fromString(ui->aKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_A] = aKeySequence[0];
-         bKeySequence.fromString(ui->bKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_B] = bKeySequence[0];
-         selectKeySequence.fromString(ui->selectKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_SELECT] = selectKeySequence[0];
-         startKeySequence.fromString(ui->startKey->text());
-         standardJoypadKeyMap[port][IO_StandardJoypad_START] = startKeySequence[0];
-      break;
-      case IO_Zapper:
-         port = ui->controllerPortComboBox->currentIndex();
-         triggerZapperKeySequence.fromString(ui->triggerKeyZapper->text());
-         zapperKeyMap[port][IO_Zapper_FIRE] = triggerZapperKeySequence[0];
-         zapperMouseMap[port][IO_Zapper_FIRE] = ui->mouseFiresZapper->isChecked();
-      break;
-      case IO_Vaus:
-         port = ui->controllerPortComboBox->currentIndex();
-         ccwVausKeySequence.fromString(ui->ccwKeyVaus->text());
-         vausArkanoidKeyMap[port][IO_Vaus_CCW] = ccwVausKeySequence[0];
-         vausArkanoidMouseMap[port][IO_Vaus_CCW] = ui->mouseMovesVaus->isChecked();
-         cwVausKeySequence.fromString(ui->cwKeyVaus->text());
-         vausArkanoidKeyMap[port][IO_Vaus_CW] = cwVausKeySequence[0];
-         vausArkanoidMouseMap[port][IO_Vaus_CW] = ui->mouseMovesVaus->isChecked();
-         triggerVausKeySequence.fromString(ui->triggerKeyVaus->text());
-         vausArkanoidKeyMap[port][IO_Vaus_FIRE] = triggerVausKeySequence[0];
-         vausArkanoidMouseMap[port][IO_Vaus_FIRE] = ui->mouseFiresVaus->isChecked();
-         vausArkanoidTrimPot[port] = ui->trimPotVaus->value();
-      break;
+   case IO_Disconnected:
+   break;
+   case IO_StandardJoypad:
+      port = ui->controllerPortComboBox->currentIndex();
+      upKeyStandardSequence.fromString(ui->upKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_UP] = upKeyStandardSequence[0];
+      downKeyStandardSequence.fromString(ui->downKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_DOWN] = downKeyStandardSequence[0];
+      leftKeyStandardSequence.fromString(ui->leftKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_LEFT] = leftKeyStandardSequence[0];
+      rightKeyStandardSequence.fromString(ui->rightKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT] = rightKeyStandardSequence[0];
+      aKeyStandardSequence.fromString(ui->aKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_A] = aKeyStandardSequence[0];
+      bKeyStandardSequence.fromString(ui->bKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_B] = bKeyStandardSequence[0];
+      selectKeyStandardSequence.fromString(ui->selectKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_SELECT] = selectKeyStandardSequence[0];
+      startKeyStandardSequence.fromString(ui->startKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_START] = startKeyStandardSequence[0];
+   break;
+   case IO_TurboJoypad:
+      port = ui->controllerPortComboBox->currentIndex();
+      upKeyTurboSequence.fromString(ui->upKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_UP] = upKeyTurboSequence[0];
+      downKeyTurboSequence.fromString(ui->downKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_DOWN] = downKeyTurboSequence[0];
+      leftKeyTurboSequence.fromString(ui->leftKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_LEFT] = leftKeyTurboSequence[0];
+      rightKeyTurboSequence.fromString(ui->rightKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_RIGHT] = rightKeyTurboSequence[0];
+      aKeyTurboSequence.fromString(ui->aKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_A] = aKeyTurboSequence[0];
+      bKeyTurboSequence.fromString(ui->bKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_B] = bKeyTurboSequence[0];
+      aTurboKeyTurboSequence.fromString(ui->aTurboKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_ATURBO] = aTurboKeyTurboSequence[0];
+      bTurboKeyTurboSequence.fromString(ui->bTurboKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_BTURBO] = bTurboKeyTurboSequence[0];
+      selectKeyTurboSequence.fromString(ui->selectKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_SELECT] = selectKeyTurboSequence[0];
+      startKeyTurboSequence.fromString(ui->startKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_START] = startKeyTurboSequence[0];
+   break;
+   case IO_Zapper:
+      port = ui->controllerPortComboBox->currentIndex();
+      triggerZapperKeySequence.fromString(ui->triggerKeyZapper->text());
+      zapperKeyMap[port][IO_Zapper_FIRE] = triggerZapperKeySequence[0];
+      zapperMouseMap[port][IO_Zapper_FIRE] = ui->mouseFiresZapper->isChecked();
+   break;
+   case IO_Vaus:
+      port = ui->controllerPortComboBox->currentIndex();
+      ccwVausKeySequence.fromString(ui->ccwKeyVaus->text());
+      vausArkanoidKeyMap[port][IO_Vaus_CCW] = ccwVausKeySequence[0];
+      vausArkanoidMouseMap[port][IO_Vaus_CCW] = ui->mouseMovesVaus->isChecked();
+      cwVausKeySequence.fromString(ui->cwKeyVaus->text());
+      vausArkanoidKeyMap[port][IO_Vaus_CW] = cwVausKeySequence[0];
+      vausArkanoidMouseMap[port][IO_Vaus_CW] = ui->mouseMovesVaus->isChecked();
+      triggerVausKeySequence.fromString(ui->triggerKeyVaus->text());
+      vausArkanoidKeyMap[port][IO_Vaus_FIRE] = triggerVausKeySequence[0];
+      vausArkanoidMouseMap[port][IO_Vaus_FIRE] = ui->mouseFiresVaus->isChecked();
+      vausArkanoidTrimPot[port] = ui->trimPotVaus->value();
+   break;
    }
 
    pauseOnTaskSwitch = ui->pauseOnTaskSwitch->isChecked();
@@ -296,6 +404,17 @@ void EmulatorPrefsDialog::writeSettings()
    triangleEnabled = ui->triangle->isChecked();
    noiseEnabled = ui->noise->isChecked();
    dmcEnabled = ui->dmc->isChecked();
+   pulse1VRC6Enabled = ui->pulse1VRC6->isChecked();
+   pulse2VRC6Enabled = ui->pulse2VRC6->isChecked();
+   sawtoothVRC6Enabled = ui->sawtoothVRC6->isChecked();
+   wave1N106Enabled = ui->wave1N106->isChecked();
+   wave2N106Enabled = ui->wave2N106->isChecked();
+   wave3N106Enabled = ui->wave3N106->isChecked();
+   wave4N106Enabled = ui->wave4N106->isChecked();
+   wave5N106Enabled = ui->wave5N106->isChecked();
+   wave6N106Enabled = ui->wave6N106->isChecked();
+   wave7N106Enabled = ui->wave7N106->isChecked();
+   wave8N106Enabled = ui->wave8N106->isChecked();
 
    scalingFactor = ui->scalingFactor->currentIndex();
    linearInterpolation = ui->linearInterpolation->isChecked();
@@ -325,6 +444,12 @@ void EmulatorPrefsDialog::writeSettings()
          settings.setValue("KeyMap"+QString::number(function),standardJoypadKeyMap[port][function]);
       }
       settings.endGroup();
+      settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/TurboJoypad/Port"+QString::number(port));
+      for ( function = 0; function < IO_TurboJoypad_MAX; function++ )
+      {
+         settings.setValue("KeyMap"+QString::number(function),turboJoypadKeyMap[port][function]);
+      }
+      settings.endGroup();
       settings.beginGroup("EmulatorPreferences/NES/ControllerConfig/Zapper/Port"+QString::number(port));
       for ( function = 0; function < IO_Zapper_MAX; function++ )
       {
@@ -348,12 +473,35 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("Triangle",triangleEnabled);
    settings.setValue("Noise",noiseEnabled);
    settings.setValue("DMC",dmcEnabled);
+   settings.beginGroup("VRC6");
+   settings.setValue("Pulse1",pulse1VRC6Enabled);
+   settings.setValue("Pulse2",pulse2VRC6Enabled);
+   settings.setValue("Sawtooth",sawtoothVRC6Enabled);
+   settings.endGroup();
+   settings.beginGroup("N106");
+   settings.setValue("Wave1",wave1N106Enabled);
+   settings.setValue("Wave2",wave2N106Enabled);
+   settings.setValue("Wave3",wave3N106Enabled);
+   settings.setValue("Wave4",wave4N106Enabled);
+   settings.setValue("Wave5",wave5N106Enabled);
+   settings.setValue("Wave6",wave6N106Enabled);
+   settings.setValue("Wave7",wave7N106Enabled);
+   settings.setValue("Wave8",wave8N106Enabled);
+   settings.endGroup();
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    settings.setValue("IDEScalingFactor",scalingFactor);
+#else
+   settings.setValue("EMUScalingFactor",scalingFactor);
+#endif
    settings.setValue("LinearInterpolation",linearInterpolation);
+#if defined(IDE)
    settings.setValue("IDE43Aspect",aspect43);
+#else
+   settings.setValue("EMU43Aspect",aspect43);
+#endif
    settings.endGroup();
 
    settings.beginGroup("EmulatorPreferences/NES/System");
@@ -376,44 +524,62 @@ void EmulatorPrefsDialog::updateUi()
 {
    int port = ui->controllerPortComboBox->currentIndex();
    int type = ui->controllerTypeComboBox->currentIndex();
-   QKeySequence upKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_UP]);
-   QKeySequence downKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_DOWN]);
-   QKeySequence leftKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_LEFT]);
-   QKeySequence rightKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT]);
-   QKeySequence aKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_A]);
-   QKeySequence bKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_B]);
-   QKeySequence selectKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_SELECT]);
-   QKeySequence startKeySequence(standardJoypadKeyMap[port][IO_StandardJoypad_START]);
+   QKeySequence upKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_UP]);
+   QKeySequence downKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_DOWN]);
+   QKeySequence leftKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_LEFT]);
+   QKeySequence rightKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT]);
+   QKeySequence aKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_A]);
+   QKeySequence bKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_B]);
+   QKeySequence selectKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_SELECT]);
+   QKeySequence startKeyStandardSequence(standardJoypadKeyMap[port][IO_StandardJoypad_START]);
+   QKeySequence upKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_UP]);
+   QKeySequence downKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_DOWN]);
+   QKeySequence leftKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_LEFT]);
+   QKeySequence rightKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_RIGHT]);
+   QKeySequence aKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_A]);
+   QKeySequence bKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_B]);
+   QKeySequence aTurboKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_ATURBO]);
+   QKeySequence bTurboKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_BTURBO]);
+   QKeySequence selectKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_SELECT]);
+   QKeySequence startKeyTurboSequence(turboJoypadKeyMap[port][IO_TurboJoypad_START]);
    QKeySequence triggerZapperKeySequence(zapperKeyMap[port][IO_Zapper_FIRE]);
    QKeySequence ccwVausKeySequence(vausArkanoidKeyMap[port][IO_Vaus_CCW]);
    QKeySequence cwVausKeySequence(vausArkanoidKeyMap[port][IO_Vaus_CW]);
    QKeySequence triggerVausKeySequence(vausArkanoidKeyMap[port][IO_Vaus_FIRE]);
 
-   if (type == IO_Disconnected)
+   ui->controllerKeysStackedWidget->setCurrentWidget(controllerPageMap.value(ui->controllerTypeComboBox->currentText()));
+
+   if (type == IO_StandardJoypad)
    {
-      ui->controllerKeysStackedWidget->setCurrentIndex(IO_Disconnected);
+      ui->upKeyStandard->setText(upKeyStandardSequence.toString());
+      ui->downKeyStandard->setText(downKeyStandardSequence.toString());
+      ui->leftKeyStandard->setText(leftKeyStandardSequence.toString());
+      ui->rightKeyStandard->setText(rightKeyStandardSequence.toString());
+      ui->aKeyStandard->setText(aKeyStandardSequence.toString());
+      ui->bKeyStandard->setText(bKeyStandardSequence.toString());
+      ui->selectKeyStandard->setText(selectKeyStandardSequence.toString());
+      ui->startKeyStandard->setText(startKeyStandardSequence.toString());
    }
-   else if (type == IO_StandardJoypad)
+   else if (type == IO_TurboJoypad)
    {
-      ui->controllerKeysStackedWidget->setCurrentIndex(IO_StandardJoypad);
-      ui->upKey->setText(upKeySequence.toString());
-      ui->downKey->setText(downKeySequence.toString());
-      ui->leftKey->setText(leftKeySequence.toString());
-      ui->rightKey->setText(rightKeySequence.toString());
-      ui->aKey->setText(aKeySequence.toString());
-      ui->bKey->setText(bKeySequence.toString());
-      ui->selectKey->setText(selectKeySequence.toString());
-      ui->startKey->setText(startKeySequence.toString());
+      ui->upKeyTurbo->setText(upKeyTurboSequence.toString());
+      ui->downKeyTurbo->setText(downKeyTurboSequence.toString());
+      ui->leftKeyTurbo->setText(leftKeyTurboSequence.toString());
+      ui->rightKeyTurbo->setText(rightKeyTurboSequence.toString());
+      ui->aKeyTurbo->setText(aKeyTurboSequence.toString());
+      ui->bKeyTurbo->setText(bKeyTurboSequence.toString());
+      ui->aTurboKeyTurbo->setText(aTurboKeyTurboSequence.toString());
+      ui->bTurboKeyTurbo->setText(bTurboKeyTurboSequence.toString());
+      ui->selectKeyTurbo->setText(selectKeyTurboSequence.toString());
+      ui->startKeyTurbo->setText(startKeyTurboSequence.toString());
    }
    else if (type == IO_Zapper)
    {
-      ui->controllerKeysStackedWidget->setCurrentIndex(IO_Zapper);
       ui->triggerKeyZapper->setText(triggerZapperKeySequence.toString());
       ui->mouseFiresZapper->setChecked(zapperMouseMap[port][IO_Zapper_FIRE]);
    }
    else if (type == IO_Vaus)
    {
-      ui->controllerKeysStackedWidget->setCurrentIndex(IO_Vaus);
       ui->ccwKeyVaus->setText(ccwVausKeySequence.toString());
       ui->cwKeyVaus->setText(cwVausKeySequence.toString());
       // Note, both CCW and CW rotation are controlled by mouse, not either/or.
@@ -431,30 +597,63 @@ void EmulatorPrefsDialog::updateDb()
 
    if ( ui->controllerTypeComboBox->currentIndex() == IO_StandardJoypad )
    {
-      QKeySequence upKeySequence(ui->upKey->text());
-      QKeySequence downKeySequence(ui->downKey->text());
-      QKeySequence leftKeySequence(ui->leftKey->text());
-      QKeySequence rightKeySequence(ui->rightKey->text());
-      QKeySequence aKeySequence(ui->aKey->text());
-      QKeySequence bKeySequence(ui->bKey->text());
-      QKeySequence selectKeySequence(ui->selectKey->text());
-      QKeySequence startKeySequence(ui->startKey->text());
-      upKeySequence.fromString(ui->upKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_UP] = upKeySequence[0];
-      downKeySequence.fromString(ui->downKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_DOWN] = downKeySequence[0];
-      leftKeySequence.fromString(ui->leftKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_LEFT] = leftKeySequence[0];
-      rightKeySequence.fromString(ui->rightKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT] = rightKeySequence[0];
-      aKeySequence.fromString(ui->aKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_A] = aKeySequence[0];
-      bKeySequence.fromString(ui->bKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_B] = bKeySequence[0];
-      selectKeySequence.fromString(ui->selectKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_SELECT] = selectKeySequence[0];
-      startKeySequence.fromString(ui->startKey->text());
-      standardJoypadKeyMap[port][IO_StandardJoypad_START] = startKeySequence[0];
+      QKeySequence upKeyStandardSequence(ui->upKeyStandard->text());
+      QKeySequence downKeyStandardSequence(ui->downKeyStandard->text());
+      QKeySequence leftKeyStandardSequence(ui->leftKeyStandard->text());
+      QKeySequence rightKeyStandardSequence(ui->rightKeyStandard->text());
+      QKeySequence aKeyStandardSequence(ui->aKeyStandard->text());
+      QKeySequence bKeyStandardSequence(ui->bKeyStandard->text());
+      QKeySequence selectKeyStandardSequence(ui->selectKeyStandard->text());
+      QKeySequence startKeyStandardSequence(ui->startKeyStandard->text());
+      upKeyStandardSequence.fromString(ui->upKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_UP] = upKeyStandardSequence[0];
+      downKeyStandardSequence.fromString(ui->downKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_DOWN] = downKeyStandardSequence[0];
+      leftKeyStandardSequence.fromString(ui->leftKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_LEFT] = leftKeyStandardSequence[0];
+      rightKeyStandardSequence.fromString(ui->rightKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_RIGHT] = rightKeyStandardSequence[0];
+      aKeyStandardSequence.fromString(ui->aKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_A] = aKeyStandardSequence[0];
+      bKeyStandardSequence.fromString(ui->bKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_B] = bKeyStandardSequence[0];
+      selectKeyStandardSequence.fromString(ui->selectKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_SELECT] = selectKeyStandardSequence[0];
+      startKeyStandardSequence.fromString(ui->startKeyStandard->text());
+      standardJoypadKeyMap[port][IO_StandardJoypad_START] = startKeyStandardSequence[0];
+   }
+   else if ( ui->controllerTypeComboBox->currentIndex() == IO_TurboJoypad )
+   {
+      QKeySequence upKeyTurboSequence(ui->upKeyTurbo->text());
+      QKeySequence downKeyTurboSequence(ui->downKeyTurbo->text());
+      QKeySequence leftKeyTurboSequence(ui->leftKeyTurbo->text());
+      QKeySequence rightKeyTurboSequence(ui->rightKeyTurbo->text());
+      QKeySequence aKeyTurboSequence(ui->aKeyTurbo->text());
+      QKeySequence bKeyTurboSequence(ui->bKeyTurbo->text());
+      QKeySequence aTurboKeyTurboSequence(ui->aTurboKeyTurbo->text());
+      QKeySequence bTurboKeyTurboSequence(ui->bTurboKeyTurbo->text());
+      QKeySequence selectKeyTurboSequence(ui->selectKeyTurbo->text());
+      QKeySequence startKeyTurboSequence(ui->startKeyTurbo->text());
+      upKeyTurboSequence.fromString(ui->upKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_UP] = upKeyTurboSequence[0];
+      downKeyTurboSequence.fromString(ui->downKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_DOWN] = downKeyTurboSequence[0];
+      leftKeyTurboSequence.fromString(ui->leftKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_LEFT] = leftKeyTurboSequence[0];
+      rightKeyTurboSequence.fromString(ui->rightKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_RIGHT] = rightKeyTurboSequence[0];
+      aKeyTurboSequence.fromString(ui->aKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_A] = aKeyTurboSequence[0];
+      bKeyTurboSequence.fromString(ui->bKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_B] = bKeyTurboSequence[0];
+      aTurboKeyTurboSequence.fromString(ui->aTurboKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_ATURBO] = aTurboKeyTurboSequence[0];
+      bTurboKeyTurboSequence.fromString(ui->bTurboKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_BTURBO] = bTurboKeyTurboSequence[0];
+      selectKeyTurboSequence.fromString(ui->selectKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_SELECT] = selectKeyTurboSequence[0];
+      startKeyTurboSequence.fromString(ui->startKeyTurbo->text());
+      turboJoypadKeyMap[port][IO_TurboJoypad_START] = startKeyTurboSequence[0];
    }
    else if ( ui->controllerTypeComboBox->currentIndex() == IO_Zapper )
    {
@@ -536,17 +735,20 @@ int EmulatorPrefsDialog::getControllerKeyMap(int port,int function)
    int keyMap = -1;
    switch ( controllerType[port] )
    {
-      case IO_Disconnected:
-      break;
-      case IO_StandardJoypad:
-         keyMap = standardJoypadKeyMap[port][function];
-      break;
-      case IO_Zapper:
-         keyMap = zapperKeyMap[port][function];
-      break;
-      case IO_Vaus:
-         keyMap = vausArkanoidKeyMap[port][function];
-      break;
+   case IO_Disconnected:
+   break;
+   case IO_StandardJoypad:
+      keyMap = standardJoypadKeyMap[port][function];
+   break;
+   case IO_TurboJoypad:
+      keyMap = turboJoypadKeyMap[port][function];
+   break;
+   case IO_Zapper:
+      keyMap = zapperKeyMap[port][function];
+   break;
+   case IO_Vaus:
+      keyMap = vausArkanoidKeyMap[port][function];
+   break;
    }
    return keyMap;
 }
@@ -556,16 +758,16 @@ bool EmulatorPrefsDialog::getControllerMouseMap(int port,int function)
    bool mouseMap = false;
    switch ( controllerType[port] )
    {
-      case IO_Disconnected:
-      break;
-      case IO_StandardJoypad:
-      break;
-      case IO_Zapper:
-         mouseMap = zapperMouseMap[port][function];
-      break;
-      case IO_Vaus:
-         mouseMap = vausArkanoidMouseMap[port][function];
-      break;
+   case IO_Disconnected:
+   break;
+   case IO_StandardJoypad:
+   break;
+   case IO_Zapper:
+      mouseMap = zapperMouseMap[port][function];
+   break;
+   case IO_Vaus:
+      mouseMap = vausArkanoidMouseMap[port][function];
+   break;
    }
    return mouseMap;
 }
@@ -622,31 +824,6 @@ void EmulatorPrefsDialog::setTVStandard(int standard)
    settings.beginGroup("EmulatorPreferences/NES/System");
    settings.setValue("TVStandard",tvStandard);
    settings.endGroup();
-}
-
-bool EmulatorPrefsDialog::getSquare1Enabled()
-{
-   return square1Enabled;
-}
-
-bool EmulatorPrefsDialog::getSquare2Enabled()
-{
-   return square2Enabled;
-}
-
-bool EmulatorPrefsDialog::getTriangleEnabled()
-{
-   return triangleEnabled;
-}
-
-bool EmulatorPrefsDialog::getNoiseEnabled()
-{
-   return noiseEnabled;
-}
-
-bool EmulatorPrefsDialog::getDMCEnabled()
-{
-   return dmcEnabled;
 }
 
 void EmulatorPrefsDialog::setSquare1Enabled(bool enabled)
@@ -714,6 +891,149 @@ void EmulatorPrefsDialog::setDMCEnabled(bool enabled)
    settings.endGroup();
 }
 
+void EmulatorPrefsDialog::setPulse1VRC6Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   pulse1VRC6Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
+   settings.setValue("Pulse1",pulse1VRC6Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setPulse2VRC6Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   pulse2VRC6Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
+   settings.setValue("Pulse2",pulse2VRC6Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setSawtoothVRC6Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   sawtoothVRC6Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
+   settings.setValue("Sawtooth",sawtoothVRC6Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave1N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave1N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave1",wave1N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave2N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave2N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave2",wave2N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave3N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave3N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave3",wave3N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave4N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave4N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave4",wave4N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave5N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave5N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave5",wave5N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave6N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave6N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave6",wave6N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave7N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave7N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave7",wave7N106Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setWave8N106Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   wave8N106Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/N106");
+   settings.setValue("Wave8",wave8N106Enabled);
+   settings.endGroup();
+}
+
 int EmulatorPrefsDialog::getScalingFactor()
 {
    return scalingFactor;
@@ -728,7 +1048,11 @@ void EmulatorPrefsDialog::setScalingFactor(int factor)
 
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    settings.setValue("IDEScalingFactor",scalingFactor);
+#else
+   settings.setValue("EMUScalingFactor",scalingFactor);
+#endif
    settings.endGroup();
 }
 
@@ -764,7 +1088,11 @@ void EmulatorPrefsDialog::set43Aspect(bool enabled)
 
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Video");
+#if defined(IDE)
    settings.setValue("IDE43Aspect",aspect43);
+#else
+   settings.setValue("EMU43Aspect",aspect43);
+#endif
    settings.endGroup();
 }
 

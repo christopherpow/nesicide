@@ -60,7 +60,7 @@
       </property>
       <item>
        <property name="text">
-        <string>Emulation</string>
+        <string>NES Emulation</string>
        </property>
       </item>
       <item>
@@ -75,7 +75,7 @@
       </property>
       <item>
        <property name="text">
-        <string>Emulation</string>
+        <string>C=64 Emulation</string>
        </property>
       </item>
      </item>
@@ -84,7 +84,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">
@@ -148,7 +148,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset resource="resource.qrc">
+             <iconset resource="../../common/resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -703,7 +703,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset resource="resource.qrc">
+             <iconset resource="../../common/resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -759,7 +759,7 @@
                <string>Browse...</string>
               </property>
               <property name="icon">
-               <iconset resource="resource.qrc">
+               <iconset resource="../../common/resource.qrc">
                 <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
               </property>
              </widget>
@@ -879,7 +879,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../../common/resource.qrc"/>
  </resources>
  <connections>
   <connection>
