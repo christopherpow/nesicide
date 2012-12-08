@@ -313,7 +313,14 @@ SOURCES += \
    $$TOP/common/cobjectregistry.cpp \
     nes/debuggers/joypadloggerdockwidget.cpp \
     project/cprojectlistview.cpp \
-    project/cprojectlistviewmodel.cpp
+    project/cprojectlistviewmodel.cpp \
+    model/cprojectmodel.cpp \
+    model/csourcefilemodel.cpp \
+    model/cfiltermodel.cpp \
+    model/cbinaryfilemodel.cpp \
+    model/ctilestampmodel.cpp \
+    model/cattributemodel.cpp \
+    model/cgraphicsbankmodel.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -449,7 +456,16 @@ HEADERS += \
    $$TOP/common/cobjectregistry.h \
     nes/debuggers/joypadloggerdockwidget.h \
     project/cprojectlistview.h \
-    project/cprojectlistviewmodel.h
+    project/cprojectlistviewmodel.h \
+    model/cprojectmodel.h \
+    model/projectsearcher.h \
+    model/csourcefilemodel.h \
+    model/cfiltermodel.h \
+    model/cbinaryfilemodel.h \
+    model/ctilestampmodel.h \
+    model/cattributemodel.h \
+    model/iuuidvisitor.h \
+    model/cgraphicsbankmodel.h
 
 FORMS += \
    aboutdialog.ui \
