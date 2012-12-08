@@ -18,7 +18,7 @@ public:
    void initializeProject();
    void terminateProject();
 
-   void addSourceFile(QString fileName);
+   CSourceItem* addSourceFile(QString fileName);
 
    // Member Getters
    QList<CSourceItem*>& getSourceItems() { return m_sourceItems; }

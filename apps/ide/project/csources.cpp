@@ -99,7 +99,7 @@ QString CSources::caption() const
    return "Source Code";
 }
 
-void CSources::addSourceFile(QString fileName)
+CSourceItem *CSources::addSourceFile(QString fileName)
 {
    QDir dir(QDir::currentPath());
    CSourceItem* pSourceItem = new CSourceItem(this);
@@ -111,6 +111,7 @@ void CSources::addSourceFile(QString fileName)
 
    m_sourceItems.append(pSourceItem);
    appendChild(pSourceItem);
+   return pSourceItem;
    //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
 }
 
