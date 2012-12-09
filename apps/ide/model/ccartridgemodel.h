@@ -7,6 +7,11 @@ class CCartridgeModel : public CSubModel
 {
 public:
    CCartridgeModel();
+
+   QList<QUuid> getPrgRomUuids() const;
+   QList<QUuid> getChrRomUuids() const;
+
+   QString getName(const QUuid& uuid) const;
 };
 
 #endif // CCARTRIDGEMODEL_H

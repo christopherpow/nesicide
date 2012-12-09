@@ -4,6 +4,7 @@
 
 #include "model/cattributemodel.h"
 #include "model/cbinaryfilemodel.h"
+#include "model/ccartridgemodel.h"
 #include "model/cfiltermodel.h"
 #include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
@@ -21,6 +22,7 @@ CProjectModel::CProjectModel()
 
    m_pAttributeModel    = new CAttributeModel();
    m_pBinaryFileModel   = new CBinaryFileModel();
+   m_pCartridgeModel    = new CCartridgeModel();
    m_pFilterModel       = new CFilterModel(this);
    m_pGraphicsBankModel = new CGraphicsBankModel();
    m_pSourceFileModel   = new CSourceFileModel();
@@ -35,6 +37,7 @@ CProjectModel::~CProjectModel()
 {
    delete m_pAttributeModel;
    delete m_pBinaryFileModel;
+   delete m_pCartridgeModel;
    delete m_pFilterModel;
    delete m_pGraphicsBankModel;
    delete m_pSourceFileModel;
@@ -46,8 +49,8 @@ void CProjectModel::setProject(CNesicideProject *project)
    m_pProject = project;
 
    // Propagate data changes through all child models.
-   m_pSourceFileModel->setProject(project);
    m_pAttributeModel->setProject(project);
+   m_pCartridgeModel->setProject(project);
    m_pBinaryFileModel->setProject(project);
    m_pFilterModel->setProject(project);
    m_pGraphicsBankModel->setProject(project);
@@ -70,6 +73,9 @@ QList<QUuid> CProjectModel::getUuids() const
    uuids.append(ProjectSearcher::findUuidsOfType<CGraphicsBank>(m_pProject));
    uuids.append(ProjectSearcher::findUuidsOfType<CSourceItem>(m_pProject));
    uuids.append(ProjectSearcher::findUuidsOfType<CTileStamp>(m_pProject));
+
+   uuids.append(ProjectSearcher::findUuidsOfType<CCHRROMBank>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CPRGROMBank>(m_pProject));
 
    // Add filters; they're not present in the Project right now.
    uuids.append(m_pFilterModel->getUuids());
@@ -126,6 +132,16 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
          else if (strcmp(className,"CTileStamp") == 0)
          {
             CTileStampUuid id(uuid);
+            visitor.visit(id);
+         }
+         else if (strcmp(className,"CPRGROMBank") == 0)
+         {
+            CPrgRomUuid id(uuid);
+            visitor.visit(id);
+         }
+         else if (strcmp(className,"CCHRROMBank") == 0)
+         {
+            CChrRomUuid id(uuid);
             visitor.visit(id);
          }
          return;

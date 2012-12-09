@@ -15,6 +15,8 @@ public:
    QList<QUuid> getUuids() const;
 
    // -- Getters --
+   QString getName(const QUuid& uuid) const;
+
    QByteArray getTileData(const QUuid& uuid) const;
    QByteArray getAttributeData(const QUuid& uuid) const;
    QSize getSize(const QUuid& uuid) const;

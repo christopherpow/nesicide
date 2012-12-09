@@ -11,6 +11,9 @@ class CGraphicsBankUuid;
 class CSourceFileUuid;
 class CTileStampUuid;
 
+class CChrRomUuid;
+class CPrgRomUuid;
+
 // ------------------------------------------------------------------------
 // This class can be used to obtain type information from a uuid.
 // ------------------------------------------------------------------------
@@ -26,6 +29,9 @@ public:
    virtual void visit(CGraphicsBankUuid&)=0;
    virtual void visit(CSourceFileUuid&)=0;
    virtual void visit(CTileStampUuid&)=0;
+
+   virtual void visit(CChrRomUuid&)=0;
+   virtual void visit(CPrgRomUuid&)=0;
 };
 
 // ------------------------------------------------------------------------
@@ -83,5 +89,18 @@ public:
    virtual void accept(IUuidVisitor& visitor) { visitor.visit(*this); }
 };
 
+class CChrRomUuid : public CUuid
+{
+public:
+   CChrRomUuid(QUuid uuid) : CUuid(uuid) { }
+   virtual void accept(IUuidVisitor& visitor) { visitor.visit(*this); }
+};
+
+class CPrgRomUuid : public CUuid
+{
+public:
+   CPrgRomUuid(QUuid uuid) : CUuid(uuid) { }
+   virtual void accept(IUuidVisitor& visitor) { visitor.visit(*this); }
+};
 
 #endif // IUUIDVISITOR_H

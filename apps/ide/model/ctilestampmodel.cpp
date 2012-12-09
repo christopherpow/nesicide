@@ -16,3 +16,9 @@ QList<QUuid> CTileStampModel::getUuids() const
 
    return ProjectSearcher::findUuidsOfType<CTileStamp>(m_pProject);
 }
+
+QString CTileStampModel::getName(const QUuid &uuid) const
+{
+   CTileStamp* tile = ProjectSearcher::findItemByUuid<CTileStamp>(m_pProject, uuid);
+   return tile->caption();
+}

@@ -17,3 +17,9 @@ QList<QUuid> CGraphicsBankModel::getUuids() const
 
    return ProjectSearcher::findUuidsOfType<CGraphicsBank>(m_pProject);
 }
+
+QString CGraphicsBankModel::getName(const QUuid &uuid) const
+{
+   CGraphicsBank* bank = ProjectSearcher::findItemByUuid<CGraphicsBank>(m_pProject, uuid);
+   return bank->caption();
+}

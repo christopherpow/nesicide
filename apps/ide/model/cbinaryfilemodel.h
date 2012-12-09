@@ -15,6 +15,7 @@ public:
    QList<QUuid> getUuids() const;
 
    // -- Getters --
+   QString getFileName(const QUuid& uuid) const;
    QByteArray getBinaryData(const QUuid& uuid) const;
    QImage getBinaryImage(const QUuid& uuid) const;
    QSize getSize(const QUuid& uuid) const;

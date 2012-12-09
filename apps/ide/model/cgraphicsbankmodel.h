@@ -14,6 +14,8 @@ public:
    QList<QUuid> getUuids() const;
 
    // -- Getters --
+   QString getName(const QUuid& uuid) const;
+
    //QList<IChrRomBankItem*> getGraphics();
    void exportAsPNG(const QUuid& uuid) const;
 

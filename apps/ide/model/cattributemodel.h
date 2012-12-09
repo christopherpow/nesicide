@@ -14,6 +14,7 @@ public:
    QList<QUuid> getUuids() const;
 
    // -- Getters --
+   QString getName(const QUuid& uuid) const;
    QList<uint8_t> getPaletteData(const QUuid& uuid) const;
 
    // -- Setters --

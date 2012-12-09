@@ -4,6 +4,7 @@
 #include "model/cprojectmodel.h"
 #include "model/cattributemodel.h"
 #include "model/cbinaryfilemodel.h"
+#include "model/ccartridgemodel.h"
 #include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
@@ -13,7 +14,7 @@
 static const QString FILTER_NAME[] =
 {
    "Project", "Primitives", "Attributes", "Tiles & Screens", "Source Code",
-   "Binary Files", "Graphics Banks", "Cartridge", "PRG ROM", "CHR ROM"
+   "Binary Files", "Graphics Banks", "Cartridge", "PRG-ROM Banks", "CHR-ROM Banks"
 };
 
 CFilterModel::CFilterModel(CProjectModel* project)
@@ -83,13 +84,8 @@ QList<QUuid> CFilterModel::getFilteredItems(const QUuid &uuid) const
          items.append(m_filters[9]);
          break;
 
-      case 8:
-         // TODO
-         break;
-
-      case 9:
-         // TODO
-         break;
+      case 8: return m_pProjectModel->getCartridgeModel()->getPrgRomUuids();
+      case 9: return m_pProjectModel->getCartridgeModel()->getChrRomUuids();
 
       default:
          break;

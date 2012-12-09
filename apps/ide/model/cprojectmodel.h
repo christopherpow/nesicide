@@ -8,6 +8,7 @@ class CNesicideProject;
 
 class CAttributeModel;
 class CBinaryFileModel;
+class CCartridgeModel;
 class CFilterModel;
 class CGraphicsBankModel;
 class CSourceFileModel;
@@ -41,6 +42,7 @@ public:
    // Submodel retrieval.
    CAttributeModel*     getAttributeModel()     { return m_pAttributeModel; }
    CBinaryFileModel*    getBinaryFileModel()    { return m_pBinaryFileModel; }
+   CCartridgeModel*     getCartridgeModel()     { return m_pCartridgeModel; }
    CFilterModel*        getFilterModel()        { return m_pFilterModel; }
    CGraphicsBankModel*  getGraphicsBankModel()  { return m_pGraphicsBankModel; }
    CSourceFileModel*    getSourceFileModel()    { return m_pSourceFileModel; }
@@ -51,6 +53,7 @@ private:
 
    CAttributeModel*     m_pAttributeModel;
    CBinaryFileModel*    m_pBinaryFileModel;
+   CCartridgeModel*     m_pCartridgeModel;
    CFilterModel*        m_pFilterModel;
    CGraphicsBankModel*  m_pGraphicsBankModel;
    CSourceFileModel*    m_pSourceFileModel;

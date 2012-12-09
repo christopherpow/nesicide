@@ -17,3 +17,9 @@ QList<QUuid> CAttributeModel::getUuids() const
 
    return ProjectSearcher::findUuidsOfType<CAttributeTable>(m_pProject);
 }
+
+QString CAttributeModel::getName(const QUuid &uuid) const
+{
+   CAttributeTable* palette = ProjectSearcher::findItemByUuid<CAttributeTable>(m_pProject, uuid);
+   return palette->caption();
+}

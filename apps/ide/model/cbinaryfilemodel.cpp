@@ -17,3 +17,9 @@ QList<QUuid> CBinaryFileModel::getUuids() const
 
    return ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pProject);
 }
+
+QString CBinaryFileModel::getFileName(const QUuid &uuid) const
+{
+   CBinaryFile* file = ProjectSearcher::findItemByUuid<CBinaryFile>(m_pProject, uuid);
+   return file->caption();
+}
