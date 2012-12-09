@@ -115,6 +115,13 @@ CSourceItem *CSources::addSourceFile(QString fileName)
    //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
 }
 
+void CSources::removeSourceFile(CSourceItem *item)
+{
+   this->removeChild(item);
+   m_sourceItems.removeAll(item);
+   delete item;
+}
+
 void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 {
    // Project base directory (directory where the .nesproject file is)
