@@ -28,6 +28,7 @@ QList<T*> findItemsOfType(CNesicideProject* project)
             items.append( static_cast<T*>(item) );
          }
       }
+      iter.next();
    }
    return items;
 }
@@ -58,6 +59,7 @@ T* findItemByUuid(CNesicideProject* project, const QUuid& uuid)
             return NULL;
          }
       }
+      iter.next();
    }
    return NULL;
 }
