@@ -15,6 +15,8 @@ QUuid CSourceFileModel::newSourceFile(const QString& path)
       return QUuid();
 
    CSourceItem *file = m_pProject->getProject()->getSources()->addSourceFile(path);
+   m_pProject->setDirty(true);
+
    emit sourceFileAdded(file->uuid());
    return file->uuid();
 }
@@ -29,8 +31,9 @@ void CSourceFileModel::removeSourceFile(const QUuid &uuid)
    if (item == NULL)
       return;
 
-   m_pProject->getProject()->getSources()->removeChild(item);
-   delete item;
+   m_pProject->getProject()->getSources()->removeSourceFile(item);
+   m_pProject->setDirty(true);
+
    emit sourceFileRemoved(uuid);
 }
 

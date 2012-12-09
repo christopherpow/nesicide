@@ -28,9 +28,9 @@ CProjectModel::CProjectModel()
    m_pSourceFileModel   = new CSourceFileModel();
    m_pTileStampModel    = new CTileStampModel();
 
-   // Connect to source events
-   //QObject::connect(m_pSourceFileModel, SIGNAL(sourceFileAdded(QUuid)), this, SIGNAL(itemAdded(QUuid)));
-   //QObject::connect(m_pSourceFileModel, SIGNAL(sourceFileRemoved(QUuid)), this, SIGNAL(itemRemoved(QUuid)));
+   // Reroute some signals.
+   QObject::connect(m_pSourceFileModel, SIGNAL(sourceFileAdded(QUuid)), this, SIGNAL(itemAdded(QUuid)));
+   QObject::connect(m_pSourceFileModel, SIGNAL(sourceFileRemoved(QUuid)), this, SIGNAL(itemRemoved(QUuid)));
 }
 
 CProjectModel::~CProjectModel()

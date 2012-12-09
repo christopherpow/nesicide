@@ -51,8 +51,6 @@ private:
 private slots:
    void openItemRequested( QTreeWidgetItem * item, int column );
    void treeWidgetContextMenuRequested( QPoint pos );
-
-   void on_projectTreeView_doubleClicked(const QModelIndex &index);
 };
 
 #endif // PROJECTBROWSERDOCKWIDGET_H

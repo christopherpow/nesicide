@@ -322,7 +322,8 @@ SOURCES += \
     model/cattributemodel.cpp \
     model/cgraphicsbankmodel.cpp \
     model/ccartridgemodel.cpp \
-    project/cprojecttreewidget.cpp
+    project/cprojecttreewidget.cpp \
+    project/cprojecttreecontextmenu.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -470,7 +471,8 @@ HEADERS += \
     model/cgraphicsbankmodel.h \
     model/csubmodel.h \
     model/ccartridgemodel.h \
-    project/cprojecttreewidget.h
+    project/cprojecttreewidget.h \
+    project/cprojecttreecontextmenu.h
 
 FORMS += \
    aboutdialog.ui \

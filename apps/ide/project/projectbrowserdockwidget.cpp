@@ -4,8 +4,7 @@
 #include "cnesicideproject.h"
 #include "model/cprojectmodel.h"
 #include "model/cfiltermodel.h"
-
-#include "main.h"
+#include "cprojecttreecontextmenu.h"
 
 //--------------------------------------------------------------------------------------
 // Sorting functions
@@ -97,14 +96,6 @@ void ProjectBrowserDockWidget::disableNavigation()
 
 }
 
-void ProjectBrowserDockWidget::on_projectTreeView_doubleClicked(const QModelIndex &index)
-{
-   //IProjectTreeViewItem* item = (IProjectTreeViewItem*)index.internalPointer();
-
-   //item->openItemEvent(m_pTarget);
-}
-
-
 void ProjectBrowserDockWidget::setProjectModel(CProjectModel *model)
 {
    if (m_pProject)
@@ -142,20 +133,26 @@ void ProjectBrowserDockWidget::projectTreeChanged(QUuid uuid)
    rebuildProjectTree();
 }
 
+#include <iostream>
+
 void ProjectBrowserDockWidget::openItemRequested(QTreeWidgetItem *item, int)
 {
+   std::cerr << "OPEN ME!\n";
    // Translate event.
    QUuid uuid = ui->projectTreeWidget->getUuidOf(item);
    emit openUuidRequest(uuid);
 }
 
+
 void ProjectBrowserDockWidget::treeWidgetContextMenuRequested(QPoint pos)
 {
+   std::cerr << "INVOKED!\n";
+
    // Invoke context menu.
-   //QUuid uuid = ui->projectTreeWidget->getUuidAt(pos);
-   //QPoint screenPos = ui->projectTreeWidget->mapToGlobal(pos);
-   //CProjectContextMenu contextMenu(this, screenPos, m_pProject);
-   //m_pProject->visitDataItem(uuid, contextMenu);
+   QUuid uuid = ui->projectTreeWidget->getUuidAt(pos);
+   QPoint screenPos = ui->projectTreeWidget->mapToGlobal(pos);
+   CProjectTreeContextMenu contextMenu(this, screenPos, m_pProject);
+   m_pProject->visitDataItem(uuid, contextMenu);
 }
 
 void ProjectBrowserDockWidget::buildProjectTree()
