@@ -21,6 +21,19 @@ QUuid CSourceFileModel::newSourceFile(const QString& path)
    return file->uuid();
 }
 
+QUuid CSourceFileModel::addExistingSourceFile(const QString &path)
+{
+   if (m_pProject == NULL || path.isNull())
+      return QUuid();
+
+   // TODO Does this work?
+   CSourceItem *file = m_pProject->getProject()->getSources()->addSourceFile(path);
+   m_pProject->setDirty(true);
+
+   emit sourceFileAdded(file->uuid());
+   return file->uuid();
+}
+
 void CSourceFileModel::removeSourceFile(const QUuid &uuid)
 {
    if (m_pProject == NULL)

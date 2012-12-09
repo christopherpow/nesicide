@@ -18,8 +18,8 @@ class CProjectModel : public QObject
 {
    Q_OBJECT
 signals:
-   void itemAdded(QUuid item);
-   void itemRemoved(QUuid item);
+   void itemAdded(const QUuid &item);
+   void itemRemoved(const QUuid & item);
 
    void reset();
 
@@ -58,6 +58,10 @@ private:
    CGraphicsBankModel*  m_pGraphicsBankModel;
    CSourceFileModel*    m_pSourceFileModel;
    CTileStampModel*     m_pTileStampModel;
+
+private slots:
+   void onItemAdded(const QUuid & item);
+   void onItemRemoved(const QUuid & item);
 };
 
 #endif // CPROJECTMODEL_H

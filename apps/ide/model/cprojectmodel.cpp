@@ -28,9 +28,17 @@ CProjectModel::CProjectModel()
    m_pSourceFileModel   = new CSourceFileModel();
    m_pTileStampModel    = new CTileStampModel();
 
-   // Reroute some signals.
-   QObject::connect(m_pSourceFileModel, SIGNAL(sourceFileAdded(QUuid)), this, SIGNAL(itemAdded(QUuid)));
-   QObject::connect(m_pSourceFileModel, SIGNAL(sourceFileRemoved(QUuid)), this, SIGNAL(itemRemoved(QUuid)));
+   // Reroute signals from submodels.
+   QObject::connect(m_pAttributeModel,    SIGNAL(paletteAdded(QUuid)),        this, SLOT(onItemAdded(QUuid)));
+   QObject::connect(m_pAttributeModel,    SIGNAL(paletteDeleted(QUuid)),      this, SLOT(onItemRemoved(QUuid)));
+   QObject::connect(m_pBinaryFileModel,   SIGNAL(binaryFileAdded(QUuid)),     this, SLOT(onItemAdded(QUuid)));
+   QObject::connect(m_pBinaryFileModel,   SIGNAL(binaryFileRemoved(QUuid)),   this, SLOT(onItemRemoved(QUuid)));
+   QObject::connect(m_pGraphicsBankModel, SIGNAL(graphicsBankAdded(QUuid)),   this, SLOT(onItemAdded(QUuid)));
+   QObject::connect(m_pGraphicsBankModel, SIGNAL(graphicsBankDeleted(QUuid)), this, SLOT(onItemRemoved(QUuid)));
+   QObject::connect(m_pSourceFileModel,   SIGNAL(sourceFileAdded(QUuid)),     this, SLOT(onItemAdded(QUuid)));
+   QObject::connect(m_pSourceFileModel,   SIGNAL(sourceFileRemoved(QUuid)),   this, SLOT(onItemRemoved(QUuid)));
+   QObject::connect(m_pTileStampModel,    SIGNAL(tileStampAdded(QUuid)),      this, SLOT(onItemAdded(QUuid)));
+   QObject::connect(m_pTileStampModel,    SIGNAL(tileStampRemoved(QUuid)),    this, SLOT(onItemRemoved(QUuid)));
 }
 
 CProjectModel::~CProjectModel()
@@ -148,4 +156,16 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
       }
       iter.next();
    }
+}
+
+void CProjectModel::onItemAdded(const QUuid &item)
+{
+   m_pProject->setDirty(true);
+   emit itemAdded(item);
+}
+
+void CProjectModel::onItemRemoved(const QUuid &item)
+{
+   m_pProject->setDirty(true);
+   emit itemRemoved(item);
 }

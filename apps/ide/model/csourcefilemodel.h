@@ -15,6 +15,9 @@ public:
    // Add a new source file to the project.
    QUuid newSourceFile(const QString& path);
 
+   // Add an existing source file to the project.
+   QUuid addExistingSourceFile(const QString& path);
+
    // Remove a source file from the project.
    void removeSourceFile(const QUuid& uuid);
 

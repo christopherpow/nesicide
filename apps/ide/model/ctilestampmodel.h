@@ -7,8 +7,13 @@
 class CTileStampModel : public CSubModel
 {
    Q_OBJECT
+signals:
+   void tileStampAdded(const QUuid& uuid);
+   void tileStampRemoved(const QUuid& uuid);
+
 public:
    QUuid newTileStamp(const QString& name);
+   QUuid newScreen(const QString& name);
    void deleteTileStamp(const QUuid& uuid);
 
    // Retrieve a list of all UUIDs in this model.

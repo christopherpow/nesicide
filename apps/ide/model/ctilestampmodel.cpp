@@ -19,6 +19,60 @@ QList<QUuid> CTileStampModel::getUuids() const
 
 QString CTileStampModel::getName(const QUuid &uuid) const
 {
+   if (m_pProject == NULL)
+      return QString();
+
    CTileStamp* tile = ProjectSearcher::findItemByUuid<CTileStamp>(m_pProject, uuid);
    return tile->caption();
 }
+
+
+QUuid CTileStampModel::newTileStamp(const QString &name)
+{
+   if (m_pProject == NULL)
+      return QUuid();
+
+   CTileStamps* pTileStamps = m_pProject->getProject()->getProjectPrimitives()->getTileStamps();
+   CTileStamp* pTileStamp = new CTileStamp(pTileStamps);
+   pTileStamp->setName(name);
+   pTileStamps->getTileStampList().append(pTileStamp);
+   pTileStamps->appendChild(pTileStamp);
+
+   m_pProject->setDirty(true);
+   emit tileStampAdded(pTileStamp->uuid());
+   return pTileStamp->uuid();
+}
+
+QUuid CTileStampModel::newScreen(const QString &name)
+{
+   if (m_pProject == NULL)
+      return QUuid();
+
+   CTileStamps* pTileStamps = m_pProject->getProject()->getProjectPrimitives()->getTileStamps();
+   CTileStamp* pTileStamp = new CTileStamp(pTileStamps);
+   pTileStamp->setName(name);
+   pTileStamp->setSize(256,240);
+   pTileStamps->getTileStampList().append(pTileStamp);
+   pTileStamps->appendChild(pTileStamp);
+
+   m_pProject->setDirty(true);
+   emit tileStampAdded(pTileStamp->uuid());
+   return pTileStamp->uuid();
+}
+
+void CTileStampModel::deleteTileStamp(const QUuid &uuid)
+{
+   if (m_pProject == NULL)
+      return;
+
+   CTileStamp* pTileStamp = ProjectSearcher::findItemByUuid<CTileStamp>(m_pProject, uuid);
+   if (pTileStamp == NULL)
+      return;
+
+   m_pProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(pTileStamp);
+   m_pProject->setDirty(true);
+   delete pTileStamp;
+
+   emit tileStampRemoved(uuid);
+}
+

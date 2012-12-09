@@ -6,6 +6,10 @@
 class CAttributeModel : public CSubModel
 {
    Q_OBJECT
+signals:
+   void paletteAdded(const QUuid& uuid);
+   void paletteDeleted(const QUuid& uuid);
+
 public:
    QUuid newPalette(const QString& name);
    void deletePalette(const QUuid& uuid);

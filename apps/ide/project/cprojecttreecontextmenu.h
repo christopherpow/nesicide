@@ -37,8 +37,6 @@ private:
    QString        selectNewFileName();
    QString        selectNewItemName(const QString& caption, const QString& text);
 
-   int showMenu(const QString& a1, const QString& a2=QString(), const QString& a3=QString());
-
    void appendGlobalMenuItems(QMenu* menu);
 
 private slots:
@@ -51,6 +49,7 @@ private slots:
    void addBinaryFile();
    void addSourceFile();
 
+   void deleteGraphicsBank();
    void deletePalette();
    void deleteTile();
    void removeBinaryFile();

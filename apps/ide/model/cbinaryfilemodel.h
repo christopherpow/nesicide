@@ -7,6 +7,10 @@
 class CBinaryFileModel : public CSubModel
 {
    Q_OBJECT
+signals:
+   void binaryFileAdded  (const QUuid& uuid);
+   void binaryFileRemoved(const QUuid& uuid);
+
 public:
    QUuid addExistingBinaryFile(const QString& path);
    void removeBinaryFile(const QUuid& uuid);

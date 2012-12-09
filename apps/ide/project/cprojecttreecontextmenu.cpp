@@ -1,7 +1,21 @@
+
 #include "cprojecttreecontextmenu.h"
+
 #include "model/cprojectmodel.h"
+
+#include "model/cattributemodel.h"
+#include "model/cbinaryfilemodel.h"
+#include "model/ccartridgemodel.h"
+#include "model/cfiltermodel.h"
+#include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
+#include "model/ctilestampmodel.h"
+
 #include <QMessageBox>
+#include <QDir>
+#include <newprojectdialog.h>
+#include <QInputDialog>
+#include <QFileDialog>
 
 
 const int INVALID_ACTION = -1;
@@ -10,7 +24,7 @@ const int INVALID_ACTION = -1;
 // Context menu strings
 //--------------------------------------------------------------------------------------
 const QString NEW_ACTION                  = "New";
-const QString DELETE_ACTION               = "Delete";
+const QString DELETE_ACTION               = "Delete %1";
 const QString REMOVE_ACTION               = "Remove \"%1\" from Project";
 const QString COPY_ACTION                 = "Copy";
 const QString NEW_ITEM_ACTION             = "New %1...";
@@ -21,6 +35,13 @@ const QString INSERT_FILTER_ACTION        = "Insert Filter here...";
 
 const QString CONFIRM_REMOVE_CAPTION      = "Remove from Project";
 const QString CONFIRM_REMOVE_TEXT         = "Are you sure you want to remove \"%1\" from the project?";
+const QString NEW_ITEM_CAPTION            = "New %1";
+const QString NEW_ITEM_TEXT               = "What name would you like to use to identify this %1?";
+const QString DELETE_ITEM_CAPTION         = "Delete %1";
+const QString DELETE_ITEM_TEXT            = "Are you sure you want to delete \"%1\" permanently?";
+
+const QString NEW_SOURCE_MENU_TEXT        = "New Source";
+const QString IMPORT_FILES_MENU_TEXT      = "Add Existing File(s)";
 
 const QString GRAPHICS_BANK = "Graphics Bank";
 const QString PALETTE       = "Palette";
@@ -46,15 +67,24 @@ void CProjectTreeContextMenu::visit(CUuid &)
    menu.exec(m_position);
 }
 
-void CProjectTreeContextMenu::visit(CAttributeUuid &)
+void CProjectTreeContextMenu::visit(CAttributeUuid &data)
 {
+   m_targetUuid = data.uuid;
+
+   QMenu menu(m_parent);
+   menu.addAction(DELETE_ACTION.arg(PALETTE), this, SLOT(deletePalette()));
+   appendGlobalMenuItems(&menu);
+   menu.exec(m_position);
 }
 
 void CProjectTreeContextMenu::visit(CBinaryFileUuid &data)
 {
    m_targetUuid = data.uuid;
 
+   QString name = m_project->getBinaryFileModel()->getFileName(data.uuid);
+
    QMenu menu(m_parent);
+   menu.addAction(REMOVE_ACTION.arg(name), this, SLOT(removeBinaryFile()));
    appendGlobalMenuItems(&menu);
    menu.exec(m_position);
 }
@@ -68,8 +98,14 @@ void CProjectTreeContextMenu::visit(CFilterUuid &data)
    menu.exec(m_position);
 }
 
-void CProjectTreeContextMenu::visit(CGraphicsBankUuid &)
+void CProjectTreeContextMenu::visit(CGraphicsBankUuid &data)
 {
+   m_targetUuid = data.uuid;
+
+   QMenu menu(m_parent);
+   menu.addAction(DELETE_ACTION.arg(GRAPHICS_BANK), this, SLOT(deleteGraphicsBank()));
+   appendGlobalMenuItems(&menu);
+   menu.exec(m_position);
 }
 
 void CProjectTreeContextMenu::visit(CSourceFileUuid &data)
@@ -101,43 +137,9 @@ void CProjectTreeContextMenu::visit(CPrgRomUuid &)
 {
 }
 
-
 //--------------------------------------------------------------------------------------
 // Modal dialogs
 //--------------------------------------------------------------------------------------
-int CProjectTreeContextMenu::showMenu(const QString &a1, const QString &a2, const QString &a3)
-{
-   QMenu menu(m_parent);
-
-   menu.addSeparator();
-
-   // Local actions
-   if (!a1.isEmpty())
-      menu.addAction(a1);
-   if (!a2.isEmpty())
-      menu.addAction(a2);
-   if (!a3.isEmpty())
-      menu.addAction(a3);
-
-   QAction* action = menu.exec(m_position);
-   if (action == NULL)
-      return INVALID_ACTION;
-
-   if (action->text() == a1)
-      return 0;
-   else if (!a2.isEmpty() && action->text() == a2)
-      return 1;
-   else if (!a3.isEmpty() && action->text() == a3)
-      return 2;
-
-   // "New" actions
-   // "Add Existing" actions
-   // "Insert Filter here" action
-   //if (action->text() == INSERT_FILTER_ACTION)
-
-   return INVALID_ACTION;
-}
-
 void CProjectTreeContextMenu::appendGlobalMenuItems(QMenu *menu)
 {
    menu->addSeparator();
@@ -159,8 +161,8 @@ void CProjectTreeContextMenu::appendGlobalMenuItems(QMenu *menu)
    addExistingMenu->addAction(SOURCE_FILE + DOTS, this, SLOT(addSourceFile()) );
    menu->addMenu(addExistingMenu);
 
-   menu->addSeparator();
-   menu->addAction(INSERT_FILTER_ACTION);
+   //menu->addSeparator();
+   //menu->addAction(INSERT_FILTER_ACTION);
 }
 
 bool CProjectTreeContextMenu::confirmChoice(const QString &caption, const QString &text)
@@ -171,7 +173,7 @@ bool CProjectTreeContextMenu::confirmChoice(const QString &caption, const QStrin
 
 QList<QString> CProjectTreeContextMenu::selectExistingFiles(const QString &caption)
 {
-   return QList<QString>();
+   return QFileDialog::getOpenFileNames(NULL, caption, QDir::currentPath(), "All Files (*.*)");
 }
 
 QString CProjectTreeContextMenu::selectNewFileName()
@@ -181,51 +183,129 @@ QString CProjectTreeContextMenu::selectNewFileName()
 
 QString CProjectTreeContextMenu::selectNewItemName(const QString &caption, const QString &text)
 {
-   return QString();
+   return QInputDialog::getText(m_parent, caption, text);
 }
 
 void CProjectTreeContextMenu::newGraphicsBank()
 {
+   QString name = selectNewItemName(NEW_ITEM_CAPTION.arg(GRAPHICS_BANK), NEW_ITEM_TEXT.arg(GRAPHICS_BANK));
+   if (name.isEmpty())
+      return;
 
+   m_project->getGraphicsBankModel()->newGraphicsBank(name);
 }
 
 void CProjectTreeContextMenu::newPalette()
 {
+   QString name = selectNewItemName(NEW_ITEM_CAPTION.arg(PALETTE), NEW_ITEM_TEXT.arg(PALETTE));
+   if (name.isEmpty())
+      return;
 
+   m_project->getAttributeModel()->newPalette(name);
 }
 
 void CProjectTreeContextMenu::newSourceFile()
 {
+   // TODO Remove this hack!
+   NewProjectDialog dlg(0, NEW_SOURCE_MENU_TEXT, "", QDir::currentPath());
+
+   int result = dlg.exec();
+   if ( result == 0 )
+      return;
+
+   QString fileName = dlg.getName();
+   QDir newDir( dlg.getPath() );
+
+   if ( fileName.isEmpty() )
+      return;
+
+   // Project base directory (directory where the .nesproject file is)
+   QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
+   QString fullPath = dir.relativeFilePath( newDir.absoluteFilePath( fileName ) );
+
+   m_project->getSourceFileModel()->newSourceFile(fullPath);
 }
 
 void CProjectTreeContextMenu::newTile()
 {
+   QString name = selectNewItemName(NEW_ITEM_CAPTION.arg(TILE), NEW_ITEM_TEXT.arg(TILE));
+   if (name.isEmpty())
+      return;
+
+   m_project->getTileStampModel()->newTileStamp(name);
 }
 
 void CProjectTreeContextMenu::newScreen()
 {
+   QString name = selectNewItemName(NEW_ITEM_CAPTION.arg(SCREEN), NEW_ITEM_TEXT.arg(SCREEN));
+   if (name.isEmpty())
+      return;
+
+   m_project->getTileStampModel()->newScreen(name);
 }
 
 
 void CProjectTreeContextMenu::addBinaryFile()
 {
+   QStringList fileNames = selectExistingFiles(IMPORT_FILES_MENU_TEXT);
+   foreach ( QString fileName, fileNames )
+   {
+      if (!fileName.isEmpty())
+      {
+         m_project->getBinaryFileModel()->addExistingBinaryFile(fileName);
+      }
+   }
 }
 
 void CProjectTreeContextMenu::addSourceFile()
 {
+   QStringList fileNames = selectExistingFiles(IMPORT_FILES_MENU_TEXT);
+   foreach ( QString fileName, fileNames )
+   {
+      if (!fileName.isEmpty())
+      {
+         m_project->getSourceFileModel()->addExistingSourceFile(fileName);
+      }
+   }
 }
 
+void CProjectTreeContextMenu::deleteGraphicsBank()
+{
+   QString name = m_project->getGraphicsBankModel()->getName(m_targetUuid);
+
+   if (!confirmChoice(DELETE_ITEM_CAPTION.arg(GRAPHICS_BANK), DELETE_ITEM_TEXT.arg(name)))
+      return;
+
+   m_project->getGraphicsBankModel()->deleteGraphicsBank(m_targetUuid);
+}
 
 void CProjectTreeContextMenu::deletePalette()
 {
+   QString name = m_project->getAttributeModel()->getName(m_targetUuid);
+
+   if (!confirmChoice(DELETE_ITEM_CAPTION.arg(PALETTE), DELETE_ITEM_TEXT.arg(name)))
+      return;
+
+   m_project->getAttributeModel()->deletePalette(m_targetUuid);
 }
 
 void CProjectTreeContextMenu::deleteTile()
 {
+   QString name = m_project->getTileStampModel()->getName(m_targetUuid);
+
+   if (!confirmChoice(DELETE_ITEM_CAPTION.arg(TILE), DELETE_ITEM_TEXT.arg(name)))
+      return;
+
+   m_project->getTileStampModel()->deleteTileStamp(m_targetUuid);
 }
 
 void CProjectTreeContextMenu::removeBinaryFile()
 {
+   QString name = m_project->getBinaryFileModel()->getFileName(m_targetUuid);
+   if (confirmChoice(CONFIRM_REMOVE_CAPTION, CONFIRM_REMOVE_TEXT.arg(name)))
+   {
+      m_project->getBinaryFileModel()->removeBinaryFile(m_targetUuid);
+   }
 }
 
 void CProjectTreeContextMenu::removeSourceFile()

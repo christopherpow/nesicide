@@ -6,6 +6,10 @@
 class CGraphicsBankModel : public CSubModel
 {
    Q_OBJECT
+signals:
+   void graphicsBankAdded(const QUuid& uuid);
+   void graphicsBankDeleted(const QUuid& uuid);
+
 public:
    QUuid newGraphicsBank(const QString& name);
    void deleteGraphicsBank(const QUuid& uuid);
