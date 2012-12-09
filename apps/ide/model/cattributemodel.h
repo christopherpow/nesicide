@@ -6,6 +6,19 @@
 class CAttributeModel : public CSubModel
 {
    Q_OBJECT
+public:
+   QUuid newPalette(const QString& name);
+   void deletePalette(const QUuid& uuid);
+
+   // Retrieve a list of all UUIDs in this model.
+   QList<QUuid> getUuids() const;
+
+   // -- Getters --
+   QList<uint8_t> getPaletteData(const QUuid& uuid) const;
+
+   // -- Setters --
+   void setPaletteData(const QUuid& uuid, const QList<uint8_t>& data);
+
 private:
    friend class CProjectModel;
    CAttributeModel();

@@ -20,7 +20,7 @@ CProjectModel::CProjectModel()
 
    m_pAttributeModel    = new CAttributeModel();
    m_pBinaryFileModel   = new CBinaryFileModel();
-   m_pFilterModel       = new CFilterModel();
+   m_pFilterModel       = new CFilterModel(this);
    m_pGraphicsBankModel = new CGraphicsBankModel();
    m_pSourceFileModel   = new CSourceFileModel();
    m_pTileStampModel    = new CTileStampModel();

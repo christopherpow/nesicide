@@ -3,12 +3,36 @@
 
 #include "model/csubmodel.h"
 
+class CProjectModel;
+
 class CFilterModel : public CSubModel
 {
    Q_OBJECT
+public:
+   // Retrieve a list of all UUIDs in this model.
+   QList<QUuid> getUuids() const;
+
+   // Create a new filter.
+   QUuid newFilter(const QString& name);
+
+   // Check wether a uuid describes a filter.
+   bool isFilter(const QUuid& uuid) const;
+
+   // Data Getters
+   QList<QUuid> getFilteredItems(const QUuid& uuid) const;
+   QString      getFilterName(const QUuid& uuid) const;
+
+   // Data Setters
+   void addToFilter(const QUuid& filterUuid, const QUuid& uuid);
+
 private:
    friend class CProjectModel;
-   CFilterModel();
+   CFilterModel(CProjectModel* project);
+
+   CProjectModel* m_pProjectModel;
+   QList<QUuid>   m_filters;
+
+   int getFilterId(const QUuid& filterUuid) const;
 };
 
 #endif // CFILTERMODEL_H

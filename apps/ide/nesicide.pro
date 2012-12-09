@@ -320,7 +320,8 @@ SOURCES += \
     model/cbinaryfilemodel.cpp \
     model/ctilestampmodel.cpp \
     model/cattributemodel.cpp \
-    model/cgraphicsbankmodel.cpp
+    model/cgraphicsbankmodel.cpp \
+    model/ccartridgemodel.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -466,7 +467,8 @@ HEADERS += \
     model/cattributemodel.h \
     model/iuuidvisitor.h \
     model/cgraphicsbankmodel.h \
-    model/csubmodel.h
+    model/csubmodel.h \
+    model/ccartridgemodel.h
 
 FORMS += \
    aboutdialog.ui \
