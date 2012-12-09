@@ -11,6 +11,29 @@ namespace ProjectSearcher
 // ------------------------------------------------------------------------
 
 template<class T>
+QList<QUuid> findUuidsOfType(CNesicideProject* project)
+{
+   QList<QUuid> items;
+   const char* targetName = T::staticMetaObject.className();
+
+   IProjectTreeViewItemIterator iter(project);
+   while ( iter.current() != NULL )
+   {
+      CProjectBase* item = dynamic_cast<CProjectBase*>(iter.current());
+      if ( item != NULL )
+      {
+         const char* className = item->metaObject()->className();
+         if ( strcmp(className,targetName) == 0 )
+         {
+            items.append( item->uuid() );
+         }
+      }
+      iter.next();
+   }
+   return items;
+}
+
+template<class T>
 QList<T*> findItemsOfType(CNesicideProject* project)
 {
    QList<T*> items;

@@ -18,6 +18,10 @@ public:
    // Check wether a uuid describes a filter.
    bool isFilter(const QUuid& uuid) const;
 
+   // Returns true if uuid1 should be placed before uuid2 in the project browser.
+   // JSTODO Switch to some other filter ordering scheme.
+   bool compare(const QUuid& uuid1, const QUuid& uuid2) const;
+
    // Data Getters
    QList<QUuid> getFilteredItems(const QUuid& uuid) const;
    QString      getFilterName(const QUuid& uuid) const;

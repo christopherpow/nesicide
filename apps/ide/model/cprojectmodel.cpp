@@ -1,5 +1,6 @@
 
 #include "model/cprojectmodel.h"
+#include "model/projectsearcher.h"
 
 #include "model/cattributemodel.h"
 #include "model/cbinaryfilemodel.h"
@@ -62,13 +63,17 @@ QList<QUuid> CProjectModel::getUuids() const
    if (m_pProject == NULL)
       return uuids;
 
-   // Extract the uuids of all project items.
-   IProjectTreeViewItemIterator iter(m_pProject);
-   while ( iter.current() != NULL )
-   {
-      uuids.append(iter.current()->uuid());
-      iter.next();
-   }
+   // Extract the uuids of all project items, but
+   // exclude "Filters" like CSourceFiles, CGraphicsBanks, etc.
+   uuids.append(ProjectSearcher::findUuidsOfType<CAttributeTable>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CGraphicsBank>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CSourceItem>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CTileStamp>(m_pProject));
+
+   // Add filters; they're not present in the Project right now.
+   uuids.append(m_pFilterModel->getUuids());
+
    return uuids;
 }
 
@@ -76,6 +81,14 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
 {
    if (m_pProject == NULL)
       return;
+
+   // If a filter, not in the project tree; search for it first.
+   if (this->getFilterModel()->isFilter(uuid))
+   {
+      CFilterUuid id(uuid);
+      visitor.visit(id);
+      return;
+   }
 
    // Find project item with target uuid
    IProjectTreeViewItemIterator iter(m_pProject);
@@ -115,6 +128,7 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
             CTileStampUuid id(uuid);
             visitor.visit(id);
          }
+         return;
       }
       iter.next();
    }

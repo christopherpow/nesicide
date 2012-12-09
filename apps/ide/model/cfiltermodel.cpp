@@ -48,6 +48,11 @@ bool CFilterModel::isFilter(const QUuid &uuid) const
    return getFilterId(uuid) != -1;
 }
 
+bool CFilterModel::compare(const QUuid &uuid1, const QUuid &uuid2) const
+{
+   return getFilterId(uuid1) < getFilterId(uuid2);
+}
+
 QList<QUuid> CFilterModel::getFilteredItems(const QUuid &uuid) const
 {
    QList<QUuid> items;
@@ -67,11 +72,11 @@ QList<QUuid> CFilterModel::getFilteredItems(const QUuid &uuid) const
          items.append(m_filters[3]);
          break;
 
-      case 2: break;//return m_pProjectModel->getAttributeModel()->getUuids();
-      case 3: break;//return m_pProjectModel->getTileStampModel()->getUuids();
-      case 4: break;//return m_pProjectModel->getSourceFileModel()->getUuids();
-      case 5: break;//return m_pProjectModel->getBinaryFileModel()->getUuids();
-      case 6: break;//return m_pProjectModel->getGraphicsBankModel()->getUuids();
+      case 2: return m_pProjectModel->getAttributeModel()->getUuids();
+      case 3: return m_pProjectModel->getTileStampModel()->getUuids();
+      case 4: return m_pProjectModel->getSourceFileModel()->getUuids();
+      case 5: return m_pProjectModel->getBinaryFileModel()->getUuids();
+      case 6: return m_pProjectModel->getGraphicsBankModel()->getUuids();
 
       case 7:
          items.append(m_filters[8]);
