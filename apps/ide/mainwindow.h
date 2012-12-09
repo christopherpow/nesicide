@@ -40,6 +40,8 @@
 
 #include "ui_mainwindow.h"
 
+class CProjectModel;
+
 namespace Ui
 {
 class MainWindow;
@@ -51,7 +53,7 @@ class MainWindow : public QMainWindow, private Ui::MainWindow
 {
    Q_OBJECT
 public:
-   MainWindow(QWidget* parent = 0);
+   MainWindow(CProjectModel* projectModel, QWidget* parent = 0);
    virtual ~MainWindow();
 
 protected:
@@ -186,6 +188,9 @@ protected:
 
    // Other
    int m_periodicTimer;
+
+   // Project data wrappers
+   CProjectModel* m_pProjectModel;
 
 private:
    void openNesProject(QString fileName,bool runRom=true);

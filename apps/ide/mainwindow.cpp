@@ -18,6 +18,8 @@
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
 
+#include "model/cprojectmodel.h"
+
 #include <QApplication>
 #include <QStringList>
 #include <QMessageBox>
@@ -28,8 +30,8 @@
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
-MainWindow::MainWindow(QWidget* parent) :
-   QMainWindow(parent)
+MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
+   QMainWindow(parent), m_pProjectModel(projectModel)
 {
    if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
         (QCoreApplication::applicationDirPath().contains("apps/ide"))) ) // Developer builds
@@ -159,6 +161,7 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
    m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
+   m_pProjectBrowser->setProjectModel(m_pProjectModel);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
    m_pProjectBrowser->hide();
    QObject::connect(m_pProjectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
@@ -1503,6 +1506,8 @@ void MainWindow::showEvent(QShowEvent */*event*/)
 
 void MainWindow::projectDataChangesEvent()
 {
+   m_pProjectModel->setProject(nesicideProject);
+
    m_pProjectBrowser->layoutChangedEvent();
    m_pProjectBrowser->setVisible(nesicideProject->isInitialized());
    output->setVisible(nesicideProject->isInitialized());

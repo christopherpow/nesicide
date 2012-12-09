@@ -44,7 +44,8 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="CProjectTreeView" name="projectTreeView">
+      <widget class="QListView" name="projectListView"/>
+      <widget class="CProjectTreeWidget" name="projectTreeWidget">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -72,11 +73,15 @@
        <property name="headerHidden">
         <bool>true</bool>
        </property>
-       <attribute name="headerDefaultSectionSize">
-        <number>0</number>
+       <attribute name="headerVisible">
+        <bool>false</bool>
        </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
       </widget>
-      <widget class="QListView" name="projectListView"/>
      </widget>
     </item>
    </layout>
@@ -84,9 +89,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CProjectTreeView</class>
-   <extends>QTreeView</extends>
-   <header location="global">cprojecttreeview.h</header>
+   <class>CProjectTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>cprojecttreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

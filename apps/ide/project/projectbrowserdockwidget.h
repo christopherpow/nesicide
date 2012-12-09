@@ -8,6 +8,10 @@
 #include "cprojecttreeviewmodel.h"
 #include "cprojecttreeview.h"
 
+#include "cprojecttreewidget.h"
+
+class CProjectModel;
+
 namespace Ui {
     class ProjectBrowserDockWidget;
 }
@@ -15,22 +19,40 @@ namespace Ui {
 class ProjectBrowserDockWidget : public QDockWidget
 {
    Q_OBJECT
+signals:
+   void openUuidRequest(const QUuid& uuid); // -> tabWidget
 
 public:
-   explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget,QWidget *parent = 0);
+   explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
    virtual ~ProjectBrowserDockWidget();
+
+   void setProjectModel(CProjectModel* model);
 
    void layoutChangedEvent();
    void enableNavigation();
    void disableNavigation();
 
-private slots:
-   void on_projectTreeView_doubleClicked(const QModelIndex &index);
+public slots:
+   void itemOpened(QUuid uuid); // <- tabWidget
+   void itemClosed(QUuid uuid); // <- tabWidget
+
+   void projectTreeChanged(QUuid uuid);
 
 private:
    Ui::ProjectBrowserDockWidget *ui;
    CProjectTabWidget* m_pTarget;
-   CProjectTreeViewModel* m_pProjectTreeviewModel;
+   CProjectModel* m_pProject;
+
+   void buildProjectTree();
+   void rebuildProjectTree();
+   QList<QUuid> saveProjectTreeExpansionState();
+   void restoreProjectTreeExpansionState(const QList<QUuid> &itemsToExpand);
+
+private slots:
+   void openItemRequested( QTreeWidgetItem * item, int column );
+   void treeWidgetContextMenuRequested( QPoint pos );
+
+   void on_projectTreeView_doubleClicked(const QModelIndex &index);
 };
 
 #endif // PROJECTBROWSERDOCKWIDGET_H
