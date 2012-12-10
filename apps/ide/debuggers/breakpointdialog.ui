@@ -107,6 +107,20 @@
        <item row="1" column="1">
         <widget class="QLineEdit" name="mask"/>
        </item>
+       <item row="1" column="3" colspan="2">
+        <widget class="QComboBox" name="itemMaskScope">
+         <item>
+          <property name="text">
+           <string>Exclusive (unmasked bits must be zero)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Inclusive (unmasked bits are ignored)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="regpage">
@@ -243,7 +257,12 @@
          </item>
          <item>
           <property name="text">
-           <string>Mask</string>
+           <string>Exclusive Mask (unmasked bits must be zero)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Inclusive Mask (unmasked bits are ignored)</string>
           </property>
          </item>
         </widget>
@@ -261,7 +280,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="emptyData">
       <layout class="QGridLayout" name="gridLayout_7">
@@ -365,12 +384,20 @@
   <tabstop>type</tabstop>
   <tabstop>addr1</tabstop>
   <tabstop>addr2</tabstop>
-  <tabstop>reg</tabstop>
+  <tabstop>mask</tabstop>
   <tabstop>bitfield</tabstop>
   <tabstop>event</tabstop>
   <tabstop>eventData1</tabstop>
   <tabstop>condition</tabstop>
   <tabstop>data2</tabstop>
+  <tabstop>eventData2</tabstop>
+  <tabstop>data1</tabstop>
+  <tabstop>cancel</tabstop>
+  <tabstop>enabled</tabstop>
+  <tabstop>addBreakpoint</tabstop>
+  <tabstop>resolutions</tabstop>
+  <tabstop>resolve</tabstop>
+  <tabstop>reg</tabstop>
  </tabstops>
  <resources/>
  <connections/>

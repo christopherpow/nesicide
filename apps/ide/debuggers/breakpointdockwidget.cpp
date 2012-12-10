@@ -234,6 +234,7 @@ void BreakpointDockWidget::dropEvent(QDropEvent *event)
                                                addr,
                                                addr,
                                                0xFFFF,
+                                               false,
                                                eBreakpointConditionTest,
                                                eBreakIfAnything,
                                                eBreakpointDataPure,

@@ -263,6 +263,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
                                              absAddr,
                                              addr,
                                              0xFFFF,
+                                             false,
                                              eBreakpointConditionNone,
                                              0,
                                              eBreakpointDataNone,
@@ -657,16 +658,17 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
          if ( addr != -1 )
          {
             bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                                eBreakpointItemAddress,
-                                                0,
-                                                addr,
-                                                absAddr,
-                                                addr,
-                                                0xFFFF,
-                                                eBreakpointConditionNone,
-                                                0,
-                                                eBreakpointDataNone,
-                                                0 );
+                                                  eBreakpointItemAddress,
+                                                  0,
+                                                  addr,
+                                                  absAddr,
+                                                  addr,
+                                                  0xFFFF,
+                                                  false,
+                                                  eBreakpointConditionNone,
+                                                  0,
+                                                  eBreakpointDataNone,
+                                                  0 );
 
             m_breakpointIndex = bp;
 
@@ -843,17 +845,18 @@ void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
    if ( addr != -1 )
    {
       bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
-                                            eBreakpointItemAddress,
-                                            0,
-                                            addr,
-                                            absAddr,
-                                            addr,
-                                            0xFFFF,
-                                            eBreakpointConditionNone,
-                                            0,
-                                            eBreakpointDataNone,
-                                            0,
-                                            true );
+                                              eBreakpointItemAddress,
+                                              0,
+                                              addr,
+                                              absAddr,
+                                              addr,
+                                              0xFFFF,
+                                              false,
+                                              eBreakpointConditionNone,
+                                              0,
+                                              eBreakpointDataNone,
+                                              0,
+                                              true );
       if ( bpIdx < 0 )
       {
          QString str;

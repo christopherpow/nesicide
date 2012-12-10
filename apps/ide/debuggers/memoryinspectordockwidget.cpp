@@ -160,17 +160,18 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
    int bpIdx;
 
    bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
-                                         eBreakpointItemAddress,
-                                         0,
-                                         addr,
-                                         addr,
-                                         addr,
-                                         0xFFFF,
-                                         eBreakpointConditionTest,
-                                         eBreakIfAnything,
-                                         eBreakpointDataPure,
-                                         0,
-                                         true );
+                                           eBreakpointItemAddress,
+                                           0,
+                                           addr,
+                                           addr,
+                                           addr,
+                                           0xFFFF,
+                                           false,
+                                           eBreakpointConditionTest,
+                                           eBreakIfAnything,
+                                           eBreakpointDataPure,
+                                           0,
+                                           true );
 
    if ( bpIdx < 0 )
    {
@@ -189,17 +190,18 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
    int bpIdx;
 
    bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
-                                         eBreakpointItemAddress,
-                                         0,
-                                         addr,
-                                         addr,
-                                         addr,
-                                         0xFFFF,
-                                         eBreakpointConditionTest,
-                                         eBreakIfAnything,
-                                         eBreakpointDataPure,
-                                         0,
-                                         true );
+                                           eBreakpointItemAddress,
+                                           0,
+                                           addr,
+                                           addr,
+                                           addr,
+                                           0xFFFF,
+                                           false,
+                                           eBreakpointConditionTest,
+                                           eBreakIfAnything,
+                                           eBreakpointDataPure,
+                                           0,
+                                           true );
 
    if ( bpIdx < 0 )
    {
@@ -218,17 +220,18 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
    int bpIdx;
 
    bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,
-                                         eBreakpointItemAddress,
-                                         0,
-                                         addr,
-                                         addr,
-                                         addr,
-                                         0xFFFF,
-                                         eBreakpointConditionTest,
-                                         eBreakIfAnything,
-                                         eBreakpointDataPure,
-                                         0,
-                                         true );
+                                           eBreakpointItemAddress,
+                                           0,
+                                           addr,
+                                           addr,
+                                           addr,
+                                           0xFFFF,
+                                           false,
+                                           eBreakpointConditionTest,
+                                           eBreakIfAnything,
+                                           eBreakpointDataPure,
+                                           0,
+                                           true );
 
    if ( bpIdx < 0 )
    {

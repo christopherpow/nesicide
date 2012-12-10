@@ -50,6 +50,7 @@ BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget
    ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
    ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
    ui->type->setCurrentIndex ( eBreakOnCPUExecution );
+   ui->mask->setText("FFFF");
 
    ui->enabled->setChecked(true);
 
@@ -509,6 +510,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    ui->itemWidget->setCurrentIndex ( pBreakpoint->itemType );
    ui->item1label->setText("Data1:");
    ui->item2label->setText("Data2:");
+   ui->mask->setText("FFFF");
 
    ui->enabled->setChecked(pBreakpoint->enabled);
 
@@ -531,6 +533,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
          ui->addr2->setText ( buffer );
          sprintf ( buffer, "%X", pBreakpoint->itemMask );
          ui->mask->setText ( buffer );
+         ui->itemMaskScope->setCurrentIndex(pBreakpoint->itemMaskExclusive?0:1);
          break;
       case eBreakpointItemRegister:
          ui->reg->setCurrentIndex ( pBreakpoint->item1 );
@@ -617,6 +620,7 @@ void BreakpointDialog::on_addBreakpoint_clicked()
    int  mask = 0;
    int  data = 0;
    int  event = 0;
+   bool maskExclusive = true;
 
    switch ( ui->itemWidget->currentIndex() )
    {
@@ -627,14 +631,8 @@ void BreakpointDialog::on_addBreakpoint_clicked()
          // Address item...
          item1 = ui->addr1->text().toInt(0, 16);
          item2 = ui->addr2->text().toInt(0, 16);
-         if ( ui->mask->text().isEmpty() )
-         {
-            mask = 0xFFFF;
-         }
-         else
-         {
-            mask = ui->mask->text().toInt(0, 16);
-         }
+         mask = ui->mask->text().toInt(0, 16);
+         maskExclusive = (ui->itemMaskScope->currentIndex()==0)?true:false;
          break;
       case eBreakpointItemRegister:
          // Register item...
@@ -711,6 +709,7 @@ void BreakpointDialog::on_addBreakpoint_clicked()
                                        item1Absolute,
                                        item2,
                                        mask,
+                                       maskExclusive,
                                        (eBreakpointConditionType)ui->conditionWidget->currentIndex(),
                                        ui->condition->currentIndex(),
                                        (eBreakpointDataType)ui->dataWidget->currentIndex(),

@@ -123,16 +123,17 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
       menu.addSeparator();
 
       bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                          eBreakpointItemAddress,
-                                          0,
-                                          addr,
-                                          absAddr,
-                                          addr,
-                                          0xFFFF,
-                                          eBreakpointConditionNone,
-                                          0,
-                                          eBreakpointDataNone,
-                                          0 );
+                                            eBreakpointItemAddress,
+                                            0,
+                                            addr,
+                                            absAddr,
+                                            addr,
+                                            0xFFFF,
+                                            false,
+                                            eBreakpointConditionNone,
+                                            0,
+                                            eBreakpointDataNone,
+                                            0 );
 
       // Build context menu...
       menu.addAction(ui->actionRun_to_here);
@@ -293,17 +294,18 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
    if ( addr != -1 )
    {
       bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUExecution,
-                                            eBreakpointItemAddress,
-                                            0,
-                                            addr,
-                                            absAddr,
-                                            addr,
-                                            0xFFFF,
-                                            eBreakpointConditionNone,
-                                            0,
-                                            eBreakpointDataNone,
-                                            0,
-                                            true );
+                                              eBreakpointItemAddress,
+                                              0,
+                                              addr,
+                                              absAddr,
+                                              addr,
+                                              0xFFFF,
+                                              false,
+                                              eBreakpointConditionNone,
+                                              0,
+                                              eBreakpointDataNone,
+                                              0,
+                                              true );
 
       if ( bpIdx < 0 )
       {
@@ -482,16 +484,17 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
          if ( addr != -1 )
          {
             bp = m_pBreakpoints->FindExactMatch ( eBreakOnCPUExecution,
-                                                eBreakpointItemAddress,
-                                                0,
-                                                addr,
-                                                absAddr,
-                                                addr,
-                                                0xFFFF,
-                                                eBreakpointConditionNone,
-                                                0,
-                                                eBreakpointDataNone,
-                                                0 );
+                                                  eBreakpointItemAddress,
+                                                  0,
+                                                  addr,
+                                                  absAddr,
+                                                  addr,
+                                                  0xFFFF,
+                                                  false,
+                                                  eBreakpointConditionNone,
+                                                  0,
+                                                  eBreakpointDataNone,
+                                                  0 );
 
             if ( bp < 0 )
             {

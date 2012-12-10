@@ -11,7 +11,7 @@ CNESBreakpointInfo::CNESBreakpointInfo()
 {
 }
 
-void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
+void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
 {
    pBreakpoint->hit = false;
    pBreakpoint->enabled = enabled;
@@ -82,6 +82,7 @@ void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int typ
    pBreakpoint->item1Absolute = item1Absolute;
    pBreakpoint->item2 = item2;
    pBreakpoint->itemMask = mask;
+   pBreakpoint->itemMaskExclusive = maskExclusive;
    pBreakpoint->dataType = dataType;
    pBreakpoint->data = data;
 }
@@ -202,17 +203,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at address %04X",
+               sprintf ( msg, "Break if CPU reads or writes anything in the exclusive mask %02X at address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between address %04X and %04X",
+               sprintf ( msg, "Break if CPU reads or writes anything in the exclusive mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the inclusive mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the inclusive mask %02X between address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -309,17 +327,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X at address %04X",
+               sprintf ( msg, "Break if CPU reads anything in the exclusive mask %02X at address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X between address %04X and %04X",
+               sprintf ( msg, "Break if CPU reads anything in the exclusive mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the inclusive mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the inclusive mask %02X between address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -416,17 +451,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X at address %04X",
+               sprintf ( msg, "Break if CPU writes anything in the exclusive mask %02X at address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X between address %04X and %04X",
+               sprintf ( msg, "Break if CPU writes anything in the exclusive mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the inclusive mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the inclusive mask %02X between address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -523,17 +575,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU address %04X",
+               sprintf ( msg, "Break if CPU reads or writes anything in the exclusive mask %02X at PPU address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU address %04X and %04X",
+               sprintf ( msg, "Break if CPU reads or writes anything in the exclusive mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the inclusive mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the inclusive mask %02X between PPU address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -630,17 +699,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU address %04X",
+               sprintf ( msg, "Break if CPU reads anything in the exclusive mask %02X at PPU address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU address %04X and %04X",
+               sprintf ( msg, "Break if CPU reads anything in the exclusive mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the inclusive mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the inclusive mask %02X between PPU address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -737,17 +823,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU address %04X",
+               sprintf ( msg, "Break if CPU writes anything in the exclusive mask %02X at PPU address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU address %04X and %04X",
+               sprintf ( msg, "Break if CPU writes anything in the exclusive mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the inclusive mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the inclusive mask %02X between PPU address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -844,17 +947,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU OAM address %04X",
+               sprintf ( msg, "Break if CPU reads or writes anything in the exclusive mask %02X at PPU OAM address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU OAM address %04X and %04X",
+               sprintf ( msg, "Break if CPU reads or writes anything in the exclusive mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the inclusive mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the inclusive mask %02X between PPU OAM address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -951,17 +1071,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU OAM address %04X",
+               sprintf ( msg, "Break if CPU reads anything in the exclusive mask %02X at PPU OAM address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU OAM address %04X and %04X",
+               sprintf ( msg, "Break if CPU reads anything in the exclusive mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the inclusive mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the inclusive mask %02X between PPU OAM address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -1058,17 +1195,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU OAM address %04X",
+               sprintf ( msg, "Break if CPU writes anything in the exclusive mask %02X at PPU OAM address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU OAM address %04X and %04X",
+               sprintf ( msg, "Break if CPU writes anything in the exclusive mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the inclusive mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the inclusive mask %02X between PPU OAM address %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -1086,92 +1240,105 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
          {
             case eBreakpointDataPure:
 
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     msg += sprintf ( msg, "Break if %s::%s is ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfNotEqual:
-                     msg += sprintf ( msg, "Break if %s::%s is not ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfGreaterThan:
-                     msg += sprintf ( msg, "Break if %s::%s is greater than ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     msg += sprintf ( msg, "Break if %s::%s is less than ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask ",
+            switch ( m_breakpoint[idx].condition )
+            {
+               case eBreakIfAnything:
+                  sprintf ( msg, "Break if %s::%s is '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfEqual:
+                  sprintf ( msg, "Break if %s::%s is '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfNotEqual:
+                  sprintf ( msg, "Break if %s::%s is not '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfGreaterThan:
+                  sprintf ( msg, "Break if %s::%s is greater than %X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfLessThan:
+                  sprintf ( msg, "Break if %s::%s is less than %X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
+            case eBreakIfExclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask %02X",
+                                pRegister->GetName(),
+                                pBitfield->GetName(),
+                                m_breakpoint[idx].data );
+               break;
+            case eBreakIfInclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask %02X",
+                                pRegister->GetName(),
+                                pBitfield->GetName(),
+                                m_breakpoint[idx].data );
+               break;
+            }
+
+               break;
+            case eBreakpointDataPick:
+
+            switch ( m_breakpoint[idx].condition )
+            {
+               case eBreakIfAnything:
+                  sprintf ( msg, "Break if %s::%s is accessed",
+                            pRegister->GetName(),
+                            pBitfield->GetName() );
+                  break;
+               case eBreakIfEqual:
+                  msg += sprintf ( msg, "Break if %s::%s is ",
                                    pRegister->GetName(),
                                    pBitfield->GetName() );
                   sprintf ( msg, pBitfield->GetDisplayFormat(),
                             m_breakpoint[idx].data );
                   break;
-               }
-
-               break;
-            case eBreakpointDataPick:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+               case eBreakIfNotEqual:
+                  msg += sprintf ( msg, "Break if %s::%s is not ",
                                    pRegister->GetName(),
-                                   pBitfield->GetName(),
-                                   m_breakpoint[idx].data );
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
                   break;
-               }
+               case eBreakIfGreaterThan:
+                  msg += sprintf ( msg, "Break if %s::%s is greater than ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfLessThan:
+                  msg += sprintf ( msg, "Break if %s::%s is less than ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+            case eBreakIfExclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask ",
+                                pRegister->GetName(),
+                                pBitfield->GetName() );
+               sprintf ( msg, pBitfield->GetDisplayFormat(),
+                         m_breakpoint[idx].data );
+               break;
+            case eBreakIfInclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask ",
+                                pRegister->GetName(),
+                                pBitfield->GetName() );
+               sprintf ( msg, pBitfield->GetDisplayFormat(),
+                         m_breakpoint[idx].data );
+               break;
+            }
 
                break;
             default:
@@ -1271,17 +1438,34 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
-         case eBreakIfMask:
+         case eBreakIfExclusiveMask:
 
             if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
             {
-               sprintf ( msg, "Break if PPU fetches anything in the mask %02X at address %04X",
+               sprintf ( msg, "Break if PPU fetches anything in the exclusive mask %02X at address %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1 );
             }
             else
             {
-               sprintf ( msg, "Break if PPU fetches anything in the mask %02X between %04X and %04X",
+               sprintf ( msg, "Break if PPU fetches anything in the exclusive mask %02X between %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
+         case eBreakIfInclusiveMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if PPU fetches anything in the inclusive mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if PPU fetches anything in the inclusive mask %02X between %04X and %04X",
                          m_breakpoint[idx].data,
                          m_breakpoint[idx].item1,
                          m_breakpoint[idx].item2 );
@@ -1301,86 +1485,104 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
          {
             case eBreakpointDataPure:
 
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
+            switch ( m_breakpoint[idx].condition )
+            {
+               case eBreakIfAnything:
+                  sprintf ( msg, "Break if %s::%s is accessed",
+                            pRegister->GetName(),
+                            pBitfield->GetName() );
+                  break;
+               case eBreakIfEqual:
+                  sprintf ( msg, "Break if %s::%s is '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfNotEqual:
+                  sprintf ( msg, "Break if %s::%s is not '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfGreaterThan:
+                  sprintf ( msg, "Break if %s::%s is greater than %X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                case eBreakIfLessThan:
-                  sprintf ( msg, "Break if %s::%s is less than %02X",
+                  sprintf ( msg, "Break if %s::%s is less than %X",
                             pRegister->GetName(),
                             pBitfield->GetName(),
                             m_breakpoint[idx].data );
                   break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                            pRegister->GetName(),
-                            pBitfield->GetName(),
-                            m_breakpoint[idx].data );
-                  break;
-               }
+            case eBreakIfExclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask %02X",
+                                pRegister->GetName(),
+                                pBitfield->GetName(),
+                                m_breakpoint[idx].data );
+               break;
+            case eBreakIfInclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask %02X",
+                                pRegister->GetName(),
+                                pBitfield->GetName(),
+                                m_breakpoint[idx].data );
+               break;
+            }
 
                break;
             case eBreakpointDataPick:
 
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+            switch ( m_breakpoint[idx].condition )
+            {
+               case eBreakIfAnything:
+                  sprintf ( msg, "Break if %s::%s is accessed",
                             pRegister->GetName(),
-                            pBitfield->GetName(),
+                            pBitfield->GetName() );
+                  break;
+               case eBreakIfEqual:
+                  msg += sprintf ( msg, "Break if %s::%s is ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
                             m_breakpoint[idx].data );
                   break;
-               }
+               case eBreakIfNotEqual:
+                  msg += sprintf ( msg, "Break if %s::%s is not ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfGreaterThan:
+                  msg += sprintf ( msg, "Break if %s::%s is greater than ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfLessThan:
+                  msg += sprintf ( msg, "Break if %s::%s is less than ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+            case eBreakIfExclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask ",
+                                pRegister->GetName(),
+                                pBitfield->GetName() );
+               sprintf ( msg, pBitfield->GetDisplayFormat(),
+                         m_breakpoint[idx].data );
+               break;
+            case eBreakIfInclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask ",
+                                pRegister->GetName(),
+                                pBitfield->GetName() );
+               sprintf ( msg, pBitfield->GetDisplayFormat(),
+                         m_breakpoint[idx].data );
+               break;
+            }
 
                break;
             default:
@@ -1401,86 +1603,104 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
          {
             case eBreakpointDataPure:
 
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+            switch ( m_breakpoint[idx].condition )
+            {
+               case eBreakIfAnything:
+                  sprintf ( msg, "Break if %s::%s is accessed",
+                            pRegister->GetName(),
+                            pBitfield->GetName() );
+                  break;
+               case eBreakIfEqual:
+                  sprintf ( msg, "Break if %s::%s is '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfNotEqual:
+                  sprintf ( msg, "Break if %s::%s is not '%s'",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                  break;
+               case eBreakIfGreaterThan:
+                  sprintf ( msg, "Break if %s::%s is greater than %X",
                             pRegister->GetName(),
                             pBitfield->GetName(),
                             m_breakpoint[idx].data );
                   break;
-               }
+               case eBreakIfLessThan:
+                  sprintf ( msg, "Break if %s::%s is less than %X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
+            case eBreakIfExclusiveMask:
+               sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask %02X",
+                         pRegister->GetName(),
+                         pBitfield->GetName(),
+                         m_breakpoint[idx].data );
+               break;
+            case eBreakIfInclusiveMask:
+               sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask %02X",
+                         pRegister->GetName(),
+                         pBitfield->GetName(),
+                         m_breakpoint[idx].data );
+               break;
+            }
 
                break;
             case eBreakpointDataPick:
 
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+            switch ( m_breakpoint[idx].condition )
+            {
+               case eBreakIfAnything:
+                  sprintf ( msg, "Break if %s::%s is accessed",
                             pRegister->GetName(),
-                            pBitfield->GetName(),
+                            pBitfield->GetName() );
+                  break;
+               case eBreakIfEqual:
+                  msg += sprintf ( msg, "Break if %s::%s is ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
                             m_breakpoint[idx].data );
                   break;
-               }
+               case eBreakIfNotEqual:
+                  msg += sprintf ( msg, "Break if %s::%s is not ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfGreaterThan:
+                  msg += sprintf ( msg, "Break if %s::%s is greater than ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfLessThan:
+                  msg += sprintf ( msg, "Break if %s::%s is less than ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+            case eBreakIfExclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask ",
+                                pRegister->GetName(),
+                                pBitfield->GetName() );
+               sprintf ( msg, pBitfield->GetDisplayFormat(),
+                         m_breakpoint[idx].data );
+               break;
+            case eBreakIfInclusiveMask:
+               msg += sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask ",
+                                pRegister->GetName(),
+                                pBitfield->GetName() );
+               sprintf ( msg, pBitfield->GetDisplayFormat(),
+                         m_breakpoint[idx].data );
+               break;
+            }
 
                break;
             default:
@@ -1504,86 +1724,104 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
             {
                case eBreakpointDataPure:
 
-                  switch ( m_breakpoint[idx].condition )
-                  {
-                     case eBreakIfAnything:
-                        sprintf ( msg, "Break if %s::%s is accessed",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName() );
-                        break;
-                     case eBreakIfEqual:
-                        sprintf ( msg, "Break if %s::%s is %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfNotEqual:
-                        sprintf ( msg, "Break if %s::%s is not %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfGreaterThan:
-                        sprintf ( msg, "Break if %s::%s is greater than %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfLessThan:
-                        sprintf ( msg, "Break if %s::%s is less than %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                  case eBreakIfMask:
-                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+               switch ( m_breakpoint[idx].condition )
+               {
+                  case eBreakIfAnything:
+                     sprintf ( msg, "Break if %s::%s is accessed",
+                               pRegister->GetName(),
+                               pBitfield->GetName() );
+                     break;
+                  case eBreakIfEqual:
+                     sprintf ( msg, "Break if %s::%s is '%s'",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                     break;
+                  case eBreakIfNotEqual:
+                     sprintf ( msg, "Break if %s::%s is not '%s'",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
+                     break;
+                  case eBreakIfGreaterThan:
+                     sprintf ( msg, "Break if %s::%s is greater than %X",
                                pRegister->GetName(),
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
-                  }
+                  case eBreakIfLessThan:
+                     sprintf ( msg, "Break if %s::%s is less than %X",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               m_breakpoint[idx].data );
+                     break;
+               case eBreakIfExclusiveMask:
+                  sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfInclusiveMask:
+                  sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
+               }
 
                   break;
                case eBreakpointDataPick:
 
-                  switch ( m_breakpoint[idx].condition )
-                  {
-                     case eBreakIfAnything:
-                        sprintf ( msg, "Break if %s::%s is accessed",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName() );
-                        break;
-                     case eBreakIfEqual:
-                        sprintf ( msg, "Break if %s::%s is '%s'",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                        break;
-                     case eBreakIfNotEqual:
-                        sprintf ( msg, "Break if %s::%s is not '%s'",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                        break;
-                     case eBreakIfGreaterThan:
-                        sprintf ( msg, "Break if %s::%s is greater than %X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfLessThan:
-                        sprintf ( msg, "Break if %s::%s is less than %X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                  case eBreakIfMask:
-                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+               switch ( m_breakpoint[idx].condition )
+               {
+                  case eBreakIfAnything:
+                     sprintf ( msg, "Break if %s::%s is accessed",
                                pRegister->GetName(),
-                               pBitfield->GetName(),
+                               pBitfield->GetName() );
+                     break;
+                  case eBreakIfEqual:
+                     msg += sprintf ( msg, "Break if %s::%s is ",
+                                      pRegister->GetName(),
+                                      pBitfield->GetName() );
+                     sprintf ( msg, pBitfield->GetDisplayFormat(),
                                m_breakpoint[idx].data );
                      break;
-                  }
+                  case eBreakIfNotEqual:
+                     msg += sprintf ( msg, "Break if %s::%s is not ",
+                                      pRegister->GetName(),
+                                      pBitfield->GetName() );
+                     sprintf ( msg, pBitfield->GetDisplayFormat(),
+                               m_breakpoint[idx].data );
+                     break;
+                  case eBreakIfGreaterThan:
+                     msg += sprintf ( msg, "Break if %s::%s is greater than ",
+                                      pRegister->GetName(),
+                                      pBitfield->GetName() );
+                     sprintf ( msg, pBitfield->GetDisplayFormat(),
+                               m_breakpoint[idx].data );
+                     break;
+                  case eBreakIfLessThan:
+                     msg += sprintf ( msg, "Break if %s::%s is less than ",
+                                      pRegister->GetName(),
+                                      pBitfield->GetName() );
+                     sprintf ( msg, pBitfield->GetDisplayFormat(),
+                               m_breakpoint[idx].data );
+                     break;
+               case eBreakIfExclusiveMask:
+                  msg += sprintf ( msg, "Break if %s::%s contains anything exclusively in the mask ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfInclusiveMask:
+                  msg += sprintf ( msg, "Break if %s::%s contains anything inclusively in the mask ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
+               }
 
                   break;
                default:
@@ -1608,1510 +1846,5 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
    char*          msg = hmsg;
 
    msg += sprintf ( msg, "[PPU(frame=%d,cycle=%d),CPU(cycle=%d),APU(cycle=%d)] Program stopped at breakpoint: ", CPPU::_FRAME(), CPPU::_CYCLES(), C6502::_CYCLES(), CAPU::CYCLES() );
-
-   switch ( m_breakpoint[idx].type )
-   {
-      case eBreakOnPPUCycle:
-         // Do nothing, this is not a user settable breakpoint.
-         // Just preventing compilation warning.
-         break;
-      case eBreakOnCPUExecution:
-         nesGetPrintableAddressWithAbsolute(printableAddress,
-                                            m_breakpoint[idx].item1,
-                                            m_breakpoint[idx].item1Absolute);
-
-         if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-         {
-            sprintf ( msg, "Break if CPU executes at %s",
-                      printableAddress );
-         }
-         else
-         {
-            sprintf ( msg, "Break if CPU executes between address %s and %04X",
-                      printableAddress,
-                      m_breakpoint[idx].item2 );
-         }
-         break;
-      case eBreakOnCPUMemoryAccess:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything at address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything between address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything but %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything but %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes greater than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes greater than %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes less than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes less than %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnCPUMemoryRead:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads anything at address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads anything between address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads anything but %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads anything but %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads greater than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads greater than %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads less than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads less than %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X at address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X between address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnCPUMemoryWrite:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes anything at address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes anything between address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes anything but %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes anything but %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes greater than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes greater than %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes less than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes less than %02X between address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X at address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X between address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnPPUPortalAccess:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything at PPU address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything at PPU address between %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything but %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything but %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes greater than %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes greater than %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes less than %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes less than %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnPPUPortalRead:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads anything at PPU address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads anything between PPU address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads anything but %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads anything but %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads greater than %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads greater than %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads less than %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads less than %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnPPUPortalWrite:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes anything at PPU address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes anything between PPU address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes anything but %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes anything but %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes greater than %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes greater than %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes less than %02X at PPU address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes less than %02X between PPU address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnOAMPortalAccess:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything at PPU OAM address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything at PPU OAM address between %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything but %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes anything but %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes greater than %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes greater than %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads or writes less than %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads or writes less than %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU OAM address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU OAM address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnOAMPortalRead:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads anything at PPU OAM address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads anything between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads anything but %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads anything but %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads greater than %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads greater than %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU reads less than %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU reads less than %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU OAM address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU OAM address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnOAMPortalWrite:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes anything at PPU OAM address %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes anything between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes anything but %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes anything but %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes greater than %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes greater than %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if CPU writes less than %02X at PPU OAM address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if CPU writes less than %02X between PPU OAM address %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU OAM address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU OAM address %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-         }
-
-         break;
-      case eBreakOnCPUState:
-         pRegister = C6502::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
-         pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
-
-         switch ( m_breakpoint[idx].dataType )
-         {
-            case eBreakpointDataPure:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     msg += sprintf ( msg, "Break if %s::%s is ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfNotEqual:
-                     msg += sprintf ( msg, "Break if %s::%s is not ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfGreaterThan:
-                     msg += sprintf ( msg, "Break if %s::%s is greater than ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     msg += sprintf ( msg, "Break if %s::%s is less than ",
-                                      pRegister->GetName(),
-                                      pBitfield->GetName() );
-                     sprintf ( msg, pBitfield->GetDisplayFormat(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                                   pRegister->GetName(),
-                                   pBitfield->GetName(),
-                                   m_breakpoint[idx].data );
-                  break;
-               }
-
-               break;
-            case eBreakpointDataPick:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                                   pRegister->GetName(),
-                                   pBitfield->GetName(),
-                                   m_breakpoint[idx].data );
-                  break;
-               }
-
-               break;
-            default:
-               break;
-         }
-
-         break;
-      case eBreakOnCPUEvent:
-         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
-                   m_breakpoint[idx].item1,
-                   m_breakpoint[idx].item2 );
-         break;
-      case eBreakOnPPUFetch:
-
-         switch ( m_breakpoint[idx].condition )
-         {
-            case eBreakIfAnything:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if PPU fetches anything at %04X",
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if PPU fetches anything between %04X and %04X",
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if PPU fetches %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if PPU fetches %02X between %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfNotEqual:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if PPU fetches anything but %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if PPU fetches anything but %02X between %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfGreaterThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if PPU fetches greater than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if PPU fetches greater than %02X between %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-            case eBreakIfLessThan:
-
-               if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-               {
-                  sprintf ( msg, "Break if PPU fetches less than %02X at address %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1 );
-               }
-               else
-               {
-                  sprintf ( msg, "Break if PPU fetches less than %02X between %04X and %04X",
-                            m_breakpoint[idx].data,
-                            m_breakpoint[idx].item1,
-                            m_breakpoint[idx].item2 );
-               }
-
-               break;
-         case eBreakIfMask:
-
-            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
-            {
-               sprintf ( msg, "Break if PPU fetches anything in the mask %02X at address %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1 );
-            }
-            else
-            {
-               sprintf ( msg, "Break if PPU fetches anything in the mask %02X between %04X and %04X",
-                         m_breakpoint[idx].data,
-                         m_breakpoint[idx].item1,
-                         m_breakpoint[idx].item2 );
-            }
-
-            break;
-            default:
-               break;
-         }
-
-         break;
-      case eBreakOnPPUState:
-         pRegister = CPPU::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
-         pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
-
-         switch ( m_breakpoint[idx].dataType )
-         {
-            case eBreakpointDataPure:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                            pRegister->GetName(),
-                            pBitfield->GetName(),
-                            m_breakpoint[idx].data );
-                  break;
-               }
-
-               break;
-            case eBreakpointDataPick:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                            pRegister->GetName(),
-                            pBitfield->GetName(),
-                            m_breakpoint[idx].data );
-                  break;
-               }
-
-               break;
-            default:
-               break;
-         }
-
-         break;
-      case eBreakOnPPUEvent:
-         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
-                   m_breakpoint[idx].item1,
-                   m_breakpoint[idx].item2 );
-         break;
-      case eBreakOnAPUState:
-         pRegister = CAPU::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
-         pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
-
-         switch ( m_breakpoint[idx].dataType )
-         {
-            case eBreakpointDataPure:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                            pRegister->GetName(),
-                            pBitfield->GetName(),
-                            m_breakpoint[idx].data );
-                  break;
-               }
-
-               break;
-            case eBreakpointDataPick:
-
-               switch ( m_breakpoint[idx].condition )
-               {
-                  case eBreakIfAnything:
-                     sprintf ( msg, "Break if %s::%s is accessed",
-                               pRegister->GetName(),
-                               pBitfield->GetName() );
-                     break;
-                  case eBreakIfEqual:
-                     sprintf ( msg, "Break if %s::%s is '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfNotEqual:
-                     sprintf ( msg, "Break if %s::%s is not '%s'",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                     break;
-                  case eBreakIfGreaterThan:
-                     sprintf ( msg, "Break if %s::%s is greater than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-               case eBreakIfMask:
-                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                            pRegister->GetName(),
-                            pBitfield->GetName(),
-                            m_breakpoint[idx].data );
-                  break;
-               }
-
-               break;
-            default:
-               break;
-         }
-
-         break;
-      case eBreakOnAPUEvent:
-         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
-                   m_breakpoint[idx].item1,
-                   m_breakpoint[idx].item2 );
-         break;
-      case eBreakOnMapperState:
-
-         if ( CROM::REGISTERS() )
-         {
-            pRegister = CROM::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
-            pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
-
-            switch ( m_breakpoint[idx].dataType )
-            {
-               case eBreakpointDataPure:
-
-                  switch ( m_breakpoint[idx].condition )
-                  {
-                     case eBreakIfAnything:
-                        sprintf ( msg, "Break if %s::%s is accessed",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName() );
-                        break;
-                     case eBreakIfEqual:
-                        sprintf ( msg, "Break if %s::%s is %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfNotEqual:
-                        sprintf ( msg, "Break if %s::%s is not %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfGreaterThan:
-                        sprintf ( msg, "Break if %s::%s is greater than %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfLessThan:
-                        sprintf ( msg, "Break if %s::%s is less than %02X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                  case eBreakIfMask:
-                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  }
-
-                  break;
-               case eBreakpointDataPick:
-
-                  switch ( m_breakpoint[idx].condition )
-                  {
-                     case eBreakIfAnything:
-                        sprintf ( msg, "Break if %s::%s is accessed",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName() );
-                        break;
-                     case eBreakIfEqual:
-                        sprintf ( msg, "Break if %s::%s is '%s'",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                        break;
-                     case eBreakIfNotEqual:
-                        sprintf ( msg, "Break if %s::%s is not '%s'",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  pBitfield->GetValueByIndex(m_breakpoint[idx].data) );
-                        break;
-                     case eBreakIfGreaterThan:
-                        sprintf ( msg, "Break if %s::%s is greater than %X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                     case eBreakIfLessThan:
-                        sprintf ( msg, "Break if %s::%s is less than %X",
-                                  pRegister->GetName(),
-                                  pBitfield->GetName(),
-                                  m_breakpoint[idx].data );
-                        break;
-                  case eBreakIfMask:
-                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
-                  }
-
-                  break;
-               default:
-                  break;
-            }
-         }
-
-         break;
-      case eBreakOnMapperEvent:
-         sprintf ( msg, m_breakpoint[idx].pEvent->GetDisplayFormat(),
-                   m_breakpoint[idx].item1,
-                   m_breakpoint[idx].item2 );
-         break;
-   }
+   GetPrintable(idx,msg);
 }
