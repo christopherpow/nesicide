@@ -155,19 +155,16 @@ MainWindow::MainWindow(QWidget* parent) :
    m_pSearch = new SearchDockWidget();
    addDockWidget(Qt::LeftDockWidgetArea, m_pSearch );
    m_pSearch->hide();
-   QObject::connect(m_pSearch, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSearch_close(bool)));
    CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
    m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
    m_pProjectBrowser->hide();
-   QObject::connect(m_pProjectBrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedProjectBrowser_close(bool)));
    CDockWidgetRegistry::addWidget ( "Project", m_pProjectBrowser );
 
    output = new OutputPaneDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, output );
    output->hide();
-   QObject::connect(output, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedOutput_Window_close(bool)));
    QObject::connect(generalTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateGeneralPane(QString)));
    QObject::connect(buildTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateBuildPane(QString)));
    QObject::connect(debugTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateDebugPane(QString)));
@@ -187,7 +184,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
    m_pExecutionInspector->hide();
-   QObject::connect(m_pExecutionInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionInspector_close(bool)));
    QObject::connect(m_pExecutionInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Execution Inspector", m_pExecutionInspector );
 
@@ -195,7 +191,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pSymbolInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
    m_pSymbolInspector->hide();
-   QObject::connect(m_pSymbolInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedSymbol_Watch_close(bool)));
    QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Symbol Inspector", m_pSymbolInspector );
 
@@ -203,7 +198,6 @@ MainWindow::MainWindow(QWidget* parent) :
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeProfiler,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
    m_pCodeProfiler->hide();
-   QObject::connect(m_pCodeProfiler, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCode_Profiler_close(bool)));
    CDockWidgetRegistry::addWidget ( "Code Profiler", m_pCodeProfiler );
 
    emit updateTargetMachine("none");
@@ -413,87 +407,63 @@ void MainWindow::createNesUi()
 
    actionEmulation_Window = new QAction("Emulator",this);
    actionEmulation_Window->setObjectName(QString::fromUtf8("actionEmulation_Window"));
-   actionEmulation_Window->setCheckable(true);
    QIcon icon8;
    icon8.addFile(QString::fromUtf8(":/resources/controller.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionEmulation_Window->setIcon(icon8);
 
    actionAssembly_Inspector = new QAction("Assembly Browser",this);
    actionAssembly_Inspector->setObjectName(QString::fromUtf8("actionAssembly_Inspector"));
-   actionAssembly_Inspector->setCheckable(true);
    QIcon icon10;
    icon10.addFile(QString::fromUtf8(":/resources/22_code_inspector.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionAssembly_Inspector->setIcon(icon10);
    actionBreakpoint_Inspector = new QAction("Breakpoints",this);
    actionBreakpoint_Inspector->setObjectName(QString::fromUtf8("actionBreakpoint_Inspector"));
-   actionBreakpoint_Inspector->setCheckable(true);
    QIcon icon11;
    icon11.addFile(QString::fromUtf8(":/resources/22_breakpoint.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionBreakpoint_Inspector->setIcon(icon11);
    actionGfxCHRMemory_Inspector = new QAction("CHR Memory Visualizer",this);
    actionGfxCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxCHRMemory_Inspector"));
-   actionGfxCHRMemory_Inspector->setCheckable(true);
    actionGfxOAMMemory_Inspector = new QAction("OAM Memory Visualizer",this);
    actionGfxOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxOAMMemory_Inspector"));
-   actionGfxOAMMemory_Inspector->setCheckable(true);
    actionGfxNameTableNESMemory_Inspector = new QAction("NameTable Visualizer",this);
    actionGfxNameTableNESMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxNameTableNESMemory_Inspector"));
-   actionGfxNameTableNESMemory_Inspector->setCheckable(true);
    actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
    actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
-   actionBinCPURAM_Inspector->setCheckable(true);
    actionBinNameTableNESMemory_Inspector = new QAction("NameTable Memory",this);
    actionBinNameTableNESMemory_Inspector->setObjectName(QString::fromUtf8("actionBinNameTableNESMemory_Inspector"));
-   actionBinNameTableNESMemory_Inspector->setCheckable(true);
    actionBinPPURegister_Inspector = new QAction("Registers",this);
    actionBinPPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinPPURegister_Inspector"));
-   actionBinPPURegister_Inspector->setCheckable(true);
    actionBinAPURegister_Inspector = new QAction("Registers",this);
    actionBinAPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinAPURegister_Inspector"));
-   actionBinAPURegister_Inspector->setCheckable(true);
    actionBinCHRMemory_Inspector = new QAction("CHR Memory",this);
    actionBinCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionBinCHRMemory_Inspector"));
-   actionBinCHRMemory_Inspector->setCheckable(true);
    actionBinOAMMemory_Inspector = new QAction("OAM Memory",this);
    actionBinOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinOAMMemory_Inspector"));
-   actionBinOAMMemory_Inspector->setCheckable(true);
    actionBinPaletteNESMemory_Inspector = new QAction("Palette Memory",this);
    actionBinPaletteNESMemory_Inspector->setObjectName(QString::fromUtf8("actionBinPaletteNESMemory_Inspector"));
-   actionBinPaletteNESMemory_Inspector->setCheckable(true);
    actionBinSRAMMemory_Inspector = new QAction("SRAM Memory",this);
    actionBinSRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinSRAMMemory_Inspector"));
-   actionBinSRAMMemory_Inspector->setCheckable(true);
    actionBinEXRAMMemory_Inspector = new QAction("EXRAM Memory",this);
    actionBinEXRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinEXRAMMemory_Inspector"));
-   actionBinEXRAMMemory_Inspector->setCheckable(true);
    actionBinCPURegister_Inspector = new QAction("Registers",this);
    actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
-   actionBinCPURegister_Inspector->setCheckable(true);
    actionBinMapperMemory_Inspector = new QAction("Mapper Memory",this);
    actionBinMapperMemory_Inspector->setObjectName(QString::fromUtf8("actionBinMapperMemory_Inspector"));
-   actionBinMapperMemory_Inspector->setCheckable(true);
    actionBinROM_Inspector = new QAction("PRG-ROM Memory",this);
    actionBinROM_Inspector->setObjectName(QString::fromUtf8("actionBinROM_Inspector"));
-   actionBinROM_Inspector->setCheckable(true);
    actionPPUInformation_Inspector = new QAction("Information",this);
    actionPPUInformation_Inspector->setObjectName(QString::fromUtf8("actionPPUInformation_Inspector"));
-   actionPPUInformation_Inspector->setCheckable(true);
    actionJoypadLogger_Inspector = new QAction("Joypad Logger",this);
    actionJoypadLogger_Inspector->setObjectName(QString::fromUtf8("actionJoypadLogger_Inspector"));
-   actionJoypadLogger_Inspector->setCheckable(true);
    actionJoypadLogger_Inspector->setEnabled(false);
    actionCodeDataLogger_Inspector = new QAction("Code/Data Log Visualizer",this);
    actionCodeDataLogger_Inspector->setObjectName(QString::fromUtf8("actionCodeDataLogger_Inspector"));
-   actionCodeDataLogger_Inspector->setCheckable(true);
    actionExecution_Visualizer_Inspector = new QAction("Execution Visualizer",this);
    actionExecution_Visualizer_Inspector->setObjectName(QString::fromUtf8("actionExecution_Visualizer_Inspector"));
-   actionExecution_Visualizer_Inspector->setCheckable(true);
    actionMapperInformation_Inspector = new QAction("Information",this);
    actionMapperInformation_Inspector->setObjectName(QString::fromUtf8("actionMapperInformation_Inspector"));
-   actionMapperInformation_Inspector->setCheckable(true);
    actionAPUInformation_Inspector = new QAction("Information",this);
    actionAPUInformation_Inspector->setObjectName(QString::fromUtf8("actionAPUInformation_Inspector"));
-   actionAPUInformation_Inspector->setCheckable(true);
    actionPreferences = new QAction("Preferences...",this);
    actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
    actionNTSC = new QAction("NTSC",this);
@@ -709,7 +679,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pNESEmulator,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pNESEmulator );
    m_pNESEmulator->hide();
-   QObject::connect(m_pNESEmulator, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedEmulator_close(bool)));
    CDockWidgetRegistry::addWidget ( "Emulator", m_pNESEmulator );
 
    m_pNESEmulatorControl = new NESEmulatorControl();
@@ -726,7 +695,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
-   QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
 
@@ -734,7 +702,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
-   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
@@ -745,7 +712,6 @@ void MainWindow::createNesUi()
    m_pGfxCHRMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxCHRMemoryInspector );
    m_pGfxCHRMemoryInspector->hide();
-   QObject::connect(m_pGfxCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxCHRMemoryInspector_close(bool)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(setStatusBarMessage(QString)),this,SLOT(setStatusBarMessage(QString)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
@@ -756,7 +722,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
    m_pGfxOAMMemoryInspector->hide();
-   QObject::connect(m_pGfxOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxOAMMemoryInspector_close(bool)));
    QObject::connect(m_pGfxOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
 
@@ -764,7 +729,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
    m_pGfxNameTableMemoryInspector->hide();
-   QObject::connect(m_pGfxNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedGfxNameTableMemoryInspector_close(bool)));
    QObject::connect(m_pGfxNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
 
@@ -772,7 +736,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pJoypadLoggerInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pJoypadLoggerInspector );
    m_pJoypadLoggerInspector->hide();
-   QObject::connect(m_pJoypadLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedJoypadLoggerInspector_close(bool)));
    QObject::connect(m_pJoypadLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Joypad Logger", m_pJoypadLoggerInspector );
 
@@ -780,7 +743,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionVisualizer,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
    m_pExecutionVisualizer->hide();
-   QObject::connect(m_pExecutionVisualizer, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedExecutionVisualizer_Inspector_close(bool)));
    QObject::connect(m_pExecutionVisualizer,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
 
@@ -788,7 +750,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeDataLoggerInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
    m_pCodeDataLoggerInspector->hide();
-   QObject::connect(m_pCodeDataLoggerInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedCodeDataLoggerInspector_close(bool)));
    QObject::connect(m_pCodeDataLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
 
@@ -798,7 +759,6 @@ void MainWindow::createNesUi()
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
    m_pBinCPURegisterInspector->hide();
-   QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
@@ -808,7 +768,6 @@ void MainWindow::createNesUi()
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
    m_pBinCPURAMInspector->hide();
-   QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
@@ -818,7 +777,6 @@ void MainWindow::createNesUi()
    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
    m_pBinROMInspector->hide();
-   QObject::connect(m_pBinROMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinROMInspector_close(bool)));
    QObject::connect(m_pBinROMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
 
@@ -828,7 +786,6 @@ void MainWindow::createNesUi()
    m_pBinNameTableMemoryInspector->setWindowTitle("NameTable Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
    m_pBinNameTableMemoryInspector->hide();
-   QObject::connect(m_pBinNameTableMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinNameTableMemoryInspector_close(bool)));
    QObject::connect(m_pBinNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
 
@@ -838,7 +795,6 @@ void MainWindow::createNesUi()
    m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPURegisterInspector );
    m_pBinPPURegisterInspector->hide();
-   QObject::connect(m_pBinPPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPPURegisterInspector_close(bool)));
    QObject::connect(m_pBinPPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PPU Register Inspector", m_pBinPPURegisterInspector );
 
@@ -846,7 +802,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pPPUInformationInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
    m_pPPUInformationInspector->hide();
-   QObject::connect(m_pPPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedPPUInformationInspector_close(bool)));
    QObject::connect(m_pPPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PPU Information", m_pPPUInformationInspector );
 
@@ -856,14 +811,12 @@ void MainWindow::createNesUi()
    m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinAPURegisterInspector );
    m_pBinAPURegisterInspector->hide();
-   QObject::connect(m_pBinAPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinAPURegisterInspector_close(bool)));
    QObject::connect(m_pBinAPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "APU Register Inspector", m_pBinAPURegisterInspector );
 
    m_pAPUInformationInspector = new APUInformationDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pAPUInformationInspector );
    m_pAPUInformationInspector->hide();
-   QObject::connect(m_pAPUInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAPUInformationInspector_close(bool)));
    QObject::connect(m_pAPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAPUInformationInspector,SLOT(updateTargetMachine(QString)));
    CDockWidgetRegistry::addWidget ( "APU Information", m_pAPUInformationInspector );
@@ -874,7 +827,6 @@ void MainWindow::createNesUi()
    m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCHRMemoryInspector );
    m_pBinCHRMemoryInspector->hide();
-   QObject::connect(m_pBinCHRMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCHRMemoryInspector_close(bool)));
    QObject::connect(m_pBinCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
 
@@ -884,7 +836,6 @@ void MainWindow::createNesUi()
    m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinOAMMemoryInspector );
    m_pBinOAMMemoryInspector->hide();
-   QObject::connect(m_pBinOAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinOAMMemoryInspector_close(bool)));
    QObject::connect(m_pBinOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
 
@@ -894,7 +845,6 @@ void MainWindow::createNesUi()
    m_pBinPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPaletteMemoryInspector );
    m_pBinPaletteMemoryInspector->hide();
-   QObject::connect(m_pBinPaletteMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinPaletteMemoryInspector_close(bool)));
    QObject::connect(m_pBinPaletteMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
 
@@ -904,7 +854,6 @@ void MainWindow::createNesUi()
    m_pBinSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
    m_pBinSRAMMemoryInspector->hide();
-   QObject::connect(m_pBinSRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinSRAMMemoryInspector_close(bool)));
    QObject::connect(m_pBinSRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
 
@@ -914,7 +863,6 @@ void MainWindow::createNesUi()
    m_pBinEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );
    m_pBinEXRAMMemoryInspector->hide();
-   QObject::connect(m_pBinEXRAMMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinEXRAMMemoryInspector_close(bool)));
    QObject::connect(m_pBinEXRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
 
@@ -922,7 +870,6 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pMapperInformationInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
    m_pMapperInformationInspector->hide();
-   QObject::connect(m_pMapperInformationInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedMapperInformationInspector_close(bool)));
    QObject::connect(m_pMapperInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
@@ -932,7 +879,6 @@ void MainWindow::createNesUi()
    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
    m_pBinMapperMemoryInspector->hide();
-   QObject::connect(m_pBinMapperMemoryInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinMapperMemoryInspector_close(bool)));
    QObject::connect(m_pBinMapperMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
@@ -944,11 +890,7 @@ void MainWindow::createNesUi()
    QObject::connect(action3x,SIGNAL(triggered()),this,SLOT(action3x_triggered()));
    QObject::connect(actionLinear_Interpolation,SIGNAL(toggled(bool)),this,SLOT(actionLinear_Interpolation_toggled(bool)));
    QObject::connect(action4_3_Aspect,SIGNAL(toggled(bool)),this,SLOT(action4_3_Aspect_toggled(bool)));
-   QObject::connect(actionAssembly_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAssembly_Inspector_toggled(bool)));
-   QObject::connect(actionBreakpoint_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBreakpoint_Inspector_toggled(bool)));
-   QObject::connect(actionEmulation_Window,SIGNAL(toggled(bool)),this,SLOT(actionEmulation_Window_toggled(bool)));
    QObject::connect(actionFullscreen,SIGNAL(toggled(bool)),this,SLOT(actionFullscreen_toggled(bool)));
-   QObject::connect(actionRun_Test_Suite,SIGNAL(triggered()),this,SLOT(actionRun_Test_Suite_triggered()));
    QObject::connect(actionSquare_1,SIGNAL(toggled(bool)),this,SLOT(actionSquare_1_toggled(bool)));
    QObject::connect(actionSquare_2,SIGNAL(toggled(bool)),this,SLOT(actionSquare_2_toggled(bool)));
    QObject::connect(actionTriangle,SIGNAL(toggled(bool)),this,SLOT(actionTriangle_toggled(bool)));
@@ -968,28 +910,32 @@ void MainWindow::createNesUi()
    QObject::connect(actionPAL,SIGNAL(triggered()),this,SLOT(actionPAL_triggered()));
    QObject::connect(actionNTSC,SIGNAL(triggered()),this,SLOT(actionNTSC_triggered()));
    QObject::connect(actionDendy,SIGNAL(triggered()),this,SLOT(actionDendy_triggered()));
+   QObject::connect(actionAssembly_Inspector,SIGNAL(triggered()),this,SLOT(actionAssembly_Inspector_triggered()));
+   QObject::connect(actionBreakpoint_Inspector,SIGNAL(triggered()),this,SLOT(actionBreakpoint_Inspector_triggered()));
+   QObject::connect(actionEmulation_Window,SIGNAL(triggered()),this,SLOT(actionEmulation_Window_triggered()));
+   QObject::connect(actionRun_Test_Suite,SIGNAL(triggered()),this,SLOT(actionRun_Test_Suite_triggered()));
    QObject::connect(actionPreferences,SIGNAL(triggered()),this,SLOT(actionPreferences_triggered()));
-   QObject::connect(actionCodeDataLogger_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionCodeDataLogger_Inspector_toggled(bool)));
-   QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionExecution_Visualizer_Inspector_toggled(bool)));
-   QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxCHRMemory_Inspector_toggled(bool)));
-   QObject::connect(actionGfxOAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxOAMMemory_Inspector_toggled(bool)));
-   QObject::connect(actionGfxNameTableNESMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionGfxNameTableNESMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinCPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURegister_Inspector_toggled(bool)));
-   QObject::connect(actionBinCPURAM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURAM_Inspector_toggled(bool)));
-   QObject::connect(actionBinROM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinROM_Inspector_toggled(bool)));
-   QObject::connect(actionBinNameTableNESMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinNameTableNESMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinCHRMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCHRMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinOAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinOAMMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinSRAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinSRAMMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinEXRAMMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinEXRAMMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinPaletteNESMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPaletteNESMemory_Inspector_toggled(bool)));
-   QObject::connect(actionBinAPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinAPURegister_Inspector_toggled(bool)));
-   QObject::connect(actionBinPPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinPPURegister_Inspector_toggled(bool)));
-   QObject::connect(actionBinMapperMemory_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinMapperMemory_Inspector_toggled(bool)));
-   QObject::connect(actionPPUInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionPPUInformation_Inspector_toggled(bool)));
-   QObject::connect(actionAPUInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAPUInformation_Inspector_toggled(bool)));
-   QObject::connect(actionMapperInformation_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionMapperInformation_Inspector_toggled(bool)));
-   QObject::connect(actionJoypadLogger_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionJoypadLogger_Inspector_toggled(bool)));
+   QObject::connect(actionCodeDataLogger_Inspector,SIGNAL(triggered()),this,SLOT(actionCodeDataLogger_Inspector_triggered()));
+   QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(triggered()),this,SLOT(actionExecution_Visualizer_Inspector_triggered()));
+   QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionGfxCHRMemory_Inspector_triggered()));
+   QObject::connect(actionGfxOAMMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionGfxOAMMemory_Inspector_triggered()));
+   QObject::connect(actionGfxNameTableNESMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionGfxNameTableNESMemory_Inspector_triggered()));
+   QObject::connect(actionBinCPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURegister_Inspector_triggered()));
+   QObject::connect(actionBinCPURAM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURAM_Inspector_triggered()));
+   QObject::connect(actionBinROM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinROM_Inspector_triggered()));
+   QObject::connect(actionBinNameTableNESMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinNameTableNESMemory_Inspector_triggered()));
+   QObject::connect(actionBinCHRMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCHRMemory_Inspector_triggered()));
+   QObject::connect(actionBinOAMMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinOAMMemory_Inspector_triggered()));
+   QObject::connect(actionBinSRAMMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinSRAMMemory_Inspector_triggered()));
+   QObject::connect(actionBinEXRAMMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinEXRAMMemory_Inspector_triggered()));
+   QObject::connect(actionBinPaletteNESMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinPaletteNESMemory_Inspector_triggered()));
+   QObject::connect(actionBinAPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinAPURegister_Inspector_triggered()));
+   QObject::connect(actionBinPPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinPPURegister_Inspector_triggered()));
+   QObject::connect(actionBinMapperMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinMapperMemory_Inspector_triggered()));
+   QObject::connect(actionPPUInformation_Inspector,SIGNAL(triggered()),this,SLOT(actionPPUInformation_Inspector_triggered()));
+   QObject::connect(actionAPUInformation_Inspector,SIGNAL(triggered()),this,SLOT(actionAPUInformation_Inspector_triggered()));
+   QObject::connect(actionMapperInformation_Inspector,SIGNAL(triggered()),this,SLOT(actionMapperInformation_Inspector_triggered()));
+   QObject::connect(actionJoypadLogger_Inspector,SIGNAL(triggered()),this,SLOT(actionJoypadLogger_Inspector_triggered()));
 
    // Connect snapTo's from various debuggers.
    QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
@@ -1178,25 +1124,20 @@ void MainWindow::createC64Ui()
 
    actionAssembly_Inspector = new QAction("Assembly Browser",this);
    actionAssembly_Inspector->setObjectName(QString::fromUtf8("actionAssembly_Inspector"));
-   actionAssembly_Inspector->setCheckable(true);
    QIcon icon12;
    icon12.addFile(QString::fromUtf8(":/resources/22_code_inspector.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionAssembly_Inspector->setIcon(icon12);
    actionBreakpoint_Inspector = new QAction("Breakpoints",this);
    actionBreakpoint_Inspector->setObjectName(QString::fromUtf8("actionBreakpoint_Inspector"));
-   actionBreakpoint_Inspector->setCheckable(true);
    QIcon icon11;
    icon11.addFile(QString::fromUtf8(":/resources/22_breakpoint.png"), QSize(), QIcon::Normal, QIcon::Off);
    actionBreakpoint_Inspector->setIcon(icon11);
    actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
    actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
-   actionBinCPURAM_Inspector->setCheckable(true);
    actionBinCPURegister_Inspector = new QAction("Registers",this);
    actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
-   actionBinCPURegister_Inspector->setCheckable(true);
    actionBinSIDRegister_Inspector = new QAction("Registers",this);
    actionBinSIDRegister_Inspector->setObjectName(QString::fromUtf8("actionBinSIDRegister_Inspector"));
-   actionBinSIDRegister_Inspector->setCheckable(true);
    actionPreferences = new QAction("Preferences...",this);
    actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
 
@@ -1251,7 +1192,6 @@ void MainWindow::createC64Ui()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
-   QObject::connect(m_pBreakpointInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBreakpointInspector_close(bool)));
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Breakpoints", m_pBreakpointInspector );
 
@@ -1259,7 +1199,6 @@ void MainWindow::createC64Ui()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
-   QObject::connect(m_pAssemblyInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedAssemblyInspector_close(bool)));
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
@@ -1269,7 +1208,6 @@ void MainWindow::createC64Ui()
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
    m_pBinCPURegisterInspector->hide();
-   QObject::connect(m_pBinCPURegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURegisterInspector_close(bool)));
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
@@ -1279,7 +1217,6 @@ void MainWindow::createC64Ui()
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
    m_pBinCPURAMInspector->hide();
-   QObject::connect(m_pBinCPURAMInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinCPURAMInspector_close(bool)));
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
@@ -1289,7 +1226,6 @@ void MainWindow::createC64Ui()
    m_pBinSIDRegisterInspector->setWindowTitle("SID Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSIDRegisterInspector );
    m_pBinSIDRegisterInspector->hide();
-   QObject::connect(m_pBinSIDRegisterInspector, SIGNAL(visibilityChanged(bool)), this, SLOT(reflectedBinSIDRegisterInspector_close(bool)));
    QObject::connect(m_pBinSIDRegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "SID Register Inspector", m_pBinSIDRegisterInspector );
 
@@ -1298,11 +1234,11 @@ void MainWindow::createC64Ui()
    emit updateTargetMachine(m_targetLoaded);
 
    // Connect slots for new UI elements.
-   QObject::connect(actionBinCPURegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURegister_Inspector_toggled(bool)));
-   QObject::connect(actionBinCPURAM_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinCPURAM_Inspector_toggled(bool)));
-   QObject::connect(actionBinSIDRegister_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBinSIDRegister_Inspector_toggled(bool)));
-   QObject::connect(actionAssembly_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionAssembly_Inspector_toggled(bool)));
-   QObject::connect(actionBreakpoint_Inspector,SIGNAL(toggled(bool)),this,SLOT(actionBreakpoint_Inspector_toggled(bool)));
+   QObject::connect(actionBinCPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURegister_Inspector_triggered()));
+   QObject::connect(actionBinCPURAM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURAM_Inspector_triggered()));
+   QObject::connect(actionBinSIDRegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinSIDRegister_Inspector_triggered()));
+   QObject::connect(actionAssembly_Inspector,SIGNAL(triggered()),this,SLOT(actionAssembly_Inspector_triggered()));
+   QObject::connect(actionBreakpoint_Inspector,SIGNAL(triggered()),this,SLOT(actionBreakpoint_Inspector_triggered()));
 
    // Connect snapTo's from various debuggers.
    QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
@@ -1827,7 +1763,7 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
    projectDataChangesEvent();
 
    actionEmulation_Window->setChecked(true);
-   actionEmulation_Window_toggled(true);
+   actionEmulation_Window_triggered();
 
    settings.setValue("LastProject",fileName);
 }
@@ -2011,13 +1947,13 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
    }
 }
 
-void MainWindow::on_action_Project_Browser_toggled(bool visible)
+void MainWindow::on_action_Project_Browser_triggered()
 {
    action_Project_Browser->setChecked(true);
    m_pProjectBrowser->show();
 }
 
-void MainWindow::actionEmulation_Window_toggled(bool value)
+void MainWindow::actionEmulation_Window_triggered()
 {
    actionEmulation_Window->setChecked(true);
    m_pNESEmulator->show();
@@ -2132,7 +2068,7 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
             }
 
             actionEmulation_Window->setChecked(true);
-            actionEmulation_Window_toggled(true);
+            actionEmulation_Window_triggered();
          }
       }
       else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
@@ -2205,20 +2141,9 @@ void MainWindow::on_actionSave_Active_Document_triggered()
    }
 }
 
-void MainWindow::reflectedOutput_Window_close(bool toplevel)
+void MainWindow::on_actionOutput_Window_triggered()
 {
-   actionOutput_Window->setChecked(false);
-}
-
-void MainWindow::on_actionOutput_Window_toggled(bool value)
-{
-   actionOutput_Window->setChecked(true);
    output->setVisible(true);
-}
-
-void MainWindow::reflectedProjectBrowser_close(bool toplevel)
-{
-   action_Project_Browser->setChecked(false);
 }
 
 void MainWindow::on_actionCompile_Project_triggered()
@@ -2263,307 +2188,140 @@ void MainWindow::compiler_compileDone(bool bOk)
    projectDataChangesEvent();
 }
 
-void MainWindow::on_actionExecution_Inspector_toggled(bool value)
+void MainWindow::on_actionExecution_Inspector_triggered()
 {
-   actionExecution_Inspector->setChecked(true);
    m_pExecutionInspector->setVisible(true);
 }
 
-void MainWindow::reflectedExecutionInspector_close (bool toplevel)
+void MainWindow::actionExecution_Visualizer_Inspector_triggered()
 {
-   actionExecution_Inspector->setChecked(false);
-}
-
-void MainWindow::actionExecution_Visualizer_Inspector_toggled(bool value)
-{
-   actionExecution_Visualizer_Inspector->setChecked(true);
    m_pExecutionVisualizer->setVisible(true);
 }
 
-void MainWindow::reflectedExecutionVisualizer_Inspector_close (bool toplevel)
+void MainWindow::actionBreakpoint_Inspector_triggered()
 {
-   actionExecution_Visualizer_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBreakpoint_Inspector_toggled(bool value)
-{
-   actionBreakpoint_Inspector->setChecked(true);
    m_pBreakpointInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBreakpointInspector_close (bool toplevel)
+void MainWindow::actionGfxCHRMemory_Inspector_triggered()
 {
-   actionBreakpoint_Inspector->setChecked(false);
-}
-
-void MainWindow::actionGfxCHRMemory_Inspector_toggled(bool value)
-{
-   actionGfxCHRMemory_Inspector->setChecked(true);
    m_pGfxCHRMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedGfxCHRMemoryInspector_close (bool toplevel)
+void MainWindow::actionJoypadLogger_Inspector_triggered()
 {
-   actionGfxCHRMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionJoypadLogger_Inspector_toggled(bool value)
-{
-   actionJoypadLogger_Inspector->setChecked(true);
    m_pJoypadLoggerInspector->setVisible(true);
 }
 
-void MainWindow::reflectedJoypadLoggerInspector_close (bool toplevel)
+void MainWindow::actionGfxOAMMemory_Inspector_triggered()
 {
-   actionJoypadLogger_Inspector->setChecked(false);
-}
-
-void MainWindow::actionGfxOAMMemory_Inspector_toggled(bool value)
-{
-   actionGfxOAMMemory_Inspector->setChecked(true);
    m_pGfxOAMMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedGfxOAMMemoryInspector_close (bool toplevel)
+void MainWindow::actionGfxNameTableNESMemory_Inspector_triggered()
 {
-   actionGfxOAMMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionGfxNameTableNESMemory_Inspector_toggled(bool value)
-{
-   actionGfxNameTableNESMemory_Inspector->setChecked(true);
    m_pGfxNameTableMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedGfxNameTableMemoryInspector_close (bool toplevel)
+void MainWindow::actionBinOAMMemory_Inspector_triggered()
 {
-   actionGfxNameTableNESMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinOAMMemory_Inspector_toggled(bool value)
-{
-   actionBinOAMMemory_Inspector->setChecked(true);
    m_pBinOAMMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinOAMMemoryInspector_close (bool toplevel)
+void MainWindow::actionBinCPURegister_Inspector_triggered()
 {
-   actionBinOAMMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinCPURegister_Inspector_toggled(bool value)
-{
-   actionBinCPURegister_Inspector->setChecked(true);
    m_pBinCPURegisterInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinCPURegisterInspector_close ( bool toplevel )
+void MainWindow::actionBinCPURAM_Inspector_triggered()
 {
-   actionBinCPURegister_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinCPURAM_Inspector_toggled(bool value)
-{
-   actionBinCPURAM_Inspector->setChecked(true);
    m_pBinCPURAMInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinCPURAMInspector_close (bool toplevel)
+void MainWindow::actionBinROM_Inspector_triggered()
 {
-   actionBinCPURAM_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinROM_Inspector_toggled(bool value)
-{
-   actionBinROM_Inspector->setChecked(true);
    m_pBinROMInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinROMInspector_close (bool toplevel)
+void MainWindow::actionBinNameTableNESMemory_Inspector_triggered()
 {
-   actionBinROM_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinNameTableNESMemory_Inspector_toggled(bool value)
-{
-   actionBinNameTableNESMemory_Inspector->setChecked(true);
    m_pBinNameTableMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinNameTableMemoryInspector_close (bool toplevel)
+void MainWindow::actionBinPaletteNESMemory_Inspector_triggered()
 {
-   actionBinNameTableNESMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinPaletteNESMemory_Inspector_toggled(bool value)
-{
-   actionBinPaletteNESMemory_Inspector->setChecked(true);
    m_pBinPaletteMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinPaletteMemoryInspector_close (bool toplevel)
+void MainWindow::actionBinPPURegister_Inspector_triggered()
 {
-   actionBinPaletteNESMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinPPURegister_Inspector_toggled(bool value)
-{
-   actionBinPPURegister_Inspector->setChecked(true);
    m_pBinPPURegisterInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinPPURegisterInspector_close ( bool toplevel )
+void MainWindow::actionBinAPURegister_Inspector_triggered()
 {
-   actionBinPPURegister_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinAPURegister_Inspector_toggled(bool value)
-{
-   actionBinAPURegister_Inspector->setChecked(true);
    m_pBinAPURegisterInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinAPURegisterInspector_close ( bool toplevel )
+void MainWindow::actionBinCHRMemory_Inspector_triggered()
 {
-   actionBinAPURegister_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinCHRMemory_Inspector_toggled(bool value)
-{
-   actionBinCHRMemory_Inspector->setChecked(true);
    m_pBinCHRMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinCHRMemoryInspector_close ( bool toplevel )
+void MainWindow::actionBinSRAMMemory_Inspector_triggered()
 {
-   actionBinCHRMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinSRAMMemory_Inspector_toggled(bool value)
-{
-   actionBinSRAMMemory_Inspector->setChecked(true);
    m_pBinSRAMMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinSRAMMemoryInspector_close ( bool toplevel )
+void MainWindow::actionBinEXRAMMemory_Inspector_triggered()
 {
-   actionBinSRAMMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinEXRAMMemory_Inspector_toggled(bool value)
-{
-   actionBinEXRAMMemory_Inspector->setChecked(true);
    m_pBinEXRAMMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinEXRAMMemoryInspector_close ( bool toplevel )
+void MainWindow::actionBinMapperMemory_Inspector_triggered()
 {
-   actionBinEXRAMMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionBinMapperMemory_Inspector_toggled(bool value)
-{
-   actionBinMapperMemory_Inspector->setChecked(true);
    m_pBinMapperMemoryInspector->setVisible(true);
 }
 
-void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
+void MainWindow::actionAssembly_Inspector_triggered()
 {
-   actionBinMapperMemory_Inspector->setChecked(false);
-}
-
-void MainWindow::actionAssembly_Inspector_toggled(bool value)
-{
-   actionAssembly_Inspector->setChecked(true);
    m_pAssemblyInspector->setVisible(true);
 }
 
-void MainWindow::reflectedEmulator_close ( bool toplevel )
+void MainWindow::actionCodeDataLogger_Inspector_triggered()
 {
-   actionEmulation_Window->setChecked(false);
-}
-
-void MainWindow::reflectedAssemblyInspector_close ( bool toplevel )
-{
-   actionAssembly_Inspector->setChecked(false);
-}
-
-void MainWindow::actionCodeDataLogger_Inspector_toggled(bool value)
-{
-   actionCodeDataLogger_Inspector->setChecked(true);
    m_pCodeDataLoggerInspector->setVisible(true);
 }
 
-void MainWindow::reflectedCodeDataLoggerInspector_close ( bool toplevel )
+void MainWindow::actionPPUInformation_Inspector_triggered()
 {
-   actionCodeDataLogger_Inspector->setChecked(false);
-}
-
-void MainWindow::actionPPUInformation_Inspector_toggled(bool value)
-{
-   actionPPUInformation_Inspector->setChecked(true);
    m_pPPUInformationInspector->setVisible(true);
 }
 
-void MainWindow::reflectedPPUInformationInspector_close ( bool toplevel )
+void MainWindow::actionAPUInformation_Inspector_triggered()
 {
-   actionPPUInformation_Inspector->setChecked(false);
-}
-
-void MainWindow::actionAPUInformation_Inspector_toggled(bool value)
-{
-   actionAPUInformation_Inspector->setChecked(true);
    m_pAPUInformationInspector->setVisible(true);
 }
 
-void MainWindow::reflectedAPUInformationInspector_close ( bool toplevel )
+void MainWindow::actionMapperInformation_Inspector_triggered()
 {
-   actionAPUInformation_Inspector->setChecked(false);
-}
-
-void MainWindow::actionMapperInformation_Inspector_toggled(bool value)
-{
-   actionMapperInformation_Inspector->setChecked(true);
    m_pMapperInformationInspector->setVisible(true);
 }
 
-void MainWindow::reflectedMapperInformationInspector_close ( bool toplevel )
+void MainWindow::on_actionSymbol_Watch_triggered()
 {
-   actionMapperInformation_Inspector->setChecked(false);
-}
-
-void MainWindow::on_actionSymbol_Watch_toggled(bool value)
-{
-   actionSymbol_Watch->setChecked(true);
    m_pSymbolInspector->setVisible(true);
 }
 
-void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
+void MainWindow::on_actionCode_Profiler_triggered()
 {
-   actionSymbol_Watch->setChecked(false);
-}
-
-void MainWindow::on_actionCode_Profiler_toggled(bool value)
-{
-   actionCode_Profiler->setChecked(true);
    m_pCodeProfiler->setVisible(true);
 }
 
-void MainWindow::reflectedCode_Profiler_close ( bool toplevel )
+void MainWindow::on_actionSearch_triggered()
 {
-   actionCode_Profiler->setChecked(false);
-}
-
-void MainWindow::on_actionSearch_triggered(bool value)
-{
-   actionSearch->setChecked(true);
    output->showPane(OutputPaneDockWidget::Output_Search);
    m_pSearch->setVisible(true);
-}
-
-void MainWindow::reflectedSearch_close ( bool toplevel )
-{
-   actionSearch->setChecked(false);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()
@@ -3224,7 +2982,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
          buildTextLogger->write("<b>Load complete.</b>");
 
          actionEmulation_Window->setChecked(true);
-         actionEmulation_Window_toggled(true);
+         actionEmulation_Window_triggered();
       }
       else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
@@ -3336,15 +3094,9 @@ void MainWindow::on_actionAbout_Qt_triggered()
    QMessageBox::aboutQt(this);
 }
 
-void MainWindow::actionBinSIDRegister_Inspector_toggled(bool value)
+void MainWindow::actionBinSIDRegister_Inspector_triggered()
 {
-   actionBinSIDRegister_Inspector->setChecked(true);
    m_pBinSIDRegisterInspector->setVisible(true);
-}
-
-void MainWindow::reflectedBinSIDRegisterInspector_close(bool toplevel)
-{
-   actionBinSIDRegister_Inspector->setChecked(false);
 }
 
 void MainWindow::action1x_triggered()
