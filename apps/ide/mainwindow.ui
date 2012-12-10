@@ -17,7 +17,7 @@
    <string>NESICIDE</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resource.qrc">
+   <iconset resource="../../common/resource.qrc">
     <normaloff>:/resources/appicon.png</normaloff>:/resources/appicon.png</iconset>
   </property>
   <property name="autoFillBackground">
@@ -294,7 +294,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/stock_exit.png</normaloff>:/resources/stock_exit.png</iconset>
    </property>
    <property name="text">
@@ -306,7 +306,7 @@
   </action>
   <action name="actionNew_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_document-new.png</normaloff>:/resources/22_document-new.png</iconset>
    </property>
    <property name="text">
@@ -321,7 +321,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
    </property>
    <property name="text">
@@ -336,7 +336,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
    </property>
    <property name="text">
@@ -355,11 +355,8 @@
    </property>
   </action>
   <action name="action_Project_Browser">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/folder-system.png</normaloff>:/resources/folder-system.png</iconset>
    </property>
    <property name="text">
@@ -368,7 +365,7 @@
   </action>
   <action name="actionProject_Properties">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
@@ -391,7 +388,7 @@
   </action>
   <action name="actionSave_Active_Document">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/stock_save.png</normaloff>:/resources/stock_save.png</iconset>
    </property>
    <property name="text">
@@ -405,11 +402,8 @@
    </property>
   </action>
   <action name="actionOutput_Window">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_utilities-terminal.png</normaloff>:/resources/22_utilities-terminal.png</iconset>
    </property>
    <property name="text">
@@ -421,7 +415,7 @@
   </action>
   <action name="actionCompile_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_run-build.png</normaloff>:/resources/22_run-build.png</iconset>
    </property>
    <property name="text">
@@ -432,11 +426,8 @@
    </property>
   </action>
   <action name="actionExecution_Inspector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
    </property>
    <property name="text">
@@ -453,7 +444,7 @@
   </action>
   <action name="action_Close_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/edit_delete.png</normaloff>:/resources/edit_delete.png</iconset>
    </property>
    <property name="text">
@@ -462,7 +453,7 @@
   </action>
   <action name="actionEnvironment_Settings">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_preferences-other.png</normaloff>:/resources/22_preferences-other.png</iconset>
    </property>
    <property name="text">
@@ -476,7 +467,7 @@
   </action>
   <action name="actionLoad_In_Emulator">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_cpu_ram.png</normaloff>:/resources/22_cpu_ram.png</iconset>
    </property>
    <property name="text">
@@ -487,11 +478,8 @@
    </property>
   </action>
   <action name="actionSymbol_Watch">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/find.png</normaloff>:/resources/find.png</iconset>
    </property>
    <property name="text">
@@ -500,7 +488,7 @@
   </action>
   <action name="actionClean_Project">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_edit-clear.png</normaloff>:/resources/22_edit-clear.png</iconset>
    </property>
    <property name="text">
@@ -511,11 +499,8 @@
    </property>
   </action>
   <action name="actionSearch">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset resource="../../common/resource.qrc">
      <normaloff>:/resources/22_code_inspector.png</normaloff>:/resources/22_code_inspector.png</iconset>
    </property>
    <property name="text">
@@ -529,9 +514,6 @@
    </property>
   </action>
   <action name="actionCode_Profiler">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Code Profiler</string>
    </property>
@@ -560,7 +542,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../../common/resource.qrc"/>
  </resources>
  <connections>
   <connection>

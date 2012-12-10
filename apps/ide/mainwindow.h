@@ -243,16 +243,16 @@ private slots:
    void on_action_Close_Project_triggered();
    void on_action_About_Nesicide_triggered();
    void on_actionEnvironment_Settings_triggered();
-   void on_actionExecution_Inspector_toggled(bool );
-   void on_actionSymbol_Watch_toggled(bool );
-   void on_actionCode_Profiler_toggled(bool );
-   void on_actionSearch_triggered(bool );
+   void on_actionExecution_Inspector_triggered();
+   void on_actionSymbol_Watch_triggered();
+   void on_actionCode_Profiler_triggered();
+   void on_actionSearch_triggered();
    void on_actionCompile_Project_triggered();
-   void on_actionOutput_Window_toggled(bool );
+   void on_actionOutput_Window_triggered();
    void on_actionSave_Active_Document_triggered();
    void on_tabWidget_currentChanged(int index);
    void on_actionOpen_Project_triggered();
-   void on_action_Project_Browser_toggled(bool );
+   void on_action_Project_Browser_triggered();
    void on_tabWidget_tabCloseRequested(int index);
    void on_actionCreate_Project_from_File_triggered();
    void on_actionNew_Project_triggered();
@@ -262,10 +262,8 @@ private slots:
    void openFile(QString file);
 
    // Common/reused UI elements.
-   void actionBreakpoint_Inspector_toggled(bool );
-   void reflectedBreakpointInspector_close(bool toplevel);
-   void actionAssembly_Inspector_toggled(bool );
-   void reflectedAssemblyInspector_close(bool toplevel);
+   void actionBreakpoint_Inspector_triggered();
+   void actionAssembly_Inspector_triggered();
    void actionPreferences_triggered();
 
    // NES-specific UI elements.
@@ -277,7 +275,6 @@ private slots:
    void action3x_triggered();
    void actionLinear_Interpolation_toggled(bool );
    void action4_3_Aspect_toggled(bool );
-   void actionRun_Test_Suite_triggered();
    void actionSquare_1_toggled(bool );
    void actionSquare_2_toggled(bool );
    void actionTriangle_toggled(bool );
@@ -297,60 +294,32 @@ private slots:
    void actionPAL_triggered();
    void actionNTSC_triggered();
    void actionDendy_triggered();
-   void actionCodeDataLogger_Inspector_toggled(bool );
-   void actionExecution_Visualizer_Inspector_toggled(bool );
-   void actionGfxCHRMemory_Inspector_toggled(bool );
-   void actionGfxOAMMemory_Inspector_toggled(bool );
-   void actionGfxNameTableNESMemory_Inspector_toggled(bool );
-   void actionBinCPURegister_Inspector_toggled(bool );
-   void actionBinCPURAM_Inspector_toggled(bool );
-   void actionBinROM_Inspector_toggled(bool );
-   void actionBinNameTableNESMemory_Inspector_toggled(bool );
-   void actionBinCHRMemory_Inspector_toggled(bool );
-   void actionBinOAMMemory_Inspector_toggled(bool );
-   void actionBinSRAMMemory_Inspector_toggled(bool );
-   void actionBinEXRAMMemory_Inspector_toggled(bool );
-   void actionBinPaletteNESMemory_Inspector_toggled(bool );
-   void actionBinAPURegister_Inspector_toggled(bool );
-   void actionBinPPURegister_Inspector_toggled(bool );
-   void actionBinMapperMemory_Inspector_toggled(bool );
-   void actionPPUInformation_Inspector_toggled(bool );
-   void actionAPUInformation_Inspector_toggled(bool );
-   void actionMapperInformation_Inspector_toggled(bool );
-   void actionJoypadLogger_Inspector_toggled(bool );
-   void actionEmulation_Window_toggled(bool );
-   void reflectedEmulator_close(bool toplevel);
-   void reflectedCodeDataLoggerInspector_close(bool toplevel);
-   void reflectedExecutionInspector_close(bool toplevel);
-   void reflectedExecutionVisualizer_Inspector_close(bool toplevel);
-   void reflectedGfxCHRMemoryInspector_close(bool toplevel);
-   void reflectedGfxNameTableMemoryInspector_close(bool toplevel);
-   void reflectedGfxOAMMemoryInspector_close(bool toplevel);
-   void reflectedBinCPURegisterInspector_close(bool toplevel);
-   void reflectedBinCPURAMInspector_close(bool toplevel);
-   void reflectedBinROMInspector_close(bool toplevel);
-   void reflectedBinNameTableMemoryInspector_close(bool toplevel);
-   void reflectedBinOAMMemoryInspector_close(bool toplevel);
-   void reflectedBinCHRMemoryInspector_close(bool toplevel);
-   void reflectedBinPaletteMemoryInspector_close(bool toplevel);
-   void reflectedBinSRAMMemoryInspector_close(bool toplevel);
-   void reflectedBinEXRAMMemoryInspector_close(bool toplevel);
-   void reflectedBinPPURegisterInspector_close(bool toplevel);
-   void reflectedBinAPURegisterInspector_close(bool toplevel);
-   void reflectedBinMapperMemoryInspector_close(bool toplevel);
-   void reflectedPPUInformationInspector_close(bool toplevel);
-   void reflectedAPUInformationInspector_close(bool toplevel);
-   void reflectedMapperInformationInspector_close(bool toplevel);
-   void reflectedJoypadLoggerInspector_close(bool toplevel);
-   void reflectedSymbol_Watch_close(bool toplevel);
-   void reflectedCode_Profiler_close(bool toplevel);
-   void reflectedSearch_close(bool toplevel);
-   void reflectedOutput_Window_close(bool toplevel);
-   void reflectedProjectBrowser_close(bool toplevel);
+   void actionRun_Test_Suite_triggered();
+   void actionCodeDataLogger_Inspector_triggered();
+   void actionExecution_Visualizer_Inspector_triggered();
+   void actionGfxCHRMemory_Inspector_triggered();
+   void actionGfxOAMMemory_Inspector_triggered();
+   void actionGfxNameTableNESMemory_Inspector_triggered();
+   void actionBinCPURegister_Inspector_triggered();
+   void actionBinCPURAM_Inspector_triggered();
+   void actionBinROM_Inspector_triggered();
+   void actionBinNameTableNESMemory_Inspector_triggered();
+   void actionBinCHRMemory_Inspector_triggered();
+   void actionBinOAMMemory_Inspector_triggered();
+   void actionBinSRAMMemory_Inspector_triggered();
+   void actionBinEXRAMMemory_Inspector_triggered();
+   void actionBinPaletteNESMemory_Inspector_triggered();
+   void actionBinAPURegister_Inspector_triggered();
+   void actionBinPPURegister_Inspector_triggered();
+   void actionBinMapperMemory_Inspector_triggered();
+   void actionPPUInformation_Inspector_triggered();
+   void actionAPUInformation_Inspector_triggered();
+   void actionMapperInformation_Inspector_triggered();
+   void actionJoypadLogger_Inspector_triggered();
+   void actionEmulation_Window_triggered();
 
    // C64-specific UI elements.
-   void actionBinSIDRegister_Inspector_toggled(bool value);
-   void reflectedBinSIDRegisterInspector_close(bool toplevel);
+   void actionBinSIDRegister_Inspector_triggered();
 };
 
 #endif // MAINWINDOW_H
