@@ -9,7 +9,6 @@ CBinaryFileModel::CBinaryFileModel()
 {
 }
 
-
 QList<QUuid> CBinaryFileModel::getUuids() const
 {
    if (m_pProject == NULL)
@@ -17,6 +16,12 @@ QList<QUuid> CBinaryFileModel::getUuids() const
 
    return ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pProject);
 }
+
+QString CBinaryFileModel::getName(const QUuid &uuid) const
+{
+   return getFileName(uuid);
+}
+
 
 QString CBinaryFileModel::getFileName(const QUuid &uuid) const
 {

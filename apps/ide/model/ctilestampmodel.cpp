@@ -76,3 +76,16 @@ void CTileStampModel::deleteTileStamp(const QUuid &uuid)
    emit tileStampRemoved(uuid);
 }
 
+CDesignerEditorBase *CTileStampModel::createEditorWidget(const QUuid &uuid) const
+{
+   CTileStamp* tile = ProjectSearcher::findItemByUuid<CTileStamp>(m_pProject, uuid);
+   if (tile == NULL)
+      return NULL;
+
+   int x,y;
+   tile->getSize(&x,&y);
+
+   return new TileStampEditorForm(tile->getTileData(), tile->getAttributeData(),
+                                  tile->getAttrTbl(), tile->getTileProperties(),
+                                  x, y, tile->getGridSetting(),tile);
+}

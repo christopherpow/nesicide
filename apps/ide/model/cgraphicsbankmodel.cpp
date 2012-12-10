@@ -1,8 +1,10 @@
 
 #include "cgraphicsbankmodel.h"
 
-#include "cnesicideproject.h"
 #include "model/projectsearcher.h"
+
+#include "cnesicideproject.h"
+#include "graphicsbankeditorform.h"
 
 CGraphicsBankModel::CGraphicsBankModel()
    : CSubModel()
@@ -59,3 +61,11 @@ void CGraphicsBankModel::deleteGraphicsBank(const QUuid &uuid)
 
    emit graphicsBankDeleted(uuid);
 }
+
+
+CDesignerEditorBase *CGraphicsBankModel::createEditorWidget(const QUuid &uuid) const
+{
+   CGraphicsBank* bank = ProjectSearcher::findItemByUuid<CGraphicsBank>(m_pProject, uuid);
+   return bank == NULL ? NULL : new GraphicsBankEditorForm(bank->getGraphics(), bank);
+}
+

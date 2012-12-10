@@ -38,6 +38,11 @@ QList<QUuid> CFilterModel::getUuids() const
    return m_filters;
 }
 
+QString CFilterModel::getName(const QUuid &uuid) const
+{
+   return getFilterName(uuid);
+}
+
 QUuid CFilterModel::newFilter(const QString &/*name*/)
 {
    // Ignore for now.

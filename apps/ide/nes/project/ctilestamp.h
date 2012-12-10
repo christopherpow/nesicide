@@ -25,6 +25,7 @@ public:
    QString getAttrTbl() { return m_attrTblUUID; }
    QImage getTileImage();
    QList<PropertyItem> getTileProperties() { return m_tileProperties; }
+   bool getGridSetting() { return m_grid; }
 
    // Member setters
    void setSize(int xSize,int ySize) { m_xSize = xSize; m_ySize = ySize; }

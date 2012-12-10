@@ -18,10 +18,9 @@ public:
 
    // Retrieve a list of all UUIDs in this model.
    QList<QUuid> getUuids() const;
-
-   // -- Getters --
    QString getName(const QUuid& uuid) const;
 
+   // -- Getters --
    QByteArray getTileData(const QUuid& uuid) const;
    QByteArray getAttributeData(const QUuid& uuid) const;
    QSize getSize(const QUuid& uuid) const;
@@ -31,6 +30,8 @@ public:
 
    // -- Setters --
    void setSize(const QUuid& uuid, QSize& size);
+
+   CDesignerEditorBase *createEditorWidget(const QUuid &uuid) const;
 
 private:
    friend class CProjectModel;

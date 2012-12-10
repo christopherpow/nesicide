@@ -2,6 +2,7 @@
 #include "cattributemodel.h"
 
 #include "cnesicideproject.h"
+#include "cdesignereditorbase.h"
 #include "model/projectsearcher.h"
 
 CAttributeModel::CAttributeModel()
@@ -21,7 +22,7 @@ QList<QUuid> CAttributeModel::getUuids() const
 QString CAttributeModel::getName(const QUuid &uuid) const
 {
    CAttributeTable* palette = ProjectSearcher::findItemByUuid<CAttributeTable>(m_pProject, uuid);
-   return palette->caption();
+   return palette != NULL ? palette->caption() : QString();
 }
 
 
@@ -57,4 +58,14 @@ void CAttributeModel::deletePalette(const QUuid &uuid)
    delete palette;
 
    emit paletteDeleted(uuid);
+}
+
+
+CDesignerEditorBase *CAttributeModel::createEditorWidget(const QUuid &uuid) const
+{
+   CAttributeTable* palette = ProjectSearcher::findItemByUuid<CAttributeTable>(m_pProject, uuid);
+   if (palette == NULL)
+      return NULL;
+
+   return new AttributeTableEditorForm(palette->getPalette(), palette);
 }

@@ -21,8 +21,8 @@ public:
    // Remove a source file from the project.
    void removeSourceFile(const QUuid& uuid);
 
-   // Retrieve a list of all UUIDs in this model.
    QList<QUuid> getUuids() const;
+   QString      getName(const QUuid &uuid) const;
 
    // -- Getters --
    QString getSourceCode(const QUuid& uuid) const;
@@ -32,6 +32,8 @@ public:
    // -- Setters --
    void setSourceCode(const QUuid& uuid, const QString& source);
    void setRelativePath(const QUuid& uuid, const QString& path);
+
+   CDesignerEditorBase* createEditorWidget(const QUuid&) const;
 
 private:
    friend class CProjectModel;

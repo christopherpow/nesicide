@@ -15,8 +15,8 @@ public:
    QUuid addExistingBinaryFile(const QString& path);
    void removeBinaryFile(const QUuid& uuid);
 
-   // Retrieve a list of all UUIDs in this model.
    QList<QUuid> getUuids() const;
+   QString getName(const QUuid& uuid) const;
 
    // -- Getters --
    QString getFileName(const QUuid& uuid) const;
@@ -26,6 +26,8 @@ public:
 
    // -- Setters --
    void setBinaryData(const QUuid& uuid, const QByteArray& newBinaryData);
+
+   CDesignerEditorBase* createEditorWidget(const QUuid&) const { return NULL; }
 
 private:
    friend class CProjectModel;

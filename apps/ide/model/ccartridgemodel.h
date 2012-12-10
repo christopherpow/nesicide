@@ -11,7 +11,10 @@ public:
    QList<QUuid> getPrgRomUuids() const;
    QList<QUuid> getChrRomUuids() const;
 
+   QList<QUuid> getUuids() const;
    QString getName(const QUuid& uuid) const;
+
+   CDesignerEditorBase* createEditorWidget(const QUuid&) const;
 };
 
 #endif // CCARTRIDGEMODEL_H

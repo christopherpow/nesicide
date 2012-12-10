@@ -3,6 +3,8 @@
 
 #include "model/csubmodel.h"
 
+class CDesignerEditorBase;
+
 class CGraphicsBankModel : public CSubModel
 {
    Q_OBJECT
@@ -14,14 +16,15 @@ public:
    QUuid newGraphicsBank(const QString& name);
    void deleteGraphicsBank(const QUuid& uuid);
 
-   // Retrieve a list of all UUIDs in this model.
    QList<QUuid> getUuids() const;
-
-   // -- Getters --
    QString getName(const QUuid& uuid) const;
 
+   // -- Getters --
    //QList<IChrRomBankItem*> getGraphics();
    void exportAsPNG(const QUuid& uuid) const;
+
+   // Workaround methods.
+   CDesignerEditorBase* createEditorWidget(const QUuid& uuid) const;
 
 private:
    friend class CProjectModel;

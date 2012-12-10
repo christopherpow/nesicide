@@ -65,6 +65,11 @@ QList<QUuid> CSourceFileModel::getUuids() const
    return uuids;
 }
 
+QString CSourceFileModel::getName(const QUuid &uuid) const
+{
+   return getFileName(uuid);
+}
+
 QString CSourceFileModel::getSourceCode(const QUuid &uuid) const
 {
    if (m_pProject == NULL)
@@ -117,4 +122,10 @@ void CSourceFileModel::setRelativePath(const QUuid &uuid, const QString &path)
    file->setName(path);
    file->setPath(path);
    emit sourceFileChanged(uuid);
+}
+
+CDesignerEditorBase *CSourceFileModel::createEditorWidget(const QUuid &uuid) const
+{
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   return file == NULL ? NULL : new CodeEditorForm(file->caption(), file->sourceCode(), file);
 }

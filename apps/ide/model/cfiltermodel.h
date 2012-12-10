@@ -9,8 +9,8 @@ class CFilterModel : public CSubModel
 {
    Q_OBJECT
 public:
-   // Retrieve a list of all UUIDs in this model.
    QList<QUuid> getUuids() const;
+   QString getName(const QUuid &) const;
 
    // Create a new filter.
    QUuid newFilter(const QString& name);
@@ -28,6 +28,8 @@ public:
 
    // Data Setters
    void addToFilter(const QUuid& filterUuid, const QUuid& uuid);
+
+   CDesignerEditorBase* createEditorWidget(const QUuid&) const { return NULL; }
 
 private:
    friend class CProjectModel;

@@ -23,6 +23,14 @@ QList<QUuid> CCartridgeModel::getChrRomUuids() const
    return ProjectSearcher::findUuidsOfType<CCHRROMBank>(m_pProject);
 }
 
+QList<QUuid> CCartridgeModel::getUuids() const
+{
+   QList<QUuid> items;
+   items.append(ProjectSearcher::findUuidsOfType<CPRGROMBank>(m_pProject));
+   items.append(ProjectSearcher::findUuidsOfType<CCHRROMBank>(m_pProject));
+   return items;
+}
+
 QString CCartridgeModel::getName(const QUuid &uuid) const
 {
    CPRGROMBank* prgBank = ProjectSearcher::findItemByUuid<CPRGROMBank>(m_pProject, uuid);
@@ -34,4 +42,9 @@ QString CCartridgeModel::getName(const QUuid &uuid) const
       return chrBank->caption();
 
    return QString();
+}
+
+CDesignerEditorBase *CCartridgeModel::createEditorWidget(const QUuid &) const
+{
+   return NULL;
 }
