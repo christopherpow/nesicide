@@ -2025,6 +2025,7 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
    if ( cycle == 0 )
    {
       spritesFound = 0;
+      m_oamAddr = 0;
       pSprite = &devNull;
       m_spriteTemporaryMemory.count = 0;
       m_spriteTemporaryMemory.sprite = (m_oamAddr>>2);
@@ -2158,6 +2159,8 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
 
       pSprite->spriteX = OAM ( SPRITEX, pSprite->spriteIdx );
    }
+
+   m_oamAddr = (m_spriteTemporaryMemory.sprite<<2)|(m_spriteTemporaryMemory.phase);
 }
 
 void CPPU::GATHERSPRITES ( int32_t scanline )

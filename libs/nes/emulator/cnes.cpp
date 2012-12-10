@@ -391,7 +391,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         {
                            if ( ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
                                 (addr >= pBreakpoint->item1) &&
-                                (addr <= pBreakpoint->item2) )
+                                (addr <= pBreakpoint->item2) &&
+                                (addr&pBreakpoint->itemMask) )
                            {
                               pBreakpoint->itemActual = addr;
                               pBreakpoint->hit = true;
@@ -401,7 +402,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         else
                         {
                            if ( (addr >= pBreakpoint->item1) &&
-                                (addr <= pBreakpoint->item2) )
+                                (addr <= pBreakpoint->item2) &&
+                                (addr&pBreakpoint->itemMask) )
                            {
                               pBreakpoint->itemActual = addr;
                               pBreakpoint->hit = true;
@@ -415,7 +417,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         addr = C6502::_EA();
 
                         if ( (addr >= pBreakpoint->item1) &&
-                              (addr <= pBreakpoint->item2) )
+                             (addr <= pBreakpoint->item2) &&
+                             (addr&pBreakpoint->itemMask) )
                         {
                            pBreakpoint->itemActual = addr;
 
@@ -444,6 +447,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            }
                            else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
                                      (data > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (data&pBreakpoint->data) )
                            {
                               pBreakpoint->hit = true;
                               force = true;
@@ -511,6 +520,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                               pBreakpoint->hit = true;
                               force = true;
                            }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (pBitfield->GetValueRaw(value)&pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
 
                         break;
@@ -520,7 +535,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         addr = CPPU::_OAMADDR();
 
                         if ( (addr >= pBreakpoint->item1) &&
-                              (addr <= pBreakpoint->item2) )
+                             (addr <= pBreakpoint->item2) &&
+                             (addr&pBreakpoint->itemMask) )
                         {
                            pBreakpoint->itemActual = addr;
 
@@ -549,6 +565,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            }
                            else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
                                      (data > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (data&pBreakpoint->data) )
                            {
                               pBreakpoint->hit = true;
                               force = true;
@@ -563,7 +585,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         addr = CPPU::_PPUADDR();
 
                         if ( (addr >= pBreakpoint->item1) &&
-                              (addr <= pBreakpoint->item2) )
+                             (addr <= pBreakpoint->item2) &&
+                             (addr&pBreakpoint->itemMask) )
                         {
                            pBreakpoint->itemActual = addr;
 
@@ -592,6 +615,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            }
                            else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
                                      (data > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (data&pBreakpoint->data) )
                            {
                               pBreakpoint->hit = true;
                               force = true;
@@ -639,6 +668,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                               pBreakpoint->hit = true;
                               force = true;
                            }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (pBitfield->GetValueRaw(value)&pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
                         }
 
                         break;
@@ -678,6 +713,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            }
                            else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
                                      (pBitfield->GetValueRaw(value) > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (pBitfield->GetValueRaw(value)&pBreakpoint->data) )
                            {
                               pBreakpoint->hit = true;
                               force = true;
@@ -728,6 +769,12 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                            }
                            else if ( (pBreakpoint->condition == eBreakIfGreaterThan) &&
                                      (pBitfield->GetValueRaw(value) > pBreakpoint->data) )
+                           {
+                              pBreakpoint->hit = true;
+                              force = true;
+                           }
+                           else if ( (pBreakpoint->condition == eBreakIfMask) &&
+                                     (pBitfield->GetValueRaw(value)&pBreakpoint->data) )
                            {
                               pBreakpoint->hit = true;
                               force = true;

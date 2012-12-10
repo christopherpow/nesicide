@@ -262,6 +262,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
                                              addr,
                                              absAddr,
                                              addr,
+                                             0xFFFF,
                                              eBreakpointConditionNone,
                                              0,
                                              eBreakpointDataNone,
@@ -661,6 +662,7 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
                                                 addr,
                                                 absAddr,
                                                 addr,
+                                                0xFFFF,
                                                 eBreakpointConditionNone,
                                                 0,
                                                 eBreakpointDataNone,
@@ -846,12 +848,12 @@ void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
                                             addr,
                                             absAddr,
                                             addr,
+                                            0xFFFF,
                                             eBreakpointConditionNone,
                                             0,
                                             eBreakpointDataNone,
                                             0,
                                             true );
-
       if ( bpIdx < 0 )
       {
          QString str;
