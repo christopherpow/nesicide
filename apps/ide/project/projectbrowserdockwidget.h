@@ -4,10 +4,6 @@
 #include <QDockWidget>
 
 #include "cprojecttabwidget.h"
-
-#include "cprojecttreeviewmodel.h"
-#include "cprojecttreeview.h"
-
 #include "cprojecttreewidget.h"
 
 class CProjectModel;

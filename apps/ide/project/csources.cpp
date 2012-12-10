@@ -166,7 +166,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
                   m_sourceItems.append(pSourceItem);
                   appendChild(pSourceItem);
-                  ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+                  //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
                   nesicideProject->setDirty(true);
                }
             }
@@ -189,7 +189,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
                m_sourceItems.append(pSourceItem);
                appendChild(pSourceItem);
-               ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+               //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
             }
          }
       }

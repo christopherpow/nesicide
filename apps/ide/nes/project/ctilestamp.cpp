@@ -249,7 +249,7 @@ void CTileStamp::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          }
 
          nesicideProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(this);
-         ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
          markForDeletion();
          nesicideProject->setDirty(true);
       }

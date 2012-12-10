@@ -125,7 +125,7 @@ void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             pTileStamp->setName(name);
             m_tileStamps.append(pTileStamp);
             appendChild(pTileStamp);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
             nesicideProject->setDirty(true);
          }
       }
@@ -141,7 +141,7 @@ void CTileStamps::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
             pTileStamp->setSize(256,240);
             m_tileStamps.append(pTileStamp);
             appendChild(pTileStamp);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
             nesicideProject->setDirty(true);
          }
       }

@@ -156,7 +156,7 @@ void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          // TODO: Fix this logic so the memory doesn't get lost.
          nesicideProject->getProject()->getSources()->removeChild(this);
          nesicideProject->getProject()->getSources()->getSourceItems().removeAll(this);
-         ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
       }
    }
 }

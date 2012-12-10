@@ -162,7 +162,7 @@ void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent
          // TODO: Fix this logic so the memory doesn't get lost.
          nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
          nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
-         ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
       }
       else if (ret->text() == EXPORT_PNG_TEXT)
       {
