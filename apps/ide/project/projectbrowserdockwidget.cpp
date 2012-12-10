@@ -4,7 +4,9 @@
 #include "cnesicideproject.h"
 #include "model/cprojectmodel.h"
 #include "model/cfiltermodel.h"
+
 #include "cprojecttreecontextmenu.h"
+#include "cprojecttreeopenaction.h"
 
 //--------------------------------------------------------------------------------------
 // Sorting functions
@@ -65,8 +67,9 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, Q
 
    setProjectModel(NULL);
 
-   // CPTODO: Implement listview.
-   ui->projectListView->hide();
+   // TODO Add list of open items (after reworking tab widget)
+   ui->openProjectItems->setHeaderLabel("Open Items");
+   //ui->openProjectItems->hide();
 
    // Respond to signals of our children.
    QObject::connect(ui->projectTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
@@ -74,6 +77,12 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, Q
 
    QObject::connect(ui->projectTreeWidget, SIGNAL(customContextMenuRequested(QPoint)),
                                      this, SLOT(treeWidgetContextMenuRequested(QPoint)));
+
+   QObject::connect(ui->openProjectItems, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
+
+   // Connect open items to tab widget.
+   // Main window intercepts this and closes the tab before we receive the signal.
+   QObject::connect(pTarget, SIGNAL(tabAboutToBeRemoved(int)), this, SLOT(itemClosed(int)));
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()
@@ -114,40 +123,68 @@ void ProjectBrowserDockWidget::setProjectModel(CProjectModel *model)
    }
 }
 
-void ProjectBrowserDockWidget::itemOpened(QUuid uuid)
+void ProjectBrowserDockWidget::itemOpened(QUuid /*uuid*/)
 {
    // Add to list of open items
    //ui->openFilesTreeWidget->addItem(m_pProject, uuid, QUuid());
-   setProjectModel(m_pProject);
+   rebuildProjectTree();
 }
 
-void ProjectBrowserDockWidget::itemClosed(QUuid uuid)
+void ProjectBrowserDockWidget::itemClosed(QUuid /*uuid*/)
 {
    // Remove from list of open items
    //ui->openFilesTreeWidget->removeItem(uuid);
-   setProjectModel(m_pProject);
+   rebuildProjectTree();
 }
 
-void ProjectBrowserDockWidget::projectTreeChanged(QUuid uuid)
+void ProjectBrowserDockWidget::itemClosed(int tabId)
+{
+   QWidget* widget = m_pTarget->widget(tabId);
+   CDesignerEditorBase *tabWidget = dynamic_cast<CDesignerEditorBase*>(widget);
+   if (tabWidget == NULL)
+      return;
+
+   IProjectTreeViewItem *item = tabWidget->treeLink();
+   if (item == NULL)
+      return;
+
+   ui->openProjectItems->removeItem(item->uuid());
+}
+
+void ProjectBrowserDockWidget::itemSelectionChanged()
+{
+   // For now, search tab to select by name.
+   QString name = ui->openProjectItems->currentIndex().data().value<QString>();
+
+   for(int i=0; i < m_pTarget->count(); ++i)
+   {
+      if (m_pTarget->tabText(i) == name)
+      {
+         m_pTarget->setCurrentIndex(i);
+         return;
+      }
+   }
+}
+
+void ProjectBrowserDockWidget::projectTreeChanged(QUuid /*uuid*/)
 {
    rebuildProjectTree();
 }
 
-#include <iostream>
 
 void ProjectBrowserDockWidget::openItemRequested(QTreeWidgetItem *item, int)
 {
-   std::cerr << "OPEN ME!\n";
-   // Translate event.
    QUuid uuid = ui->projectTreeWidget->getUuidOf(item);
-   emit openUuidRequest(uuid);
+   CProjectTreeOpenAction action(m_pTarget, ui->openProjectItems, m_pProject);
+   m_pProject->visitDataItem(uuid, action);
+
+   // TODO After reworking more views: Translate event.
+   //emit openUuidRequest(uuid);
 }
 
 
 void ProjectBrowserDockWidget::treeWidgetContextMenuRequested(QPoint pos)
 {
-   std::cerr << "INVOKED!\n";
-
    // Invoke context menu.
    QUuid uuid = ui->projectTreeWidget->getUuidAt(pos);
    QPoint screenPos = ui->projectTreeWidget->mapToGlobal(pos);

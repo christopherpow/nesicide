@@ -20,7 +20,7 @@ class ProjectBrowserDockWidget : public QDockWidget
 {
    Q_OBJECT
 signals:
-   void openUuidRequest(const QUuid& uuid); // -> tabWidget
+   void openUuidRequest(const QUuid& uuid);
 
 public:
    explicit ProjectBrowserDockWidget(CProjectTabWidget* pTarget, QWidget *parent = 0);
@@ -33,8 +33,11 @@ public:
    void disableNavigation();
 
 public slots:
-   void itemOpened(QUuid uuid); // <- tabWidget
-   void itemClosed(QUuid uuid); // <- tabWidget
+   void itemOpened(QUuid uuid);
+   void itemClosed(QUuid uuid);
+
+   void itemClosed(int tabId);
+   void itemSelectionChanged();
 
    void projectTreeChanged(QUuid uuid);
 

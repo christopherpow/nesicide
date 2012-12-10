@@ -124,6 +124,20 @@ QUuid CProjectTreeWidget::getUuidOf(const QTreeWidgetItem *item)
    return item->data(0, Qt::UserRole).toByteArray();
 }
 
+bool CProjectTreeWidget::containsUuid(const QUuid &uuid)
+{
+   return findTreeWidgetItem(uuid) != NULL;
+}
+
+void CProjectTreeWidget::setCurrentUuid(const QUuid &uuid)
+{
+   QTreeWidgetItem *item = findTreeWidgetItem(uuid);
+   if (item != NULL)
+   {
+      this->setCurrentItem(item);
+   }
+}
+
 void CProjectTreeWidget::addItem(CProjectModel *project, const QUuid &uuid, const QUuid &parentUuid)
 {
    QTreeWidgetItem* item = buildNodeFromUuid(project, uuid);

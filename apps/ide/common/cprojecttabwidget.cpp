@@ -146,6 +146,7 @@ int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
 
 void CProjectTabWidget::removeTab(int index)
 {
+   emit tabAboutToBeRemoved(index);
    QTabWidget::removeTab(index);
 }
 

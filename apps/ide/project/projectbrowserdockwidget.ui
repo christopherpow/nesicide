@@ -44,7 +44,6 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QListView" name="projectListView"/>
       <widget class="CProjectTreeWidget" name="projectTreeWidget">
        <property name="enabled">
         <bool>true</bool>
@@ -79,6 +78,16 @@
        <attribute name="headerVisible">
         <bool>false</bool>
        </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="CProjectTreeWidget" name="openProjectItems">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
        <column>
         <property name="text">
          <string notr="true">1</string>

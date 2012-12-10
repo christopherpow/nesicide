@@ -15,6 +15,9 @@ public:
    QUuid getUuidAt(const QPoint& pos);
    QUuid getUuidOf(const QTreeWidgetItem* item);
 
+   bool containsUuid(const QUuid& uuid);
+   void setCurrentUuid(const QUuid& uuid);
+
    void addItem(CProjectModel *project, const QUuid &uuid, const QUuid &parent);
    void setParent(const QUuid &child, const QUuid &parent);
    void removeItem(const QUuid &uuid);
