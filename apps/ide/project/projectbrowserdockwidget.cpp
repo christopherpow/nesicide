@@ -8,9 +8,13 @@
 #include "cprojecttreecontextmenu.h"
 #include "cprojecttreeopenaction.h"
 
+#include <iostream>
+
 //--------------------------------------------------------------------------------------
 // Sorting functions
 //--------------------------------------------------------------------------------------
+static void sortChildrenOf(QTreeWidgetItem* parent, CProjectTreeWidget* widget, CProjectModel* model);
+
 struct SortTopLevelItems
 {
    SortTopLevelItems(CProjectTreeWidget* widget, CProjectModel* model)
@@ -38,12 +42,12 @@ struct SortTopLevelItems
          }
          else
          {
-            return true; // item1 < item2
+            return true; // item1 > item2
          }
       }
       else if (filters->isFilter(item2))
       {
-         return false; // item1 > item2
+         return false; // item1 < item2
       }
       else
       {
@@ -168,6 +172,7 @@ void ProjectBrowserDockWidget::itemSelectionChanged()
 
 void ProjectBrowserDockWidget::projectTreeChanged(QUuid /*uuid*/)
 {
+   std::cerr << "REBUILDING" << std::endl;
    rebuildProjectTree();
 }
 
@@ -229,6 +234,24 @@ void ProjectBrowserDockWidget::buildProjectTree()
    ui->projectTreeWidget->addTopLevelItems(topLevelItems);
 
    // Recursively sort filter contents.
+   foreach(QTreeWidgetItem* item, topLevelItems)
+   {
+      sortChildrenOf(item, ui->projectTreeWidget, m_pProject);
+   }
+}
+
+static void sortChildrenOf(QTreeWidgetItem* parent, CProjectTreeWidget *widget, CProjectModel *model)
+{
+   if (parent == NULL)
+      return;
+
+   QList<QTreeWidgetItem*> children = parent->takeChildren();
+   qSort( children.begin(), children.end(), SortTopLevelItems(widget, model) );
+   parent->addChildren(children);
+   foreach(QTreeWidgetItem* child, children)
+   {
+      sortChildrenOf(child, widget, model);
+   }
 }
 
 void ProjectBrowserDockWidget::rebuildProjectTree()
