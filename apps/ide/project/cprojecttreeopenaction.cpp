@@ -5,6 +5,7 @@
 #include "cdesignereditorbase.h"
 #include "model/cprojectmodel.h"
 #include "model/cattributemodel.h"
+#include "model/ccartridgemodel.h"
 #include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
@@ -49,14 +50,14 @@ void CProjectTreeOpenAction::visit(CTileStampUuid &data)
    doVisit(m_project->getTileStampModel(), data.uuid);
 }
 
-void CProjectTreeOpenAction::visit(CChrRomUuid &)
+void CProjectTreeOpenAction::visit(CChrRomUuid &data)
 {
-   // TODO
+   doVisit(m_project->getCartridgeModel(), data.uuid);
 }
 
-void CProjectTreeOpenAction::visit(CPrgRomUuid &)
+void CProjectTreeOpenAction::visit(CPrgRomUuid &data)
 {
-   // TODO
+   doVisit(m_project->getCartridgeModel(), data.uuid);
 }
 
 void CProjectTreeOpenAction::doVisit(CSubModel *model, const QUuid &uuid)

@@ -44,7 +44,18 @@ QString CCartridgeModel::getName(const QUuid &uuid) const
    return QString();
 }
 
-CDesignerEditorBase *CCartridgeModel::createEditorWidget(const QUuid &) const
+CDesignerEditorBase *CCartridgeModel::createEditorWidget(const QUuid &uuid) const
 {
+   CPRGROMBank* prgBank = ProjectSearcher::findItemByUuid<CPRGROMBank>(m_pProject, uuid);
+   if (prgBank != NULL)
+   {
+      return new PRGROMDisplayDialog(prgBank->getBankData(), prgBank);
+   }
+   CCHRROMBank* chrBank = ProjectSearcher::findItemByUuid<CCHRROMBank>(m_pProject, uuid);
+   if (chrBank != NULL)
+   {
+      return new CHRROMDisplayDialog(false, reinterpret_cast<qint8*>(chrBank->getBankData()), chrBank);
+   }
+
    return NULL;
 }
