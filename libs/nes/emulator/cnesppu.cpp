@@ -1023,7 +1023,7 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
    }
 
    // Provide PPU cycle and address to mappers that watch such things!
-   mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,addr);
+   MAPPERFUNC->sync_ppu(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE(1);
@@ -1048,7 +1048,7 @@ void CPPU::GARBAGE ( uint32_t addr, int8_t target )
    }
 
    // Provide PPU cycle and address to mappers that watch such things!
-   mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,addr);
+   MAPPERFUNC->sync_ppu(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE(1);
@@ -1234,7 +1234,7 @@ uint32_t CPPU::PPU ( uint32_t addr )
       }
 
       // Toggling A12 causes IRQ count in some mappers...
-      mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+      MAPPERFUNC->sync_ppu(m_cycles,m_ppuAddr);
    }
    else
    {
@@ -1355,7 +1355,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
          m_ppuAddr = m_ppuAddrLatch;
 
          // Toggling A12 causes IRQ count in some mappers...
-         mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+         MAPPERFUNC->sync_ppu(m_cycles,m_ppuAddr);
       }
       else
       {
@@ -1383,7 +1383,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
       m_ppuAddr += m_ppuAddrIncrement;
 
       // Toggling A12 causes IRQ count in some mappers...
-      mapperfunc[CROM::MAPPER()].sync_ppu(m_cycles,m_ppuAddr);
+      MAPPERFUNC->sync_ppu(m_cycles,m_ppuAddr);
    }
 
    if ( nesIsDebuggable() )
@@ -1876,7 +1876,6 @@ void CPPU::GATHERBKGND ( int8_t phase )
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
          patternIdx = bkgndPatBase+(RENDER(nameAddr,eTracer_RenderBkgnd)<<4)+((ppuAddr&0x7000)>>12);
-//         mapperfunc[CROM::MAPPER()].latch ( patternIdx );
       }
       else
       {
@@ -2026,6 +2025,7 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
    if ( cycle == 0 )
    {
       spritesFound = 0;
+      m_oamAddr = 0;
       pSprite = &devNull;
       m_spriteTemporaryMemory.count = 0;
       m_spriteTemporaryMemory.sprite = (m_oamAddr>>2);
@@ -2159,6 +2159,8 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
 
       pSprite->spriteX = OAM ( SPRITEX, pSprite->spriteIdx );
    }
+
+   m_oamAddr = (m_spriteTemporaryMemory.sprite<<2)|(m_spriteTemporaryMemory.phase);
 }
 
 void CPPU::GATHERSPRITES ( int32_t scanline )
@@ -2252,7 +2254,6 @@ void CPPU::GATHERSPRITES ( int32_t scanline )
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
          pSprite->patternData1 = RENDER ( spritePatBase+(patternIdx<<4)+(idx1&0x7), eTracer_RenderSprite );
-//         mapperfunc[CROM::MAPPER()].latch ( spritePatBase+(patternIdx<<4)+(idx1&0x7) );
       }
       else
       {

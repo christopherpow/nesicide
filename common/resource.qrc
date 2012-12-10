@@ -69,7 +69,6 @@
         <file>resources/help-about.png</file>
         <file>resources/logo.png</file>
         <file>resources/Makefile</file>
-        <file>resources/NesCarts (2010-02-08).xml</file>
         <file alias="GameDatabase">resources/NesCarts (2010-12-26).xml</file>
         <file>resources/paintcan.png</file>
         <file>resources/pen.png</file>

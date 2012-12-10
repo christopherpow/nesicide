@@ -97,6 +97,16 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Mask:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="mask"/>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="regpage">
@@ -186,7 +196,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="emptyCondition"/>
      <widget class="QWidget" name="addrCondition">
@@ -229,6 +239,11 @@
          <item>
           <property name="text">
            <string>Is Less Than</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Mask</string>
           </property>
          </item>
         </widget>

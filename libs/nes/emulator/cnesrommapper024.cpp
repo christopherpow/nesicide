@@ -496,7 +496,6 @@ void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )
 
 void VRC6PulseChannel::TIMERTICK()
 {
-   // Duty-cycle mode
    if ( periodCounter )
    {
       periodCounter--;
@@ -535,7 +534,6 @@ void VRC6PulseChannel::TIMERTICK()
 
 void VRC6SawtoothChannel::TIMERTICK()
 {
-   // Duty-cycle mode
    if ( periodCounter )
    {
       periodCounter--;
@@ -585,31 +583,10 @@ uint16_t CROMMapper024::AMPLITUDE()
 
    for ( sample = 0; sample < m_pulse[0].GETDACSAMPLECOUNT(); sample++ )
    {
-//      output = square_out + tnd_out
-//
-//
-//                            95.88
-//      square_out = -----------------------
-//                          8128
-//                   ----------------- + 100
-//                   square1 + square2
-//
-//
-//                            159.79
-//      tnd_out = ------------------------------
-//                            1
-//                ------------------------ + 100
-//                triangle   noise    dmc
-//                -------- + ----- + -----
-//                  8227     12241   22638
       famp = 0.0;
-      if ( (*(p1dacSamples+sample))+(*(p2dacSamples+sample)) )
+      if ( (*(p1dacSamples+sample))+(*(p2dacSamples+sample))+(*(sdacSamples+sample)) )
       {
-         famp = (95.88/((8128.0/((*(p1dacSamples+sample))+(*(p2dacSamples+sample))))+100.0));
-      }
-      if ( (*(sdacSamples+sample)) )
-      {
-         famp += (95.88/((8128.0/(*(sdacSamples+sample)))+100.0));
+         famp = (95.88/((8128.0/((*(p1dacSamples+sample))+(*(p2dacSamples+sample))+(*(sdacSamples+sample))))+100.0));
       }
       amp = (int16_t)(float)(65535.0*famp*0.50);
 
@@ -618,7 +595,7 @@ uint16_t CROMMapper024::AMPLITUDE()
       outDownsampled += (*(out+sample));
    }
 
-   outDownsampled = (int32_t)((float)outDownsampled/((float)m_pulse[0].GETDACSAMPLECOUNT()+1));
+   outDownsampled = (int32_t)((float)outDownsampled/((float)m_pulse[0].GETDACSAMPLECOUNT()));
 
    delta = outDownsampled - outLast;
    outDownsampled = outLast+((delta*65371)/65536); // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.

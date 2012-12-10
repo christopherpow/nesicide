@@ -11,7 +11,7 @@ CNESBreakpointInfo::CNESBreakpointInfo()
 {
 }
 
-void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
+void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
 {
    pBreakpoint->hit = false;
    pBreakpoint->enabled = enabled;
@@ -81,6 +81,7 @@ void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int typ
    pBreakpoint->item1 = item1;
    pBreakpoint->item1Absolute = item1Absolute;
    pBreakpoint->item2 = item2;
+   pBreakpoint->itemMask = mask;
    pBreakpoint->dataType = dataType;
    pBreakpoint->data = data;
 }
@@ -201,6 +202,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -291,6 +309,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -381,6 +416,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -471,6 +523,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -561,6 +630,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -651,6 +737,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -741,6 +844,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -831,6 +951,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -921,6 +1058,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -967,6 +1121,13 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                      sprintf ( msg, pBitfield->GetDisplayFormat(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask ",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName() );
+                  sprintf ( msg, pBitfield->GetDisplayFormat(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -1004,6 +1165,12 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName(),
+                                   m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -1104,6 +1271,23 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if PPU fetches anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if PPU fetches anything in the mask %02X between %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
             default:
                break;
          }
@@ -1142,12 +1326,18 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
-                  case eBreakIfLessThan:
-                     sprintf ( msg, "Break if %s::%s is less than %02X",
-                               pRegister->GetName(),
-                               pBitfield->GetName(),
-                               m_breakpoint[idx].data );
-                     break;
+               case eBreakIfLessThan:
+                  sprintf ( msg, "Break if %s::%s is less than %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -1184,6 +1374,12 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -1236,6 +1432,12 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -1272,6 +1474,12 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -1327,6 +1535,12 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                   pBitfield->GetName(),
                                   m_breakpoint[idx].data );
                         break;
+                  case eBreakIfMask:
+                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               m_breakpoint[idx].data );
+                     break;
                   }
 
                   break;
@@ -1363,6 +1577,12 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                                   pBitfield->GetName(),
                                   m_breakpoint[idx].data );
                         break;
+                  case eBreakIfMask:
+                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               m_breakpoint[idx].data );
+                     break;
                   }
 
                   break;
@@ -1499,6 +1719,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -1589,6 +1826,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -1679,6 +1933,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X between address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -1769,6 +2040,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -1859,6 +2147,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -1949,6 +2254,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -2039,6 +2361,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads or writes anything in the mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -2129,6 +2468,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU reads anything in the mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -2219,6 +2575,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X at PPU OAM address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if CPU writes anything in the mask %02X between PPU OAM address %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
          }
 
          break;
@@ -2265,6 +2638,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                      sprintf ( msg, pBitfield->GetDisplayFormat(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName(),
+                                   m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -2302,6 +2681,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  msg += sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                                   pRegister->GetName(),
+                                   pBitfield->GetName(),
+                                   m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -2402,6 +2787,23 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                }
 
                break;
+         case eBreakIfMask:
+
+            if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
+            {
+               sprintf ( msg, "Break if PPU fetches anything in the mask %02X at address %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1 );
+            }
+            else
+            {
+               sprintf ( msg, "Break if PPU fetches anything in the mask %02X between %04X and %04X",
+                         m_breakpoint[idx].data,
+                         m_breakpoint[idx].item1,
+                         m_breakpoint[idx].item2 );
+            }
+
+            break;
             default:
                break;
          }
@@ -2446,6 +2848,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -2482,6 +2890,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -2534,6 +2948,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -2570,6 +2990,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                pBitfield->GetName(),
                                m_breakpoint[idx].data );
                      break;
+               case eBreakIfMask:
+                  sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                            pRegister->GetName(),
+                            pBitfield->GetName(),
+                            m_breakpoint[idx].data );
+                  break;
                }
 
                break;
@@ -2625,6 +3051,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                   pBitfield->GetName(),
                                   m_breakpoint[idx].data );
                         break;
+                  case eBreakIfMask:
+                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               m_breakpoint[idx].data );
+                     break;
                   }
 
                   break;
@@ -2661,6 +3093,12 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
                                   pBitfield->GetName(),
                                   m_breakpoint[idx].data );
                         break;
+                  case eBreakIfMask:
+                     sprintf ( msg, "Break if %s::%s contains anything in the mask %02X",
+                               pRegister->GetName(),
+                               pBitfield->GetName(),
+                               m_breakpoint[idx].data );
+                     break;
                   }
 
                   break;

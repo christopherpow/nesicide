@@ -504,12 +504,12 @@ int8_t* nesGetTVOut ( void )
 
 void nesSetVRC6AudioChannelMask ( uint32_t mask )
 {
-   mapperfunc[24].soundenable(mask);
+   _mapperfunc[24].soundenable(mask);
 }
 
 void nesSetN106AudioChannelMask ( uint32_t mask )
 {
-   mapperfunc[19].soundenable(mask);
+   _mapperfunc[19].soundenable(mask);
 }
 
 void nesSetAudioChannelMask ( uint8_t mask )
@@ -837,22 +837,22 @@ uint8_t nesGetMapper ( void )
 
 uint32_t nesMapperLowRead ( uint32_t addr )
 {
-   return mapperfunc[CROM::MAPPER()].debuginfo(addr);
+   return MAPPERFUNC->debuginfo(addr);
 }
 
 void nesMapperLowWrite ( uint32_t addr, uint32_t data )
 {
-   mapperfunc[CROM::MAPPER()].lowwrite(addr,data);
+   MAPPERFUNC->lowwrite(addr,data);
 }
 
 uint32_t nesMapperHighRead ( uint32_t addr )
 {
-   return mapperfunc[CROM::MAPPER()].debuginfo(addr);
+   return MAPPERFUNC->debuginfo(addr);
 }
 
 void nesMapperHighWrite ( uint32_t addr, uint32_t data )
 {
-   mapperfunc[CROM::MAPPER()].highwrite(addr,data);
+   MAPPERFUNC->highwrite(addr,data);
 }
 
 uint32_t nesGetPPUOAM ( uint32_t addr )
@@ -972,12 +972,12 @@ void nesSetEXRAMData ( uint32_t addr, uint32_t data )
 
 bool nesMapperRemapsPRGROM ( void )
 {
-   return mapperfunc[CROM::MAPPER()].remapPrg;
+   return MAPPERFUNC->remapPrg;
 }
 
 bool nesMapperRemapsCHRMEM ( void )
 {
-   return mapperfunc[CROM::MAPPER()].remapChr;
+   return MAPPERFUNC->remapChr;
 }
 
 uint32_t nesGetPaletteRedComponent(uint32_t idx)

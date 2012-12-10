@@ -15,7 +15,7 @@ void CBreakpointInfo::SetEnabled ( int bp, bool enabled )
    m_breakpoint [ bp ].enabled = enabled;
 }
 
-int CBreakpointInfo::FindExactMatch ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
+int CBreakpointInfo::FindExactMatch ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data )
 {
    int bpfound = -1;
    int bp;
@@ -23,15 +23,16 @@ int CBreakpointInfo::FindExactMatch ( int type, eBreakpointItemType itemType, in
    for ( bp = 0; bp < m_numBreakpoints; bp++ )
    {
       if ( (m_breakpoint[bp].type == type) &&
-            (m_breakpoint[bp].itemType == itemType) &&
-            (m_breakpoint[bp].event == event) &&
-            (m_breakpoint[bp].item1 == item1) &&
-            (m_breakpoint[bp].item1Absolute == item1Absolute) &&
-            (m_breakpoint[bp].item2 == item2) &&
-            (m_breakpoint[bp].conditionType == conditionType) &&
-            (m_breakpoint[bp].condition == condition) &&
-            (m_breakpoint[bp].dataType == dataType) &&
-            (m_breakpoint[bp].data == data) )
+           (m_breakpoint[bp].itemType == itemType) &&
+           (m_breakpoint[bp].event == event) &&
+           (m_breakpoint[bp].item1 == item1) &&
+           (m_breakpoint[bp].item1Absolute == item1Absolute) &&
+           (m_breakpoint[bp].item2 == item2) &&
+           (m_breakpoint[bp].itemMask == mask) &&
+           (m_breakpoint[bp].conditionType == conditionType) &&
+           (m_breakpoint[bp].condition == condition) &&
+           (m_breakpoint[bp].dataType == dataType) &&
+           (m_breakpoint[bp].data == data) )
       {
          bpfound = bp;
          break;
@@ -52,6 +53,7 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, BreakpointInfo* pBreakpoint )
                        pBreakpoint->item1,
                        pBreakpoint->item1Absolute,
                        pBreakpoint->item2,
+                       pBreakpoint->itemMask,
                        pBreakpoint->conditionType,
                        pBreakpoint->condition,
                        pBreakpoint->dataType,
@@ -60,9 +62,9 @@ void CBreakpointInfo::ModifyBreakpoint ( int bp, BreakpointInfo* pBreakpoint )
    }
 }
 
-void CBreakpointInfo::ConstructBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
+void CBreakpointInfo::ConstructBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
 {
-   ModifyBreakpoint(pBreakpoint,type,itemType,event,item1,item1Absolute,item2,conditionType,condition,dataType,data,enabled);
+   ModifyBreakpoint(pBreakpoint,type,itemType,event,item1,item1Absolute,item2,mask,conditionType,condition,dataType,data,enabled);
 }
 
 int CBreakpointInfo::AddBreakpoint ( BreakpointInfo* pBreakpoint )
@@ -77,6 +79,7 @@ int CBreakpointInfo::AddBreakpoint ( BreakpointInfo* pBreakpoint )
                          pBreakpoint->item1,
                          pBreakpoint->item1Absolute,
                          pBreakpoint->item2,
+                         pBreakpoint->itemMask,
                          pBreakpoint->conditionType,
                          pBreakpoint->condition,
                          pBreakpoint->dataType,
@@ -92,7 +95,7 @@ int CBreakpointInfo::AddBreakpoint ( BreakpointInfo* pBreakpoint )
    return idx;
 }
 
-int CBreakpointInfo::AddBreakpoint ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
+int CBreakpointInfo::AddBreakpoint ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
 {
    int idx = m_numBreakpoints;
    if ( m_numBreakpoints < NUM_BREAKPOINTS )
@@ -104,6 +107,7 @@ int CBreakpointInfo::AddBreakpoint ( int type, eBreakpointItemType itemType, int
                          item1,
                          item1Absolute,
                          item2,
+                         mask,
                          conditionType,
                          condition,
                          dataType,
@@ -134,6 +138,7 @@ void CBreakpointInfo::RemoveBreakpoint ( int index )
       m_breakpoint [ idx ].item1 = m_breakpoint [ idx+1 ].item1;
       m_breakpoint [ idx ].item1Absolute = m_breakpoint [ idx+1 ].item1Absolute;
       m_breakpoint [ idx ].item2 = m_breakpoint [ idx+1 ].item2;
+      m_breakpoint [ idx ].itemMask = m_breakpoint [ idx+1 ].itemMask;
       m_breakpoint [ idx ].itemActual = m_breakpoint [ idx+1 ].itemActual;
       m_breakpoint [ idx ].conditionType = m_breakpoint [ idx+1 ].conditionType;
       m_breakpoint [ idx ].condition = m_breakpoint [ idx+1 ].condition;

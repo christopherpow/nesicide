@@ -436,77 +436,50 @@ void MainWindow::createNesUi()
    actionGfxCHRMemory_Inspector = new QAction("CHR Memory Visualizer",this);
    actionGfxCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxCHRMemory_Inspector"));
    actionGfxCHRMemory_Inspector->setCheckable(true);
-   QIcon icon12;
-   icon12.addFile(QString::fromUtf8(":/resources/22_chr_mem.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionGfxCHRMemory_Inspector->setIcon(icon12);
    actionGfxOAMMemory_Inspector = new QAction("OAM Memory Visualizer",this);
    actionGfxOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxOAMMemory_Inspector"));
    actionGfxOAMMemory_Inspector->setCheckable(true);
-   QIcon icon13;
-   icon13.addFile(QString::fromUtf8(":/resources/22_preferences-desktop-display-color.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionGfxOAMMemory_Inspector->setIcon(icon13);
    actionGfxNameTableNESMemory_Inspector = new QAction("NameTable Visualizer",this);
    actionGfxNameTableNESMemory_Inspector->setObjectName(QString::fromUtf8("actionGfxNameTableNESMemory_Inspector"));
    actionGfxNameTableNESMemory_Inspector->setCheckable(true);
    actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
    actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
-   QIcon icon16;
-   icon16.addFile(QString::fromUtf8(":/resources/22_cpu_ram.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionBinCPURAM_Inspector->setIcon(icon16);
    actionBinCPURAM_Inspector->setCheckable(true);
    actionBinNameTableNESMemory_Inspector = new QAction("NameTable Memory",this);
    actionBinNameTableNESMemory_Inspector->setObjectName(QString::fromUtf8("actionBinNameTableNESMemory_Inspector"));
-   actionBinNameTableNESMemory_Inspector->setIcon(icon13);
    actionBinNameTableNESMemory_Inspector->setCheckable(true);
    actionBinPPURegister_Inspector = new QAction("Registers",this);
    actionBinPPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinPPURegister_Inspector"));
-   actionBinPPURegister_Inspector->setIcon(icon13);
    actionBinPPURegister_Inspector->setCheckable(true);
    actionBinAPURegister_Inspector = new QAction("Registers",this);
    actionBinAPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinAPURegister_Inspector"));
-   actionBinAPURegister_Inspector->setIcon(icon13);
    actionBinAPURegister_Inspector->setCheckable(true);
    actionBinCHRMemory_Inspector = new QAction("CHR Memory",this);
    actionBinCHRMemory_Inspector->setObjectName(QString::fromUtf8("actionBinCHRMemory_Inspector"));
-   actionBinCHRMemory_Inspector->setIcon(icon13);
    actionBinCHRMemory_Inspector->setCheckable(true);
    actionBinOAMMemory_Inspector = new QAction("OAM Memory",this);
    actionBinOAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinOAMMemory_Inspector"));
-   actionBinOAMMemory_Inspector->setIcon(icon13);
    actionBinOAMMemory_Inspector->setCheckable(true);
    actionBinPaletteNESMemory_Inspector = new QAction("Palette Memory",this);
    actionBinPaletteNESMemory_Inspector->setObjectName(QString::fromUtf8("actionBinPaletteNESMemory_Inspector"));
-   actionBinPaletteNESMemory_Inspector->setIcon(icon13);
    actionBinPaletteNESMemory_Inspector->setCheckable(true);
    actionBinSRAMMemory_Inspector = new QAction("SRAM Memory",this);
    actionBinSRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinSRAMMemory_Inspector"));
-   actionBinSRAMMemory_Inspector->setIcon(icon13);
    actionBinSRAMMemory_Inspector->setCheckable(true);
    actionBinEXRAMMemory_Inspector = new QAction("EXRAM Memory",this);
    actionBinEXRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinEXRAMMemory_Inspector"));
-   actionBinEXRAMMemory_Inspector->setIcon(icon13);
    actionBinEXRAMMemory_Inspector->setCheckable(true);
    actionBinCPURegister_Inspector = new QAction("Registers",this);
    actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
-   QIcon icon17;
-   icon17.addFile(QString::fromUtf8(":/resources/22_cpu_registers.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionBinCPURegister_Inspector->setIcon(icon17);
    actionBinCPURegister_Inspector->setCheckable(true);
    actionBinMapperMemory_Inspector = new QAction("Mapper Memory",this);
    actionBinMapperMemory_Inspector->setObjectName(QString::fromUtf8("actionBinMapperMemory_Inspector"));
-   QIcon icon18;
-   icon18.addFile(QString::fromUtf8(":/resources/22_mapper_memory.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionBinMapperMemory_Inspector->setIcon(icon18);
    actionBinMapperMemory_Inspector->setCheckable(true);
    actionBinROM_Inspector = new QAction("PRG-ROM Memory",this);
    actionBinROM_Inspector->setObjectName(QString::fromUtf8("actionBinROM_Inspector"));
-   QIcon icon19;
-   icon19.addFile(QString::fromUtf8(":/resources/22_bin_rom.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionBinROM_Inspector->setIcon(icon19);
    actionBinROM_Inspector->setCheckable(true);
    actionPPUInformation_Inspector = new QAction("Information",this);
    actionPPUInformation_Inspector->setObjectName(QString::fromUtf8("actionPPUInformation_Inspector"));
-   actionPPUInformation_Inspector->setIcon(icon13);
    actionPPUInformation_Inspector->setCheckable(true);
    actionJoypadLogger_Inspector = new QAction("Joypad Logger",this);
    actionJoypadLogger_Inspector->setObjectName(QString::fromUtf8("actionJoypadLogger_Inspector"));
@@ -520,11 +493,9 @@ void MainWindow::createNesUi()
    actionExecution_Visualizer_Inspector->setCheckable(true);
    actionMapperInformation_Inspector = new QAction("Information",this);
    actionMapperInformation_Inspector->setObjectName(QString::fromUtf8("actionMapperInformation_Inspector"));
-   actionMapperInformation_Inspector->setIcon(icon13);
    actionMapperInformation_Inspector->setCheckable(true);
    actionAPUInformation_Inspector = new QAction("Information",this);
    actionAPUInformation_Inspector->setObjectName(QString::fromUtf8("actionAPUInformation_Inspector"));
-   actionAPUInformation_Inspector->setIcon(icon13);
    actionAPUInformation_Inspector->setCheckable(true);
    actionPreferences = new QAction("Preferences...",this);
    actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
@@ -1222,19 +1193,12 @@ void MainWindow::createC64Ui()
    actionBreakpoint_Inspector->setIcon(icon11);
    actionBinCPURAM_Inspector = new QAction("CPU Memory",this);
    actionBinCPURAM_Inspector->setObjectName(QString::fromUtf8("actionBinCPURAM_Inspector"));
-   QIcon icon16;
-   icon16.addFile(QString::fromUtf8(":/resources/22_cpu_ram.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionBinCPURAM_Inspector->setIcon(icon16);
    actionBinCPURAM_Inspector->setCheckable(true);
    actionBinCPURegister_Inspector = new QAction("Registers",this);
    actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
-   QIcon icon17;
-   icon17.addFile(QString::fromUtf8(":/resources/22_cpu_registers.png"), QSize(), QIcon::Normal, QIcon::Off);
-   actionBinCPURegister_Inspector->setIcon(icon17);
    actionBinCPURegister_Inspector->setCheckable(true);
    actionBinSIDRegister_Inspector = new QAction("Registers",this);
    actionBinSIDRegister_Inspector->setObjectName(QString::fromUtf8("actionBinSIDRegister_Inspector"));
-   actionBinSIDRegister_Inspector->setIcon(icon17);
    actionBinSIDRegister_Inspector->setCheckable(true);
    actionPreferences = new QAction("Preferences...",this);
    actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
@@ -2054,26 +2018,14 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
 void MainWindow::on_action_Project_Browser_toggled(bool visible)
 {
-   if ( visible )
-   {
-      m_pProjectBrowser->show();
-   }
-   else
-   {
-      m_pProjectBrowser->hide();
-   }
+   action_Project_Browser->setChecked(true);
+   m_pProjectBrowser->show();
 }
 
 void MainWindow::actionEmulation_Window_toggled(bool value)
 {
-   if (value)
-   {
-      m_pNESEmulator->show();
-   }
-   else
-   {
-      m_pNESEmulator->hide();
-   }
+   actionEmulation_Window->setChecked(true);
+   m_pNESEmulator->show();
 }
 
 void MainWindow::closeEvent ( QCloseEvent* event )
@@ -2260,17 +2212,18 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
 void MainWindow::reflectedOutput_Window_close(bool toplevel)
 {
-   actionOutput_Window->setChecked(toplevel);
+   actionOutput_Window->setChecked(false);
 }
 
 void MainWindow::on_actionOutput_Window_toggled(bool value)
 {
-   output->setVisible(value);
+   actionOutput_Window->setChecked(true);
+   output->setVisible(true);
 }
 
 void MainWindow::reflectedProjectBrowser_close(bool toplevel)
 {
-   action_Project_Browser->setChecked(toplevel);
+   action_Project_Browser->setChecked(false);
 }
 
 void MainWindow::on_actionCompile_Project_triggered()
@@ -2317,285 +2270,305 @@ void MainWindow::compiler_compileDone(bool /*bOk*/)
 
 void MainWindow::on_actionExecution_Inspector_toggled(bool value)
 {
-   m_pExecutionInspector->setVisible(value);
+   actionExecution_Inspector->setChecked(true);
+   m_pExecutionInspector->setVisible(true);
 }
 
 void MainWindow::reflectedExecutionInspector_close (bool toplevel)
 {
-   actionExecution_Inspector->setChecked(toplevel);
+   actionExecution_Inspector->setChecked(false);
 }
 
 void MainWindow::actionExecution_Visualizer_Inspector_toggled(bool value)
 {
-   m_pExecutionVisualizer->setVisible(value);
+   actionExecution_Visualizer_Inspector->setChecked(true);
+   m_pExecutionVisualizer->setVisible(true);
 }
 
 void MainWindow::reflectedExecutionVisualizer_Inspector_close (bool toplevel)
 {
-   actionExecution_Visualizer_Inspector->setChecked(toplevel);
+   actionExecution_Visualizer_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBreakpoint_Inspector_toggled(bool value)
 {
-   m_pBreakpointInspector->setVisible(value);
+   actionBreakpoint_Inspector->setChecked(true);
+   m_pBreakpointInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBreakpointInspector_close (bool toplevel)
 {
-   actionBreakpoint_Inspector->setChecked(toplevel);
+   actionBreakpoint_Inspector->setChecked(false);
 }
 
 void MainWindow::actionGfxCHRMemory_Inspector_toggled(bool value)
 {
-   m_pGfxCHRMemoryInspector->setVisible(value);
+   actionGfxCHRMemory_Inspector->setChecked(true);
+   m_pGfxCHRMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedGfxCHRMemoryInspector_close (bool toplevel)
 {
-   actionGfxCHRMemory_Inspector->setChecked(toplevel);
+   actionGfxCHRMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionJoypadLogger_Inspector_toggled(bool value)
 {
-   m_pJoypadLoggerInspector->setVisible(value);
+   actionJoypadLogger_Inspector->setChecked(true);
+   m_pJoypadLoggerInspector->setVisible(true);
 }
 
 void MainWindow::reflectedJoypadLoggerInspector_close (bool toplevel)
 {
-   actionJoypadLogger_Inspector->setChecked(toplevel);
+   actionJoypadLogger_Inspector->setChecked(false);
 }
 
 void MainWindow::actionGfxOAMMemory_Inspector_toggled(bool value)
 {
-   m_pGfxOAMMemoryInspector->setVisible(value);
+   actionGfxOAMMemory_Inspector->setChecked(true);
+   m_pGfxOAMMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedGfxOAMMemoryInspector_close (bool toplevel)
 {
-   actionGfxOAMMemory_Inspector->setChecked(toplevel);
+   actionGfxOAMMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionGfxNameTableNESMemory_Inspector_toggled(bool value)
 {
-   m_pGfxNameTableMemoryInspector->setVisible(value);
+   actionGfxNameTableNESMemory_Inspector->setChecked(true);
+   m_pGfxNameTableMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedGfxNameTableMemoryInspector_close (bool toplevel)
 {
-   actionGfxNameTableNESMemory_Inspector->setChecked(toplevel);
+   actionGfxNameTableNESMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinOAMMemory_Inspector_toggled(bool value)
 {
-   m_pBinOAMMemoryInspector->setVisible(value);
+   actionBinOAMMemory_Inspector->setChecked(true);
+   m_pBinOAMMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinOAMMemoryInspector_close (bool toplevel)
 {
-   actionBinOAMMemory_Inspector->setChecked(toplevel);
+   actionBinOAMMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinCPURegister_Inspector_toggled(bool value)
 {
-   m_pBinCPURegisterInspector->setVisible(value);
+   actionBinCPURegister_Inspector->setChecked(true);
+   m_pBinCPURegisterInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinCPURegisterInspector_close ( bool toplevel )
 {
-   actionBinCPURegister_Inspector->setChecked(toplevel);
+   actionBinCPURegister_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinCPURAM_Inspector_toggled(bool value)
 {
-   m_pBinCPURAMInspector->setVisible(value);
+   actionBinCPURAM_Inspector->setChecked(true);
+   m_pBinCPURAMInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinCPURAMInspector_close (bool toplevel)
 {
-   actionBinCPURAM_Inspector->setChecked(toplevel);
+   actionBinCPURAM_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinROM_Inspector_toggled(bool value)
 {
-   m_pBinROMInspector->setVisible(value);
+   actionBinROM_Inspector->setChecked(true);
+   m_pBinROMInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinROMInspector_close (bool toplevel)
 {
-   actionBinROM_Inspector->setChecked(toplevel);
+   actionBinROM_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinNameTableNESMemory_Inspector_toggled(bool value)
 {
-   m_pBinNameTableMemoryInspector->setVisible(value);
+   actionBinNameTableNESMemory_Inspector->setChecked(true);
+   m_pBinNameTableMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinNameTableMemoryInspector_close (bool toplevel)
 {
-   actionBinNameTableNESMemory_Inspector->setChecked(toplevel);
+   actionBinNameTableNESMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinPaletteNESMemory_Inspector_toggled(bool value)
 {
-   m_pBinPaletteMemoryInspector->setVisible(value);
+   actionBinPaletteNESMemory_Inspector->setChecked(true);
+   m_pBinPaletteMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinPaletteMemoryInspector_close (bool toplevel)
 {
-   actionBinPaletteNESMemory_Inspector->setChecked(toplevel);
+   actionBinPaletteNESMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinPPURegister_Inspector_toggled(bool value)
 {
-   m_pBinPPURegisterInspector->setVisible(value);
+   actionBinPPURegister_Inspector->setChecked(true);
+   m_pBinPPURegisterInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinPPURegisterInspector_close ( bool toplevel )
 {
-   actionBinPPURegister_Inspector->setChecked(toplevel);
+   actionBinPPURegister_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinAPURegister_Inspector_toggled(bool value)
 {
-   m_pBinAPURegisterInspector->setVisible(value);
+   actionBinAPURegister_Inspector->setChecked(true);
+   m_pBinAPURegisterInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinAPURegisterInspector_close ( bool toplevel )
 {
-   actionBinAPURegister_Inspector->setChecked(toplevel);
+   actionBinAPURegister_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinCHRMemory_Inspector_toggled(bool value)
 {
-   m_pBinCHRMemoryInspector->setVisible(value);
+   actionBinCHRMemory_Inspector->setChecked(true);
+   m_pBinCHRMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinCHRMemoryInspector_close ( bool toplevel )
 {
-   actionBinCHRMemory_Inspector->setChecked(toplevel);
+   actionBinCHRMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinSRAMMemory_Inspector_toggled(bool value)
 {
-   m_pBinSRAMMemoryInspector->setVisible(value);
+   actionBinSRAMMemory_Inspector->setChecked(true);
+   m_pBinSRAMMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinSRAMMemoryInspector_close ( bool toplevel )
 {
-   actionBinSRAMMemory_Inspector->setChecked(toplevel);
+   actionBinSRAMMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinEXRAMMemory_Inspector_toggled(bool value)
 {
-   m_pBinEXRAMMemoryInspector->setVisible(value);
+   actionBinEXRAMMemory_Inspector->setChecked(true);
+   m_pBinEXRAMMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinEXRAMMemoryInspector_close ( bool toplevel )
 {
-   actionBinEXRAMMemory_Inspector->setChecked(toplevel);
+   actionBinEXRAMMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionBinMapperMemory_Inspector_toggled(bool value)
 {
-   m_pBinMapperMemoryInspector->setVisible(value);
+   actionBinMapperMemory_Inspector->setChecked(true);
+   m_pBinMapperMemoryInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinMapperMemoryInspector_close ( bool toplevel )
 {
-   actionBinMapperMemory_Inspector->setChecked(toplevel);
+   actionBinMapperMemory_Inspector->setChecked(false);
 }
 
 void MainWindow::actionAssembly_Inspector_toggled(bool value)
 {
-   m_pAssemblyInspector->setVisible(value);
+   actionAssembly_Inspector->setChecked(true);
+   m_pAssemblyInspector->setVisible(true);
 }
 
 void MainWindow::reflectedEmulator_close ( bool toplevel )
 {
-   actionEmulation_Window->setChecked(toplevel);
+   actionEmulation_Window->setChecked(false);
 }
 
 void MainWindow::reflectedAssemblyInspector_close ( bool toplevel )
 {
-   actionAssembly_Inspector->setChecked(toplevel);
+   actionAssembly_Inspector->setChecked(false);
 }
 
 void MainWindow::actionCodeDataLogger_Inspector_toggled(bool value)
 {
-   m_pCodeDataLoggerInspector->setVisible(value);
+   actionCodeDataLogger_Inspector->setChecked(true);
+   m_pCodeDataLoggerInspector->setVisible(true);
 }
 
 void MainWindow::reflectedCodeDataLoggerInspector_close ( bool toplevel )
 {
-   actionCodeDataLogger_Inspector->setChecked(toplevel);
+   actionCodeDataLogger_Inspector->setChecked(false);
 }
 
 void MainWindow::actionPPUInformation_Inspector_toggled(bool value)
 {
-   m_pPPUInformationInspector->setVisible(value);
+   actionPPUInformation_Inspector->setChecked(true);
+   m_pPPUInformationInspector->setVisible(true);
 }
 
 void MainWindow::reflectedPPUInformationInspector_close ( bool toplevel )
 {
-   actionPPUInformation_Inspector->setChecked(toplevel);
+   actionPPUInformation_Inspector->setChecked(false);
 }
 
 void MainWindow::actionAPUInformation_Inspector_toggled(bool value)
 {
-   m_pAPUInformationInspector->setVisible(value);
+   actionAPUInformation_Inspector->setChecked(true);
+   m_pAPUInformationInspector->setVisible(true);
 }
 
 void MainWindow::reflectedAPUInformationInspector_close ( bool toplevel )
 {
-   actionAPUInformation_Inspector->setChecked(toplevel);
+   actionAPUInformation_Inspector->setChecked(false);
 }
 
 void MainWindow::actionMapperInformation_Inspector_toggled(bool value)
 {
-   m_pMapperInformationInspector->setVisible(value);
+   actionMapperInformation_Inspector->setChecked(true);
+   m_pMapperInformationInspector->setVisible(true);
 }
 
 void MainWindow::reflectedMapperInformationInspector_close ( bool toplevel )
 {
-   actionMapperInformation_Inspector->setChecked(toplevel);
+   actionMapperInformation_Inspector->setChecked(false);
 }
 
 void MainWindow::on_actionSymbol_Watch_toggled(bool value)
 {
-   m_pSymbolInspector->setVisible(value);
+   actionSymbol_Watch->setChecked(true);
+   m_pSymbolInspector->setVisible(true);
 }
 
 void MainWindow::reflectedSymbol_Watch_close ( bool toplevel )
 {
-   actionSymbol_Watch->setChecked(toplevel);
+   actionSymbol_Watch->setChecked(false);
 }
 
 void MainWindow::on_actionCode_Profiler_toggled(bool value)
 {
-   m_pCodeProfiler->setVisible(value);
+   actionCode_Profiler->setChecked(true);
+   m_pCodeProfiler->setVisible(true);
 }
 
 void MainWindow::reflectedCode_Profiler_close ( bool toplevel )
 {
-   actionCode_Profiler->setChecked(toplevel);
+   actionCode_Profiler->setChecked(false);
 }
 
 void MainWindow::on_actionSearch_triggered(bool value)
 {
-   if ( value )
-   {
-      output->showPane(OutputPaneDockWidget::Output_Search);
-      m_pSearch->setVisible(true);
-   }
-   else
-   {
-      m_pSearch->setVisible(false);
-   }
+   actionSearch->setChecked(true);
+   output->showPane(OutputPaneDockWidget::Output_Search);
+   m_pSearch->setVisible(true);
 }
 
 void MainWindow::reflectedSearch_close ( bool toplevel )
 {
-   actionSearch->setChecked(toplevel);
+   actionSearch->setChecked(false);
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()
@@ -3370,12 +3343,13 @@ void MainWindow::on_actionAbout_Qt_triggered()
 
 void MainWindow::actionBinSIDRegister_Inspector_toggled(bool value)
 {
-   m_pBinSIDRegisterInspector->setVisible(value);
+   actionBinSIDRegister_Inspector->setChecked(true);
+   m_pBinSIDRegisterInspector->setVisible(true);
 }
 
 void MainWindow::reflectedBinSIDRegisterInspector_close(bool toplevel)
 {
-   actionBinSIDRegister_Inspector->setChecked(toplevel);
+   actionBinSIDRegister_Inspector->setChecked(false);
 }
 
 void MainWindow::action1x_triggered()
