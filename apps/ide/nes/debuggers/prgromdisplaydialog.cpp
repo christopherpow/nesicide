@@ -48,7 +48,7 @@ void PRGROMDisplayDialog::changeEvent(QEvent* e)
    }
 }
 
-void PRGROMDisplayDialog::showEvent(QShowEvent* e)
+void PRGROMDisplayDialog::showEvent(QShowEvent* /*e*/)
 {
 }
 

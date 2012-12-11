@@ -216,7 +216,7 @@ CodeEditorForm::~CodeEditorForm()
    delete m_scintilla;
 }
 
-void CodeEditorForm::updateTargetMachine(QString target)
+void CodeEditorForm::updateTargetMachine(QString /*target*/)
 {
 }
 
@@ -231,10 +231,10 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    int absAddr = 0;
    QsciDocument doc = m_scintilla->document();
    QString symbol = m_scintilla->wordAtPoint(pos);
-   bool writable = !m_scintilla->isReadOnly();
-   bool undoable = m_scintilla->isUndoAvailable();
-   bool redoable = m_scintilla->isRedoAvailable();
-   bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
+   //bool writable = !m_scintilla->isReadOnly();
+   //bool undoable = m_scintilla->isUndoAvailable();
+   //bool redoable = m_scintilla->isRedoAvailable();
+   //bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
    QAction* action;
 
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
@@ -432,13 +432,13 @@ void CodeEditorForm::timerEvent(QTimerEvent *event)
    }
 }
 
-void CodeEditorForm::showEvent(QShowEvent *event)
+void CodeEditorForm::showEvent(QShowEvent */*event*/)
 {
    emit addStatusBarWidget(info);
    info->show();
 }
 
-void CodeEditorForm::hideEvent(QHideEvent *event)
+void CodeEditorForm::hideEvent(QHideEvent */*event*/)
 {
    emit removeStatusBarWidget(info);
 }
@@ -478,8 +478,8 @@ void CodeEditorForm::external_breakpointsChanged()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
-   int addr;
-   int absAddr;
+   unsigned int addr;
+   unsigned int absAddr;
    int line;
    int index;
    int idx;
@@ -512,7 +512,7 @@ void CodeEditorForm::external_breakpointsChanged()
          addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
          absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
 
-         if ( addr != -1 )
+         if ( addr != (unsigned int)-1 )
          {
             for ( idx = 0; idx < markers->GetNumMarkers(); idx++ )
             {
@@ -538,14 +538,14 @@ void CodeEditorForm::external_breakpointsChanged()
                   if ( (pBreakpoint->enabled) &&
                        (pBreakpoint->type == eBreakOnCPUExecution) &&
                        (pBreakpoint->item1 <= addr) &&
-                       ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
+                       ((absAddr == (unsigned int)-1) || (absAddr == pBreakpoint->item1Absolute)) )
                   {
                      m_scintilla->markerAdd(line,Marker_Breakpoint);
                   }
                   else if ( (!pBreakpoint->enabled) &&
                             (pBreakpoint->type == eBreakOnCPUExecution) &&
                             (pBreakpoint->item1 <= addr) &&
-                            ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) )
+                            ((absAddr == (unsigned int)-1) || (absAddr == pBreakpoint->item1Absolute)) )
                   {
                      m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
                   }
@@ -632,7 +632,7 @@ void CodeEditorForm::editor_linesChanged()
    }
 }
 
-void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers modifiers)
+void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifiers /*modifiers*/)
 {
    int bp;
    int addr = 0;
@@ -935,7 +935,6 @@ void CodeEditorForm::on_actionEnable_breakpoint_triggered()
 void CodeEditorForm::on_actionStart_marker_here_triggered()
 {
    CMarker* markers = nesGetExecutionMarkerDatabase();
-   int marker;
    int line;
    int index;
    int addr = 0;
@@ -948,7 +947,7 @@ void CodeEditorForm::on_actionStart_marker_here_triggered()
    if ( addr != -1 )
    {
       // Find unused Marker entry...
-      marker = markers->AddMarker(addr,absAddr);
+      markers->AddMarker(addr,absAddr);
 
       emit breakpointsChanged();
       emit markProjectDirty(true);

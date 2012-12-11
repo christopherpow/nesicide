@@ -85,12 +85,12 @@ void NewProjectDialog::on_pathBrowse_clicked()
    }
 }
 
-void NewProjectDialog::on_path_textChanged(QString text)
+void NewProjectDialog::on_path_textChanged(QString /*text*/)
 {
    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checkValidity());
 }
 
-void NewProjectDialog::on_name_textChanged(QString text)
+void NewProjectDialog::on_name_textChanged(QString /*text*/)
 {
    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checkValidity());
 }

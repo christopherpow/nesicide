@@ -82,6 +82,7 @@ protected:
 signals:
    void tabModified(int tab,bool modified);
    void tabAdded(int tab);
+   void tabAboutToBeRemoved(int tabIndex);
    void tabRemoved(int index);
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);

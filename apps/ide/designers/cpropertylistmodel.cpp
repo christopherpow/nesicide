@@ -32,7 +32,7 @@ Qt::ItemFlags CPropertyListModel::flags(const QModelIndex& index) const
    return flags;
 }
 
-bool CPropertyListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool CPropertyListModel::setData(const QModelIndex &index, const QVariant &value, int /*role*/)
 {
    bool ok = false;
    PropertyItem item;

@@ -187,7 +187,7 @@ void CBinaryFile::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
          // TODO: Fix this logic so the memory doesn't get lost.
          nesicideProject->getProject()->getBinaryFiles()->removeChild(this);
          nesicideProject->getProject()->getBinaryFiles()->getBinaryFileList().removeAll(this);
-         ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
       }
    }
 }

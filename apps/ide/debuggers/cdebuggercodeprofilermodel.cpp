@@ -31,7 +31,7 @@ Qt::ItemFlags CDebuggerCodeProfilerModel::flags(const QModelIndex& index) const
    return flags;
 }
 
-QModelIndex CDebuggerCodeProfilerModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CDebuggerCodeProfilerModel::index(int row, int column, const QModelIndex &/*parent*/) const
 {
    if ( (row >= 0) && (row < m_items.count()) )
    {

@@ -314,7 +314,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QString& errors)
 {
    // Read in the DOM element
    QDomElement projectElement = doc.documentElement();

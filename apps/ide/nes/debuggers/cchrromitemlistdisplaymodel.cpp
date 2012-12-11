@@ -12,7 +12,7 @@ CChrRomItemListDisplayModel::~CChrRomItemListDisplayModel()
 {
 }
 
-QModelIndex CChrRomItemListDisplayModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CChrRomItemListDisplayModel::index(int row, int column, const QModelIndex &/*parent*/) const
 {
    if ( row < chrRomBankItems.count() )
    {
@@ -21,7 +21,7 @@ QModelIndex CChrRomItemListDisplayModel::index(int row, int column, const QModel
    return QModelIndex();
 }
 
-Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& index) const
+Qt::ItemFlags CChrRomItemListDisplayModel::flags(const QModelIndex& /*index*/) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
@@ -62,13 +62,13 @@ QVariant CChrRomItemListDisplayModel::data(const QModelIndex& index, int role) c
    return QVariant();
 }
 
-int CChrRomItemListDisplayModel::rowCount(const QModelIndex& parent) const
+int CChrRomItemListDisplayModel::rowCount(const QModelIndex& /*parent*/) const
 {
    int rows = chrRomBankItems.count();
    return rows;
 }
 
-int CChrRomItemListDisplayModel::columnCount(const QModelIndex& parent) const
+int CChrRomItemListDisplayModel::columnCount(const QModelIndex& /*parent*/) const
 {
    return 1;
 }

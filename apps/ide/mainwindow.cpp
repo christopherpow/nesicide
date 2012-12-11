@@ -18,6 +18,8 @@
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
 
+#include "model/cprojectmodel.h"
+
 #include <QApplication>
 #include <QStringList>
 #include <QMessageBox>
@@ -28,8 +30,8 @@
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
-MainWindow::MainWindow(QWidget* parent) :
-   QMainWindow(parent)
+MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
+   QMainWindow(parent), m_pProjectModel(projectModel)
 {
    if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
         (QCoreApplication::applicationDirPath().contains("apps/ide"))) ) // Developer builds
@@ -158,6 +160,7 @@ MainWindow::MainWindow(QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
    m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
+   m_pProjectBrowser->setProjectModel(m_pProjectModel);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
    m_pProjectBrowser->hide();
    CDockWidgetRegistry::addWidget ( "Project", m_pProjectBrowser );
@@ -1391,18 +1394,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
    }
 }
 
-void MainWindow::hideEvent(QHideEvent *event)
+void MainWindow::hideEvent(QHideEvent */*event*/)
 {
    CDockWidgetRegistry::saveVisibility();
 }
 
-void MainWindow::showEvent(QShowEvent *event)
+void MainWindow::showEvent(QShowEvent */*event*/)
 {
    CDockWidgetRegistry::restoreVisibility();
 }
 
 void MainWindow::projectDataChangesEvent()
 {
+   m_pProjectModel->setProject(nesicideProject);
+
    m_pProjectBrowser->layoutChangedEvent();
    m_pProjectBrowser->setVisible(nesicideProject->isInitialized());
    output->setVisible(nesicideProject->isInitialized());
@@ -1974,7 +1979,7 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    QMainWindow::closeEvent(event);
 }
 
-void MainWindow::timerEvent(QTimerEvent *event)
+void MainWindow::timerEvent(QTimerEvent */*event*/)
 {
 // CP: This is part way to doing incremental building
 // but needs to check if any files have been modified
@@ -2180,7 +2185,7 @@ void MainWindow::compiler_compileStarted()
    actionLoad_In_Emulator->setEnabled(false);
 }
 
-void MainWindow::compiler_compileDone(bool bOk)
+void MainWindow::compiler_compileDone(bool /*bOk*/)
 {
    actionCompile_Project->setEnabled(true);
    actionLoad_In_Emulator->setEnabled(true);

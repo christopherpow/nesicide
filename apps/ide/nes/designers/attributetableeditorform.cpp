@@ -61,7 +61,7 @@ void AttributeTableEditorForm::changeEvent(QEvent* event)
    }
 }
 
-void AttributeTableEditorForm::contextMenuEvent(QContextMenuEvent *event)
+void AttributeTableEditorForm::contextMenuEvent(QContextMenuEvent */*event*/)
 {
 }
 
@@ -141,7 +141,7 @@ AttributeTableChangeColorCommand::AttributeTableChangeColorCommand(AttributeTabl
    m_newColor = pEditor->attributeTable().at(m_colorIdx);
 }
 
-bool AttributeTableChangeColorCommand::mergeWith(const QUndoCommand* command)
+bool AttributeTableChangeColorCommand::mergeWith(const QUndoCommand* /*command*/)
 {
    return false;
 }

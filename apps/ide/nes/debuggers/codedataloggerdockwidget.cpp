@@ -43,7 +43,7 @@ CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
    delete pThread;
 }
 
-void CodeDataLoggerDockWidget::updateTargetMachine(QString target)
+void CodeDataLoggerDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -68,7 +68,7 @@ void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
    }
 }
 
-void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
+void CodeDataLoggerDockWidget::showEvent(QShowEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -77,7 +77,7 @@ void CodeDataLoggerDockWidget::showEvent(QShowEvent* event)
    pThread->updateDebuggers();
 }
 
-void CodeDataLoggerDockWidget::hideEvent(QHideEvent* event)
+void CodeDataLoggerDockWidget::hideEvent(QHideEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

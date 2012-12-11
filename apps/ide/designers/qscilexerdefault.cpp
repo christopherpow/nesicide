@@ -4,7 +4,7 @@
 #include <QFont>
 #include <QSettings>
 
-QsciLexerDefault::QsciLexerDefault(QObject *parent)
+QsciLexerDefault::QsciLexerDefault(QObject */*parent*/)
 {
 #ifdef Q_WS_MAC
    setDefaultFont(QFont("Monaco", 11));
@@ -71,12 +71,12 @@ QColor QsciLexerDefault::defaultPaper() const
    return QColor(255,255,255);
 }
 
-QColor QsciLexerDefault::defaultPaper(int style) const
+QColor QsciLexerDefault::defaultPaper(int /*style*/) const
 {
    return QsciLexer::defaultPaper();
 }
 
-QColor QsciLexerDefault::paper(int style) const
+QColor QsciLexerDefault::paper(int /*style*/) const
 {
    return QsciLexer::defaultPaper();
 }
@@ -94,7 +94,7 @@ QFont QsciLexerDefault::defaultFont() const
 #endif
 }
 
-QFont QsciLexerDefault::defaultFont(int style) const
+QFont QsciLexerDefault::defaultFont(int /*style*/) const
 {
    return QsciLexerDefault::defaultFont();
 }

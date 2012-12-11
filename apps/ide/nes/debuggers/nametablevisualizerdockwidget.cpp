@@ -44,7 +44,7 @@ NameTableVisualizerDockWidget::~NameTableVisualizerDockWidget()
    delete pThread;
 }
 
-void NameTableVisualizerDockWidget::updateTargetMachine(QString target)
+void NameTableVisualizerDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -55,7 +55,7 @@ void NameTableVisualizerDockWidget::updateTargetMachine(QString target)
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
 }
 
-void NameTableVisualizerDockWidget::showEvent(QShowEvent* event)
+void NameTableVisualizerDockWidget::showEvent(QShowEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -64,7 +64,7 @@ void NameTableVisualizerDockWidget::showEvent(QShowEvent* event)
    pThread->updateDebuggers();
 }
 
-void NameTableVisualizerDockWidget::hideEvent(QHideEvent* event)
+void NameTableVisualizerDockWidget::hideEvent(QHideEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

@@ -20,7 +20,7 @@ CBreakpointDisplayModel::~CBreakpointDisplayModel()
 {
 }
 
-Qt::ItemFlags CBreakpointDisplayModel::flags(const QModelIndex& index) const
+Qt::ItemFlags CBreakpointDisplayModel::flags(const QModelIndex& /*index*/) const
 {
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 

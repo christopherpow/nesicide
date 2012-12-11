@@ -128,11 +128,6 @@ void CAttributeTable::contextMenuEvent(QContextMenuEvent* event, QTreeView* pare
             QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
             tabWidget->removeTab(tabWidget->indexOf(m_editor));
          }
-
-         // TODO: Fix this logic so the memory doesn't get lost.
-//         nesicideProject->getProject()->getSources()->removeChild(this);
-//         nesicideProject->getProject()->getSources()->getSourceItems().removeAll(this);
-         ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
       }
    }
 }

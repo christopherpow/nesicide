@@ -17,13 +17,13 @@ CCHRROMBank::~ CCHRROMBank()
 {
 }
 
-bool CCHRROMBank::serialize(QDomDocument& doc, QDomNode& node)
+bool CCHRROMBank::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)
 {
    // Don't carry the ROM data around with the project.
    return true;
 }
 
-bool CCHRROMBank::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool CCHRROMBank::deserialize(QDomDocument& /*doc*/, QDomNode& /*node*/, QString& /*errors*/)
 {
    // Don't carry the ROM data around with the project.
    return true;

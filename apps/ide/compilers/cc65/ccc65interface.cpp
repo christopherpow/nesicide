@@ -458,7 +458,7 @@ unsigned int CCC65Interface::getSourceFileModificationTime(QString sourceFile)
    return mtime;
 }
 
-QStringList CCC65Interface::getSymbolsForSourceFile(QString sourceFile)
+QStringList CCC65Interface::getSymbolsForSourceFile(QString /*sourceFile*/)
 {
    const cc65_symbolinfo* dbgSymbols;
    QStringList symbols;

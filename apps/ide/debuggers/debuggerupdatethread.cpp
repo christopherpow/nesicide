@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject *parent) :
+DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject */*parent*/) :
     QObject(),_func(func)
 {
    pThread = new QThread();

@@ -99,7 +99,7 @@ QString CSources::caption() const
    return "Source Code";
 }
 
-void CSources::addSourceFile(QString fileName)
+CSourceItem *CSources::addSourceFile(QString fileName)
 {
    QDir dir(QDir::currentPath());
    CSourceItem* pSourceItem = new CSourceItem(this);
@@ -111,7 +111,15 @@ void CSources::addSourceFile(QString fileName)
 
    m_sourceItems.append(pSourceItem);
    appendChild(pSourceItem);
+   return pSourceItem;
    //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+}
+
+void CSources::removeSourceFile(CSourceItem *item)
+{
+   this->removeChild(item);
+   m_sourceItems.removeAll(item);
+   delete item;
 }
 
 void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
@@ -158,7 +166,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
                   m_sourceItems.append(pSourceItem);
                   appendChild(pSourceItem);
-                  ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+                  //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
                   nesicideProject->setDirty(true);
                }
             }
@@ -181,7 +189,7 @@ void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
                m_sourceItems.append(pSourceItem);
                appendChild(pSourceItem);
-               ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+               //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
             }
          }
       }

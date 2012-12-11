@@ -44,13 +44,13 @@ void CPRGROMBanks::terminateProject()
    m_prgRomBanks.clear();
 }
 
-bool CPRGROMBanks::serialize(QDomDocument& doc, QDomNode& node)
+bool CPRGROMBanks::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)
 {
    // Don't carry the ROM data around with the project.
    return true;
 }
 
-bool CPRGROMBanks::deserialize(QDomDocument&, QDomNode&, QString& errors)
+bool CPRGROMBanks::deserialize(QDomDocument&, QDomNode&, QString& /*errors*/)
 {
    // Don't carry the ROM data around with the project.
    return true;

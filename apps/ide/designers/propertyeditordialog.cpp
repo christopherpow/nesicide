@@ -28,7 +28,7 @@ PropertyEditorDialog::~PropertyEditorDialog()
    delete ui;
 }
 
-void PropertyEditorDialog::showEvent(QShowEvent *event)
+void PropertyEditorDialog::showEvent(QShowEvent */*event*/)
 {
    ui->name->setText(property.name);
    ui->type->setCurrentIndex(property.type);

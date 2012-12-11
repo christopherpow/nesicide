@@ -34,7 +34,7 @@ private:
 
 private slots:
    void applyProjectPropertiesToTab();
-   void updateTargetMachine(QString target) {}
+   void updateTargetMachine(QString /*target*/) {}
 };
 
 #endif // PRGROMDISPLAYDIALOG_H

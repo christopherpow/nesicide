@@ -32,7 +32,7 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
    delete delegate;
 }
 
-void MemoryInspectorDockWidget::updateTargetMachine(QString target)
+void MemoryInspectorDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -47,7 +47,7 @@ void MemoryInspectorDockWidget::updateTargetMachine(QString target)
    }
 }
 
-void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
+void MemoryInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -59,7 +59,7 @@ void MemoryInspectorDockWidget::showEvent(QShowEvent* e)
    ui->tableView->resizeColumnsToContents();
 }
 
-void MemoryInspectorDockWidget::hideEvent(QHideEvent* e)
+void MemoryInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

@@ -88,7 +88,7 @@ C64EmulatorThread::~C64EmulatorThread()
    delete m_pViceApp;
 }
 
-void C64EmulatorThread::timerEvent(QTimerEvent *event)
+void C64EmulatorThread::timerEvent(QTimerEvent */*event*/)
 {
 }
 
@@ -171,7 +171,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
    }
 }
 
-void C64EmulatorThread::viceFinished(int exitCode,QProcess::ExitStatus exitStatus)
+void C64EmulatorThread::viceFinished(int /*exitCode*/,QProcess::ExitStatus /*exitStatus*/)
 {
    EmulatorPrefsDialog dlg("c64");
    QDir dir;
@@ -823,7 +823,7 @@ void C64EmulatorThread::unlockRequestQueue()
    m_requestMutex->unlock();
 }
 
-TcpClient::TcpClient(QString monitorIPAddress,int monitorPort,QObject *parent)
+TcpClient::TcpClient(QString monitorIPAddress,int monitorPort,QObject */*parent*/)
    : m_ipAddress(monitorIPAddress),
      m_port(monitorPort)
 {
@@ -1012,27 +1012,27 @@ void TcpClient::readyRead()
    }
 }
 
-void TcpClient::bytesWritten(qint64 bytes)
+void TcpClient::bytesWritten(qint64 /*bytes*/)
 {
 //   qDebug("bytesWritten");
 //   qDebug(QString::number(bytes).toAscii().constData());
 }
 
-bool C64EmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
+bool C64EmulatorThread::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)
 {
    return true;
 }
 
-bool C64EmulatorThread::serializeContent(QFile& fileOut)
+bool C64EmulatorThread::serializeContent(QFile& /*fileOut*/)
 {
 }
 
-bool C64EmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool C64EmulatorThread::deserialize(QDomDocument& /*doc*/, QDomNode& /*node*/, QString& /*errors*/)
 {
    return true;
 }
 
 
-bool C64EmulatorThread::deserializeContent(QFile& fileIn)
+bool C64EmulatorThread::deserializeContent(QFile& /*fileIn*/)
 {
 }

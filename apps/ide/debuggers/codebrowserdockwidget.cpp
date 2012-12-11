@@ -58,7 +58,7 @@ void CodeBrowserDockWidget::updateTargetMachine(QString target)
    }
 }
 
-void CodeBrowserDockWidget::showEvent(QShowEvent* e)
+void CodeBrowserDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
    QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
@@ -88,7 +88,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* e)
    ui->tableView->scrollTo(ui->tableView->currentIndex());
 }
 
-void CodeBrowserDockWidget::hideEvent(QHideEvent* e)
+void CodeBrowserDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

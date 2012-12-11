@@ -60,7 +60,7 @@ bool SearchBar::eventFilter(QObject* object, QEvent *event)
    return false;
 }
 
-void SearchBar::focusInEvent(QFocusEvent *event)
+void SearchBar::focusInEvent(QFocusEvent */*event*/)
 {
    ui->searchText->setFocus();
    ui->searchText->lineEdit()->setSelection(0,ui->searchText->currentText().length());

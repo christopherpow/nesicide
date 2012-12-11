@@ -63,7 +63,7 @@ static void audioHook ( void )
    nesAudioSemaphore.acquire();
 }
 
-extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
+extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len)
 {
 #if 0
    LARGE_INTEGER t;
@@ -806,7 +806,7 @@ bool NESEmulatorThread::serializeContent(QFile& fileOut)
    fileOut.write(bytes);
 }
 
-bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& /*node*/, QString& /*errors*/)
 {
    // Loop through the child elements and process the ones we find
    QDomElement saveStateElement = doc.documentElement();

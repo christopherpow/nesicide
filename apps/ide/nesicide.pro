@@ -304,16 +304,23 @@ SOURCES += \
    nes/debuggers/cchrromitemtabledisplaymodel.cpp \
    nes/debuggers/chrromdisplaydialog.cpp \
    nes/debuggers/prgromdisplaydialog.cpp \
-   project/cprojecttreeview.cpp \
-   project/cprojecttreeviewmodel.cpp \
    debuggers/cdebuggerregisterdisplaymodel.cpp \
    c64/compilers/cmachineimagebuilder.cpp \
    c64/debuggers/dbg_cc64.cpp \
    $$TOP/common/appeventfilter.cpp \
    $$TOP/common/cobjectregistry.cpp \
     nes/debuggers/joypadloggerdockwidget.cpp \
-    project/cprojectlistview.cpp \
-    project/cprojectlistviewmodel.cpp
+    model/cprojectmodel.cpp \
+    model/csourcefilemodel.cpp \
+    model/cfiltermodel.cpp \
+    model/cbinaryfilemodel.cpp \
+    model/ctilestampmodel.cpp \
+    model/cattributemodel.cpp \
+    model/cgraphicsbankmodel.cpp \
+    model/ccartridgemodel.cpp \
+    project/cprojecttreecontextmenu.cpp \
+    project/cprojecttreeopenaction.cpp \
+    project/cprojecttreewidget.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -438,8 +445,6 @@ HEADERS += \
    nes/debuggers/cchrromitemtabledisplaymodel.h \
    nes/debuggers/chrromdisplaydialog.h \
    nes/debuggers/prgromdisplaydialog.h \
-   project/cprojecttreeview.h \
-   project/cprojecttreeviewmodel.h \
    debuggers/cdebuggerregisterdisplaymodel.h \
    c64/compilers/cmachineimagebuilder.h \
    c64/debuggers/dbg_cc64.h \
@@ -448,8 +453,20 @@ HEADERS += \
    $$TOP/common/appeventfilter.h \
    $$TOP/common/cobjectregistry.h \
     nes/debuggers/joypadloggerdockwidget.h \
-    project/cprojectlistview.h \
-    project/cprojectlistviewmodel.h
+    model/cprojectmodel.h \
+    model/projectsearcher.h \
+    model/csourcefilemodel.h \
+    model/cfiltermodel.h \
+    model/cbinaryfilemodel.h \
+    model/ctilestampmodel.h \
+    model/cattributemodel.h \
+    model/iuuidvisitor.h \
+    model/cgraphicsbankmodel.h \
+    model/csubmodel.h \
+    model/ccartridgemodel.h \
+    project/cprojecttreewidget.h \
+    project/cprojecttreecontextmenu.h \
+    project/cprojecttreeopenaction.h
 
 FORMS += \
    aboutdialog.ui \

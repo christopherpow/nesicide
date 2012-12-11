@@ -417,7 +417,7 @@ void ProjectPropertiesDialog::on_greenHorizontalSlider_actionTriggered(int actio
    updateUI(2);
 }
 
-void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int action)
+void ProjectPropertiesDialog::on_blueHorizontalSlider_actionTriggered(int /*action*/)
 {
    // Try to get the selected item
    QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();

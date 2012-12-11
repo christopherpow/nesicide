@@ -47,7 +47,7 @@ OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
    delete pThread;
 }
 
-void OAMVisualizerDockWidget::updateTargetMachine(QString target)
+void OAMVisualizerDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -72,7 +72,7 @@ void OAMVisualizerDockWidget::changeEvent(QEvent* e)
    }
 }
 
-void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
+void OAMVisualizerDockWidget::showEvent(QShowEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -81,7 +81,7 @@ void OAMVisualizerDockWidget::showEvent(QShowEvent* event)
    pThread->updateDebuggers();
 }
 
-void OAMVisualizerDockWidget::hideEvent(QHideEvent* event)
+void OAMVisualizerDockWidget::hideEvent(QHideEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

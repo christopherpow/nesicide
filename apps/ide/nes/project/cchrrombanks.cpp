@@ -45,13 +45,13 @@ void CCHRROMBanks::terminateProject()
 }
 
 // IXMLSerializable Interface Implementation
-bool CCHRROMBanks::serialize(QDomDocument& doc, QDomNode& node)
+bool CCHRROMBanks::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)
 {
    // Don't carry the ROM data around with the project.
    return true;
 }
 
-bool CCHRROMBanks::deserialize(QDomDocument&, QDomNode&, QString& errors)
+bool CCHRROMBanks::deserialize(QDomDocument&, QDomNode&, QString& /*errors*/)
 {
    // Don't carry the ROM data around with the project.
    return true;

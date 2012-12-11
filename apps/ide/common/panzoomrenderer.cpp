@@ -158,12 +158,12 @@ void PanZoomRenderer::renderer_wheelEvent(QWheelEvent *event)
    }
 }
 
-void PanZoomRenderer::showEvent(QShowEvent *event)
+void PanZoomRenderer::showEvent(QShowEvent */*event*/)
 {
    updateScrollBars();
 }
 
-void PanZoomRenderer::resizeEvent(QResizeEvent *event)
+void PanZoomRenderer::resizeEvent(QResizeEvent */*event*/)
 {
    updateScrollBars();
 }
@@ -187,13 +187,13 @@ void PanZoomRenderer::updateScrollBars()
    ui->verticalScrollBar->setMaximum(viewHeight - renderer->height() < 0 ? 0 : ((viewHeight - renderer->height()) / ((float)value / 100.0f)) + 1);
 }
 
-void PanZoomRenderer::on_verticalScrollBar_valueChanged(int value)
+void PanZoomRenderer::on_verticalScrollBar_valueChanged(int /*value*/)
 {
    renderer->setScrollY(ui->verticalScrollBar->value());
    renderer->update();
 }
 
-void PanZoomRenderer::on_horizontalScrollBar_valueChanged(int value)
+void PanZoomRenderer::on_horizontalScrollBar_valueChanged(int /*value*/)
 {
    renderer->setScrollX(ui->horizontalScrollBar->value());
    renderer->update();

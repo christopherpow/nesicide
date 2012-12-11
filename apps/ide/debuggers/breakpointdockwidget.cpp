@@ -43,7 +43,7 @@ BreakpointDockWidget::~BreakpointDockWidget()
    delete model;
 }
 
-void BreakpointDockWidget::updateTargetMachine(QString target)
+void BreakpointDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -453,7 +453,7 @@ bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool BreakpointDockWidget::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool BreakpointDockWidget::deserialize(QDomDocument& /*doc*/, QDomNode& node, QString& /*errors*/)
 {
    QDomNode childNode = node.firstChild();
    QDomNode breakpointNode;

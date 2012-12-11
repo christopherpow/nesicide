@@ -28,12 +28,12 @@ protected:
    void keyPressEvent(QKeyEvent *e);
 
 public slots:
-   virtual void snapTo(QString item) {}
-   virtual void replaceText(QString from,QString to,bool replaceAll) {}
-   virtual void applyChangesToTab(QString uuid) {}
+   virtual void snapTo(QString /*item*/) {}
+   virtual void replaceText(QString /*from*/, QString /*to*/, bool /*replaceAll*/) {}
+   virtual void applyChangesToTab(QString /*uuid*/) {}
    virtual void applyProjectPropertiesToTab() {}
    virtual void applyEnvironmentSettingsToTab() {}
-   virtual void checkOpenFile(QDateTime lastActivationTime) {}
+   virtual void checkOpenFile(QDateTime /*lastActivationTime*/) {}
 
 signals:
    void editor_modified(bool m);

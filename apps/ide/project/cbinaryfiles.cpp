@@ -127,7 +127,7 @@ void CBinaryFiles::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
 
                m_binaryFiles.append(pBinaryFile);
                appendChild(pBinaryFile);
-               ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+               //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
             }
          }
       }

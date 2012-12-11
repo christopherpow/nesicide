@@ -1,6 +1,4 @@
 #include "cgraphicsbanks.h"
-#include "cprojecttreeviewmodel.h"
-
 #include "main.h"
 
 CGraphicsBanks::CGraphicsBanks(IProjectTreeViewItem* parent)
@@ -113,7 +111,7 @@ void CGraphicsBanks::contextMenuEvent(QContextMenuEvent* event, QTreeView* paren
             pGraphicsBank->setName(bankName);
             m_graphicsBanks.append(pGraphicsBank);
             appendChild(pGraphicsBank);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+            //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
             nesicideProject->setDirty(true);
          }
       }

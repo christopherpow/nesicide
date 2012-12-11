@@ -8,6 +8,8 @@
 
 #include "appeventfilter.h"
 
+#include "model/cprojectmodel.h"
+
 // Modeless dialog for Test Suite executive.
 TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
 
@@ -43,8 +45,11 @@ int main(int argc, char* argv[])
 
    QGLFormat::setDefaultFormat(fmt);
 
+   // Create the project model.
+   CProjectModel projectModel;
+
    // Create, show, and execute the main window (UI) thread.
-   nesicideWindow = new MainWindow();
+   nesicideWindow = new MainWindow(&projectModel);
    QObject::connect(&nesicideEventFilter,SIGNAL(applicationActivationChanged(bool)),nesicideWindow,SLOT(applicationActivationChanged(bool)));
    nesicideWindow->show();
 

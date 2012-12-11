@@ -19,7 +19,7 @@ PPUInformationDockWidget::~PPUInformationDockWidget()
    delete ui;
 }
 
-void PPUInformationDockWidget::updateTargetMachine(QString target)
+void PPUInformationDockWidget::updateTargetMachine(QString /*target*/)
 {
    QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -44,7 +44,7 @@ void PPUInformationDockWidget::changeEvent(QEvent* e)
    }
 }
 
-void PPUInformationDockWidget::showEvent(QShowEvent* e)
+void PPUInformationDockWidget::showEvent(QShowEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
@@ -52,7 +52,7 @@ void PPUInformationDockWidget::showEvent(QShowEvent* e)
    updateInformation();
 }
 
-void PPUInformationDockWidget::hideEvent(QHideEvent* e)
+void PPUInformationDockWidget::hideEvent(QHideEvent* /*e*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 

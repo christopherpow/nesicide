@@ -6,7 +6,7 @@
 
 static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
-CChrRomItemTableDisplayModel::CChrRomItemTableDisplayModel(bool editable,QObject* parent)
+CChrRomItemTableDisplayModel::CChrRomItemTableDisplayModel(bool editable,QObject* /*parent*/)
 {
    m_editable = editable;
 }
@@ -15,7 +15,7 @@ CChrRomItemTableDisplayModel::~CChrRomItemTableDisplayModel()
 {
 }
 
-QModelIndex CChrRomItemTableDisplayModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CChrRomItemTableDisplayModel::index(int row, int column, const QModelIndex &/*parent*/) const
 {
    if ( row < chrRomBankItems.count() )
    {
@@ -136,7 +136,7 @@ QVariant CChrRomItemTableDisplayModel::headerData(int section, Qt::Orientation o
    }
 }
 
-int CChrRomItemTableDisplayModel::rowCount(const QModelIndex& parent) const
+int CChrRomItemTableDisplayModel::rowCount(const QModelIndex& /*parent*/) const
 {
    int rows = chrRomBankItems.count();
    if ( m_editable )
@@ -146,7 +146,7 @@ int CChrRomItemTableDisplayModel::rowCount(const QModelIndex& parent) const
    return rows;
 }
 
-int CChrRomItemTableDisplayModel::columnCount(const QModelIndex& parent) const
+int CChrRomItemTableDisplayModel::columnCount(const QModelIndex& /*parent*/) const
 {
    return ChrRomBankItemCol_MAX;
 }

@@ -57,7 +57,7 @@ SearchDockWidget::~SearchDockWidget()
    delete searchBar;
 }
 
-void SearchDockWidget::showEvent(QShowEvent *event)
+void SearchDockWidget::showEvent(QShowEvent */*event*/)
 {
    if ( !ui->location->count() )
    {

@@ -370,7 +370,7 @@ void QtColorPicker::buttonPressed(bool toggled)
 /*!
     \internal
 */
-void QtColorPicker::paintEvent(QPaintEvent* e)
+void QtColorPicker::paintEvent(QPaintEvent* /*e*/)
 {
    QPainter p(this);
    int w = width();       // width of cell in pixels
