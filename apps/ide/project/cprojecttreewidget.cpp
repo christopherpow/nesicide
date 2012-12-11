@@ -65,7 +65,7 @@ public:
       CGraphicsBankModel* model = project->getGraphicsBankModel();
       name    = model->getName(d.uuid);
       toolTip = QString();
-      icon    = QIcon(":/resources/RR_page_white.png");
+      icon    = QIcon(":/resources/RR_graphics_bank.png");
    }
 
    virtual void visit(CSourceFileUuid &d)
@@ -73,7 +73,7 @@ public:
       CSourceFileModel* model = project->getSourceFileModel();
       name    = model->getFileName(d.uuid);
       toolTip = model->getRelativePath(d.uuid);
-      icon    = QIcon(":/resources/RR_page_white.png");
+      icon    = QIcon(":/resources/RR_page_asm.png");
    }
 
    virtual void visit(CTileStampUuid &d)
