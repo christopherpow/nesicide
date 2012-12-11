@@ -125,6 +125,7 @@ void CProjectTreeContextMenu::visit(CTileStampUuid &data)
    m_targetUuid = data.uuid;
 
    QMenu menu(m_parent);
+   menu.addAction(DELETE_ACTION.arg(TILE), this, SLOT(deleteTile()));
    appendGlobalMenuItems(&menu);
    menu.exec(m_position);
 }
