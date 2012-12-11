@@ -121,7 +121,7 @@ QUuid CProjectTreeWidget::getUuidOf(const QTreeWidgetItem *item)
    if (item == NULL)
       return QUuid();
 
-   return item->data(0, Qt::UserRole).toByteArray();
+   return QUuid(item->data(0, Qt::UserRole).toString());
 }
 
 bool CProjectTreeWidget::containsUuid(const QUuid &uuid)
