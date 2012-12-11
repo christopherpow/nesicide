@@ -297,6 +297,16 @@ void CROMMapper016::HMAPPER ( uint32_t addr, uint8_t data )
    case 0x000D:
       reg = 13;
       m_reg[13] = data;
+      switch ( data&0x20 )
+      {
+      case 0x00:
+         // Clock low
+         break;
+      case 0x20:
+         // Clock high
+         break;
+      }
+
       break;
    }
 
