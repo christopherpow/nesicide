@@ -20,6 +20,13 @@ protected:
    static uint8_t  m_reg [ 14 ];
    static uint16_t m_irqCounter;
    static bool     m_irqEnabled;
+   static uint8_t  m_eepromBitCounter;
+   static uint8_t  m_eepromState;
+   static uint8_t  m_eepromCmd;
+   static uint8_t  m_eepromAddr;
+   // We'll use the SRAM interface in CROM object to store
+   // the EEPROM data so that it gets saved using the regular
+   // save-state mechanics.
 };
 
 #endif

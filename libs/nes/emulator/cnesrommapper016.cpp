@@ -89,6 +89,10 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 uint8_t  CROMMapper016::m_reg [] = { 0x00, };
 uint16_t CROMMapper016::m_irqCounter = 0;
 bool     CROMMapper016::m_irqEnabled = false;
+uint8_t  CROMMapper016::m_eepromBitCounter = 0;
+uint8_t  CROMMapper016::m_eepromState = 0;
+uint8_t  CROMMapper016::m_eepromCmd;
+uint8_t  CROMMapper016::m_eepromAddr;
 
 CROMMapper016::CROMMapper016()
 {
@@ -110,6 +114,8 @@ void CROMMapper016::RESET ( bool soft )
 
    m_irqCounter = 0;
    m_irqEnabled = false;
+   m_eepromState = 0;
+   m_eepromBitCounter = 0;
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
