@@ -133,5 +133,7 @@
         <file>resources/view_sort_descending.png</file>
         <file>resources/window_new.png</file>
         <file>resources/window_new.svg</file>
+        <file>resources/RR_page_asm.png</file>
+        <file>resources/RR_graphics_bank.png</file>
     </qresource>
 </RCC>

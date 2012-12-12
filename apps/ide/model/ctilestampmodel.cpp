@@ -70,6 +70,7 @@ void CTileStampModel::deleteTileStamp(const QUuid &uuid)
       return;
 
    m_pProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(pTileStamp);
+   m_pProject->getProject()->getProjectPrimitives()->getTileStamps()->getTileStampList().removeAll(pTileStamp);
    m_pProject->setDirty(true);
    delete pTileStamp;
 
