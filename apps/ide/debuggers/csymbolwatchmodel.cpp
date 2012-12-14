@@ -92,7 +92,32 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,symbolIdx);
             if ( addr != -1 )
             {
-               sprintf(modelStringBuffer,"%02X",nesGetMemory(addr));
+               char* bufferPtr = modelStringBuffer;
+               unsigned int symbolSize = CCC65Interface::getSymbolSize(m_items.at(index.row()).symbol,symbolIdx);
+
+               // If symbol size <= 10 print values as an array, seperated by commas
+               if (symbolSize <= 10)
+               {
+                  unsigned int i=0;
+                  for( ; i < symbolSize; ++i)
+                  {
+                     sprintf(bufferPtr, "%02X,", nesGetMemory(addr + i));
+                     bufferPtr += 3;
+                  }
+                  // remove last comma
+                  bufferPtr -= 1;
+                  *bufferPtr = '\0';
+
+                  // If symbol is 2 bit, print 16bit value in parentheses.
+                  if (symbolSize == 2)
+                  {
+                     sprintf(bufferPtr, " ($%02X%02X)",  nesGetMemory(addr + 1),  nesGetMemory(addr + 0));
+                  }
+                  else if (symbolSize == 3) // Same for 24 bit values.
+                  {
+                     sprintf(bufferPtr, " ($%02X%02X%02X)",  nesGetMemory(addr + 2), nesGetMemory(addr + 1),  nesGetMemory(addr + 0));
+                  }
+               }
                return QVariant(modelStringBuffer);
             }
             else
