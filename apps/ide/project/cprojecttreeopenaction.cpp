@@ -10,7 +10,7 @@
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
 
-CProjectTreeOpenAction::CProjectTreeOpenAction(CProjectTabWidget *tabWidget, CProjectTreeWidget *openItems, CProjectModel *project)
+CProjectTreeOpenAction::CProjectTreeOpenAction(CProjectTabWidget *tabWidget, QTreeWidget *openItems, CProjectModel *project)
    : m_tabWidget(tabWidget), m_openItems(openItems), m_project(project)
 {
 }
@@ -62,22 +62,30 @@ void CProjectTreeOpenAction::visit(CPrgRomUuid &data)
 
 void CProjectTreeOpenAction::doVisit(CSubModel *model, const QUuid &uuid)
 {
-   if (m_openItems->containsUuid(uuid))
+   // If already open, bring item to front.
+   for(int i=0; i < m_tabWidget->count(); ++i)
    {
-      // If already open, bring item to front.
-      m_openItems->setCurrentUuid(uuid);
-   }
-   else
-   {
-      // If not open, create new tab.
-      CDesignerEditorBase* pEditor = model->createEditorWidget(uuid);
-      if (pEditor == NULL)
-         return;
+      QWidget* tab = m_tabWidget->widget(i);
 
-      m_tabWidget->addTab(pEditor, model->getName(uuid) );
-      m_tabWidget->setCurrentWidget(pEditor);
-
-      // Add tab to open items.
-      m_openItems->addItem(m_project, uuid, QUuid());
+      // If tab is an editor, check uuid.
+      CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(tab);
+      if (editor != NULL)
+      {
+         IProjectTreeViewItem* item = editor->treeLink();
+         if (item != NULL && item->uuid() == uuid)
+         {
+            // Found the item, bring to front instead of opening it.
+            m_tabWidget->setCurrentIndex(i);
+            return;
+         }
+      }
    }
+
+   // Not found, open new tab.
+   CDesignerEditorBase* pEditor = model->createEditorWidget(uuid);
+   if (pEditor == NULL)
+      return;
+
+   m_tabWidget->addTab(pEditor, model->getName(uuid) );
+   m_tabWidget->setCurrentWidget(pEditor);
 }

@@ -3,17 +3,17 @@
 
 #include "model/iuuidvisitor.h"
 #include <QObject>
+#include <QTreeWidget>
 
 class CProjectModel;
 class CSubModel;
 class CProjectTabWidget;
-class CProjectTreeWidget;
 
 class CProjectTreeOpenAction : public QObject, public IUuidVisitor
 {
    Q_OBJECT
 public:
-   CProjectTreeOpenAction(CProjectTabWidget* tabWidget, CProjectTreeWidget* openItems, CProjectModel* project);
+   CProjectTreeOpenAction(CProjectTabWidget* tabWidget, QTreeWidget* openItems, CProjectModel* project);
 
    virtual void visit(CUuid&);
    virtual void visit(CAttributeUuid&);
@@ -28,7 +28,7 @@ public:
 
 private:
    CProjectTabWidget*  m_tabWidget;
-   CProjectTreeWidget* m_openItems;
+   QTreeWidget*        m_openItems;
    CProjectModel*      m_project;
 
    void doVisit(CSubModel* model, const QUuid& uuid);

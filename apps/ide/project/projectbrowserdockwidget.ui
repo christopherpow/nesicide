@@ -84,7 +84,7 @@
         </property>
        </column>
       </widget>
-      <widget class="CProjectTreeWidget" name="openProjectItems">
+      <widget class="QTreeWidget" name="openProjectItems">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>

@@ -32,6 +32,8 @@ public slots:
    void itemOpened(QUuid uuid);
    void itemClosed(QUuid uuid);
 
+   void itemOpened(int tabId);
+   void itemSelected(int tabId);
    void itemClosed(int tabId);
    void itemSelectionChanged();
 

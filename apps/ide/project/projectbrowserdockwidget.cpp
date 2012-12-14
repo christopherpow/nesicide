@@ -86,7 +86,9 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, Q
 
    // Connect open items to tab widget.
    // Main window intercepts this and closes the tab before we receive the signal.
-   QObject::connect(pTarget, SIGNAL(tabAboutToBeRemoved(int)), this, SLOT(itemClosed(int)));
+   QObject::connect( pTarget, SIGNAL(tabAdded(int)),       this, SLOT(itemOpened(int)) );
+   QObject::connect( pTarget, SIGNAL(tabRemoved(int)),     this, SLOT(itemClosed(int)) );
+   QObject::connect( pTarget, SIGNAL(currentChanged(int)), this, SLOT(itemSelected(int)) );
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()
@@ -141,33 +143,48 @@ void ProjectBrowserDockWidget::itemClosed(QUuid /*uuid*/)
    rebuildProjectTree();
 }
 
+void ProjectBrowserDockWidget::itemOpened(int tabId)
+{
+   // Add new item to list.
+   QTreeWidgetItem* item = new QTreeWidgetItem();
+   item->setText(0, m_pTarget->tabText(tabId));
+
+   // If item has a UUID, find and extract it.
+   QUuid uuid;
+   QWidget* tab = m_pTarget->widget(tabId);
+   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(tab);
+   if (editor != NULL)
+   {
+      IProjectTreeViewItem* item = editor->treeLink();
+      if (item != NULL)
+      {
+         uuid = item->uuid();
+      }
+   }
+   // This is stored for later reference in future updates.
+   item->setData(0, Qt::UserRole, QVariant(uuid));
+
+   ui->openProjectItems->addTopLevelItem(item);
+}
+
+void ProjectBrowserDockWidget::itemSelected(int tabId)
+{
+   // Backup to prevent infinite looping.
+   int oldIndex = ui->openProjectItems->currentIndex().row();
+   if (oldIndex != tabId)
+      ui->openProjectItems->setCurrentItem(ui->openProjectItems->topLevelItem(tabId));
+}
+
 void ProjectBrowserDockWidget::itemClosed(int tabId)
 {
-   QWidget* widget = m_pTarget->widget(tabId);
-   CDesignerEditorBase *tabWidget = dynamic_cast<CDesignerEditorBase*>(widget);
-   if (tabWidget == NULL)
-      return;
-
-   IProjectTreeViewItem *item = tabWidget->treeLink();
-   if (item == NULL)
-      return;
-
-   ui->openProjectItems->removeItem(item->uuid());
+   // Remove index tabId from list of open items.
+   delete ui->openProjectItems->takeTopLevelItem(tabId);
 }
 
 void ProjectBrowserDockWidget::itemSelectionChanged()
 {
-   // For now, search tab to select by name.
-   QString name = ui->openProjectItems->currentIndex().data().value<QString>();
-
-   for(int i=0; i < m_pTarget->count(); ++i)
-   {
-      if (m_pTarget->tabText(i) == name)
-      {
-         m_pTarget->setCurrentIndex(i);
-         return;
-      }
-   }
+   int tabIndex = ui->openProjectItems->currentIndex().row();
+   m_pTarget->setCurrentIndex(tabIndex);
 }
 
 void ProjectBrowserDockWidget::projectTreeChanged(QUuid /*uuid*/)
