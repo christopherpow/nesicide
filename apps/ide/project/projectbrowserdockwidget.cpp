@@ -196,22 +196,41 @@ void ProjectBrowserDockWidget::projectTreeChanged(QUuid /*uuid*/)
 
 void ProjectBrowserDockWidget::openItemRequested(QTreeWidgetItem *item, int)
 {
-   QUuid uuid = ui->projectTreeWidget->getUuidOf(item);
-   CProjectTreeOpenAction action(m_pTarget, ui->openProjectItems, m_pProject);
-   m_pProject->visitDataItem(uuid, action);
-
-   // TODO After reworking more views: Translate event.
-   //emit openUuidRequest(uuid);
+   openNewProjectItem(ui->projectTreeWidget->getUuidOf(item));
 }
 
 
 void ProjectBrowserDockWidget::treeWidgetContextMenuRequested(QPoint pos)
 {
+   // Temporarily listen to newly added project items. If this slot is invoked,
+   // the project browser opens the item (which must have been
+   // created via the context menu just now)
+   QObject::connect(m_pProject, SIGNAL(itemAdded(QUuid)), this, SLOT(openNewProjectItem(QUuid)));
+
    // Invoke context menu.
    QUuid uuid = ui->projectTreeWidget->getUuidAt(pos);
    QPoint screenPos = ui->projectTreeWidget->mapToGlobal(pos);
    CProjectTreeContextMenu contextMenu(this, screenPos, m_pProject);
    m_pProject->visitDataItem(uuid, contextMenu);
+
+   // Remove listening again, so changing projects doesn't open all project items immediately.
+   QObject::disconnect(m_pProject, SIGNAL(itemAdded(QUuid)), this, SLOT(openNewProjectItem(QUuid)));
+}
+
+void ProjectBrowserDockWidget::openNewProjectItem(QUuid uuid)
+{
+   int oldOpenItemCount = ui->openProjectItems->topLevelItemCount();
+   CProjectTreeOpenAction action(m_pTarget, ui->openProjectItems, m_pProject);
+   m_pProject->visitDataItem(uuid, action);
+
+   // If a new item has been opened, select it.
+   if (ui->openProjectItems->topLevelItemCount() > oldOpenItemCount)
+   {
+      this->itemSelected(ui->openProjectItems->topLevelItemCount() - 1);
+   }
+
+   // TODO After reworking more views: Translate event.
+   //emit openUuidRequest(uuid);
 }
 
 void ProjectBrowserDockWidget::buildProjectTree()

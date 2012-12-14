@@ -52,6 +52,8 @@ private:
 private slots:
    void openItemRequested( QTreeWidgetItem * item, int column );
    void treeWidgetContextMenuRequested( QPoint pos );
+
+   void openNewProjectItem(QUuid uuid);
 };
 
 #endif // PROJECTBROWSERDOCKWIDGET_H
