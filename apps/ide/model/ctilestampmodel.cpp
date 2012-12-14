@@ -85,8 +85,9 @@ CDesignerEditorBase *CTileStampModel::createEditorWidget(const QUuid &uuid) cons
 
    int x,y;
    tile->getSize(&x,&y);
-
-   return new TileStampEditorForm(tile->getTileData(), tile->getAttributeData(),
-                                  tile->getAttrTbl(), tile->getTileProperties(),
-                                  x, y, tile->getGridSetting(),tile);
+   TileStampEditorForm* editor = new TileStampEditorForm(tile->getTileData(), tile->getAttributeData(),
+                                                         tile->getAttrTbl(), tile->getTileProperties(),
+                                                         x, y, tile->getGridSetting(),tile);
+   tile->setEditor(editor);
+   return editor;
 }

@@ -67,5 +67,7 @@ CDesignerEditorBase *CAttributeModel::createEditorWidget(const QUuid &uuid) cons
    if (palette == NULL)
       return NULL;
 
-   return new AttributeTableEditorForm(palette->getPalette(), palette);
+   // Item must know editor due to current architecture.
+   palette->setEditor(new AttributeTableEditorForm(palette->getPalette(), palette));
+   return palette->editor();
 }
