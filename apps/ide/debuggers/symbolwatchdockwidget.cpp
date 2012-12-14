@@ -708,3 +708,19 @@ void SymbolWatchDockWidget::on_actionGo_to_Definition_triggered()
    emit snapTo("SourceNavigatorFile,"+file);
    emit snapTo("SourceNavigatorSymbol,"+symbol);
 }
+
+void SymbolWatchDockWidget::on_watch_doubleClicked(const QModelIndex &index)
+{
+   if ( index.isValid() )
+   {
+      emit snapTo("Address,"+watchModel->data(ramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
+   }
+}
+
+void SymbolWatchDockWidget::on_ram_doubleClicked(const QModelIndex &index)
+{
+   if ( index.isValid() )
+   {
+      emit snapTo("Address,"+ramModel->data(ramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
+   }
+}

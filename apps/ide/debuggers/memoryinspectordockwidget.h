@@ -30,6 +30,7 @@ protected:
 public slots:
    void updateMemory();
    void updateTargetMachine(QString target);
+   void snapToHandler(QString item);
 
 signals:
    void breakpointsChanged();

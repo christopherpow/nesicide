@@ -20,6 +20,7 @@ signals:
    void removeStatusBarWidget(QWidget* widget);
 
 public slots:
+   void snapToHandler(QString item) {};
 
 protected:
    NesStateSnapshot m_nesState;

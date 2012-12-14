@@ -70,6 +70,8 @@ private slots:
    void on_actionBreak_on_CPU_read_here_triggered();
    void on_actionBreak_on_CPU_write_here_triggered();
    void updateTargetMachine(QString target);
+   void on_watch_doubleClicked(const QModelIndex &index);
+   void on_ram_doubleClicked(const QModelIndex &index);
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H

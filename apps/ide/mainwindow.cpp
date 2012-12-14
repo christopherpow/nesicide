@@ -943,6 +943,10 @@ void MainWindow::createNesUi()
    // Connect snapTo's from various debuggers.
    QObject::connect ( m_pExecutionVisualizer, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
    QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), m_pBinCPURAMInspector, SLOT(snapToHandler(QString)) );
+   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), m_pBinSRAMMemoryInspector, SLOT(snapToHandler(QString)) );
+   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), m_pBinEXRAMMemoryInspector, SLOT(snapToHandler(QString)) );
+   QObject::connect ( m_pSymbolInspector, SIGNAL(snapTo(QString)), m_pBinROMInspector, SLOT(snapToHandler(QString)) );
 
    updateFromEmulatorPrefs(true);
 

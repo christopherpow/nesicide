@@ -240,3 +240,53 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
       QMessageBox::information(0, "Error", str);
    }
 }
+
+void MemoryInspectorDockWidget::snapToHandler(QString item)
+{
+   int memoryType = model->memoryType();
+   uint32_t addr = 0xFFFFFFFF;
+   int row = 0, col = 0;
+   int low = 0, high = 0;
+   int itemActual;
+
+   // Restrict to CPU memory types.
+   if ( (memoryType == eMemory_CPU) ||
+        (memoryType == eMemory_cartSRAM) ||
+        (memoryType == eMemory_cartEXRAM) ||
+        (memoryType == eMemory_cartROM) )
+   {
+      // Check memory range...
+      low = model->memoryBottom();
+      high = model->memoryTop();
+
+      // Make sure item is something we care about
+      if ( item.startsWith("Address,") )
+      {
+         QStringList splits;
+         splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
+
+         if ( splits.count() == 2 )
+         {
+            addr = splits.at(1).toInt(NULL,16);
+         }
+         else if ( splits.count() == 4 )
+         {
+            addr = splits.at(3).toInt(NULL,16);
+         }
+
+         if ( (addr >= low) &&
+               (addr <= high) )
+         {
+            // Change memory address into row/column of display...
+            itemActual = addr - model->memoryBottom();
+            row = itemActual/model->columnCount();
+            col = itemActual%model->columnCount();
+
+            // Update display...
+            show();
+            ui->tableView->resizeColumnsToContents();
+            ui->tableView->setCurrentIndex(model->index(row,col));
+         }
+      }
+   }
+}
