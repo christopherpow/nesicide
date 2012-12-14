@@ -25,7 +25,7 @@ void BreakpointWatcherThread::breakpoint()
 {
    CBreakpointInfo* pBreakpoints = NULL;
    int idx;
-   char hitMsg [ 256 ];
+   char hitMsg [ 512 ];
 
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {

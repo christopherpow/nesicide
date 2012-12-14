@@ -777,6 +777,19 @@ typedef struct _nesMapper009010Info
 void nesMapper009GetInformation ( nesMapper009010Info* pInfo );
 void nesMapper010GetInformation ( nesMapper009010Info* pInfo );
 
+typedef struct _nesMapper016Info
+{
+   uint32_t irqEnabled;
+   uint32_t irqAsserted;
+   uint32_t irqCounter;
+   uint32_t eepromState;
+   uint32_t eepromBitCounter;
+   uint32_t eepromCmd;
+   uint32_t eepromAddr;
+   uint32_t eepromDataBuf;
+} nesMapper016Info;
+void nesMapper016GetInformation ( nesMapper016Info* pInfo );
+
 typedef struct _nesMapper028Info
 {
    uint32_t regSel;

@@ -38,9 +38,11 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
    internalPageMap.insert(4,ui->mapper4);
    internalPageMap.insert(9,ui->mapper9and10);
    internalPageMap.insert(10,ui->mapper9and10);
+   internalPageMap.insert(16,ui->mapper16);
    internalPageMap.insert(19,ui->mapper19);
    internalPageMap.insert(28,ui->mapper28);
    internalPageMap.insert(69,ui->mapper69);
+   internalPageMap.insert(159,ui->mapper16);
 
    // Force UI update so it doesn't look uninitialized completely.
    machineReady();
@@ -118,6 +120,7 @@ void MapperInformationDockWidget::updateInformation()
    nesMapper001Info mapper001Info;
    nesMapper004Info mapper004Info;
    nesMapper009010Info mapper009010Info;
+   nesMapper016Info mapper016Info;
    nesMapper028Info mapper028Info;
    nesMapper069Info mapper069Info;
    uint16_t mirroring[4];
@@ -253,6 +256,25 @@ void MapperInformationDockWidget::updateInformation()
          ui->latch1FD->setEnabled(false);
          ui->latch1FE->setEnabled(true);
       }
+      break;
+
+   case 16:
+   case 159:
+      nesMapper016GetInformation(&mapper016Info);
+      ui->irqEnabled16->setChecked ( mapper016Info.irqEnabled );
+      ui->irqAsserted16->setChecked ( mapper016Info.irqAsserted );
+      sprintf ( buffer, "%04X", mapper016Info.irqCounter );
+      ui->irqCounter16->setText ( buffer );
+      sprintf ( buffer, "%d", mapper016Info.eepromState );
+      ui->eepromState16->setText ( buffer );
+      sprintf ( buffer, "%d", mapper016Info.eepromBitCounter );
+      ui->eepromBitCounter16->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper016Info.eepromCmd );
+      ui->eepromCmd16->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper016Info.eepromAddr );
+      ui->eepromAddr16->setText ( buffer );
+      sprintf ( buffer, "%02X", mapper016Info.eepromDataBuf );
+      ui->eepromDataBuf16->setText ( buffer );
       break;
 
    case 28:

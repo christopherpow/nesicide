@@ -443,9 +443,8 @@ void CC64BreakpointInfo::GetPrintable ( int idx, char* msg )
 
 void CC64BreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
 {
-   char           printableAddress[32];
    char*          msg = hmsg;
 
-   msg += sprintf ( msg, "Program stopped at breakpoint: " );
+   msg += sprintf ( msg, "BREAK: " );
    GetPrintable(idx,msg);
 }

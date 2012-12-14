@@ -9,6 +9,7 @@
 #include "cnesrommapper004.h"
 #include "cnesrommapper009.h"
 #include "cnesrommapper010.h"
+#include "cnesrommapper016.h"
 #include "cnesrommapper028.h"
 #include "cnesrommapper069.h"
 
@@ -1045,6 +1046,18 @@ void nesMapper010GetInformation ( nesMapper009010Info* pInfo )
    pInfo->latch1FE = CROMMapper010::LATCH1FE();
    pInfo->latch0 = CROMMapper010::LATCH0();
    pInfo->latch1 = CROMMapper010::LATCH0();
+}
+
+void nesMapper016GetInformation ( nesMapper016Info* pInfo )
+{
+   pInfo->irqAsserted = CROMMapper016::IRQASSERTED();
+   pInfo->irqCounter = CROMMapper016::IRQCOUNTER();
+   pInfo->irqEnabled = CROMMapper016::IRQENABLED();
+   pInfo->eepromState = CROMMapper016::EEPROMSTATE();
+   pInfo->eepromBitCounter = CROMMapper016::EEPROMBITCOUNTER();
+   pInfo->eepromCmd = CROMMapper016::EEPROMCMD();
+   pInfo->eepromAddr = CROMMapper016::EEPROMADDR();
+   pInfo->eepromDataBuf = CROMMapper016::EEPROMDATABUF();
 }
 
 void nesMapper028GetInformation ( nesMapper028Info* pInfo )

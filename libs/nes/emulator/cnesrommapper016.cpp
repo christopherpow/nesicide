@@ -89,10 +89,13 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 uint8_t  CROMMapper016::m_reg [] = { 0x00, };
 uint16_t CROMMapper016::m_irqCounter = 0;
 bool     CROMMapper016::m_irqEnabled = false;
+bool     CROMMapper016::m_irqAsserted = false;
 uint8_t  CROMMapper016::m_eepromBitCounter = 0;
 uint8_t  CROMMapper016::m_eepromState = 0;
 uint8_t  CROMMapper016::m_eepromCmd;
 uint8_t  CROMMapper016::m_eepromAddr;
+uint8_t  CROMMapper016::m_eepromDataBuf;
+uint8_t  CROMMapper016::m_eepromRWBit;
 
 CROMMapper016::CROMMapper016()
 {
@@ -102,7 +105,7 @@ CROMMapper016::~CROMMapper016()
 {
 }
 
-void CROMMapper016::RESET ( bool soft )
+void CROMMapper016::RESET016 ( bool soft )
 {
    int32_t idx;
 
@@ -114,6 +117,32 @@ void CROMMapper016::RESET ( bool soft )
 
    m_irqCounter = 0;
    m_irqEnabled = false;
+   m_irqAsserted = false;
+   m_eepromState = 0;
+   m_eepromBitCounter = 0;
+
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+
+   // CHR ROM/RAM already set up in CROM::RESET()...
+}
+
+
+void CROMMapper016::RESET159 ( bool soft )
+{
+   int32_t idx;
+
+   m_mapper = 159;
+
+   m_dbRegisters = dbRegisters;
+
+   CROM::RESET ( m_mapper, soft );
+
+   m_irqCounter = 0;
+   m_irqEnabled = false;
+   m_irqAsserted = false;
    m_eepromState = 0;
    m_eepromBitCounter = 0;
 
@@ -133,6 +162,7 @@ void CROMMapper016::SYNCCPU ( void )
 
       if ( !m_irqCounter )
       {
+         m_irqAsserted = true;
          C6502::ASSERTIRQ(eNESSource_Mapper);
 
          if ( nesIsDebuggable() )
@@ -197,12 +227,58 @@ uint32_t CROMMapper016::LMAPPER ( uint32_t addr )
 {
    uint8_t data = C6502::OPENBUS();
 
-   switch ( addr&0x000F )
+   switch ( m_eepromState )
    {
-   case 0x000D:
-      // EEPROM I/O
+   case 1:
+      // Need to ack and skip to state 3 on a read command.
+      if ( m_eepromBitCounter == 9 )
+      {
+         m_eepromBitCounter = 0;
+         if ( m_eepromCmd&0x01 )
+         {
+            m_eepromState = 3;
+         }
+         else
+         {
+            m_eepromState = 2;
+         }
+         data = 0x00;
+      }
+   case 2:
+      // Only need to ack.
+      if ( m_eepromBitCounter == 9 )
+      {
+         m_eepromBitCounter = 0;
+         m_eepromState++;
+         data = 0x00;
+      }
+      break;
+   case 3:
+      // Command execution
+      if ( m_eepromBitCounter == 9 )
+      {
+         m_eepromBitCounter = 0;
+         data = 0x00;
+      }
+
+      // Read
+      if ( m_mapper == 16 )
+      {
+         data = CROM::SRAMVIRT(0x6000+m_eepromAddr);
+      }
+      else
+      {
+         data = CROM::SRAMVIRT(0x6000+(m_eepromAddr>>1));
+      }
+      data >>= m_eepromBitCounter;
+      data &= 0x01;
+      data <<= 4;
+
+      m_eepromBitCounter++;
       break;
    }
+
+   return data;
 }
 
 void CROMMapper016::HMAPPER ( uint32_t addr, uint8_t data )
@@ -280,6 +356,7 @@ void CROMMapper016::HMAPPER ( uint32_t addr, uint8_t data )
       reg = 10;
       m_reg[10] = data;
       m_irqEnabled = data&0x01;
+      m_irqAsserted = false;
       C6502::RELEASEIRQ(eNESSource_Mapper);
       break;
    case 0x000B:
@@ -296,17 +373,119 @@ void CROMMapper016::HMAPPER ( uint32_t addr, uint8_t data )
       break;
    case 0x000D:
       reg = 13;
-      m_reg[13] = data;
-      switch ( data&0x20 )
+      // Check for START/STOP
+      if ( (m_reg[13]&0x20) && (data&0x20) )
       {
-      case 0x00:
-         // Clock low
-         break;
-      case 0x20:
-         // Clock high
-         break;
+         // Clock is high, did data go low?  If so, START
+         if ( (m_reg[13]&0x40) && (!(data&0x40)) )
+         {
+            // EEPROM in mapper 159 skips address phase
+            if ( m_mapper == 16 )
+            {
+               m_eepromState = 1;
+            }
+            else
+            {
+               m_eepromState = 2;
+            }
+            m_eepromBitCounter = 0;
+         }
+         // Clock is high, did data go high?  If so, STOP
+         if ( (!(m_reg[13]&0x40)) && (data&0x40) )
+         {
+            m_eepromState = 0;
+         }
       }
 
+      // Did clock transition?
+      if ( (!(m_reg[13]&0x20)) && (data&0x20) )
+      {
+         // positive edge
+         switch ( m_eepromState )
+         {
+         case 1:
+            // Accepting command
+            if ( m_eepromBitCounter < 8 )
+            {
+               m_eepromCmd <<= 1;
+               m_eepromCmd &= 0xFF;
+               m_eepromCmd |= ((data&0x40)>>6);
+            }
+            m_eepromBitCounter++;
+            break;
+         case 2:
+            // Accepting address
+            if ( m_eepromBitCounter < 8 )
+            {
+               m_eepromAddr <<= 1;
+               m_eepromAddr &= 0xFF;
+               m_eepromAddr |= ((data&0x40)>>6);
+            }
+            m_eepromBitCounter++;
+            break;
+         case 3:
+            // Command execution
+            if ( m_mapper == 16 )
+            {
+               m_eepromRWBit = m_eepromCmd&0x01;
+            }
+            else
+            {
+               m_eepromRWBit = m_eepromAddr&0x01;
+            }
+            switch ( m_eepromRWBit )
+            {
+            case 0:
+               // Write
+               m_eepromDataBuf <<= 1;
+               m_eepromDataBuf |= ((data&0x40)>>6);
+
+               m_eepromBitCounter++;
+               if ( m_eepromBitCounter == 8 )
+               {
+                  if ( m_mapper == 16 )
+                  {
+                     CROM::SRAMVIRT(0x6000+m_eepromAddr,m_eepromDataBuf);
+                  }
+                  else
+                  {
+                     CROM::SRAMVIRT(0x6000+(m_eepromAddr>>1),m_eepromDataBuf);
+                  }
+                  CNES::FORCEBREAKPOINT();
+                  if ( m_mapper == 16 )
+                  {
+                     m_eepromAddr++;
+                     m_eepromAddr %= 0x100;
+                  }
+                  else
+                  {
+                     m_eepromAddr += 2;
+                     m_eepromAddr %= 0x100;
+                  }
+               }
+               break;
+            case 1:
+               if ( m_eepromBitCounter == 8 )
+               {
+                  m_eepromBitCounter++;
+                  if ( m_mapper == 16 )
+                  {
+                     m_eepromAddr++;
+                     m_eepromAddr %= 0x100;
+                  }
+                  else
+                  {
+                     m_eepromAddr += 2;
+                     m_eepromAddr %= 0x100;
+                  }
+               }
+            }
+            break;
+         }
+      }
+
+      // NOTE: m_reg[13] is used to keep track of the previous pin states!
+      m_reg[13] = data;
       break;
    }
 

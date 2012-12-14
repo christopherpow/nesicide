@@ -1840,11 +1840,8 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
 
 void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
 {
-   CRegisterData* pRegister;
-   CBitfieldData* pBitfield;
-   char           printableAddress[32];
    char*          msg = hmsg;
 
-   msg += sprintf ( msg, "[PPU(frame=%d,cycle=%d),CPU(cycle=%d),APU(cycle=%d)] Program stopped at breakpoint: ", CPPU::_FRAME(), CPPU::_CYCLES(), C6502::_CYCLES(), CAPU::CYCLES() );
+   msg += sprintf ( msg, "[PPU(frame=%d,cycle=%d),CPU(cycle=%d),APU(cycle=%d)] BREAK: ", CPPU::_FRAME(), CPPU::_CYCLES(), C6502::_CYCLES(), CAPU::CYCLES() );
    GetPrintable(idx,msg);
 }
