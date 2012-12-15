@@ -96,7 +96,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
                unsigned int symbolSize = CCC65Interface::getSymbolSize(m_items.at(index.row()).symbol,symbolIdx);
 
                // If symbol size <= 10 print values as an array, seperated by commas
-               if (symbolSize <= 10)
+               if ((symbolSize > 0) && (symbolSize <= 10))
                {
                   unsigned int i=0;
                   for( ; i < symbolSize; ++i)
@@ -117,6 +117,10 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
                   {
                      sprintf(bufferPtr, " ($%02X%02X%02X)",  nesGetMemory(addr + 2), nesGetMemory(addr + 1),  nesGetMemory(addr + 0));
                   }
+               }
+               else
+               {
+                  return QVariant("?");
                }
                return QVariant(modelStringBuffer);
             }
