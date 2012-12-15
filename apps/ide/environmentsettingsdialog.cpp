@@ -34,12 +34,17 @@ bool EnvironmentSettingsDialog::m_annotateSource;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
 QString EnvironmentSettingsDialog::m_headerExtensions;
+QString EnvironmentSettingsDialog::m_highlightAsC;
+QString EnvironmentSettingsDialog::m_highlightAsASM;
 int EnvironmentSettingsDialog::m_eolMode;
 bool EnvironmentSettingsDialog::m_eolForceConsistent;
 
 static const char* sourceExtensionListC = ".c .c65";
 static const char* sourceExtensionListAsm = ".a .asm .a65 .s .s65";
 static const char* headerExtensionList = ".h .inc";
+
+static const char* highlightAsCList = ".c .c65 .h";
+static const char* highlightAsASMList = ".a .asm .a65 .s .s65 .inc";
 
 static const char* debuggerUpdateRateMsgs[] =
 {
@@ -143,6 +148,8 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->sourceExtensionsC->setText(m_cSourceExtensions);
    ui->sourceExtensionsAsm->setText(m_asmSourceExtensions);
    ui->headerExtensions->setText(m_headerExtensions);
+   ui->highlightAsC->setText(m_highlightAsC);
+   ui->highlightAsASM->setText(m_highlightAsASM);
 
    ui->eolMode->setCurrentIndex(m_eolMode);
    ui->eolConsistent->setChecked(m_eolForceConsistent);
@@ -229,6 +236,8 @@ void EnvironmentSettingsDialog::readSettings()
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
    m_headerExtensions = settings.value("HeaderExtensions",QVariant(headerExtensionList)).toString();
+   m_highlightAsC = settings.value("HighlightAsC",QVariant(highlightAsCList)).toString();
+   m_highlightAsASM = settings.value("HighlightAsASM",QVariant(highlightAsASMList)).toString();
 
 #ifdef Q_WS_WIN
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolWindows)).toInt();
@@ -283,6 +292,8 @@ void EnvironmentSettingsDialog::writeSettings()
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
    m_headerExtensions = ui->headerExtensions->text();
+   m_highlightAsC = ui->highlightAsC->text();
+   m_highlightAsASM = ui->highlightAsASM->text();
    m_eolMode = ui->eolMode->currentIndex();
    m_eolForceConsistent = ui->eolConsistent->isChecked();
 
@@ -322,6 +333,8 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
    settings.setValue("HeaderExtensions",m_headerExtensions);
+   settings.setValue("HighlightAsC",m_highlightAsC);
+   settings.setValue("HighlightAsASM",m_highlightAsASM);
    settings.setValue("EOLMode",m_eolMode);
    settings.setValue("EOLForceConsistent",m_eolForceConsistent);
 

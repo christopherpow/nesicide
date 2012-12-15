@@ -81,16 +81,6 @@
      </item>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine syntax highlighting to apply and by the Makefile generator to determine what source files to include in a build.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
@@ -199,7 +189,7 @@
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -229,7 +219,7 @@
              </layout>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <spacer name="verticalSpacer_4">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -252,6 +242,52 @@
                <widget class="QCheckBox" name="annotate">
                 <property name="text">
                  <string>Enabled</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QGroupBox" name="groupBox_13">
+             <property name="title">
+              <string>Syntax Highlighting File Extensions</string>
+             </property>
+             <layout class="QFormLayout" name="formLayout_5">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>Highlight these files as C:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Highlight these files as ASM:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="highlightAsC"/>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="highlightAsASM"/>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine what syntax highlighting rules to apply to a file.</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -623,6 +659,16 @@
           </item>
           <item row="3" column="1">
            <widget class="QLineEdit" name="headerExtensions"/>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Makefile generator to determine what source files to include in a build.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

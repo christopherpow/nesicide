@@ -51,21 +51,16 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_searchText = "";
    m_language = Language_Default;
 
-   foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForC().split(" ") )
+   foreach ( QString ext, EnvironmentSettingsDialog::highlightAsC().split(" ") )
    {
       if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
       {
          m_language = Language_C;
       }
    }
-   // Check explicitly for header files...
-   if ( m_fileName.endsWith(".h",Qt::CaseInsensitive) )
-   {
-      m_language = Language_C;
-   }
    if ( m_language == Language_Default )
    {
-      foreach ( QString ext, EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ") )
+      foreach ( QString ext, EnvironmentSettingsDialog::highlightAsASM().split(" ") )
       {
          if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
          {
@@ -1333,9 +1328,6 @@ void CodeEditorForm::snapTo(QString item)
          {
             m_searchText = item; // Capture entire search configuration.
             m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index);
-//            virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
-//                    bool wrap, bool forward = true, int line = -1, int index = -1,
-//                    bool show = true);
          }
          else
          {
@@ -1428,6 +1420,47 @@ void CodeEditorForm::applyProjectPropertiesToTab()
 
 void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
+   m_language = Language_Default;
+   m_scintilla->setLexer(NULL);
+   delete m_lexer;
+
+   foreach ( QString ext, EnvironmentSettingsDialog::highlightAsC().split(" ") )
+   {
+      if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
+      {
+         m_language = Language_C;
+      }
+   }
+   if ( m_language == Language_Default )
+   {
+      foreach ( QString ext, EnvironmentSettingsDialog::highlightAsASM().split(" ") )
+      {
+         if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
+         {
+            m_language = Language_Assembly;
+         }
+      }
+   }
+
+   if ( m_language == Language_C )
+   {
+      m_lexer = new QsciLexerCPP(m_scintilla);
+
+      m_scintilla->setLexer(m_lexer);
+   }
+   else if ( m_language == Language_Assembly )
+   {
+      m_lexer = new QsciLexerCA65(m_scintilla);
+
+      m_scintilla->setLexer(m_lexer);
+   }
+   else
+   {
+      m_lexer = new QsciLexerDefault(m_scintilla);
+
+      m_scintilla->setLexer(m_lexer);
+   }
+
    restyleText();
    annotateText();
 }
