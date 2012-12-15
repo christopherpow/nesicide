@@ -269,6 +269,10 @@ void MemoryInspectorDockWidget::snapToHandler(QString item)
          {
             addr = splits.at(1).toInt(NULL,16);
          }
+         else if ( splits.count() == 3 )
+         {
+            addr = splits.at(2).toInt(NULL,16);
+         }
          else if ( splits.count() == 4 )
          {
             addr = splits.at(3).toInt(NULL,16);

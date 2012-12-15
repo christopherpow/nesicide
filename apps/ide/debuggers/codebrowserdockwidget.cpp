@@ -200,21 +200,29 @@ void CodeBrowserDockWidget::snapTo(QString item)
       QStringList splits;
       splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
 
-      if ( splits.count() == 4 )
+      if ( splits.count() == 2 )
+      {
+         addr = splits.at(1).toInt(NULL,16);
+      }
+      else if ( splits.count() == 3 )
+      {
+         addr = splits.at(2).toInt(NULL,16);
+      }
+      else if ( splits.count() == 4 )
       {
          addr = splits.at(3).toInt(NULL,16);
-
-         if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
-         {
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(addr),0));
-         }
-         else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
-         {
-            ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(addr),0));
-         }
-         ui->tableView->scrollTo(ui->tableView->currentIndex());
-         ui->tableView->resizeColumnsToContents();
       }
+
+      if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+      {
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(addr),0));
+      }
+      else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
+      {
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(addr),0));
+      }
+      ui->tableView->scrollTo(ui->tableView->currentIndex());
+      ui->tableView->resizeColumnsToContents();
    }
 }
 

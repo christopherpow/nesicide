@@ -207,13 +207,22 @@ void CProjectTabWidget::snapToTab(QString item)
    if ( item.startsWith("Address,") )
    {
       splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
-      if ( splits.count() == 4 )
+      if ( splits.count() == 2 )
+      {
+         addr = splits.at(1).toInt(NULL,16);
+         absAddr = addr;
+      }
+      else if ( splits.count() == 3 )
+      {
+         addr = splits.at(2).toInt(NULL,16);
+         absAddr = addr;
+      }
+      else if ( splits.count() == 4 )
       {
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
-
-         file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
       }
+      file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
    }
    else if ( item.startsWith("SourceNavigatorFile,") )
    {

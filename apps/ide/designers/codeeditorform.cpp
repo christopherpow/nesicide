@@ -1291,17 +1291,26 @@ void CodeEditorForm::snapTo(QString item)
    if ( item.startsWith("Address,") )
    {
       splits = item.split(QRegExp("[,():]"),QString::SkipEmptyParts);
-      if ( splits.count() == 4 )
+      if ( splits.count() == 2 )
+      {
+         addr = splits.at(1).toInt(NULL,16);
+         absAddr = addr;
+      }
+      else if ( splits.count() == 3 )
+      {
+         addr = splits.at(2).toInt(NULL,16);
+         absAddr = addr;
+      }
+      else if ( splits.count() == 4 )
       {
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
-
-         fileName = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
-         if ( fileName == m_fileName )
-         {
-            line = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
-            highlightLine(line);
-         }
+      }
+      fileName = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+      if ( fileName == m_fileName )
+      {
+         line = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
+         highlightLine(line);
       }
    }
    else if ( item.startsWith("SearchBar,") )

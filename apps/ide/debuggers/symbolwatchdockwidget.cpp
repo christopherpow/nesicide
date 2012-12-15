@@ -131,6 +131,9 @@ void SymbolWatchDockWidget::createNesUi()
    QObject::connect(sram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),sramModel,SLOT(sort(int,Qt::SortOrder)));
    QObject::connect(exram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),exramModel,SLOT(sort(int,Qt::SortOrder)));
 
+   QObject::connect(sram,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(sram_doubleClicked(QModelIndex)));
+   QObject::connect(exram,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(exram_doubleClicked(QModelIndex)));
+
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),sramModel,SLOT(update()));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),exramModel,SLOT(update()));
    QObject::connect(emulator,SIGNAL(machineReady()),sramModel,SLOT(update()));
@@ -713,7 +716,7 @@ void SymbolWatchDockWidget::on_watch_doubleClicked(const QModelIndex &index)
 {
    if ( index.isValid() )
    {
-      emit snapTo("Address,"+watchModel->data(ramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
+      emit snapTo("Address,"+watchModel->data(watchModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
    }
 }
 
@@ -722,5 +725,21 @@ void SymbolWatchDockWidget::on_ram_doubleClicked(const QModelIndex &index)
    if ( index.isValid() )
    {
       emit snapTo("Address,"+ramModel->data(ramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
+   }
+}
+
+void SymbolWatchDockWidget::sram_doubleClicked(const QModelIndex &index)
+{
+   if ( index.isValid() )
+   {
+      emit snapTo("Address,"+sramModel->data(sramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
+   }
+}
+
+void SymbolWatchDockWidget::exram_doubleClicked(const QModelIndex &index)
+{
+   if ( index.isValid() )
+   {
+      emit snapTo("Address,"+exramModel->data(exramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
    }
 }

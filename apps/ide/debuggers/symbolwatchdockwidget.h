@@ -72,6 +72,8 @@ private slots:
    void updateTargetMachine(QString target);
    void on_watch_doubleClicked(const QModelIndex &index);
    void on_ram_doubleClicked(const QModelIndex &index);
+   void sram_doubleClicked(const QModelIndex &index);
+   void exram_doubleClicked(const QModelIndex &index);
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H
