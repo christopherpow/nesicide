@@ -90,6 +90,7 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    setupCodeEditor(0);
 
    ui->example->addWidget(m_scintilla);
+   adjustSize();
 
    ui->showWelcomeOnStart->setChecked(m_showWelcomeOnStart);
    ui->saveAllOnCompile->setChecked(m_saveAllOnCompile);

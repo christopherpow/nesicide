@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>637</width>
-    <height>379</height>
+    <width>639</width>
+    <height>437</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,10 +81,20 @@
      </item>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine syntax highlighting to apply and by the Makefile generator to determine what source files to include in a build.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">
@@ -189,7 +199,7 @@
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -255,162 +265,19 @@
            <string>Styles</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_10">
-           <item row="2" column="0" colspan="3">
-            <widget class="QGroupBox" name="groupBox">
-             <property name="title">
-              <string>Coloring</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_16">
-              <item row="0" column="1">
-               <widget class="QPushButton" name="backgroundColor">
-                <property name="text">
-                 <string>Color</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QPushButton" name="highlightBarColor">
-                <property name="text">
-                 <string>Background</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QPushButton" name="marginBackgroundColor">
-                <property name="text">
-                 <string>Background</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="3">
-               <widget class="QCheckBox" name="showLineNumberMargin">
-                <property name="text">
-                 <string>Line Numbers</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QPushButton" name="marginForegroundColor">
-                <property name="text">
-                 <string>Foreground</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QCheckBox" name="showHighlightBar">
-                <property name="text">
-                 <string>Highlight Bar</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>Margins:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Highlights:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Paper:</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="3" column="0" colspan="3">
-            <widget class="QGroupBox" name="groupBox_12">
-             <property name="title">
-              <string>Text Styles</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_17">
-              <item row="6" column="2">
-               <widget class="QCheckBox" name="fontItalic">
-                <property name="text">
-                 <string>Italic</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1">
-               <widget class="QCheckBox" name="fontBold">
-                <property name="text">
-                 <string>Bold</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="3">
-               <widget class="QCheckBox" name="fontUnderline">
-                <property name="text">
-                 <string>Underline</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>Style:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" colspan="3">
-               <widget class="QComboBox" name="styleName">
-                <property name="currentIndex">
-                 <number>-1</number>
-                </property>
-                <property name="maxVisibleItems">
-                 <number>200</number>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="3">
-               <widget class="QPushButton" name="styleColor">
-                <property name="text">
-                 <string>Color</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="3">
-               <widget class="QFontComboBox" name="styleFont"/>
-              </item>
-              <item row="2" column="0">
-               <widget class="QSpinBox" name="fontSize">
-                <property name="buttonSymbols">
-                 <enum>QAbstractSpinBox::PlusMinus</enum>
-                </property>
-                <property name="suffix">
-                 <string> pt</string>
-                </property>
-                <property name="minimum">
-                 <number>6</number>
-                </property>
-                <property name="maximum">
-                 <number>36</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QCheckBox" name="applyAll">
-                <property name="text">
-                 <string>Apply to all</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="3">
+           <item row="0" column="0">
             <layout class="QFormLayout" name="formLayout_4">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="label_8">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
                 <string>Language:</string>
                </property>
@@ -433,6 +300,164 @@
                  <string>C</string>
                 </property>
                </item>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>Coloring</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_16">
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="backgroundColor">
+                  <property name="text">
+                   <string>Color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="highlightBarColor">
+                  <property name="text">
+                   <string>Background</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="marginBackgroundColor">
+                  <property name="text">
+                   <string>Background</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="QCheckBox" name="showLineNumberMargin">
+                  <property name="text">
+                   <string>Line Numbers</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QPushButton" name="marginForegroundColor">
+                  <property name="text">
+                   <string>Foreground</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QCheckBox" name="showHighlightBar">
+                  <property name="text">
+                   <string>Highlight Bar</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Margins:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Highlights:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string>Paper:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QGroupBox" name="groupBox_12">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Text Styles</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_17">
+                <item row="6" column="2">
+                 <widget class="QCheckBox" name="fontItalic">
+                  <property name="text">
+                   <string>Italic</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QCheckBox" name="fontBold">
+                  <property name="text">
+                   <string>Bold</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="3">
+                 <widget class="QCheckBox" name="fontUnderline">
+                  <property name="text">
+                   <string>Underline</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_4">
+                  <property name="text">
+                   <string>Style:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" colspan="3">
+                 <widget class="QComboBox" name="styleName">
+                  <property name="currentIndex">
+                   <number>-1</number>
+                  </property>
+                  <property name="maxVisibleItems">
+                   <number>200</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" colspan="3">
+                 <widget class="QPushButton" name="styleColor">
+                  <property name="text">
+                   <string>Color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1" colspan="3">
+                 <widget class="QFontComboBox" name="styleFont"/>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QSpinBox" name="fontSize">
+                  <property name="buttonSymbols">
+                   <enum>QAbstractSpinBox::PlusMinus</enum>
+                  </property>
+                  <property name="suffix">
+                   <string> pt</string>
+                  </property>
+                  <property name="minimum">
+                   <number>6</number>
+                  </property>
+                  <property name="maximum">
+                   <number>36</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="applyAll">
+                  <property name="text">
+                   <string>Apply to all</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>
@@ -873,16 +898,6 @@
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine syntax highlighting to apply and by the Makefile generator to determine what source files to include in a build.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
      </property>
     </widget>
    </item>
