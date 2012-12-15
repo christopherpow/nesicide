@@ -76,16 +76,31 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
    CSourceItem*                 source;
    QStringList                  sources;
    QStringList                  extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ", QString::SkipEmptyParts);
+   QStringList                  headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
+   bool                         add;
 
    // For each source code object, compile it.
    while ( iter.current() )
    {
       source = dynamic_cast<CSourceItem*>(iter.current());
+      add = true;
       foreach ( QString extension, extensions )
       {
          if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
          {
-            sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+            foreach ( QString headerExtension, headerExtensions )
+            {
+               if ( source->path().endsWith(headerExtension,Qt::CaseInsensitive) )
+               {
+                  add = false;
+                  break;
+               }
+            }
+
+            if ( add )
+            {
+               sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+            }
          }
       }
       iter.next();

@@ -14,7 +14,7 @@
    <string>Environment Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="1" column="0" rowspan="2">
+   <item row="0" column="0" rowspan="3">
     <widget class="QTreeWidget" name="treeWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -84,7 +84,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">
@@ -566,7 +566,7 @@
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
-          <string>Source File Extensions</string>
+          <string>File Extensions</string>
          </property>
          <layout class="QFormLayout" name="formLayout_2">
           <item row="1" column="0">
@@ -589,15 +589,15 @@
           <item row="2" column="1">
            <widget class="QLineEdit" name="sourceExtensionsAsm"/>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="label_10">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_13">
             <property name="text">
-             <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine syntax highlighting to apply and by the Makefile generator to determine what source files to include in a build.</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
+             <string>Headers:</string>
             </property>
            </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="headerExtensions"/>
           </item>
          </layout>
         </widget>
@@ -873,6 +873,16 @@
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine syntax highlighting to apply and by the Makefile generator to determine what source files to include in a build.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

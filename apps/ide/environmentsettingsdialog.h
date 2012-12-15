@@ -50,6 +50,7 @@ public:
    static bool annotateSource() { return m_annotateSource; }
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
+   static QString headerExtensions() { return m_headerExtensions; }
    static int eolMode() { return m_eolMode; }
    static bool eolForceConsistent() { return m_eolForceConsistent; }
 
@@ -99,6 +100,7 @@ private:
    static bool m_annotateSource;
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
+   static QString m_headerExtensions;
    static int m_eolMode;
    static bool m_eolForceConsistent;
 
