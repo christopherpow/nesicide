@@ -316,7 +316,7 @@ uint32_t CROMMapper024::DEBUGINFO ( uint32_t addr )
 
 void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )
 {
-   uint32_t reg;
+   uint32_t reg = 0xFFFFFFFF;
 
    switch ( addr )
    {
@@ -487,7 +487,7 @@ void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )
       break;
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable() && (reg != 0xFFFFFFFF) )
    {
       // Check mapper state breakpoints...
       CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
