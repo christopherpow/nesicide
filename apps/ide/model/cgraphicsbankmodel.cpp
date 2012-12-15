@@ -66,6 +66,10 @@ void CGraphicsBankModel::deleteGraphicsBank(const QUuid &uuid)
 CDesignerEditorBase *CGraphicsBankModel::createEditorWidget(const QUuid &uuid) const
 {
    CGraphicsBank* bank = ProjectSearcher::findItemByUuid<CGraphicsBank>(m_pProject, uuid);
-   return bank == NULL ? NULL : new GraphicsBankEditorForm(bank->getGraphics(), bank);
+   if (bank == NULL)
+      return NULL;
+   // Data item needs to know its editor.
+   bank->setEditor(new GraphicsBankEditorForm(bank->getGraphics(), bank));
+   return bank->editor();
 }
 

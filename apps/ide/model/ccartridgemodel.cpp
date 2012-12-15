@@ -49,12 +49,17 @@ CDesignerEditorBase *CCartridgeModel::createEditorWidget(const QUuid &uuid) cons
    CPRGROMBank* prgBank = ProjectSearcher::findItemByUuid<CPRGROMBank>(m_pProject, uuid);
    if (prgBank != NULL)
    {
-      return new PRGROMDisplayDialog(prgBank->getBankData(), prgBank);
+      // Item must know editor due to current architecture.
+      prgBank->setEditor(new PRGROMDisplayDialog(prgBank->getBankData(), prgBank));
+      return prgBank->editor();
    }
+
    CCHRROMBank* chrBank = ProjectSearcher::findItemByUuid<CCHRROMBank>(m_pProject, uuid);
    if (chrBank != NULL)
    {
-      return new CHRROMDisplayDialog(false, reinterpret_cast<qint8*>(chrBank->getBankData()), chrBank);
+      // Item must know editor due to current architecture.
+      chrBank->setEditor(new CHRROMDisplayDialog(false, reinterpret_cast<qint8*>(chrBank->getBankData()), chrBank));
+      return chrBank->editor();
    }
 
    return NULL;
