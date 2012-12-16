@@ -119,6 +119,7 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
       ui->tabWidget->removeTab(0);
       ui->tabWidget->removeTab(0);
       ui->tabWidget->removeTab(0);
+      ui->tabWidget->removeTab(0);
    }
 }
 

@@ -194,6 +194,7 @@ protected:
 
 private:
    void openNesProject(QString fileName,bool runRom=true);
+   void openC64Project(QString fileName,bool run=true);
    void saveProject(QString fileName);
    void saveEmulatorState(QString fileName);
    void closeProject();

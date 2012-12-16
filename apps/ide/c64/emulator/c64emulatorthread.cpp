@@ -263,7 +263,7 @@ void C64EmulatorThread::resetEmulator()
    if ( nesicideProject->isInitialized() )
    {
       QDir dirProject(nesicideProject->getProjectOutputBasePath());
-      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectOutputName()));
+      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
       QString request;
       int addr;
 
@@ -827,6 +827,8 @@ TcpClient::TcpClient(QString monitorIPAddress,int monitorPort,QObject */*parent*
    : m_ipAddress(monitorIPAddress),
      m_port(monitorPort)
 {
+   m_clientMutex = new QMutex();
+
    pSocket = new QTcpSocket(this);
    QObject::connect(pSocket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
    QObject::connect(pSocket,SIGNAL(connected()),this,SLOT(connected()));
@@ -834,8 +836,6 @@ TcpClient::TcpClient(QString monitorIPAddress,int monitorPort,QObject */*parent*
    QObject::connect(pSocket,SIGNAL(readyRead()),this,SLOT(readyRead()));
    QObject::connect(pSocket,SIGNAL(bytesWritten(qint64)),this,SLOT(bytesWritten(qint64)));
    pSocket->connectToHost(m_ipAddress,m_port);
-
-   m_clientMutex = new QMutex();
 
    m_request = 0;
 }

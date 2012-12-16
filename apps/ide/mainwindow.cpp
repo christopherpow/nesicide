@@ -241,14 +241,20 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    }
 
    // Filter for supported files to open.
-   QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
    QStringList argv_nesproject = argv.filter ( QRegExp(".*[.]nesproject$",Qt::CaseInsensitive) );
+   QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
+   QStringList argv_c64project = argv.filter ( QRegExp(".*[.]c64project$",Qt::CaseInsensitive) );
    QStringList argv_c64 = argv.filter ( QRegExp(".*[.](c64|prg|d64)$",Qt::CaseInsensitive) );
 
    if ( (argv_nes.count() >= 1) &&
         (argv_nesproject.count() >= 1) )
    {
       QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .nes and a .nesproject file to open.\n" );
+   }
+   if ( (argv_c64.count() >= 1) &&
+        (argv_c64project.count() >= 1) )
+   {
+      QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .c64 and a .c64project file to open.\n" );
    }
 
    if ( argv_nes.count() >= 1 )
@@ -268,8 +274,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
       if ( argv_nesproject.count() > 1 )
       {
-         QMessageBox::information ( 0, "Command Line Error", "Too many NESICIDE project files were specified on the command\n"
-                                    "line.  Only the first NESICIDE project was opened, all others\n"
+         QMessageBox::information ( 0, "Command Line Error", "Too many NES project files were specified on the command\n"
+                                    "line.  Only the first NES project was opened, all others\n"
                                     "were ignored." );
       }
    }
@@ -281,6 +287,17 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       {
          QMessageBox::information ( 0, "Command Line Error", "Too many C64 files were specified on the command\n"
                                     "line.  Only the first C64 file was opened, all others\n"
+                                    "were ignored." );
+      }
+   }
+   else if ( argv_c64project.count() >= 1 )
+   {
+      openC64Project(argv_c64project.at(0));
+
+      if ( argv_c64project.count() > 1 )
+      {
+         QMessageBox::information ( 0, "Command Line Error", "Too many C64 project files were specified on the command\n"
+                                    "line.  Only the first C64 project was opened, all others\n"
                                     "were ignored." );
       }
    }
@@ -360,8 +377,16 @@ void MainWindow::applicationActivationChanged(bool activated)
 
             if ( result == QMessageBox::Yes )
             {
-               closeProject();
-               openNesProject(fileInfo.fileName());
+               if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+               {
+                  closeProject();
+                  openNesProject(fileInfo.fileName());
+               }
+               else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+               {
+                  closeProject();
+                  openC64Project(fileInfo.fileName());
+               }
             }
          }
       }
@@ -1241,6 +1266,7 @@ void MainWindow::createC64Ui()
    emit updateTargetMachine(m_targetLoaded);
 
    // Connect slots for new UI elements.
+   QObject::connect(actionPreferences,SIGNAL(triggered()),this,SLOT(actionPreferences_triggered()));
    QObject::connect(actionBinCPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURegister_Inspector_triggered()));
    QObject::connect(actionBinCPURAM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURAM_Inspector_triggered()));
    QObject::connect(actionBinSIDRegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinSIDRegister_Inspector_triggered()));
@@ -1366,6 +1392,16 @@ void MainWindow::dropEvent(QDropEvent* event)
 
             event->acceptProposedAction();
          }
+         else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
+         {
+            if ( nesicideProject->isInitialized() )
+            {
+               closeProject();
+            }
+            openC64Project(fileName);
+
+            event->acceptProposedAction();
+         }
          else if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) ||
                    !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) ||
                    !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
@@ -1478,8 +1514,16 @@ void MainWindow::on_actionSave_Project_triggered()
    fileName = nesicideProject->getProjectFileName();
    if ( !fileName.compare("(unset)",Qt::CaseInsensitive) )
    {
-      fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
-                                                     "NESICIDE Project (*.nesproject)");
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      {
+         fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
+                                                        "NES Project (*.nesproject)");
+      }
+      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+      {
+         fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".c64project",
+                                                        "C64 Project (*.c64project)");
+      }
    }
 
    if (!fileName.isEmpty())
@@ -1585,8 +1629,18 @@ void MainWindow::on_actionSave_Project_As_triggered()
 {
    // Allow the user to select a file name. Note that using the static function produces a native
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
-   QString fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
-                                                  "NESICIDE Project (*.nesproject)");
+   QString fileName;
+
+   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   {
+      fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
+                                                     "NES Project (*.nesproject)");
+   }
+   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   {
+      fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
+                                                     "C64 Project (*.c64project)");
+   }
 
    if (!fileName.isEmpty())
    {
@@ -1641,6 +1695,10 @@ void MainWindow::explodeTemplate(QString templateDirName,QString localDirName,QS
          {
             (*projectFileName) = localFile.fileName();
          }
+         else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
+         {
+            (*projectFileName) = localFile.fileName();
+         }
 
          templateFile.close();
          localFile.close();
@@ -1692,6 +1750,8 @@ void MainWindow::on_actionNew_Project_triggered()
 
             // Recursively copy the project content to the local location.
             explodeTemplate(templateDirName,"",&projectFileName);
+
+            openC64Project(projectFileName);
          }
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
          {
@@ -2041,59 +2101,112 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
          nesicideProject->terminateProject();
       }
 
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      // Load ROM if it exists.
+      if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
       {
-         // Load ROM if it exists.
-         if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
+         QDir dir(QDir::currentPath());
+         QString romName;
+         romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+
+         nesicideProject->createProjectFromRom(romName,true);
+
+         // Load debugger info if we can find it.
+         CCC65Interface::captureDebugInfo();
+
+         if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
          {
-            QDir dir(QDir::currentPath());
-            QString romName;
-            romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+            QDomDocument saveDoc;
+            QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
 
-            nesicideProject->createProjectFromRom(romName,true);
-
-            // Load debugger info if we can find it.
-            CCC65Interface::captureDebugInfo();
-
-            if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+            if (saveFile.open(QFile::ReadOnly))
             {
-               QDomDocument saveDoc;
-               QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
-
-               if (saveFile.open(QFile::ReadOnly))
-               {
-                  saveDoc.setContent(saveFile.readAll());
-                  nesicideProject->setSaveStateDoc(saveDoc);
-               }
-               saveFile.close();
+               saveDoc.setContent(saveFile.readAll());
+               nesicideProject->setSaveStateDoc(saveDoc);
             }
-
-            emit primeEmulator();
-            emit resetEmulator();
-
-            if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
-            {
-               emit startEmulation();
-            }
-
-            actionEmulation_Window->setChecked(true);
-            actionEmulation_Window_triggered();
+            saveFile.close();
          }
+
+         emit primeEmulator();
+         emit resetEmulator();
+
+         if ( runRom && EnvironmentSettingsDialog::runRomOnLoad() )
+         {
+            emit startEmulation();
+         }
+
+         actionEmulation_Window->setChecked(true);
+         actionEmulation_Window_triggered();
       }
-      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+
+      m_pProjectBrowser->enableNavigation();
+
+      settings.setValue("LastProject",fileName);
+
+      projectDataChangesEvent();
+   }
+}
+
+void MainWindow::openC64Project(QString fileName,bool run)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QString errors;
+   bool    ok;
+
+   if (QFile::exists(fileName))
+   {
+      QDomDocument doc;
+      QFile file( fileName );
+
+      if (!file.open(QFile::ReadOnly))
       {
-         // Load C64 image if it exists.
-         if ( !nesicideProject->getProjectLinkerOutputName().isEmpty() )
-         {
-            QDir dir(QDir::currentPath());
-            QString c64Name;
-            c64Name = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectLinkerOutputName()));
+         QMessageBox::critical(this, "Error", "Failed to open the project file.");
+         return;
+      }
 
-            // Load debugger info if we can find it.
-            CCC65Interface::captureDebugInfo();
+      if (!doc.setContent(file.readAll()))
+      {
+         QMessageBox::critical(this, "Error", "Failed to parse the project xml data.");
+         file.close();
+         return;
+      }
 
-            emit resetEmulator();
-         }
+      file.close();
+
+      m_pProjectBrowser->disableNavigation();
+
+      // Set project target before initializing project.
+      nesicideProject->setProjectTarget("c64");
+      nesicideProject->initializeProject();
+      nesicideProject->setProjectFileName(fileName);
+
+      // Clear output
+      output->clearAllPanes();
+      output->show();
+
+      // Set up some default stuff guessing from the path...
+      QFileInfo fileInfo(fileName);
+      QDir::setCurrent(fileInfo.path());
+
+      // Load new project content
+      ok = nesicideProject->deserialize(doc,doc,errors);
+      if ( !ok )
+      {
+         QMessageBox::warning(this,"Project Load Error", "The project failed to load.\n\n"+errors);
+
+         nesicideProject->terminateProject();
+      }
+
+      // Load C64 image if it exists.
+      if ( !nesicideProject->getProjectLinkerOutputName().isEmpty() )
+      {
+         QDir dir(QDir::currentPath());
+         QString c64Name;
+         c64Name = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectLinkerOutputName()));
+
+         // Load debugger info if we can find it.
+         CCC65Interface::captureDebugInfo();
+
+         emit resetEmulator();
       }
 
       m_pProjectBrowser->enableNavigation();
@@ -2106,14 +2219,21 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
 
 void MainWindow::on_actionOpen_Project_triggered()
 {
-   QString fileName = QFileDialog::getOpenFileName(this, "Open Project", "", "NESICIDE Project (*.nesproject)");
+   QString fileName = QFileDialog::getOpenFileName(this, "Open Project", "", "NES Project (*.nesproject);;Commodore 64 Project (*.c64project)");
 
    if (fileName.isEmpty())
    {
       return;
    }
 
-   openNesProject(fileName);
+   if ( fileName.endsWith(".nesproject",Qt::CaseInsensitive) )
+   {
+      openNesProject(fileName);
+   }
+   else
+   {
+      openC64Project(fileName);
+   }
 }
 
 void MainWindow::on_tabWidget_currentChanged(int index)
