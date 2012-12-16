@@ -153,17 +153,17 @@ void SymbolWatchDockWidget::destroyNesUi()
       return;
    }
 
+   delete sram;
+   delete sramGridLayout;
+   delete sramTab;
+   delete exram;
+   delete exramGridLayout;
+   delete exramTab;
+
    delete sramModel;
    delete sramValueDelegate;
    delete exramModel;
    delete exramValueDelegate;
-
-   delete sramTab;
-   delete sramGridLayout;
-   delete sram;
-   delete exramTab;
-   delete exramGridLayout;
-   delete exram;
 
    m_targetLoaded = "none";
 }

@@ -1261,10 +1261,6 @@ void MainWindow::createC64Ui()
    QObject::connect(m_pBinSIDRegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "SID Register Inspector", m_pBinSIDRegisterInspector );
 
-   m_targetLoaded = "c64";
-
-   emit updateTargetMachine(m_targetLoaded);
-
    // Connect slots for new UI elements.
    QObject::connect(actionPreferences,SIGNAL(triggered()),this,SLOT(actionPreferences_triggered()));
    QObject::connect(actionBinCPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURegister_Inspector_triggered()));
@@ -1275,6 +1271,10 @@ void MainWindow::createC64Ui()
 
    // Connect snapTo's from various debuggers.
    QObject::connect ( m_pBreakpointInspector, SIGNAL(snapTo(QString)), tabWidget, SLOT(snapToTab(QString)) );
+
+   m_targetLoaded = "c64";
+
+   emit updateTargetMachine(m_targetLoaded);
 }
 
 void MainWindow::destroyC64Ui()

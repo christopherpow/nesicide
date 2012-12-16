@@ -428,82 +428,85 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
          QDomNode property = child.firstChild();
          do
          {
-            // These are NES-specific project items.
-            if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+            if ( !property.isNull() )
             {
-               if ( property.nodeName() == "tileproperties" )
-               {
-                  // Get the properties that are attributes of the tileproperties node.
-                  QDomElement tilePropertiesElement = property.toElement();
-
-                  QDomNode tilePropertyNode = property.firstChild();
-                  do
-                  {
-                     QDomElement tilePropertyItem = tilePropertyNode.toElement();
-
-                     if (!tilePropertyItem.isNull())
-                     {
-
-                        if ((!tilePropertyItem.hasAttribute("name"))
-                              || (!tilePropertyItem.hasAttribute("type"))
-                              || (!tilePropertyItem.hasAttribute("value")))
-                        {
-                           errors.append("Error parsing <tileproperties> element.\n");
-                           return false;
-                        }
-
-                        PropertyItem item;
-                        item.name = tilePropertyItem.attribute("name");
-                        item.type = (propertyTypeEnum)tilePropertyItem.attribute("type").toInt();
-                        item.value = tilePropertyItem.attribute("value");
-                        m_tileProperties.append(item);
-                     }
-                  }
-                  while (!(tilePropertyNode = tilePropertyNode.nextSibling()).isNull());
-               }
-            }
-            if ( property.nodeName() == "palette" )
-            {
-               // Palette is target-dependent!
+               // These are NES-specific project items.
                if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
                {
-                  numColors = nesGetNumColors();
+                  if ( property.nodeName() == "tileproperties" )
+                  {
+                     // Get the properties that are attributes of the tileproperties node.
+                     QDomElement tilePropertiesElement = property.toElement();
+
+                     QDomNode tilePropertyNode = property.firstChild();
+                     do
+                     {
+                        QDomElement tilePropertyItem = tilePropertyNode.toElement();
+
+                        if (!tilePropertyItem.isNull())
+                        {
+
+                           if ((!tilePropertyItem.hasAttribute("name"))
+                                 || (!tilePropertyItem.hasAttribute("type"))
+                                 || (!tilePropertyItem.hasAttribute("value")))
+                           {
+                              errors.append("Error parsing <tileproperties> element.\n");
+                              return false;
+                           }
+
+                           PropertyItem item;
+                           item.name = tilePropertyItem.attribute("name");
+                           item.type = (propertyTypeEnum)tilePropertyItem.attribute("type").toInt();
+                           item.value = tilePropertyItem.attribute("value");
+                           m_tileProperties.append(item);
+                        }
+                     }
+                     while (!(tilePropertyNode = tilePropertyNode.nextSibling()).isNull());
+                  }
                }
-               else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
+               if ( property.nodeName() == "palette" )
                {
-                  numColors = c64GetNumColors();
+                  // Palette is target-dependent!
+                  if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
+                  {
+                     numColors = nesGetNumColors();
+                  }
+                  else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
+                  {
+                     numColors = c64GetNumColors();
+                  }
+
+                  QDomNode paletteNode = property.firstChild();
+                  do
+                  {
+                     QDomElement paletteItem = paletteNode.toElement();
+
+                     if (paletteItem.isNull())
+                     {
+                        return false;
+                     }
+
+                     if ((!paletteItem.hasAttribute("index"))
+                           || (!paletteItem.hasAttribute("r"))
+                           || (!paletteItem.hasAttribute("g"))
+                           || (!paletteItem.hasAttribute("b")))
+                     {
+                        errors.append("Error parsing <nesicidepalette> element.\n");
+                        return false;
+                     }
+
+                     int nodeIndex = paletteItem.attribute("index").toInt();
+
+                     if ((nodeIndex >= 0) && (nodeIndex < numColors))
+                     {
+                        m_projectPaletteEntries.replace(nodeIndex,
+                                                        QColor(paletteItem.attribute("r").toInt(),
+                                                               paletteItem.attribute("g").toInt(),
+                                                               paletteItem.attribute("b").toInt()));
+                     }
+                  }
+                  while (!(paletteNode = paletteNode.nextSibling()).isNull());
                }
-
-               QDomNode paletteNode = property.firstChild();
-               do
-               {
-                  QDomElement paletteItem = paletteNode.toElement();
-
-                  if (paletteItem.isNull())
-                  {
-                     return false;
-                  }
-
-                  if ((!paletteItem.hasAttribute("index"))
-                        || (!paletteItem.hasAttribute("r"))
-                        || (!paletteItem.hasAttribute("g"))
-                        || (!paletteItem.hasAttribute("b")))
-                  {
-                     errors.append("Error parsing <nesicidepalette> element.\n");
-                     return false;
-                  }
-
-                  int nodeIndex = paletteItem.attribute("index").toInt();
-
-                  if ((nodeIndex >= 0) && (nodeIndex < numColors))
-                  {
-                     m_projectPaletteEntries.replace(nodeIndex,
-                                                     QColor(paletteItem.attribute("r").toInt(),
-                                                            paletteItem.attribute("g").toInt(),
-                                                            paletteItem.attribute("b").toInt()));
-                  }
-               }
-               while (!(paletteNode = paletteNode.nextSibling()).isNull());
             }
          } while (!(property = property.nextSibling()).isNull());
       }

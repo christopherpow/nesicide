@@ -84,6 +84,9 @@ C64EmulatorThread::~C64EmulatorThread()
 {
    delete m_requestMutex;
 
+   QObject::disconnect(m_pViceApp,SIGNAL(error(QProcess::ProcessError)),this,SLOT(viceError(QProcess::ProcessError)));
+   QObject::disconnect(m_pViceApp,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(viceFinished(int,QProcess::ExitStatus)));
+
    m_pViceApp->kill();
    delete m_pViceApp;
 }
