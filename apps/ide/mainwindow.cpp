@@ -2450,7 +2450,8 @@ void MainWindow::on_actionCode_Profiler_triggered()
 void MainWindow::on_actionSearch_triggered()
 {
    output->showPane(OutputPaneDockWidget::Output_Search);
-   m_pSearch->setVisible(true);
+   m_pSearch->hide();
+   m_pSearch->show();
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

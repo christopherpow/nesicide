@@ -49,12 +49,33 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
    qRegisterMetaType<QDir>("QDir");
    QObject::connect(this,SIGNAL(search(QDir,QString,QString,bool,bool,bool,bool)),searcher,SLOT(search(QDir,QString,QString,bool,bool,bool,bool)));
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
+
+   ui->searchText->installEventFilter(this);
 }
 
 SearchDockWidget::~SearchDockWidget()
 {
    delete ui;
    delete searchBar;
+}
+
+bool SearchDockWidget::eventFilter(QObject *object, QEvent *event)
+{
+   if ( object == ui->searchText )
+   {
+      if ( event->type() == QEvent::KeyPress )
+      {
+         QKeyEvent* keyEvent = dynamic_cast<QKeyEvent*>(event);
+
+         if ( (keyEvent->key() == Qt::Key_Return) ||
+              (keyEvent->key() == Qt::Key_Enter) )
+         {
+            on_find_clicked();
+            return true;
+         }
+      }
+   }
+   return false;
 }
 
 void SearchDockWidget::showEvent(QShowEvent */*event*/)
@@ -68,6 +89,7 @@ void SearchDockWidget::showEvent(QShowEvent */*event*/)
       ui->type->addItem("*");
       ui->type->addItem("*.s");
    }
+   ui->searchText->lineEdit()->selectAll();
    ui->searchText->setFocus();
 }
 

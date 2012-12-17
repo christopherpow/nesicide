@@ -20,6 +20,7 @@ public:
 
 protected:
    void showEvent(QShowEvent *event);
+   bool eventFilter(QObject *object, QEvent *event);
 
 private:
    Ui::SearchDockWidget *ui;

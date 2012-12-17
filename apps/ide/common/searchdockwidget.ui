@@ -166,7 +166,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset resource="../resource.qrc">
+             <iconset resource="../../../common/resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -266,7 +266,7 @@
   <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>
