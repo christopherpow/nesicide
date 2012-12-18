@@ -40,6 +40,7 @@ signals:
    void markProjectDirty(bool dirty);
    void breakpointsChanged();
    void activateSearchBar(QString item);
+   void setSearchBarHint(bool found);
    void snapToTab(QString item);
    void addWatchedItem(QString item);
    void applyChanges(QString uuid);

@@ -145,6 +145,10 @@ void SearchBar::on_searchText_editTextChanged(QString search)
                   +QString::number(ui->direction->isChecked())+","
                   +search);
    }
+   else
+   {
+      ui->searchText->lineEdit()->setStyleSheet("QLineEdit { background: white; color: black }");
+   }
 }
 
 void SearchBar::on_caseSensitive_toggled(bool checked)
@@ -182,6 +186,18 @@ void SearchBar::activateMe(QString item)
    {
       ui->searchText->setEditText(item);
       ui->searchText->lineEdit()->setSelection(0,ui->searchText->currentText().length());
+   }
+}
+
+void SearchBar::hintMe(bool found)
+{
+   if ( found )
+   {
+      ui->searchText->lineEdit()->setStyleSheet("QLineEdit { background: white; color: black }");
+   }
+   else
+   {
+      ui->searchText->lineEdit()->setStyleSheet("QLineEdit { background: #ff8080; color: white }");
    }
 }
 

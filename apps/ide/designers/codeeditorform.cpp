@@ -1281,6 +1281,7 @@ void CodeEditorForm::snapTo(QString item)
    int      index;
    int      throwAway1;
    int      throwAway2;
+   bool     found;
 
    // Make sure item is something we care about
    if ( item.startsWith("Address,") )
@@ -1327,11 +1328,15 @@ void CodeEditorForm::snapTo(QString item)
          if ( item != m_searchText )
          {
             m_searchText = item; // Capture entire search configuration.
-            m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index);
+            found = m_scintilla->findFirst(splits.at(4),splits.at(2).toInt(),splits.at(1).toInt(),false,true,splits.at(3).toInt(),line,index);
+
+            emit setSearchBarHint(found);
          }
          else
          {
-            m_scintilla->findNext();
+            found = m_scintilla->findNext();
+
+            emit setSearchBarHint(found);
          }
       }
    }

@@ -36,6 +36,7 @@ signals:
 private slots:
    void on_close_clicked();
    void activateMe(QString item);
+   void hintMe(bool found);
    void on_direction_toggled(bool checked);
    void on_regex_toggled(bool checked);
    void on_caseSensitive_toggled(bool checked);
