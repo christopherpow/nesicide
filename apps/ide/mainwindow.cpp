@@ -183,7 +183,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect(compiler,SIGNAL(compileDone(bool)),output,SLOT(compiler_compileDone(bool)));
    QObject::connect(searcher,SIGNAL(searchDone(int)),output,SLOT(searcher_searchDone(int)));
    CDockWidgetRegistry::addWidget ( "Output", output );
-   output->initialize();
    output->hide();
 
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
@@ -315,6 +314,10 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       restoreGeometry(settings.value("IDEGeometry").toByteArray());
       restoreState(settings.value("IDEState").toByteArray());
    }
+
+   // Sync the Output Pane buttons.
+   output->initialize();
+   output->hide();
 
    // Start timer for doing background stuff.
    m_periodicTimer = startTimer(5000);

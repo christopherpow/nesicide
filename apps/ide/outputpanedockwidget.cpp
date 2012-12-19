@@ -143,7 +143,7 @@ void OutputPaneDockWidget::searcher_searchDone(int results)
    {
       QString text = "Search Results: ";
       text += QString::number(results);
-      searchResults->setStyleSheet("QPushButton { background: #A0FFA0 }");
+      searchResults->setStyleSheet("QPushButton { background: #80FF80 }");
       searchResults->setText(text);
    }
    else
@@ -162,11 +162,11 @@ void OutputPaneDockWidget::compiler_compileDone(bool ok)
 {
    if ( ok )
    {
-      buildResults->setStyleSheet("QPushButton { background: #A0FFA0 }");
+      buildResults->setStyleSheet("QPushButton { background: #80FF80 }");
    }
    else
    {
-      buildResults->setStyleSheet("QPushButton { background: #FFA0A0 }");
+      buildResults->setStyleSheet("QPushButton { background: #FF8080 }");
    }
 }
 
