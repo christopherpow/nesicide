@@ -320,7 +320,8 @@ SOURCES += \
     model/ccartridgemodel.cpp \
     project/cprojecttreecontextmenu.cpp \
     project/cprojecttreeopenaction.cpp \
-    project/cprojecttreewidget.cpp
+    project/cprojecttreewidget.cpp \
+    designers/qscilexerbin.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -466,7 +467,8 @@ HEADERS += \
     model/ccartridgemodel.h \
     project/cprojecttreewidget.h \
     project/cprojecttreecontextmenu.h \
-    project/cprojecttreeopenaction.h
+    project/cprojecttreeopenaction.h \
+    designers/qscilexerbin.h
 
 FORMS += \
    aboutdialog.ui \

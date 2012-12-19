@@ -25,8 +25,6 @@
 #include <QMessageBox>
 #include <QSettings>
 
-//#include <QSystemStorageInfo>
-
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
@@ -165,9 +163,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pProjectBrowser->hide();
    CDockWidgetRegistry::addWidget ( "Project", m_pProjectBrowser );
 
-   output = new OutputPaneDockWidget();
+   output = new OutputPaneDockWidget(this);
    addDockWidget(Qt::BottomDockWidgetArea, output );
-   output->hide();
    QObject::connect(generalTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateGeneralPane(QString)));
    QObject::connect(buildTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateBuildPane(QString)));
    QObject::connect(debugTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateDebugPane(QString)));
@@ -178,7 +175,16 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect(searchTextLogger,SIGNAL(eraseText()),output,SLOT(eraseSearchPane()));
    QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
    QObject::connect(m_pSearch, SIGNAL(showPane(int)), output, SLOT(showPane(int)));
+   QObject::connect(output,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
+   QObject::connect(output,SIGNAL(removeStatusBarWidget(QWidget*)),this,SLOT(removeStatusBarWidget(QWidget*)));
+   QObject::connect(output,SIGNAL(addPermanentStatusBarWidget(QWidget*)),this,SLOT(addPermanentStatusBarWidget(QWidget*)));
+   QObject::connect(output,SIGNAL(removePermanentStatusBarWidget(QWidget*)),this,SLOT(removePermanentStatusBarWidget(QWidget*)));
+   QObject::connect(compiler,SIGNAL(compileStarted()),output,SLOT(compiler_compileStarted()));
+   QObject::connect(compiler,SIGNAL(compileDone(bool)),output,SLOT(compiler_compileDone(bool)));
+   QObject::connect(searcher,SIGNAL(searchDone(int)),output,SLOT(searcher_searchDone(int)));
    CDockWidgetRegistry::addWidget ( "Output", output );
+   output->initialize();
+   output->hide();
 
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
    generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
@@ -1450,7 +1456,6 @@ void MainWindow::projectDataChangesEvent()
 
    m_pProjectBrowser->layoutChangedEvent();
    m_pProjectBrowser->setVisible(nesicideProject->isInitialized());
-   output->setVisible(nesicideProject->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not
    actionNew_Project->setEnabled(!nesicideProject->isInitialized());
@@ -1498,6 +1503,17 @@ void MainWindow::removeStatusBarWidget(QWidget *widget)
 {
    // For some reason on creation the widget isn't there but it's being removed?
    appStatusBar->addWidget(widget,100);
+   appStatusBar->removeWidget(widget);
+}
+
+void MainWindow::addPermanentStatusBarWidget(QWidget *widget)
+{
+   appStatusBar->addPermanentWidget(widget);
+   widget->show();
+}
+
+void MainWindow::removePermanentStatusBarWidget(QWidget *widget)
+{
    appStatusBar->removeWidget(widget);
 }
 
@@ -1785,7 +1801,6 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    // Clear output
    output->clearAllPanes();
-   output->show();
 
    // Create new project from ROM
    // Set project target before initializing project.
@@ -1851,7 +1866,6 @@ void MainWindow::openC64File(QString fileName)
 
    // Clear output
    output->clearAllPanes();
-   output->show();
 
    // Create new project from ROM
    // Set project target before initializing project.
@@ -2086,7 +2100,6 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
 
       // Clear output
       output->clearAllPanes();
-      output->show();
 
       // Set up some default stuff guessing from the path...
       QFileInfo fileInfo(fileName);
@@ -2181,7 +2194,6 @@ void MainWindow::openC64Project(QString fileName,bool run)
 
       // Clear output
       output->clearAllPanes();
-      output->show();
 
       // Set up some default stuff guessing from the path...
       QFileInfo fileInfo(fileName);
@@ -2272,7 +2284,7 @@ void MainWindow::on_actionSave_Active_Document_triggered()
 
 void MainWindow::on_actionOutput_Window_triggered()
 {
-   output->setVisible(true);
+   output->show();
 }
 
 void MainWindow::on_actionCompile_Project_triggered()
@@ -2533,7 +2545,6 @@ void MainWindow::closeProject()
 
    // Clear output
    output->clearAllPanes();
-   output->hide();
 
    // Let the UI know what's up
    projectDataChangesEvent();

@@ -22,7 +22,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QTabWidget" name="outputTabWidget">
+     <widget class="QStackedWidget" name="outputStackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -38,34 +38,7 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::South</enum>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Triangular</enum>
-      </property>
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <property name="elideMode">
-       <enum>Qt::ElideNone</enum>
-      </property>
-      <property name="usesScrollButtons">
-       <bool>true</bool>
-      </property>
-      <property name="documentMode">
-       <bool>false</bool>
-      </property>
-      <property name="tabsClosable">
-       <bool>false</bool>
-      </property>
-      <property name="movable">
-       <bool>false</bool>
-      </property>
-      <widget class="QWidget" name="generalOutput">
-       <attribute name="title">
-        <string>General</string>
-       </attribute>
+      <widget class="QWidget" name="outputStackedWidgetPage1" native="true">
        <layout class="QGridLayout" name="gridLayout_5">
         <property name="margin">
          <number>0</number>
@@ -109,10 +82,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="compilerOutput">
-       <attribute name="title">
-        <string>Build</string>
-       </attribute>
+      <widget class="QWidget" name="outputStackedWidgetPage2" native="true">
        <layout class="QGridLayout" name="gridLayout_4">
         <property name="margin">
          <number>0</number>
@@ -162,10 +132,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="debuggerOutput">
-       <attribute name="title">
-        <string>Debug</string>
-       </attribute>
+      <widget class="QWidget" name="outputStackedWidgetPage3" native="true">
        <layout class="QGridLayout" name="gridLayout_6">
         <property name="margin">
          <number>0</number>
@@ -209,10 +176,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="searchOutput">
-       <attribute name="title">
-        <string>Search</string>
-       </attribute>
+      <widget class="QWidget" name="outputStackedWidgetPage4" native="true">
        <layout class="QGridLayout" name="gridLayout_2">
         <property name="margin">
          <number>0</number>

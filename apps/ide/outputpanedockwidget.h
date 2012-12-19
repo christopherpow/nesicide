@@ -2,6 +2,7 @@
 #define OUTPUTPANEDOCKWIDGET_H
 
 #include <QDockWidget>
+#include <QPushButton>
 
 namespace Ui {
    class OutputPaneDockWidget;
@@ -22,6 +23,7 @@ public:
    explicit OutputPaneDockWidget(QWidget *parent = 0);
    virtual ~OutputPaneDockWidget();
 
+   void initialize();
    void clearAllPanes();
    void clearPane(int tab);
 
@@ -33,19 +35,34 @@ public slots:
    void updateBuildPane(QString text);
    void updateDebugPane(QString text);
    void updateSearchPane(QString text);
+   void showGeneralPane();
+   void showBuildPane();
+   void showDebugPane();
+   void showSearchPane();
    void eraseGeneralPane();
    void eraseBuildPane();
    void eraseDebugPane();
    void eraseSearchPane();
+   void compiler_compileStarted();
+   void compiler_compileDone(bool ok);
+   void searcher_searchDone(int results);
 
 signals:
    void snapTo(QString item);
+   void addStatusBarWidget(QWidget* item);
+   void removeStatusBarWidget(QWidget* item);
+   void addPermanentStatusBarWidget(QWidget* item);
+   void removePermanentStatusBarWidget(QWidget* item);
 
 protected:
    virtual void contextMenuEvent ( QContextMenuEvent* event );
 
 private:
    Ui::OutputPaneDockWidget *ui;
+   QPushButton* general;
+   QPushButton* searchResults;
+   QPushButton* buildResults;
+   QPushButton* debugInfo;
 
 private slots:
 };

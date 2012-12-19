@@ -14,11 +14,42 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   ui->outputTabWidget->setCurrentIndex(Output_General);
+   ui->outputStackedWidget->setCurrentIndex(Output_General);
 
    // Capture mouse events for the sub edits.
    ui->compilerOutputTextEdit->viewport()->installEventFilter(this);
    ui->searchOutputTextEdit->viewport()->installEventFilter(this);
+
+   // Create the status-bar widget.
+   general = new QPushButton("General Information");
+   searchResults = new QPushButton("Search Results");
+   buildResults = new QPushButton("Compile Output");
+   debugInfo = new QPushButton("Debug Information");
+
+   general->setStyleSheet("QPushButton { background: #A0A0A0 }");
+   searchResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+   debugInfo->setStyleSheet("QPushButton { background: #A0A0A0 }");
+
+   general->setCheckable(true);
+   searchResults->setCheckable(true);
+   buildResults->setCheckable(true);
+   debugInfo->setCheckable(true);
+
+   general->setMinimumWidth(150);
+   searchResults->setMinimumWidth(150);
+   buildResults->setMinimumWidth(150);
+   debugInfo->setMinimumWidth(150);
+
+   general->setMaximumWidth(150);
+   searchResults->setMaximumWidth(150);
+   buildResults->setMaximumWidth(150);
+   debugInfo->setMaximumWidth(150);
+
+   QObject::connect(general,SIGNAL(clicked()),this,SLOT(showGeneralPane()));
+   QObject::connect(searchResults,SIGNAL(clicked()),this,SLOT(showSearchPane()));
+   QObject::connect(buildResults,SIGNAL(clicked()),this,SLOT(showBuildPane()));
+   QObject::connect(debugInfo,SIGNAL(clicked()),this,SLOT(showDebugPane()));
 }
 
 OutputPaneDockWidget::~OutputPaneDockWidget()
@@ -94,9 +125,148 @@ bool OutputPaneDockWidget::eventFilter(QObject* object,QEvent* event)
    return false;
 }
 
+void OutputPaneDockWidget::initialize()
+{
+   emit addPermanentStatusBarWidget(general);
+   emit addPermanentStatusBarWidget(buildResults);
+   emit addPermanentStatusBarWidget(debugInfo);
+   emit addPermanentStatusBarWidget(searchResults);
+   general->setChecked(false);
+   buildResults->setChecked(false);
+   debugInfo->setChecked(false);
+   searchResults->setChecked(false);
+}
+
+void OutputPaneDockWidget::searcher_searchDone(int results)
+{
+   if ( results )
+   {
+      QString text = "Search Results: ";
+      text += QString::number(results);
+      searchResults->setStyleSheet("QPushButton { background: #A0FFA0 }");
+      searchResults->setText(text);
+   }
+   else
+   {
+      searchResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+      searchResults->setText("Search Results");
+   }
+}
+
+void OutputPaneDockWidget::compiler_compileStarted()
+{
+   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+}
+
+void OutputPaneDockWidget::compiler_compileDone(bool ok)
+{
+   if ( ok )
+   {
+      buildResults->setStyleSheet("QPushButton { background: #A0FFA0 }");
+   }
+   else
+   {
+      buildResults->setStyleSheet("QPushButton { background: #FFA0A0 }");
+   }
+}
+
+void OutputPaneDockWidget::showGeneralPane()
+{
+   if ( general->isChecked() )
+   {
+      show();
+      ui->outputStackedWidget->setCurrentIndex(Output_General);
+   }
+   else
+   {
+      hide();
+   }
+   buildResults->setChecked(false);
+   searchResults->setChecked(false);
+   debugInfo->setChecked(false);
+}
+
+void OutputPaneDockWidget::showBuildPane()
+{
+   if ( buildResults->isChecked() )
+   {
+      show();
+      ui->outputStackedWidget->setCurrentIndex(Output_Build);
+   }
+   else
+   {
+      hide();
+   }
+   general->setChecked(false);
+   searchResults->setChecked(false);
+   debugInfo->setChecked(false);
+}
+
+void OutputPaneDockWidget::showDebugPane()
+{
+   if ( debugInfo->isChecked() )
+   {
+      show();
+      ui->outputStackedWidget->setCurrentIndex(Output_Debug);
+   }
+   else
+   {
+      hide();
+   }
+   general->setChecked(false);
+   searchResults->setChecked(false);
+   buildResults->setChecked(false);
+}
+
+void OutputPaneDockWidget::showSearchPane()
+{
+   if ( searchResults->isChecked() )
+   {
+      show();
+      ui->outputStackedWidget->setCurrentIndex(Output_Search);
+   }
+   else
+   {
+      hide();
+   }
+   general->setChecked(false);
+   debugInfo->setChecked(false);
+   buildResults->setChecked(false);
+}
+
 void OutputPaneDockWidget::showPane(int tab)
 {
-   ui->outputTabWidget->setCurrentIndex(tab);
+   ui->outputStackedWidget->setCurrentIndex(tab);
+   if ( isVisible() )
+   {
+      switch ( tab )
+      {
+      case Output_General:
+         general->setChecked(true);
+         buildResults->setChecked(false);
+         debugInfo->setChecked(false);
+         searchResults->setChecked(false);
+         break;
+      case Output_Build:
+         general->setChecked(false);
+         buildResults->setChecked(true);
+         debugInfo->setChecked(false);
+         searchResults->setChecked(false);
+         break;
+      case Output_Debug:
+         general->setChecked(false);
+         buildResults->setChecked(false);
+         debugInfo->setChecked(true);
+         searchResults->setChecked(false);
+         break;
+      case Output_Search:
+         general->setChecked(false);
+         buildResults->setChecked(false);
+         debugInfo->setChecked(false);
+         searchResults->setChecked(true);
+         break;
+      }
+   }
 }
 
 void OutputPaneDockWidget::clearAllPanes()
@@ -179,7 +349,7 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
 
    if ( chosen == &clear )
    {
-      switch ( ui->outputTabWidget->currentIndex() )
+      switch ( ui->outputStackedWidget->currentIndex() )
       {
       case Output_General:
          ui->generalOutputTextEdit->clear();
@@ -205,7 +375,7 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
          return;
       }
 
-      switch ( ui->outputTabWidget->currentIndex() )
+      switch ( ui->outputStackedWidget->currentIndex() )
       {
       case Output_General:
          ui->generalOutputTextEdit->clear();

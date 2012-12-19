@@ -6,6 +6,8 @@
 
 #include "stdint.h"
 
+#include <Qsci/qsciscintilla.h>
+
 namespace Ui
 {
 class PRGROMDisplayDialog;
@@ -31,6 +33,8 @@ protected:
 
 private:
    Ui::PRGROMDisplayDialog* ui;
+   QsciScintilla* m_scintilla;
+   QsciLexer* m_lexer;
 
 private slots:
    void applyProjectPropertiesToTab();

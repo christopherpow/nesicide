@@ -224,6 +224,8 @@ private slots:
    void createTarget(QString target);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void addPermanentStatusBarWidget(QWidget* widget);
+   void removePermanentStatusBarWidget(QWidget* widget);
    void setStatusBarMessage(QString message);
    void openNesROM(QString fileName,bool runRom=true);
    void openC64File(QString fileName);
