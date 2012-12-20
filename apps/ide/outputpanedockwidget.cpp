@@ -2,6 +2,7 @@
 #include "ui_outputpanedockwidget.h"
 
 #include "cbuildertextlogger.h"
+#include "cdockwidgetregistry.h"
 
 #include "main.h"
 
@@ -12,6 +13,8 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::OutputPaneDockWidget)
 {
+   QDockWidget* search = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Search"));
+
    ui->setupUi(this);
 
    ui->outputStackedWidget->setCurrentIndex(Output_General);
@@ -46,10 +49,13 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
    buildResults->setMaximumWidth(150);
    debugInfo->setMaximumWidth(150);
 
+   ui->searchInput->layout()->addWidget(search->widget());
+
    QObject::connect(general,SIGNAL(clicked()),this,SLOT(showGeneralPane()));
    QObject::connect(searchResults,SIGNAL(clicked()),this,SLOT(showSearchPane()));
    QObject::connect(buildResults,SIGNAL(clicked()),this,SLOT(showBuildPane()));
    QObject::connect(debugInfo,SIGNAL(clicked()),this,SLOT(showDebugPane()));
+   QObject::connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(handleVisibilityChanged(bool)));
 }
 
 OutputPaneDockWidget::~OutputPaneDockWidget()
@@ -135,6 +141,7 @@ void OutputPaneDockWidget::initialize()
    buildResults->setChecked(false);
    debugInfo->setChecked(false);
    searchResults->setChecked(false);
+   ui->searchStackedWidget->setCurrentWidget(ui->searchInput);
 }
 
 void OutputPaneDockWidget::searcher_searchDone(int results)
@@ -151,15 +158,18 @@ void OutputPaneDockWidget::searcher_searchDone(int results)
       searchResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
       searchResults->setText("Search Results");
    }
+   ui->searchStackedWidget->setCurrentWidget(ui->searchOutput);
 }
 
 void OutputPaneDockWidget::compiler_compileStarted()
 {
+   buildResults->setText("Compiling...");
    buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
 }
 
 void OutputPaneDockWidget::compiler_compileDone(bool ok)
 {
+   buildResults->setText("Compile Results");
    if ( ok )
    {
       buildResults->setStyleSheet("QPushButton { background: #80FF80 }");
@@ -168,6 +178,18 @@ void OutputPaneDockWidget::compiler_compileDone(bool ok)
    {
       buildResults->setStyleSheet("QPushButton { background: #FF8080 }");
    }
+}
+
+void OutputPaneDockWidget::compiler_cleanStarted()
+{
+   buildResults->setText("Cleaning...");
+   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+}
+
+void OutputPaneDockWidget::compiler_cleanDone(bool ok)
+{
+   buildResults->setText("Compile Results");
+   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
 }
 
 void OutputPaneDockWidget::showGeneralPane()
@@ -197,6 +219,7 @@ void OutputPaneDockWidget::showBuildPane()
    {
       hide();
    }
+   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
    general->setChecked(false);
    searchResults->setChecked(false);
    debugInfo->setChecked(false);
@@ -229,9 +252,30 @@ void OutputPaneDockWidget::showSearchPane()
    {
       hide();
    }
+   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+   searchResults->setText("Search Results");
    general->setChecked(false);
    debugInfo->setChecked(false);
    buildResults->setChecked(false);
+}
+
+void OutputPaneDockWidget::resetPane(int tab)
+{
+   switch ( tab )
+   {
+   case Output_General:
+      // Nothing to do.
+      break;
+   case Output_Build:
+      // Nothing to do.
+      break;
+   case Output_Debug:
+      // Nothing to do.
+      break;
+   case Output_Search:
+      ui->searchStackedWidget->setCurrentWidget(ui->searchInput);
+      break;
+   }
 }
 
 void OutputPaneDockWidget::showPane(int tab)
@@ -390,5 +434,16 @@ void OutputPaneDockWidget::contextMenuEvent ( QContextMenuEvent* event )
          ui->searchOutputTextEdit->clear();
          break;
       }
+   }
+}
+
+void OutputPaneDockWidget::handleVisibilityChanged(bool visible)
+{
+   if ( !visible )
+   {
+      general->setChecked(false);
+      buildResults->setChecked(false);
+      debugInfo->setChecked(false);
+      searchResults->setChecked(false);
    }
 }

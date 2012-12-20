@@ -45,6 +45,7 @@ void CompilerThread::clean()
    CCartridgeBuilder cartridgeBuilder;
    CMachineImageBuilder machineImageBuilder;
 
+   emit cleanStarted();
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       cartridgeBuilder.clean();
@@ -53,4 +54,5 @@ void CompilerThread::clean()
    {
       machineImageBuilder.clean();
    }
+   emit cleanDone(true);
 }

@@ -26,8 +26,9 @@ public slots:
 
 signals:
    void compileStarted();
-   void compileStep(char* message);
    void compileDone(bool bOk);
+   void cleanStarted();
+   void cleanDone(bool bOk);
 
 protected:
    bool m_assembledOk;

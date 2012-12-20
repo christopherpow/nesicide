@@ -20,7 +20,6 @@ public:
    bool    isCaseSensitive();
    bool    isRegularExpression();
    bool    searchIsDown();
-   QString snapTo();
 
 protected:
    void focusInEvent(QFocusEvent *event);
@@ -32,6 +31,7 @@ private:
 
 signals:
    void snapTo(QString item);
+   void replaceText(QString from, QString to,bool replaceAll);
 
 private slots:
    void on_close_clicked();
@@ -42,6 +42,9 @@ private slots:
    void on_caseSensitive_toggled(bool checked);
    void on_searchText_editTextChanged(QString );
    void on_searchText_activated(QString search);
+   void on_findForReplace_clicked();
+   void on_replace_clicked();
+   void on_replaceAll_clicked();
 };
 
 #endif // SEARCHBAR_H

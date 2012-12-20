@@ -17,11 +17,14 @@ SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
 
    m_settingsPrefix = settingsPrefix;
 
+   ui->replaceText->addItem("");
+
    settings.beginGroup(m_settingsPrefix);
    searches = settings.value("SearchTextHistory").toStringList();
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
    ui->direction->setChecked(settings.value("Direction",QVariant(true)).toBool());
+   ui->replaceText->addItems(settings.value("ReplaceTextHistory").toStringList());
    settings.endGroup();
 
    ui->searchText->addItem("");
@@ -32,6 +35,8 @@ SearchBar::SearchBar(QString settingsPrefix,QWidget *parent) :
    ui->searchText->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
    ui->searchText->installEventFilter(this);
+
+   ui->replaceText->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
    ui->close->hide();
 }
@@ -96,15 +101,6 @@ bool    SearchBar::isRegularExpression()
 bool    SearchBar::searchIsDown()
 {
    return ui->direction->isChecked();
-}
-
-QString SearchBar::snapTo()
-{
-   return QString("SearchBar,"
-               +QString::number(ui->caseSensitive->isChecked())+","
-               +QString::number(ui->regex->isChecked())+","
-               +QString::number(ui->direction->isChecked())+","
-               +ui->searchText->currentText());
 }
 
 void SearchBar::on_searchText_activated(QString search)
@@ -204,4 +200,77 @@ void SearchBar::hintMe(bool found)
 void SearchBar::on_close_clicked()
 {
    hide();
+}
+
+void SearchBar::on_findForReplace_clicked()
+{
+   emit snapTo("SearchBar,"
+               +QString::number(isCaseSensitive())+","
+               +QString::number(isRegularExpression())+","
+               +QString::number(searchIsDown())+","
+               +currentSearchText());
+}
+
+void SearchBar::on_replace_clicked()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QStringList items;
+
+   settings.beginGroup("Search");
+
+   if ( (ui->replaceText->findText(ui->replaceText->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
+   {
+      ui->replaceText->addItem(ui->replaceText->currentText());
+      items = settings.value("ReplaceTextHistory").toStringList();
+      if ( !items.contains(ui->replaceText->currentText()) )
+      {
+         if ( items.count() >= 100 ) // CPTODO: arbitrary limit, consider propertyizing?
+         {
+            items.removeAt(0);
+         }
+         items.append(ui->replaceText->currentText());
+      }
+      settings.setValue("ReplaceTextHistory",QVariant(items));
+   }
+
+   settings.endGroup();
+
+   emit replaceText(QString("SearchBar,"
+                            +QString::number(ui->caseSensitive->isChecked())+","
+                            +QString::number(ui->regex->isChecked())+","
+                            +QString::number(ui->direction->isChecked())+","
+                            +ui->searchText->currentText()),
+                    ui->replaceText->currentText(),false);
+}
+
+void SearchBar::on_replaceAll_clicked()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QStringList items;
+
+   settings.beginGroup("Search");
+
+   if ( (ui->replaceText->findText(ui->replaceText->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
+   {
+      ui->replaceText->addItem(ui->replaceText->currentText());
+      items = settings.value("ReplaceTextHistory").toStringList();
+      if ( !items.contains(ui->replaceText->currentText()) )
+      {
+         if ( items.count() >= 100 ) // CPTODO: arbitrary limit, consider propertyizing?
+         {
+            items.removeAt(0);
+         }
+         items.append(ui->replaceText->currentText());
+      }
+      settings.setValue("ReplaceTextHistory",QVariant(items));
+   }
+
+   settings.endGroup();
+
+   emit replaceText(QString("SearchBar,"
+                            +QString::number(ui->caseSensitive->isChecked())+","
+                            +QString::number(ui->regex->isChecked())+","
+                            +QString::number(ui->direction->isChecked())+","
+                            +ui->searchText->currentText()),
+                    ui->replaceText->currentText(),true);
 }

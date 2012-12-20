@@ -30,6 +30,7 @@ public:
    bool eventFilter(QObject *object, QEvent *event);
 
 public slots:
+   void resetPane(int tab);
    void showPane(int tab);
    void updateGeneralPane(QString text);
    void updateBuildPane(QString text);
@@ -45,7 +46,10 @@ public slots:
    void eraseSearchPane();
    void compiler_compileStarted();
    void compiler_compileDone(bool ok);
+   void compiler_cleanStarted();
+   void compiler_cleanDone(bool ok);
    void searcher_searchDone(int results);
+   void handleVisibilityChanged(bool visible);
 
 signals:
    void snapTo(QString item);
@@ -63,8 +67,6 @@ private:
    QPushButton* searchResults;
    QPushButton* buildResults;
    QPushButton* debugInfo;
-
-private slots:
 };
 
 #endif // OUTPUTPANEDOCKWIDGET_H

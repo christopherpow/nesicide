@@ -153,8 +153,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    CDockWidgetRegistry::addWidget ( "Search Bar", m_pSearchBar );
 
    m_pSearch = new SearchDockWidget();
-   addDockWidget(Qt::LeftDockWidgetArea, m_pSearch );
-   m_pSearch->hide();
    CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
 
    m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
@@ -174,13 +172,14 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect(debugTextLogger,SIGNAL(eraseText()),output,SLOT(eraseDebugPane()));
    QObject::connect(searchTextLogger,SIGNAL(eraseText()),output,SLOT(eraseSearchPane()));
    QObject::connect(breakpointWatcher,SIGNAL(showPane(int)),output,SLOT(showPane(int)));
-   QObject::connect(m_pSearch, SIGNAL(showPane(int)), output, SLOT(showPane(int)));
    QObject::connect(output,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
    QObject::connect(output,SIGNAL(removeStatusBarWidget(QWidget*)),this,SLOT(removeStatusBarWidget(QWidget*)));
    QObject::connect(output,SIGNAL(addPermanentStatusBarWidget(QWidget*)),this,SLOT(addPermanentStatusBarWidget(QWidget*)));
    QObject::connect(output,SIGNAL(removePermanentStatusBarWidget(QWidget*)),this,SLOT(removePermanentStatusBarWidget(QWidget*)));
    QObject::connect(compiler,SIGNAL(compileStarted()),output,SLOT(compiler_compileStarted()));
    QObject::connect(compiler,SIGNAL(compileDone(bool)),output,SLOT(compiler_compileDone(bool)));
+   QObject::connect(compiler,SIGNAL(cleanStarted()),output,SLOT(compiler_cleanStarted()));
+   QObject::connect(compiler,SIGNAL(cleanDone(bool)),output,SLOT(compiler_cleanDone(bool)));
    QObject::connect(searcher,SIGNAL(searchDone(int)),output,SLOT(searcher_searchDone(int)));
    CDockWidgetRegistry::addWidget ( "Output", output );
    output->hide();
@@ -2464,9 +2463,9 @@ void MainWindow::on_actionCode_Profiler_triggered()
 
 void MainWindow::on_actionSearch_triggered()
 {
+   output->show();
+   output->resetPane(OutputPaneDockWidget::Output_Search);
    output->showPane(OutputPaneDockWidget::Output_Search);
-   m_pSearch->hide();
-   m_pSearch->show();
 }
 
 void MainWindow::on_action_About_Nesicide_triggered()

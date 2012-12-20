@@ -17,7 +17,7 @@
    <string>Output</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0">
     <property name="margin">
      <number>0</number>
     </property>
@@ -38,7 +38,7 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="outputStackedWidgetPage1" native="true">
+      <widget class="QWidget" name="generalOutputPage" native="true">
        <layout class="QGridLayout" name="gridLayout_5">
         <property name="margin">
          <number>0</number>
@@ -82,7 +82,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="outputStackedWidgetPage2" native="true">
+      <widget class="QWidget" name="compilerOutputPage" native="true">
        <layout class="QGridLayout" name="gridLayout_4">
         <property name="margin">
          <number>0</number>
@@ -132,7 +132,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="outputStackedWidgetPage3" native="true">
+      <widget class="QWidget" name="debuggerOutputPage" native="true">
        <layout class="QGridLayout" name="gridLayout_6">
         <property name="margin">
          <number>0</number>
@@ -176,46 +176,64 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="outputStackedWidgetPage4" native="true">
+      <widget class="QWidget" name="searchOutputPage" native="true">
        <layout class="QGridLayout" name="gridLayout_2">
         <property name="margin">
          <number>0</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QPlainTextEdit" name="searchOutputTextEdit">
-          <property name="focusPolicy">
-           <enum>Qt::StrongFocus</enum>
-          </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
-          </property>
-          <property name="acceptDrops">
-           <bool>false</bool>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOn</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="undoRedoEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="lineWrapMode">
-           <enum>QPlainTextEdit::NoWrap</enum>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-          </property>
+        <item row="0" column="3">
+         <widget class="QStackedWidget" name="searchStackedWidget">
+          <widget class="QWidget" name="searchInput">
+           <layout class="QGridLayout" name="gridLayout_7">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="searchOutput">
+           <layout class="QGridLayout" name="gridLayout_3">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QPlainTextEdit" name="searchOutputTextEdit">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+              <property name="verticalScrollBarPolicy">
+               <enum>Qt::ScrollBarAlwaysOn</enum>
+              </property>
+              <property name="horizontalScrollBarPolicy">
+               <enum>Qt::ScrollBarAsNeeded</enum>
+              </property>
+              <property name="undoRedoEnabled">
+               <bool>false</bool>
+              </property>
+              <property name="lineWrapMode">
+               <enum>QPlainTextEdit::NoWrap</enum>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>

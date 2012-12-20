@@ -18,8 +18,6 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   ui->replaceText->addItem("");
-
    settings.beginGroup("Search");
    ui->searchText->addItems(settings.value("SearchTextHistory").toStringList());
    ui->location->addItems(settings.value("SearchLocationHistory").toStringList());
@@ -29,7 +27,6 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
    ui->caseSensitive->setChecked(settings.value("CaseSensitive",QVariant(false)).toBool());
    ui->regex->setChecked(settings.value("RegularExpression",QVariant(false)).toBool());
    ui->projectFolder->setChecked(settings.value("UseProjectFolder",QVariant(true)).toBool());
-   ui->replaceText->addItems(settings.value("ReplaceTextHistory").toStringList());
    settings.endGroup();
 
    on_projectFolder_clicked(ui->projectFolder->isChecked());
@@ -37,13 +34,6 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
    ui->searchText->completer()->setCompletionMode(QCompleter::PopupCompletion);
    ui->location->completer()->setCompletionMode(QCompleter::PopupCompletion);
    ui->type->completer()->setCompletionMode(QCompleter::PopupCompletion);
-
-   searchBar = new SearchBar("SearchReplaceBar");
-   ui->searchBarLayout->addWidget(searchBar);
-
-   QObject::connect(searchBar,SIGNAL(snapTo(QString)),this,SIGNAL(snapTo(QString)));
-
-   ui->replaceText->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
    QObject* searcher = CObjectRegistry::getObject("Searcher");
    qRegisterMetaType<QDir>("QDir");
@@ -56,7 +46,6 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
 SearchDockWidget::~SearchDockWidget()
 {
    delete ui;
-   delete searchBar;
 }
 
 bool SearchDockWidget::eventFilter(QObject *object, QEvent *event)
@@ -171,8 +160,6 @@ void SearchDockWidget::on_find_clicked()
          emit search(ui->location->currentText(),ui->searchText->currentText(),ui->type->currentText(),ui->subfolders->isChecked(),ui->sourceSearchPaths->isChecked(),ui->regex->isChecked(),ui->caseSensitive->isChecked());
       }
 
-      emit showPane(OutputPaneDockWidget::Output_Search);
-
       settings.endGroup();
    }
 }
@@ -186,67 +173,4 @@ void SearchDockWidget::on_projectFolder_clicked(bool checked)
 {
    ui->location->setEnabled(!checked);
    ui->browse->setEnabled(!checked);
-}
-
-void SearchDockWidget::on_findForReplace_clicked()
-{
-   emit snapTo("SearchBar,"
-               +QString::number(searchBar->isCaseSensitive())+","
-               +QString::number(searchBar->isRegularExpression())+","
-               +QString::number(searchBar->searchIsDown())+","
-               +searchBar->currentSearchText());
-}
-
-void SearchDockWidget::on_replace_clicked()
-{
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   QStringList items;
-
-   settings.beginGroup("Search");
-
-   if ( (!ui->replaceText->currentText().isEmpty()) && (ui->replaceText->findText(ui->replaceText->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
-   {
-      ui->replaceText->addItem(ui->replaceText->currentText());
-      items = settings.value("ReplaceTextHistory").toStringList();
-      if ( !items.contains(ui->replaceText->currentText()) )
-      {
-         if ( items.count() >= 100 ) // CPTODO: arbitrary limit, consider propertyizing?
-         {
-            items.removeAt(0);
-         }
-         items.append(ui->replaceText->currentText());
-      }
-      settings.setValue("ReplaceTextHistory",QVariant(items));
-   }
-
-   settings.endGroup();
-
-   emit replaceText(searchBar->snapTo(),ui->replaceText->currentText(),false);
-}
-
-void SearchDockWidget::on_replaceAll_clicked()
-{
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   QStringList items;
-
-   settings.beginGroup("Search");
-
-   if ( (!ui->replaceText->currentText().isEmpty()) && (ui->replaceText->findText(ui->replaceText->currentText(),Qt::MatchExactly|Qt::MatchCaseSensitive) == -1) )
-   {
-      ui->replaceText->addItem(ui->replaceText->currentText());
-      items = settings.value("ReplaceTextHistory").toStringList();
-      if ( !items.contains(ui->replaceText->currentText()) )
-      {
-         if ( items.count() >= 100 ) // CPTODO: arbitrary limit, consider propertyizing?
-         {
-            items.removeAt(0);
-         }
-         items.append(ui->replaceText->currentText());
-      }
-      settings.setValue("ReplaceTextHistory",QVariant(items));
-   }
-
-   settings.endGroup();
-
-   emit replaceText(searchBar->snapTo(),ui->replaceText->currentText(),true);
 }

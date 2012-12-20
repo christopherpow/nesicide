@@ -12,8 +12,8 @@ CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *par
    InitTabItem(link);
 
    QObject::connect ( searchBar, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
+   QObject::connect ( searchBar, SIGNAL(replaceText(QString,QString,bool)), this, SLOT(replaceText(QString,QString,bool)));
    QObject::connect ( search, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
-   QObject::connect ( search, SIGNAL(replaceText(QString,QString,bool)), this, SLOT(replaceText(QString,QString,bool)));
    QObject::connect ( this, SIGNAL(activateSearchBar(QString)), searchBar, SLOT(activateMe(QString)) );
    QObject::connect ( this, SIGNAL(setSearchBarHint(bool)), searchBar, SLOT(hintMe(bool)) );
 

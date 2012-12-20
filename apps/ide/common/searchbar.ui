@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>255</width>
-    <height>24</height>
+    <width>653</width>
+    <height>49</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,22 +26,15 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>0</number>
      </property>
      <item>
-      <widget class="QToolButton" name="close">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../resource.qrc">
-         <normaloff>:/resources/edit_delete.png</normaloff>:/resources/edit_delete.png</iconset>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
+        <string>Find:</string>
        </property>
       </widget>
      </item>
@@ -79,7 +72,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/case-sensitive.png</normaloff>:/resources/case-sensitive.png</iconset>
        </property>
        <property name="checkable">
@@ -96,7 +89,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/regular-expression.png</normaloff>:/resources/regular-expression.png</iconset>
        </property>
        <property name="checkable">
@@ -113,7 +106,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/view_sort_descending.png</normaloff>
          <normalon>:/resources/view_sort_ascending.png</normalon>:/resources/view_sort_descending.png</iconset>
        </property>
@@ -125,12 +118,86 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QToolButton" name="close">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../common/resource.qrc">
+         <normaloff>:/resources/edit_delete.png</normaloff>:/resources/edit_delete.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Replace with:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="replaceText">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::NoInsert</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="findForReplace">
+       <property name="text">
+        <string>Find...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="replace">
+       <property name="text">
+        <string>Replace</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="replaceAll">
+       <property name="text">
+        <string>Replace All</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>
