@@ -65,11 +65,13 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
          if ( (pMarker->startCpuCycle != MARKER_NOT_MARKED) &&
               (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
          {
-            sprintf(modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
+            sprintf(modelStringBuffer,"%d (%4.2lf%%)",nesGetCPUCycle()-pMarker->startCpuCycle,
+                    (float)((nesGetCPUCycle()-pMarker->startCpuCycle)/1789772.0)*100.0);
          }
          else
          {
-            sprintf(modelStringBuffer,"%d",pMarker->curCpuCycles);
+            sprintf(modelStringBuffer,"%d (%4.2lf%%)",pMarker->curCpuCycles,
+                    (float)((pMarker->curCpuCycles)/1789772.0)*100.0);
          }
          return QVariant(modelStringBuffer);
       }

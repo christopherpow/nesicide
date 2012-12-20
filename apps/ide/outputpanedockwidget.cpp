@@ -252,8 +252,6 @@ void OutputPaneDockWidget::showSearchPane()
    {
       hide();
    }
-   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
-   searchResults->setText("Search Results");
    general->setChecked(false);
    debugInfo->setChecked(false);
    buildResults->setChecked(false);
@@ -273,6 +271,8 @@ void OutputPaneDockWidget::resetPane(int tab)
       // Nothing to do.
       break;
    case Output_Search:
+      searchResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+      searchResults->setText("Search Results");
       ui->searchStackedWidget->setCurrentWidget(ui->searchInput);
       break;
    }
