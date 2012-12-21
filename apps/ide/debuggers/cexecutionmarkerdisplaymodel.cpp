@@ -32,6 +32,7 @@ Qt::ItemFlags CExecutionMarkerDisplayModel::flags(const QModelIndex& index) cons
 
 QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) const
 {
+//   int cycles = nesGetSystemMode()==SYSTEM_NTSC?
    CMarker* pMarkers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
 
@@ -65,13 +66,11 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
          if ( (pMarker->startCpuCycle != MARKER_NOT_MARKED) &&
               (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
          {
-            sprintf(modelStringBuffer,"%d (%4.2lf%%)",nesGetCPUCycle()-pMarker->startCpuCycle,
-                    (float)((nesGetCPUCycle()-pMarker->startCpuCycle)/1789772.0)*100.0);
+            sprintf(modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
          }
          else
          {
-            sprintf(modelStringBuffer,"%d (%4.2lf%%)",pMarker->curCpuCycles,
-                    (float)((pMarker->curCpuCycles)/1789772.0)*100.0);
+            sprintf(modelStringBuffer,"%d",pMarker->curCpuCycles);
          }
          return QVariant(modelStringBuffer);
       }
@@ -146,6 +145,15 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
       if ( pMarker->state == eMarkerSet_Invalid )
       {
          return QVariant("INVALID");
+      }
+      else if ( pMarker->state == eMarkerSet_Started )
+      {
+         return QVariant("NOT STARTED");
+      }
+      else if ( (pMarker->state == eMarkerSet_Complete) &&
+                (pMarker->startCpuCycle == MARKER_NOT_MARKED) )
+      {
+         return QVariant("NOT STARTED");
       }
       else if ( (pMarker->state == eMarkerSet_Complete) &&
                 (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
