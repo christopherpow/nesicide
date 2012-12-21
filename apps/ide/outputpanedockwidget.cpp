@@ -26,7 +26,7 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
    // Create the status-bar widget.
    general = new QPushButton("General Information");
    searchResults = new QPushButton("Search Results");
-   buildResults = new QPushButton("Compile Output");
+   buildResults = new QPushButton("Compile Results");
    debugInfo = new QPushButton("Debug Information");
 
    general->setStyleSheet("QPushButton { background: #A0A0A0 }");
@@ -203,6 +203,7 @@ void OutputPaneDockWidget::showGeneralPane()
    {
       hide();
    }
+   setWindowTitle("General Information");
    buildResults->setChecked(false);
    searchResults->setChecked(false);
    debugInfo->setChecked(false);
@@ -219,6 +220,7 @@ void OutputPaneDockWidget::showBuildPane()
    {
       hide();
    }
+   setWindowTitle("Compile Results");
    buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
    general->setChecked(false);
    searchResults->setChecked(false);
@@ -236,6 +238,7 @@ void OutputPaneDockWidget::showDebugPane()
    {
       hide();
    }
+   setWindowTitle("Debug Information");
    general->setChecked(false);
    searchResults->setChecked(false);
    buildResults->setChecked(false);
@@ -252,6 +255,7 @@ void OutputPaneDockWidget::showSearchPane()
    {
       hide();
    }
+   setWindowTitle("Search Results");
    general->setChecked(false);
    debugInfo->setChecked(false);
    buildResults->setChecked(false);
@@ -286,24 +290,28 @@ void OutputPaneDockWidget::showPane(int tab)
       switch ( tab )
       {
       case Output_General:
+         setWindowTitle("General Information");
          general->setChecked(true);
          buildResults->setChecked(false);
          debugInfo->setChecked(false);
          searchResults->setChecked(false);
          break;
       case Output_Build:
+         setWindowTitle("Compile Results");
          general->setChecked(false);
          buildResults->setChecked(true);
          debugInfo->setChecked(false);
          searchResults->setChecked(false);
          break;
       case Output_Debug:
+         setWindowTitle("Debug Information");
          general->setChecked(false);
          buildResults->setChecked(false);
          debugInfo->setChecked(true);
          searchResults->setChecked(false);
          break;
       case Output_Search:
+         setWindowTitle("Search Results");
          general->setChecked(false);
          buildResults->setChecked(false);
          debugInfo->setChecked(false);
