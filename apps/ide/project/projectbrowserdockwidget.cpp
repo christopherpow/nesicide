@@ -71,9 +71,8 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, Q
 
    setProjectModel(NULL);
 
-   // TODO Add list of open items (after reworking tab widget)
+   ui->projectTreeWidget->setHeaderLabel("Project Items");
    ui->openProjectItems->setHeaderLabel("Open Items");
-   //ui->openProjectItems->hide();
 
    // Respond to signals of our children.
    QObject::connect(ui->projectTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
