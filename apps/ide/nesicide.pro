@@ -321,7 +321,8 @@ SOURCES += \
     project/cprojecttreecontextmenu.cpp \
     project/cprojecttreeopenaction.cpp \
     project/cprojecttreewidget.cpp \
-    designers/qscilexerbin.cpp
+    designers/qscilexerbin.cpp \
+    designers/qscilexercc65.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -468,7 +469,8 @@ HEADERS += \
     project/cprojecttreewidget.h \
     project/cprojecttreecontextmenu.h \
     project/cprojecttreeopenaction.h \
-    designers/qscilexerbin.h
+    designers/qscilexerbin.h \
+    designers/qscilexercc65.h
 
 FORMS += \
    aboutdialog.ui \

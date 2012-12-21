@@ -88,8 +88,8 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
 
    m_scintilla = new QsciScintilla();
    m_defaultLexer = new QsciLexerDefault();
+   m_cc65Lexer = new QsciLexerCC65();
    m_ca65Lexer = new QsciLexerCA65();
-   m_cppLexer = new QsciLexerCPP();
    m_lexer = m_defaultLexer;
 
    setupCodeEditor(0);
@@ -179,8 +179,8 @@ EnvironmentSettingsDialog::~EnvironmentSettingsDialog()
    m_lexer = NULL;
    delete m_scintilla;
    delete m_defaultLexer;
+   delete m_cc65Lexer;
    delete m_ca65Lexer;
-   delete m_cppLexer;
 
    delete ui;
 }
@@ -342,8 +342,8 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.endGroup();
 
    m_defaultLexer->writeSettings(settings,"CodeEditor");
+   m_cc65Lexer->writeSettings(settings,"CodeEditor");
    m_ca65Lexer->writeSettings(settings,"CodeEditor");
-   m_cppLexer->writeSettings(settings,"CodeEditor");
 }
 
 void EnvironmentSettingsDialog::setupCodeEditor(int index)
@@ -354,8 +354,8 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
    ui->styleName->clear();
 
    m_defaultLexer->readSettings(settings,"CodeEditor");
+   m_cc65Lexer->readSettings(settings,"CodeEditor");
    m_ca65Lexer->readSettings(settings,"CodeEditor");
-   m_cppLexer->readSettings(settings,"CodeEditor");
 
    // Clear current lexer first!
    m_scintilla->setLexer(NULL);
@@ -373,7 +373,7 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
       m_scintilla->setLexer(m_lexer);
       break;
    case 2:
-      m_lexer = m_cppLexer;
+      m_lexer = m_cc65Lexer;
 
       m_scintilla->setLexer(m_lexer);
       break;

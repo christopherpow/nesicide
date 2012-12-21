@@ -5,7 +5,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 
-#include <Qsci/qscilexercpp.h>
+#include "qscilexercc65.h"
 #include "qscilexerca65.h"
 #include "qscilexerdefault.h"
 
@@ -71,8 +71,8 @@ private:
 
    QsciScintilla* m_scintilla;
    QsciLexerDefault* m_defaultLexer;
+   QsciLexerCC65* m_cc65Lexer;
    QsciLexerCA65* m_ca65Lexer;
-   QsciLexerCPP* m_cppLexer;
    QsciLexer* m_lexer;
    QMap<QString,QWidget*> pageMap;
 

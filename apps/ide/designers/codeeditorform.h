@@ -9,8 +9,8 @@
 #include <QLabel>
 
 #include <Qsci/qsciscintilla.h>
-#include <Qsci/qscilexercpp.h>
 #include <Qsci/qscistyle.h>
+#include "qscilexercc65.h"
 #include "qscilexerca65.h"
 #include "qscilexerdefault.h"
 

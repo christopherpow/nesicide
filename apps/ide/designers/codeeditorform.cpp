@@ -71,7 +71,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    if ( m_language == Language_C )
    {
-      m_lexer = new QsciLexerCPP(m_scintilla);
+      m_lexer = new QsciLexerCC65(m_scintilla);
 
       m_scintilla->setLexer(m_lexer);
    }
@@ -226,10 +226,6 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    int absAddr = 0;
    QsciDocument doc = m_scintilla->document();
    QString symbol = m_scintilla->wordAtPoint(pos);
-   //bool writable = !m_scintilla->isReadOnly();
-   //bool undoable = m_scintilla->isUndoAvailable();
-   //bool redoable = m_scintilla->isRedoAvailable();
-   //bool pasteable = m_scintilla->SendScintilla(QsciScintilla::SCI_CANPASTE, (unsigned long)0, (long)0);
    QAction* action;
 
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
@@ -1449,7 +1445,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 
    if ( m_language == Language_C )
    {
-      m_lexer = new QsciLexerCPP(m_scintilla);
+      m_lexer = new QsciLexerCC65(m_scintilla);
 
       m_scintilla->setLexer(m_lexer);
    }
