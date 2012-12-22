@@ -193,6 +193,9 @@
     </property>
     <addaction name="action_Project_Browser"/>
     <addaction name="actionOutput_Window"/>
+    <addaction name="separator"/>
+    <addaction name="actionCoding_Mode"/>
+    <addaction name="actionDebugging_Mode"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -410,7 +413,7 @@
     <string>Output Window</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+C</string>
+    <string>Ctrl+Shift+O</string>
    </property>
   </action>
   <action name="actionCompile_Project">
@@ -524,6 +527,28 @@
   <action name="actionAbout_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionCoding_Mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Coding Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionDebugging_Mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debugging Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
    </property>
   </action>
  </widget>

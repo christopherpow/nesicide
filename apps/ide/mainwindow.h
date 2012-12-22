@@ -323,6 +323,8 @@ private slots:
 
    // C64-specific UI elements.
    void actionBinSIDRegister_Inspector_triggered();
+   void on_actionCoding_Mode_triggered();
+   void on_actionDebugging_Mode_triggered();
 };
 
 #endif // MAINWINDOW_H

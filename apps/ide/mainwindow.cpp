@@ -159,7 +159,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pProjectBrowser->setProjectModel(m_pProjectModel);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
    m_pProjectBrowser->hide();
-   CDockWidgetRegistry::addWidget ( "Project", m_pProjectBrowser );
+   CDockWidgetRegistry::addWidget ( "Project Browser", m_pProjectBrowser );
 
    output = new OutputPaneDockWidget(this);
    addDockWidget(Qt::BottomDockWidgetArea, output );
@@ -308,11 +308,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    projectDataChangesEvent();
 
-   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
-   {
-      restoreGeometry(settings.value("IDEGeometry").toByteArray());
-      restoreState(settings.value("IDEState").toByteArray());
-   }
+   actionCoding_Mode->setChecked(true);
+   on_actionCoding_Mode_triggered();
 
    // Sync the Output Pane buttons.
    output->initialize();
@@ -2048,8 +2045,16 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
-   settings.setValue("IDEGeometry",saveGeometry());
-   settings.setValue("IDEState",saveState());
+   if ( actionCoding_Mode->isChecked() )
+   {
+      settings.setValue("CodingModeIDEGeometry",saveGeometry());
+      settings.setValue("CodingModeIDEState",saveState());
+   }
+   else
+   {
+      settings.setValue("DebuggingModeIDEGeometry",saveGeometry());
+      settings.setValue("DebuggingModeIDEState",saveState());
+   }
 
    if (nesicideProject->isInitialized())
    {
@@ -3345,4 +3350,41 @@ void MainWindow::action4_3_Aspect_toggled(bool )
       action3x->trigger();
       break;
    }
+}
+
+void MainWindow::on_actionCoding_Mode_triggered()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   actionDebugging_Mode->setChecked(false);
+   actionCoding_Mode->setChecked(true);
+
+   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   {
+      restoreGeometry(settings.value("CodingModeIDEGeometry").toByteArray());
+      restoreState(settings.value("CodingModeIDEState").toByteArray());
+   }
+
+   CDockWidgetRegistry::hideAll();
+   QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
+
+   widget->show();
+}
+
+void MainWindow::on_actionDebugging_Mode_triggered()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   actionDebugging_Mode->setChecked(true);
+   actionCoding_Mode->setChecked(false);
+
+   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   {
+      restoreGeometry(settings.value("DebuggingModeIDEGeometry").toByteArray());
+      restoreState(settings.value("DebuggingModeIDEState").toByteArray());
+   }
+
+   QWidget* widget = CDockWidgetRegistry::getWidget("Emulator");
+
+   widget->show();
 }

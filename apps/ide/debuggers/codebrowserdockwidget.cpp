@@ -228,9 +228,28 @@ void CodeBrowserDockWidget::snapTo(QString item)
 
 void CodeBrowserDockWidget::breakpointHit()
 {
-   if ( nesROMIsLoaded() )
+   if ( isVisible() )
    {
-      show();
+      if ( nesROMIsLoaded() )
+      {
+         if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+         {
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+         }
+         else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
+         {
+            ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
+         }
+         ui->tableView->scrollTo(ui->tableView->currentIndex());
+         ui->tableView->resizeColumnsToContents();
+      }
+   }
+}
+
+void CodeBrowserDockWidget::emulatorPaused(bool showMe)
+{
+   if ( isVisible() )
+   {
       if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
       {
          ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
@@ -244,41 +263,21 @@ void CodeBrowserDockWidget::breakpointHit()
    }
 }
 
-void CodeBrowserDockWidget::emulatorPaused(bool showMe)
-{
-   if ( showMe )
-   {
-      show();
-   }
-   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
-   {
-      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
-   }
-   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
-   {
-      ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
-   }
-   ui->tableView->scrollTo(ui->tableView->currentIndex());
-   ui->tableView->resizeColumnsToContents();
-}
-
 void CodeBrowserDockWidget::machineReady()
 {
-   if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
+   if ( isVisible() )
    {
-      if ( nesROMIsLoaded() )
+      if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
       {
-         show();
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
       }
-      ui->tableView->setCurrentIndex(assemblyViewModel->index(nesGetSLOCFromAddress(nesGetCPUProgramCounterOfLastSync()),0));
+      else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
+      {
+         ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
+      }
+      ui->tableView->scrollTo(ui->tableView->currentIndex());
+      ui->tableView->resizeColumnsToContents();
    }
-   else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
-   {
-      show();
-      ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
-   }
-   ui->tableView->scrollTo(ui->tableView->currentIndex());
-   ui->tableView->resizeColumnsToContents();
 }
 
 void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
