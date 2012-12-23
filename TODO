@@ -50,9 +50,9 @@ or because they were pulled in by the build.
 
 22. Add option to automatically assign names of new elements added to a project based on what they are instead of asking all the time.
 
-23. Implement "modes" of the UI.  "Coding" mode would close all opened debug windows and emulator windows, allowing most screen real-estate for coding.  "Debugging".  Alternatively this could just be a "remove clutter" button somewhere prominent in the UI that has the same effect.
+**DONE** 23. Implement "modes" of the UI.  "Coding" mode would close all opened debug windows and emulator windows, allowing most screen real-estate for coding.  "Debugging".  Alternatively this could just be a "remove clutter" button somewhere prominent in the UI that has the same effect.
 
-24. Limit symbol watch debug updates to only the symbols in the currently visible tab in the symbol watch window.  Makes no sense to update the values of the RAM symbols if the watch tab is selected.  Updating of symbols on a non-visible tab can be done in the tab change handler.
+**DONE** 24. Limit symbol watch debug updates to only the symbols in the currently visible tab in the symbol watch window.  Makes no sense to update the values of the RAM symbols if the watch tab is selected.  Updating of symbols on a non-visible tab can be done in the tab change handler.
 
 25. Add OpenGL monospace font for overlays for Execution Visualizer, Code/Data Logger, maybe other viewers, and Emulator [with Lua capabilities?]
 
