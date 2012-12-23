@@ -86,6 +86,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* /*e*/)
       ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(c64GetCPURegister(CPU_PC)),0));
    }
    ui->tableView->scrollTo(ui->tableView->currentIndex());
+   ui->tableView->resizeColumnsToContents();
 }
 
 void CodeBrowserDockWidget::hideEvent(QHideEvent* /*e*/)
