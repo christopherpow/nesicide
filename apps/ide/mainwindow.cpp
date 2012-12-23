@@ -308,8 +308,18 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    projectDataChangesEvent();
 
+   // Set up UI in "Coding" mode.
    actionCoding_Mode->setChecked(true);
-   on_actionCoding_Mode_triggered();
+   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   {
+      restoreGeometry(settings.value("CodingModeIDEGeometry").toByteArray());
+      restoreState(settings.value("CodingModeIDEState").toByteArray());
+   }
+
+   CDockWidgetRegistry::hideAll();
+   QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
+
+   widget->show();
 
    // Sync the Output Pane buttons.
    output->initialize();
@@ -3356,35 +3366,48 @@ void MainWindow::on_actionCoding_Mode_triggered()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
-   actionDebugging_Mode->setChecked(false);
-   actionCoding_Mode->setChecked(true);
-
-   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   if ( actionDebugging_Mode->isChecked() )
    {
-      restoreGeometry(settings.value("CodingModeIDEGeometry").toByteArray());
-      restoreState(settings.value("CodingModeIDEState").toByteArray());
+      settings.setValue("DebuggingModeIDEGeometry",saveGeometry());
+      settings.setValue("DebuggingModeIDEState",saveState());
+
+      if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+      {
+         hide();
+         restoreGeometry(settings.value("CodingModeIDEGeometry").toByteArray());
+         restoreState(settings.value("CodingModeIDEState").toByteArray());
+         show();
+      }
+
+      CDockWidgetRegistry::hideAll();
+      QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
+
+      widget->show();
    }
 
-   CDockWidgetRegistry::hideAll();
-   QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
-
-   widget->show();
+   actionDebugging_Mode->setChecked(false);
+   actionCoding_Mode->setChecked(true);
 }
 
 void MainWindow::on_actionDebugging_Mode_triggered()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
-   actionDebugging_Mode->setChecked(true);
-   actionCoding_Mode->setChecked(false);
-
-   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   if ( actionCoding_Mode->isChecked() )
    {
-      restoreGeometry(settings.value("DebuggingModeIDEGeometry").toByteArray());
-      restoreState(settings.value("DebuggingModeIDEState").toByteArray());
+      if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+      {
+         hide();
+         restoreGeometry(settings.value("DebuggingModeIDEGeometry").toByteArray());
+         restoreState(settings.value("DebuggingModeIDEState").toByteArray());
+         show();
+      }
+
+      QWidget* widget = CDockWidgetRegistry::getWidget("Emulator");
+
+      widget->show();
    }
 
-   QWidget* widget = CDockWidgetRegistry::getWidget("Emulator");
-
-   widget->show();
+   actionDebugging_Mode->setChecked(true);
+   actionCoding_Mode->setChecked(false);
 }
