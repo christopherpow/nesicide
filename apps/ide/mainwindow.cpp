@@ -1855,8 +1855,8 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    projectDataChangesEvent();
 
-   actionEmulation_Window->setChecked(true);
-   actionEmulation_Window_triggered();
+   // Switch to Debugging mode.
+   on_actionDebugging_Mode_triggered();
 
    settings.setValue("LastProject",fileName);
 }
@@ -2163,9 +2163,6 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
          {
             emit startEmulation();
          }
-
-         actionEmulation_Window->setChecked(true);
-         actionEmulation_Window_triggered();
       }
 
       m_pProjectBrowser->enableNavigation();
@@ -3139,8 +3136,8 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
          buildTextLogger->write("<b>Load complete.</b>");
 
-         actionEmulation_Window->setChecked(true);
-         actionEmulation_Window_triggered();
+         // Switch to Debugging mode.
+         on_actionDebugging_Mode_triggered();
       }
       else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
