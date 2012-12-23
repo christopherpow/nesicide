@@ -56,3 +56,5 @@ or because they were pulled in by the build.
 
 25. Add OpenGL monospace font for overlays for Execution Visualizer, Code/Data Logger, maybe other viewers, and Emulator [with Lua capabilities?]
 
+26. Rework CCC65Interface object so that it creates Symbol structures containing all of the relevant information for each symbol in easy-to-access means, rather than using individual CCC65Interface methods to retrieve different pieces of information about symbols all the time.  The symbol structures can be built whenever a debug file is loaded, which is either when a project is loaded or when a compile is completed.  CCC65Interface::captureDebugInfo.
+
