@@ -384,21 +384,32 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
 
    if ( emulator )
    {
-      QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
-      QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
-      if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+      // Only update symbols on activated tab.
+      switch ( tabWidget->currentIndex() )
       {
-         QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
-         QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+      case Symbol_Watch_Window:
+         QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+         watchModel->update();
+         break;
+      case Symbol_RAM_Window:
+         QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+         ramModel->update();
+         break;
+      case Symbol_SRAM_Window:
+         if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+         {
+            QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+            sramModel->update();
+         }
+         break;
+      case Symbol_EXRAM_Window:
+         if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+         {
+            QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+            exramModel->update();
+         }
+         break;
       }
-   }
-   watchModel->update();
-   ramModel->update();
-
-   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
-   {
-      sramModel->update();
-      exramModel->update();
    }
 }
 
@@ -745,5 +756,47 @@ void SymbolWatchDockWidget::exram_doubleClicked(const QModelIndex &index)
    {
       emit snapTo("Address,"+exramModel->data(exramModel->index(index.row(),SymbolWatchCol_Address),Qt::DisplayRole).toString());
       on_actionGo_to_Definition_triggered();
+   }
+}
+
+void SymbolWatchDockWidget::on_tabWidget_currentChanged(int index)
+{
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
+
+   if ( emulator )
+   {
+      // Only update symbols on activated tab.
+      QObject::disconnect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+      QObject::disconnect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+      if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+      {
+         QObject::disconnect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+         QObject::disconnect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+      }
+      switch ( index )
+      {
+      case Symbol_Watch_Window:
+         QObject::connect(emulator,SIGNAL(updateDebuggers()),watchModel,SLOT(update()));
+         watchModel->update();
+         break;
+      case Symbol_RAM_Window:
+         QObject::connect(emulator,SIGNAL(updateDebuggers()),ramModel,SLOT(update()));
+         ramModel->update();
+         break;
+      case Symbol_SRAM_Window:
+         if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+         {
+            QObject::connect(emulator,SIGNAL(updateDebuggers()),sramModel,SLOT(update()));
+            sramModel->update();
+         }
+         break;
+      case Symbol_EXRAM_Window:
+         if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+         {
+            QObject::connect(emulator,SIGNAL(updateDebuggers()),exramModel,SLOT(update()));
+            exramModel->update();
+         }
+         break;
+      }
    }
 }

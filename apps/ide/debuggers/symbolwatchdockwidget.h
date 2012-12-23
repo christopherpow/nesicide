@@ -74,6 +74,7 @@ private slots:
    void on_ram_doubleClicked(const QModelIndex &index);
    void sram_doubleClicked(const QModelIndex &index);
    void exram_doubleClicked(const QModelIndex &index);
+   void on_tabWidget_currentChanged(int index);
 };
 
 #endif // SYMBOLWATCHDOCKWIDGET_H
