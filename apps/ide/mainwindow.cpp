@@ -233,6 +233,19 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
 
+   // Set up UI in "Coding" mode.
+   actionCoding_Mode->setChecked(true);
+   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
+   {
+      restoreGeometry(settings.value("CodingModeIDEGeometry").toByteArray());
+      restoreState(settings.value("CodingModeIDEState").toByteArray());
+   }
+
+   CDockWidgetRegistry::hideAll();
+   QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
+
+   widget->show();
+
    QStringList argv = QApplication::arguments();
 
    // Insert last project loaded into argument stream if one isn't specified.
@@ -307,19 +320,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    }
 
    projectDataChangesEvent();
-
-   // Set up UI in "Coding" mode.
-   actionCoding_Mode->setChecked(true);
-   if ( EnvironmentSettingsDialog::rememberWindowSettings() )
-   {
-      restoreGeometry(settings.value("CodingModeIDEGeometry").toByteArray());
-      restoreState(settings.value("CodingModeIDEState").toByteArray());
-   }
-
-   CDockWidgetRegistry::hideAll();
-   QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
-
-   widget->show();
 
    // Sync the Output Pane buttons.
    output->initialize();
@@ -2054,6 +2054,9 @@ void MainWindow::actionEmulation_Window_triggered()
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   m_pNESEmulator->showNormal();
+   m_pNESEmulator->setFloating(false);
 
    if ( actionCoding_Mode->isChecked() )
    {
