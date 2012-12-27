@@ -161,8 +161,11 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pProjectBrowser->hide();
    CDockWidgetRegistry::addWidget ( "Project Browser", m_pProjectBrowser );
 
+   expandableStatusBar = new CExpandableStatusBar();
+   appStatusBar->insertWidget(0, expandableStatusBar, 100); // Stretch is big to allow it to stretch across app pane.
+
    output = new OutputPaneDockWidget(this);
-   addDockWidget(Qt::BottomDockWidgetArea, output );
+   expandableStatusBar->addExpandingWidget(output);
    QObject::connect(generalTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateGeneralPane(QString)));
    QObject::connect(buildTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateBuildPane(QString)));
    QObject::connect(debugTextLogger,SIGNAL(updateText(QString)),output,SLOT(updateDebugPane(QString)));
@@ -1504,26 +1507,26 @@ void MainWindow::markProjectDirty(bool dirty)
 
 void MainWindow::addStatusBarWidget(QWidget *widget)
 {
-   appStatusBar->addWidget(widget,100);
+   expandableStatusBar->addWidget(widget,100);
    widget->show();
 }
 
 void MainWindow::removeStatusBarWidget(QWidget *widget)
 {
    // For some reason on creation the widget isn't there but it's being removed?
-   appStatusBar->addWidget(widget,100);
-   appStatusBar->removeWidget(widget);
+   expandableStatusBar->addWidget(widget,100);
+   expandableStatusBar->removeWidget(widget);
 }
 
 void MainWindow::addPermanentStatusBarWidget(QWidget *widget)
 {
-   appStatusBar->addPermanentWidget(widget);
+   expandableStatusBar->addPermanentWidget(widget);
    widget->show();
 }
 
 void MainWindow::removePermanentStatusBarWidget(QWidget *widget)
 {
-   appStatusBar->removeWidget(widget);
+   expandableStatusBar->removeWidget(widget);
 }
 
 void MainWindow::setStatusBarMessage(QString message)
@@ -2054,9 +2057,6 @@ void MainWindow::actionEmulation_Window_triggered()
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-
-   m_pNESEmulator->showNormal();
-   m_pNESEmulator->setFloating(false);
 
    if ( actionCoding_Mode->isChecked() )
    {

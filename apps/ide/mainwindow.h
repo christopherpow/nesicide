@@ -37,6 +37,7 @@
 #include "c64emulatorthread.h"
 #include "c64emulatorcontrol.h"
 #include "searchdockwidget.h"
+#include "cexpandablestatusbar.h"
 
 #include "ui_mainwindow.h"
 
@@ -78,6 +79,7 @@ protected:
    QDateTime m_lastActivationChangeTime;
 
    // Common/reused UI elements.
+   CExpandableStatusBar* expandableStatusBar;
    QToolBar *debuggerToolBar;
    QAction *actionBreakpoint_Inspector;
    QAction *actionAssembly_Inspector;

@@ -322,7 +322,8 @@ SOURCES += \
     project/cprojecttreeopenaction.cpp \
     project/cprojecttreewidget.cpp \
     designers/qscilexerbin.cpp \
-    designers/qscilexercc65.cpp
+    designers/qscilexercc65.cpp \
+    common/cexpandablestatusbar.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -470,7 +471,8 @@ HEADERS += \
     project/cprojecttreecontextmenu.h \
     project/cprojecttreeopenaction.h \
     designers/qscilexerbin.h \
-    designers/qscilexercc65.h
+    designers/qscilexercc65.h \
+    common/cexpandablestatusbar.h
 
 FORMS += \
    aboutdialog.ui \
@@ -513,7 +515,8 @@ FORMS += \
    nes/emulator/testsuiteexecutivedialog.ui \
    nes/debuggers/chrromdisplaydialog.ui \
    nes/debuggers/prgromdisplaydialog.ui \
-    nes/debuggers/joypadloggerdockwidget.ui
+    nes/debuggers/joypadloggerdockwidget.ui \
+    common/cexpandablestatusbar.ui
 
 RESOURCES += \
     templates.qrc \
