@@ -3395,6 +3395,9 @@ void MainWindow::on_actionDebugging_Mode_triggered()
 
    if ( actionCoding_Mode->isChecked() )
    {
+      settings.setValue("CodingModeIDEGeometry",saveGeometry());
+
+      CDockWidgetRegistry::hideAll();
       if ( EnvironmentSettingsDialog::rememberWindowSettings() )
       {
          hide();
