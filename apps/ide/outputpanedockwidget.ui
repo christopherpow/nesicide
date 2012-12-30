@@ -10,8 +10,14 @@
     <height>112</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>69</width>
+    <height>91</height>
+   </size>
+  </property>
   <property name="features">
-   <set>QDockWidget::AllDockWidgetFeatures</set>
+   <set>QDockWidget::DockWidgetClosable</set>
   </property>
   <property name="windowTitle">
    <string/>
@@ -38,7 +44,7 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="generalOutputPage" native="true">
+      <widget class="QWidget" name="generalOutputPage">
        <layout class="QGridLayout" name="gridLayout_5">
         <property name="margin">
          <number>0</number>
@@ -82,7 +88,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="compilerOutputPage" native="true">
+      <widget class="QWidget" name="compilerOutputPage">
        <layout class="QGridLayout" name="gridLayout_4">
         <property name="margin">
          <number>0</number>
@@ -132,7 +138,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="debuggerOutputPage" native="true">
+      <widget class="QWidget" name="debuggerOutputPage">
        <layout class="QGridLayout" name="gridLayout_6">
         <property name="margin">
          <number>0</number>
@@ -176,7 +182,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="searchOutputPage" native="true">
+      <widget class="QWidget" name="searchOutputPage">
        <layout class="QGridLayout" name="gridLayout_2">
         <property name="margin">
          <number>0</number>

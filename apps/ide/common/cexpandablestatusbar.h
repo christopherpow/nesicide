@@ -2,8 +2,6 @@
 #define CEXPANDABLESTATUSBAR_H
 
 #include <QFrame>
-#include <QGridLayout>
-#include <QBoxLayout>
 
 namespace Ui
 {
@@ -20,15 +18,20 @@ public:
    void addExpandingWidget ( QWidget * widget, int stretch = 0 );
    void addWidget ( QWidget * widget, int stretch = 0 );
    void removeWidget ( QWidget * widget );
+   bool eventFilter(QObject *object, QEvent *event);
 
 private:
    Ui::CExpandableStatusBar* ui;
+   QWidget* expandableWidget;
+   QPoint touchPos;
 
 signals:
 
 public slots:
 
 protected:
+private slots:
+   void on_splitter_splitterMoved(int pos, int index);
 };
 
 #endif // CEXPANDABLESTATUSBAR_H

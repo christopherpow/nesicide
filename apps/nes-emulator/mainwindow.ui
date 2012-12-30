@@ -35,7 +35,7 @@
    <string>Nesicide Emulator</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resource.qrc">
+   <iconset resource="../../common/resource.qrc">
     <normaloff>:/resources/appicon.png</normaloff>:/resources/appicon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -452,7 +452,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>
