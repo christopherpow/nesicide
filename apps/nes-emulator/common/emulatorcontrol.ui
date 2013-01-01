@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>112</width>
+    <width>118</width>
     <height>30</height>
    </rect>
   </property>
@@ -46,7 +46,7 @@
         <string>Run</string>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/stock_media-play.png</normaloff>:/resources/stock_media-play.png</iconset>
        </property>
        <property name="iconSize">
@@ -75,7 +75,7 @@
         <string>Pause</string>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/stock_media-pause.png</normaloff>:/resources/stock_media-pause.png</iconset>
        </property>
        <property name="iconSize">
@@ -98,7 +98,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/stock_media-stop.png</normaloff>:/resources/stock_media-stop.png</iconset>
        </property>
        <property name="iconSize">
@@ -127,7 +127,7 @@
         <string>Reset</string>
        </property>
        <property name="icon">
-        <iconset resource="../resource.qrc">
+        <iconset resource="../../../common/resource.qrc">
          <normaloff>:/resources/stock_exit.png</normaloff>:/resources/stock_exit.png</iconset>
        </property>
        <property name="iconSize">
@@ -174,10 +174,10 @@
   </action>
   <action name="actionReset">
    <property name="text">
-    <string>Reset</string>
+    <string>Hard Reset</string>
    </property>
    <property name="toolTip">
-    <string>Reset</string>
+    <string>Hard Reset</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F10</string>
@@ -196,7 +196,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

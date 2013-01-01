@@ -20,7 +20,6 @@ public:
    // ICenterWidgetItem Interface Implmentation
    virtual bool onCloseQuery();
    virtual void onClose();
-   virtual bool onSaveQuery();
    virtual void onSave();
    virtual QMenu& editorMenu();
 

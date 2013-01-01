@@ -16,7 +16,6 @@ public:
 
    virtual bool onCloseQuery() = 0;
    virtual void onClose() = 0;
-   virtual bool onSaveQuery() = 0;
    virtual void onSave() = 0;
 
    virtual QMenu& editorMenu() = 0;

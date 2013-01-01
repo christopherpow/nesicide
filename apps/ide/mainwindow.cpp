@@ -2038,9 +2038,11 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
    {
       if (projectItem->onCloseQuery())
       {
-         tabWidget->removeTab(index);
-         projectItem->onClose();
+         projectItem->onSave();
       }
+
+      tabWidget->removeTab(index);
+      projectItem->onClose();
    }
    else
    {
@@ -2512,7 +2514,7 @@ void MainWindow::closeProject()
       if ( item )
       {
          tabWidget->setCurrentWidget(tabWidget->widget(idx));
-         if ( item->onSaveQuery() )
+         if ( item->onCloseQuery() )
          {
             item->onSave();
          }

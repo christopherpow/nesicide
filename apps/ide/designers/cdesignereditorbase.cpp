@@ -26,8 +26,9 @@ bool CDesignerEditorBase::onCloseQuery()
    {
       return (QMessageBox::question(0, QString("Confirm Close"),
                                     QString("This file has unsaved changes that\n"
-                                            "will be lost if closed. Close anyway?"),
-                                    QMessageBox::Yes, QMessageBox::Cancel) == QMessageBox::Yes);
+                                            "will be lost if closed without saving.\n"
+                                            "Do you want to save it?"),
+                                    QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
    }
    else
    {
@@ -40,22 +41,6 @@ void CDesignerEditorBase::onClose()
    if ( _treeLink )
    {
       _treeLink->closeItemEvent();
-   }
-}
-
-bool CDesignerEditorBase::onSaveQuery()
-{
-   if ( isModified() )
-   {
-      return (QMessageBox::question(0, QString("Confirm Close"),
-                                    QString("This file has unsaved changes that\n"
-                                            "will be lost if closed without saving.\n"
-                                            "Do you want to save it?"),
-                                    QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
-   }
-   else
-   {
-      return false;
    }
 }
 
