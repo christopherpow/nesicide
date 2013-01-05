@@ -135,5 +135,6 @@
         <file>resources/window_new.svg</file>
         <file>resources/RR_page_asm.png</file>
         <file>resources/RR_graphics_bank.png</file>
+        <file>resources/SampleBg.bmp</file>
     </qresource>
 </RCC>

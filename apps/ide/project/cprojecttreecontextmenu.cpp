@@ -10,6 +10,7 @@
 #include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
+#include "model/cmusicmodel.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -49,6 +50,7 @@ const QString SOURCE_FILE   = "Source File";
 const QString BINARY_FILE   = "Binary File";
 const QString TILE          = "Tile";
 const QString SCREEN        = "Screen";
+const QString MUSIC         = "Music";
 
 const QString DOTS          = "...";
 //--------------------------------------------------------------------------------------
@@ -130,6 +132,16 @@ void CProjectTreeContextMenu::visit(CTileStampUuid &data)
    menu.exec(m_position);
 }
 
+void CProjectTreeContextMenu::visit(CMusicUuid &data)
+{
+   m_targetUuid = data.uuid;
+
+   QMenu menu(m_parent);
+   menu.addAction(DELETE_ACTION.arg(MUSIC), this, SLOT(deleteMusic()));
+   appendGlobalMenuItems(&menu);
+   menu.exec(m_position);
+}
+
 void CProjectTreeContextMenu::visit(CChrRomUuid &)
 {
 }
@@ -153,6 +165,7 @@ void CProjectTreeContextMenu::appendGlobalMenuItems(QMenu *menu)
    newMenu->addAction(SCREEN + DOTS, this, SLOT(newScreen()) );
    newMenu->addAction(TILE + DOTS, this, SLOT(newTile()) );
    newMenu->addAction(GRAPHICS_BANK + DOTS, this, SLOT(newGraphicsBank()) );
+   newMenu->addAction(MUSIC + DOTS, this, SLOT(newMusic()) );
    menu->addMenu(newMenu);
 
    // Add exisiting -> menu entry
@@ -245,6 +258,14 @@ void CProjectTreeContextMenu::newScreen()
    m_project->getTileStampModel()->newScreen(name);
 }
 
+void CProjectTreeContextMenu::newMusic()
+{
+   QString name = selectNewItemName(NEW_ITEM_CAPTION.arg(MUSIC), NEW_ITEM_TEXT.arg(MUSIC));
+   if (name.isEmpty())
+      return;
+
+   m_project->getMusicModel()->newMusic(name);
+}
 
 void CProjectTreeContextMenu::addBinaryFile()
 {

@@ -9,6 +9,7 @@
 #include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
+#include "model/cmusicmodel.h"
 
 CProjectTreeOpenAction::CProjectTreeOpenAction(CProjectTabWidget *tabWidget, QTreeWidget *openItems, CProjectModel *project)
    : m_tabWidget(tabWidget), m_openItems(openItems), m_project(project)
@@ -48,6 +49,11 @@ void CProjectTreeOpenAction::visit(CSourceFileUuid &data)
 void CProjectTreeOpenAction::visit(CTileStampUuid &data)
 {
    doVisit(m_project->getTileStampModel(), data.uuid);
+}
+
+void CProjectTreeOpenAction::visit(CMusicUuid &data)
+{
+   doVisit(m_project->getMusicModel(), data.uuid);
 }
 
 void CProjectTreeOpenAction::visit(CChrRomUuid &data)

@@ -323,7 +323,12 @@ SOURCES += \
     project/cprojecttreewidget.cpp \
     designers/qscilexerbin.cpp \
     designers/qscilexercc65.cpp \
-    common/cexpandablestatusbar.cpp
+    common/cexpandablestatusbar.cpp \
+    nes/designers/musiceditorform.cpp \
+    model/cmusicmodel.cpp \
+    nes/project/cmusics.cpp \
+    nes/project/cmusic.cpp \
+    nes/project/csounds.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -472,7 +477,12 @@ HEADERS += \
     project/cprojecttreeopenaction.h \
     designers/qscilexerbin.h \
     designers/qscilexercc65.h \
-    common/cexpandablestatusbar.h
+    common/cexpandablestatusbar.h \
+    nes/designers/musiceditorform.h \
+    model/cmusicmodel.h \
+    nes/project/cmusics.h \
+    nes/project/cmusic.h \
+    nes/project/csounds.h
 
 FORMS += \
    aboutdialog.ui \
@@ -516,7 +526,8 @@ FORMS += \
    nes/debuggers/chrromdisplaydialog.ui \
    nes/debuggers/prgromdisplaydialog.ui \
     nes/debuggers/joypadloggerdockwidget.ui \
-    common/cexpandablestatusbar.ui
+    common/cexpandablestatusbar.ui \
+    nes/designers/musiceditorform.ui
 
 RESOURCES += \
     templates.qrc \

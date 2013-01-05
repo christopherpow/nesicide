@@ -21,6 +21,7 @@ public:
    virtual void visit(CGraphicsBankUuid&);
    virtual void visit(CSourceFileUuid&);
    virtual void visit(CTileStampUuid&);
+   virtual void visit(CMusicUuid&);
 
    virtual void visit(CChrRomUuid&);
    virtual void visit(CPrgRomUuid&);
@@ -45,6 +46,7 @@ private slots:
    void newSourceFile();
    void newTile();
    void newScreen();
+   void newMusic();
 
    void addBinaryFile();
    void addSourceFile();

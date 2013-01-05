@@ -14,6 +14,7 @@ CProject::CProject(IProjectTreeViewItem* parent)
    m_pSources = new CSources(this);
    m_pBinaryFiles = new CBinaryFiles(this);
    m_pGraphicsBanks = new CGraphicsBanks(this);
+   m_pSounds = new CSounds(this);
 }
 
 CProject::~CProject()
@@ -37,6 +38,11 @@ CProject::~CProject()
    {
       delete m_pGraphicsBanks;
    }
+
+   if (m_pSounds)
+   {
+      delete m_pSounds;
+   }
 }
 
 void CProject::initializeProject()
@@ -48,12 +54,14 @@ void CProject::initializeProject()
    m_pSources->initializeProject();
    m_pBinaryFiles->initializeProject();
    m_pGraphicsBanks->initializeProject();
+   m_pSounds->initializeProject();
 
    // Add child nodes to tree
    appendChild(m_pProjectPrimitives);
    appendChild(m_pSources);
    appendChild(m_pBinaryFiles);
    appendChild(m_pGraphicsBanks);
+   appendChild(m_pSounds);
 }
 
 void CProject::terminateProject()
@@ -63,32 +71,14 @@ void CProject::terminateProject()
    m_pSources->terminateProject();
    m_pBinaryFiles->terminateProject();
    m_pGraphicsBanks->terminateProject();
+   m_pSounds->terminateProject();
 
    // Remove child nodes from tree
    removeChild(m_pProjectPrimitives);
    removeChild(m_pSources);
    removeChild(m_pBinaryFiles);
    removeChild(m_pGraphicsBanks);
-}
-
-CProjectPrimitives* CProject::getProjectPrimitives()
-{
-   return m_pProjectPrimitives;
-}
-
-CGraphicsBanks* CProject::getGraphicsBanks()
-{
-   return m_pGraphicsBanks;
-}
-
-CSources* CProject::getSources()
-{
-   return m_pSources;
-}
-
-CBinaryFiles* CProject::getBinaryFiles()
-{
-   return m_pBinaryFiles;
+   removeChild(m_pSounds);
 }
 
 bool CProject::serialize(QDomDocument& doc, QDomNode& node)
@@ -135,6 +125,18 @@ bool CProject::serialize(QDomDocument& doc, QDomNode& node)
    if (m_pGraphicsBanks)
    {
       if (!m_pGraphicsBanks->serialize(doc, projectElement))
+      {
+         return false;
+      }
+   }
+   else
+   {
+      return false;
+   }
+
+   if (m_pSounds)
+   {
+      if (!m_pSounds->serialize(doc, projectElement))
       {
          return false;
       }
@@ -202,6 +204,20 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
       if (childNode.nodeName() == "graphicsbanks")
       {
          if (!m_pGraphicsBanks->deserialize(doc,childNode,errors))
+         {
+            return false;
+         }
+      }
+   }
+   while (!(childNode = childNode.nextSibling()).isNull());
+
+   // Next, look for sound effects and music.
+   childNode = node.firstChild();
+   do
+   {
+      if (childNode.nodeName() == "sounds")
+      {
+         if (!m_pSounds->deserialize(doc,childNode,errors))
          {
             return false;
          }

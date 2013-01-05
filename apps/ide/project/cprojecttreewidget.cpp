@@ -9,6 +9,7 @@
 #include "model/cprojectmodel.h"
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
+#include "model/cmusicmodel.h"
 #include "model/iuuidvisitor.h"
 
 //--------------------------------------------------------------------------------------
@@ -79,6 +80,14 @@ public:
    virtual void visit(CTileStampUuid &d)
    {
       CTileStampModel* model = project->getTileStampModel();
+      name    = model->getName(d.uuid);
+      toolTip = QString();
+      icon    = QIcon(":/resources/RR_page_white.png");
+   }
+
+   virtual void visit(CMusicUuid &d)
+   {
+      CMusicModel* model = project->getMusicModel();
       name    = model->getName(d.uuid);
       toolTip = QString();
       icon    = QIcon(":/resources/RR_page_white.png");

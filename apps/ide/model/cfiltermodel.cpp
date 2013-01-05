@@ -8,13 +8,14 @@
 #include "model/cgraphicsbankmodel.h"
 #include "model/csourcefilemodel.h"
 #include "model/ctilestampmodel.h"
+#include "model/cmusicmodel.h"
 
 #include "cnesicideproject.h"
 
 static const QString FILTER_NAME[] =
 {
    "Project", "Primitives", "Attributes", "Tiles & Screens", "Source Code",
-   "Binary Files", "Graphics Banks", "Cartridge", "PRG-ROM Banks", "CHR-ROM Banks"
+   "Binary Files", "Graphics Banks", "Sounds", "Musics", "Cartridge", "PRG-ROM Banks", "CHR-ROM Banks"
 };
 
 CFilterModel::CFilterModel(CProjectModel* project)
@@ -28,9 +29,11 @@ CFilterModel::CFilterModel(CProjectModel* project)
    m_filters.append(QUuid::createUuid()); // 4  Source Code
    m_filters.append(QUuid::createUuid()); // 5  Binary Files
    m_filters.append(QUuid::createUuid()); // 6  Graphics Banks
-   m_filters.append(QUuid::createUuid()); // 7 Cartridge
-   m_filters.append(QUuid::createUuid()); // 8  PRG ROM
-   m_filters.append(QUuid::createUuid()); // 9  CHR ROM
+   m_filters.append(QUuid::createUuid()); // 7  Sounds
+   m_filters.append(QUuid::createUuid()); // 8   Musics
+   m_filters.append(QUuid::createUuid()); // 9 Cartridge
+   m_filters.append(QUuid::createUuid()); // 10  PRG ROM
+   m_filters.append(QUuid::createUuid()); // 11  CHR ROM
 }
 
 QList<QUuid> CFilterModel::getUuids() const
@@ -71,6 +74,7 @@ QList<QUuid> CFilterModel::getFilteredItems(const QUuid &uuid) const
          items.append(m_filters[4]);
          items.append(m_filters[5]);
          items.append(m_filters[6]);
+         items.append(m_filters[7]);
          break;
 
       case 1:
@@ -86,11 +90,17 @@ QList<QUuid> CFilterModel::getFilteredItems(const QUuid &uuid) const
 
       case 7:
          items.append(m_filters[8]);
-         items.append(m_filters[9]);
          break;
 
-      case 8: return m_pProjectModel->getCartridgeModel()->getPrgRomUuids();
-      case 9: return m_pProjectModel->getCartridgeModel()->getChrRomUuids();
+      case 8: return m_pProjectModel->getMusicModel()->getUuids();
+
+      case 9:
+         items.append(m_filters[10]);
+         items.append(m_filters[11]);
+         break;
+
+      case 10: return m_pProjectModel->getCartridgeModel()->getPrgRomUuids();
+      case 11: return m_pProjectModel->getCartridgeModel()->getChrRomUuids();
 
       default:
          break;

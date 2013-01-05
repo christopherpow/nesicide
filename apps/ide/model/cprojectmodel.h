@@ -13,6 +13,7 @@ class CFilterModel;
 class CGraphicsBankModel;
 class CSourceFileModel;
 class CTileStampModel;
+class CMusicModel;
 
 class CProjectModel : public QObject
 {
@@ -47,6 +48,7 @@ public:
    CGraphicsBankModel*  getGraphicsBankModel()  { return m_pGraphicsBankModel; }
    CSourceFileModel*    getSourceFileModel()    { return m_pSourceFileModel; }
    CTileStampModel*     getTileStampModel()     { return m_pTileStampModel; }
+   CMusicModel*         getMusicModel()         { return m_pMusicModel; }
 
 private:
    CNesicideProject*    m_pProject;
@@ -58,6 +60,7 @@ private:
    CGraphicsBankModel*  m_pGraphicsBankModel;
    CSourceFileModel*    m_pSourceFileModel;
    CTileStampModel*     m_pTileStampModel;
+   CMusicModel*         m_pMusicModel;
 
 private slots:
    void onItemAdded(const QUuid & item);
