@@ -85,7 +85,7 @@ public:
       icon    = QIcon(":/resources/RR_page_white.png");
    }
 
-   virtual void visit(CMusicUuid &d)
+   virtual void visit(CMusicFileUuid &d)
    {
       CMusicModel* model = project->getMusicModel();
       name    = model->getName(d.uuid);

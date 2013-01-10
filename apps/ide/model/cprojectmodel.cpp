@@ -41,8 +41,8 @@ CProjectModel::CProjectModel()
    QObject::connect(m_pSourceFileModel,   SIGNAL(sourceFileRemoved(QUuid)),   this, SLOT(onItemRemoved(QUuid)));
    QObject::connect(m_pTileStampModel,    SIGNAL(tileStampAdded(QUuid)),      this, SLOT(onItemAdded(QUuid)));
    QObject::connect(m_pTileStampModel,    SIGNAL(tileStampRemoved(QUuid)),    this, SLOT(onItemRemoved(QUuid)));
-   QObject::connect(m_pMusicModel,        SIGNAL(musicAdded(QUuid)),          this, SLOT(onItemAdded(QUuid)));
-   QObject::connect(m_pMusicModel,        SIGNAL(musicDeleted(QUuid)),        this, SLOT(onItemRemoved(QUuid)));
+   QObject::connect(m_pMusicModel,        SIGNAL(musicFileAdded(QUuid)),      this, SLOT(onItemAdded(QUuid)));
+   QObject::connect(m_pMusicModel,        SIGNAL(musicFileDeleted(QUuid)),    this, SLOT(onItemRemoved(QUuid)));
 }
 
 CProjectModel::~CProjectModel()
@@ -87,7 +87,7 @@ QList<QUuid> CProjectModel::getUuids() const
    uuids.append(ProjectSearcher::findUuidsOfType<CGraphicsBank>(m_pProject));
    uuids.append(ProjectSearcher::findUuidsOfType<CSourceItem>(m_pProject));
    uuids.append(ProjectSearcher::findUuidsOfType<CTileStamp>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CMusic>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CMusicItem>(m_pProject));
 
    uuids.append(ProjectSearcher::findUuidsOfType<CCHRROMBank>(m_pProject));
    uuids.append(ProjectSearcher::findUuidsOfType<CPRGROMBank>(m_pProject));
@@ -149,9 +149,9 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
             CTileStampUuid id(uuid);
             visitor.visit(id);
          }
-         else if (strcmp(className,"CMusic") == 0)
+         else if (strcmp(className,"CMusicItem") == 0)
          {
-            CMusicUuid id(uuid);
+            CMusicFileUuid id(uuid);
             visitor.visit(id);
          }
          else if (strcmp(className,"CPRGROMBank") == 0)

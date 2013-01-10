@@ -51,7 +51,7 @@ void CProjectTreeOpenAction::visit(CTileStampUuid &data)
    doVisit(m_project->getTileStampModel(), data.uuid);
 }
 
-void CProjectTreeOpenAction::visit(CMusicUuid &data)
+void CProjectTreeOpenAction::visit(CMusicFileUuid &data)
 {
    doVisit(m_project->getMusicModel(), data.uuid);
 }

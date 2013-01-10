@@ -30,10 +30,6 @@ QString CPRGROMBank::caption() const
    return "PRG Bank " + QString::number(m_bankIndex, 10);
 }
 
-void CPRGROMBank::contextMenuEvent(QContextMenuEvent*, QTreeView*)
-{
-}
-
 void CPRGROMBank::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)

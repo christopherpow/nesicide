@@ -1,0 +1,148 @@
+/*
+** FamiTracker - NES/Famicom sound tracker
+** Copyright (C) 2005-2010  Jonathan Liss
+**
+** This program is free software; you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation; either version 2 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** Library General Public License for more details.  To obtain a
+** copy of the GNU Library General Public License, write to the Free
+** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+**
+** Any permitted reproduction of these routines, in whole or in part,
+** must bear this legend.
+*/
+
+#include "instrument.h"
+#include "compiler.h"
+
+/*
+ * class CInstrumentVRC7
+ *
+ */
+
+CInstrumentVRC7::CInstrumentVRC7() :
+	m_iPatch(0)
+{
+	m_iRegs[0] = 0;
+	m_iRegs[1] = 0;
+	m_iRegs[2] = 0;
+	m_iRegs[3] = 0;
+	m_iRegs[4] = 0;
+	m_iRegs[5] = 0;
+	m_iRegs[6] = 0;
+	m_iRegs[7] = 0;
+}
+
+CInstrument *CInstrumentVRC7::Clone()
+{
+	CInstrumentVRC7 *pNew = new CInstrumentVRC7();
+
+	pNew->SetPatch(GetPatch());
+
+	for (int i = 0; i < 8; ++i)
+		pNew->SetCustomReg(i, GetCustomReg(i));
+
+	pNew->SetName(GetName());
+
+	return pNew;
+}
+
+//void CInstrumentVRC7::Store(CDocumentFile *pDocFile)
+//{
+//	pDocFile->WriteBlockInt(m_iPatch);
+
+//	for (int i = 0; i < 8; ++i)
+//		pDocFile->WriteBlockChar(GetCustomReg(i));
+//}
+
+//bool CInstrumentVRC7::Load(CDocumentFile *pDocFile)
+//{
+//	m_iPatch = pDocFile->GetBlockInt();
+
+//	for (int i = 0; i < 8; ++i)
+//		SetCustomReg(i, pDocFile->GetBlockChar());
+
+//	return true;
+//}
+
+//void CInstrumentVRC7::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+//{
+//	unsigned char Var;
+
+//	pFile->Write(&m_iPatch, sizeof(int));
+
+//	for (int i = 0; i < 8; ++i) {
+//		Var = GetCustomReg(i);
+//		pFile->Write(&Var, 1);
+//	}
+//}
+
+//bool CInstrumentVRC7::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+//{
+//	unsigned char Var;
+
+//	pFile->Read(&m_iPatch, sizeof(int));
+
+//	for (int i = 0; i < 8; ++i) {
+//		pFile->Read(&Var, 1);
+//		SetCustomReg(i, Var);
+//	}
+
+//	return true;
+//}
+
+int CInstrumentVRC7::CompileSize(CCompiler *pCompiler)
+{
+	return (GetPatch() == 0) ? 9 : 1;
+}
+
+int CInstrumentVRC7::Compile(CCompiler *pCompiler, int Index)
+{
+	int Patch = GetPatch();
+
+//	pCompiler->WriteLog("VRC7 {");
+//	pCompiler->StoreByte(Patch << 4);	// Shift up by 4 to make room for volume
+//	pCompiler->WriteLog("Patch %i", GetPatch());
+
+//	if (Patch == 0) {
+//		// Write custom patch settings
+//		pCompiler->WriteLog(" regs: ");
+//		for (int i = 0; i < 8; ++i) {
+//			pCompiler->StoreByte(GetCustomReg(i));
+//			pCompiler->WriteLog("%02X%s", GetCustomReg(i), i < 7 ? ", " : "");
+//		}
+//	}
+
+	return (Patch == 0) ? 9 : 1;
+}
+
+bool CInstrumentVRC7::CanRelease() const
+{
+	return true;	// Can always release
+}
+
+void CInstrumentVRC7::SetPatch(unsigned int Patch)
+{
+	m_iPatch = Patch;
+}
+
+unsigned int CInstrumentVRC7::GetPatch() const
+{
+	return m_iPatch;
+}
+
+void CInstrumentVRC7::SetCustomReg(int Reg, unsigned int Value)
+{
+	m_iRegs[Reg] = Value;
+}
+
+unsigned int CInstrumentVRC7::GetCustomReg(int Reg) const
+{
+	return m_iRegs[Reg];
+}

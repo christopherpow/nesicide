@@ -14,7 +14,7 @@
 
 #include <QMessageBox>
 #include <QDir>
-#include <newprojectdialog.h>
+#include <newfiledialog.h>
 #include <QInputDialog>
 #include <QFileDialog>
 
@@ -42,6 +42,7 @@ const QString DELETE_ITEM_CAPTION         = "Delete %1";
 const QString DELETE_ITEM_TEXT            = "Are you sure you want to delete \"%1\" permanently?";
 
 const QString NEW_SOURCE_MENU_TEXT        = "New Source";
+const QString NEW_MUSIC_MENU_TEXT         = "New Music";
 const QString IMPORT_FILES_MENU_TEXT      = "Add Existing File(s)";
 
 const QString GRAPHICS_BANK = "Graphics Bank";
@@ -50,7 +51,7 @@ const QString SOURCE_FILE   = "Source File";
 const QString BINARY_FILE   = "Binary File";
 const QString TILE          = "Tile";
 const QString SCREEN        = "Screen";
-const QString MUSIC         = "Music";
+const QString MUSIC_FILE    = "Music File";
 
 const QString DOTS          = "...";
 //--------------------------------------------------------------------------------------
@@ -132,12 +133,12 @@ void CProjectTreeContextMenu::visit(CTileStampUuid &data)
    menu.exec(m_position);
 }
 
-void CProjectTreeContextMenu::visit(CMusicUuid &data)
+void CProjectTreeContextMenu::visit(CMusicFileUuid &data)
 {
    m_targetUuid = data.uuid;
 
    QMenu menu(m_parent);
-   menu.addAction(DELETE_ACTION.arg(MUSIC), this, SLOT(deleteMusic()));
+   menu.addAction(DELETE_ACTION.arg(MUSIC_FILE), this, SLOT(deleteMusicFile()));
    appendGlobalMenuItems(&menu);
    menu.exec(m_position);
 }
@@ -165,7 +166,7 @@ void CProjectTreeContextMenu::appendGlobalMenuItems(QMenu *menu)
    newMenu->addAction(SCREEN + DOTS, this, SLOT(newScreen()) );
    newMenu->addAction(TILE + DOTS, this, SLOT(newTile()) );
    newMenu->addAction(GRAPHICS_BANK + DOTS, this, SLOT(newGraphicsBank()) );
-   newMenu->addAction(MUSIC + DOTS, this, SLOT(newMusic()) );
+   newMenu->addAction(MUSIC_FILE + DOTS, this, SLOT(newMusicFile()) );
    menu->addMenu(newMenu);
 
    // Add exisiting -> menu entry
@@ -173,6 +174,7 @@ void CProjectTreeContextMenu::appendGlobalMenuItems(QMenu *menu)
    addExistingMenu->setTitle(ADD_EXISTING_ACTION);
    addExistingMenu->addAction(BINARY_FILE + DOTS, this, SLOT(addBinaryFile()) );
    addExistingMenu->addAction(SOURCE_FILE + DOTS, this, SLOT(addSourceFile()) );
+   addExistingMenu->addAction(MUSIC_FILE + DOTS, this, SLOT(addMusicFile()) );
    menu->addMenu(addExistingMenu);
 
    //menu->addSeparator();
@@ -220,8 +222,7 @@ void CProjectTreeContextMenu::newPalette()
 
 void CProjectTreeContextMenu::newSourceFile()
 {
-   // TODO Remove this hack!
-   NewProjectDialog dlg(0, NEW_SOURCE_MENU_TEXT, "", QDir::currentPath());
+   NewFileDialog dlg(NEW_SOURCE_MENU_TEXT, "", QDir::currentPath());
 
    int result = dlg.exec();
    if ( result == 0 )
@@ -258,13 +259,26 @@ void CProjectTreeContextMenu::newScreen()
    m_project->getTileStampModel()->newScreen(name);
 }
 
-void CProjectTreeContextMenu::newMusic()
+void CProjectTreeContextMenu::newMusicFile()
 {
-   QString name = selectNewItemName(NEW_ITEM_CAPTION.arg(MUSIC), NEW_ITEM_TEXT.arg(MUSIC));
-   if (name.isEmpty())
+   // TODO Remove this hack!
+   NewFileDialog dlg(NEW_MUSIC_MENU_TEXT, "", QDir::currentPath());
+
+   int result = dlg.exec();
+   if ( result == 0 )
       return;
 
-   m_project->getMusicModel()->newMusic(name);
+   QString fileName = dlg.getName();
+   QDir newDir( dlg.getPath() );
+
+   if ( fileName.isEmpty() )
+      return;
+
+   // Project base directory (directory where the .nesproject file is)
+   QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
+   QString fullPath = dir.relativeFilePath( newDir.absoluteFilePath( fileName ) );
+
+   m_project->getMusicModel()->newMusicFile(fullPath);
 }
 
 void CProjectTreeContextMenu::addBinaryFile()
@@ -287,6 +301,18 @@ void CProjectTreeContextMenu::addSourceFile()
       if (!fileName.isEmpty())
       {
          m_project->getSourceFileModel()->addExistingSourceFile(fileName);
+      }
+   }
+}
+
+void CProjectTreeContextMenu::addMusicFile()
+{
+   QStringList fileNames = selectExistingFiles(IMPORT_FILES_MENU_TEXT);
+   foreach ( QString fileName, fileNames )
+   {
+      if (!fileName.isEmpty())
+      {
+         m_project->getMusicModel()->addExistingMusicFile(fileName);
       }
    }
 }

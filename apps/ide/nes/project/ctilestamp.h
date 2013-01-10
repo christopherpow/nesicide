@@ -37,7 +37,6 @@ public:
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
 
    // IProjectTreeViewItem Interface Implmentation
-   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget* parent);
    virtual void saveItemEvent();
    virtual bool canChangeName() { return true; }

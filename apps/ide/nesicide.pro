@@ -327,8 +327,50 @@ SOURCES += \
     nes/designers/musiceditorform.cpp \
     model/cmusicmodel.cpp \
     nes/project/cmusics.cpp \
-    nes/project/cmusic.cpp \
-    nes/project/csounds.cpp
+    nes/project/csounds.cpp \
+    nes/designers/cmusicfamitrackerdata.cpp \
+    nes/designers/famitracker/TrackerChannel.cpp \
+    nes/designers/famitracker/Sequence.cpp \
+    nes/designers/famitracker/PatternData.cpp \
+    nes/designers/famitracker/PatternCompiler.cpp \
+    nes/designers/famitracker/InstrumentVRC7.cpp \
+    nes/designers/famitracker/InstrumentVRC6.cpp \
+    nes/designers/famitracker/InstrumentS5B.cpp \
+    nes/designers/famitracker/InstrumentN106.cpp \
+    nes/designers/famitracker/InstrumentFDS.cpp \
+    nes/designers/famitracker/Instrument2A03.cpp \
+    nes/designers/famitracker/APU/VRC7.cpp \
+    nes/designers/famitracker/APU/Triangle.cpp \
+    nes/designers/famitracker/APU/Square.cpp \
+    nes/designers/famitracker/APU/S5B.cpp \
+    nes/designers/famitracker/APU/Noise.cpp \
+    nes/designers/famitracker/APU/Mixer.cpp \
+    nes/designers/famitracker/APU/FDSSound.cpp \
+    nes/designers/famitracker/APU/emu2413.c \
+    nes/designers/famitracker/APU/emu2149.c \
+    nes/designers/famitracker/APU/APU.CPP \
+    nes/designers/famitracker/APU/DPCM.CPP \
+    nes/designers/famitracker/APU/VRC6.CPP \
+    nes/designers/famitracker/APU/N106.CPP \
+    nes/designers/famitracker/APU/MMC5.CPP \
+    nes/designers/famitracker/APU/FDS.CPP \
+    nes/designers/famitracker/Blip_Buffer/Blip_Buffer.cpp \
+    nes/designers/famitracker/Instrument.cpp \
+    nes/designers/famitracker/FamiTrackerDoc.cpp \
+    nes/designers/cmusicfamitrackerframesmodel.cpp \
+    nes/designers/cmusicfamitrackerpatternsmodel.cpp \
+    nes/designers/famitracker/SoundGen.cpp \
+    nes/designers/famitracker/ChannelsVRC7.cpp \
+    nes/designers/famitracker/ChannelsVRC6.cpp \
+    nes/designers/famitracker/ChannelsS5B.cpp \
+    nes/designers/famitracker/ChannelsN106.cpp \
+    nes/designers/famitracker/ChannelsMMC5.cpp \
+    nes/designers/famitracker/ChannelsFDS.cpp \
+    nes/designers/famitracker/Channels2A03.cpp \
+    nes/designers/famitracker/ChannelMap.cpp \
+    nes/designers/famitracker/ChannelHandler.cpp \
+    nes/project/cmusicitem.cpp \
+    designers/newfiledialog.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -481,8 +523,53 @@ HEADERS += \
     nes/designers/musiceditorform.h \
     model/cmusicmodel.h \
     nes/project/cmusics.h \
-    nes/project/cmusic.h \
-    nes/project/csounds.h
+    nes/project/csounds.h \
+    nes/designers/cmusicfamitrackerdata.h \
+    nes/designers/famitracker/TrackerChannel.h \
+    nes/designers/famitracker/Sequence.h \
+    nes/designers/famitracker/PatternData.h \
+    nes/designers/famitracker/PatternCompiler.h \
+    nes/designers/famitracker/Instrument.h \
+    nes/designers/famitracker/FamiTrackerTypes.h \
+    nes/designers/famitracker/Driver.h \
+    nes/designers/famitracker/CustomExporterInterfaces.h \
+    nes/designers/famitracker/Compiler.h \
+    nes/designers/famitracker/Common.h \
+    nes/designers/famitracker/APU/vrc7tone.h \
+    nes/designers/famitracker/APU/VRC7.h \
+    nes/designers/famitracker/APU/VRC6.H \
+    nes/designers/famitracker/APU/Triangle.h \
+    nes/designers/famitracker/APU/Square.h \
+    nes/designers/famitracker/APU/S5B.h \
+    nes/designers/famitracker/APU/Noise.h \
+    nes/designers/famitracker/APU/N106.H \
+    nes/designers/famitracker/APU/MMC5.H \
+    nes/designers/famitracker/APU/Mixer.h \
+    nes/designers/famitracker/APU/FDSSound.h \
+    nes/designers/famitracker/APU/FDS.H \
+    nes/designers/famitracker/APU/External.h \
+    nes/designers/famitracker/APU/emu2413.h \
+    nes/designers/famitracker/APU/emu2149.h \
+    nes/designers/famitracker/APU/DPCM.h \
+    nes/designers/famitracker/APU/Channel.h \
+    nes/designers/famitracker/APU/APU.h \
+    nes/designers/famitracker/APU/2413tone.h \
+    nes/designers/famitracker/Blip_Buffer/Blip_Buffer.h \
+    nes/designers/famitracker/FamiTrackerDoc.h \
+    nes/designers/cmusicfamitrackerframesmodel.h \
+    nes/designers/cmusicfamitrackerpatternsmodel.h \
+    nes/designers/famitracker/SoundGen.h \
+    nes/designers/famitracker/ChannelsVRC7.h \
+    nes/designers/famitracker/ChannelsVRC6.h \
+    nes/designers/famitracker/ChannelsS5B.h \
+    nes/designers/famitracker/ChannelsN106.h \
+    nes/designers/famitracker/ChannelsMMC5.h \
+    nes/designers/famitracker/ChannelsFDS.h \
+    nes/designers/famitracker/Channels2A03.h \
+    nes/designers/famitracker/ChannelMap.h \
+    nes/designers/famitracker/ChannelHandler.h \
+    nes/project/cmusicitem.h \
+    designers/newfiledialog.h
 
 FORMS += \
    aboutdialog.ui \
@@ -527,7 +614,8 @@ FORMS += \
    nes/debuggers/prgromdisplaydialog.ui \
     nes/debuggers/joypadloggerdockwidget.ui \
     common/cexpandablestatusbar.ui \
-    nes/designers/musiceditorform.ui
+    nes/designers/musiceditorform.ui \
+    designers/newfiledialog.ui
 
 RESOURCES += \
     templates.qrc \

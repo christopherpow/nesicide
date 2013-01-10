@@ -1,7 +1,7 @@
 #ifndef CMUSICS_H
 #define CMUSICS_H
 
-#include "cmusic.h"
+#include "cmusicitem.h"
 
 #include <QInputDialog>
 #include <QList>
@@ -17,7 +17,10 @@ public:
    void initializeProject();
    void terminateProject();
 
-   QList<CMusic*>& getMusicList() { return m_musics; }
+   CMusicItem* addMusicFile(QString fileName);
+   void removeMusicFile(CMusicItem* item);
+
+   QList<CMusicItem*>& getMusicList() { return m_musics; }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -25,14 +28,13 @@ public:
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
-   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget*) {}
 
    // ICenterWidgetItem Interface Implementation
 
 private:
    // Contained children
-   QList<CMusic*> m_musics;
+   QList<CMusicItem*> m_musics;
 };
 
 #endif // CMUSICS_H

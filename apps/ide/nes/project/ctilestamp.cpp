@@ -221,57 +221,58 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
    return true;
 }
 
-void CTileStamp::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   const QString DELETE_MENU_ACTION_TEXT = "Delete";
-   const QString COPY_MENU_ACTION_TEXT = "Copy";
+// CPTODO: IS COPY ACTION IN NEW INFRASTRUCTURE JSOLO
+//void CTileStamp::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
+//{
+//   const QString DELETE_MENU_ACTION_TEXT = "Delete";
+//   const QString COPY_MENU_ACTION_TEXT = "Copy";
 
-   QMenu menu(parent);
-   menu.addAction(DELETE_MENU_ACTION_TEXT);
-   menu.addAction(COPY_MENU_ACTION_TEXT);
+//   QMenu menu(parent);
+//   menu.addAction(DELETE_MENU_ACTION_TEXT);
+//   menu.addAction(COPY_MENU_ACTION_TEXT);
 
-   QAction* ret = menu.exec(event->globalPos());
+//   QAction* ret = menu.exec(event->globalPos());
 
-   if (ret)
-   {
-      if (ret->text() == DELETE_MENU_ACTION_TEXT)
-      {
-         if (QMessageBox::question(parent, "Delete Tile", "Are you sure you want to delete " + caption(),
-                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-         {
-            return;
-         }
+//   if (ret)
+//   {
+//      if (ret->text() == DELETE_MENU_ACTION_TEXT)
+//      {
+//         if (QMessageBox::question(parent, "Delete Tile", "Are you sure you want to delete " + caption(),
+//                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+//         {
+//            return;
+//         }
 
-         if (m_editor)
-         {
-            QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
-            tabWidget->removeTab(tabWidget->indexOf(m_editor));
-         }
+//         if (m_editor)
+//         {
+//            QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
+//            tabWidget->removeTab(tabWidget->indexOf(m_editor));
+//         }
 
-         nesicideProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(this);
-         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-         markForDeletion();
-         nesicideProject->setDirty(true);
-      }
-      else if (ret->text() == COPY_MENU_ACTION_TEXT)
-      {
-#if 0
-         QString name = QInputDialog::getText(parent, "New Tile",
-                                              "What name would you like to use to identify this Tile?");
+//         nesicideProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(this);
+//         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+//         markForDeletion();
+//         nesicideProject->setDirty(true);
+//      }
+//      else if (ret->text() == COPY_MENU_ACTION_TEXT)
+//      {
+//#if 0
+//         QString name = QInputDialog::getText(parent, "New Tile",
+//                                              "What name would you like to use to identify this Tile?");
 
-         if (!name.isEmpty())
-         {
-            CTileStamp* pTileStamp = new CTileStamp(this);
-            pTileStamp->setName(name);
-            m_tileStamps.append(pTileStamp);
-            appendChild(pTileStamp);
-            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-            nesicideProject->setDirty(true);
-         }
-#endif
-      }
-   }
-}
+//         if (!name.isEmpty())
+//         {
+//            CTileStamp* pTileStamp = new CTileStamp(this);
+//            pTileStamp->setName(name);
+//            m_tileStamps.append(pTileStamp);
+//            appendChild(pTileStamp);
+//            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+//            nesicideProject->setDirty(true);
+//         }
+//#endif
+//      }
+//   }
+//}
 
 void CTileStamp::openItemEvent(CProjectTabWidget* tabWidget)
 {

@@ -30,23 +30,24 @@ CCartridge::~CCartridge()
    }
 }
 
-void CCartridge::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
-{
-   const QString EXPORT_ROM_TEXT = "Export NES ROM";
+// CPTODO: PUT THIS IN NEW INFRASTRUCTURE JSOLO
+//void CCartridge::contextMenuEvent(QContextMenuEvent *event, QTreeView *parent)
+//{
+//   const QString EXPORT_ROM_TEXT = "Export NES ROM";
 
-   QMenu menu(parent);
-   menu.addAction(EXPORT_ROM_TEXT);
+//   QMenu menu(parent);
+//   menu.addAction(EXPORT_ROM_TEXT);
 
-   QAction* ret = menu.exec(event->globalPos());
+//   QAction* ret = menu.exec(event->globalPos());
 
-   if (ret)
-   {
-      if (ret->text() == EXPORT_ROM_TEXT)
-      {
-         exportROM();
-      }
-   }
-}
+//   if (ret)
+//   {
+//      if (ret->text() == EXPORT_ROM_TEXT)
+//      {
+//         exportROM();
+//      }
+//   }
+//}
 
 void CCartridge::exportROM()
 {

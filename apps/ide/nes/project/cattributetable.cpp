@@ -106,32 +106,6 @@ bool CAttributeTable::deserialize(QDomDocument&, QDomNode& node, QString& errors
    return true;
 }
 
-void CAttributeTable::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   QMenu menu(parent);
-   menu.addAction("&Delete");
-
-   QAction* ret = menu.exec(event->globalPos());
-
-   if (ret)
-   {
-      if (ret->text() == "&Delete")
-      {
-         if (QMessageBox::question(parent, "Delete Attribute Table", "Are you sure you want to delete " + caption(),
-                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-         {
-            return;
-         }
-
-         if (m_editor)
-         {
-            QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
-            tabWidget->removeTab(tabWidget->indexOf(m_editor));
-         }
-      }
-   }
-}
-
 void CAttributeTable::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)

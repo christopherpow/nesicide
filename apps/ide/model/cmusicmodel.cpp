@@ -8,66 +8,136 @@
 CMusicModel::CMusicModel()
    : CSubModel()
 {
+
 }
 
+QUuid CMusicModel::newMusicFile(const QString& path)
+{
+   if (m_pProject == NULL || path.isNull())
+      return QUuid();
+
+   CMusicItem *file = m_pProject->getProject()->getSounds()->getMusics()->addMusicFile(path);
+   m_pProject->setDirty(true);
+
+   emit musicFileAdded(file->uuid());
+   return file->uuid();
+}
+
+QUuid CMusicModel::addExistingMusicFile(const QString &path)
+{
+   if (m_pProject == NULL || path.isNull())
+      return QUuid();
+
+   // TODO Does this work?
+   CMusicItem *file = m_pProject->getProject()->getSounds()->getMusics()->addMusicFile(path);
+   m_pProject->setDirty(true);
+
+   emit musicFileAdded(file->uuid());
+   return file->uuid();
+}
+
+void CMusicModel::removeMusicFile(const QUuid &uuid)
+{
+   if (m_pProject == NULL)
+      return;
+
+   // Make sure item has correct type before doing anything.
+   CMusicItem* item = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   if (item == NULL)
+      return;
+
+   m_pProject->getProject()->getSounds()->getMusics()->removeMusicFile(item);
+   m_pProject->setDirty(true);
+
+   emit musicFileRemoved(uuid);
+}
 
 QList<QUuid> CMusicModel::getUuids() const
 {
    if (m_pProject == NULL)
       return QList<QUuid>();
 
-   return ProjectSearcher::findUuidsOfType<CMusic>(m_pProject);
+   QList<CMusicItem*> files = ProjectSearcher::findItemsOfType<CMusicItem>(m_pProject);
+
+   QList<QUuid> uuids;
+   foreach(CMusicItem* file, files)
+   {
+      uuids.append(file->uuid());
+   }
+   return uuids;
 }
 
 QString CMusicModel::getName(const QUuid &uuid) const
 {
-   CMusic* music = ProjectSearcher::findItemByUuid<CMusic>(m_pProject, uuid);
-   return music != NULL ? music->caption() : QString();
+   return getFileName(uuid);
 }
 
-
-QUuid CMusicModel::newMusic(const QString &name)
+QByteArray CMusicModel::getMusicData(const QUuid &uuid) const
 {
    if (m_pProject == NULL)
-      return QUuid();
+      return QByteArray();
 
-   CMusics* musics = m_pProject->getProject()->getSounds()->getMusics();
-   CMusic* pMusic = new CMusic(musics);
-   pMusic->setName(name);
-   musics->getMusicList().append(pMusic);
-   musics->appendChild(pMusic);
-   m_pProject->setDirty(true);
-
-   emit musicAdded(pMusic->uuid());
-   return pMusic->uuid();
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   return file != NULL ? file->musicData() : QByteArray();
 }
 
-void CMusicModel::deleteMusic(const QUuid &uuid)
+QString CMusicModel::getRelativePath(const QUuid &uuid) const
+{
+   if (m_pProject == NULL)
+      return QString();
+
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   return file != NULL ? file->path() : QString();
+}
+
+QString CMusicModel::getFileName(const QUuid &uuid) const
+{
+   if (m_pProject == NULL)
+      return QString();
+
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   return file != NULL ? file->caption() : QString();
+}
+
+void CMusicModel::setMusicData(const QUuid &uuid, const QByteArray &data)
 {
    if (m_pProject == NULL)
       return;
 
-   CMusic* music = ProjectSearcher::findItemByUuid<CMusic>(m_pProject, uuid);
-   if (music == NULL)
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   if (file == NULL)
       return;
 
-   CMusics* musics = m_pProject->getProject()->getSounds()->getMusics();
-   musics->removeChild(music);
-   musics->getMusicList().removeAll(music);
-   m_pProject->setDirty(true);
-   delete music;
-
-   emit musicDeleted(uuid);
+   file->setMusicData(data);
+   emit musicFileChanged(uuid);
 }
 
+void CMusicModel::setRelativePath(const QUuid &uuid, const QString &path)
+{
+   if (m_pProject == NULL)
+      return;
+
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   if (file == NULL)
+      return;
+
+   file->setName(path);
+   file->setPath(path);
+   emit musicFileChanged(uuid);
+}
 
 CDesignerEditorBase *CMusicModel::createEditorWidget(const QUuid &uuid) const
 {
-   CMusic* music = ProjectSearcher::findItemByUuid<CMusic>(m_pProject, uuid);
-   if (music == NULL)
+
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   if (file == NULL)
       return NULL;
 
-   // Item must know editor due to current architecture.
-   music->setEditor(new MusicEditorForm(/*music->getMusic(),*/ music));
-   return music->editor();
+   // Source Item must know their editor widget due to current architecture.
+   file->setEditor(new MusicEditorForm(file->caption(), file->musicData(), file));
+   return file->editor();
 }
+
+
+
+

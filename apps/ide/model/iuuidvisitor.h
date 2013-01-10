@@ -10,7 +10,7 @@ class CFilterUuid;
 class CGraphicsBankUuid;
 class CSourceFileUuid;
 class CTileStampUuid;
-class CMusicUuid;
+class CMusicFileUuid;
 
 class CChrRomUuid;
 class CPrgRomUuid;
@@ -30,7 +30,7 @@ public:
    virtual void visit(CGraphicsBankUuid&)=0;
    virtual void visit(CSourceFileUuid&)=0;
    virtual void visit(CTileStampUuid&)=0;
-   virtual void visit(CMusicUuid&)=0;
+   virtual void visit(CMusicFileUuid&)=0;
 
    virtual void visit(CChrRomUuid&)=0;
    virtual void visit(CPrgRomUuid&)=0;
@@ -91,10 +91,10 @@ public:
    virtual void accept(IUuidVisitor& visitor) { visitor.visit(*this); }
 };
 
-class CMusicUuid : public CUuid
+class CMusicFileUuid : public CUuid
 {
 public:
-   CMusicUuid(QUuid uuid) : CUuid(uuid) { }
+   CMusicFileUuid(QUuid uuid) : CUuid(uuid) { }
    virtual void accept(IUuidVisitor& visitor) { visitor.visit(*this); }
 };
 

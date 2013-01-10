@@ -29,7 +29,6 @@ public:
    {
       return QString("Graphics Banks");
    }
-   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget*) {}
 
    // ICenterWidgetItem Interface Implementation

@@ -89,31 +89,3 @@ bool CGraphicsBanks::deserialize(QDomDocument& doc, QDomNode& node, QString& err
 
    return true;
 }
-
-void CGraphicsBanks::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   QMenu menu(parent);
-   menu.addAction("&Add Bank");
-
-
-   QAction* ret = menu.exec(event->globalPos());
-
-   if (ret)
-   {
-      if (ret->text() == "&Add Bank")
-      {
-         QString bankName = QInputDialog::getText(parent, "New Bank",
-                            "What name would you like to use to identify this bank?");
-
-         if (!bankName.isEmpty())
-         {
-            CGraphicsBank* pGraphicsBank = new CGraphicsBank(this);
-            pGraphicsBank->setName(bankName);
-            m_graphicsBanks.append(pGraphicsBank);
-            appendChild(pGraphicsBank);
-            //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-            nesicideProject->setDirty(true);
-         }
-      }
-   }
-}

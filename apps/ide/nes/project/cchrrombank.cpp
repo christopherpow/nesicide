@@ -34,29 +34,30 @@ QString CCHRROMBank::caption() const
    return "CHR Bank " + QString::number(m_bankIndex, 10);
 }
 
-void CCHRROMBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   const QString EXPORT_PNG_TEXT = "Export as PNG";
-   const QString IMPORT_PNG_TEXT = "Import from PNG";
+// CPTODO: CHECK TO MAKE SURE THIS IS IN NEW INFRASTRUCTURE JSOLO
+//void CCHRROMBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
+//{
+//   const QString EXPORT_PNG_TEXT = "Export as PNG";
+//   const QString IMPORT_PNG_TEXT = "Import from PNG";
 
-   QMenu menu(parent);
-   menu.addAction(EXPORT_PNG_TEXT);
-   menu.addAction(IMPORT_PNG_TEXT);
+//   QMenu menu(parent);
+//   menu.addAction(EXPORT_PNG_TEXT);
+//   menu.addAction(IMPORT_PNG_TEXT);
 
-   QAction* ret = menu.exec(event->globalPos());
+//   QAction* ret = menu.exec(event->globalPos());
 
-   if (ret)
-   {
-      if (ret->text() == EXPORT_PNG_TEXT)
-      {
-         exportAsPNG();
-      }
-      else if ( ret->text() == IMPORT_PNG_TEXT)
-      {
-         importFromPNG();
-      }
-   }
-}
+//   if (ret)
+//   {
+//      if (ret->text() == EXPORT_PNG_TEXT)
+//      {
+//         exportAsPNG();
+//      }
+//      else if ( ret->text() == IMPORT_PNG_TEXT)
+//      {
+//         importFromPNG();
+//      }
+//   }
+//}
 
 void CCHRROMBank::exportAsPNG()
 {

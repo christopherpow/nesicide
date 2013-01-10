@@ -1,7 +1,7 @@
 #include <QFileDialog>
 #include <QFile>
 
-#include "newprojectdialog.h"
+#include "newfiledialog.h"
 
 #include "csources.h"
 
@@ -120,78 +120,4 @@ void CSources::removeSourceFile(CSourceItem *item)
    this->removeChild(item);
    m_sourceItems.removeAll(item);
    delete item;
-}
-
-void CSources::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   // Project base directory (directory where the .nesproject file is)
-   QDir dir( QDir::fromNativeSeparators( QDir::currentPath() ) );
-
-   const QString NEW_SOURCE_MENU_TEXT    = "New Source";
-   const QString IMPORT_SOURCE_MENU_TEXT = "Add Existing File(s)";
-
-   QMenu menu(parent);
-   menu.addAction( NEW_SOURCE_MENU_TEXT );
-   menu.addSeparator();
-   menu.addAction( IMPORT_SOURCE_MENU_TEXT );
-
-   QAction* ret = menu.exec(event->globalPos());
-
-   if (ret)
-   {
-      if (ret->text() == NEW_SOURCE_MENU_TEXT)
-      {
-         NewProjectDialog dlg(0,NEW_SOURCE_MENU_TEXT,"",QDir::currentPath());
-
-         int result = dlg.exec();
-
-         if ( result )
-         {
-            QString fileName = dlg.getName();
-            QDir newDir(dlg.getPath());
-
-            if ( !fileName.isEmpty() )
-            {
-               QString fullPath = dir.relativeFilePath( newDir.absoluteFilePath( fileName ) );
-               QFile fileIn( fullPath );
-
-               if ( fileIn.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
-               {
-                  CSourceItem* pSourceItem = new CSourceItem(this);
-                  pSourceItem->setName(fullPath);
-
-                  pSourceItem->setPath(fullPath);
-
-                  pSourceItem->serializeContent();
-
-                  m_sourceItems.append(pSourceItem);
-                  appendChild(pSourceItem);
-                  //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-                  nesicideProject->setDirty(true);
-               }
-            }
-         }
-      }
-      else if (ret->text() == IMPORT_SOURCE_MENU_TEXT)
-      {
-         QStringList fileNames = QFileDialog::getOpenFileNames(NULL, IMPORT_SOURCE_MENU_TEXT, QDir::currentPath(), "All Files (*.*)");
-
-         foreach ( QString fileName, fileNames )
-         {
-            if (!fileName.isEmpty())
-            {
-               CSourceItem* pSourceItem = new CSourceItem(this);
-               pSourceItem->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
-
-               pSourceItem->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
-
-               pSourceItem->deserializeContent();
-
-               m_sourceItems.append(pSourceItem);
-               appendChild(pSourceItem);
-               //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-            }
-         }
-      }
-   }
 }

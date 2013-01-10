@@ -167,31 +167,6 @@ QString CBinaryFile::caption() const
    return m_name;
 }
 
-void CBinaryFile::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   QMenu menu(parent);
-   menu.addAction("&Delete");
-
-   QAction* ret = menu.exec(event->globalPos());
-
-   if (ret)
-   {
-      if (ret->text() == "&Delete")
-      {
-         if (QMessageBox::question(parent, "Delete Binary File", "Are you sure you want to delete " + m_name,
-                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-         {
-            return;
-         }
-
-         // TODO: Fix this logic so the memory doesn't get lost.
-         nesicideProject->getProject()->getBinaryFiles()->removeChild(this);
-         nesicideProject->getProject()->getBinaryFiles()->getBinaryFileList().removeAll(this);
-         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-      }
-   }
-}
-
 int CBinaryFile::getChrRomBankItemSize()
 {
    return getBinaryData().size();

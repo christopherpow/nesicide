@@ -80,7 +80,3 @@ QString CSounds::caption() const
 {
    return QString("Sounds");
 }
-
-void CSounds::contextMenuEvent(QContextMenuEvent* /*event*/, QTreeView* /*parent*/)
-{
-}

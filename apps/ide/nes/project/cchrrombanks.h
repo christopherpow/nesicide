@@ -26,7 +26,6 @@ public:
 
    // IProjectTreeViewItem Interface Implmentation
    QString caption() const;
-   virtual void contextMenuEvent(QContextMenuEvent*, QTreeView*) {}
    virtual void openItemEvent(CProjectTabWidget*) {}
 
    // ICenterWidgetItem Interface Implementation

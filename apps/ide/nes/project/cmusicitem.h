@@ -1,5 +1,5 @@
-#ifndef CMUSIC_H
-#define CMUSIC_H
+#ifndef CMUSICITEM_H
+#define CMUSICITEM_H
 
 #include <stdint.h>
 
@@ -9,31 +9,35 @@
 #include <QMessageBox>
 #include <QTabWidget>
 
-class CMusic : public CProjectBase
+class CMusicItem : public CProjectBase
 {
    Q_OBJECT
 public:
-   CMusic(IProjectTreeViewItem* parent);
-   virtual ~CMusic();
+   CMusicItem(IProjectTreeViewItem* parent);
+   virtual ~CMusicItem();
 
-   // Member getters
-   QList<uint8_t>& getMusic();
+   // Member Getters
+   QByteArray musicData();
+
+   // Member Setters
+   void setMusicData(QByteArray musicData);
 
    MusicEditorForm* editor() { return dynamic_cast<MusicEditorForm*>(m_editor); }
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool serializeContent();
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+   virtual bool deserializeContent();
 
    // IProjectTreeViewItem Interface Implmentation
-   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent);
    virtual void openItemEvent(CProjectTabWidget* parent);
    virtual void saveItemEvent();
    virtual bool canChangeName() { return true; }
    virtual bool onNameChanged(QString newName);
 
 private:
-   QList<uint8_t> m_music;
+   QByteArray m_musicData;
 };
 
-#endif // CMUSIC_H
+#endif // CMUSICITEM_H

@@ -1743,7 +1743,7 @@ void MainWindow::explodeTemplate(QString templateDirName,QString localDirName,QS
 void MainWindow::on_actionNew_Project_triggered()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   NewProjectDialog dlg(this,"New Project","Untitled",settings.value("LastProjectBasePath").toString(),true);
+   NewProjectDialog dlg("New Project","Untitled",settings.value("LastProjectBasePath").toString());
 
    if (dlg.exec() == QDialog::Accepted)
    {

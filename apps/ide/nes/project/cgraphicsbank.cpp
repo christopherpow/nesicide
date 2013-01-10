@@ -131,45 +131,46 @@ QString CGraphicsBank::caption() const
    return m_name;
 }
 
-void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   const QString EXPORT_PNG_TEXT    = "Export as PNG";
-   const QString DELETE_TEXT        = "&Delete";
+// CPTODO: CHECK TO MAKE SURE THIS IS IN NEW INFRASTRUCTURE JSOLO
+//void CGraphicsBank::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
+//{
+//   const QString EXPORT_PNG_TEXT    = "Export as PNG";
+//   const QString DELETE_TEXT        = "&Delete";
 
-   QMenu menu(parent);
-   menu.addAction(EXPORT_PNG_TEXT);
-   menu.addSeparator();
-   menu.addAction(DELETE_TEXT);
+//   QMenu menu(parent);
+//   menu.addAction(EXPORT_PNG_TEXT);
+//   menu.addSeparator();
+//   menu.addAction(DELETE_TEXT);
 
-   QAction* ret = menu.exec(event->globalPos());
+//   QAction* ret = menu.exec(event->globalPos());
 
-   if (ret)
-   {
-      if (ret->text() == DELETE_TEXT)
-      {
-         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + caption(),
-                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-         {
-            return;
-         }
+//   if (ret)
+//   {
+//      if (ret->text() == DELETE_TEXT)
+//      {
+//         if (QMessageBox::question(parent, "Delete Source", "Are you sure you want to delete " + caption(),
+//                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+//         {
+//            return;
+//         }
 
-         if (m_editor)
-         {
-            QTabWidget* tabWidget = (QTabWidget*)this->m_editor->parentWidget()->parentWidget();
-            tabWidget->removeTab(tabWidget->indexOf(m_editor));
-         }
+//         if (m_editor)
+//         {
+//            QTabWidget* tabWidget = (QTabWidget*)this->m_editor->parentWidget()->parentWidget();
+//            tabWidget->removeTab(tabWidget->indexOf(m_editor));
+//         }
 
-         // TODO: Fix this logic so the memory doesn't get lost.
-         nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
-         nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
-         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-      }
-      else if (ret->text() == EXPORT_PNG_TEXT)
-      {
-         exportAsPNG();
-      }
-   }
-}
+//         // TODO: Fix this logic so the memory doesn't get lost.
+//         nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
+//         nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
+//         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
+//      }
+//      else if (ret->text() == EXPORT_PNG_TEXT)
+//      {
+//         exportAsPNG();
+//      }
+//   }
+//}
 
 void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
 {

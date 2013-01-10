@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QSettings>
 
-NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString defName,QString defPath, bool showTemplate) :
+NewProjectDialog::NewProjectDialog(QString windowTitle,QString defName,QString defPath, QWidget* parent) :
    QDialog(parent),
    ui(new Ui::NewProjectDialog)
 {
@@ -13,7 +13,6 @@ NewProjectDialog::NewProjectDialog(QWidget* parent,QString windowTitle,QString d
    ui->path->setText(defPath);
    on_path_textChanged(defPath);
    setWindowTitle(windowTitle);
-   ui->templateGroup->setVisible(showTemplate);
    ui->name->setFocus();
 
    QDir templatesDir(":/templates/NES");

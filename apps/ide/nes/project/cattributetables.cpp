@@ -97,33 +97,3 @@ QString CAttributeTables::caption() const
 {
    return QString("Palettes");
 }
-
-void CAttributeTables::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   const QString NEW_ATBL_MENU_TEXT    = "New Palette";
-
-   QMenu menu(parent);
-
-   menu.addAction(NEW_ATBL_MENU_TEXT);
-
-   QAction* ret = menu.exec(event->globalPos());
-
-   if (ret)
-   {
-      if (ret->text() == NEW_ATBL_MENU_TEXT)
-      {
-         QString name = QInputDialog::getText(parent, "New Palette",
-                                              "What name would you like to use to identify this Attribute Table?");
-
-         if (!name.isEmpty())
-         {
-            CAttributeTable* pAttributeTable = new CAttributeTable(this);
-            pAttributeTable->setName(name);
-            m_attributeTables.append(pAttributeTable);
-            appendChild(pAttributeTable);
-            //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-            nesicideProject->setDirty(true);
-         }
-      }
-   }
-}

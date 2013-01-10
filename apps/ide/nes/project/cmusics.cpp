@@ -73,7 +73,7 @@ bool CMusics::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
       {
          if (childNode.nodeName() == "music")
          {
-            CMusic* pNewMusic = new CMusic(this);
+            CMusicItem* pNewMusic = new CMusicItem(this);
             m_musics.append(pNewMusic);
             appendChild(pNewMusic);
 
@@ -98,6 +98,24 @@ QString CMusics::caption() const
    return QString("Musics");
 }
 
-void CMusics::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
+CMusicItem *CMusics::addMusicFile(QString fileName)
 {
+   QDir dir(QDir::currentPath());
+   CMusicItem* pMusicItem = new CMusicItem(this);
+   pMusicItem->setName(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+
+   pMusicItem->setPath(dir.fromNativeSeparators(dir.relativeFilePath(fileName)));
+
+   pMusicItem->deserializeContent();
+
+   m_musics.append(pMusicItem);
+   appendChild(pMusicItem);
+   return pMusicItem;
+}
+
+void CMusics::removeMusicFile(CMusicItem *item)
+{
+   this->removeChild(item);
+   m_musics.removeAll(item);
+   delete item;
 }

@@ -128,39 +128,6 @@ QString CSourceItem::caption() const
    return m_name;
 }
 
-void CSourceItem::contextMenuEvent(QContextMenuEvent* event, QTreeView* parent)
-{
-   const QString REMOVE_FROM_PROJECT = "&Remove from Project";
-
-   QMenu menu(parent);
-   menu.addAction( REMOVE_FROM_PROJECT );
-
-   QAction* ret = menu.exec(event->globalPos());
-
-   if (ret)
-   {
-      if (ret->text() == REMOVE_FROM_PROJECT )
-      {
-         if (QMessageBox::question(parent, "Remove from Project", "Are you sure you want to remove " + caption() + " from the project?",
-                                   QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-         {
-            return;
-         }
-
-         if (m_editor)
-         {
-            QTabWidget* tabWidget = (QTabWidget*)m_editor->parentWidget()->parentWidget();
-            tabWidget->removeTab(tabWidget->indexOf(m_editor));
-         }
-
-         // TODO: Fix this logic so the memory doesn't get lost.
-         nesicideProject->getProject()->getSources()->removeChild(this);
-         nesicideProject->getProject()->getSources()->getSourceItems().removeAll(this);
-         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-      }
-   }
-}
-
 void CSourceItem::openItemEvent(CProjectTabWidget* tabWidget)
 {
    if (m_editor)

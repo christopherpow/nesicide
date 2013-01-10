@@ -22,7 +22,7 @@ public:
    virtual void visit(CGraphicsBankUuid&);
    virtual void visit(CSourceFileUuid&);
    virtual void visit(CTileStampUuid&);
-   virtual void visit(CMusicUuid&);
+   virtual void visit(CMusicFileUuid&);
 
    virtual void visit(CChrRomUuid&);
    virtual void visit(CPrgRomUuid&);

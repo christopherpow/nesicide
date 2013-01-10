@@ -98,7 +98,6 @@ public:
    }
 
    virtual QString caption() const = 0;
-   virtual void contextMenuEvent(QContextMenuEvent* event, QTreeView* parent) = 0;
    virtual void openItemEvent(CProjectTabWidget* tabWidget) = 0;
    virtual void saveItemEvent() = 0;
    virtual void closeItemEvent() = 0;
