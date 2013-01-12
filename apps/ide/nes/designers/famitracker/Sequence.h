@@ -1,17 +1,17 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "customexporterinterfaces.h"
+#include "CustomExporterInterfaces.h"
 
 class CDocumentFile;
 
@@ -44,7 +44,7 @@ public:
 	void		 SetSetting(unsigned int Setting);
 
 	//void		 Store(CDocumentFile *pDocFile, int Index, int Type);
-
+ 
 	void		 Copy(const CSequence *pSeq);
 
 	// Used by instrument editor
@@ -62,3 +62,15 @@ private:
 	// Used by instrument editor
 	int			 m_iPlaying;
 };
+
+
+// Settings
+enum {
+	ARP_SETTING_ABSOLUTE = 0,
+	ARP_SETTING_FIXED = 1,
+	ARP_SETTING_RELATIVE = 2
+};
+
+// Sunsoft modes
+const int S5B_MODE_SQUARE = 64;
+const int S5B_MODE_NOISE = 128;

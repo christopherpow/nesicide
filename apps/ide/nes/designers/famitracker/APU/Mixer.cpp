@@ -1,17 +1,17 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -26,16 +26,16 @@
 
  Mixing of external channles are based on my own research:
 
- VRC6 (Madara):
+ VRC6 (Madara): 
 	Pulse channels has the same amplitude as internal-
     pulse channels on equal volume levels.
 
- FDS:
+ FDS: 
 	Square wave @ v = $1F: 2.4V
 	  			  v = $0F: 1.25V
 	(internal square wave: 1.0V)
 
- MMC5 (just breed):
+ MMC5 (just breed): 
 	2A03 square @ v = $0F: 760mV (the cart attenuates internal channels a little)
 	MMC5 square @ v = $0F: 900mV
 
@@ -46,12 +46,12 @@
 
  ---
 
- N106 & 5B are still unknown
+ N163 & 5B are still unknown
 
 */
 
 #include <string.h>
-#include <stdlib.h>
+#include <cmath>
 #include "mixer.h"
 #include "apu.h"
 #include "emu2413.h"
@@ -69,6 +69,13 @@ CMixer::CMixer()
 	memset(m_iChannels, 0, sizeof(int32) * CHANNELS);
 	memset(m_fChannelLevels, 0, sizeof(float) * CHANNELS);
 	memset(m_iChanLevelFallOff, 0, sizeof(uint32) * CHANNELS);
+
+	m_fLevel2A03 = 1.0f;
+	m_fLevelVRC6 = 1.0f;
+	m_fLevelMMC5 = 1.0f;
+	m_fLevelFDS = 1.0f;
+
+	m_bNamcoMixing = false;
 }
 
 CMixer::~CMixer()
@@ -103,15 +110,47 @@ void CMixer::ExternalSound(int Chip)
 	UpdateSettings(m_iLowCut, m_iHighCut, m_iHighDamp, m_iOverallVol);
 }
 
+void CMixer::SetNamcoMixing(bool bLinear)
+{
+	m_bNamcoMixing = bLinear;
+}
+
+void CMixer::SetChipLevel(int Chip, float Level)
+{
+	switch (Chip) {
+		case SNDCHIP_NONE:
+			m_fLevel2A03 = Level;
+			break;
+		case SNDCHIP_VRC6:
+			m_fLevelVRC6 = Level;
+			break;
+		case SNDCHIP_MMC5:
+			m_fLevelMMC5 = Level;
+			break;
+		case SNDCHIP_FDS:
+			m_fLevelFDS = Level;
+			break;
+	}
+}
+
 void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVol)
 {
 	float fVolume = float(OverallVol) / 100.0f;
 
+	m_fDamping = 1.0f;
+
 	if (m_iExternalChip & SNDCHIP_VRC7)
 		// Decrease the internal audio when VRC7 is enabled to increase the headroom
-		m_fDamping = 0.34f;
+		m_fDamping *= 0.34f;
 	else
-		m_fDamping = 1.0f;
+		m_fDamping *= 1.0f;
+
+	if (m_iExternalChip & SNDCHIP_N163)
+		m_fDamping *= 0.9f;
+	else
+		m_fDamping *= 1.0f;
+
+	fVolume *= m_fDamping;
 
 	// Blip-buffer filtering
 	BlipBuffer.bass_freq(LowCut);
@@ -123,24 +162,42 @@ void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVo
 	SynthVRC6.treble_eq(eq);
 	SynthMMC5.treble_eq(eq);
 	SynthFDS.treble_eq(eq);
-	SynthN106.treble_eq(eq);
 	SynthS5B.treble_eq(eq);
 
-	// Checked against hardware
-	Synth2A03SS.volume(fVolume * m_fDamping);
-	Synth2A03TND.volume(fVolume * m_fDamping);
-	SynthVRC6.volume(fVolume * 3.98333f);
-	SynthFDS.volume(fVolume * 1.00f);
-	SynthMMC5.volume(fVolume * 1.18421f);
+	double n163_treble = 24;
+	long n163_rolloff = 12000;
 
+	if (HighDamp > n163_treble)
+		n163_treble = HighDamp;
+
+	if (n163_rolloff > HighCut)
+		n163_rolloff = HighCut;
+
+	blip_eq_t eq_n163(-n163_treble, n163_rolloff, m_iSampleRate);
+	SynthN163.treble_eq(eq_n163);
+
+	// Checked against hardware
+	Synth2A03SS.volume(fVolume * m_fLevel2A03);
+	Synth2A03TND.volume(fVolume * m_fLevel2A03);
+	SynthVRC6.volume(fVolume * 3.98333f * m_fLevelVRC6);
+	SynthFDS.volume(fVolume * 1.00f * m_fLevelFDS);
+	SynthMMC5.volume(fVolume * 1.18421f * m_fLevelMMC5);
+	
 	// Not checked
-	SynthN106.volume(fVolume * 1.0f);
+	SynthN163.volume(fVolume * 1.1f * (m_bNamcoMixing ? 0.8f : 1.0f));
 	SynthS5B.volume(fVolume * 1.0f);
 
 	m_iLowCut = LowCut;
 	m_iHighCut = HighCut;
 	m_iHighDamp = HighDamp;
 	m_iOverallVol = OverallVol;
+}
+
+void CMixer::SetNamcoVolume(float fVol)
+{
+	float fVolume = fVol * float(m_iOverallVol) / 100.0f;
+
+	SynthN163.volume(fVolume * 1.1f * (m_bNamcoMixing ? 0.8f : 1.0f));
 }
 
 void CMixer::MixSamples(blip_sample_t *pBuffer, uint32 Count)
@@ -173,7 +230,7 @@ void CMixer::ClearBuffer()
 }
 
 int CMixer::SamplesAvail() const
-{
+{	
 	return (int)BlipBuffer.samples_avail();
 }
 
@@ -183,11 +240,11 @@ int CMixer::FinishBuffer(int t)
 
 	// Get channel levels for VRC7
 	for (int i = 0; i < 6; ++i)
-		StoreChannelLevel(CHANID_VRC7_CH1 + i, OPLL_getchanvol(i) >> 6);
+		StoreChannelLevel(CHANID_VRC7_CH1 + i, OPLL_getchanvol(i));
 
 	// Get channel levels for Sunsoft
 	for (int i = 0; i < 3; ++i)
-		StoreChannelLevel(CHANID_S5B_CH1 + i, PSG_getchanvol(i) >> 4);
+		StoreChannelLevel(CHANID_S5B_CH1 + i, PSG_getchanvol(i));
 
 	for (int i = 0; i < CHANNELS; ++i) {
 		if (m_iChanLevelFallOff[i] > 0)
@@ -243,9 +300,9 @@ void CMixer::MixInternal2(int Time)
 	LastSum = Sum;
 }
 
-void CMixer::MixN106(int Value, int Time)
+void CMixer::MixN163(int Value, int Time)
 {
-	SynthN106.offset(Time, Value, &BlipBuffer);
+	SynthN163.offset(Time, Value, &BlipBuffer);
 }
 
 void CMixer::MixFDS(int Value, int Time)
@@ -272,7 +329,7 @@ void CMixer::AddValue(int ChanID, int Chip, int Value, int AbsValue, int FrameCy
 {
 	// Add sound to mixer
 	//
-
+	
 	int Delta = Value - m_iChannels[ChanID];
 	StoreChannelLevel(ChanID, AbsValue);
 	m_iChannels[ChanID] = Value;
@@ -291,8 +348,8 @@ void CMixer::AddValue(int ChanID, int Chip, int Value, int AbsValue, int FrameCy
 					break;
 			}
 			break;
-		case SNDCHIP_N106:
-			MixN106(Value, FrameCycles);
+		case SNDCHIP_N163:
+			MixN163(Value, FrameCycles);
 			break;
 		case SNDCHIP_FDS:
 			MixFDS(Value, FrameCycles);
@@ -330,11 +387,27 @@ void CMixer::StoreChannelLevel(int Channel, int Value)
 	if (Channel == CHANID_FDS)
 		AbsVol = AbsVol / 38;
 
-	if (Channel >= CHANID_N106_CHAN1 && Channel <= CHANID_N106_CHAN8)
+	if (Channel >= CHANID_N163_CHAN1 && Channel <= CHANID_N163_CHAN8) {
 		AbsVol /= 15;
+		Channel = (7 - (Channel - CHANID_N163_CHAN1)) + CHANID_N163_CHAN1;
+	}
+
+	if (Channel >= CHANID_VRC7_CH1 && Channel <= CHANID_VRC7_CH6) {
+		AbsVol = (int)(logf((float)AbsVol) * 3.0f);
+	}
+
+	if (Channel >= CHANID_S5B_CH1 && Channel <= CHANID_S5B_CH3) {
+		AbsVol /= 16;
+		// TODO: log -> linear conversion
+	}
 
 	if (float(AbsVol) >= m_fChannelLevels[Channel]) {
 		m_fChannelLevels[Channel] = float(AbsVol);
 		m_iChanLevelFallOff[Channel] = LEVEL_FALL_OFF_DELAY;
 	}
+}
+
+uint32 CMixer::ResampleDuration(uint32 Time) const
+{
+	return (uint32)BlipBuffer.resampled_duration((blip_time_t)Time);
 }

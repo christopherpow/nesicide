@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 ** must bear this legend.
 */
 
+#include <vector>
+#include "FamiTrackerDoc.h"
 #include "instrument.h"
 #include "compiler.h"
 
@@ -36,7 +38,7 @@ CInstrumentVRC6::CInstrumentVRC6()
 	}
 }
 
-CInstrument *CInstrumentVRC6::Clone()
+CInstrument *CInstrumentVRC6::Clone() const
 {
 	CInstrumentVRC6 *pNew = new CInstrumentVRC6();
 
@@ -176,46 +178,26 @@ CInstrument *CInstrumentVRC6::Clone()
 //	return true;
 //}
 
-int CInstrumentVRC6::CompileSize(CCompiler *pCompiler)
+int CInstrumentVRC6::Compile(CChunk *pChunk, int Index)
 {
-	int Size = 1;
-
-   qDebug("::CompileSize");
-//	CFamiTrackerDoc *pDoc = pCompiler->GetDocument();
-
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i)
-//		if (GetSeqEnable(i) && pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() > 0)
-//			Size += 2;
-
-	return Size;
-}
-
-int CInstrumentVRC6::Compile(CCompiler *pCompiler, int Index)
-{
-	int ModSwitch;
+   qDebug("Compile");
+	int ModSwitch = 0;
 	int StoredBytes = 0;
-	int iAddress;
-	int i;
 
-   qDebug("::Compile");
-//	CFamiTrackerDoc *pDoc = pCompiler->GetDocument();
+//	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
-//	pCompiler->WriteLog("VRC6 {");
-//	ModSwitch = 0;
-
-//	for (i = 0; i < SEQUENCE_COUNT; i++) {
+//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 //		ModSwitch = (ModSwitch >> 1) | (GetSeqEnable(i) && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() > 0) ? 0x10 : 0);
 //	}
 
-//	pCompiler->StoreByte(ModSwitch);
-//	pCompiler->WriteLog("%02X ", ModSwitch);
+//	pChunk->StoreByte(ModSwitch);
 //	StoredBytes++;
 
-//	for (i = 0; i < SEQUENCE_COUNT; i++) {
-//		iAddress = (GetSeqEnable(i) == 0 || (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() == 0)) ? 0 : pCompiler->GetSequenceAddressVRC6(GetSeqIndex(i), i);
-//		if (iAddress > 0) {
-//			pCompiler->StoreShort(iAddress);
-//			pCompiler->WriteLog("%04X ", iAddress);
+//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+//		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() != 0)) {
+//			CString str;
+//			str.Format(CCompiler::LABEL_SEQ_VRC6, GetSeqIndex(i) * SEQUENCE_COUNT + i);
+//			pChunk->StoreReference(str);
 //			StoredBytes += 2;
 //		}
 //	}
@@ -225,11 +207,10 @@ int CInstrumentVRC6::Compile(CCompiler *pCompiler, int Index)
 
 bool CInstrumentVRC6::CanRelease() const
 {
-   qDebug("::CanRelease");
-//	if (GetSeqEnable(0) != 0) {
-//		int index = GetSeqIndex(SEQ_VOLUME);
-//		return ((CFamiTrackerDoc*) theApp.GetActiveDocument())->GetSequence(SNDCHIP_VRC6, index, SEQ_VOLUME)->GetReleasePoint() != -1;
-//	}
+	if (GetSeqEnable(0) != 0) {
+		int index = GetSeqIndex(SEQ_VOLUME);
+		return CFamiTrackerDoc::GetDoc()->GetSequence(SNDCHIP_VRC6, index, SEQ_VOLUME)->GetReleasePoint() != -1;
+	}
 
 	return false;
 }
@@ -246,10 +227,14 @@ int	CInstrumentVRC6::GetSeqIndex(int Index) const
 
 void CInstrumentVRC6::SetSeqEnable(int Index, int Value)
 {
+	if (m_iSeqEnable[Index] != Value)
+		InstrumentChanged();
 	m_iSeqEnable[Index] = Value;
 }
 
 void CInstrumentVRC6::SetSeqIndex(int Index, int Value)
 {
+	if (m_iSeqIndex[Index] != Value)
+		InstrumentChanged();
 	m_iSeqIndex[Index] = Value;
 }

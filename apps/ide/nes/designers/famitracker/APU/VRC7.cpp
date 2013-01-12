@@ -1,17 +1,17 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -22,7 +22,7 @@
 #include "apu.h"
 #include "VRC7.h"
 
-const float  CVRC7::AMPLIFY	  = 2.44f;		// Mixing amplification, VRC7 patch 14 is 4,88 times stronger than a 50% square @ v=15
+const float  CVRC7::AMPLIFY	  = 2.88f;		// Mixing amplification, VRC7 patch 14 is 4,88 times stronger than a 50% square @ v=15
 const uint32 CVRC7::OPL_CLOCK = 3579545;	// Clock frequency
 
 CVRC7::CVRC7(CMixer *pMixer) : CExternal(pMixer), m_pBuffer(NULL), m_pOPLLInt(NULL), m_fVolume(1.0f)
@@ -48,15 +48,15 @@ void CVRC7::Reset()
 
 void CVRC7::SetSampleSpeed(uint32 SampleRate, double ClockRate, uint32 FrameRate)
 {
-	if (m_pOPLLInt == NULL) {
-		OPLL_init(OPL_CLOCK, SampleRate);
-		m_pOPLLInt = OPLL_new();
-		OPLL_reset(m_pOPLLInt);
-		OPLL_reset_patch(m_pOPLLInt, 1);
+	if (m_pOPLLInt != NULL) {
+		OPLL_delete(m_pOPLLInt);
+		m_pOPLLInt = NULL;
 	}
-	else {
-		OPLL_setClock(OPL_CLOCK, SampleRate);
-	}
+
+	m_pOPLLInt = OPLL_new(OPL_CLOCK, SampleRate);
+
+	OPLL_reset(m_pOPLLInt);
+	OPLL_reset_patch(m_pOPLLInt, 1);
 
 	m_iMaxSamples = (SampleRate / FrameRate) * 2;	// Allow some overflow
 
@@ -65,10 +65,9 @@ void CVRC7::SetSampleSpeed(uint32 SampleRate, double ClockRate, uint32 FrameRate
 	memset(m_pBuffer, 0, sizeof(int16) * m_iMaxSamples);
 }
 
-void CVRC7::SetVolume(int Volume)
+void CVRC7::SetVolume(float Volume)
 {
-	// Volume = 100-0
-	m_fVolume = (float(Volume) / 100.0f) * AMPLIFY;
+	m_fVolume = Volume * AMPLIFY;
 }
 
 void CVRC7::Write(uint16 Address, uint8 Value)

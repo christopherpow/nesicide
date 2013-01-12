@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -18,9 +18,11 @@
 ** must bear this legend.
 */
 
+#include <vector>
 #include "instrument.h"
-#include "compiler.h"
-#include "sequence.h"
+#include "FamiTrackerDoc.h"
+#include "Instrument.h"
+#include "Compiler.h"
 #include "famitracker/common.h"
 
 const char TEST_WAVE[] = {
@@ -32,7 +34,7 @@ const char TEST_WAVE[] = {
 
 const int FIXED_FDS_INST_SIZE = 1 + 16 + 4 + 1;
 
-CInstrumentFDS::CInstrumentFDS() : CInstrument(), m_bChanged(false)
+CInstrumentFDS::CInstrumentFDS() : CInstrument()
 {
 	memcpy(m_iSamples, TEST_WAVE, WAVE_SIZE);
 	memset(m_iModulation, 0, MOD_SIZE);
@@ -54,7 +56,7 @@ CInstrumentFDS::~CInstrumentFDS()
 	SAFE_RELEASE(m_pPitch);
 }
 
-CInstrument *CInstrumentFDS::Clone()
+CInstrument *CInstrumentFDS::Clone() const
 {
 	CInstrumentFDS *pNewInst = new CInstrumentFDS();
 
@@ -315,8 +317,49 @@ CInstrument *CInstrumentFDS::Clone()
 //	return true;
 //}
 
-int CInstrumentFDS::CompileSize(CCompiler *pCompiler)
+int CInstrumentFDS::Compile(CChunk *pChunk, int Index)
 {
+   qDebug("Compile");
+//	CString str;
+
+//	// Store wave
+////	int Table = pCompiler->AddWavetable(m_iSamples);
+////	int Table = 0;
+////	pChunk->StoreByte(Table);
+
+//	// Store modulation table, two entries/byte
+//	for (int i = 0; i < 16; ++i) {
+//		char Data = GetModulation(i << 1) | (GetModulation((i << 1) + 1) << 3);
+//		pChunk->StoreByte(Data);
+//	}
+
+//	pChunk->StoreByte(GetModulationDelay());
+//	pChunk->StoreByte(GetModulationDepth());
+//	pChunk->StoreWord(GetModulationSpeed());
+
+//	// Store sequences
+//	char Switch = (m_pVolume->GetItemCount() > 0 ? 1 : 0) | (m_pArpeggio->GetItemCount() > 0 ? 2 : 0) | (m_pPitch->GetItemCount() > 0 ? 4 : 0);
+
+//	pChunk->StoreByte(Switch);
+
+//	// Volume
+//	if (Switch & 1) {
+//		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 0);
+//		pChunk->StoreReference(str);
+//	}
+
+//	// Arpeggio
+//	if (Switch & 2) {
+//		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 1);
+//		pChunk->StoreReference(str);
+//	}
+
+//	// Pitch
+//	if (Switch & 4) {
+//		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 2);
+//		pChunk->StoreReference(str);
+//	}
+
 	int size = FIXED_FDS_INST_SIZE;
 	size += (m_pVolume->GetItemCount() > 0 ? 2 : 0);
 	size += (m_pArpeggio->GetItemCount() > 0 ? 2 : 0);
@@ -324,68 +367,27 @@ int CInstrumentFDS::CompileSize(CCompiler *pCompiler)
 	return size;
 }
 
-int CInstrumentFDS::Compile(CCompiler *pCompiler, int Index)
-{
-   qDebug("::Compile");
-//	pCompiler->WriteLog("FDS {");
-
-//	// Store wave
-//	int Table = pCompiler->AddWavetable(m_iSamples);
-//	pCompiler->StoreByte(Table);	// waveform
-
-//	pCompiler->WriteLog("%i", Table);
-
-//	// Store modulation table, two entries/byte
-//	for (int i = 0; i < 16; ++i) {
-//		char Data = GetModulation(i << 1) | (GetModulation((i << 1) + 1) << 3);
-//		pCompiler->StoreByte(Data);
-//	}
-
-//	pCompiler->StoreByte(GetModulationDelay());
-//	pCompiler->StoreByte(GetModulationDepth());
-//	pCompiler->StoreShort(GetModulationSpeed());
-
-//	// Store sequences
-//	char Switch = (m_pVolume->GetItemCount() > 0 ? 1 : 0) | (m_pArpeggio->GetItemCount() > 0 ? 2 : 0) | (m_pPitch->GetItemCount() > 0 ? 4 : 0);
-
-//	pCompiler->StoreByte(Switch);
-
-//	// Volume
-//	if (Switch & 1)
-//		pCompiler->StoreShort(pCompiler->GetSequenceAddressFDS(Index, 0));
-
-//	// Arpeggio
-//	if (Switch & 2)
-//		pCompiler->StoreShort(pCompiler->GetSequenceAddressFDS(Index, 1));
-
-//	// Pitch
-//	if (Switch & 4)
-//		pCompiler->StoreShort(pCompiler->GetSequenceAddressFDS(Index, 2));
-
-	return CompileSize(pCompiler);
-}
-
 bool CInstrumentFDS::CanRelease() const
 {
-	return false; // TODO
-}
+	if (m_pVolume->GetItemCount() > 0) {
+		if (m_pVolume->GetReleasePoint() != -1)
+			return true;
 
-bool CInstrumentFDS::HasChanged()
-{
-	bool Val = m_bChanged;
-	m_bChanged = false;
-	return Val;
+	}
+	return false;
 }
 
 unsigned char CInstrumentFDS::GetSample(int Index) const
 {
+	ASSERT(Index < WAVE_SIZE);
 	return m_iSamples[Index];
 }
 
 void CInstrumentFDS::SetSample(int Index, int Sample)
 {
+	ASSERT(Index < WAVE_SIZE);
 	m_iSamples[Index] = Sample;
-	m_bChanged = true;
+	InstrumentChanged();
 }
 
 int CInstrumentFDS::GetModulation(int Index) const
@@ -396,7 +398,7 @@ int CInstrumentFDS::GetModulation(int Index) const
 void CInstrumentFDS::SetModulation(int Index, int Value)
 {
 	m_iModulation[Index] = Value;
-	m_bChanged = true;
+	InstrumentChanged();
 }
 
 int CInstrumentFDS::GetModulationSpeed() const
@@ -407,7 +409,7 @@ int CInstrumentFDS::GetModulationSpeed() const
 void CInstrumentFDS::SetModulationSpeed(int Speed)
 {
 	m_iModulationSpeed = Speed;
-	m_bChanged = true;
+	InstrumentChanged();
 }
 
 int CInstrumentFDS::GetModulationDepth() const
@@ -418,7 +420,7 @@ int CInstrumentFDS::GetModulationDepth() const
 void CInstrumentFDS::SetModulationDepth(int Depth)
 {
 	m_iModulationDepth = Depth;
-	m_bChanged = true;
+	InstrumentChanged();
 }
 
 int CInstrumentFDS::GetModulationDelay() const
@@ -429,7 +431,7 @@ int CInstrumentFDS::GetModulationDelay() const
 void CInstrumentFDS::SetModulationDelay(int Delay)
 {
 	m_iModulationDelay = Delay;
-	m_bChanged = true;
+	InstrumentChanged();
 }
 
 CSequence* CInstrumentFDS::GetVolumeSeq() const
@@ -455,4 +457,5 @@ bool CInstrumentFDS::GetModulationEnable() const
 void CInstrumentFDS::SetModulationEnable(bool Enable)
 {
 	m_bModulationEnable = Enable;
+	InstrumentChanged();
 }

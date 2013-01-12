@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -34,6 +34,12 @@ protected:
 
 protected:
 	void WriteReg(int Reg, int Value);
+
+protected:
+	int m_iNoiseOffset;
+	bool m_bEnvEnable;
+
+	bool m_bUpdate;
 
 //	void RunSequence(int Index, CSequence *pSequence);
 /*

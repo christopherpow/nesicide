@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -20,10 +20,12 @@
 
 #pragma once
 
+//
 // The NSF driver binaries
+//
 
 // Change this for new versions
-const char DRIVER_ID[] = "NSF-driver v2.6";
+const char DRIVER_ID[] = "NSF-driver v2.8";
 
 #pragma warning( disable : 4309 ) // disable warning 4309: 'initializing' : truncation of constant value
 
@@ -32,7 +34,7 @@ const unsigned short NSF_CALLER_SIZE = 128;	// bytes
 // NES program for running a NSF
 const char NSF_CALLER_BIN[] = {
 	0x78,0xD8,0xAD,0x02,0x20,0x10,0xFB,0xAD,0x02,0x20,0x10,0xFB,0xA2,0x00,0x8A,0x9D,
-	0x00,0x03,0xE8,0xD0,0xFA,0xA9,0x0F,0x8D,0x15,0x40,0xA9,0x0A,0x8D,0x10,0x40,0xA9,
+	0x00,0x02,0xE8,0xD0,0xFA,0xA9,0x0F,0x8D,0x15,0x40,0xA9,0x0A,0x8D,0x10,0x40,0xA9,
 	0x00,0xA2,0x00,0xA0,0x00,0x20,0x00,0x80,0xA9,0x80,0x8D,0x00,0x20,0xA9,0x00,0x8D,
 	0x01,0x20,0x4C,0xB2,0xFF,0x20,0x03,0x80,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -43,7 +45,7 @@ const char NSF_CALLER_BIN[] = {
 
 const char NSF_CALLER_BIN_VRC6[] = {
 	0x78,0xD8,0xAD,0x02,0x20,0x10,0xFB,0xAD,0x02,0x20,0x10,0xFB,0xA2,0x00,0x8A,0x9D,
-	0x00,0x03,0xE8,0xD0,0xFA,0xA9,0x00,0x8D,0x00,0x80,0xA9,0x02,0x8D,0x00,0xC0,0xA9,
+	0x00,0x02,0xE8,0xD0,0xFA,0xA9,0x00,0x8D,0x00,0x80,0xA9,0x02,0x8D,0x00,0xC0,0xA9,
 	0x0F,0x8D,0x15,0x40,0xA9,0x0A,0x8D,0x10,0x40,0xA9,0x00,0xA2,0x00,0xA0,0x00,0x20,
 	0x00,0x80,0xA9,0x80,0x8D,0x00,0x20,0xA9,0x00,0x8D,0x01,0x20,0x4C,0xBC,0xFF,0x20,
 	0x03,0x80,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -56,44 +58,94 @@ const char NSF_CALLER_BIN_VRC6[] = {
 // The driver binaries
 //
 // created with a binary->c-array program
+//
+#include "drivers/drv_2a03.h"
+#include "drivers/drv_vrc6.h"
+#include "drivers/drv_vrc7.h"
+#include "drivers/drv_mmc5.h"
+#include "drivers/drv_fds.h"
+#include "drivers/drv_n163.h"
+//#include "drivers/drv_s5b.h"
 
-const unsigned int DRIVER1_LOCATION = 0xAB00;				// Define program starts
-const unsigned int DRIVER2_LOCATION = 0x8000;
+#include "drivers/config.h"
 
-#define DRIVER_SIZE			(sizeof(DRIVER_MODE1))			// both mode 1 & 2 have the same size
-#define DRIVER_SIZE_VRC6	(sizeof(DRIVER_VRC6))
-#define DRIVER_SIZE_MMC5	(sizeof(DRIVER_MMC5))
-#define DRIVER_SIZE_VRC7	(sizeof(DRIVER_VRC7))
-#define DRIVER_SIZE_FDS		(sizeof(DRIVER_FDS))
-
-// These are not covered by the GNU GPL license
-
-// Mode 1, located below DPCM
-const char DRIVER_MODE1[] = {
-	#include "drivers/drv_mode1.h"
+struct driver_t {
+	const unsigned char *driver;
+	const unsigned int driver_size;
+	const int *word_reloc;
+	const int word_reloc_size;
+	const int *byte_reloc_low;
+	const int *byte_reloc_high;
+	const int byte_reloc_size;
 };
 
-// Mode 2, located at start of the PRG area
-const char DRIVER_MODE2[] = {
-	#include "drivers/drv_mode2.h"
+const driver_t DRIVER_PACK_2A03 = { 
+	DRIVER_2A03, 
+	sizeof(DRIVER_2A03),
+	DRIVER_RELOC_WORD_2A03, 
+	sizeof(DRIVER_RELOC_WORD_2A03), 
+	DRIVER_RELOC_LOW_2A03, 
+	DRIVER_RELOC_HIGH_2A03, 
+	sizeof(DRIVER_RELOC_LOW_2A03) 
 };
 
-// VRC6 enabled
-const char DRIVER_VRC6[] = {
-	#include "drivers/drv_vrc6.h"
+const driver_t DRIVER_PACK_VRC6 = { 
+	DRIVER_VRC6, 
+	sizeof(DRIVER_VRC6),
+	DRIVER_RELOC_WORD_VRC6, 
+	sizeof(DRIVER_RELOC_WORD_VRC6), 
+	DRIVER_RELOC_LOW_VRC6, 
+	DRIVER_RELOC_HIGH_VRC6, 
+	sizeof(DRIVER_RELOC_LOW_VRC6)
 };
 
-// MMC5 enabled
-const char DRIVER_MMC5[] = {
-	#include "drivers/drv_mmc5.h"
+const driver_t DRIVER_PACK_VRC7 = { 
+	DRIVER_VRC7, 
+	sizeof(DRIVER_VRC7),
+	DRIVER_RELOC_WORD_VRC7, 
+	sizeof(DRIVER_RELOC_WORD_VRC7), 
+	DRIVER_RELOC_LOW_VRC7, 
+	DRIVER_RELOC_HIGH_VRC7, 
+	sizeof(DRIVER_RELOC_LOW_VRC7)
 };
 
-// VRC7 enabled
-const char DRIVER_VRC7[] = {
-	#include "drivers/drv_vrc7.h"
+const driver_t DRIVER_PACK_MMC5 = { 
+	DRIVER_MMC5, 
+	sizeof(DRIVER_MMC5),
+	DRIVER_RELOC_WORD_MMC5, 
+	sizeof(DRIVER_RELOC_WORD_MMC5), 
+	DRIVER_RELOC_LOW_MMC5, 
+	DRIVER_RELOC_HIGH_MMC5, 
+	sizeof(DRIVER_RELOC_LOW_MMC5)
 };
 
-// FDS enabled
-const char DRIVER_FDS[] = {
-	#include "drivers/drv_fds.h"
+const driver_t DRIVER_PACK_FDS = { 
+	DRIVER_FDS, 
+	sizeof(DRIVER_FDS),
+	DRIVER_RELOC_WORD_FDS, 
+	sizeof(DRIVER_RELOC_WORD_FDS), 
+	DRIVER_RELOC_LOW_FDS, 
+	DRIVER_RELOC_HIGH_FDS, 
+	sizeof(DRIVER_RELOC_LOW_FDS)
 };
+
+const driver_t DRIVER_PACK_N163 = { 
+	DRIVER_N163, 
+	sizeof(DRIVER_N163),
+	DRIVER_RELOC_WORD_N163, 
+	sizeof(DRIVER_RELOC_WORD_N163), 
+	DRIVER_RELOC_LOW_N163, 
+	DRIVER_RELOC_HIGH_N163, 
+	sizeof(DRIVER_RELOC_LOW_N163)
+};
+/*
+const driver_t DRIVER_PACK_S5B = { 
+	DRIVER_S5B, 
+	sizeof(DRIVER_S5B),
+	DRIVER_RELOC_WORD_S5B, 
+	sizeof(DRIVER_RELOC_WORD_S5B), 
+	DRIVER_RELOC_LOW_S5B, 
+	DRIVER_RELOC_HIGH_S5B, 
+	sizeof(DRIVER_RELOC_LOW_S5B)
+};
+*/

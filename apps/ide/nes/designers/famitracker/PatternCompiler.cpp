@@ -1,27 +1,26 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
 */
 
-#include "patterncompiler.h"
-#include "trackerchannel.h"
-
-#include "famitracker/common.h"
+#include "FamiTrackerDoc.h"
+#include "PatternCompiler.h"
+#include "TrackerChannel.h"
 
 //
 // CPatternCompiler - Compress patterns to strings for the NSF code
@@ -29,7 +28,7 @@
 
 /*
 
- Pattern byte layout:
+ Pattern byte layout: 
 
  00h - 7Fh : Notes, where 00h = rest, 7Fh = Note cut
  80h - DFh : Commands, defined in the command table
@@ -70,8 +69,8 @@ const unsigned char CMD_EFF_NOTE_CUT		= DEF_CMD(21);
 const unsigned char CMD_EFF_RETRIGGER		= DEF_CMD(22);
 const unsigned char CMD_EFF_DPCM_PITCH		= DEF_CMD(23);
 
-const unsigned char CMD_SET_DURATION		= DEF_CMD(24);	// AEh
-const unsigned char CMD_RESET_DURATION		= DEF_CMD(25);	// B0h
+const unsigned char CMD_SET_DURATION		= DEF_CMD(24);	// B0h
+const unsigned char CMD_RESET_DURATION		= DEF_CMD(25);	// B2h
 
 const unsigned char CMD_EFF_FDS_MOD_DEPTH	= DEF_CMD(26);
 const unsigned char CMD_EFF_FDS_MOD_RATE_HI = DEF_CMD(27);
@@ -122,41 +121,25 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 	stSpacingInfo SpaceInfo;
 
 	int EffColumns = pDoc->GetEffColumns(Track, Channel) + 1;
+	int Chip = pDoc->GetExpansionChip();
 
 	stChanNote ChanNote;
 
 	CleanUp();
 
-	iPatternLen = pDoc->GetPatternLength(Track);
-	LastInstrument = 0x41;
+	// Global init
+	m_bEmpty = true;
+	m_iHash = 0;
 
 	m_iZeroes = 0;
 	m_iCurrentDefaultDuration = 0xFF;
 
+	// Local init
+	iPatternLen = pDoc->GetPatternLength(Track);
+	LastInstrument = 0x41;
+
 	Instrument = 0;
-//	LastInstrument = 1;
 
-	int Chip = pDoc->GetExpansionChip();
-//	int InstrChannels;
-
-	m_bEmpty = true;
-/*
-	InstrChannels += pDoc->ExpansionEnabled(SNDCHIP_VRC6) ? 3 : 0;
-	InstrChannels += pDoc->ExpansionEnabled(SNDCHIP_VRC7) ? 3 : 0;
-	InstrChannels += pDoc->ExpansionEnabled(SNDCHIP_VRC6) ? 3 : 0;
-
-	switch (Chip) {
-		case SNDCHIP_NONE:
-			InstrChannels = 4;
-			break;
-		case SNDCHIP_VRC6:
-			InstrChannels = 7;
-			break;
-		case SNDCHIP_VRC7:
-			InstrChannels = 10;
-			break;
-	}
-*/
 	for (unsigned int i = 0; i < iPatternLen; ++i) {
 		pDoc->GetDataAtPattern(Track, Pattern, Channel, i, &ChanNote);
 
@@ -204,7 +187,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 				WriteData(CMD_RESET_DURATION);
 			}
 		}
-
+		
 #endif
 /*
 		if (SpaceInfo.SpaceCount > 2 && SpaceInfo.SpaceSize != CurrentDefaultDuration) {
@@ -214,7 +197,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 		}
 		else if (SpaceInfo.SpaceCount < 2 && SpaceInfo.SpaceSize == CurrentDefaultDuration) {
 		}
-		else
+		else 
 */
 		if (Instrument != LastInstrument && Instrument < 0x40 && Note != HALT && Note != RELEASE) {
 
@@ -269,7 +252,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 					m_bDSamplesAccessed[Sample] = true;
 				}
 				else
-					NESNote = 0;
+					NESNote = 0xFF;		// Invalid sample, skip
 			}
 			else if (ChanID == CHANID_NOISE) {
 				// 2A03 Noise
@@ -285,7 +268,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 		for (unsigned int j = 0; j < (pDoc->GetEffColumns(Track, Channel) + 1); ++j) {
 			Effect	 = ChanNote.EffNumber[j];
 			EffParam = ChanNote.EffParam[j];
-
+			
 			if (Effect > 0) {
 				DispatchZeroes();
 				Action = true;
@@ -326,13 +309,19 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 					break;
 				case EF_PORTA_UP:
 					if (ChanID != CHANID_DPCM) {
-						WriteData(CMD_EFF_PORTAUP);
+						if (ChipID == SNDCHIP_FDS || ChipID == SNDCHIP_VRC7 || ChipID == SNDCHIP_N163)
+							WriteData(CMD_EFF_PORTADOWN);	// Pitch is inverted for these chips
+						else
+							WriteData(CMD_EFF_PORTAUP);
 						WriteData(EffParam);
 					}
 					break;
 				case EF_PORTA_DOWN:
 					if (ChanID != CHANID_DPCM) {
-						WriteData(CMD_EFF_PORTADOWN);
+						if (ChipID == SNDCHIP_FDS || ChipID == SNDCHIP_VRC7 || ChipID == SNDCHIP_N163)
+							WriteData(CMD_EFF_PORTAUP);
+						else
+							WriteData(CMD_EFF_PORTADOWN);
 						WriteData(EffParam);
 					}
 					break;
@@ -377,12 +366,15 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 					break;
 				case EF_PITCH:
 					if (ChanID != CHANID_DPCM) {
-						//if (Chip & SNDCHIP_VRC7 && ChanID >= CHANID_VRC7_CH1)
-						if (ChipID == SNDCHIP_VRC7)
-							EffParam = (char)(256 - (int)EffParam);
-						//else if (Chip & SNDCHIP_FDS && Channel == 5)
-						else if (ChipID == SNDCHIP_FDS)
-							EffParam = (char)(256 - (int)EffParam);
+						switch (ChipID) {
+							case SNDCHIP_VRC7:
+							case SNDCHIP_FDS:
+							case SNDCHIP_N163:
+								EffParam = (char)(256 - (int)EffParam);
+								if (EffParam == 0)
+									EffParam = 0xFF;
+								break;
+						}
 						WriteData(CMD_EFF_PITCH);
 						WriteData(EffParam);
 					}
@@ -434,7 +426,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 				case EF_RETRIGGER:
 					if (ChanID == CHANID_DPCM) {
 						WriteData(CMD_EFF_RETRIGGER);
-						WriteData(EffParam);
+						WriteData(EffParam + 1);
 					}
 					break;
 				case EF_DPCM_PITCH:
@@ -476,13 +468,13 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 			DispatchZeroes();
 			WriteData(0xF0 | Vol);
 			Action = true;			// Terminate command
-		}
+		} 
 
 		if (NESNote == 0xFF) {
 			if (Action) {
 				// A instrument/effect command was issued but no new note, write rest command
 				WriteData(0);
-				m_bEmpty = true;
+				m_bEmpty = false;
 			}
 			AccumulateZero();
 		}
@@ -491,7 +483,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 			DispatchZeroes();
 			WriteData(NESNote + 1);
 			AccumulateZero();
-			m_bEmpty = true;
+			m_bEmpty = false;
 		}
 	}
 
@@ -507,7 +499,6 @@ unsigned int CPatternCompiler::FindInstrument(int Instrument, unsigned int *pIns
 			return i;
 	}
 
-	// Should generate error
 	return Instrument;
 }
 
@@ -576,6 +567,7 @@ void CPatternCompiler::WriteData(unsigned char Value)
 {
 	ASSERT(m_iDataPointer < 0x1000);
 	m_pData[m_iDataPointer++] = Value;
+	m_iHash = ((m_iHash << 5) ^ ((m_iHash & 0xF8000000) >> 27)) ^ Value;	// Simple CRC-hash
 }
 
 void CPatternCompiler::AccumulateZero()
@@ -732,9 +724,14 @@ void CPatternCompiler::OptimizeString()
 			i += size;
 		}
 	}
-}
+}	
 
-bool CPatternCompiler::EmptyPattern()
+bool CPatternCompiler::EmptyPattern() const
 {
 	return m_bEmpty;
+}
+
+unsigned int CPatternCompiler::GetHash() const
+{
+	return m_iHash;
 }

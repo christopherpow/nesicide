@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 PSG *psg;
 
-float CS5B::AMPLIFY = 4.0f;
+float CS5B::AMPLIFY = 2.0f;
 
 CS5B::CS5B(CMixer *pMixer)
 {
@@ -55,7 +55,7 @@ void CS5B::Process(uint32 Time)
 	m_iTime += Time;
 }
 
-int16 m_pBuffer[2000];
+int16 m_pBuffer[4000];
 uint32 m_iBufferPtr = 0;
 
 void CS5B::EndFrame()
@@ -107,8 +107,8 @@ void CS5B::SetSampleSpeed(uint32 SampleRate, double ClockRate, uint32 FrameRate)
 		PSG_delete(psg);
 	}
 
-	PSG_init((uint32)ClockRate, SampleRate);
-	psg = PSG_new();
+	//PSG_init((uint32)ClockRate, SampleRate);
+	psg = PSG_new((uint32)ClockRate, SampleRate);
 	PSG_setVolumeMode(psg, 1);
 	PSG_reset(psg);
 
@@ -122,8 +122,9 @@ void CS5B::SetVolume(float fVol)
 {
 	m_fVolume = AMPLIFY * fVol;
 }
-
+/*
 void CS5B::SetChannelVolume(int Chan, int LevelL, int LevelR)
 {
 	PSG_set_chan_vol(Chan, LevelL, LevelR);
 }
+*/

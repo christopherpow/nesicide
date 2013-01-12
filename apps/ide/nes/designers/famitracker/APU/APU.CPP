@@ -1,17 +1,17 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -38,7 +38,7 @@
 
 #include <vector>
 #include <cstdio>
-#include <string.h>
+#include <cmath>
 #include "apu.h"
 
 #include "square.h"
@@ -49,7 +49,7 @@
 #include "vrc6.h"
 #include "mmc5.h"
 #include "fds.h"
-#include "n106.h"
+#include "n163.h"
 #include "vrc7.h"
 #include "s5b.h"
 
@@ -70,7 +70,7 @@ const uint8 CAPU::LENGTH_TABLE[] = {
 
 static std::vector<CExternal*> ExChips;
 
-CAPU::CAPU(ICallback *pCallback, CSampleMem *pSampleMem) :
+CAPU::CAPU(ICallback *pCallback, CSampleMem *pSampleMem) : 
 	m_pParent(pCallback),
 	m_iFrameCycles(0),
 	m_pSoundBuffer(NULL),
@@ -88,8 +88,11 @@ CAPU::CAPU(ICallback *pCallback, CSampleMem *pSampleMem) :
 	m_pVRC6 = new CVRC6(m_pMixer);
 	m_pVRC7 = new CVRC7(m_pMixer);
 	m_pFDS = new CFDS(m_pMixer);
-	m_pN106 = new CN106(m_pMixer);
+	m_pN163 = new CN163(m_pMixer);
 	m_pS5B = new CS5B(m_pMixer);
+
+	m_fLevelVRC7 = 1.0f;
+	m_fLevelS5B = 1.0f;
 
 #ifdef LOGGING
 	m_pLog = new CFile("apu_log.txt", CFile::modeCreate | CFile::modeWrite);
@@ -108,7 +111,7 @@ CAPU::~CAPU()
 	SAFE_RELEASE(m_pVRC6);
 	SAFE_RELEASE(m_pVRC7);
 	SAFE_RELEASE(m_pFDS);
-	SAFE_RELEASE(m_pN106);
+	SAFE_RELEASE(m_pN163);
 	SAFE_RELEASE(m_pS5B);
 
 	SAFE_RELEASE(m_pMixer);
@@ -188,7 +191,7 @@ void CAPU::Process()
 	//
 	// The amount of cycles that will be emulated is added by CAPU::AddCycles
 	//
-
+	
 	static uint32 Time, i;
 
 	while (m_iCyclesToRun > 0) {
@@ -199,7 +202,7 @@ void CAPU::Process()
 			Time = m_iSequencerClock;
 		if (Time > m_iFrameClock)
 			Time = m_iFrameClock;
-
+		
 		// Fixes the problem with distortion due to volume modulation
 		i = Time;
 		while (i > 0) {
@@ -242,7 +245,7 @@ void CAPU::Process()
 void CAPU::EndFrame()
 {
 	// The APU will always output audio in 32 bit signed format
-
+	
 	m_pSquare1->EndFrame();
 	m_pSquare2->EndFrame();
 	m_pTriangle->EndFrame();
@@ -256,7 +259,7 @@ void CAPU::EndFrame()
 	int SamplesAvail = m_pMixer->FinishBuffer(m_iFrameCycles);
 	int ReadSamples	= m_pMixer->ReadBuffer(SamplesAvail, m_pSoundBuffer, m_bStereoEnabled);
 	m_pParent->FlushBuffer(m_pSoundBuffer, ReadSamples);
-
+	
 	m_iFrameClock /*+*/= m_iFrameCycleCount;
 	m_iFrameCycles = 0;
 
@@ -269,14 +272,14 @@ void CAPU::Reset()
 {
 	// Reset APU
 	//
-
+	
 	m_iCyclesToRun		= 0;
 	m_iFrameCycles		= 0;
 	m_iSequencerClock	= SEQUENCER_PERIOD;
 	m_iFrameSequence	= 0;
 	m_iFrameMode		= 0;
 	m_iFrameClock		= m_iFrameCycleCount;
-
+	
 	m_pMixer->ClearBuffer();
 
 	m_pSquare1->Reset();
@@ -298,7 +301,7 @@ void CAPU::SetupMixer(int LowCut, int HighCut, int HighDamp, int Volume) const
 {
 	// New settings
 	m_pMixer->UpdateSettings(LowCut, HighCut, HighDamp, Volume);
-	m_pVRC7->SetVolume(Volume);
+	m_pVRC7->SetVolume((float(Volume) / 100.0f) * m_fLevelVRC7);
 }
 
 void CAPU::SetExternalSound(uint8 Chip)
@@ -317,8 +320,8 @@ void CAPU::SetExternalSound(uint8 Chip)
 		ExChips.push_back(m_pFDS);
 	if (Chip & SNDCHIP_MMC5)
 		ExChips.push_back(m_pMMC5);
-	if (Chip & SNDCHIP_N106)
-		ExChips.push_back(m_pN106);
+	if (Chip & SNDCHIP_N163)
+		ExChips.push_back(m_pN163);
 	if (Chip & SNDCHIP_S5B)
 		ExChips.push_back(m_pS5B);
 
@@ -333,12 +336,12 @@ void CAPU::ChangeMachine(int Machine)
 	switch (Machine) {
 		case MACHINE_NTSC:
 			m_pNoise->PERIOD_TABLE = CNoise::NOISE_PERIODS_NTSC;
-			m_pDPCM->PERIOD_TABLE = CDPCM::DMC_PERIODS_NTSC;
+			m_pDPCM->PERIOD_TABLE = CDPCM::DMC_PERIODS_NTSC;			
 			m_pMixer->SetClockRate(BASE_FREQ_NTSC);
 			break;
 		case MACHINE_PAL:
 			m_pNoise->PERIOD_TABLE = CNoise::NOISE_PERIODS_PAL;
-			m_pDPCM->PERIOD_TABLE = CDPCM::DMC_PERIODS_PAL;
+			m_pDPCM->PERIOD_TABLE = CDPCM::DMC_PERIODS_PAL;			
 			m_pMixer->SetClockRate(BASE_FREQ_PAL);
 			break;
 	}
@@ -350,12 +353,12 @@ bool CAPU::SetupSound(int SampleRate, int NrChannels, int Machine)
 	//
 	// Returns false if a buffer couldn't be allocated
 	//
-
+	
 	uint32 BaseFreq = (Machine == MACHINE_NTSC) ? BASE_FREQ_NTSC : BASE_FREQ_PAL;
 	uint8 FrameRate = (Machine == MACHINE_NTSC) ? FRAME_RATE_NTSC : FRAME_RATE_PAL;
 
 	m_iSoundBufferSamples = uint32(SampleRate / FRAME_RATE_PAL);	// Samples / frame. Allocate for PAL, since it's more
-	m_bStereoEnabled	  = (NrChannels == 2);
+	m_bStereoEnabled	  = (NrChannels == 2);	
 	m_iSoundBufferSize	  = m_iSoundBufferSamples * NrChannels;		// Total amount of samples to allocate
 	m_iSampleSizeShift	  = (NrChannels == 2) ? 1 : 0;
 	m_iBufferPointer	  = 0;
@@ -437,7 +440,7 @@ void CAPU::Write4017(uint8 Value)
 	// Mode 1
 	if (Value & 0x80) {
 		m_iFrameMode = 1;
-		// Immediately run all units
+		// Immediately run all units		
 		Clock_240Hz();
 		Clock_120Hz();
 		Clock_60Hz();
@@ -478,13 +481,13 @@ uint8 CAPU::Read4015()
 	RetVal |= m_pNoise->ReadControl() << 3;
 	RetVal |= m_pDPCM->ReadControl() << 4;
 	RetVal |= m_pDPCM->DidIRQ() << 7;
-
+	
 	return RetVal;
 }
 
 void CAPU::ExternalWrite(uint16 Address, uint8 Value)
 {
-	// Data was written to an external sound chip
+	// Data was written to an external sound chip 
 	// (this doesn't really belong in the APU but are here for convenience)
 	//
 
@@ -493,6 +496,8 @@ void CAPU::ExternalWrite(uint16 Address, uint8 Value)
 	for (std::vector<CExternal*>::iterator iter = ExChips.begin(); iter != ExChips.end(); ++iter) {
 		(*iter)->Write(Address, Value);
 	}
+
+	LogExternalWrite(Address, Value);
 }
 
 uint8 CAPU::ExternalRead(uint16 Address)
@@ -518,7 +523,7 @@ uint8 CAPU::ExternalRead(uint16 Address)
 
 // Expansion for famitracker
 
-int32 CAPU::GetVol(uint8 Chan) const
+int32 CAPU::GetVol(uint8 Chan) const	
 {
 	return m_pMixer->GetChanOutput(Chan);
 }
@@ -549,3 +554,53 @@ void CAPU::Log()
 	m_pLog->Write(str, str.GetLength());
 }
 #endif
+
+void CAPU::SetChipLevel(int Chip, int Level)
+{
+	float fLevel = expf(float(Level) / 20.0f);	// dB -> gain
+
+	switch (Chip) {
+		case SNDCHIP_VRC7:
+			m_fLevelVRC7 = fLevel;
+			break;
+		case SNDCHIP_S5B:
+			m_fLevelS5B = fLevel;
+			break;
+		default:
+			m_pMixer->SetChipLevel(Chip, fLevel);
+	}
+}
+
+void CAPU::SetNamcoMixing(bool bLinear)
+{
+	m_pMixer->SetNamcoMixing(bLinear);
+	m_pN163->SetMixingMethod(bLinear);
+}
+
+void CAPU::LogExternalWrite(uint16 Address, uint8 Value)
+{
+	if (Address >= 0x9000 && Address <= 0x9003)
+		m_iRegsVRC6[Address - 0x9000] = Value;
+	else if (Address >= 0xA000 && Address <= 0xA003)
+		m_iRegsVRC6[Address - 0xA000 + 3] = Value;
+	else if (Address >= 0xB000 && Address <= 0xB003)
+		m_iRegsVRC6[Address - 0xB000 + 6] = Value;
+	else if (Address >= 0x4080 && Address <= 0x408F)
+		m_iRegsFDS[Address - 0x4080] = Value;
+}
+
+uint8 CAPU::GetReg(int Chip, int Reg) const 
+{
+	switch (Chip) {
+		case SNDCHIP_NONE:
+			return m_iRegs[Reg & 0x1F]; 
+		case SNDCHIP_VRC6:
+			return m_iRegsVRC6[Reg & 0x1F]; 
+		case SNDCHIP_N163:
+			return m_pN163->ReadMem(Reg);
+		case SNDCHIP_FDS:
+			return m_iRegsFDS[Reg & 0x1F];
+	}
+
+	return 0;
+}

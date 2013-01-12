@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ protected:
 	// FDS functions
 	void FillWaveRAM(CInstrumentFDS *pInst);
 	void FillModulationTable(CInstrumentFDS *pInst);
+private:
+	void CheckWaveUpdate();
 protected:
 	// FDS control variables
 	int m_iModulationSpeed;
@@ -43,4 +45,6 @@ protected:
 	CSequence *m_pPitchSeq;
 	// Modulation table
 	char m_iModTable[32];
+	// Modulation
+	bool m_bResetMod;
 };

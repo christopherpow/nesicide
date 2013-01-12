@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ void CVRC6_Sawtooth::Process(int Time)
 	while (Time >= Counter) {
 		Time 	-= Counter;
 		m_iTime	+= Counter;
-		Counter	 = Frequency;
+		Counter	 = Frequency + 1;
 
 		if (ResetReg & 1)
 			PhaseAccumulator = (PhaseAccumulator + PhaseInput) & 0xFF;

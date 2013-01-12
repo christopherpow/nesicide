@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ const uint16 CNoise::NOISE_PERIODS_NTSC[] = {
 };
 
 const uint16 CNoise::NOISE_PERIODS_PAL[] = {
-	4, 7, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778
+	4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778
 };
 
 CNoise::CNoise(CMixer *pMixer, int ID) : CChannel(pMixer, ID, SNDCHIP_NONE)

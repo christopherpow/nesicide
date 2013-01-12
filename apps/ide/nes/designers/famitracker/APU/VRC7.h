@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ public:
 
 	void Reset();
 	void SetSampleSpeed(uint32 SampleRate, double ClockRate, uint32 FrameRate);
-	void SetVolume(int Volume);
+	void SetVolume(float Volume);
 	void Write(uint16 Address, uint8 Value);
 	uint8 Read(uint16 Address, bool &Mapped);
 	void EndFrame();

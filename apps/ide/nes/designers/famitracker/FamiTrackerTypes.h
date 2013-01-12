@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -20,6 +20,91 @@
 
 
 #pragma once
+
+// MFC "replacements" (so I don't have to change FamiTracker code I don't want to change...)
+typedef WCHAR TCHAR;
+typedef const TCHAR *LPCTSTR;
+typedef int WINBOOL;
+typedef WINBOOL BOOL;
+
+#include <QMutex>
+#include <QString>
+
+class CSemaphore
+{
+};
+
+class CString : public QString
+{
+public:
+   CString()
+   {
+      clear();
+   }
+
+   CString(char* str)
+   {
+      clear();
+      append(str);
+   }
+
+   void Format(const char* fmt, ...)
+   {
+      va_list argptr;
+      va_start(argptr,fmt);
+      sprintf(fmt,argptr);
+      va_end(argptr);
+   }
+   CString& operator=(const char* str)
+   {
+      clear();
+      append(str);
+      return *this;
+   }
+   void Empty() { clear(); }
+   const char* GetString() const
+   {
+      return toAscii().constData();
+   }
+   CString Left( int nCount ) const
+   {
+      return CString(left(nCount).toAscii().data());
+   }
+   CString Right( int nCount ) const
+   {
+      return CString(right(nCount).toAscii().data());
+   }
+   int GetLength() const
+   {
+      return length();
+   }
+   int CompareNoCase( TCHAR* lpsz ) const
+   {
+      return compare(QString((char*)lpsz),Qt::CaseInsensitive);
+   }
+};
+
+class CEdit
+{
+};
+
+class CFile
+{
+};
+
+class CCriticalSection
+{
+public:
+   void Lock() {}
+   void Unlock() {}
+};
+
+class CMutex : public QMutex
+{
+public:
+   void Lock() { lock(); }
+   void Unlock() { unlock(); }
+};
 
 #include <stdio.h>
 
@@ -48,14 +133,14 @@ const int MAX_PATTERN = 128;
 // Maximum number of frames
 const int MAX_FRAMES = 128;
 
-// Maximum length of patterns (in rows)
+// Maximum length of patterns (in rows). 256 is max in NSF
 const int MAX_PATTERN_LENGTH = 256;
 
-// Maximum number of dmc samples (this would be more limited by NES memory)
+// Maximum number of DPCM samples, cannot be increased unless the NSF driver is modified.
 const int MAX_DSAMPLES = 64;
 
-// Sample space available (from $C000-$FFFF) Will be increased when bankswitching is supported
-const int MAX_SAMPLE_SPACE = 0x4000;
+// Sample space available (from $C000-$FFFF), may now switch banks
+const int MAX_SAMPLE_SPACE = 0x40000;	// 256kB
 
 // Number of effect columns allowed
 const int MAX_EFFECT_COLUMNS = 4;
@@ -67,10 +152,10 @@ const unsigned int MAX_TRACKS = 64;
 const int MAX_TEMPO	= 255;
 
 // Min tempo
-const int MIN_TEMPO	= 32;
+//const int MIN_TEMPO	= 21;
 
 // Max speed
-const int MAX_SPEED = 31;
+//const int MAX_SPEED = 20;
 
 // Min speed
 const int MIN_SPEED = 1;
@@ -150,6 +235,14 @@ enum {
 
 	EF_DPCM_PITCH,
 
+	EF_SUNSOFT_ENV_LO,
+	EF_SUNSOFT_ENV_HI,
+	EF_SUNSOFT_ENV_TYPE,
+/*
+	EF_VRC7_MODULATOR,
+	EF_VRC7_CARRIER,
+	EF_VRC7_LEVELS,
+*/
 	EF_COUNT
 };
 
@@ -192,8 +285,15 @@ const char EFF_CHAR[] = {'F',	// Speed
 						 'H',	// FDS modulation depth
 						 'I',	// FDS modulation speed hi
 						 'J',	// FDS modulation speed lo
-						 'W'	// DPCM Pitch
-
+						 'W',	// DPCM Pitch
+						 'H',	// Sunsoft envelope low
+						 'I',	// Sunsoft envelope high
+						 'J',	// Sunsoft envelope type
+						 /*
+						 'H',	// VRC7 modulator
+						 'I',	// VRC7 carrier
+						 'J',	// VRC7 modulator/feedback level
+						 */
 };
 
 

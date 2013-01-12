@@ -1,17 +1,17 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -50,7 +50,7 @@ void CChannelMap::SetupSoundChips()
 	AddChip(SNDCHIP_VRC7, new CInstrumentVRC7(), _T("Konami VRC7"));
 	AddChip(SNDCHIP_FDS,  new CInstrumentFDS(),  _T("Nintendo FDS sound"));
 	AddChip(SNDCHIP_MMC5, new CInstrument2A03(), _T("Nintendo MMC5"));
-	AddChip(SNDCHIP_N106, new CInstrumentN106(), _T("Namco 106"));
+	AddChip(SNDCHIP_N163, new CInstrumentN163(), _T("Namco 163"));
 	AddChip(SNDCHIP_S5B,  new CInstrumentS5B(),  _T("Sunsoft 5B"));
 #else /* _DEBUG */
 	// Ready for use
@@ -59,12 +59,12 @@ void CChannelMap::SetupSoundChips()
 	AddChip(SNDCHIP_VRC7, new CInstrumentVRC7(), _T("Konami VRC7"));
 	AddChip(SNDCHIP_FDS,  new CInstrumentFDS(),  _T("Nintendo FDS sound"));
 	AddChip(SNDCHIP_MMC5, new CInstrument2A03(), _T("Nintendo MMC5"));
-//	AddChip(SNDCHIP_N106, new CInstrumentN106(), _T("Namco 106/163"));
+	AddChip(SNDCHIP_N163, new CInstrumentN163(), _T("Namco 163"));
 //	AddChip(SNDCHIP_S5B,  new CInstrumentS5B(),  _T("Sunsoft 5B"));
 #endif /* _DEBUG */
 }
 
-void CChannelMap::AddChip(int Ident, CInstrument *pInst, char* pName)
+void CChannelMap::AddChip(int Ident, CInstrument *pInst, LPCTSTR pName)
 {
 	ASSERT(m_iAddedChips < CHIP_COUNT);
 
@@ -80,7 +80,7 @@ int CChannelMap::GetChipCount() const
 	return m_iAddedChips;
 }
 
-char* CChannelMap::GetChipName(int Index) const
+LPCTSTR CChannelMap::GetChipName(int Index) const
 {
 	// Get chip name from index
 	return m_pChipNames[Index];

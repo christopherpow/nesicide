@@ -1,17 +1,17 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -48,9 +48,8 @@ void CChannelHandlerMMC5::PlayChannelNote(stChanNote *NoteData, int EffColumns)
 
 	LastInstrument = m_iInstrument;
 
-	if (Note == HALT) {
+	if (Note == HALT || Note == RELEASE) {
 		Instrument	= MAX_INSTRUMENTS;
-		Volume		= 0x10;
 	}
 
 	if (Note == RELEASE)
@@ -129,7 +128,7 @@ void CChannelHandlerMMC5::PlayChannelNote(stChanNote *NoteData, int EffColumns)
 	if (Note == 0) {
 		return;
 	}
-
+	
 	if (Note == HALT) {
 		KillChannel();
 		return;
@@ -153,18 +152,17 @@ void CChannelHandlerMMC5::PlayChannelNote(stChanNote *NoteData, int EffColumns)
 		ReleaseNote();
 	}
 
-	if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
-		m_iEffect = EF_NONE;
-
-	if (PostEffect)
+	if (PostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN))
 		SetupSlide(PostEffect, PostEffectParam);
+	else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
+		m_iEffect = EF_NONE;
 }
 
 void CChannelHandlerMMC5::ProcessChannel()
 {
 	// Default effects
 	CChannelHandler::ProcessChannel();
-
+	
 	if (!m_bEnabled)
 		return;
 
@@ -179,7 +177,7 @@ void CChannelHandlerMMC5::ResetChannel()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Square 1
+// Square 1 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CMMC5Square1Chan::RefreshChannel()
@@ -187,7 +185,7 @@ void CMMC5Square1Chan::RefreshChannel()
 	if (!m_bEnabled)
 		return;
 
-	int Period = CalculatePeriod();
+	int Period = CalculatePeriod(false);
 	int Volume = CalculateVolume(15);
 	char DutyCycle = (m_iDutyPeriod & 0x03);
 
@@ -214,7 +212,7 @@ void CMMC5Square1Chan::ClearRegisters()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Square 2
+// Square 2 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CMMC5Square2Chan::RefreshChannel()
@@ -222,7 +220,7 @@ void CMMC5Square2Chan::RefreshChannel()
 	if (!m_bEnabled)
 		return;
 
-	int Period = CalculatePeriod();
+	int Period = CalculatePeriod(false);
 	int Volume = CalculateVolume(15);
 	char DutyCycle = (m_iDutyPeriod & 0x03);
 

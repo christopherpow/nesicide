@@ -508,7 +508,6 @@ int32_t nesGetAudioSamplesAvailable ( void );
 void nesClearAudioSamplesAvailable ( void );
 uint8_t* nesGetAudioSamples ( uint16_t samples );
 void nesSetControllerType ( int32_t port, int32_t type );
-void nesSetControllerConfig ( int32_t port, int32_t type, int32_t** configString, int32_t* configSize );
 void nesSetControllerScreenPosition ( int32_t port, int32_t px, int32_t py, int32_t wx1, int32_t wy1, int32_t wx2, int32_t wy2 );
 void nesSetControllerSpecial ( int32_t port, int32_t special );
 bool nesROMIsLoaded ( void );

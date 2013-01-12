@@ -336,7 +336,7 @@ SOURCES += \
     nes/designers/famitracker/InstrumentVRC7.cpp \
     nes/designers/famitracker/InstrumentVRC6.cpp \
     nes/designers/famitracker/InstrumentS5B.cpp \
-    nes/designers/famitracker/InstrumentN106.cpp \
+    nes/designers/famitracker/InstrumentN163.cpp \
     nes/designers/famitracker/InstrumentFDS.cpp \
     nes/designers/famitracker/Instrument2A03.cpp \
     nes/designers/famitracker/APU/VRC7.cpp \
@@ -351,7 +351,7 @@ SOURCES += \
     nes/designers/famitracker/APU/APU.CPP \
     nes/designers/famitracker/APU/DPCM.CPP \
     nes/designers/famitracker/APU/VRC6.CPP \
-    nes/designers/famitracker/APU/N106.CPP \
+    nes/designers/famitracker/APU/N163.CPP \
     nes/designers/famitracker/APU/MMC5.CPP \
     nes/designers/famitracker/APU/FDS.CPP \
     nes/designers/famitracker/Blip_Buffer/Blip_Buffer.cpp \
@@ -363,7 +363,7 @@ SOURCES += \
     nes/designers/famitracker/ChannelsVRC7.cpp \
     nes/designers/famitracker/ChannelsVRC6.cpp \
     nes/designers/famitracker/ChannelsS5B.cpp \
-    nes/designers/famitracker/ChannelsN106.cpp \
+    nes/designers/famitracker/ChannelsN163.cpp \
     nes/designers/famitracker/ChannelsMMC5.cpp \
     nes/designers/famitracker/ChannelsFDS.cpp \
     nes/designers/famitracker/Channels2A03.cpp \
@@ -542,7 +542,7 @@ HEADERS += \
     nes/designers/famitracker/APU/Square.h \
     nes/designers/famitracker/APU/S5B.h \
     nes/designers/famitracker/APU/Noise.h \
-    nes/designers/famitracker/APU/N106.H \
+    nes/designers/famitracker/APU/N163.H \
     nes/designers/famitracker/APU/MMC5.H \
     nes/designers/famitracker/APU/Mixer.h \
     nes/designers/famitracker/APU/FDSSound.h \
@@ -562,14 +562,15 @@ HEADERS += \
     nes/designers/famitracker/ChannelsVRC7.h \
     nes/designers/famitracker/ChannelsVRC6.h \
     nes/designers/famitracker/ChannelsS5B.h \
-    nes/designers/famitracker/ChannelsN106.h \
+    nes/designers/famitracker/ChannelsN163.h \
     nes/designers/famitracker/ChannelsMMC5.h \
     nes/designers/famitracker/ChannelsFDS.h \
     nes/designers/famitracker/Channels2A03.h \
     nes/designers/famitracker/ChannelMap.h \
     nes/designers/famitracker/ChannelHandler.h \
     nes/project/cmusicitem.h \
-    designers/newfiledialog.h
+    designers/newfiledialog.h \
+    nes/designers/famitracker/Chunk.h
 
 FORMS += \
    aboutdialog.ui \

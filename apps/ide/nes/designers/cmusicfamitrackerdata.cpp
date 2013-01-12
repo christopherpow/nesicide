@@ -10,9 +10,13 @@ MFCCRAP theApp(pSG);
 CMusicFamiTrackerData::CMusicFamiTrackerData()
 {
    pDoc = new CFamiTrackerDoc();
+
+   pSG->start();
 }
 
 CMusicFamiTrackerData::~CMusicFamiTrackerData()
 {
+   pSG->terminate();
+
    delete pDoc;
 }

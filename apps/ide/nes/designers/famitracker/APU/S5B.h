@@ -15,7 +15,7 @@ public:
 	uint8 	Read(uint16 Address, bool &Mapped);
 	void	SetSampleSpeed(uint32 SampleRate, double ClockRate, uint32 FrameRate);
 	void	SetVolume(float fVol);
-	void	SetChannelVolume(int Chan, int LevelL, int LevelR);
+//	void	SetChannelVolume(int Chan, int LevelL, int LevelR);
 protected:
 	void	GetMixMono();
 private:

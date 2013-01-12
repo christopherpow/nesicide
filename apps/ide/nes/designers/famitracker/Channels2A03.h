@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ protected:
 // DPCM
 class CDPCMChan : public CChannelHandler2A03 {
 public:
-	CDPCMChan(CSampleMem *pSampleMem) : CChannelHandler2A03(), m_pSampleMem(pSampleMem), m_iRetriggerCntr(0) { m_bEnabled = false; };
+	CDPCMChan(CSampleMem *pSampleMem);
 	virtual void RefreshChannel();
 protected:
 	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns);

@@ -1,28 +1,27 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
 */
 
-#include "patterndata.h"
-
 #include <string.h>
 
-#include "famitracker/common.h"
+#include "FamiTrackerDoc.h"
+#include "PatternData.h"
 
 // This class contains pattern data
 // A list of these objects exists inside the document one for each song
@@ -84,9 +83,9 @@ bool CPatternData::IsCellFree(unsigned int Channel, unsigned int Pattern, unsign
 {
 	stChanNote *Note = GetPatternData(Channel, Pattern, Row);
 
-	bool IsFree = Note->Note == NONE &&
-		Note->EffNumber[0] == 0 && Note->EffNumber[1] == 0 &&
-		Note->EffNumber[2] == 0 && Note->EffNumber[3] == 0 &&
+	bool IsFree = Note->Note == NONE && 
+		Note->EffNumber[0] == 0 && Note->EffNumber[1] == 0 && 
+		Note->EffNumber[2] == 0 && Note->EffNumber[3] == 0 && 
 		Note->Vol == 0x10 && Note->Instrument == MAX_INSTRUMENTS;
 
 	return IsFree;
@@ -145,7 +144,7 @@ void CPatternData::ClearEverything()
 
 	// Frame list
 	memset(m_iFrameList, 0, sizeof(short) * MAX_FRAMES * MAX_CHANNELS);
-
+	
 	// Patterns, deallocate everything
 	for (int i = 0; i < MAX_CHANNELS; i++) {
 		for (int j = 0; j < MAX_PATTERN; j++) {
@@ -166,8 +165,8 @@ void CPatternData::ClearPattern(int Channel, int Pattern)
 }
 
 unsigned short CPatternData::GetFramePattern(int Frame, int Channel) const
-{
-	return m_iFrameList[Frame][Channel];
+{ 
+	return m_iFrameList[Frame][Channel]; 
 }
 
 void CPatternData::SetFramePattern(int Frame, int Channel, int Pattern)

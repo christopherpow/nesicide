@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,8 +22,9 @@
 
 #include <QString>
 
-#include "patterncompiler.h"
+#include "Chunk.h"
 
+// NSF file header
 struct stNSFHeader {
 	unsigned char	Ident[5];
 	unsigned char	Version;
@@ -43,179 +44,212 @@ struct stNSFHeader {
 	unsigned char	Reserved[4];
 };
 
-const unsigned int MAX_BANKS = 0x80;
+const int BANK_SIZE = 4096;	// The NSF specification
 
-// A databank is a 4kB NSF bank
-// It holds the bank data, location and a write pointer
-class CDataBank {
+/*
+ * NSF file bank
+ */
+class CFileBank
+{
 public:
-	CDataBank();
-	~CDataBank();
-	void			AllocateBank(unsigned char Origin);
-	void			WriteByte(unsigned int Pointer, unsigned char Value);
-	void			WriteShort(unsigned int Pointer, unsigned short Value);
-	bool			Overflow(unsigned int iSize) const;
-	unsigned char	*GetData() const;
-	void			CopyData(unsigned char *pToArray) const;
+	CFileBank() : m_iSize(0), m_iLocation(0), m_iOffset(0) {};
 
-private:
-	unsigned char	*m_pData;
-	unsigned int	m_iOrigin;
-	unsigned int	m_iPointer;
+	char m_data[BANK_SIZE];
+	int	 m_iSize;
+	int	 m_iLocation;
+	int	 m_iOffset;
 };
 
-// This is stored first in NSF data, 8 bytes
-struct stTuneHeader {
-	unsigned short	SongListOffset;
-	unsigned short	InstrumentListOffset;
-	unsigned char	Flags;
-	unsigned short	DPCMInstListOffset;
-	unsigned short	DPCMSamplesOffset;
-	unsigned short	DividerNTSC;
-	unsigned short	DividerPAL;
-	unsigned short	WaveTable;
-};
+struct driver_t;
 
-// One song header per track, 6 bytes
-struct stSongHeader {
-	unsigned short	FrameListOffset;
-	unsigned char	FrameCount;
-	unsigned char	PatternLength;
-	unsigned char	Speed;
-	unsigned char	Tempo;
-	unsigned char	FrameBank;
-};
-
+/*
+ * The compiler
+ */
 class CCompiler
 {
 public:
-	CCompiler(CFamiTrackerDoc *pDoc);
-	virtual ~CCompiler();
+	CCompiler(CFamiTrackerDoc *pDoc, CEdit *pLogText);
+	~CCompiler();
 
-	void ExportNSF(QString FileName, bool EnablePAL);
-	void ExportNES(QString FileName, bool EnablePAL);
-	void ExportBIN(QString BIN_File, QString DPCM_File);
-	void ExportPRG(QString FileName, bool EnablePAL);
-	void ExportASM(QString FileName);
-
-	void StoreShort(unsigned short Value);
-	void StoreByte(unsigned char Value);
-	void WriteLog(char *text, ...);
-
-	unsigned int GetSequenceAddress2A03(int Sequence, int Type) const;
-	unsigned int GetSequenceAddressVRC6(int Sequence, int Type) const;
-	unsigned int GetSequenceAddressFDS(int Instrument, int Type) const;
-
-	CFamiTrackerDoc *GetDocument() const { return m_pDocument; };
-
-	// FDS
-	int AddWavetable(unsigned char Wave[64]);
+	void	ExportNSF(CString FileName, int MachineType);
+	void	ExportNES(CString FileName, bool EnablePAL);
+	void	ExportBIN(CString BIN_File, CString DPCM_File);
+	void	ExportPRG(CString FileName, bool EnablePAL);
+	void	ExportASM(CString FileName);
 
 private:
-	void CreateHeader(stNSFHeader *pHeader, bool EnablePAL);
+	void	CreateHeader(stNSFHeader *pHeader, int MachineType);
+	void	SetDriverSongAddress(unsigned char *pDriver, unsigned short Address);
 
-	const char *LoadDriver(const char *driver) const;
+	void	PatchVibratoTable(unsigned char *pDriver);
+	void	PatchSpeedSplitPoint(unsigned char *pDriver);
 
-	void AllocateSpace();
-	void RemoveSpace();
-	void ScanSong();
+	unsigned char *LoadDriver(const driver_t *pDriver, unsigned short Origin) const;
 
-	void CompileData();
-	void AssembleData();
+	// NSF banks
+	void	CopyData(char *pData, int iSize);
+	void	AllocateBank(int Location);
 
-	// Data bank functions
-	void AllocateNewBank(unsigned int iAddress);
-	void SetMemoryOffset(unsigned int iOffset);
-	void SetInitialPosition(unsigned int iAddress);
-	void SkipBytes(unsigned int iBytes);
+	// Compiler
+	bool	CompileData();
+	void	AllocateData();
+	void	AllocateDataBankswitched();
+	void	AddBankswitching();
+	void	Cleanup();
 
-	unsigned int GetCurrentOffset() const;
-	unsigned int GetAbsoluteAddress() const;
+	void	ScanSong();
+	int		GetSampleIndex(int SampleNumber);
+	bool	IsPatternAddressed(int Track, int Pattern, int Channel);
+	bool	IsInstrumentInPattern(int index) const;
 
-	// Song conversion functions
-	void WriteHeader(stTuneHeader *pHeader);
-	void WriteTrackHeader(stSongHeader *m_stTrackHeader, unsigned int iAddress);
+	void	CreateMainHeader();
+	void	CreateSequenceList();
+	void	CreateInstrumentList();
+	void	CreateSampleList();
+	void	CreateFrameList(int Track, int *pFrameSize, int *pFrameCount);
 
-	void StoreSongs();
-	void CreateFrameList(int Track);
-	void StorePatterns(unsigned int Track);
+	CChunk *StoreSequence(CSequence *pSeq, CString &label);
+	void	StoreSamples();
+	void	StoreSongs();
+	void	StorePatterns(unsigned int Track, int *pPatternSize, int *pPatternCount);
 
-	void CreateInstrumentList();
-	void CreateSequenceList();
+	void	WriteSamplesAssembly(CFile *pFile);
+	void	WriteSamplesBinary(CFile *pFile);
+	void	WriteSamplesToBanks(unsigned short Address);
 
-	void CreateDPCMList();
-	void StoreDPCM();
-	void StoreDPCM2();
+	// Bankswitching functions
+	void	UpdateSamplePointers(unsigned short Origin);
+	void	UpdateFrameBanks();
+	void	UpdateSongBanks();
+	void	EnableBankswitching();
 
-	unsigned int StoreSequence(CSequence *pSeq);
+	int		AdjustSampleAddress(unsigned short Address);
 
-	bool IsPatternAddressed(int Track, int Pattern, int Channel);
+	// FDS
+	void	AddWavetable(CInstrumentFDS *pInstrument, CChunk *pChunk);
 
-	int GetSampleIndex(int SampleNumber);
-	bool IsSampleAccessed(int SampleNumber);
+	// File writing
+	void	WriteAssembly(CFile *pFile);
+	void	WriteBinary(CFile *pFile);
+	void	WriteBinaryBanks();
+	void	WriteBinaryBankswitched();
+
+	// Object list functions
+	CChunk	*CreateChunk(int Type, CString label);
+	CChunk	*GetObjectByRef(CString label) const;
+	int		CountData() const;
+
+	// File functions
+	void	WriteFileString(CFile *pFile, CString &str);
 
 	// Debugging
-	void Print(char *text, ...) const;
+	void	Print(char *text, ...) const;
+	void	ClearLog() const;
+
+public:
+	static const int PAGE_SIZE;
+	static const int PAGE_START;
+	static const int PAGE_BANKED;
+	static const int PAGE_SAMPLES;
+
+	// Channel order lists
+	static const int CHAN_ORDER_DEFAULT[];
+	static const int CHAN_ORDER_VRC6[];
+	static const int CHAN_ORDER_MMC5[];
+	static const int CHAN_ORDER_VRC7[];
+	static const int CHAN_ORDER_FDS[];
+	static const int CHAN_ORDER_N163[];
+	static const int CHAN_ORDER_S5B[];
+
+	// Labels
+	static const char LABEL_SONG_LIST[];
+	static const char LABEL_INSTRUMENT_LIST[];
+	static const char LABEL_SAMPLES_LIST[];
+	static const char LABEL_SAMPLES[];
+	static const char LABEL_WAVETABLE[];
+	static const char LABEL_WAVES[];
+	static const char LABEL_SEQ_2A03[];
+	static const char LABEL_SEQ_VRC6[];
+	static const char LABEL_SEQ_FDS[];
+	static const char LABEL_SEQ_N163[];
+	static const char LABEL_INSTRUMENT[];
+	static const char LABEL_SONG[];
+	static const char LABEL_SONG_FRAMES[];
+	static const char LABEL_SONG_FRAME[];
+	static const char LABEL_PATTERN[];
 
 private:
-	const int		*m_pChanOrder;
+	int				m_iChanOrder[MAX_CHANNELS];
 
 private:
-	// Data
-	unsigned char	*m_pData;					// Linear music data
-	unsigned char	*m_pDPCM;					// DPCM samples (for both bank switched and linear)
-	unsigned int	m_iDataPointer;
-	unsigned int	m_iInitialPosition;
-	bool			m_bBankSwitched;			// True for bank switched song
-	unsigned int	m_iMasterHeaderAddr;
-	unsigned int	m_iDriverSize;				// Size of driver binary
+	CFamiTrackerDoc *m_pDocument;
 
-//	unsigned char	*m_pDPCMBanks[MAX_BANKS];
+	// Object list
+	std::vector<CChunk*> m_vChunks;
+	std::vector<CChunk*> m_vSequenceChunks;
+	std::vector<CChunk*> m_vInstrumentChunks;
+	std::vector<CChunk*> m_vSongChunks;
+	std::vector<CChunk*> m_vFrameChunks;
+	std::vector<CChunk*> m_vPatternChunks;
 
-	// For bank switching
-	CDataBank		m_DataBanks[MAX_BANKS];
-	unsigned int	m_iSelectedBank;
-	unsigned int	m_iAllocatedBanks;
-	unsigned char	m_cSelectedBanks[8];		// There are 8 banks visible, $8000-$FFFF
-	CDataBank		m_pSelectedBanks[8];
 
-	unsigned int	m_iLoadAddress;
-	unsigned int	m_iDriverLocation;
-	bool			m_bErrorFlag;
+	// Special objects
+	CChunk			*m_pSamplePointersChunk;
+	CChunk			*m_pHeaderChunk;
+
+	// Samples
+	std::vector<CDSample*> m_vSamples;
+
+	// Flags
+	bool			m_bBankSwitched;
+
+	// Driver
+	const driver_t	*m_pDriverData;
+	unsigned int	m_iVibratoTableLocation;
+	unsigned int	m_iSpeedPatchLocation;
 
 	// Sequences and instruments
-	unsigned int	m_iDPCMSize;
 	unsigned int	m_iInstruments;
-	unsigned int	m_iSequences;
 	unsigned int	m_iAssignedInstruments[MAX_INSTRUMENTS];
-	unsigned int	m_iSequenceAddresses2A03[MAX_SEQUENCES][SEQ_COUNT];
-	unsigned int	m_iSequenceAddressesVRC6[MAX_SEQUENCES][SEQ_COUNT];
-	unsigned int	m_iSequenceAddressesFDS[MAX_INSTRUMENTS][SEQ_COUNT];
-
-	// Patterns and frames
-	unsigned short	m_iPatternAddresses[MAX_PATTERN][MAX_CHANNELS];
-	unsigned char	m_iPatternBanks[MAX_PATTERN][MAX_CHANNELS];
-	unsigned int	m_iFrameListAddress;
-
-	CPatternCompiler m_oPatternCompiler;
+	bool			m_bSequencesUsed2A03[MAX_SEQUENCES][SEQ_COUNT];
+	bool			m_bSequencesUsedVRC6[MAX_SEQUENCES][SEQ_COUNT];
+	bool			m_bSequencesUsedN163[MAX_SEQUENCES][SEQ_COUNT];
 
 	// Sample variables
-	unsigned char	m_iDPCM_LookUp[MAX_INSTRUMENTS][OCTAVE_RANGE][NOTE_RANGE];
+	unsigned char	m_iSamplesLookUp[MAX_INSTRUMENTS][OCTAVE_RANGE][NOTE_RANGE];
 	bool			m_bSamplesAccessed[MAX_INSTRUMENTS][OCTAVE_RANGE][NOTE_RANGE];
 	unsigned char	m_iSampleBank[MAX_DSAMPLES];
-	unsigned int	m_iSamplesUsed;
 	unsigned int	m_iSampleStart;
+	unsigned int	m_iSamplesUsed;
 
-	// Other
-	stTuneHeader	m_stTuneHeader;
-	stSongHeader	m_stTrackHeader;
+	unsigned int	m_iMusicDataSize;		// All music data
+	unsigned int	m_iDriverSize;			// Size of selected music driver
+	unsigned int	m_iSamplesSize;
 
-	CFamiTrackerDoc	*m_pDocument;
+	unsigned int	m_iLoadAddress;			// NSF load address
+	unsigned int	m_iInitAddress;			// NSF init address
+	unsigned int	m_iDriverAddress;		// Music driver location
 
-	int				m_iFrameBank;
+	unsigned int	m_iTrackFrameSize[MAX_TRACKS];
 
-	// Expansion chips
+	unsigned int	m_iDuplicatePatterns;
+
+	// NSF banks
+	CFileBank		*m_pFileBanks[256];
+	CFileBank		*m_pCurrentBank;
+	unsigned int	m_iBanksUsed;
+	unsigned int	m_iFirstSampleBank;
+
+	unsigned int	m_iSamplePointerBank;
+	unsigned int	m_iSamplePointerOffset;
+
 	// FDS
-	unsigned char	*m_iWaveTable[64];
-	int				m_iWaveTables;
+	unsigned int	m_iWaveTables;
+
+	// Optimization
+//	CMap<UINT, UINT, CChunk*, CChunk*>		 m_PatternMap;
+//	CMap<CString, LPCTSTR, CString, LPCTSTR> m_DuplicateMap;
+
+	// Debugging
+	CEdit			*m_pLogText;
 };

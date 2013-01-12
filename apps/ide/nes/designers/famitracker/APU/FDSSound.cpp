@@ -58,8 +58,6 @@ void LogTableInitialize(void)
 void FDSSoundInstall(void);
 void FDSSelect(unsigned type);
 
-#define FDS_DYNAMIC_BIAS 1
-
 
 #define FM_DEPTH 0 /* 0,1,2 */
 #define NES_BASECYCLES (21477270)
@@ -90,7 +88,7 @@ typedef struct {
 	FDS_EG eg;
 	FDS_PG pg;
 	FDS_WG wg;
-	uint8 bias;
+	int32 bias;
 	uint8 wavebase;
 	uint8 d[2];
 } FDS_OP;
@@ -141,8 +139,8 @@ int32 __fastcall FDSSoundRender(void)
 {
 	int32 output;
 	/* Wave Generator */
-	FDSSoundWGStep(&fdssound.op[1].wg);
 	FDSSoundWGStep(&fdssound.op[0].wg);
+	// EDIT not using FDSSoundWGStep for modulator (op[1]), need to adjust bias when sample changes
 
 	/* Frequency Modulator */
 	fdssound.op[1].pg.spd = fdssound.op[1].pg.spdbase;
@@ -150,15 +148,54 @@ int32 __fastcall FDSSoundRender(void)
 		fdssound.op[0].pg.spd = fdssound.op[0].pg.spdbase;
 	else
 	{
-		uint32 v1;
-#if FDS_DYNAMIC_BIAS
-		v1 = 0x10000 + ((int32)fdssound.op[1].eg.volume) * (((int32)((((uint8)fdssound.op[1].wg.output) + fdssound.op[1].bias) & 255)) - 64);
-#else
-		v1 = 0x10000 + ((int32)fdssound.op[1].eg.volume) * (((int32)((((uint8)fdssound.op[1].wg.output)                      ) & 255)) - 64);
-#endif
-		v1 = ((1 << 10) + v1) & 0xfff;
-		v1 = (fdssound.op[0].pg.freq * v1) >> 10;
-		fdssound.op[0].pg.spd = v1 * fdssound.phasecps;
+		// EDIT this step has been entirely rewritten to match FDS.txt by Disch
+
+		// advance the mod table wave and adjust the bias when/if next table entry is reached
+		const uint32 ENTRY_WIDTH = 1 << (PGCPS_BITS + 16);
+		uint32 spd = fdssound.op[1].pg.spd; // phase to add
+		while (spd)
+		{
+			uint32 left = ENTRY_WIDTH - (fdssound.op[1].wg.phase & (ENTRY_WIDTH-1));
+			uint32 advance = spd;
+			if (spd >= left) // advancing to the next entry
+			{
+				advance = left;
+				fdssound.op[1].wg.phase += advance;
+				fdssound.op[1].wg.output = fdssound.op[1].wg.wave[(fdssound.op[1].wg.phase >> (PGCPS_BITS+16)) & 0x3f];
+
+				// adjust bias
+				int8 value = fdssound.op[1].wg.output & 7;
+				const int8 MOD_ADJUST[8] = { 0, 1, 2, 4, 0, -4, -2, -1 };
+				if (value == 4)
+					fdssound.op[1].bias = 0;
+				else
+					fdssound.op[1].bias += MOD_ADJUST[value];
+				while (fdssound.op[1].bias >  63) fdssound.op[1].bias -= 128;
+				while (fdssound.op[1].bias < -64) fdssound.op[1].bias += 128;
+			}
+			else // not advancing to the next entry
+			{
+				fdssound.op[1].wg.phase += advance;
+			}
+			spd -= advance;
+		}
+
+		// modulation calculation
+		int32 mod = fdssound.op[1].bias * (int32)(fdssound.op[1].eg.volume);
+		mod >>= 4;
+		if (mod & 0x0F)
+		{
+			if (fdssound.op[1].bias < 0) mod -= 1;
+			else                         mod += 2;
+		}
+		if (mod > 193) mod -= 258;
+		if (mod < -64) mod += 256;
+		mod = (mod * (int32)(fdssound.op[0].pg.freq)) >> 6;
+
+		// calculate new frequency with modulation
+		int32 new_freq = fdssound.op[0].pg.freq + mod;
+		if (new_freq < 0) new_freq = 0;
+		fdssound.op[0].pg.spd = (uint32)(new_freq) * fdssound.phasecps;
 	}
 
 	/* Accumulator */
@@ -179,8 +216,9 @@ int32 __fastcall FDSSoundRender(void)
 	}
 
 	/* Phase Generator */
-	fdssound.op[1].wg.phase += fdssound.op[1].pg.spd;
 	fdssound.op[0].wg.phase += fdssound.op[0].pg.spd;
+	// EDIT modulator op[1] phase now updated above.
+
 	return (fdssound.op[0].pg.freq != 0) ? output : 0;
 }
 
@@ -224,14 +262,10 @@ void __fastcall FDSSoundWrite(uint16 address, uint8 value)
 				}
 				break;
 			case 5:
-#if 1
-				fdssound.op[1].bias = value & 255;
-#else
-				fdssound.op[1].bias = (((value & 0x7f) ^ 0x40) - 0x40) & 255;
-#endif
-#if 0
+				// EDIT rewrote modulator/bias code
+				fdssound.op[1].bias = value & 0x3F;
+				if (value & 0x40) fdssound.op[1].bias -= 0x40; // extend sign bit
 				fdssound.op[1].wg.phase = 0;
-#endif
 				break;
 			case 2:	case 6:
 				pop->pg.freq &= 0x00000F00;
@@ -256,26 +290,16 @@ void __fastcall FDSSoundWrite(uint16 address, uint8 value)
 				}
 				break;
 			case 8:
+				// EDIT rewrote modulator/bias code
 				if (fdssound.op[1].wg.disable)
 				{
-					int32 idx = value & 7;
-					if (idx == 4)
+					int8 append = value & 0x07;
+					for (int i=0; i < 0x3E; ++i)
 					{
-						fdssound.op[1].wavebase = 0;
+						fdssound.op[1].wg.wave[i] = fdssound.op[1].wg.wave[i+2];
 					}
-#if FDS_DYNAMIC_BIAS
-					fdssound.op[1].wavebase += wave_delta_table[idx];
-					fdssound.op[1].wg.wave[fdssound.op[1].wg.wavptr + 0] = (fdssound.op[1].wavebase + 64) & 255;
-					fdssound.op[1].wavebase += wave_delta_table[idx];
-					fdssound.op[1].wg.wave[fdssound.op[1].wg.wavptr + 1] = (fdssound.op[1].wavebase + 64) & 255;
-					fdssound.op[1].wg.wavptr = (fdssound.op[1].wg.wavptr + 2) & 0x3f;
-#else
-					fdssound.op[1].wavebase += wave_delta_table[idx];
-					fdssound.op[1].wg.wave[fdssound.op[1].wg.wavptr + 0] = (fdssound.op[1].wavebase + fdssound.op[1].bias + 64) & 255;
-					fdssound.op[1].wavebase += wave_delta_table[idx];
-					fdssound.op[1].wg.wave[fdssound.op[1].wg.wavptr + 1] = (fdssound.op[1].wavebase + fdssound.op[1].bias + 64) & 255;
-					fdssound.op[1].wg.wavptr = (fdssound.op[1].wg.wavptr + 2) & 0x3f;
-#endif
+					fdssound.op[1].wg.wave[0x3E] = append;
+					fdssound.op[1].wg.wave[0x3F] = append;
 				}
 				break;
 			case 9:
@@ -284,6 +308,8 @@ void __fastcall FDSSoundWrite(uint16 address, uint8 value)
 				break;
 			case 10:
 				fdssound.envspd = value << EGCPS_BITS;
+				break;
+			default:
 				break;
 		}
 	}

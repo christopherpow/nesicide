@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -82,13 +82,13 @@ public:
 	{
 	}
 
-	inline void EndFrame() {
+	virtual inline void EndFrame() {
 		m_iTime = 0;
 	}
 
 protected:
 	inline void Mix(int32 Value) {
-		int32 Delta = m_iLastValue - Value;
+		int32 Delta = Value - m_iLastValue;
 		if (Delta)
 			m_pMixer->AddValue(m_iChanId, m_iChip, Delta, Value, m_iTime);
 		m_iLastValue = Value;

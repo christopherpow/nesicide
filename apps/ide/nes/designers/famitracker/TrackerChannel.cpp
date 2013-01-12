@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include "FamiTrackerDoc.h"
 #include "TrackerChannel.h"
 
 /*
@@ -26,7 +27,7 @@
  *
  */
 
-CTrackerChannel::CTrackerChannel(const char *pName, const int iChip, const int iID) :
+CTrackerChannel::CTrackerChannel(const TCHAR *pName, const int iChip, const int iID) :
 	m_pChannelName(pName),
 	m_iChip(iChip),
 	m_iChannelID(iID),
@@ -40,7 +41,7 @@ CTrackerChannel::~CTrackerChannel(void)
 {
 }
 
-const char *CTrackerChannel::GetChannelName() const
+const TCHAR *CTrackerChannel::GetChannelName() const
 {
 	return m_pChannelName;
 }
@@ -67,36 +68,36 @@ void CTrackerChannel::SetColumnCount(int Count)
 
 void CTrackerChannel::SetNote(stChanNote Note)
 {
-	m_NoteLock.lock();
+	m_NoteLock.Lock();
 	m_Note = Note;
 	m_bNewNote = true;
-	m_NoteLock.unlock();
+	m_NoteLock.Unlock();
 }
 
 stChanNote CTrackerChannel::GetNote()
 {
 	stChanNote Note;
-	m_NoteLock.lock();
+	m_NoteLock.Lock();
 	m_bNewNote = false;
 	Note = m_Note;
-	m_NoteLock.unlock();
+	m_NoteLock.Unlock();
 	return Note;
 }
 
 bool CTrackerChannel::NewNoteData()
 {
 	bool bNewNote;
-	m_NoteLock.lock();
+	m_NoteLock.Lock();
 	bNewNote = m_bNewNote;
-	m_NoteLock.unlock();
+	m_NoteLock.Unlock();
 	return bNewNote;
 }
 
 void CTrackerChannel::Reset()
 {
-	m_NoteLock.lock();
+	m_NoteLock.Lock();
 	m_bNewNote = false;
-	m_NoteLock.unlock();
+	m_NoteLock.Unlock();
 }
 
 void CTrackerChannel::SetVolumeMeter(int Value)

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,11 +23,25 @@
 #include <QDebug>
 
 // get rid of MFC crap
-#define _T(x) x
+// Releasing pointers
+#define SAFE_RELEASE(p) \
+        if (p != NULL) { \
+                delete p;       \
+                p = NULL;       \
+        }       \
+
+#define SAFE_RELEASE_ARRAY(p) \
+        if (p != NULL) { \
+                delete [] p;    \
+                p = NULL;       \
+        }       \
+
+#define _T(x) ((TCHAR*)(x))
 #define TRACE0(x) qDebug(x);
 
 // stubs for theApp for now
 class CSoundGen;
+class CChannelMap;
 class MFCCRAP
 {
 public:
@@ -44,6 +58,15 @@ public:
    {
       return _pSG;
    }
+   void OnTrackerStop()
+   {
+   }
+   CChannelMap* GetChannelMap()
+   {
+      qDebug("******************GetChannelMap");
+      return NULL;
+   }
+
 private:
    CSoundGen* _pSG;
 };
@@ -78,18 +101,6 @@ const int SPEED_AUTO	= 0;
 const int SPEED_NTSC	= 1;
 const int SPEED_PAL		= 2;
 
-// Releasing pointers
-#define SAFE_RELEASE(p) \
-        if (p != NULL) { \
-                delete p;       \
-                p = NULL;       \
-        }       \
-
-#define SAFE_RELEASE_ARRAY(p) \
-        if (p != NULL) { \
-                delete [] p;    \
-                p = NULL;       \
-        }       \
 
 // Used to play the audio when the buffer is full
 class ICallback {

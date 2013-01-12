@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -83,8 +83,9 @@ protected:
 	void SetMaxPeriod(int Period);
 
 	void ReleaseSequences(int Chip);
+	void ReleaseSequence(int Index, CSequence *pSeq);
 
-	int CalculatePeriod() const;
+	int CalculatePeriod(bool InvertPitch) const;
 	int CalculateVolume(int Limit) const;
 
 	//
@@ -106,6 +107,20 @@ protected:
 
 	void AddCycles(int count);
 
+	void PeriodAdd(int Step);
+	void PeriodRemove(int Step);
+
+	void LinearAdd(int Step);
+	void LinearRemove(int Step);
+
+private:
+	void UpdateNoteCut();
+	void UpdateDelay();
+	void UpdateVolumeSlide();
+	void UpdateVibratoTremolo();
+	void UpdateEffects();
+
+
 	// Shared variables
 protected:
 	// Channel variables
@@ -116,10 +131,12 @@ protected:
 	bool				m_bEnabled;
 	bool				m_bRelease;							// Note released
 	unsigned int		m_iInstrument, m_iLastInstrument;	// Instrument
-	unsigned int		m_iNote;							// Active note
+	int					m_iNote;							// Active note
 	int					m_iPeriod, m_iLastPeriod;			// Channel period
 	char				m_iVolume;							// Volume
 	char				m_iDutyPeriod;
+
+	int					m_iPeriodPart;
 
 	// Delay effect variables
 	bool				m_bDelayEnabled;
@@ -155,6 +172,8 @@ protected:
 	int					*m_pVibratoTable;			// Vibrato table
 
 	int					m_iPitch;					// Used by the pitch wheel
+
+	bool				m_bGate;
 
 	// TODO: sort and rename
 	unsigned int		InitVol;

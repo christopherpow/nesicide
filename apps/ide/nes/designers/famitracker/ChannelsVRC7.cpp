@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ void CChannelHandlerVRC7::SetChannelID(int ID)
 	m_iChannel = ID - CHANID_VRC7_CH1;
 }
 
+bool bRegsDirty = false;
+
 void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 {
 //	int PostEffect = 0, PostEffectParam;
@@ -86,6 +88,20 @@ void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 //			return;
 //	}
 //*/
+
+//	if (pNoteData->Note != NONE) {
+//		if (pInstrument) {
+//			// Patch number
+//			m_iPatch = pInstrument->GetPatch();
+//
+//			// Load custom parameters
+//			if (m_iPatch == 0) {
+//				for (int i = 0; i < 8; ++i)
+//					m_iRegs[i] = pInstrument->GetCustomReg(i);
+//			}
+//		}
+//	}
+
 //	// Evaluate effects
 //	for (int i = 0; i < EffColumns; ++i) {
 //		int EffCmd	 = pNoteData->EffNumber[i];
@@ -110,6 +126,43 @@ void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 //					case EF_DUTY_CYCLE:
 //						Patch = EffParam;
 //						break;
+///*
+//					case EF_VRC7_MODULATOR:
+//						switch (EffParam & 0xF0) {
+//							case 0x00:	// Amplitude modulation on/off
+//								break;
+//							case 0x10:	// Vibrato on/off
+//								break;
+//							case 0x20:	// Sustain on/off
+//								break;
+//							case 0x30:	// Wave rectification on/off
+//								break;
+//							case 0x40:	// Key rate scaling on/off
+//								break;
+//							case 0x50:	// Key rate level
+//								break;
+//							case 0x60:	// Mult factor
+//								break;
+//							case 0x70:	// Attack
+//								break;
+//							case 0x80:	// Decay
+//								break;
+//							case 0x90:	// Sustain
+//								break;
+//							case 0xA0:	// Release
+//								break;
+//						}
+//						break;
+//					case EF_VRC7_CARRIER:
+//						break;
+//					case EF_VRC7_LEVELS:
+//						if (EffParam & 0x80)	// Feedback
+//							m_iRegs[0x03] = (m_iRegs[0x03] & 0xF8) | (EffParam & 0x07);
+//						else
+//							m_iRegs[0x02] = (m_iRegs[0x02] & 0xC0) | (EffParam & 0x3F);
+//						bRegsDirty = true;
+//						break;
+//						*/
 //				}
 //			}
 //		}
@@ -172,6 +225,7 @@ void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 //			}
 //		}
 
+//		/*
 //		if (pInstrument) {
 //			// Patch number
 //			m_iPatch = pInstrument->GetPatch();
@@ -182,15 +236,14 @@ void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 //					m_iRegs[i] = pInstrument->GetCustomReg(i);
 //			}
 //		}
+//		*/
 //	}
 ///*
 //	if (Patch != -1)
 //		m_iPatch = Patch;
 //*/
-//	if (pNoteData->Note != NONE && (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP))
-//		m_iEffect = EF_NONE;
 
-//	if (PostEffect) {
+//	if (PostEffect && (PostEffect == EF_SLIDE_UP || PostEffect == EF_SLIDE_DOWN)) {
 
 //		#define GET_SLIDE_SPEED(x) (((x & 0xF0) >> 3) + 1)
 
@@ -213,6 +266,8 @@ void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 //			m_iOctave = OldOctave;
 //		}
 //	}
+//	else if (pNoteData->Note != NONE && (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP))
+//		m_iEffect = EF_NONE;
 }
 
 void CChannelHandlerVRC7::ProcessChannel()
@@ -228,12 +283,12 @@ void CChannelHandlerVRC7::ResetChannel()
 
 unsigned int CChannelHandlerVRC7::TriggerNote(int Note)
 {
-//	m_iTriggeredNote = Note;
-//	theApp.RegisterKeyState(m_iChannelID, Note);
-//	if (m_iCommand != CMD_NOTE_TRIGGER && m_iCommand != CMD_NOTE_HALT)
-//		m_iCommand = CMD_NOTE_ON;
-//	m_bEnabled = true;
-//	m_iOctave = Note / 12;
+	m_iTriggeredNote = Note;
+	theApp.RegisterKeyState(m_iChannelID, Note);
+	if (m_iCommand != CMD_NOTE_TRIGGER && m_iCommand != CMD_NOTE_HALT)
+		m_iCommand = CMD_NOTE_ON;
+	m_bEnabled = true;
+	m_iOctave = Note / 12;
 	return GetFnum(Note);
 }
 
@@ -262,10 +317,12 @@ void CVRC7Channel::RefreshChannel()
 	Fnum = (m_iPeriod >> 2) - GetVibrato() - GetFinePitch();// (m_iFinePitch - 0x80);
 
 	// Write custom instrument
-	if (Patch == 0 && m_iCommand == CMD_NOTE_TRIGGER) {
+	if (Patch == 0 && (m_iCommand == CMD_NOTE_TRIGGER || bRegsDirty)) {
 		for (int i = 0; i < 8; ++i)
 			RegWrite(i, m_iRegs[i]);
 	}
+
+	bRegsDirty = false;
 
 	int Cmd = 0;
 
@@ -273,7 +330,7 @@ void CVRC7Channel::RefreshChannel()
 		case CMD_NOTE_TRIGGER:
 			RegWrite(0x20 + m_iChannel, 0);
 			m_iCommand = CMD_NOTE_ON;
-			Cmd = OPL_NOTE_ON;
+			Cmd = OPL_NOTE_ON | OPL_SUSTAIN_ON;
 			break;
 		case CMD_NOTE_ON:
 			Cmd = m_bHold ? OPL_NOTE_ON : OPL_SUSTAIN_ON;
@@ -288,12 +345,13 @@ void CVRC7Channel::RefreshChannel()
 
 	// Write frequency
 	RegWrite(0x10 + m_iChannel, Fnum & 0xFF);
-	RegWrite(0x20 + m_iChannel, ((Fnum >> 8) & 1) | (Bnum << 1) | Cmd);
 
 	if (m_iCommand != CMD_NOTE_HALT) {
 		// Select volume & patch
 		RegWrite(0x30 + m_iChannel, (Patch << 4) | Volume);
 	}
+
+	RegWrite(0x20 + m_iChannel, ((Fnum >> 8) & 1) | (Bnum << 1) | Cmd);
 }
 
 void CVRC7Channel::ClearRegisters()

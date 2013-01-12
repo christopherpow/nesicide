@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ const uint8 SNDCHIP_VRC6  = 1;			// Konami VRCVI
 const uint8 SNDCHIP_VRC7  = 2;			// Konami VRCVII
 const uint8 SNDCHIP_FDS	  = 4;			// Famicom Disk Sound
 const uint8 SNDCHIP_MMC5  = 8;			// Nintendo MMC5
-const uint8 SNDCHIP_N106  = 16;			// Namco N-106
+const uint8 SNDCHIP_N163  = 16;			// Namco N-106
 const uint8 SNDCHIP_S5B	  = 32;			// Sunsoft 5B
 
 enum {MACHINE_NTSC, MACHINE_PAL};
@@ -46,7 +46,7 @@ class CVRC6;
 class CVRC7;
 class CFDS;
 class CMMC5;
-class CN106;
+class CN163;
 class CS5B;
 
 class CExternal;
@@ -77,7 +77,11 @@ public:
 	uint8	GetSamplePos() const;
 	uint8	GetDeltaCounter() const;
 	bool	DPCMPlaying() const;
-	uint8	GetReg(int Reg) const { return m_iRegs[Reg & 0x1F]; };
+	uint8	GetReg(int Chip, int Reg) const;
+
+	void	SetChipLevel(int Chip, int Level);
+
+	void	SetNamcoMixing(bool bLinear);
 
 #ifdef LOGGING
 	void	Log();
@@ -101,6 +105,8 @@ private:
 
 	void EndFrame();
 		
+	void LogExternalWrite(uint16 Address, uint8 Value);
+
 private:
 	CMixer		*m_pMixer;
 	ICallback	*m_pParent;
@@ -116,7 +122,7 @@ private:
 	CVRC6		*m_pVRC6;
 	CMMC5		*m_pMMC5;
 	CFDS		*m_pFDS;
-	CN106		*m_pN106;
+	CN163		*m_pN163;
 	CVRC7		*m_pVRC7;
 	CS5B		*m_pS5B;
 
@@ -141,6 +147,11 @@ private:
 	int16		*m_pSoundBuffer;					// Sound transfer buffer
 
 	uint8		m_iRegs[0x20];
+	uint8		m_iRegsVRC6[0x10];
+	uint8		m_iRegsFDS[0x10];
+
+	float		m_fLevelVRC7;
+	float		m_fLevelS5B;
 
 #ifdef LOGGING
 	CFile		  *m_pLog;

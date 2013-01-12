@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include "FamiTrackerDoc.h"
 #include "instrument.h"
 
 const int CInstrumentS5B::SEQUENCE_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
@@ -30,18 +31,46 @@ CInstrumentS5B::CInstrumentS5B()
 	}
 }
 
-CInstrument *CInstrumentS5B::Clone()
+CInstrument *CInstrumentS5B::Clone() const
 {
-	return NULL;
+	CInstrumentS5B *pNew = new CInstrumentS5B();
+
+	for (int i = 0; i < SEQUENCE_COUNT; i++) {
+		pNew->SetSeqEnable(i, GetSeqEnable(i));
+		pNew->SetSeqIndex(i, GetSeqIndex(i));
+	}
+
+	pNew->SetName(GetName());
+
+	return pNew;
 }
 
 //void CInstrumentS5B::Store(CDocumentFile *pDocFile)
 //{
+//	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
+
+//	for (int i = 0; i < SEQUENCE_COUNT; i++) {
+//		pDocFile->WriteBlockChar(GetSeqEnable(i));
+//		pDocFile->WriteBlockChar(GetSeqIndex(i));
+//	}
 //}
 
 //bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
 //{
-//	return false;
+//	int SeqCnt = pDocFile->GetBlockInt();
+
+//	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
+
+//	SeqCnt = SEQUENCE_COUNT;
+
+//	for (int i = 0; i < SeqCnt; i++) {
+//		SetSeqEnable(i, pDocFile->GetBlockChar());
+//		int Index = pDocFile->GetBlockChar();
+//		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
+//		SetSeqIndex(i, Index);
+//	}
+
+//	return true;
 //}
 
 //void CInstrumentS5B::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
@@ -54,12 +83,7 @@ CInstrument *CInstrumentS5B::Clone()
 //	return false;
 //}
 
-int CInstrumentS5B::CompileSize(CCompiler *pCompiler)
-{
-	return 0;
-}
-
-int CInstrumentS5B::Compile(CCompiler *pCompiler, int Index)
+int CInstrumentS5B::Compile(CChunk *pChunk, int Index)
 {
 	return 0;
 }

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
 ** must bear this legend.
 */
 
-#include "sequence.h"
+#include "Sequence.h"
+#include "Common.h"
 
 #include <string.h>
 
@@ -41,11 +42,13 @@ void CSequence::Clear()
 
 void CSequence::SetItem(int Index, signed char Value)
 {
+	ASSERT(Index <= MAX_SEQUENCE_ITEMS);
 	m_cValues[Index] = Value;
 }
 
 void CSequence::SetItemCount(unsigned int Count)
 {
+	ASSERT(Count <= MAX_SEQUENCE_ITEMS);
 	m_iItemCount = Count;
 }
 
@@ -72,6 +75,7 @@ void CSequence::SetSetting(unsigned int Setting)
 
 signed char CSequence::GetItem(int Index) const
 {
+	ASSERT(Index <= MAX_SEQUENCE_ITEMS);
 	return m_cValues[Index];
 }
 

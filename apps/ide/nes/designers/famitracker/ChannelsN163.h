@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -18,43 +18,33 @@
 ** must bear this legend.
 */
 
-#ifndef _N106_H_
-#define _N106_H_
+#pragma once
 
-#include "external.h"
-#include "Channel.h"
+//
+// Derived channels, N163
+//
 
-class CMixer;
-
-class CN106Chan : public CExChannel {
+class CChannelHandlerN163 : public CChannelHandler {
 public:
-	CN106Chan(CMixer *pMixer, int ID, uint8 *pWaveData);
-	virtual ~CN106Chan();
-	void Reset();
-	void Process(uint32 Time, uint8 ChannelsActive);
-	void Write(uint16 Address, uint8 Value);
+	CChannelHandlerN163();
+	virtual void ProcessChannel();
+	virtual void RefreshChannel();
+protected:
+	virtual void PlayChannelNote(stChanNote *pNoteData, int EffColumns);
+	virtual void ClearRegisters();
 private:
-	uint8	m_iFreqs[3];
-	uint32	m_iCounter, m_iFrequency;
-	uint8	m_iVolume;
-	uint8	m_iWavePtr, m_iWaveLength, m_iWaveOffset;
-	uint8	*m_pWaveData;
-};
-
-class CN106 : public CExternal {
-public:
-	CN106(CMixer *pMixer);
-	virtual ~CN106();
-	void Reset();
-	void Process(uint32 Time);
-	void EndFrame();
-	void Write(uint16 Address, uint8 Value);
-	uint8 Read(uint16 Address, bool &Mapped);
+	void WriteReg(int Reg, int Value);
+	void SetAddress(char Addr, bool AutoInc);
+	void WriteData(char Data);
+	void WriteData(int Addr, char Data);
+	void LoadWave();
+	void CheckWaveUpdate();
 private:
-	CN106Chan	*m_pChannels[8];
-	uint8		*m_pWaveData;
-	uint8		ExpandAddr;
-	uint8		m_iChansInUse;
+	inline int GetIndex() const { return m_iChannelID - CHANID_N163_CHAN1; }
+private:
+	bool m_bLoadWave;
+	int m_iWaveLen;
+	int m_iWavePos;
+	int m_iWaveIndex;
+	int m_iWaveCount;
 };
-
-#endif /* _N106_H_ */

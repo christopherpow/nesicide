@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -18,8 +18,10 @@
 ** must bear this legend.
 */
 
-#include "instrument.h"
-#include "compiler.h"
+#include <vector>
+#include "FamiTrackerDoc.h"
+#include "Instrument.h"
+#include "Compiler.h"
 
 // 2A03 instruments
 
@@ -42,7 +44,7 @@ CInstrument2A03::CInstrument2A03() :
 	}
 }
 
-CInstrument *CInstrument2A03::Clone()
+CInstrument *CInstrument2A03::Clone() const
 {
 	CInstrument2A03 *pNew = new CInstrument2A03();
 
@@ -117,8 +119,6 @@ CInstrument *CInstrument2A03::Clone()
 //{
 //	// Saves an 2A03 instrument
 //	// Current version 2.2
-
-////	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)theApp.GetFirstDocument();
 
 //	// Sequences
 //	unsigned char SeqCount = SEQUENCE_COUNT;
@@ -228,6 +228,9 @@ CInstrument *CInstrument2A03::Clone()
 //			// Read the sequence
 //			int Count;
 //			pFile->Read(&Count, sizeof(int));
+
+//			if (Count < 0 || Count > MAX_SEQUENCE_ITEMS)
+//				return false;
 
 //			// Find a free sequence
 //			int Index = pDoc->GetFreeSequence(i);
@@ -366,49 +369,26 @@ CInstrument *CInstrument2A03::Clone()
 //	return true;
 //}
 
-int CInstrument2A03::CompileSize(CCompiler *pCompiler)
+int CInstrument2A03::Compile(CChunk *pChunk, int Index)
 {
-	int Size = 1;
-   qDebug("::CompileSize");
-//	CFamiTrackerDoc *pDoc = pCompiler->GetDocument();
+   qDebug("Compile");
+	int ModSwitch = 0;
+	int StoredBytes = 0;
+
+//	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
 //	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		if (GetSeqEnable(i)) {
-//			CSequence *pSeq = pDoc->GetSequence(GetSeqIndex(i), i);
-//			if (pSeq->GetItemCount() > 0)
-//				Size += 2;
-//		}
-//	}
-
-	return Size;
-}
-
-int CInstrument2A03::Compile(CCompiler *pCompiler, int Index)
-{
-	int ModSwitch;
-	int StoredBytes = 0;
-	int iAddress;
-	int i;
-
-   qDebug("::Compile");
-//	CFamiTrackerDoc *pDoc = pCompiler->GetDocument();
-
-//	pCompiler->WriteLog("2A03 {");
-//	ModSwitch = 0;
-
-//	for (i = 0; i < SEQUENCE_COUNT; ++i) {
 //		ModSwitch = (ModSwitch >> 1) | ((GetSeqEnable(i) && (pDoc->GetSequence(GetSeqIndex(i), i)->GetItemCount() > 0)) ? 0x10 : 0);
 //	}
 
-//	pCompiler->StoreByte(ModSwitch);
-//	pCompiler->WriteLog("%02X ", ModSwitch);
+//	pChunk->StoreByte(ModSwitch);
 //	StoredBytes++;
 
-//	for (i = 0; i < SEQUENCE_COUNT; ++i) {
-//		iAddress = (GetSeqEnable(i) == 0 || (pDoc->GetSequence(GetSeqIndex(i), i)->GetItemCount() == 0)) ? 0 : pCompiler->GetSequenceAddress2A03(GetSeqIndex(i), i);
-//		if (iAddress > 0) {
-//			pCompiler->StoreShort(iAddress);
-//			pCompiler->WriteLog("%04X ", iAddress);
+//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+//		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(GetSeqIndex(i), i)->GetItemCount() != 0)) {
+//			CString str;
+//			str.Format(CCompiler::LABEL_SEQ_2A03, GetSeqIndex(i) * SEQUENCE_COUNT + i);
+//			pChunk->StoreReference(str);
 //			StoredBytes += 2;
 //		}
 //	}
@@ -418,11 +398,10 @@ int CInstrument2A03::Compile(CCompiler *pCompiler, int Index)
 
 bool CInstrument2A03::CanRelease() const
 {
-   qDebug("::CanRelease");
-//	if (GetSeqEnable(0) != 0) {
-//		int index = GetSeqIndex(SEQ_VOLUME);
-//		return ((CFamiTrackerDoc*) theApp.GetActiveDocument())->GetSequence(SNDCHIP_NONE, index, SEQ_VOLUME)->GetReleasePoint() != -1;
-//	}
+	if (GetSeqEnable(0) != 0) {
+		int index = GetSeqIndex(SEQ_VOLUME);
+		return CFamiTrackerDoc::GetDoc()->GetSequence(SNDCHIP_NONE, index, SEQ_VOLUME)->GetReleasePoint() != -1;
+	}
 
 	return false;
 }
@@ -439,11 +418,15 @@ int	CInstrument2A03::GetSeqIndex(int Index) const
 
 void CInstrument2A03::SetSeqEnable(int Index, int Value)
 {
+	if (m_iSeqEnable[Index] != Value)
+		InstrumentChanged();
 	m_iSeqEnable[Index] = Value;
 }
 
 void CInstrument2A03::SetSeqIndex(int Index, int Value)
 {
+	if (m_iSeqIndex[Index] != Value)
+		InstrumentChanged();
 	m_iSeqIndex[Index] = Value;
 }
 
@@ -470,21 +453,25 @@ char CInstrument2A03::GetSampleLoopOffset(int Octave, int Note) const
 void CInstrument2A03::SetSample(int Octave, int Note, char Sample)
 {
 	m_cSamples[Octave][Note] = Sample;
+	InstrumentChanged();
 }
 
 void CInstrument2A03::SetSamplePitch(int Octave, int Note, char Pitch)
 {
 	m_cSamplePitch[Octave][Note] = Pitch;
+	InstrumentChanged();
 }
 
 void CInstrument2A03::SetSampleLoop(int Octave, int Note, bool Loop)
 {
 	m_cSamplePitch[Octave][Note] = (m_cSamplePitch[Octave][Note] & 0x7F) | (Loop ? 0x80 : 0);
+	InstrumentChanged();
 }
 
 void CInstrument2A03::SetSampleLoopOffset(int Octave, int Note, char Offset)
 {
 	m_cSampleLoopOffset[Octave][Note] = Offset;
+	InstrumentChanged();
 }
 
 bool CInstrument2A03::AssignedSamples() const
@@ -504,6 +491,7 @@ bool CInstrument2A03::AssignedSamples() const
 void CInstrument2A03::SetPitchOption(int Option)
 {
 	m_iPitchOption = Option;
+	InstrumentChanged();
 }
 
 int CInstrument2A03::GetPitchOption() const

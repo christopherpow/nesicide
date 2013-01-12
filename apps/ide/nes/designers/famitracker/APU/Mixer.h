@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -39,14 +39,14 @@ enum CHAN_IDS {
 	CHANID_MMC5_SQUARE2,
 	CHANID_MMC5_VOICE,
 
-	CHANID_N106_CHAN1,
-	CHANID_N106_CHAN2,
-	CHANID_N106_CHAN3,
-	CHANID_N106_CHAN4,
-	CHANID_N106_CHAN5,
-	CHANID_N106_CHAN6,
-	CHANID_N106_CHAN7,
-	CHANID_N106_CHAN8,
+	CHANID_N163_CHAN1,
+	CHANID_N163_CHAN2,
+	CHANID_N163_CHAN3,
+	CHANID_N163_CHAN4,
+	CHANID_N163_CHAN5,
+	CHANID_N163_CHAN6,
+	CHANID_N163_CHAN7,
+	CHANID_N163_CHAN8,
 
 	CHANID_FDS,
 
@@ -89,13 +89,20 @@ class CMixer
 
 		int32	GetChanOutput(uint8 Chan) const;
 
+		void	SetChipLevel(int Chip, float Level);
+
+		uint32	ResampleDuration(uint32 Time) const;
+
+		void	SetNamcoMixing(bool bLinear);
+		void	SetNamcoVolume(float fVol);
+
 	private:
 		inline double CalcPin1(double Val1, double Val2);
 		inline double CalcPin2(double Val1, double Val2, double Val3);
 
 		void MixInternal1(int Time);
 		void MixInternal2(int Time);
-		void MixN106(int Value, int Time);
+		void MixN163(int Value, int Time);
 		void MixFDS(int Value, int Time);
 		void MixVRC6(int Value, int Time);
 		void MixMMC5(int Value, int Time);
@@ -108,7 +115,7 @@ class CMixer
 		Blip_Synth<blip_good_quality, -500>		Synth2A03TND;
 		Blip_Synth<blip_good_quality, -500>		SynthVRC6;
 		Blip_Synth<blip_good_quality, -130>		SynthMMC5;	
-		Blip_Synth<blip_good_quality, -1600>	SynthN106;
+		Blip_Synth<blip_good_quality, -1600>	SynthN163;
 		Blip_Synth<blip_good_quality, -3500>	SynthFDS;
 		Blip_Synth<blip_good_quality, -2000>	SynthS5B;
 		
@@ -132,6 +139,13 @@ class CMixer
 		int			m_iOverallVol;
 
 		float		m_fDamping;
+
+		float		m_fLevel2A03;
+		float		m_fLevelVRC6;
+		float		m_fLevelMMC5;
+		float		m_fLevelFDS;
+
+		bool		m_bNamcoMixing;
 };
 
 #endif /* _MIXER_H_ */

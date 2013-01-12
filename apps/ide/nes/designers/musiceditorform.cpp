@@ -90,7 +90,7 @@ QByteArray MusicEditorForm::musicData()
 
 void MusicEditorForm::setMusicData(QByteArray data)
 {
-   pDoc->OnOpenDocument(data);
+   pDoc->OnOpenDocument((LPCTSTR)"HELLLAAH");
 }
 
 void MusicEditorForm::on_frameInc_clicked()

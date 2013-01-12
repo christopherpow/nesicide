@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2010  Jonathan Liss
+** Copyright (C) 2005-2012  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <QString>
-#include <QFile>
 
 // Get access to some APU constants
 #include "apu/apu.h"
@@ -31,13 +29,16 @@
 // Constants, types and enums
 #include "FamiTrackerTypes.h"
 
-//#define TRANSPOSE_FDS
+#define TRANSPOSE_FDS
 
 // Default song settings
 const unsigned int DEFAULT_TEMPO_NTSC   = 150;
 const unsigned int DEFAULT_TEMPO_PAL    = 125;
 const unsigned int DEFAULT_SPEED	    = 6;
 const unsigned int DEFAULT_MACHINE_TYPE = NTSC;
+
+const unsigned int DEFAULT_SPEED_SPLIT_POINT = 32;
+const unsigned int OLD_SPEED_SPLIT_POINT	 = 21;
 
 // Columns
 enum {C_NOTE,
@@ -46,9 +47,12 @@ enum {C_NOTE,
 	  C_EFF_NUM, C_EFF_PARAM1, C_EFF_PARAM2,
 	  C_EFF2_NUM, C_EFF2_PARAM1, C_EFF2_PARAM2,
 	  C_EFF3_NUM, C_EFF3_PARAM1, C_EFF3_PARAM2,
-	  C_EFF4_NUM, C_EFF4_PARAM1, C_EFF4_PARAM2};
+	  C_EFF4_NUM, C_EFF4_PARAM1, C_EFF4_PARAM2
+};
 
 const unsigned int COLUMNS = 7;
+
+const unsigned int VOLUME_EMPTY = 0x10;		// Value of cleared volume column field
 
 // Special assert used when loading files
 #ifdef _DEBUG
@@ -136,9 +140,13 @@ public:
 	static const int CLASS_VERSION = 3;
 	const int GetVersion() const { return m_iVersion; };
 
+	// Static functions
+public:
+	static CFamiTrackerDoc *GetDoc();
+
 // Attributes
 public:
-	QString GetFileTitle() const;
+	CString GetFileTitle() const;
 /*
 	// Other
 	void AutoSave();
@@ -152,8 +160,13 @@ public:
 	// Document file I/O
 	//
 	bool IsFileLoaded();
+	bool HasLastLoadFailed() const;
+
+	// Import
+	CFamiTrackerDoc *LoadImportFile(LPCTSTR lpszPathName);
+	bool ImportInstruments(CFamiTrackerDoc *pImported, int *pInstTable);
+	bool ImportTrack(int Track, CFamiTrackerDoc *pImported, int *pInstTable);
 	bool ImportFile(QString lpszPathName, bool bIncludeInstruments);
-   bool OnOpenDocument(QByteArray data);
 
 	//
 	// Interface functions (not related to document data)
@@ -219,11 +232,22 @@ public:
 	unsigned int	GetNoteEffectType(unsigned int Frame, unsigned int Channel, unsigned int Row, int Index) const;
 	unsigned int	GetNoteEffectParam(unsigned int Frame, unsigned int Channel, unsigned int Row, int Index) const;
 
-	bool			InsertNote(unsigned int Frame, unsigned int Channel, unsigned int Row);
+	void			ClearPattern(unsigned int Frame, unsigned int Channel);
+
+	bool			InsertRow(unsigned int Frame, unsigned int Channel, unsigned int Row);
 	bool			DeleteNote(unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Column);
 	bool			ClearRow(unsigned int Frame, unsigned int Channel, unsigned int Row);
+	bool			ClearRowField(unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Column);
 	bool			RemoveNote(unsigned int Frame, unsigned int Channel, unsigned int Row);
+	bool			PullUp(unsigned int Frame, unsigned int Channel, unsigned int Row);
 
+	// Frame editing
+	bool			InsertFrame(int Pos);
+	bool			RemoveFrame(int Pos);
+	bool			DuplicateFrame(int Pos);
+	bool			DuplicatePatterns(int Pos);
+	bool			MoveFrameDown(int Pos);
+	bool			MoveFrameUp(int Pos);
 
 	// Global (module) data
 	void			SetEngineSpeed(unsigned int Speed);
@@ -236,14 +260,32 @@ public:
 	unsigned char	GetExpansionChip() const { return m_iExpansionChip; };
 	bool			ExpansionEnabled(int Chip) const;
 
+	int				GetNamcoChannels() const;
+	void			SetNamcoChannels(int Channels);
+
 	void			SetSongInfo(const char *Name, const char *Artist, const char *Copyright);
 	char			*GetSongName()		 { return m_strName; };
 	char			*GetSongArtist()	 { return m_strArtist; };
 	char			*GetSongCopyright()	 { return m_strCopyright; };
+	void			SetSongName(char *pName);
+	void			SetSongArtist(char *pArtist);
+	void			SetSongCopyright(char *pCopyright);
 
 	int				GetVibratoStyle() const;
 	void			SetVibratoStyle(int Style);
 
+	bool			GetLinearPitch() const;
+	void			SetLinearPitch(bool Enable);
+
+	void			SetComment(CString &comment);
+	CString			GetComment() const;
+
+	void			SetSpeedSplitPoint(int SplitPoint);
+	int				GetSpeedSplitPoint() const;
+
+	void			SetHighlight(int First, int Second);
+	int				GetFirstHighlight() const;
+	int				GetSecondHighlight() const;
 
 	// Track management functions
 	void			SelectTrack(unsigned int Track);
@@ -253,7 +295,7 @@ public:
 	char			*GetTrackTitle(unsigned int Track) const;
 	bool			AddTrack();
 	void			RemoveTrack(unsigned int Track);
-	void			SetTrackTitle(unsigned int Track, QString Title);
+	void			SetTrackTitle(unsigned int Track, CString Title);
 	void			MoveTrackUp(unsigned int Track);
 	void			MoveTrackDown(unsigned int Track);
 
@@ -263,17 +305,19 @@ public:
 	int				GetInstrumentCount() const;
 	bool			IsInstrumentUsed(int Index) const;
 
-//	int				AddInstrument(const char *Name, int ChipType);				// Add a new instrument
-//	int				AddInstrument(CInstrument *pInst);
+	int				AddInstrument(const char *Name, int ChipType);				// Add a new instrument
+	int				AddInstrument(CInstrument *pInst);
 	void			RemoveInstrument(unsigned int Index);						// Remove an instrument
 	void			SetInstrumentName(unsigned int Index, const char *Name);	// Set the name of an instrument
 	void			GetInstrumentName(unsigned int Index, char *Name) const;	// Get the name of an instrument
 	int				CloneInstrument(unsigned int Index);						// Create a copy of an instrument
 	CInstrument		*CreateInstrument(int InstType);							// Creates a new instrument of InstType
 	int				FindFreeInstrumentSlot();
-//	void			SaveInstrument(unsigned int Instrument, QString FileName);
-//	int 			LoadInstrument(QString FileName);
+//	void			SaveInstrument(unsigned int Instrument, CString FileName);
+//	int 			LoadInstrument(CString FileName);
 	int				GetInstrumentType(unsigned int Index) const;
+
+	int				DeepCloneInstrument(unsigned int Index);
 
 	// Read only getter for exporter plugins
 	CInstrument2A03Interface const *Get2A03Instrument(int Instrument) const;
@@ -291,10 +335,15 @@ public:
 	int				GetSequenceItemCountVRC6(int Index, int Type) const;
 	int				GetFreeSequenceVRC6(int Type) const;
 
-	CSequence		*GetSequenceN106(int Index, int Type);
-	CSequence		*GetSequenceN106(int Index, int Type) const;
-	int				GetSequenceItemCountN106(int Index, int Type) const;
-	int				GetFreeSequenceN106(int Type) const;
+	CSequence		*GetSequenceN163(int Index, int Type);
+	CSequence		*GetSequenceN163(int Index, int Type) const;
+	int				GetSequenceItemCountN163(int Index, int Type) const;
+	int				GetFreeSequenceN163(int Type) const;
+
+	CSequence		*GetSequenceS5B(int Index, int Type);
+	CSequence		*GetSequenceS5B(int Index, int Type) const;
+	int				GetSequenceItemCountS5B(int Index, int Type) const;
+	int				GetFreeSequenceS5B(int Type) const;
 
 	// Read only getter for exporter plugins
 	CSequenceInterface const *GetSequence(int Index, int Type) const;
@@ -313,11 +362,18 @@ public:
 	// For file version compability
 	void			ConvertSequence(stSequence *OldSequence, CSequence *NewSequence, int Type);
 
+	int				ScanActualLength(int Track, int Count) const;
+
+	// Constants
 public:
 	static const char*	DEFAULT_TRACK_NAME;
 	static const int	DEFAULT_ROW_COUNT;
 	static const char*	NEW_INST_NAME;
 
+	static const int	DEFAULT_NAMCO_CHANS;
+
+	static const int	DEFAULT_FIRST_HIGHLIGHT;
+	static const int	DEFAULT_SECOND_HIGHLIGHT;
 
 	//
 	// Protected functions
@@ -330,8 +386,8 @@ protected:
 
 	void			CreateEmpty();
 
-//	bool			SaveDocument(QString lpszPathName) const;
-	bool			OpenDocument(QByteArray data);
+	BOOL			SaveDocument(LPCTSTR lpszPathName) const;
+	BOOL			OpenDocument(LPCTSTR lpszPathName);
 
 //	bool			OpenDocumentOld(QFile *pOpenFile);
 //	bool			OpenDocumentNew(QFile &DocumentFile);
@@ -346,7 +402,10 @@ protected:
 //	bool			WriteBlock_Patterns(CDocumentFile *pDocFile) const;
 //	bool			WriteBlock_DSamples(CDocumentFile *pDocFile) const;
 //	bool			WriteBlock_SequencesVRC6(CDocumentFile *pDocFile) const;
+//	bool			WriteBlock_SequencesN163(CDocumentFile *pDocFile) const;
+//	bool			WriteBlock_SequencesS5B(CDocumentFile *pDocFile) const;
 
+//	bool			ReadBlock_Parameters(CDocumentFile *pDocFile);
 //	bool			ReadBlock_Header(CDocumentFile *pDocFile);
 //	bool			ReadBlock_Instruments(CDocumentFile *pDocFile);
 //	bool			ReadBlock_Sequences(CDocumentFile *pDocFile);
@@ -354,6 +413,8 @@ protected:
 //	bool			ReadBlock_Patterns(CDocumentFile *pDocFile);
 //	bool			ReadBlock_DSamples(CDocumentFile *pDocFile);
 //	bool			ReadBlock_SequencesVRC6(CDocumentFile *pDocFile);
+//	bool			ReadBlock_SequencesN163(CDocumentFile *pDocFile);
+//	bool			ReadBlock_SequencesS5B(CDocumentFile *pDocFile);
 
 	void			SwitchToTrack(unsigned int Track);
 
@@ -369,6 +430,9 @@ protected:
 	//
 
 	void			AllocateSong(unsigned int Song);
+
+	void			SetupChannels(unsigned char Chip);
+	void			ApplyExpansionChip();
 
 	//
 	// Private variables
@@ -391,8 +455,12 @@ private:
 	//
 
 	bool			m_bFileLoaded;			// Is a file loaded?
+	bool			m_bFileLoadFailed;		// Last file load operation failed
 	unsigned int	m_iFileVersion;			// Loaded file version
 	unsigned int	m_iTrack;				// Selected track
+
+	bool			m_bForceBackup;
+	bool			m_bBackupDone;
 
 /*
 	// Auto save
@@ -407,7 +475,7 @@ private:
 	// Patterns and song data
 	CPatternData	*m_pSelectedTune;							// Points to selecte tune
 	CPatternData	*m_pTunes[MAX_TRACKS];						// List of all tunes
-	QString			m_sTrackNames[MAX_TRACKS];
+	CString			m_sTrackNames[MAX_TRACKS];
 
 	unsigned int	m_iTracks;									// Track count
 	unsigned int	m_iChannelsAvailable;						// Number of channels added
@@ -417,11 +485,14 @@ private:
 	CDSample		m_DSamples[MAX_DSAMPLES];					// The DPCM sample list
 	CSequence		*m_pSequences2A03[MAX_SEQUENCES][SEQ_COUNT];
 	CSequence		*m_pSequencesVRC6[MAX_SEQUENCES][SEQ_COUNT];
-	CSequence		*m_pSequencesN106[MAX_SEQUENCES][SEQ_COUNT];
+	CSequence		*m_pSequencesN163[MAX_SEQUENCES][SEQ_COUNT];
+	CSequence		*m_pSequencesS5B[MAX_SEQUENCES][SEQ_COUNT];
 
 	// Module properties
 	unsigned char	m_iExpansionChip;							// Expansion chip
+	unsigned int	m_iNamcoChannels;
 	int				m_iVibratoStyle;							// 0 = old style, 1 = new style
+	bool			m_bLinearPitch;
 
 	// NSF info
 	char			m_strName[32];								// Song name
@@ -430,7 +501,12 @@ private:
 
 	unsigned int	m_iMachine;									// NTSC / PAL
 	unsigned int	m_iEngineSpeed;								// Refresh rate
+	unsigned int	m_iSpeedSplitPoint;							// Speed/tempo split-point
 
+	CString			m_strComment;
+
+	unsigned int	m_iFirstHighlight;
+	unsigned int	m_iSecondHighlight;
 
 	// Things below are for compability with older files
 	stSequence		m_Sequences[MAX_SEQUENCES][SEQ_COUNT];		// Allocate one sequence-list for each effect
@@ -440,9 +516,24 @@ private:
 	// End of document data
 	//
 
+	// Synchronization
+	CCriticalSection m_csLoadedLock;
+
+// Operations
 public:
    // MFC stuff from CDocument
-   void SetModifiedFlag(bool f = true) { emit setModified(f); }
+	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
+    virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual void OnCloseDocument();
+	virtual void DeleteContents();
+	virtual void SetModifiedFlag(BOOL bModified = 1);
+   virtual void UpdateAllViews(void* ptr,long hint = 0) { qDebug("UpdateAllViews"); }
+   virtual CString GetTitle() { return m_docTitle; }
+   virtual void SetTitle(CString title ) { m_docTitle = title; }
+
+   // HACK
+   static CFamiTrackerDoc* _this;
+   CString m_docTitle;
 
 signals:
    void setModified(bool f);

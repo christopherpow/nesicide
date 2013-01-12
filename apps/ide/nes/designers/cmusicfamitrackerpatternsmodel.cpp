@@ -53,7 +53,7 @@ QVariant CMusicFamiTrackerPatternsModel::headerData(int section, Qt::Orientation
    }
    else
    {
-      return QVariant(m_pDoc->GetChannel(section)->GetChannelName());
+      return QVariant((char*)m_pDoc->GetChannel(section)->GetChannelName());
    }
 
    return QVariant(modelStringBuffer);
