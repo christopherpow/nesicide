@@ -19,9 +19,9 @@
 */
 
 #include "FamiTrackerDoc.h"
-#include "instrument.h"
-#include "compiler.h"
-
+#include "Instrument.h"
+#include "Compiler.h"
+\
 /*
  * class CInstrumentVRC7
  *
@@ -62,15 +62,15 @@ CInstrument *CInstrumentVRC7::Clone() const
 //		pDocFile->WriteBlockChar(GetCustomReg(i));
 //}
 
-//bool CInstrumentVRC7::Load(CDocumentFile *pDocFile)
-//{
-//	m_iPatch = pDocFile->GetBlockInt();
+bool CInstrumentVRC7::Load(CDocumentFile *pDocFile)
+{
+	m_iPatch = pDocFile->GetBlockInt();
 
-//	for (int i = 0; i < 8; ++i)
-//		SetCustomReg(i, pDocFile->GetBlockChar());
+	for (int i = 0; i < 8; ++i)
+		SetCustomReg(i, pDocFile->GetBlockChar());
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentVRC7::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 //{
@@ -84,19 +84,19 @@ CInstrument *CInstrumentVRC7::Clone() const
 //	}
 //}
 
-//bool CInstrumentVRC7::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
-//{
-//	unsigned char Var;
+bool CInstrumentVRC7::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+{
+	unsigned char Var;
 
-//	pFile->Read(&m_iPatch, sizeof(int));
+	pFile->Read(&m_iPatch, sizeof(int));
 
-//	for (int i = 0; i < 8; ++i) {
-//		pFile->Read(&Var, 1);
-//		SetCustomReg(i, Var);
-//	}
+	for (int i = 0; i < 8; ++i) {
+		pFile->Read(&Var, 1);
+		SetCustomReg(i, Var);
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 int CInstrumentVRC7::Compile(CChunk *pChunk, int Index)
 {

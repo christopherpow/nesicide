@@ -20,8 +20,8 @@
 
 #include <vector>
 #include "FamiTrackerDoc.h"
-#include "instrument.h"
-#include "compiler.h"
+#include "Instrument.h"
+#include "Compiler.h"
 
 /*
  * class CInstrumentVRC6
@@ -62,24 +62,24 @@ CInstrument *CInstrumentVRC6::Clone() const
 //	}
 //}
 
-//bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
-//{
-//	int i, Index;
-//	int SeqCnt = pDocFile->GetBlockInt();
+bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
+{
+	int i, Index;
+	int SeqCnt = pDocFile->GetBlockInt();
 
-//	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
+	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
 
-//	SeqCnt = SEQUENCE_COUNT;//SEQ_COUNT;
+	SeqCnt = SEQUENCE_COUNT;//SEQ_COUNT;
 
-//	for (i = 0; i < SeqCnt; i++) {
-//		SetSeqEnable(i, pDocFile->GetBlockChar());
-//		Index = pDocFile->GetBlockChar();
-//		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
-//		SetSeqIndex(i, Index);
-//	}
+	for (i = 0; i < SeqCnt; i++) {
+		SetSeqEnable(i, pDocFile->GetBlockChar());
+		Index = pDocFile->GetBlockChar();
+		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
+		SetSeqIndex(i, Index);
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentVRC6::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 //{
@@ -118,65 +118,65 @@ CInstrument *CInstrumentVRC6::Clone() const
 //	}
 //}
 
-//bool CInstrumentVRC6::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
-//{
-//	// Sequences
-//	stSequence OldSequence;
-//	unsigned char SeqCount;
-//	unsigned char Enabled;
-//	int Count, Index;
-//	int LoopPoint, ReleasePoint, Setting;
+bool CInstrumentVRC6::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+{
+	// Sequences
+	stSequence OldSequence;
+	unsigned char SeqCount;
+	unsigned char Enabled;
+	int Count, Index;
+	int LoopPoint, ReleasePoint, Setting;
 
-//	pFile->Read(&SeqCount, sizeof(char));
+	pFile->Read(&SeqCount, sizeof(char));
 
-//	// Loop through all instrument effects
-//	for (int i = 0; i < SeqCount; ++i) {
-//		pFile->Read(&Enabled, sizeof(char));
-//		if (Enabled == 1) {
-//			// Read the sequence
+	// Loop through all instrument effects
+	for (int i = 0; i < SeqCount; ++i) {
+		pFile->Read(&Enabled, sizeof(char));
+		if (Enabled == 1) {
+			// Read the sequence
 
-//			pFile->Read(&Count, sizeof(int));
-//			Index = pDoc->GetFreeSequenceVRC6(i);
+			pFile->Read(&Count, sizeof(int));
+			Index = pDoc->GetFreeSequenceVRC6(i);
 
-//			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Index, i);
+			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Index, i);
 
-//			if (iVersion < 20) {
-//				OldSequence.Count = Count;
-//				for (int j = 0; j < Count; ++j) {
-//					pFile->Read(&OldSequence.Length[j], sizeof(char));
-//					pFile->Read(&OldSequence.Value[j], sizeof(char));
-//				}
-//				pDoc->ConvertSequence(&OldSequence, pSeq, i);	// convert
-//			}
-//			else {
-//				pSeq->SetItemCount(Count);
-//				pFile->Read(&LoopPoint, sizeof(int));
-//				pSeq->SetLoopPoint(LoopPoint);
-//				if (iVersion > 20) {
-//					pFile->Read(&ReleasePoint, sizeof(int));
-//					pSeq->SetReleasePoint(ReleasePoint);
-//				}
-//				if (iVersion >= 22) {
-//					pFile->Read(&Setting, sizeof(int));
-//					pSeq->SetSetting(Setting);
-//				}
-//				for (int j = 0; j < Count; ++j) {
-//					char Val;
-//					pFile->Read(&Val, sizeof(char));
-//					pSeq->SetItem(j, Val);
-//				}
-//			}
-//			SetSeqEnable(i, true);
-//			SetSeqIndex(i, Index);
-//		}
-//		else {
-//			SetSeqEnable(i, false);
-//			SetSeqIndex(i, 0);
-//		}
-//	}
+			if (iVersion < 20) {
+				OldSequence.Count = Count;
+				for (int j = 0; j < Count; ++j) {
+					pFile->Read(&OldSequence.Length[j], sizeof(char));
+					pFile->Read(&OldSequence.Value[j], sizeof(char));
+				}
+				pDoc->ConvertSequence(&OldSequence, pSeq, i);	// convert
+			}
+			else {
+				pSeq->SetItemCount(Count);
+				pFile->Read(&LoopPoint, sizeof(int));
+				pSeq->SetLoopPoint(LoopPoint);
+				if (iVersion > 20) {
+					pFile->Read(&ReleasePoint, sizeof(int));
+					pSeq->SetReleasePoint(ReleasePoint);
+				}
+				if (iVersion >= 22) {
+					pFile->Read(&Setting, sizeof(int));
+					pSeq->SetSetting(Setting);
+				}
+				for (int j = 0; j < Count; ++j) {
+					char Val;
+					pFile->Read(&Val, sizeof(char));
+					pSeq->SetItem(j, Val);
+				}
+			}
+			SetSeqEnable(i, true);
+			SetSeqIndex(i, Index);
+		}
+		else {
+			SetSeqEnable(i, false);
+			SetSeqIndex(i, 0);
+		}
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 int CInstrumentVRC6::Compile(CChunk *pChunk, int Index)
 {

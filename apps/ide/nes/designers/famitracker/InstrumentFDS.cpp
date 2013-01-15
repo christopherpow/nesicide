@@ -19,11 +19,10 @@
 */
 
 #include <vector>
-#include "instrument.h"
-#include "FamiTrackerDoc.h"
 #include "Instrument.h"
+#include "FamiTrackerDoc.h"
 #include "Compiler.h"
-#include "famitracker/common.h"
+#include "famitracker/Common.h"
 
 const char TEST_WAVE[] = {
 	00, 01, 12, 22, 32, 36, 39, 39, 42, 47, 47, 50, 48, 51, 54, 58,
@@ -100,35 +99,35 @@ CInstrument *CInstrumentFDS::Clone() const
 //	}
 //}
 
-//bool CInstrumentFDS::LoadInstSequence(CFile *pFile, CSequence *pSeq)
-//{
-//	int SeqCount;
-//	int LoopPoint;
-//	int ReleasePoint;
-//	int Settings;
+bool CInstrumentFDS::LoadInstSequence(CFile *pFile, CSequence *pSeq)
+{
+	int SeqCount;
+	int LoopPoint;
+	int ReleasePoint;
+	int Settings;
 
-//	pFile->Read(&SeqCount, 4);
-//	pFile->Read(&LoopPoint, 4);
-//	pFile->Read(&ReleasePoint, 4);
-//	pFile->Read(&Settings, 4);
+	pFile->Read(&SeqCount, 4);
+	pFile->Read(&LoopPoint, 4);
+	pFile->Read(&ReleasePoint, 4);
+	pFile->Read(&Settings, 4);
 
-//	if (SeqCount > MAX_SEQUENCE_ITEMS)
-//		SeqCount = MAX_SEQUENCE_ITEMS;
+	if (SeqCount > MAX_SEQUENCE_ITEMS)
+		SeqCount = MAX_SEQUENCE_ITEMS;
 
-//	pSeq->Clear();
-//	pSeq->SetItemCount(SeqCount);
-//	pSeq->SetLoopPoint(LoopPoint);
-//	pSeq->SetReleasePoint(ReleasePoint);
-//	pSeq->SetSetting(Settings);
+	pSeq->Clear();
+	pSeq->SetItemCount(SeqCount);
+	pSeq->SetLoopPoint(LoopPoint);
+	pSeq->SetReleasePoint(ReleasePoint);
+	pSeq->SetSetting(Settings);
 
-//	for (int i = 0; i < SeqCount; ++i) {
-//		char Value;
-//		pFile->Read(&Value, 1);
-//		pSeq->SetItem(i, Value);
-//	}
+	for (int i = 0; i < SeqCount; ++i) {
+		char Value;
+		pFile->Read(&Value, 1);
+		pSeq->SetItem(i, Value);
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentFDS::StoreSequence(CDocumentFile *pDocFile, CSequence *pSeq)
 //{
@@ -146,33 +145,33 @@ CInstrument *CInstrumentFDS::Clone() const
 //	}
 //}
 
-//bool CInstrumentFDS::LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq)
-//{
-//	int SeqCount;
-//	unsigned int LoopPoint;
-//	unsigned int ReleasePoint;
-//	unsigned int Settings;
+bool CInstrumentFDS::LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq)
+{
+	int SeqCount;
+	unsigned int LoopPoint;
+	unsigned int ReleasePoint;
+	unsigned int Settings;
 
-//	SeqCount  = (unsigned char)pDocFile->GetBlockChar();
-//	LoopPoint = pDocFile->GetBlockInt();
-//	ReleasePoint = pDocFile->GetBlockInt();
-//	Settings = pDocFile->GetBlockInt();
+	SeqCount  = (unsigned char)pDocFile->GetBlockChar();
+	LoopPoint = pDocFile->GetBlockInt();
+	ReleasePoint = pDocFile->GetBlockInt();
+	Settings = pDocFile->GetBlockInt();
 
-//	ASSERT_FILE_DATA(SeqCount <= MAX_SEQUENCE_ITEMS);
+	ASSERT_FILE_DATA(SeqCount <= MAX_SEQUENCE_ITEMS);
 
-//	pSeq->Clear();
-//	pSeq->SetItemCount(SeqCount);
-//	pSeq->SetLoopPoint(LoopPoint);
-//	pSeq->SetReleasePoint(ReleasePoint);
-//	pSeq->SetSetting(Settings);
+	pSeq->Clear();
+	pSeq->SetItemCount(SeqCount);
+	pSeq->SetLoopPoint(LoopPoint);
+	pSeq->SetReleasePoint(ReleasePoint);
+	pSeq->SetSetting(Settings);
 
-//	for (int x = 0; x < SeqCount; ++x) {
-//		char Value = pDocFile->GetBlockChar();
-//		pSeq->SetItem(x, Value);
-//	}
+	for (int x = 0; x < SeqCount; ++x) {
+		char Value = pDocFile->GetBlockChar();
+		pSeq->SetItem(x, Value);
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentFDS::Store(CDocumentFile *pDocFile)
 //{
@@ -197,58 +196,58 @@ CInstrument *CInstrumentFDS::Clone() const
 //	StoreSequence(pDocFile, m_pPitch);
 //}
 
-//bool CInstrumentFDS::Load(CDocumentFile *pDocFile)
-//{
-//	for (int i = 0; i < WAVE_SIZE; ++i) {
-//		SetSample(i, pDocFile->GetBlockChar());
+bool CInstrumentFDS::Load(CDocumentFile *pDocFile)
+{
+	for (int i = 0; i < WAVE_SIZE; ++i) {
+		SetSample(i, pDocFile->GetBlockChar());
+	}
+
+	for (int i = 0; i < MOD_SIZE; ++i) {
+		SetModulation(i, pDocFile->GetBlockChar());
+	}
+
+	SetModulationSpeed(pDocFile->GetBlockInt());
+	SetModulationDepth(pDocFile->GetBlockInt());
+	SetModulationDelay(pDocFile->GetBlockInt());
+
+	// hack to fix earlier saved files (remove this eventually)
+/*
+	if (pDocFile->GetBlockVersion() > 2) {
+		LoadSequence(pDocFile, m_pVolume);
+		LoadSequence(pDocFile, m_pArpeggio);
+		if (pDocFile->GetBlockVersion() > 2)
+			LoadSequence(pDocFile, m_pPitch);
+	}
+	else {
+*/
+	unsigned int a = pDocFile->GetBlockInt();
+	unsigned int b = pDocFile->GetBlockInt();
+	pDocFile->RollbackPointer(8);
+
+	if (a < 256 && (b & 0xFF) != 0x00) {
+	}
+	else {
+		LoadSequence(pDocFile, m_pVolume);
+		LoadSequence(pDocFile, m_pArpeggio);
+		//
+		// Note: Remove this line when files are unable to load
+		// (if a file contains FDS instruments but FDS is disabled)
+		// this was a problem in an earlier version.
+		//
+		if (pDocFile->GetBlockVersion() > 2)
+			LoadSequence(pDocFile, m_pPitch);
+	}
+
 //	}
 
-//	for (int i = 0; i < MOD_SIZE; ++i) {
-//		SetModulation(i, pDocFile->GetBlockChar());
-//	}
+	// Older files was 0-15, new is 0-31
+	if (pDocFile->GetBlockVersion() <= 3) {
+		for (unsigned int i = 0; i < m_pVolume->GetItemCount(); ++i)
+			m_pVolume->SetItem(i, m_pVolume->GetItem(i) * 2);
+	}
 
-//	SetModulationSpeed(pDocFile->GetBlockInt());
-//	SetModulationDepth(pDocFile->GetBlockInt());
-//	SetModulationDelay(pDocFile->GetBlockInt());
-
-//	// hack to fix earlier saved files (remove this eventually)
-///*
-//	if (pDocFile->GetBlockVersion() > 2) {
-//		LoadSequence(pDocFile, m_pVolume);
-//		LoadSequence(pDocFile, m_pArpeggio);
-//		if (pDocFile->GetBlockVersion() > 2)
-//			LoadSequence(pDocFile, m_pPitch);
-//	}
-//	else {
-//*/
-//	unsigned int a = pDocFile->GetBlockInt();
-//	unsigned int b = pDocFile->GetBlockInt();
-//	pDocFile->RollbackPointer(8);
-
-//	if (a < 256 && (b & 0xFF) != 0x00) {
-//	}
-//	else {
-//		LoadSequence(pDocFile, m_pVolume);
-//		LoadSequence(pDocFile, m_pArpeggio);
-//		//
-//		// Note: Remove this line when files are unable to load
-//		// (if a file contains FDS instruments but FDS is disabled)
-//		// this was a problem in an earlier version.
-//		//
-//		if (pDocFile->GetBlockVersion() > 2)
-//			LoadSequence(pDocFile, m_pPitch);
-//	}
-
-////	}
-
-//	// Older files was 0-15, new is 0-31
-//	if (pDocFile->GetBlockVersion() <= 3) {
-//		for (unsigned int i = 0; i < m_pVolume->GetItemCount(); ++i)
-//			m_pVolume->SetItem(i, m_pVolume->GetItem(i) * 2);
-//	}
-
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentFDS::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 //{
@@ -279,43 +278,43 @@ CInstrument *CInstrumentFDS::Clone() const
 //	StoreInstSequence(pFile, m_pPitch);
 //}
 
-//bool CInstrumentFDS::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
-//{
-//	// Read wave
-//	for (int i = 0; i < WAVE_SIZE; ++i) {
-//		char sample;
-//		pFile->Read(&sample, 1);
-//		SetSample(i, sample);
-//	}
+bool CInstrumentFDS::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+{
+	// Read wave
+	for (int i = 0; i < WAVE_SIZE; ++i) {
+		char sample;
+		pFile->Read(&sample, 1);
+		SetSample(i, sample);
+	}
 
-//	// Read modulation table
-//	for (int i = 0; i < MOD_SIZE; ++i) {
-//		char mod;
-//		pFile->Read(&mod, 1);
-//		SetModulation(i, mod);
-//	}
+	// Read modulation table
+	for (int i = 0; i < MOD_SIZE; ++i) {
+		char mod;
+		pFile->Read(&mod, 1);
+		SetModulation(i, mod);
+	}
 
-//	// Modulation parameters
-//	int data;
-//	pFile->Read(&data, sizeof(int));
-//	SetModulationSpeed(data);
-//	pFile->Read(&data, sizeof(int));
-//	SetModulationDepth(data);
-//	pFile->Read(&data, sizeof(int));
-//	SetModulationDelay(data);
+	// Modulation parameters
+	int data;
+	pFile->Read(&data, sizeof(int));
+	SetModulationSpeed(data);
+	pFile->Read(&data, sizeof(int));
+	SetModulationDepth(data);
+	pFile->Read(&data, sizeof(int));
+	SetModulationDelay(data);
 
-//	// Sequences
-//	LoadInstSequence(pFile, m_pVolume);
-//	LoadInstSequence(pFile, m_pArpeggio);
-//	LoadInstSequence(pFile, m_pPitch);
+	// Sequences
+	LoadInstSequence(pFile, m_pVolume);
+	LoadInstSequence(pFile, m_pArpeggio);
+	LoadInstSequence(pFile, m_pPitch);
 
-//	if (iVersion <= 22) {
-//		for (unsigned int i = 0; i < m_pVolume->GetItemCount(); ++i)
-//			m_pVolume->SetItem(i, m_pVolume->GetItem(i) * 2);
-//	}
+	if (iVersion <= 22) {
+		for (unsigned int i = 0; i < m_pVolume->GetItemCount(); ++i)
+			m_pVolume->SetItem(i, m_pVolume->GetItem(i) * 2);
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 int CInstrumentFDS::Compile(CChunk *pChunk, int Index)
 {

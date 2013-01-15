@@ -25,7 +25,7 @@ public slots:
    void update(void);
 
 private:
-   CFamiTrackerDoc* m_pDoc;
+   CFamiTrackerDoc* m_pDocument;
 };
 
 #endif // CMUSICFAMITRACKERFRAMESMODEL_H

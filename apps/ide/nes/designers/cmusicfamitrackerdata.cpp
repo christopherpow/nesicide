@@ -2,21 +2,18 @@
 #include "famitracker/Common.h"
 #include "famitracker/APU/APU.h"
 
-#define GET_PATTERN(Frame, Channel) m_pSelectedTune->GetFramePattern(Frame, Channel)
-
-CSoundGen* pSG = new CSoundGen();
-MFCCRAP theApp(pSG);
+#include "cqtmfc.h"
 
 CMusicFamiTrackerData::CMusicFamiTrackerData()
 {
    pDoc = new CFamiTrackerDoc();
 
-   pSG->start();
+   CFamiTrackerApp::GetSoundGenerator()->start();
 }
 
 CMusicFamiTrackerData::~CMusicFamiTrackerData()
 {
-   pSG->terminate();
+   CFamiTrackerApp::GetSoundGenerator()->terminate();
 
    delete pDoc;
 }

@@ -82,38 +82,38 @@ CInstrument *CInstrument2A03::Clone() const
 //	}
 //}
 
-//bool CInstrument2A03::Load(CDocumentFile *pDocFile)
-//{
-//	int SeqCnt;
-//	int Octaves = OCTAVE_RANGE;
-//	int Index;
-//	int Version = pDocFile->GetBlockVersion();
+bool CInstrument2A03::Load(CDocumentFile *pDocFile)
+{
+	int SeqCnt;
+	int Octaves = OCTAVE_RANGE;
+	int Index;
+	int Version = pDocFile->GetBlockVersion();
 
-//	SeqCnt = pDocFile->GetBlockInt();
-//	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
+	SeqCnt = pDocFile->GetBlockInt();
+	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
 
-//	for (int i = 0; i < SeqCnt; ++i) {
-//		SetSeqEnable(i, pDocFile->GetBlockChar());
-//		Index = pDocFile->GetBlockChar();
-//		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
-//		SetSeqIndex(i, Index);
-//	}
+	for (int i = 0; i < SeqCnt; ++i) {
+		SetSeqEnable(i, pDocFile->GetBlockChar());
+		Index = pDocFile->GetBlockChar();
+		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
+		SetSeqIndex(i, Index);
+	}
 
-//	if (Version == 1)
-//		Octaves = 6;
+	if (Version == 1)
+		Octaves = 6;
 
-//	for (int i = 0; i < Octaves; ++i) {
-//		for (int j = 0; j < 12; ++j) {
-//			Index = pDocFile->GetBlockChar();
-//			if (Index >= MAX_DSAMPLES)
-//				Index = 0;
-//			SetSample(i, j, Index);
-//			SetSamplePitch(i, j, pDocFile->GetBlockChar());
-//		}
-//	}
+	for (int i = 0; i < Octaves; ++i) {
+		for (int j = 0; j < 12; ++j) {
+			Index = pDocFile->GetBlockChar();
+			if (Index >= MAX_DSAMPLES)
+				Index = 0;
+			SetSample(i, j, Index);
+			SetSamplePitch(i, j, pDocFile->GetBlockChar());
+		}
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrument2A03::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 //{
@@ -205,169 +205,169 @@ CInstrument *CInstrument2A03::Clone() const
 //	}
 //}
 
-//bool CInstrument2A03::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
-//{
-//	// Reads an FTI file
-//	//
+bool CInstrument2A03::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+{
+	// Reads an FTI file
+	//
 
-//	//CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)theApp.GetFirstDocument();
-//	char SampleNames[MAX_DSAMPLES][256];
-//	stSequence OldSequence;
+	//CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)theApp.GetFirstDocument();
+	char SampleNames[MAX_DSAMPLES][256];
+	stSequence OldSequence;
 
-//	// Sequences
-//	unsigned char SeqCount;
-//	pFile->Read(&SeqCount, sizeof(char));
+	// Sequences
+	unsigned char SeqCount;
+	pFile->Read(&SeqCount, sizeof(char));
 
-//	// Loop through all instrument effects
-//	for (unsigned int i = 0; i < SeqCount; ++i) {
+	// Loop through all instrument effects
+	for (unsigned int i = 0; i < SeqCount; ++i) {
 
-//		unsigned char Enabled;
-//		pFile->Read(&Enabled, sizeof(char));
+		unsigned char Enabled;
+		pFile->Read(&Enabled, sizeof(char));
 
-//		if (Enabled == 1) {
-//			// Read the sequence
-//			int Count;
-//			pFile->Read(&Count, sizeof(int));
+		if (Enabled == 1) {
+			// Read the sequence
+			int Count;
+			pFile->Read(&Count, sizeof(int));
 
-//			if (Count < 0 || Count > MAX_SEQUENCE_ITEMS)
-//				return false;
+			if (Count < 0 || Count > MAX_SEQUENCE_ITEMS)
+				return false;
 
-//			// Find a free sequence
-//			int Index = pDoc->GetFreeSequence(i);
-//			CSequence *pSeq = pDoc->GetSequence(Index, i);
+			// Find a free sequence
+			int Index = pDoc->GetFreeSequence(i);
+			CSequence *pSeq = pDoc->GetSequence(Index, i);
 
-//			if (iVersion < 20) {
-//				OldSequence.Count = Count;
-//				for (int j = 0; j < Count; ++j) {
-//					pFile->Read(&OldSequence.Length[j], sizeof(char));
-//					pFile->Read(&OldSequence.Value[j], sizeof(char));
-//				}
-//				pDoc->ConvertSequence(&OldSequence, pSeq, i);	// convert
-//			}
-//			else {
-//				pSeq->SetItemCount(Count);
-//				int LoopPoint;
-//				int Setting;
-//				pFile->Read(&LoopPoint, sizeof(int));
-//				pSeq->SetLoopPoint(LoopPoint);
-//				if (iVersion > 20) {
-//					int ReleasePoint;
-//					pFile->Read(&ReleasePoint, sizeof(int));
-//					pSeq->SetReleasePoint(ReleasePoint);
-//				}
-//				if (iVersion >= 23) {
-//					pFile->Read(&Setting, sizeof(int));
-//					pSeq->SetSetting(Setting);
-//				}
-//				for (int j = 0; j < Count; ++j) {
-//					char Val;
-//					pFile->Read(&Val, sizeof(char));
-//					pSeq->SetItem(j, Val);
-//				}
-//			}
-//			SetSeqEnable(i, true);
-//			SetSeqIndex(i, Index);
-//		}
-//		else {
-//			SetSeqEnable(i, false);
-//			SetSeqIndex(i, 0);
-//		}
-//	}
+			if (iVersion < 20) {
+				OldSequence.Count = Count;
+				for (int j = 0; j < Count; ++j) {
+					pFile->Read(&OldSequence.Length[j], sizeof(char));
+					pFile->Read(&OldSequence.Value[j], sizeof(char));
+				}
+				pDoc->ConvertSequence(&OldSequence, pSeq, i);	// convert
+			}
+			else {
+				pSeq->SetItemCount(Count);
+				int LoopPoint;
+				int Setting;
+				pFile->Read(&LoopPoint, sizeof(int));
+				pSeq->SetLoopPoint(LoopPoint);
+				if (iVersion > 20) {
+					int ReleasePoint;
+					pFile->Read(&ReleasePoint, sizeof(int));
+					pSeq->SetReleasePoint(ReleasePoint);
+				}
+				if (iVersion >= 23) {
+					pFile->Read(&Setting, sizeof(int));
+					pSeq->SetSetting(Setting);
+				}
+				for (int j = 0; j < Count; ++j) {
+					char Val;
+					pFile->Read(&Val, sizeof(char));
+					pSeq->SetItem(j, Val);
+				}
+			}
+			SetSeqEnable(i, true);
+			SetSeqIndex(i, Index);
+		}
+		else {
+			SetSeqEnable(i, false);
+			SetSeqIndex(i, 0);
+		}
+	}
 
-//	bool SamplesFound[MAX_DSAMPLES];
-//	memset(SamplesFound, 0, sizeof(bool) * MAX_DSAMPLES);
+	bool SamplesFound[MAX_DSAMPLES];
+	memset(SamplesFound, 0, sizeof(bool) * MAX_DSAMPLES);
 
-//	unsigned int Count;
-//	pFile->Read(&Count, sizeof(int));
+	unsigned int Count;
+	pFile->Read(&Count, sizeof(int));
 
-//	// DPCM instruments
-//	for (unsigned int i = 0; i < Count; ++i) {
-//		unsigned char InstNote;
-//		pFile->Read(&InstNote, sizeof(char));
-//		int Octave = InstNote / 12;
-//		int Note = InstNote % 12;
-//		unsigned char Sample, Pitch;
-//		pFile->Read(&Sample, sizeof(char));
-//		pFile->Read(&Pitch, sizeof(char));
-//		SetSamplePitch(Octave, Note, Pitch);
-//		SetSample(Octave, Note, Sample);
-//	}
+	// DPCM instruments
+	for (unsigned int i = 0; i < Count; ++i) {
+		unsigned char InstNote;
+		pFile->Read(&InstNote, sizeof(char));
+		int Octave = InstNote / 12;
+		int Note = InstNote % 12;
+		unsigned char Sample, Pitch;
+		pFile->Read(&Sample, sizeof(char));
+		pFile->Read(&Pitch, sizeof(char));
+		SetSamplePitch(Octave, Note, Pitch);
+		SetSample(Octave, Note, Sample);
+	}
 
-//	// DPCM samples list
-//	bool bAssigned[OCTAVE_RANGE][NOTE_RANGE];
-//	memset(bAssigned, 0, sizeof(bool) * OCTAVE_RANGE * NOTE_RANGE);
+	// DPCM samples list
+	bool bAssigned[OCTAVE_RANGE][NOTE_RANGE];
+	memset(bAssigned, 0, sizeof(bool) * OCTAVE_RANGE * NOTE_RANGE);
 
-//	unsigned int SampleCount;
-//	pFile->Read(&SampleCount, sizeof(int));
+	unsigned int SampleCount;
+	pFile->Read(&SampleCount, sizeof(int));
 
-//	for (unsigned int i = 0; i < SampleCount; ++i) {
-//		int Index, Len;
-//		pFile->Read(&Index, sizeof(int));
-//		pFile->Read(&Len, sizeof(int));
-//		if (Index >= MAX_DSAMPLES || Len >= 256)
-//			return false;
-//		pFile->Read(SampleNames[Index], Len);
-//		SampleNames[Index][Len] = 0;
-//		int Size;
-//		pFile->Read(&Size, sizeof(int));
-//		char *SampleData = new char[Size];
-//		pFile->Read(SampleData, Size);
-//		bool Found = false;
-//		for (int j = 0; j < MAX_DSAMPLES; ++j) {
-//			CDSample *pSample = pDoc->GetDSample(j);
-//			// Compare size and name to see if identical sample exists
-//			if (pSample->SampleSize == Size && !strcmp(pSample->Name, SampleNames[Index])) {
-//				Found = true;
-//				// Assign sample
-//				for (int o = 0; o < OCTAVE_RANGE; ++o) {
-//					for (int n = 0; n < NOTE_RANGE; ++n) {
-//						if (GetSample(o, n) == (Index + 1) && !bAssigned[o][n]) {
-//							SetSample(o, n, j + 1);
-//							bAssigned[o][n] = true;
-//						}
-//					}
-//				}
-//			}
-//		}
+	for (unsigned int i = 0; i < SampleCount; ++i) {
+		int Index, Len;
+		pFile->Read(&Index, sizeof(int));
+		pFile->Read(&Len, sizeof(int));
+		if (Index >= MAX_DSAMPLES || Len >= 256)
+			return false;
+		pFile->Read(SampleNames[Index], Len);
+		SampleNames[Index][Len] = 0;
+		int Size;
+		pFile->Read(&Size, sizeof(int));
+		char *SampleData = new char[Size];
+		pFile->Read(SampleData, Size);
+		bool Found = false;
+		for (int j = 0; j < MAX_DSAMPLES; ++j) {
+			CDSample *pSample = pDoc->GetDSample(j);
+			// Compare size and name to see if identical sample exists
+			if (pSample->SampleSize == Size && !strcmp(pSample->Name, SampleNames[Index])) {
+				Found = true;
+				// Assign sample
+				for (int o = 0; o < OCTAVE_RANGE; ++o) {
+					for (int n = 0; n < NOTE_RANGE; ++n) {
+						if (GetSample(o, n) == (Index + 1) && !bAssigned[o][n]) {
+							SetSample(o, n, j + 1);
+							bAssigned[o][n] = true;
+						}
+					}
+				}
+			}
+		}
 
-//		if (!Found) {
-//			// Load sample
-//			int FreeSample = pDoc->GetFreeDSample();
-//			if (FreeSample != -1) {
-//				if ((pDoc->GetTotalSampleSize() + Size) <= MAX_SAMPLE_SPACE) {
-//					CDSample *Sample = pDoc->GetDSample(FreeSample);
-//					strcpy(Sample->Name, SampleNames[Index]);
-//					Sample->SampleSize = Size;
-//					Sample->SampleData = SampleData;
-//					// Assign it
-//					for (int o = 0; o < OCTAVE_RANGE; ++o) {
-//						for (int n = 0; n < NOTE_RANGE; ++n) {
-//							if (GetSample(o, n) == (Index + 1) && !bAssigned[o][n]) {
-//								SetSample(o, n, FreeSample + 1);
-//								bAssigned[o][n] = true;
-//							}
-//						}
-//					}
-//				}
-//				else {
+		if (!Found) {
+			// Load sample
+			int FreeSample = pDoc->GetFreeDSample();
+			if (FreeSample != -1) {
+				if ((pDoc->GetTotalSampleSize() + Size) <= MAX_SAMPLE_SPACE) {
+					CDSample *Sample = pDoc->GetDSample(FreeSample);
+					strcpy(Sample->Name, SampleNames[Index]);
+					Sample->SampleSize = Size;
+					Sample->SampleData = SampleData;
+					// Assign it
+					for (int o = 0; o < OCTAVE_RANGE; ++o) {
+						for (int n = 0; n < NOTE_RANGE; ++n) {
+							if (GetSample(o, n) == (Index + 1) && !bAssigned[o][n]) {
+								SetSample(o, n, FreeSample + 1);
+								bAssigned[o][n] = true;
+							}
+						}
+					}
+				}
+				else {
 //					AfxMessageBox(IDS_OUT_OF_SAMPLEMEM, MB_ICONERROR);
-//					SAFE_RELEASE_ARRAY(SampleData);
-//					return false;
-//				}
-//			}
-//			else {
+					SAFE_RELEASE_ARRAY(SampleData);
+					return false;
+				}
+			}
+			else {
 //				AfxMessageBox(IDS_OUT_OF_SLOTS, MB_ICONERROR);
-//				SAFE_RELEASE_ARRAY(SampleData);
-//				return false;
-//			}
-//		}
-//		else {
-//			SAFE_RELEASE_ARRAY(SampleData);
-//		}
-//	}
+				SAFE_RELEASE_ARRAY(SampleData);
+				return false;
+			}
+		}
+		else {
+			SAFE_RELEASE_ARRAY(SampleData);
+		}
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 int CInstrument2A03::Compile(CChunk *pChunk, int Index)
 {

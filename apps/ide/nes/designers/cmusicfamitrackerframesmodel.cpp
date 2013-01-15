@@ -6,7 +6,7 @@ static char modelStringBuffer [ 16 ];
 
 CMusicFamiTrackerFramesModel::CMusicFamiTrackerFramesModel(CFamiTrackerDoc* pDoc,QObject*)
 {
-   m_pDoc = pDoc;
+   m_pDocument = pDoc;
 }
 
 CMusicFamiTrackerFramesModel::~CMusicFamiTrackerFramesModel()
@@ -25,15 +25,14 @@ QVariant CMusicFamiTrackerFramesModel::data(const QModelIndex& index, int role) 
       return QVariant();
    }
 
-   // CPTODO: return order data when music data is ported.
-   sprintf(modelStringBuffer,"00");
+   sprintf(modelStringBuffer,"%02X",m_pDocument->GetPatternAtFrame(index.row(),index.column()));
 
    return QVariant(modelStringBuffer);
 }
 
 Qt::ItemFlags CMusicFamiTrackerFramesModel::flags(const QModelIndex& /*index*/) const
 {
-   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 
    return flags;
 }
@@ -66,7 +65,7 @@ bool CMusicFamiTrackerFramesModel::setData ( const QModelIndex& index, const QVa
 
    if ( ok )
    {
-      // CPTODO: set order when music data is ported.
+      m_pDocument->SetPatternAtFrame(index.row(),index.column(),data);
       emit dataChanged(index,index);
    }
 
@@ -86,12 +85,12 @@ QModelIndex CMusicFamiTrackerFramesModel::index(int row, int column, const QMode
 
 int CMusicFamiTrackerFramesModel::rowCount(const QModelIndex&) const
 {
-   return m_pDoc->GetFrameCount();
+   return m_pDocument->GetFrameCount();
 }
 
 int CMusicFamiTrackerFramesModel::columnCount(const QModelIndex& /*parent*/) const
 {
-   return m_pDoc->GetAvailableChannels();
+   return m_pDocument->GetChannelCount();
 }
 
 void CMusicFamiTrackerFramesModel::update()

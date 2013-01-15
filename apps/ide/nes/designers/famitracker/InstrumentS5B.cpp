@@ -19,7 +19,7 @@
 */
 
 #include "FamiTrackerDoc.h"
-#include "instrument.h"
+#include "Instrument.h"
 
 const int CInstrumentS5B::SEQUENCE_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
 
@@ -55,33 +55,33 @@ CInstrument *CInstrumentS5B::Clone() const
 //	}
 //}
 
-//bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
-//{
-//	int SeqCnt = pDocFile->GetBlockInt();
+bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
+{
+	int SeqCnt = pDocFile->GetBlockInt();
 
-//	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
+	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
 
-//	SeqCnt = SEQUENCE_COUNT;
+	SeqCnt = SEQUENCE_COUNT;
 
-//	for (int i = 0; i < SeqCnt; i++) {
-//		SetSeqEnable(i, pDocFile->GetBlockChar());
-//		int Index = pDocFile->GetBlockChar();
-//		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
-//		SetSeqIndex(i, Index);
-//	}
+	for (int i = 0; i < SeqCnt; i++) {
+		SetSeqEnable(i, pDocFile->GetBlockChar());
+		int Index = pDocFile->GetBlockChar();
+		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
+		SetSeqIndex(i, Index);
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentS5B::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 //{
 //	AfxMessageBox(_T("Saving 5B instruments is not yet supported"));
 //}
 
-//bool CInstrumentS5B::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
-//{
-//	return false;
-//}
+bool CInstrumentS5B::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+{
+	return false;
+}
 
 int CInstrumentS5B::Compile(CChunk *pChunk, int Index)
 {

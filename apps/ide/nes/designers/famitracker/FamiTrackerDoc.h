@@ -21,6 +21,27 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
+// stubs for theApp for now
+class CSoundGen;
+class CChannelMap;
+class CFamiTrackerApp
+{
+public:
+   CFamiTrackerApp();
+   ~CFamiTrackerApp();
+
+   void RegisterKeyState(int Channel, int Note);
+   static CSoundGen* GetSoundGenerator();
+   void OnTrackerStop();
+   CChannelMap* GetChannelMap();
+
+private:
+   static CSoundGen* m_pSoundGen;
+};
+
+extern CFamiTrackerApp theApp;
 
 // Get access to some APU constants
 #include "apu/apu.h"
@@ -389,8 +410,8 @@ protected:
 	BOOL			SaveDocument(LPCTSTR lpszPathName) const;
 	BOOL			OpenDocument(LPCTSTR lpszPathName);
 
-//	bool			OpenDocumentOld(QFile *pOpenFile);
-//	bool			OpenDocumentNew(QFile &DocumentFile);
+	BOOL			OpenDocumentOld(CFile *pOpenFile);
+	BOOL			OpenDocumentNew(CDocumentFile &DocumentFile);
 
 //	bool			WriteBlocks(CDocumentFile *pDocFile) const;
 //	bool			WriteBlock_Parameters(CDocumentFile *pDocFile) const;
@@ -405,16 +426,16 @@ protected:
 //	bool			WriteBlock_SequencesN163(CDocumentFile *pDocFile) const;
 //	bool			WriteBlock_SequencesS5B(CDocumentFile *pDocFile) const;
 
-//	bool			ReadBlock_Parameters(CDocumentFile *pDocFile);
-//	bool			ReadBlock_Header(CDocumentFile *pDocFile);
-//	bool			ReadBlock_Instruments(CDocumentFile *pDocFile);
-//	bool			ReadBlock_Sequences(CDocumentFile *pDocFile);
-//	bool			ReadBlock_Frames(CDocumentFile *pDocFile);
-//	bool			ReadBlock_Patterns(CDocumentFile *pDocFile);
-//	bool			ReadBlock_DSamples(CDocumentFile *pDocFile);
-//	bool			ReadBlock_SequencesVRC6(CDocumentFile *pDocFile);
-//	bool			ReadBlock_SequencesN163(CDocumentFile *pDocFile);
-//	bool			ReadBlock_SequencesS5B(CDocumentFile *pDocFile);
+	bool			ReadBlock_Parameters(CDocumentFile *pDocFile);
+	bool			ReadBlock_Header(CDocumentFile *pDocFile);
+	bool			ReadBlock_Instruments(CDocumentFile *pDocFile);
+	bool			ReadBlock_Sequences(CDocumentFile *pDocFile);
+	bool			ReadBlock_Frames(CDocumentFile *pDocFile);
+	bool			ReadBlock_Patterns(CDocumentFile *pDocFile);
+	bool			ReadBlock_DSamples(CDocumentFile *pDocFile);
+	bool			ReadBlock_SequencesVRC6(CDocumentFile *pDocFile);
+	bool			ReadBlock_SequencesN163(CDocumentFile *pDocFile);
+	bool			ReadBlock_SequencesS5B(CDocumentFile *pDocFile);
 
 	void			SwitchToTrack(unsigned int Track);
 

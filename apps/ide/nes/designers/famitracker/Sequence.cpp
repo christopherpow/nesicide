@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include "cqtmfc.h"
 #include "Sequence.h"
 #include "Common.h"
 

@@ -5,6 +5,7 @@
 #include "cdesignercommon.h"
 #include "cmusicfamitrackerframesmodel.h"
 #include "cmusicfamitrackerpatternsmodel.h"
+#include "cmusicfamitrackerinstrumentsmodel.h"
 #include "cdebuggernumericitemdelegate.h"
 #include "cmusicfamitrackerdata.h"
 
@@ -33,6 +34,7 @@ private:
    CMusicFamiTrackerData *data;
    CMusicFamiTrackerFramesModel *framesModel;
    CMusicFamiTrackerPatternsModel *patternsModel;
+   CMusicFamiTrackerInstrumentsModel *instrumentsModel;
    CDebuggerNumericItemDelegate *entryDelegate;
    CFamiTrackerDoc* pDoc;
 
@@ -45,6 +47,12 @@ private slots:
    void on_numRows_valueChanged(int arg1);
    void on_numFrames_valueChanged(int arg1);
    void on_songs_currentIndexChanged(int index);
+   void on_songFrames_clicked(const QModelIndex &index);
+   void on_songFrames_activated(const QModelIndex &index);
+   void on_songFrames_entered(const QModelIndex &index);
+   void on_songFrames_pressed(const QModelIndex &index);
+   void framesModel_dataChanged(QModelIndex topLeft,QModelIndex bottomRight);
+   void songFrames_scrolled(int value);
 };
 
 #endif // MUSICEDITORFORM_H

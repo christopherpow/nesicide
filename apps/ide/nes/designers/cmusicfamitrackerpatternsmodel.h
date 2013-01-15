@@ -3,7 +3,10 @@
 
 #include <QAbstractTableModel>
 
+#include "cqtmfc.h"
 #include "famitracker/FamiTrackerDoc.h"
+#include "famitracker/TrackerChannel.h"
+#include "famitracker/PatternData.h"
 
 class CMusicFamiTrackerPatternsModel : public QAbstractTableModel
 {
@@ -23,9 +26,15 @@ public:
 
 public slots:
    void update(void);
+   void setFrame(int frame) { m_frame = frame; }
 
 private:
-   CFamiTrackerDoc* m_pDoc;
+   CFamiTrackerDoc* m_pDocument;
+   int m_frame;
+
+   void DrawCell(int PosX, int Column, int Channel, bool bInvert, stChanNote *pNoteData, CDC *pDC, RowColorInfo_t *pColorInfo) const;
+   void DrawChar(int x, int y, TCHAR c, COLORREF Color, CDC *pDC) const;
+   int  GetChannelColumns(int Channel) const;
 };
 
 #endif // CMUSICFAMITRACKERPATTERNSMODEL_H

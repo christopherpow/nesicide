@@ -3,6 +3,7 @@
 
 #include "famitracker/FamiTrackerDoc.h"
 #include "famitracker/SoundGen.h"
+#include "famitracker/ChannelMap.h"
 
 class CMusicFamiTrackerData
 {

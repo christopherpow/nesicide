@@ -102,18 +102,18 @@ bool CMusicItem::deserialize(QDomDocument&, QDomNode& node, QString& errors)
 
 bool CMusicItem::deserializeContent()
 {
-   QDir dir(QDir::currentPath());
-   QFile fileIn(dir.relativeFilePath(m_path));
+//   QDir dir(QDir::currentPath());
+//   QFile fileIn(dir.relativeFilePath(m_path));
 
-   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
-   {
-      setMusicData(fileIn.readAll());
-      fileIn.close();
-   }
-   else
-   {
-      // CPTODO: provide a file dialog for finding the source
-   }
+//   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+//   {
+//      setMusicData(fileIn.readAll());
+//      fileIn.close();
+//   }
+//   else
+//   {
+//      // CPTODO: provide a file dialog for finding the source
+//   }
 
    return true;
 }

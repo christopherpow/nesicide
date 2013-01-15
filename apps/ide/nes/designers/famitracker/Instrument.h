@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful, 
+** This program is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-** Library General Public License for more details.  To obtain a 
-** copy of the GNU Library General Public License, write to the Free 
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** Library General Public License for more details.  To obtain a
+** copy of the GNU Library General Public License, write to the Free
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -20,7 +20,9 @@
 
 #pragma once
 
+#include "cqtmfc.h"
 #include "CustomExporterInterfaces.h"
+#include "DocumentFile.h"
 
 // Instrument types
 enum {
@@ -54,9 +56,9 @@ public:
 	virtual CInstrument* CreateNew() const = 0;										// Creates a new object
 	virtual CInstrument* Clone() const = 0;											// Creates a copy
 //	virtual void Store(CDocumentFile *pDocFile) = 0;								// Saves the instrument to the module
-//	virtual bool Load(CDocumentFile *pDocFile) = 0;									// Loads the instrument from a module
+	virtual bool Load(CDocumentFile *pDocFile) = 0;									// Loads the instrument from a module
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc) = 0;					// Saves to an FTI file
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc) = 0;	// Loads from an FTI file
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc) = 0;	// Loads from an FTI file
 	virtual int Compile(CChunk *pChunk, int Index) = 0;								// Compiles the instrument for NSF generation
 	virtual bool CanRelease() const = 0;
 protected:
@@ -73,9 +75,9 @@ public:
 	virtual CInstrument* CreateNew() const { return new CInstrument2A03(); };
 	virtual CInstrument* Clone() const;
 //	virtual void Store(CDocumentFile *pFile);
-//	virtual bool Load(CDocumentFile *pDocFile);
+	virtual bool Load(CDocumentFile *pDocFile);
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc);
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
 
@@ -121,9 +123,9 @@ public:
 	virtual CInstrument* CreateNew() const { return new CInstrumentVRC6(); };
 	virtual CInstrument* Clone() const;
 //	virtual void Store(CDocumentFile *pDocFile);
-//	virtual bool Load(CDocumentFile *pDocFile);
+	virtual bool Load(CDocumentFile *pDocFile);
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc);
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
 
@@ -149,9 +151,9 @@ public:
 	virtual CInstrument* CreateNew() const { return new CInstrumentVRC7(); };
 	virtual CInstrument* Clone() const;
 //	virtual void Store(CDocumentFile *pDocFile);
-//	virtual bool Load(CDocumentFile *pDocFile);
+	virtual bool Load(CDocumentFile *pDocFile);
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc);
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
 
@@ -174,9 +176,9 @@ public:
 	virtual CInstrument* CreateNew() const { return new CInstrumentFDS(); };
 	virtual CInstrument* Clone() const;
 //	virtual void Store(CDocumentFile *pDocFile);
-//	virtual bool Load(CDocumentFile *pDocFile);
+	virtual bool Load(CDocumentFile *pDocFile);
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc);
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
 
@@ -199,9 +201,9 @@ public:
 
 private:
 //	void StoreSequence(CDocumentFile *pDocFile, CSequence *pSeq);
-//	bool LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq);
+	bool LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq);
 //	void StoreInstSequence(CFile *pDocFile, CSequence *pSeq);
-//	bool LoadInstSequence(CFile *pFile, CSequence *pSeq);
+	bool LoadInstSequence(CFile *pFile, CSequence *pSeq);
 public:
 	static const int WAVE_SIZE = 64;
 	static const int MOD_SIZE = 32;
@@ -227,13 +229,13 @@ public:
 	virtual CInstrument* CreateNew() const { return new CInstrumentN163(); };
 	virtual CInstrument* Clone() const;
 //	virtual void Store(CDocumentFile *pDocFile);
-//	virtual bool Load(CDocumentFile *pDocFile);
+	virtual bool Load(CDocumentFile *pDocFile);
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc);
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
 
-public:	
+public:
 	int		GetSeqEnable(int Index) const;
 	int		GetSeqIndex(int Index) const;
 	void	SetSeqEnable(int Index, int Value);
@@ -276,9 +278,9 @@ public:
 	virtual CInstrument* CreateNew() const { return new CInstrumentS5B(); };
 	virtual CInstrument* Clone() const;
 //	virtual void Store(CDocumentFile *pDocFile);
-//	virtual bool Load(CDocumentFile *pDocFile);
+	virtual bool Load(CDocumentFile *pDocFile);
 //	virtual void SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc);
-//	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
+	virtual bool LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
 

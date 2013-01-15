@@ -370,7 +370,10 @@ SOURCES += \
     nes/designers/famitracker/ChannelMap.cpp \
     nes/designers/famitracker/ChannelHandler.cpp \
     nes/project/cmusicitem.cpp \
-    designers/newfiledialog.cpp
+    designers/newfiledialog.cpp \
+    nes/designers/cmusicfamitrackerinstrumentsmodel.cpp \
+    nes/designers/famitracker/DocumentFile.cpp \
+    common/cqtmfc.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -570,7 +573,10 @@ HEADERS += \
     nes/designers/famitracker/ChannelHandler.h \
     nes/project/cmusicitem.h \
     designers/newfiledialog.h \
-    nes/designers/famitracker/Chunk.h
+    nes/designers/famitracker/Chunk.h \
+    nes/designers/cmusicfamitrackerinstrumentsmodel.h \
+    nes/designers/famitracker/DocumentFile.h \
+    common/cqtmfc.h
 
 FORMS += \
    aboutdialog.ui \

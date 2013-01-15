@@ -19,6 +19,7 @@
 #include "c64_emulator_core.h"
 
 #include "model/cprojectmodel.h"
+#include "model/cmusicmodel.h"
 
 #include <QApplication>
 #include <QStringList>
@@ -1388,8 +1389,10 @@ void MainWindow::dropEvent(QDropEvent* event)
       foreach ( QUrl fileUrl, fileUrls )
       {
          fileName = fileUrl.toLocalFile();
+         qDebug(fileName.toAscii().constData());
 
          fileInfo.setFile(fileName);
+         qDebug(fileInfo.suffix().toAscii().constData());
 
          if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
          {
@@ -1430,6 +1433,12 @@ void MainWindow::dropEvent(QDropEvent* event)
                closeProject();
             }
             openC64File(fileName);
+
+            event->acceptProposedAction();
+         }
+         else if ( !fileInfo.suffix().compare("ftm",Qt::CaseInsensitive) )
+         {
+            m_pProjectModel->getMusicModel()->addExistingMusicFile(fileName);
 
             event->acceptProposedAction();
          }

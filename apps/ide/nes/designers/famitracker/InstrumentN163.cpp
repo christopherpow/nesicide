@@ -20,7 +20,7 @@
 
 #include <vector>
 #include "FamiTrackerDoc.h"
-#include "instrument.h"
+#include "Instrument.h"
 #include "Compiler.h"
 
 const int CInstrumentN163::SEQUENCE_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
@@ -101,40 +101,40 @@ CInstrument *CInstrumentN163::Clone() const
 //	}
 //}
 
-//bool CInstrumentN163::Load(CDocumentFile *pDocFile)
-//{
-//	int SeqCnt = pDocFile->GetBlockInt();
+bool CInstrumentN163::Load(CDocumentFile *pDocFile)
+{
+	int SeqCnt = pDocFile->GetBlockInt();
 
-//	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
+	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
 
-//	SeqCnt = SEQUENCE_COUNT;
+	SeqCnt = SEQUENCE_COUNT;
 
-//	for (int i = 0; i < SeqCnt; ++i) {
-//		SetSeqEnable(i, pDocFile->GetBlockChar());
-//		int Index = pDocFile->GetBlockChar();
-//		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
-//		SetSeqIndex(i, Index);
-//	}
+	for (int i = 0; i < SeqCnt; ++i) {
+		SetSeqEnable(i, pDocFile->GetBlockChar());
+		int Index = pDocFile->GetBlockChar();
+		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
+		SetSeqIndex(i, Index);
+	}
 
-//	m_iWaveSize = pDocFile->GetBlockInt();
-//	ASSERT_FILE_DATA(m_iWaveSize >= 0 && m_iWaveSize <= MAX_WAVE_SIZE);
-//	m_iWavePos = pDocFile->GetBlockInt();
-//	ASSERT_FILE_DATA(m_iWavePos >= 0 && m_iWavePos < 128);
-////	m_bAutoWavePos = (pDocFile->GetBlockInt() == 0) ? false : true;
-//	//pDocFile->GetBlockInt();
-//	m_iWaveCount = pDocFile->GetBlockInt();
-//	ASSERT_FILE_DATA(m_iWaveCount >= 1 && m_iWaveCount <= MAX_WAVE_COUNT);
+	m_iWaveSize = pDocFile->GetBlockInt();
+	ASSERT_FILE_DATA(m_iWaveSize >= 0 && m_iWaveSize <= MAX_WAVE_SIZE);
+	m_iWavePos = pDocFile->GetBlockInt();
+	ASSERT_FILE_DATA(m_iWavePos >= 0 && m_iWavePos < 128);
+//	m_bAutoWavePos = (pDocFile->GetBlockInt() == 0) ? false : true;
+	//pDocFile->GetBlockInt();
+	m_iWaveCount = pDocFile->GetBlockInt();
+	ASSERT_FILE_DATA(m_iWaveCount >= 1 && m_iWaveCount <= MAX_WAVE_COUNT);
 
-//	for (int i = 0; i < m_iWaveCount; ++i) {
-//		for (int j = 0; j < m_iWaveSize; ++j) {
-//			unsigned char WaveSample = pDocFile->GetBlockChar();
-//			ASSERT_FILE_DATA(WaveSample < 16);
-//			m_iSamples[i][j] = WaveSample;
-//		}
-//	}
+	for (int i = 0; i < m_iWaveCount; ++i) {
+		for (int j = 0; j < m_iWaveSize; ++j) {
+			unsigned char WaveSample = pDocFile->GetBlockChar();
+			ASSERT_FILE_DATA(WaveSample < 16);
+			m_iSamples[i][j] = WaveSample;
+		}
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 //void CInstrumentN163::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 //{
@@ -184,80 +184,80 @@ CInstrument *CInstrumentN163::Clone() const
 //	}
 //}
 
-//bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
-//{
-//	// Sequences
-//	unsigned char SeqCount;
-//	pFile->Read(&SeqCount, sizeof(char));
+bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+{
+	// Sequences
+	unsigned char SeqCount;
+	pFile->Read(&SeqCount, sizeof(char));
 
-//	// Loop through all instrument effects
-//	for (unsigned int i = 0; i < SeqCount; ++i) {
+	// Loop through all instrument effects
+	for (unsigned int i = 0; i < SeqCount; ++i) {
 
-//		unsigned char Enabled;
-//		pFile->Read(&Enabled, sizeof(char));
+		unsigned char Enabled;
+		pFile->Read(&Enabled, sizeof(char));
 
-//		if (Enabled == 1) {
-//			// Read the sequence
-//			int Count;
-//			pFile->Read(&Count, sizeof(int));
+		if (Enabled == 1) {
+			// Read the sequence
+			int Count;
+			pFile->Read(&Count, sizeof(int));
 
-//			if (Count < 0 || Count > MAX_SEQUENCE_ITEMS)
-//				return false;
+			if (Count < 0 || Count > MAX_SEQUENCE_ITEMS)
+				return false;
 
-//			// Find a free sequence
-//			int Index = pDoc->GetFreeSequenceN163(i);
-//			CSequence *pSeq = pDoc->GetSequenceN163(Index, i);
+			// Find a free sequence
+			int Index = pDoc->GetFreeSequenceN163(i);
+			CSequence *pSeq = pDoc->GetSequenceN163(Index, i);
 
-//			pSeq->SetItemCount(Count);
-//			int LoopPoint;
-//			int Setting;
-//			pFile->Read(&LoopPoint, sizeof(int));
-//			pSeq->SetLoopPoint(LoopPoint);
-//			int ReleasePoint;
-//			pFile->Read(&ReleasePoint, sizeof(int));
-//			pSeq->SetReleasePoint(ReleasePoint);
-//			pFile->Read(&Setting, sizeof(int));
-//			pSeq->SetSetting(Setting);
+			pSeq->SetItemCount(Count);
+			int LoopPoint;
+			int Setting;
+			pFile->Read(&LoopPoint, sizeof(int));
+			pSeq->SetLoopPoint(LoopPoint);
+			int ReleasePoint;
+			pFile->Read(&ReleasePoint, sizeof(int));
+			pSeq->SetReleasePoint(ReleasePoint);
+			pFile->Read(&Setting, sizeof(int));
+			pSeq->SetSetting(Setting);
 
-//			for (int j = 0; j < Count; ++j) {
-//				char Val;
-//				pFile->Read(&Val, sizeof(char));
-//				pSeq->SetItem(j, Val);
-//			}
-//			SetSeqEnable(i, true);
-//			SetSeqIndex(i, Index);
-//		}
-//		else {
-//			SetSeqEnable(i, false);
-//			SetSeqIndex(i, 0);
-//		}
-//	}
+			for (int j = 0; j < Count; ++j) {
+				char Val;
+				pFile->Read(&Val, sizeof(char));
+				pSeq->SetItem(j, Val);
+			}
+			SetSeqEnable(i, true);
+			SetSeqIndex(i, Index);
+		}
+		else {
+			SetSeqEnable(i, false);
+			SetSeqIndex(i, 0);
+		}
+	}
 
-//	// Read wave config
-//	int WaveSize, WavePos, WaveCount;
-//	pFile->Read(&WaveSize, sizeof(int));
-//	pFile->Read(&WavePos, sizeof(int));
-//	pFile->Read(&WaveCount, sizeof(int));
+	// Read wave config
+	int WaveSize, WavePos, WaveCount;
+	pFile->Read(&WaveSize, sizeof(int));
+	pFile->Read(&WavePos, sizeof(int));
+	pFile->Read(&WaveCount, sizeof(int));
 
-//	if (WaveSize <= 0 || WaveSize > 32)
-//		return false;
-//	if (WaveCount <= 0 || WaveCount > MAX_WAVE_COUNT)
-//		return false;
+	if (WaveSize <= 0 || WaveSize > 32)
+		return false;
+	if (WaveCount <= 0 || WaveCount > MAX_WAVE_COUNT)
+		return false;
 
-//	SetWaveSize(WaveSize);
-//	SetWavePos(WavePos);
-//	SetWaveCount(WaveCount);
+	SetWaveSize(WaveSize);
+	SetWavePos(WavePos);
+	SetWaveCount(WaveCount);
 
-//	for (int i = 0; i < WaveCount; ++i) {
-//		for (int j = 0; j < WaveSize; ++j) {
-//			char w;
-//			pFile->Read(&w, sizeof(char));
-//			SetSample(i, j, w);
-//		}
-//	}
+	for (int i = 0; i < WaveCount; ++i) {
+		for (int j = 0; j < WaveSize; ++j) {
+			char w;
+			pFile->Read(&w, sizeof(char));
+			SetSample(i, j, w);
+		}
+	}
 
-//	return true;
-//}
+	return true;
+}
 
 int CInstrumentN163::Compile(CChunk *pChunk, int Index)
 {
