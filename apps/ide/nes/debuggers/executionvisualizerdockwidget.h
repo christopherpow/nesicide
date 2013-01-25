@@ -41,10 +41,7 @@ public slots:
 private slots:
    void on_actionRemove_Marker_triggered();
    void on_actionReset_Marker_Data_triggered();
-   void on_tableView_activated(QModelIndex index);
-   void on_tableView_clicked(QModelIndex index);
-   void on_tableView_entered(QModelIndex index);
-   void on_tableView_pressed(QModelIndex index);
+   void tableView_currentChanged(QModelIndex index,QModelIndex);
 
 signals:
    void breakpointsChanged();

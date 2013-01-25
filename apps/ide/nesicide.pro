@@ -328,7 +328,6 @@ SOURCES += \
     model/cmusicmodel.cpp \
     nes/project/cmusics.cpp \
     nes/project/csounds.cpp \
-    nes/designers/cmusicfamitrackerdata.cpp \
     nes/designers/famitracker/TrackerChannel.cpp \
     nes/designers/famitracker/Sequence.cpp \
     nes/designers/famitracker/PatternData.cpp \
@@ -373,7 +372,16 @@ SOURCES += \
     designers/newfiledialog.cpp \
     nes/designers/cmusicfamitrackerinstrumentsmodel.cpp \
     nes/designers/famitracker/DocumentFile.cpp \
-    common/cqtmfc.cpp
+    common/cqtmfc.cpp \
+    nes/designers/famitracker/famitrackermodulepropertiesdialog.cpp \
+    nes/designers/famitracker/famitrackermoduleimportdialog.cpp \
+    nes/designers/famitracker/PatternAction.cpp \
+    nes/designers/famitracker/FrameAction.cpp \
+    nes/designers/famitracker/Action.cpp \
+    nes/designers/famitracker/MainFrame.cpp \
+    nes/designers/famitracker/FrameEditor.cpp \
+    nes/designers/famitracker/PatternEditor.cpp \
+    nes/designers/famitracker/Settings.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -527,7 +535,6 @@ HEADERS += \
     model/cmusicmodel.h \
     nes/project/cmusics.h \
     nes/project/csounds.h \
-    nes/designers/cmusicfamitrackerdata.h \
     nes/designers/famitracker/TrackerChannel.h \
     nes/designers/famitracker/Sequence.h \
     nes/designers/famitracker/PatternData.h \
@@ -576,7 +583,15 @@ HEADERS += \
     nes/designers/famitracker/Chunk.h \
     nes/designers/cmusicfamitrackerinstrumentsmodel.h \
     nes/designers/famitracker/DocumentFile.h \
-    common/cqtmfc.h
+    common/cqtmfc.h \
+    nes/designers/famitracker/famitrackermodulepropertiesdialog.h \
+    nes/designers/famitracker/famitrackermoduleimportdialog.h \
+    nes/designers/famitracker/Action.h \
+    nes/designers/famitracker/MainFrame.h \
+    nes/designers/famitracker/FrameEditor.h \
+    nes/designers/famitracker/PatternEditor.h \
+    nes/designers/famitracker/Settings.h \
+    nes/designers/famitracker/ColorScheme.h
 
 FORMS += \
    aboutdialog.ui \
@@ -622,7 +637,12 @@ FORMS += \
     nes/debuggers/joypadloggerdockwidget.ui \
     common/cexpandablestatusbar.ui \
     nes/designers/musiceditorform.ui \
-    designers/newfiledialog.ui
+    designers/newfiledialog.ui \
+    nes/designers/famitracker/famitrackermodulepropertiesdialog.ui \
+    nes/designers/famitracker/famitrackermoduleimportdialog.ui \
+    nes/designers/famitracker/MainFrame.ui \
+    nes/designers/famitracker/FrameEditor.ui \
+    nes/designers/famitracker/PatternEditor.ui
 
 RESOURCES += \
     templates.qrc \

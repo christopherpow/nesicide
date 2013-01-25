@@ -125,8 +125,7 @@ void CSoundGen::start(Priority p)
    // Generate default vibrato table
    GenerateVibratoTable(VIBRATO_NEW);
 
-   qDebug("implement ResetSound?");
-//	ResetSound();
+	ResetSound();
 
 //	LoadMachineSettings(DEFAULT_MACHINE_TYPE, DEFAULT_MACHINE_TYPE == NTSC ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL);
 
@@ -445,12 +444,13 @@ void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 //	return true;
 //}
 
-//bool CSoundGen::ResetSound()
-//{
-//	// Setup sound, return false if failed
-//	//
+bool CSoundGen::ResetSound()
+{
+   qDebug("ResetSound NOT IMPL");
+	// Setup sound, return false if failed
+	//
 
-//	// Called from player thread
+	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 //	CSettings *pSettings = theApp.GetSettings();
@@ -523,14 +523,14 @@ void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 //	m_pAPU->SetChipLevel(SNDCHIP_VRC7, 0);//pSettings->ChipLevels.iLevelVRC7);
 //	m_pAPU->SetChipLevel(SNDCHIP_MMC5, 0);//pSettings->ChipLevels.iLevelMMC5);
 //	m_pAPU->SetChipLevel(SNDCHIP_FDS, 0);//pSettings->ChipLevels.iLevelFDS);
-////	m_pAPU->SetChipLevel(SNDCHIP_N163, pSettings->ChipLevels.iLevelN163);
-////	m_pAPU->SetChipLevel(SNDCHIP_S5B, pSettings->ChipLevels.iLevelS5B);
+//	m_pAPU->SetChipLevel(SNDCHIP_N163, pSettings->ChipLevels.iLevelN163);
+//	m_pAPU->SetChipLevel(SNDCHIP_S5B, pSettings->ChipLevels.iLevelS5B);
 
 //	// Update blip-buffer filtering
 //	m_pAPU->SetupMixer(pSettings->Sound.iBassFilter, pSettings->Sound.iTrebleFilter,  pSettings->Sound.iTrebleDamping, pSettings->Sound.iMixVolume);
 
-//	return true;
-//}
+	return true;
+}
 
 //void CSoundGen::CloseSound()
 //{

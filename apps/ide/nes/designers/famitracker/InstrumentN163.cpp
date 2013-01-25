@@ -78,28 +78,28 @@ CInstrument *CInstrumentN163::Clone() const
 	return pNew;
 }
 
-//void CInstrumentN163::Store(CDocumentFile *pDocFile)
-//{
-//	// Store sequences
-//	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
+void CInstrumentN163::Store(CDocumentFile *pDocFile)
+{
+	// Store sequences
+	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		pDocFile->WriteBlockChar(GetSeqEnable(i));
-//		pDocFile->WriteBlockChar(GetSeqIndex(i));
-//	}
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		pDocFile->WriteBlockChar(GetSeqEnable(i));
+		pDocFile->WriteBlockChar(GetSeqIndex(i));
+	}
 
-//	// Store wave
-//	pDocFile->WriteBlockInt(m_iWaveSize);
-//	pDocFile->WriteBlockInt(m_iWavePos);
-//	//pDocFile->WriteBlockInt(m_bAutoWavePos ? 1 : 0);
-//	pDocFile->WriteBlockInt(m_iWaveCount);
+	// Store wave
+	pDocFile->WriteBlockInt(m_iWaveSize);
+	pDocFile->WriteBlockInt(m_iWavePos);
+	//pDocFile->WriteBlockInt(m_bAutoWavePos ? 1 : 0);
+	pDocFile->WriteBlockInt(m_iWaveCount);
 
-//	for (int i = 0; i < m_iWaveCount; ++i) {
-//		for (int j = 0; j < m_iWaveSize; ++j) {
-//			pDocFile->WriteBlockChar(m_iSamples[i][j]);
-//		}
-//	}
-//}
+	for (int i = 0; i < m_iWaveCount; ++i) {
+		for (int j = 0; j < m_iWaveSize; ++j) {
+			pDocFile->WriteBlockChar(m_iSamples[i][j]);
+		}
+	}
+}
 
 bool CInstrumentN163::Load(CDocumentFile *pDocFile)
 {
@@ -136,53 +136,53 @@ bool CInstrumentN163::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-//void CInstrumentN163::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
-//{
-//	// Sequences
-//	unsigned char SeqCount = SEQUENCE_COUNT;
-//	pFile->Write(&SeqCount, sizeof(char));
+void CInstrumentN163::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+{
+	// Sequences
+	unsigned char SeqCount = SEQUENCE_COUNT;
+	pFile->Write(&SeqCount, sizeof(char));
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		int Sequence = GetSeqIndex(i);
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		int Sequence = GetSeqIndex(i);
 
-//		if (GetSeqEnable(i)) {
-//			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_N163, Sequence, i);
-//			char Enabled = 1;
-//			int ItemCount = pSeq->GetItemCount();
-//			int LoopPoint = pSeq->GetLoopPoint();
-//			int ReleasePoint = pSeq->GetReleasePoint();
-//			int Setting = pSeq->GetSetting();
-//			pFile->Write(&Enabled, sizeof(char));
-//			pFile->Write(&ItemCount, sizeof(int));
-//			pFile->Write(&LoopPoint, sizeof(int));
-//			pFile->Write(&ReleasePoint, sizeof(int));
-//			pFile->Write(&Setting, sizeof(int));
-//			for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
-//				int Value = pSeq->GetItem(j);
-//				pFile->Write(&Value, sizeof(char));
-//			}
-//		}
-//		else {
-//			char Enabled = 0;
-//			pFile->Write(&Enabled, sizeof(char));
-//		}
-//	}
+		if (GetSeqEnable(i)) {
+			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_N163, Sequence, i);
+			char Enabled = 1;
+			int ItemCount = pSeq->GetItemCount();
+			int LoopPoint = pSeq->GetLoopPoint();
+			int ReleasePoint = pSeq->GetReleasePoint();
+			int Setting = pSeq->GetSetting();
+			pFile->Write(&Enabled, sizeof(char));
+			pFile->Write(&ItemCount, sizeof(int));
+			pFile->Write(&LoopPoint, sizeof(int));
+			pFile->Write(&ReleasePoint, sizeof(int));
+			pFile->Write(&Setting, sizeof(int));
+			for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
+				int Value = pSeq->GetItem(j);
+				pFile->Write(&Value, sizeof(char));
+			}
+		}
+		else {
+			char Enabled = 0;
+			pFile->Write(&Enabled, sizeof(char));
+		}
+	}
 
-//	// Write wave config
-//	int WaveSize = GetWaveSize();
-//	pFile->Write(&WaveSize, sizeof(int));
-//	int WavePos = GetWavePos();
-//	pFile->Write(&WavePos, sizeof(int));
-//	int WaveCount = GetWaveCount();
-//	pFile->Write(&WaveCount, sizeof(int));
+	// Write wave config
+	int WaveSize = GetWaveSize();
+	pFile->Write(&WaveSize, sizeof(int));
+	int WavePos = GetWavePos();
+	pFile->Write(&WavePos, sizeof(int));
+	int WaveCount = GetWaveCount();
+	pFile->Write(&WaveCount, sizeof(int));
 
-//	for (int i = 0; i < WaveCount; ++i) {
-//		for (int j = 0; j < WaveSize; ++j) {
-//			char w = GetSample(i, j);
-//			pFile->Write(&w, sizeof(char));
-//		}
-//	}
-//}
+	for (int i = 0; i < WaveCount; ++i) {
+		for (int j = 0; j < WaveSize; ++j) {
+			char w = GetSample(i, j);
+			pFile->Write(&w, sizeof(char));
+		}
+	}
+}
 
 bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {

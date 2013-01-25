@@ -54,13 +54,13 @@ CInstrument *CInstrumentVRC7::Clone() const
 	return pNew;
 }
 
-//void CInstrumentVRC7::Store(CDocumentFile *pDocFile)
-//{
-//	pDocFile->WriteBlockInt(m_iPatch);
+void CInstrumentVRC7::Store(CDocumentFile *pDocFile)
+{
+	pDocFile->WriteBlockInt(m_iPatch);
 
-//	for (int i = 0; i < 8; ++i)
-//		pDocFile->WriteBlockChar(GetCustomReg(i));
-//}
+	for (int i = 0; i < 8; ++i)
+		pDocFile->WriteBlockChar(GetCustomReg(i));
+}
 
 bool CInstrumentVRC7::Load(CDocumentFile *pDocFile)
 {
@@ -72,17 +72,17 @@ bool CInstrumentVRC7::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-//void CInstrumentVRC7::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
-//{
-//	unsigned char Var;
+void CInstrumentVRC7::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+{
+	unsigned char Var;
 
-//	pFile->Write(&m_iPatch, sizeof(int));
+	pFile->Write(&m_iPatch, sizeof(int));
 
-//	for (int i = 0; i < 8; ++i) {
-//		Var = GetCustomReg(i);
-//		pFile->Write(&Var, 1);
-//	}
-//}
+	for (int i = 0; i < 8; ++i) {
+		Var = GetCustomReg(i);
+		pFile->Write(&Var, 1);
+	}
+}
 
 bool CInstrumentVRC7::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {

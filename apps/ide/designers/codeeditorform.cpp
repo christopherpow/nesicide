@@ -1494,7 +1494,7 @@ void CodeEditorForm::checkOpenFile(QDateTime lastActivationTime)
             if ( fileIn.open(QIODevice::ReadOnly) )
             {
                QByteArray fileData = fileIn.readAll();
-               this->setSourceCode(fileData);
+               setSourceCode(fileData);
             }
          }
       }

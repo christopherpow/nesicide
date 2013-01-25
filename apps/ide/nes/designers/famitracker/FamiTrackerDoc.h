@@ -26,6 +26,7 @@
 // stubs for theApp for now
 class CSoundGen;
 class CChannelMap;
+class CSettings;
 class CFamiTrackerApp
 {
 public:
@@ -33,12 +34,17 @@ public:
    ~CFamiTrackerApp();
 
    void RegisterKeyState(int Channel, int Note);
-   static CSoundGen* GetSoundGenerator();
    void OnTrackerStop();
-   CChannelMap* GetChannelMap();
+   bool IsPlaying() { qDebug("IsPlaying?!"); return false; }
 
+   static CSoundGen* GetSoundGenerator() { return m_pSoundGen; }
+   static CChannelMap* GetChannelMap() { return m_pChannelMap; }
+   static CSettings* GetSettings() { return m_pSettings; }
+   
 private:
    static CSoundGen* m_pSoundGen;
+   static CChannelMap* m_pChannelMap;
+   static CSettings* m_pSettings;
 };
 
 extern CFamiTrackerApp theApp;
@@ -310,7 +316,6 @@ public:
 
 	// Track management functions
 	void			SelectTrack(unsigned int Track);
-//	void			SelectTrackFast(unsigned int Track);	//	TODO: should be removed
 	unsigned int	GetTrackCount() const;
 	unsigned int	GetSelectedTrack() const;
 	char			*GetTrackTitle(unsigned int Track) const;
@@ -334,8 +339,8 @@ public:
 	int				CloneInstrument(unsigned int Index);						// Create a copy of an instrument
 	CInstrument		*CreateInstrument(int InstType);							// Creates a new instrument of InstType
 	int				FindFreeInstrumentSlot();
-//	void			SaveInstrument(unsigned int Instrument, CString FileName);
-//	int 			LoadInstrument(CString FileName);
+	void			SaveInstrument(unsigned int Instrument, CString FileName);
+	int 			LoadInstrument(CString FileName);
 	int				GetInstrumentType(unsigned int Index) const;
 
 	int				DeepCloneInstrument(unsigned int Index);
@@ -413,18 +418,18 @@ protected:
 	BOOL			OpenDocumentOld(CFile *pOpenFile);
 	BOOL			OpenDocumentNew(CDocumentFile &DocumentFile);
 
-//	bool			WriteBlocks(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_Parameters(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_SongInfo(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_Header(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_Instruments(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_Sequences(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_Frames(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_Patterns(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_DSamples(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_SequencesVRC6(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_SequencesN163(CDocumentFile *pDocFile) const;
-//	bool			WriteBlock_SequencesS5B(CDocumentFile *pDocFile) const;
+	bool			WriteBlocks(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_Parameters(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_SongInfo(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_Header(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_Instruments(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_Sequences(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_Frames(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_Patterns(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_DSamples(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_SequencesVRC6(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_SequencesN163(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_SequencesS5B(CDocumentFile *pDocFile) const;
 
 	bool			ReadBlock_Parameters(CDocumentFile *pDocFile);
 	bool			ReadBlock_Header(CDocumentFile *pDocFile);
@@ -548,7 +553,7 @@ public:
 	virtual void OnCloseDocument();
 	virtual void DeleteContents();
 	virtual void SetModifiedFlag(BOOL bModified = 1);
-   virtual void UpdateAllViews(void* ptr,long hint = 0) { qDebug("UpdateAllViews"); }
+   virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
    virtual CString GetTitle() { return m_docTitle; }
    virtual void SetTitle(CString title ) { m_docTitle = title; }
 
@@ -558,4 +563,5 @@ public:
 
 signals:
    void setModified(bool f);
+   void updateViews(long hint);
 };

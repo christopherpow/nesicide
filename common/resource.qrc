@@ -137,5 +137,22 @@
         <file>resources/RR_graphics_bank.png</file>
         <file>resources/SampleBg.bmp</file>
         <file>resources/Inst_2A03inv.ico</file>
+        <file>resources/ico00001.ico</file>
+        <file>resources/ico00002.ico</file>
+        <file>resources/ico00003.ico</file>
+        <file>resources/ico00004.ico</file>
+        <file>resources/ico00005.ico</file>
+        <file>resources/icon1.ico</file>
+        <file>resources/icon2.ico</file>
+        <file>resources/icon3.ico</file>
+        <file>resources/Inst_2A03.ico</file>
+        <file>resources/inst_toolbar.bmp</file>
+        <file>resources/key_black_pressed.bmp</file>
+        <file>resources/key_black_unpressed.bmp</file>
+        <file>resources/key_white_pressed.bmp</file>
+        <file>resources/key_white_unpressed.bmp</file>
+        <file>resources/Toolbar.bmp</file>
+        <file>resources/toolbar1.bmp</file>
+        <file>resources/Toolbar-d5.bmp</file>
     </qresource>
 </RCC>

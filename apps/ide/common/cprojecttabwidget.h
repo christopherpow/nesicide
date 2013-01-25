@@ -3,6 +3,7 @@
 
 #include <QTabWidget>
 #include <QDateTime>
+#include <QToolBar>
 
 // The IDE uses a system of signals named "snapTo" and "snapToTab" to
 // communicate information between various debuggers, IDE elements, or
@@ -91,6 +92,8 @@ signals:
    void applyEnvironmentSettingsToTab();
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void addToolBarWidget(QToolBar* toolBar);
+   void removeToolBarWidget(QToolBar* toolBar);
    void setStatusBarMessage(QString message);
    void updateTargetMachine(QString target);
    void checkOpenFile(QDateTime lastActivationTime);

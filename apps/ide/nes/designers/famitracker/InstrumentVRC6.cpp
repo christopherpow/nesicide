@@ -52,15 +52,15 @@ CInstrument *CInstrumentVRC6::Clone() const
 	return pNew;
 }
 
-//void CInstrumentVRC6::Store(CDocumentFile *pDocFile)
-//{
-//	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
+void CInstrumentVRC6::Store(CDocumentFile *pDocFile)
+{
+	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
 
-//	for (int i = 0; i < SEQUENCE_COUNT; i++) {
-//		pDocFile->WriteBlockChar(GetSeqEnable(i));
-//		pDocFile->WriteBlockChar(GetSeqIndex(i));
-//	}
-//}
+	for (int i = 0; i < SEQUENCE_COUNT; i++) {
+		pDocFile->WriteBlockChar(GetSeqEnable(i));
+		pDocFile->WriteBlockChar(GetSeqIndex(i));
+	}
+}
 
 bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
 {
@@ -81,42 +81,42 @@ bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-//void CInstrumentVRC6::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
-//{
-////	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)theApp.GetFirstDocument();
+void CInstrumentVRC6::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+{
+//	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)theApp.GetFirstDocument();
 
-//	// Sequences
-//	unsigned char SeqCount = SEQUENCE_COUNT;
-//	pFile->Write(&SeqCount, sizeof(char));
+	// Sequences
+	unsigned char SeqCount = SEQUENCE_COUNT;
+	pFile->Write(&SeqCount, sizeof(char));
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		int Sequence = GetSeqIndex(i);
-//		if (GetSeqEnable(i)) {
-//			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Sequence, i);
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		int Sequence = GetSeqIndex(i);
+		if (GetSeqEnable(i)) {
+			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Sequence, i);
 
-//			char Enabled = 1;
-//			int ItemCount = pSeq->GetItemCount();
-//			int LoopPoint = pSeq->GetLoopPoint();
-//			int ReleasePoint = pSeq->GetReleasePoint();
-//			int Setting	= pSeq->GetSetting();
+			char Enabled = 1;
+			int ItemCount = pSeq->GetItemCount();
+			int LoopPoint = pSeq->GetLoopPoint();
+			int ReleasePoint = pSeq->GetReleasePoint();
+			int Setting	= pSeq->GetSetting();
 
-//			pFile->Write(&Enabled, sizeof(char));
-//			pFile->Write(&ItemCount, sizeof(int));
-//			pFile->Write(&LoopPoint, sizeof(int));
-//			pFile->Write(&ReleasePoint, sizeof(int));
-//			pFile->Write(&Setting, sizeof(int));
+			pFile->Write(&Enabled, sizeof(char));
+			pFile->Write(&ItemCount, sizeof(int));
+			pFile->Write(&LoopPoint, sizeof(int));
+			pFile->Write(&ReleasePoint, sizeof(int));
+			pFile->Write(&Setting, sizeof(int));
 
-//			for (int j = 0; j < ItemCount; ++j) {
-//				signed char Value = pSeq->GetItem(j);
-//				pFile->Write(&Value, sizeof(char));
-//			}
-//		}
-//		else {
-//			char Enabled = 0;
-//			pFile->Write(&Enabled, sizeof(char));
-//		}
-//	}
-//}
+			for (int j = 0; j < ItemCount; ++j) {
+				signed char Value = pSeq->GetItem(j);
+				pFile->Write(&Value, sizeof(char));
+			}
+		}
+		else {
+			char Enabled = 0;
+			pFile->Write(&Enabled, sizeof(char));
+		}
+	}
+}
 
 bool CInstrumentVRC6::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {

@@ -103,11 +103,7 @@ protected:
    int getSelectedColor();
 
 private slots:
-   void on_propertyTableView_pressed(QModelIndex index);
-   void on_propertyTableView_entered(QModelIndex index);
-   void on_propertyTableView_doubleClicked(QModelIndex index);
-   void on_propertyTableView_clicked(QModelIndex index);
-   void on_propertyTableView_activated(QModelIndex index);
+   void propertyTableView_currentChanged(QModelIndex index,QModelIndex);
    void on_filledCircleTool_clicked();
    void on_hollowCircleTool_clicked();
    void on_hollowBoxTool_clicked();

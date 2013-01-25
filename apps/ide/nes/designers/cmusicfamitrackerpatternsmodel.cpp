@@ -2,6 +2,9 @@
 
 #include "stdio.h"
 
+#include <QFont>
+#include <QFontMetrics>
+
 static char modelStringBuffer [ 16 ];
 static int  modelStringBufferPos;
 
@@ -17,8 +20,9 @@ CMusicFamiTrackerPatternsModel::~CMusicFamiTrackerPatternsModel()
 
 void CMusicFamiTrackerPatternsModel::DrawChar(int x, int y, TCHAR c, COLORREF Color, CDC *pDC) const
 {
-   modelStringBuffer[modelStringBufferPos]=(char)c;
+   *(modelStringBuffer+modelStringBufferPos)=(char)c;
    modelStringBufferPos++;
+   *(modelStringBuffer+modelStringBufferPos)=0;
 }
 
 const int CHAR_WIDTH = 10;
@@ -166,10 +170,51 @@ int CMusicFamiTrackerPatternsModel::GetChannelColumns(int Channel) const
 
 QVariant CMusicFamiTrackerPatternsModel::data(const QModelIndex& index, int role) const
 {
-   int Columns	 = GetChannelColumns(index.column());
+   int Channel;
+   int ChannelStartCol = 0;
    RowColorInfo_t colorInfo;
-   int col;
+   int col = 0;
+   
+   if (!index.isValid())
+   {
+      return QVariant();
+   }
 
+   if (role == Qt::FontRole)
+   {
+#ifdef Q_WS_MAC
+      return QFont("Monaco",9);
+#endif
+#ifdef Q_WS_X11
+      return QFont("Monospace",8);
+#endif
+#ifdef Q_WS_WIN
+      return QFont("Consolas",9);
+#endif
+   }
+   
+   if (role == Qt::SizeHintRole)
+   {
+      QFontMetrics fontMetrics(qvariant_cast<QFont>(data(index,Qt::FontRole)));
+      
+      return QSize(fontMetrics.size(Qt::TextSingleLine,data(index,Qt::DisplayRole).toString()));      
+   }
+
+   if ( role != Qt::DisplayRole )
+   {
+      return QVariant();
+   }
+   
+   for ( Channel = 0; Channel < m_pDocument->GetChannelCount(); Channel++ )
+   {
+      col += GetChannelColumns(Channel);
+      if ( col > index.column() ) break;
+      ChannelStartCol += GetChannelColumns(Channel);
+   }
+   
+   // Locally adjust the column from the index to the channel column.   
+   col = index.column()-ChannelStartCol;
+   
    colorInfo.Back = RGB(0,0,0);
    colorInfo.Effect = RGB(255,0,0);
    colorInfo.Instrument = RGB(255,255,0);
@@ -177,26 +222,13 @@ QVariant CMusicFamiTrackerPatternsModel::data(const QModelIndex& index, int role
    colorInfo.Shaded = RGB(180,180,180);
    colorInfo.Volume = RGB(0,255,255);
 
-   if (!index.isValid())
-   {
-      return QVariant();
-   }
-
-   if (role != Qt::DisplayRole)
-   {
-      return QVariant();
-   }
-
    stChanNote NoteData;
 
-   m_pDocument->GetNoteData(m_frame, index.column(), index.row(), &NoteData);
+   m_pDocument->GetNoteData(m_frame, Channel, index.row(), &NoteData);
 
-   memset(modelStringBuffer,0,sizeof(modelStringBuffer));
    modelStringBufferPos = 0;
-   for ( col = 0; col < Columns; col++ )
-   {
-      DrawCell(0,col,index.column(),false,&NoteData,NULL,&colorInfo);
-   }
+
+   DrawCell(0,col,Channel,false,&NoteData,NULL,&colorInfo);
 
    return QVariant(modelStringBuffer);
 }
@@ -210,7 +242,7 @@ Qt::ItemFlags CMusicFamiTrackerPatternsModel::flags(const QModelIndex& /*index*/
 
 QVariant CMusicFamiTrackerPatternsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-   if (role != Qt::DisplayRole)
+   if ( orientation == Qt::Horizontal )
    {
       return QVariant();
    }
@@ -219,9 +251,30 @@ QVariant CMusicFamiTrackerPatternsModel::headerData(int section, Qt::Orientation
    {
       sprintf ( modelStringBuffer, "%02X", section );
    }
-   else
+
+   if (role == Qt::FontRole)
    {
-      return QVariant((char*)m_pDocument->GetChannel(section)->GetChannelName());
+#ifdef Q_WS_MAC
+      return QFont("Monaco",9);
+#endif
+#ifdef Q_WS_X11
+      return QFont("Monospace",8);
+#endif
+#ifdef Q_WS_WIN
+      return QFont("Consolas",9);
+#endif
+   }
+   
+   if (role == Qt::SizeHintRole)
+   {
+      QFontMetrics fontMetrics(qvariant_cast<QFont>(headerData(section,orientation,Qt::FontRole)));
+
+      return QSize(fontMetrics.size(Qt::TextSingleLine,headerData(section,orientation,Qt::DisplayRole).toString()));      
+   }
+
+   if (role != Qt::DisplayRole)
+   {
+      return QVariant();
    }
 
    return QVariant(modelStringBuffer);
@@ -243,16 +296,23 @@ bool CMusicFamiTrackerPatternsModel::setData ( const QModelIndex& index, const Q
    return ok;
 }
 
-QModelIndex CMusicFamiTrackerPatternsModel::index(int row, int column, const QModelIndex&) const
-{
-   if ( (row >= 0) && (column >= 0) )
-   {
-      // CPTODO: return orders row data here when music data is ported.
-      return createIndex(row,column,row);
-   }
+//QModelIndex CMusicFamiTrackerPatternsModel::index(int row, int column, const QModelIndex&) const
+//{
+//   if ( (row >= 0) && (column >= 0) )
+//   {
+//      int channel = 0;
+//      int cols = 0;
+//      for ( channel = 0; channel < m_pDocument->GetChannelCount(); channel++ )
+//      {
+//         cols += GetChannelColumns(channel);
+//         if ( cols > column ) break;
+//      }
 
-   return QModelIndex();
-}
+//      return createIndex(row,column,channel);
+//   }
+
+//   return QModelIndex();
+//}
 
 int CMusicFamiTrackerPatternsModel::rowCount(const QModelIndex&) const
 {
@@ -261,7 +321,13 @@ int CMusicFamiTrackerPatternsModel::rowCount(const QModelIndex&) const
 
 int CMusicFamiTrackerPatternsModel::columnCount(const QModelIndex& /*parent*/) const
 {
-   return m_pDocument->GetChannelCount();
+   int channel;
+   int cols = 0;
+   for ( channel = 0; channel < m_pDocument->GetChannelCount(); channel++ )
+   {
+      cols += GetChannelColumns(channel);
+   }
+   return cols;
 }
 
 void CMusicFamiTrackerPatternsModel::update()

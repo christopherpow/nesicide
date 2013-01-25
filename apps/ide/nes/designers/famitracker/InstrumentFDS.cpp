@@ -77,27 +77,27 @@ CInstrument *CInstrumentFDS::Clone() const
 	return pNewInst;
 }
 
-//void CInstrumentFDS::StoreInstSequence(CFile *pFile, CSequence *pSeq)
-//{
-//	int i;
-//	// Store number of items in this sequence
-//	i = pSeq->GetItemCount();
-//	pFile->Write(&i, 4);
-//	// Store loop point
-//	i = pSeq->GetLoopPoint();
-//	pFile->Write(&i, 4);
-//	// Store release point (v4)
-//	i = pSeq->GetReleasePoint();
-//	pFile->Write(&i, 4);
-//	// Store setting (v4)
-//	i = pSeq->GetSetting();
-//	pFile->Write(&i, 4);
-//	// Store items
-//	for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
-//		char c = pSeq->GetItem(j);
-//		pFile->Write(&c, 1);
-//	}
-//}
+void CInstrumentFDS::StoreInstSequence(CFile *pFile, CSequence *pSeq)
+{
+	int i;
+	// Store number of items in this sequence
+	i = pSeq->GetItemCount();
+	pFile->Write(&i, 4);
+	// Store loop point
+	i = pSeq->GetLoopPoint();
+	pFile->Write(&i, 4);
+	// Store release point (v4)
+	i = pSeq->GetReleasePoint();
+	pFile->Write(&i, 4);
+	// Store setting (v4)
+	i = pSeq->GetSetting();
+	pFile->Write(&i, 4);
+	// Store items
+	for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
+		char c = pSeq->GetItem(j);
+		pFile->Write(&c, 1);
+	}
+}
 
 bool CInstrumentFDS::LoadInstSequence(CFile *pFile, CSequence *pSeq)
 {
@@ -129,21 +129,21 @@ bool CInstrumentFDS::LoadInstSequence(CFile *pFile, CSequence *pSeq)
 	return true;
 }
 
-//void CInstrumentFDS::StoreSequence(CDocumentFile *pDocFile, CSequence *pSeq)
-//{
-//	// Store number of items in this sequence
-//	pDocFile->WriteBlockChar(pSeq->GetItemCount());
-//	// Store loop point
-//	pDocFile->WriteBlockInt(pSeq->GetLoopPoint());
-//	// Store release point (v4)
-//	pDocFile->WriteBlockInt(pSeq->GetReleasePoint());
-//	// Store setting (v4)
-//	pDocFile->WriteBlockInt(pSeq->GetSetting());
-//	// Store items
-//	for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
-//		pDocFile->WriteBlockChar(pSeq->GetItem(j));
-//	}
-//}
+void CInstrumentFDS::StoreSequence(CDocumentFile *pDocFile, CSequence *pSeq)
+{
+	// Store number of items in this sequence
+	pDocFile->WriteBlockChar(pSeq->GetItemCount());
+	// Store loop point
+	pDocFile->WriteBlockInt(pSeq->GetLoopPoint());
+	// Store release point (v4)
+	pDocFile->WriteBlockInt(pSeq->GetReleasePoint());
+	// Store setting (v4)
+	pDocFile->WriteBlockInt(pSeq->GetSetting());
+	// Store items
+	for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
+		pDocFile->WriteBlockChar(pSeq->GetItem(j));
+	}
+}
 
 bool CInstrumentFDS::LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq)
 {
@@ -173,28 +173,28 @@ bool CInstrumentFDS::LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq)
 	return true;
 }
 
-//void CInstrumentFDS::Store(CDocumentFile *pDocFile)
-//{
-//	// Write wave
-//	for (int i = 0; i < WAVE_SIZE; ++i) {
-//		pDocFile->WriteBlockChar(GetSample(i));
-//	}
+void CInstrumentFDS::Store(CDocumentFile *pDocFile)
+{
+	// Write wave
+	for (int i = 0; i < WAVE_SIZE; ++i) {
+		pDocFile->WriteBlockChar(GetSample(i));
+	}
 
-//	// Write modulation table
-//	for (int i = 0; i < MOD_SIZE; ++i) {
-//		pDocFile->WriteBlockChar(GetModulation(i));
-//	}
+	// Write modulation table
+	for (int i = 0; i < MOD_SIZE; ++i) {
+		pDocFile->WriteBlockChar(GetModulation(i));
+	}
 
-//	// Modulation parameters
-//	pDocFile->WriteBlockInt(GetModulationSpeed());
-//	pDocFile->WriteBlockInt(GetModulationDepth());
-//	pDocFile->WriteBlockInt(GetModulationDelay());
+	// Modulation parameters
+	pDocFile->WriteBlockInt(GetModulationSpeed());
+	pDocFile->WriteBlockInt(GetModulationDepth());
+	pDocFile->WriteBlockInt(GetModulationDelay());
 
-//	// Sequences
-//	StoreSequence(pDocFile, m_pVolume);
-//	StoreSequence(pDocFile, m_pArpeggio);
-//	StoreSequence(pDocFile, m_pPitch);
-//}
+	// Sequences
+	StoreSequence(pDocFile, m_pVolume);
+	StoreSequence(pDocFile, m_pArpeggio);
+	StoreSequence(pDocFile, m_pPitch);
+}
 
 bool CInstrumentFDS::Load(CDocumentFile *pDocFile)
 {
@@ -249,34 +249,34 @@ bool CInstrumentFDS::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-//void CInstrumentFDS::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
-//{
-//	// Write wave
-//	for (int i = 0; i < WAVE_SIZE; ++i) {
-//		char sample = GetSample(i);
-//		pFile->Write(&sample, 1);
-//	}
+void CInstrumentFDS::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+{
+	// Write wave
+	for (int i = 0; i < WAVE_SIZE; ++i) {
+		char sample = GetSample(i);
+		pFile->Write(&sample, 1);
+	}
 
-//	// Write modulation table
-//	for (int i = 0; i < MOD_SIZE; ++i) {
-//		char mod = GetModulation(i);
-//		pFile->Write(&mod, 1);
-//	}
+	// Write modulation table
+	for (int i = 0; i < MOD_SIZE; ++i) {
+		char mod = GetModulation(i);
+		pFile->Write(&mod, 1);
+	}
 
-//	// Modulation parameters
-//	int data;
-//	data = GetModulationSpeed();
-//	pFile->Write(&data, sizeof(int));
-//	data = GetModulationDepth();
-//	pFile->Write(&data, sizeof(int));
-//	data = GetModulationDelay();
-//	pFile->Write(&data, sizeof(int));
+	// Modulation parameters
+	int data;
+	data = GetModulationSpeed();
+	pFile->Write(&data, sizeof(int));
+	data = GetModulationDepth();
+	pFile->Write(&data, sizeof(int));
+	data = GetModulationDelay();
+	pFile->Write(&data, sizeof(int));
 
-//	// Sequences
-//	StoreInstSequence(pFile, m_pVolume);
-//	StoreInstSequence(pFile, m_pArpeggio);
-//	StoreInstSequence(pFile, m_pPitch);
-//}
+	// Sequences
+	StoreInstSequence(pFile, m_pVolume);
+	StoreInstSequence(pFile, m_pArpeggio);
+	StoreInstSequence(pFile, m_pPitch);
+}
 
 bool CInstrumentFDS::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {

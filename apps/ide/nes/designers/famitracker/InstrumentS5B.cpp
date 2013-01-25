@@ -45,15 +45,15 @@ CInstrument *CInstrumentS5B::Clone() const
 	return pNew;
 }
 
-//void CInstrumentS5B::Store(CDocumentFile *pDocFile)
-//{
-//	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
+void CInstrumentS5B::Store(CDocumentFile *pDocFile)
+{
+	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
 
-//	for (int i = 0; i < SEQUENCE_COUNT; i++) {
-//		pDocFile->WriteBlockChar(GetSeqEnable(i));
-//		pDocFile->WriteBlockChar(GetSeqIndex(i));
-//	}
-//}
+	for (int i = 0; i < SEQUENCE_COUNT; i++) {
+		pDocFile->WriteBlockChar(GetSeqEnable(i));
+		pDocFile->WriteBlockChar(GetSeqIndex(i));
+	}
+}
 
 bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
 {
@@ -73,10 +73,10 @@ bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-//void CInstrumentS5B::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
-//{
+void CInstrumentS5B::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+{
 //	AfxMessageBox(_T("Saving 5B instruments is not yet supported"));
-//}
+}
 
 bool CInstrumentS5B::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {

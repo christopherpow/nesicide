@@ -22,7 +22,7 @@ QByteArray CMusicItem::musicData()
       // are stored external to the project.
       // We don't want to rely on the filesystem to give us
       // the latest copy of the file we *just* saved.
-      m_musicData = editor()->musicData();
+//      m_musicData = editor()->musicData();
    }
 
    return m_musicData;
@@ -34,7 +34,7 @@ void CMusicItem::setMusicData(QByteArray musicData)
 
    if (m_editor)
    {
-      editor()->setMusicData(musicData);
+//      editor()->setMusicData(musicData);
    }
 }
 
@@ -129,17 +129,6 @@ void CMusicItem::openItemEvent(CProjectTabWidget* tabWidget)
       m_editor = new MusicEditorForm(this->caption(),m_musicData,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
-   }
-}
-
-void CMusicItem::saveItemEvent()
-{
-   // CPTODO: do
-//   m_music = editor()->music();
-
-   if ( m_editor )
-   {
-      m_editor->setModified(false);
    }
 }
 

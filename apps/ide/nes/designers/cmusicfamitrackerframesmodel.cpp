@@ -2,6 +2,10 @@
 
 #include "stdio.h"
 
+#include <QSize>
+#include <QFont>
+#include <QFontMetrics>
+
 static char modelStringBuffer [ 16 ];
 
 CMusicFamiTrackerFramesModel::CMusicFamiTrackerFramesModel(CFamiTrackerDoc* pDoc,QObject*)
@@ -20,6 +24,26 @@ QVariant CMusicFamiTrackerFramesModel::data(const QModelIndex& index, int role) 
       return QVariant();
    }
 
+   if (role == Qt::FontRole)
+   {
+#ifdef Q_WS_MAC
+      return QFont("Monaco",9);
+#endif
+#ifdef Q_WS_X11
+      return QFont("Monospace",8);
+#endif
+#ifdef Q_WS_WIN
+      return QFont("Consolas",9);
+#endif
+   }
+   
+   if (role == Qt::SizeHintRole)
+   {
+      QFontMetrics fontMetrics(qvariant_cast<QFont>(data(index,Qt::FontRole)));
+      
+      return QSize(fontMetrics.size(Qt::TextSingleLine,data(index,Qt::DisplayRole).toString())+QSize(4,2));      
+   }
+   
    if (role != Qt::DisplayRole)
    {
       return QVariant();
@@ -39,6 +63,26 @@ Qt::ItemFlags CMusicFamiTrackerFramesModel::flags(const QModelIndex& /*index*/) 
 
 QVariant CMusicFamiTrackerFramesModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+   if (role == Qt::FontRole)
+   {
+#ifdef Q_WS_MAC
+      return QFont("Monaco",9);
+#endif
+#ifdef Q_WS_X11
+      return QFont("Monospace",8);
+#endif
+#ifdef Q_WS_WIN
+      return QFont("Consolas",9);
+#endif
+   }
+
+   if (role == Qt::SizeHintRole)
+   {
+      QFontMetrics fontMetrics(qvariant_cast<QFont>(headerData(section,orientation,Qt::FontRole)));
+      
+      return QSize(fontMetrics.size(Qt::TextSingleLine,headerData(section,orientation,Qt::DisplayRole).toString())+QSize(4,2));      
+   }
+   
    if (role != Qt::DisplayRole)
    {
       return QVariant();

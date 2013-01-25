@@ -113,6 +113,8 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &/*icon*/, const QStr
       QObject::connect(editor,SIGNAL(addStatusBarWidget(QWidget*)),this,SIGNAL(addStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(removeStatusBarWidget(QWidget*)),this,SIGNAL(removeStatusBarWidget(QWidget*)));
       QObject::connect(editor,SIGNAL(setStatusBarMessage(QString)),this,SIGNAL(setStatusBarMessage(QString)));
+      QObject::connect(editor,SIGNAL(addToolBarWidget(QToolBar*)),this,SIGNAL(addToolBarWidget(QToolBar*)));
+      QObject::connect(editor,SIGNAL(removeToolBarWidget(QToolBar*)),this,SIGNAL(removeToolBarWidget(QToolBar*)));
       QObject::connect(this,SIGNAL(updateTargetMachine(QString)),editor,SLOT(updateTargetMachine(QString)));
    }
 

@@ -2,6 +2,8 @@
 #define CMUSICFAMITRACKERPATTERNSMODEL_H
 
 #include <QAbstractTableModel>
+#include <QFont>
+#include <QFontMetrics>
 
 #include "cqtmfc.h"
 #include "famitracker/FamiTrackerDoc.h"
@@ -19,21 +21,24 @@ public:
    bool setData ( const QModelIndex& index, const QVariant& value, int );
    QVariant headerData(int section, Qt::Orientation orientation,
                        int role = Qt::DisplayRole) const;
-   QModelIndex index(int row, int column,
-                     const QModelIndex& parent = QModelIndex()) const;
+//   QModelIndex index(int row, int column,
+//                     const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
    int columnCount(const QModelIndex& parent = QModelIndex()) const;
 
 public slots:
    void update(void);
    void setFrame(int frame) { m_frame = frame; }
+   int frame() { return m_frame; }
 
 private:
    CFamiTrackerDoc* m_pDocument;
+   QFont* font;
+   QFontMetrics* fontMetrics;
    int m_frame;
 
    void DrawCell(int PosX, int Column, int Channel, bool bInvert, stChanNote *pNoteData, CDC *pDC, RowColorInfo_t *pColorInfo) const;
-   void DrawChar(int x, int y, TCHAR c, COLORREF Color, CDC *pDC) const;
+   inline void DrawChar(int x, int y, TCHAR c, COLORREF Color, CDC *pDC) const;
    int  GetChannelColumns(int Channel) const;
 };
 

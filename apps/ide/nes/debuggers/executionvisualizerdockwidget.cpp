@@ -24,6 +24,8 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
 
    ui->tableView->setModel(model);
    ui->tableView->resizeColumnsToContents();
+   
+   QObject::connect(ui->tableView->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(tableView_currentChanged(QModelIndex,QModelIndex)));
 
    imgData = new char[512*512*4];
 
@@ -231,7 +233,7 @@ bool ExecutionVisualizerDockWidget::deserialize(QDomDocument& /*doc*/, QDomNode&
    return true;
 }
 
-void ExecutionVisualizerDockWidget::on_tableView_pressed(QModelIndex index)
+void ExecutionVisualizerDockWidget::tableView_currentChanged(QModelIndex index,QModelIndex)
 {
    // If the user clicked on the start or end address cells, take them there.
    if ( (index.column() == ExecutionVisualizerCol_StartAddr) ||
@@ -239,21 +241,6 @@ void ExecutionVisualizerDockWidget::on_tableView_pressed(QModelIndex index)
    {
       emit snapTo("Address,"+index.data(Qt::DisplayRole).toString());
    }
-}
-
-void ExecutionVisualizerDockWidget::on_tableView_entered(QModelIndex index)
-{
-   on_tableView_pressed(index);
-}
-
-void ExecutionVisualizerDockWidget::on_tableView_clicked(QModelIndex index)
-{
-   on_tableView_pressed(index);
-}
-
-void ExecutionVisualizerDockWidget::on_tableView_activated(QModelIndex index)
-{
-   on_tableView_pressed(index);
 }
 
 void ExecutionVisualizerDockWidget::on_actionReset_Marker_Data_triggered()

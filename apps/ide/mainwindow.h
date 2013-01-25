@@ -199,7 +199,7 @@ private:
    void openC64Project(QString fileName,bool run=true);
    void saveProject(QString fileName);
    void saveEmulatorState(QString fileName);
-   void closeProject();
+   bool closeProject();
    void explodeTemplate(QString templateDirName,QString localDirName,QString* projectFileName);
    void updateFromEmulatorPrefs(bool initial);
 
@@ -226,6 +226,8 @@ private slots:
    void createTarget(QString target);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void addToolBarWidget(QToolBar* toolBar);
+   void removeToolBarWidget(QToolBar* toolBar);
    void addPermanentStatusBarWidget(QWidget* widget);
    void removePermanentStatusBarWidget(QWidget* widget);
    void setStatusBarMessage(QString message);

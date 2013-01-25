@@ -94,7 +94,8 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    ui->propertyTableView->resizeColumnToContents(0);
 
    QObject::connect(tilePropertyListModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),this,SLOT(tilePropertyListModel_dataChanged(QModelIndex,QModelIndex)));
-
+   QObject::connect(ui->propertyTableView->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(propertyTableView_currentChanged(QModelIndex,QModelIndex)));
+   
    imgData = new char[256*256*4];
    colorData = new char[256*256];
    colorDataOverlay = new char[256*256];
@@ -3322,39 +3323,7 @@ void TileStampResizeCommand::undo()
    m_pEditor->setCurrentSize(m_oldXSize,m_oldYSize);
 }
 
-void TileStampEditorForm::on_propertyTableView_activated(QModelIndex index)
-{
-   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
-   {
-      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
-   }
-}
-
-void TileStampEditorForm::on_propertyTableView_clicked(QModelIndex index)
-{
-   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
-   {
-      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
-   }
-}
-
-void TileStampEditorForm::on_propertyTableView_doubleClicked(QModelIndex index)
-{
-   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
-   {
-      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
-   }
-}
-
-void TileStampEditorForm::on_propertyTableView_entered(QModelIndex index)
-{
-   if ( index.isValid() && (index.row() < m_tileProperties.count()) )
-   {
-      tilePropertyValueDelegate->setItem(m_tileProperties.at(index.row()));
-   }
-}
-
-void TileStampEditorForm::on_propertyTableView_pressed(QModelIndex index)
+void TileStampEditorForm::propertyTableView_currentChanged(QModelIndex index,QModelIndex)
 {
    if ( index.isValid() && (index.row() < m_tileProperties.count()) )
    {

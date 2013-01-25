@@ -32,7 +32,6 @@ public:
 
    // IProjectTreeViewItem Interface Implmentation
    virtual void openItemEvent(CProjectTabWidget* parent);
-   virtual void saveItemEvent();
    virtual bool canChangeName() { return true; }
    virtual bool onNameChanged(QString newName);
 

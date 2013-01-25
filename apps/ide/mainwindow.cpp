@@ -224,6 +224,10 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect ( tabWidget, SIGNAL(addStatusBarWidget(QWidget*)), this, SLOT(addStatusBarWidget(QWidget*)));
    QObject::connect ( tabWidget, SIGNAL(removeStatusBarWidget(QWidget*)), this, SLOT(removeStatusBarWidget(QWidget*)));
 
+   // Slots for updating tool bars.
+   QObject::connect ( tabWidget, SIGNAL(addToolBarWidget(QToolBar*)), this, SLOT(addToolBarWidget(QToolBar*)));
+   QObject::connect ( tabWidget, SIGNAL(removeToolBarWidget(QToolBar*)), this, SLOT(removeToolBarWidget(QToolBar*)));
+
    if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
       tabWidget->addTab(tab,"Welcome Page");
@@ -1389,10 +1393,8 @@ void MainWindow::dropEvent(QDropEvent* event)
       foreach ( QUrl fileUrl, fileUrls )
       {
          fileName = fileUrl.toLocalFile();
-         qDebug(fileName.toAscii().constData());
 
          fileInfo.setFile(fileName);
-         qDebug(fileInfo.suffix().toAscii().constData());
 
          if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
          {
@@ -1529,6 +1531,16 @@ void MainWindow::removeStatusBarWidget(QWidget *widget)
 //   expandableStatusBar->removeWidget(widget);
    appStatusBar->addWidget(widget,100);
    appStatusBar->removeWidget(widget);
+}
+
+void MainWindow::addToolBarWidget(QToolBar *toolBar)
+{
+   addToolBar(toolBar);
+}
+
+void MainWindow::removeToolBarWidget(QToolBar *toolBar)
+{
+   removeToolBar(toolBar);
 }
 
 void MainWindow::addPermanentStatusBarWidget(QWidget *widget)
@@ -2074,6 +2086,7 @@ void MainWindow::actionEmulation_Window_triggered()
 void MainWindow::closeEvent ( QCloseEvent* event )
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   bool cancel = false;
 
    if ( actionCoding_Mode->isChecked() )
    {
@@ -2088,10 +2101,17 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
    if (nesicideProject->isInitialized())
    {
-      closeProject();
+      cancel = closeProject();
    }
 
-   QMainWindow::closeEvent(event);
+   if ( cancel )
+   {
+      event->ignore();
+   }
+   else
+   {
+      QMainWindow::closeEvent(event);
+   }
 }
 
 void MainWindow::timerEvent(QTimerEvent */*event*/)
@@ -2507,14 +2527,12 @@ void MainWindow::on_action_About_Nesicide_triggered()
    delete dlg;
 }
 
-void MainWindow::closeProject()
+bool MainWindow::closeProject()
 {
    QList<QAction*> actions = menuWindow->actions();
    QAction* action;
+   bool cancel = false;
    int idx;
-
-   // Close all inspectors
-   CDockWidgetRegistry::hideAll();
 
    // Try to close all opened editors
    for ( idx = tabWidget->count()-1; idx >= 0; idx-- )
@@ -2533,64 +2551,76 @@ void MainWindow::closeProject()
 
    if (nesicideProject->isDirty())
    {
-      int result = QMessageBox::question(this,"Save Project?","Your project settings, project content, or debugger content has changed, would you like to save the project?",QMessageBox::Yes,QMessageBox::No);
+      int result = QMessageBox::question(this,"Save Project?","Your project settings, project content, or debugger content has changed, would you like to save the project?",QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel);
       if ( result == QMessageBox::Yes )
       {
          on_actionSave_Project_triggered();
       }
-   }
-
-   m_pSourceNavigator->shutdown();
-
-   // Stop the emulator if it is running
-   emit pauseEmulation(false);
-
-   // Now save the emulator state if a save state file is specified.
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-   {
-      if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+      else if ( result == QMessageBox::Cancel )
       {
-         saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+         cancel = true;
       }
    }
 
-   // Terminate the project and let the IDE know
-   m_pProjectBrowser->disableNavigation();
-
-   foreach ( action, actions )
+   if ( !cancel )
    {
-      QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
-      menuWindow->removeAction(action);
+      // Close all inspectors
+      CDockWidgetRegistry::hideAll();
+   
+      m_pSourceNavigator->shutdown();
+   
+      // Stop the emulator if it is running
+      emit pauseEmulation(false);
+   
+      // Now save the emulator state if a save state file is specified.
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      {
+         if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+         {
+            saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+         }
+      }
+   
+      // Terminate the project and let the IDE know
+      m_pProjectBrowser->disableNavigation();
+   
+      foreach ( action, actions )
+      {
+         QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
+         menuWindow->removeAction(action);
+      }
+      menuWindow->setEnabled(menuWindow->actions().count()>0);
+   
+      CCC65Interface::clear();
+   
+      nesicideProject->terminateProject();
+   
+      emit primeEmulator();
+      emit resetEmulator();
+   
+      if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
+      {
+         tabWidget->addTab(tab,"Welcome Page");
+         webView->setUrl(QUrl( "http://www.nesicide.com"));
+      }
+   
+      // Clear output
+      output->clearAllPanes();
+   
+      // Let the UI know what's up
+      projectDataChangesEvent();
+   
+      if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
+      {
+         destroyNesUi();
+      }
+      else if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+      {
+         destroyC64Ui();
+      }
    }
-   menuWindow->setEnabled(menuWindow->actions().count()>0);
-
-   CCC65Interface::clear();
-
-   nesicideProject->terminateProject();
-
-   emit primeEmulator();
-   emit resetEmulator();
-
-   if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
-   {
-      tabWidget->addTab(tab,"Welcome Page");
-      webView->setUrl(QUrl( "http://www.nesicide.com"));
-   }
-
-   // Clear output
-   output->clearAllPanes();
-
-   // Let the UI know what's up
-   projectDataChangesEvent();
-
-   if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
-   {
-      destroyNesUi();
-   }
-   else if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
-   {
-      destroyC64Ui();
-   }
+   
+   return cancel;
 }
 
 void MainWindow::on_action_Close_Project_triggered()

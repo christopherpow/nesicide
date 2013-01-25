@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QUndoStack>
+#include <QToolBar>
 
 #include "icenterwidgetitem.h"
 #include "iprojecttreeviewitem.h"
@@ -45,6 +46,8 @@ signals:
    void applyChanges(QString uuid);
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
+   void addToolBarWidget(QToolBar* toolBar);
+   void removeToolBarWidget(QToolBar* toolBar);
    void setStatusBarMessage(QString message);
 
 protected:

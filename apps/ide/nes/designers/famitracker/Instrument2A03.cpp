@@ -65,22 +65,22 @@ CInstrument *CInstrument2A03::Clone() const
 	return pNew;
 }
 
-//void CInstrument2A03::Store(CDocumentFile *pDocFile)
-//{
-//	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
+void CInstrument2A03::Store(CDocumentFile *pDocFile)
+{
+	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		pDocFile->WriteBlockChar(GetSeqEnable(i));
-//		pDocFile->WriteBlockChar(GetSeqIndex(i));
-//	}
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		pDocFile->WriteBlockChar(GetSeqEnable(i));
+		pDocFile->WriteBlockChar(GetSeqIndex(i));
+	}
 
-//	for (int i = 0; i < OCTAVE_RANGE; ++i) {
-//		for (int j = 0; j < 12; ++j) {
-//			pDocFile->WriteBlockChar(GetSample(i, j));
-//			pDocFile->WriteBlockChar(GetSamplePitch(i, j));
-//		}
-//	}
-//}
+	for (int i = 0; i < OCTAVE_RANGE; ++i) {
+		for (int j = 0; j < 12; ++j) {
+			pDocFile->WriteBlockChar(GetSample(i, j));
+			pDocFile->WriteBlockChar(GetSamplePitch(i, j));
+		}
+	}
+}
 
 bool CInstrument2A03::Load(CDocumentFile *pDocFile)
 {
@@ -115,95 +115,95 @@ bool CInstrument2A03::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-//void CInstrument2A03::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
-//{
-//	// Saves an 2A03 instrument
-//	// Current version 2.2
+void CInstrument2A03::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+{
+	// Saves an 2A03 instrument
+	// Current version 2.2
 
-//	// Sequences
-//	unsigned char SeqCount = SEQUENCE_COUNT;
-//	pFile->Write(&SeqCount, sizeof(char));
+	// Sequences
+	unsigned char SeqCount = SEQUENCE_COUNT;
+	pFile->Write(&SeqCount, sizeof(char));
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		int Sequence = GetSeqIndex(i);
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		int Sequence = GetSeqIndex(i);
 
-//		if (GetSeqEnable(i)) {
-//			CSequence *pSeq = pDoc->GetSequence(Sequence, i);
-//			char Enabled = 1;
-//			int ItemCount = pSeq->GetItemCount();
-//			int LoopPoint = pSeq->GetLoopPoint();
-//			int ReleasePoint = pSeq->GetReleasePoint();
-//			int Setting = pSeq->GetSetting();
-//			pFile->Write(&Enabled, sizeof(char));
-//			pFile->Write(&ItemCount, sizeof(int));
-//			pFile->Write(&LoopPoint, sizeof(int));
-//			pFile->Write(&ReleasePoint, sizeof(int));
-//			pFile->Write(&Setting, sizeof(int));
-//			for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
-//				int Value = pSeq->GetItem(j);
-//				pFile->Write(&Value, sizeof(char));
-//			}
-//		}
-//		else {
-//			char Enabled = 0;
-//			pFile->Write(&Enabled, sizeof(char));
-//		}
-//	}
+		if (GetSeqEnable(i)) {
+			CSequence *pSeq = pDoc->GetSequence(Sequence, i);
+			char Enabled = 1;
+			int ItemCount = pSeq->GetItemCount();
+			int LoopPoint = pSeq->GetLoopPoint();
+			int ReleasePoint = pSeq->GetReleasePoint();
+			int Setting = pSeq->GetSetting();
+			pFile->Write(&Enabled, sizeof(char));
+			pFile->Write(&ItemCount, sizeof(int));
+			pFile->Write(&LoopPoint, sizeof(int));
+			pFile->Write(&ReleasePoint, sizeof(int));
+			pFile->Write(&Setting, sizeof(int));
+			for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
+				int Value = pSeq->GetItem(j);
+				pFile->Write(&Value, sizeof(char));
+			}
+		}
+		else {
+			char Enabled = 0;
+			pFile->Write(&Enabled, sizeof(char));
+		}
+	}
 
-//	unsigned int Count = 0;
+	unsigned int Count = 0;
 
-//	// Count assigned keys
-//	for (int i = 0; i < 6; i++) {	// octaves
-//		for (int j = 0; j < 12; j++) {	// notes
-//			if (GetSample(i, j) > 0)
-//				Count++;
-//		}
-//	}
+	// Count assigned keys
+	for (int i = 0; i < 6; i++) {	// octaves
+		for (int j = 0; j < 12; j++) {	// notes
+			if (GetSample(i, j) > 0)
+				Count++;
+		}
+	}
 
-//	pFile->Write(&Count, sizeof(int));
+	pFile->Write(&Count, sizeof(int));
 
-//	bool UsedSamples[MAX_DSAMPLES];
-//	memset(UsedSamples, 0, sizeof(bool) * MAX_DSAMPLES);
+	bool UsedSamples[MAX_DSAMPLES];
+	memset(UsedSamples, 0, sizeof(bool) * MAX_DSAMPLES);
 
-//	// DPCM
-//	for (int i = 0; i < 6; ++i) {	// octaves
-//		for (int j = 0; j < 12; ++j) {	// notes
-//			if (GetSample(i, j) > 0) {
-//				unsigned char Index = i * 12 + j, Sample, Pitch;
-//				pFile->Write(&Index, sizeof(char));
-//				Sample = GetSample(i, j);
-//				Pitch = GetSamplePitch(i, j);
-//				pFile->Write(&Sample, sizeof(char));
-//				pFile->Write(&Pitch, sizeof(char));
-//				UsedSamples[GetSample(i, j) - 1] = true;
-//			}
-//		}
-//	}
+	// DPCM
+	for (int i = 0; i < 6; ++i) {	// octaves
+		for (int j = 0; j < 12; ++j) {	// notes
+			if (GetSample(i, j) > 0) {
+				unsigned char Index = i * 12 + j, Sample, Pitch;
+				pFile->Write(&Index, sizeof(char));
+				Sample = GetSample(i, j);
+				Pitch = GetSamplePitch(i, j);
+				pFile->Write(&Sample, sizeof(char));
+				pFile->Write(&Pitch, sizeof(char));
+				UsedSamples[GetSample(i, j) - 1] = true;
+			}
+		}
+	}
 
-//	int SampleCount = 0;
+	int SampleCount = 0;
 
-//	// Count samples
-//	for (int i = 0; i < MAX_DSAMPLES; ++i) {
-//		if (pDoc->GetSampleSize(i) > 0 && UsedSamples[i])
-//			SampleCount++;
-//	}
+	// Count samples
+	for (int i = 0; i < MAX_DSAMPLES; ++i) {
+		if (pDoc->GetSampleSize(i) > 0 && UsedSamples[i])
+			SampleCount++;
+	}
 
-//	// Write the number
-//	pFile->Write(&SampleCount, sizeof(int));
+	// Write the number
+	pFile->Write(&SampleCount, sizeof(int));
 
-//	// List of sample names, the samples itself won't be stored
-//	for (int i = 0; i < MAX_DSAMPLES; ++i) {
-//		if (pDoc->GetSampleSize(i) > 0 && UsedSamples[i]) {
-//			CDSample *pSample = pDoc->GetDSample(i);
-//			int Len = (int)strlen(pSample->Name);
-//			pFile->Write(&i, sizeof(int));
-//			pFile->Write(&Len, sizeof(int));
-//			pFile->Write(pSample->Name, Len);
-//			pFile->Write(&pSample->SampleSize, sizeof(int));
-//			pFile->Write(pSample->SampleData, pSample->SampleSize);
-//		}
-//	}
-//}
+	// List of sample names, the samples itself won't be stored
+	for (int i = 0; i < MAX_DSAMPLES; ++i) {
+		if (pDoc->GetSampleSize(i) > 0 && UsedSamples[i]) {
+			CDSample *pSample = pDoc->GetDSample(i);
+			int Len = (int)strlen(pSample->Name);
+			pFile->Write(&i, sizeof(int));
+			pFile->Write(&Len, sizeof(int));
+			pFile->Write(pSample->Name, Len);
+			pFile->Write(&pSample->SampleSize, sizeof(int));
+			pFile->Write(pSample->SampleData, pSample->SampleSize);
+		}
+	}
+}
 
 bool CInstrument2A03::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {

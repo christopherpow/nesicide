@@ -32,7 +32,7 @@ bool CDesignerEditorBase::onCloseQuery()
    }
    else
    {
-      return true;
+      return false;
    }
 }
 
