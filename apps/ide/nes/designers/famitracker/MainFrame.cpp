@@ -59,6 +59,12 @@ void CFamiTrackerPatternTableView::paintEvent(QPaintEvent *event)
    dc.SelectObject(&pen2);
    dc.LineTo(200,10);
    
+   CFont font;
+   LOGFONT lf;
+   strcpy((char*)lf.lfFaceName,"Courier");
+   lf.lfHeight = 12;
+   font.CreateFontIndirect(&lf);
+
 //   int channel;
 //   int column = 0;
 //   QPainter p(viewport());

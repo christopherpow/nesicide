@@ -158,6 +158,38 @@ public:
    int y;
 };
 
+class CRect
+{
+public:
+   CRect( ); 
+   CRect( 
+      int l, 
+      int t, 
+      int r, 
+      int b  
+   );
+   CRect( 
+      const RECT& srcRect  
+   );
+   CRect( 
+      LPCRECT lpSrcRect  
+   );
+   CRect( 
+      POINT point, 
+      SIZE size  
+   );
+   CRect( 
+      POINT topLeft, 
+      POINT bottomRight  
+   );
+   operator QRect() const
+   {
+      return _qrect;
+   }
+private:
+   QRect _qrect;
+};
+
 class CGdiObject
 {
 };
@@ -239,6 +271,9 @@ public:
    {
       return _qfont;
    }
+   BOOL CreateFontIndirect(
+      const LOGFONT* lpLogFont 
+   );
 private:
    QFont _qfont;
 };

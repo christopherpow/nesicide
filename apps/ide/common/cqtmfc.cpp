@@ -257,8 +257,66 @@ void CFile::Close()
       _qfile.close();
 }
 
+CRect::CRect( )
+{
+}
+
+CRect::CRect( 
+   int l, 
+   int t, 
+   int r, 
+   int b  
+)
+{
+   _qrect.setLeft(l);
+   _qrect.setTop(t);
+   _qrect.setRight(r);
+   _qrect.setBottom(b);
+}
+
+CRect::CRect( 
+   const RECT& srcRect  
+)
+{
+   _qrect.setLeft(srcRect.left);
+   _qrect.setTop(srcRect.top);
+   _qrect.setRight(srcRect.right);
+   _qrect.setBottom(srcRect.bottom);
+}
+
+CRect::CRect( 
+   LPCRECT lpSrcRect  
+)
+{
+   _qrect.setLeft(lpSrcRect->left);
+   _qrect.setTop(lpSrcRect->top);
+   _qrect.setRight(lpSrcRect->right);
+   _qrect.setBottom(lpSrcRect->bottom);
+}
+
+CRect::CRect( 
+   POINT point, 
+   SIZE size  
+)
+{
+   _qrect.setLeft(point.x);
+   _qrect.setTop(point.y);
+   _qrect.setSize(QSize(size.cx,size.cy));
+}
+
+CRect::CRect( 
+   POINT topLeft, 
+   POINT bottomRight  
+)
+{
+   _qrect.setLeft(topLeft.x);
+   _qrect.setTop(topLeft.y);
+   _qrect.setRight(bottomRight.x);
+   _qrect.setBottom(bottomRight.y);
+}
+
 /*
- *  Class CPen
+ *  CDC object classes
  */
 
 CPen::CPen()
@@ -397,6 +455,16 @@ CBrush::CBrush(
    _qbrush.setTextureImage(bitmap.toImage());
 }
 
+BOOL CFont::CreateFontIndirect(
+   const LOGFONT* lpLogFont 
+)
+{
+   _qfont.setFamily((char*)lpLogFont->lfFaceName);
+   _qfont.setPointSize(lpLogFont->lfHeight);
+   _qfont.setItalic(lpLogFont->lfItalic);
+   _qfont.setBold(lpLogFont->lfWeight>=FW_BOLD);
+}
+
 /*
  *  Class CDC
  */
@@ -437,6 +505,8 @@ int CDC::DrawText(
    UINT nFormat 
 )
 {
+   QRect rect(lpRect->left,lpRect->top,lpRect->right,lpRect->bottom);
+   _qpainter->drawText(rect,str.GetString());
 }
 void CDC::FillSolidRect(
    LPCRECT lpRect,
