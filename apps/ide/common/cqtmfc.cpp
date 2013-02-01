@@ -258,6 +258,250 @@ void CFile::Close()
 }
 
 /*
+ *  Class CPen
+ */
+
+CPen::CPen()
+{
+}
+
+CPen::CPen(
+   int nPenStyle,
+   int nWidth,
+   COLORREF crColor 
+)
+{
+   QColor color(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
+   _qpen.setWidth(nWidth);
+   _qpen.setColor(color);
+   switch ( nPenStyle )
+   {   
+   case PS_SOLID:      
+      _qpen.setStyle(Qt::SolidLine);
+      break;
+   case PS_DASH:
+      _qpen.setStyle(Qt::DashLine);
+      break;
+   case PS_DOT:
+      _qpen.setStyle(Qt::DotLine);
+      break;
+   case PS_DASHDOT:
+      _qpen.setStyle(Qt::DashDotLine);
+      break;
+   case PS_DASHDOTDOT:
+      _qpen.setStyle(Qt::DashDotDotLine);
+      break;
+   case PS_NULL:
+      _qpen.setStyle(Qt::NoPen);
+      break;
+   case PS_INSIDEFRAME:
+      qDebug("PS_INSIDEFRAME not supported");
+      break;
+   }
+}
+CPen::CPen(
+   int nPenStyle,
+   int nWidth,
+   const LOGBRUSH* pLogBrush,
+   int nStyleCount,
+   const DWORD* lpStyle 
+)
+{
+   QBrush brush;
+   QColor color(GetRValue(pLogBrush->lbColor),GetGValue(pLogBrush->lbColor),GetBValue(pLogBrush->lbColor));
+   
+   switch ( pLogBrush->lbStyle )
+   {
+   case BS_SOLID:
+      brush.setColor(color);
+      break;
+   default:
+      qDebug("CPen: brush style %d not supported",pLogBrush->lbStyle);
+   }
+
+   _qpen.setBrush(brush);
+   _qpen.setWidth(nWidth);
+   switch ( nPenStyle )
+   {   
+   case PS_SOLID:      
+      _qpen.setStyle(Qt::SolidLine);
+      break;
+   case PS_DASH:
+      _qpen.setStyle(Qt::DashLine);
+      break;
+   case PS_DOT:
+      _qpen.setStyle(Qt::DotLine);
+      break;
+   case PS_DASHDOT:
+      _qpen.setStyle(Qt::DashDotLine);
+      break;
+   case PS_DASHDOTDOT:
+      _qpen.setStyle(Qt::DashDotDotLine);
+      break;
+   case PS_NULL:
+      _qpen.setStyle(Qt::NoPen);
+      break;
+   case PS_INSIDEFRAME:
+      qDebug("PS_INSIDEFRAME not supported");
+      break;
+   }
+}
+
+CBrush::CBrush( )
+{
+}
+
+CBrush::CBrush(
+   COLORREF crColor 
+)
+{
+   QColor color(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
+   _qbrush.setColor(color);
+}
+
+CBrush::CBrush(
+   int nIndex,
+   COLORREF crColor 
+)
+{
+   QColor color(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
+   _qbrush.setColor(color);
+   switch ( nIndex )
+   {
+   case HS_BDIAGONAL:
+      _qbrush.setStyle(Qt::BDiagPattern);
+      break;
+   case HS_CROSS:
+      _qbrush.setStyle(Qt::CrossPattern);
+      break;
+   case HS_DIAGCROSS:
+      _qbrush.setStyle(Qt::DiagCrossPattern);
+      break;
+   case HS_FDIAGONAL:
+      _qbrush.setStyle(Qt::FDiagPattern);
+      break;
+   case HS_HORIZONTAL:
+      _qbrush.setStyle(Qt::HorPattern);
+      break;
+   case HS_VERTICAL:
+      _qbrush.setStyle(Qt::VerPattern);
+      break;
+   }
+}
+
+CBrush::CBrush(
+   CBitmap* pBitmap 
+)
+{
+   QBitmap bitmap = (QBitmap)*pBitmap;
+   _qbrush.setTextureImage(bitmap.toImage());
+}
+
+/*
+ *  Class CDC
+ */
+
+CDC::CDC(QWidget *parent)
+{
+   _qpainter = new QPainter(parent);
+}
+
+CDC::~CDC()
+{
+   if ( _qpainter )
+   {
+      _qpainter->end();
+      delete _qpainter;
+      _qpainter = NULL;
+   }
+}
+
+BOOL CDC::BitBlt(
+   int x,
+   int y,
+   int nWidth,
+   int nHeight,
+   CDC* pSrcDC,
+   int xSrc,
+   int ySrc,
+   DWORD dwRop 
+)
+{
+}
+void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
+{
+}
+int CDC::DrawText(
+   const CString& str,
+   LPRECT lpRect,
+   UINT nFormat 
+)
+{
+}
+void CDC::FillSolidRect(
+   LPCRECT lpRect,
+   COLORREF clr 
+)
+{
+}
+void CDC::FillSolidRect(
+   int x,
+   int y,
+   int cx,
+   int cy,
+   COLORREF clr 
+)
+{
+}
+BOOL CDC::GradientFill( 
+   TRIVERTEX* pVertices, 
+   ULONG nVertices, 
+   void* pMesh, 
+   ULONG nMeshElements, 
+   DWORD dwMode  
+)
+{
+}
+BOOL CDC::LineTo( 
+   int x, 
+   int y  
+)
+{
+   _qpainter->drawLine(_lineOrg.x,_lineOrg.y,x,y);
+   _lineOrg.x = x;
+   _lineOrg.y = y;
+}
+BOOL CDC::Polygon(
+   LPPOINT lpPoints,
+   int nCount 
+)
+{
+}
+int CDC::SelectObject(
+   CRgn* pRgn 
+)
+{
+}
+COLORREF CDC::SetPixel( int x, int y, COLORREF crColor )
+{
+}
+BOOL CDC::TextOut(
+   int x,
+   int y,
+   LPCTSTR lpszString,
+   int nCount 
+)
+{
+}
+BOOL CDC::TextOut(
+   int x,
+      int y,
+      const CString& str 
+)
+{
+}
+
+/*
  *  Class CCursorPos
  */
 
@@ -384,3 +628,4 @@ void CSelection::SetEnd(CCursorPos pos)
 {
 	m_cpEnd = pos;
 }
+

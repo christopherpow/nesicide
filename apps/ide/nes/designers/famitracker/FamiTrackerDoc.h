@@ -560,6 +560,9 @@ public:
    // HACK
    static CFamiTrackerDoc* _this;
    CString m_docTitle;
+   
+   // CP: Moved here because it makes sense...
+   int  GetChannelColumns(int Channel) const;  
 
 signals:
    void setModified(bool f);

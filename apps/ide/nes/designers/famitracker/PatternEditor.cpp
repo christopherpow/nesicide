@@ -28,11 +28,16 @@ void CPatternEditor::AssignDocument(CFamiTrackerDoc *pDoc)
 {
    m_pDocument = pDoc;
    
+   // Give the doc to the subclassed QTableView too!
+   ui->songPatterns->AssignDocument(pDoc);
+   
    QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
    
    patternsModel = new CMusicFamiTrackerPatternsModel(m_pDocument);
+   patternDelegate = new CMusicFamiTrackerPatternItemDelegate();
 
    ui->songPatterns->setModel(patternsModel);
+   ui->songPatterns->setItemDelegate(patternDelegate);
 
 #ifdef Q_WS_MAC
    ui->songPatterns->setFont(QFont("Monaco",9));
@@ -51,7 +56,7 @@ void CPatternEditor::AssignDocument(CFamiTrackerDoc *pDoc)
    ui->songPatterns->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
 
    ui->songPatterns->setStyleSheet("QTableView { background: #000000; color: #ffffff; }");
-      
+
    QObject::connect(ui->songPatterns->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(songPatterns_currentChanged(QModelIndex,QModelIndex)));
    QObject::connect(ui->songPatterns->verticalScrollBar(),SIGNAL(actionTriggered(int)),this,SLOT(songPatterns_actionTriggered(int)));
 }
@@ -1031,13 +1036,15 @@ void CPatternEditor::songPatterns_actionTriggered(int action)
    case QAbstractSlider::SliderMove:
       break;
    }
-   
-   qDebug("vs value %d, max %d",ui->songPatterns->verticalScrollBar()->value(),ui->songPatterns->verticalScrollBar()->maximum());
-   
-//   ui->songPatterns->setCurrentIndex(patternsModel->index(value,ui->songPatterns->currentIndex().column()));
 }
 
-void CPatternEditor::songPatterns_currentChanged(QModelIndex, QModelIndex)
+void CPatternEditor::songPatterns_currentChanged(QModelIndex index, QModelIndex)
 {
+   ui->songPatterns->scrollTo(index,QAbstractItemView::PositionAtCenter);
 }
 
+
+void CPatternEditor::on_songPatterns_pressed(const QModelIndex &index)
+{
+   ui->songPatterns->setCurrentIndex(index);
+}

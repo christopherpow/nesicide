@@ -22,6 +22,7 @@ public slots:
 
 private:
    CFamiTrackerDoc* m_pDocument;
+   QMap<int,int> m_instrumentMap;
 };
 
 #endif // CMUSICFAMITRACKERPATTERNSMODEL_H

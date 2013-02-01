@@ -18,7 +18,7 @@ CMusicFamiTrackerInstrumentsModel::~CMusicFamiTrackerInstrumentsModel()
 
 QVariant CMusicFamiTrackerInstrumentsModel::data(const QModelIndex& index, int role) const
 {
-   CInstrument* pInst = (CInstrument*)index.internalPointer();
+   CInstrument* pInst = (CInstrument*)m_pDocument->GetInstrument((int)index.internalPointer());
    if (!index.isValid())
    {
       return QVariant();
@@ -72,7 +72,7 @@ QVariant CMusicFamiTrackerInstrumentsModel::data(const QModelIndex& index, int r
          return QVariant();
       }
       
-      sprintf(modelStringBuffer,"%02X - %s",index.row(),pInst->GetName());
+      sprintf(modelStringBuffer,"%02X - %s",(int)index.internalPointer(),pInst->GetName());
 
       return QVariant(modelStringBuffer);
    }   
@@ -91,16 +91,7 @@ QModelIndex CMusicFamiTrackerInstrumentsModel::index(int row, int column, const 
 {
    if ( (row >= 0) && (column >= 0) )
    {
-      // Instrument slots might be empty...
-      int idx;
-      
-      for ( idx = row; idx < MAX_INSTRUMENTS; idx++ )
-      {
-         if ( m_pDocument->IsInstrumentUsed(idx) )
-         {
-            return createIndex(row,column,m_pDocument->GetInstrument(idx));
-         }
-      }
+      return createIndex(row,column,m_instrumentMap.value(row));
    }
    
    return QModelIndex();
@@ -108,10 +99,21 @@ QModelIndex CMusicFamiTrackerInstrumentsModel::index(int row, int column, const 
 
 int CMusicFamiTrackerInstrumentsModel::rowCount(const QModelIndex&) const
 {
-   return MAX_INSTRUMENTS; //m_pDocument->GetInstrumentCount();
+   return m_instrumentMap.count();
 }
 
 void CMusicFamiTrackerInstrumentsModel::update()
 {
+   int idx;
+   int instrument = 0;
+   m_instrumentMap.clear();
+   for ( idx = 0; idx < MAX_INSTRUMENTS; idx++ )
+   {
+      if ( m_pDocument->IsInstrumentUsed(idx) )
+      {
+         m_instrumentMap.insert(instrument,idx);
+         instrument++;
+      }
+   }
    emit layoutChanged();
 }

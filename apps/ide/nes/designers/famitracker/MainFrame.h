@@ -16,6 +16,39 @@ namespace Ui {
 class CMainFrame;
 }
 
+class CFamiTrackerFrameTableView : public QTableView
+{
+public:
+   CFamiTrackerFrameTableView(QWidget* parent = 0);
+   
+   void AssignDocument(CFamiTrackerDoc* pDoc) { m_pDocument = pDoc; }
+   
+   void setModel(QAbstractItemModel *model);
+   
+protected:
+   void resizeEvent(QResizeEvent *event);
+   
+private:
+   CFamiTrackerDoc* m_pDocument;
+};
+
+class CFamiTrackerPatternTableView : public QTableView
+{
+public:
+   CFamiTrackerPatternTableView(QWidget* parent = 0);
+   
+   void AssignDocument(CFamiTrackerDoc* pDoc) { m_pDocument = pDoc; }
+   
+   void setModel(QAbstractItemModel *model);
+   
+protected:
+   void paintEvent(QPaintEvent* event);
+   void resizeEvent(QResizeEvent *event);
+   
+private:
+   CFamiTrackerDoc* m_pDocument;
+};
+
 enum {PASTE_MODE_NORMAL, PASTE_MODE_OVERWRITE, PASTE_MODE_MIX};
 
 class CMainFrame;

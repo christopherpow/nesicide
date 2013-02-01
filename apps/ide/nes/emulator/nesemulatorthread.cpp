@@ -576,7 +576,7 @@ void NESEmulatorThread::run ()
          emit updateDebuggers();
 
          // Trigger UI updates...
-         emit emulatorPaused(true);
+         emit emulatorPaused(m_showOnPause);
 
          m_isPaused = false;
          m_isRunning = false;

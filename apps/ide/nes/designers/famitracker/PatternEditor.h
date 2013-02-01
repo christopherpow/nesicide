@@ -2,8 +2,11 @@
 #define PATTERNEDITOR_H
 
 #include <QWidget>
+#include <QTableView>
+#include <QPaintEvent>
 
 #include "cmusicfamitrackerpatternsmodel.h"
+#include "cmusicfamitrackerpatternitemdelegate.h"
 
 #include "famitracker/FamiTrackerDoc.h"
 
@@ -76,6 +79,7 @@ public:
 private:
    Ui::CPatternEditor *ui;
    CMusicFamiTrackerPatternsModel *patternsModel;
+   CMusicFamiTrackerPatternItemDelegate *patternDelegate;
    CFamiTrackerDoc* m_pDocument;
    CSelection m_selection;
    bool m_bSelecting;
@@ -101,7 +105,9 @@ private:
 public slots:
    void updateViews(long hint);
    void songPatterns_actionTriggered(int action);   
-   void songPatterns_currentChanged(QModelIndex,QModelIndex);
+   void songPatterns_currentChanged(QModelIndex index,QModelIndex);
+private slots:
+   void on_songPatterns_pressed(const QModelIndex &index);
 };
 
 #endif // PATTERNEDITOR_H

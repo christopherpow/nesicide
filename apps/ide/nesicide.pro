@@ -356,8 +356,8 @@ SOURCES += \
     nes/designers/famitracker/Blip_Buffer/Blip_Buffer.cpp \
     nes/designers/famitracker/Instrument.cpp \
     nes/designers/famitracker/FamiTrackerDoc.cpp \
-    nes/designers/cmusicfamitrackerframesmodel.cpp \
-    nes/designers/cmusicfamitrackerpatternsmodel.cpp \
+    nes/designers/famitracker/cmusicfamitrackerframesmodel.cpp \
+    nes/designers/famitracker/cmusicfamitrackerpatternsmodel.cpp \
     nes/designers/famitracker/SoundGen.cpp \
     nes/designers/famitracker/ChannelsVRC7.cpp \
     nes/designers/famitracker/ChannelsVRC6.cpp \
@@ -370,7 +370,7 @@ SOURCES += \
     nes/designers/famitracker/ChannelHandler.cpp \
     nes/project/cmusicitem.cpp \
     designers/newfiledialog.cpp \
-    nes/designers/cmusicfamitrackerinstrumentsmodel.cpp \
+    nes/designers/famitracker/cmusicfamitrackerinstrumentsmodel.cpp \
     nes/designers/famitracker/DocumentFile.cpp \
     common/cqtmfc.cpp \
     nes/designers/famitracker/famitrackermodulepropertiesdialog.cpp \
@@ -381,7 +381,8 @@ SOURCES += \
     nes/designers/famitracker/MainFrame.cpp \
     nes/designers/famitracker/FrameEditor.cpp \
     nes/designers/famitracker/PatternEditor.cpp \
-    nes/designers/famitracker/Settings.cpp
+    nes/designers/famitracker/Settings.cpp \
+    nes/designers/famitracker/cmusicfamitrackerpatternitemdelegate.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -566,8 +567,8 @@ HEADERS += \
     nes/designers/famitracker/APU/2413tone.h \
     nes/designers/famitracker/Blip_Buffer/Blip_Buffer.h \
     nes/designers/famitracker/FamiTrackerDoc.h \
-    nes/designers/cmusicfamitrackerframesmodel.h \
-    nes/designers/cmusicfamitrackerpatternsmodel.h \
+    nes/designers/famitracker/cmusicfamitrackerframesmodel.h \
+    nes/designers/famitracker/cmusicfamitrackerpatternsmodel.h \
     nes/designers/famitracker/SoundGen.h \
     nes/designers/famitracker/ChannelsVRC7.h \
     nes/designers/famitracker/ChannelsVRC6.h \
@@ -581,7 +582,7 @@ HEADERS += \
     nes/project/cmusicitem.h \
     designers/newfiledialog.h \
     nes/designers/famitracker/Chunk.h \
-    nes/designers/cmusicfamitrackerinstrumentsmodel.h \
+    nes/designers/famitracker/cmusicfamitrackerinstrumentsmodel.h \
     nes/designers/famitracker/DocumentFile.h \
     common/cqtmfc.h \
     nes/designers/famitracker/famitrackermodulepropertiesdialog.h \
@@ -591,7 +592,8 @@ HEADERS += \
     nes/designers/famitracker/FrameEditor.h \
     nes/designers/famitracker/PatternEditor.h \
     nes/designers/famitracker/Settings.h \
-    nes/designers/famitracker/ColorScheme.h
+    nes/designers/famitracker/ColorScheme.h \
+    nes/designers/famitracker/cmusicfamitrackerpatternitemdelegate.h
 
 FORMS += \
    aboutdialog.ui \

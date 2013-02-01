@@ -1536,6 +1536,7 @@ void MainWindow::removeStatusBarWidget(QWidget *widget)
 void MainWindow::addToolBarWidget(QToolBar *toolBar)
 {
    addToolBar(toolBar);
+   toolBar->show();
 }
 
 void MainWindow::removeToolBarWidget(QToolBar *toolBar)

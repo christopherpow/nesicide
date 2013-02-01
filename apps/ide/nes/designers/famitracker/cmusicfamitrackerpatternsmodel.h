@@ -39,7 +39,6 @@ private:
 
    void DrawCell(int PosX, int Column, int Channel, bool bInvert, stChanNote *pNoteData, CDC *pDC, RowColorInfo_t *pColorInfo) const;
    inline void DrawChar(int x, int y, TCHAR c, COLORREF Color, CDC *pDC) const;
-   int  GetChannelColumns(int Channel) const;
 };
 
 #endif // CMUSICFAMITRACKERPATTERNSMODEL_H

@@ -4,6 +4,74 @@
 #include "famitrackermodulepropertiesdialog.h"
 #include "famitracker/SoundGen.h"
 
+#include "cqtmfc.h"
+
+#include <QPainter>
+
+CFamiTrackerFrameTableView::CFamiTrackerFrameTableView(QWidget *parent)
+ : QTableView(parent)
+{
+}
+
+void CFamiTrackerFrameTableView::resizeEvent(QResizeEvent *event)
+{
+   QTableView::resizeEvent(event);
+   
+   scrollTo(selectionModel()->currentIndex(),QAbstractItemView::PositionAtCenter);
+}
+
+void CFamiTrackerFrameTableView::setModel(QAbstractItemModel *model)
+{
+   QTableView::setModel(model);
+   
+   setCurrentIndex(model->index(0,0));
+}
+
+CFamiTrackerPatternTableView::CFamiTrackerPatternTableView(QWidget *parent)
+ : QTableView(parent)
+{
+}
+
+void CFamiTrackerPatternTableView::resizeEvent(QResizeEvent *event)
+{
+   QTableView::resizeEvent(event);
+   
+   scrollTo(selectionModel()->currentIndex(),QAbstractItemView::PositionAtCenter);
+}
+
+void CFamiTrackerPatternTableView::setModel(QAbstractItemModel *model)
+{
+   QTableView::setModel(model);
+   
+   setCurrentIndex(model->index(0,0));
+}
+
+void CFamiTrackerPatternTableView::paintEvent(QPaintEvent *event)
+{
+//   QTableView::paintEvent(event);
+   
+   CDC dc(viewport());
+   CPen pen1(PS_SOLID,12,RGB(255,0,0));
+   CPen pen2(PS_DASHDOT,4,RGB(0,255,0));
+   dc.MoveTo(10,10);
+   dc.SelectObject(&pen1);
+   dc.LineTo(100,100);
+   dc.SelectObject(&pen2);
+   dc.LineTo(200,10);
+   
+//   int channel;
+//   int column = 0;
+//   QPainter p(viewport());
+//   p.setPen(QColor(120,120,120));
+   
+//   // Draw channel separation lines.
+//   for ( channel = 1; channel < m_pDocument->GetChannelCount(); channel++ )
+//   {      
+//      column += m_pDocument->GetChannelColumns(channel-1);
+//      p.drawLine(columnViewportPosition(column),event->rect().top(),columnViewportPosition(column),event->rect().bottom());
+//   }
+}
+
 CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
    QWidget(parent),
    ui(new Ui::CMainFrame)
@@ -127,7 +195,7 @@ CPatternEditor* CMainFrame::GetPatternEditor()
 void CMainFrame::showEvent(QShowEvent *)
 {
    CFamiTrackerApp::GetSoundGenerator()->start();
-   
+
    emit addToolBarWidget(toolBar);
 
    QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));

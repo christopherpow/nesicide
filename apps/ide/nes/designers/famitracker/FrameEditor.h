@@ -39,10 +39,12 @@ public slots:
    void updateViews(long hint);
    void framesModel_dataChanged(QModelIndex topLeft,QModelIndex bottomRight);
    void songFrames_scrolled(int value);   
-   void songFrames_currentChanged(QModelIndex,QModelIndex);
+   void songFrames_currentChanged(QModelIndex index,QModelIndex);
    
 signals:
    void selectFrame(unsigned int Frame);
+private slots:
+   void on_songFrames_pressed(const QModelIndex &index);
 };
 
 #endif // FRAMEEDITOR_H

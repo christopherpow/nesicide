@@ -21,7 +21,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QTableView" name="songPatterns">
+    <widget class="CFamiTrackerPatternTableView" name="songPatterns">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -47,7 +47,7 @@
       <enum>Qt::ElideNone</enum>
      </property>
      <property name="verticalScrollMode">
-      <enum>QAbstractItemView::ScrollPerItem</enum>
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
      </property>
      <property name="showGrid">
       <bool>false</bool>
@@ -83,6 +83,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CFamiTrackerPatternTableView</class>
+   <extends>QTableView</extends>
+   <header location="global">famitracker/MainFrame.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

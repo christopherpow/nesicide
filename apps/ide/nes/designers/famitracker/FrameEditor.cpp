@@ -33,6 +33,16 @@ void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc)
 
    ui->songFrames->setModel(framesModel);
    ui->songFrames->setItemDelegate(entryDelegate);
+   
+#ifdef Q_WS_MAC
+   ui->songFrames->setFont(QFont("Monaco",9));
+#endif
+#ifdef Q_WS_X11
+   ui->songFrames->setFont(QFont("Monospace",8));
+#endif
+#ifdef Q_WS_WIN
+   ui->songFrames->setFont(QFont("Consolas",9));
+#endif
 
    ui->songFrames->resizeColumnsToContents();
    ui->songFrames->resizeRowsToContents();
@@ -83,13 +93,19 @@ void CFrameEditor::framesModel_dataChanged(QModelIndex topLeft,QModelIndex botto
 
 void CFrameEditor::songFrames_scrolled(int value)
 {
-   ui->songFrames->setCurrentIndex(framesModel->index(value,ui->songFrames->currentIndex().column()));
+//   ui->songFrames->setCurrentIndex(framesModel->index(value,ui->songFrames->currentIndex().column()));
 }
 
-void CFrameEditor::songFrames_currentChanged(QModelIndex, QModelIndex)
+void CFrameEditor::songFrames_currentChanged(QModelIndex index, QModelIndex)
 {
    int frame = ui->songFrames->currentIndex().row();
+   ui->songFrames->scrollTo(index,QAbstractItemView::PositionAtCenter);
    emit selectFrame(frame);
+}
+
+void CFrameEditor::on_songFrames_pressed(const QModelIndex &index)
+{
+   ui->songFrames->setCurrentIndex(index);
 }
 
 int CFrameEditor::GetSelectedFrame()

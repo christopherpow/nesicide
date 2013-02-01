@@ -4397,3 +4397,10 @@ int CFamiTrackerDoc::ScanActualLength(int Track, int Count) const
 
 	return 0;
 }
+
+// CP: Moved here because it makes sense...
+int CFamiTrackerDoc::GetChannelColumns(int Channel) const
+{
+	// Return number of available columns in a channel
+	return GetEffColumns(Channel) * 3 + COLUMNS;
+}
