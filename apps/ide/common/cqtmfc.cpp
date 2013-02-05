@@ -2,6 +2,13 @@
 
 #include <stdarg.h>
 
+#include <QLinearGradient>
+
+size_t strlen(const TCHAR* str)
+{
+   return strlen((const char*)str);
+}
+
 /*
  *  Class CString
  */
@@ -14,31 +21,37 @@ CString::CString()
 CString::CString(char* str)
 {
    _qstr.clear();
-   _qstr.append(str);
+   _qstr = str;
 }
 
 CString::CString(const char* str)
 {
    _qstr.clear();
-   _qstr.append(str);
+   _qstr = str;
 }
 
 CString::CString(TCHAR* str)
 {
    _qstr.clear();
-   _qstr.append((char*)str);
+   _qstr = QString::fromWCharArray(str);
+}
+
+CString::CString(const TCHAR* str)
+{
+   _qstr.clear();
+   _qstr = QString::fromWCharArray(str);
 }
 
 CString::CString(QString str)
 {
    _qstr.clear();
-   _qstr.append(str);
+   _qstr = str;
 }
 
 CString::CString(const CString& ref)
 {
    _qstr.clear();
-   _qstr.append(ref._qstr);
+   _qstr = ref._qstr;
 }
 
 CString::~CString()
@@ -48,7 +61,6 @@ CString::~CString()
 
 void CString::Format(const char* fmt, ...)
 {
-   qDebug("WARNING: IF THE PRORGRAM JUST CRASHED A QSTRING MAY HAVE BEEN PASSED TO CString::Format");
    va_list argptr;
    va_start(argptr,fmt);
    FormatV(fmt,argptr);
@@ -59,15 +71,14 @@ void CString::FormatV(const char* fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
    char local[2048];
-   _qstr.clear();
    vsprintf(local,fmt,ap);
-   _qstr.append(local);
+   _qstr.clear();
+   _qstr = local;
 //   _qstr.vsprintf(fmt,ap);
 }
 
 void CString::Format(LPCTSTR fmt, ...)
 {
-   qDebug("WARNING: IF THE PRORGRAM JUST CRASHED A QSTRING MAY HAVE BEEN PASSED TO CString::Format");
    va_list argptr;
    va_start(argptr,fmt);
    FormatV(fmt,argptr);
@@ -77,16 +88,22 @@ void CString::Format(LPCTSTR fmt, ...)
 void CString::FormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
-   char local[2048];
+   WCHAR local[2048];
+   wvsprintf(local,fmt,ap);
    _qstr.clear();
-   vsprintf(local,(const char*)fmt,ap);
-   _qstr.append(local);
+   _qstr = QString::fromWCharArray(local);
 //   _qstr.vsprintf((const char*)fmt,ap);
 }
 
 CString& CString::operator=(const char* str)
 {
    _qstr.clear();
+   _qstr = str;
+   return *this;
+}
+
+CString& CString::operator+=(const char* str)
+{
    _qstr.append(str);
    return *this;
 }
@@ -94,20 +111,20 @@ CString& CString::operator=(const char* str)
 CString& CString::operator=(TCHAR* str)
 {
    _qstr.clear();
-   _qstr.append((char*)str);
+   _qstr = QString::fromWCharArray(str);
    return *this;
 }
 
 CString& CString::operator+=(TCHAR* str)
 {
-   _qstr.append((char*)str);
+   _qstr.append(QString::fromWCharArray(str));
    return *this;
 }
 
 CString& CString::operator=(QString str)
 {
    _qstr.clear();
-   _qstr.append(str);
+   _qstr = str;
    return *this;
 }
 
@@ -120,7 +137,7 @@ CString& CString::operator+=(QString str)
 CString& CString::operator=(CString str)
 {
    _qstr.clear();
-   _qstr.append(str._qstr);
+   _qstr = str._qstr;
    return *this;
 }
 
@@ -135,13 +152,19 @@ bool CString::operator==(const CString& str) const
    return _qstr == str._qstr;
 }
 
-CString::operator const char*()
+CString::operator const char*() const
 {
    return _qstr.toAscii().constData();
 }
 
-CString::operator QString()
+CString::operator const TCHAR*() const
 {
+   return (TCHAR*)_qstr.toAscii().constData();
+}
+
+CString::operator const QString&() const
+{
+   qDebug("CString::operator const QString&(): _qstr='%s'",_qstr.toAscii().constData());
    return _qstr;
 }
 
@@ -155,9 +178,9 @@ const char* CString::GetString() const
    return _qstr.toAscii().constData();
 }
 
-LPTSTR CString::GetBuffer()
+LPTSTR CString::GetBuffer() const
 {
-   return (TCHAR*)_qstr.toAscii().data();
+   return (TCHAR*)_qstr.unicode();
 }
 
 CString CString::Left( int nCount ) const
@@ -177,7 +200,7 @@ int CString::GetLength() const
 
 int CString::CompareNoCase( LPCTSTR lpsz ) const
 {
-   return _qstr.compare(QString((char*)lpsz),Qt::CaseInsensitive);
+   return _qstr.compare(QString::fromWCharArray(lpsz),Qt::CaseInsensitive);
 }
 
 TCHAR CString::GetAt( int nIndex ) const
@@ -259,6 +282,10 @@ void CFile::Close()
 
 CRect::CRect( )
 {
+   _rect.top = 0;
+   _rect.bottom = 0;
+   _rect.left = 0;
+   _rect.right = 0;
 }
 
 CRect::CRect( 
@@ -268,30 +295,30 @@ CRect::CRect(
    int b  
 )
 {
-   _qrect.setLeft(l);
-   _qrect.setTop(t);
-   _qrect.setRight(r);
-   _qrect.setBottom(b);
+   _rect.top = t;
+   _rect.bottom = b;
+   _rect.left = l;
+   _rect.right = r;
 }
 
 CRect::CRect( 
    const RECT& srcRect  
 )
 {
-   _qrect.setLeft(srcRect.left);
-   _qrect.setTop(srcRect.top);
-   _qrect.setRight(srcRect.right);
-   _qrect.setBottom(srcRect.bottom);
+   _rect.top = srcRect.top;
+   _rect.bottom = srcRect.bottom;
+   _rect.left = srcRect.left;
+   _rect.right = srcRect.right;
 }
 
 CRect::CRect( 
    LPCRECT lpSrcRect  
 )
 {
-   _qrect.setLeft(lpSrcRect->left);
-   _qrect.setTop(lpSrcRect->top);
-   _qrect.setRight(lpSrcRect->right);
-   _qrect.setBottom(lpSrcRect->bottom);
+   _rect.top = lpSrcRect->top;
+   _rect.bottom = lpSrcRect->bottom;
+   _rect.left = lpSrcRect->left;
+   _rect.right = lpSrcRect->right;
 }
 
 CRect::CRect( 
@@ -299,9 +326,10 @@ CRect::CRect(
    SIZE size  
 )
 {
-   _qrect.setLeft(point.x);
-   _qrect.setTop(point.y);
-   _qrect.setSize(QSize(size.cx,size.cy));
+   _rect.top = point.y;
+   _rect.bottom = point.y+size.cy;
+   _rect.left = point.x;
+   _rect.right = point.x+size.cx;
 }
 
 CRect::CRect( 
@@ -309,10 +337,10 @@ CRect::CRect(
    POINT bottomRight  
 )
 {
-   _qrect.setLeft(topLeft.x);
-   _qrect.setTop(topLeft.y);
-   _qrect.setRight(bottomRight.x);
-   _qrect.setBottom(bottomRight.y);
+   _rect.top = topLeft.y;
+   _rect.bottom = bottomRight.y;
+   _rect.left = topLeft.x;
+   _rect.right = bottomRight.x;
 }
 
 /*
@@ -455,6 +483,31 @@ CBrush::CBrush(
    _qbrush.setTextureImage(bitmap.toImage());
 }
 
+BOOL CFont::CreateFont(
+   int nHeight,
+   int nWidth,
+   int nEscapement,
+   int nOrientation,
+   int nWeight,
+   BYTE bItalic,
+   BYTE bUnderline,
+   BYTE cStrikeOut,
+   BYTE nCharSet,
+   BYTE nOutPrecision,
+   BYTE nClipPrecision,
+   BYTE nQuality,
+   BYTE nPitchAndFamily,
+   LPCTSTR lpszFacename 
+)
+{
+   _qfont.setFamily((char*)lpszFacename);
+   _qfont.setPointSize(nHeight);
+   _qfont.setItalic(bItalic);
+   _qfont.setUnderline(bUnderline);
+   _qfont.setStrikeOut(cStrikeOut);
+   _qfont.setBold(nWeight>=FW_BOLD);
+}
+
 BOOL CFont::CreateFontIndirect(
    const LOGFONT* lpLogFont 
 )
@@ -468,11 +521,6 @@ BOOL CFont::CreateFontIndirect(
 /*
  *  Class CDC
  */
-
-CDC::CDC(QWidget *parent)
-{
-   _qpainter = new QPainter(parent);
-}
 
 CDC::~CDC()
 {
@@ -498,6 +546,18 @@ BOOL CDC::BitBlt(
 }
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
 {
+   QPen tlc(QColor(GetRValue(clrTopLeft),GetGValue(clrTopLeft),GetBValue(clrTopLeft)));
+   QPen brc(QColor(GetRValue(clrBottomRight),GetGValue(clrBottomRight),GetBValue(clrBottomRight)));
+   QPen orig = _qpainter->pen();
+   x -= _windowOrg.x;
+   y -= _windowOrg.y;
+   _qpainter->setPen(tlc);
+   _qpainter->drawLine(x,y,x+cx-1,y);
+   _qpainter->drawLine(x,y,x,y+cy-1);
+   _qpainter->setPen(brc);
+   _qpainter->drawLine(x+cx-1,y+cy-1,x,y+cy-1);
+   _qpainter->drawLine(x+cx-1,y+cy-1,x+cx-1,y);
+   _qpainter->setPen(orig);
 }
 int CDC::DrawText(
    const CString& str,
@@ -505,7 +565,8 @@ int CDC::DrawText(
    UINT nFormat 
 )
 {
-   QRect rect(lpRect->left,lpRect->top,lpRect->right,lpRect->bottom);
+   QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->drawText(rect,str.GetString());
 }
 void CDC::FillSolidRect(
@@ -513,6 +574,10 @@ void CDC::FillSolidRect(
    COLORREF clr 
 )
 {
+   QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
+   QColor color(GetRValue(clr),GetGValue(clr),GetBValue(clr));
+   _qpainter->fillRect(rect,color);
 }
 void CDC::FillSolidRect(
    int x,
@@ -522,6 +587,10 @@ void CDC::FillSolidRect(
    COLORREF clr 
 )
 {
+   QRect rect(x,y,cx,cy);
+   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
+   QColor color(GetRValue(clr),GetGValue(clr),GetBValue(clr));
+   _qpainter->fillRect(rect,color);
 }
 BOOL CDC::GradientFill( 
    TRIVERTEX* pVertices, 
@@ -531,6 +600,25 @@ BOOL CDC::GradientFill(
    DWORD dwMode  
 )
 {
+   QRect rect;
+   GRADIENT_RECT* grect = (GRADIENT_RECT*)pMesh;
+   int el;
+   
+   for ( el = 0; el < nMeshElements; el++ )
+   {
+      rect = QRect(QPoint(pVertices[grect[el].UpperLeft].x,pVertices[grect[el].UpperLeft].y),QPoint(pVertices[grect[el].LowerRight].x-1,pVertices[grect[el].LowerRight].y-1));
+      rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
+
+      QLinearGradient gradient;
+      QGradientStops gstops;
+      gradient.setStart(rect.topLeft());
+      gradient.setFinalStop(rect.bottomLeft());
+      gradient.setColorAt(0,QColor(pVertices[grect[el].UpperLeft].Red>>8,pVertices[grect[el].UpperLeft].Green>>8,pVertices[grect[el].UpperLeft].Blue>>8,pVertices[grect[el].UpperLeft].Alpha>>8));
+      gradient.setColorAt(1,QColor(pVertices[grect[el].LowerRight].Red>>8,pVertices[grect[el].LowerRight].Green>>8,pVertices[grect[el].LowerRight].Blue>>8,pVertices[grect[el].LowerRight].Alpha>>8));
+      QBrush brush(gradient);
+   
+      _qpainter->fillRect(rect,brush);
+   }
 }
 BOOL CDC::LineTo( 
    int x, 
@@ -546,6 +634,17 @@ BOOL CDC::Polygon(
    int nCount 
 )
 {
+   int pt;
+   QPainterPath path;
+   QPolygon poly;
+   for ( pt = 0; pt < nCount; pt++ )
+   {
+      poly.append(QPoint(lpPoints[pt].x,lpPoints[pt].y));
+   }
+   poly.append(QPoint(lpPoints[0].x,lpPoints[0].y));
+   path.addPolygon(poly);
+   _qpainter->fillPath(path,(QBrush)*_brush);
+   _qpainter->drawPath(path);
 }
 int CDC::SelectObject(
    CRgn* pRgn 
@@ -562,6 +661,14 @@ BOOL CDC::TextOut(
    int nCount 
 )
 {
+   QRect rect;
+   QString qstr = QString::fromWCharArray(lpszString);
+   QFontMetrics fontMetrics((QFont)*_font);
+   rect.setTopLeft(QPoint(x,y));
+   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,qstr.left(nCount)).width()+10,y+fontMetrics.height()));
+   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
+   _qpainter->setPen(QPen(_textColor));
+   _qpainter->drawText(rect,qstr.left(nCount).toAscii().constData());
 }
 BOOL CDC::TextOut(
    int x,
@@ -569,133 +676,11 @@ BOOL CDC::TextOut(
       const CString& str 
 )
 {
+   QRect rect;
+   QFontMetrics fontMetrics((QFont)*_font);
+   rect.setTopLeft(QPoint(x,y));
+   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,str.GetString()).width()+10,y+fontMetrics.height()));
+   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
+   _qpainter->setPen(QPen(_textColor));
+   _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
 }
-
-/*
- *  Class CCursorPos
- */
-
-CCursorPos::CCursorPos() : m_iRow(0), m_iChannel(0), m_iColumn(0) 
-{
-}
-
-CCursorPos::CCursorPos(int Row, int Channel, int Column) : m_iRow(Row), m_iChannel(Channel), m_iColumn(Column) 
-{
-}
-
-const CCursorPos& CCursorPos::operator=(const CCursorPos &pos) 
-{
-	// Copy position
-	m_iRow = pos.m_iRow;
-	m_iColumn = pos.m_iColumn;
-	m_iChannel = pos.m_iChannel;
-	return *this;
-}
-
-bool CCursorPos::Invalid() const 
-{
-	return (m_iRow == -1) || (m_iColumn == -1) || (m_iChannel == -1);
-}
-
-/*
- *  Class CSelection
- */
-
-int CSelection::GetRowStart() const 
-{
-	return (m_cpEnd.m_iRow > m_cpStart.m_iRow ?  m_cpStart.m_iRow : m_cpEnd.m_iRow);
-}
-
-int CSelection::GetRowEnd() const 
-{
-	return (m_cpEnd.m_iRow > m_cpStart.m_iRow ? m_cpEnd.m_iRow : m_cpStart.m_iRow);
-}
-
-int CSelection::GetColStart() const 
-{
-	int Col;
-	if (m_cpStart.m_iChannel == m_cpEnd.m_iChannel)
-		Col = (m_cpEnd.m_iColumn > m_cpStart.m_iColumn ? m_cpStart.m_iColumn : m_cpEnd.m_iColumn); 
-	else if (m_cpEnd.m_iChannel > m_cpStart.m_iChannel)
-		Col = m_cpStart.m_iColumn;
-	else 
-		Col = m_cpEnd.m_iColumn;
-	switch (Col) {
-		case 2: Col = 1; break;
-		case 5: case 6: Col = 4; break;
-		case 8: case 9: Col = 7; break;
-		case 11: case 12: Col = 10; break;
-		case 14: case 15: Col = 13; break;
-	}
-	return Col;
-}
-
-int CSelection::GetColEnd() const 
-{
-	int Col;
-	if (m_cpStart.m_iChannel == m_cpEnd.m_iChannel)
-		Col = (m_cpEnd.m_iColumn > m_cpStart.m_iColumn ? m_cpEnd.m_iColumn : m_cpStart.m_iColumn); 
-	else if (m_cpEnd.m_iChannel > m_cpStart.m_iChannel)
-		Col = m_cpEnd.m_iColumn;
-	else
-		Col = m_cpStart.m_iColumn;
-	switch (Col) {
-		case 1: Col = 2; break;					// Instrument
-		case 4: case 5: Col = 6; break;			// Eff 1
-		case 7: case 8: Col = 9; break;			// Eff 2
-		case 10: case 11: Col = 12; break;		// Eff 3
-		case 13: case 14: Col = 15; break;		// Eff 4
-	}
-	return Col;	
-}
-
-int CSelection::GetChanStart() const 
-{
-	return (m_cpEnd.m_iChannel > m_cpStart.m_iChannel ? m_cpStart.m_iChannel : m_cpEnd.m_iChannel); 
-}
-
-int CSelection::GetChanEnd() const 
-{
-	return (m_cpEnd.m_iChannel > m_cpStart.m_iChannel ? m_cpEnd.m_iChannel : m_cpStart.m_iChannel); 
-}
-
-bool CSelection::IsWithin(CCursorPos pos) const 
-{
-	if (pos.m_iRow >= GetRowStart() && pos.m_iRow <= GetRowEnd()) {
-		if (pos.m_iChannel == GetChanStart() && pos.m_iChannel == GetChanEnd()) {
-			if (pos.m_iColumn >= GetColStart() && pos.m_iColumn <= GetColEnd()) {
-				return true;
-			}
-		}
-		else if (pos.m_iChannel == GetChanStart() && pos.m_iChannel != GetChanEnd()) {
-			if (pos.m_iColumn >= GetColStart()) {
-				return true;
-			}
-		}
-		else if (pos.m_iChannel == GetChanEnd() && pos.m_iChannel != GetChanStart()) {
-			if (pos.m_iColumn <= GetColEnd()) {
-				return true;
-			}
-		}
-		else if (pos.m_iChannel >= GetChanStart() && pos.m_iChannel < GetChanEnd()) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool CSelection::IsSingleChannel() const 
-{
-	return (m_cpStart.m_iChannel == m_cpEnd.m_iChannel);
-}
-
-void CSelection::SetStart(CCursorPos pos) 
-{
-	m_cpStart = pos;
-}
-
-void CSelection::SetEnd(CCursorPos pos) 
-{
-	m_cpEnd = pos;
-}
-

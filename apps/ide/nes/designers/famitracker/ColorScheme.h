@@ -26,8 +26,21 @@ const static TCHAR *FONT_FACE = _T("Verdana");
 const static int FONT_SIZE	  = 12;
 
 // Static colors
-//const struct {
-//	static const COLORREF CHANNEL_NORMAL	= 0x00202020;	// Normal channel name
+struct _STATIC_COLOR_SCHEME {
+   const COLORREF CHANNEL_NORMAL;	// Normal channel name
+	const COLORREF CHANNEL_MUTED;	// Muted channel name
+	const COLORREF FRAME_LIGTH;	// 3D frame
+	const COLORREF FRAME_DARK;	// 3D frame
+};
+
+const _STATIC_COLOR_SCHEME STATIC_COLOR_SCHEME = {
+	0x00202020,			// Normal channel name
+	0x002020E0,			// Muted channel name 
+	0x00FFFFFF,			// 3D frame           
+	0x00808080,			// 3D frame
+};
+//const struct STATIC_COLOR_SCHEME {
+//   static const COLORREF CHANNEL_NORMAL	= 0x00202020;	// Normal channel name
 //	static const COLORREF CHANNEL_MUTED		= 0x002020E0;	// Muted channel name
 //	static const COLORREF FRAME_LIGTH		= 0x00FFFFFF;	// 3D frame
 //	static const COLORREF FRAME_DARK		= 0x00808080;	// 3D frame

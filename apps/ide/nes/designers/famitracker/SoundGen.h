@@ -21,6 +21,9 @@
 #pragma once
 
 #include "cqtmfc.h"
+
+#include "famitracker/FamiTrackerDoc.h"
+
 #include <QThread>
 
 //

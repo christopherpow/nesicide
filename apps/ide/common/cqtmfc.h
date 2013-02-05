@@ -40,14 +40,14 @@ typedef unsigned int UINT;
 typedef unsigned int *PUINT;
 typedef unsigned long long ULONGLONG;
 
-#define _T(x) (LPCTSTR)x
+#ifdef UNICODE
+#define _T(x) L##x
+#else
+#define _T(x) x
+#endif 
 #define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
 
 #define RGB(r,g,b) ((COLORREF)((BYTE)(r)|((BYTE)(g) << 8)|((BYTE)(b) << 16)))
-
-#define RED(r) RGB(r,0,0)
-#define GREEN(g) RGB(0,g,0)
-#define BLUE(b) RGB(0,0,b)
 
 #include <QMutex>
 #include <QString>
@@ -57,6 +57,8 @@ class CSemaphore
 {
 };
 
+size_t strlen(const TCHAR* str);
+
 class CString
 {
 public:
@@ -65,6 +67,7 @@ public:
    CString(char* str);
    CString(const char* str);
    CString(TCHAR* str);
+   CString(const TCHAR* str);
    CString(QString str);
    virtual ~CString();
 
@@ -74,6 +77,7 @@ public:
    void FormatV(LPCTSTR fmt, va_list ap);
 
    CString& operator=(const char* str);
+   CString& operator+=(const char* str);
    CString& operator=(TCHAR* str);
    CString& operator+=(TCHAR* str);
    CString& operator=(QString str);
@@ -81,12 +85,13 @@ public:
    CString& operator=(CString str);
    CString& operator+=(CString str);
    bool operator==(const CString& str) const;
-   operator const char*();
-   operator QString();
+   operator const char*() const;
+   operator const QString&() const;
+   operator const TCHAR*() const;
 
    void Empty();
    const char* GetString() const;
-   LPTSTR GetBuffer();
+   LPTSTR GetBuffer() const;
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
    int GetLength() const;
@@ -151,11 +156,27 @@ private:
 
 #include <windows.h>
 
-class CPoint// : public tagPOINT
+class CPoint : public tagPOINT
 {
 public:
-   int x;
-   int y;
+   CPoint()
+   {
+      x = 0;
+      y = 0;
+   }
+   CPoint(QPoint point)
+   {
+      x = point.x();
+      y = point.y();
+   }
+   void SetPoint(int _x, int _y)
+   {
+      x = _x;
+      y = _y;
+   }
+
+//   int x;
+//   int y;
 };
 
 class CRect
@@ -182,16 +203,30 @@ public:
       POINT topLeft, 
       POINT bottomRight  
    );
-   operator QRect() const
+   operator LPRECT() const
    {
-      return _qrect;
+      return (RECT*)&_rect;
+   }
+   operator LPCRECT() const
+   {
+      return (const RECT*)&_rect;
    }
 private:
-   QRect _qrect;
+   RECT _rect;
 };
 
-class CGdiObject
+class CObject
 {
+public:
+   CObject() {}
+   virtual ~CObject() {}
+};
+
+class CGdiObject : public CObject
+{
+public:
+   CGdiObject() {}
+   virtual ~CGdiObject() {}
 };
 
 // Pen styles [MFC value doesn't matter]
@@ -222,6 +257,7 @@ public:
       int nStyleCount = 0,
       const DWORD* lpStyle = NULL 
    );
+   virtual ~CPen() {}
    operator QPen() const
    {
       return _qpen;
@@ -234,6 +270,8 @@ private:
 class CBitmap : public CGdiObject
 {
 public:
+   CBitmap() {}
+   virtual ~CBitmap() {}
    operator QBitmap() const
    {
       return _qbitmap;
@@ -256,6 +294,7 @@ public:
    explicit CBrush(
       CBitmap* pBitmap 
    );
+   virtual ~CBrush() {}
    operator QBrush() const
    {
       return _qbrush;
@@ -267,10 +306,28 @@ private:
 class CFont : public CGdiObject
 {
 public:
+   CFont() {}
+   virtual ~CFont() {}
    operator QFont() const
    {
       return _qfont;
    }
+   BOOL CreateFont(
+      int nHeight,
+      int nWidth,
+      int nEscapement,
+      int nOrientation,
+      int nWeight,
+      BYTE bItalic,
+      BYTE bUnderline,
+      BYTE cStrikeOut,
+      BYTE nCharSet,
+      BYTE nOutPrecision,
+      BYTE nClipPrecision,
+      BYTE nQuality,
+      BYTE nPitchAndFamily,
+      LPCTSTR lpszFacename 
+   );
    BOOL CreateFontIndirect(
       const LOGFONT* lpLogFont 
    );
@@ -281,6 +338,8 @@ private:
 class CRgn : public CGdiObject
 {
 public:
+   CRgn() {}
+   virtual ~CRgn() {}
    operator QRegion() const
    {
       return _qregion;
@@ -292,7 +351,37 @@ private:
 class CDC
 {
 public:
-   CDC(QWidget* parent);
+   CDC(QWidget* parent)
+   {
+      _qwidget = parent;
+      _qpainter = NULL;
+      _pen = NULL;
+      _brush = NULL;
+      _font = NULL;
+      _bitmap = NULL;
+      _rgn = NULL;   
+      _gdiobject = NULL;
+      _object = NULL;
+      _lineOrg.x = 0;
+      _lineOrg.y = 0;
+      _bkColor = QColor(0,0,0);
+      _bkMode = 0;
+      _textColor = QColor(0,0,0);
+      _windowOrg.x = 0;
+      _windowOrg.y = 0;
+   }
+
+   void attach()
+   {
+      _qpainter = new QPainter(_qwidget);
+   }
+   
+   void detach()
+   {
+      delete _qpainter;
+      _qpainter = NULL;
+   }
+   
    virtual ~CDC();
    BOOL BitBlt(
       int x,
@@ -387,7 +476,8 @@ public:
    {
       CPen* temp = _pen;
       _pen = pPen;
-      _qpainter->setPen((QPen)(*_pen));
+      if ( _pen )
+         _qpainter->setPen((QPen)(*_pen));
       return temp;
    }
 
@@ -397,6 +487,8 @@ public:
    {
       CBrush* temp = _brush;
       _brush = pBrush;
+      if ( _brush )      
+         _qpainter->setBrush((QBrush)(*_brush));
       return temp;
    }
    virtual CFont* SelectObject(
@@ -405,6 +497,8 @@ public:
    {
       CFont* temp = _font;
       _font = pFont;
+      if ( _font )
+         _qpainter->setFont((QFont)(*_font));
       return temp;
    }
    CBitmap* SelectObject(
@@ -422,7 +516,15 @@ public:
       CGdiObject* pObject
    )
    {
-      CGdiObject* temp = _object;
+      CGdiObject* temp = _gdiobject;
+      _gdiobject = pObject;
+      return temp;
+   }   
+   CObject* SelectObject(
+      CObject* pObject
+   )
+   {
+      CObject* temp = _object;
       _object = pObject;
       return temp;
    }   
@@ -430,8 +532,8 @@ public:
       COLORREF crColor  
    )
    {
-      COLORREF old = _bkColor;
-      _bkColor = crColor;
+      COLORREF old = _bkColor.red()|(_bkColor.green()<<8)|_bkColor.blue()<<16;
+      _bkColor = QColor(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
       return old;
    }
    int SetBkMode( 
@@ -452,8 +554,8 @@ public:
       COLORREF crColor  
    )
    {
-      COLORREF old = _textColor;
-      _textColor = crColor;
+      COLORREF old = _textColor.red()|(_textColor.green()<<8)|_textColor.blue()<<16;
+      _textColor = QColor(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
       return old;
    }
    CPoint SetWindowOrg(
@@ -487,17 +589,19 @@ public:
    
 private:
    CDC(CDC& orig);
+   QWidget*    _qwidget;
    QPainter*   _qpainter;
    CPen*       _pen;
    CBrush*     _brush;
    CFont*      _font;
    CBitmap*    _bitmap;
    CRgn*       _rgn;   
-   CGdiObject* _object;
+   CGdiObject* _gdiobject;
+   CObject*    _object;
    CPoint      _lineOrg;
-   COLORREF    _bkColor;
+   QColor      _bkColor;
    int         _bkMode;
-   COLORREF    _textColor;
+   QColor      _textColor;
    CPoint      _windowOrg;
 };
 
@@ -522,65 +626,10 @@ public:
 
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
+#define ASSERT_VALID(y)
 #else
 #define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
 #endif
-
-// Structures from files I didn't port verbatim.
-// From PatternEditor.h
-#include "famitracker/PatternData.h"
-
-// Structure used by clipboard, no pointers allowed here
-struct stClipData {
-	int	Channels;		// Number of channels copied
-	int Rows;			// Number of rows copied
-	int StartColumn;	// Start column in first channel
-	int EndColumn;		// End column in last channel
-	stChanNote Pattern[MAX_CHANNELS][MAX_PATTERN_LENGTH];
-};
-
-// Row color cache
-struct RowColorInfo_t {
-	COLORREF Note;
-	COLORREF Instrument;
-	COLORREF Volume;
-	COLORREF Effect;
-	COLORREF Back;
-	COLORREF Shaded;
-};
-
-// Cursor position
-class CCursorPos {
-public:
-	CCursorPos();
-	CCursorPos(int Row, int Channel, int Column);
-	const CCursorPos& operator=(const CCursorPos &pos);
-	bool Invalid() const;
-
-public:
-	int m_iRow;
-	int m_iColumn;
-	int m_iChannel;
-};
-
-// Selection
-class CSelection {
-public:
-	int GetRowStart() const;
-	int GetRowEnd() const;
-	int GetColStart() const;
-	int GetColEnd() const;
-	int GetChanStart() const;
-	int GetChanEnd() const;
-	bool IsWithin(CCursorPos pos) const;
-	bool IsSingleChannel() const;
-
-	void SetStart(CCursorPos pos);
-	void SetEnd(CCursorPos pos);
-
-public:
-	CCursorPos m_cpStart;
-	CCursorPos m_cpEnd;
-};
 
 #endif // CQTMFC_H

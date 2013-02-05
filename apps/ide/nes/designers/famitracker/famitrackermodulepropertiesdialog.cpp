@@ -23,7 +23,7 @@ FamiTrackerModulePropertiesDialog::FamiTrackerModulePropertiesDialog(CFamiTracke
    CChannelMap* pChannelMap = CFamiTrackerApp::GetChannelMap();
    for ( idx = 0; idx < pChannelMap->GetChipCount(); idx++ )
    {
-      ui->expansionSound->addItem((char*)pChannelMap->GetChipName(idx));
+      ui->expansionSound->addItem(QString::fromWCharArray(pChannelMap->GetChipName(idx)));
       ui->expansionSound->setItemData(idx,pChannelMap->GetChipIdent(idx));
    }
 
@@ -32,8 +32,8 @@ FamiTrackerModulePropertiesDialog::FamiTrackerModulePropertiesDialog(CFamiTracke
    QStringList songs;
    for ( idx = 0; idx < pDoc->GetTrackCount(); idx++ )
    {      
-      TrackTitle.Format((char*)TRACK_FORMAT, idx, pDoc->GetTrackTitle(idx));
-      songs.append((const char*)TrackTitle);
+      TrackTitle.Format(TRACK_FORMAT, idx, pDoc->GetTrackTitle(idx));
+      songs.append(TrackTitle);
    }
    tracksModel->setStringList(songs);
    
@@ -80,7 +80,7 @@ void FamiTrackerModulePropertiesDialog::on_addSong_clicked()
    TrackTitle.Format(TRACK_FORMAT, NewTrack, "New song");
    
    QStringList songs = tracksModel->stringList();
-   songs.append((char*)TrackTitle.GetBuffer());
+   songs.append(TrackTitle);
    tracksModel->setStringList(songs);
 
    ui->tracks->setCurrentIndex(tracksModel->index(songs.count()-1));
@@ -176,7 +176,7 @@ void FamiTrackerModulePropertiesDialog::on_importFile_clicked()
          for ( idx = 0; idx < m_pDocument->GetTrackCount(); idx++ )
          {      
             TrackTitle.Format((char*)TRACK_FORMAT, idx, m_pDocument->GetTrackTitle(idx));
-            songs.append((const char*)TrackTitle);
+            songs.append(TrackTitle);
          }
          tracksModel->setStringList(songs);         
       }

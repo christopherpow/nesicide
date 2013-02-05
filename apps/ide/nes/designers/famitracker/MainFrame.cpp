@@ -3,6 +3,8 @@
 
 #include "famitrackermodulepropertiesdialog.h"
 #include "famitracker/SoundGen.h"
+#include "famitracker/Settings.h"
+#include "famitracker/TrackerChannel.h"
 
 #include "cqtmfc.h"
 
@@ -27,60 +29,37 @@ void CFamiTrackerFrameTableView::setModel(QAbstractItemModel *model)
    setCurrentIndex(model->index(0,0));
 }
 
-CFamiTrackerPatternTableView::CFamiTrackerPatternTableView(QWidget *parent)
- : QTableView(parent)
-{
-}
-
-void CFamiTrackerPatternTableView::resizeEvent(QResizeEvent *event)
-{
-   QTableView::resizeEvent(event);
-   
-   scrollTo(selectionModel()->currentIndex(),QAbstractItemView::PositionAtCenter);
-}
-
-void CFamiTrackerPatternTableView::setModel(QAbstractItemModel *model)
-{
-   QTableView::setModel(model);
-   
-   setCurrentIndex(model->index(0,0));
-}
-
-void CFamiTrackerPatternTableView::paintEvent(QPaintEvent *event)
-{
-//   QTableView::paintEvent(event);
-   
-   CDC dc(viewport());
-   CPen pen1(PS_SOLID,12,RGB(255,0,0));
-   CPen pen2(PS_DASHDOT,4,RGB(0,255,0));
-   dc.MoveTo(10,10);
-   dc.SelectObject(&pen1);
-   dc.LineTo(100,100);
-   dc.SelectObject(&pen2);
-   dc.LineTo(200,10);
-   
-   CFont font;
-   LOGFONT lf;
-   strcpy((char*)lf.lfFaceName,"Courier");
-   lf.lfHeight = 12;
-   font.CreateFontIndirect(&lf);
-
-//   int channel;
-//   int column = 0;
-//   QPainter p(viewport());
-//   p.setPen(QColor(120,120,120));
-   
-//   // Draw channel separation lines.
-//   for ( channel = 1; channel < m_pDocument->GetChannelCount(); channel++ )
-//   {      
-//      column += m_pDocument->GetChannelColumns(channel-1);
-//      p.drawLine(columnViewportPosition(column),event->rect().top(),columnViewportPosition(column),event->rect().bottom());
-//   }
-}
-
 CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
    QWidget(parent),
-   ui(new Ui::CMainFrame)
+   ui(new Ui::CMainFrame),
+ m_iMoveKeyStepping(1),
+ m_iInsertKeyStepping(1),
+ m_bEditEnable(false),
+ m_bShiftPressed(false),
+ m_bControlPressed(false),
+ m_bChangeAllPattern(false),
+ m_iPasteMode(PASTE_MODE_NORMAL),
+ m_bMaskInstrument(false),
+ m_bSwitchToInstrument(false),
+
+ m_iOctave(3),
+ m_iLastVolume(0x10),
+ m_iLastInstrument(0),
+ m_iSwitchToInstrument(-1),
+
+ m_iPlayTime(0),
+
+ m_bForceRedraw(false),
+ m_bUpdateBackground(true),
+ m_bFollowMode(true),
+
+ m_iAutoArpPtr(0),
+ m_iLastAutoArpPtr(0),
+ m_iAutoArpKeyCount(0),
+
+ m_iMenuChannel(-1),
+ m_iFrameQueue(-1),
+ m_iKeyboardNote(-1)
 {
    int width;
    int col;
@@ -89,6 +68,11 @@ CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
 
    ui->setupUi(this);
    
+   // Unmute all channels
+	for (int i = 0; i < MAX_CHANNELS; ++i) {
+		m_bMuteChannels[i] = false;
+	}
+
    m_pDocument = new CFamiTrackerDoc();
 
    m_pActionHandler = new CActionHandler();
@@ -134,6 +118,20 @@ CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
       trackerActions.insert(trackerAction,actionHandlers[idx]);
       toolBar->addAction(trackerAction);
    }
+   
+   octaveLabel = new QLabel("Octave");
+   toolBar->addSeparator();
+   toolBar->addWidget(octaveLabel);
+   octaveComboBox = new QComboBox();
+   octaveComboBox->addItem("0");
+   octaveComboBox->addItem("1");
+   octaveComboBox->addItem("2");
+   octaveComboBox->addItem("3");
+   octaveComboBox->addItem("4");
+   octaveComboBox->addItem("5");
+   octaveComboBox->addItem("6");
+   octaveComboBox->addItem("7");
+   toolBar->addWidget(octaveComboBox);
          
    // Connect buried signals.
    QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
@@ -175,7 +173,10 @@ CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
    
    // Pass document to other "views"...
    ui->songFrames->AssignDocument(m_pDocument);
-   ui->songPatterns->AssignDocument(m_pDocument);
+   ui->songPatterns->AssignDocument(m_pDocument,this);
+   
+   // Set up other "views"...
+   ui->songPatterns->ApplyColorScheme();
    
    // Connect views together the Qt way.
    QObject::connect(ui->songFrames,SIGNAL(selectFrame(uint)),this,SLOT(frameEditor_selectFrame(uint)));
@@ -185,6 +186,8 @@ CMainFrame::~CMainFrame()
 {
    delete ui;
    delete instrumentsModel;
+   delete octaveLabel;
+   delete octaveComboBox;
    delete toolBar;
 }
 
@@ -212,6 +215,147 @@ void CMainFrame::hideEvent(QHideEvent *)
    emit removeToolBarWidget(toolBar);
    
    QObject::disconnect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
+}
+
+void CMainFrame::keyPressEvent(QKeyEvent *event)
+{
+   UINT nChar = event->nativeVirtualKey();
+   UINT nRepCnt = event->count();
+   
+   // Called when a key is pressed
+	 
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+//	if (GetFocus() != this)
+//		return;
+
+//	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
+   qDebug("SetInstrument");
+//		// Switch instrument
+//		if (m_pPatternView->GetColumn() == C_NOTE) {
+//			SetInstrument(nChar - VK_NUMPAD0);
+//			return;
+//		}
+//	}
+	
+	switch (nChar) {
+		// Shift
+		case VK_SHIFT:
+			m_pPatternView->ShiftPressed(true);
+			m_bShiftPressed = true;
+			break;
+		// Control
+		case VK_CONTROL:
+			m_pPatternView->ControlPressed(true);
+			m_bControlPressed = true;
+			break;
+		// Movement
+		case VK_UP:
+         m_pPatternView->MoveUp(m_iMoveKeyStepping);
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+		case VK_DOWN:
+         m_pPatternView->MoveDown(m_iMoveKeyStepping);
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+		case VK_LEFT:
+			m_pPatternView->MoveLeft();
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+		case VK_RIGHT:
+			m_pPatternView->MoveRight();
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+		case VK_HOME:
+      qDebug("OnKeyHome");
+//			OnKeyHome();
+			break;
+		case VK_END:
+      qDebug("OnKeyEnd");
+//			OnKeyEnd();
+			break;
+		case VK_PRIOR:
+			m_pPatternView->MovePageUp();
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+		case VK_NEXT:
+			m_pPatternView->MovePageDown();
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+		case VK_TAB:	// Move between channels
+      qDebug("m_bShiftPressed");
+//         if (m_bShiftPressed)
+//				m_pPatternView->PreviousChannel();
+//			else
+//				m_pPatternView->NextChannel();
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+
+		// Pattern editing
+		case VK_ADD:
+			KeyIncreaseAction();
+			break;
+		case VK_SUBTRACT:
+			KeyDecreaseAction();
+			break;
+		case VK_DELETE:
+			OnKeyDelete();
+			break;
+		case VK_INSERT:
+			OnKeyInsert();
+			break;
+		case VK_BACK:
+			OnKeyBack();
+			break;
+
+		// ESC -> remove selection
+		case VK_ESCAPE:
+			m_pPatternView->ClearSelection();
+			UpdateEditor(UPDATE_CURSOR);
+			break;
+
+		// Octaves
+		case VK_F2: SetOctave(0); break;
+		case VK_F3: SetOctave(1); break;
+		case VK_F4: SetOctave(2); break;
+		case VK_F5: SetOctave(3); break;
+		case VK_F6: SetOctave(4); break;
+		case VK_F7: SetOctave(5); break;
+		case VK_F8: SetOctave(6); break;
+		case VK_F9: SetOctave(7); break;
+
+		default:
+      qDebug("HandleKeyboardInput");
+//			HandleKeyboardInput(nChar);
+	}
+
+//	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+void CMainFrame::keyReleaseEvent(QKeyEvent *event)
+{
+   UINT nChar = event->nativeVirtualKey();
+   
+   // Called when a key is released
+
+	switch (nChar) {
+		case VK_SHIFT:
+			m_bShiftPressed = false;
+			m_pPatternView->ShiftPressed(false);
+			break;
+		case VK_CONTROL:
+			m_bControlPressed = false;
+			m_pPatternView->ControlPressed(false);
+			break;
+	}
+
+   qDebug("HandleKeyboardNote");
+//	HandleKeyboardNote(nChar, false);
+
+	m_cKeyList[nChar] = 0;
+
+//	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
 
 void CMainFrame::updateViews(long hint)
@@ -403,6 +547,14 @@ void CMainFrame::trackerAction_stop()
 void CMainFrame::trackerAction_editMode()
 {
    qDebug("editMode");
+   m_bEditEnable = !m_bEditEnable;
+
+//	if (m_bEditEnable)
+//		GetParentFrame()->SetMessageText(_T("Changed to edit mode"));
+//	else
+//		GetParentFrame()->SetMessageText(_T("Changed to normal mode"));
+	
+	UpdateEditor(UPDATE_ENTIRE);
 }
 
 void CMainFrame::trackerAction_previousTrack()
@@ -526,3 +678,287 @@ void CMainFrame::UpdateEditor(UINT lHint)
 {
    m_pDocument->UpdateAllViews(0,lHint);
 }
+
+//
+// Custom key handling routines
+//
+
+void CMainFrame::OnKeyHome()
+{
+	m_pPatternView->OnHomeKey();
+	UpdateEditor(UPDATE_CURSOR);
+}
+
+void CMainFrame::OnKeyEnd()
+{
+	m_pPatternView->OnEndKey();
+	UpdateEditor(UPDATE_CURSOR);
+}
+
+void CMainFrame::OnKeyInsert()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (PreventRepeat(VK_INSERT, true))
+		return;
+
+	AddAction(new CPatternAction(CPatternAction::ACT_INSERT_ROW));
+}
+
+void CMainFrame::RemoveWithoutDelete()
+{
+	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE_ROWS));
+}
+
+void CMainFrame::OnKeyBack()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (m_pPatternView->IsSelecting()) 
+		RemoveWithoutDelete();
+	else {
+		if (PreventRepeat(VK_BACK, true))
+			return;
+
+		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
+		pAction->SetDelete(true, true);
+		if (AddAction(pAction))
+			m_pPatternView->MoveUp(1);
+	}
+
+	UpdateEditor(CHANGED_PATTERN);
+}
+
+void CMainFrame::OnEditDelete()
+{
+	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE));
+}
+
+void CMainFrame::OnKeyDelete()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (PreventRepeat(VK_DELETE, true))
+		return;
+
+	if (m_pPatternView->IsSelecting()) {
+		OnEditDelete();
+	}
+	else {
+		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
+		bool bPullUp = theApp.GetSettings()->General.bPullUpDelete || m_bShiftPressed;
+		pAction->SetDelete(bPullUp, false);
+		AddAction(pAction);
+		if (!bPullUp)
+			StepDown();
+	}
+}
+
+void CMainFrame::StepDown()
+{
+	if (m_iInsertKeyStepping)
+		m_pPatternView->MoveDown(m_iInsertKeyStepping);
+
+	UpdateEditor(UPDATE_CURSOR);
+}
+
+void CMainFrame::KeyIncreaseAction()
+{
+	AddAction(new CPatternAction(CPatternAction::ACT_INCREASE));
+}
+
+void CMainFrame::KeyDecreaseAction()
+{
+	AddAction(new CPatternAction(CPatternAction::ACT_DECREASE));
+}
+
+bool CMainFrame::PreventRepeat(unsigned char Key, bool Insert)
+{
+	if (m_cKeyList[Key] == 0)
+		m_cKeyList[Key] = 1;
+	else {
+		if ((!theApp.GetSettings()->General.bKeyRepeat || !Insert))
+			return true;
+	}
+
+	return false;
+}
+
+void CMainFrame::RepeatRelease(unsigned char Key)
+{
+	memset(m_cKeyList, 0, 256);
+}
+
+void CMainFrame::SetOctave(unsigned int iOctave)
+{
+	m_iOctave = iOctave;
+   octaveComboBox->setCurrentIndex(iOctave);
+}
+
+void CMainFrame::on_editStep_valueChanged(int arg1)
+{
+   SetStepping(arg1);   
+}
+
+void CMainFrame::SetStepping(int Step) 
+{ 
+	m_iInsertKeyStepping = Step;
+
+	if (Step > 0 && !theApp.GetSettings()->General.bNoStepMove)
+		m_iMoveKeyStepping = Step;
+	else 
+		m_iMoveKeyStepping = 1;
+
+//	((CMainFrame*)GetParentFrame())->UpdateControls();
+}
+
+void CMainFrame::ToggleChannel(unsigned int Channel)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (Channel >= pDoc->GetAvailableChannels())
+		return;
+
+	m_bMuteChannels[Channel] = !m_bMuteChannels[Channel];
+	HaltNote(Channel);
+	UpdateEditor(CHANGED_HEADER);
+}
+
+void CMainFrame::SoloChannel(unsigned int Channel)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	int channels = pDoc->GetAvailableChannels();
+
+	if (Channel >= unsigned(channels))
+		return;
+
+	if (IsChannelSolo(Channel)) {
+		// Revert channels
+		for (int i = 0; i < channels; ++i) {
+			m_bMuteChannels[i] = false;
+		}
+	}
+	else {
+		// Solo selected channel
+		for (int i = 0; i < channels; ++i) {
+			if (i != Channel) {
+				m_bMuteChannels[i] = true;
+				HaltNote(i);
+			}
+		}
+		m_bMuteChannels[Channel] = false;
+	}
+
+	UpdateEditor(CHANGED_HEADER);
+}
+
+void CMainFrame::UnmuteAllChannels()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	int channels = pDoc->GetAvailableChannels();
+
+	for (int i = 0; i < channels; ++i) {
+		m_bMuteChannels[i] = false;
+	}
+
+	UpdateEditor(CHANGED_HEADER);
+}
+
+bool CMainFrame::IsChannelSolo(unsigned int Channel)
+{
+	// Returns true if Channel is the only active channel 
+   CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	int channels = pDoc->GetAvailableChannels();
+
+	for (int i = 0; i < channels; ++i) {
+		if (m_bMuteChannels[i] == false && i != Channel)
+			return false;
+	}
+	return true;
+}
+
+bool CMainFrame::IsChannelMuted(unsigned int Channel)
+{
+	ASSERT(Channel < MAX_CHANNELS);
+	return m_bMuteChannels[Channel];
+}
+
+unsigned int CMainFrame::GetInstrument() const 
+{
+//	CMainFrame *pMainFrm = (CMainFrame*)GetParentFrame();
+//	ASSERT_VALID(pMainFrm);
+//	return pMainFrm->GetSelectedInstrument();
+   return ui->songInstruments->currentIndex().row();
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Note playing routines
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CMainFrame::PlayNote(unsigned int Channel, unsigned int Note, unsigned int Octave, unsigned int Velocity)
+{
+	// Play a note in a channel
+	stChanNote NoteData;
+
+	memset(&NoteData, 0, sizeof(stChanNote));
+
+	NoteData.Note		= Note;
+	NoteData.Octave		= Octave;
+	NoteData.Vol		= Velocity / 8;
+	NoteData.Instrument	= GetInstrument();
+/*	
+	if (theApp.GetSettings()->General.iEditStyle == EDIT_STYLE3)
+		NoteData.Instrument	= m_iLastInstrument;
+	else
+		NoteData.Instrument	= GetInstrument();
+*/
+	FeedNote(Channel, &NoteData);
+}
+
+void CMainFrame::ReleaseNote(unsigned int Channel)
+{
+	// Releases a channel
+	stChanNote NoteData;
+	memset(&NoteData, 0, sizeof(stChanNote));
+
+	NoteData.Note = RELEASE;
+	NoteData.Vol = 0x10;
+	NoteData.Instrument = GetInstrument();
+
+	FeedNote(Channel, &NoteData);
+}
+
+void CMainFrame::HaltNote(unsigned int Channel)
+{
+	// Halts a channel
+	stChanNote NoteData;
+	memset(&NoteData, 0, sizeof(stChanNote));
+
+	NoteData.Note = HALT;
+	NoteData.Vol = 0x10;
+	NoteData.Instrument = GetInstrument();
+
+	FeedNote(Channel, &NoteData);
+}
+
+void CMainFrame::FeedNote(int Channel, stChanNote *NoteData)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
+
+	pChannel->SetNote(*NoteData);
+   qDebug("theApp.GetMIDI");
+//	theApp.GetMIDI()->WriteNote(Channel, NoteData->Note, NoteData->Octave, NoteData->Vol);
+}
+

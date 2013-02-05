@@ -55,7 +55,7 @@ bool FamiTrackerModuleImportDialog::loadFile(QString path)
    for ( idx = 0; idx < m_pImportedDoc->GetTrackCount(); idx++ )
    {      
       TrackTitle.Format((char*)TRACK_FORMAT, idx, m_pImportedDoc->GetTrackTitle(idx));
-      songs.append((const char*)TrackTitle);
+      songs.append(TrackTitle.GetString());
    }
    tracksModel->setStringList(songs);
       

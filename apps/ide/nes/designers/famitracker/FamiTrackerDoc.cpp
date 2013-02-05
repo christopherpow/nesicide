@@ -58,6 +58,7 @@ CFamiTrackerApp::CFamiTrackerApp()
    m_pSoundGen = new CSoundGen();
    m_pChannelMap = new CChannelMap();
    m_pSettings = new CSettings();
+   m_pSettings->LoadSettings();
 }
 
 CFamiTrackerApp::~CFamiTrackerApp()

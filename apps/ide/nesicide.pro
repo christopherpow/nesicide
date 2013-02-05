@@ -357,7 +357,6 @@ SOURCES += \
     nes/designers/famitracker/Instrument.cpp \
     nes/designers/famitracker/FamiTrackerDoc.cpp \
     nes/designers/famitracker/cmusicfamitrackerframesmodel.cpp \
-    nes/designers/famitracker/cmusicfamitrackerpatternsmodel.cpp \
     nes/designers/famitracker/SoundGen.cpp \
     nes/designers/famitracker/ChannelsVRC7.cpp \
     nes/designers/famitracker/ChannelsVRC6.cpp \
@@ -382,7 +381,7 @@ SOURCES += \
     nes/designers/famitracker/FrameEditor.cpp \
     nes/designers/famitracker/PatternEditor.cpp \
     nes/designers/famitracker/Settings.cpp \
-    nes/designers/famitracker/cmusicfamitrackerpatternitemdelegate.cpp
+    nes/designers/famitracker/Graphics.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -568,7 +567,6 @@ HEADERS += \
     nes/designers/famitracker/Blip_Buffer/Blip_Buffer.h \
     nes/designers/famitracker/FamiTrackerDoc.h \
     nes/designers/famitracker/cmusicfamitrackerframesmodel.h \
-    nes/designers/famitracker/cmusicfamitrackerpatternsmodel.h \
     nes/designers/famitracker/SoundGen.h \
     nes/designers/famitracker/ChannelsVRC7.h \
     nes/designers/famitracker/ChannelsVRC6.h \
@@ -593,7 +591,7 @@ HEADERS += \
     nes/designers/famitracker/PatternEditor.h \
     nes/designers/famitracker/Settings.h \
     nes/designers/famitracker/ColorScheme.h \
-    nes/designers/famitracker/cmusicfamitrackerpatternitemdelegate.h
+    nes/designers/famitracker/Graphics.h
 
 FORMS += \
    aboutdialog.ui \
