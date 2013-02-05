@@ -91,6 +91,15 @@ private:
    CFamiTrackerDoc* m_pDocument;
    QString m_fileName;
 
+   void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+   void OnKeyHome();
+   void OnKeyEnd();
+   void OnKeyInsert();
+   void OnKeyBack();
+   void OnKeyDelete();
+   void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+   void	HandleKeyboardInput(char Key);
+   
    // Cursor & editing
 	unsigned int		m_iMoveKeyStepping;						// Number of rows to jump when moving
 	unsigned int		m_iInsertKeyStepping;					// Number of rows to move when inserting notes
@@ -106,6 +115,7 @@ private:
 	int					m_iPasteMode;
    
    void		 FeedNote(int Channel, stChanNote *NoteData);
+   void SetInstrument(int Instrument);
    unsigned int GetInstrument() const;
    
    // Playing
@@ -135,12 +145,6 @@ private:
    // Input handling
 	void	KeyIncreaseAction();
 	void	KeyDecreaseAction();
-	
-   void	OnKeyDelete();
-	void	OnKeyInsert();
-	void	OnKeyBack();
-	void	OnKeyHome();
-	void	OnKeyEnd();
    
    void RemoveWithoutDelete();
    void StepDown();
@@ -157,8 +161,20 @@ private:
    void SetRowCount(int Count);
    void SetFrameCount(int Count);
    
+   bool CheckClearKey(unsigned char Key) const;
+   bool CheckReleaseKey(unsigned char Key) const;
+   bool CheckHaltKey(unsigned char Key) const;   
+   bool CheckRepeatKey(unsigned char Key) const;
+   
    bool	PreventRepeat(unsigned char Key, bool Insert);
 	void	RepeatRelease(unsigned char Key);
+   
+   bool	EditInstrumentColumn(stChanNote &Note, int Value, bool &StepDown, bool &MoveRight, bool &MoveLeft);
+	bool	EditVolumeColumn(stChanNote &Note, int Value, bool &bStepDown);
+	bool	EditEffNumberColumn(stChanNote &Note, unsigned char nChar, int EffectIndex, bool &bStepDown);
+	bool	EditEffParamColumn(stChanNote &Note, int Value, int EffectIndex, bool &bStepDown, bool &bMoveRight, bool &bMoveLeft);
+	void	InsertEffect(char Effect);
+	void	InsertNote(int Note, int Octave, int Channel, int Velocity);
    
    void trackerAction_newDocument();
    void trackerAction_openDocument();
@@ -205,5 +221,7 @@ signals:
 private slots:
    void on_editStep_valueChanged(int arg1);
 };
+
+typedef class CMainFrame CFamiTrackerView;
 
 #endif // MAINFRAME_H

@@ -138,7 +138,9 @@ public:
 
 	void SetSelection(CSelection &selection);
    bool IsSelecting() const;
-   
+   void SelectAllChannel();
+	void SelectAll();
+
    void ClearSelection();
 
    void DragPaste(stClipData *pClipData, CSelection *pDragTarget, bool bMix);
@@ -233,8 +235,13 @@ private:
    CCursorPos m_cpSelCursor;
 
    void OnMouseDown(CPoint point);
+   void OnMouseRDown(CPoint point);
    void OnMouseUp(CPoint point);
    void OnMouseMove(UINT nFlags, CPoint point);
+   void OnMouseDblClk(CPoint point);
+   
+   void OnVScroll(UINT nSBCode, UINT nPos);
+   void OnHScroll(UINT nSBCode, UINT nPos);
    
    void CreateBackground(CDC *pDC, bool bForce);
    void DrawRowArea(CDC *pDC);
@@ -249,6 +256,8 @@ private:
    void DrawScreen(CDC *pDC/*, CFamiTrackerView *pView*/);
    void FastScrollDown(CDC *pDC);
    void PaintEditor();
+
+   void SetWindowSize(int width, int height);
    
    CCursorPos GetCursorAtPoint(CPoint point) const;
    int  GetRowAtPoint(int PointY) const;
@@ -351,3 +360,5 @@ private slots:
    void on_verticalScrollBar_actionTriggered(int action);
    void on_horizontalScrollBar_actionTriggered(int action);
 };
+
+typedef class CPatternEditor CPatternView;

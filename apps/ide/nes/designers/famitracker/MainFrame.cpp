@@ -29,6 +29,53 @@ void CFamiTrackerFrameTableView::setModel(QAbstractItemModel *model)
    setCurrentIndex(model->index(0,0));
 }
 
+const unsigned char KEY_DOT = 0xBD;		// '.'
+const unsigned char KEY_DASH = 0xBE;	// '-'
+const int KEY_REMOVE = -67;				// '-'
+
+const int NOTE_HALT = -1;
+const int NOTE_RELEASE = -2;
+
+const int SINGLE_STEP = 1;
+
+// Convert keys 0-F to numbers, -1 = invalid key
+int ConvertKeyToHex(int Key) {
+
+	switch (Key) {
+		case 48: case VK_NUMPAD0: return 0x00;
+		case 49: case VK_NUMPAD1: return 0x01;
+		case 50: case VK_NUMPAD2: return 0x02;
+		case 51: case VK_NUMPAD3: return 0x03;
+		case 52: case VK_NUMPAD4: return 0x04;
+		case 53: case VK_NUMPAD5: return 0x05;
+		case 54: case VK_NUMPAD6: return 0x06;
+		case 55: case VK_NUMPAD7: return 0x07;
+		case 56: case VK_NUMPAD8: return 0x08;
+		case 57: case VK_NUMPAD9: return 0x09;
+		case 65: return 0x0A;
+		case 66: return 0x0B;
+		case 67: return 0x0C;
+		case 68: return 0x0D;
+		case 69: return 0x0E;
+		case 70: return 0x0F;
+
+		case KEY_DOT:
+		case KEY_DASH:
+			return 0x80;
+	}
+
+	return -1;
+}
+
+// Convert keys 0-9 to numbers
+int ConvertKeyToDec(int Key)
+{
+	if (Key > 47 && Key < 58)
+		return Key - 48;
+
+	return -1;
+}
+
 CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
    QWidget(parent),
    ui(new Ui::CMainFrame),
@@ -68,10 +115,11 @@ CMainFrame::CMainFrame(QString fileName,QWidget *parent) :
 
    ui->setupUi(this);
    
-   // Unmute all channels
-	for (int i = 0; i < MAX_CHANNELS; ++i) {
-		m_bMuteChannels[i] = false;
-	}
+   memset(m_bMuteChannels, 0, sizeof(bool) * MAX_CHANNELS);
+   qDebug("m_iActiveNotes and Arpeggiate not initialized yet");
+//	memset(m_iActiveNotes, 0, sizeof(int) * MAX_CHANNELS);
+	memset(m_cKeyList, 0, sizeof(char) * 256);
+//	memset(Arpeggiate, 0, sizeof(int) * MAX_CHANNELS);
 
    m_pDocument = new CFamiTrackerDoc();
 
@@ -217,11 +265,96 @@ void CMainFrame::hideEvent(QHideEvent *)
    QObject::disconnect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
 }
 
-void CMainFrame::keyPressEvent(QKeyEvent *event)
+//
+// Custom key handling routines
+//
+
+void CMainFrame::OnKeyHome()
 {
-   UINT nChar = event->nativeVirtualKey();
-   UINT nRepCnt = event->count();
-   
+	m_pPatternView->OnHomeKey();
+	UpdateEditor(UPDATE_CURSOR);
+}
+
+void CMainFrame::OnKeyEnd()
+{
+	m_pPatternView->OnEndKey();
+	UpdateEditor(UPDATE_CURSOR);
+}
+
+void CMainFrame::OnKeyInsert()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (PreventRepeat(VK_INSERT, true))
+		return;
+
+	AddAction(new CPatternAction(CPatternAction::ACT_INSERT_ROW));
+}
+
+void CMainFrame::OnKeyBack()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (m_pPatternView->IsSelecting()) 
+		RemoveWithoutDelete();
+	else {
+		if (PreventRepeat(VK_BACK, true))
+			return;
+
+		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
+		pAction->SetDelete(true, true);
+		if (AddAction(pAction))
+			m_pPatternView->MoveUp(1);
+	}
+
+	UpdateEditor(CHANGED_PATTERN);
+}
+
+void CMainFrame::OnKeyDelete()
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (PreventRepeat(VK_DELETE, true))
+		return;
+
+	if (m_pPatternView->IsSelecting()) {
+		OnEditDelete();
+	}
+	else {
+		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
+		bool bPullUp = theApp.GetSettings()->General.bPullUpDelete || m_bShiftPressed;
+		pAction->SetDelete(bPullUp, false);
+		AddAction(pAction);
+		if (!bPullUp)
+			StepDown();
+	}
+}
+
+bool CMainFrame::CheckClearKey(unsigned char Key) const
+{
+	return (Key == theApp.GetSettings()->Keys.iKeyClear);
+}
+
+bool CMainFrame::CheckReleaseKey(unsigned char Key) const
+{
+	return (Key == theApp.GetSettings()->Keys.iKeyNoteRelease);
+}
+
+bool CMainFrame::CheckHaltKey(unsigned char Key) const
+{
+	return (Key == theApp.GetSettings()->Keys.iKeyNoteCut);
+}
+
+bool CMainFrame::CheckRepeatKey(unsigned char Key) const
+{
+	return (Key == theApp.GetSettings()->Keys.iKeyRepeat);
+}
+
+void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{	
    // Called when a key is pressed
 	 
 	CFamiTrackerDoc* pDoc = GetDocument();
@@ -230,14 +363,13 @@ void CMainFrame::keyPressEvent(QKeyEvent *event)
 //	if (GetFocus() != this)
 //		return;
 
-//	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
-   qDebug("SetInstrument");
-//		// Switch instrument
-//		if (m_pPatternView->GetColumn() == C_NOTE) {
-//			SetInstrument(nChar - VK_NUMPAD0);
-//			return;
-//		}
-//	}
+	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
+		// Switch instrument
+		if (m_pPatternView->GetColumn() == C_NOTE) {
+			SetInstrument(nChar - VK_NUMPAD0);
+			return;
+		}
+	}
 	
 	switch (nChar) {
 		// Shift
@@ -268,12 +400,10 @@ void CMainFrame::keyPressEvent(QKeyEvent *event)
 			UpdateEditor(UPDATE_CURSOR);
 			break;
 		case VK_HOME:
-      qDebug("OnKeyHome");
-//			OnKeyHome();
+			OnKeyHome();
 			break;
 		case VK_END:
-      qDebug("OnKeyEnd");
-//			OnKeyEnd();
+			OnKeyEnd();
 			break;
 		case VK_PRIOR:
 			m_pPatternView->MovePageUp();
@@ -284,11 +414,10 @@ void CMainFrame::keyPressEvent(QKeyEvent *event)
 			UpdateEditor(UPDATE_CURSOR);
 			break;
 		case VK_TAB:	// Move between channels
-      qDebug("m_bShiftPressed");
-//         if (m_bShiftPressed)
-//				m_pPatternView->PreviousChannel();
-//			else
-//				m_pPatternView->NextChannel();
+         if (m_bShiftPressed)
+				m_pPatternView->PreviousChannel();
+			else
+				m_pPatternView->NextChannel();
 			UpdateEditor(UPDATE_CURSOR);
 			break;
 
@@ -326,18 +455,15 @@ void CMainFrame::keyPressEvent(QKeyEvent *event)
 		case VK_F9: SetOctave(7); break;
 
 		default:
-      qDebug("HandleKeyboardInput");
-//			HandleKeyboardInput(nChar);
+			HandleKeyboardInput(nChar);
 	}
 
 //	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
-void CMainFrame::keyReleaseEvent(QKeyEvent *event)
+void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-   UINT nChar = event->nativeVirtualKey();
-   
-   // Called when a key is released
+	// Called when a key is released
 
 	switch (nChar) {
 		case VK_SHIFT:
@@ -356,6 +482,456 @@ void CMainFrame::keyReleaseEvent(QKeyEvent *event)
 	m_cKeyList[nChar] = 0;
 
 //	CView::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+void CMainFrame::InsertNote(int Note, int Octave, int Channel, int Velocity)
+{
+	// Inserts a note
+	stChanNote Cell;
+
+	int Frame = m_pPatternView->GetFrame();
+	int Row = m_pPatternView->GetRow();
+
+	GetDocument()->GetNoteData(Frame, Channel, Row, &Cell);
+
+	Cell.Note = Note;
+
+	if (Note != HALT && Note != RELEASE) {
+		Cell.Octave	= Octave;
+
+		if (!m_bMaskInstrument)
+			Cell.Instrument = GetInstrument();
+
+		if (Velocity < 128)
+			Cell.Vol = (Velocity / 8);
+	}	
+
+	// Quantization
+   qDebug("MIDI quantization???");
+//	if (theApp.GetSettings()->Midi.bMidiMasterSync) {
+//		int Delay = theApp.GetMIDI()->GetQuantization();
+//		if (Delay > 0) {
+//			Cell.EffNumber[0] = EF_DELAY;
+//			Cell.EffParam[0] = Delay;
+//		}
+//	}
+	
+	if (m_bEditEnable) {
+		if (Note == HALT)
+			m_iLastNote = NOTE_HALT;
+		else if (Note == RELEASE)
+			m_iLastNote = NOTE_RELEASE;
+		else
+			m_iLastNote = (Note - 1) + Octave * 12;
+		
+		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EDIT_NOTE);
+		pAction->SetNote(Cell);
+		AddAction(pAction);
+
+		CSettings *pSettings = theApp.GetSettings();
+
+		if ((m_pPatternView->GetColumn() == 0) && !theApp.IsPlaying() && (m_iInsertKeyStepping > 0) && !pSettings->Midi.bMidiMasterSync)
+			StepDown();
+
+		UpdateEditor(CHANGED_PATTERN);
+	}
+}
+
+bool CMainFrame::EditInstrumentColumn(stChanNote &Note, int Key, bool &StepDown, bool &MoveRight, bool &MoveLeft)
+{
+	int EditStyle = theApp.GetSettings()->General.iEditStyle;
+	int Column = m_pPatternView->GetColumn();
+
+	if (!m_bEditEnable)
+		return false;
+
+	if (CheckClearKey(Key)) {
+		Note.Instrument = MAX_INSTRUMENTS;	// Indicate no instrument selected
+		if (EditStyle != EDIT_STYLE2)
+			StepDown = true;
+		m_iLastInstrument = MAX_INSTRUMENTS;
+		return true;
+	}
+	else if (CheckRepeatKey(Key)) {
+		Note.Instrument = m_iLastInstrument;
+		SetInstrument(m_iLastInstrument);
+		if (EditStyle != EDIT_STYLE2)
+			StepDown = true;
+		return true;
+	}
+
+	int Value = ConvertKeyToHex(Key);
+	unsigned char Mask, Shift;
+
+	if (Value == -1)
+		return false;
+
+	if (Column == C_INSTRUMENT1) {
+		Mask = 0x0F;
+		Shift = 4;
+	}
+	else {
+		Mask = 0xF0;
+		Shift = 0;
+	}
+
+	if (Note.Instrument == MAX_INSTRUMENTS)
+		Note.Instrument = 0;
+
+	switch (EditStyle) {
+		case EDIT_STYLE1: // FT2
+			Note.Instrument = (Note.Instrument & Mask) | (Value << Shift);
+			StepDown = true;
+			break;
+		case EDIT_STYLE2: // MPT
+			if (Note.Instrument == (MAX_INSTRUMENTS - 1))
+				Note.Instrument = 0;
+			Note.Instrument = ((Note.Instrument & 0x0F) << 4) | Value & 0x0F;
+			break;
+		case EDIT_STYLE3: // IT
+			Note.Instrument = (Note.Instrument & Mask) | (Value << Shift);
+			if (Column == C_INSTRUMENT1)
+				MoveRight = true;
+			else if (Column == C_INSTRUMENT2) {
+				MoveLeft = true;
+				StepDown = true;
+			}
+			break;
+	}
+
+	if (Note.Instrument > (MAX_INSTRUMENTS - 1))
+		Note.Instrument = (MAX_INSTRUMENTS - 1);
+
+	if (Value == 0x80)
+		Note.Instrument = MAX_INSTRUMENTS;
+
+	SetInstrument(Note.Instrument);
+
+	return true;
+}
+
+bool CMainFrame::EditVolumeColumn(stChanNote &Note, int Key, bool &bStepDown)
+{
+	int EditStyle = theApp.GetSettings()->General.iEditStyle;
+
+	if (!m_bEditEnable)
+		return false;
+
+	if (CheckClearKey(Key)) {
+		Note.Vol = 0x10;
+		if (EditStyle != EDIT_STYLE2)
+			bStepDown = true;
+		m_iLastVolume = 0x10;
+		return true;
+	}
+	else if (CheckRepeatKey(Key)) {
+		Note.Vol = m_iLastVolume;
+		if (EditStyle != EDIT_STYLE2)
+			bStepDown = true;
+		return true;
+	}
+
+	int Value = ConvertKeyToHex(Key);
+
+	if (Value == -1)
+		return false;
+
+	if (Value == 0x80)
+		Note.Vol = 0x10;
+	else
+		Note.Vol = Value;
+
+	m_iLastVolume = Note.Vol;
+
+	if (EditStyle != EDIT_STYLE2)
+		bStepDown = true;
+
+	return true;
+}
+
+bool CMainFrame::EditEffNumberColumn(stChanNote &Note, unsigned char nChar, int EffectIndex, bool &bStepDown)
+{
+	int EditStyle = theApp.GetSettings()->General.iEditStyle;
+
+	if (!m_bEditEnable)
+		return false;
+
+	if (CheckRepeatKey(nChar)) {
+		Note.EffNumber[EffectIndex] = m_iLastEffect;
+		Note.EffParam[EffectIndex] = m_iLastEffectParam;
+		return true;
+	}
+
+	if (CheckClearKey(nChar)) {
+		Note.EffNumber[EffectIndex] = EF_NONE;
+		if (EditStyle != EDIT_STYLE2)
+			bStepDown = true;
+		return true;
+	}
+
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	int Chip = pDoc->GetChannel(m_pPatternView->GetChannel())->GetChip();
+
+	bool bValidEffect = false;
+	int Effect;
+
+	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9)
+		nChar = '0' + nChar - VK_NUMPAD0;
+
+	if (Chip == SNDCHIP_FDS) {
+		// FDS effects
+		const char FDS_EFFECTS[] = {EF_FDS_MOD_DEPTH, EF_FDS_MOD_SPEED_HI, EF_FDS_MOD_SPEED_LO};
+		for (int i = 0; i < sizeof(FDS_EFFECTS) && !bValidEffect; ++i) {
+			if (nChar == EFF_CHAR[FDS_EFFECTS[i] - 1]) {
+				bValidEffect = true;
+				Effect = FDS_EFFECTS[i];
+			}
+		}
+	}
+	else if (Chip == SNDCHIP_VRC7) {
+		// VRC7 effects
+		/*
+		const char VRC7_EFFECTS[] = {EF_VRC7_MODULATOR, EF_VRC7_CARRIER, EF_VRC7_LEVELS};
+		for (int i = 0; i < sizeof(VRC7_EFFECTS) && !bValidEffect; ++i) {
+			if (nChar == EFF_CHAR[VRC7_EFFECTS[i] - 1]) {
+				bValidEffect = true;
+				Effect = VRC7_EFFECTS[i];
+			}
+		}
+		*/
+	}
+	else if (Chip == SNDCHIP_S5B) {
+		// Sunsoft effects
+		const char SUNSOFT_EFFECTS[] = {EF_SUNSOFT_ENV_LO, EF_SUNSOFT_ENV_HI, EF_SUNSOFT_ENV_TYPE};
+		for (int i = 0; i < sizeof(SUNSOFT_EFFECTS) && !bValidEffect; ++i) {
+			if (nChar == EFF_CHAR[SUNSOFT_EFFECTS[i] - 1]) {
+				bValidEffect = true;
+				Effect = SUNSOFT_EFFECTS[i];
+			}
+		}
+	}
+
+	for (int i = 0; i < EF_COUNT && !bValidEffect; ++i) {
+		if (nChar == EFF_CHAR[i]) {
+			bValidEffect = true;
+			Effect = i + 1;
+		}
+	}
+
+	if (bValidEffect) {
+		Note.EffNumber[EffectIndex] = Effect;
+		switch (EditStyle) {
+			case EDIT_STYLE2:	// Modplug
+				if (Effect == m_iLastEffect)
+					Note.EffParam[EffectIndex] = m_iLastEffectParam;
+				break;
+			default:
+				bStepDown = true;
+		}
+		m_iLastEffect = Effect;
+		return true;
+	}
+
+	return false;
+}
+
+bool CMainFrame::EditEffParamColumn(stChanNote &Note, int Key, int EffectIndex, bool &bStepDown, bool &bMoveRight, bool &bMoveLeft)
+{
+	int EditStyle = theApp.GetSettings()->General.iEditStyle;
+	unsigned char Mask, Shift;
+	int Column = m_pPatternView->GetColumn();
+	int Value = ConvertKeyToHex(Key);
+
+	if (!m_bEditEnable)
+		return false;
+
+	if (CheckRepeatKey(Key)) {
+		Note.EffNumber[EffectIndex] = m_iLastEffect;
+		Note.EffParam[EffectIndex] = m_iLastEffectParam;
+		return true;
+	}
+
+	if (CheckClearKey(Key)) {
+		Note.EffParam[EffectIndex] = 0;
+		if (EditStyle != EDIT_STYLE2)
+			bStepDown = true;
+		return true;
+	}
+
+	if (Value == -1 || Value == 0x80)
+		return false;
+
+	if (Column == C_EFF_PARAM1 || Column == C_EFF2_PARAM1 || Column == C_EFF3_PARAM1 || Column == C_EFF4_PARAM1) {
+		Mask = 0x0F;
+		Shift = 4;
+	}
+	else {
+		Mask = 0xF0;
+		Shift = 0;
+	}
+	
+	switch (EditStyle) {
+		case EDIT_STYLE1:	// FT2
+			Note.EffParam[EffectIndex] = (Note.EffParam[EffectIndex] & Mask) | Value << Shift;
+			bStepDown = true;
+			break;
+		case EDIT_STYLE2:	// Modplug
+			Note.EffParam[EffectIndex] = ((Note.EffParam[EffectIndex] & 0x0F) << 4) | Value & 0x0F;
+			UpdateEditor(CHANGED_PATTERN);
+			break;
+		case EDIT_STYLE3:	// IT
+			Note.EffParam[EffectIndex] = (Note.EffParam[EffectIndex] & Mask) | Value << Shift;
+			if (Mask == 0x0F)
+				bMoveRight = true;
+			else {
+				bMoveLeft = true;
+				bStepDown = true;
+			}
+			break;
+	}
+
+	m_iLastEffectParam = Note.EffParam[EffectIndex];
+
+	return true;
+}
+
+void CFamiTrackerView::HandleKeyboardInput(char nChar)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	static bool FirstChar = false;
+
+	stChanNote Note;
+
+	int EditStyle = theApp.GetSettings()->General.iEditStyle;
+	int Index;
+
+	int Frame = m_pPatternView->GetFrame();
+	int Row = m_pPatternView->GetRow();
+	int Channel = m_pPatternView->GetChannel();
+	int Column = m_pPatternView->GetColumn();
+
+	bool bStepDown = false;
+	bool bMoveRight = false;
+	bool bMoveLeft = false;
+
+	// Watch for repeating keys
+	if (PreventRepeat(nChar, m_bEditEnable))
+		return;
+
+	// Get the note data
+	pDoc->GetNoteData(Frame, Channel, Row, &Note);
+
+	// Make all effect columns look the same, save an index instead
+	switch (Column) {
+		case C_EFF_NUM:		Column = C_EFF_NUM;	Index = 0; break;
+		case C_EFF2_NUM:	Column = C_EFF_NUM;	Index = 1; break;
+		case C_EFF3_NUM:	Column = C_EFF_NUM;	Index = 2; break;
+		case C_EFF4_NUM:	Column = C_EFF_NUM;	Index = 3; break;
+		case C_EFF_PARAM1:	Column = C_EFF_PARAM1; Index = 0; break;
+		case C_EFF2_PARAM1:	Column = C_EFF_PARAM1; Index = 1; break;
+		case C_EFF3_PARAM1:	Column = C_EFF_PARAM1; Index = 2; break;
+		case C_EFF4_PARAM1:	Column = C_EFF_PARAM1; Index = 3; break;
+		case C_EFF_PARAM2:	Column = C_EFF_PARAM2; Index = 0; break;
+		case C_EFF2_PARAM2:	Column = C_EFF_PARAM2; Index = 1; break;
+		case C_EFF3_PARAM2:	Column = C_EFF_PARAM2; Index = 2; break;
+		case C_EFF4_PARAM2:	Column = C_EFF_PARAM2; Index = 3; break;			
+	}
+
+	switch (Column) {
+		// Note & octave column
+		case C_NOTE:
+			if (CheckRepeatKey(nChar)) {
+				if (m_iLastNote == 0) {
+					Note.Note = 0;
+				}
+				else if (m_iLastNote == NOTE_HALT) {
+					Note.Note = HALT;
+				}
+				else if (m_iLastNote == NOTE_RELEASE) {
+					Note.Note = RELEASE;
+				}
+				else {
+					Note.Note = GET_NOTE(m_iLastNote);
+					Note.Octave = GET_OCTAVE(m_iLastNote);
+				}
+			}
+			else if (CheckClearKey(nChar)) {
+				// Remove note
+				Note.Note = 0;
+				Note.Octave = 0;
+				m_iLastNote = 0;
+				if (EditStyle != EDIT_STYLE2)
+					bStepDown = true;
+					//StepDown();
+			}
+			else {
+				// This is special
+            qDebug("HandleKeyboardNote");
+//				HandleKeyboardNote(nChar, true);
+				return;
+			}
+			break;
+		// Instrument column
+		case C_INSTRUMENT1:
+		case C_INSTRUMENT2:
+			if (!EditInstrumentColumn(Note, nChar, bStepDown, bMoveRight, bMoveLeft))
+				return;
+			break;
+		// Volume column
+		case C_VOLUME:
+			if (!EditVolumeColumn(Note, nChar, bStepDown))
+				return;
+			break;
+		// Effect number
+		case C_EFF_NUM:
+			if (!EditEffNumberColumn(Note, nChar, Index, bStepDown))
+				return;
+			break;
+		// Effect parameter
+		case C_EFF_PARAM1:
+		case C_EFF_PARAM2:
+			if (!EditEffParamColumn(Note, nChar, Index, bStepDown, bMoveRight, bMoveLeft))
+				return;
+			break;
+	}
+
+	// Something changed, store pattern data in document and update screen
+	if (m_bEditEnable) {
+		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EDIT_NOTE);
+		pAction->SetNote(Note);
+		AddAction(pAction);
+
+		if (bMoveLeft)
+			m_pPatternView->MoveLeft();
+
+		if (bMoveRight)
+			m_pPatternView->MoveRight();
+
+		if (bStepDown)
+			StepDown();
+	}
+}
+
+void CMainFrame::keyPressEvent(QKeyEvent *event)
+{
+   UINT nChar = event->nativeVirtualKey();
+   UINT nRepCnt = event->count();
+   
+   OnKeyDown(nChar,nRepCnt,0);
+   repaint();
+}
+
+void CMainFrame::keyReleaseEvent(QKeyEvent *event)
+{
+   UINT nChar = event->nativeVirtualKey();
+   UINT nRepCnt = event->count();
+   
+   OnKeyUp(nChar,nRepCnt,0);
+   repaint();
 }
 
 void CMainFrame::updateViews(long hint)
@@ -679,82 +1255,14 @@ void CMainFrame::UpdateEditor(UINT lHint)
    m_pDocument->UpdateAllViews(0,lHint);
 }
 
-//
-// Custom key handling routines
-//
-
-void CMainFrame::OnKeyHome()
-{
-	m_pPatternView->OnHomeKey();
-	UpdateEditor(UPDATE_CURSOR);
-}
-
-void CMainFrame::OnKeyEnd()
-{
-	m_pPatternView->OnEndKey();
-	UpdateEditor(UPDATE_CURSOR);
-}
-
-void CMainFrame::OnKeyInsert()
-{
-	CFamiTrackerDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	if (PreventRepeat(VK_INSERT, true))
-		return;
-
-	AddAction(new CPatternAction(CPatternAction::ACT_INSERT_ROW));
-}
-
 void CMainFrame::RemoveWithoutDelete()
 {
 	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE_ROWS));
 }
 
-void CMainFrame::OnKeyBack()
-{
-	CFamiTrackerDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	if (m_pPatternView->IsSelecting()) 
-		RemoveWithoutDelete();
-	else {
-		if (PreventRepeat(VK_BACK, true))
-			return;
-
-		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
-		pAction->SetDelete(true, true);
-		if (AddAction(pAction))
-			m_pPatternView->MoveUp(1);
-	}
-
-	UpdateEditor(CHANGED_PATTERN);
-}
-
 void CMainFrame::OnEditDelete()
 {
 	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE));
-}
-
-void CMainFrame::OnKeyDelete()
-{
-	CFamiTrackerDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	if (PreventRepeat(VK_DELETE, true))
-		return;
-
-	if (m_pPatternView->IsSelecting()) {
-		OnEditDelete();
-	}
-	else {
-		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
-		bool bPullUp = theApp.GetSettings()->General.bPullUpDelete || m_bShiftPressed;
-		pAction->SetDelete(bPullUp, false);
-		AddAction(pAction);
-		if (!bPullUp)
-			StepDown();
-	}
 }
 
 void CMainFrame::StepDown()
@@ -891,6 +1399,22 @@ bool CMainFrame::IsChannelMuted(unsigned int Channel)
 {
 	ASSERT(Channel < MAX_CHANNELS);
 	return m_bMuteChannels[Channel];
+}
+
+void CMainFrame::SetInstrument(int Instrument)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+//	CMainFrame *pMainFrm = (CMainFrame*)GetParentFrame();
+	ASSERT_VALID(pDoc);
+//	ASSERT_VALID(pMainFrm);
+	ASSERT(Instrument >= 0 && Instrument < MAX_INSTRUMENTS);
+
+	if (Instrument == MAX_INSTRUMENTS)
+		return;
+
+   qDebug("select instrument in main frame...");
+//	pMainFrm->SelectInstrument(Instrument);
+	m_iLastInstrument = GetInstrument(); // Gets actual selected instrument //  Instrument;
 }
 
 unsigned int CMainFrame::GetInstrument() const 
