@@ -4,8 +4,8 @@
 #include "cdesignereditorbase.h"
 #include "cdesignercommon.h"
 
-#include "famitracker/MainFrame.h"
-#include "famitracker/Action.h"
+#include "MainFrame.h"
+#include "Action.h"
 
 #include <QWidget>
 #include <QToolBar>

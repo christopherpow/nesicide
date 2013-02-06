@@ -20,6 +20,12 @@ isEmpty (SCINTILLA_LIBS) {
 # set platform specific cxxflags and libs
 #########################################
 
+CONFIG(release, debug|release) {
+   LIB_BUILD_TYPE_DIR = release
+} else {
+   LIB_BUILD_TYPE_DIR = debug
+}
+
 win32 {
 
    SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
@@ -42,15 +48,9 @@ win32 {
 
    QMAKE_LFLAGS += -static-libgcc
 
-   CONFIG(release, debug|release) {
-      NES_LIBS = -L$$TOP/libs/nes/release -lnes-emulator
-      C64_LIBS = -L$$TOP/libs/c64/release -lc64-emulator
-      FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/release -lfamitracker
-   } else {
-      NES_LIBS = -L$$TOP/libs/nes/debug -lnes-emulator
-      C64_LIBS = -L$$TOP/libs/c64/debug -lc64-emulator
-      FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/debug -lfamitracker
-   }
+   NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
+   C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
+   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
 }
 
 mac {
@@ -66,6 +66,7 @@ mac {
    }
    NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
+   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
    SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
    SDL_LIBS = -framework SDL
@@ -73,13 +74,9 @@ mac {
    LUA_CXXFLAGS = -F.. -framework Lua
    LUA_LIBS = -F ~/Library/Frameworks -framework Lua
 
-   CONFIG(release, debug|release) {
-      LIB_BUILD_TYPE_DIR = release
-   } else {
-      LIB_BUILD_TYPE_DIR = debug
-   }
    NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
+   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
 
    ICON = mac/resources/nesicide.icns
 
@@ -97,6 +94,12 @@ mac {
       @executable_path/../Frameworks/libc64-emulator.1.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
+   QMAKE_POST_LINK += cp $$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR}/libfamitracker.1.0.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
+      @executable_path/../Frameworks/libfamitracker.1.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
    QMAKE_POST_LINK += cp mac/dependencies/libqscintilla2.6.1.0.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.6.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libqscintilla2.6.dylib \
@@ -110,8 +113,10 @@ mac {
 unix:!mac {
    NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
    C64_CXXFLAGS = -I $$TOP/libs/c64 -I $$TOP/libs/c64/emulator -I $$TOP/libs/c64/common
+   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
    NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
+   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker -lfamitracker
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -163,8 +168,19 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += -DIDE $$NES_CXXFLAGS $$C64_CXXFLAGS $$SDL_CXXFLAGS $$LUA_CXXFLAGS $$SCINTILLA_CXXFLAGS
-LIBS += $$NES_LIBS $$C64_LIBS $$SDL_LIBS $$LUA_LIBS $$SCINTILLA_LIBS
+QMAKE_CXXFLAGS += -DIDE \
+                  $$NES_CXXFLAGS \
+                  $$C64_CXXFLAGS \
+                  $$FAMITRACKER_CXXFLAGS \
+                  $$SDL_CXXFLAGS \
+                  $$LUA_CXXFLAGS \
+                  $$SCINTILLA_CXXFLAGS
+LIBS += $$NES_LIBS \
+        $$C64_LIBS \
+        $$FAMITRACKER_LIBS \
+        $$SDL_LIBS \
+        $$LUA_LIBS \
+        $$SCINTILLA_LIBS
 
 INCLUDEPATH += \
    $$TOP/common \
