@@ -16,7 +16,6 @@ CFrameEditor::~CFrameEditor()
 {
    delete ui;
    delete framesModel;
-   delete entryDelegate;
 }
 
 void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc)
@@ -29,10 +28,8 @@ void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc)
    QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
    
    framesModel = new CMusicFamiTrackerFramesModel(m_pDocument);
-   entryDelegate = new CDebuggerNumericItemDelegate();
 
    ui->songFrames->setModel(framesModel);
-   ui->songFrames->setItemDelegate(entryDelegate);
    
 #ifdef Q_WS_MAC
    ui->songFrames->setFont(QFont("Monaco",9));

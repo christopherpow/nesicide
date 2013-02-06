@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "famitracker/PatternEditor.h"
+#include "PatternEditor.h"
 
 #include "cqtmfc.h"
 

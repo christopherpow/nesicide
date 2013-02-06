@@ -5,6 +5,7 @@
 //  (c) Reliable Software, 1996
 //------------------------------------
 #include <memory>
+#include <string.h>
 #include "fft.h"
 //#include "recorder.h"
 

@@ -25,12 +25,12 @@
 #include "PatternEditor.h"
 #include "ui_PatternEditor.h"
 
-#include "famitracker/Settings.h"
-#include "famitracker/SoundGen.h"
-#include "famitracker/ColorScheme.h"
-#include "famitracker/Graphics.h"
-#include "famitracker/TrackerChannel.h"
-#include "famitracker/MainFrame.h"
+#include "Settings.h"
+#include "SoundGen.h"
+#include "ColorScheme.h"
+#include "Graphics.h"
+#include "TrackerChannel.h"
+#include "MainFrame.h"
 
 #include <QScrollBar>
 

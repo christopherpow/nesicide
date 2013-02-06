@@ -21,8 +21,8 @@
 #pragma once
 
 #include "cqtmfc.h"
-#include "famitracker/FamiTrackerTypes.h"
-#include "famitracker/PatternData.h"
+#include "FamiTrackerTypes.h"
+#include "PatternData.h"
 
 class CTrackerChannel
 {

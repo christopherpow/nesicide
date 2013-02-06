@@ -18,10 +18,10 @@
 ** must bear this legend.
 */
 
-#include "famitracker/FamiTrackerDoc.h"
-#include "famitracker/Action.h"
-#include "famitracker/PatternEditor.h"
-#include "famitracker/MainFrame.h"
+#include "FamiTrackerDoc.h"
+#include "Action.h"
+#include "PatternEditor.h"
+#include "MainFrame.h"
 
 // CPatternAction /////////////////////////////////////////////////////////////////
 //

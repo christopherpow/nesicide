@@ -2,9 +2,9 @@
 #include "ui_MainFrame.h"
 
 #include "famitrackermodulepropertiesdialog.h"
-#include "famitracker/SoundGen.h"
-#include "famitracker/Settings.h"
-#include "famitracker/TrackerChannel.h"
+#include "SoundGen.h"
+#include "Settings.h"
+#include "TrackerChannel.h"
 
 #include "cqtmfc.h"
 
@@ -269,19 +269,19 @@ void CMainFrame::hideEvent(QHideEvent *)
 // Custom key handling routines
 //
 
-void CMainFrame::OnKeyHome()
+void CFamiTrackerView::OnKeyHome()
 {
 	m_pPatternView->OnHomeKey();
 	UpdateEditor(UPDATE_CURSOR);
 }
 
-void CMainFrame::OnKeyEnd()
+void CFamiTrackerView::OnKeyEnd()
 {
 	m_pPatternView->OnEndKey();
 	UpdateEditor(UPDATE_CURSOR);
 }
 
-void CMainFrame::OnKeyInsert()
+void CFamiTrackerView::OnKeyInsert()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -292,7 +292,7 @@ void CMainFrame::OnKeyInsert()
 	AddAction(new CPatternAction(CPatternAction::ACT_INSERT_ROW));
 }
 
-void CMainFrame::OnKeyBack()
+void CFamiTrackerView::OnKeyBack()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -312,7 +312,7 @@ void CMainFrame::OnKeyBack()
 	UpdateEditor(CHANGED_PATTERN);
 }
 
-void CMainFrame::OnKeyDelete()
+void CFamiTrackerView::OnKeyDelete()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -333,27 +333,27 @@ void CMainFrame::OnKeyDelete()
 	}
 }
 
-bool CMainFrame::CheckClearKey(unsigned char Key) const
+bool CFamiTrackerView::CheckClearKey(unsigned char Key) const
 {
 	return (Key == theApp.GetSettings()->Keys.iKeyClear);
 }
 
-bool CMainFrame::CheckReleaseKey(unsigned char Key) const
+bool CFamiTrackerView::CheckReleaseKey(unsigned char Key) const
 {
 	return (Key == theApp.GetSettings()->Keys.iKeyNoteRelease);
 }
 
-bool CMainFrame::CheckHaltKey(unsigned char Key) const
+bool CFamiTrackerView::CheckHaltKey(unsigned char Key) const
 {
 	return (Key == theApp.GetSettings()->Keys.iKeyNoteCut);
 }
 
-bool CMainFrame::CheckRepeatKey(unsigned char Key) const
+bool CFamiTrackerView::CheckRepeatKey(unsigned char Key) const
 {
 	return (Key == theApp.GetSettings()->Keys.iKeyRepeat);
 }
 
-void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {	
    // Called when a key is pressed
 	 
@@ -461,7 +461,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 //	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
-void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CFamiTrackerView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// Called when a key is released
 
@@ -484,7 +484,7 @@ void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 //	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
 
-void CMainFrame::InsertNote(int Note, int Octave, int Channel, int Velocity)
+void CFamiTrackerView::InsertNote(int Note, int Octave, int Channel, int Velocity)
 {
 	// Inserts a note
 	stChanNote Cell;
@@ -537,7 +537,7 @@ void CMainFrame::InsertNote(int Note, int Octave, int Channel, int Velocity)
 	}
 }
 
-bool CMainFrame::EditInstrumentColumn(stChanNote &Note, int Key, bool &StepDown, bool &MoveRight, bool &MoveLeft)
+bool CFamiTrackerView::EditInstrumentColumn(stChanNote &Note, int Key, bool &StepDown, bool &MoveRight, bool &MoveLeft)
 {
 	int EditStyle = theApp.GetSettings()->General.iEditStyle;
 	int Column = m_pPatternView->GetColumn();
@@ -610,7 +610,7 @@ bool CMainFrame::EditInstrumentColumn(stChanNote &Note, int Key, bool &StepDown,
 	return true;
 }
 
-bool CMainFrame::EditVolumeColumn(stChanNote &Note, int Key, bool &bStepDown)
+bool CFamiTrackerView::EditVolumeColumn(stChanNote &Note, int Key, bool &bStepDown)
 {
 	int EditStyle = theApp.GetSettings()->General.iEditStyle;
 
@@ -649,7 +649,7 @@ bool CMainFrame::EditVolumeColumn(stChanNote &Note, int Key, bool &bStepDown)
 	return true;
 }
 
-bool CMainFrame::EditEffNumberColumn(stChanNote &Note, unsigned char nChar, int EffectIndex, bool &bStepDown)
+bool CFamiTrackerView::EditEffNumberColumn(stChanNote &Note, unsigned char nChar, int EffectIndex, bool &bStepDown)
 {
 	int EditStyle = theApp.GetSettings()->General.iEditStyle;
 
@@ -737,7 +737,7 @@ bool CMainFrame::EditEffNumberColumn(stChanNote &Note, unsigned char nChar, int 
 	return false;
 }
 
-bool CMainFrame::EditEffParamColumn(stChanNote &Note, int Key, int EffectIndex, bool &bStepDown, bool &bMoveRight, bool &bMoveLeft)
+bool CFamiTrackerView::EditEffParamColumn(stChanNote &Note, int Key, int EffectIndex, bool &bStepDown, bool &bMoveRight, bool &bMoveLeft)
 {
 	int EditStyle = theApp.GetSettings()->General.iEditStyle;
 	unsigned char Mask, Shift;
@@ -1153,7 +1153,7 @@ void CMainFrame::trackerAction_createNSF()
    qDebug("createNSF");
 }
 
-bool CMainFrame::AddAction(CAction *pAction)
+bool CFamiTrackerView::AddAction(CAction *pAction)
 {
 	if (!m_pActionHandler)
 		return false;
@@ -1169,7 +1169,7 @@ bool CMainFrame::AddAction(CAction *pAction)
 	return true;
 }
 
-CAction *CMainFrame::GetLastAction() const
+CAction *CFamiTrackerView::GetLastAction() const
 {
 	if (!m_pActionHandler)
 		return NULL;
@@ -1177,7 +1177,7 @@ CAction *CMainFrame::GetLastAction() const
 	return m_pActionHandler->GetLastAction();
 }
 
-void CMainFrame::SetRowCount(int Count)
+void CFamiTrackerView::SetRowCount(int Count)
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
 
@@ -1207,7 +1207,7 @@ void CMainFrame::SetRowCount(int Count)
 //		m_wndDialogBar.SetDlgItemInt(IDC_ROWS, Count, FALSE);
 }
 
-void CMainFrame::SetFrameCount(int Count)
+void CFamiTrackerView::SetFrameCount(int Count)
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
 
@@ -1255,17 +1255,17 @@ void CMainFrame::UpdateEditor(UINT lHint)
    m_pDocument->UpdateAllViews(0,lHint);
 }
 
-void CMainFrame::RemoveWithoutDelete()
+void CFamiTrackerView::RemoveWithoutDelete()
 {
 	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE_ROWS));
 }
 
-void CMainFrame::OnEditDelete()
+void CFamiTrackerView::OnEditDelete()
 {
 	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE));
 }
 
-void CMainFrame::StepDown()
+void CFamiTrackerView::StepDown()
 {
 	if (m_iInsertKeyStepping)
 		m_pPatternView->MoveDown(m_iInsertKeyStepping);
@@ -1273,17 +1273,17 @@ void CMainFrame::StepDown()
 	UpdateEditor(UPDATE_CURSOR);
 }
 
-void CMainFrame::KeyIncreaseAction()
+void CFamiTrackerView::KeyIncreaseAction()
 {
 	AddAction(new CPatternAction(CPatternAction::ACT_INCREASE));
 }
 
-void CMainFrame::KeyDecreaseAction()
+void CFamiTrackerView::KeyDecreaseAction()
 {
 	AddAction(new CPatternAction(CPatternAction::ACT_DECREASE));
 }
 
-bool CMainFrame::PreventRepeat(unsigned char Key, bool Insert)
+bool CFamiTrackerView::PreventRepeat(unsigned char Key, bool Insert)
 {
 	if (m_cKeyList[Key] == 0)
 		m_cKeyList[Key] = 1;
@@ -1295,12 +1295,12 @@ bool CMainFrame::PreventRepeat(unsigned char Key, bool Insert)
 	return false;
 }
 
-void CMainFrame::RepeatRelease(unsigned char Key)
+void CFamiTrackerView::RepeatRelease(unsigned char Key)
 {
 	memset(m_cKeyList, 0, 256);
 }
 
-void CMainFrame::SetOctave(unsigned int iOctave)
+void CFamiTrackerView::SetOctave(unsigned int iOctave)
 {
 	m_iOctave = iOctave;
    octaveComboBox->setCurrentIndex(iOctave);
@@ -1311,7 +1311,7 @@ void CMainFrame::on_editStep_valueChanged(int arg1)
    SetStepping(arg1);   
 }
 
-void CMainFrame::SetStepping(int Step) 
+void CFamiTrackerView::SetStepping(int Step) 
 { 
 	m_iInsertKeyStepping = Step;
 
@@ -1323,7 +1323,7 @@ void CMainFrame::SetStepping(int Step)
 //	((CMainFrame*)GetParentFrame())->UpdateControls();
 }
 
-void CMainFrame::ToggleChannel(unsigned int Channel)
+void CFamiTrackerView::ToggleChannel(unsigned int Channel)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -1336,7 +1336,7 @@ void CMainFrame::ToggleChannel(unsigned int Channel)
 	UpdateEditor(CHANGED_HEADER);
 }
 
-void CMainFrame::SoloChannel(unsigned int Channel)
+void CFamiTrackerView::SoloChannel(unsigned int Channel)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -1366,7 +1366,7 @@ void CMainFrame::SoloChannel(unsigned int Channel)
 	UpdateEditor(CHANGED_HEADER);
 }
 
-void CMainFrame::UnmuteAllChannels()
+void CFamiTrackerView::UnmuteAllChannels()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -1380,7 +1380,7 @@ void CMainFrame::UnmuteAllChannels()
 	UpdateEditor(CHANGED_HEADER);
 }
 
-bool CMainFrame::IsChannelSolo(unsigned int Channel)
+bool CFamiTrackerView::IsChannelSolo(unsigned int Channel)
 {
 	// Returns true if Channel is the only active channel 
    CFamiTrackerDoc* pDoc = GetDocument();
@@ -1395,13 +1395,13 @@ bool CMainFrame::IsChannelSolo(unsigned int Channel)
 	return true;
 }
 
-bool CMainFrame::IsChannelMuted(unsigned int Channel)
+bool CFamiTrackerView::IsChannelMuted(unsigned int Channel)
 {
 	ASSERT(Channel < MAX_CHANNELS);
 	return m_bMuteChannels[Channel];
 }
 
-void CMainFrame::SetInstrument(int Instrument)
+void CFamiTrackerView::SetInstrument(int Instrument)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 //	CMainFrame *pMainFrm = (CMainFrame*)GetParentFrame();
@@ -1430,7 +1430,7 @@ unsigned int CMainFrame::GetInstrument() const
 /// Note playing routines
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CMainFrame::PlayNote(unsigned int Channel, unsigned int Note, unsigned int Octave, unsigned int Velocity)
+void CFamiTrackerView::PlayNote(unsigned int Channel, unsigned int Note, unsigned int Octave, unsigned int Velocity)
 {
 	// Play a note in a channel
 	stChanNote NoteData;
@@ -1450,7 +1450,7 @@ void CMainFrame::PlayNote(unsigned int Channel, unsigned int Note, unsigned int 
 	FeedNote(Channel, &NoteData);
 }
 
-void CMainFrame::ReleaseNote(unsigned int Channel)
+void CFamiTrackerView::ReleaseNote(unsigned int Channel)
 {
 	// Releases a channel
 	stChanNote NoteData;
@@ -1463,7 +1463,7 @@ void CMainFrame::ReleaseNote(unsigned int Channel)
 	FeedNote(Channel, &NoteData);
 }
 
-void CMainFrame::HaltNote(unsigned int Channel)
+void CFamiTrackerView::HaltNote(unsigned int Channel)
 {
 	// Halts a channel
 	stChanNote NoteData;
@@ -1476,7 +1476,7 @@ void CMainFrame::HaltNote(unsigned int Channel)
 	FeedNote(Channel, &NoteData);
 }
 
-void CMainFrame::FeedNote(int Channel, stChanNote *NoteData)
+void CFamiTrackerView::FeedNote(int Channel, stChanNote *NoteData)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	CTrackerChannel *pChannel = pDoc->GetChannel(Channel);

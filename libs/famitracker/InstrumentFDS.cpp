@@ -22,7 +22,7 @@
 #include "Instrument.h"
 #include "FamiTrackerDoc.h"
 #include "Compiler.h"
-#include "famitracker/Common.h"
+#include "Common.h"
 
 const char TEST_WAVE[] = {
 	00, 01, 12, 22, 32, 36, 39, 39, 42, 47, 47, 50, 48, 51, 54, 58,

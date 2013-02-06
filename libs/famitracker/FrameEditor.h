@@ -4,9 +4,8 @@
 #include <QWidget>
 
 #include "cmusicfamitrackerframesmodel.h"
-#include "cdebuggernumericitemdelegate.h"
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 
 namespace Ui {
 class CFrameEditor;
@@ -32,7 +31,6 @@ public:
 private:
    Ui::CFrameEditor *ui;
    CMusicFamiTrackerFramesModel *framesModel;
-   CDebuggerNumericItemDelegate *entryDelegate;
    CFamiTrackerDoc* m_pDocument;
    
 public slots:

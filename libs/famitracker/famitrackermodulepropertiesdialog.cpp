@@ -1,8 +1,8 @@
 #include "famitrackermodulepropertiesdialog.h"
 #include "ui_famitrackermodulepropertiesdialog.h"
 
-#include "famitracker/ChannelMap.h"
-#include "famitracker/famitrackermoduleimportdialog.h"
+#include "ChannelMap.h"
+#include "famitrackermoduleimportdialog.h"
 
 #include <QFileDialog>
 #include <QSettings>

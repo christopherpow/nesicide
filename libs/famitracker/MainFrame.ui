@@ -373,13 +373,13 @@
   <customwidget>
    <class>CFrameEditor</class>
    <extends>QWidget</extends>
-   <header location="global">famitracker/FrameEditor.h</header>
+   <header location="global">FrameEditor.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CPatternEditor</class>
    <extends>QWidget</extends>
-   <header location="global">famitracker/PatternEditor.h</header>
+   <header location="global">PatternEditor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

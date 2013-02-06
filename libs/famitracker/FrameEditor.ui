@@ -93,7 +93,7 @@
   <customwidget>
    <class>CFamiTrackerFrameTableView</class>
    <extends>QTableView</extends>
-   <header location="global">famitracker/MainFrame.h</header>
+   <header location="global">MainFrame.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

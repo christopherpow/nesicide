@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 
 class CMusicFamiTrackerInstrumentsModel : public QAbstractListModel
 {

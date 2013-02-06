@@ -29,7 +29,7 @@ enum {TRANSPOSE_DEC_NOTES, TRANSPOSE_INC_NOTES, TRANSPOSE_DEC_OCTAVES, TRANSPOSE
 #include <QWidget>
 #include <QPaintEvent>
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 #include "cqtmfc.h"
 
 // Graphical layout of pattern editor

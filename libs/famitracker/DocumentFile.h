@@ -21,8 +21,8 @@
 #pragma once
 
 #include "cqtmfc.h"
-#include "famitracker/FamiTrackerTypes.h"
-#include "famitracker/Common.h"
+#include "FamiTrackerTypes.h"
+#include "Common.h"
 
 // CDocumentFile
 

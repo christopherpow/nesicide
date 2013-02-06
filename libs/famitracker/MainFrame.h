@@ -6,10 +6,10 @@
 #include <QLabel>
 #include <QComboBox>
 
-#include "famitracker/FamiTrackerDoc.h"
-#include "famitracker/Action.h"
-#include "famitracker/FrameEditor.h"
-#include "famitracker/PatternEditor.h"
+#include "FamiTrackerDoc.h"
+#include "Action.h"
+#include "FrameEditor.h"
+#include "PatternEditor.h"
 
 #include "cmusicfamitrackerinstrumentsmodel.h"
 

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 
 #include <QStringListModel>
 

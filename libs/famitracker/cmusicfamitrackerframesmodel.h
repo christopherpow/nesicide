@@ -3,7 +3,7 @@
 
 #include <QAbstractTableModel>
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 
 class CMusicFamiTrackerFramesModel : public QAbstractTableModel
 {

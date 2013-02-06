@@ -22,7 +22,7 @@
 
 #include "cqtmfc.h"
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 
 #include <QThread>
 

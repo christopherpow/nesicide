@@ -5,7 +5,7 @@
 #include <QListWidget>
 #include <QStringListModel>
 
-#include "famitracker/FamiTrackerDoc.h"
+#include "FamiTrackerDoc.h"
 
 namespace Ui {
 class FamiTrackerModulePropertiesDialog;
