@@ -18,10 +18,12 @@
 ** must bear this legend.
 */
 
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
-#include "Action.h"
-#include "PatternEditor.h"
+#include "FamiTrackerView.h"
 #include "MainFrame.h"
+#include "PatternEditor.h"
+#include "Action.h"
 
 // CPatternAction /////////////////////////////////////////////////////////////////
 //
@@ -97,26 +99,26 @@ void CPatternAction::SetPatternLength(int Length)
 	m_iNewPatternLen = Length;
 }
 
-void CPatternAction::SaveEntire(CPatternEditor *pPatternView)
+void CPatternAction::SaveEntire(CPatternView *pPatternView)
 {
 	// (avoid when possible)
 	m_pUndoClipData = new stClipData;
 	pPatternView->CopyEntire(m_pUndoClipData);
 }
 
-void CPatternAction::SaveSelection(CPatternEditor *pPatternView)
+void CPatternAction::SaveSelection(CPatternView *pPatternView)
 {
 	// Save pattern selection
 	m_pUndoClipData = new stClipData;
 	pPatternView->Copy(m_pUndoClipData);
 }
 
-void CPatternAction::RestoreEntire(CPatternEditor *pPatternView)
+void CPatternAction::RestoreEntire(CPatternView *pPatternView)
 {
 	pPatternView->PasteEntire(m_pUndoClipData);
 }
 
-void CPatternAction::RestoreSelection(CPatternEditor *pPatternView)
+void CPatternAction::RestoreSelection(CPatternView *pPatternView)
 {
 	pPatternView->Paste(m_pUndoClipData);
 }
@@ -173,10 +175,9 @@ void CPatternAction::DecreaseRowAction(CFamiTrackerDoc *pDoc)
 
 bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 {
-   // CP: editor/view are same component.
-	CPatternEditor *pPatternView = pMainFrm->GetPatternEditor();
-	CPatternEditor *pView = pPatternView;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
+	CPatternView *pPatternView = pView->GetPatternView();
 
 	m_iUndoFrame	= pPatternView->GetFrame();
 	m_iUndoChannel  = pPatternView->GetChannel();
@@ -310,10 +311,9 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 
 void CPatternAction::Undo(CMainFrame *pMainFrm)
 {
-   // CP: editor/view are same component.
-	CPatternEditor *pPatternView = pMainFrm->GetPatternEditor();
-	CPatternEditor *pView = pPatternView;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
+	CPatternView *pPatternView = pView->GetPatternView();
 
 	m_iRedoFrame	= pPatternView->GetFrame();
 	m_iRedoChannel  = pPatternView->GetChannel();
@@ -385,10 +385,9 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 
 void CPatternAction::Redo(CMainFrame *pMainFrm)
 {
-   // CP: editor/view are same component.
-	CPatternEditor *pPatternView = pMainFrm->GetPatternEditor();
-	CPatternEditor *pView = pPatternView;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
+	CPatternView *pPatternView = pView->GetPatternView();
 
 	pPatternView->MoveToFrame(m_iUndoFrame);
 	pPatternView->MoveToChannel(m_iUndoChannel);
@@ -494,9 +493,7 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 
 void CPatternAction::Update(CMainFrame *pMainFrm)
 {
-   // CP: editor/view are same component.
-	CPatternEditor *pPatternView = pMainFrm->GetPatternEditor();
-	CPatternEditor *pView = pPatternView;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 
 	switch (m_iAction) {

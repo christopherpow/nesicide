@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -20,11 +20,13 @@
 
 #pragma once
 
+#include <QThread>
+
 #include "cqtmfc.h"
 
-#include "FamiTrackerDoc.h"
+#include "Common.h"
 
-#include <QThread>
+#include "FamiTrackerDoc.h"
 
 //
 // This thread will take care of the NES sound generation
@@ -35,17 +37,17 @@ const int TREMOLO_LENGTH = 256;
 
 const int NOTE_COUNT = 96;	// 96 available notes
 
-//// Custom messages
-//enum { M_SILENT_ALL = WM_USER + 1,
-//	   M_LOAD_SETTINGS,
-//	   M_PLAY,
-//	   M_PLAY_LOOPING,
-//	   M_STOP,
-//	   M_RESET,
-//	   M_START_RENDER,
-//	   M_PREVIEW_SAMPLE,
-//	   M_WRITE_APU,
-//	   M_CLOSE_SOUND};
+// Custom messages
+enum { M_SILENT_ALL = WM_USER + 1,
+	   M_LOAD_SETTINGS,
+	   M_PLAY,
+	   M_PLAY_LOOPING,
+	   M_STOP,
+	   M_RESET,
+	   M_START_RENDER,
+	   M_PREVIEW_SAMPLE,
+	   M_WRITE_APU,
+	   M_CLOSE_SOUND};
 
 // Player modes
 enum {MODE_PLAY,			// Play from top of pattern
@@ -58,17 +60,17 @@ enum {MODE_PLAY,			// Play from top of pattern
 typedef enum { SONG_TIME_LIMIT, SONG_LOOP_LIMIT } RENDER_END;
 
 // Used to get the DPCM state
-struct stDPCMState {
+struct stDPCMState {	
 	int SamplePos;
 	int DeltaCntr;
 };
 
 class CChannelHandler;
-//class CFamiTrackerView;
 class CAPU;
 class CDSound;
 class CDSoundChannel;
 class CSampleWindow;
+class CFamiTrackerView;
 
 // CSoundGen
 
@@ -87,7 +89,7 @@ public:
 
 	// One time initialization
 	void		AssignDocument(CFamiTrackerDoc *pDoc);
-//	void		AssignView(CFamiTrackerView *pView);
+	void		AssignView(CFamiTrackerView *pView);
 	void		RemoveDocument();
 //	void		SetSampleWindow(CSampleWindow *pWnd);
 
@@ -118,7 +120,7 @@ public:
 	int			 ReadNamcoPeriodTable(int index) const;
 
 	// Player interface
-	void		 StartPlayer(int Mode);
+	void		 StartPlayer(int Mode);	
 	void		 StopPlayer();
 	void		 ResetPlayer();
 	void		 LoadSettings();
@@ -162,7 +164,7 @@ public:
 	bool		HasWaveChanged();
 
 
-	//
+	// 
 	// Private functions
 	//
 private:
@@ -203,7 +205,7 @@ private:
 	CTrackerChannel		*m_pTrackerChannels[CHANNELS];
 	CDSample			*m_pPreviewSample;
 	CFamiTrackerDoc		*m_pDocument;
-//	CFamiTrackerView	*m_pTrackerView;
+	CFamiTrackerView	*m_pTrackerView;
 
 	// Sound
 //	CDSound				*m_pDSound;
@@ -234,7 +236,7 @@ private:
 	void				*m_pAccumBuffer;
 	int32				*m_iGraphBuffer;
 	int					m_iAudioUnderruns;					// Keep track of underruns to inform user
-
+	
 // Tracker playing variables
 private:
 	unsigned int		m_iTempo, m_iSpeed;					// Tempo and speed

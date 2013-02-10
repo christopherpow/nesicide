@@ -10,6 +10,8 @@
 #include <QBitmap>
 #include <QFont>
 #include <QRegion>
+#include <QFrame>
+#include <QComboBox>
 
 // get rid of MFC crap
 // Releasing pointers
@@ -71,6 +73,10 @@ public:
    CString(QString str);
    virtual ~CString();
 
+   void AppendFormat(const char* fmt, ...);
+   void AppendFormatV(const char* fmt, va_list ap);
+   void AppendFormat(LPCTSTR fmt, ...);
+   void AppendFormatV(LPCTSTR fmt, va_list ap);
    void Format(const char* fmt, ...);
    void FormatV(const char* fmt, va_list ap);
    void Format(LPCTSTR fmt, ...);
@@ -619,7 +625,46 @@ public:
    void Unlock() { unlock(); }
 };
 
-#define LIMIT(v, max, min) v = ((v > max) ? max : ((v < min) ? min : v));//  if (v > max) v = max; else if (v < min) v = min;
+class CView : public QWidget
+{
+public:
+   virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}  
+   virtual void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   virtual void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}  
+};
+
+class CDocument
+{
+};
+
+class CComboBox : public QComboBox
+{
+public:
+   void ResetContent();
+   int AddString(CString& text);
+   void SetCurSel(int sel);
+};
+
+class CFrameWnd : public QWidget
+{
+public:
+   CFrameWnd(QWidget* parent = 0) : QWidget(parent) {}
+   virtual ~CFrameWnd() {}
+   virtual CView* GetActiveView() = 0;
+   virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
+   virtual CDocument* GetDocument() { return NULL; }
+};
+
+class CWnd : public QWidget
+{
+};
+
+class CWinApp
+{
+};
+
+#define afx_msg 
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) > (b)) ? (b) : (a))

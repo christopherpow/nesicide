@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "PatternEditor.h"
-
 #include "cqtmfc.h"
 
 //
@@ -45,7 +43,7 @@ protected:
 	int m_iAction;
 };
 
-class CPatternEditor;
+class CPatternView;
 struct stClipData;
 
 // Pattern commands
@@ -94,13 +92,13 @@ public:
 	void Update(CMainFrame *pMainFrm);
 
 private:
-	void SaveEntire(CPatternEditor *pPatternView);
-	void RestoreEntire(CPatternEditor *pPatternView);
+	void SaveEntire(CPatternView *pPatternView);
+	void RestoreEntire(CPatternView *pPatternView);
 	void IncreaseRowAction(CFamiTrackerDoc *pDoc);
 	void DecreaseRowAction(CFamiTrackerDoc *pDoc);
 
-	void SaveSelection(CPatternEditor *pPatternView);
-	void RestoreSelection(CPatternEditor *pPatternView);
+	void SaveSelection(CPatternView *pPatternView);
+	void RestoreSelection(CPatternView *pPatternView);
 
 private:
 	stChanNote m_NewNote;

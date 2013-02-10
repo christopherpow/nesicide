@@ -20,8 +20,8 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0">
-    <widget class="CFamiTrackerFrameTableView" name="songFrames">
+   <item row="0" column="0" colspan="2">
+    <widget class="QTableView" name="songFrames">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
        <horstretch>0</horstretch>
@@ -89,13 +89,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CFamiTrackerFrameTableView</class>
-   <extends>QTableView</extends>
-   <header location="global">MainFrame.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

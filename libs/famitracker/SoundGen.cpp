@@ -23,7 +23,10 @@
 //
 
 #include <cmath>
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
+#include "FamiTrackerView.h"
+#include "MainFrame.h"
 #include "apu/apu.h"
 
 #include "ChannelHandler.h"
@@ -36,6 +39,7 @@
 #include "ChannelsS5B.h"
 
 #include "SoundGen.h"
+#include "Settings.h"
 #include "TrackerChannel.h"
 
 // 1kHz test tone
@@ -79,7 +83,7 @@ CSoundGen::CSoundGen() :
 	m_pAccumBuffer(NULL),
 	m_iGraphBuffer(NULL),
 	m_pDocument(NULL),
-//	m_pTrackerView(NULL),
+	m_pTrackerView(NULL),
 	m_bRendering(false),
 	m_bPlaying(false),
 	m_pPreviewSample(NULL),
@@ -101,8 +105,7 @@ CSoundGen::CSoundGen() :
 	// Create all kinds of channels
 	CreateChannels();
 
-   qDebug("SetNamcoMixing");
-	m_pAPU->SetNamcoMixing(true);//theApp.GetSettings()->m_bNamcoMixing);
+	m_pAPU->SetNamcoMixing(theApp.GetSettings()->m_bNamcoMixing);
 }
 
 CSoundGen::~CSoundGen()
@@ -242,6 +245,9 @@ void CSoundGen::SetupChannels()
 
 void CSoundGen::AssignDocument(CFamiTrackerDoc *pDoc)
 {
+//	// Called from main thread
+//	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
+
 	// Will only work for the first document (as new documents are used to import files)
 	if (m_pDocument != NULL)
 		return;
@@ -256,17 +262,17 @@ void CSoundGen::AssignDocument(CFamiTrackerDoc *pDoc)
 	}
 }
 
-//void CSoundGen::AssignView(CFamiTrackerView *pView)
-//{
+void CSoundGen::AssignView(CFamiTrackerView *pView)
+{
 //	// Called from main thread
 //	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
-//	if (m_pTrackerView != NULL)
-//		return;
+	if (m_pTrackerView != NULL)
+		return;
 
-//	// Assigns the tracker view to this object
-//	m_pTrackerView = pView;
-//}
+	// Assigns the tracker view to this object
+	m_pTrackerView = pView;
+}
 
 void CSoundGen::RemoveDocument()
 {
@@ -702,7 +708,7 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 
 void CSoundGen::GenerateVibratoTable(int Type)
 {
-	for (int i = 0; i < 16; ++i) {	// depth
+	for (int i = 0; i < 16; ++i) {	// depth 
 		for (int j = 0; j < 16; ++j) {	// phase
 			int value = 0;
 			double angle = (double(j) / 16.0) * (3.1415 / 2.0);
@@ -721,7 +727,7 @@ void CSoundGen::GenerateVibratoTable(int Type)
 /*
 	CFile a("vibrato.txt", CFile::modeWrite | CFile::modeCreate);
 	CString b;
-	for (int i = 0; i < 16; i++) {	// depth
+	for (int i = 0; i < 16; i++) {	// depth 
 		b = "\t.byte ";
 		a.Write(b.GetBuffer(), b.GetLength());
 		for (int j = 0; j < 16; j++) {	// phase
@@ -757,46 +763,47 @@ void CSoundGen::BeginPlayer(int Mode)
 //	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
+   qDebug("No DSound yet...");
 //	if (!m_pDSoundChannel || !m_pDocument || !m_pDocument->IsFileLoaded())
 //		return;
 
-//	switch (Mode) {
-//		// Play from top of pattern
-//		case MODE_PLAY:
-//			m_bPlayLooping = false;
-//			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_TOP, 0);
-//			break;
-//		// Repeat pattern
-//		case MODE_PLAY_REPEAT:
-//			m_bPlayLooping = true;
-//			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_TOP, 0);
-//			break;
-//		// Start of song
-//		case MODE_PLAY_START:
-//			m_bPlayLooping = false;
-//			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_START, 0);
-//			break;
-//		// From cursor
-//		case MODE_PLAY_CURSOR:
-//			m_bPlayLooping = false;
-//			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_CURSOR, 0);
-//			break;
-//	}
+	switch (Mode) {
+		// Play from top of pattern
+		case MODE_PLAY:
+			m_bPlayLooping = false;
+			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_TOP, 0);
+			break;
+		// Repeat pattern
+		case MODE_PLAY_REPEAT:
+			m_bPlayLooping = true;
+			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_TOP, 0);
+			break;
+		// Start of song
+		case MODE_PLAY_START:
+			m_bPlayLooping = false;
+			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_START, 0);
+			break;
+		// From cursor
+		case MODE_PLAY_CURSOR:
+			m_bPlayLooping = false;
+			m_pTrackerView->PlayerCommand(CMD_MOVE_TO_CURSOR, 0);
+			break;
+	}
 
-//	m_bPlaying			= true;
-//	m_iPlayTime			= 0;
-//	m_iJumpToPattern	= -1;
-//	m_iSkipToRow		= -1;
-//	m_bUpdateRow		= true;
-//	m_bPlayerHalted		= false;
-//	m_iPlayMode			= Mode;
-
-//	ResetTempo();
-//	ResetAPU();
+	m_bPlaying			= true;
+	m_iPlayTime			= 0;
+	m_iJumpToPattern	= -1;
+	m_iSkipToRow		= -1;
+	m_bUpdateRow		= true;
+	m_bPlayerHalted		= false;
+	m_iPlayMode			= Mode;
+	
+	ResetTempo();
+	ResetAPU();
 
 //	LoadMachineSettings(m_pDocument->GetMachine(), m_pDocument->GetEngineSpeed());
 
-//	theApp.SilentEverything();
+	theApp.SilentEverything();
 }
 
 void CSoundGen::HaltPlayer()
@@ -981,7 +988,7 @@ void CSoundGen::LoadMachineSettings(int Machine, int Rate)
 
 	double clock_ntsc = CAPU::BASE_FREQ_NTSC / 16.0;
 	double clock_pal = CAPU::BASE_FREQ_PAL / 16.0;
-
+	
 	double NamcoChannels = (double)m_pDocument->GetNamcoChannels();
 
 	for (int i = 0; i < NOTE_COUNT; ++i) {
@@ -1200,7 +1207,7 @@ stDPCMState CSoundGen::GetDPCMState() const
 }
 
 void CSoundGen::PlayNote(int Channel, stChanNote *NoteData, int EffColumns)
-{
+{	
 	if (!NoteData)
 		return;
 
@@ -1355,7 +1362,7 @@ void CSoundGen::PlaySample(CDSample *pSample, int Offset, int Pitch)
 	m_pAPU->Write(0x4013, Length);			// length
 	m_pAPU->Write(0x4015, 0x0F);
 	m_pAPU->Write(0x4015, 0x1F);			// fire sample
-
+	
 	// Auto-delete samples with no name
 	if (pSample->Name[0] == 0)
 		m_pPreviewSample = pSample;

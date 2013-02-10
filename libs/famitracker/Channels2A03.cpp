@@ -21,9 +21,11 @@
 // This file handles playing of 2A03 channels
 
 #include <cmath>
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "Channels2A03.h"
+#include "Settings.h"
 
 #ifdef _DEBUG
 void ClearLog();
@@ -588,17 +590,16 @@ void CDPCMChan::RefreshChannel()
 
 void CDPCMChan::ClearRegisters()
 {
-qDebug("::ClearRegisters");
-//	m_pAPU->Write(0x4015, 0x0F);
-//	m_pAPU->Write(0x4010, 0);
+	m_pAPU->Write(0x4015, 0x0F);
+	m_pAPU->Write(0x4010, 0);
+	
+	if (!theApp.GetSettings()->General.bNoDPCMReset || theApp.IsPlaying()) {
+		m_pAPU->Write(0x4011, 0);		// regain full volume for TN
+	}
 
-//	if (!theApp.GetSettings()->General.bNoDPCMReset || theApp.IsPlaying()) {
-//		m_pAPU->Write(0x4011, 0);		// regain full volume for TN
-//	}
+	m_pAPU->Write(0x4012, 0);
+	m_pAPU->Write(0x4013, 0);
 
-//	m_pAPU->Write(0x4012, 0);
-//	m_pAPU->Write(0x4013, 0);
-
-//	m_iOffset = 0;
-//	m_cDAC = 255;
+	m_iOffset = 0;
+	m_cDAC = 255;
 }

@@ -21,6 +21,7 @@
 // MMC5 file
 
 #include <cmath>
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsMMC5.h"

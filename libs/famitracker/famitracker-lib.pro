@@ -67,7 +67,9 @@ SOURCES += \
     APU/emu2149.c \
     Blip_Buffer/Blip_Buffer.cpp \
     FFT/Fft.cpp \
-    ../../common/cqtmfc.cpp
+    ../../common/cqtmfc.cpp \
+    FamiTrackerView.cpp \
+    FamiTracker.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -133,7 +135,9 @@ HEADERS += \
     drivers/config.h \
     FFT/Fft.h \
     FFT/Complex.h \
-    ../../common/cqtmfc.h
+    ../../common/cqtmfc.h \
+    FamiTrackerView.h \
+    FamiTracker.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -159,10 +163,10 @@ OTHER_FILES += \
 
 FORMS += \
     PatternEditor.ui \
-    MainFrame.ui \
     FrameEditor.ui \
     famitrackermodulepropertiesdialog.ui \
-    famitrackermoduleimportdialog.ui
+    famitrackermoduleimportdialog.ui \
+    MainFrame.ui
 
 RESOURCES += \
     $$TOP/common/resource.qrc

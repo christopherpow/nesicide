@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -19,6 +19,7 @@
 */
 
 #include <cmath>
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsN163.h"
@@ -26,7 +27,7 @@
 
 const int N163_PITCH_SLIDE_SHIFT = 2;	// Increase amplitude of pitch slides
 
-CChannelHandlerN163::CChannelHandlerN163() : CChannelHandler(),
+CChannelHandlerN163::CChannelHandlerN163() : CChannelHandler(), 
 	m_bLoadWave(false),
 	m_iWaveLen(0),
 	m_iWaveIndex(0),
@@ -94,7 +95,7 @@ void CChannelHandlerN163::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 			}
 		}
 	}
-
+	
 	// Volume
 	if (Volume < 0x10) {
 		m_iVolume = Volume << VOL_SHIFT;

@@ -18,10 +18,13 @@
 ** must bear this legend.
 */
 
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
-#include "FrameEditor.h"
+#include "FamiTrackerView.h"
 #include "MainFrame.h"
+#include "PatternEditor.h"
 #include "Action.h"
+#include "FrameEditor.h"
 
 // CFrameAction ///////////////////////////////////////////////////////////////////
 //
@@ -77,9 +80,8 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 {
 	// Perform action
 
-   // CP: editor/view are same component.
 	CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFrameEditor *pView = pFrameEditor;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	m_iUndoFramePos = pView->GetSelectedFrame();
@@ -184,9 +186,8 @@ void CFrameAction::Undo(CMainFrame *pMainFrm)
 {
 	// Undo action
 
-   // CP: editor/view are same component.
 	CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFrameEditor *pView = pFrameEditor;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	m_iRedoFramePos = pView->GetSelectedFrame();
@@ -263,9 +264,7 @@ void CFrameAction::Redo(CMainFrame *pMainFrm)
 {
 	// Redo action
 
-   // CP: editor/view are same component.
-   CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFrameEditor *pView = pFrameEditor;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	switch (m_iAction) {
@@ -340,9 +339,7 @@ void CFrameAction::Redo(CMainFrame *pMainFrm)
 
 void CFrameAction::Update(CMainFrame *pMainFrm)
 {
-   // CP: editor/view are same component.
-   CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFrameEditor *pView = pFrameEditor;
+	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	switch (m_iAction) {

@@ -2,6 +2,7 @@
 #include "ui_famitrackermodulepropertiesdialog.h"
 
 #include "ChannelMap.h"
+#include "FamiTracker.h"
 #include "famitrackermoduleimportdialog.h"
 
 #include <QFileDialog>
@@ -20,7 +21,7 @@ FamiTrackerModulePropertiesDialog::FamiTrackerModulePropertiesDialog(CFamiTracke
 
    m_pDocument = pDoc;
 
-   CChannelMap* pChannelMap = CFamiTrackerApp::GetChannelMap();
+   CChannelMap* pChannelMap = theApp.GetChannelMap();
    for ( idx = 0; idx < pChannelMap->GetChipCount(); idx++ )
    {
       ui->expansionSound->addItem(QString::fromWCharArray(pChannelMap->GetChipName(idx)));

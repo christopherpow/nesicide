@@ -23,32 +23,6 @@
 
 #include "cqtmfc.h"
 
-// stubs for theApp for now
-class CSoundGen;
-class CChannelMap;
-class CSettings;
-class CFamiTrackerApp
-{
-public:
-   CFamiTrackerApp();
-   ~CFamiTrackerApp();
-
-   void RegisterKeyState(int Channel, int Note);
-   void OnTrackerStop();
-   bool IsPlaying() { qDebug("IsPlaying?!"); return false; }
-
-   static CSoundGen* GetSoundGenerator() { return m_pSoundGen; }
-   static CChannelMap* GetChannelMap() { return m_pChannelMap; }
-   static CSettings* GetSettings() { return m_pSettings; }
-   
-private:
-   static CSoundGen* m_pSoundGen;
-   static CChannelMap* m_pChannelMap;
-   static CSettings* m_pSettings;
-};
-
-extern CFamiTrackerApp theApp;
-
 // Get access to some APU constants
 #include "apu/apu.h"
 // Some pure virtual interfaces that expose non MFC functionality to exporter plugins
@@ -156,7 +130,7 @@ public:
 // I'll try to organize this class, things are quite messy right now!
 //
 
-class CFamiTrackerDoc : public QObject
+class CFamiTrackerDoc : public QObject, public CDocument
 {
    Q_OBJECT
 public:

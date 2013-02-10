@@ -39,6 +39,7 @@
 
 */
 
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "TrackerChannel.h"
 #include "SoundGen.h"
@@ -48,36 +49,6 @@
 
 // Self-referential static
 CFamiTrackerDoc* CFamiTrackerDoc::_this = NULL;
-
-CSoundGen* CFamiTrackerApp::m_pSoundGen = NULL;
-CChannelMap* CFamiTrackerApp::m_pChannelMap = NULL;
-CSettings* CFamiTrackerApp::m_pSettings = NULL;
-
-CFamiTrackerApp::CFamiTrackerApp()
-{
-   m_pSoundGen = new CSoundGen();
-   m_pChannelMap = new CChannelMap();
-   m_pSettings = new CSettings();
-   m_pSettings->LoadSettings();
-}
-
-CFamiTrackerApp::~CFamiTrackerApp()
-{
-   delete m_pSoundGen;
-   delete m_pChannelMap;
-   delete m_pSettings;
-}
-
-void CFamiTrackerApp::RegisterKeyState(int Channel, int Note)
-{
-   qDebug("::RegisterKeyState");
-}
-
-void CFamiTrackerApp::OnTrackerStop()
-{
-}
-
-CFamiTrackerApp theApp;
 
 #define GET_PATTERN(Frame, Channel) m_pSelectedTune->GetFramePattern(Frame, Channel)
 

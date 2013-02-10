@@ -22,15 +22,16 @@
 // This is the pattern editor. This class is not derived from any MFC class.
 //
 
+#include "FamiTracker.h"
+#include "FamiTrackerDoc.h"
+#include "FamiTrackerView.h"
 #include "PatternEditor.h"
 #include "ui_PatternEditor.h"
-
+#include "TrackerChannel.h"
 #include "Settings.h"
-#include "SoundGen.h"
+#include "MainFrame.h"
 #include "ColorScheme.h"
 #include "Graphics.h"
-#include "TrackerChannel.h"
-#include "MainFrame.h"
 
 #include <QScrollBar>
 
@@ -79,30 +80,22 @@ const int CPatternView::DEFAULT_HEADER_FONT_SIZE = 11;
 // Numbers of pixels until selection is initiated
 const int CPatternView::SELECT_THRESHOLD = 5;
 
-CPatternEditor::CPatternEditor(QWidget *parent) :
+CPatternView::CPatternView(QWidget *parent) :
    QWidget(parent),
-   ui(new Ui::CPatternEditor)
+   ui(new Ui::CPatternView)
 {
    ui->setupUi(this);
    
-   songPatterns = new QWidget();   
-   songPatterns->installEventFilter(this);
-   songPatterns->setFocusProxy(this);
-   songPatterns->setMouseTracking(true);
-   
-   ui->frame->layout()->addWidget(songPatterns);
-   
    m_pDocument = NULL;
    
-   m_pBackDC = new CDC(songPatterns);
+   m_pBackDC = new CDC(this);
    
    m_bHasFocus = true;
 }
 
-CPatternEditor::~CPatternEditor()
+CPatternView::~CPatternView()
 {
    delete ui;
-   delete songPatterns;
    delete m_pBackDC;
 }
 
@@ -192,7 +185,7 @@ void CPatternView::SetWindowSize(int width, int height)
 	m_iVisibleRows = (m_iWinHeight - HEADER_HEIGHT) / m_iRowHeight;
 }
 
-void CPatternEditor::resizeEvent(QResizeEvent *event)
+void CPatternView::resizeEvent(QResizeEvent *event)
 {
    // CP: counteract unnecessary math in SetWindowSize...
    int width = event->size().width() + 3;
@@ -200,7 +193,7 @@ void CPatternEditor::resizeEvent(QResizeEvent *event)
    SetWindowSize(width,height);
 }
 
-void CPatternEditor::on_verticalScrollBar_actionTriggered(int arg1)
+void CPatternView::on_verticalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...
    switch ( arg1 )
@@ -232,7 +225,7 @@ void CPatternEditor::on_verticalScrollBar_actionTriggered(int arg1)
    repaint();
 }
 
-void CPatternEditor::on_horizontalScrollBar_actionTriggered(int arg1)
+void CPatternView::on_horizontalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...
    switch ( arg1 )
@@ -264,7 +257,7 @@ void CPatternEditor::on_horizontalScrollBar_actionTriggered(int arg1)
    repaint();
 }
 
-void CPatternEditor::songPatterns_paintEvent(QPaintEvent *event)
+void CPatternView::paintEvent(QPaintEvent *event)
 {
    // Qt attach to the MFC HLE.
    m_pBackDC->attach();
@@ -282,73 +275,55 @@ void CPatternEditor::songPatterns_paintEvent(QPaintEvent *event)
    m_pBackDC->detach();
 }
 
-void CPatternEditor::updateViews(long hint)
+void CPatternView::mouseMoveEvent(QMouseEvent *event)
 {
-   songPatterns->repaint();
-}
-
-bool CPatternEditor::eventFilter(QObject *object, QEvent *event)
-{
-   if ( object == songPatterns )
+   CPoint point(event->pos());
+   if ( event->buttons() == Qt::LeftButton )
    {
-      if ( event->type() == QEvent::Paint )
-      {
-         QPaintEvent* pe = dynamic_cast<QPaintEvent*>(event);
-         
-         songPatterns_paintEvent(pe);
-         return true;
-      }
-      if ( event->type() == QEvent::MouseMove )
-      {
-         QMouseEvent* me = dynamic_cast<QMouseEvent*>(event);
-         
-         if ( me->buttons() == Qt::LeftButton )
-         {
-            CPoint point(me->pos());
-            OnMouseMove(0,point);
-            repaint();
-            return true;
-         }
-      }
-      if ( event->type() == QEvent::MouseButtonPress )
-      {
-         QMouseEvent* me = dynamic_cast<QMouseEvent*>(event);
-         
-         CPoint point(me->pos());
-         if ( me->buttons() == Qt::LeftButton )
-         {
-            OnMouseDown(point);
-         }
-         if ( me->buttons() == Qt::RightButton )
-         {
-            OnMouseRDown(point);
-         }
-         repaint();
-         return true;
-      }
-      if ( event->type() == QEvent::MouseButtonRelease )
-      {
-         QMouseEvent* me = dynamic_cast<QMouseEvent*>(event);
-         
-         CPoint point(me->pos());
-         OnMouseUp(point);
-         repaint();
-         return true;
-      }
-      if ( event->type() == QEvent::MouseButtonDblClick )
-      {
-         QMouseEvent* me = dynamic_cast<QMouseEvent*>(event);
-
-         CPoint point(me->pos());
-         OnMouseDblClk(point);
-         repaint();
-         return true;
-      }
+      OnMouseMove(0,point);
+      repaint();
    }
-   return false;
+   else
+   {
+      if (OnMouseHover(0, point))
+         repaint();
+   }
 }
 
-void CPatternView::AssignDocument(CFamiTrackerDoc *pDoc,CMainFrame* pView)
+void CPatternView::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   if ( event->buttons() == Qt::LeftButton )
+   {
+      OnMouseDown(point);
+   }
+   if ( event->buttons() == Qt::RightButton )
+   {
+      OnMouseRDown(point);
+   }
+   repaint();
+}
+
+void CPatternView::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   OnMouseUp(point);
+   repaint();
+}
+
+void CPatternView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   OnMouseDblClk(point);
+   repaint();
+}
+
+void CPatternView::updateViews(long hint)
+{
+   repaint();
+}
+
+void CPatternView::SetDocument(CFamiTrackerDoc *pDoc,CFamiTrackerView* pView)
 {
    // Set a new document and view, reset everything
 	m_pDocument = pDoc;
@@ -427,6 +402,24 @@ int CPatternView::GetPlayFrame() const
 int CPatternView::GetPlayRow() const
 {
 	return m_iPlayRow;
+}
+
+void CPatternView::SetBlockStart()
+{
+	if (!m_bSelecting) {
+		m_bSelecting = true;
+		SetBlockEnd();
+	}
+	m_selection.SetStart(m_cpCursorPos);
+}
+
+void CPatternView::SetBlockEnd()
+{
+	if (!m_bSelecting) {
+		m_bSelecting = true;
+		SetBlockStart();
+	}
+	m_selection.SetEnd(m_cpCursorPos);
 }
 
 CSelection CPatternView::GetSelection() const
@@ -1450,6 +1443,22 @@ int CPatternView::GetCurrentPatternLength(int Frame) const
 	return PatternLength;
 }
 
+void CPatternView::SetHighlight(int Rows, int SecondRows)
+{
+	m_iHighlight = Rows;
+	m_iHighlightSecond = SecondRows;
+}
+
+void CPatternView::SetFollowMove(bool bEnable)
+{
+	m_bFollowMode = bEnable;
+}
+
+void CPatternView::SetFocus(bool bFocus)
+{
+	m_bHasFocus = bFocus;
+}
+
 void CPatternView::ClearRow(CDC *pDC, int Line) 
 {
 	int ColBg = m_colEmptyBg;
@@ -2043,7 +2052,7 @@ void CPatternView::DrawUnbufferedArea(CDC *pDC)
 
 	if (m_iVisibleWidth < m_iWinWidth) {
 
-		int Width = m_iWinWidth - m_iVisibleWidth - ROW_COL_WIDTH - ((m_iPatternLength > 1) ? GetSystemMetrics(SM_CXVSCROLL) : 0) - 1;
+      int Width = m_iWinWidth - m_iVisibleWidth - ROW_COL_WIDTH - ui->verticalScrollBar->width() - 1;
 
 		// Channel header background
 		GradientRectTriple(pDC, m_iVisibleWidth + ROW_COL_WIDTH, HEADER_CHAN_START, Width, HEADER_CHAN_HEIGHT, m_colHead1, m_colHead2, m_pView->GetEditMode() ? m_colHead4 : m_colHead3);
@@ -2841,6 +2850,55 @@ void CPatternView::ApplyColorScheme()
 	m_colHead4 = BLEND(m_colHead3, 0x4040F0, 80);
 }
 
+void CPatternView::GetVolumeColumn(CString &str) const
+{
+	// Copy the volume column as text
+
+	int vol = 0;
+
+	str.Empty();
+
+	int channel = m_selection.GetChanStart();
+
+	if (channel < 0 || channel >= (signed)m_pDocument->GetAvailableChannels())
+		return;
+	
+	for (int i = m_selection.GetRowStart(); i <= m_selection.GetRowEnd(); ++i) {
+
+		if (i < 0 || i >= m_iPatternLength)
+			continue;
+
+		stChanNote NoteData;
+		m_pDocument->GetNoteData(m_iCurrentFrame, channel, i, &NoteData);
+
+		if (IsColumnSelected(COLUMN_VOLUME, channel)) {
+			if (NoteData.Vol != 16)
+				vol = NoteData.Vol;
+			str.AppendFormat(_T("%i "), vol);
+		}
+	}
+}
+
+bool CPatternView::IsPlayCursorVisible() const
+{
+	if (m_iPlayFrame > (m_iCurrentFrame + 1))
+		return false;
+
+	if (m_iPlayFrame < (m_iCurrentFrame - 1))
+		return false;
+
+	if (m_iPlayFrame != (m_iCurrentFrame + 1) && m_iPlayFrame != (m_iCurrentFrame - 1)) {
+		
+		if (m_iPlayRow > (m_iMiddleRow + (m_iVisibleRows / 2) + 1))
+			return false;
+
+		if (m_iPlayRow < (m_iMiddleRow - (m_iVisibleRows / 2) - 1))
+			return false;
+	}
+
+	return true;
+}
+
 /*
  *  Class CCursorPos
  */
@@ -3045,68 +3103,52 @@ void CPatternView::OnHScroll(UINT nSBCode, UINT nPos)
 		ResetSelection();
 }
 
+// Used by the player
+
+bool CPatternView::StepRow()
+{
+	m_iPlayRow++;
+
+	if (m_iPlayRow >= m_iPlayPatternLength)
+		m_iPlayRow = 0;
+
+	m_bForcePlayRowUpdate = true;
+
+	return (m_iPlayRow == 0);
+}
+
+bool CPatternView::StepFrame()
+{
+	m_bForceFullRedraw = true;
+	m_iPlayFrame++;
+	if (m_iPlayFrame >= (signed)m_pDocument->GetFrameCount()) {
+		m_iPlayFrame = 0;
+		m_iPlayPatternLength = GetCurrentPatternLength(m_iPlayFrame);
+		return true;
+	}
+	m_iPlayPatternLength = GetCurrentPatternLength(m_iPlayFrame);
+	return false;
+}
+
+void CPatternView::JumpToRow(int Row)
+{
+	if (Row >= m_iPlayPatternLength && m_iPlayPatternLength > 0)
+		Row = m_iPlayPatternLength - 1;
+
+	m_iPlayRow = Row;
+}
+
+void CPatternView::JumpToFrame(int Frame)
+{
+	if ((unsigned int)Frame >= m_pDocument->GetFrameCount())
+		Frame = m_pDocument->GetFrameCount() - 1;
+
+	m_iPlayFrame = Frame;
+	m_iPlayPatternLength = GetCurrentPatternLength(Frame);
+}
+
 // Mouse routines
 #if 0
-void CPatternView::DragPaste(stClipData *pClipData, CSelection *pDragTarget, bool bMix)
-{
-	// Paste drag'n'drop selections
-
-	// Set cursor location
-	m_cpCursorPos = pDragTarget->m_cpStart;
-
-	if (bMix)
-		PasteMix(pClipData);
-	else
-		Paste(pClipData);
-
-	// Update selection
-	m_selection.SetStart(pDragTarget->m_cpStart);
-	m_selection.SetEnd(pDragTarget->m_cpEnd);
-}
-
-bool CPatternView::OnMouseHover(UINT nFlags, CPoint point)
-{
-	bool bRedraw = false;
-
-	if (point.y < HEADER_HEIGHT) {
-		int Channel = GetChannelAtPoint(point.x);
-		int Column = GetColumnAtPoint(point.x);
-
-		if (Channel < 0 || Channel > (signed)m_pDocument->GetAvailableChannels() - 1) {
-			bRedraw = m_iMouseHoverEffArrow != 0;
-			m_iMouseHoverEffArrow = 0;
-			return bRedraw;
-		}
-
-		bRedraw = m_iMouseHoverChan != Channel;
-		m_iMouseHoverChan = Channel;
-
-		if (Column == 5) {
-			if (m_pDocument->GetEffColumns(Channel) > 0) {
-				bRedraw = m_iMouseHoverEffArrow != 1;
-				m_iMouseHoverEffArrow = 1;
-			}
-		}
-		else if (Column == 6) {
-			if (m_pDocument->GetEffColumns(Channel) < (MAX_EFFECT_COLUMNS - 1)) {
-				bRedraw = m_iMouseHoverEffArrow != 2;
-				m_iMouseHoverEffArrow = 2;
-			}
-		}
-		else {
-			bRedraw = m_iMouseHoverEffArrow != 0 || bRedraw;
-			m_iMouseHoverEffArrow = 0;
-		}
-	}
-	else {
-		bRedraw = (m_iMouseHoverEffArrow != 0) || (m_iMouseHoverChan != -1);
-		m_iMouseHoverChan = -1;
-		m_iMouseHoverEffArrow = 0;
-	}
-
-	return bRedraw;
-}
-
 bool CPatternView::OnMouseNcMove()
 {
 	bool bRedraw = (m_iMouseHoverEffArrow != 0) || (m_iMouseHoverChan != -1);
@@ -3151,6 +3193,49 @@ void CPatternView::OnMouseScroll(int Delta)
 	}
 }
 #endif
+
+bool CPatternView::OnMouseHover(UINT nFlags, CPoint point)
+{
+	bool bRedraw = false;
+
+	if (point.y < HEADER_HEIGHT) {
+		int Channel = GetChannelAtPoint(point.x);
+		int Column = GetColumnAtPoint(point.x);
+
+		if (Channel < 0 || Channel > (signed)m_pDocument->GetAvailableChannels() - 1) {
+			bRedraw = m_iMouseHoverEffArrow != 0;
+			m_iMouseHoverEffArrow = 0;
+			return bRedraw;
+		}
+
+		bRedraw = m_iMouseHoverChan != Channel;
+		m_iMouseHoverChan = Channel;
+
+		if (Column == 5) {
+			if (m_pDocument->GetEffColumns(Channel) > 0) {
+				bRedraw = m_iMouseHoverEffArrow != 1;
+				m_iMouseHoverEffArrow = 1;
+			}
+		}
+		else if (Column == 6) {
+			if (m_pDocument->GetEffColumns(Channel) < (MAX_EFFECT_COLUMNS - 1)) {
+				bRedraw = m_iMouseHoverEffArrow != 2;
+				m_iMouseHoverEffArrow = 2;
+			}
+		}
+		else {
+			bRedraw = m_iMouseHoverEffArrow != 0 || bRedraw;
+			m_iMouseHoverEffArrow = 0;
+		}
+	}
+	else {
+		bRedraw = (m_iMouseHoverEffArrow != 0) || (m_iMouseHoverChan != -1);
+		m_iMouseHoverChan = -1;
+		m_iMouseHoverEffArrow = 0;
+	}
+
+	return bRedraw;
+}
 
 void CPatternView::OnMouseDown(CPoint point)
 {
@@ -3389,8 +3474,7 @@ void CPatternView::OnMouseUp(CPoint point)
 					m_selDrag.m_cpEnd.m_iColumn = 15;
 
 				pAction->SetDragAndDrop(pClipData, !m_bControlPressed && !m_bShiftPressed, m_bShiftPressed, &m_selDrag);
-            qDebug("DRAG AND DROP!!?");
-//				((CMainFrame*) m_pView->GetParentFrame())->AddAction(pAction);
+				((CMainFrame*) m_pView->GetParentFrame())->AddAction(pAction);
 
 				SAFE_RELEASE(pClipData);
 			}
@@ -3504,6 +3588,7 @@ void CPatternView::OnMouseMove(UINT nFlags, CPoint point)
 		// Auto-scrolling
 		if (m_bSelecting) {
 			m_ptScrollMousePos = point;
+         qDebug("CHECK MOUSE FLAGS?!?!!!!!!");
 			m_nScrollFlags = nFlags;
 
 			if ((PointPos.m_iRow - m_iMiddleRow) > (m_iVisibleRows / 2)-3) {

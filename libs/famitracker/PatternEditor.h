@@ -101,23 +101,22 @@ public:
 
 // External classes
 class CFamiTrackerDoc;
+class CFamiTrackerView;
 
 namespace Ui {
-class CPatternEditor;
+class CPatternView;
 }
 
-class CPatternEditor : public QWidget
+class CPatternView : public QWidget
 {
    Q_OBJECT
    
 public:
-   explicit CPatternEditor(QWidget *parent = 0);
-   ~CPatternEditor();
+   explicit CPatternView(QWidget *parent = 0);
+   ~CPatternView();
 	static const unsigned int ROW_PLAY_COLOR = 0x400050;
    
-   bool eventFilter(QObject *object, QEvent *event);
-   
-   void AssignDocument(CFamiTrackerDoc* pDoc,CMainFrame* pView);
+   void SetDocument(CFamiTrackerDoc* pDoc,CFamiTrackerView* pView);
    CFamiTrackerDoc* GetDocument() { return m_pDocument; }
 	void AdjustCursor();
 	void AdjustCursorChannel();
@@ -128,6 +127,9 @@ public:
 	int GetColumn() const;
 	int GetPlayFrame() const;
 	int GetPlayRow() const;
+
+   void SetBlockStart();
+   void SetBlockEnd();
 
    CSelection GetSelection() const;
 
@@ -140,6 +142,8 @@ public:
    bool IsSelecting() const;
    void SelectAllChannel();
 	void SelectAll();
+   
+   bool IsPlayCursorVisible() const;
 
    void ClearSelection();
 
@@ -166,6 +170,8 @@ public:
 
    bool IsColumnSelected(int Column, int Channel) const;
 	int  GetSelectColumn(int Column) const;
+
+   void GetVolumeColumn(CString &str) const;
 
    // Various
 	void Transpose(int Type);
@@ -206,18 +212,31 @@ public:
 	void OnHomeKey();
 	void OnEndKey();
 
+   bool StepRow();
+	bool StepFrame();
+	void JumpToRow(int Row);
+	void JumpToFrame(int Frame);
+
+   
 	// Other
 	int GetCurrentPatternLength(int Frame) const;
+   void SetHighlight(int Rows, int SecondRows);
+   void SetFollowMove(bool bEnable);
+   void SetFocus(bool bFocus);
 
 protected:
-   void songPatterns_paintEvent(QPaintEvent* event);
+   void paintEvent(QPaintEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseReleaseEvent(QMouseEvent *event);
+   void mouseDoubleClickEvent(QMouseEvent *event);   
    void resizeEvent(QResizeEvent *event);
    void keyPressEvent(QKeyEvent *event) { event->ignore(); }
    void keyReleaseEvent(QKeyEvent *event) { event->ignore(); }
    
 private:
-   Ui::CPatternEditor *ui;
-   CMainFrame* m_pView;
+   Ui::CPatternView *ui;
+   CFamiTrackerView* m_pView;
    
 	static LPCTSTR DEFAULT_HEADER_FONT;
 	static const int DEFAULT_FONT_SIZE;
@@ -234,6 +253,7 @@ private:
    CSelection m_selection;
    CCursorPos m_cpSelCursor;
 
+   bool OnMouseHover(UINT nFlags, CPoint point);
    void OnMouseDown(CPoint point);
    void OnMouseRDown(CPoint point);
    void OnMouseUp(CPoint point);
@@ -360,5 +380,3 @@ private slots:
    void on_verticalScrollBar_actionTriggered(int action);
    void on_horizontalScrollBar_actionTriggered(int action);
 };
-
-typedef class CPatternEditor CPatternView;

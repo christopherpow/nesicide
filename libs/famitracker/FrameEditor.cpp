@@ -18,7 +18,7 @@ CFrameEditor::~CFrameEditor()
    delete framesModel;
 }
 
-void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc)
+void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc,CFamiTrackerView* pView)
 {
    int width;
    int col;

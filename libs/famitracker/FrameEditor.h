@@ -6,6 +6,7 @@
 #include "cmusicfamitrackerframesmodel.h"
 
 #include "FamiTrackerDoc.h"
+#include "FamiTrackerView.h"
 
 namespace Ui {
 class CFrameEditor;
@@ -19,7 +20,7 @@ public:
    explicit CFrameEditor(QWidget *parent = 0);
    ~CFrameEditor();
    
-   void AssignDocument(CFamiTrackerDoc* pDoc);
+   void AssignDocument(CFamiTrackerDoc* pDoc,CFamiTrackerView* pView);
    CFamiTrackerDoc* GetDocument() { return m_pDocument; }
    
    int GetSelectedFrame();

@@ -21,6 +21,9 @@
 // These classes implements a new more flexible undo system
 
 #include "FamiTrackerDoc.h"
+#include "FamiTrackerView.h"
+#include "MainFrame.h"
+#include "PatternEditor.h"
 #include "Action.h"
 
 // CAction ////////////////////////////////////////////////////////////////////////

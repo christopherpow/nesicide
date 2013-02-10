@@ -20,6 +20,7 @@
 
 // This file handles playing of VRC7 channels
 
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsVRC7.h"

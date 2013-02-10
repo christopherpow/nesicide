@@ -6,19 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>674</width>
-    <height>438</height>
+    <width>687</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>MainFrame</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <layout class="QGridLayout" name="songFramesPanel">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
+    <layout class="QGridLayout" name="gridLayout">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -30,7 +27,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../../../../common/resource.qrc">
+          <iconset resource="../../common/resource.qrc">
            <normaloff>:/resources/22_item_add.png</normaloff>:/resources/22_item_add.png</iconset>
          </property>
          <property name="autoRepeat">
@@ -47,7 +44,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../../../../common/resource.qrc">
+          <iconset resource="../../common/resource.qrc">
            <normaloff>:/resources/22_item_remove.png</normaloff>:/resources/22_item_remove.png</iconset>
          </property>
          <property name="autoRepeat">
@@ -71,7 +68,19 @@
       </layout>
      </item>
      <item row="0" column="0">
-      <widget class="CFrameEditor" name="songFrames" native="true"/>
+      <widget class="QFrame" name="songFrames">
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
      </item>
     </layout>
    </item>
@@ -293,7 +302,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../../../../common/resource.qrc">:/resources/SampleBg.bmp</pixmap>
+        <pixmap resource="../../common/resource.qrc">:/resources/SampleBg.bmp</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -365,26 +374,30 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="4">
-    <widget class="CPatternEditor" name="songPatterns" native="true"/>
+    <widget class="QFrame" name="songPatterns">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CFrameEditor</class>
-   <extends>QWidget</extends>
-   <header location="global">FrameEditor.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CPatternEditor</class>
-   <extends>QWidget</extends>
-   <header location="global">PatternEditor.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
-  <include location="../../../../../common/resource.qrc"/>
+  <include location="../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

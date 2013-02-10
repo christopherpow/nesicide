@@ -95,6 +95,40 @@ void CString::FormatV(LPCTSTR fmt, va_list ap)
 //   _qstr.vsprintf((const char*)fmt,ap);
 }
 
+void CString::AppendFormat(const char* fmt, ...)
+{
+   va_list argptr;
+   va_start(argptr,fmt);
+   AppendFormatV(fmt,argptr);
+   va_end(argptr);
+}
+
+void CString::AppendFormatV(const char* fmt, va_list ap)
+{
+   // CPTODO: UN-HACK!!!
+   char local[2048];
+   vsprintf(local,fmt,ap);
+   _qstr += local;
+//   _qstr.vsprintf(fmt,ap);
+}
+
+void CString::AppendFormat(LPCTSTR fmt, ...)
+{
+   va_list argptr;
+   va_start(argptr,fmt);
+   AppendFormatV(fmt,argptr);
+   va_end(argptr);
+}
+
+void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
+{
+   // CPTODO: UN-HACK!!!
+   WCHAR local[2048];
+   wvsprintf(local,fmt,ap);
+   _qstr += QString::fromWCharArray(local);
+//   _qstr.vsprintf((const char*)fmt,ap);
+}
+
 CString& CString::operator=(const char* str)
 {
    _qstr.clear();
@@ -435,6 +469,7 @@ CPen::CPen(
 
 CBrush::CBrush( )
 {
+   _qbrush.setStyle(Qt::SolidPattern);
 }
 
 CBrush::CBrush(
@@ -442,6 +477,7 @@ CBrush::CBrush(
 )
 {
    QColor color(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
+   _qbrush.setStyle(Qt::SolidPattern);
    _qbrush.setColor(color);
 }
 
@@ -683,4 +719,19 @@ BOOL CDC::TextOut(
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
    _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
+}
+
+void CComboBox::ResetContent()
+{
+   clear();
+}
+
+int CComboBox::AddString(CString& text)
+{
+   addItem(text.GetString());
+}
+
+void CComboBox::SetCurSel(int sel)
+{
+   setCurrentIndex(sel);
 }

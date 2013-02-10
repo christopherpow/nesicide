@@ -9,7 +9,9 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   m_pMainFrame = new CMainFrame(fileName);
+   m_pMainFrame = new CMainFrame();
+   
+   m_pMainFrame->setFileName(fileName);
    
    m_pDocument = CFamiTrackerDoc::GetDoc();
 

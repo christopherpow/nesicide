@@ -21,6 +21,7 @@
 // Famicom disk sound
 
 #include <cmath>
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsFDS.h"
