@@ -23,6 +23,8 @@ class CMainFrame;
 class CMainFrame;
 typedef void (CMainFrame::*actionHandler)();
 
+enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
+
 class CMainFrame : public CFrameWnd
 {
    Q_OBJECT
@@ -93,12 +95,14 @@ private:
    QToolBar* toolBar;
    QLabel* octaveLabel;
    QComboBox* octaveComboBox;
-   CActionHandler* m_pActionHandler;
    QMap<QAction*,actionHandler> trackerActions;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
    CMusicFamiTrackerInstrumentsModel *instrumentsModel;
    QString m_fileName;
+
+   CActionHandler* m_pActionHandler;
+   int					m_iFrameEditorPos;
       
 private:
 	// State variables (to be used)
@@ -106,6 +110,17 @@ private:
 	int		m_iTrack;					// Selected track
 
    CFrameEditor		*m_pFrameEditor;
+   
+public:
+   afx_msg void OnModuleInsertFrame();
+	afx_msg void OnModuleRemoveFrame();
+	afx_msg void OnModuleDuplicateFrame();
+	afx_msg void OnModuleDuplicateFramePatterns();
+	afx_msg void OnModuleChannels();
+	afx_msg void OnModuleComments();
+	afx_msg void OnModuleModuleproperties();
+	afx_msg void OnModuleMoveframedown();
+	afx_msg void OnModuleMoveframeup();
    
 public slots:
    void on_frameInc_clicked();   
@@ -147,5 +162,10 @@ signals:
    void removeToolBarWidget(QToolBar* toolBar);
    void editor_modificationChanged(bool m);
 };
+
+// Global DPI functions
+int  SX(int pt);
+int  SY(int pt);
+void ScaleMouse(CPoint &pt);
 
 #endif // MAINFRAME_H

@@ -81,7 +81,7 @@ const int CPatternView::DEFAULT_HEADER_FONT_SIZE = 11;
 const int CPatternView::SELECT_THRESHOLD = 5;
 
 CPatternView::CPatternView(QWidget *parent) :
-   QWidget(parent),
+   CWnd(parent),
    ui(new Ui::CPatternView)
 {
    ui->setupUi(this);
@@ -273,6 +273,12 @@ void CPatternView::paintEvent(QPaintEvent *event)
    
    // Qt detach from the MFC HLE
    m_pBackDC->detach();
+}
+
+void CPatternView::wheelEvent(QWheelEvent *event)
+{
+   OnMouseScroll(event->delta());
+   repaint();
 }
 
 void CPatternView::mouseMoveEvent(QMouseEvent *event)
@@ -3156,6 +3162,7 @@ bool CPatternView::OnMouseNcMove()
 	m_iMouseHoverChan = -1;
 	return bRedraw;	
 }
+#endif
 
 void CPatternView::OnMouseScroll(int Delta)
 {
@@ -3192,7 +3199,6 @@ void CPatternView::OnMouseScroll(int Delta)
 		m_iMiddleRow = m_cpCursorPos.m_iRow;
 	}
 }
-#endif
 
 bool CPatternView::OnMouseHover(UINT nFlags, CPoint point)
 {

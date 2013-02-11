@@ -39,7 +39,6 @@ SOURCES += \
     FamiTrackerDoc.cpp \
     DocumentFile.cpp \
     cmusicfamitrackerinstrumentsmodel.cpp \
-    cmusicfamitrackerframesmodel.cpp \
     ChannelsVRC7.cpp \
     ChannelsVRC6.cpp \
     ChannelsS5B.cpp \
@@ -94,7 +93,6 @@ HEADERS += \
     Common.h \
     ColorScheme.h \
     cmusicfamitrackerinstrumentsmodel.h \
-    cmusicfamitrackerframesmodel.h \
     Chunk.h \
     ChannelsVRC7.h \
     ChannelsVRC6.h \

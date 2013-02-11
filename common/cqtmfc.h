@@ -209,6 +209,8 @@ public:
       POINT topLeft, 
       POINT bottomRight  
    );
+   int Width() const { return _rect.right-_rect.left; }
+   int Height() const { return _rect.bottom-_rect.top; }
    operator LPRECT() const
    {
       return (RECT*)&_rect;
@@ -226,6 +228,7 @@ class CObject
 public:
    CObject() {}
    virtual ~CObject() {}
+   virtual void DeleteObject() {}
 };
 
 class CGdiObject : public CObject
@@ -357,6 +360,25 @@ private:
 class CDC
 {
 public:
+   CDC()
+   {
+      _qwidget = NULL;
+      _qpainter = NULL;
+      _pen = NULL;
+      _brush = NULL;
+      _font = NULL;
+      _bitmap = NULL;
+      _rgn = NULL;   
+      _gdiobject = NULL;
+      _object = NULL;
+      _lineOrg.x = 0;
+      _lineOrg.y = 0;
+      _bkColor = QColor(0,0,0);
+      _bkMode = 0;
+      _textColor = QColor(0,0,0);
+      _windowOrg.x = 0;
+      _windowOrg.y = 0;
+   }
    CDC(QWidget* parent)
    {
       _qwidget = parent;
@@ -380,6 +402,11 @@ public:
    void attach()
    {
       _qpainter = new QPainter(_qwidget);
+   }
+   
+   void attach(QWidget* widget)
+   {
+      _qpainter = new QPainter(widget);
    }
    
    void detach()
@@ -611,6 +638,16 @@ private:
    CPoint      _windowOrg;
 };
 
+class CPaintDC : public CDC
+{
+public:
+   CPaintDC(QWidget* parent) : CDC(parent) {}
+};
+
+class CScrollBar
+{
+};
+
 class CCriticalSection
 {
 public:
@@ -625,9 +662,50 @@ public:
    void Unlock() { unlock(); }
 };
 
-class CView : public QWidget
+class CView;
+class CDocument;
+class CFrameWnd : public QWidget
 {
 public:
+   CFrameWnd(QWidget* parent = 0) : QWidget(parent) {}
+   virtual ~CFrameWnd() {}
+   virtual CView* GetActiveView() = 0;
+   virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
+   virtual CDocument* GetDocument() { return NULL; }
+};
+
+class CWnd : public QWidget
+{
+public:
+   CWnd(QWidget* parent) : QWidget(parent) 
+   {
+      m_pFrameWnd = (CFrameWnd*)parent;
+   }
+
+   CFrameWnd* GetParentFrame() const { return m_pFrameWnd; } 
+   void SetFocus(CWnd* p=0) { setFocus(); }
+   void OnMouseMove(UINT,CPoint) {}
+   void OnLButtonDblClk(UINT,CPoint) {}
+   void OnLButtonUp(UINT,CPoint) {}
+   void OnRButtonUp(UINT,CPoint) {}
+   void OnSize(UINT nType, int cx, int cy) {}
+   UINT SetTimer(void*, UINT interval, void*);
+   void OnTimer(UINT timerId) {}
+   void OnKeyDown(UINT,UINT,UINT) {}
+   void OnKillFocus(CWnd*) {}
+   void OnVScroll(UINT,UINT,CScrollBar*) {}
+   void OnHScroll(UINT,UINT,CScrollBar*) {}
+   void Invalidate(BOOL bErase = TRUE) {}
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { repaint(); }
+   
+private:
+   CFrameWnd* m_pFrameWnd;
+};
+
+class CView : public CWnd
+{
+public:
+   CView(QWidget* parent) : CWnd(parent) {}
    virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}  
    virtual void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
@@ -644,20 +722,6 @@ public:
    void ResetContent();
    int AddString(CString& text);
    void SetCurSel(int sel);
-};
-
-class CFrameWnd : public QWidget
-{
-public:
-   CFrameWnd(QWidget* parent = 0) : QWidget(parent) {}
-   virtual ~CFrameWnd() {}
-   virtual CView* GetActiveView() = 0;
-   virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
-   virtual CDocument* GetDocument() { return NULL; }
-};
-
-class CWnd : public QWidget
-{
 };
 
 class CWinApp

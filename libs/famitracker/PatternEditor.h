@@ -107,7 +107,7 @@ namespace Ui {
 class CPatternView;
 }
 
-class CPatternView : public QWidget
+class CPatternView : public CWnd
 {
    Q_OBJECT
    
@@ -226,6 +226,7 @@ public:
 
 protected:
    void paintEvent(QPaintEvent *event);
+   void wheelEvent(QWheelEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
@@ -253,6 +254,7 @@ private:
    CSelection m_selection;
    CCursorPos m_cpSelCursor;
 
+   void OnMouseScroll(int Delta);
    bool OnMouseHover(UINT nFlags, CPoint point);
    void OnMouseDown(CPoint point);
    void OnMouseRDown(CPoint point);
