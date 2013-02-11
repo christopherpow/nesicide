@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -75,12 +75,12 @@ public:
 	int m_iLen;
 };
 
-enum CHUNK_TYPES {
+enum CHUNK_TYPES { 
 	CHUNK_HEADER,
-	CHUNK_SEQUENCE,
-	CHUNK_INSTRUMENT_LIST,
-	CHUNK_INSTRUMENT,
-	CHUNK_SAMPLE_LIST,
+	CHUNK_SEQUENCE, 
+	CHUNK_INSTRUMENT_LIST, 
+	CHUNK_INSTRUMENT, 
+	CHUNK_SAMPLE_LIST, 
 	CHUNK_SAMPLE_POINTERS,
 	CHUNK_SONG_LIST,
 	CHUNK_SONG,
@@ -102,7 +102,7 @@ public:
 	~CChunk();
 
 	void			Clear();
-
+	
 	void			StoreByte(unsigned char data);
 	void			StoreWord(unsigned short data);
 	void			StoreReference(CString refName);

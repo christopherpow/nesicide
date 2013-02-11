@@ -66,6 +66,9 @@ protected:
    bool eventFilter(QObject *object, QEvent *event);
    void keyPressEvent(QKeyEvent *event);
    void keyReleaseEvent(QKeyEvent *event);
+   void focusInEvent(QFocusEvent *);
+   void focusOutEvent(QFocusEvent *);
+   void timerEvent(QTimerEvent *event);
    
 public slots:
    void updateViews(long hint);
@@ -386,9 +389,9 @@ public:
 	virtual void OnInitialUpdate();
 //	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnEditSelectall();
-//	afx_msg void OnKillFocus(CWnd* pNewWnd);
-//	afx_msg void OnSetFocus(CWnd* pOldWnd);
-//	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
+	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	afx_msg void OnTimer(UINT nIDEvent);
 //	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnTrackerPlayrow();

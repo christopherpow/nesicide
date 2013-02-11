@@ -689,14 +689,20 @@ public:
    void OnLButtonUp(UINT,CPoint) {}
    void OnRButtonUp(UINT,CPoint) {}
    void OnSize(UINT nType, int cx, int cy) {}
-   UINT SetTimer(void*, UINT interval, void*);
+   UINT SetTimer(void* id, UINT interval, void*);
+   void KillTimer(void*, UINT id);
    void OnTimer(UINT timerId) {}
    void OnKeyDown(UINT,UINT,UINT) {}
+   void OnSetFocus(CWnd*) {}
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
+   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { repaint(); }
    void Invalidate(BOOL bErase = TRUE) {}
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { repaint(); }
+   
+protected:
+   static QMap<int,int> mfcToQtTimer;
    
 private:
    CFrameWnd* m_pFrameWnd;

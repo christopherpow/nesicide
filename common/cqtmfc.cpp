@@ -736,7 +736,15 @@ void CComboBox::SetCurSel(int sel)
    setCurrentIndex(sel);
 }
 
-UINT CWnd::SetTimer(void*, UINT interval, void*)
+QMap<int,int> CWnd::mfcToQtTimer;
+
+UINT CWnd::SetTimer(void* id, UINT interval, void*)
 {
+   int qtId = startTimer(interval);
+   mfcToQtTimer.insert(qtId,(int)id);
    return startTimer(interval);
+}
+
+void CWnd::KillTimer(void*, UINT id)
+{
 }

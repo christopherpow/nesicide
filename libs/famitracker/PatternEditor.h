@@ -211,7 +211,11 @@ public:
 	void MoveChannelRight();
 	void OnHomeKey();
 	void OnEndKey();
+   bool ScrollTimer();
+   void SetDPCMState(stDPCMState State);
 
+   void DrawMeters(CDC *pDC);
+   
    bool StepRow();
 	bool StepFrame();
 	void JumpToRow(int Row);
@@ -271,7 +275,6 @@ private:
    void DrawRow(CDC *pDC, int Row, int Line, int Frame, bool bPreview);
    void DrawChar(int x, int y, TCHAR c, COLORREF Color, CDC *pDC);
    void DrawCell(int PosX, int Column, int Channel, bool bInvert, stChanNote *pNoteData, CDC *pDC, RowColorInfo_t *pColorInfo);
-   void DrawMeters(CDC *pDC);
    void DrawHeader(CDC *pDC);
    void DrawChannelNames(CDC *pDC);
    void DrawUnbufferedArea(CDC *pDC);
@@ -315,6 +318,9 @@ private:
 	COLORREF m_colEmptyBg;
 	COLORREF m_colSeparator;
 	COLORREF m_colHead1, m_colHead2, m_colHead3, m_colHead4;
+
+   // Meters and DPCM
+	stDPCMState m_DPCMState;
 
    // Drawing
 	int m_iDrawCursorRow;

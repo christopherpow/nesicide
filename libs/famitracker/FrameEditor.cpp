@@ -446,6 +446,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CFrameEditor::OnTimer(UINT_PTR nIDEvent)
 {
+   qDebug("CFrameEditor::OnTimer(%d)",(int)nIDEvent);
 	if (m_bInputEnable) {
 		m_bCursor = !m_bCursor;
 		Invalidate();
@@ -682,7 +683,8 @@ void CFrameEditor::OnSize(UINT nType, int cx, int cy)
 
 void CFrameEditor::timerEvent(QTimerEvent *event)
 {
-   OnTimer(event->timerId());
+   int mfcId = mfcToQtTimer.value(event->timerId());
+   OnTimer(mfcId);
 }
 
 void CFrameEditor::focusOutEvent(QFocusEvent *)

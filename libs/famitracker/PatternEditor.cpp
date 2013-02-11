@@ -1948,6 +1948,12 @@ void CPatternView::DrawRowArea(CDC *pDC)
 
 void CPatternView::DrawMeters(CDC *pDC)
 {
+   // Hack for calling this from outside CPatternView...
+   if ( !pDC )
+   {
+      pDC = m_pBackDC;
+   }
+   
 	const COLORREF COL_DARK = 0x808080;//0x485848;
 	const COLORREF COL_LIGHT = 0x20F040;
 	
@@ -3031,6 +3037,41 @@ void CSelection::SetStart(CCursorPos pos)
 void CSelection::SetEnd(CCursorPos pos) 
 {
 	m_cpEnd = pos;
+}
+
+void CPatternView::SetDPCMState(stDPCMState State)
+{
+	m_DPCMState = State;
+}
+
+bool CPatternView::ScrollTimer()
+{
+	if (m_iScrolling == SCROLL_UP) {
+		m_cpCursorPos.m_iRow--;
+		m_iMiddleRow--;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+	else if (m_iScrolling == SCROLL_DOWN) {
+		m_cpCursorPos.m_iRow++;
+		m_iMiddleRow++;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+	else if (m_iScrolling == SCROLL_RIGHT) {
+		if (m_cpCursorPos.m_iChannel < (m_iChannels - 1))
+			m_cpCursorPos.m_iChannel++;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+	else if (m_iScrolling == SCROLL_LEFT) {
+		if (m_cpCursorPos.m_iChannel > 0)
+			m_cpCursorPos.m_iChannel--;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+
+	return false;
 }
 
 void CPatternView::OnVScroll(UINT nSBCode, UINT nPos)

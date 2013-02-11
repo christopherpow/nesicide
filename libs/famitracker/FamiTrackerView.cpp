@@ -630,99 +630,101 @@ LRESULT CFamiTrackerView::OnUpdateMsg(WPARAM wParam, LPARAM lParam)
 
 //// End of mouse
 
-//void CFamiTrackerView::OnKillFocus(CWnd* pNewWnd)
-//{
-//	CView::OnKillFocus(pNewWnd);
-//	m_bHasFocus = false;
-//	m_pPatternView->SetFocus(false);
-//	m_bShiftPressed = false;
-//	m_bControlPressed = false;
-//	m_pPatternView->ShiftPressed(false);
-//	m_pPatternView->ControlPressed(false);
-//	UpdateEditor(UPDATE_CURSOR);
-//}
+void CFamiTrackerView::OnKillFocus(CWnd* pNewWnd)
+{
+	CView::OnKillFocus(pNewWnd);
+	m_bHasFocus = false;
+	m_pPatternView->SetFocus(false);
+	m_bShiftPressed = false;
+	m_bControlPressed = false;
+	m_pPatternView->ShiftPressed(false);
+	m_pPatternView->ControlPressed(false);
+	UpdateEditor(UPDATE_CURSOR);
+}
 
-//void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
-//{
-//	CView::OnSetFocus(pOldWnd);
-//	m_bHasFocus = true;
-//	m_pPatternView->SetFocus(true);
-//	m_bControlPressed = false;
-//	m_bShiftPressed = false;
-//	UpdateEditor(UPDATE_CURSOR);
-//}
+void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
+{
+	CView::OnSetFocus(pOldWnd);
+	m_bHasFocus = true;
+	m_pPatternView->SetFocus(true);
+	m_bControlPressed = false;
+	m_bShiftPressed = false;
+	UpdateEditor(UPDATE_CURSOR);
+}
 
-//void CFamiTrackerView::OnTimer(UINT nIDEvent)
-//{
-//	// Timer callback function
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	CMainFrame *pMainFrm = (CMainFrame*)GetParentFrame();
-//	ASSERT_VALID(pDoc);
-//	ASSERT_VALID(pMainFrm);
+void CFamiTrackerView::OnTimer(UINT nIDEvent)
+{
+	// Timer callback function
+	CFamiTrackerDoc* pDoc = GetDocument();
+	CMainFrame *pMainFrm = (CMainFrame*)GetParentFrame();
+	ASSERT_VALID(pDoc);
+	ASSERT_VALID(pMainFrm);
 
-//	static int LastNoteState;
+	static int LastNoteState;
 
-//	switch (nIDEvent) {
-//		// Drawing updates when playing
-//		case TMR_UPDATE: {
-//			int TicksPerSec = pDoc->GetFrameRate();
+	switch (nIDEvent) {
+		// Drawing updates when playing
+		case TMR_UPDATE: {
+			int TicksPerSec = pDoc->GetFrameRate();
 
+         qDebug("SetIndicatorTime");
 //			pMainFrm->SetIndicatorTime(m_iPlayTime / 600, (m_iPlayTime / 10) % 60, m_iPlayTime % 10);
 
-//			// DPCM info
-//			CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+			// DPCM info
+			CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
-//			if (pSoundGen) {
-//				stDPCMState DPCMState = pSoundGen->GetDPCMState();
-//				m_pPatternView->SetDPCMState(DPCMState);
-//			}
+			if (pSoundGen) {
+				stDPCMState DPCMState = pSoundGen->GetDPCMState();
+				m_pPatternView->SetDPCMState(DPCMState);
+			}
 
-//			bool bDraw = false;
+			bool bDraw = false;
 
-//			// Synchronized access to m_bForceRedraw
-//			m_csDrawLock.Lock();
-//			bDraw = m_bForceRedraw;
-//			m_bForceRedraw = false;
-//			m_csDrawLock.Unlock();
+			// Synchronized access to m_bForceRedraw
+			m_csDrawLock.Lock();
+			bDraw = m_bForceRedraw;
+			m_bForceRedraw = false;
+			m_csDrawLock.Unlock();
 
-//			if (bDraw) {
-//				UpdateEditor(UPDATE_PLAYING);
-//			}
-//			else {
-//				if (pDoc->IsFileLoaded()) {
-//					// TODO: Change this to use the ordinary drawing routines
+			if (bDraw) {
+				UpdateEditor(UPDATE_PLAYING);
+			}
+			else {
+				if (pDoc->IsFileLoaded()) {
+					// TODO: Change this to use the ordinary drawing routines
 //					CDC *pDC = this->GetDC();
 //					if (pDC && pDC->m_hDC) {
-//						m_pPatternView->DrawMeters(pDC);
+						m_pPatternView->DrawMeters(NULL);
 //						ReleaseDC(pDC);
 //					}
-//				}
-//			}
+				}
+			}
 
+         qDebug("ChangeNoteState");
 //			if (LastNoteState != m_iKeyboardNote)
 //				pMainFrm->ChangeNoteState(m_iKeyboardNote);
 
-//			LastNoteState = m_iKeyboardNote;
+			LastNoteState = m_iKeyboardNote;
 
-//			// Switch instrument
-//			if (m_iSwitchToInstrument != -1) {
-//				SetInstrument(m_iSwitchToInstrument);
-//				m_iSwitchToInstrument = -1;
-//			}
+			// Switch instrument
+			if (m_iSwitchToInstrument != -1) {
+				SetInstrument(m_iSwitchToInstrument);
+				m_iSwitchToInstrument = -1;
+			}
 
-//			}
-//			break;
+			}
+			break;
 
-//		// Auto-scroll timer
-//		case TMR_SCROLL:
-//			if (m_pPatternView->ScrollTimer()) {
-//				UpdateEditor(UPDATE_CURSOR);
-//			}
-//			break;
-//	}
+		// Auto-scroll timer
+		case TMR_SCROLL:
+			if (m_pPatternView->ScrollTimer()) {
+				UpdateEditor(UPDATE_CURSOR);
+			}
+			break;
+	}
 
-//	CView::OnTimer(nIDEvent);
-//}
+	CView::OnTimer(nIDEvent);
+}
 
 //int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //{
@@ -1520,7 +1522,7 @@ void CFamiTrackerView::UpdateEditor(LPARAM lHint)
 		default:
 			// TODO: remove this
 			TRACE0("View: UpdateEditor() called OnUpdate() (remove this)\n");
-//			OnUpdate(NULL, lHint, NULL);
+			OnUpdate(NULL, lHint, NULL);
 	}
 }
 
@@ -3261,4 +3263,20 @@ void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
    
    OnKeyUp(nChar,nRepCnt,0);
    m_pPatternView->repaint();
+}
+
+void CFamiTrackerView::focusInEvent(QFocusEvent *)
+{
+   OnSetFocus(NULL);
+}
+
+void CFamiTrackerView::focusOutEvent(QFocusEvent *)
+{
+   OnKillFocus(NULL);
+}
+
+void CFamiTrackerView::timerEvent(QTimerEvent *event)
+{
+   int mfcId = mfcToQtTimer.value(event->timerId());
+   OnTimer(mfcId);
 }
