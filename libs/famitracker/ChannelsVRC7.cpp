@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -29,16 +29,16 @@
 #define OPL_SUSTAIN_ON 0x20
 
 enum {
-	CMD_NONE,
+	CMD_NONE, 
 	CMD_NOTE_ON,
 	CMD_NOTE_TRIGGER,
-	CMD_NOTE_OFF,
+	CMD_NOTE_OFF, 
 	CMD_NOTE_HALT,
 	CMD_NOTE_RELEASE
 };
 
-CChannelHandlerVRC7::CChannelHandlerVRC7() :
-	CChannelHandler(),
+CChannelHandlerVRC7::CChannelHandlerVRC7() : 
+	CChannelHandler(), 
 	m_iCommand(0),
 	m_iTriggeredNote(0)
 {
@@ -56,219 +56,220 @@ bool bRegsDirty = false;
 
 void CChannelHandlerVRC7::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
 {
-//	int PostEffect = 0, PostEffectParam;
-//	int Patch = -1;
-//	CInstrumentVRC7 *pInstrument = NULL;
-//#if 0
-//	int Instrument = pNoteData->Instrument;
+	int PostEffect = 0, PostEffectParam;
+	int Patch = -1;
+	CInstrumentVRC7 *pInstrument = NULL;
+#if 0
+	int Instrument = pNoteData->Instrument;
 
-//	if (Instrument != MAX_INSTRUMENTS/* && Instrument != m_iInstrument*/) {
-////		m_iLastInstrument = m_iInstrument;
-//		m_iInstrument = Instrument;
-//	}
-//	else
-//		Instrument = m_iInstrument;
+	if (Instrument != MAX_INSTRUMENTS/* && Instrument != m_iInstrument*/) {
+//		m_iLastInstrument = m_iInstrument;
+		m_iInstrument = Instrument;
+	}
+	else
+		Instrument = m_iInstrument;
 
-//	if (Instrument != MAX_INSTRUMENTS)
-//		pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(Instrument);
-//#endif
+	if (Instrument != MAX_INSTRUMENTS)
+		pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(Instrument);
+#endif
 
-//	if (pNoteData->Instrument != MAX_INSTRUMENTS)
-//		m_iInstrument = pNoteData->Instrument;
+	if (pNoteData->Instrument != MAX_INSTRUMENTS)
+		m_iInstrument = pNoteData->Instrument;
 
-//	if (m_iInstrument != MAX_INSTRUMENTS)
-//		pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(m_iInstrument);
+	if (m_iInstrument != MAX_INSTRUMENTS)
+		pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(m_iInstrument);
 
-///*
-//	if (Instrument != MAX_INSTRUMENTS) {
-//		// Get the instrument
-//		if ((pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(Instrument)) == NULL)
+/*
+	if (Instrument != MAX_INSTRUMENTS) {
+		// Get the instrument
+		if ((pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(Instrument)) == NULL)
+			return;
+
+		if (pInstrument->GetType() != INST_VRC7)
+			return;
+	}
+*/
+
+	if (pNoteData->Note != NONE) {
+		if (pInstrument) {
+			// Patch number
+			m_iPatch = pInstrument->GetPatch();
+
+			// Load custom parameters
+			if (m_iPatch == 0) {
+				for (int i = 0; i < 8; ++i)
+					m_iRegs[i] = pInstrument->GetCustomReg(i);
+			}
+		}
+	}
+
+	// Evaluate effects
+	for (int i = 0; i < EffColumns; ++i) {
+		int EffCmd	 = pNoteData->EffNumber[i];
+		int EffParam = pNoteData->EffParam[i];
+
+		if (EffCmd == EF_PORTA_DOWN) {
+			m_iEffect = EF_PORTA_UP;
+			m_iPortaSpeed = EffParam;
+		}
+		else if (EffCmd == EF_PORTA_UP) {
+			m_iEffect = EF_PORTA_DOWN;
+			m_iPortaSpeed = EffParam;
+		}
+		else {
+			if (!CheckCommonEffects(EffCmd, EffParam)) {
+				switch (EffCmd) {
+					case EF_SLIDE_UP:
+					case EF_SLIDE_DOWN:
+						PostEffect = EffCmd;
+						PostEffectParam = EffParam;
+						//SetupSlide(EffCmd, EffParam);
+						break;
+					case EF_DUTY_CYCLE:
+						Patch = EffParam;
+						break;
+/*
+					case EF_VRC7_MODULATOR:
+						switch (EffParam & 0xF0) {
+							case 0x00:	// Amplitude modulation on/off
+								break;
+							case 0x10:	// Vibrato on/off
+								break;
+							case 0x20:	// Sustain on/off
+								break;
+							case 0x30:	// Wave rectification on/off
+								break;
+							case 0x40:	// Key rate scaling on/off
+								break;
+							case 0x50:	// Key rate level
+								break;
+							case 0x60:	// Mult factor
+								break;
+							case 0x70:	// Attack
+								break;
+							case 0x80:	// Decay
+								break;
+							case 0x90:	// Sustain
+								break;
+							case 0xA0:	// Release
+								break;
+						}
+						break;
+					case EF_VRC7_CARRIER:
+						break;
+					case EF_VRC7_LEVELS:
+						if (EffParam & 0x80)	// Feedback
+							m_iRegs[0x03] = (m_iRegs[0x03] & 0xF8) | (EffParam & 0x07);
+						else
+							m_iRegs[0x02] = (m_iRegs[0x02] & 0xC0) | (EffParam & 0x3F);
+						bRegsDirty = true;
+						break;
+						*/
+				}
+			}
+		}
+	}
+
+	// Volume
+	if (pNoteData->Vol < 0x10) {
+		m_iVolume = pNoteData->Vol << VOL_SHIFT;
+	}
+
+	if (pNoteData->Note == HALT) {
+		// Halt
+		m_iCommand = CMD_NOTE_HALT;
+		theApp.RegisterKeyState(m_iChannelID, -1);
+	}
+	else if (pNoteData->Note == RELEASE) {
+		// Release
+		m_iCommand = CMD_NOTE_RELEASE;
+		theApp.RegisterKeyState(m_iChannelID, -1);
+	}
+	else if (pNoteData->Note != NONE) {
+
+		// Check instrument
+//		if (!pInstrument)
 //			return;
 
-//		if (pInstrument->GetType() != INST_VRC7)
-//			return;
-//	}
-//*/
+		if (pInstrument) {
+			// Only allow VRC7 instruments
+			if (pInstrument->GetType() != INST_VRC7)
+				return;
+		}
 
-//	if (pNoteData->Note != NONE) {
-//		if (pInstrument) {
-//			// Patch number
-//			m_iPatch = pInstrument->GetPatch();
-//
-//			// Load custom parameters
-//			if (m_iPatch == 0) {
-//				for (int i = 0; i < 8; ++i)
-//					m_iRegs[i] = pInstrument->GetCustomReg(i);
-//			}
-//		}
-//	}
+		int OldNote = m_iNote;
+		int OldOctave = m_iOctave;
 
-//	// Evaluate effects
-//	for (int i = 0; i < EffColumns; ++i) {
-//		int EffCmd	 = pNoteData->EffNumber[i];
-//		int EffParam = pNoteData->EffParam[i];
+		// Portamento fix
+		if (m_iCommand == CMD_NOTE_HALT)
+			m_iPeriod = 0;
 
-//		if (EffCmd == EF_PORTA_DOWN) {
-//			m_iEffect = EF_PORTA_UP;
-//			m_iPortaSpeed = EffParam;
-//		}
-//		else if (EffCmd == EF_PORTA_UP) {
-//			m_iEffect = EF_PORTA_DOWN;
-//			m_iPortaSpeed = EffParam;
-//		}
-//		else {
-//			if (!CheckCommonEffects(EffCmd, EffParam)) {
-//				switch (EffCmd) {
-//					case EF_SLIDE_UP:
-//					case EF_SLIDE_DOWN:
-//						PostEffect = EffCmd;
-//						PostEffectParam = EffParam;
-//						break;
-//					case EF_DUTY_CYCLE:
-//						Patch = EffParam;
-//						break;
-///*
-//					case EF_VRC7_MODULATOR:
-//						switch (EffParam & 0xF0) {
-//							case 0x00:	// Amplitude modulation on/off
-//								break;
-//							case 0x10:	// Vibrato on/off
-//								break;
-//							case 0x20:	// Sustain on/off
-//								break;
-//							case 0x30:	// Wave rectification on/off
-//								break;
-//							case 0x40:	// Key rate scaling on/off
-//								break;
-//							case 0x50:	// Key rate level
-//								break;
-//							case 0x60:	// Mult factor
-//								break;
-//							case 0x70:	// Attack
-//								break;
-//							case 0x80:	// Decay
-//								break;
-//							case 0x90:	// Sustain
-//								break;
-//							case 0xA0:	// Release
-//								break;
-//						}
-//						break;
-//					case EF_VRC7_CARRIER:
-//						break;
-//					case EF_VRC7_LEVELS:
-//						if (EffParam & 0x80)	// Feedback
-//							m_iRegs[0x03] = (m_iRegs[0x03] & 0xF8) | (EffParam & 0x07);
-//						else
-//							m_iRegs[0x02] = (m_iRegs[0x02] & 0xC0) | (EffParam & 0x3F);
-//						bRegsDirty = true;
-//						break;
-//						*/
-//				}
-//			}
-//		}
-//	}
+		// Trigger note
+		m_iNote		= CChannelHandler::RunNote(pNoteData->Octave, pNoteData->Note);
+		m_bEnabled	= true;
+		m_bHold		= true;
 
-//	// Volume
-//	if (pNoteData->Vol < 0x10) {
-//		m_iVolume = pNoteData->Vol << VOL_SHIFT;
-//	}
+//		if (m_iInstrument != m_iLastInstrument /*|| m_iCommand != CMD_NOTE_ON*/)
 
-//	if (pNoteData->Note == HALT) {
-//		// Halt
-//		m_iCommand = CMD_NOTE_HALT;
-//		theApp.RegisterKeyState(m_iChannelID, -1);
-//	}
-//	else if (pNoteData->Note == RELEASE) {
-//		// Release
-//		m_iCommand = CMD_NOTE_RELEASE;
-//		theApp.RegisterKeyState(m_iChannelID, -1);
-//	}
-//	else if (pNoteData->Note != NONE) {
+		if ((m_iEffect != EF_PORTAMENTO || m_iPortaSpeed == 0) || m_iCommand == CMD_NOTE_HALT)
+			m_iCommand = CMD_NOTE_TRIGGER;
 
-//		// Check instrument
-////		if (!pInstrument)
-////			return;
+		if (m_iPortaSpeed > 0 && m_iEffect == EF_PORTAMENTO && m_iCommand != CMD_NOTE_HALT) {
 
-//		if (pInstrument) {
-//			// Only allow VRC7 instruments
-//			if (pInstrument->GetType() != INST_VRC7)
-//				return;
-//		}
+			// Set current frequency to the one with highest octave
+			if (m_iOctave > OldOctave) {
+				m_iPeriod >>= (m_iOctave - OldOctave);
+			}
+			else if (OldOctave > m_iOctave) {
+				// Do nothing
+				m_iPortaTo >>= (OldOctave - m_iOctave);
+				m_iOctave = OldOctave;
+			}
+		}
 
-//		int OldNote = m_iNote;
-//		int OldOctave = m_iOctave;
+		/*
+		if (pInstrument) {
+			// Patch number
+			m_iPatch = pInstrument->GetPatch();
 
-//		// Portamento fix
-//		if (m_iCommand == CMD_NOTE_HALT)
-//			m_iPeriod = 0;
+			// Load custom parameters
+			if (m_iPatch == 0) {
+				for (int i = 0; i < 8; ++i)
+					m_iRegs[i] = pInstrument->GetCustomReg(i);
+			}
+		}
+		*/
+	}
+/*
+	if (Patch != -1)
+		m_iPatch = Patch;
+*/
 
-//		// Trigger note
-//		m_iNote		= CChannelHandler::RunNote(pNoteData->Octave, pNoteData->Note);
-//		m_bEnabled	= true;
-//		m_bHold		= true;
+	if (PostEffect && (PostEffect == EF_SLIDE_UP || PostEffect == EF_SLIDE_DOWN)) {
 
-////		if (m_iInstrument != m_iLastInstrument /*|| m_iCommand != CMD_NOTE_ON*/)
+		#define GET_SLIDE_SPEED(x) (((x & 0xF0) >> 3) + 1)
 
-//		if ((m_iEffect != EF_PORTAMENTO || m_iPortaSpeed == 0) || m_iCommand == CMD_NOTE_HALT)
-//			m_iCommand = CMD_NOTE_TRIGGER;
+		m_iPortaSpeed = GET_SLIDE_SPEED(PostEffectParam);
+		m_iEffect = PostEffect;
 
-//		if (m_iPortaSpeed > 0 && m_iEffect == EF_PORTAMENTO && m_iCommand != CMD_NOTE_HALT) {
+		if (PostEffect == EF_SLIDE_UP)
+			m_iNote = m_iNote + (PostEffectParam & 0xF);
+		else
+			m_iNote = m_iNote - (PostEffectParam & 0xF);
 
-//			// Set current frequency to the one with highest octave
-//			if (m_iOctave > OldOctave) {
-//				m_iPeriod >>= (m_iOctave - OldOctave);
-//			}
-//			else if (OldOctave > m_iOctave) {
-//				// Do nothing
-//				m_iPortaTo >>= (OldOctave - m_iOctave);
-//				m_iOctave = OldOctave;
-//			}
-//		}
+		int OldOctave = m_iOctave;
+		m_iPortaTo = TriggerNote(m_iNote);
 
-//		/*
-//		if (pInstrument) {
-//			// Patch number
-//			m_iPatch = pInstrument->GetPatch();
-
-//			// Load custom parameters
-//			if (m_iPatch == 0) {
-//				for (int i = 0; i < 8; ++i)
-//					m_iRegs[i] = pInstrument->GetCustomReg(i);
-//			}
-//		}
-//		*/
-//	}
-///*
-//	if (Patch != -1)
-//		m_iPatch = Patch;
-//*/
-
-//	if (PostEffect && (PostEffect == EF_SLIDE_UP || PostEffect == EF_SLIDE_DOWN)) {
-
-//		#define GET_SLIDE_SPEED(x) (((x & 0xF0) >> 3) + 1)
-
-//		m_iPortaSpeed = GET_SLIDE_SPEED(PostEffectParam);
-//		m_iEffect = PostEffect;
-
-//		if (PostEffect == EF_SLIDE_UP)
-//			m_iNote = m_iNote + (PostEffectParam & 0xF);
-//		else
-//			m_iNote = m_iNote - (PostEffectParam & 0xF);
-
-//		int OldOctave = m_iOctave;
-//		m_iPortaTo = TriggerNote(m_iNote);
-
-//		if (m_iOctave > OldOctave) {
-//			m_iPeriod >>= (m_iOctave - OldOctave);
-//		}
-//		else if (m_iOctave < OldOctave) {
-//			m_iPortaTo >>= (OldOctave - m_iOctave);
-//			m_iOctave = OldOctave;
-//		}
-//	}
-//	else if (pNoteData->Note != NONE && (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP))
-//		m_iEffect = EF_NONE;
+		if (m_iOctave > OldOctave) {
+			m_iPeriod >>= (m_iOctave - OldOctave);
+		}
+		else if (m_iOctave < OldOctave) {
+			m_iPortaTo >>= (OldOctave - m_iOctave);
+			m_iOctave = OldOctave;
+		}
+	}
+	else if (pNoteData->Note != NONE && (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP))
+		m_iEffect = EF_NONE;
 }
 
 void CChannelHandlerVRC7::ProcessChannel()
@@ -310,7 +311,7 @@ void CVRC7Channel::RefreshChannel()
 	int Bnum;		// Block
 	int Patch;
 	int Volume;
-
+	
 	Note = m_iTriggeredNote;
 	Patch = m_iPatch;
 	Volume = 15 - ((m_iVolume >> VOL_SHIFT) - GetTremolo());
@@ -343,10 +344,10 @@ void CVRC7Channel::RefreshChannel()
 			Cmd = OPL_SUSTAIN_ON;
 			break;
 	}
-
+	
 	// Write frequency
 	RegWrite(0x10 + m_iChannel, Fnum & 0xFF);
-
+	
 	if (m_iCommand != CMD_NOTE_HALT) {
 		// Select volume & patch
 		RegWrite(0x30 + m_iChannel, (Patch << 4) | Volume);

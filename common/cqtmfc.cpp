@@ -198,7 +198,6 @@ CString::operator const TCHAR*() const
 
 CString::operator const QString&() const
 {
-   qDebug("CString::operator const QString&(): _qstr='%s'",_qstr.toAscii().constData());
    return _qstr;
 }
 
@@ -602,8 +601,9 @@ int CDC::DrawText(
 )
 {
    QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
-   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
-   _qpainter->drawText(rect,str.GetString());
+   QString qstr = QString::fromWCharArray(str.GetBuffer());
+   _qpainter->drawText(rect,qstr.toAscii().constData());
+   
 }
 void CDC::FillSolidRect(
    LPCRECT lpRect,
@@ -734,4 +734,17 @@ int CComboBox::AddString(CString& text)
 void CComboBox::SetCurSel(int sel)
 {
    setCurrentIndex(sel);
+}
+
+QMap<int,int> CWnd::mfcToQtTimer;
+
+UINT CWnd::SetTimer(void* id, UINT interval, void*)
+{
+   int qtId = startTimer(interval);
+   mfcToQtTimer.insert(qtId,(int)id);
+   return startTimer(interval);
+}
+
+void CWnd::KillTimer(void*, UINT id)
+{
 }

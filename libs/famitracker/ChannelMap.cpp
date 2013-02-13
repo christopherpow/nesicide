@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "TrackerChannel.h"
 #include "ChannelMap.h"

@@ -11,6 +11,27 @@
 
 #include "cqtmfc.h"
 
+// DPI variables
+static const int DEFAULT_DPI = 96;
+static int _dpiX, _dpiY;
+
+// DPI scaling functions
+int SX(int pt)
+{
+	return MulDiv(pt, _dpiX, DEFAULT_DPI);
+}
+
+int SY(int pt)
+{
+	return MulDiv(pt, _dpiY, DEFAULT_DPI);
+}
+
+void ScaleMouse(CPoint &pt)
+{
+	pt.x = MulDiv(pt.x, DEFAULT_DPI, _dpiX);
+	pt.y = MulDiv(pt.y, DEFAULT_DPI, _dpiY);
+}
+
 CMainFrame::CMainFrame(QWidget *parent) :
    CFrameWnd(parent),
    ui(new Ui::CMainFrame),
@@ -22,6 +43,11 @@ CMainFrame::CMainFrame(QWidget *parent) :
    
    ui->setupUi(this);
    
+   _dpiX = DEFAULT_DPI;
+	_dpiY = DEFAULT_DPI;
+
+	m_iFrameEditorPos = FRAME_EDIT_POS_TOP;
+         
    m_pDocument = new CFamiTrackerDoc();
    m_pDocument->SetTitle("Untitled");
    
@@ -34,6 +60,8 @@ CMainFrame::CMainFrame(QWidget *parent) :
    
    ui->songPatterns->layout()->addWidget(m_pView->GetPatternView());
 
+   m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
+   m_pFrameEditor->setFocusProxy(m_pView->GetPatternView());
    m_pActionHandler = new CActionHandler();
 
    m_pView->OnInitialUpdate();
@@ -118,12 +146,12 @@ CMainFrame::~CMainFrame()
 {
    delete ui;
    delete instrumentsModel;
+   SAFE_RELEASE(m_pFrameEditor);
    delete m_pView;
    delete m_pDocument;
    delete octaveLabel;
    delete octaveComboBox;
    delete toolBar;
-   SAFE_RELEASE(m_pFrameEditor);
 }
 
 CView* CMainFrame::GetActiveView()
@@ -592,6 +620,10 @@ void CMainFrame::ChangedTrack()
 //	pTrackBox->SetCurSel(m_iTrack);
 }
 
+void CMainFrame::SetStatusText(LPCTSTR Text,...)
+{
+}
+
 void CMainFrame::OnNextSong()
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
@@ -611,3 +643,34 @@ void CMainFrame::OnPrevSong()
 	if (m_iTrack > 0)
 		pDoc->SelectTrack(m_iTrack - 1);
 }
+
+void CMainFrame::OnModuleInsertFrame()
+{
+	AddAction(new CFrameAction(CFrameAction::ACT_ADD));
+}
+
+void CMainFrame::OnModuleRemoveFrame()
+{
+	AddAction(new CFrameAction(CFrameAction::ACT_REMOVE));
+}
+
+void CMainFrame::OnModuleDuplicateFrame()
+{
+	AddAction(new CFrameAction(CFrameAction::ACT_DUPLICATE));
+}
+
+void CMainFrame::OnModuleDuplicateFramePatterns()
+{
+	AddAction(new CFrameAction(CFrameAction::ACT_DUPLICATE_PATTERNS));
+}
+
+void CMainFrame::OnModuleMoveframedown()
+{
+	AddAction(new CFrameAction(CFrameAction::ACT_MOVE_DOWN));
+}
+
+void CMainFrame::OnModuleMoveframeup()
+{
+	AddAction(new CFrameAction(CFrameAction::ACT_MOVE_UP));
+}
+

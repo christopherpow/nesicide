@@ -81,7 +81,7 @@ const int CPatternView::DEFAULT_HEADER_FONT_SIZE = 11;
 const int CPatternView::SELECT_THRESHOLD = 5;
 
 CPatternView::CPatternView(QWidget *parent) :
-   QWidget(parent),
+   CWnd(parent),
    ui(new Ui::CPatternView)
 {
    ui->setupUi(this);
@@ -273,6 +273,12 @@ void CPatternView::paintEvent(QPaintEvent *event)
    
    // Qt detach from the MFC HLE
    m_pBackDC->detach();
+}
+
+void CPatternView::wheelEvent(QWheelEvent *event)
+{
+   OnMouseScroll(event->delta());
+   repaint();
 }
 
 void CPatternView::mouseMoveEvent(QMouseEvent *event)
@@ -1942,6 +1948,12 @@ void CPatternView::DrawRowArea(CDC *pDC)
 
 void CPatternView::DrawMeters(CDC *pDC)
 {
+   // Hack for calling this from outside CPatternView...
+   if ( !pDC )
+   {
+      pDC = m_pBackDC;
+   }
+   
 	const COLORREF COL_DARK = 0x808080;//0x485848;
 	const COLORREF COL_LIGHT = 0x20F040;
 	
@@ -3027,6 +3039,41 @@ void CSelection::SetEnd(CCursorPos pos)
 	m_cpEnd = pos;
 }
 
+void CPatternView::SetDPCMState(stDPCMState State)
+{
+	m_DPCMState = State;
+}
+
+bool CPatternView::ScrollTimer()
+{
+	if (m_iScrolling == SCROLL_UP) {
+		m_cpCursorPos.m_iRow--;
+		m_iMiddleRow--;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+	else if (m_iScrolling == SCROLL_DOWN) {
+		m_cpCursorPos.m_iRow++;
+		m_iMiddleRow++;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+	else if (m_iScrolling == SCROLL_RIGHT) {
+		if (m_cpCursorPos.m_iChannel < (m_iChannels - 1))
+			m_cpCursorPos.m_iChannel++;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+	else if (m_iScrolling == SCROLL_LEFT) {
+		if (m_cpCursorPos.m_iChannel > 0)
+			m_cpCursorPos.m_iChannel--;
+		OnMouseMove(m_nScrollFlags, m_ptScrollMousePos);
+		return true;
+	}
+
+	return false;
+}
+
 void CPatternView::OnVScroll(UINT nSBCode, UINT nPos)
 {
 	int PageSize = theApp.GetSettings()->General.iPageStepSize;
@@ -3156,6 +3203,7 @@ bool CPatternView::OnMouseNcMove()
 	m_iMouseHoverChan = -1;
 	return bRedraw;	
 }
+#endif
 
 void CPatternView::OnMouseScroll(int Delta)
 {
@@ -3192,7 +3240,6 @@ void CPatternView::OnMouseScroll(int Delta)
 		m_iMiddleRow = m_cpCursorPos.m_iRow;
 	}
 }
-#endif
 
 bool CPatternView::OnMouseHover(UINT nFlags, CPoint point)
 {
